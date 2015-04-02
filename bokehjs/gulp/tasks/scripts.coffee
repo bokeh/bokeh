@@ -1,3 +1,5 @@
+# scripts - build or minify JS
+
 browserify = require "browserify"
 change = require "gulp-change"
 gulp = require "gulp"
@@ -19,7 +21,7 @@ gulp.task "scripts:build", ->
       .transform "coffeeify"
       .bundle()
 
-  return gulp.src paths.coffee.sources
+  gulp.src paths.coffee.sources
     .pipe browserified
     .pipe change (content) ->
       "(function() { var define = undefined; #{content} })()"
@@ -27,17 +29,13 @@ gulp.task "scripts:build", ->
     .pipe gulp.dest paths.buildDir.js
 
 gulp.task "scripts:minify", ->
-  return gulp.src paths.coffee.destination.fullWithPath
+  gulp.src paths.coffee.destination.fullWithPath
     .pipe uglify paths.coffee.destination.minified
     .pipe gulp.dest paths.buildDir.js
 
-gulp.task "scripts:install", ->
-  return gulp.src "#{paths.buildDir.js}*.js"
-    .pipe gulp.dest paths.serverDir.js
-
 gulp.task "scripts", ->
-  runSequence("scripts:build", "scripts:minify", "scripts:install")
+  runSequence("scripts:build", "scripts:minify", "install")
 
 gulp.task "scripts:watch", ->
   gulp.watch "#{paths.coffee.watchSources}", ->
-    runSequence("scripts:build", "scripts:install")
+    runSequence("scripts:build", "install")

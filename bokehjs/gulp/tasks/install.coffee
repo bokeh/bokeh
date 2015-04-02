@@ -1,14 +1,9 @@
+# install - use setup.py to copy JS+CSS files from "build/" to "bokeh/server/static"
+
 {spawn} = require "child_process"
 gulp = require "gulp"
 gutil = require "gulp-util"
 paths = require "../paths"
-
-subTasks = ["develop:install-js"]
-
-gulp.task "develop", subTasks, ->
-
-gulp.task "develop:watch", ["develop"], ->
-  gulp.watch "#{paths.coffee.watchSources}", ["develop:install-js"]
 
 outputLine = (line) ->
   prefix = gutil.colors.cyan "setup.py:"
@@ -19,11 +14,10 @@ handleOutput = (data) ->
     .split "\n"
     .forEach outputLine
 
-gulp.task "develop:install-js", (cb) ->
-  setup = spawn "python", ["../setup.py", "develop", "--install_js"]
+gulp.task "install", ->
+  setup = spawn "python", ["../setup.py", "--install_js"]  # installs js and css
   for output in ["stdout", "stderr"]
     setup[output].setEncoding "utf8"
     setup[output].on "data", handleOutput
   setup.on "exit", ->
     outputLine "DONE!"
-    cb()

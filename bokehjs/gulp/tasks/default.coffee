@@ -1,10 +1,9 @@
+# default - message + brief help
+
 gulp = require "gulp"
+runSequence = require "run-sequence"
 
-defaultTasks = [
-  "scripts:watch",
-  "scripts:minify:watch",
-  "styles:minify:watch",
-  "develop:watch",
-]
-
-gulp.task "default", defaultTasks, ->
+gulp.task "default", ->
+  console.log('BokehJS build system.')
+  console.log('Use "gulp build" to build, "gulp watch" to develop')
+  console.log('Use "gulp help" to see all commands.')

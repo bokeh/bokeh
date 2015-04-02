@@ -364,9 +364,9 @@ def parse_jsargs():
         sys.argv.remove('--build_js')
 
     elif '--install_js' in sys.argv:
-        if not installing:
-            print("Error: Option '--install_js' only valid with 'install', 'develop' or 'sdist', exiting.")
-            sys.exit(1)
+        #if not installing:
+        #    print("Error: Option '--install_js' only valid with 'install', 'develop' or 'sdist', exiting.")
+        #    sys.exit(1)
         jsbuild = False
         sys.argv.remove('--install_js')
 
@@ -386,6 +386,11 @@ def parse_jsargs():
 
 if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
+
+# Lightweight command to only install js and nothing more - developer mode
+if len(sys.argv) == 2 and sys.argv[-1] == '--install_js':
+    install_js()
+    sys.exit(0)
 
 # check for 'sdist' and make sure we always do a BokehJS build when packaging
 if "sdist" in sys.argv:

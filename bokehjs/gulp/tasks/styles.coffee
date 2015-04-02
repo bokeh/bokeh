@@ -1,3 +1,5 @@
+# styles - build or minify CSS
+
 gulp = require "gulp"
 less = require "gulp-less"
 minifyCSS = require "gulp-minify-css"
@@ -19,13 +21,9 @@ gulp.task "styles:minify", ->
     .pipe rename "bokeh.min.css"
     .pipe gulp.dest paths.buildDir.css
 
-gulp.task "styles:install", ->
-  gulp.src "#{paths.buildDir.js}*.css"
-    .pipe gulp.dest paths.serverDir.css
-
 gulp.task "styles", ->
-  runSequence("styles:build", "styles:minify", "styles:install")
+  runSequence("styles:build", "styles:minify", "install")
 
 gulp.task "styles:watch", ->
   gulp.watch "#{paths.css.watchSources}", ->
-    runSequence("styles:build", "styles:install")
+    runSequence("styles:build", "install")

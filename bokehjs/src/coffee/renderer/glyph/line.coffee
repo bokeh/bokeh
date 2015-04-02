@@ -9,7 +9,7 @@ class LineView extends Glyph.View
   _render: (ctx, indices) ->
     drawing = false
     @visuals.line.set_value(ctx)
-    
+
     for i in indices
       if !isFinite(@sx[i] + @sy[i]) and drawing
         ctx.stroke()
