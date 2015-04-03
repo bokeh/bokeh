@@ -48,56 +48,46 @@ class GlyphRendererView extends PlotWidget
   setup_server_data: () ->
 
   set_data: (request_render=true) ->
-    source = @mget('data_source')
     t0 = Date.now()
+    source = @mget('data_source')
 
-    @all_indices = @glyph.set_data(source)
-
+    @glyph.set_data(source)
     @selection_glyph.set_data(source)
     @nonselection_glyph.set_data(source)
+
+    length = source.get_length()
+    length = 1 if not length?
+    @all_indices = [0...length]
 
     dt = Date.now() - t0
     logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data finished in #{dt}ms")
 
-    @have_new_data = true
+    @set_data_timestamp = Date.now()
 
     if request_render
       @request_render()
 
   render: () ->
     @glyph.map_data()
-
     @selection_glyph.map_data()
     @nonselection_glyph.map_data()
 
-    if @glyph._mask_data?
-      indices = @glyph._mask_data()
-    else
-      indices = @all_indices
+    indices = @glyph._mask_data(@all_indices)
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    do_render = (ctx, indices, glyph) =>
-      if @have_new_data
-        glyph.set_data(@mget('data_source'))
-      glyph.render(ctx, indices)
-
-    selection = @mget('data_source').get('selected')
-    if selection? and selection.length > 0
-      selected_indices = selection
-    else
-      selected_indices = []
+    selected = @mget('data_source').get('selected')
+    if not selected?.length > 0
+      selected = []
 
     t0 = Date.now()
 
-    if not (selected_indices and selected_indices.length and @have_selection_glyphs())
-      do_render(ctx, indices, @glyph)
+    if not (selected.length and @have_selection_glyphs())
+      @glyph.render(ctx, indices)
     else
       # reset the selection mask
-      selected_mask = (false for i in @all_indices)
-      for idx in selected_indices
-        selected_mask[idx] = true
+      selected_mask = (i in selected for i in @all_indices)
 
       # intersect/different selection with render mask
       selected = new Array()
@@ -108,13 +98,12 @@ class GlyphRendererView extends PlotWidget
         else
           nonselected.push(i)
 
-      do_render(ctx, selected,    @selection_glyph)
-      do_render(ctx, nonselected, @nonselection_glyph)
+      @nonselection_glyph.render(ctx, nonselected)
+      @selection_glyph.render(ctx, selected)
 
     dt = Date.now() - t0
     logger.trace("#{@glyph.model.type} glyph (#{@glyph.model.id}): do_render calls finished in #{dt}ms")
 
-    @have_new_data = false
     ctx.restore()
 
   map_to_screen: (x, y) ->

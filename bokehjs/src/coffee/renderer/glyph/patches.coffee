@@ -21,7 +21,7 @@ class PatchesView extends Glyph.View
     index.load(pts)
     return index
 
-  _mask_data: () ->
+  _mask_data: (all_indices) ->
     xr = @renderer.plot_view.x_range
     [x0, x1] = [xr.get('start'), xr.get('end')]
 

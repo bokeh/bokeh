@@ -21,7 +21,7 @@ class MarkerView extends Glyph.View
   _index_data: () ->
     @_xy_index()
 
-  _mask_data: () ->
+  _mask_data: (all_indices) ->
     # dilate the inner screen region by max_size and map back to data space for use in
     # spatial query
     hr = @renderer.plot_view.frame.get('h_range')

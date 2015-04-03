@@ -68,10 +68,6 @@ class GlyphView extends ContinuumView
 
     @index = @_index_data()
 
-    length = source.get_length()
-    length = 1 if not length?
-    [0...length]
-
   bounds: () ->
     if not @index?
       return bbox.empty()
@@ -84,6 +80,7 @@ class GlyphView extends ContinuumView
   # any additional customization can happen here
   _set_data: () -> null
   _map_data: () -> null
+  _mask_data: (inds) -> inds
   _bounds: (bds) -> bds
 
   _xy_index: () ->
