@@ -21,5 +21,5 @@ gulp.task "styles:minify", ->
     .pipe rename "bokeh.min.css"
     .pipe gulp.dest paths.buildDir.css
 
-gulp.task "styles", ->
-  runSequence("styles:build", "styles:minify")
+gulp.task "styles", (cb) ->
+  runSequence("styles:build", "styles:minify", cb)
