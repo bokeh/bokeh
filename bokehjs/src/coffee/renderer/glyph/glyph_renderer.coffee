@@ -62,7 +62,7 @@ class GlyphRendererView extends PlotWidget
     @all_indices = [0...length]
 
     dt = Date.now() - t0
-    logger.debug("#{@glyph.model.type} GlyphRenderer (#{model.id}): set_data finished in #{dt}ms")
+    logger.debug("#{@glyph.model.type} GlyphRenderer (#{@model.id}): set_data finished in #{dt}ms")
 
     @set_data_timestamp = Date.now()
 
