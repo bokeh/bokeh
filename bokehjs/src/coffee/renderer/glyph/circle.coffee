@@ -53,9 +53,10 @@ class CircleView extends Glyph.View
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->
+  _render: (ctx, indices, {sx, sy, sradius}) ->
+
     for i in indices
-      if isNaN(sx[i] + sy[i] + sradius[i])
+      if isNaN(sx[i]+sy[i]+sradius[i])
         continue
 
       ctx.beginPath()
@@ -77,7 +78,7 @@ class CircleView extends Glyph.View
     # check radius first
     if @radius?
       x0 = x - @max_radius
-      x1 = x + @max_radius
+      x1 = x+@max_radius
 
       y0 = y - @max_radius
       y1 = y + @max_radius
@@ -154,7 +155,8 @@ class CircleView extends Glyph.View
     sradius = { }
     sradius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
 
-    @_render(ctx, indices, sx, sy, sradius)
+    data = {sx: sx, sy: sy, sradius: sradius}
+    @_render(ctx, indices, data)
 
 class Circle extends Glyph.Model
   default_view: CircleView

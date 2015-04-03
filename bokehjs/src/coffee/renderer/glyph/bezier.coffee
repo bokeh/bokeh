@@ -69,29 +69,25 @@ class BezierView extends Glyph.View
     index = rbush()
     pts = []
     for i in [0...@x0.length]
-      if isNaN(@x0[i] + @x1[i] + @y0[i] + @y1[i] + @cx0[i] + @cy0[i] +
-               @cx1[i] + @cy1[i])
+      if isNaN(@x0[i]+@x1[i]+@y0[i]+@y1[i]+@cx0[i]+@cy0[i]+@cx1[i]+@cy1[i])
         continue
 
-      [x0, y0, x1, y1] = _cbb(@x0[i], @y0[i], @x1[i], @y1[i], @cx0[i], @cy0[i],
-                              @cx1[i], @cy1[i])
+      [x0, y0, x1, y1] = _cbb(@x0[i], @y0[i], @x1[i], @y1[i], @cx0[i], @cy0[i], @cx1[i], @cy1[i])
 
       pts.push([x0, y0, x1, y1, {'i': i}])
 
     index.load(pts)
     return index
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scx0, scy0, scx1, scy1}) ->
     if @visuals.line.do_stroke
       for i in indices
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx0[i] + @scy0[i] +
-                 @scx1[i] + @scy1[i])
+        if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])
           continue
 
         ctx.beginPath()
-        ctx.moveTo(@sx0[i], @sy0[i])
-        ctx.bezierCurveTo(@scx0[i], @scy0[i], @scx1[i], @scy1[i], @sx1[i],
-                          @sy1[i])
+        ctx.moveTo(sx0[i], sy0[i])
+        ctx.bezierCurveTo(scx0[i], scy0[i], scx1[i], scy1[i], sx1[i], sy1[i])
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()

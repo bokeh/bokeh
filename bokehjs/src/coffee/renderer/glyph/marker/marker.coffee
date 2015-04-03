@@ -16,7 +16,8 @@ class MarkerView extends Glyph.View
     size = { }
     size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
 
-    @_render(ctx, indices, sx, sy, size)
+    data = {sx:sx, sy:sy, size: size}
+    @_render(ctx, indices, data)
 
   _index_data: () ->
     @_xy_index()

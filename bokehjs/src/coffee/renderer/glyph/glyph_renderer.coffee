@@ -52,15 +52,17 @@ class GlyphRendererView extends PlotWidget
     source = @mget('data_source')
 
     @glyph.set_data(source)
-    @selection_glyph.set_data(source)
-    @nonselection_glyph.set_data(source)
+
+    @glyph.set_visuals(source)
+    @selection_glyph.set_visuals(source)
+    @nonselection_glyph.set_visuals(source)
 
     length = source.get_length()
     length = 1 if not length?
     @all_indices = [0...length]
 
     dt = Date.now() - t0
-    logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data finished in #{dt}ms")
+    logger.debug("#{@glyph.model.type} GlyphRenderer (#{model.id}): set_data finished in #{dt}ms")
 
     @set_data_timestamp = Date.now()
 
@@ -68,11 +70,15 @@ class GlyphRendererView extends PlotWidget
       @request_render()
 
   render: () ->
-    @glyph.map_data()
-    @selection_glyph.map_data()
-    @nonselection_glyph.map_data()
+    t0 = Date.now()
 
+    tmap = Date.now()
+    @glyph.map_data()
+    dtmap = Date.now() - t0
+
+    tmask = Date.now()
     indices = @glyph._mask_data(@all_indices)
+    dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
@@ -81,28 +87,41 @@ class GlyphRendererView extends PlotWidget
     if not selected?.length > 0
       selected = []
 
-    t0 = Date.now()
-
     if not (selected.length and @have_selection_glyphs())
-      @glyph.render(ctx, indices)
+      trender = Date.now()
+      @glyph.render(ctx, indices, @glyph)
+      dtrender = Date.now() - trender
     else
+
+      tselect = Date.now()
       # reset the selection mask
-      selected_mask = (i in selected for i in @all_indices)
+      selected_mask = {}
+      for i in selected
+        selected_mask[i] = true
+      #selected_mask = (i in selected for i in @all_indices)
 
       # intersect/different selection with render mask
       selected = new Array()
       nonselected = new Array()
       for i in indices
-        if selected_mask[i]
+        if selected_mask[i]?
           selected.push(i)
         else
           nonselected.push(i)
+      dtselect = Date.now() - tselect
 
-      @nonselection_glyph.render(ctx, nonselected)
-      @selection_glyph.render(ctx, selected)
+      trender = Date.now()
+      @nonselection_glyph.render(ctx, nonselected, @glyph)
+      @selection_glyph.render(ctx, selected, @glyph)
+      dtrender = Date.now() - trender
 
-    dt = Date.now() - t0
-    logger.trace("#{@glyph.model.type} glyph (#{@glyph.model.id}): do_render calls finished in #{dt}ms")
+    dttot = Date.now() - t0
+    logger.debug("#{@glyph.model.type} GlyphRenderer (#{@model.id}): render finished in #{dttot}ms")
+    logger.trace(" - map_data finished in       : #{dtmap}ms")
+    logger.trace(" - mask_data finished in      : #{dtmask}ms")
+    if dtselect?
+      logger.trace(" - selection mask finished in : #{dtselect}ms")
+    logger.trace(" - glyph renders finished in  : #{dtrender}ms")
 
     ctx.restore()
 

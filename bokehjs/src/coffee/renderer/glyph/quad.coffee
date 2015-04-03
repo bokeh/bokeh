@@ -13,10 +13,9 @@ class QuadView extends Glyph.View
     index.load(pts)
     return index
 
-  _render: (ctx, indices, sleft=@sleft, sright=@sright, stop=@stop,
-            sbottom=@sbottom) ->
+  _render: (ctx, indices, {sleft, sright, stop, sbottom}) ->
     for i in indices
-      if isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i])
+      if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
         continue
 
       if @visuals.fill.do_fill

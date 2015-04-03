@@ -30,9 +30,9 @@ class PatchesView extends Glyph.View
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {sxs, sys}) ->
     for i in indices
-      [sx, sy] = [@sxs[i], @sys[i]]
+      [sx, sy] = [sxs[i], sys[i]]
 
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
