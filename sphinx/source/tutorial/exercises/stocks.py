@@ -53,7 +53,7 @@ aapl_avg = np.convolve(aapl, window, 'same')
 # EXERCISE: plot a scatter of circles for the individual AAPL prices with legend
 # 'close'. Remember to set the x axis type and tools on the first renderer
 
-# EXERCISE: plot a line of the AAPL moving average data with the legeng 'avg'
+# EXERCISE: plot a line of the AAPL moving average data with the legend 'avg'
 
 # EXERCISE: style the plot, set a title, lighten the gridlines, etc.
 

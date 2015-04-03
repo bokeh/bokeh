@@ -1,4 +1,4 @@
-.. _userguide_widgets:
+ .. _userguide_widgets:
 
 Bokeh Widgets
 =============
@@ -10,7 +10,13 @@ Bokeh Widgets
 
 Bokeh provides a number of widgets to create interactive data-backed dashboards.
 
-There are several examples available: `glyphs <https://github.com/bokeh/bokeh/blob/master/examples/glyphs/glyphs.py>`_, `widgets server <https://github.com/bokeh/bokeh/blob/master/examples/glyphs/widgets_server.py>`_,  `table server <https://github.com/bokeh/bokeh/blob/master/examples/glyphs/table_server.ipynb>`_, `app reveal <https://github.com/bokeh/bokeh/blob/master/examples/embed/app_reveal.py>`_ and `population <https://github.com/bokeh/bokeh/blob/master/examples/glyphs/population_server.py>`_. You can use these examples as a starting point for your projects.
+There are several examples available:
+`glyphs <https://github.com/bokeh/bokeh/blob/master/examples/glyphs/glyphs.py>`_,
+`widgets server <https://github.com/bokeh/bokeh/blob/master/examples/glyphs/widgets_server.py>`_,
+`table server <https://github.com/bokeh/bokeh/blob/master/examples/glyphs/data_tables.ipynb>`_,
+`app reveal <https://github.com/bokeh/bokeh/blob/master/examples/embed/slideshow/app_reveal.py>`_ and
+`population <https://github.com/bokeh/bokeh/blob/master/examples/glyphs/population_server.py>`_.
+You can use these examples as a starting point for your projects.
 
 .. warning::
     These features are still under heavy development and considered somewhat experimental.
