@@ -33,5 +33,5 @@ gulp.task "scripts:minify", ->
     .pipe uglify paths.coffee.destination.minified
     .pipe gulp.dest paths.buildDir.js
 
-gulp.task "scripts", ->
-  runSequence("scripts:build", "scripts:minify")
+gulp.task "scripts", (cb) ->
+  runSequence("scripts:build", "scripts:minify", cb)
