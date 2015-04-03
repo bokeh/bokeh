@@ -44,7 +44,7 @@ class InspectTool extends Tool.Model
     @set('renderers', renderers)
     logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
     for r in renderers
-      logger.debug("- #{r.type} #{r.id}")
+      logger.debug(" - #{r.type} #{r.id}")
 
   bind_bokeh_events: () ->
     super()
