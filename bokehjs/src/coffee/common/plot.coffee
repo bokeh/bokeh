@@ -190,6 +190,16 @@ class PlotView extends ContinuumView
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
+    if Date.now() - @interactive_timestamp < 300
+      @interactive = true
+      setTimeout(() =>
+          if @interactive and (Date.now() - @interactive_timestamp) > 500
+            @interactive = false
+          @request_render()
+        , 500)
+    else
+      @interactive = false
+
     width = @mget("plot_width")
     height = @mget("plot_height")
 

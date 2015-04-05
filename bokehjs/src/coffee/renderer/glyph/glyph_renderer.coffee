@@ -26,6 +26,10 @@ class GlyphRendererView extends PlotWidget
       nonselection_glyph.set(@model.nonselection_defaults, {silent: true})
     @nonselection_glyph = @build_glyph(nonselection_glyph)
 
+    decimated_glyph = @mget("glyph").clone()
+    decimated_glyph.set(@model.decimated_defaults, {silent: true})
+    @decimated_glyph = @build_glyph(decimated_glyph)
+
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
     @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
 
@@ -61,6 +65,10 @@ class GlyphRendererView extends PlotWidget
     length = 1 if not length?
     @all_indices = [0...length]
 
+    @decimated = []
+    for i in [0...Math.floor(@all_indices.length/10)]
+      @decimated.push(@all_indices[i*10])
+
     dt = Date.now() - t0
     logger.debug("#{@glyph.model.type} GlyphRenderer (#{@model.id}): set_data finished in #{dt}ms")
 
@@ -80,6 +88,8 @@ class GlyphRendererView extends PlotWidget
     indices = @glyph._mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
+
+
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
@@ -87,18 +97,27 @@ class GlyphRendererView extends PlotWidget
     if not selected?.length > 0
       selected = []
 
+    if @plot_view.interactive and @all_indices.length > 2000
+      indices = @decimated
+      glyph = @decimated_glyph
+      nonselection_glyph = @decimated_glyph
+      selection_glyph = @selection_glyph
+    else
+      glyph = @glyph
+      nonselection_glyph = @nonselection_glyph
+      selection_glyph = @selection_glyph
+
     if not (selected.length and @have_selection_glyphs())
       trender = Date.now()
-      @glyph.render(ctx, indices, @glyph)
+      glyph.render(ctx, indices, @glyph)
       dtrender = Date.now() - trender
-    else
 
+    else
       tselect = Date.now()
       # reset the selection mask
       selected_mask = {}
       for i in selected
         selected_mask[i] = true
-      #selected_mask = (i in selected for i in @all_indices)
 
       # intersect/different selection with render mask
       selected = new Array()
@@ -111,14 +130,17 @@ class GlyphRendererView extends PlotWidget
       dtselect = Date.now() - tselect
 
       trender = Date.now()
-      @nonselection_glyph.render(ctx, nonselected, @glyph)
-      @selection_glyph.render(ctx, selected, @glyph)
+      nonselection_glyph.render(ctx, nonselected, @glyph)
+      selection_glyph.render(ctx, selected, @glyph)
       dtrender = Date.now() - trender
+
+    @last_dtrender = dtrender
 
     dttot = Date.now() - t0
     logger.debug("#{@glyph.model.type} GlyphRenderer (#{@model.id}): render finished in #{dttot}ms")
     logger.trace(" - map_data finished in       : #{dtmap}ms")
-    logger.trace(" - mask_data finished in      : #{dtmask}ms")
+    if dtmask?
+      logger.trace(" - mask_data finished in      : #{dtmask}ms")
     if dtselect?
       logger.trace(" - selection mask finished in : #{dtselect}ms")
     logger.trace(" - glyph renders finished in  : #{dtrender}ms")
@@ -139,7 +161,8 @@ class GlyphRenderer extends HasParent
   type: 'GlyphRenderer'
 
   selection_defaults: {}
-  nonselection_defaults: {fill_alpha: 0.1, line_alpha: 0.1}
+  decimated_defaults: {fill_alpha: 0.3, line_alpha: 0.3, fill_color: "grey", line_color: "grey"}
+  nonselection_defaults: {fill_alpha: 0.2, line_alpha: 0.2}
 
   defaults: ->
     return _.extend {}, super(), {
