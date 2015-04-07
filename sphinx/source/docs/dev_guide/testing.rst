@@ -16,7 +16,7 @@ To run the just the python unit tests, run the command::
 
 To run just the BokehJS unit tests, execute::
 
-    $ grunt test
+    $ gulp test
 
 in the `bokehjs` subdirectory of the source checkout.
 

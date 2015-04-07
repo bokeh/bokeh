@@ -23,9 +23,11 @@ Cloning the Repository
 ----------------------
 
 The source code for the Bokeh project is hosted on GitHub_. To clone the
-source repository, issue the following command::
+source repository, issue the following command:
 
-    git clone https://github.com/bokeh/bokeh.git
+.. code-block:: sh
+
+    $ git clone https://github.com/bokeh/bokeh.git
 
 This will create a ``bokeh`` directory at your location. This ``bokeh``
 directory is referred to as the "source checkout" for the remainder of
@@ -37,8 +39,8 @@ this document.
 Building BokehJS
 ----------------
 
-The BokehJS build process is handled by Grunt_, which in turn depends on
-`Node.js <NodeJS>`_. Grunt is used to compile CoffeeScript and Less (CSS)
+The BokehJS build process is handled by Gulp_, which in turn depends on
+`Node.js <NodeJS>`_. Gulp is used to compile CoffeeScript and Less (CSS)
 sources (as well as Eco templates), and to combine these resources into
 optimized and minified ``bokeh.js`` and ``bokeh.css`` files.
 
@@ -48,22 +50,28 @@ Install npm and node
 First, install Node.js and npm (node package manager).
 You can download and install these directly, or use
 `conda <http://conda.pydata.org/>`_ to install them
-from the Bokeh channel on `Binstar <https://binstar.org>`_::
+from the Bokeh channel on `Binstar <https://binstar.org>`_:
+
+.. code-block:: sh
 
     $ conda install -c bokeh nodejs
 
-Alternatively, on Ubuntu you can use ``apt-get``::
+Alternatively, on Ubuntu you can use ``apt-get``:
+
+.. code-block:: sh
 
     $ apt-get install npm node
 
 
-Install Grunt and necessary plugins
+Install Gulp and necessary plugins
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once you have npm and Node.js installed, you must use them to install
 the required dependencies before you can build BokehJS.
-Execute the following command in the ``bokehjs`` subdirectory::
-    
+Execute the following command in the ``bokehjs`` subdirectory:
+
+.. code-block:: sh
+
     $ npm install
 
 This command will install the necessary packages into the ``node_modules``
@@ -75,42 +83,36 @@ the complete Bokeh library (see :ref:`devguide_python_setup`).
 
 However, if you are using BokehJS as a standalone JavaScript library, then
 the instructions below describe the process to iteratively build BokehJS with
-Grunt for development purposes.
+Gulp for development purposes.
 
-Building BokehJS with Grunt
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building BokehJS with Gulp
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to be able to run the commands below, you can either use
-``bokehjs/node_modules/.bin/grunt`` or globally install 
-the grunt command line interface::
-
-    $ npm install -g grunt-cli
-
-There are three main Grunt commands for development (to be executed from the
-``bokehjs`` subdirectory):
+Below are the main Gulp commands for development (to be executed from
+the ``bokehjs`` subdirectory). To run these commands, you can either
+use ``bokehjs/node_modules/.bin/gulp`` or globally install the Gulp
+command line interface:
 
 .. code-block:: sh
 
-    $ grunt deploy
+    $ npm install -g gulp
 
-This will generate the compiled and optimized BokehJS libraries, and deploy
-them to the ``build`` subdirectory.
-
-.. code-block:: sh
-
-    $ grunt build
-
-This will build the BokehJS sources without concatenating and optimizing into
-standalone libraries. At this point BokehJS can be be as an `AMD module`_.
+To generate the compiled and optimized BokehJS libraries, and deploy
+them to the ``build`` subdirectory:
 
 .. code-block:: sh
 
-    $ grunt watch
+    $ gulp build
 
-This directs Grunt to automatically watch the source tree for changes and
-trigger a recompile of individual files as they change. This is especially
-useful together with the ``--splitjs`` mode of the Bokeh server to afford a
-more rapid development cycle.
+To direct Gulp to automatically watch the source tree for changes and
+trigger a recompile if any source file changes. This is especially
+useful together with the ``--splitjs`` mode of the Bokeh server to
+afford a more rapid development cycle:
+
+.. code-block:: sh
+
+    $ gulp watch
+
 
 Building BokehJS with SBT
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -119,7 +121,7 @@ Building BokehJS with SBT
         The ``sbt`` build system is experimental and not integrated with
         ``setup.py``, so it should be used with caution.
 
-As an alternative to Grunt, you can use `SBT`_ to build BokehJS. To start,
+As an alternative to Gulp, you can use `SBT`_ to build BokehJS. To start,
 run the command:
 
 .. code-block:: sh
@@ -162,7 +164,9 @@ written to your ``site-packages`` directory that points to the ``bokeh``
 subdirectory of your source checkout. Any changes to the python source code
 will be available immediately without any additional steps.
 
-With either mode, you will be prompted for how to install BokehJS, e.g.::
+With either mode, you will be prompted for how to install BokehJS, e.g.:
+
+.. code-block:: sh
 
     $ python setup.py install
 
@@ -211,9 +215,11 @@ not work correctly. The .exe will not be available within the Conda
 environment, which means you will use the version available in the base
 install, if it is available. Instead, you can make sure you use the version
 within the environment by explicitly running the bokeh-server python script
-in the root of the bokeh repository, similar to the following example::
+in the root of the bokeh repository, similar to the following example:
 
-    python bokeh-server --script path\to\<yourapp>.py
+.. code-block:: sh
+
+    $ python bokeh-server --script path\to\<yourapp>.py
 
 Incremental Compilation
 -----------------------
@@ -222,17 +228,21 @@ The processes described about result in building and using a full `bokeh.js`
 library. This could be considered "production" mode. It is also possible to
 run Bokeh code in a mode that utilizes ``require.js`` to serve up individual
 JavaScript modules separately. If this is done, then changes to BokehJS
-can be incrementally compiled (e.g. by running ``grunt watch`` in the
+can be incrementally compiled (e.g. by running ``gulp watch`` in the
 ``bokehjs`` directory), and the development iteration cycle shortened
 considerably.
 
 For static examples, you can use the ``BOKEH_RESOURCES`` environement variable
-to indicate that BokehJS should be loaded from individual sources::
+to indicate that BokehJS should be loaded from individual sources:
+
+.. code-block:: sh
 
     $ BOKEH_RESOURCES=relative-dev python example.py
 
 For Bokeh server examples, simply add the ``--dev`` command line flag to the
-server invocation::
+server invocation:
+
+.. code-block:: sh
 
     $ bokeh-server --dev
 
@@ -242,6 +252,6 @@ server invocation::
 .. _Binstar: https://binstar.org
 .. _conda: http://conda.pydata.org/
 .. _GitHub: https://github.com
-.. _Grunt: http://gruntjs.com/
+.. _Gulp: http://gulpjs.com/
 .. _NodeJS: http://nodejs.org/
 .. _SBT: http://www.scala-sbt.org
