@@ -1,5 +1,7 @@
 import colorsys
 
+import sys  # deliberately make flake angry
+
 class Color(object):
 
     def copy(self):
