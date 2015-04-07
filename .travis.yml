@@ -50,6 +50,7 @@ script:
     # we avoid testing for now.
     - if [[ -z "$TRAVIS_TAG" ]]; then nosetests --with-coverage --cover-package=bokeh; fi
     - ( cd sphinx; make all )
+    - flake8 bokeh
 
 after_success:
     |
