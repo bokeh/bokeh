@@ -50,7 +50,8 @@ script:
     # we avoid testing for now.
     - if [[ -z "$TRAVIS_TAG" ]]; then nosetests --with-coverage --cover-package=bokeh; fi
     - ( cd sphinx; make all )
-    - flake8 bokeh
+    # Flake/style testing (only needed on one machine)
+    - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
 
 after_success:
     |
