@@ -1,4 +1,5 @@
 _ = require "underscore"
+gloo2 = require "gloo2"
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
@@ -7,9 +8,19 @@ class LineView extends Glyph.View
   _index_data: () ->
     @_xy_index()
 
+  _map_data: () ->
+    if @_gl?
+        return  # performance
+
+  _set_data: () ->
+    @_data_changed = true  # notify gl, lazy upload
+
   _render: (ctx, indices, {sx, sy}) ->
+    if ctx.glcanvas
+        return @_render_gl(ctx, indices)
+
     drawing = false
-    @visuals.line.set_value(ctx)
+    @visuals.line.set_value(ctx)  # what does this do?
 
     for i in indices
       if !isFinite(sx[i]+sy[i]) and drawing
@@ -27,6 +38,26 @@ class LineView extends Glyph.View
 
     if drawing
       ctx.stroke()
+
+  _render_gl: (ctx, indices) ->    
+    gl = ctx.glcanvas.gl
+    if not @_gl?
+      @_gl = setup_gl(gl)
+
+    if @_data_changed
+      @_data_changed = false
+      @_gl.vbo_x.set_size(@x.length * 4)  # size in bytes
+      @_gl.vbo_y.set_size(@y.length * 4)
+      @_gl.vbo_x.set_data(0, new Float32Array(@x))
+      @_gl.vbo_y.set_data(0, new Float32Array(@y))      
+
+    [dx, dy] = @renderer.map_to_screen([0, 1], [0, 1])    
+    @_gl.prog.set_uniform('u_canvas_size', 'vec2', [ctx.glcanvas.width, ctx.glcanvas.height])
+    @_gl.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
+    @_gl.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
+
+    # todo: use indices
+    @_gl.prog.draw(gl.LINE_STRIP, [0, @x.length])
 
   _hit_point: (geometry) ->
     ### Check if the point geometry hits this line glyph and return an object
@@ -103,6 +134,41 @@ class Line extends Glyph.Model
   default_view: LineView
   type: 'Line'
   visuals: ['line']
+
+
+setup_gl = (gl) ->
+  # This function sets up the visualization to render a line
+
+  VERT = """
+  precision mediump float;
+  attribute float a_x;
+  attribute float a_y;
+  uniform vec2 u_canvas_size;
+  uniform vec2 u_offset;
+  uniform vec2 u_scale;
+  void main() {
+      vec2 pos = vec2(a_x, a_y) * u_scale + u_offset; // in pixels
+      pos /= u_canvas_size;  // in 0..1
+      gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
+      gl_Position.y *= -1.0;
+  }"""
+
+  FRAG = """
+  precision mediump float;
+  uniform vec4 u_color;
+  void main() {      
+      gl_FragColor = u_color;
+      gl_FragColor.a = 1.0;
+  }"""
+    
+  prog = new gloo2.Program(gl)
+  prog.set_shaders(VERT, FRAG)
+  vbo_x = new gloo2.VertexBuffer(gl)
+  prog.set_attribute('a_x', 'float', [vbo_x, 0, 0])
+  vbo_y = new gloo2.VertexBuffer(gl)
+  prog.set_attribute('a_y', 'float', [vbo_y, 0, 0])
+  return {'gl': gl, 'prog': prog, 'vbo_x', vbo_x, 'vbo_y': vbo_y}
+
 
 module.exports =
   Model: Line

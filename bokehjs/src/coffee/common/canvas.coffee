@@ -7,6 +7,12 @@ LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 Solver = require "./solver"
 
+# Notes on WebGL support:
+# Glyps can be rendered into the original 2D canvas, as well as in a
+# (hidden) webgl canvas. In this way, the rest of bokehjs can keep
+# working as it is, and we can incrementally update glyphs to make them
+# use GL.
+
 class CanvasView extends ContinuumView
   className: "bk-canvas-wrapper"
   template: canvas_template
@@ -30,12 +36,30 @@ class CanvasView extends ContinuumView
 
     logger.debug("CanvasView initialized")
 
+  init_webgl_canvas: () ->
+    # If WebGL is available, we store a reference to the gl canvas on
+    # the ctx object, because that's what gets passed everywhere.
+    glcanvas = document.createElement('canvas')
+    gl = glcanvas.getContext("webgl") || @canvas3d.getContext("experimental-webgl")      
+    if gl?
+      glcanvas.gl = gl
+      return glcanvas
+    else
+      return null  # disable webgl
+
   render: (force=false) ->
     # normally we only want to render the canvas when the canvas itself
     # should be configured with new bounds.
     if not @model.new_bounds and not force
       return
     @ctx = @canvas[0].getContext('2d')
+    
+    # Assign canvases if not already done. Sync size of canvas.
+    if @ctx.glcanvas is undefined  # Note that it can be null (meaning no webgl support)
+      @ctx.glcanvas = @init_webgl_canvas()
+    if @ctx.glcanvas?
+      @ctx.glcanvas.width = @canvas[0].width
+      @ctx.glcanvas.height = @canvas[0].height
 
     if @mget('use_hidpi')
       devicePixelRatio = window.devicePixelRatio || 1
@@ -43,7 +67,7 @@ class CanvasView extends ContinuumView
                           @ctx.mozBackingStorePixelRatio ||
                           @ctx.msBackingStorePixelRatio ||
                           @ctx.oBackingStorePixelRatio ||
-                          @ctx.backingStorePixelRatio || 1
+                          @ctx.backingStorePixelRatio || 1  # ak: wtf?
       ratio = devicePixelRatio / backingStoreRatio
     else
       ratio = 1
@@ -63,6 +87,7 @@ class CanvasView extends ContinuumView
     @ctx.translate(0.5, 0.5)
 
     # work around canvas incompatibilities
+    # todo: this is done ON EACH DRAW, is that intended?
     @_fixup_line_dash(@ctx)
     @_fixup_line_dash_offset(@ctx)
     @_fixup_image_smoothing(@ctx)
