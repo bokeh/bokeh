@@ -1,4 +1,7 @@
 _ = require "underscore"
+$ = require "jquery"
+jquery_ui = require "jquery-ui"
+vispy = require "vispy"
 kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
 {Expression, Constraint, Operator} = kiwi
 canvas_template = require "./canvas_template"
@@ -17,13 +20,13 @@ Solver = require "./solver"
 create_gl_vis = (canvas2d, canvas3d) ->
   # This function sets up the visualization to render the 2D canvas into
   # the 3D canvas. So as to blend the two.
-  
+      
   VERT = """
   precision mediump float;
   attribute vec2 a_position;
   varying vec2 v_position;
-  void main() {
-      gl_Position = vec4((a_position*2.0)-1.1, 0.0, 1.0);
+  void main() { 
+      gl_Position = vec4(0.95 * (a_position*2.0-1.0), 0.0, 1.0);
       v_position = a_position;
   }"""
   FRAG = """
@@ -37,44 +40,45 @@ create_gl_vis = (canvas2d, canvas3d) ->
   
   VERT_DATA = new Float32Array([0.0, 0.0,  1.0, 0.0,  0.0, 1.0,  0.0, 1.0,  1.0, 0.0,  1.0, 1.0, ])
   
-  console.log([canvas3d, canvas3d.tagName])
+  console.log([canvas3d, canvas3d.id])
   window.canvas3d = canvas3d
   glx = vispy.init(canvas3d)
   
   glx._initialize = (event) ->
     @command ['CREATE', 'ctx_prog', 'Program']
     @command ['SHADERS', 'ctx_prog', VERT, FRAG]
-      
-    @command(['CREATE', 'ctx_tex', 'Texture2D']);
-    #@command(['SIZE', 'ctx_tex', [800, 600], 'RGBA']);
+    
+    @command(['CREATE', 'ctx_tex', 'Texture2D']);    
     @command(['INTERPOLATION', 'ctx_tex', 'LINEAR', 'NEAREST']);
     @command(['WRAPPING', 'ctx_tex', ['CLAMP_TO_EDGE', 'CLAMP_TO_EDGE']]);
     
     @command(['CREATE', 'ctx_vert', 'VertexBuffer']);
-    @command(['DATA', 'ctx_vert', 0, vert_data]); 
-    
+    @command(['DATA', 'ctx_vert', 0, VERT_DATA]);     
     # connect
     @command(['ATTRIBUTE', 'ctx_prog', 'a_position', 'vec2', ['ctx_vert', 0, 0]]);
-    @command(['TEXTURE', 'ctx_prog', 'u_sampler', 'ctx_tex']);
-    
+    @command(['TEXTURE', 'ctx_prog', 'u_sampler', 'ctx_tex']);    
     #@command(['FUNC', 'blendFunc', 'SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA']);
     @command(['FUNC', 'enable', 'BLEND']);
-  
-  glx._render = () ->  # not on_paint
+    
+  glx._render = () ->
+    # Update texture
+    @command(['DATA', 'ctx_tex', [0, 0], canvas2d])
+    # Render it
+    console.log('rendering GL ...')
     @command(['FUNC', 'clearColor', 0, 1, 1, 1])
-    @command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT'])
-    @command(['DATA', 'ctx_tex', [0, 0], @canvas2d])
+    @command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT'])    
     @command(['DRAW', 'ctx_prog', 'TRIANGLES', [0, 6]])
-  
+    # We "manually" push the commands, we don't use Vispy's event loop
+    glx.execute_pending_commands()    
+    
   glx._resize = (width, height) ->
-    @command(['FUNC', 'viewport', 0, 0, width, height]);
-    @update();
-      
-  glx.initialize()  # todo: what does this do exactly?
+    @command(['FUNC', 'viewport', 0, 0, width, height]);  
+    @command(['SIZE', 'ctx_tex', [width, height], 'RGBA']);
+ 
   glx._initialize()
-  #glx.resize()    
+  glx._resize(canvas3d.width, canvas3d.height)
   glx
-
+  
 
 class CanvasView extends ContinuumView
   className: "bk-canvas-wrapper"
@@ -114,7 +118,7 @@ class CanvasView extends ContinuumView
     # should be configured with new bounds.
     if not @model.new_bounds and not force
       return
-     console.log('in render canvas')
+    console.log('in render canvas')
     
     # Assign canvases if not already done. Sync size of canvas2d with that of canvas3d
     if not @canvas2d?
@@ -123,20 +127,20 @@ class CanvasView extends ContinuumView
       @canvas2d.width = @canvas3d.width
       @canvas2d.height = @canvas3d.height
       @glx._resize(canvas3d.width, canvas3d.height)  # todo: only when resizing
-  
+    
     @ctx = @canvas2d.getContext('2d') 
-
+    
     if @mget('use_hidpi')
       devicePixelRatio = window.devicePixelRatio || 1
       backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
                           @ctx.mozBackingStorePixelRatio ||
                           @ctx.msBackingStorePixelRatio ||
                           @ctx.oBackingStorePixelRatio ||
-                          @ctx.backingStorePixelRatio || 1
+                          @ctx.backingStorePixelRatio || 1  # ak: wtf?
       ratio = devicePixelRatio / backingStoreRatio
     else
       ratio = 1
-
+    
     width = @mget('width')
     height = @mget('height')
 
