@@ -267,6 +267,12 @@ class PlotView extends ContinuumView
         @model.title_panel.get('bottom') + @model.get('title_standoff'))
       @title_props.set_value(ctx)
       ctx.fillText(title, sx, sy)
+  
+    if @canvas_view.canvas3d?
+      console.log('render canvas2d into webgl canvas')
+      @canvas_view.glx._render()
+    else
+      console.log('NOT rendering canvas2d into webgl canvas')
 
     if not @initial_range_info?
       @set_initial_range()
