@@ -161,7 +161,7 @@ for the BokehJS CSS.
 
 As a concrete example, the links for version ``0.8.1`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.8.1.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-0.8.1.min.js
 * http://cdn.pydata.org/bokeh/release/bokeh-0.8.1.min.css
 
 Alternatively, BokehJS is available from `npmjs`_ through the Node Package
