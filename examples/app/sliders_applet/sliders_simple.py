@@ -42,10 +42,54 @@ def create_plot(title, amplitude, offset, phase, freq):
     plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
     return plot
 
+
+# Let's create a simpleapp (SimpleAppWrapper) object by decorating our main
+# app function with the simpleapp decorator.
+# This will use the objects returned by the function to create the application
+# to be rendered through bokeh-server. The decorated function can return 2 type
+# of objects:
+# - dict: in this case it's expected to return keys (as str) that will be
+#       used as application widget ids and the related application widgets
+#       as values.
+#       IMPORTANT: In this case the SimpleAppWrapper instance created by
+#           the simpleapp decorator needs to decorate a second function
+#           needs to take of the app layout creation
+#
+# - Layout object: in this case the layout and all objects are created
+#       in the context of this single decorated function. The function
+#       should return a Layout object that arranges all the application
+#       widgets and UI as it's children
+#
+#
+# Please note that the simpleapp decorator can be called either without
+# arguments (if the application do not integrate interactive widgets)
+# or with a set of interactive widgets that can be used to interact and
+# be integrated in the application logic. In this case the wrapped
+# m
+#
+# In the following example we specify 5 widgets that will be used and integrated
+# in the app.
+# It's important to mention that the name of arguments of the decorated
+# function need to be equal to the name of the widgets being passed to
+# the function otherwise they'll default to None.
+# Also note that those widgets do not need to be returned into the wrapped
+# function output dictionary in order to be available for the layout
+# creation function later
 @simpleapp(title_widget, amplitude_widget, offset_widget, phase_widget, freq_widget)
 def sliders(title, amplitude, offset, phase, freq):
+    ''' SimpleApp main entry function. This function is to be wrapped by the
+    simpleapp decorator holds the creation of all widgets or the application.
+
+    It can
+    '''
     return {'plot': create_plot(title, amplitude, offset, phase, freq)}
 
+# as we have created the SimpleAppWrapper and just provided the dict
+# containing the app widgets we now need to register the app layout
+# creation function by decorating it with the `simpleappwrapped`.layout
+# decorator.
+# The decorated function should return a Layout object that will rule
+# the application UI
 @sliders.layout
 def app_layout(app):
     inputs = AppVBoxForm(app=app,
@@ -54,8 +98,18 @@ def app_layout(app):
     layout = AppHBox(app=app, children=[inputs, 'plot'])
     return layout
 
-@sliders.update(['title', 'offset', 'amplitude', 'phase', 'freq'])
-def updated_inputs(title, offset, amplitude, phase, freq, app):
-    return sliders(title, offset, amplitude, phase, freq)
+# it's also possible to register callback function to be called when
+# some widget are updated by decorating the callback function with
+# the  `simpleappwrapped`.update decorator by calling it with a list
+# of strings with the names of the widgets that should trigger the
+# callback. It's important to mention that the name of
+# arguments of the decorated function need to be equal to the name
+# of the widgets being passed to the function otherwise they'll
+# default to None.
+@sliders.update(['title', 'amplitude', 'offset', 'phase', 'freq'])
+def updated_inputs(title, amplitude, offset, phase, freq, app):
+    return sliders(title, amplitude, offset, phase, freq)
 
+# finally simpleapp need to register the url where to serve the app
+# this can be done by calling the `simpleappwrapped`.route method
 sliders.route("/bokeh/simplesliders/")
