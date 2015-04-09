@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 
 from ..utils import make_scatter
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from ...models import FactorRange, GlyphRenderer, DataRange1d
 from ...models.glyphs import Rect, Segment
 from ...properties import Bool, String
@@ -84,7 +84,7 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical",
         xscale=xscale, yscale=yscale, xgrid=xgrid, ygrid=ygrid, **kw
     )
 
-class BoxPlotBuilder(Builder):
+class BoxPlotBuilder(TabularSourceBuilder):
     """This is the BoxPlot class and it is in charge of plotting
     scatter plots in an easy and intuitive way.
 

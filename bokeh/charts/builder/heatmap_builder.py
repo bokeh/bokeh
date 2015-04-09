@@ -17,7 +17,7 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from .._data_adapter import DataAdapter
 from ...models import FactorRange, GlyphRenderer, HoverTool
 from ...models.glyphs import Rect
@@ -70,7 +70,7 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
     chart.add_tools(HoverTool(tooltips=[("value", field)]))
     return chart
 
-class HeatMapBuilder(Builder):
+class HeatMapBuilder(TabularSourceBuilder):
     """This is the HeatMap class and it is in charge of plotting
     HeatMap chart in an easy and intuitive way.
 
@@ -90,17 +90,14 @@ class HeatMapBuilder(Builder):
         the rect glyph inside the ``_yield_renderers`` method.
 
         """
-        self._catsx = list(self._values.columns)
-        self._catsy = list(self._values.index)
-
         # Set up the data for plotting. We will need to have values for every
         # pair of year/month names. Map the rate to a color.
         self._data[self.prefix + 'catx'] = catx = []
         self._data[self.prefix + 'caty'] = caty = []
         self._data[self.prefix + 'color'] = color = []
         self._data[self.prefix + 'rate'] = rate = []
-        for y in self._catsy:
-            for m in self._catsx:
+        for y in self.y_names:
+            for m in self.x_names:
                 catx.append(m)
                 caty.append(y)
                 rate.append(self._values[m][y])
@@ -108,8 +105,8 @@ class HeatMapBuilder(Builder):
         # Now that we have the min and max rates
         factor = len(self.palette) - 1
         den = max(rate) - min(rate)
-        for y in self._catsy:
-            for m in self._catsx:
+        for y in self.y_names:
+            for m in self.x_names:
                 c = int(round(factor*(self._values[m][y] - min(rate)) / den))
                 color.append(self.palette[c])
 
@@ -120,8 +117,8 @@ class HeatMapBuilder(Builder):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
-        self.x_range = FactorRange(factors=self._catsx)
-        self.y_range = FactorRange(factors=self._catsy)
+        self.x_range = FactorRange(factors=self.x_names)
+        self.y_range = FactorRange(factors=self.y_names)
 
     def _yield_renderers(self):
         """Use the rect glyphs to display the categorical heatmap.
@@ -143,3 +140,5 @@ class HeatMapBuilder(Builder):
         Converts data input (self._values) to a DataAdapter
         """
         self._values = DataAdapter(self._values, force_alias=True)
+        self.x_names = self.x_names or list(self._values.columns)
+        self.y_names = self.y_names or list(self._values.index)

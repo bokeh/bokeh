@@ -23,7 +23,7 @@ try:
 except ImportError:
     raise RuntimeError("bokeh.charts Bar chart requires NumPy.")
 
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from ...models import FactorRange, Range1d
 from ...models.glyphs import Rect
 from ...properties import Any, Bool, Either, List
@@ -91,7 +91,7 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
     )
 
 
-class BarBuilder(Builder):
+class BarBuilder(TabularSourceBuilder):
     """This is the Bar class and it is in charge of plotting
     Bar chart (grouped and stacked) in an easy and intuitive way.
 
