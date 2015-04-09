@@ -18,7 +18,7 @@ passing the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 import numpy as np
-from .._builder import create_and_build, Builder
+from .._builder import create_and_build, TabularSourceBuilder
 from ...models.glyphs import Line
 
 #-----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ def Step(values, **kws):
     return create_and_build(StepBuilder, values, **kws)
 
 
-class StepBuilder(Builder):
+class StepBuilder(TabularSourceBuilder):
     """This is the Step class and it is in charge of plotting
     Step charts in an easy and intuitive way.
 

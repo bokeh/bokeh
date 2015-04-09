@@ -22,7 +22,7 @@ try:
 except ImportError:
     pd = None
 
-from .._builder import Builder, create_and_build
+from .._builder import Builder, create_and_build, TabularSourceBuilder
 from ...models.glyphs import Line
 
 #-----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
     )
 
 
-class TimeSeriesBuilder(Builder):
+class TimeSeriesBuilder(TabularSourceBuilder):
     """This is the TimeSeries class and it is in charge of plotting
     TimeSeries charts in an easy and intuitive way.
 

@@ -23,7 +23,7 @@ try:
 except ImportError:
     raise RuntimeError("bokeh.charts Area chart requires NumPy.")
 
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from ...models.glyphs import Patch
 from ...properties import Bool
 
@@ -68,10 +68,10 @@ def Area(values, index=None, **kws):
             output_file('area.html')
             show(area)
     """
-    return create_and_build(AreaBuilder, values, index=None, **kws)
+    return create_and_build(AreaBuilder, values, index=index, **kws)
 
 
-class AreaBuilder(Builder):
+class AreaBuilder(TabularSourceBuilder):
     """This is the Area class and it is in charge of plotting
     Area chart in an easy and intuitive way.
 
@@ -97,7 +97,6 @@ class AreaBuilder(Builder):
         the patch glyph inside the ``_yield_renderers`` method.
 
         """
-        last = np.zeros(len(self._values.index))
         for x in self.x_names:
             try:
                 xs = self._values[x]
@@ -107,15 +106,16 @@ class AreaBuilder(Builder):
             x2 = np.hstack((xs[::-1], xs))
             self._data[self.prefix + x] = x2
 
+        last = np.zeros(len(self._values.index))
+
         for col, col_values in self._values.items():
             if col in self.y_names:
                 # to draw area we need 2 coordinates. The lower values
                 # will always be:
                 # - 0 in case of non stacked area
                 # - the previous series top value in case of stacked charts
-                next = last + col_values
-                values = np.hstack((last[::-1], next))
-
+                next = [lv+cv for lv, cv in zip(last, col_values)]
+                values = np.asarray(np.hstack((last[::-1], next)))
                 # only update when stacked, otherwise we always want to start from 0
                 if self.stacked:
                     last = next

@@ -89,19 +89,6 @@ class Builder(HasProps):
     palette = Seq(Color, default=DEFAULT_PALETTE)
     source = Instance(ColumnDataSource)
 
-    index = Any(help="""
-    An index to be used for all data series as follows:
-
-    - A 1d iterable of any sort that will be used as
-       series common index
-
-    - As a string that corresponds to the key of the
-       mapping to be used as index (and not as data
-       series) if area.values is a mapping (like a dict,
-       an OrderedDict or a pandas DataFrame)
-
-   """)
-
     source_prefix = ""
 
     def __init__(self, values=None, **kws):
@@ -157,18 +144,12 @@ class Builder(HasProps):
             self._values = self.source.data
             self._data = self.source.data
 
-        if self.index:
-            self._values_index, self._values = DataAdapter.get_index_and_data(
-                self._values, self.index
-                )
+        # TODO: This should be modified to support multiple x_names
+        self._values_index, self._values = DataAdapter.get_index_and_data(
+            self._values, self.x_names
+        )
+        if not self.x_names:
             self.x_names = ["x"]
-        else:
-            # TODO: This should be modified to support multiple x_names
-            self._values_index, self._values = DataAdapter.get_index_and_data(
-                self._values, self.x_names
-            )
-            if not self.x_names:
-                self.x_names = ["x"]
 
         if not self.y_names:
             self.y_names = [k for k in self._values.keys() if k not in self.x_names]
@@ -199,10 +180,6 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        if not self.x_range:
-            self.x_range = DataRange1d()
-        if not self.y_range:
-            self.y_range = DataRange1d()
 
     def _yield_renderers(self):
         """ Yield the specific renderers of the charts being built by
@@ -278,3 +255,59 @@ class Builder(HasProps):
     @property
     def colors(self):
         return cycle_colors(self.y_names, self.palette)
+
+
+class TabularSourceBuilder(Builder):
+    # all the implementation for the xnames, ynames functionality goes here
+    # added bonus: the __init__ signature can actually have xnames and ynames
+    # as real parameters! Much better for docs
+    index = Any(help="""
+        An index to be used for all data series as follows:
+
+        - A 1d iterable of any sort that will be used as
+           series common index
+
+        - As a string that corresponds to the key of the
+           mapping to be used as index (and not as data
+           series) if area.values is a mapping (like a dict,
+           an OrderedDict or a pandas DataFrame)
+    """)
+
+    def _adapt_values(self):
+        """Prepare the input data.
+
+        Converts data input (self._values) to a DataAdapter and creates
+        instance index if needed
+        """
+        if isinstance(self._values, ColumnDataSource):
+            self.source = self._values
+            self._values = self.source.data
+            self._data = self.source.data
+
+        if self.index:
+            self._values_index, self._values = DataAdapter.get_index_and_data(
+                self._values, self.index
+                )
+            self.x_names = ["x"]
+        else:
+            # TODO: This should be modified to support multiple x_names
+            self._values_index, self._values = DataAdapter.get_index_and_data(
+                self._values, self.x_names
+            )
+            if not self.x_names:
+                self.x_names = ["x"]
+
+        if not self.y_names:
+            self.y_names = [k for k in self._values.keys() if k not in self.x_names]
+
+    def _set_ranges(self):
+        """Push data into the ColumnDataSource and build the
+        proper ranges.
+
+        It has to be implemented by any of the inherited class
+        representing each different chart type.
+        """
+        if not self.x_range:
+            self.x_range = DataRange1d()
+        if not self.y_range:
+            self.y_range = DataRange1d()

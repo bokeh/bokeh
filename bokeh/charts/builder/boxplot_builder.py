@@ -33,8 +33,8 @@ from ...properties import Bool, String
 #-----------------------------------------------------------------------------
 
 
-def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale="linear",
-        xgrid=False, ygrid=True, **kw):
+def BoxPlot(values, marker="circle", outliers=True, xscale="categorical",
+            yscale="linear", xgrid=False, ygrid=True, **kw):
     """ Create a BoxPlot chart using :class:`BoxPlotBuilder <bokeh.charts.builder.boxplot_builder.BoxPlotBuilder>`
     to render the geometry from values, marker and outliers arguments.
 

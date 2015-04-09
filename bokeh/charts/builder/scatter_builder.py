@@ -27,7 +27,7 @@ except:
 from collections import OrderedDict
 
 from ..utils import make_scatter, _marker_types
-from .._builder import create_and_build, Builder
+from .._builder import create_and_build, Builder, TabularSourceBuilder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource
 from ...properties import Enum
@@ -73,7 +73,7 @@ def Scatter(values, **kws):
     """
     return create_and_build(ScatterBuilder, values, **kws)
 
-class ScatterBuilder(Builder):
+class ScatterBuilder(TabularSourceBuilder):
     """This is the Scatter class and it is in charge of plotting
     Scatter charts in an easy and intuitive way.
 

@@ -18,7 +18,7 @@ passing the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 import numpy as np
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from ...models.glyphs import Line as LineGlyph
 
 #-----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ def Line(values, index=None, **kws):
     return create_and_build(LineBuilder, values,  **kws)
 
 
-class LineBuilder(Builder):
+class LineBuilder(TabularSourceBuilder):
     """This is the Line class and it is in charge of plotting
     Line charts in an easy and intuitive way.
     Essentially, we provide a way to ingest the data, make the proper
