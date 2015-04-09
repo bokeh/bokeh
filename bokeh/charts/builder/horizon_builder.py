@@ -10,7 +10,7 @@ import math
 
 from six import string_types
 
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from ...models import Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
 from ...models.glyphs import Patches
 from ...properties import Color, Int
@@ -83,7 +83,8 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
 
     chart = create_and_build(
         HorizonBuilder, values, num_folds=num_folds, pos_color=pos_color,
-        neg_color=neg_color, xscale=xscale, xgrid=xgrid, ygrid=ygrid, **kws
+        index=index, neg_color=neg_color, xscale=xscale, xgrid=xgrid,
+        ygrid=ygrid, **kws
     )
 
     # Hide numerical axis
@@ -95,7 +96,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
 
     return chart
 
-class HorizonBuilder(Builder):
+class HorizonBuilder(TabularSourceBuilder):
 
     """This is the Horizon class and it is in charge of plotting
     Horizon charts in an easy and intuitive way.

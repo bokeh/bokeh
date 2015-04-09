@@ -285,6 +285,9 @@ class TabularSourceBuilder(Builder):
             self._data = self.source.data
 
         if self.index:
+            if self.x_names:
+                err_msg = "Attributes inconsistency! It's not possible to specify x_names and index on the same chart!"
+                raise AttributeError(err_msg)
             self._values_index, self._values = DataAdapter.get_index_and_data(
                 self._values, self.index
                 )

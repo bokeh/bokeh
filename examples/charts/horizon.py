@@ -26,7 +26,7 @@ output_file("horizon.html")
 
 hp = Horizon(
     xyvalues, x_names=['Date'],
-    index='Date',
+    # index='Date',
     title="horizon plot using stock inputs",
     width=800, height=300
 )
