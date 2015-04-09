@@ -154,6 +154,8 @@ class Builder(HasProps):
 
         if not self.y_names:
             self.y_names = [k for k in self._values.keys() if k not in self.x_names]
+        elif isinstance(self.y_names, string_types):
+            self.y_names = [self.y_names]
 
     def _process_data(self):
         """Get the input data.
@@ -308,6 +310,8 @@ class TabularSourceBuilder(Builder):
 
         if not self.y_names:
             self.y_names = [k for k in self._values.keys() if k not in self.x_names]
+        elif isinstance(self.y_names, string_types):
+            self.y_names = [self.y_names]
 
     def _set_ranges(self):
         """Push data into the ColumnDataSource and build the
