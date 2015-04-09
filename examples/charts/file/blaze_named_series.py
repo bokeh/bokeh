@@ -32,7 +32,7 @@ scatter2 = Scatter(datasource, y_names=ys_sh, x_names=xs_sh,
 line = Line(bbvalues, y_names=ys, title="Line Chart", **pkws)
 # area = Area(bbvalues, y_names=ys, title="Area Chart", **pkws)
 
-mix = Line(df, y_names=ys, x_names=['myx'], width=1000, height=500,
+mix = Line(df, y_names=ys, x_names='myx', width=1000, height=500,
            title="Mixed Chart", ylabel='Petals', legend="top_left")
 Scatter(df, y_names=ys, x_names=['myx'], chart=mix)
 
@@ -45,7 +45,8 @@ step = Step(datasource, y_names=ys, x_names=['myx'],
 area = Area(bbvalues, y_names=ys, title="Area Chart", **pkws)
 bp = BoxPlot(bbvalues, title="BoxPlot", y_names=ys, width=400, height=400,)
 hist = Histogram(bbvalues, bins=10, y_names=ys, title="Histogram Chart", width=400, height=400)
-
+singleline = Line(df, y_names='sepal_length', x_names='myx', width=400,
+                  height=400, title="Single Line", legend=True)
 show(
     vplot(
         Tabs(tabs=[
@@ -53,7 +54,7 @@ show(
             Panel(child=hplot(step, line2), title="Linked Panning"),
         ]),
         mix,
-        hplot(bp, hist),
+        hplot(bp, hist, singleline),
         hplot(line, area),
     )
 )
