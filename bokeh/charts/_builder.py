@@ -24,7 +24,7 @@ from ..models.ranges import Range
 from ..models import ColumnDataSource, DataRange1d, GlyphRenderer
 from ..properties import Color, HasProps, Instance, Seq, String, Any
 from .utils import cycle_colors
-
+import warnings
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
 #-----------------------------------------------------------------------------
@@ -39,10 +39,12 @@ def create_and_build(builder_class, values, **kws):
     builder = builder_class(values, **builder_kws)
 
     # create a chart to return, since there isn't one already
-    if 'chart' in kws:
-        chart = kws['chart']
+    chart = kws.pop('chart', None)
+    chart_kws = {k:v for k,v in kws.items() if k not in builder_props}
+    if chart:
+        if chart_kws:
+            warnings.warn("Received both an existing chart and new keywords. Keywords are being ignored!")
     else:
-        chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
         chart = Chart(**chart_kws)
     chart.add_builder(builder)
 
