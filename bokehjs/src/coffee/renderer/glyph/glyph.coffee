@@ -23,9 +23,9 @@ class GlyphView extends ContinuumView
 
     return @
 
-  render: (ctx, indicies) ->
+  render: (ctx, indicies, data) ->
     if @mget("visible")
-      @_render(ctx, indicies)
+      @_render(ctx, indicies, data)
 
   map_data: () ->
     # map all the coordinate fields
@@ -61,17 +61,14 @@ class GlyphView extends ContinuumView
     for name, prop of @fields
       @[name] = prop.array(source)
 
-    # finally, warm the visual properties cache
-    for name, prop of @visuals
-      prop.warm_cache(source)
-
     @_set_data()
 
     @index = @_index_data()
 
-    length = source.get_length()
-    length = 1 if not length?
-    [0...length]
+  set_visuals: (source) ->
+    # finally, warm the visual properties cache
+    for name, prop of @visuals
+      prop.warm_cache(source)
 
   bounds: () ->
     if not @index?
@@ -85,6 +82,7 @@ class GlyphView extends ContinuumView
   # any additional customization can happen here
   _set_data: () -> null
   _map_data: () -> null
+  _mask_data: (inds) -> inds
   _bounds: (bds) -> bds
 
   _xy_index: () ->

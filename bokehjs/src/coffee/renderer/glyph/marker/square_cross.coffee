@@ -3,9 +3,9 @@ Marker = require "./marker"
 
 class SquareCrossView extends Marker.View
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
+  _render: (ctx, indices, {sx, sy, size}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + size[i])
+      if isNaN(sx[i]+sy[i]+size[i])
         continue
 
       ctx.translate(sx[i], sy[i])

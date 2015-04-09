@@ -20,11 +20,9 @@ class AnnularWedgeView extends Glyph.View
     for i in [0...@start_angle.length]
       @angle[i] = @end_angle[i] - @start_angle[i]
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, sinner_radius=@sinner_radius,
-            souter_radius=@souter_radius) ->
+  _render: (ctx, indices, {sx, sy, start_angle, angle, sinner_radius, souter_radius, direction}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i] +
-               @start_angle[i] + @angle[i] + @direction[i])
+      if isNaN(sx[i]+sy[i]+sinner_radius[i]+souter_radius[i]+start_angle[i]+angle[i]+direction[i])
         continue
 
       ctx.translate(sx[i], sy[i])
@@ -32,13 +30,13 @@ class AnnularWedgeView extends Glyph.View
 
       ctx.moveTo(souter_radius[i], 0)
       ctx.beginPath()
-      ctx.arc(0, 0, souter_radius[i], 0, @angle[i], @direction[i])
+      ctx.arc(0, 0, souter_radius[i], 0, angle[i], direction[i])
       ctx.rotate(@angle[i])
       ctx.lineTo(sinner_radius[i], 0)
-      ctx.arc(0, 0, sinner_radius[i], 0, -@angle[i], not @direction[i])
+      ctx.arc(0, 0, sinner_radius[i], 0, -angle[i], not direction[i])
       ctx.closePath()
 
-      ctx.rotate(-@angle[i]-@start_angle[i])
+      ctx.rotate(-angle[i]-start_angle[i])
       ctx.translate(-sx[i], -sy[i])
 
       if @visuals.fill.do_fill
@@ -113,7 +111,8 @@ class AnnularWedgeView extends Glyph.View
     souter_radius = { }
     souter_radius[reference_point] = r*0.8
 
-    @_render(ctx, indices, sx, sy, sinner_radius, souter_radius)
+    data = {sx: sx, sy: sy, sinner_radius: sinner_radius, souter_radius: souter_radius}
+    @_render(ctx, indices, data)
 
 class AnnularWedge extends Glyph.Model
   default_view: AnnularWedgeView

@@ -3,9 +3,9 @@ Marker = require "./marker"
 
 class TriangleView extends Marker.View
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
+  _render: (ctx, indices, {sx, sy, size}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + size[i])
+      if isNaN(sx[i]+sy[i]+size[i])
         continue
 
       a = size[i] * Math.sqrt(3)/6

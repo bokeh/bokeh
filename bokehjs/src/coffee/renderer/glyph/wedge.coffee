@@ -13,13 +13,13 @@ class WedgeView extends Glyph.View
     else
       @sradius = @radius
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->
+  _render: (ctx, indices, {sx, sy, sradius, start_angle, end_angle, direction}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + sradius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
+      if isNaN(sx[i]+sy[i]+sradius[i]+start_angle[i]+end_angle[i]+direction[i])
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], @start_angle[i], @end_angle[i], @direction[i])
+      ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction[i])
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
 

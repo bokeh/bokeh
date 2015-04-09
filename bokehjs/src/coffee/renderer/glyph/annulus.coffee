@@ -15,8 +15,8 @@ class AnnulusView extends Glyph.View
       @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
     else
       @souter_radius = @outer_radius
-  _render: (ctx, indices, sx=@sx, sy=@sy, sinner_radius=@sinner_radius,
-            souter_radius=@souter_radius) ->
+
+  _render: (ctx, indices, {sx, sy, sinner_radius, souter_radius}) ->
     for i in indices
       if isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i])
         continue
@@ -77,7 +77,9 @@ class AnnulusView extends Glyph.View
     souter_radius = { }
     souter_radius[reference_point] = r*0.8
 
-    @_render(ctx, indices, sx, sy, sinner_radius, souter_radius)
+    data = {sx: sx, sy: sy, sinner_radius: sinner_radius, souter_radius: souter_radius}
+
+    @_render(ctx, indices, data)
 
 class Annulus extends Glyph.Model
   default_view: AnnulusView

@@ -24,20 +24,20 @@ class RectView extends Glyph.View
     else
       @sh = @height
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
+  _render: (ctx, indices, {sx, sy, sw, sh, angle}) ->
     if @visuals.fill.do_fill
       for i in indices
-        if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
+        if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+angle[i])
           continue
 
         #no need to test the return value, we call fillRect for every glyph anyway
         @visuals.fill.set_vectorize(ctx, i)
 
-        if @angle[i]
+        if angle[i]
           ctx.translate(sx[i], sy[i])
-          ctx.rotate(@angle[i])
+          ctx.rotate(angle[i])
           ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-          ctx.rotate(-@angle[i])
+          ctx.rotate(-angle[i])
           ctx.translate(-sx[i], -sy[i])
         else
           ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
@@ -47,7 +47,7 @@ class RectView extends Glyph.View
 
       for i in indices
 
-        if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
+        if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
           continue
 
         # fillRect does not fill zero-height or -width rects, but rect(...)
@@ -56,11 +56,11 @@ class RectView extends Glyph.View
         if sw[i]==0 or sh[i]==0
           continue
 
-        if @angle[i]
+        if angle[i]
           ctx.translate(sx[i], sy[i])
-          ctx.rotate(@angle[i])
+          ctx.rotate(angle[i])
           ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-          ctx.rotate(-@angle[i])
+          ctx.rotate(-angle[i])
           ctx.translate(-sx[i], -sy[i])
         else
           ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])

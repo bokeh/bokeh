@@ -24,9 +24,9 @@ class OvalView extends Glyph.View
     else
       @sh = @height
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
+  _render: (ctx, indices, {sx, sy, sw, sh}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
+      if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+@angle[i])
         continue
 
       ctx.translate(sx[i], sy[i])
