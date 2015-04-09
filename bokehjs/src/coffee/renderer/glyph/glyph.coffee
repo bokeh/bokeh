@@ -3,7 +3,6 @@ rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
 HasParent = require "../../common/has_parent"
-Collection = require "../../common/collection"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
@@ -19,6 +18,8 @@ class GlyphView extends ContinuumView
     for name, func of properties.factories
       @[name] = {}
       @[name] = _.extend(@[name], func(@model))
+
+    @warned = {}
 
     return @
 
@@ -137,8 +138,7 @@ class GlyphView extends ContinuumView
     if @[func]?
       result = @[func](geometry)
     else if not @warned[geometry.type]?
-      logger.error("'#{geometry.type}' selection not available factories
-                    #{@model.type}")
+      logger.error("'#{geometry.type}' selection not available for #{@model.type}")
       @warned[geometry.type] = true
 
     return result
@@ -250,9 +250,6 @@ class Glyph extends HasParent
       result = _.extend result, super(), defaults
     return result
 
-class Glyphs extends Collection
-
 module.exports =
   Model: Glyph
   View: GlyphView
-  Collection: Glyphs

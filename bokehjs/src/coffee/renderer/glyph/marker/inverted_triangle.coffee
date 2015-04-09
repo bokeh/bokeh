@@ -30,10 +30,6 @@ class InvertedTriangle extends Marker.Model
   default_view: InvertedTriangleView
   type: 'InvertedTriangle'
 
-class InvertedTriangles extends Marker.Collection
-  model: InvertedTriangle
-
 module.exports =
   Model: InvertedTriangle
   View: InvertedTriangleView
-  Collection: new InvertedTriangles()

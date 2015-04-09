@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 GestureTool = require "./gesture_tool"
 
 # Here for testing purposes
@@ -117,10 +116,6 @@ class WheelZoomTool extends GestureTool.Model
       speed: 1/600
     })
 
-class WheelZoomTools extends Collection
-  model: WheelZoomTool
-
 module.exports =
   Model: WheelZoomTool
   View: WheelZoomToolView
-  Collection: new WheelZoomTools()

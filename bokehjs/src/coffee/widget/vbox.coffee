@@ -1,6 +1,5 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -41,10 +40,6 @@ class VBox extends HasParent
   children: () ->
     return @get('children')
 
-class VBoxes extends Collection
-  model: VBox
-
 module.exports =
   Model: VBox
   View: VBoxView
-  Collection: new VBoxes()

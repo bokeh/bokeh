@@ -6,7 +6,6 @@ if global._bokehTest?
 else
   $1 = require "jquery-ui/autocomplete"
   $2 = require "jquery-ui/spinner"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 
@@ -15,8 +14,6 @@ class CellEditor extends HasProperties
 
   defaults: () ->
     return _.extend {}, super(), @editorDefaults
-
-class CellEditorCollection extends Collection
 
 class CellEditorView extends ContinuumView
 
@@ -116,17 +113,11 @@ class StringEditor extends CellEditor
   editorDefaults:
     completions: []
 
-class StringEditors extends CellEditorCollection
-  model: StringEditor
-
 class TextEditorView extends CellEditorView
 
 class TextEditor extends CellEditor
   type: 'TextEditor'
   default_view: TextEditorView
-
-class TextEditors extends CellEditorCollection
-  model: TextEditor
 
 class SelectEditorView extends CellEditorView
 
@@ -147,17 +138,11 @@ class SelectEditor extends CellEditor
   editorDefaults:
     options: []
 
-class SelectEditors extends CellEditorCollection
-  model: SelectEditor
-
 class PercentEditorView extends CellEditorView
 
 class PercentEditor extends CellEditor
   type: 'PercentEditor'
   default_view: PercentEditorView
-
-class PercentEditors extends CellEditorCollection
-  model: PercentEditor
 
 class CheckboxEditorView extends CellEditorView
 
@@ -175,9 +160,6 @@ class CheckboxEditorView extends CellEditorView
 class CheckboxEditor extends CellEditor
   type: 'CheckboxEditor'
   default_view: CheckboxEditorView
-
-class CheckboxEditors extends CellEditorCollection
-  model: CheckboxEditor
 
 class IntEditorView extends CellEditorView
 
@@ -211,9 +193,6 @@ class IntEditor extends CellEditor
   editorDefaults:
     step: 1
 
-class IntEditors extends CellEditorCollection
-  model: IntEditor
-
 class NumberEditorView extends CellEditorView
 
   input: '<input type="text" />'
@@ -246,17 +225,11 @@ class NumberEditor extends CellEditor
   editorDefaults:
     step: 0.01
 
-class NumberEditors extends CellEditorCollection
-  model: NumberEditor
-
 class TimeEditorView extends CellEditorView
 
 class TimeEditor extends CellEditor
   type: 'TimeEditor'
   default_view: TimeEditorView
-
-class TimeEditors extends CellEditorCollection
-  model: TimeEditor
 
 class DateEditorView extends CellEditorView
 
@@ -305,51 +278,39 @@ class DateEditor extends CellEditor
   type: 'DateEditor'
   default_view: DateEditorView
 
-class DateEditors extends CellEditorCollection
-  model: DateEditor
-
 module.exports =
   String:
     Model: StringEditor
-    Collection: new StringEditors()
     View: StringEditorView
 
   Text:
     Model: TextEditor
-    Collection: new TextEditors()
     View: TextEditorView
 
   Select:
     Model: SelectEditor
-    Collection: new SelectEditors()
     View: SelectEditorView
 
   Percent:
     Model: PercentEditor
-    Collection: new PercentEditors()
     View: PercentEditorView
 
   Checkbox:
     Model: CheckboxEditor
-    Collection: new CheckboxEditors()
     View: CheckboxEditorView
 
   Int:
     Model: IntEditor
-    Collection: new IntEditors()
     View: IntEditorView
 
   Number:
     Model: NumberEditor
-    Collection: new NumberEditors()
     View: NumberEditorView
 
   Time:
     Model: TimeEditor
-    Collection: new TimeEditors()
     View: TimeEditorView
 
   Date:
     Model: DateEditor
-    Collection: new DateEditors()
     View: DateEditorView

@@ -3,7 +3,6 @@ if global._bokehTest?
   $1 = undefined  # TODO Make work
 else
   $1 = require "jquery-ui/autocomplete"
-Collection = require "../common/collection"
 TextInput = require "./text_input"
 
 class AutocompleteInputView extends TextInput.View
@@ -24,10 +23,6 @@ class AutocompleteInput extends TextInput.Model
       completions: []
     }
 
-class AutocompleteInputs extends Collection
-  model: AutocompleteInput
-
 module.exports =
   View: AutocompleteInputView
   Model: AutocompleteInput
-  Collection: new AutocompleteInputs()

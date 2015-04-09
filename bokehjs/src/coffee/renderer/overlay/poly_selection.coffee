@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
@@ -63,10 +62,6 @@ class PolySelection extends HasParent
       data: {}
     })
 
-class PolySelections extends Collection
-  model: PolySelection
-
 module.exports =
   Model: PolySelection
-  Collection: new PolySelections()
   View: PolySelectionView

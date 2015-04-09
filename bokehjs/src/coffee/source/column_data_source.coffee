@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 SelectionManager = require "../common/selection_manager"
 
@@ -37,9 +36,5 @@ class ColumnDataSource extends HasProperties
       selection_manager: new SelectionManager({'source':@})
     }
 
-class ColumnDataSources extends Collection
-  model: ColumnDataSource
-
 module.exports =
   Model: ColumnDataSource
-  Collection: new ColumnDataSources()

@@ -28,10 +28,6 @@ class CircleX extends Marker.Model
   default_view: CircleXView
   type: 'CircleX'
 
-class CircleXs extends Marker.Collection
-  model: CircleX
-
 module.exports =
   Model: CircleX
   View: CircleXView
-  Collection: new CircleXs()

@@ -24,10 +24,6 @@ class Cross extends Marker.Model
   type: 'Cross'
   props: ['line']
 
-class Crosses extends Marker.Collection
-  model: Cross
-
 module.exports =
   Model: Cross
   View: CrossView
-  Collection: new Crosses()

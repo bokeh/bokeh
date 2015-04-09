@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 PolySelection = require "../../renderer/overlay/poly_selection"
 SelectTool = require "./select_tool"
 
@@ -88,10 +87,6 @@ class LassoSelectTool extends SelectTool.Model
       select_every_mousemove: true
     })
 
-class LassoSelectTools extends Collection
-  model: LassoSelectTool
-
 module.exports =
   Model: LassoSelectTool
-  Collection: new LassoSelectTools()
   View: LassoSelectToolView

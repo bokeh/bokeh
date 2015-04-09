@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -40,10 +39,6 @@ class Icon extends HasParent
       spin: false
     }
 
-class Icons extends Collection
-  model: Icon
-
 module.exports =
   Model: Icon
   View: IconView
-  Collection: new Icons()

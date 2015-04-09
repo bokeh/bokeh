@@ -1,4 +1,3 @@
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class GridMapper extends HasProperties
@@ -23,9 +22,5 @@ class GridMapper extends HasProperties
     ys = @get('codomain_mapper').v_map_from_target(yprimes)
     return [xs, ys]
 
-class GridMappers extends Collection
-  model: GridMapper
-
 module.exports =
   Model: GridMapper
-  Collection: new GridMappers()

@@ -47,10 +47,6 @@ class MultiLine extends Glyph.Model
   visuals: ['line']
   coords: [ ['xs', 'ys'] ]
 
-class MultiLines extends Glyph.Collection
-  model: MultiLine
-
 module.exports =
   Model: MultiLine
   View: MultiLineView
-  Collection: new MultiLines()

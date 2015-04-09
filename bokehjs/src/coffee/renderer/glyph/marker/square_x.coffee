@@ -33,10 +33,6 @@ class SquareX extends Marker.Model
   default_view: SquareXView
   type: 'SquareX'
 
-class SquareXs extends Marker.Collection
-  model: SquareX
-
 module.exports =
   Model: SquareX
   View: SquareXView
-  Collection: new SquareXs()
