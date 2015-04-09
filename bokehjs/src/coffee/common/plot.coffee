@@ -302,11 +302,13 @@ class PlotView extends ContinuumView
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.fillStyle = @mget('border_fill')
-    ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
-                 @canvas_view.mget('canvas_height')) # TODO
-    ctx.fillStyle = @mget('background_fill')
-    ctx.fillRect.apply(ctx, frame_box)
+    # todo: paint bg color and border fill to webgl canvas
+    #ctx.fillStyle = @mget('border_fill')
+    #ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
+    #             @canvas_view.mget('canvas_height')) # TODO
+    #ctx.fillStyle = @mget('background_fill')
+    #ctx.fillStyle = "rgba(0, 0, 200, 0.0)";
+    #ctx.fillRect.apply(ctx, frame_box)
 
 class Plot extends HasParent
   type: 'Plot'

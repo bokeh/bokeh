@@ -35,7 +35,7 @@ create_gl_vis = (canvas2d, canvas3d) ->
   varying vec2 v_position;
   void main() {
       gl_FragColor = texture2D(tex, vec2(v_position.x, 1.0-v_position.y));
-      gl_FragColor.a = 1.0;
+      //gl_FragColor.a = 1.0;
   }"""
   
   VERT_DATA = new Float32Array([0.0, 0.0,  1.0, 0.0,  0.0, 1.0,  0.0, 1.0,  1.0, 0.0,  1.0, 1.0, ])
@@ -57,15 +57,16 @@ create_gl_vis = (canvas2d, canvas3d) ->
     # connect
     @command(['ATTRIBUTE', 'ctx_prog', 'a_position', 'vec2', ['ctx_vert', 0, 0]]);
     @command(['TEXTURE', 'ctx_prog', 'u_sampler', 'ctx_tex']);    
-    #@command(['FUNC', 'blendFunc', 'SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA']);
+    
     @command(['FUNC', 'enable', 'BLEND']);
+    @command(['FUNC', 'blendFunc', 'SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA']);
     
   glx._render = () ->
     # Update texture
     @command(['DATA', 'ctx_tex', [0, 0], canvas2d])
     # Render it
     console.log('rendering GL ...')
-    @command(['FUNC', 'clearColor', 0, 1, 1, 1])
+    @command(['FUNC', 'clearColor', 0.7, 1, 1, 1])
     @command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT'])    
     @command(['DRAW', 'ctx_prog', 'TRIANGLES', [0, 6]])
     # We "manually" push the commands, we don't use Vispy's event loop
