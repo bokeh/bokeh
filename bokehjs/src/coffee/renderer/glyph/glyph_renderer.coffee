@@ -92,12 +92,11 @@ class GlyphRendererView extends PlotWidget
       dtrender = Date.now() - trender
     else
 
-      tselect = Date.now()
       # reset the selection mask
+      tselect = Date.now()
       selected_mask = {}
       for i in selected
         selected_mask[i] = true
-      #selected_mask = (i in selected for i in @all_indices)
 
       # intersect/different selection with render mask
       selected = new Array()
