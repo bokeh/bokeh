@@ -20,7 +20,7 @@ from __future__ import absolute_import, division
 from math import pi
 import pandas as pd
 from ..utils import cycle_colors, polar_to_cartesian
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
 from ...models.glyphs import AnnularWedge, Text, Wedge
 from ...properties import Any, Bool, Either, List
@@ -68,7 +68,7 @@ def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **
     )
 
 
-class DonutBuilder(Builder):
+class DonutBuilder(TabularSourceBuilder):
     """This is the Donut class and it is in charge of plotting
     Donut chart in an easy and intuitive way.
 
@@ -92,7 +92,8 @@ class DonutBuilder(Builder):
         points to be used by the Wedge glyph inside the ``_yield_renderers`` method.
 
         """
-        dd = dict(zip(self._values.keys(), self._values.values()))
+        dd = dict([(k, vs) for k, vs in self._values.items() if k in self.y_names])
+
         self._df = df = pd.DataFrame(dd)
         df.index = self.cat
         df.columns = self._values.keys()
@@ -140,9 +141,9 @@ class DonutBuilder(Builder):
         )
         text_source = ColumnDataSource(dict(text=text, x=x, y=y))
         glyph = Text(
-                x="x", y="y", text="text",
-                text_align="center", text_baseline="middle"
-            )
+            x="x", y="y", text="text",
+            text_align="center", text_baseline="middle"
+        )
         yield GlyphRenderer(data_source=text_source, glyph=glyph)
 
     def draw_external_ring(self, colors=None):

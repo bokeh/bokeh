@@ -59,6 +59,36 @@ def stock(ticker1, ticker2):
 
 stock.route("/bokeh/stocks/")
 
+import bokeh.plotting as bk
+from bokeh.models import ColumnDataSource, Plot
+from bokeh.models.widgets import Select, AppVBox
+from bokeh.simpleapp import simpleapp
+
+data = {"a": {"x": [1,2,3], "y": [1,2,3]},
+        "b": {"x": [3,2,1], "y": [1,2,3]},
+        "c": {"x": [2,2,2], "y": [1,2,3]},}
+
+
+options = ["a", "b", "c"]
+select1 = Select(name = 'ticker1', value = options[0], options = options)
+
+@simpleapp(select1)
+def test_layout(ticker1):
+    p = bk.figure(title = "layout test")
+
+    chart_data = data[ticker1]
+
+    df = ColumnDataSource(data = chart_data)
+    p.circle(x = chart_data["x"], y = chart_data["y"])
+
+    return {'plot': p}
+
+@test_layout.layout
+def layout(app):
+    return AppVBox(app=app, children=['ticker1', 'plot'])
+
+test_layout.route("/bokeh/layout/")
+
 @simpleapp(select1, select2)
 def stock2(ticker1, ticker2):
     pretext = PreText(text="", width=500)

@@ -83,8 +83,6 @@ class Builder(HasProps):
 
     x_range = Instance(Range)
     y_range = Instance(Range)
-    y_names = Seq(String)
-    x_names = Seq(String)
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
     source = Instance(ColumnDataSource)
@@ -261,6 +259,9 @@ class TabularSourceBuilder(Builder):
     # all the implementation for the xnames, ynames functionality goes here
     # added bonus: the __init__ signature can actually have xnames and ynames
     # as real parameters! Much better for docs
+    y_names = Seq(String)
+    x_names = Seq(String)
+
     index = Any(help="""
         An index to be used for all data series as follows:
 

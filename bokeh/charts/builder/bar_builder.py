@@ -135,8 +135,8 @@ class BarBuilder(Builder):
         if not self.cat:
             self.cat = [str(x) for x in self._values.index]
         self._data[self.prefix + 'cat'] = self.cat
-
         self._data[self.prefix + 'width'] = [0.8] * len(self.cat)
+
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
         # little bit faster
@@ -146,17 +146,18 @@ class BarBuilder(Builder):
 
         # list to save all the groups available in the incomming input grouping
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
-
         for i, (val, values) in enumerate(self._values.items()):
             if not val in self._data:
                 self._data[val] = list(values)
-            mid = np.array(values) / 2
-            self._data["%smid%s" % (self.prefix, val)] = mid
-            # Grouped
-            self._data["%scat%s" % (self.prefix, val)] = [c + ":" + str(step[i + 1]) for c in self.cat]
-            # Stacked
-            self._data["%sstacked%s" % (self.prefix, val)] = zero + mid
-            zero += values
+
+            if val in self.y_names:
+                mid = np.array(values) / 2
+                self._data["%smid%s" % (self.prefix, val)] = mid
+                # Grouped
+                self._data["%scat%s" % (self.prefix, val)] = [c + ":" + str(step[i + 1]) for c in self.cat]
+                # Stacked
+                self._data["%sstacked%s" % (self.prefix, val)] = zero + mid
+                zero += values
 
     def _set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate

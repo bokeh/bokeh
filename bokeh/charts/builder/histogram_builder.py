@@ -25,7 +25,7 @@ except ImportError as e:
 import numpy as np
 
 from ..utils import cycle_colors
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from ...models import GlyphRenderer, Range1d
 from ...models.glyphs import Line, Quad
 from ...properties import Bool, Float, Int
@@ -83,7 +83,7 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
     )
 
 
-class HistogramBuilder(Builder):
+class HistogramBuilder(TabularSourceBuilder):
     """This is the Histogram class and it is in charge of plotting
     histograms in an easy and intuitive way.
 

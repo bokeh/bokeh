@@ -23,7 +23,7 @@ try:
 except ImportError:
     pd = None
 from ..utils import make_scatter
-from .._builder import Builder, create_and_build
+from .._builder import TabularSourceBuilder, create_and_build
 from ...models import FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
 from ...properties import Any, Bool, Either, List
@@ -74,7 +74,7 @@ def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-class DotBuilder(Builder):
+class DotBuilder(TabularSourceBuilder):
     """This is the Dot class and it is in charge of plotting Dot chart
      in an easy and intuitive way.
 
