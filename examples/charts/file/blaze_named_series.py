@@ -32,7 +32,7 @@ scatter2 = Scatter(datasource, y_names=ys_sh, x_names=xs_sh,
 line = Line(bbvalues, y_names=ys, title="Line Chart", **pkws)
 # area = Area(bbvalues, y_names=ys, title="Area Chart", **pkws)
 
-mix = Line(df, y_names=ys, x_names = ['myx'], width=1000, height=500,
+mix = Line(df, y_names=ys, x_names=['myx'], width=1000, height=500,
            title="Mixed Chart", ylabel='Petals', legend="top_left")
 Scatter(df, y_names=ys, x_names=['myx'], chart=mix)
 

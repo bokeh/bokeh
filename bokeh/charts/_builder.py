@@ -18,6 +18,7 @@ types on top of it.
 
 from __future__ import absolute_import
 
+from six import string_types
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
@@ -148,6 +149,8 @@ class Builder(HasProps):
         )
         if not self.x_names:
             self.x_names = ["x"]
+        elif isinstance(self.x_names, string_types):
+                self.x_names = [self.x_names]
 
         if not self.y_names:
             self.y_names = [k for k in self._values.keys() if k not in self.x_names]
@@ -300,6 +303,8 @@ class TabularSourceBuilder(Builder):
             )
             if not self.x_names:
                 self.x_names = ["x"]
+            elif isinstance(self.x_names, string_types):
+                    self.x_names = [self.x_names]
 
         if not self.y_names:
             self.y_names = [k for k in self._values.keys() if k not in self.x_names]
