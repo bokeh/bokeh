@@ -91,10 +91,6 @@ class ImageURL extends Glyph.Model
       level: 'underlay'
     }
 
-class ImageURLs extends Glyph.Collection
-  model: ImageURL
-
 module.exports =
   Model: ImageURL
   View: ImageURLView
-  Collection: new ImageURLs()

@@ -59,10 +59,6 @@ class Quadratic extends Glyph.Model
   visuals: ['line']
   coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy'] ]
 
-class Quadratics extends Glyph.Collection
-  model: Quadratic
-
 module.exports =
   Model: Quadratic
   View: QuadraticView
-  Collection: new Quadratics()

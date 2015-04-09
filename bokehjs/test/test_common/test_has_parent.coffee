@@ -7,9 +7,9 @@ base = utils.require "common/base"
 
 describe "has_parent module", ->
   before ->
-    base.locations['TestParent'] = fixtures
+    base.collection_overrides['TestParent'] = fixtures.Collection
   after ->
-    base.locations['TestParent'] = undefined
+    base.collection_overrides['TestParent'] = undefined
   beforeEach ->
     fixtures.Collection.reset()
 

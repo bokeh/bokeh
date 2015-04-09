@@ -50,10 +50,6 @@ class Text extends Glyph.Model
       y_offset: 0
     }
 
-class Texts extends Glyph.Collection
-  model: Text
-
 module.exports =
   Model: Text
   View: TextView
-  Collection: new Texts()

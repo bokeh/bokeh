@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 Paragraph = require "./paragraph"
 
 class PreTextView extends Paragraph.View
@@ -18,10 +17,6 @@ class PreText extends Paragraph.Model
       width: 400
     }
 
-class PreTexts extends Collection
-  model: PreText
-
 module.exports =
   Model: PreText
   View: PreTextView
-  Collection: new PreTexts()

@@ -10,7 +10,6 @@ else
   SlickGrid = require "slick_grid/slick.grid"
   RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
   CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties= require "../common/has_properties"
 DOMUtil = require "../util/dom_util"
@@ -185,10 +184,6 @@ class DataTable extends HasProperties
       row_headers: true
     }
 
-class DataTables extends Collection
-  model: DataTable
-
 module.exports =
   Model: DataTable
   View: DataTableView
-  Collection: new DataTables()

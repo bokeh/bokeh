@@ -28,10 +28,6 @@ class Square extends Marker.Model
   type: 'Square'
   angles: ['angle']
 
-class Squares extends Marker.Collection
-  model: Square
-
 module.exports =
   Model: Square
   View: SquareView
-  Collection: new Squares()

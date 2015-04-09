@@ -1,6 +1,5 @@
 _ = require "jquery"
 $ = require "underscore"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 multiselecttemplate = require "./multiselecttemplate"
@@ -50,10 +49,6 @@ class MultiSelect extends HasParent
       options: []
     }
 
-class MultiSelects extends Collection
-  model: MultiSelect
-
 module.exports =
   Model: MultiSelect
   View: MultiSelectView
-  Collection: new MultiSelects()

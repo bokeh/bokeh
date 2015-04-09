@@ -1,7 +1,6 @@
 _ = require "underscore"
 SPrintf = require "sprintf"
 tz = require "timezone"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 
@@ -213,10 +212,6 @@ class DatetimeTickFormatter extends HasProperties
       formats: {}
     }
 
-class DatetimeTickFormatters extends Collection
-  model: DatetimeTickFormatter
-
 module.exports =
   Model: DatetimeTickFormatter
-  Collection: new DatetimeTickFormatters()
 

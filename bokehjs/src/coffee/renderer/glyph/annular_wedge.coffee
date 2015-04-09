@@ -49,22 +49,34 @@ class AnnularWedgeView extends Glyph.View
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx)
-    x0 = x - @max_outer_radius
-    x1 = x + @max_outer_radius
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
-    y = @renderer.ymapper.map_from_target(vy)
-    y0 = y - @max_outer_radius
-    y1 = y + @max_outer_radius
+    # check radius first
+    if @distances.outer_radius.units == "data"
+      x0 = x - @max_outer_radius
+      x1 = x + @max_outer_radius
+
+      y0 = y - @max_outer_radius
+      y1 = y + @max_outer_radius
+
+    else
+      vx0 = vx - @max_outer_radius
+      vx1 = vx + @max_outer_radius
+      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+
+      vy0 = vy - @max_outer_radius
+      vy1 = vy + @max_outer_radius
+      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     candidates = []
     for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
       or2 = Math.pow(@souter_radius[i], 2)
       ir2 = Math.pow(@sinner_radius[i], 2)
-      sx0 = @renderer.xmapper.map_to_target(x)
-      sx1 = @renderer.xmapper.map_to_target(@x[i])
-      sy0 = @renderer.ymapper.map_to_target(y)
-      sy1 = @renderer.ymapper.map_to_target(@y[i])
+      sx0 = @renderer.xmapper.map_to_target(x, true)
+      sx1 = @renderer.xmapper.map_to_target(@x[i], true)
+      sy0 = @renderer.ymapper.map_to_target(y, true)
+      sy1 = @renderer.ymapper.map_to_target(@y[i], true)
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if dist <= or2 and dist >= ir2
         candidates.push([i, dist])
@@ -75,8 +87,7 @@ class AnnularWedgeView extends Glyph.View
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
       # NOTE: minus the angle because JS uses non-mathy convention for angles
       angle = Math.atan2(sy-@sy[i], sx-@sx[i])
-      if mathutils.angle_between(-angle, -@start_angle[i], -@end_angle[i],
-                                 @direction[i])
+      if mathutils.angle_between(-angle, -@start_angle[i], -@end_angle[i], @direction[i])
         hits.push([i, dist])
 
     hits = _.chain(hits)
@@ -115,10 +126,6 @@ class AnnularWedge extends Glyph.Model
       direction: 'anticlock'
     }
 
-class AnnularWedges extends Glyph.Collection
-  model: AnnularWedge
-
 module.exports =
   Model: AnnularWedge
   View: AnnularWedgeView
-  Collection: new AnnularWedges()

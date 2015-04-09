@@ -101,10 +101,6 @@ class Bezier extends Glyph.Model
   visuals: ['line']
   coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1'] ]
 
-class Beziers extends Glyph.Collection
-  model: Bezier
-
 module.exports =
   Model: Bezier
   View: BezierView
-  Collection: new Beziers()

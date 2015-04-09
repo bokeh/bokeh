@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 
@@ -53,10 +52,6 @@ class BoxSelection extends HasParent
       data: {}
     })
 
-class BoxSelections extends Collection
-  model: BoxSelection
-
 module.exports =
   Model: BoxSelection
-  Collection: new BoxSelections()
   View: BoxSelectionView

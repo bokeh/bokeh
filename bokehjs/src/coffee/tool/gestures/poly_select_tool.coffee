@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 PolySelection = require "../../renderer/overlay/poly_selection"
 SelectTool = require "./select_tool"
 
@@ -77,10 +76,6 @@ class PolySelectTool extends SelectTool.Model
     plot_renderers.push(@get('overlay'))
     @get('plot').set('renderers', plot_renderers)
 
-class PolySelectTools extends Collection
-  model: PolySelectTool
-
 module.exports =
   Model: PolySelectTool
   View: PolySelectToolView
-  Collection: new PolySelectTools()

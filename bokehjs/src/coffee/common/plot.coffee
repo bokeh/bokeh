@@ -10,7 +10,6 @@ build_views = require "./build_views"
 Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
 ContinuumView = require "./continuum_view"
-Collection = require "./collection"
 UIEvents = require "./ui_events"
 HasParent = require "./has_parent"
 LayoutBox = require "./layout_box"
@@ -349,7 +348,6 @@ class Plot extends HasParent
     # TODO (bev) titles should probably be a proper guide, then they could go
     # on any side, this will do to get the PR merged
     @title_panel = new LayoutBox.Model({solver: solver})
-    LayoutBox.Collection.add(@title_panel)
     @title_panel._anchor = @title_panel._bottom
     elts = @get('above')
     elts.push(@title_panel)
@@ -459,10 +457,6 @@ class Plot extends HasParent
       outline_line_dash_offset: 0
     }
 
-class Plots extends Collection
-  model: Plot
-
 module.exports =
   Model: Plot
-  Collection: new Plots()
   View: PlotView

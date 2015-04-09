@@ -48,10 +48,6 @@ class Quad extends Glyph.Model
   type: 'Quad'
   coords: [ ['right', 'bottom'], ['left', 'top'] ]
 
-class Quads extends Glyph.Collection
-  model: Quad
-
 module.exports =
   Model: Quad
   View: QuadView
-  Collection: new Quads()

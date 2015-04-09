@@ -32,10 +32,6 @@ class DiamondCross extends Marker.Model
   default_view: DiamondCrossView
   type: 'DiamondCross'
 
-class DiamondCrosses extends Marker.Collection
-  model: DiamondCross
-
 module.exports =
   Model: DiamondCross
   View: DiamondCrossView
-  Collection: new DiamondCrosses()

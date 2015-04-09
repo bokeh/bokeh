@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
@@ -54,10 +53,6 @@ class Slider extends HasParent
       orientation: "horizontal"
     }
 
-class Sliders extends Collection
-  model: Slider
-
 module.exports =
   Model: Slider
   View: SliderView
-  Collection: new Sliders()

@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 AdaptiveTicker = require "./adaptive_ticker"
 
 class BasicTicker extends AdaptiveTicker.Model
@@ -10,10 +9,6 @@ class BasicTicker extends AdaptiveTicker.Model
       mantissas: [1,2,5]
     }
 
-class BasicTickers extends Collection
-  model: BasicTicker
-
 module.exports =
   Model: BasicTicker
-  Collection: new BasicTickers()
 

@@ -93,6 +93,18 @@ script, when executed, will replace the div with the plot.
     Using these components assumes that BokehJS has already been loaded, for
     instance either inline in the document text, or from CDN.
 
+If you want to load BokehJS from CDN you will have to add the following lines in your
+HTML text or template with the appropriate version::
+
+    <link href="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css" rel="stylesheet" type="text/css">
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js">
+
+For example, if you were using bokeh-0.8.2, you would add::
+
+    <link href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css" rel="stylesheet" type="text/css">
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js">
+
+
 .. _user_guide_embedding_notebook:
 
 IPython Notebook
