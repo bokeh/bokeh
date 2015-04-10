@@ -12,7 +12,7 @@ from .models import glyphs
 from .models import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, RemoteSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
-    FactorRange, Grid, HoverTool, LassoSelectTool, Legend, LinearAxis,
+    FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
     WheelZoomTool)
@@ -243,6 +243,7 @@ _known_tools = {
     ]),
     "previewsave": lambda: PreviewSaveTool(),
     "reset": lambda: ResetTool(),
+    "help": lambda: HelpTool(),
 }
 
 def _tool_from_string(name):
