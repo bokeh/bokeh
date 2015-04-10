@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Testing gloo</title>
+  </head>
+
+<body>
+
+<style>
+#thecanvas {
+    border: 2px solid blue;
+}
+</style>
+    
+<script src="/home/almar/dev/build/vispy.js/scripts/lib/jquery.min.js"></script>
+<script src="/home/almar/dev/build/vispy.js/scripts/lib/jquery-ui/jquery-ui.min.js"></script>
+<script src="/home/almar/dev/build/vispy.js/dist/vispy.min.js"></script>
+
+<script>
+
+function initialize_canvas() {
+    
+    // Create 2D context for visible canvas
+    var canvas2d = document.getElementById('thecanvas');
+    ctx = canvas2d.getContext('2d')
+    
+    // create 3D (invisible) canvas
+    var canvas3d = document.createElement('canvas');
+    var gl = canvas3d.getContext("webgl") || canvas3d.getContext("experimental-webgl");
+    glx = vispy.init(canvas3d);
+    window.canvas3d = canvas3d;
+    
+    canvas3d.width = 300;
+    canvas3d.height = 400;
+    
+    /*
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, 800, 600);    
+    ctx.fillStyle = 'blue';
+    ctx.fillRect(10, 10, 780, 580);    
+    ctx.fillStyle = 'black';
+    for (var i = 0; i < 20; i++) {
+        for (var j = 0; j < 20; j++) {
+            ctx.fillText("Foo bar", i*30, j*20);
+        }
+    }
+    */
+    
+    var painted = false;
+    
+    glx.on_initialize(function (event) {
+        //this.command(['FUNC', 'viewport', 0, 0, 100, 100]);
+        this.command(['FUNC', 'clearColor', 0, 1, 1, 1]); 
+        this.command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT']);
+    });    
+    glx.on_paint(function(event) {
+        this.command(['FUNC', 'viewport', 0, 0, 300, 400]);
+        this.command(['FUNC', 'clearColor', 0, 1, 1, 1]); 
+        this.command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT']);
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(10, 10, 700, 500);
+        if (painted) {
+            ctx.drawImage(canvas3d, 50, 50);
+        }
+        painted = true;
+        document.getElementById('timing').innerHTML = performance.now();
+    });
+    
+    glx.on_resize(function(event) {        
+        //this.command(['FUNC', 'viewport', 0, 0, 100, 100]);
+        this.update();
+    });
+    
+    glx.initialize();
+    glx.resize();
+    
+    return glx;
+    
+};
+
+document.body.onload = function () {
+    var glx = initialize_canvas();
+    vispy.start_event_loop();
+    document.getElementById('timing').onclick = function () {document.body.innerHTML = ''; }
+};
+    
+</script>
+    
+</body>
+    
+    <div id='timing'> </div>
+    <canvas id='thecanvas' width=600, height=400>You don't have a canvas</canvas>
+
+</html>
