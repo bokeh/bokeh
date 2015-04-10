@@ -140,9 +140,12 @@ class SimpleApp(Widget):
         ## set it to be false as soon as the callback is done
         if not self.name:
             return
+        to_delete = []
         for k in self.__dict__.keys():
             if k.startswith('_func'):
-                self.__dict__.pop(k)
+                to_delete.append(k)
+        for k in to_delete:
+            self.__dict__.pop(k)
         counter = 0
         if not self.update_registry.get(self.name):
             name = '_func%d'  % counter
