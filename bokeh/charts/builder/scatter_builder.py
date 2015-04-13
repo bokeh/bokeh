@@ -98,7 +98,7 @@ class ScatterBuilder(TabularSourceBuilder):
                 isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
             return self._parse_groupped_data()
         else:
-            if self.couples:
+            if not self._data and self.couples:
                 return self._parse_coupled_data()
             else:
                 return self._parse_data()
