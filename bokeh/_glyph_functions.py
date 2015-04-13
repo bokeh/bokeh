@@ -4,7 +4,6 @@ from six import iteritems
 from collections import OrderedDict
 
 from .models import glyphs, markers
-from .mixins import FillProps, LineProps
 
 def _glyph_function(glyphclass, dsnames, argnames, docstring):
 
@@ -15,7 +14,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
             _match_data_params, _materialize_colors_and_alpha, _get_legend,
             _make_legend, _get_select_tool
         )
-        from .models import ColumnDataSource, GlyphRenderer, Plot, RemoteSource
+        from .models import ColumnDataSource, GlyphRenderer, Plot
         source = kwargs.pop('source', None)
         if source is None:
             datasource = ColumnDataSource()

@@ -127,10 +127,10 @@ class StepBuilder(Builder):
         """ Push the Step data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        sc = self._source = ColumnDataSource(self._data)
+        self._source = ColumnDataSource(self._data)
         self.x_range = DataRange1d()
 
-        y_sources = [sc.columns("y_%s" % col) for col in self._groups]
+        #y_sources = [sc.columns("y_%s" % col) for col in self._groups]
         self.y_range = DataRange1d()
 
     def _yield_renderers(self):

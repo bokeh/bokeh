@@ -8,6 +8,7 @@ class TestColor(unittest.TestCase):
 
     def test_basic(self):
         c = colors.Color()
+        assert c
 
     def test_abstract(self):
         c = colors.Color()
@@ -52,7 +53,9 @@ class TestRGB(unittest.TestCase):
 
     def test_basic(self):
         c = colors.RGB(10, 20, 30)
+        assert c
         c = colors.RGB(10, 20, 30, 0.3)
+        assert c
 
     def test_repr(self):
         c = colors.RGB(10, 20, 30)
@@ -108,7 +111,9 @@ class TestHSL(unittest.TestCase):
 
     def test_basic(self):
         c = colors.HSL(10, 0.2, 0.3)
+        assert c
         c = colors.HSL(10, 0.2, 0.3, 0.3)
+        assert c
 
     def test_repr(self):
         c = colors.HSL(10, 0.2, 0.3)

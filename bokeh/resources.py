@@ -58,7 +58,8 @@ def _get_cdn_urls(version=None, minified=True):
     if len(__version__.split('-')) > 1:
         result['messages'].append({
             "type" : "warn",
-            "text" : "Requesting CDN BokehJS version '%s' from Bokeh development version '%s'. This configuration is unsupported and may not work!" % (version, __version__)
+            "text" : ("Requesting CDN BokehJS version '%s' from Bokeh development version '%s'. "
+                      "This configuration is unsupported and may not work!" % (version, __version__))
         })
 
     return result
@@ -155,7 +156,8 @@ class Resources(object):
             root_url = root_url + "/"
         self._root_url = root_url
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
-            raise ValueError("wrong value for 'mode' parameter, expected 'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
+            raise ValueError("wrong value for 'mode' parameter, expected "
+                             "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
 
         if self.root_dir and not mode.startswith("relative"):
             raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
@@ -264,7 +266,8 @@ class Resources(object):
         wrapper = lambda code: 'Bokeh.$(function() {\n%s\n});' % pad(code)
 
         if self.dev:
-            js_wrapper = lambda code: 'require(["jquery", "main"], function($, Bokeh) {\nBokeh.set_log_level("%s");\n%s\n});' % (self.log_level, pad(wrapper(code)))
+            template = 'require(["jquery", "main"], function($, Bokeh) {\nBokeh.set_log_level("%s");\n%s\n});'
+            js_wrapper = lambda code: template % (self.log_level, pad(wrapper(code)))
         else:
             js_wrapper = wrapper
 
