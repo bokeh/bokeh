@@ -27,7 +27,7 @@ source repository, issue the following command:
 
 .. code-block:: sh
 
-    $ git clone https://github.com/bokeh/bokeh.git
+    git clone https://github.com/bokeh/bokeh.git
 
 This will create a ``bokeh`` directory at your location. This ``bokeh``
 directory is referred to as the "source checkout" for the remainder of
@@ -54,13 +54,13 @@ from the Bokeh channel on `Binstar <https://binstar.org>`_:
 
 .. code-block:: sh
 
-    $ conda install -c bokeh nodejs
+    conda install -c bokeh nodejs
 
 Alternatively, on Ubuntu you can use ``apt-get``:
 
 .. code-block:: sh
 
-    $ apt-get install npm node
+    apt-get install npm node
 
 
 Install Gulp and necessary plugins
@@ -72,7 +72,7 @@ Execute the following command in the ``bokehjs`` subdirectory:
 
 .. code-block:: sh
 
-    $ npm install
+    npm install
 
 This command will install the necessary packages into the ``node_modules``
 subdirectory (and list them as ``devDependencies`` in ``package.json``).
@@ -95,14 +95,14 @@ command line interface:
 
 .. code-block:: sh
 
-    $ npm install -g gulp
+    npm install -g gulp
 
 To generate the compiled and optimized BokehJS libraries, and deploy
 them to the ``build`` subdirectory:
 
 .. code-block:: sh
 
-    $ gulp build
+    gulp build
 
 To direct Gulp to automatically watch the source tree for changes and
 trigger a recompile if any source file changes. This is especially
@@ -111,7 +111,7 @@ afford a more rapid development cycle:
 
 .. code-block:: sh
 
-    $ gulp watch
+    gulp watch
 
 
 Building BokehJS with SBT
@@ -126,7 +126,7 @@ run the command:
 
 .. code-block:: sh
 
-    $ ./sbt
+    ./sbt
 
 in the top level directory. This will download ``sbt`` (and its dependencies)
 itself, and configure the build system.
@@ -168,7 +168,7 @@ With either mode, you will be prompted for how to install BokehJS, e.g.:
 
 .. code-block:: sh
 
-    $ python setup.py install
+    python setup.py install
 
     Bokeh includes a JavaScript library (BokehJS) that has its own
     build process. How would you like to handle BokehJS:
@@ -219,7 +219,7 @@ in the root of the bokeh repository, similar to the following example:
 
 .. code-block:: sh
 
-    $ python bokeh-server --script path\to\<yourapp>.py
+    python bokeh-server --script path\to\<yourapp>.py
 
 Incremental Compilation
 -----------------------
@@ -237,16 +237,16 @@ to indicate that BokehJS should be loaded from individual sources:
 
 .. code-block:: sh
 
-    $ BOKEH_RESOURCES=relative-dev python example.py
+    BOKEH_RESOURCES=relative-dev python example.py
 
 For Bokeh server examples, simply add the ``--dev`` command line flag to the
 server invocation:
 
 .. code-block:: sh
 
-    $ bokeh-server --dev
+    bokeh-server --dev
 
-    $ python example-server.py
+    python example-server.py
 
 .. _AMD module: http://requirejs.org/docs/whyamd.html
 .. _Binstar: https://binstar.org
