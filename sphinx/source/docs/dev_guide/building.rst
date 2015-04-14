@@ -105,9 +105,7 @@ them to the ``build`` subdirectory:
     gulp build
 
 To direct Gulp to automatically watch the source tree for changes and
-trigger a recompile if any source file changes. This is especially
-useful together with the ``--splitjs`` mode of the Bokeh server to
-afford a more rapid development cycle:
+trigger a recompile if any source file changes:
 
 .. code-block:: sh
 
