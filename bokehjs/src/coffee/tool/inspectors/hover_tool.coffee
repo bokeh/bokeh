@@ -46,6 +46,16 @@ class HoverToolView extends InspectTool.View
       vx: vx
       vy: vy
     }
+
+    if @mget('mode') == 'point'
+      geometry['type'] = 'point'
+    else
+        geometry['type'] = 'span'
+        if @mget('mode') == 'vline'
+          geometry.direction = 'v'
+        else
+          geometry.direction = 'h'
+
     for r in @mget('renderers')
       sm = r.get('data_source').get('selection_manager')
       sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
@@ -58,7 +68,7 @@ class HoverToolView extends InspectTool.View
 
     tooltip.clear()
 
-    if indices.length == 0
+    if indices['0d'].flag == false
       return
 
     vx = geometry.vx
@@ -75,14 +85,19 @@ class HoverToolView extends InspectTool.View
     x = xmapper.map_from_target(vx)
     y = ymapper.map_from_target(vy)
 
-    for i in indices
-      if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
-        rx = canvas.sx_to_vx(renderer.glyph.sx[i])
-        ry = canvas.sy_to_vy(renderer.glyph.sy[i])
+    for i in indices['0d'].indices
+      data_x = renderer.glyph.sx[i]
+      data_y = renderer.glyph.sy[i]
+      if @mget('hit_value_mode') == "hit_interpolate" and renderer.get_interpolation_hit?
+        [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
       else
-        [rx, ry] = [vx, vy]
+        if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
+          rx = canvas.sx_to_vx(data_x)
+          ry = canvas.sy_to_vy(data_y)
+        else
+          [rx, ry] = [vx, vy]
 
-      vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy}
+      vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
     return null
@@ -157,6 +172,12 @@ class HoverTool extends InspectTool.Model
         ["index",         "$index"]
         ["data (x, y)",   "($x, $y)"]
         ["canvas (x, y)", "($sx, $sy)"]
+
+        hit_value_mode: 'snap_to_data' # 'glyph_center', 'hit_interpolate', 'mouse_point',
+
+        point_policy: "snap_to_data" #, "follow_mouse", "none"
+        line_policy: "prev" # "next", "nearest", "interp", "none"
+        conflict_policy: "line" #, "point", "both"
       ]
     })
 

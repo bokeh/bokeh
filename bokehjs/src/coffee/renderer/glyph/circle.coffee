@@ -119,6 +119,58 @@ class CircleView extends Glyph.View
       .value()
     return hits
 
+  _hit_span: (geometry) ->
+      [vx, vy] = [geometry.vx, geometry.vy]
+      [xb, yb] = this.bounds()
+
+      result = {
+        '0d': {
+          # boolean flag to indicate if the glyph was hit or not
+          flag: false,
+          # index of the first point of the crossed segment
+          indices: []},
+        '1d': {
+          # index of the closest point to the crossed segment
+          # useful for special glypth like line that are continuous and
+          # not discrete between 2 data points
+          indices: []
+        }
+      }
+
+      if geometry.direction == 'v'
+        # use circle bounds instead of current pointer y coordinates
+        y0 = yb[0]
+        y1 = yb[1]
+        if @radius? and @distances.radius.units == "data"
+          vx0 = vx - @max_radius
+          vx1 = vx + @max_radius
+          [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
+        else
+          vx0 = vx - @max_size
+          vx1 = vx + @max_size
+          [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+      else
+        # use circle bounds instead of current pointer x coordinates
+        x0 = xb[0]
+        x1 = xb[1]
+        if @radius? and @distances.radius.units == "data"
+          vy0 = vy - @max_radius
+          vy1 = vy + @max_radius
+          [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
+        else
+          vy0 = vy - @max_size
+          vy1 = vy + @max_size
+          [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+
+      hits = (xx[4].i for xx in @index.search([x0, y0, x1, y1]))
+
+      if hits.length > 0
+        result['0d'].flag = true
+        result['0d'].indices = hits
+        result['1d'].indices = hits
+
+      return result
+
   _hit_rect: (geometry) ->
     [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
