@@ -57,7 +57,7 @@ TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_al
 
 PROPS = ["session", "name", "tags"]
 GLYPH = ["visible"]
-MARKER = ["x", "y", "size"]
+MARKER = ["x", "y", "size", "angle"]
 
 def check_props(glyph, *props):
     expected = set(sum((PROPS, GLYPH) + props, []))
@@ -519,11 +519,10 @@ def test_InvertedTriangle():
 
 def test_Square():
     marker = Square()
-    assert marker.angle == "angle"
     yield check_marker, marker
     yield check_fill, marker
     yield check_line, marker
-    yield check_props, marker, ["angle"], MARKER, FILL, LINE
+    yield check_props, marker, MARKER, FILL, LINE
 
 def test_SquareCross():
     marker = SquareCross()
