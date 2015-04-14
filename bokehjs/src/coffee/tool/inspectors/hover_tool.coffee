@@ -172,9 +172,8 @@ class HoverTool extends InspectTool.Model
         ["index",         "$index"]
         ["data (x, y)",   "($x, $y)"]
         ["canvas (x, y)", "($sx, $sy)"]
-
+        mode: 'point'
         hit_value_mode: 'snap_to_data' # 'glyph_center', 'hit_interpolate', 'mouse_point',
-
         point_policy: "snap_to_data" #, "follow_mouse", "none"
         line_policy: "prev" # "next", "nearest", "interp", "none"
         conflict_policy: "line" #, "point", "both"
