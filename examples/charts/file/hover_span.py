@@ -28,7 +28,10 @@ svalues = {}
 for k in xyvalues.columns:
     svalues[k] = [(i, v) for i, v in zip(index, xyvalues[k])]
 # # import pdb; pdb.set_trace()
-scatter = Scatter(svalues, title="Lines", ylabel='measures', width=1000, height=300,
+scatter_point = Scatter(svalues, title="Lines", ylabel='measures', width=400, height=300,
+             legend=True,
+             tools=TOOLS)
+scatter = Scatter(svalues, title="Lines", ylabel='measures', width=400, height=300,
              legend=True,
              tools=TOOLS)
 
@@ -55,7 +58,11 @@ tphover.mode = 'point'
 
 shover = scatter.select(dict(type=HoverTool))
 shover.mode = 'vline'
-tphover.tooltips = iphover.tooltips = shover.tooltips = vhover.tooltips = hhover.tooltips = OrderedDict([
+
+shoverp = scatter_point.select(dict(type=HoverTool))
+shoverp.mode = 'point'
+
+tphover.tooltips = iphover.tooltips = shover.tooltips = shoverp.tooltips = vhover.tooltips = hhover.tooltips = OrderedDict([
     ("y", "$y"),
     ("x", "$x"),
     ("data_x", "$data_x"),
@@ -66,6 +73,6 @@ show(
     vplot(
         hplot(hline, vline),
         hplot(int_point_line, tap_point_line),
-        scatter
+        hplot(scatter_point, scatter),
     )
 )

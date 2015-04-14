@@ -117,7 +117,16 @@ class CircleView extends Glyph.View
       .sortBy((elt) -> return elt[1])
       .map((elt) -> return elt[0])
       .value()
-    return hits
+
+    result = {
+        '0d': {
+          flag: hits.length > 0
+          indices: hits
+        }
+        '1d': {indices: hits}
+        '2d': {indices: []}
+      }
+    return result
 
   _hit_span: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
