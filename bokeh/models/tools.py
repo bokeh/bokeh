@@ -400,28 +400,18 @@ class HoverTool(Tool):
     Whether the hover tool must be explicitly activated.
     """)
 
-    snap_to_data = Bool(True, help="""
-    Whether the tooltip position should snap to the "center" position
-    of the associated glyph. For instance, if set to True, the tooltip
-    will point to the center of any marker (e.g., ``Circle``, `` Square``)
-    regardless of the cursor position, as long as the cursor hits the
-    glyph.
-
-    .. note::
-        Not all glyphs support this feature. Currenly all marker glyphs,
-        the ``Rect`` and ``Quad`` glyphs are supported.
-
-    """)
-
-    mode = Enum("point", "hline", "vline", help="""
-    Whether to consider hover pointer as point (x/y values), or a
+    mode = Enum("mouse", "hline", "vline", help="""
+    Whether to consider hover pointer as a point (x/y values), or a
     span on h or v directions.
     """)
 
-    hit_value_mode = Enum("snap_to_data", "glyph_center", "hit_interpolate",
-                          "mouse_point", help="""
-    """)
-
-    point_policy = Enum("snap_to_data", "follow_mouse", "none")
+    point_policy = Enum("snap_to_data", "follow_mouse", "none",
+                        help="""
+    Whether the tooltip position should:
+      - snap to the "center" position of the associated glyph. For
+      instance, if set to True, the tooltip will point to the center
+      of any marker (e.g., ``Circle``, `` Square``) regardless of the
+      cursor position, as long as the cursor hits the glyph.)
+      - follow the current mouse cursor position
+      """)
     line_policy = Enum("prev", "next", "nearest", "interp", "none")
-    conflict_policy = Enum("line", "point", "both")

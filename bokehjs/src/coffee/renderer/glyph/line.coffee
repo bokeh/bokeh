@@ -1,5 +1,6 @@
 _ = require "underscore"
 Glyph = require "./glyph"
+hittest = require "../../common/hittest"
 
 class LineView extends Glyph.View
 
@@ -43,10 +44,7 @@ class LineView extends Glyph.View
     [vx, vy] = [geometry.vx, geometry.vy]
     x = @renderer.xmapper.map_from_target(vx)
     y = @renderer.ymapper.map_from_target(vy)
-    result = {
-      '0d': {flag: false, indices: []},
-      '1d': {indices: []}
-    }
+    result = hittest.create_hit_test_result()
     point = {x: x, y: y}
     shortest = 100
     threshold = 1
@@ -59,21 +57,14 @@ class LineView extends Glyph.View
         shortest = dist
         result['0d'].flag = true
         result['0d'].indices = [i]
-        if dist_2_pts(point, p0) < dist_2_pts(point, p1)
-          result['1d'].indices = [i]
-        else
-          result['1d'].indices = [i]
 
     return result
 
   _hit_span: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    result = {
-      '0d': {flag: false, indices: []},
-      '1d': {indices: []}
-    }
+    result = hittest.create_hit_test_result()
 
-    if geometry.direction == 'h'
+    if geometry.direction == 'v'
       val = @renderer.ymapper.map_from_target(vy)
       values = @y
     else

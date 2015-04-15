@@ -118,33 +118,14 @@ class CircleView extends Glyph.View
       .map((elt) -> return elt[0])
       .value()
 
-    result = {
-        '0d': {
-          flag: hits.length > 0
-          indices: hits
-        }
-        '1d': {indices: hits}
-        '2d': {indices: []}
-      }
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
     return result
 
   _hit_span: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
       [xb, yb] = this.bounds()
-
-      result = {
-        '0d': {
-          # boolean flag to indicate if the glyph was hit or not
-          flag: false,
-          # index of the first point of the crossed segment
-          indices: []},
-        '1d': {
-          # index of the closest point to the crossed segment
-          # useful for special glypth like line that are continuous and
-          # not discrete between 2 data points
-          indices: []
-        }
-      }
+      result = hittest.create_hit_test_result()
 
       if geometry.direction == 'v'
         # use circle bounds instead of current pointer y coordinates
@@ -155,8 +136,9 @@ class CircleView extends Glyph.View
           vx1 = vx + @max_radius
           [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
         else
-          vx0 = vx - @max_size
-          vx1 = vx + @max_size
+          ms = @max_size/2
+          vx0 = vx - ms
+          vx1 = vx + ms
           [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
       else
         # use circle bounds instead of current pointer x coordinates
@@ -167,17 +149,15 @@ class CircleView extends Glyph.View
           vy1 = vy + @max_radius
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
         else
-          vy0 = vy - @max_size
-          vy1 = vy + @max_size
+          ms = @max_size/2
+          vy0 = vy - ms
+          vy1 = vy + ms
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
       hits = (xx[4].i for xx in @index.search([x0, y0, x1, y1]))
 
-      if hits.length > 0
-        result['0d'].flag = true
-        result['0d'].indices = hits
-        result['1d'].indices = hits
-
+      result['1d'].indices = hits
+      console.log 'hits', hits
       return result
 
   _hit_rect: (geometry) ->

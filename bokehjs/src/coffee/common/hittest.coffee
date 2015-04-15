@@ -15,5 +15,28 @@ point_in_poly = (x, y, px, py) ->
 
   return inside
 
+create_hit_test_result = ->
+  result = {
+    # 0d is only valid for line and patch glyphs
+    '0d': {
+      # boolean flag to indicate if the glyph was hit or not
+      flag: false,
+      # array with the [smallest] index of the segment of the line that was hit
+      indices: []
+    }
+    # 1d for all other glyphs apart from multilines and multi patches
+    '1d': {
+      # index of the closest point to the crossed segment
+      # useful for special glypth like line that are continuous and
+      # not discrete between 2 data points
+      indices: []
+    }
+    # 2d for all for multilines and multi patches
+    '2d': {indices: []}
+  }
+
+  return result
+
 module.exports =
   point_in_poly: point_in_poly
+  create_hit_test_result: create_hit_test_result

@@ -47,7 +47,7 @@ class HoverToolView extends InspectTool.View
       vy: vy
     }
 
-    if @mget('mode') == 'point'
+    if @mget('mode') == 'mouse'
       geometry['type'] = 'point'
     else
         geometry['type'] = 'span'
@@ -68,7 +68,8 @@ class HoverToolView extends InspectTool.View
 
     tooltip.clear()
 
-    if indices['0d'].flag == false
+    [i1d, i2d] = [indices['1d'].indices, indices['2d'].indices]
+    if indices['0d'].flag == false and i1d.length == 0 and i2d.length == 0
       return
 
     vx = geometry.vx
@@ -86,16 +87,35 @@ class HoverToolView extends InspectTool.View
     y = ymapper.map_from_target(vy)
 
     for i in indices['0d'].indices
+      if @mget('line_policy') == "interp"# and renderer.get_interpolation_hit?
+        [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
+        [rx, ry] = [vx, vy]
+
+      else if @mget('line_policy') == "prev"
+        data_x = renderer.glyph.sx[i]
+        data_y = renderer.glyph.sy[i]
+        rx = canvas.sx_to_vx(data_x)
+        ry = canvas.sy_to_vy(data_y)
+
+      else if @mget('line_policy') == "next"
+        data_x = renderer.glyph.sx[i+1]
+        data_y = renderer.glyph.sy[i+1]
+        rx = canvas.sx_to_vx(data_x)
+        ry = canvas.sy_to_vy(data_y)
+      else
+          [rx, ry] = [vx, vy]
+
+      vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
+      tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+
+    for i in indices['1d'].indices
       data_x = renderer.glyph.sx[i]
       data_y = renderer.glyph.sy[i]
-      if @mget('hit_value_mode') == "hit_interpolate" and renderer.get_interpolation_hit?
-        [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
+      if @mget('point_policy') == 'snap_to_data'# and renderer.glyph.sx? and renderer.glyph.sy?
+        rx = canvas.sx_to_vx(data_x)
+        ry = canvas.sy_to_vy(data_y)
       else
-        if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
-          rx = canvas.sx_to_vx(data_x)
-          ry = canvas.sy_to_vy(data_y)
-        else
-          [rx, ry] = [vx, vy]
+        [rx, ry] = [vx, vy]
 
       vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
@@ -167,17 +187,14 @@ class HoverTool extends InspectTool.Model
 
   defaults: () ->
     return _.extend({}, super(), {
-      snap_to_data: true
       tooltips: [
         ["index",         "$index"]
         ["data (x, y)",   "($x, $y)"]
         ["canvas (x, y)", "($sx, $sy)"]
-        mode: 'point'
-        hit_value_mode: 'snap_to_data' # 'glyph_center', 'hit_interpolate', 'mouse_point',
-        point_policy: "snap_to_data" #, "follow_mouse", "none"
-        line_policy: "prev" # "next", "nearest", "interp", "none"
-        conflict_policy: "line" #, "point", "both"
       ]
+      mode: 'mouse'
+      point_policy: "snap_to_data" #, "follow_mouse", "none"
+      line_policy: "prev" # "next", "nearest", "interp", "none"
     })
 
 module.exports =
