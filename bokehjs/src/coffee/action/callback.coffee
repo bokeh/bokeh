@@ -7,8 +7,7 @@ class Callback extends HasProperties
   execute: (value) ->
     args = @get("args")
     names = _.keys(args)
-    vals = _.values(args)
-    values = _.map(vals, (k) => @resolve_ref(k))
+    values = _.map(_.values(args), (k) => @resolve_ref(k))
     func = new Function names..., "value", @get("body")
     func(values..., value)
 
