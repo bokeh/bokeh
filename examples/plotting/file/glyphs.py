@@ -17,22 +17,20 @@ vbox = VBox()
 
 p = figure(title="annular_wedge")
 p.annular_wedge(x, y, 10, 20, 0.6, 4.1, color="#8888ee",
-    inner_radius_units="screen", outer_radius_units="screen")
+                inner_radius_units="screen", outer_radius_units="screen")
 vbox.children.append(p)
 
 p = figure(title="annular_wedge")
 p.annulus(x, y, 10, 20, color="#7FC97F",
-    inner_radius_units="screen", outer_radius_units = "screen")
+          inner_radius_units="screen", outer_radius_units = "screen")
 vbox.children.append(p)
 
 p = figure(title="arc")
-p.arc(x, y, 20, 0.6, 4.1,
-    radius_units="screen", color="#BEAED4", line_width=3)
+p.arc(x, y, 20, 0.6, 4.1, radius_units="screen", color="#BEAED4", line_width=3)
 vbox.children.append(p)
 
 p = figure(title="bezier")
-p.bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1,
-    color="#D95F02", line_width=2)
+p.bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1, color="#D95F02", line_width=2)
 vbox.children.append(p)
 
 p = figure(title="circle")
@@ -50,7 +48,7 @@ vbox.children.append(p)
 
 p = figure(title="oval")
 p.oval(x, y, 15, 25, angle=-0.7, color="#1D91C0",
-    width_units="screen", height_units="screen")
+       width_units="screen", height_units="screen")
 vbox.children.append(p)
 
 p = figure(title="patch")
@@ -66,7 +64,7 @@ p.quad(x, x-0.1, y, y-0.1, color="#B3DE69")
 vbox.children.append(p)
 
 p = figure(title="quadratic")
-p.quadratic(x, y, x+0.2, y, x+0.1, y+0.1, color="#4DAF4A", line_width=3)
+p.quadratic(x, y, x+0.2, y, x+0.3, y+1.4, color="#4DAF4A", line_width=3)
 vbox.children.append(p)
 
 p = figure(title="ray")
@@ -74,8 +72,7 @@ p.ray(x, y, 45, -0.7, color="#FB8072", line_width=2)
 vbox.children.append(p)
 
 p = figure(title="rect")
-p.rect(x, y, 10, 20, color="#CAB2D6",
-    width_units="screen", height_units="screen")
+p.rect(x, y, 10, 20, color="#CAB2D6", width_units="screen", height_units="screen")
 vbox.children.append(p)
 
 p = figure(title="segment")

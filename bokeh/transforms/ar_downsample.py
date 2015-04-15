@@ -60,10 +60,10 @@ def _loadAR():
         raise ImportError("Abstract rendering version not found; import aborted.")
 
     if (ari.__version_info__["major"] != expected["major"]
-       or ari.__version_info__["minor"] != expected["minor"]
-       or ari.__version_info__["micro"] < expected["micro"]):
-           raise ImportError("Abstract rendering version mismatched." +
-                             "Expecting at least {0}, found {1}".format(_AR_VERSION, ari.__version__))
+        or ari.__version_info__["minor"] != expected["minor"]
+        or ari.__version_info__["micro"] < expected["micro"]):
+            raise ImportError("Abstract rendering version mismatched." +
+                              "Expecting at least {0}, found {1}".format(_AR_VERSION, ari.__version__))
 
     try:
         globals()["ar"] = import_module("abstract_rendering.core")
@@ -406,7 +406,7 @@ class Contour(Shader):
 def replot(plot,
            agg=Count(), info=Const(val=1), shader=Id(),
            remove_original=True,
-           plot_opts={}, **kwargs):
+           plot_opts=None, **kwargs):
     """
     Treat the passed plot as an base plot for abstract rendering, generate the
     proper Bokeh plot based on the passed parameters.
@@ -451,6 +451,7 @@ def replot(plot,
     fig_opts['title'] = kwargs.pop('title', plot.title)
 
     src = source(plot, agg, info, shader, **source_opts)
+    plot_opts = plot_opts or {}
     plot_opts.update(mapping(src))
 
     new_plot = figure(**fig_opts)

@@ -3,20 +3,23 @@
 """
 from __future__ import absolute_import
 
+from six import string_types
+
+from ..enums import Location
+from ..mixins import LineProps, TextProps
 from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
-from ..mixins import LineProps, TextProps
-from .. enums import Location
-
 from ..query import find
 from ..util.string import nice_join
 
-from .widget import Widget
-from .sources import DataSource, ColumnDataSource
+
+from .glyphs import Glyph
 from .ranges import Range, Range1d
 from .renderers import Renderer, GlyphRenderer
+from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
-from .glyphs import Glyph
+from .widget import Widget
+
 
 # TODO (bev) dupe, move to utils
 class _list_attr_splat(list):
@@ -55,17 +58,77 @@ class Plot(Widget):
             kwargs["tool_events"] = ToolEvents()
         super(Plot, self).__init__(**kwargs)
 
-    def select(self, selector):
+    def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
         match the given selector.
 
+        There are a few different ways to call the ``select`` method.
+        The most general is to supply a JSON-like query dictionary as the
+        single argument or as keyword arguments:
+
         Args:
-            selector (JSON-like) :
+            selector (JSON-like) : some sample text
+
+        Keyword Arguments:
+            kwargs : query dict key/values as keyword arguments
+
+        For convenience, queries on just names can be made by supplying
+        the ``name`` string as the single parameter:
+
+        Args:
+            name (str) : the name to query on
+
+        Also queries on just type can be made simply by supplying the
+        ``PlotObject`` subclass as the single parameter:
+
+        Args:
+            type (PlotObject) : the type to query on
 
         Returns:
             seq[PlotObject]
 
+        Examples:
+
+            .. code-block:: python
+
+                # These two are equivalent
+                p.select({"type": HoverTool})
+                p.select(HoverTool)
+
+                # These two are also equivalent
+                p.select({"name": "mycircle"})
+                p.select("mycircle")
+
+                # Keyword arguments can be supplied in place of selector dict
+                p.select({"name": "foo", "type": HoverTool})
+                p.select(name="foo", type=HoverTool)
+
         '''
+
+        if len(args) > 1:
+            raise TypeError("select accepts at most ONE positional argument.")
+
+        if len(args) > 0 and len(kwargs) > 0:
+            raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
+
+        if len(args) == 0 and len(kwargs) == 0:
+            raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
+
+        if args:
+            arg = args[0]
+            if isinstance(arg, dict):
+                selector = arg
+            elif isinstance(arg, string_types):
+                selector = dict(name=arg)
+            elif issubclass(arg, PlotObject):
+                selector = {"type" : arg}
+            else:
+                raise RuntimeError("Selector must be a dictionary, string or plot object.")
+
+        else:
+            selector = kwargs
+
+        # Want to pass selector that is a dictionary
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -114,7 +177,7 @@ class Plot(Widget):
 
         if hasattr(obj, 'plot'):
             if obj.plot is not None:
-                 raise ValueError("object to be added already has 'plot' attribute set")
+                raise ValueError("object to be added already has 'plot' attribute set")
             obj.plot = self
 
         self.renderers.append(obj)
@@ -137,7 +200,7 @@ class Plot(Widget):
 
         for tool in tools:
             if tool.plot is not None:
-                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
+                raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
             tool.plot = self
             self.tools.append(tool)
 
@@ -150,6 +213,7 @@ class Plot(Widget):
         Args:
             source (DataSource) : a data source for the glyphs to all use
             glyph (Glyph) : the glyph to add to the Plot
+
 
         Keyword Arguments:
             Any additional keyword arguments are passed on as-is to the

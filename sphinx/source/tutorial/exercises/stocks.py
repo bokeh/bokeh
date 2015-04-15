@@ -5,7 +5,7 @@
 import numpy as np
 import pandas as pd
 
-from bokeh.plotting import figure, output_file, show, VBox
+from bokeh.plotting import figure, output_file, show, vplot
 
 # Here is some code to read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -57,5 +57,5 @@ aapl_avg = np.convolve(aapl, window, 'same')
 
 # EXERCISE: style the plot, set a title, lighten the gridlines, etc.
 
-show(VBox(p1, p2))  # open a browser
+show(vplot(p1, p2))  # open a browser
 

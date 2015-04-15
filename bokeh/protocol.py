@@ -2,12 +2,11 @@ from __future__ import absolute_import
 
 import json
 import logging
-import time
 import datetime as dt
 import calendar
+import decimal
 
 import numpy as np
-from six.moves import cPickle as pickle
 
 try:
     import pandas as pd
@@ -94,6 +93,9 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif is_dateutil and isinstance(obj, relativedelta):
             return dict(years=obj.years, months=obj.months, days=obj.days, hours=obj.hours,
                 minutes=obj.minutes, seconds=obj.seconds, microseconds=obj.microseconds)
+        # Decimal
+        elif isinstance(obj, decimal.Decimal):
+            return float(obj)
         else:
             return super(BokehJSONEncoder, self).default(obj)
 

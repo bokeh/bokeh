@@ -27,7 +27,6 @@ from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, 
 from ..enums import Dimension
 
 from .renderers import Renderer
-from .ranges import Range
 from .actions import Action
 
 class ToolEvents(PlotObject):
@@ -334,7 +333,7 @@ class HoverTool(Tool):
     with the *toolbar icon* shown above.
 
     The hover tool displays informational tooltips whenever the cursor
-    is directly is over a glyph. The data to show comes from the glyph's
+    is directly over a glyph. The data to show comes from the glyph's
     data source, and what is to be displayed is configurable through a
     ``tooltips`` attribute that maps display names to columns in the
     data source, or to special known variables.

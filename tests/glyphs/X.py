@@ -14,8 +14,8 @@ sizes = np.linspace(10, 20, N)
 
 source = ColumnDataSource(dict(x=x, y=y, sizes=sizes))
 
-xdr = DataRange1d(sources=[source.columns("x")])
-ydr = DataRange1d(sources=[source.columns("y")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 plot = Plot(
     title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,

@@ -165,6 +165,8 @@ that automatically opens up. In particular, you might check out the
 `interact_basic`_ and `interact_numba`_ examples that show how Bokeh can
 be used together with IPython interactive widgets.
 
+.. _quickstart_other_languages:
+
 Other Languages
 ===============
 
@@ -537,43 +539,42 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. _Vine: https://vine.co/bokehplots
 .. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw
 
-
-.. |bokeh.charts| replace:: :ref:`bokeh.charts <bokeh.charts>`
-.. |bokeh.models| replace:: :ref:`bokeh.models <bokeh.models>`
+.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
+.. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
-.. |glyphs| replace:: ref:`glyphs <bokeh.models.glyphs>`
+.. |glyphs|  replace:: ref:`glyphs <bokeh.models.glyphs>`
 .. |markers| replace:: ref:`markers <bokeh.models.markers>`
 
-.. |figure| replace:: :func:`figure <bokeh.plotting.figure>`
-.. |Figure| replace:: :class:`Figure <bokeh.plotting.Figure>`
+.. |figure| replace:: :func:`~bokeh.plotting.figure`
+.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 
-.. |legend| replace:: :class:`legend <bokeh.plotting.Figure.legend>`
-.. |grid| replace:: :class:`grid <bokeh.plotting.Figure.grid>`
-.. |xgrid| replace:: :class:`xgrid <bokeh.plotting.Figure.xgrid>`
-.. |ygrid| replace:: :class:`ygrid <bokeh.plotting.Figure.ygrid>`
-.. |axis| replace:: :class:`axis <bokeh.plotting.Figure.axis>`
-.. |xaxis| replace:: :class:`xaxis <bokeh.plotting.Figure.xaxis>`
-.. |yaxis| replace:: :class:`yaxis <bokeh.plotting.Figure.yaxis>`
+.. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
+.. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`
+.. |xgrid|  replace:: :class:`~bokeh.plotting.Figure.xgrid`
+.. |ygrid|  replace:: :class:`~bokeh.plotting.Figure.ygrid`
+.. |axis|   replace:: :class:`~bokeh.plotting.Figure.axis`
+.. |xaxis|  replace:: :class:`~bokeh.plotting.Figure.xaxis`
+.. |yaxis|  replace:: :class:`~bokeh.plotting.Figure.yaxis`
 
-.. |output_file| replace:: :func:`output_file <bokeh.io.output_file>`
-.. |output_notebook| replace:: :func:`output_notebook <bokeh.io.output_notebook>`
-.. |output_server| replace:: :func:`output_server <bokeh.io.output_server>`
-.. |save| replace:: :func:`save <bokeh.io.save>`
-.. |show| replace:: :func:`show <bokeh.io.show>`
+.. |output_file|     replace:: :func:`~bokeh.io.output_file`
+.. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
+.. |output_server|   replace:: :func:`~bokeh.io.output_server`
+.. |save|            replace:: :func:`~bokeh.io.save`
+.. |show|            replace:: :func:`~bokeh.io.show`
 
-.. |ColumnDataSource| replace:: :class:`ColumnDataSource <bokeh.models.sources.ColumnDataSource>`
-.. |DatetimeAxis| replace:: :class:`DatetimeAxis <bokeh.models.axes.DatetimeAxis>`
+.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
+.. |DatetimeAxis|     replace:: :class:`~bokeh.models.axes.DatetimeAxis`
+.. |Line|             replace:: :class:`~bokeh.models.glyphs.Line`
 
-.. |Line| replace:: :class:`Line <bokeh.models.glyphs.Line>`
-.. |Figure.circle| replace:: :func:`Figure.line <bokeh.plotting.Figure.circle>`
-.. |Figure.line| replace:: :func:`Figure.line <bokeh.plotting.Figure.line>`
-.. |Figure.square| replace:: :func:`Figure.square <bokeh.plotting.Figure.square>`
+.. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`
+.. |Figure.line|     replace:: :func:`Figure.line <bokeh.plotting.Figure.line>`
+.. |Figure.square|   replace:: :func:`Figure.square <bokeh.plotting.Figure.square>`
 .. |Figure.triangle| replace:: :func:`Figure.triangle <bokeh.plotting.Figure.triangle>`
 
-.. |gridplot| replace:: :func:`gridplot <bokeh.io.gridplot>`
-.. |hplot| replace:: :func:`hplot <bokeh.io.hplot>`
-.. |vplot| replace:: :func:`vplot <bokeh.io.vplot>`
+.. |gridplot| replace:: :func:`~bokeh.io.gridplot`
+.. |hplot|    replace:: :func:`~bokeh.io.hplot`
+.. |vplot|    replace:: :func:`~bokeh.io.vplot`
 
 .. |line_props| replace:: :class:`Line Properties <bokeh.mixins.LineProps>`
 .. |fill_props| replace:: :class:`Fill Properties <bokeh.mixins.FillProps>`

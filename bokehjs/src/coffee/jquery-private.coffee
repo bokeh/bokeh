@@ -1,3 +1,1 @@
-define ['jquery'], (jq) ->
-	return jq.noConflict( true )
-
+module.exports = require("jquery").noConflict(true)

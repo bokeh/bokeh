@@ -1,353 +1,316 @@
-define [
-  "underscore"
-  "jquery"
-  "common/has_properties"
-  "common/collection"
-  "common/continuum_view"
-  "jquery_ui/autocomplete"
-  "jquery_ui/spinner"
-], (_, $, HasProperties, Collection, ContinuumView) ->
+_ = require "underscore"
+$ = require "jquery"
+if global._bokehTest?
+  $1 = undefined  # TODO Make work
+  $2 = undefined
+else
+  $1 = require "jquery-ui/autocomplete"
+  $2 = require "jquery-ui/spinner"
+ContinuumView = require "../common/continuum_view"
+HasProperties = require "../common/has_properties"
 
-  class CellEditor extends HasProperties
+class CellEditor extends HasProperties
+  editorDefaults: {}
 
-    editorDefaults: {}
-    defaults: -> return _.extend {}, super(), @editorDefaults
+  defaults: () ->
+    return _.extend {}, super(), @editorDefaults
 
-  class CellEditorCollection extends Collection
+class CellEditorView extends ContinuumView
 
-  class CellEditorView extends ContinuumView
+  tagName: "div"
+  className: "bk-cell-editor"
 
-    tagName: "div"
-    className: "bk-cell-editor"
+  input: null
 
-    input: null
+  emptyValue: null
+  defaultValue: null
 
-    emptyValue: null
-    defaultValue: null
+  initialize: (args) ->
+    super({})
+    @args = args
+    @model = @args.column.editor
+    @render()
 
-    initialize: (args) ->
-      super({})
-      @args = args
-      @model = @args.column.editor
-      @render()
+  render: () ->
+    @$el.appendTo(@args.container)
+    @$input = $(@input)
+    @$el.append(@$input)
+    @renderEditor()
+    @disableNavigation()
+    return @
 
-    render: () ->
-      @$el.appendTo(@args.container)
-      @$input = $(@input)
-      @$el.append(@$input)
-      @renderEditor()
-      @disableNavigation()
+  renderEditor: () ->
 
-    renderEditor: () ->
+  disableNavigation: () ->
+    @$input.keydown (event) =>
+      stop = () -> event.stopImmediatePropagation()
+      switch event.keyCode
+        when $.ui.keyCode.LEFT      then stop()
+        when $.ui.keyCode.RIGHT     then stop()
+        when $.ui.keyCode.UP        then stop()
+        when $.ui.keyCode.DOWN      then stop()
+        when $.ui.keyCode.PAGE_UP   then stop()
+        when $.ui.keyCode.PAGE_DOWN then stop()
 
-    disableNavigation: () ->
-      @$input.keydown (event) =>
-        stop = () -> event.stopImmediatePropagation()
-        switch event.keyCode
-          when $.ui.keyCode.LEFT      then stop()
-          when $.ui.keyCode.RIGHT     then stop()
-          when $.ui.keyCode.UP        then stop()
-          when $.ui.keyCode.DOWN      then stop()
-          when $.ui.keyCode.PAGE_UP   then stop()
-          when $.ui.keyCode.PAGE_DOWN then stop()
+  destroy: () -> @remove()
 
-    destroy: () -> @remove()
+  focus: () -> @$input.focus()
 
-    focus: () -> @$input.focus()
+  show: () ->
 
-    show: () ->
+  hide: () ->
 
-    hide: () ->
+  position: () ->
 
-    position: () ->
+  getValue: () -> return @$input.val()
 
-    getValue: () -> return @$input.val()
+  setValue: (val) -> @$input.val(val)
 
-    setValue: (val) -> @$input.val(val)
+  serializeValue: () -> return @getValue()
 
-    serializeValue: () -> return @getValue()
+  isValueChanged: () -> return not (@getValue() == "" and not @defaultValue?) and (@getValue() != @defaultValue)
 
-    isValueChanged: () -> return not (@getValue() == "" and not @defaultValue?) and (@getValue() != @defaultValue)
+  applyValue: (item, state) ->
+    # XXX: In perfect world this would be `item[@args.column.field] = state`.
+    @args.grid.getData().setField(item.index, @args.column.field, state)
 
-    applyValue: (item, state) ->
-      # XXX: In perfect world this would be `item[@args.column.field] = state`.
-      @args.grid.getData().setField(item.index, @args.column.field, state)
+  loadValue: (item) ->
+    value = item[@args.column.field]
+    @defaultValue = if value? then value else @emptyValue
+    @setValue(@defaultValue)
 
-    loadValue: (item) ->
-      value = item[@args.column.field]
-      @defaultValue = if value? then value else @emptyValue
-      @setValue(@defaultValue)
+  validateValue: (value) ->
+    if @args.column.validator
+      result = @args.column.validator(value)
+      if !result.valid
+        return result
 
-    validateValue: (value) ->
-      if @args.column.validator
-        result = @args.column.validator(value)
-        if !result.valid
-          return result
+    return { valid: true, msg: null }
 
-      return { valid: true, msg: null }
+  validate: () -> return @validateValue(@getValue())
 
-    validate: () -> return @validateValue(@getValue())
+class StringEditorView extends CellEditorView
 
-  class StringEditorView extends CellEditorView
+  emptyValue: ""
 
-    emptyValue: ""
+  input: '<input type="text" />'
 
-    input: '<input type="text" />'
+  renderEditor: () ->
+    completions = @model.get("completions")
+    if not _.isEmpty(completions)
+      @$input.autocomplete(source: completions)
+      @$input.autocomplete("widget").addClass("bk-cell-editor-completion")
+    @$input.focus().select()
 
-    renderEditor: () ->
-      completions = @model.get("completions")
-      if not _.isEmpty(completions)
-        @$input.autocomplete(source: completions)
-        @$input.autocomplete("widget").addClass("bk-cell-editor-completion")
-      @$input.focus().select()
+  loadValue: (item) ->
+    super(item)
+    @$input[0].defaultValue = @defaultValue
+    @$input.select()
 
-    loadValue: (item) ->
-      super(item)
-      @$input[0].defaultValue = @defaultValue
-      @$input.select()
+class StringEditor extends CellEditor
+  type: 'StringEditor'
+  default_view: StringEditorView
+  editorDefaults:
+    completions: []
 
-  class StringEditor extends CellEditor
-    type: 'StringEditor'
-    default_view: StringEditorView
-    editorDefaults:
-      completions: []
+class TextEditorView extends CellEditorView
 
-  class StringEditors extends CellEditorCollection
-    model: StringEditor
+class TextEditor extends CellEditor
+  type: 'TextEditor'
+  default_view: TextEditorView
 
-  class TextEditorView extends CellEditorView
+class SelectEditorView extends CellEditorView
 
-  class TextEditor extends CellEditor
-    type: 'TextEditor'
-    default_view: TextEditorView
+  input: '<select />'
 
-  class TextEditors extends CellEditorCollection
-    model: TextEditor
+  renderEditor: () ->
+    for option in @model.get("options")
+      @$input.append($('<option>').attr(value: option).text(option))
+    @focus()
 
-  class SelectEditorView extends CellEditorView
+  loadValue: (item) ->
+    super(item)
+    @$input.select()
 
-    input: '<select />'
+class SelectEditor extends CellEditor
+  type: 'SelectEditor'
+  default_view: SelectEditorView
+  editorDefaults:
+    options: []
 
-    renderEditor: () ->
-      for option in @model.get("options")
-        @$input.append($('<option>').attr(value: option).text(option))
-      @focus()
+class PercentEditorView extends CellEditorView
 
-    loadValue: (item) ->
-      super(item)
-      @$input.select()
+class PercentEditor extends CellEditor
+  type: 'PercentEditor'
+  default_view: PercentEditorView
 
-  class SelectEditor extends CellEditor
-    type: 'SelectEditor'
-    default_view: SelectEditorView
-    editorDefaults:
-      options: []
+class CheckboxEditorView extends CellEditorView
 
-  class SelectEditors extends CellEditorCollection
-    model: SelectEditor
+  input: '<input type="checkbox" value="true" />'
 
-  class PercentEditorView extends CellEditorView
+  renderEditor: () -> @focus()
 
-  class PercentEditor extends CellEditor
-    type: 'PercentEditor'
-    default_view: PercentEditorView
+  loadValue: (item) ->
+    @defaultValue = !!item[@args.column.field]
+    @$input.prop('checked', @defaultValue)
 
-  class PercentEditors extends CellEditorCollection
-    model: PercentEditor
+  serializeValue: () ->
+    return @$input.prop('checked')
 
-  class CheckboxEditorView extends CellEditorView
+class CheckboxEditor extends CellEditor
+  type: 'CheckboxEditor'
+  default_view: CheckboxEditorView
 
-    input: '<input type="checkbox" value="true" />'
+class IntEditorView extends CellEditorView
 
-    renderEditor: () -> @focus()
+  input: '<input type="text" />'
 
-    loadValue: (item) ->
-      @defaultValue = !!item[@args.column.field]
-      @$input.prop('checked', @defaultValue)
+  renderEditor: () ->
+    @$input.spinner(step: @model.get("step"))
+    @$input.focus().select()
 
-    serializeValue: () ->
-      return @$input.prop('checked')
+  remove: () ->
+    @$input.spinner("destroy")
+    super()
 
-  class CheckboxEditor extends CellEditor
-    type: 'CheckboxEditor'
-    default_view: CheckboxEditorView
+  serializeValue: () ->
+    return parseInt(@getValue(), 10) || 0
 
-  class CheckboxEditors extends CellEditorCollection
-    model: CheckboxEditor
+  loadValue: (item) ->
+    super(item)
+    @$input[0].defaultValue = @defaultValue
+    @$input.select()
 
-  class IntEditorView extends CellEditorView
+  validateValue: (value) ->
+    if isNaN(value)
+      return { valid: false, msg: "Please enter a valid integer" }
+    else
+      return super(value)
 
-    input: '<input type="text" />'
+class IntEditor extends CellEditor
+  type: 'IntEditor'
+  default_view: IntEditorView
+  editorDefaults:
+    step: 1
 
-    renderEditor: () ->
-      @$input.spinner(step: @model.get("step"))
-      @$input.focus().select()
+class NumberEditorView extends CellEditorView
 
-    remove: () ->
-      @$input.spinner("destroy")
-      super()
+  input: '<input type="text" />'
 
-    serializeValue: () ->
-      return parseInt(@getValue(), 10) || 0
+  renderEditor: () ->
+    @$input.spinner(step: @model.get("step"))
+    @$input.focus().select()
 
-    loadValue: (item) ->
-      super(item)
-      @$input[0].defaultValue = @defaultValue
-      @$input.select()
+  remove: () ->
+    @$input.spinner("destroy")
+    super()
 
-    validateValue: (value) ->
-      if isNaN(value)
-        return { valid: false, msg: "Please enter a valid integer" }
-      else
-        return super(value)
+  serializeValue: () ->
+    return parseFloat(@getValue()) || 0.0
 
-  class IntEditor extends CellEditor
-    type: 'IntEditor'
-    default_view: IntEditorView
-    editorDefaults:
-      step: 1
+  loadValue: (item) ->
+    super(item)
+    @$input[0].defaultValue = @defaultValue
+    @$input.select()
 
-  class IntEditors extends CellEditorCollection
-    model: IntEditor
+  validateValue: (value) ->
+    if isNaN(value)
+      return { valid: false, msg: "Please enter a valid number" }
+    else
+      return super(value)
 
-  class NumberEditorView extends CellEditorView
+class NumberEditor extends CellEditor
+  type: 'NumberEditor'
+  default_view: NumberEditorView
+  editorDefaults:
+    step: 0.01
 
-    input: '<input type="text" />'
+class TimeEditorView extends CellEditorView
 
-    renderEditor: () ->
-      @$input.spinner(step: @model.get("step"))
-      @$input.focus().select()
+class TimeEditor extends CellEditor
+  type: 'TimeEditor'
+  default_view: TimeEditorView
 
-    remove: () ->
-      @$input.spinner("destroy")
-      super()
+class DateEditorView extends CellEditorView
 
-    serializeValue: () ->
-      return parseFloat(@getValue()) || 0.0
+  emptyValue: new Date()
 
-    loadValue: (item) ->
-      super(item)
-      @$input[0].defaultValue = @defaultValue
-      @$input.select()
+  input: '<input type="text" />'
 
-    validateValue: (value) ->
-      if isNaN(value)
-        return { valid: false, msg: "Please enter a valid number" }
-      else
-        return super(value)
+  renderEditor: () ->
+    @calendarOpen = false
 
-  class NumberEditor extends CellEditor
-    type: 'NumberEditor'
-    default_view: NumberEditorView
-    editorDefaults:
-      step: 0.01
+    @$input.datepicker
+      showOn: "button"
+      buttonImageOnly: true
+      beforeShow: () => @calendarOpen = true
+      onClose: () => @calendarOpen = false
+    @$input.siblings(".bk-ui-datepicker-trigger").css("vertical-align": "middle")
+    @$input.width(@$input.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
+    @$input.focus().select()
 
-  class NumberEditors extends CellEditorCollection
-    model: NumberEditor
+  destroy: () ->
+    $.datepicker.dpDiv.stop(true, true)
+    @$input.datepicker("hide")
+    @$input.datepicker("destroy")
+    super()
 
-  class TimeEditorView extends CellEditorView
+  show: () ->
+    if @calendarOpen
+      $.datepicker.dpDiv.stop(true, true).show()
+    super()
 
-  class TimeEditor extends CellEditor
-    type: 'TimeEditor'
-    default_view: TimeEditorView
+  hide: () ->
+    if @calendarOpen
+      $.datepicker.dpDiv.stop(true, true).hide()
+    super()
 
-  class TimeEditors extends CellEditorCollection
-    model: TimeEditor
+  position: (position) ->
+    if @calendarOpen
+      $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
+    super()
 
-  class DateEditorView extends CellEditorView
+  getValue: () -> return @$input.datepicker("getDate").getTime()
 
-    emptyValue: new Date()
+  setValue: (val) -> @$input.datepicker("setDate", new Date(val))
 
-    input: '<input type="text" />'
+class DateEditor extends CellEditor
+  type: 'DateEditor'
+  default_view: DateEditorView
 
-    renderEditor: () ->
-      @calendarOpen = false
+module.exports =
+  String:
+    Model: StringEditor
+    View: StringEditorView
 
-      @$input.datepicker
-        showOn: "button"
-        buttonImageOnly: true
-        beforeShow: () => @calendarOpen = true
-        onClose: () => @calendarOpen = false
-      @$input.siblings(".bk-ui-datepicker-trigger").css("vertical-align": "middle")
-      @$input.width(@$input.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
-      @$input.focus().select()
+  Text:
+    Model: TextEditor
+    View: TextEditorView
 
-    destroy: () ->
-      $.datepicker.dpDiv.stop(true, true)
-      @$input.datepicker("hide")
-      @$input.datepicker("destroy")
-      super()
+  Select:
+    Model: SelectEditor
+    View: SelectEditorView
 
-    show: () ->
-      if @calendarOpen
-        $.datepicker.dpDiv.stop(true, true).show()
-      super()
+  Percent:
+    Model: PercentEditor
+    View: PercentEditorView
 
-    hide: () ->
-      if @calendarOpen
-        $.datepicker.dpDiv.stop(true, true).hide()
-      super()
+  Checkbox:
+    Model: CheckboxEditor
+    View: CheckboxEditorView
 
-    position: (position) ->
-      if @calendarOpen
-        $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
-      super()
+  Int:
+    Model: IntEditor
+    View: IntEditorView
 
-    getValue: () -> return @$input.datepicker("getDate").getTime()
+  Number:
+    Model: NumberEditor
+    View: NumberEditorView
 
-    setValue: (val) -> @$input.datepicker("setDate", new Date(val))
+  Time:
+    Model: TimeEditor
+    View: TimeEditorView
 
-  class DateEditor extends CellEditor
-    type: 'DateEditor'
-    default_view: DateEditorView
-
-  class DateEditors extends CellEditorCollection
-    model: DateEditor
-
-  return {
-    String:
-      Model: StringEditor
-      Collection: new StringEditors()
-      View: StringEditorView
-
-    Text:
-      Model: TextEditor
-      Collection: new TextEditors()
-      View: TextEditorView
-
-    Select:
-      Model: SelectEditor
-      Collection: new SelectEditors()
-      View: SelectEditorView
-
-    Percent:
-      Model: PercentEditor
-      Collection: new PercentEditors()
-      View: PercentEditorView
-
-    Checkbox:
-      Model: CheckboxEditor
-      Collection: new CheckboxEditors()
-      View: CheckboxEditorView
-
-    Int:
-      Model: IntEditor
-      Collection: new IntEditors()
-      View: IntEditorView
-
-    Number:
-      Model: NumberEditor
-      Collection: new NumberEditors()
-      View: NumberEditorView
-
-    Time:
-      Model: TimeEditor
-      Collection: new TimeEditors()
-      View: TimeEditorView
-
-    Date:
-      Model: DateEditor
-      Collection: new DateEditors()
-      View: DateEditorView
-  }
-
+  Date:
+    Model: DateEditor
+    View: DateEditorView

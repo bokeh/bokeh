@@ -1,63 +1,60 @@
-define [
-  "underscore"
-  "jquery"
-  "bootstrap/tab"
-  "common/collection"
-  "common/continuum_view"
-  "common/has_properties"
-  "common/build_views"
-  "./tabs_template"
-], (_, $, $1, Collection, ContinuumView, HasProperties, build_views, tabs_template) ->
+_ = require "underscore"
+$ = require "jquery"
+if global._bokehTest?
+  $1 = undefined  # TODO Make work
+else
+  $1 = require "bootstrap/tab"
+build_views = require "../common/build_views"
+ContinuumView = require "../common/continuum_view"
+HasProperties = require "../common/has_properties"
+tabs_template = require "./tabs_template"
 
-  class TabsView extends ContinuumView
+class TabsView extends ContinuumView
 
-    initialize : (options) ->
-      super(options)
-      @views = {}
-      @render()
+  initialize: (options) ->
+    super(options)
+    @views = {}
+    @render()
 
-    render: () ->
-      for own key, val of @views
-        val.$el.detach()
-      @$el.empty()
+  render: () ->
+    for own key, val of @views
+      val.$el.detach()
+    @$el.empty()
 
-      tabs = @mget('tabs')
-      active = @mget("active")
+    tabs = @mget('tabs')
+    active = @mget("active")
 
-      children = (tab.get("child") for tab in tabs)
-      build_views(@views, children)
+    children = (tab.get("child") for tab in tabs)
+    build_views(@views, children)
 
-      html = $(tabs_template({
-        tabs: tabs
-        active: (i) -> if i == active then 'bk-bs-active' else ''
-      }))
+    html = $(tabs_template({
+      tabs: tabs
+      active: (i) -> if i == active then 'bk-bs-active' else ''
+    }))
 
-      html.find("> li > a").click (event) ->
-        event.preventDefault()
-        $(this).tab('show')
+    html.find("> li > a").click (event) ->
+      event.preventDefault()
+      $(this).tab('show')
 
-      $panels = html.children(".bk-bs-tab-pane")
+    $panels = html.children(".bk-bs-tab-pane")
 
-      for [child, panel] in _.zip(children, $panels)
-        $(panel).html(@views[child.id].$el)
+    for [child, panel] in _.zip(children, $panels)
+      $(panel).html(@views[child.id].$el)
 
-      @$el.append(html)
-      @$el.tabs
+    @$el.append(html)
+    @$el.tabs
+    return @
 
-  class Tabs extends HasProperties
-    type: "Tabs"
-    default_view: TabsView
-    defaults: ->
-      return _.extend {}, super(), {
-        tabs: []
-        active: 0
-      }
+class Tabs extends HasProperties
+  type: "Tabs"
+  default_view: TabsView
 
-  class Tabses extends Collection
-    model: Tabs
+  defaults: ->
+    return _.extend {}, super(), {
+      tabs: []
+      active: 0
+    }
 
-  return {
-    Model: Tabs
-    Collection: new Tabses()
-    View: TabsView
-  }
+module.exports =
+  Model: Tabs
+  View: TabsView

@@ -7,6 +7,7 @@ if [ "$1" == "-h" ]; then
     where:
         -h     show this help text
 
+        -b     Binstar token
         -u     RackSpace username
         -k     RackSpace APIkey
         -c     whether to clean the built packages, defaults to true
@@ -19,14 +20,21 @@ fi
 clean=true
 
 # handling of arguments
-while getopts u:k:c: option;
+while getopts b:u:k:c: option;
 do
     case "${option}" in
+        b) bintoken=${OPTARG};;
         u) username=${OPTARG};;
         k) key=${OPTARG};;
         c) clean=${OPTARG};;
     esac 
 done
+
+# get binstar token from env variable if it is not provided with args
+if [ "$bintoken" == "" ]; then
+    bintoken=$BOKEH_DEVEL_TOKEN
+    echo "$bintoken"
+fi
 
 # get user and key from env variables if they are not provided with args
 if [ "$username" == "" ]; then
@@ -66,14 +74,14 @@ array=(osx-64 linux-64 win-64 linux-32 win-32)
 for i in "${array[@]}"
 do
     echo Uploading: $i;
-    binstar upload -u bokeh $i/bokeh*$travis_build_id*.tar.bz2 -c dev --force --no-progress;
+    binstar -t $bintoken upload -u bokeh $i/bokeh*$travis_build_id*.tar.bz2 -c dev --force --no-progress;
 done
 
 # create and upload pypi pkgs to binstar
 # zip is currently not working
 
 python setup.py sdist --formats=gztar
-binstar upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi -c dev --force --no-progress;
+binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi -c dev --force --no-progress;
 
 echo "I'm done uploading to binstar"
 

@@ -2,7 +2,10 @@ from __future__ import absolute_import
 
 import logging
 import os
-from os.path import join, dirname, abspath, exists
+from os.path import join, abspath, isdir
+
+from .util.paths import ROOT_DIR, bokehjsdir
+
 
 class Settings(object):
     _prefix = "BOKEH_"
@@ -82,28 +85,18 @@ class Settings(object):
     """
     Server settings go here:
     """
-    def serverdir(self):
-        return join(dirname(abspath(__file__)), 'server')
-
+    
     def bokehjssrcdir(self):
         if self.debugjs:
-            basedir = dirname(dirname(self.serverdir()))
-            bokehjsdir = join(basedir, 'bokehjs', 'src')
+            bokehjssrcdir = abspath(join(ROOT_DIR, '..', 'bokehjs', 'src'))
 
-            if exists(bokehjsdir):
-                return bokehjsdir
+            if isdir(bokehjssrcdir):
+                return bokehjssrcdir
 
         return None
 
     def bokehjsdir(self):
-        if self.debugjs:
-            basedir = dirname(dirname(self.serverdir()))
-            bokehjsdir = join(basedir, 'bokehjs', 'build')
-
-            if exists(bokehjsdir):
-                return bokehjsdir
-
-        return join(self.serverdir(), 'static')
+        return bokehjsdir(self.debugjs)
 
     def js_files(self):
         bokehjsdir = self.bokehjsdir()

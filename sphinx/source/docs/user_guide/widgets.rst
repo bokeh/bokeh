@@ -1,7 +1,7 @@
 .. _userguide_widgets:
 
-Widgets
-=======
+Bokeh Widgets
+=============
 
 .. contents::
     :local:

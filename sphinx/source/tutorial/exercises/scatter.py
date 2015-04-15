@@ -2,7 +2,7 @@ from __future__ import division
 
 import numpy as np
 
-from bokeh.plotting import figure, HBox, output_file, show, VBox
+from bokeh.plotting import figure, hplot, output_file, show, vplot
 from bokeh.models import Range1d
 
 # create some data using python lists
@@ -57,4 +57,4 @@ colors = [
 # radii in pixels, use: radius_units="screen"
 
 # show the plots arrayed in a layout
-show(VBox(HBox(p1, p2, p3), p4))
+show(vplot(hplot(p1, p2, p3), p4))

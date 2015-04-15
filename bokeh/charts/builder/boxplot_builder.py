@@ -56,25 +56,26 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
     .. bokeh-plot::
         :source-position: above
 
-        from bokeh.charts import BoxPlot
         import numpy as np
-        from bokeh.plotting import output_file, show
+        from bokeh.charts import BoxPlot, output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames of arrays are valid inputs)
         medals = dict([
-                    ('bronze', np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
-                                4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
-                                0.0, 1.0, 0.0, 0.0, 1.0, 1.0])),
-                    ('silver', np.array([8., 4., 6., 4., 8., 3., 3., 2., 5., 6.,
-                                1., 4., 2., 3., 2., 0., 0., 1., 2., 1.,
-                                3.,  0.,  0.,  1.,  0.,  0.])),
-                    ('gold', np.array([6., 6., 6., 8., 4., 8., 6., 3., 2., 2.,  2.,  1.,
-                              3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
-                              0.]))
-                ])
-        output_file('boxplot.html')
+            ('bronze', np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
+                        4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
+                        0.0, 1.0, 0.0, 0.0, 1.0, 1.0])),
+            ('silver', np.array([8., 4., 6., 4., 8., 3., 3., 2., 5., 6.,
+                        1., 4., 2., 3., 2., 0., 0., 1., 2., 1.,
+                        3.,  0.,  0.,  1.,  0.,  0.])),
+            ('gold', np.array([6., 6., 6., 8., 4., 8., 6., 3., 2., 2.,  2.,  1.,
+                      3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
+                      0.]))
+        ])
+
         boxplot = BoxPlot(medals, marker="circle", outliers=True, title="boxplot",
             xlabel="medal type", ylabel="medal count")
+
+        output_file('boxplot.html')
         show(boxplot)
 
     """
@@ -167,8 +168,8 @@ class BoxPlotBuilder(Builder):
             iqr_centers.append((q[2] + q[0]) / 2)
             iqr = q[2] - q[0]
             iqr_lengths.append(iqr)
-            lower = q[1] - 1.5 * iqr
-            upper = q[1] + 1.5 * iqr
+            lower = q[0] - 1.5 * iqr
+            upper = q[2] + 1.5 * iqr
             lower_points.append(lower)
             upper_points.append(upper)
 
@@ -272,18 +273,6 @@ class BoxPlotBuilder(Builder):
             yield make_scatter(self._source_scatter, self._attr_scatter[0],
                               self._attr_scatter[1], self.marker,
                               self._attr_scatter[2])
-
-        # We need to build the legend here using dummy glyphs
-        for i, level in enumerate(self._groups):
-            # TODO: (bev) what is this None business?
-            glyph = Rect(
-                x="groups", y=None,
-                width=None, height=None,
-                line_color="black", fill_color=self.palette[i])
-            renderer = GlyphRenderer(data_source=self._source_legend, glyph=glyph)
-
-            # need to manually select the proper glyphs to be rendered as legends
-            self._legends.append((self._groups[i], [renderer]))
 
     # Some helper methods
     def set_and_get(self, data, attr, val, content):

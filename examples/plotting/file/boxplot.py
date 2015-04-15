@@ -16,8 +16,8 @@ q1 = groups.quantile(q=0.25)
 q2 = groups.quantile(q=0.5)
 q3 = groups.quantile(q=0.75)
 iqr = q3 - q1
-upper = q2 + 1.5*iqr
-lower = q2 - 1.5*iqr
+upper = q3 + 1.5*iqr
+lower = q1 - 1.5*iqr
 
 # find the outliers for each category
 def outliers(group):
@@ -37,7 +37,7 @@ for cat in cats:
 
 output_file("boxplot.html")
 
-p = figure(tools="previewsave", background_fill="#EFE8E2", title="", x_range=cats)
+p = figure(tools="save", background_fill="#EFE8E2", title="", x_range=cats)
 
 # If no outliers, shrink lengths of stems to be no longer than the minimums or maximums
 qmin = groups.quantile(q=0.00)
@@ -55,7 +55,7 @@ p.rect(cats, (q3.score+q2.score)/2, 0.7, q3.score-q2.score,
 p.rect(cats, (q2.score+q1.score)/2, 0.7, q2.score-q1.score,
     fill_color="#3B8686", line_width=2, line_color="black")
 
-# whisters (almost-0 height rects simpler than segments)
+# whiskers (almost-0 height rects simpler than segments)
 p.rect(cats, lower.score, 0.2, 0.01, line_color="black")
 p.rect(cats, upper.score, 0.2, 0.01, line_color="black")
 

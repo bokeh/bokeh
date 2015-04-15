@@ -7,7 +7,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import Int, Float, String, Datetime, Instance, List, Either
-from .sources import ColumnsRef
+from .renderers import Renderer
 
 class Range(PlotObject):
     """ A base class for all range types. ``Range`` is not generally
@@ -52,8 +52,15 @@ class DataRange(Range):
 
     """
 
-    sources = List(Instance(ColumnsRef), help="""
-    A list of data source columns to compute the envelope of.
+    names = List(String, help="""
+    A list of names to query for. If set, only renderers that
+    have a matching value for their ``name`` attribute will be used
+    for autoranging.
+    """)
+
+    renderers = List(Instance(Renderer), help="""
+    An explicit list of renderers to autorange against. If unset,
+    defaults to all renderers on a plot.
     """)
 
 class DataRange1d(DataRange):
@@ -61,7 +68,7 @@ class DataRange1d(DataRange):
 
     """
 
-    rangepadding = Float(0.1, help="""
+    range_padding = Float(0.1, help="""
     A percentage of the total range size to add as padding to
     the range start and end.
     """)

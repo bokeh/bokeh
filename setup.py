@@ -15,13 +15,26 @@
 from __future__ import print_function
 
 # Stdlib imports
-import os
-import platform
-import shutil
-import site
-import subprocess
-import sys
+import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
+
+try:
+    import colorama
+    def bright(text): return "%s%s%s" % (colorama.Style.BRIGHT, text, colorama.Style.RESET_ALL)
+    def dim(text): return "%s%s%s" % (colorama.Style.DIM, text, colorama.Style.RESET_ALL)
+    def white(text): return "%s%s%s" % (colorama.Fore.WHITE, text, colorama.Style.RESET_ALL)
+    def blue(text): return "%s%s%s" % (colorama.Fore.BLUE, text, colorama.Style.RESET_ALL)
+    def red(text): return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
+    def green(text): return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
+    def yellow(text): return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+except ImportError:
+    def bright(text): return text
+    def dim(text): return text
+    def white(text) : return text
+    def blue(text) : return text
+    def red(text) : return text
+    def green(text) : return text
+    def yellow(text) : return text
 
 if 'nightly' in sys.argv:
     from setuptools import setup
@@ -42,35 +55,36 @@ from distutils import dir_util
 # Our own imports
 import versioneer
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 ROOT = dirname(realpath(__file__))
 BOKEHJSROOT = join(ROOT, 'bokehjs')
 BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
 CSS = join(BOKEHJSBUILD, 'css')
-JS  = join(BOKEHJSBUILD, 'js')
+JS = join(BOKEHJSBUILD, 'js')
 
-SERVER = 'bokeh/server'
+SERVER = join(ROOT, 'bokeh/server')
 
 if sys.version_info[0] < 3:
     input = raw_input
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Local utilities
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 versioneer.versionfile_source = 'bokeh/_version.py'
 versioneer.versionfile_build = 'bokeh/_version.py'
 versioneer.tag_prefix = ''  # tags are like 1.2.0
 versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Classes and functions
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 package_data = []
+
 
 def package_path(path, filters=()):
     if not os.path.exists(path):
@@ -87,6 +101,7 @@ def package_path(path, filters=()):
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # And this is an intended PR to fix it: https://github.com/pypa/virtualenv/pull/508
 # Workaround to fix our issue: https://github.com/bokeh/bokeh/issues/378
+
 
 def getsitepackages():
     """Returns a list containing all global site-packages directories
@@ -111,7 +126,7 @@ def getsitepackages():
         elif _is_pypy:
             sitedirs = [os.path.join(prefix, 'site-packages')]
         elif sys.platform == 'darwin' and prefix == sys.prefix:
-            if prefix.startswith("/System/Library/Frameworks/"): # Apple's Python
+            if prefix.startswith("/System/Library/Frameworks/"):  # Apple's Python
                 sitedirs = [os.path.join("/Library/Python", sys.version[:3], "site-packages"),
                             os.path.join(prefix, "Extras", "lib", "python")]
 
@@ -172,6 +187,7 @@ def getsitepackages():
     sitepackages = [p for p in sitepackages if os.path.isdir(p)]
     return sitepackages
 
+
 def check_remove_bokeh_install(site_packages):
     bokeh_path = join(site_packages, "bokeh")
     if not (exists(bokeh_path) and isdir(bokeh_path)):
@@ -179,61 +195,123 @@ def check_remove_bokeh_install(site_packages):
     prompt = "Found existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
     val = input(prompt)
     if val == "y":
-        print ("Removing old bokeh install...", end=" ")
+        print("Removing old bokeh install...", end=" ")
         try:
             shutil.rmtree(bokeh_path)
-            print ("Done")
+            print("Done")
         except (IOError, OSError):
-            print ("Unable to remove old bokeh at %s, exiting" % bokeh_path)
+            print("Unable to remove old bokeh at %s, exiting" % bokeh_path)
             sys.exit(-1)
     else:
-        print ("Not removing old bokeh install")
+        print("Not removing old bokeh install")
         sys.exit(1)
+
 
 def remove_bokeh_pth(path_file):
     if exists(path_file):
         try:
             os.remove(path_file)
         except (IOError, OSError):
-            print ("Unable to remove old path file at %s, exiting" % path_file)
+            print("Unable to remove old path file at %s, exiting" % path_file)
             sys.exit(-1)
         return True
     return False
 
+BUILD_EXEC_FAIL_MSG = bright(red("Failed.")) + """
+
+ERROR: subprocess.Popen(%r) failed to execute:
+
+    %s
+
+Have you run `npm install` from the bokehjs subdirectory?
+For more information, see the Dev Guide:
+
+    http://bokeh.pydata.org/en/latest/docs/dev_guide.html
+"""
+
+BUILD_FAIL_MSG = bright(red("Failed.")) + """
+
+ERROR: 'gulp build' returned error message:
+%s
+"""
+
+BUILD_SIZE_FAIL_MSG = """
+ERROR: could not determine sizes:
+
+    %s
+"""
+
+BUILD_SUCCESS_MSG = bright(green("Success!")) + """
+
+Build output:
+
+%s"""
+
 def build_js():
-    print("Building BokehJS...")
+    print("Building BokehJS... ", end="")
+    sys.stdout.flush()
     os.chdir('bokehjs')
 
     if sys.platform != "win32":
-        cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
+        cmd = [join('node_modules', '.bin', 'gulp'), 'build']
     else:
-        cmd = [join('node_modules', '.bin', 'grunt.cmd'), 'deploy']
+        cmd = [join('node_modules', '.bin', 'gulp.cmd'), 'build']
 
+    t0 = time.time()
     try:
-        proc = subprocess.Popen(cmd)
-    except OSError:
-        print("""
-Failed to build BokehJS.
-
-Have you run `npm install` from the bokehjs subdirectory?
-  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
-""")
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except OSError as e:
+        print(BUILD_EXEC_FAIL_MSG % (cmd, e))
         sys.exit(1)
     finally:
         os.chdir('..')
 
-    if proc.wait() != 0:
-        print("ERROR: could not build BokehJS")
+    result = proc.wait()
+    t1 = time.time()
+
+    if result != 0:
+        indented_msg = ""
+        msg = proc.stderr.read().decode('ascii', errors='ignore')
+        msg = "\n".join(["    " + x for x in msg.split("\n")])
+        print(BUILD_FAIL_MSG % red(msg))
         sys.exit(1)
+
+    indented_msg = ""
+    msg = proc.stdout.read().decode('ascii', errors='ignore')
+    pat = re.compile(r"(\[.*\]) (.*)", re.DOTALL)
+    for line in msg.strip().split("\n"):
+        stamp, txt = pat.match(line).groups()
+        indented_msg += "   " + dim(green(stamp)) + " " + dim(txt) + "\n"
+    msg = "\n".join(["    " + x for x in msg.split("\n")])
+    print(BUILD_SUCCESS_MSG % indented_msg)
+    print("Build time: %s" % bright(yellow("%0.1f seconds" % (t1-t0))))
+    print()
+    print("Build artifact sizes:")
+    try:
+        blddir = join("bokehjs", "build")
+        bkjs_size = os.stat(join(blddir, "js", "bokeh.js")).st_size / 2**10
+        bkjs_min_size = os.stat(join(blddir, "js", "bokeh.min.js")).st_size / 2**10
+        bkcss_size = os.stat(join(blddir, "css", "bokeh.css")).st_size / 2**10
+        bkcss_min_size = os.stat(join(blddir, "css", "bokeh.min.css")).st_size / 2**10
+        print("  - bokeh.js      : %6.1f KB" % bkjs_size)
+        print("  - bokeh.css     : %6.1f KB" % bkcss_size)
+        print("  - bokeh.min.js  : %6.1f KB" % bkjs_min_size)
+        print("  - bokeh.min.css : %6.1f KB" % bkcss_min_size)
+    except Exception as e:
+        print(BUILD_SIZE_FAIL_MSG % e)
+
 
 def install_js():
     target_jsdir = join(SERVER, 'static', 'js')
     target_cssdir = join(SERVER, 'static', 'css')
 
-    if ( not exists(join(JS, 'bokeh.js')) or
-         not exists(join(JS, 'bokeh.min.js')) or
-         not exists(join(CSS, 'bokeh.css')) or
-         not exists(join(CSS, 'bokeh.min.css'))):
+    STATIC_ASSETS = [
+        join(JS, 'bokeh.js'),
+        join(JS, 'bokeh.min.js'),
+        join(CSS, 'bokeh.css'),
+        join(CSS, 'bokeh.min.css'),
+    ]
+    if not all([exists(a) for a in STATIC_ASSETS]):
         print("""
 ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.
 
@@ -251,10 +329,12 @@ Please build BokehJS by running setup.py with the `--build_js` option.
         shutil.rmtree(target_cssdir)
     shutil.copytree(CSS, target_cssdir)
 
+
 def clean():
     print("Removing prior-built items...", end=" ")
     dir_util.remove_tree('build/lib/bokeh')
     print("Done")
+
 
 def get_user_jsargs():
     print("""
@@ -270,6 +350,7 @@ build process. How would you like to handle BokehJS:
         print("Input '%s' not understood. Valid choices: 1, 2\n" % value)
         value = input("Choice? ")
     return mapping[value]
+
 
 def parse_jsargs():
     options = ('install', 'develop', 'sdist', 'egg_info', 'build')
@@ -297,9 +378,9 @@ def parse_jsargs():
 
     return jsbuild
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Main script
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Set up this checkout or source archive with the right BokehJS files.
 
@@ -308,12 +389,13 @@ if sys.version_info[:2] < (2, 6):
 
 # check for 'sdist' and make sure we always do a BokehJS build when packaging
 if "sdist" in sys.argv:
-    if "--install_js"  in sys.argv:
+    if "--install_js" in sys.argv:
         print("Removing '--install_js' incompatible with 'sdist'")
         sys.argv.remove('--install_js')
     if "--build_js" not in sys.argv:
         print("Adding '--build_js' required for 'sdist'")
         sys.argv.append('--build_js')
+
 
 # check for package install, set jsinstall to False to skip prompt
 jsinstall = True
@@ -323,9 +405,9 @@ if not exists(join(ROOT, 'MANIFEST.in')):
               "building/installing from the bokehjs source directory is disabled. "
               "To build or develop BokehJS yourself, you must clone the full "
               "Bokeh repository from https://github.com/bokeh/bokeh")
-        if "--build_js"  in sys.argv:
+        if "--build_js" in sys.argv:
             sys.argv.remove('--build_js')
-        if "--install_js"  in sys.argv:
+        if "--install_js" in sys.argv:
             sys.argv.remove('--install_js')
     jsbuild = False
     jsinstall = False
@@ -342,9 +424,9 @@ sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
 package_path(join(SERVER, 'templates'))
-package_path(join('bokeh', '_templates'))
-package_path(join('bokeh', 'sampledata'), sampledata_suffixes)
-package_path(join('bokeh', 'server', 'redis.conf'))
+package_path(join(ROOT, 'bokeh', '_templates'))
+package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
+package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
 package_path(join(SERVER, 'tests', 'config'))
 package_path(join(SERVER, 'tests', 'data'))
 scripts = ['bokeh-server', 'websocket_worker.py']
@@ -365,9 +447,9 @@ if 'develop' in sys.argv:
     print("Installing Bokeh for development:")
     print("  - writing path '%s' to %s" % (path, path_file))
     if jsinstall:
-        print("  - using %s built BokehJS from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+        print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
-        print("  - using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
+        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % yellow("PACKAGED"))
     sys.exit()
 
 elif 'clean' in sys.argv:
@@ -379,17 +461,19 @@ elif 'install' in sys.argv:
     if pth_removed:
         print("  - removed path file at %s" % path_file)
     if jsinstall:
-        print("  - using %s built BokehJS from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+        print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
-        print("  - using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
+        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % bright(yellow("PACKAGED")))
 
 elif '--help' in sys.argv:
     if jsinstall:
-        print("Bokeh-specific options available with 'install' or 'develop':\n")
+        print("Bokeh-specific options available with 'install' or 'develop':")
+        print()
         print("  --build_js          build and install a fresh BokehJS")
         print("  --install_js        install only last previously built BokehJS")
     else:
-        print("Bokeh is using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
+        print("Bokeh is using PACKAGED BokehJS, located in 'bokeh.server.static'")
+        print()
 
 print()
 
@@ -411,7 +495,7 @@ REQUIRES = [
         'pyzmq>=14.3.1',
         'tornado>=4.0.1',
         # cli
-        #'click>=3.3',
+        # 'click>=3.3',
         # tests
         #'nose>=1.3.0',
         #'mock>=1.0.1',
@@ -433,8 +517,8 @@ if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
         'gevent-websocket>=0.9.2',
     ])
 
-#if sys.platform != "win32":
-    #REQUIRES.append('redis>=2.7.6')
+# if sys.platform != "win32":
+#     REQUIRES.append('redis>=2.7.6')
 
 if platform.python_implementation() != "PyPy":
     # You need to install PyPy's fork of NumPy to make it work:
@@ -455,6 +539,7 @@ setup(
     packages=[
         'bokeh',
         'bokeh.models',
+        'bokeh.models.tests',
         'bokeh.models.widgets',
         'bokeh.charts',
         'bokeh.charts.builder',

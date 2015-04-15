@@ -1,65 +1,54 @@
-define [
-  "jquery"
-  "underscore"
-  "common/collection"
-  "common/continuum_view"
-  "common/has_parent"
-  "common/logging"
-], ($, _, Collection, ContinuumView, HasParent, Logging) ->
+_ = require "underscore"
+$ = require "jquery"
+ContinuumView = require "../common/continuum_view"
+HasParent = require "../common/has_parent"
 
-  logger = Logging.logger
+class CheckboxGroupView extends ContinuumView
+  tagName: "div"
+  events:
+    "change input": "change_input"
 
-  class CheckboxGroupView extends ContinuumView
-    tagName: "div"
-    events:
-      "change input": "change_input"
+  initialize: (options) ->
+    super(options)
+    @render()
+    @listenTo(@model, 'change', @render)
 
-    change_input: () ->
-      active = (i for checkbox, i in @$("input") when checkbox.checked)
-      @mset('active', active)
-      @model.save()
+  render: () ->
+    @$el.empty()
 
-    initialize: (options) ->
-      super(options)
-      @render()
-      @listenTo(@model, 'change', @render)
+    active = @mget("active")
+    for label, i in @mget("labels")
+      $input = $('<input type="checkbox">').attr(value: "#{i}")
+      if @mget("disabled") then $input.prop("disabled", true)
+      if i in active then $input.prop("checked", true)
 
-    render: () ->
-      @$el.empty()
+      $label = $('<label></label>').text(label).prepend($input)
+      if @mget("inline")
+          $label.addClass("bk-bs-checkbox-inline")
+          @$el.append($label)
+      else
+          $div = $('<div class="bk-bs-checkbox"></div>').append($label)
+          @$el.append($div)
 
-      active = @mget("active")
-      for label, i in @mget("labels")
-        $input = $('<input type="checkbox">').attr(value: "#{i}")
-        if @mget("disabled") then $input.prop("disabled", true)
-        if i in active then $input.prop("checked", true)
+    return @
 
-        $label = $('<label></label>').text(label).prepend($input)
-        if @mget("inline")
-            $label.addClass("bk-bs-checkbox-inline")
-            @$el.append($label)
-        else
-            $div = $('<div class="bk-bs-checkbox"></div>').append($label)
-            @$el.append($div)
+  change_input: () ->
+    active = (i for checkbox, i in @$("input") when checkbox.checked)
+    @mset('active', active)
+    @model.save()
 
-      return @
+class CheckboxGroup extends HasParent
+  type: "CheckboxGroup"
+  default_view: CheckboxGroupView
 
-  class CheckboxGroup extends HasParent
-    type: "CheckboxGroup"
-    default_view: CheckboxGroupView
+  defaults: () ->
+    return _.extend {}, super(), {
+      active: []
+      labels: []
+      inline: false
+      disabled: false
+    }
 
-    defaults: ->
-      return _.extend {}, super(), {
-        active: []
-        labels: []
-        inline: false
-        disabled: false
-      }
-
-  class CheckboxGroups extends Collection
-    model: CheckboxGroup
-
-  return {
-    Model: CheckboxGroup
-    Collection: new CheckboxGroups()
-    View: CheckboxGroupView
-  }
+module.exports =
+  Model: CheckboxGroup
+  View: CheckboxGroupView

@@ -1,34 +1,32 @@
-define [
-  "common/has_parent",
-  "common/continuum_view",
-  "common/collection"
-], (HasParent, ContinuumView, Collection) ->
+_ = require "underscore"
+ContinuumView = require "../common/continuum_view"
+HasParent = require "../common/has_parent"
 
-  class ParagraphView extends ContinuumView
-    tagName : "p"
-    initialize : (options) ->
-      super(options)
-      @render()
-      @listenTo(@model, 'change', @render)
-    render: () ->
-      if @mget('height')
-        @$el.height(@mget('height'))
-      if @mget('width')
-        @$el.width(@mget('width'))
-      @$el.text(@mget('text'))
-  class Paragraph extends HasParent
-    type : "Paragraph"
-    default_view : ParagraphView
-    defaults: ->
-      return _.extend {}, super(), {
-        text: ''
-      }
+class ParagraphView extends ContinuumView
+  tagName: "p"
 
-  class Paragraphs extends Collection
-    model : Paragraph
-  paragraphs = new Paragraphs()
-  return {
-    "Model" : Paragraph
-    "Collection" : paragraphs
-    "View" : ParagraphView
-  }
+  initialize: (options) ->
+    super(options)
+    @render()
+    @listenTo(@model, 'change', @render)
+
+  render: () ->
+    if @mget('height')
+      @$el.height(@mget('height'))
+    if @mget('width')
+      @$el.width(@mget('width'))
+    @$el.text(@mget('text'))
+    return @
+
+class Paragraph extends HasParent
+  type: "Paragraph"
+  default_view: ParagraphView
+
+  defaults: () ->
+    return _.extend {}, super(), {
+      text: ''
+    }
+
+module.exports =
+  Model: Paragraph
+  View: ParagraphView

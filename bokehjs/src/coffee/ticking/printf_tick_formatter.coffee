@@ -1,27 +1,19 @@
-define [
-  "underscore"
-  "sprintf"
-  "common/collection"
-  "common/has_properties"
-], (_, SPrintf, Collection, HasProperties) ->
+_ = require "underscore"
+SPrintf = require "sprintf"
+HasProperties = require "../common/has_properties"
 
-  class PrintfTickFormatter extends HasProperties
-    type: 'PrintfTickFormatter'
+class PrintfTickFormatter extends HasProperties
+  type: 'PrintfTickFormatter'
 
-    format: (ticks) ->
-      format = @get("format")
-      labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
-      return labels
+  format: (ticks) ->
+    format = @get("format")
+    labels = ( SPrintf.sprintf(format, tick) for tick in ticks )
+    return labels
 
-    defaults: ->
-      return _.extend {}, super(), {
-        format: '%s'
-      }
+  defaults: () ->
+    return _.extend {}, super(), {
+      format: '%s'
+    }
 
-  class PrintfTickFormatters extends Collection
-    model: PrintfTickFormatter
-
-  return {
-    Model: PrintfTickFormatter,
-    Collection: new PrintfTickFormatters()
-  }
+module.exports =
+  Model: PrintfTickFormatter

@@ -3,8 +3,6 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
-import itertools
-
 from . import _glyph_functions as gf
 from .deprecate import deprecated
 from .models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
@@ -20,6 +18,12 @@ from .session import Session
 from .io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, hplot, vplot)
+
+# Names that we want in this namespace (fool pyflakes)
+(GridPlot, Document, ColumnDataSource, Session, cursession, gridplot,
+show, save, reset_output, push, output_file, output_notebook,
+output_server)
+
 
 @deprecated("Bokeh 0.8.2", "bokeh.plotting.vplot function")
 def VBox(*args, **kwargs):
@@ -75,7 +79,7 @@ class Figure(Plot):
             axis_label = x_axis_label
             if axis_label:
                 xaxis.axis_label = axis_label
-            xgrid = Grid(plot=self, dimension=0, ticker=xaxis.ticker)
+            xgrid = Grid(plot=self, dimension=0, ticker=xaxis.ticker); xgrid
             if x_axis_location == "above":
                 self.above.append(xaxis)
             elif x_axis_location == "below":
@@ -90,7 +94,7 @@ class Figure(Plot):
             axis_label = y_axis_label
             if axis_label:
                 yaxis.axis_label = axis_label
-            ygrid = Grid(plot=self, dimension=1, ticker=yaxis.ticker)
+            ygrid = Grid(plot=self, dimension=1, ticker=yaxis.ticker); ygrid
             if y_axis_location == "left":
                 self.left.append(yaxis)
             elif y_axis_location == "right":

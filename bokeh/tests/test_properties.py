@@ -3,8 +3,10 @@ import unittest
 import numpy as np
 
 from bokeh.properties import (
-    HasProps, Int, Array, String, Enum, Float, DataSpec, ColorSpec, DashPattern
-)
+    HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
+    Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
+    Enum, Color, Align, DashPattern, Size, Percent, Angle)
+
 
 class Basictest(unittest.TestCase):
 
@@ -99,50 +101,48 @@ class Basictest(unittest.TestCase):
     #         # This should raise a TypeError: object.__init__() takes no parameters
     #         g = Foo(z = 3.14, q = "blah")
 
-class TestDataSpec(unittest.TestCase):
+class TestNumberSpec(unittest.TestCase):
 
     def test_field(self):
         class Foo(HasProps):
-            x = DataSpec("xfield")
+            x = NumberSpec("xfield")
         f = Foo()
         self.assertEqual(f.x, "xfield")
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"field": "xfield", "units": "data"})
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"field": "xfield"})
         f.x = "my_x"
         self.assertEqual(f.x, "my_x")
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"field": "my_x", "units": "data"})
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"field": "my_x"})
 
     def test_value(self):
         class Foo(HasProps):
-            x = DataSpec("xfield")
+            x = NumberSpec("xfield")
         f = Foo()
         self.assertEqual(f.x, "xfield")
         f.x = 12
         self.assertEqual(f.x, 12)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 12, "units": "data"})
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 12})
         f.x = 15
         self.assertEqual(f.x, 15)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 15, "units": "data"})
-        f.x = dict(value=23, units="screen")
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 23, "units": "screen"})
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 15})
         f.x = dict(value=32)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 32, "units": "data"})
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 32})
 
     def test_default(self):
         class Foo(HasProps):
-            y = DataSpec(default=12)
+            y = NumberSpec(default=12)
         f = Foo()
         self.assertEqual(f.y, 12)
-        self.assertDictEqual(Foo.__dict__["y"].to_dict(f), {"value": 12, "units": "data"})
+        self.assertDictEqual(Foo.__dict__["y"].to_dict(f), {"value": 12})
         f.y = "y1"
         self.assertEqual(f.y, "y1")
         # Once we set a concrete value, the default is ignored, because it is unused
         f.y = 32
         self.assertEqual(f.y, 32)
-        self.assertDictEqual(Foo.__dict__["y"].to_dict(f), {"value": 32, "units": "data"})
+        self.assertDictEqual(Foo.__dict__["y"].to_dict(f), {"value": 32})
 
     def test_multiple_instances(self):
         class Foo(HasProps):
-            x = DataSpec("xfield", default=12)
+            x = NumberSpec("xfield")
 
         a = Foo()
         b = Foo()
@@ -150,11 +150,11 @@ class TestDataSpec(unittest.TestCase):
         b.x = 14
         self.assertEqual(a.x, 13)
         self.assertEqual(b.x, 14)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13, "units": "data"})
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"value": 14, "units": "data"})
-        b.x = {"field": "x3", "units": "screen"}
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13, "units": "data"})
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"field": "x3", "units": "screen"})
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13})
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"value": 14})
+        b.x = {"field": "x3"}
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13})
+        self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"field": "x3"})
 
 
 class TestColorSpec(unittest.TestCase):
@@ -227,7 +227,7 @@ class TestColorSpec(unittest.TestCase):
 
     def test_named_color_overriding_default(self):
         class Foo(HasProps):
-            col = ColorSpec("colorfield", default="blue")
+            col = ColorSpec("colorfield")
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = "forestgreen"
@@ -317,25 +317,6 @@ class TestDashPattern(unittest.TestCase):
             pat = DashPattern
         f = Foo()
 
-        f.pat = []
-        self.assertEqual(f.pat, [])
-        f.pat = [2]
-        self.assertEqual(f.pat, [2])
-        f.pat = [2, 4]
-        self.assertEqual(f.pat, [2, 4])
-        f.pat = [2, 4, 6]
-        self.assertEqual(f.pat, [2, 4, 6])
-
-        with self.assertRaises(ValueError):
-            f.pat = [2, 4.2]
-        with self.assertRaises(ValueError):
-            f.pat = [2, "a"]
-
-    def test_list(self):
-        class Foo(HasProps):
-            pat = DashPattern
-        f = Foo()
-
         f.pat = ()
         self.assertEqual(f.pat, ())
         f.pat = (2,)
@@ -362,9 +343,6 @@ class TestDashPattern(unittest.TestCase):
         with self.assertRaises(ValueError):
             f.pat = {}
 
-from bokeh.properties import (Bool, Int, Float, Complex, String,
-    Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
-    Enum, Color, Align, DashPattern, Size, Percent, Angle)
 
 class Foo(HasProps):
     pass
@@ -771,6 +749,7 @@ class TestProperties(unittest.TestCase):
 
     def test_Align(self):
         prop = Align() # TODO
+        assert prop
 
     def test_DashPattern(self):
         prop = DashPattern()

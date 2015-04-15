@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.special
 
-from bokeh.plotting import figure, output_file, show, VBox
+from bokeh.plotting import figure, output_file, show, vplot
 
 mu, sigma = 0, 0.5       # NOTE: you can tinker with these values if you like
 
@@ -103,5 +103,5 @@ pdf = (k/lam)*(x/lam)**(k-1) * np.exp(-(x/lam)**k)
 cdf = 1 - np.exp(-(x/lam)**k)
 
 
-# show all the plots arrayed in a VBox
-show(VBox(p1, p2, p3, p4, p5))
+# show all the plots arrayed in a vplot
+show(vplot(p1, p2, p3, p4, p5))

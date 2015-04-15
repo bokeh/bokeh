@@ -13,9 +13,9 @@ import abstract_rendering.numpyglyphs as npg
 import abstract_rendering.infos as infos
 
 from ..server.tests import test_utils
-from ..server.app import bokeh_app, app
+from ..server.app import app
 from ..session import TestSession
-from ..plotting import (reset_output, output_server, push, curdoc, figure)
+from ..plotting import (reset_output, output_server, curdoc, figure)
 from ..transforms import ar_downsample as ar_downsample
 from ..models.sources import ServerDataSource
 from ..models.renderers import GlyphRenderer

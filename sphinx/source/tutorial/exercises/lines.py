@@ -1,4 +1,4 @@
-from bokeh.plotting import figure, HBox, output_file, show, VBox
+from bokeh.plotting import figure, hplot, output_file, show, vplot
 from bokeh.models import Range1d
 
 # create some data using python lists
@@ -22,5 +22,5 @@ p4 = figure()
 
 # EXERCISE: add all the same renderers above, on this one plot
 
-# show the plots arrayed in a VBox
-show(VBox(HBox(p1, p2, p3), p4))
+# show the plots arrayed in a vplot
+show(vplot(hplot(p1, p2, p3), p4))

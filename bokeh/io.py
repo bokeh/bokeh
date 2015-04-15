@@ -5,9 +5,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Functions for configuring Bokeh output.
+''' Functions for configuring Bokeh output.
 
-"""
+'''
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -62,7 +62,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
             If True, then Bokeh plotting APIs may opt to automatically
             save the file more frequently (e.g., after any plotting
             command). If False, then the file is only saved upon calling
-            :func:`show` or :func:`show`.
+            :func:`show` or :func:`save`.
 
         mode (str, optional) : how to include BokehJS (default: ``'inline'``)
             One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
@@ -202,7 +202,7 @@ def cursession():
     return _state.session
 
 def show(obj, browser=None, new="tab"):
-    """ Immediately display a plot object.
+    ''' Immediately display a plot object.
 
     In an IPython/Jupyter notebook, the output is displayed in an output
     cell. Otherwise, a browser window or tab is autoraised to display the
@@ -213,7 +213,7 @@ def show(obj, browser=None, new="tab"):
     load the plot from that server session.
 
     Args:
-        obj (Widget/Plot object): a plot object to display
+        obj (Widget/Plot object) : a plot object to display
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows
@@ -226,11 +226,14 @@ def show(obj, browser=None, new="tab"):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
 
+    Returns:
+        None
+
     .. note::
         The ``browser`` and ``new`` parameters are ignored when showing in
         an IPython/Jupyter notebook.
 
-    """
+    '''
     _show_with_state(obj, _state, browser, new)
 
 def _show_with_state(obj, state, browser, new):
@@ -263,14 +266,14 @@ def _show_server_with_state(obj, state, new, controller):
     controller.open(state.session.object_link(state.document.context), new=_new_param[new])
 
 def save(obj, filename=None, resources=None, title=None, state=None):
-    """ Save an HTML file with the data for the current document.
+    ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
     :class:`State` object) for ``filename``, ``resources``, or ``title`` if they
     are not provided.
 
     Args:
-        obj (Document or Widget/Plot object) :
+        obj (Document or Widget/Plot object) : a plot object to save
 
         filename (str, optional) : filename to save document under (default: None)
             If None, use the default state configuration, otherwise raise a
@@ -290,7 +293,7 @@ def save(obj, filename=None, resources=None, title=None, state=None):
     Raises:
         RuntimeError
 
-    """
+    '''
     if state is None:
         state = _state
 
@@ -341,7 +344,7 @@ def _save_helper(obj, filename, resources, title):
         f.write(decode_utf8(html))
 
 def push(session=None, document=None, state=None):
-    """ Update the server with the data for the current document.
+    ''' Update the server with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
     :class:`State` object) for ``session`` or ``document`` if they are not
@@ -355,7 +358,7 @@ def push(session=None, document=None, state=None):
     Returns:
         None
 
-    """
+    '''
     if state is None:
         state = _state
 
@@ -393,17 +396,18 @@ def _push_or_save(obj):
         save(obj)
 
 def gridplot(plot_arrangement, **kwargs):
-    """ Generate a plot that arranges several subplots into a grid.
+    ''' Generate a plot that arranges several subplots into a grid.
 
     Args:
         plot_arrangement (nested list of Plots) : plots to arrange in a grid
         **kwargs: additional attributes to pass in to GridPlot() constructor
 
-    .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
+    .. note:: ``plot_arrangement`` can be nested, e.g [[p1, p2], [p3, p4]]
 
     Returns:
         grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
-    """
+
+    '''
     grid = GridPlot(children=plot_arrangement, **kwargs)
     subplots = itertools.chain.from_iterable(plot_arrangement)
     _deduplicate_plots(grid, subplots)
@@ -411,18 +415,18 @@ def gridplot(plot_arrangement, **kwargs):
     return grid
 
 def hplot(*children, **kwargs):
-    """ Generate a layout that arranges several subplots horizontally.
+    ''' Generate a layout that arranges several subplots horizontally.
 
-    """
+    '''
     layout = HBox(children=list(children), **kwargs)
     _deduplicate_plots(layout, children)
     _push_or_save(layout)
     return layout
 
 def vplot(*children, **kwargs):
-    """ Generate a layout that arranges several subplots vertically.
+    ''' Generate a layout that arranges several subplots vertically.
 
-    """
+    '''
     layout = VBox(children=list(children), **kwargs)
     _deduplicate_plots(layout, children)
     _push_or_save(layout)

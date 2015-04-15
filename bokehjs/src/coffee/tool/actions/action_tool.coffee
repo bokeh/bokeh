@@ -1,24 +1,19 @@
+ButtonTool = require "../button_tool"
 
-define [
-  "backbone"
-  "tool/button_tool"
-], (Backbone, ButtonTool) ->
+class ActionToolButtonView extends ButtonTool.ButtonView
 
-  class ActionToolButtonView extends ButtonTool.ButtonView
+  _clicked: () ->
+    @model.trigger('do')
 
-    _clicked: () ->
-      @model.trigger('do')
+class ActionToolView extends ButtonTool.View
 
-  class ActionToolView extends ButtonTool.View
+  initialize: (options) ->
+    super(options)
+    @listenTo(@model, 'do', @do)
 
-    initialize: (options) ->
-      super(options)
-      @listenTo(@model, 'do', @do)
+class ActionTool extends ButtonTool.Model
 
-  class ActionTool extends ButtonTool.Model
-
-  return {
-    "Model": ActionTool
-    "View": ActionToolView
-    "ButtonView": ActionToolButtonView
-  }
+module.exports =
+  Model: ActionTool
+  View: ActionToolView
+  ButtonView: ActionToolButtonView

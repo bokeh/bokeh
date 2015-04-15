@@ -3,7 +3,6 @@ from __future__ import absolute_import, print_function
 import sys, os
 from six.moves.urllib import request as urllib2
 from six.moves import cStringIO as StringIO
-from six import string_types
 import pandas as pd
 
 try:
@@ -17,7 +16,7 @@ from .utils import (get_chart_params, get_charts_mapping,
                     get_data_series, keep_source_input_sync, get_data_from_url)
 from .. import charts as bc
 from ..charts import utils as bc_utils
-from bokeh.models.widgets import Button, VBox
+from bokeh.models.widgets import Button
 
 # Define a mapping to connect chart types supported arguments and chart classes
 CHARTS_MAP = get_charts_mapping()
