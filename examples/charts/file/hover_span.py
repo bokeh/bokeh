@@ -31,7 +31,7 @@ for k in xyvalues.columns:
 scatter_point = Scatter(svalues, title="Scatter mouse", ylabel='measures', width=500, height=300,
              legend=True,
              tools=TOOLS)
-scatter = Scatter(svalues, title="Scatter HLine", ylabel='measures', width=500, height=300,
+scatter = Scatter(svalues, title="Scatter VLine", ylabel='measures', width=500, height=300,
              legend=True,
              tools=TOOLS)
 
@@ -42,17 +42,18 @@ point_line = Line(xyvalues, title="Lines Hover Point", ylabel='measures', width=
 
 
 hhover = hline.select(dict(type=HoverTool))
-hhover.mode = 'vline'
+hhover.mode = 'hline'
+hhover.line_policy = 'next'
 
 vhover = vline.select(dict(type=HoverTool))
-vhover.mode = 'hline'
+vhover.mode = 'vline'
 
 int_hhover = int_hline.select(dict(type=HoverTool))
-int_hhover.mode = 'vline'
+int_hhover.mode = 'hline'
 int_hhover.line_policy = 'interp'
 
 int_vhover = int_vline.select(dict(type=HoverTool))
-int_vhover.mode = 'hline'
+int_vhover.mode = 'vline'
 int_vhover.line_policy = 'interp'
 
 iphover = int_point_line.select(dict(type=HoverTool))

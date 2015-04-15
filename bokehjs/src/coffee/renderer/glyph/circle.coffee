@@ -127,7 +127,7 @@ class CircleView extends Glyph.View
       [xb, yb] = this.bounds()
       result = hittest.create_hit_test_result()
 
-      if geometry.direction == 'v'
+      if geometry.direction == 'h'
         # use circle bounds instead of current pointer y coordinates
         y0 = yb[0]
         y1 = yb[1]

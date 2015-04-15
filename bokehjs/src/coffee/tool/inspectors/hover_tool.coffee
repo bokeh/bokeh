@@ -52,9 +52,9 @@ class HoverToolView extends InspectTool.View
     else
         geometry['type'] = 'span'
         if @mget('mode') == 'vline'
-          geometry.direction = 'v'
-        else
           geometry.direction = 'h'
+        else
+          geometry.direction = 'v'
 
     for r in @mget('renderers')
       sm = r.get('data_source').get('selection_manager')
@@ -102,6 +102,13 @@ class HoverToolView extends InspectTool.View
         data_y = renderer.glyph.sy[i+1]
         rx = canvas.sx_to_vx(data_x)
         ry = canvas.sy_to_vy(data_y)
+
+      else if @mget('line_policy') == "nearest"
+        data_x = renderer.glyph.sx[i+1]
+        data_y = renderer.glyph.sy[i+1]
+        rx = canvas.sx_to_vx(data_x)
+        ry = canvas.sy_to_vy(data_y)
+
       else
           [rx, ry] = [vx, vy]
 
