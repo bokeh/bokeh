@@ -10,11 +10,16 @@ Testing
 There is a TravisCI project configured to execute on every GitHub push, it can
 be viewed at: https://travis-ci.org/bokeh/bokeh.
 
-To run the just the python unit tests, run the command::
+To run the just the python unit tests, run the command:
 
-    python -c "import bokeh; bokeh.test()"
+.. code-block:: python
 
-To run just the BokehJS unit tests, execute::
+    import bokeh
+    bokeh.test()
+
+To run just the BokehJS unit tests, execute:
+
+.. code-block:: sh
 
     gulp test
 
@@ -22,12 +27,16 @@ in the `bokehjs` subdirectory of the source checkout.
 
 Additionally, there are "examples tests" that check whether all the examples
 produce outputs. This script is in the `examples` directory and can be run by
-executing::
+executing:
+
+.. code-block:: sh
 
     test -D
 
 You can run all available tests (python and JS unit tests and example tests)
-from the top level directory by executing::
+from the top level directory by executing:
+
+.. code-block:: sh
 
     BOKEH_DEFAULT_NO_DEV=True nosetests
 

@@ -90,12 +90,12 @@ Building BokehJS with Gulp
 
 Below are the main Gulp commands for development (to be executed from
 the ``bokehjs`` subdirectory). To run these commands, you can either
-use ``bokehjs/node_modules/.bin/gulp`` or globally install the Gulp
-command line interface:
+use ``bokehjs/node_modules/.bin/gulp``, install Gulp globally via
+`npm`, or install gulp via conda (recommended):
 
 .. code-block:: sh
 
-    npm install -g gulp
+    conda install -c javascript gulp
 
 To generate the compiled and optimized BokehJS libraries, and deploy
 them to the ``build`` subdirectory:
