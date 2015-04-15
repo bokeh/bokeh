@@ -112,34 +112,6 @@ trigger a recompile if any source file changes:
     gulp watch
 
 
-Building BokehJS with SBT
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning::
-        The ``sbt`` build system is experimental and not integrated with
-        ``setup.py``, so it should be used with caution.
-
-As an alternative to Gulp, you can use `SBT`_ to build BokehJS. To start,
-run the command:
-
-.. code-block:: sh
-
-    ./sbt
-
-in the top level directory. This will download ``sbt`` (and its dependencies)
-itself, and configure the build system.
-
-There are two main commands available: ``build`` and ``deploy``. The ``build``
-command compiles CoffeeScript, Less and Eco sources, and copies other resources
-to the build directory. The ``deploy`` command does the same and additionally
-generates optimized and minified ``bokeh.js`` and ``bokeh.css`` outputs.
-
-You may also run specific subtasks, e.g. ``compile`` to compile CoffeeScript,
-Less and Eco sources, but not copy resources. You can also prefix any command
-with ``~``, which enables incremental compilation. For example, issuing ``~less``
-will watch ``*.less`` sources and compile only the subset of files that changed.
-To stop watching sources, press ENTER. Pressing Ctrl+C will terminate ``sbt``.
-
 .. _devguide_python_setup:
 
 Python Setup
