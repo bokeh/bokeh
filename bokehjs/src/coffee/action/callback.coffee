@@ -5,15 +5,12 @@ class Callback extends HasProperties
   type: 'Callback'
 
   execute: (value) ->
-    args = @get('args')
-    closure = """
-    return function(value) {
-        #{@get('body')}
-    };
-    """
-    func = Function.apply(null, _.keys(args).concat(closure))
-    cb = func.apply(null, _.map(_.values(args), @resolve_ref))
-    cb(value)
+    args = @get("args")
+    names = _.keys(args)
+    vals = _.values(args)
+    values = _.map(vals, (k) => @resolve_ref(k))
+    func = new Function names..., "value", @get("body")
+    func(values..., value)
 
   defaults: ->
     return _.extend {}, super(), {
