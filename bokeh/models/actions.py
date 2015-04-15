@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import String
+from ..properties import Dict, Instance, String
 
 class Action(PlotObject):
     """ Base class for interactive actions. """
@@ -14,4 +14,15 @@ class OpenURL(Action):
     url = String("http://", help="""
     The URL to direct the web browser to. This can be a template string,
     which will be formatted with data from the data source.
+    """)
+
+class Callback(Action):
+    """ Execute a JavaScript function. """
+
+    args = Dict(String, Instance(PlotObject), help="""
+
+    """)
+
+    body = String(help="""
+
     """)

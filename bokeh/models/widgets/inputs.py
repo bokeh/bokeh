@@ -5,7 +5,8 @@ from __future__ import absolute_import
 
 import six
 
-from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either
+from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
+from ..actions import Callback
 from ..widget import Widget
 
 class InputWidget(Widget):
@@ -133,6 +134,8 @@ class Slider(InputWidget):
     orientation = Enum("horizontal", "vertical", help="""
     Orient the slider either horizontally (default) or vertically.
     """)
+
+    callback = Instance(Callback)
 
 class DateRangeSlider(InputWidget):
     """ Slider-based date range selection widget.

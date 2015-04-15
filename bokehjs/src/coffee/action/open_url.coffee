@@ -1,6 +1,5 @@
 _ = require "underscore"
 Util = require "../util/util"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class OpenURL extends HasProperties
@@ -17,9 +16,5 @@ class OpenURL extends HasProperties
       url: 'http://'
     }
 
-class OpenURLs extends Collection
-  model: OpenURL
-
 module.exports =
   Model: OpenURL
-  Collection: new OpenURLs()

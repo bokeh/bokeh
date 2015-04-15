@@ -27,6 +27,7 @@ locations =
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
 
+  Callback:                 require '../action/callback'
   OpenURL:                  require '../action/open_url'
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
