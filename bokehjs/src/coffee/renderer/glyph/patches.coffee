@@ -87,7 +87,10 @@ class PatchesView extends Glyph.View
       idx = candidates[i]
       if hittest.point_in_poly(sx, sy, @sxs[idx], @sys[idx])
         hits.push(idx)
-    return hits
+
+    result = hittest.create_hit_test_result()
+    result['2d'].indices = hits
+    return resut
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1)

@@ -1,5 +1,6 @@
 _ = require "underscore"
 Glyph = require "../glyph"
+hittest = require "../../../common/hittest"
 
 class MarkerView extends Glyph.View
 
@@ -58,17 +59,20 @@ class MarkerView extends Glyph.View
       dist = Math.abs(@sx[i]-sx) + Math.abs(@sy[i]-sy)
       if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
         hits.push([i, dist])
-    hits = _.chain(hits)
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = _.chain(hits)
       .sortBy((elt) -> return elt[1])
       .map((elt) -> return elt[0])
       .value()
-    return hits
+    return result
 
   _hit_rect: (geometry) ->
     [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
 
-    return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    return result
 
   _hit_poly: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
@@ -83,7 +87,9 @@ class MarkerView extends Glyph.View
       idx = candidates[i]
       if hittest.point_in_poly(@sx[i], @sy[i], sx, sy)
         hits.push(idx)
-    return hits
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
 
 class Marker extends Glyph.Model
   distances: ['size']

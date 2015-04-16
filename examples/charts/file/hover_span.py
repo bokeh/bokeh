@@ -13,7 +13,7 @@ index = xyvalues.pop("Year")
 xyvalues = xyvalues[['Biology', 'Business', 'Computer Science']]
 
 
-TOOLS='box_zoom,hover,crosshair,resize,reset'
+TOOLS='box_zoom,box_select,hover,crosshair,resize,reset'
 output_file("lines.html", title="line.py example")
 vline = Line(xyvalues, title="Lines VLine", ylabel='measures', width=500, height=300,
              tools=TOOLS)
@@ -31,7 +31,7 @@ for k in xyvalues.columns:
 scatter_point = Scatter(svalues, title="Scatter mouse", ylabel='measures', width=500, height=300,
              legend=True,
              tools=TOOLS)
-scatter = Scatter(svalues, title="Scatter VLine", ylabel='measures', width=500, height=300,
+scatter = Scatter(svalues, title="Scatter V Line", ylabel='measures', width=500, height=300,
              legend=True,
              tools=TOOLS)
 

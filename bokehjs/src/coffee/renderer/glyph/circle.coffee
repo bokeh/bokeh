@@ -157,14 +157,14 @@ class CircleView extends Glyph.View
       hits = (xx[4].i for xx in @index.search([x0, y0, x1, y1]))
 
       result['1d'].indices = hits
-      console.log 'hits', hits
       return result
 
   _hit_rect: (geometry) ->
     [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
-
-    return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    return result
 
   _hit_poly: (geometry) ->
     [vx, vy] = [_.clone(geometry.vx), _.clone(geometry.vy)]
@@ -179,7 +179,10 @@ class CircleView extends Glyph.View
       idx = candidates[i]
       if hittest.point_in_poly(@sx[i], @sy[i], sx, sy)
         hits.push(idx)
-    return hits
+
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
 
   # circle does not inherit from marker (since it also accepts radius) so we
   # must supply a draw_legend for it  here
