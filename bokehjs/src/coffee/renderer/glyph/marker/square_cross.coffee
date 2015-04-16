@@ -3,15 +3,20 @@ Marker = require "./marker"
 
 class SquareCrossView extends Marker.View
 
-  _render: (ctx, indices, {sx, sy, size}) ->
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
       if isNaN(sx[i]+sy[i]+size[i])
         continue
 
+      ctx.beginPath()
       ctx.translate(sx[i], sy[i])
 
-      ctx.beginPath()
-      ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
+      if angle[i]
+        ctx.rotate(angle[i])
+        ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
+        ctx.rotate(-angle[i])
+      else
+        ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
 
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
@@ -20,10 +25,14 @@ class SquareCrossView extends Marker.View
       if @visuals.line.do_stroke
         @visuals.line.set_vectorize(ctx, i)
         r = size[i]/2
+        if angle[i]
+          ctx.rotate(angle[i])
         ctx.moveTo(0,  +r)
         ctx.lineTo(0,  -r)
         ctx.moveTo(-r, 0)
         ctx.lineTo(+r, 0)
+        if angle[i]
+          ctx.rotate(-angle[i])
         ctx.stroke()
 
       ctx.translate(-sx[i], -sy[i])

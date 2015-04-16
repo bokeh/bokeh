@@ -87,6 +87,7 @@ class MarkerView extends Glyph.View
 
 class Marker extends Glyph.Model
   distances: ['size']
+  angles: ['angle']
 
   display_defaults: ->
     return _.extend {}, super(), {

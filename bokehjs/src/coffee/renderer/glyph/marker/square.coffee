@@ -9,14 +9,14 @@ class SquareView extends Marker.View
         continue
 
       ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
 
       if angle[i]
-        ctx.translate(sx[i], sy[i])
+
         ctx.rotate(angle[i])
         ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
         ctx.rotate(-angle[i])
       else
-        ctx.translate(sx[i], sy[i])
         ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
 
       if @visuals.fill.do_fill
@@ -32,7 +32,6 @@ class SquareView extends Marker.View
 class Square extends Marker.Model
   default_view: SquareView
   type: 'Square'
-  angles: ['angle']
 
 module.exports =
   Model: Square
