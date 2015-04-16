@@ -9,7 +9,7 @@ CategoricalMapper = require "../../mapper/categorical_mapper"
 
 
 class GlyphView extends ContinuumView
-
+  
   initialize: (options) ->
     super(options)
 

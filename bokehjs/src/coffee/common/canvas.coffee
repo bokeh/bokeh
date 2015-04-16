@@ -26,7 +26,8 @@ create_gl_vis = (canvas2d, canvas3d) ->
   attribute vec2 a_position;
   varying vec2 v_position;
   void main() { 
-      gl_Position = vec4(0.95 * (a_position*2.0-1.0), 0.0, 1.0);
+      //gl_Position = vec4(0.95 * (a_position*2.0-1.0), 0.0, 1.0);
+gl_Position = vec4(a_position*2.0-1.0, 0.0, 1.0);
       v_position = a_position;
   }"""
   FRAG = """
@@ -65,14 +66,17 @@ create_gl_vis = (canvas2d, canvas3d) ->
     # Update texture
     @command(['DATA', 'ctx_tex', [0, 0], canvas2d])
     # Render it
-    console.log('rendering GL ...')
-    @command(['FUNC', 'clearColor', 0.7, 1, 1, 1])
-    @command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT'])    
+    console.log('rendering GL ...')    
     @command(['DRAW', 'ctx_prog', 'TRIANGLES', [0, 6]])
     # We "manually" push the commands, we don't use Vispy's event loop
     glx.execute_pending_commands()    
-    
+  
+  glx._clear = () ->
+    @command(['FUNC', 'clearColor', 0.9, 1, 1, 1])
+    @command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT'])
+
   glx._resize = (width, height) ->
+    @size = [width, height]
     @command(['FUNC', 'viewport', 0, 0, width, height]);  
     @command(['SIZE', 'ctx_tex', [width, height], 'RGBA']);
  
@@ -113,6 +117,7 @@ class CanvasView extends ContinuumView
     else
       @canvas2d = @canvas3d
       @canvas3d = null      
+      @glx = null
 
   render: (force=false) ->
     # normally we only want to render the canvas when the canvas itself
@@ -130,6 +135,10 @@ class CanvasView extends ContinuumView
       @glx._resize(canvas3d.width, canvas3d.height)  # todo: only when resizing
     
     @ctx = @canvas2d.getContext('2d') 
+    
+    # Keep a reference of glx on th ctx object, so that we can access the 
+    # gl context whereever ctx is 
+    @ctx.glx = @glx
     
     if @mget('use_hidpi')
       devicePixelRatio = window.devicePixelRatio || 1

@@ -254,7 +254,9 @@ class PlotView extends ContinuumView
 
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
-
+    if ctx.glx
+        ctx.glx._clear()
+    
     if @outline_props.do_stroke
       @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
