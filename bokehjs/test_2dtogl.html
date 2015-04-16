@@ -22,36 +22,17 @@
 function initialize_canvas() {
     
     var canvas3d = document.getElementById('thecanvas');
+    window.canvas3d = canvas3d;
     var gl = canvas3d.getContext("webgl") || canvas3d.getContext("experimental-webgl");
+    var glx = vispy.init(canvas3d);
     
     // create 2D canvas
-    var canvas2d = canvas3d;
-    if (gl) {
-        var canvas2d = document.createElement('canvas');
-    } 
+    var canvas2d = document.createElement('canvas');
+    var ctx = canvas2d.getContext('2d')  
         
     //var canvas2d = document.getElementById('thecanvas');
     canvas2d.width = 800;
     canvas2d.height = 600;
-    ctx = canvas2d.getContext('2d')    
-    ctx.fillStyle = 'red';
-    ctx.fillRect(0, 0, 800, 600);    
-    ctx.fillStyle = 'blue';
-    ctx.fillRect(10, 10, 780, 580);    
-    ctx.fillStyle = 'black';
-    for (var i = 0; i < 20; i++) {
-        for (var j = 0; j < 20; j++) {
-            ctx.fillText("Foo bar", i*30, j*20);
-        }
-    }
-        
-    if (!gl) {
-        return;
-    }
-    
-    glx = vispy.init($(canvas3d));
-    window.canvas3d = canvas3d;
-    window.glx = glx;
     
     var VERT = "\
     precision mediump float; \
@@ -72,7 +53,8 @@ function initialize_canvas() {
         
     var vert_data = new Float32Array([0., 0.,  1., 0.,  0., 1.,  0., 1.,  1., 0.,  1., 1., ]);
     
-    glx.on_initialize(function (event) {
+    glx._init = function () {
+        this.command(['FUNC', 'viewport', 0, 0, 600, 400]);
         
         this.command(['CREATE', 'ctx_prog', 'Program']);
         this.command(['SHADERS', 'ctx_prog', VERT, FRAG]);
@@ -92,26 +74,29 @@ function initialize_canvas() {
         // transparency
         this.command(['FUNC', 'blendFunc', 'SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA']);
         this.command(['FUNC', 'enable', 'BLEND']);
+        glx.execute_pending_commands()
+    };
+    
+    glx._render = function() {
         
-    });    
-    glx.on_paint(function(event) {
-        
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(10, 10, 580, 380);
+    
         var gl = glx.gl;
         var object = glx._ns['ctx_tex'];
         gl.bindTexture(gl.TEXTURE_2D, object.handle);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
         
+        var n = 100;
         var t0 = performance.now();
-        
-        var n = 10;
         for (var i =0; i<n; i++) {
             gl.bindTexture(gl.TEXTURE_2D, object.handle);
             //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
             gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
         }
-        
         var t1 = performance.now();
+        
         var msg = 'time to upload canvas to gl texture: ' + (t1-t0)/n + ' ms'
         document.getElementById('timing').innerHTML = msg;
         
@@ -119,27 +104,23 @@ function initialize_canvas() {
         this.command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT']);
         //this.command(['DATA', 'ctx_tex', [0, 0], ctx]);
         this.command(['DRAW', 'ctx_prog', 'TRIANGLES', [0, 6]]);
-    });
+        glx.execute_pending_commands()
+    };
     
-    glx.on_resize(function(event) {        
-        this.command(['FUNC', 'viewport', 0, 0, event.size[0], event.size[1]]);
-        this.update();
-    });
-    
-    glx.initialize();
-    glx.resize();
-    
+    glx._init()
     return glx;
     
-    // This does not work; getContext('2d') returns null if it was already initialized as a webgl canvas
-    // var ctx = canvas.getContext('2d')        
-    // ctx.fillText("Foo bar", 10, 10);
 };
 
 document.body.onload = function () {
     var glx = initialize_canvas();
-    vispy.start_event_loop();
     document.getElementById('timing').onclick = function () {document.body.innerHTML = ''; }
+    
+    function render (timestamp) {
+        glx._render();
+        window.requestAnimationFrame(render);
+    }
+    window.requestAnimationFrame(render);
 };
     
 </script>

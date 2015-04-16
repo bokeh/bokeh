@@ -153,7 +153,7 @@ setup_gl = (glx) ->
       vec2 pos = vec2(a_x, a_y) * u_scale + u_offset; // in pixels
       pos /= u_canvas_size;  // in 0..1
       gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
-      gl_Position.y *= -1;
+      gl_Position.y *= -1.0;
   }"""
   FRAG = """
   precision mediump float;
