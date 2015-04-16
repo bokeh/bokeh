@@ -13,10 +13,9 @@ class SquareCrossView extends Marker.View
 
       if angle[i]
         ctx.rotate(angle[i])
-        ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
+      ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
+      if angle[i]
         ctx.rotate(-angle[i])
-      else
-        ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
 
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
