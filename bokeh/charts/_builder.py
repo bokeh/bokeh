@@ -23,7 +23,8 @@ from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
 from ..models import ColumnDataSource, DataRange1d, GlyphRenderer
-from ..properties import Color, HasProps, Instance, Seq, String, Any
+from ..models.sources import AjaxDataSource
+from ..properties import Color, HasProps, Instance, Seq, String, Any, Either
 from .utils import cycle_colors
 import warnings
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
@@ -86,7 +87,7 @@ class Builder(HasProps):
     y_range = Instance(Range)
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
-    source = Instance(ColumnDataSource)
+    source = Either(Instance(ColumnDataSource), Instance(AjaxDataSource))
 
     source_prefix = ""
 
@@ -142,6 +143,11 @@ class Builder(HasProps):
             self.source = self._values
             self._values = self.source.data
             self._data = self.source.data
+
+        elif isinstance(self._values, AjaxDataSource):
+            self.source = self._values
+            self._data = {}
+            self._values = []
 
         # TODO: This should be modified to support multiple x_names
         self._values_index, self._values = DataAdapter.get_index_and_data(
@@ -289,6 +295,11 @@ class TabularSourceBuilder(Builder):
             self.source = self._values
             self._values = self.source.data
             self._data = self.source.data
+
+        if isinstance(self._values, AjaxDataSource):
+            self.source = self._values
+            self._data = {}
+            self._values = []
 
         if self.index:
             if self.x_names:

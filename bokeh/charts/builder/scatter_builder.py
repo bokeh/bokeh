@@ -30,6 +30,7 @@ from ..utils import make_scatter, _marker_types
 from .._builder import create_and_build, Builder, TabularSourceBuilder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource
+from ...models.sources import AjaxDataSource
 from ...properties import Enum
 
 #-----------------------------------------------------------------------------
@@ -168,6 +169,11 @@ class ScatterBuilder(TabularSourceBuilder):
             self.source = self._values
             self._values = self.source.data
             self._data = self.source.data
+
+        if isinstance(self._values, AjaxDataSource):
+            self.source = self._values
+            self._data = {}
+            self._values = []
 
         # check if pandas is installed
         new_values = []
