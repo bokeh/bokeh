@@ -105,6 +105,7 @@ Bokeh.YearsTicker              = require("./ticking/years_ticker")
 Bokeh.ActionTool             = require("./tool/actions/action_tool")
 Bokeh.PreviewSaveTool        = require("./tool/actions/preview_save_tool")
 Bokeh.ResetTool              = require("./tool/actions/reset_tool")
+Bokeh.HelpTool               = require("./tool/actions/help_tool")
 
 Bokeh.BoxSelectTool          = require("./tool/gestures/box_select_tool")
 Bokeh.BoxZoomTool            = require("./tool/gestures/box_zoom_tool")
