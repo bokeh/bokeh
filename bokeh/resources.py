@@ -14,7 +14,7 @@ from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger(__name__)
-from os.path import join, relpath, splitext
+from os.path import join, relpath, splitext, exists
 import re
 
 import six
@@ -73,6 +73,20 @@ def _get_server_urls(root_url, minified=True):
     }
     return result
 
+def _get_abs_paths(root_dir, minified=True):
+    _min = ".min" if minified else ""
+
+    js_path = join(root_dir, 'bokehjs', 'static', 'js', 'bokeh%s.js'%_min)
+    css_path = join(root_dir, 'bokehjs', 'static', 'css', 'bokeh%s.css'%_min)
+    if not (exists(js_path) and exists(css_path)):
+        js_path = join(root_dir, 'bokeh%s.js'%_min)
+        css_path = join(root_dir, 'bokeh%s.css'%_min)
+    
+    result = {
+        'js_files'  : [js_path],
+        'css_files' : [css_path]
+        }
+    return result
 
 def _inline(paths):
     strings = []
@@ -159,8 +173,8 @@ class Resources(object):
             raise ValueError("wrong value for 'mode' parameter, expected "
                              "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
 
-        if self.root_dir and not mode.startswith("relative"):
-            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
+        if self.root_dir and not (mode.startswith("relative") or mode.startswith("absolute")):
+            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative' or 'absolute'")
 
         if self.version and not mode.startswith('cdn'):
             raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
@@ -191,8 +205,13 @@ class Resources(object):
             self.css_files = [ relpath(p, root_dir) for p in css_paths ]
             base_url = relpath(base_url, root_dir)
         elif self.mode == "absolute":
-            self.js_files = list(js_paths)
-            self.css_files = list(css_paths)
+            if self.root_dir:
+                abs_path = _get_abs_paths(self.root_dir, self.minified)
+                self.js_files = list(abs_path['js_files'])
+                self.css_files = list(abs_path['css_files'])
+            else:
+                self.js_files = list(js_paths)
+                self.css_files = list(css_paths)
         elif self.mode == "cdn":
             cdn = _get_cdn_urls(self.version, self.minified)
             self.js_files = list(cdn['js_files'])
