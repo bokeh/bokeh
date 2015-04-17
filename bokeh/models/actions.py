@@ -20,9 +20,21 @@ class Callback(Action):
     """ Execute a JavaScript function. """
 
     args = Dict(String, Instance(PlotObject), help="""
-
+    A mapping of names to Bokeh plot obejcts. These objects are made
+    available to the callback code snippet as the values of named
+    parameters to the callback.
     """)
 
-    body = String(help="""
+    code = String(help="""
+    A snippet of JavaScript code to execute in the browser. The code is
+    made into the body of a fucntion, and ll of of the named objects in
+    ``args`` are available as parameters. Additionally, a ``value``
+    parameters contains anything that the caller of the callback wishes
+    to pass in (e.g., a new slider or widget value).
 
+    .. warning:
+        Due to JS context and scoping rules, if the code snippet calls
+        external functions that use non-"var" variables with names that
+        conflict with names in ``args``, there is the possibility of subtle
+        errors.
     """)
