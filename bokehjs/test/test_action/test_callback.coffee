@@ -35,13 +35,13 @@ describe "callback module", ->
 
     it "should have code property as function body", ->
       r = Collections('Callback').create({code: "return 10"})
-      f = new Function("value", "return 10")
+      f = new Function("cb_obj", "return 10")
       expect(r.get('func').toString()).to.be.equal f.toString()
 
     it "should have values as function args", ->
       rng = Collections('Range1d').create()
       r = Collections('Callback').create({args: {foo: rng.ref()}, code: "return 10"})
-      f = new Function("foo", "value", "return 10")
+      f = new Function("foo", "cb_obj", "return 10")
       expect(r.get('func').toString()).to.be.equal f.toString()
 
   describe "execute method", ->
