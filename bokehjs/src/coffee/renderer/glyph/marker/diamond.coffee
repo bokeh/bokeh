@@ -9,6 +9,7 @@ class DiamondView extends Marker.View
         continue
 
       r = size[i]/2
+
       ctx.beginPath()
       ctx.translate(sx[i], sy[i])
 
@@ -20,9 +21,8 @@ class DiamondView extends Marker.View
       ctx.lineTo(-r/1.5, 0)
       if angle[i]
         ctx.rotate(-angle[i])
-        
-      ctx.translate(-sx[i], -sy[i])
 
+      ctx.translate(-sx[i], -sy[i])
       ctx.closePath()
 
       if @visuals.fill.do_fill
