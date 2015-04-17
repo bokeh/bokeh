@@ -116,6 +116,7 @@ locations =
   ActionTool:               require '../tool/actions/action_tool'
   PreviewSaveTool:          require '../tool/actions/preview_save_tool'
   ResetTool:                require '../tool/actions/reset_tool'
+  HelpTool:                 require '../tool/actions/help_tool'
 
   BoxSelectTool:            require '../tool/gestures/box_select_tool'
   BoxZoomTool:              require '../tool/gestures/box_zoom_tool'

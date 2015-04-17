@@ -110,11 +110,14 @@ def stock2_update_selection(ticker1, ticker2, app):
         selected_df = df.iloc[source.selected, :]
     else:
         selected_df = df
-    hist1 = hist_plot(df, ticker1, selected_df=selected_df)
-    hist2 = hist_plot(df, ticker2, selected_df=selected_df)
-    app.objects['hist1'] = hist1
-    app.objects['hist2'] = hist2
-    app.objects['statstext'].text = str(selected_df.describe())
+
+    stats_text = app.objects['statstext']
+    stats_text.text = str(selected_df.describe())
+    return {
+        'hist1': hist_plot(df, ticker1, selected_df=selected_df),
+        'hist2': hist_plot(df, ticker2, selected_df=selected_df),
+        'statstext': stats_text,
+    }
 
 stock2.route("/bokeh/stocks2/")
 

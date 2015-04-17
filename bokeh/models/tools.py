@@ -412,3 +412,18 @@ class HoverTool(Tool):
         the ``Rect`` and ``Quad`` glyphs are supported.
 
     """)
+
+class HelpTool(Tool):
+    """
+    The help tool is a widget designed to replace the hardcoded 'Help' link.
+    The hover text can be customized through the ``help_tooltip`` attribute
+    and the redirect site overridden as well. 
+    """
+
+    help_tooltip = String(help="""
+    Tooltip displayed when hovering over the help icon.
+    """)
+
+    redirect = String(help="""
+    Site to be redirected through upon click.
+    """)

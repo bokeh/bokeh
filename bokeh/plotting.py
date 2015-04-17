@@ -40,7 +40,7 @@ def HBox(*args, **kwargs):
     return hplot(*args, **kwargs)
 
 
-DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
+DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
 
 class Figure(Plot):
     __subtype__ = "Figure"
