@@ -23,12 +23,8 @@ class InputWidget(Widget):
     Widget's name.
     """)
 
-    value = String(help="""
-    Initial or input value.
-    """)
-
     callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the widget's value changes.
+    A callback to run in the browser whenever the input's value changes.
     """)
 
     @classmethod

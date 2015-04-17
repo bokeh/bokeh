@@ -39,6 +39,7 @@ class CheckboxButtonGroupView extends ContinuumView
     active = (i for checkbox, i in @$("input") when checkbox.checked)
     @mset('active', active)
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class CheckboxButtonGroup extends HasParent
   type: "CheckboxButtonGroup"
