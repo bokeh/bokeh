@@ -27,6 +27,10 @@ class InputWidget(Widget):
     Initial or input value.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the widget's value changes.
+    """)
+
     @classmethod
     def coerce_value(cls, val):
         prop_obj = cls.lookup('value')
@@ -134,8 +138,6 @@ class Slider(InputWidget):
     orientation = Enum("horizontal", "vertical", help="""
     Orient the slider either horizontally (default) or vertically.
     """)
-
-    callback = Instance(Callback)
 
 class DateRangeSlider(InputWidget):
     """ Slider-based date range selection widget.

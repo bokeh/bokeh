@@ -39,7 +39,7 @@ class SliderView extends ContinuumView
     @mset('value', value)
     @model.save()
     cb = @mget('callback')
-    cb?.execute(value)
+    cb?.execute(@model)
 
 class Slider extends HasParent
   type: "Slider"

@@ -27,10 +27,9 @@ class Callback(Action):
 
     code = String(help="""
     A snippet of JavaScript code to execute in the browser. The code is
-    made into the body of a fucntion, and all of of the named objects in
+    made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,
-    a ``callback_value`` parameter contains anything that the caller of the
-    callback wishes to pass in (e.g., a new slider or widget value).
+    a ``cb_obj`` parameter contains the object that triggered the callback.
 
     .. warning:
         Due to JS context and scoping rules, if the code snippet calls
