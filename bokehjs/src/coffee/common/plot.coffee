@@ -189,13 +189,14 @@ class PlotView extends ContinuumView
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
-    if Date.now() - @interactive_timestamp < 300
+    if Date.now() - @interactive_timestamp < @mget('lod_interval')
       @interactive = true
+      lod_timeout = @mget('lod_timeout')
       setTimeout(() =>
-          if @interactive and (Date.now() - @interactive_timestamp) > 500
+          if @interactive and (Date.now() - @interactive_timestamp) > lod_timeout
             @interactive = false
           @request_render()
-        , 500)
+        , lod_timeout)
     else
       @interactive = false
 
@@ -440,6 +441,10 @@ class Plot extends HasParent
       right: [],
       toolbar_location: "above"
       logo: "normal"
+      lod_factor: 10
+      lod_interval: 300
+      lod_threshold: 2000
+      lod_timeout: 500
     }
 
   display_defaults: ->

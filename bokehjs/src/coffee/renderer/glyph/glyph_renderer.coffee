@@ -64,9 +64,10 @@ class GlyphRendererView extends PlotWidget
     length = 1 if not length?
     @all_indices = [0...length]
 
+    lod_factor = @plot_model.get('lod_factor')
     @decimated = []
-    for i in [0...Math.floor(@all_indices.length/10)]
-      @decimated.push(@all_indices[i*10])
+    for i in [0...Math.floor(@all_indices.length/lod_factor)]
+      @decimated.push(@all_indices[i*lod_factor])
 
     dt = Date.now() - t0
     logger.debug("#{@glyph.model.type} GlyphRenderer (#{@model.id}): set_data finished in #{dt}ms")
@@ -87,8 +88,6 @@ class GlyphRendererView extends PlotWidget
     indices = @glyph._mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
-
-
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
@@ -96,7 +95,8 @@ class GlyphRendererView extends PlotWidget
     if not selected?.length > 0
       selected = []
 
-    if @plot_view.interactive and @all_indices.length > 2000
+    lod_threshold = @plot_model.get('lod_threshold')
+    if @plot_view.interactive and lod_threshold? and @all_indices.length > lod_threshold
       indices = @decimated
       glyph = @decimated_glyph
       nonselection_glyph = @decimated_glyph
