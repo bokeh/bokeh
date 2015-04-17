@@ -20,7 +20,7 @@ class Callback extends HasProperties
     _.map(_.values(@get("args")), @resolve_ref)
 
   _make_func: () ->
-    new Function(_.keys(@get("args"))..., "value", @get("code"))
+    new Function(_.keys(@get("args"))..., "callback_value", @get("code"))
 
   defaults: ->
     return _.extend {}, super(), {
