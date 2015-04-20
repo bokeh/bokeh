@@ -3,6 +3,7 @@ $ = require "jquery"
 Tooltip = require "../../renderer/annotation/tooltip"
 Util = require "../../util/util"
 InspectTool = require "./inspect_tool"
+hittest = require "../../common/hittest"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')
@@ -87,27 +88,41 @@ class HoverToolView extends InspectTool.View
     y = ymapper.map_from_target(vy)
 
     for i in indices['0d'].indices
+      data_x = renderer.glyph.x[i+1]
+      data_y = renderer.glyph.y[i+1]
+
       if @mget('line_policy') == "interp"# and renderer.get_interpolation_hit?
         [data_x, data_y] = renderer.glyph.get_interpolation_hit(i, geometry)
-        [rx, ry] = [vx, vy]
+        rx = xmapper.map_to_target(data_x)
+        ry = ymapper.map_to_target(data_y)
 
       else if @mget('line_policy') == "prev"
-        data_x = renderer.glyph.sx[i]
-        data_y = renderer.glyph.sy[i]
-        rx = canvas.sx_to_vx(data_x)
-        ry = canvas.sy_to_vy(data_y)
+        rx = canvas.sx_to_vx(renderer.glyph.sx[i])
+        ry = canvas.sy_to_vy(renderer.glyph.sy[i])
 
       else if @mget('line_policy') == "next"
-        data_x = renderer.glyph.sx[i+1]
-        data_y = renderer.glyph.sy[i+1]
-        rx = canvas.sx_to_vx(data_x)
-        ry = canvas.sy_to_vy(data_y)
+        rx = canvas.sx_to_vx(renderer.glyph.sx[i+1])
+        ry = canvas.sy_to_vy(renderer.glyph.sy[i+1])
 
       else if @mget('line_policy') == "nearest"
-        data_x = renderer.glyph.sx[i+1]
-        data_y = renderer.glyph.sy[i+1]
-        rx = canvas.sx_to_vx(data_x)
-        ry = canvas.sy_to_vy(data_y)
+        d1x = renderer.glyph.sx[i]
+        d1y = renderer.glyph.sy[i]
+        dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy)
+
+        d2x = renderer.glyph.sx[i+1]
+        d2y = renderer.glyph.sy[i+1]
+        dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy)
+
+        if dist1 < dist2
+          [sdatax, sdatay] = [d1x, d1y]
+        else
+          [sdatax, sdatay] = [d2x, d2y]
+          i = i+1
+
+        data_x = renderer.glyph.x[i]
+        data_y = renderer.glyph.y[i]
+        rx = canvas.sx_to_vx(sdatax)
+        ry = canvas.sy_to_vy(sdatay)
 
       else
           [rx, ry] = [vx, vy]
@@ -116,11 +131,11 @@ class HoverToolView extends InspectTool.View
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
     for i in indices['1d'].indices
-      data_x = renderer.glyph.sx[i]
-      data_y = renderer.glyph.sy[i]
+      data_x = renderer.glyph.x[i]
+      data_y = renderer.glyph.y[i]
       if @mget('point_policy') == 'snap_to_data'# and renderer.glyph.sx? and renderer.glyph.sy?
-        rx = canvas.sx_to_vx(data_x)
-        ry = canvas.sy_to_vy(data_y)
+        rx = canvas.sx_to_vx(renderer.glyph.sx[i])
+        ry = canvas.sy_to_vy(renderer.glyph.sy[i])
       else
         [rx, ry] = [vx, vy]
 
@@ -165,6 +180,7 @@ class HoverToolView extends InspectTool.View
             span.css({ backgroundColor: color})
           td.append(span)
         else
+          value = value.replace("$~", "$data_")
           value = Util.replace_placeholders(value, ds, i, vars)
           td.append($('<span>').text(value))
 

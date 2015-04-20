@@ -37,6 +37,10 @@ create_hit_test_result = ->
 
   return result
 
+sqr = (x) -> x * x
+dist_2_pts = (vx, vy, wx, wy) -> sqr(vx - wx) + sqr(vy - wy)
+
 module.exports =
   point_in_poly: point_in_poly
   create_hit_test_result: create_hit_test_result
+  dist_2_pts: dist_2_pts

@@ -75,10 +75,6 @@ class LineView extends Glyph.View
       if values[i]<=val<=values[i+1]
         result['0d'].flag = true
         result['0d'].indices.push(i)
-        if Math.abs values[i]-val <= Math.abs values[i+1]-val
-          result['1d'].indices.push(i)
-        else
-          result['1d'].indices.push(i+1)
 
     return result
 
@@ -88,14 +84,15 @@ class LineView extends Glyph.View
 
     if geometry.type == 'point'
     else
-      if geometry.direction == 'h'
+      if geometry.direction == 'v'
         [y0, y1] = @renderer.ymapper.v_map_from_target([vy, vy])
         [x0, x1] = [x2, x3]
       else
         [x0, x1] = @renderer.xmapper.v_map_from_target([vx, vx])
         [y0, y1] = [y2, y3]
 
-    return check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
+    res = check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
+    return [res.x, res.y]
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_line_legend(ctx, x0, x1, y0, y1)

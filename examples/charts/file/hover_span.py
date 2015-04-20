@@ -47,6 +47,7 @@ hhover.line_policy = 'next'
 
 vhover = vline.select(dict(type=HoverTool))
 vhover.mode = 'vline'
+vhover.line_policy = 'nearest'
 
 int_hhover = int_hline.select(dict(type=HoverTool))
 int_hhover.mode = 'hline'
@@ -63,7 +64,6 @@ iphover.line_policy = 'interp'
 tphover = point_line.select(dict(type=HoverTool))
 tphover.mode = 'mouse'
 
-
 shover = scatter.select(dict(type=HoverTool))
 shover.mode = 'vline'
 
@@ -71,8 +71,8 @@ shoverp = scatter_point.select(dict(type=HoverTool))
 shoverp.mode = 'mouse'
 
 int_vhover.tooltips = int_hhover.tooltips = tphover.tooltips = iphover.tooltips = shover.tooltips = shoverp.tooltips = vhover.tooltips = hhover.tooltips = OrderedDict([
-    ("y", "$y"),
-    ("x", "$x"),
+    ("y", "$~y"),
+    ("x", "$~x"),
     # ("data_x", "$~x"),
     # ("data_y", "$~y"),
 ])
