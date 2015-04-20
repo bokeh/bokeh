@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function
 
 import os
+import re
 import sys
 import time
 import subprocess
@@ -136,19 +137,24 @@ class BasicSeleniumTestFixture(RawSeleniumTestFixture):
         self.unload_all_documents()
 
     def load_document(self, document_file_name):
-        document = self.test_settings.documents_dir+'/'+document_file_name+'.py'
+        url = None
 
-        subprocess.check_call(['python', document])
+        document_file = self.test_settings.documents_dir+'/'+document_file_name+'.py'
+        output = subprocess.check_output(['python', document_file])
 
-        self.driver.refresh()
+        for line in output.splitlines():
+            match = re.compile(r"^URL of this document: (?P<url>.+)$").match(line)
 
-        doc = self.driver.find_element_by_css_selector("a.bokehdoclabel")
+            if match:
+                raw = match.groupdict()
+                url = raw.get('url', None)
 
-        self.assertRegexpMatches(doc.text, self.test_settings.document_name)
+        if not url:
+            raise Exception("Document {} is not producing required URL!".format(document_file))
 
-        doc.click()
+        self.driver.get(url)
 
-        plot = look_for_element(self.driver, "div.panel-collapse.collapse.in")
+        return url
 
     def unload_document(self, document_name):
         delete_button = self.driver.find_element_by_css_selector("a.bokehdoclabel span.bokehdelete.glyphicon.glyphicon-trash")
