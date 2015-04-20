@@ -30,10 +30,4 @@ class Callback(Action):
     made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,
     a ``cb_obj`` parameter contains the object that triggered the callback.
-
-    .. warning:
-        Due to JS context and scoping rules, if the code snippet calls
-        external functions that use non-"var" variables with names that
-        conflict with names in ``args``, there is the possibility of subtle
-        errors.
     """)
