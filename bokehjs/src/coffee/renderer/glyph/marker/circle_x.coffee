@@ -23,10 +23,10 @@ class CircleXView extends Marker.View
         @visuals.line.set_vectorize(ctx, i)
         if angle[i]
           ctx.rotate(angle[i])
-        ctx.moveTo( 0,   r)
-        ctx.lineTo( 0,  -r)
-        ctx.moveTo(-r,  0)
-        ctx.lineTo( r,   0)
+        ctx.moveTo(-r,  r)
+        ctx.lineTo( r, -r)
+        ctx.moveTo(-r, -r)
+        ctx.lineTo( r,  r)
         if angle[i]
           ctx.rotate(-angle[i])
         ctx.stroke()

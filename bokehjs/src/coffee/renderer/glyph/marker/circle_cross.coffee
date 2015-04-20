@@ -25,8 +25,8 @@ class CircleCrossView extends Marker.View
           ctx.rotate(angle[i])
         ctx.moveTo( 0,  r)
         ctx.lineTo( 0, -r)
-        ctx.moveTo(-r, 0)
-        ctx.lineTo( r, 0)
+        ctx.moveTo(-r,  0)
+        ctx.lineTo( r,  0)
         if angle[i]
           ctx.rotate(-angle[i])
         ctx.stroke()

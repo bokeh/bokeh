@@ -27,10 +27,10 @@ class SquareXView extends Marker.View
         r = size[i]/2
         if angle[i]
           ctx.rotate(angle[i])
-        ctx.moveTo(-r, +r)
-        ctx.lineTo(+r, -r)
+        ctx.moveTo(-r,  r)
+        ctx.lineTo( r, -r)
         ctx.moveTo(-r, -r)
-        ctx.lineTo(+r, +r)
+        ctx.lineTo( r,  r)
         if angle[i]
           ctx.rotate(-angle[i])
         ctx.stroke()
