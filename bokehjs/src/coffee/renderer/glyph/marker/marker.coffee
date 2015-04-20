@@ -16,8 +16,10 @@ class MarkerView extends Glyph.View
     sy[reference_point] = (y0+y1)/2
     size = { }
     size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
+    angle = { }
+    angle[reference_point] = 0
 
-    data = {sx:sx, sy:sy, size: size}
+    data = {sx:sx, sy:sy, size: size, angle: angle}
     @_render(ctx, indices, data)
 
   _index_data: () ->
@@ -93,10 +95,12 @@ class MarkerView extends Glyph.View
 
 class Marker extends Glyph.Model
   distances: ['size']
+  angles: ['angle']
 
   display_defaults: ->
     return _.extend {}, super(), {
       size: 4
+      angle: 0
     }
 
 module.exports =

@@ -1,11 +1,16 @@
 BUILD_DIR = "./build/"
 JS_BUILD = "#{BUILD_DIR}js/"
+SERVER_DIR = "../bokeh/server/static/"
 
 module.exports =
   buildDir:
     all: BUILD_DIR
     js: JS_BUILD
     css: "#{BUILD_DIR}css/"
+  serverDir:
+    all: SERVER_DIR
+    js: "#{SERVER_DIR}js/"
+    css: "#{SERVER_DIR}css/"
   coffee:
     destination:
       full: "bokeh.js"
@@ -39,3 +44,4 @@ module.exports =
       "./test/**/**",
       "./src/coffee/**/**",
     ]
+
