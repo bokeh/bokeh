@@ -131,8 +131,9 @@ class HoverToolView extends InspectTool.View
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
     for i in indices['1d'].indices
-      data_x = renderer.glyph.x[i]
-      data_y = renderer.glyph.y[i]
+      # patches will not have .x, .y attributes, for instance
+      data_x = renderer.glyph.x?[i]
+      data_y = renderer.glyph.y?[i]
       if @mget('point_policy') == 'snap_to_data'# and renderer.glyph.sx? and renderer.glyph.sy?
         rx = canvas.sx_to_vx(renderer.glyph.sx[i])
         ry = canvas.sy_to_vy(renderer.glyph.sy[i])
