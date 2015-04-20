@@ -44,6 +44,12 @@ class QuadView extends Glyph.View
     result['1d'].indices = hits
     return result
 
+  scx: (i) ->
+    return (@sleft[i] + @sright[i])/2
+
+  scy: (i) ->
+    return (@stop[i] + @sbottom[i])/2
+
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1)
 

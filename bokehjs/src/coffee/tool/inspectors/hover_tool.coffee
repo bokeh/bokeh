@@ -135,8 +135,8 @@ class HoverToolView extends InspectTool.View
       data_x = renderer.glyph.x?[i]
       data_y = renderer.glyph.y?[i]
       if @mget('point_policy') == 'snap_to_data'# and renderer.glyph.sx? and renderer.glyph.sy?
-        rx = canvas.sx_to_vx(renderer.glyph.sx[i])
-        ry = canvas.sy_to_vy(renderer.glyph.sy[i])
+        rx = canvas.sx_to_vx(renderer.glyph.scx(i))
+        ry = canvas.sy_to_vy(renderer.glyph.scy(i))
       else
         [rx, ry] = [vx, vy]
 
