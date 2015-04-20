@@ -40,6 +40,7 @@ class DateRangeSliderView extends ContinuumView
     @$el.on "userValuesChanged", (event, data) =>
       @mset('value', [data.values.min, data.values.max])
       @model.save()
+      @mget('callback')?.execute(@model)
 
     return @
 

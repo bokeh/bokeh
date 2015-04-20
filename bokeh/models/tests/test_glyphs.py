@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-import unittest
-
 from bokeh.models.glyphs import (
     AnnularWedge, Annulus, Arc,
     Bezier,
