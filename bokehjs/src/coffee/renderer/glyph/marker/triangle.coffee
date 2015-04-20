@@ -5,7 +5,7 @@ class TriangleView extends Marker.View
 
   _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
-      if isNaN(sx[i]+sy[i]+size[i])
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
         continue
 
       a = size[i] * Math.sqrt(3)/6
@@ -14,7 +14,7 @@ class TriangleView extends Marker.View
 
       ctx.beginPath()
       ctx.translate(sx[i], sy[i])
-      
+
       # TODO (bev) use viewstate to take y-axis inversion into account
       if angle[i]
         ctx.rotate(angle[i])

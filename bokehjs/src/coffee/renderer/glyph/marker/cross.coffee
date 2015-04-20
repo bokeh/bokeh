@@ -5,11 +5,11 @@ class CrossView extends Marker.View
 
   _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
-      if isNaN(sx[i]+sy[i]+size[i])
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
         continue
 
       r = size[i]/2
-      
+
       ctx.beginPath()
       ctx.translate(sx[i], sy[i])
 

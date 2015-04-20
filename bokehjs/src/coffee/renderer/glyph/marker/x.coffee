@@ -5,14 +5,14 @@ class XView extends Marker.View
 
   _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
-      if isNaN(sx[i]+sy[i]+size[i])
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
         continue
 
       r = size[i]/2
 
       ctx.beginPath()
       ctx.translate(sx[i], sy[i])
-      
+
       if angle[i]
         ctx.rotate(angle[i])
       ctx.moveTo(-r, r)

@@ -5,7 +5,7 @@ class InvertedTriangleView extends Marker.View
 
   _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
-      if isNaN(sx[i]+sy[i]+size[i])
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
         continue
 
       a = size[i] * Math.sqrt(3)/6
@@ -23,7 +23,7 @@ class InvertedTriangleView extends Marker.View
       ctx.lineTo(0, -a+h)
       if angle[i]
         ctx.rotate(-angle[i])
-        
+
       ctx.translate(-sx[i], -sy[i])
       ctx.closePath()
 
