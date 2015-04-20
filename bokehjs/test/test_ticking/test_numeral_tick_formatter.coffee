@@ -3,7 +3,8 @@ utils = require "../utils"
 
 formatter = utils.require "ticking/numeral_tick_formatter"
 
-describe "NumeralTickFormatter Model", ->
+describe "numeral_tick_formatter module", ->
+
   it "should round numbers appropriately", ->
     obj = new formatter.Model
       format: "0.00"

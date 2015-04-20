@@ -37,6 +37,7 @@ class MultiSelectView extends ContinuumView
   change_input: () ->
     @mset('value', @$('select').val(), {'silent': true})
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class MultiSelect extends HasParent
   type: "MultiSelect"

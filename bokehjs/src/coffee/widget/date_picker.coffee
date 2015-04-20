@@ -28,6 +28,7 @@ class DatePickerView extends ContinuumView
   onSelect: (dateText, ui) =>
     @mset('value', new Date(dateText))
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class DatePicker extends HasProperties
   type: "DatePicker"
