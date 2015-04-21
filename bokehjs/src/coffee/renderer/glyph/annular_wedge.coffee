@@ -1,6 +1,7 @@
 _ = require "underscore"
 mathutils = require "../../common/mathutils"
 Glyph = require "./glyph"
+hittest = require "../../common/hittest"
 
 class AnnularWedgeView extends Glyph.View
 
@@ -90,11 +91,12 @@ class AnnularWedgeView extends Glyph.View
       if mathutils.angle_between(-angle, -@start_angle[i], -@end_angle[i], @direction[i])
         hits.push([i, dist])
 
-    hits = _.chain(hits)
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = _.chain(hits)
       .sortBy((elt) -> return elt[1])
       .map((elt) -> return elt[0])
       .value()
-    return hits
+    return result
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     reference_point = @get_reference_point() ? 0

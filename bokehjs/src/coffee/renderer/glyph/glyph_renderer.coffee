@@ -83,8 +83,17 @@ class GlyphRendererView extends PlotWidget
     ctx.save()
 
     selected = @mget('data_source').get('selected')
-    if not selected?.length > 0
+    if !selected or selected.length == 0
       selected = []
+    else
+      if selected['0d'].flag
+        selected = indices
+      else if selected['1d'].indices.length > 0
+        selected = selected['1d'].indices
+      else if selected['2d'].indices.length > 0
+        selected = selected['2d'].indices
+      else
+        selected = []
 
     if not (selected.length and @have_selection_glyphs())
       trender = Date.now()
