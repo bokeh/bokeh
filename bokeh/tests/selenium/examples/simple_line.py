@@ -11,7 +11,7 @@ session.load_document(document)
 x = [1, 2, 3, 4, 5, 6, 7]
 y = [5, 5, 7, 7, 8, 8, 9]
 
-p = figure(title="simple line server example")
+p = figure(title="Simple line")
 p.line(x, y, x_axis_label='x', y_axis_label='y')
 
 document.add(p)
