@@ -36,7 +36,7 @@ Contents
 
    docs/quickstart.rst
    docs/installation.rst
-   tutorial/index.rst
+   docs/tutorial.rst
    docs/gallery.rst
    docs/user_guide.rst
    docs/dev_guide.rst
