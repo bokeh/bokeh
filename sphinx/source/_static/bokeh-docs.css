@@ -132,7 +132,3 @@ dt:target, .highlighted {
 .simple ~ p {
     clear: both;
 }
-
-.image-reference {
-    float: right;
-}
