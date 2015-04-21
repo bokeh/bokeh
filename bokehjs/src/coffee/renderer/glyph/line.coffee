@@ -51,7 +51,7 @@ class LineView extends Glyph.View
 
     for i in [0...@x.length-1]
       [p0, p1] = [{x: @x[i], y: @y[i]}, {x: @x[i+1], y: @y[i+1]}]
-      dist = dist_to_segment(point, p0, p1)
+      dist = hittest.dist_to_segment(point, p0, p1)
 
       if dist < threshold && dist < shortest
         shortest = dist
@@ -93,7 +93,7 @@ class LineView extends Glyph.View
         [x0, x1] = @renderer.xmapper.v_map_from_target([vx, vx])
         [y0, y1] = [y2, y3]
 
-    res = check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
+    res = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
     return [res.x, res.y]
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
@@ -107,44 +107,3 @@ class Line extends Glyph.Model
 module.exports =
   Model: Line
   View: LineView
-
-sqr = (x) -> x * x
-dist_2_pts = (v, w) -> sqr(v.x - w.x) + sqr(v.y - w.y)
-dist_to_segment_squared = (p, v, w) ->
-  l2 = dist_2_pts(v, w)
-  if (l2 == 0)
-    return dist_2_pts(p, v)
-  t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2
-  if (t < 0)
-    return dist_2_pts(p, v)
-  if (t > 1)
-    return dist_2_pts(p, w)
-
-  return dist_2_pts(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) })
-dist_to_segment = (p, v, w) -> Math.sqrt dist_to_segment_squared(p, v, w)
-check_2_segments_intersect = (l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, l1_x1, l1_y1) ->
-      ### Check if 2 segments (l0 and l1) intersect. Returns a structure with
-        the following attributes:
-          * hit (boolean): whether the 2 segments intersect
-          * x (float): x coordinate of the intersection point
-          * y (float): y coordinate of the intersection point
-      ###
-      den = ((l1_y1 - l1_y0) * (l0_x1 - l0_x0)) - ((l1_x1 - l1_x0) * (l0_y1 - l0_y0))
-
-      if den == 0
-        return {hit: false, x: null, y: null}
-      else
-        a = l0_y0 - l1_y0
-        b = l0_x0 - l1_x0
-        num1 = ((l1_x1 - l1_x0) * a) - ((l1_y1 - l1_y0) * b)
-        num2 = ((l0_x1 - l0_x0) * a) - ((l0_y1 - l0_y0) * b)
-        a = num1 / den
-        b = num2 / den
-        x = l0_x0 + (a * (l0_x1 - l0_x0))
-        y = l0_y0 + (a * (l0_y1 - l0_y0))
-
-        return {
-          hit: (a > 0 && a < 1) && (b > 0 && b < 1),
-          x: x,
-          y: y
-        }
