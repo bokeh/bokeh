@@ -88,6 +88,7 @@ class WheelZoomToolView extends GestureTool.View
       factor: factor
     }
     @plot_view.update_range(zoom_info)
+    @plot_view.interactive_timestamp = Date.now()
     return null
 
 class WheelZoomTool extends GestureTool.Model
