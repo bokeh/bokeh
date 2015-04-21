@@ -1,5 +1,6 @@
 _ = require "underscore"
 Glyph = require "./glyph"
+hittest = require "../../common/hittest"
 
 class RectView extends Glyph.View
 
@@ -75,7 +76,9 @@ class RectView extends Glyph.View
     [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
     [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
 
-    return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    return result
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
@@ -119,7 +122,9 @@ class RectView extends Glyph.View
       if height_in and width_in
         hits.push(i)
 
-    return hits
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1)
