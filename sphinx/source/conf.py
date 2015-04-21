@@ -216,13 +216,14 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
+standard_sidebars = ['sidebartoc.html', 'sourcelink.html', 'searchbox.html']
 html_sidebars = {
-    '*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'tutorial/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'docs/*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'docs/dev_guide/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'docs/reference/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'docs/user_guide/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    '*': standard_sidebars,
+    'docs/*': standard_sidebars,
+    'docs/dev_guide/**': standard_sidebars,
+    'docs/reference/**': standard_sidebars,
+    'docs/tutorial/**': standard_sidebars,
+    'docs/user_guide/**': standard_sidebars,
     'docs/gallery': [],
     'docs/gallery/*': [],
 }
