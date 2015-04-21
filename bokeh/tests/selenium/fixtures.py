@@ -93,7 +93,7 @@ class RawSeleniumTestFixture(TestCase):
         self.addCleanup(self.driver.quit)
 
     def check_if_server_is_up_and_running(self):
-        tries = 10
+        tries = 20
         try_num = 0
 
         while try_num <= tries:
@@ -109,7 +109,7 @@ class RawSeleniumTestFixture(TestCase):
                 return True
             else:
                 try_num += 1
-                time.sleep(2)
+                time.sleep(1)
 
         return False
 
