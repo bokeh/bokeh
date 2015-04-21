@@ -83,6 +83,8 @@ class LineView extends Glyph.View
     [x2, y2, x3, y3] = [@x[i], @y[i], @x[i+1], @y[i+1]]
 
     if geometry.type == 'point'
+      [y0, y1] = @renderer.ymapper.v_map_from_target([vy-1, vy+1])
+      [x0, x1] = @renderer.xmapper.v_map_from_target([vx-1, vx+1])
     else
       if geometry.direction == 'v'
         [y0, y1] = @renderer.ymapper.v_map_from_target([vy, vy])

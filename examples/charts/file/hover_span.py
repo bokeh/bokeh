@@ -35,9 +35,9 @@ scatter = Scatter(svalues, title="Scatter V Line", ylabel='measures', width=500,
              legend=True,
              tools=TOOLS)
 
-int_point_line = Line(xyvalues, title="Lines Point Interp.", ylabel='measures', width=500, height=300,
+int_point_line = Line(xyvalues, title="Lines Mouse Interp.", ylabel='measures', width=500, height=300,
              tools=TOOLS)
-point_line = Line(xyvalues, title="Lines Hover Point", ylabel='measures', width=500, height=300,
+point_line = Line(xyvalues, title="Lines Mouse", ylabel='measures', width=500, height=300,
              tools=TOOLS)
 
 
