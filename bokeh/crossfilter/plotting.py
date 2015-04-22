@@ -111,23 +111,26 @@ def make_categorical_bar_source(df, x_field, y_field='None', agg='count'):
     else:
         agg_col = y_field
 
-    if agg == 'percent':
-        count = len(df.index)
-        series = df.groupby(x_field)[agg_col].apply(lambda x: 100*(len(
-            x.index)/float(count)))
+    # handle x-only aggregations separately
+    if y_field == 'None':
+        # percent aggregations are a special case, since pandas doesn't directly support
+        if agg == 'percent':
+            count = len(df.index)
+            series = df.groupby(x_field)[agg_col].apply(lambda x: 100*(len(
+                x.index)/float(count)))
+        elif agg == 'count':
+            series = df.groupby(x_field).size()
+        else:
+            raise ValueError('Unrecognized Aggregation Type for Y of "None"')
+
+        # here we have a series where the values are the aggregation for the index (bars)
+        result = pd.DataFrame(data={x_field: series.index, agg: series.values})
+
+    # x and y aggregations
     else:
         # Get the y values after grouping by the x values
         group = df.groupby(x_field)[agg_col]
         aggregate = getattr(group, agg)
-
-    # Convert back to a DataFrame on the aggregated data
-    if y_field == 'None':
-        if agg == 'count':
-            series = aggregate()
-
-        result = pd.DataFrame(
-            data={x_field: series.index, agg: series.values})
-    else:
         result = aggregate().reset_index()
 
     return ColumnDataSource(data=result)

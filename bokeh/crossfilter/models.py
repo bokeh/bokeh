@@ -92,8 +92,7 @@ class ContinuousFacet(DiscreteFacet):
 
 
 class CrossFilter(PlotObject):
-    """Interactive filtering and faceting application with multiple plot
-    types"""
+    """Interactive filtering and faceting application with multiple plot types"""
 
     # identify properties for the data
     columns = List(Dict(String, Any))
@@ -190,7 +189,6 @@ class CrossFilter(PlotObject):
           plot_type (str, optional): starting plot type
           agg (str, optional): starting aggregation type
 
-        :return:
         """
         obj = cls(**kwargs)
         obj.set_metadata()
@@ -202,7 +200,6 @@ class CrossFilter(PlotObject):
 
     def set_input_selector(self):
         """Creates and configures each selector (drop-down menu)."""
-
         col_names = [x['name'] for x in self.columns]
         col_names.append('None')
 
@@ -285,10 +282,8 @@ class CrossFilter(PlotObject):
           dict: x, y, and plot_type keys and values for initial setup
 
         """
-        cont_columns = self.continuous_columns
-
         # prefer continuous columns to initialize with, otherwise use what we have
-        if len(cont_columns) > 1:
+        if len(self.continuous_columns) > 1:
             x, y = [x['name'] for x in self.continuous_columns[:2]]
         else:
             x, y = [x['name'] for x in self.columns[:2]]
@@ -297,7 +292,6 @@ class CrossFilter(PlotObject):
 
     def set_plot(self):
         """Makes and sets the plot based on the current configuration of app."""
-
         self.update_xy_ranges(source=self.df)
         plot = self.make_plot()
         self.plot = plot
@@ -310,7 +304,6 @@ class CrossFilter(PlotObject):
           PlotObject: one plot, grid of plots, or tabs of plots/grids of plots
 
         """
-
         if self.facet_tab:
             facets = self.make_facets(dimension='tab')
 
@@ -321,7 +314,6 @@ class CrossFilter(PlotObject):
             return Tabs(tabs=tabs)
         else:
             return self.create_plot_page()
-
 
     def create_plot_page(self, tab_facet=None):
         """Generates a single visible page of a plot or plots.
@@ -497,7 +489,6 @@ class CrossFilter(PlotObject):
           GridPlot: grid of x and y facet combinations
 
         """
-
         # ToDo: gracefully handle large combinations of facets
         all_facets_x = self.make_facets('x')
         all_facets_y = self.make_facets('y')
@@ -834,7 +825,6 @@ class CrossFilter(PlotObject):
         # update the data based on latest changes
         if diff:
             self.handle_filter_selection(obj, attrname, old, new)
-
 
     def setup_filter_widgets(self, obj, attrname, old, new):
         """Creates new filter widget each time a new column is added to filters.
