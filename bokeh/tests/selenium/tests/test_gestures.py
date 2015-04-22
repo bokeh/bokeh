@@ -28,7 +28,7 @@ class TestGestures(BasicSeleniumTestFixture):
 
         document_url = self.load_document(doc_name)
 
-        box_zoom_button = look_for_element(self.driver, "span.bk-handler-box-zoom")
+        box_zoom_button = look_for_element(self.driver, "img.bk-handler-box-zoom")
 
         box_zoom_button.click()
 
@@ -78,7 +78,7 @@ class TestGestures(BasicSeleniumTestFixture):
 
         self.test_box_zoom_tool()
 
-        reset_button = look_for_element(self.driver, "span.bk-handler-reset")
+        reset_button = look_for_element(self.driver, "img.bk-handler-reset")
 
         reset_button.click()
 
