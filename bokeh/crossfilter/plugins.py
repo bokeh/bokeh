@@ -262,7 +262,8 @@ class CrossBarPlugin(CrossFilterPlugin):
             return False, 'X and Y must be different columns.'
         elif y != 'None' and agg_type in CrossBarPlugin.y_agg_types:
             return False, 'Y must be "None" for this aggregation type.'
-        elif y == 'None' and agg_type not in CrossBarPlugin.y_agg_types:
+        elif ((y == 'None' and agg_type not in CrossBarPlugin.y_agg_types) or
+            (y_type == 'DiscreteColumn' and agg_type not in CrossBarPlugin.y_agg_types)):
             return False, 'Select continuous y column to aggregate by %s.' % \
                    (agg_type.title())
         else:
