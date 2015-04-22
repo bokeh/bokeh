@@ -1,6 +1,7 @@
 _ = require "underscore"
 rbush = require "rbush"
 Glyph = require "./glyph"
+hittest = require "../../common/hittest"
 
 class QuadView extends Glyph.View
 
@@ -38,7 +39,16 @@ class QuadView extends Glyph.View
       if (sx >= @sleft[i] and sx <= @sright[i] and sy >= @stop[i] and
           sy < @sbottom[i])
         hits.push(i)
-    return hits
+
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
+
+  scx: (i) ->
+    return (@sleft[i] + @sright[i])/2
+
+  scy: (i) ->
+    return (@stop[i] + @sbottom[i])/2
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1)

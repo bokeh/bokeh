@@ -2,6 +2,7 @@ _ = require "underscore"
 HasProperties = require "./has_properties"
 {logger} = require "./logging"
 Selector = require "./selector"
+hittest = require "./hittest"
 
 class SelectionManager extends HasProperties
   type: 'SelectionManager'
@@ -21,12 +22,14 @@ class SelectionManager extends HasProperties
 
     indices = renderer_view.hit_test(geometry)
 
-    selector = @_get_selector(renderer_view)
-    selector.update(indices, final, append)
+    # if selection type is supported on the specific renderer
+    if !!indices
+      selector = @_get_selector(renderer_view)
+      selector.update(indices, final, append)
 
-    @_save_indices(selector.get('indices'))
-    source.trigger('select')
-    source.trigger('select-' + renderer_view.mget('id'))
+      @_save_indices(selector.get('indices'))
+      source.trigger('select')
+      source.trigger('select-' + renderer_view.mget('id'))
 
   inspect: (tool, renderer_view, geometry, data) ->
     source = @get('source')
@@ -51,7 +54,7 @@ class SelectionManager extends HasProperties
     else
       for k, s of @selectors
         s.clear()
-    @_save_indices([])
+    @_save_indices(hittest.create_hit_test_result())
 
   _get_selector: (rview) ->
     _.setdefault(@selectors, rview.model.id, new Selector())

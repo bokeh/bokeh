@@ -400,24 +400,29 @@ class HoverTool(Tool):
     Whether the hover tool must be explicitly activated.
     """)
 
-    snap_to_data = Bool(True, help="""
-    Whether the tooltip position should snap to the "center" position
-    of the associated glyph. For instance, if set to True, the tooltip
-    will point to the center of any marker (e.g., ``Circle``, `` Square``)
-    regardless of the cursor position, as long as the cursor hits the
-    glyph.
+    mode = Enum("mouse", "hline", "vline", help="""
+    Whether to consider hover pointer as a point (x/y values), or a
+    span on h or v directions.
+    """)
 
-    .. note::
-        Not all glyphs support this feature. Currenly all marker glyphs,
-        the ``Rect`` and ``Quad`` glyphs are supported.
+    point_policy = Enum("snap_to_data", "follow_mouse", "none", help="""
+    Whether the tooltip position should snap to the "center" position of
+    the associated glyph, or always follow the current mouse cursor
+    position.
+    """)
 
+    line_policy = Enum("prev", "next", "nearest", "interp", "none", help="""
+    When showing tooltips for lines, whether the tooltip position should be
+    the "previous" or "next" points on the line, the nearest point to the
+    current mouse position, or interpolate along the line to the current
+    mouse position.
     """)
 
 class HelpTool(Tool):
     """
     The help tool is a widget designed to replace the hardcoded 'Help' link.
     The hover text can be customized through the ``help_tooltip`` attribute
-    and the redirect site overridden as well. 
+    and the redirect site overridden as well.
     """
 
     help_tooltip = String(help="""

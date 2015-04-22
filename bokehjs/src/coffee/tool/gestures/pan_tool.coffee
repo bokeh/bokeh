@@ -17,10 +17,12 @@ class PanToolView extends GestureTool.View
         @v_axis_only = true
       if vy < vr.get('start') or vy > vr.get('end')
         @h_axis_only = true
+    @plot_view.interactive_timestamp = Date.now()
 
   _pan: (e) ->
     # TODO (bev) get minus sign from canvas/frame
     @_update(e.deltaX, -e.deltaY)
+    @plot_view.interactive_timestamp = Date.now()
 
   _pan_end: (e) ->
     @h_axis_only = false

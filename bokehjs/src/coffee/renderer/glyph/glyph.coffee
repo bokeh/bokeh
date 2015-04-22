@@ -79,6 +79,11 @@ class GlyphView extends ContinuumView
       [bb[1], bb[3]]
     ])
 
+  # glyphs that need more sophisticated "snap to data" behaviour (like
+  # snapping to a patch centroid, e.g, should override these
+  scx: (i) -> return @sx[i]
+  scy: (i) -> return @sy[i]
+
   # any additional customization can happen here
   _set_data: () -> null
   _map_data: () -> null
