@@ -105,18 +105,12 @@ def make_categorical_bar_source(df, x_field, y_field='None', agg='count'):
       ColumnDataSource: aggregated, discrete form of x,y values
 
     """
-    # If y is None, group and reduce on same column
-    if y_field == 'None':
-        agg_col = x_field
-    else:
-        agg_col = y_field
-
     # handle x-only aggregations separately
     if y_field == 'None':
         # percent aggregations are a special case, since pandas doesn't directly support
         if agg == 'percent':
             count = len(df.index)
-            series = df.groupby(x_field)[agg_col].apply(lambda x: 100*(len(
+            series = df.groupby(x_field)[x_field].apply(lambda x: 100*(len(
                 x.index)/float(count)))
         elif agg == 'count':
             series = df.groupby(x_field).size()
@@ -129,7 +123,7 @@ def make_categorical_bar_source(df, x_field, y_field='None', agg='count'):
     # x and y aggregations
     else:
         # Get the y values after grouping by the x values
-        group = df.groupby(x_field)[agg_col]
+        group = df.groupby(x_field)[y_field]
         aggregate = getattr(group, agg)
         result = aggregate().reset_index()
 
