@@ -2,3 +2,7 @@
 
 Using High-level Charts
 =======================
+
+.. contents::
+    :local:
+    :depth: 2
