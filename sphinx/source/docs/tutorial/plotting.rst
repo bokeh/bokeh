@@ -50,7 +50,11 @@ Configuring Axes
 ----------------
 
 
-Date and Time axes
+Categorical Axes
+''''''''''''''''
+
+
+Date and Time Axes
 ''''''''''''''''''
 
 **GOAL**: To learn how to specify datetime axes on a plot
