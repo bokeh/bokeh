@@ -40,6 +40,7 @@ DEF_DOWNLOAD_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'do
 DEF_DOCUMENTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'examples')
 DEF_REMOTE_BOKEH_SERVER_ADDRESS = metadata.remote_bokeh_server_address
 DEF_REMOTE_BOKEH_SERVER_PORT = metadata.remote_bokeh_server_port
+DEF_SCREENSHOT_SITE_ADDRESS = metadata.screenshot_site_address
 
 DEF_DISCOVER_VERBOSE = 1
 DEF_TESTS_BASE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tests')
@@ -94,6 +95,8 @@ def NonInteractiveParser(parser):
         help="Directory to store any of additional test data. Default value: %s" % (DEF_DATA_DIR))
     parser.add_argument('-P', dest='remote_bokeh_server_port', type=str, action='store', default=DEF_REMOTE_BOKEH_SERVER_PORT,
         help="Port number of bokeh server to use for testing. The default port is: %s" % (DEF_REMOTE_BOKEH_SERVER_PORT))
+    parser.add_argument('-R', dest='screenshot_site_address', type=str, action='store', default=DEF_SCREENSHOT_SITE_ADDRESS,
+        help="URL address of place where screenshots are stored. The default address is: %s" % (DEF_SCREENSHOT_SITE_ADDRESS))
     parser.add_argument('-V', dest='verbosity', type=int, default=DEF_TEST_VERBOSITY,
         help="Change verbosity of test launcher. Default value: %i" % (DEF_TEST_VERBOSITY))
     parser.add_argument('-a', dest='selenium_hub_address', metavar='HUB_ADDRESS', type=str, action='store', default=DEF_SELENIUM_HUB_ADDRESS,
@@ -107,7 +110,7 @@ def NonInteractiveParser(parser):
     parser.add_argument('-m', dest='env_mode', default=DEF_ENVIRONMENT_MODE,
         choices=metadata.env_modes, help="Setup environment mode for tests. Default value: %s" % (DEF_ENVIRONMENT_MODE))
     parser.add_argument('-s', dest='selenium_server_jar_path', default=DEF_SELENIUM_SERVER_JAR_PATH,
-        help="Path where jar of selenium-server-standalone is placed. Default value: %s" % (DEF_SELENIUM_SERVER_JAR_PATH))
+        help="Path where jar of selenium-server-standalone binary is placed. Default value: %s" % (DEF_SELENIUM_SERVER_JAR_PATH))
     parser.add_argument('-o', dest='down_dir',  default=DEF_DOWNLOAD_DIR,
         help="Directory where download data will be stored. WARNING: The content of this directory will be removed each time of initialization process. Default value: %s" % (DEF_DOWNLOAD_DIR))
     parser.add_argument('-p', dest='browser_cap_platform', metavar='PLATFORM', type=str, default=DEF_BROWSER_PLATFORM,
@@ -139,7 +142,7 @@ settings = TestSettings(metadata=metadata, env_mode=myargs.env_mode,
     headless_mode=myargs.headless_mode, headless_mode_display=myargs.headless_mode_display, selenium_hub_address=myargs.selenium_hub_address,
     browser_caps=TestBrowserCaps(metadata=metadata, platform=myargs.browser_cap_platform, version=myargs.browser_cap_version,
     remote_bokeh_server_address=myargs.remote_bokeh_server_address, remote_bokeh_server_port=myargs.remote_bokeh_server_port,
-    documents_dir=myargs.documents_dir))
+    documents_dir=myargs.documents_dir, screenshot_site_address=myargs.screenshot_site_address))
 
 #############
 # FUNCTIONS #

@@ -22,6 +22,7 @@ DEF_REMOTE_BOKEH_SERVER_ADDRESS = 'http://localhost'
 DEF_REMOTE_BOKEH_SERVER_PORT = 5006
 DEF_WINDOW_WIDTH = 1024
 DEF_WINDOW_HEIGHT = 768
+DEF_SCREENSHOT_SITE_ADDRESS = "http://bokeh-selenium-screenshots.s3-website-us-east-1.amazonaws.com"
 
 
 class TestMetadata(object):
@@ -83,6 +84,7 @@ class TestMetadata(object):
         self.window_height = DEF_WINDOW_HEIGHT
 
         self.screenshot_dir = self.data_dir+'/screenshots'
+        self.screenshot_site_address = DEF_SCREENSHOT_SITE_ADDRESS
 
     def get_browser_bin(self, browser):
         return self.standalone_browsers_bin[browser]
@@ -192,6 +194,11 @@ class TestSettings(object):
         if not os.path.isdir(self.screenshot_dir):
             print("The data dir '%s' is not a directory!" % (self.screenshot_dir))
             sys.exit(1)
+
+        self.screenshot_site_address = kwargs.get('screenshot_site_address', None)
+
+        if not self.screenshot_site_address:
+            self.screenshot_site_address = self.metadata.screenshot_site_address
 
         self.headless_mode = kwargs.get('headless_mode', None)
 

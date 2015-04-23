@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import glob
+import requests
 
 from subprocess import check_output, Popen, PIPE
 
@@ -243,6 +244,23 @@ def check_if_images_are_the_same(ref_file, gen_file):
 def take_screenshot(driver, output_file, win_width, win_height):
     driver.set_window_size(win_width, win_height)
     driver.save_screenshot(output_file)
+
+
+def download_ref_screenshots(site_address, output_dir, files):
+
+    for file in files:
+        file = os.path.basename(file)
+        downloaded_file = os.path.join(output_dir, file)
+
+        if not os.path.exists(downloaded_file):
+            url = os.path.join(site_address, file)
+            response = requests.get(url)
+
+            if not response.ok:
+                assert 0, "Couldn't download file: {}".format(url)
+
+            with open(downloaded_file, "wb") as f:
+                f.write(response.content)
 
 
 class TestBrowserCaps(object):
