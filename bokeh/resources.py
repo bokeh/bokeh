@@ -136,7 +136,7 @@ class Resources(object):
     _default_js_files = ["js/bokeh.js"]
     _default_css_files = ["css/bokeh.css"]
 
-    _default_js_files_dev = ['js/vendor/requirejs/require.js', 'js/config.js']
+    _default_js_files_dev = ['js/bokeh.js']  #'js/vendor/requirejs/require.js', 'js/config.js']
     _default_css_files_dev = ['css/bokeh.css']
 
     _default_root_dir = "."
@@ -204,9 +204,9 @@ class Resources(object):
             self.css_files = list(server['css_files'])
             self.messages.extend(server['messages'])
 
-        if self.dev:
-            require = 'require.config({ baseUrl: "%s" });' % base_url
-            self._js_raw.append(require)
+        # if self.dev:
+        #     require = 'require.config({ baseUrl: "%s" });' % base_url
+        #     self._js_raw.append(require)
 
     @property
     def log_level(self):
@@ -271,7 +271,7 @@ class Resources(object):
         else:
             js_wrapper = wrapper
 
-        return js_wrapper
+        return wrapper # js_wrapper
 
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
