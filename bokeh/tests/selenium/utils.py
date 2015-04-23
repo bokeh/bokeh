@@ -240,6 +240,11 @@ def check_if_images_are_the_same(ref_file, gen_file):
         return True
 
 
+def take_screenshot(driver, output_file, win_width, win_height):
+    driver.set_window_size(win_width, win_height)
+    driver.save_screenshot(output_file)
+
+
 class TestBrowserCaps(object):
 
     def __init__(self, metadata, **kwargs):

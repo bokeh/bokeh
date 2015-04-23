@@ -8,7 +8,7 @@ import unittest
 from selenium.common.exceptions import NoSuchElementException
 
 from bokeh.tests.selenium.fixtures import BasicSeleniumTestFixture
-from bokeh.tests.selenium.utils import look_for_element, check_if_images_are_the_same
+from bokeh.tests.selenium.utils import look_for_element, check_if_images_are_the_same, take_screenshot
 
 
 class TestGestures(BasicSeleniumTestFixture):
@@ -38,7 +38,7 @@ class TestGestures(BasicSeleniumTestFixture):
         now.drag_and_drop_by_offset(plot, 120, -40)
         now.perform()
 
-        self.driver.save_screenshot(gen_file)
+        take_screenshot(self.driver, gen_file, self.test_settings.window_width, self.test_settings.window_height)
 
         if not check_if_images_are_the_same(ref_file, gen_file):
             assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
@@ -62,7 +62,7 @@ class TestGestures(BasicSeleniumTestFixture):
         now.drag_and_drop_by_offset(plot, 100, -20)
         now.perform()
 
-        self.driver.save_screenshot(gen_file)
+        take_screenshot(self.driver, gen_file, self.test_settings.window_width, self.test_settings.window_height)
 
         if not check_if_images_are_the_same(ref_file, gen_file):
             assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
@@ -82,7 +82,7 @@ class TestGestures(BasicSeleniumTestFixture):
 
         reset_button.click()
 
-        self.driver.save_screenshot(gen_file)
+        take_screenshot(self.driver, gen_file, self.test_settings.window_width, self.test_settings.window_height)
 
         if not check_if_images_are_the_same(ref_file, gen_file):
             assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
@@ -116,7 +116,7 @@ class TestGestures(BasicSeleniumTestFixture):
         # TODO:
         # - Invoke zoom in action under the plot.
 
-        self.driver.save_screenshot(gen_in_file)
+        take_screenshot(self.driver, gen_in_file, self.test_settings.window_width, self.test_settings.window_height)
 
         if not check_if_images_are_the_same(ref_in_file, gen_in_file):
             assert 0, "No expected output from {} - according to {}".format(gen_in_file, ref_in_file)
@@ -128,7 +128,7 @@ class TestGestures(BasicSeleniumTestFixture):
         # TODO:
         # - Invoke zoom out action under the plot.
 
-        self.driver.save_screenshot(gen_out_file)
+        take_screenshot(self.driver, gen_out_file, self.test_settings.window_width, self.test_settings.window_height)
 
         if not check_if_images_are_the_same(ref_out_file, gen_out_file):
             assert 0, "No expected output from {} - according to {}".format(gen_out_file, ref_out_file)
