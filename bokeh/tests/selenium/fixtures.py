@@ -85,6 +85,7 @@ class RawSeleniumTestFixture(TestCase):
             return False
 
         self.driver.set_window_size(self.test_settings.window_width, self.test_settings.window_height)
+        self.driver.maximize_window()
         self.driver.start_client()
 
         self.actions = webdriver.common.action_chains.ActionChains(self.driver)
