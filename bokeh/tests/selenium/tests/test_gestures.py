@@ -16,7 +16,7 @@ class TestGestures(BasicSeleniumTestFixture):
     Gestures test - check if all gestures work as expected.
     """
 
-    @unittest.skip("Now implemented yet.")
+    @unittest.skip("Not implemented yet.")
     def test_box_select_tool(self):
         pass
 
@@ -45,7 +45,7 @@ class TestGestures(BasicSeleniumTestFixture):
         if not check_if_images_are_the_same(ref_file, gen_file):
             assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
 
-    @unittest.skip("Now implemented yet.")
+    @unittest.skip("Not implemented yet.")
     def test_lasso_select_tool(self):
         pass
 
@@ -71,7 +71,7 @@ class TestGestures(BasicSeleniumTestFixture):
         if not check_if_images_are_the_same(ref_file, gen_file):
             assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
 
-    @unittest.skip("Now implemented yet.")
+    @unittest.skip("Not implemented yet.")
     def test_poly_select_tool(self):
         pass
 
@@ -93,15 +93,15 @@ class TestGestures(BasicSeleniumTestFixture):
         if not check_if_images_are_the_same(ref_file, gen_file):
             assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
 
-    @unittest.skip("Now implemented yet.")
+    @unittest.skip("Not implemented yet.")
     def test_resize_tool(self):
         pass
 
-    @unittest.skip("Now implemented yet.")
+    @unittest.skip("Not implemented yet.")
     def test_tap_tool(self):
         pass
 
-    @unittest.skip("Now implemented yet.")
+    @unittest.skip("Not implemented yet.")
     def test_wheel_zoom_tool(self):
         """Check if wheel zoom tool is working as expected."""
 
