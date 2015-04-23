@@ -54,7 +54,7 @@ def start_simple_server(args=None):
         start_redis()
     register_blueprint()
     tornado_app = make_tornado_app(flask_app=app)
-    if args.https:
+    if args is not None and args.https:
         if args.https_certfile and args.https_keyfile:
             server = HTTPServer(tornado_app, ssl_options={"certfile": args.https_certfile, "keyfile": args.https_keyfile})
         else:
