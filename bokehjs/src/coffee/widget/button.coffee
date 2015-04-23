@@ -1,6 +1,5 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -38,6 +37,7 @@ class ButtonView extends ContinuumView
   change_input: () ->
     @mset('clicks', @mget('clicks') + 1)
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class Button extends HasParent
   type: "Button"
@@ -52,10 +52,6 @@ class Button extends HasParent
       disabled: false
     }
 
-class Buttons extends Collection
-  model: Button
-
 module.exports =
   Model: Button
   View: ButtonView
-  Collection: new Buttons()

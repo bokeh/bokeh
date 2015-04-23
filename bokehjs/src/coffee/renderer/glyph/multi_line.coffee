@@ -20,9 +20,9 @@ class MultiLineView extends Glyph.View
     index.load(pts)
     return index
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {sxs, sys}) ->
     for i in indices
-      [sx, sy] = @renderer.map_to_screen(@xs[i], @ys[i])
+      [sx, sy] = [sxs[i], sys[i]]
 
       @visuals.line.set_vectorize(ctx, i)
       for j in [0...sx.length]
@@ -47,10 +47,6 @@ class MultiLine extends Glyph.Model
   visuals: ['line']
   coords: [ ['xs', 'ys'] ]
 
-class MultiLines extends Glyph.Collection
-  model: MultiLine
-
 module.exports =
   Model: MultiLine
   View: MultiLineView
-  Collection: new MultiLines()

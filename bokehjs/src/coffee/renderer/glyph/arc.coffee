@@ -8,19 +8,18 @@ class ArcView extends Glyph.View
 
   _map_data: () ->
     if @distances.radius.units == "data"
-      rd = @fields.radius_dimension.fixed_value
-      @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @radius)
+      @sradius = @sdist(@renderer.xmapper, this.x, @radius)
     else
       @sradius = @radius
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->
+  _render: (ctx, indices, {sx, sy, sradius, start_angle, end_angle, direction}) ->
     if @visuals.line.do_stroke
       for i in indices
-        if isNaN(sx[i] + sy[i] + sradius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
+        if isNaN(sx[i]+sy[i]+sradius[i]+start_angle[i]+end_angle[i]+direction[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sradius[i], @start_angle[i], @end_angle[i], @direction[i])
+        ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction[i])
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -37,7 +36,9 @@ class ArcView extends Glyph.View
     sradius = {}
     sradius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
 
-    @_render(ctx, indices, sx, sy, sradius)
+    data = {sx: sx, sy: sy, sradius: sradius}
+
+    @_render(ctx, indices, data)
 
 class Arc extends Glyph.Model
   default_view: ArcView
@@ -52,10 +53,6 @@ class Arc extends Glyph.Model
       direction: 'anticlock'
     }
 
-class Arcs extends Glyph.Collection
-  model: Arc
-
 module.exports =
   Model: Arc
   View: ArcView
-  Collection: new Arcs()

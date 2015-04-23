@@ -4,7 +4,7 @@ HasParent = require "../../common/has_parent"
 LayoutBox = require "../../common/layout_box"
 {logger} = require "../../common/logging"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../renderer/properties"
+properties = require "../../common/properties"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # axis title text, based on it's location and orientation
@@ -150,11 +150,11 @@ _apply_location_heuristics = (ctx, side, orient) ->
 class AxisView extends PlotWidget
   initialize: (options) ->
     super(options)
-    @rule_props = new properties.Line(@, 'axis_')
-    @major_tick_props = new properties.Line(@, 'major_tick_')
-    @minor_tick_props = new properties.Line(@, 'minor_tick_')
-    @major_label_props = new properties.Text(@, 'major_label_')
-    @axis_label_props = new properties.Text(@, 'axis_label_')
+    @rule_props = new properties.Line({obj: @model, prefix: 'axis_'})
+    @major_tick_props = new properties.Line({obj: @model, prefix: 'major_tick_'})
+    @minor_tick_props = new properties.Line({obj: @model, prefix: 'minor_tick_'})
+    @major_label_props = new properties.Text({obj: @model, prefix: 'major_label_'})
+    @axis_label_props = new properties.Text({obj: @model, prefix: 'axis_label_'})
     @x_range_name = @mget('x_range_name')
     @y_range_name = @mget('y_range_name')
 
@@ -185,7 +185,7 @@ class AxisView extends PlotWidget
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
 
-    @rule_props.set(ctx, @)
+    @rule_props.set_value(ctx)
     ctx.beginPath()
     ctx.moveTo(Math.round(sx[0]+nx*xoff), Math.round(sy[0]+ny*yoff))
     for i in [1...sx.length]
@@ -203,7 +203,7 @@ class AxisView extends PlotWidget
 
     tin = @mget('major_tick_in')
     tout = @mget('major_tick_out')
-    @major_tick_props.set(ctx, @)
+    @major_tick_props.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff),
@@ -223,7 +223,7 @@ class AxisView extends PlotWidget
 
     tin = @mget('minor_tick_in')
     tout = @mget('minor_tick_out')
-    @minor_tick_props.set(ctx, @)
+    @minor_tick_props.set_value(ctx)
     for i in [0...sx.length]
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff),
@@ -250,7 +250,7 @@ class AxisView extends PlotWidget
 
     labels = @mget('formatter').format(coords.major[dim])
 
-    @major_label_props.set(ctx, @)
+    @major_label_props.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
 
     for i in [0...sx.length]
@@ -284,7 +284,7 @@ class AxisView extends PlotWidget
     sx = (sx[0] + sx[sx.length-1])/2
     sy = (sy[0] + sy[sy.length-1])/2
 
-    @axis_label_props.set(ctx, @)
+    @axis_label_props.set_value(ctx)
     _apply_location_heuristics(ctx, side, orient)
 
     if angle
@@ -516,7 +516,7 @@ class Axis extends HasParent
 
     labels = @get('formatter').format(coords[dim])
 
-    view.major_label_props.set(ctx, view)
+    view.major_label_props.set_value(ctx)
 
     if _.isString(orient)
       hscale = 1
@@ -556,7 +556,7 @@ class Axis extends HasParent
     orient = 'parallel'
     ctx = view.plot_view.canvas_view.ctx
 
-    view.axis_label_props.set(ctx, view)
+    view.axis_label_props.set_value(ctx)
 
     angle = Math.abs(_angle_lookup[side][orient])
     c = Math.cos(angle)
@@ -564,7 +564,7 @@ class Axis extends HasParent
 
     if @get('axis_label')
       extent += @get('axis_label_standoff')
-      view.axis_label_props.set(ctx, view)
+      view.axis_label_props.set_value(ctx)
       w = ctx.measureText(@get('axis_label')).width * 1.1
       h = ctx.measureText(@get('axis_label')).ascent * 0.9
       if side == "above" or side == "below"

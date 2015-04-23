@@ -94,7 +94,7 @@ def is_ax_end(r):
         try:
             if r.data_source.data["name"] == "ax_end":
                 return True
-        except KeyError as e:
+        except KeyError:
             return False
     else:
         return False

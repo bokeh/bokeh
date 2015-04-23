@@ -13,15 +13,15 @@ class SegmentView extends Glyph.View
     index.load(pts)
     return index
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {sx0, sy0, sx1, sy1}) ->
     if @visuals.line.do_stroke
       for i in indices
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
+        if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i])
           continue
 
         ctx.beginPath()
-        ctx.moveTo(@sx0[i], @sy0[i])
-        ctx.lineTo(@sx1[i], @sy1[i])
+        ctx.moveTo(sx0[i], sy0[i])
+        ctx.lineTo(sx1[i], sy1[i])
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -35,10 +35,6 @@ class Segment extends Glyph.Model
   visuals: ['line']
   coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
 
-class Segments extends Glyph.Collection
-  model: Segment
-
 module.exports =
   Model: Segment
   View: SegmentView
-  Collection: new Segments()

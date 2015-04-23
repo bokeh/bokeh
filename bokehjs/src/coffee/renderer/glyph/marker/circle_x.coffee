@@ -3,14 +3,17 @@ Marker = require "./marker"
 
 class CircleXView extends Marker.View
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + size[i])
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
         continue
 
-      ctx.beginPath()
       r = size[i]/2
-      ctx.arc(sx[i], sy[i], r, 0, 2*Math.PI, false)
+
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
+
+      ctx.arc(0, 0, r, 0, 2*Math.PI, false)
 
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
@@ -18,20 +21,22 @@ class CircleXView extends Marker.View
 
       if @visuals.line.do_stroke
         @visuals.line.set_vectorize(ctx, i)
-        ctx.moveTo(sx[i]-r, sy[i]+r)
-        ctx.lineTo(sx[i]+r, sy[i]-r)
-        ctx.moveTo(sx[i]-r, sy[i]-r)
-        ctx.lineTo(sx[i]+r, sy[i]+r)
+        if angle[i]
+          ctx.rotate(angle[i])
+        ctx.moveTo(-r,  r)
+        ctx.lineTo( r, -r)
+        ctx.moveTo(-r, -r)
+        ctx.lineTo( r,  r)
+        if angle[i]
+          ctx.rotate(-angle[i])
         ctx.stroke()
+
+      ctx.translate(-sx[i], -sy[i])
 
 class CircleX extends Marker.Model
   default_view: CircleXView
   type: 'CircleX'
 
-class CircleXs extends Marker.Collection
-  model: CircleX
-
 module.exports =
   Model: CircleX
   View: CircleXView
-  Collection: new CircleXs()

@@ -1,9 +1,4 @@
 _ = require "underscore"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $1 = require "jquery-ui/slider"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
@@ -40,9 +35,10 @@ class SliderView extends ContinuumView
   slide: (event, ui) =>
     value = ui.value
     logger.debug("slide value = #{value}")
-    @$( "##{ @mget('id') }" ).val( ui.value );
+    @$( "##{ @mget('id') }" ).val( ui.value )
     @mset('value', value)
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class Slider extends HasParent
   type: "Slider"
@@ -58,10 +54,6 @@ class Slider extends HasParent
       orientation: "horizontal"
     }
 
-class Sliders extends Collection
-  model: Slider
-
 module.exports =
   Model: Slider
   View: SliderView
-  Collection: new Sliders()

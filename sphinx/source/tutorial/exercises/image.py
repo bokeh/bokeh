@@ -2,7 +2,7 @@ from __future__ import division
 
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show, VBox
+from bokeh.plotting import figure, output_file, show, vplot
 
 # NOTE: if you do have numba installed, uncomment out this import,
 # and the 'autojit' lines below (the example will run more quickly).
@@ -92,6 +92,6 @@ for i in range(N):
 # cordinates: (x0,y0) = (0,0)  and (x1,y1) = (10,10). Remember to set the
 # x_range and y_range explicitly as above.
 
-# show the plots arrayed in a VBox
-show(VBox(p1, p2))
+# show the plots arrayed in a vplot
+show(vplot(p1, p2))
 

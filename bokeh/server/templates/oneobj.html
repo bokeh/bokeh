@@ -17,7 +17,7 @@
   {% for modulename, classname, parentname in extra_generated_classes %}
   window.{{modulename}}.main();
   {% endfor %}
-  $(document).ready(function() {
+  Bokeh.$(document).ready(function() {
     container = $("#PlotPane");
     Bokeh.set_log_level("{{ loglevel }}")
     Bokeh.embed.add_plot_server(container, "{{ docid }}", "{{ objid }}", {{ public }});

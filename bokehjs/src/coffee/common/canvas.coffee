@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "./collection"
 kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
 {Expression, Constraint, Operator} = kiwi
 canvas_template = require "./canvas_template"
@@ -199,9 +198,5 @@ class Canvas extends LayoutBox.Model
       use_hidpi: true
     }
 
-class Canvases extends Collection
-  model: Canvas
-
 module.exports =
   Model: Canvas
-  Collection: new Canvases()

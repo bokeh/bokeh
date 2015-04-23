@@ -8,11 +8,10 @@ import re
 import difflib
 from six import string_types
 
-from .models import glyphs
 from .models import (
-    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
+    BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, RemoteSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
-    FactorRange, Grid, HoverTool, LassoSelectTool, Legend, LinearAxis,
+    FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
     WheelZoomTool)
@@ -99,10 +98,7 @@ def _match_data_params(argnames, glyphclass, datasource,
             # both strings and certain iterables are valid colors.
             glyph_val = val
         elif isinstance(val, string_types):
-            if glyphclass == glyphs.Text: # XXX: issubclass()
-                # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
-                glyph_val = [val]
-            elif not isinstance(datasource, RemoteSource) and val not in datasource.column_names:
+            if not isinstance(datasource, RemoteSource) and val not in datasource.column_names:
                 raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
             else:
                 if val not in datasource.column_names:
@@ -246,6 +242,7 @@ _known_tools = {
     ]),
     "previewsave": lambda: PreviewSaveTool(),
     "reset": lambda: ResetTool(),
+    "help": lambda: HelpTool(),
 }
 
 def _tool_from_string(name):
@@ -341,7 +338,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
-        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker); xgrid
         if x_axis_location == "above":
             plot.above.append(xaxis)
         elif x_axis_location == "below":
@@ -356,7 +353,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:
             yaxis.axis_label = axis_label
-        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker); ygrid
         if y_axis_location == "left":
             plot.left.append(yaxis)
         elif y_axis_location == "right":

@@ -10,10 +10,10 @@ else
   SlickGrid = require "slick_grid/slick.grid"
   RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
   CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties= require "../common/has_properties"
 DOMUtil = require "../util/dom_util"
+hittest = require "../common/hittest"
 
 class DataProvider
 
@@ -108,7 +108,7 @@ class DataTableView extends ContinuumView
 
   updateSelection: () ->
     selected = @mget("source").get("selected")
-    @grid.setSelectedRows(selected)
+    @grid.setSelectedRows(selected['1d'].indices)
 
   newIndexColumn: () ->
     return {
@@ -165,7 +165,9 @@ class DataTableView extends ContinuumView
       if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
 
       @grid.onSelectedRowsChanged.subscribe (event, args) =>
-          @mget("source").set("selected", args.rows)
+        selected = hittest.create_hit_test_result()
+        selected['1d'].indices = args.rows
+        @mget("source").set("selected", selected)
 
     return @
 
@@ -185,10 +187,6 @@ class DataTable extends HasProperties
       row_headers: true
     }
 
-class DataTables extends Collection
-  model: DataTable
-
 module.exports =
   Model: DataTable
   View: DataTableView
-  Collection: new DataTables()

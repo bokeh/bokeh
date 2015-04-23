@@ -10,7 +10,6 @@ build_views = require "./build_views"
 Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
 ContinuumView = require "./continuum_view"
-Collection = require "./collection"
 UIEvents = require "./ui_events"
 HasParent = require "./has_parent"
 LayoutBox = require "./layout_box"
@@ -19,7 +18,7 @@ plot_utils = require "./plot_utils"
 Solver = require "./solver"
 ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
-properties = require "../renderer/properties"
+properties = require "./properties"
 
 
 class PlotView extends ContinuumView
@@ -65,8 +64,8 @@ class PlotView extends ContinuumView
 
     @throttled_render = plot_utils.throttle_animation(@render, 15)
 
-    @outline_props = new properties.Line(@, 'outline_')
-    @title_props = new properties.Text(@, 'title_')
+    @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
+    @title_props = new properties.Text({obj: @model, prefix: 'title_'})
 
     @renderers = {}
     @tools = {}
@@ -116,6 +115,7 @@ class PlotView extends ContinuumView
       xr.update?(bounds, 0, @)
     for yr in _.values(frame.get('y_ranges'))
       yr.update?(bounds, 1, @)
+    @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
@@ -189,6 +189,17 @@ class PlotView extends ContinuumView
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
+    if Date.now() - @interactive_timestamp < @mget('lod_interval')
+      @interactive = true
+      lod_timeout = @mget('lod_timeout')
+      setTimeout(() =>
+          if @interactive and (Date.now() - @interactive_timestamp) > lod_timeout
+            @interactive = false
+          @request_render()
+        , lod_timeout)
+    else
+      @interactive = false
+
     width = @mget("plot_width")
     height = @mget("plot_height")
 
@@ -207,22 +218,18 @@ class PlotView extends ContinuumView
     frame = @model.get('frame')
     canvas = @model.get('canvas')
 
-
     for k, v of @renderers
       if v.model.update_layout?
         v.model.update_layout(v, @canvas.solver)
 
-    need_dr_update = false
     for k, v of @renderers
-      if v.have_new_data
-        need_dr_update = true
+      if v.set_data_timestamp > @range_update_timestamp?
+        @update_dataranges()
         break
-    if need_dr_update
-      @update_dataranges()
 
     title = @mget('title')
     if title
-      @title_props.set(@canvas_view.ctx, {})
+      @title_props.set_value(@canvas_view.ctx)
       th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
       if th != @model.title_panel.get('height')
         @model.title_panel.set('height', th)
@@ -237,12 +244,6 @@ class PlotView extends ContinuumView
     # reach the frame in time (sometimes) so force an update here for now
     @model.get('frame')._update_mappers()
 
-    if not @initial_range_info?
-      @set_initial_range()
-
-    if not @initial_range_info?
-      return
-
     frame_box = [
       @canvas.vx_to_sx(@frame.get('left')),
       @canvas.vy_to_sy(@frame.get('top')),
@@ -254,7 +255,7 @@ class PlotView extends ContinuumView
     @_paint_empty(ctx, frame_box)
 
     if @outline_props.do_stroke
-      @outline_props.set(ctx, {})
+      @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
@@ -264,8 +265,11 @@ class PlotView extends ContinuumView
       sx = @canvas.vx_to_sx(@canvas.get('width')/2)
       sy = @canvas.vy_to_sy(
         @model.title_panel.get('bottom') + @model.get('title_standoff'))
-      @title_props.set(ctx, {})
+      @title_props.set_value(ctx)
       ctx.fillText(title, sx, sy)
+
+    if not @initial_range_info?
+      @set_initial_range()
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -355,7 +359,6 @@ class Plot extends HasParent
     # TODO (bev) titles should probably be a proper guide, then they could go
     # on any side, this will do to get the PR merged
     @title_panel = new LayoutBox.Model({solver: solver})
-    LayoutBox.Collection.add(@title_panel)
     @title_panel._anchor = @title_panel._bottom
     elts = @get('above')
     elts.push(@title_panel)
@@ -438,6 +441,10 @@ class Plot extends HasParent
       right: [],
       toolbar_location: "above"
       logo: "normal"
+      lod_factor: 10
+      lod_interval: 300
+      lod_threshold: 2000
+      lod_timeout: 500
     }
 
   display_defaults: ->
@@ -465,10 +472,6 @@ class Plot extends HasParent
       outline_line_dash_offset: 0
     }
 
-class Plots extends Collection
-  model: Plot
-
 module.exports =
   Model: Plot
-  Collection: new Plots()
   View: PlotView

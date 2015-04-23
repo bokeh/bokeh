@@ -1,10 +1,8 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-Properties = require "../renderer/properties"
 build_views = require "./build_views"
 ContinuumView = require "./continuum_view"
-Collection = require "./collection"
 HasProperties = require "./has_properties"
 {logger} = require "./logging"
 ToolManager = require "./tool_manager"
@@ -331,10 +329,6 @@ class GridPlot extends HasProperties
       toolbar_location: "left"
     }
 
-class GridPlots extends Collection
-  model: GridPlot
-
 module.exports =
   Model: GridPlot
-  Collection: new GridPlots()
   View: GridPlotView

@@ -26,7 +26,7 @@ import tempfile
 #------------
 # third party
 #------------
-from six.moves.urllib.parse import urljoin, urlencode
+from six.moves.urllib.parse import urlencode
 from requests.exceptions import ConnectionError
 
 #---------
@@ -46,7 +46,6 @@ from . import browserlib
 from . import protocol
 from .embed import autoload_server
 from .exceptions import DataIntegrityException
-from .models import ServerDataSource
 from .util.notebook import publish_display_data
 from .util.serialization import dump, get_json, urljoin
 

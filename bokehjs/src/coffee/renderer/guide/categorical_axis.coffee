@@ -1,4 +1,4 @@
-Collection = require "../../common/collection"
+Collections = require("../../common/base").Collections
 {logger} = require "../../common/logging"
 FactorRange = require "../../range/factor_range"
 CategoricalTicker = require "../../ticking/categorical_ticker"
@@ -14,9 +14,9 @@ class CategoricalAxis extends Axis.Model
   initialize: (attrs, objects) ->
     super(attrs, objects)
     if not @get('ticker')?
-      @set_obj('ticker', CategoricalTicker.Collection.create())
+      @set_obj('ticker', Collections('CategoricalTicker').create())
     if not @get('formatter')?
-      @set_obj('formatter', CategoricalTickFormatter.Collection.create())
+      @set_obj('formatter', Collections('CategoricalTickFormatter').create())
 
   _computed_bounds: () ->
     [range, cross_range] = @get('ranges')
@@ -29,10 +29,6 @@ class CategoricalAxis extends Axis.Model
 
     return range_bounds
 
-class CategoricalAxes extends Collection
-  model: CategoricalAxis
-
 module.exports =
   Model: CategoricalAxis
-  Collection: new CategoricalAxes()
   View: CategoricalAxisView

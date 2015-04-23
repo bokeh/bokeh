@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import unittest
 
-from mock import patch, Mock
+from mock import Mock
 from six import add_metaclass
 from six.moves import xrange
 import copy

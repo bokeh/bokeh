@@ -1,6 +1,5 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -27,6 +26,7 @@ class HBoxView extends ContinuumView
     if height? then @$el.css(height: height + "px")
     for child in children
       @$el.append(@views[child.id].$el)
+
     return @
 
 class HBox extends HasParent
@@ -41,10 +41,6 @@ class HBox extends HasParent
   children: () ->
     return @get('children')
 
-class HBoxes extends Collection
-  model: HBox
-
 module.exports =
   Model: HBox
   View: HBoxView
-  Collection: new HBoxes()

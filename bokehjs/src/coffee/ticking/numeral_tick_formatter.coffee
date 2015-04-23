@@ -1,6 +1,5 @@
 _ = require "underscore"
-Numeral = require "numeral"
-Collection = require "../common/collection"
+Numeral = require "../../vendor/numeral.js-1.5.3/numeral.js"
 HasProperties = require "../common/has_properties"
 
 class NumeralTickFormatter extends HasProperties
@@ -24,9 +23,5 @@ class NumeralTickFormatter extends HasProperties
       rounding: 'round'
     }
 
-class NumeralTickFormatters extends Collection
-  model: NumeralTickFormatter
-
 module.exports =
   Model: NumeralTickFormatter
-  Collection: new NumeralTickFormatters()

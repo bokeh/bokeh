@@ -7,6 +7,7 @@ else
   $$1 = require "bootstrap/dropdown"
 Backbone = require "backbone"
 ActionTool = require "../tool/actions/action_tool"
+HelpTool = require "../tool/actions/help_tool"
 GestureTool = require "../tool/gestures/gesture_tool"
 InspectTool = require "../tool/inspectors/inspect_tool"
 {logger} = require "./logging"
@@ -46,6 +47,11 @@ class ToolManagerView extends Backbone.View
       ul.appendTo(button_bar_list)
       anchor.dropdown()
 
+    button_bar_list = @$(".bk-button-bar-list[type='help']")
+    _.each(@model.get('help'), (item) ->
+      button_bar_list.append(new ActionTool.ButtonView({model: item}).el)
+    )
+
     button_bar_list = @$(".bk-button-bar-list[type='actions']")
     _.each(@model.get('actions'), (item) ->
       button_bar_list.append(new ActionTool.ButtonView({model: item}).el)
@@ -74,6 +80,11 @@ class ToolManager extends HasProperties
         inspectors = @get('inspectors')
         inspectors.push(tool)
         @set('inspectors', inspectors)
+
+      else if tool instanceof HelpTool.Model
+        help = @get('help')
+        help.push(tool)
+        @set('help', help)
 
       else if tool instanceof ActionTool.Model
         actions = @get('actions')
@@ -131,6 +142,7 @@ class ToolManager extends HasProperties
       }
       actions: []
       inspectors: []
+      help: []
     }
 
 module.exports =

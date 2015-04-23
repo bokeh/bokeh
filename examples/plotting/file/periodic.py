@@ -60,24 +60,16 @@ text_props = {
     "text_baseline": "middle"
 }
 
-p.text(x=dict(field="symx", units="data"),
-    y=dict(field="period", units="data"),
-    text=dict(field="sym", units="data"),
+p.text(x="symx", y="period", text="sym",
     text_font_style="bold", text_font_size="15pt", **text_props)
 
-p.text(x=dict(field="symx", units="data"),
-    y=dict(field="numbery", units="data"),
-    text=dict(field="atomic_number", units="data"),
+p.text(x="symx", y="numbery", text="atomic_number",
     text_font_size="9pt", **text_props)
 
-p.text(x=dict(field="symx", units="data"),
-    y=dict(field="namey", units="data"),
-    text=dict(field="name", units="data"),
+p.text(x="symx", y="namey", text="name",
     text_font_size="6pt", **text_props)
 
-p.text(x=dict(field="symx", units="data"),
-    y=dict(field="massy", units="data"),
-    text=dict(field="mass", units="data"),
+p.text(x="symx", y="massy", text="mass",
     text_font_size="5pt", **text_props)
 
 p.grid.grid_line_color = None

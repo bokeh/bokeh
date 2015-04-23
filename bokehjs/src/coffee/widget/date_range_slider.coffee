@@ -4,7 +4,6 @@ if global._bokehTest?
   $1 = undefined  # TODO Make work
 else
   $1 = require "jqrangeslider/jQDateRangeSlider"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 
@@ -41,6 +40,7 @@ class DateRangeSliderView extends ContinuumView
     @$el.on "userValuesChanged", (event, data) =>
       @mset('value', [data.values.min, data.values.max])
       @model.save()
+      @mget('callback')?.execute(@model)
 
     return @
 
@@ -64,10 +64,6 @@ class DateRangeSlider extends HasProperties
       ###
     }
 
-class DateRangeSliders extends Collection
-  model: DateRangeSlider
-
 module.exports =
   Model: DateRangeSlider
   View: DateRangeSliderView
-  Collection: new DateRangeSliders()

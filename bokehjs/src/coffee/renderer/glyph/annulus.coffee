@@ -1,5 +1,6 @@
 _ = require "underscore"
 Glyph = require "./glyph"
+hittest = require "../../common/hittest"
 
 class AnnulusView extends Glyph.View
 
@@ -15,8 +16,8 @@ class AnnulusView extends Glyph.View
       @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
     else
       @souter_radius = @outer_radius
-  _render: (ctx, indices, sx=@sx, sy=@sy, sinner_radius=@sinner_radius,
-            souter_radius=@souter_radius) ->
+
+  _render: (ctx, indices, {sx, sy, sinner_radius, souter_radius}) ->
     for i in indices
       if isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i])
         continue
@@ -36,11 +37,11 @@ class AnnulusView extends Glyph.View
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx)
+    x = @renderer.xmapper.map_from_target(vx, true)
     x0 = x - @max_radius
     x1 = x + @max_radius
 
-    y = @renderer.ymapper.map_from_target(vy)
+    y = @renderer.ymapper.map_from_target(vy, true)
     y0 = y - @max_radius
     y1 = y + @max_radius
 
@@ -56,11 +57,12 @@ class AnnulusView extends Glyph.View
       if dist <= or2 and dist >= ir2
         hits.push([i, dist])
 
-    hits = _.chain(hits)
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = _.chain(hits)
       .sortBy((elt) -> return elt[1])
       .map((elt) -> return elt[0])
       .value()
-    return hits
+    return result
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     reference_point = @get_reference_point() ? 0
@@ -77,17 +79,15 @@ class AnnulusView extends Glyph.View
     souter_radius = { }
     souter_radius[reference_point] = r*0.8
 
-    @_render(ctx, indices, sx, sy, sinner_radius, souter_radius)
+    data = {sx: sx, sy: sy, sinner_radius: sinner_radius, souter_radius: souter_radius}
+
+    @_render(ctx, indices, data)
 
 class Annulus extends Glyph.Model
   default_view: AnnulusView
   type: 'Annulus'
   distances: ['inner_radius', 'outer_radius']
 
-class Annuluses extends Glyph.Collection
-  model: Annulus
-
 module.exports =
   Model: Annulus
   View: AnnulusView
-  Collection: new Annuluses()

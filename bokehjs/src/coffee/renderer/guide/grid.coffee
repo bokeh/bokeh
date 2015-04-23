@@ -1,14 +1,13 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../renderer/properties"
+properties = require "../../common/properties"
 
 class GridView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
-    @grid_props = new properties.Line(@, 'grid_')
-    @band_props = new properties.Fill(@, 'band_')
+    @grid_props = new properties.Line({obj: @model, prefix: 'grid_'})
+    @band_props = new properties.Fill({obj: @model, prefix: 'band_'})
     @x_range_name = @mget('x_range_name')
     @y_range_name = @mget('y_range_name')
 
@@ -27,7 +26,7 @@ class GridView extends PlotWidget
     if not @band_props.do_fill
       return
     [xs, ys] = @mget('grid_coords')
-    @band_props.set(ctx, @)
+    @band_props.set_value(ctx)
     for i in [0...xs.length-1]
       if i % 2 == 1
         [sx0, sy0] = @plot_view.map_to_screen(xs[i], ys[i], @x_range_name,
@@ -42,7 +41,7 @@ class GridView extends PlotWidget
     if not @grid_props.do_stroke
       return
     [xs, ys] = @mget('grid_coords')
-    @grid_props.set(ctx, @)
+    @grid_props.set_value(ctx)
     for i in [0...xs.length]
       [sx, sy] = @plot_view.map_to_screen(xs[i], ys[i], @x_range_name,
                                           @y_range_name)
@@ -156,10 +155,6 @@ class Grid extends HasParent
       grid_line_dash_offset: 0
     }
 
-class Grids extends Collection
-  model: Grid
-
 module.exports =
   Model: Grid
-  Collection: new Grids()
   View: GridView

@@ -274,18 +274,6 @@ class BoxPlotBuilder(Builder):
                               self._attr_scatter[1], self.marker,
                               self._attr_scatter[2])
 
-        # We need to build the legend here using dummy glyphs
-        for i, level in enumerate(self._groups):
-            # TODO: (bev) what is this None business?
-            glyph = Rect(
-                x="groups", y=None,
-                width=None, height=None,
-                line_color="black", fill_color=self.palette[i])
-            renderer = GlyphRenderer(data_source=self._source_legend, glyph=glyph)
-
-            # need to manually select the proper glyphs to be rendered as legends
-            self._legends.append((self._groups[i], [renderer]))
-
     # Some helper methods
     def set_and_get(self, data, attr, val, content):
         """Set a new attr and then get it to fill the self._data dict.

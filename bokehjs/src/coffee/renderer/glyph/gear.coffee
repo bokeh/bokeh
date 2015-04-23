@@ -8,53 +8,51 @@ Bezier = require "../../util/bezier"
 
 class GearView extends Glyph.View
 
+  _index_data: () ->
+    return @_xy_index()
+
   _map_data: () ->
-    [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-    @smodule = @distance_vector('x', 'module', 'edge')
+    @smodule = @sdist(@renderer.xmapper, @x, @module, 'edge')
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal}) ->
     for i in indices
-      [sx, sy, angle, module, teeth, pressure_angle, shaft_size, internal] =
-        [@sx[i], @sy[i], @angle[i], @smodule[i], @teeth[i], @pressure_angle[i],
-         @shaft_size[i], @internal[i]]
 
-      if isNaN(sx + sy + angle + module + teeth + pressure_angle +
-               shaft_size + internal)
+      if isNaN(sx[i]+sy[i]+angle[i]+smodule[i]+teeth[i]+pressure_angle[i]+shaft_size[i]+internal[i])
         continue
 
-      pitch_radius = module*teeth/2
+      pitch_radius = smodule[i]*teeth[i]/2
 
-      if internal
+      if internal[i]
         fn = GearUtils.create_internal_gear_tooth
       else
         fn = GearUtils.create_gear_tooth
 
-      seq0 = fn(module, teeth, pressure_angle)
+      seq0 = fn(smodule[i], teeth[i], pressure_angle[i])
 
       [M, x, y] = seq0[0..2]
       seq = seq0[3..]
 
       ctx.save()
-      ctx.translate(sx, sy)
-      ctx.rotate(angle)
+      ctx.translate(sx[i], sy[i])
+      ctx.rotate(angle[i])
 
       ctx.beginPath()
 
-      rot = 2*Math.PI/teeth
+      rot = 2*Math.PI/teeth[i]
       ctx.moveTo(x, y)
 
-      for j in [0...teeth]
+      for j in [0...teeth[i]]
         @_render_seq(ctx, seq)
         ctx.rotate(rot)
 
       ctx.closePath()
 
-      if internal
-        rim_radius = pitch_radius + 2.75*module
+      if internal[i]
+        rim_radius = pitch_radius + 2.75*smodule[i]
         ctx.moveTo(rim_radius, 0)
         ctx.arc(0, 0, rim_radius, 0, 2*Math.PI, true)
-      else if shaft_size > 0
-        shaft_radius = pitch_radius*shaft_size
+      else if shaft_size[i] > 0
+        shaft_radius = pitch_radius*shaft_size[i]
         ctx.moveTo(shaft_radius, 0)
         ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
 
@@ -102,8 +100,7 @@ class GearView extends Glyph.View
         when "A"
           [rx, ry, x_rotation, large_arc, sweep, x, y] = seq[i...i+7]
 
-          segments = Bezier.arc_to_bezier(px, py, rx, ry, -x_rotation,
-                                          large_arc, 1 - sweep, x, y)
+          segments = Bezier.arc_to_bezier(px, py, rx, ry, -x_rotation, large_arc, 1 - sweep, x, y)
 
           for [cx0, cy0, cx1, cy1, x, y] in segments
             ctx.bezierCurveTo(cx0, cy0, cx1, cy1, x, y)
@@ -116,26 +113,22 @@ class GearView extends Glyph.View
     return
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
-    @_generic_line_legend(ctx, x0, x1, y0, y1)
+    @_generic_area_legend(ctx, x0, x1, y0, y1)
 
 class Gear extends Glyph.Model
   default_view: GearView
   type: 'Gear'
-  distances: ['module']
-  angles: ['pressure_angle']
-  fields: ['angle', 'internal:boolean', 'shaft_size', 'teeth']
+  angles: ['module']
+  fields: ['angle', 'internal:bool', 'pressure_angle', 'shaft_size', 'teeth']
 
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
       pressure_angle: 20   # TODO: units: deg
       shaft_size: 0.3
+      internal: false
     }
-
-class Gears extends Glyph.Collection
-  model: Gear
 
 module.exports =
   Model: Gear
   View: GearView
-  Collection: new Gears()

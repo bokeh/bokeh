@@ -5,7 +5,8 @@ from __future__ import absolute_import
 
 import six
 
-from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either
+from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
+from ..actions import Callback
 from ..widget import Widget
 
 class InputWidget(Widget):
@@ -22,8 +23,8 @@ class InputWidget(Widget):
     Widget's name.
     """)
 
-    value = String(help="""
-    Initial or input value.
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the input's value changes.
     """)
 
     @classmethod

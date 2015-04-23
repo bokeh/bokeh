@@ -56,7 +56,6 @@ p.axis.major_label_standoff = 0
 p.xaxis.major_label_orientation = np.pi/3
 
 hover = p.select(dict(type=HoverTool))
-hover.snap_to_data = False
 hover.tooltips = OrderedDict([
     ('date', '@month @year'),
     ('rate', '@rate'),

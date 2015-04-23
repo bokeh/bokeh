@@ -1,7 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 Range1d = require "../range/range1d"
@@ -277,9 +276,5 @@ class ServerDataSource extends RemoteDataSource.RemoteDataSource
       @proxy = new HeatmapSource({}, options)
     @proxy.listen_for_updates()
 
-class ServerDataSources extends Collection
-  model: ServerDataSource
-
 module.exports =
   Model: ServerDataSource
-  Collection: new ServerDataSources()

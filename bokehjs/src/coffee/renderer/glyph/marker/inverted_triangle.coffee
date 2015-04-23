@@ -3,19 +3,28 @@ Marker = require "./marker"
 
 class InvertedTriangleView extends Marker.View
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + size[i])
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
         continue
 
       a = size[i] * Math.sqrt(3)/6
       r = size[i]/2
       h = size[i] * Math.sqrt(3)/2
+
       ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
+
       # TODO use viewstate to take y-axis inversion into account
-      ctx.moveTo(sx[i]-r, sy[i]-a)
-      ctx.lineTo(sx[i]+r, sy[i]-a)
-      ctx.lineTo(sx[i],   sy[i]-a+h)
+      if angle[i]
+        ctx.rotate(angle[i])
+      ctx.moveTo(-r, -a)
+      ctx.lineTo(r, -a)
+      ctx.lineTo(0, -a+h)
+      if angle[i]
+        ctx.rotate(-angle[i])
+
+      ctx.translate(-sx[i], -sy[i])
       ctx.closePath()
 
       if @visuals.fill.do_fill
@@ -30,10 +39,6 @@ class InvertedTriangle extends Marker.Model
   default_view: InvertedTriangleView
   type: 'InvertedTriangle'
 
-class InvertedTriangles extends Marker.Collection
-  model: InvertedTriangle
-
 module.exports =
   Model: InvertedTriangle
   View: InvertedTriangleView
-  Collection: new InvertedTriangles()

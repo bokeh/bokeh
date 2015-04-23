@@ -16,9 +16,11 @@ if not window.Float64Array
 
 # binding the libs that bokeh uses so others can reference them
 Bokeh._                 = require("underscore")
-Bokeh.$                 = require("jquery")
+Bokeh.$ = $ = jQuery    = require("jquery")
+require "jquery-ui"
 Bokeh.Backbone          = require("backbone")
 Bokeh.Backbone.$        = Bokeh.$
+Bokeh.Backbone.$.ui     = jQuery.ui
 
 # common
 Bokeh.Collections       = require("./common/base").Collections
@@ -32,6 +34,7 @@ Bokeh.HasParent         = require("./common/has_parent")
 Bokeh.HasProperties     = require("./common/has_properties")
 Bokeh.LayoutBox         = require("./common/layout_box")
 Bokeh.Plot              = require("./common/plot")
+Bokeh.Properties        = require("./common/properties")
 Bokeh.SelectionManager  = require("./common/selection_manager")
 Bokeh.Selector          = require("./common/selector")
 Bokeh.ToolEvents        = require("./common/tool_events")
@@ -74,9 +77,6 @@ Bokeh.LogAxis         = require("./renderer/guide/log_axis")
 Bokeh.BoxSelection  = require("./renderer/overlay/box_selection")
 Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
 
-# properties
-Bokeh.Properties = require("./renderer/properties")
-
 # server tools
 Bokeh.embed       = require("./server/embed")
 Bokeh.serverutils = require("./server/serverutils")
@@ -105,6 +105,7 @@ Bokeh.YearsTicker              = require("./ticking/years_ticker")
 Bokeh.ActionTool             = require("./tool/actions/action_tool")
 Bokeh.PreviewSaveTool        = require("./tool/actions/preview_save_tool")
 Bokeh.ResetTool              = require("./tool/actions/reset_tool")
+Bokeh.HelpTool               = require("./tool/actions/help_tool")
 
 Bokeh.BoxSelectTool          = require("./tool/gestures/box_select_tool")
 Bokeh.BoxZoomTool            = require("./tool/gestures/box_zoom_tool")

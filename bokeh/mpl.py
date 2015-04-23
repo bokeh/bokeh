@@ -34,6 +34,9 @@ from .plotting import (curdoc, output_file, output_notebook, output_server,
                        DEFAULT_TOOLS)
 from .plotting_helpers import _process_tools_arg
 
+# Names that we want in this namespace (fool pyflakes)
+(PanTool, ResetTool, PreviewSaveTool, WheelZoomTool)
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -156,7 +159,7 @@ class BokehRenderer(Renderer):
         if self.pd_obj is True:
             try:
                 x = [pd.Period(ordinal=int(i), freq=self.ax.xaxis.freq).to_timestamp() for i in _x]
-            except AttributeError as e: #  we probably can make this one more intelligent later
+            except AttributeError: #  we probably can make this one more intelligent later
                 x = _x
         else:
             x = _x
@@ -232,29 +235,29 @@ class BokehRenderer(Renderer):
         # inside the plot itself. That does not make sense inside Bokeh, so we
         # just skip the title and axes names from the conversion and covert any other text.
         if text not in self.non_text:
-          x, y = position
-          text = Text(x=x, y=y, text=[text])
-
-          alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
-          # baseline not implemented in Bokeh, deafulting to bottom.
-          text.text_alpha = style['alpha']
-          text.text_font_size = "%dpx" % style['fontsize']
-          text.text_color = style['color']
-          text.text_align = style['halign']
-          text.text_baseline = alignment_map[style['valign']]
-          text.angle = style['rotation']
-          #style['zorder'] # not in Bokeh
-
-          ## Using get_fontname() works, but it's oftentimes not available in the browser,
-          ## so it's better to just use the font family here.
-          #text.text_font = mplText.get_fontname()) not in mplexporter
-          #text.text_font = mplText.get_fontfamily()[0] # not in mplexporter
-          #text.text_font_style = fontstyle_map[mplText.get_fontstyle()] # not in mplexporter
-          ## we don't really have the full range of font weights, but at least handle bold
-          #if mplText.get_weight() in ("bold", "heavy"):
-              #text.text_font_style = bold
-
-          self.plot.add_glyph(self.source, text)
+            x, y = position
+            text = Text(x=x, y=y, text=[text])
+    
+            alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
+            # baseline not implemented in Bokeh, deafulting to bottom.
+            text.text_alpha = style['alpha']
+            text.text_font_size = "%dpx" % style['fontsize']
+            text.text_color = style['color']
+            text.text_align = style['halign']
+            text.text_baseline = alignment_map[style['valign']]
+            text.angle = style['rotation']
+            #style['zorder'] # not in Bokeh
+    
+            ## Using get_fontname() works, but it's oftentimes not available in the browser,
+            ## so it's better to just use the font family here.
+            #text.text_font = mplText.get_fontname()) not in mplexporter
+            #text.text_font = mplText.get_fontfamily()[0] # not in mplexporter
+            #text.text_font_style = fontstyle_map[mplText.get_fontstyle()] # not in mplexporter
+            ## we don't really have the full range of font weights, but at least handle bold
+            #if mplText.get_weight() in ("bold", "heavy"):
+                #text.text_font_style = bold
+    
+            self.plot.add_glyph(self.source, text)
 
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
         pass

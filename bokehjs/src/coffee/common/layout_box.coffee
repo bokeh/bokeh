@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "./collection"
 if global._bokehTest?
   kiwi = {}  # TODO Make work
 else
@@ -110,9 +109,5 @@ class LayoutBox extends HasProperties
       'height_strength': kiwi.Strength.strong
     }
 
-class LayoutBoxs extends Collection
-  model: LayoutBox
-
 module.exports =
   Model: LayoutBox
-  Collection: new LayoutBoxs()

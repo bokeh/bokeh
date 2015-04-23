@@ -4,7 +4,6 @@ if global._bokehTest?
   $1 = undefined  # TODO Make work
 else
   $1 = require "bootstrap/button"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -40,6 +39,7 @@ class CheckboxButtonGroupView extends ContinuumView
     active = (i for checkbox, i in @$("input") when checkbox.checked)
     @mset('active', active)
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class CheckboxButtonGroup extends HasParent
   type: "CheckboxButtonGroup"
@@ -53,10 +53,6 @@ class CheckboxButtonGroup extends HasParent
       disabled: false
     }
 
-class CheckboxButtonGroups extends Collection
-  model: CheckboxButtonGroup
-
 module.exports =
   Model: CheckboxButtonGroup
   View: CheckboxButtonGroupView
-  Collection: new CheckboxButtonGroups()

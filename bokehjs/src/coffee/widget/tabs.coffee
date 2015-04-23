@@ -5,7 +5,6 @@ if global._bokehTest?
 else
   $1 = require "bootstrap/tab"
 build_views = require "../common/build_views"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 tabs_template = require "./tabs_template"
@@ -56,10 +55,6 @@ class Tabs extends HasProperties
       active: 0
     }
 
-class Tabses extends Collection
-  model: Tabs
-
 module.exports =
   Model: Tabs
   View: TabsView
-  Collection: new Tabses()

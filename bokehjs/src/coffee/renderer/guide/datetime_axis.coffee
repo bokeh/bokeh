@@ -1,4 +1,4 @@
-Collection = require "../../common/collection"
+Collections = require("../../common/base").Collections
 DatetimeTicker = require "../../ticking/datetime_ticker"
 DatetimeTickFormatter = require "../../ticking/datetime_tick_formatter"
 Axis = require "./axis"
@@ -12,14 +12,10 @@ class DatetimeAxis extends Axis.Model
   initialize: (attrs, objects) ->
     super(attrs, objects)
     if not @get('ticker')?
-      @set_obj('ticker', DatetimeTicker.Collection.create())
+      @set_obj('ticker', Collections('DatetimeTicker').create())
     if not @get('formatter')?
-      @set_obj('formatter', DatetimeTickFormatter.Collection.create())
-
-class DatetimeAxes extends Collection
-  model: DatetimeAxis
+      @set_obj('formatter', Collections('DatetimeTickFormatter').create())
 
 module.exports =
   Model: DatetimeAxis
-  Collection: new DatetimeAxes()
   View: DatetimeAxisView

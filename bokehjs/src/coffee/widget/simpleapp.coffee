@@ -1,4 +1,3 @@
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -19,10 +18,6 @@ class SimpleApp extends HasParent
   type: "SimpleApp"
   default_view: SimpleAppView
 
-class SimpleApps extends Collection
-  model: SimpleApp
-
 module.exports =
   "Model": SimpleApp
   "View": SimpleAppView
-  "Collection": new SimpleApps()

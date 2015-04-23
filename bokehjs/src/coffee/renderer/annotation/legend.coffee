@@ -1,9 +1,8 @@
 _ = require "underscore"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
-Collection = require "../../common/collection"
+properties = require "../../common/properties"
 textutils = require "../../common/textutils"
-properties = require "../properties"
 
 # Legends:
 #
@@ -27,8 +26,8 @@ properties = require "../properties"
 class LegendView extends PlotWidget
   initialize: (options) ->
     super(options)
-    @label_props = new properties.Text(@, 'label_')
-    @border_props = new properties.Line(@, 'border_')
+    @label_props = new properties.Text({obj:@model, prefix: 'label_'})
+    @border_props = new properties.Line({obj: @model, prefix: 'border_'})
     @need_calc_dims = true
     @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
@@ -40,7 +39,7 @@ class LegendView extends PlotWidget
     @glyph_width = @mget('glyph_width')
     legend_spacing = @mget('legend_spacing')
     @label_height = _.max(
-      [textutils.getTextHeight(@label_props.font(@)),
+      [textutils.getTextHeight(@label_props.font_value()),
        label_height, @glyph_height])
     @legend_height = @label_height
     #add legend spacing
@@ -48,7 +47,7 @@ class LegendView extends PlotWidget
                       (1 + legend_names.length) * legend_spacing)
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
-    @label_props.set(ctx, @)
+    @label_props.set_value(ctx)
     text_widths = _.map(legend_names, (txt) -> ctx.measureText(txt).width)
     ctx.restore()
 
@@ -85,7 +84,7 @@ class LegendView extends PlotWidget
     ctx.save()
 
     ctx.fillStyle = @plot_model.get('background_fill')
-    @border_props.set(ctx, @)
+    @border_props.set_value(ctx)
     ctx.beginPath()
     ctx.rect(@box_coords[0], @box_coords[1],
       @legend_width, @legend_height
@@ -102,7 +101,7 @@ class LegendView extends PlotWidget
       x2 = x1 + @glyph_width
       y1 = @box_coords[1] + yoffset + yspacing
       y2 = y1 + @glyph_height
-      @label_props.set(ctx, @)
+      @label_props.set_value(ctx)
       ctx.fillText(legend_name, x, y)
       for renderer in @model.resolve_ref(glyphs)
         view = @plot_view.renderers[renderer.id]
@@ -150,10 +149,6 @@ class Legend extends HasParent
       datapoint: null
     }
 
-class Legends extends Collection
-  model: Legend
-
 module.exports =
   Model: Legend
-  Collection: new Legends()
   View: LegendView

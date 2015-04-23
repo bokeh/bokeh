@@ -37,15 +37,15 @@ class QuadraticView extends Glyph.View
     index.load(pts)
     return index
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scy}) ->
     if @visuals.line.do_stroke
       for i in indices
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
+        if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx[i]+scy[i])
           continue
 
         ctx.beginPath()
-        ctx.moveTo(@sx0[i], @sy0[i])
-        ctx.quadraticCurveTo(@scx[i], @scy[i], @sx1[i], @sy1[i])
+        ctx.moveTo(sx0[i], sy0[i])
+        ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i])
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -59,10 +59,6 @@ class Quadratic extends Glyph.Model
   visuals: ['line']
   coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy'] ]
 
-class Quadratics extends Glyph.Collection
-  model: Quadratic
-
 module.exports =
   Model: Quadratic
   View: QuadraticView
-  Collection: new Quadratics()

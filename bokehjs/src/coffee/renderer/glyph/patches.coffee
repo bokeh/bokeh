@@ -21,7 +21,7 @@ class PatchesView extends Glyph.View
     index.load(pts)
     return index
 
-  _mask_data: () ->
+  _mask_data: (all_indices) ->
     xr = @renderer.plot_view.x_range
     [x0, x1] = [xr.get('start'), xr.get('end')]
 
@@ -30,9 +30,9 @@ class PatchesView extends Glyph.View
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {sxs, sys}) ->
     for i in indices
-      [sx, sy] = [@sxs[i], @sys[i]]
+      [sx, sy] = [sxs[i], sys[i]]
 
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
@@ -77,8 +77,8 @@ class PatchesView extends Glyph.View
     sx = @renderer.plot_view.canvas.vx_to_sx(vx)
     sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
-    x = @renderer.xmapper.map_from_target(vx)
-    y = @renderer.ymapper.map_from_target(vy)
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
     candidates = (x[4].i for x in @index.search([x, y, x, y]))
 
@@ -87,7 +87,22 @@ class PatchesView extends Glyph.View
       idx = candidates[i]
       if hittest.point_in_poly(sx, sy, @sxs[idx], @sys[idx])
         hits.push(idx)
-    return hits
+
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
+
+  scx: (i) ->
+    sum = 0
+    for sx in @sxs[i]
+      sum += sx
+    return sum / @sxs[i].length
+
+  scy: (i) ->
+    sum = 0
+    for sy in @sys[i]
+      sum += sy
+    return sum / @sys[i].length
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1)
@@ -97,10 +112,6 @@ class Patches extends Glyph.Model
   type: 'Patches'
   coords: [ ['xs', 'ys'] ]
 
-class Patcheses extends Glyph.Collection
-  model: Patches
-
 module.exports =
   Model: Patches
   View: PatchesView
-  Collection: new Patcheses()

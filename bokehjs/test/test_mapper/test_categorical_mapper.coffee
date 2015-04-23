@@ -22,11 +22,23 @@ describe "categorical mapper module", ->
     test_mapping = (key, expected) ->
       expect(mapper.map_to_target key).to.equal expected
 
+    test_synthetic_mapping = (key, expected) ->
+      expect(mapper.map_to_target key, true).to.equal expected
+
     it "should map factors evenly", ->
       test_mapping "foo", 30
       test_mapping "bar", 50
       test_mapping "baz", 70
 
+    it "should expose synthetic range values", ->
+      test_synthetic_mapping "foo", 1
+      test_synthetic_mapping "bar", 2
+      test_synthetic_mapping "baz", 3
+
+    it "should map synthetic values to synthetic values", ->
+      test_synthetic_mapping 1, 1
+      test_synthetic_mapping 2, 2
+      test_synthetic_mapping 3, 3
 
   describe "vector mapping", ->
     values = generate_mapper().v_map_to_target factors
@@ -37,6 +49,13 @@ describe "categorical mapper module", ->
     it "should be evenly distributed", ->
       expect(values).to.deep.equal new Float64Array [30, 50, 70]
 
+    it "should expose synthetic range values", ->
+      synthetic = generate_mapper().v_map_to_target factors, true
+      expect(synthetic).to.deep.equal [1, 2, 3]
+
+    it "should map synthetic values to synthetic values", ->
+      synthetic = generate_mapper().v_map_to_target [1,2,3], true
+      expect(synthetic).to.deep.equal [1, 2, 3]
 
   describe "inverse mapping", ->
     mapper = generate_mapper()
@@ -61,15 +80,15 @@ describe "categorical mapper module", ->
       test_inverse_mapping 79, 'baz'
 
     it "should expose synthetic range values", ->
-      test_synthetic_inverse_mapping 21, 0.05
-      test_synthetic_inverse_mapping 30, 0.50
-      test_synthetic_inverse_mapping 39, 0.95
-      test_synthetic_inverse_mapping 41, 1.05
-      test_synthetic_inverse_mapping 50, 1.50
-      test_synthetic_inverse_mapping 59, 1.95
-      test_synthetic_inverse_mapping 61, 2.05
-      test_synthetic_inverse_mapping 70, 2.50
-      test_synthetic_inverse_mapping 79, 2.95
+      test_synthetic_inverse_mapping 21, 0.55
+      test_synthetic_inverse_mapping 30, 1.0
+      test_synthetic_inverse_mapping 39, 1.45
+      test_synthetic_inverse_mapping 41, 1.55
+      test_synthetic_inverse_mapping 50, 2.0
+      test_synthetic_inverse_mapping 59, 2.45
+      test_synthetic_inverse_mapping 61, 2.55
+      test_synthetic_inverse_mapping 70, 3.0
+      test_synthetic_inverse_mapping 79, 3.45
 
 
   describe "inverse vector mapping", ->
@@ -84,7 +103,7 @@ describe "categorical mapper module", ->
 
     it "should expose synthetic range values", ->
       synthetic = generate_mapper().v_map_from_target values, true
-      expected = [0.05, 0.5, 0.95, 1.05, 1.5, 1.95, 2.05, 2.5, 2.95]
+      expected = [0.55, 1.0, 1.45, 1.55, 2.0, 2.45, 2.55, 3.0, 3.45]
       for i in [0...values.length]
         expect(close(synthetic[i], expected[i])).to.be.ok
 

@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 from six import integer_types, string_types, add_metaclass, iteritems
 import numpy as np
 
-from . import enums, colors
+from . import enums
 from .util.string import nice_join
 
 bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
@@ -1054,9 +1054,15 @@ class UnitsSpec(NumberSpec):
         d["units"] = getattr(obj, self.name+"_units")
         return d
 
+    def __set__(self, obj, value):
+        if isinstance(value, dict):
+            units = value.pop("units", None)
+            if units: setattr(obj, self.name+"_units", units)
+        super(UnitsSpec, self).__set__(obj, value)
+
     def __str__(self):
         val = getattr(self, self._name, self.default)
-        return "%s(%r, default_units=%r)" % (self.__class__.__name__, val, self._units_type._default)
+        return "%s(%r, units_default=%r)" % (self.__class__.__name__, val, self._units_type._default)
 
 class AngleSpec(UnitsSpec):
     def __init__(self, default, units_default="rad", help=None):

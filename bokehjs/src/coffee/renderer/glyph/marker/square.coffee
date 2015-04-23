@@ -3,15 +3,19 @@ Marker = require "./marker"
 
 class SquareView extends Marker.View
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + size[i])
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
         continue
 
+      ctx.beginPath()
       ctx.translate(sx[i], sy[i])
 
-      ctx.beginPath()
+      if angle[i]
+        ctx.rotate(angle[i])
       ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
+      if angle[i]
+        ctx.rotate(-angle[i])
 
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
@@ -26,12 +30,7 @@ class SquareView extends Marker.View
 class Square extends Marker.Model
   default_view: SquareView
   type: 'Square'
-  angles: ['angle']
-
-class Squares extends Marker.Collection
-  model: Square
 
 module.exports =
   Model: Square
   View: SquareView
-  Collection: new Squares()

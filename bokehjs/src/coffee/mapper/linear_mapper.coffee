@@ -1,4 +1,3 @@
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class LinearMapper extends HasProperties
@@ -48,9 +47,5 @@ class LinearMapper extends HasProperties
     offset = -(scale * source_start) + target_start
     return [scale, offset]
 
-class LinearMappers extends Collection
-  model: LinearMapper
-
 module.exports =
   Model: LinearMapper
-  Collection: new LinearMappers()

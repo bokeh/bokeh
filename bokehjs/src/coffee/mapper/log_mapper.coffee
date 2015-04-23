@@ -1,4 +1,3 @@
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class LogMapper extends HasProperties
@@ -134,9 +133,5 @@ class LogMapper extends HasProperties
     offset = target_start
     return [scale, offset, inter_scale, inter_offset]
 
-class LogMappers extends Collection
-  model: LogMapper
-
 module.exports =
   Model: LogMapper
-  Collection: new LogMappers()
