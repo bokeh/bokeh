@@ -10,11 +10,21 @@ Plotting with Basic Glyphs
 Creating Figures
 ----------------
 
-Markers and Scatters
-''''''''''''''''''''
+Scatter Markers
+~~~~~~~~~~~~~~~
+
+
+Now you have learned how to plot scatter markers with the
+|bokeh.plotting| interface.
+
+Images
+~~~~~~
+
+Now you have learned how to plot images on Bokeh plots with the
+|bokeh.plotting| interface.
 
 Lines
-'''''
+~~~~~
 
 **GOAL**: To learn how to create line plots
 
@@ -23,85 +33,115 @@ Lines
 
     from bokeh.plotting import figure, output_file, show
 
-    # prepare some data
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 2, 4, 5]
-
     # output to static HTML file
-    output_file("lines.html", title="line plot example")
+    output_file("line.html")
 
     # create a new plot with a title and axis labels
-    p = figure(title="simple line example", x_axis_label='x', y_axis_label='y',
-               plot_width=400, plot_height=400)
+    p = figure(plot_width=400, plot_height=400, title=None)
 
     # add a line renderer with legend and line thickness
-    p.line(x, y, legend="Temp.", line_width=2)
+    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
 
     # show the results
     show(p)
 
-With this small example, we have learned the basics of creating plots with Bokeh.
+Now you have learned how to plot single or multiple line glyphs
+on Bokeh plots with the |bokeh.plotting| interface.
 
 Patches
-'''''''
+~~~~~~~
 
 
-Configuring Axes
-----------------
+Specify Axis Types
+------------------
 
 
 Categorical Axes
-''''''''''''''''
+~~~~~~~~~~~~~~~~
 
 
-Date and Time Axes
-''''''''''''''''''
+Datetime Axes
+~~~~~~~~~~~~~
 
-**GOAL**: To learn how to specify datetime axes on a plot
+When dealing with timeseries data, or any data that involves dates or
+times, it is desirable to have an axis that can display labels that
+are appropriate to different date and time scales. In this section you
+will learn how to specify that a plot should use a datetime axis.
+
+.. note::
+    This example requires a network connection, and depends on the
+    open source Pandas library in order to more easily present realistic
+    timeseries data.
+
+We have seen how to use the |figure| function to create plots using the
+|bokeh.plotting| interface. This function accepts  ``x_axis_type`` and
+``y_axis_type`` as arguments. To specify a datetime axis, pass ``"datetime"``
+for the value of either of these parameters.
 
 .. bokeh-plot::
     :source-position: above
 
-    import numpy as np
-
+    import pandas as pd
     from bokeh.plotting import figure, output_file, show
-    from bokeh.sampledata.stocks import AAPL
 
-    # prepare some data
-    aapl = np.array(AAPL['adj_close'])
-    aapl_dates = np.array(AAPL['date'], dtype=np.datetime64)
+    AAPL = pd.read_csv(
+        "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
+        parse_dates=['Date']
+    )
 
-    window_size = 30
-    window = np.ones(window_size)/float(window_size)
-    aapl_avg = np.convolve(aapl, window, 'same')
+    output_file("datetime.html")
 
-    # output to static HTML file
-    output_file("stocks.html", title="stocks.py example")
-
-    # create a new plot with a a datetime axis type
+    # create a new plot with a datetime axis type
     p = figure(width=800, height=350, x_axis_type="datetime")
 
-    # add renderers
-    p.circle(aapl_dates, aapl, size=4, color='darkgrey', alpha=0.2, legend='close')
-    p.line(aapl_dates, aapl_avg, color='navy', legend='avg')
+    p.line(AAPL['Date'], AAPL['Close'], color='navy', alpha=0.5)
 
-    # NEW: customize by setting attributes
-    p.title = "AAPL One-Month Average"
-    p.legend.orientation = "top_left"
-    p.grid.grid_line_alpha=0
-    p.xaxis.axis_label = 'Date'
-    p.yaxis.axis_label = 'Price'
-    p.ygrid.band_fill_color="olive"
-    p.ygrid.band_fill_alpha = 0.1
-
-    # show the results
     show(p)
 
-Now we have learned...
+Now you have learned how to specify a datetime axis for a Bokeh plot.
+
+.. note::
+    Future versions of Bokeh will attempt to auto-detect situations when
+    datetime axes are appropriate, and add them automatically by default.
 
 Log Scale Axes
-''''''''''''''
+~~~~~~~~~~~~~~
+
+When dealing with data that grows quicks (e.g., exponentially), it is often
+desired to plot one axis on a log scale. Another use-scenario involves
+fitting data to a power law, in which case is it desired to plot with both
+axes on a log scale. In this section you will learn how to specify a
+log axis type for a Bokeh plot.
+
+As we saw above, the |figure| function accepts ``x_axis_type`` and
+``y_axis_type`` as arguments. To specify a log axis, pass ``"log"`` for
+the value of either of these parameters.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    x = [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+    y = [10**x for x in x]
+
+    output_file("log.html")
+
+    # create a new plot with a log axis type
+    p = figure(y_axis_type="log", y_range=(10**-1, 10**4), title=None)
+
+    p.line(x, y, line_width=2)
+    p.circle(x, y, fill_color="white", size=8)
+
+    show(p)
+
+Now you have learned how to specify a log scale axis for a Bokeh plot.
 
 
 Twin Axes
-'''''''''
+~~~~~~~~~
+
+
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+
+.. |figure| replace:: :func:`~bokeh.plotting.figure`

@@ -129,7 +129,7 @@ execute this code, and try setting other properties as well.
 
     from bokeh.plotting import figure, output_file, show
 
-    output_file("axes.html")
+    output_file("gridlines.html")
 
     p = figure(plot_width=400, plot_height=400, title=None)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
@@ -155,7 +155,7 @@ grids bands. You can execute this code, and try setting different values.
 
     from bokeh.plotting import figure, output_file, show
 
-    output_file("axes.html")
+    output_file("gridbands.html")
 
     p = figure(plot_width=400, plot_height=400, title=None)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
