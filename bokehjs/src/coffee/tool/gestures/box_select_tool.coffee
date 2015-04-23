@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 BoxSelection = require "../../renderer/overlay/box_selection"
 SelectTool = require "./select_tool"
 
@@ -97,10 +96,6 @@ class BoxSelectTool extends SelectTool.Model
       select_every_mousemove: false
     })
 
-class BoxSelectTools extends Collection
-  model: BoxSelectTool
-
 module.exports =
   Model: BoxSelectTool
   View: BoxSelectToolView
-  Collection: new BoxSelectTools()

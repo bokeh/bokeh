@@ -62,7 +62,7 @@ class SelectTool extends GestureTool.Model
     @set('renderers', renderers)
     logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
     for r in renderers
-      logger.debug("- #{r.type} #{r.id}")
+      logger.debug(" - #{r.type} #{r.id}")
     return null
 
   defaults: () ->

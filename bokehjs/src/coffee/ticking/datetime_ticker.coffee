@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 AdaptiveTicker = require "./adaptive_ticker"
 CompositeTicker = require "./composite_ticker"
 DaysTicker = require "./days_ticker"
@@ -69,9 +68,5 @@ class DatetimeTicker extends CompositeTicker.Model
       ]
     }
 
-class DatetimeTickers extends Collection
-  model: DatetimeTicker
-
 module.exports =
   Model: DatetimeTicker
-  Collection: new DatetimeTickers()

@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "./collection"
 Solver = require "./solver"
 Plot = require "./plot"
 
@@ -167,10 +166,6 @@ class GMapPlot extends Plot.Model
       border_fill: "#fff",
     }
 
-class GMapPlots extends Collection
-  model: GMapPlot
-
 module.exports =
   Model: GMapPlot
-  Collection: new GMapPlots()
   View: GMapPlotView

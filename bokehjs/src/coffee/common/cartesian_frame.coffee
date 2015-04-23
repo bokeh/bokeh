@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "./collection"
 LayoutBox = require "./layout_box"
 {logging} = require "./logging"
 LinearMapper = require "../mapper/linear_mapper"
@@ -94,9 +93,5 @@ class CartesianFrame extends LayoutBox.Model
       extra_y_ranges: {}
     }
 
-class CartesianFrames extends Collection
-  model: CartesianFrame
-
 module.exports =
   Model: CartesianFrame
-  Collection: new CartesianFrames()

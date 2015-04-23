@@ -8,7 +8,6 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..properties import Int, Float, String, Datetime, Instance, List, Either
 from .renderers import Renderer
-from .sources import ColumnsRef
 
 class Range(PlotObject):
     """ A base class for all range types. ``Range`` is not generally

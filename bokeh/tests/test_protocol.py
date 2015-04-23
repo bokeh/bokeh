@@ -5,8 +5,6 @@ from unittest import skipIf
 
 import numpy as np
 
-from ..util.testing import skipIfPyPy
-
 try:
     import pandas as pd
     is_pandas = True

@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 AbstractTicker = require "./abstract_ticker"
 
 # The SingleIntervalTicker is a Ticker that always uses the same tick spacing,
@@ -28,9 +27,5 @@ class SingleIntervalTicker extends AbstractTicker.Model
       toString_properties: ['interval']
     }
 
-class SingleIntervalTickers extends Collection
-  model: SingleIntervalTicker
-
 module.exports =
   Model: SingleIntervalTicker
-  Collection: new SingleIntervalTickers()

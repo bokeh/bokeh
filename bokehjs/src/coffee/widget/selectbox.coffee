@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
@@ -16,6 +15,7 @@ class SelectView extends ContinuumView
     logger.debug("selectbox: value = #{value}")
     @mset('value', value)
     @model.save()
+    @mget('callback')?.execute(@model)
 
   initialize: (options) ->
     super(options)
@@ -39,10 +39,6 @@ class Select extends HasParent
       options: []
     }
 
-class Selects extends Collection
-  model: Select
-
 module.exports =
   Model: Select
   View: SelectView
-  Collection: new Selects()

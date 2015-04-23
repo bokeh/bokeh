@@ -1,3 +1,7 @@
-gulp = require "gulp"
+# build - build and minify JS and CSS
 
-gulp.task "build", ["scripts:minify", "styles:minify"], ->
+gulp = require "gulp"
+runSequence = require "run-sequence"
+
+gulp.task "build", (cb) ->
+  runSequence(["scripts", "styles"], cb)

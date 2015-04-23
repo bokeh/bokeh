@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "./collection"
 Solver = require "./solver"
 Plot = require "./plot"
 
@@ -105,10 +104,6 @@ class GeoJSPlot extends Plot.Model
       border_fill: "#fff",
     }
 
-class GeoJSPlots extends Collection
-  model: GeoJSPlot
-
 module.exports =
   Model: GeoJSPlot
-  Collection: new GeoJSPlots()
   View: GeoJSPlotView

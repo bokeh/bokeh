@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
@@ -156,10 +155,6 @@ class Grid extends HasParent
       grid_line_dash_offset: 0
     }
 
-class Grids extends Collection
-  model: Grid
-
 module.exports =
   Model: Grid
-  Collection: new Grids()
   View: GridView

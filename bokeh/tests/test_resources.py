@@ -4,7 +4,6 @@ import unittest
 
 from os.path import join
 
-import bokeh
 import bokeh.resources as resources
 from bokeh.resources import _get_cdn_urls
 

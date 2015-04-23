@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 # A hacky analogue to repr() in Python.
@@ -31,7 +30,7 @@ repr = (obj) ->
     else
       return obj_as_string
 
-DEFAULT_DESIRED_N_TICKS = 6
+DEFAULT_DESIRED_NUM_TICKS = 6
 
 # The base class for all Ticker objects.  It needs to be subclassed before
 # being used.  The simplest subclass is SingleIntervalTicker.
@@ -50,8 +49,7 @@ class AbstractTicker extends HasProperties
 
   # Generates a nice series of ticks for a given range.
   get_ticks: (data_low, data_high, range, {desired_n_ticks}) ->
-    desired_n_ticks ?= DEFAULT_DESIRED_N_TICKS
-    return @get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
+    return @get_ticks_no_defaults(data_low, data_high, @get('desired_num_ticks'))
 
   # The version of get_ticks() that does the work (and the version that
   # should be overridden in subclasses).
@@ -114,11 +112,8 @@ class AbstractTicker extends HasProperties
     return _.extend {}, super(), {
       toString_properties: []
       num_minor_ticks: 5
+      desired_num_ticks: DEFAULT_DESIRED_NUM_TICKS
     }
-
-class AbstractTickers extends Collection
-  model: AbstractTicker
 
 module.exports =
   Model: AbstractTicker
-  Collection: new AbstractTickers()

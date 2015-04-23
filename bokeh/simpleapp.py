@@ -1,5 +1,3 @@
-import copy
-from functools import wraps
 import logging
 logger = logging.getLogger(__name__)
 
@@ -8,6 +6,8 @@ from .plot_object import PlotObject
 from .properties import String, Instance, Dict, Any, Either
 from .plotting import curdoc, cursession, push, show as pshow
 
+(HBox, VBox, VBoxForm, SimpleApp, PlotObject)
+(String, Instance, Dict, Any, Either)
 
 def simpleapp(*args):
     def decorator(func):

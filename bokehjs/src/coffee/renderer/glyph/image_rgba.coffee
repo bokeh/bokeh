@@ -53,21 +53,21 @@ class ImageRGBAView extends Glyph.View
     @sw = @sdist(@renderer.xmapper, @x, @dw, 'edge', @mget('dilate'))
     @sh = @sdist(@renderer.ymapper, @y, @dh, 'edge', @mget('dilate'))
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
     ctx.setImageSmoothingEnabled(false)
 
     for i in indices
 
-      if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
+      if isNaN(sx[i]+sy[i]+sw[i]+sh[i])
         continue
 
-      y_offset = @sy[i]
+      y_offset = sy[i]
 
       ctx.translate(0, y_offset)
       ctx.scale(1, -1)
       ctx.translate(0, -y_offset)
-      ctx.drawImage(@image_data[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
+      ctx.drawImage(image_data[i], sx[i]|0, sy[i]|0, sw[i], sh[i])
       ctx.translate(0, y_offset)
       ctx.scale(1, -1)
       ctx.translate(0, -y_offset)
@@ -94,10 +94,6 @@ class ImageRGBA extends Glyph.Model
       dilate: false
     }
 
-class ImageRGBAs extends Glyph.Collection
-  model: ImageRGBA
-
 module.exports =
   Model: ImageRGBA
   View: ImageRGBAView
-  Collection: new ImageRGBAs()

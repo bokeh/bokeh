@@ -6,22 +6,22 @@ class PatchView extends Glyph.View
   _index_data: () ->
     @_xy_index()
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {sx, sy}) ->
     if @visuals.fill.do_fill
       @visuals.fill.set_value(ctx)
 
       for i in indices
         if i == 0
           ctx.beginPath()
-          ctx.moveTo(@sx[i], @sy[i])
+          ctx.moveTo(sx[i], sy[i])
           continue
-        else if isNaN(@sx[i] + @sy[i])
+        else if isNaN(sx[i] + sy[i])
           ctx.closePath()
           ctx.fill()
           ctx.beginPath()
           continue
         else
-          ctx.lineTo(@sx[i], @sy[i])
+          ctx.lineTo(sx[i], sy[i])
 
       ctx.closePath()
       ctx.fill()
@@ -32,15 +32,15 @@ class PatchView extends Glyph.View
       for i in indices
         if i == 0
           ctx.beginPath()
-          ctx.moveTo(@sx[i], @sy[i])
+          ctx.moveTo(sx[i], sy[i])
           continue
-        else if isNaN(@sx[i] + @sy[i])
+        else if isNaN(sx[i] + sy[i])
           ctx.closePath()
           ctx.stroke()
           ctx.beginPath()
           continue
         else
-          ctx.lineTo(@sx[i], @sy[i])
+          ctx.lineTo(sx[i], sy[i])
 
       ctx.closePath()
       ctx.stroke()
@@ -52,10 +52,6 @@ class Patch extends Glyph.Model
   default_view: PatchView
   type: 'Patch'
 
-class Patches extends Glyph.Collection
-  model: Patch
-
 module.exports =
   Model: Patch
   View: PatchView
-  Collection: new Patches()

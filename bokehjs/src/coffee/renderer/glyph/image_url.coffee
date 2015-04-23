@@ -16,17 +16,17 @@ class ImageURLView extends Glyph.View
     @sw = @sdist(@renderer.xmapper, @x, @w, 'edge', @mget('dilate'))
     @sh = @sdist(@renderer.ymapper, @y, @h, 'edge', @mget('dilate'))
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {url, image, need_load, sx, sy, sw, sh, angle}) ->
     for i in indices
-      if isNaN(@sx[i] + @sy[i] + @angle[i])
+      if isNaN(sx[i]+sy[i]+angle[i])
         continue
 
-      if @need_load[i]
+      if need_load[i]
         img = new Image()
         img.onload = do (img, i) =>
           return () =>
             @loaded[i] = true
-            @image[i] = img
+            image[i] = img
             ctx.save()
             ctx.beginPath()
             # TODO should take the real axis rule width into account, for now shrink region by 1 px
@@ -37,42 +37,41 @@ class ImageURLView extends Glyph.View
               frame.get('width')-2, frame.get('height')-2,
             )
             ctx.clip()
-            @_render_image(ctx, i, img)
+            @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
             ctx.restore()
 
-        img.src = @url[i]
-        @need_load[i] = false
+        img.src = url[i]
+        need_load[i] = false
       else if @loaded[i]
-        @_render_image(ctx, i, @image[i])
+        @_render_image(ctx, i, image, sx, sy, sw, sh, angle)
 
-  _final_sx_sy: () ->
-    anchor = @mget('anchor') or "top_left"
-
+  _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
-      when "top_left"      then (i) => [@sx[i]           , @sy[i]           ]
-      when "top_center"    then (i) => [@sx[i] - @sw[i]/2, @sy[i]           ]
-      when "top_right"     then (i) => [@sx[i] - @sw[i]  , @sy[i]           ]
-      when "right_center"  then (i) => [@sx[i] - @sw[i]  , @sy[i] - @sh[i]/2]
-      when "bottom_right"  then (i) => [@sx[i] - @sw[i]  , @sy[i] - @sh[i]  ]
-      when "bottom_center" then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]  ]
-      when "bottom_left"   then (i) => [@sx[i]           , @sy[i] - @sh[i]  ]
-      when "left_center"   then (i) => [@sx[i]           , @sy[i] - @sh[i]/2]
-      when "center"        then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]/2]
+      when "top_left"      then [sx       , sy       ]
+      when "top_center"    then [sx - sw/2, sy       ]
+      when "top_right"     then [sx - sw  , sy       ]
+      when "right_center"  then [sx - sw  , sy - sh/2]
+      when "bottom_right"  then [sx - sw  , sy - sh  ]
+      when "bottom_center" then [sx - sw/2, sy - sh  ]
+      when "bottom_left"   then [sx       , sy - sh  ]
+      when "left_center"   then [sx       , sy - sh/2]
+      when "center"        then [sx - sw/2, sy - sh/2]
 
-  _render_image: (ctx, i, img) ->
-    if isNaN(@sw[i]) then @sw[i] = img.width
-    if isNaN(@sh[i]) then @sh[i] = img.height
+  _render_image: (ctx, i, image, sx, sy, sw, sh, angle) ->
+    if isNaN(sw[i]) then sw[i] = image.width
+    if isNaN(sh[i]) then sh[i] = image.height
 
-    [sx, sy] = @_final_sx_sy()(i)
+    anchor = @mget('anchor') or "top_left"
+    [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
 
-    if @angle[i]
+    if angle[i]
       ctx.translate(sx, sy)
-      ctx.rotate(@angle[i])
-      ctx.drawImage(img, 0, 0, @sw[i], @sh[i])
-      ctx.rotate(-@angle[i])
+      ctx.rotate(angle[i])
+      ctx.drawImage(image, 0, 0, sw[i], sh[i])
+      ctx.rotate(-angle[i])
       ctx.translate(-sx, -sy)
     else
-      ctx.drawImage(img, sx, sy, @sw[i], @sh[i])
+      ctx.drawImage(image, sx, sy, sw[i], sh[i])
 
 class ImageURL extends Glyph.Model
   default_view: ImageURLView
@@ -92,10 +91,6 @@ class ImageURL extends Glyph.Model
       level: 'underlay'
     }
 
-class ImageURLs extends Glyph.Collection
-  model: ImageURL
-
 module.exports =
   Model: ImageURL
   View: ImageURLView
-  Collection: new ImageURLs()

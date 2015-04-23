@@ -60,10 +60,10 @@ def _loadAR():
         raise ImportError("Abstract rendering version not found; import aborted.")
 
     if (ari.__version_info__["major"] != expected["major"]
-       or ari.__version_info__["minor"] != expected["minor"]
-       or ari.__version_info__["micro"] < expected["micro"]):
-           raise ImportError("Abstract rendering version mismatched." +
-                             "Expecting at least {0}, found {1}".format(_AR_VERSION, ari.__version__))
+        or ari.__version_info__["minor"] != expected["minor"]
+        or ari.__version_info__["micro"] < expected["micro"]):
+            raise ImportError("Abstract rendering version mismatched." +
+                              "Expecting at least {0}, found {1}".format(_AR_VERSION, ari.__version__))
 
     try:
         globals()["ar"] = import_module("abstract_rendering.core")

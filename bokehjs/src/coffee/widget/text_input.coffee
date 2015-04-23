@@ -1,6 +1,5 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
@@ -28,6 +27,7 @@ class TextInputView extends ContinuumView
     logger.debug("widget/text_input: value = #{value}")
     @mset('value', value)
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class TextInput extends HasParent
   type: "TextInput"
@@ -40,10 +40,6 @@ class TextInput extends HasParent
       title: ""
     }
 
-class TextInputs extends Collection
-  model: TextInput
-
 module.exports =
   Model: TextInput
   View: TextInputView
-  Collection: new TextInputs()

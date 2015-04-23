@@ -35,6 +35,10 @@ class Marker(Glyph):
     "screen space" units by default.
     """)
 
+    angle = NumberSpec("angle", help="""
+    The angles to rotate the markers.
+    """)
+
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the markers.
     """)
@@ -187,10 +191,6 @@ class Square(Marker):
     *source:* ``tests/glyphs/Square.py``
 
     """
-
-    angle = NumberSpec("angle", help="""
-    The angles (in radians) to rotate square markers.
-    """)
 
 class SquareCross(Marker):
     """ Render square markers with a '+' cross through the center.

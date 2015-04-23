@@ -140,9 +140,12 @@ class SimpleApp(Widget):
         ## set it to be false as soon as the callback is done
         if not self.name:
             return
+        to_delete = []
         for k in self.__dict__.keys():
             if k.startswith('_func'):
-                self.__dict__.pop(k)
+                to_delete.append(k)
+        for k in to_delete:
+            self.__dict__.pop(k)
         counter = 0
         if not self.update_registry.get(self.name):
             name = '_func%d'  % counter
@@ -200,7 +203,6 @@ class SimpleApp(Widget):
     def default_layout(self):
         widgets = [self.objects[x] for x in self.widget_list]
         widgets = VBoxForm(children=widgets)
-        output = self.objects['output']
         layout = AppHBox(children=[widgets, "output"], app=self)
         return layout
 

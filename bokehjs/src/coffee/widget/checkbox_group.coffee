@@ -1,6 +1,5 @@
 _ = require "underscore"
 $ = require "jquery"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -37,6 +36,7 @@ class CheckboxGroupView extends ContinuumView
     active = (i for checkbox, i in @$("input") when checkbox.checked)
     @mset('active', active)
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class CheckboxGroup extends HasParent
   type: "CheckboxGroup"
@@ -50,10 +50,6 @@ class CheckboxGroup extends HasParent
       disabled: false
     }
 
-class CheckboxGroups extends Collection
-  model: CheckboxGroup
-
 module.exports =
   Model: CheckboxGroup
   View: CheckboxGroupView
-  Collection: new CheckboxGroups()

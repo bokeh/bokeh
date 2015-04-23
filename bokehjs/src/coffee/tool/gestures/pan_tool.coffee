@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 GestureTool = require "./gesture_tool"
 
 class PanToolView extends GestureTool.View
@@ -18,10 +17,12 @@ class PanToolView extends GestureTool.View
         @v_axis_only = true
       if vy < vr.get('start') or vy > vr.get('end')
         @h_axis_only = true
+    @plot_view.interactive_timestamp = Date.now()
 
   _pan: (e) ->
     # TODO (bev) get minus sign from canvas/frame
     @_update(e.deltaX, -e.deltaY)
+    @plot_view.interactive_timestamp = Date.now()
 
   _pan_end: (e) ->
     @h_axis_only = false
@@ -108,10 +109,6 @@ class PanTool extends GestureTool.Model
       dimensions: ["width", "height"]
     })
 
-class PanTools extends Collection
-  model: PanTool
-
 module.exports =
   Model: PanTool
   View: PanToolView
-  Collection: new PanTools()

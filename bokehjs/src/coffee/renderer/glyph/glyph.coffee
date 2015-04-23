@@ -3,7 +3,6 @@ rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
 HasParent = require "../../common/has_parent"
-Collection = require "../../common/collection"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
@@ -20,11 +19,13 @@ class GlyphView extends ContinuumView
       @[name] = {}
       @[name] = _.extend(@[name], func(@model))
 
+    @warned = {}
+
     return @
 
-  render: (ctx, indicies) ->
+  render: (ctx, indicies, data) ->
     if @mget("visible")
-      @_render(ctx, indicies)
+      @_render(ctx, indicies, data)
 
   map_data: () ->
     # map all the coordinate fields
@@ -60,17 +61,14 @@ class GlyphView extends ContinuumView
     for name, prop of @fields
       @[name] = prop.array(source)
 
-    # finally, warm the visual properties cache
-    for name, prop of @visuals
-      prop.warm_cache(source)
-
     @_set_data()
 
     @index = @_index_data()
 
-    length = source.get_length()
-    length = 1 if not length?
-    [0...length]
+  set_visuals: (source) ->
+    # finally, warm the visual properties cache
+    for name, prop of @visuals
+      prop.warm_cache(source)
 
   bounds: () ->
     if not @index?
@@ -81,9 +79,15 @@ class GlyphView extends ContinuumView
       [bb[1], bb[3]]
     ])
 
+  # glyphs that need more sophisticated "snap to data" behaviour (like
+  # snapping to a patch centroid, e.g, should override these
+  scx: (i) -> return @sx[i]
+  scy: (i) -> return @sy[i]
+
   # any additional customization can happen here
   _set_data: () -> null
   _map_data: () -> null
+  _mask_data: (inds) -> inds
   _bounds: (bds) -> bds
 
   _xy_index: () ->
@@ -139,8 +143,7 @@ class GlyphView extends ContinuumView
     if @[func]?
       result = @[func](geometry)
     else if not @warned[geometry.type]?
-      logger.error("'#{geometry.type}' selection not available factories
-                    #{@model.type}")
+      logger.error("'#{geometry.type}' selection not available for #{@model.type}")
       @warned[geometry.type] = true
 
     return result
@@ -252,9 +255,6 @@ class Glyph extends HasParent
       result = _.extend result, super(), defaults
     return result
 
-class Glyphs extends Collection
-
 module.exports =
   Model: Glyph
   View: GlyphView
-  Collection: Glyphs

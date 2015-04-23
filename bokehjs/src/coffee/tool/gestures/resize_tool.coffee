@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 GestureTool = require "./gesture_tool"
 
 class ResizeToolView extends GestureTool.View
@@ -41,10 +40,12 @@ class ResizeToolView extends GestureTool.View
     canvas = @plot_view.canvas
     @ch = canvas.get('height')
     @cw = canvas.get('width')
+    @plot_view.interactive_timestamp = Date.now()
     return null
 
   _pan: (e) ->
     @_update(e.deltaX, e.deltaY)
+    @plot_view.interactive_timestamp = Date.now()
     return null
 
   _update: (dx, dy) ->
@@ -62,9 +63,6 @@ class ResizeTool extends GestureTool.Model
   event_type: "pan"
   default_order: 40
 
-class ResizeTools extends Collection
-  model: ResizeTool
-
   defaults: () ->
     return _.extend({}, super(), {
       level: 'overlay'
@@ -73,5 +71,4 @@ class ResizeTools extends Collection
 
 module.exports =
   Model: ResizeTool
-  Collection: new ResizeTools()
   View: ResizeToolView

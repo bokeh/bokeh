@@ -4,7 +4,6 @@ if global._bokehTest?
   $1 = undefined  # TODO Make work
 else
   $1 = require "bootstrap/button"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -40,6 +39,7 @@ class RadioButtonGroupView extends ContinuumView
     active = (i for radio, i in @$("input") when radio.checked)
     @mset('active', active[0])
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class RadioButtonGroup extends HasParent
   type: "RadioButtonGroup"
@@ -53,10 +53,6 @@ class RadioButtonGroup extends HasParent
       disabled: false
     }
 
-class RadioButtonGroups extends Collection
-  model: RadioButtonGroup
-
 module.exports =
   Model: RadioButtonGroup
   View: RadioButtonGroupView
-  Collection: new RadioButtonGroups()

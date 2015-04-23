@@ -61,6 +61,7 @@ test:
     - ipython
     - ipython-notebook
     - gulp
+    - flake8
 
     # examples
     - scipy

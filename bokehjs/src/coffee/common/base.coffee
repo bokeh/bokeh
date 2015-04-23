@@ -1,4 +1,5 @@
 _ = require "underscore"
+Collection = require "./collection"
 window = {location: {href: "local"}} unless window?
 
 # add some useful functions to underscore
@@ -26,6 +27,7 @@ locations =
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
 
+  Callback:                 require '../action/callback'
   OpenURL:                  require '../action/open_url'
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
@@ -114,6 +116,7 @@ locations =
   ActionTool:               require '../tool/actions/action_tool'
   PreviewSaveTool:          require '../tool/actions/preview_save_tool'
   ResetTool:                require '../tool/actions/reset_tool'
+  HelpTool:                 require '../tool/actions/help_tool'
 
   BoxSelectTool:            require '../tool/gestures/box_select_tool'
   BoxZoomTool:              require '../tool/gestures/box_zoom_tool'
@@ -130,20 +133,8 @@ locations =
   HoverTool:                require '../tool/inspectors/hover_tool'
   InspectTool:              require '../tool/inspectors/inspect_tool'
 
-  StringFormatter:          require('../widget/cell_formatters').String
-  NumberFormatter:          require('../widget/cell_formatters').Number
-  BooleanFormatter:         require('../widget/cell_formatters').Boolean
-  DateFormatter:            require('../widget/cell_formatters').Date
-
-  StringEditor:             require('../widget/cell_editors').String
-  TextEditor:               require('../widget/cell_editors').Text
-  SelectEditor:             require('../widget/cell_editors').Select
-  PercentEditor:            require('../widget/cell_editors').Percent
-  CheckboxEditor:           require('../widget/cell_editors').Checkbox
-  IntEditor:                require('../widget/cell_editors').Int
-  NumberEditor:             require('../widget/cell_editors').Number
-  TimeEditor:               require('../widget/cell_editors').Time
-  DateEditor:               require('../widget/cell_editors').Date
+  editors:                  [require('../widget/cell_editors'), "Editor"]
+  formatters:               [require('../widget/cell_formatters'), "Formatter"]
 
   TableColumn:              require '../widget/table_column'
   DataTable:                require '../widget/data_table'
@@ -177,32 +168,42 @@ locations =
   AppVBox:                  require '../widget/layouts/appvbox'
   AppVBoxForm:              require '../widget/layouts/appvboxform'
 
-  AutoEncode:               require '../transforms/autoencode'
-  BinarySegment:            require '../transforms/binarysegment'
-  Const:                    require '../transforms/const'
-  Contour:                  require '../transforms/contour'
-  Count:                    require '../transforms/count'
-  CountCategories:          require '../transforms/countcategories'
-  Cuberoot:                 require '../transforms/cuberoot'
-  HDAlpha:                  require '../transforms/hdalpha'
-  Encode:                   require '../transforms/encode'
-  Id:                       require '../transforms/id'
-  Interpolate:              require '../transforms/interpolate'
-  InterpolateColor:         require '../transforms/interpolatecolor'
-  Log:                      require '../transforms/log'
-  NonZero:                  require '../transforms/nonzero'
-  Ratio:                    require '../transforms/ratio'
-  Seq:                      require '../transforms/seq'
-  Spread:                   require '../transforms/spread'
-  ToCounts:                 require '../transforms/tocounts'
+  ar_transforms:            [require '../ar/transforms']
 
 collection_overrides = {}
 
+
+make_collection = (model) ->
+  class C extends Collection
+    model: model
+  return new C()
+
+make_cache = (locations) ->
+  result = {}
+  for name, spec of locations
+    if _.isArray(spec)
+      subspec = spec[0]
+      suffix = spec[1] ? ""
+      for subname, mod of subspec
+        modname = subname + suffix
+        result[modname] = mod
+    else
+      result[name] = spec
+  return result
+
+_mod_cache = null
+
 Collections = (typename) ->
+  if not _mod_cache?
+    _mod_cache = make_cache(locations)
+
   if collection_overrides[typename]
     return collection_overrides[typename]
 
-  mod = locations[typename]
+  mod = _mod_cache[typename]
+
+  if not mod.Collection?
+    mod.Collection = make_collection(mod.Model)
 
   return mod.Collection
 

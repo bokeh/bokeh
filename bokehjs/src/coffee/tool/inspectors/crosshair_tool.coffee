@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 Span = require "../../renderer/annotation/span"
 InspectTool = require "./inspect_tool"
 
@@ -57,10 +56,6 @@ class CrosshairTool extends InspectTool.Model
       dimensions: ["width", "height"]
     })
 
-class CrosshairTools extends Collection
-  model: CrosshairTool
-
 module.exports =
   Model: CrosshairTool
   View: CrosshairToolView
-  Collection: new CrosshairTools()

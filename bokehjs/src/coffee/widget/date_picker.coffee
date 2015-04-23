@@ -4,7 +4,6 @@ if global._bokehTest?
   $1 = undefined  # TODO Make work
 else
   $1 = require "jquery-ui/datepicker"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 
@@ -29,6 +28,7 @@ class DatePickerView extends ContinuumView
   onSelect: (dateText, ui) =>
     @mset('value', new Date(dateText))
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class DatePicker extends HasProperties
   type: "DatePicker"
@@ -39,10 +39,6 @@ class DatePicker extends HasProperties
       value: Date.now()
     }
 
-class DatePickers extends Collection
-  model: DatePicker
-
 module.exports =
   Model: DatePicker
   View: DatePickerView
-  Collection: new DatePickers()

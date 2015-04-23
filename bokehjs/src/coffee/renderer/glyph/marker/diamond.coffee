@@ -3,17 +3,26 @@ Marker = require "./marker"
 
 class DiamondView extends Marker.View
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
-      if isNaN(sx[i] + sy[i] + size[i])
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
         continue
 
       r = size[i]/2
+
       ctx.beginPath()
-      ctx.moveTo(sx[i],   sy[i]+r)
-      ctx.lineTo(sx[i]+r, sy[i])
-      ctx.lineTo(sx[i],   sy[i]-r)
-      ctx.lineTo(sx[i]-r, sy[i])
+      ctx.translate(sx[i], sy[i])
+
+      if angle[i]
+        ctx.rotate(angle[i])
+      ctx.moveTo(0, r)
+      ctx.lineTo(r/1.5, 0)
+      ctx.lineTo(0, -r)
+      ctx.lineTo(-r/1.5, 0)
+      if angle[i]
+        ctx.rotate(-angle[i])
+
+      ctx.translate(-sx[i], -sy[i])
       ctx.closePath()
 
       if @visuals.fill.do_fill
@@ -28,10 +37,6 @@ class Diamond extends Marker.Model
   default_view: DiamondView
   type: 'Diamond'
 
-class Diamonds extends Marker.Collection
-  model: Diamond
-
 module.exports =
   Model: Diamond
   View: DiamondView
-  Collection: new Diamonds()

@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 SelectTool = require "./select_tool"
 
 class TapToolView extends SelectTool.View
@@ -37,10 +36,6 @@ class TapTool extends SelectTool.Model
   event_type: "tap"
   default_order: 10
 
-class TapTools extends Collection
-  model: TapTool
-
 module.exports =
   Model: TapTool
   View: TapToolView
-  Collection: new TapTools()

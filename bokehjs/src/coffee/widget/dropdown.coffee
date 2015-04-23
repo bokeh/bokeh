@@ -1,6 +1,5 @@
 _ = require "underscore"
 $ = require "jquery"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -58,6 +57,7 @@ class DropdownView extends ContinuumView
   change_input: (action) ->
     @mset('action', action)
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class Dropdown extends HasParent
   type: "Dropdown"
@@ -74,10 +74,6 @@ class Dropdown extends HasParent
       disabled: false
     }
 
-class Dropdowns extends Collection
-  model: Dropdown
-
 module.exports =
   Model: Dropdown
   View: DropdownView
-  Collection: new Dropdowns()

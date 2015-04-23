@@ -20,7 +20,7 @@ class CircleView extends Glyph.View
     else
       @sradius = (s/2 for s in @size)
 
-  _mask_data: () ->
+  _mask_data: (all_indices) ->
     hr = @renderer.plot_view.frame.get('h_range')
     vr = @renderer.plot_view.frame.get('v_range')
 
@@ -53,9 +53,10 @@ class CircleView extends Glyph.View
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-  _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->
+  _render: (ctx, indices, {sx, sy, sradius}) ->
+
     for i in indices
-      if isNaN(sx[i] + sy[i] + sradius[i])
+      if isNaN(sx[i]+sy[i]+sradius[i])
         continue
 
       ctx.beginPath()
@@ -71,13 +72,13 @@ class CircleView extends Glyph.View
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx)
-    y = @renderer.ymapper.map_from_target(vy)
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
     # check radius first
-    if @radius?
+    if @radius? and @distances.radius.units == "data"
       x0 = x - @max_radius
-      x1 = x + @max_radius
+      x1 = x+@max_radius
 
       y0 = y - @max_radius
       y1 = y + @max_radius
@@ -85,11 +86,11 @@ class CircleView extends Glyph.View
     else
       vx0 = vx - @max_size
       vx1 = vx + @max_size
-      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
+      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
 
       vy0 = vy - @max_size
       vy1 = vy + @max_size
-      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
+      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
@@ -105,10 +106,10 @@ class CircleView extends Glyph.View
     else
       for i in candidates
         r2 = Math.pow(@sradius[i], 2)
-        sx0 = @renderer.xmapper.map_to_target(x)
-        sx1 = @renderer.xmapper.map_to_target(@x[i])
-        sy0 = @renderer.ymapper.map_to_target(y)
-        sy1 = @renderer.ymapper.map_to_target(@y[i])
+        sx0 = @renderer.xmapper.map_to_target(x, true)
+        sx1 = @renderer.xmapper.map_to_target(@x[i], true)
+        sy0 = @renderer.ymapper.map_to_target(y, true)
+        sy1 = @renderer.ymapper.map_to_target(@y[i], true)
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
         if dist <= r2
           hits.push([i, dist])
@@ -116,13 +117,54 @@ class CircleView extends Glyph.View
       .sortBy((elt) -> return elt[1])
       .map((elt) -> return elt[0])
       .value()
-    return hits
+
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
+
+  _hit_span: (geometry) ->
+      [vx, vy] = [geometry.vx, geometry.vy]
+      [xb, yb] = this.bounds()
+      result = hittest.create_hit_test_result()
+
+      if geometry.direction == 'h'
+        # use circle bounds instead of current pointer y coordinates
+        y0 = yb[0]
+        y1 = yb[1]
+        if @radius? and @distances.radius.units == "data"
+          vx0 = vx - @max_radius
+          vx1 = vx + @max_radius
+          [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
+        else
+          ms = @max_size/2
+          vx0 = vx - ms
+          vx1 = vx + ms
+          [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+      else
+        # use circle bounds instead of current pointer x coordinates
+        x0 = xb[0]
+        x1 = xb[1]
+        if @radius? and @distances.radius.units == "data"
+          vy0 = vy - @max_radius
+          vy1 = vy + @max_radius
+          [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
+        else
+          ms = @max_size/2
+          vy0 = vy - ms
+          vy1 = vy + ms
+          [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+
+      hits = (xx[4].i for xx in @index.search([x0, y0, x1, y1]))
+
+      result['1d'].indices = hits
+      return result
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
-
-    return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
+    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+    return result
 
   _hit_poly: (geometry) ->
     [vx, vy] = [_.clone(geometry.vx), _.clone(geometry.vy)]
@@ -137,7 +179,10 @@ class CircleView extends Glyph.View
       idx = candidates[i]
       if hittest.point_in_poly(@sx[i], @sy[i], sx, sy)
         hits.push(idx)
-    return hits
+
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
 
   # circle does not inherit from marker (since it also accepts radius) so we
   # must supply a draw_legend for it  here
@@ -154,7 +199,8 @@ class CircleView extends Glyph.View
     sradius = { }
     sradius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
 
-    @_render(ctx, indices, sx, sy, sradius)
+    data = {sx: sx, sy: sy, sradius: sradius}
+    @_render(ctx, indices, data)
 
 class Circle extends Glyph.Model
   default_view: CircleView
@@ -172,10 +218,6 @@ class Circle extends Glyph.Model
       radius_dimension: 'x'
     }
 
-class Circles extends Glyph.Collection
-  model: Circle
-
 module.exports =
   Model: Circle
   View: CircleView
-  Collection: new Circles()

@@ -1,6 +1,5 @@
 _ = require "underscore"
 build_views = require "../../common/build_views"
-Collection = require "../../common/collection"
 ContinuumView = require "../../common/continuum_view"
 HasParent = require "../../common/has_parent"
 
@@ -28,11 +27,7 @@ module.exports = (type, box) ->
       )
       return children
 
-  class AppBoxCollection extends Collection
-    model: AppBox
-
   return {
     Model: AppBox
     View: AppBoxView
-    Collection: new AppBoxCollection()
   }

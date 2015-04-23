@@ -52,22 +52,22 @@ class ImageView extends Glyph.View
     @sw = @sdist(@renderer.xmapper, @x, @dw, 'edge', @mget('dilate'))
     @sh = @sdist(@renderer.ymapper, @y, @dh, 'edge', @mget('dilate'))
 
-  _render: (ctx, indices) ->
+  _render: (ctx, indices, {image_data, sx, sy, sw, sh}) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
     ctx.setImageSmoothingEnabled(false)
 
     for i in indices
-      if not this.image_data[i]?
+      if not image_data[i]?
         continue
-      if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
+      if isNaN(sx[i]+sy[i]+sw[i]+sh[i])
         continue
 
-      y_offset = @sy[i]
+      y_offset = sy[i]
 
       ctx.translate(0, y_offset)
       ctx.scale(1, -1)
       ctx.translate(0, -y_offset)
-      ctx.drawImage(@image_data[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
+      ctx.drawImage(image_data[i], sx[i]|0, sy[i]|0, sw[i], sh[i])
       ctx.translate(0, y_offset)
       ctx.scale(1, -1)
       ctx.translate(0, -y_offset)
@@ -94,10 +94,6 @@ class Image extends Glyph.Model
       dilate: false
     }
 
-class Images extends Glyph.Collection
-  model: Image
-
 module.exports =
   Model: Image
   View: ImageView
-  Collection: new Images()

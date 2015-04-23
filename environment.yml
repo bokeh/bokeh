@@ -1,0 +1,56 @@
+name: bokeh2
+channels:
+  - bokeh
+  - mutirri  # TODO remove when packages are moved to bokeh
+  - javascript  # For Gulp
+dependencies:
+  # Development dependencies
+  - bower
+  - gulp
+
+  # Basic dependencies for examples
+  - dateutil
+  - ipython
+  - jinja2
+  - numpy
+  - pandas
+  - python
+  - pyyaml
+  - requests
+  - six
+
+  # bokeh-server dependencies
+  - flask
+  - pyzmq
+  - tornado
+  - werkzeug
+
+  # docs
+  # - graphviz  # Only available on Linux
+  - sphinx
+  - pygments
+  - sphinx-bootstrap-theme
+  - sphinxcontrib-httpdomain
+  - sphinxcontrib-napoleon
+
+  # tests
+  - beautiful-soup
+  - colorama
+  - pyyaml
+  # - pdiff  # Only available on Linux
+  - boto
+  - jinja2
+  - nose
+  - mock
+  - coverage
+  # - websocket-client  # Only available on Linux
+  - ipython
+  - ipython-notebook
+
+  # examples
+  - scipy <0.15.0
+  - matplotlib
+  - sympy
+  - ggplot
+  - seaborn
+  # - icalendar  # Only available on Linux

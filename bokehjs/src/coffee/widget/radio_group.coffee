@@ -1,6 +1,5 @@
 _ = require "underscore"
 $ = require "jquery"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -50,10 +49,6 @@ class RadioGroup extends HasParent
       disabled: false
     }
 
-class RadioGroups extends Collection
-  model: RadioGroup
-
 module.exports =
   Model: RadioGroup
   View: RadioGroupView
-  Collection: new RadioGroups()
