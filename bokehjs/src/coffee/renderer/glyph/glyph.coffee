@@ -28,6 +28,9 @@ class GlyphView extends ContinuumView
       @_render(ctx, indicies, data)
 
   map_data: () ->
+    if @glx?
+        return  # done on GPU
+    
     # map all the coordinate fields
     for [xname, yname] in @model.coords
       sxname = "s#{xname}"
@@ -91,6 +94,8 @@ class GlyphView extends ContinuumView
   _bounds: (bds) -> bds
 
   _xy_index: () ->
+    if @glx?
+        return
     index = rbush()
     pts = []
 

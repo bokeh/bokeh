@@ -60,7 +60,7 @@ gl_Position = vec4(a_position*2.0-1.0, 0.0, 1.0);
     @command(['TEXTURE', 'ctx_prog', 'u_sampler', 'ctx_tex']);    
     
     @command(['FUNC', 'enable', 'BLEND']);
-    @command(['FUNC', 'blendFunc', 'SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA']);
+    @command(['FUNC', 'blendFunc', 'ONE_MINUS_DST_ALPHA', 'ONE']);
     
   glx._render = () ->
     # Update texture
@@ -72,7 +72,7 @@ gl_Position = vec4(a_position*2.0-1.0, 0.0, 1.0);
     glx.execute_pending_commands()    
   
   glx._clear = () ->
-    @command(['FUNC', 'clearColor', 0.9, 1, 1, 1])
+    @command(['FUNC', 'clearColor', 0.0, 0, 0, 0.0])
     @command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT'])
 
   glx._resize = (width, height) ->
