@@ -207,7 +207,7 @@ to indicate that BokehJS should be loaded from individual sources:
 
 .. code-block:: sh
 
-    BOKEH_RESOURCES=relative-dev python example.py
+    BOKEH_RESOURCES=relative python example.py
 
 For Bokeh server examples, simply add the ``--dev`` command line flag to the
 server invocation:
