@@ -10,7 +10,7 @@ Using High-level Charts
 Creating Charts
 ---------------
 
-With the next examples, we'll the basics of using `bokeh.charts` to create
+With the next examples, we'll learn the basics of using `bokeh.charts` to create
 rich charts commonly used without having to access lower level components.
 
 Area, Line and Step Charts
@@ -40,10 +40,10 @@ running the code and changing the Line function with Area or Step to create othe
 Bar and Dot Charts
 ''''''''''''''''''
 
-Although the different nature of Bar and Dot charts comparing to the ones we have seen in the
+Although the different nature of Bar and Dot charts compared to the ones we have seen in the
 previous paragraph, those charts can be created exactly in the same way.
 Below is the code to create a Bar chart with the same data of the previous example. Worth
-mentioning the that only change is the chart function and the definition of the category names.
+mentioning is that only change is the chart function and the definition of the category names.
 
 .. bokeh-plot::
     :source-position: above
@@ -191,4 +191,3 @@ passing ``legend=True`` to the chart function:
     show(p)
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-

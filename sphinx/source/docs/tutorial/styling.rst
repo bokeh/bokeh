@@ -20,8 +20,8 @@ Finding Visual Properties
 -------------------------
 
 In order to style the visual attributes of Bokeh plots, you first must
-know what the available properties are. There full :ref:`refguide` will
-list all the properties of every object individually. But there are three
+know what the available properties are. The full :ref:`refguide` will
+list all the properties of every object individually, though there are three
 broad groups of properties that show up often. They are:
 
 * **line properties** line color, width, etc.
@@ -49,7 +49,7 @@ Setting Plot Ranges
 -------------------
 
 By default, Bokeh will attempt to automatically set the data bounds
-of plots, to fit snugly around the data. Sometimes you may need to
+of plots to fit snugly around the data. Sometimes you may need to
 set a plot's range explicitly. This can be accomplished by setting the
 ``x_range`` or ``y_range`` properties using a |Range1d| object that
 gives the *start* and *end* points of the range you want:

@@ -10,7 +10,7 @@ Configuring Plot Tools
 Positioning the Toolbar
 -----------------------
 
-By default Bokeh plots come with a toolbar above the plot. In this section
+By default, Bokeh plots come with a toolbar above the plot. In this section
 you will learn how to specify a different location for the toolbar, or to
 remove it entirely.
 
@@ -148,7 +148,7 @@ to be displayed is configurable through a tooltips attribute that maps display
 names to columns in the data source, or to special known variables.
 
 Field names starting with “@” are interpreted as columns on the data source.
-Field names starting with “$” are special, known fields. For more information
+Field names starting with “$” are special, known fields. More information
 about those fields can be found on the |hovertool| reference.
 
 Here is an example of how to configure and use the hover tool:
