@@ -39,25 +39,24 @@ Valid values are either a list of tool types or string listing the tool names. V
 
 that corresponds to the following tool type instances:
 
-* :class:`PanTool <bokeh.models.tools.PanTool>` (dimensions=["width", "height"])
-* :class:`PanTool <bokeh.models.tools.PanTool>` (dimensions=["width"])
-* :class:`PanTool <bokeh.models.tools.PanTool>` PanTool(dimensions=["height"])
-* :class:`WheelZoomTool <bokeh.models.tools.WheelZoomTool>` (dimensions=["width", "height"])
-* :class:`WheelZoomTool <bokeh.models.tools.WheelZoomTool>` (dimensions=["width"])
-* :class:`WheelZoomTool <bokeh.models.tools.WheelZoomTool>` (dimensions=["height"])
-* :class:`PreviewSaveTool <bokeh.models.tools.PreviewSaveTool>` ()
-* :class:`ResizeTool <bokeh.models.tools.ResizeTool>` ()
-* :class:`TapTool <bokeh.models.tools.TapTool>` (always_active=True)
-* :class:`TapTool <bokeh.models.tools.TapTool>` (always_active=True)
-* :class:`CrosshairTool <bokeh.models.tools.CrosshairTool>` ()
-* :class:`BoxSelectTool <bokeh.models.tools.BoxSelectTool>` ()
-* :class:`PolySelectTool <bokeh.models.tools.PolySelectTool>` ()
-* :class:`LassoSelectTool <bokeh.models.tools.LassoSelectTool>` ()
-* :class:`BoxZoomTool <bokeh.models.tools.BoxZoomTool>` ()
-* :class:`HoverTool <bokeh.models.tools.HoverTool>` (always_active=True, tooltips=[("index", "$index"),("data (x, y)", "($x, $y)"),("canvas (x, y)", "($sx, $sy)")])
-* :class:`PreviewSaveTool <bokeh.models.tools.PreviewSaveTool>` ()
-* :class:`ResetTool <bokeh.models.tools.ResetTool>` ()
-* :class:`HelpTool <bokeh.models.tools.HelpTool>` ()
+* |pantool| (dimensions=["width", "height"])
+* |pantool| (dimensions=["width"])
+* |pantool| (dimensions=["height"])
+* |wheelzoom| (dimensions=["width", "height"])
+* |wheelzoom| (dimensions=["width"])
+* |wheelzoom| (dimensions=["height"])
+* |resizetool| ()
+* |taptool| (always_active=True)
+* |taptool| (always_active=True)
+* |crosshair| ()
+* |boxselect| ()
+* |polyselect| ()
+* |lassoselect| ()
+* |boxzoom| ()
+* |hovertool| (always_active=True, tooltips=[("index", "$index"),("data (x, y)", "($x, $y)"),("canvas (x, y)", "($sx, $sy)")])
+* |previewsave| ()
+* |resettool| ()
+* |helptool| ()
 
 Below is some code that shows how to specify which tools to add to the toolbar.
 
@@ -155,3 +154,16 @@ Overlay Tools
 '''''''''''''
 
 
+.. |pantool| replace:: :class:`~bokeh.models.tools.PanTool`
+.. |wheelzoom|   replace:: :class:`~bokeh.models.tools.WheelZoomTool`
+.. |previewsave|  replace:: :class:`~bokeh.models.tools.PreviewSaveTool`
+.. |resizetool|  replace:: :class:`~bokeh.models.tools.ResizeTool`
+.. |taptool|   replace:: :class:`~bokeh.models.tools.TapTool`
+.. |crosshair|  replace:: :class:`~bokeh.models.tools.CrosshairTool`
+.. |boxselect|  replace:: :class:`~bokeh.models.tools.BoxSelectTool`
+.. |polyselect|  replace:: :class:`~bokeh.models.tools.PolySelectTool`
+.. |lassoselect|  replace:: :class:`~bokeh.models.tools.LassoSelectTool`
+.. |boxzoom|  replace:: :class:`~bokeh.models.tools.BoxZoomTool`
+.. |hovertool|  replace:: :class:`~bokeh.models.tools.HoverTool`
+.. |resettool|  replace:: :class:`~bokeh.models.tools.ResetTool`
+.. |helptool|  replace:: :class:`~bokeh.models.tools.HelpTool`
