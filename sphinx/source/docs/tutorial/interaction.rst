@@ -11,14 +11,15 @@ Adding Interactions
 Linking Plots
 -------------
 
-It's often useful to link plots to add connected interactivity between plots. This section shows an easy way to
-do it using the |bokeh.plotting| interface.
+It's often useful to link plots to add connected interactivity between plots.
+This section shows an easy way to do it using the |bokeh.plotting| interface.
 
 Linked Panning
 ~~~~~~~~~~~~~~
 
-It's often desired to link pan or zooming actions across many plots. All is needed to enable this feature
-is to share range objects between |figure| objects.
+It's often desired to link pan or zooming actions across many plots. All is
+needed to enable this feature is to share range objects between |figure|
+calls.
 
 .. bokeh-plot::
     :source-position: above
@@ -49,16 +50,18 @@ is to share range objects between |figure| objects.
     # show the results
     show(p)
 
-Now you have learned how to link panning between multiple plots with the |bokeh.plotting| interface.
+Now you have learned how to link panning between multiple plots with the
+|bokeh.plotting| interface.
 
 Linked Brushing
 ~~~~~~~~~~~~~~~
 
-Linked brushing in Bokeh is expressed by sharing data sources between glyph renderers. This is all
-Bokeh needs to understand that selections acted on one glyph must pass to all other glyphs that share
-that same source.
+Linked brushing in Bokeh is expressed by sharing data sources between glyph
+renderers. This is all Bokeh needs to understand that selections acted on one
+glyph must pass to all other glyphs that share that same source.
 
-The following code show an example of linked brushing between circle glyphs on 2 different |figure| objects.
+The following code show an example of linked brushing between circle glyphs on
+two different |figure| calls.
 
 .. bokeh-plot::
     :source-position: above
@@ -101,13 +104,13 @@ the need of ``bokeh-server``.
 Open URLs
 ~~~~~~~~~
 
-Opening an URL when users click on a glyph (for instance a circle marker) is a very popular
-feature. Bokeh let's users enable this feature by exposing an OpenURL action object that can
-be passed to a Tap tool in order to have that action called whenever the users clicks on the
-glyph.
+Opening an URL when users click on a glyph (for instance a circle marker) is
+a very popular feature. Bokeh let's users enable this feature by exposing an
+OpenURL action object that can be passed to a Tap tool in order to have that
+action called whenever the users clicks on the glyph.
 
-The following code shows how to use the OpenURL action combined with a TapTool to open an url
-whenever the user clicks on a circle.
+The following code shows how to use the OpenURL action combined with a TapTool
+to open an url whenever the user clicks on a circle.
 
 .. bokeh-plot::
     :source-position: above
@@ -139,16 +142,16 @@ Now you have learned how to open an URL when the user clicks on a glyph.
 Widgets and Callbacks
 ~~~~~~~~~~~~~~~~~~~~~
 
-Bokeh let's you express even more advanced actions that must be called on the Javascript
-side in order to add custom logic and interactivity when a widget is used. For instance,
-we may want to change the data of a plot when an users clicks on an button or changes a
-slider Widget.
+Bokeh let's you express even more advanced actions that must be called on
+the Javascript side in order to add custom logic and interactivity when a
+widget is used. For instance, we may want to change the data of a plot when
+an users clicks on an button or changes a slider Widget.
 
-Custom actions like these can be set using a Callback object and passing it as ``callback``
-argument to a Widget object.
+Custom actions like these can be set using a Callback object and passing it
+as ``callback`` argument to a Widget object.
 
-The code below shows an example of callback set on a slider Widget that changes the source
-of a plot when user uses the slider.
+The code below shows an example of callback set on a slider Widget that
+changes the source of a plot when user uses the slider.
 
 .. bokeh-plot::
     :source-position: above
@@ -184,4 +187,11 @@ of a plot when user uses the slider.
     show(layout)
 
 
-Now you know how to add powerful javascript logic to be called when widgets change.
+Now you know how to add powerful javascript logic to be called when widgets
+change.
+
+
+.. |figure| replace:: :func:`~bokeh.plotting.figure`
+
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+
