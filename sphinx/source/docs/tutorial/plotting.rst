@@ -13,20 +13,7 @@ Creating Figures
 Scatter Markers
 ~~~~~~~~~~~~~~~
 
-
-Now you have learned how to plot scatter markers with the
-|bokeh.plotting| interface.
-
-Images
-~~~~~~
-
-Now you have learned how to plot images on Bokeh plots with the
-|bokeh.plotting| interface.
-
-Lines
-~~~~~
-
-**GOAL**: To learn how to create line plots
+To scatter circle markers on a plot, use the |circle| method of |Figure|:
 
 .. bokeh-plot::
     :source-position: above
@@ -39,10 +26,71 @@ Lines
     # create a new plot with a title and axis labels
     p = figure(plot_width=400, plot_height=400, title=None)
 
-    # add a line renderer with legend and line thickness
-    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
+    # add a circle renderer with a size, color, and alpha
+    p.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
 
     # show the results
+    show(p)
+
+Similarly, to scatter square markers, use the |square| method of |Figure|:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    # output to static HTML file
+    output_file("square.html")
+
+    # create a new plot with a title and axis labels
+    p = figure(plot_width=400, plot_height=400, title=None)
+
+    # add a square renderer with a size, color, and alpha
+    p.square([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="olive", alpha=0.5)
+
+    # show the results
+    show(p)
+
+There are lots of marker types available in Bokeh, you can see the details
+of all of them below:
+
+.. hlist::
+    :columns: 3
+
+    * |arc|
+    * |asterisk|
+    * |circle|
+    * |circle_cross|
+    * |circle_x|
+    * |cross|
+    * |diamond|
+    * |diamond_cross|
+    * |inverted_triangle|
+    * |square|
+    * |square_cross|
+    * |square_x|
+    * |triangle|
+    * |x|
+
+Now you have learned how to plot scatter markers with the |bokeh.plotting|
+interface.
+
+Lines
+~~~~~
+
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("line.html")
+
+    p = figure(plot_width=400, plot_height=400, title=None)
+
+    # add a line renderer
+    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
+
     show(p)
 
 Now you have learned how to plot single or multiple line glyphs
@@ -51,13 +99,34 @@ on Bokeh plots with the |bokeh.plotting| interface.
 Patches
 ~~~~~~~
 
+.. bokeh-plot::
+    :source-position: above
 
-Specify Axis Types
-------------------
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("patch.html")
+
+    p = figure(plot_width=400, plot_height=400, title=None)
+
+    # add a patch renderer with an alpha an line width
+    p.patch([1, 2, 3, 4, 5], [6, 7, 8, 7, 3], alpha=0.5, line_width=2)
+
+    show(p)
+
+Images
+~~~~~~
+
+Now you have learned how to plot images on Bokeh plots with the
+|bokeh.plotting| interface.
+
+
+Specifying Axis Types
+---------------------
 
 
 Categorical Axes
 ~~~~~~~~~~~~~~~~
+
 
 
 Datetime Axes
@@ -92,7 +161,7 @@ for the value of either of these parameters.
     output_file("datetime.html")
 
     # create a new plot with a datetime axis type
-    p = figure(width=800, height=350, x_axis_type="datetime")
+    p = figure(width=800, height=250, x_axis_type="datetime", title=None)
 
     p.line(AAPL['Date'], AAPL['Close'], color='navy', alpha=0.5)
 
@@ -128,7 +197,8 @@ the value of either of these parameters.
     output_file("log.html")
 
     # create a new plot with a log axis type
-    p = figure(y_axis_type="log", y_range=(10**-1, 10**4), title=None)
+    p = figure(plot_width=400, plot_height=400,
+               y_axis_type="log", y_range=(10**-1, 10**4), title=None)
 
     p.line(x, y, line_width=2)
     p.circle(x, y, fill_color="white", size=8)
@@ -138,10 +208,27 @@ the value of either of these parameters.
 Now you have learned how to specify a log scale axis for a Bokeh plot.
 
 
-Twin Axes
-~~~~~~~~~
+.. Twin Axes
+.. ~~~~~~~~~
 
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
+.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
+
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
+
+.. |arc|               replace:: :func:`~bokeh.plotting.Figure.arc`
+.. |asterisk|          replace:: :func:`~bokeh.plotting.Figure.asterisk`
+.. |circle|            replace:: :func:`~bokeh.plotting.Figure.circle`
+.. |circle_cross|      replace:: :func:`~bokeh.plotting.Figure.circle_cross`
+.. |circle_x|          replace:: :func:`~bokeh.plotting.Figure.circle_x`
+.. |cross|             replace:: :func:`~bokeh.plotting.Figure.cross`
+.. |diamond|           replace:: :func:`~bokeh.plotting.Figure.diamond`
+.. |diamond_cross|     replace:: :func:`~bokeh.plotting.Figure.diamond_cross`
+.. |inverted_triangle| replace:: :func:`~bokeh.plotting.Figure.inverted_triangle`
+.. |square|            replace:: :func:`~bokeh.plotting.Figure.square`
+.. |square_cross|      replace:: :func:`~bokeh.plotting.Figure.square_cross`
+.. |square_x|          replace:: :func:`~bokeh.plotting.Figure.square_x`
+.. |triangle|          replace:: :func:`~bokeh.plotting.Figure.triangle`
+.. |x|                 replace:: :func:`~bokeh.plotting.Figure.x`

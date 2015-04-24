@@ -26,16 +26,27 @@ topic:
     Make interactive tools (like pan, zoom, select, and others) available
     on your plots.
 
+:ref:`tutorial_layout`
+    Combine multiple plots and widgets into specified layouts.
+
 :ref:`tutorial_interaction`
     Create more sophisticated interactions including widgets or linked
     panning and selection.
 
-:ref:`tutorial_server`
-    Deploy the Bokeh Server to build and publish sophisticated data
-    applications.
+.. :ref:`tutorial_server`
+..     Deploy the Bokeh Server to build and publish sophisticated data
+..     applications.
 
 :ref:`tutorial_info`
     See where to go next, for more information and examples.
+
+The examples in the tutorial are written to be as minimal as possible,
+while illustrating how to accomplish a single task within Bokeh. With a
+handful of exceptions, no outside libraries such and NumPy, Pandas, or
+Blaze are required to run the examples as written. However, Bokeh works
+perfectly well with almost any array or table-like data structure. You are
+strongly encouraged to **experiment with modifying the examples to use your
+own interesting data**.
 
 ----
 
@@ -47,6 +58,7 @@ topic:
    tutorial/charts
    tutorial/styling
    tutorial/tools
+   tutorial/layout
    tutorial/interaction
    tutorial/server
    tutorial/info
