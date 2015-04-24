@@ -162,8 +162,6 @@ The ``TimeSeries`` chart will automatically include a datetime axis:
 You can also easily plot multiple timeseries together, and add a legend by
 passing ``legend=True`` to the chart function:
 
-from collections import OrderedDict
-
 .. bokeh-plot::
     :source-position: above
 
