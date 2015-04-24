@@ -10,6 +10,11 @@ Plotting with Basic Glyphs
 Creating Figures
 ----------------
 
+Note that Bokeh plots creating using the |bokeh.plotting| interface come with
+a default set of tools, and default visual styles. See :ref:`tutorial_styling`
+for information about how to customize the visual style of plots, and
+:ref:`tutorial_tools` for information about changing or specifying tools.
+
 Scatter Markers
 ~~~~~~~~~~~~~~~
 
@@ -120,14 +125,60 @@ Now you have learned how to plot images on Bokeh plots with the
 |bokeh.plotting| interface.
 
 
+Combining Multiple Glyphs
+-------------------------
+
+Combining multiple glyphs on a single plot is a matter of calling more than
+one glyph method on a single |Figure|:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    x = [1, 2, 3, 4, 5]
+    y = [6, 7, 8, 7, 3]
+
+    output_file("multiple.html")
+
+    p = figure(plot_width=400, plot_height=400,title=None)
+
+    # add both a line and circles on the same plot
+    p.line(x, y, line_width=2)
+    p.circle(x, y, fill_color="white", size=8)
+
+    show(p)
+
+This principle holds in general for all the glyph methods in
+|bokeh.plotting|. You can add as many glyphs to a plot as you need.
+
 Specifying Axis Types
 ---------------------
 
+All the examples above use the default linear axis. This axis is suitable
+for many plots that need to show numerical data on a linear scale. In other
+cases you may have categorical data, or need to display numerical data on
+a datetime or log scale. This section shows how specify the axis type
+when using |bokeh.plotting| interface.
 
 Categorical Axes
 ~~~~~~~~~~~~~~~~
 
+.. bokeh-plot::
+    :source-position: above
 
+    from bokeh.plotting import figure, output_file, show
+
+    factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    x =  [50, 40, 65, 10, 25, 37, 80, 60]
+
+    output_file("categorical.html")
+
+    p = figure(y_range=factors)
+
+    p.circle(x, factors, size=15, fill_color="orange", line_color="green", line_width=3)
+
+    show(p)
 
 Datetime Axes
 ~~~~~~~~~~~~~
