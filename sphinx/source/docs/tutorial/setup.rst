@@ -14,7 +14,7 @@ installation is working as expected.
 Installing the Bokeh Library
 ----------------------------
 
-The easiest way to install Boeh and all of its necessary dependencies is
+The easiest way to install Bokeh and all of its necessary dependencies is
 to use a package manager such as ``conda`` or ``pip``. If you are using
 `Anaconda`_, you can install with ``conda`` by running the command:
 
@@ -64,7 +64,7 @@ view the file. The result should look like this:
     :align: center
 
 You can also test your Bokeh installation in an IPython/Jupyter notebook.
-Execute the lines of python code in the notebook, except with ``output_notebook``instead of ``output_file``. You should see results like:
+Execute the lines of python code in the notebook, except with ``output_notebook`` instead of ``output_file``. You should see results like:
 
 .. image:: /_images/bokeh_simple_test_notebook.png
     :scale: 50 %
@@ -73,7 +73,7 @@ Execute the lines of python code in the notebook, except with ``output_notebook`
 Finding Help
 ------------
 
-If you are having problems either with the installation or with the
+If you are having problems either with the installation or with
 running the basic example code above, please ask for assistance on the
 `Bokeh mailing list`_ or submit an issue on the `Bokeh GitHub issue tracker`_.
 
