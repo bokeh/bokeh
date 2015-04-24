@@ -49,28 +49,29 @@ running the code and changing the ``toolbar_position`` value.
 Specifying Tools
 ----------------
 
-Tools can be specified by passing the tools parameter to the figure() function or to any bokeh.charts Chart function.
-Valid values are either a list of tool types or string listing the tool names. Valid tool names are:
+Tools can be specified by passing the tools parameter to the |figure|
+function or to any |bokeh.charts| Chart function. Valid values are either
+a list of tool objects or a strings describing the tool name. Valid tool
+names are:
 
-* ``"pan"``
-* ``"xpan"``
-* ``"ypan"``
-* ``"wheel_zoom"``
-* ``"xwheel_zoom"``
-* ``"ywheel_zoom"``
-* ``"save"``
-* ``"resize"``
-* ``"tap"``
-* ``"click"``
-* ``"crosshair"``
-* ``"box_select"``
-* ``"poly_select"``
-* ``"lasso_select"``
-* ``"box_zoom"``
-* ``"hover"``
-* ``"previewsave"``
-* ``"reset"``
-* ``"help"``
+* ``"pan"``---drag to pan the plot
+* ``"xpan"``---pan (constrained to x-dimension)
+* ``"ypan"``---pan (constrained to y-dimension)
+* ``"wheel_zoom"``---mouse wheel (or pinch) to zoom the plot
+* ``"xwheel_zoom"``---wheel zoom (constrained to x-dimension)
+* ``"ywheel_zoom"``---wheel zoom (constrained to y-dimension)
+* ``"save"``---save a PNG of the plot
+* ``"resize"``---drag to resize the plot area
+* ``"tap"``---click or tap to make a selection
+* ``"click"``---click or tap to make a selection
+* ``"crosshair"``---display a crosshair centered on the cursor
+* ``"box_select"``---drag to select a rectangular region of the plot
+* ``"poly_select"``---click or tap to select a polygonal region
+* ``"lasso_select"``---drag to select a lasso region
+* ``"box_zoom"``---drag to zoom a rectangular region
+* ``"hover"``---display a hover inspector tooltip
+* ``"reset"``---reset the plot to its original data bounds
+* ``"help"``---a help button with tooltip and link
 
 that corresponds to the following tool type instances:
 
@@ -93,10 +94,11 @@ that corresponds to the following tool type instances:
 * |resettool| ()
 * |helptool| ()
 
-Below is some code that shows how to specify which tools to add to the toolbar.
+Below is some code that shows how to specify which tools to add to the
+toolbar.
 
-Try running the code and changing the name of tools being added to the tools with valid values
-
+Try running the code and changing the name of tools being added to the
+tools with valid values
 
 .. bokeh-plot::
     :source-position: above
@@ -104,7 +106,9 @@ Try running the code and changing the name of tools being added to the tools wit
     from bokeh.plotting import figure, output_file, show
 
     output_file("toolbar.html")
+
     TOOLS='box_zoom,box_select,crosshair,resize,reset'
+
     # create a new plot with the toolbar below
     p = figure(plot_width=400, plot_height=400, title=None, tools=TOOLS)
 
@@ -122,32 +126,30 @@ or with a list of the tool instances:
 
     output_file("toolbar.html")
     TOOLS=[BoxSelectTool(), HoverTool()]
-    # create a new plot with the toolbar below
+
     p = figure(plot_width=400, plot_height=400, title=None, tools=TOOLS)
 
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     show(p)
 
-
 Setting Tool Visuals
 --------------------
-
 
 Hover Tool
 ''''''''''
 
-The hover tool is a passive inspector tool. It is generally on at all times, but can be configured
-in the inspector’s menu associated with the toolbar.
+The hover tool is a passive inspector tool. It is generally on at all times,
+but can be configured in the inspector’s menu associated with the toolbar.
 
-The hover tool displays informational tooltips whenever the cursor is directly over a glyph. The data
-to show comes from the glyph’s data source, and what is to be displayed is configurable through a
-tooltips attribute that maps display names to columns in the data source, or to special known variables.
+The hover tool displays informational tooltips whenever the cursor is directly
+over a glyph. The data to show comes from the glyph’s data source, and what is
+to be displayed is configurable through a tooltips attribute that maps display
+names to columns in the data source, or to special known variables.
 
 Field names starting with “@” are interpreted as columns on the data source.
-Field names starting with “$” are special, known fields. For more information about those fields can
-be found on the :class:`HoverTool <bokeh.models.tools.HoverTool>`
-reference.
+Field names starting with “$” are special, known fields. For more information
+about those fields can be found on the |hovertool| reference.
 
 Here is an example of how to configure and use the hover tool:
 
@@ -155,7 +157,7 @@ Here is an example of how to configure and use the hover tool:
     :source-position: above
 
     from bokeh.plotting import figure, output_file, show, ColumnDataSource
-    from bokeh.models import HoverTool, BoxSelectTool
+    from bokeh.models import HoverTool
     from collections import OrderedDict
 
     output_file("toolbar.html")
@@ -169,7 +171,6 @@ Here is an example of how to configure and use the hover tool:
     )
 
     TOOLS=[
-        BoxSelectTool(),
         HoverTool(tooltips = OrderedDict(
             [
             ("index", "$index"),
@@ -177,6 +178,7 @@ Here is an example of how to configure and use the hover tool:
             ("desc", "@desc"),
             ]
         ))]
+
     # create a new plot with the toolbar below
     p = figure(plot_width=400, plot_height=400, title=None, tools=TOOLS)
 
@@ -184,10 +186,13 @@ Here is an example of how to configure and use the hover tool:
 
     show(p)
 
-
 Overlay Tools
 '''''''''''''
 
+
+.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
+
+.. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |pantool| replace:: :class:`~bokeh.models.tools.PanTool`
 .. |wheelzoom|   replace:: :class:`~bokeh.models.tools.WheelZoomTool`

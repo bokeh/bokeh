@@ -7,12 +7,60 @@ Styling Visual Attributes
     :local:
     :depth: 3
 
-Selecting Plot Objects
-----------------------
+Coloring
+--------
 
+Colors properties are used in many places in Bokeh, to specify the colors to
+use for lines, fills or text. Color values can be provided in any of the
+following ways:
+
+.. include:: ../includes/colors.txt
+
+Finding Visual Properties
+-------------------------
+
+In order to style the visual attributes of Bokeh plots, you first must
+know what the available properties are. There full :ref:`refguide` will
+list all the properties of every object individually. But there are three
+broad groups of properties that show up often. They are:
+
+* **line properties** line color, width, etc.
+* **fill properties** fill color, alpha, etc.
+* **text propertied** font styles, colors, etc.
+
+Below is more detail about each of these.
+
+Line Properties
+~~~~~~~~~~~~~~~
+
+.. include:: ../includes/line_props.txt
+
+Fill Properties
+~~~~~~~~~~~~~~~
+
+.. include:: ../includes/fill_props.txt
+
+Text Properties
+~~~~~~~~~~~~~~~
+
+.. include:: ../includes/text_props.txt
 
 Setting Plot Ranges
 -------------------
+
+By default, Bokeh will attempt to automatically set the data bounds
+of plots, to fit snugly around the data. Sometimes you may need to
+set a plot's range explicitly. This can be accomplished by setting the
+``x_range`` or ``y_range`` properties using a |Range1d| object that
+gives the *start* and *end* points of the range you want:
+
+.. code-block:: python
+
+    p.x_range = Range1d(0, 100)
+
+As a convenience, the |figure| function can also accept tuples of
+*(start, end)* as values for the ``x_range`` or ``y_range`` parameters.
+Below is a an example that shows both methods of setting the range:
 
 .. bokeh-plot::
     :source-position: above
@@ -34,7 +82,6 @@ Setting Plot Ranges
 
 Styling Guides and Annotations
 ------------------------------
-
 
 Titles
 ~~~~~~
@@ -243,6 +290,12 @@ and try setting different values.
     p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
 
     show(p)  # open a browser
+
+
+.. |figure| replace:: :func:`~bokeh.plotting.figure`
+
+
+.. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 
 
 .. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`

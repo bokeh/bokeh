@@ -1,38 +1,43 @@
 
-* ``line_color`` - color to use to stroke lines with
+``line_color``
+    color to use to stroke lines with
 
-  - any of the `147 named CSS colors <http://www.w3schools.com/cssref/css_colornames.asp>`_, e.g ``'green'``, ``'indigo'``
-  - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-  - a 3-tuple of integers (r,g,b) between 0 and 255
-  - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
+``line_width``
+    line stroke width in units of pixels
 
-* ``line_width`` - stroke width in units of pixels
-* ``line_alpha`` - floating point between 0 (transparent) and 1 (opaque)
-* ``line_join`` - how path segments should be joined together
+``line_alpha``
+    floating point between 0 (transparent) and 1 (opaque)
 
-  - ``'miter'`` |miter_join|
-  - ``'round'`` |round_join|
-  - ``'bevel'`` |bevel_join|
+``line_join``
+    how path segments should be joined together
 
-* ``line_cap`` - how path segments should be terminated
+    - ``'miter'`` |miter_join|
+    - ``'round'`` |round_join|
+    - ``'bevel'`` |bevel_join|
 
-  - ``'butt'`` |butt_cap|
-  - ``'round'`` |round_cap|
-  - ``'square'`` |square_cap|
+``line_cap``
+    how path segments should be terminated
 
-* ``line_dash`` - array of integer pixel distances that describe the on-off pattern of dashing to use
-* ``line_dash_offset`` - the distance in pixels into the ``line_dash`` that the pattern should start from
+    - ``'butt'`` |butt_cap|
+    - ``'round'`` |round_cap|
+    - ``'square'`` |square_cap|
+
+``line_dash``
+    array of integer pixel distances that describe the on-off pattern of dashing to use
+
+``line_dash_offset``
+    the distance in pixels into the ``line_dash`` that the pattern should start from
 
 .. |miter_join| image:: /_images/miter_join.png
-   :height: 30
+   :height: 15
 .. |round_join| image:: /_images/round_join.png
-   :height: 30
+   :height: 15
 .. |bevel_join| image:: /_images/bevel_join.png
-   :height: 30
+   :height: 15
 
 .. |butt_cap| image:: /_images/butt_cap.png
-   :height: 30
+   :height: 25
 .. |round_cap| image:: /_images/round_cap.png
-   :height: 30
+   :height: 25
 .. |square_cap| image:: /_images/square_cap.png
-   :height: 30
+   :height: 25
