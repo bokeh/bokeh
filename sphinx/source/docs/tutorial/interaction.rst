@@ -7,12 +7,15 @@ Adding Interactions
     :local:
     :depth: 2
 
+.. _tutorial_interaction_linking:
 
 Linking Plots
 -------------
 
 It's often useful to link plots to add connected interactivity between plots.
 This section shows an easy way to do it using the |bokeh.plotting| interface.
+
+.. _tutorial_interaction_linked_panning:
 
 Linked Panning
 ~~~~~~~~~~~~~~
@@ -52,6 +55,8 @@ calls.
 
 Now you have learned how to link panning between multiple plots with the
 |bokeh.plotting| interface.
+
+.. _tutorial_interaction_linked_brushing:
 
 Linked Brushing
 ~~~~~~~~~~~~~~~
@@ -94,6 +99,8 @@ two different |figure| calls.
 
 Now you have learned how to link brushing between plots.
 
+.. _tutorial_interaction_actions:
+
 Adding Actions
 --------------
 
@@ -101,8 +108,10 @@ Bokeh exposes an increasing number of supported actions that can be specified
 from the ``Python`` layer that results in an action on the ``javascript`` level without
 the need of ``bokeh-server``.
 
-Open URLs
-~~~~~~~~~
+.. _tutorial_interaction_actions_openurl:
+
+Opening URLs
+~~~~~~~~~~~~
 
 Opening an URL when users click on a glyph (for instance a circle marker) is
 a very popular feature. Bokeh lets users enable this feature by exposing an
@@ -138,6 +147,8 @@ to open an url whenever the user clicks on a circle.
     show(p)
 
 Now you have learned how to open an URL when the user clicks on a glyph.
+
+.. _tutorial_interaction_actions_callbacks:
 
 Widgets and Callbacks
 ~~~~~~~~~~~~~~~~~~~~~

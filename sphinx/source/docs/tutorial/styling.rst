@@ -7,8 +7,10 @@ Styling Visual Attributes
     :local:
     :depth: 3
 
-Coloring
---------
+.. _tutorial_styling_colors:
+
+Colors
+------
 
 Colors properties are used in many places in Bokeh, to specify the colors to
 use for lines, fills or text. Color values can be provided in any of the
@@ -16,8 +18,10 @@ following ways:
 
 .. include:: ../includes/colors.txt
 
-Finding Visual Properties
--------------------------
+.. _tutorial_styling_visual_properties:
+
+Visual Properties
+-----------------
 
 In order to style the visual attributes of Bokeh plots, you first must
 know what the available properties are. The full :ref:`refguide` will
@@ -30,61 +34,37 @@ broad groups of properties that show up often. They are:
 
 Below is more detail about each of these.
 
+.. _tutorial_styling_line_properties:
+
 Line Properties
 ~~~~~~~~~~~~~~~
 
 .. include:: ../includes/line_props.txt
+
+.. _tutorial_styling_fill_properties:
 
 Fill Properties
 ~~~~~~~~~~~~~~~
 
 .. include:: ../includes/fill_props.txt
 
+.. _tutorial_styling_text_properties:
+
 Text Properties
 ~~~~~~~~~~~~~~~
 
 .. include:: ../includes/text_props.txt
 
-Setting Plot Ranges
--------------------
+.. _tutorial_styling_selecting:
 
-By default, Bokeh will attempt to automatically set the data bounds
-of plots to fit snugly around the data. Sometimes you may need to
-set a plot's range explicitly. This can be accomplished by setting the
-``x_range`` or ``y_range`` properties using a |Range1d| object that
-gives the *start* and *end* points of the range you want:
+Selecting Plot Objects
+----------------------
 
-.. code-block:: python
 
-    p.x_range = Range1d(0, 100)
-
-As a convenience, the |figure| function can also accept tuples of
-*(start, end)* as values for the ``x_range`` or ``y_range`` parameters.
-Below is a an example that shows both methods of setting the range:
-
-.. bokeh-plot::
-    :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.models import Range1d
-
-    output_file("title.html")
-
-    # create a new plot with a range set with a tuple
-    p = figure(plot_width=400, plot_height=400, title=None, x_range=(0, 20))
-
-    # set a range using a Range1d
-    p.y_range = Range1d(0, 15)
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
-
-Styling Guides and Annotations
-------------------------------
+.. _tutorial_styling_titles:
 
 Titles
-~~~~~~
+------
 
 .. bokeh-plot::
     :source-position: above
@@ -102,8 +82,15 @@ Titles
 
     show(p)
 
+.. _tutorial_styling_glyphs:
+
+Glyphs
+------
+
+.. _tutorial_styling_axes:
+
 Axes
-~~~~
+----
 
 In this section you will learn how to change various visual properties
 of Bokeh plot axes.
@@ -158,7 +145,27 @@ execute this code, and try setting other properties as well.
 
     show(p)
 
-----
+.. _tutorial_styling_axes_labels:
+
+Labels
+~~~~~~
+
+.. _tutorial_styling_axes_bounds:
+
+Bounds
+~~~~~~
+
+.. _tutorial_styling_axes_ticks:
+
+Ticks
+~~~~~
+
+.. _tutorial_styling_axes_tick_labels:
+
+
+Tick Labels
+~~~~~~~~~~~
+
 
 Now we have seen that various line and text properties of plot axes
 can be easily set by using the |xaxis|, |yaxis| and |axis| properties
@@ -169,8 +176,10 @@ For a complete listing of all the various attributes that can be set
 on different types of Bokeh axes, consult the :ref:`bokeh.models.axes`
 section of of the :ref:`refguide`.
 
+.. _tutorial_styling_grids:
+
 Grids
-~~~~~
+-----
 
 In this section you will learn how to set the visual properties of grid
 lines and grid bands on Bokeh plots.
@@ -198,8 +207,10 @@ for every element of the list:
     x-axis (i.e., are vertical). Correspondingly, ``ygrid`` provides
     the grid objects that intersect the y-axis (i.e., are horizontal).
 
+.. _tutorial_styling_grid_lines:
+
 Lines
-'''''
+~~~~~
 
 Below is code that will set some of the properties of grid lines. You can
 execute this code, and try setting other properties as well.
@@ -223,8 +234,10 @@ execute this code, and try setting other properties as well.
 
     show(p)
 
+.. _tutorial_styling_grid_bands:
+
 Bands
-'''''
+~~~~~
 
 It is also possible to display filled, shaded bands between adjacent
 grid lines. Below is code that will set some of the fill properties of
@@ -249,7 +262,6 @@ grids bands. You can execute this code, and try setting different values.
 
     show(p)
 
-----
 
 Now we have seen that various line properties of plot grids can be easily
 set by using the |xgrid|, |ygrid| and |grid| properties of plots.
@@ -259,8 +271,10 @@ For a complete listing of all the various attributes that can be set
 on Bokeh plot grids, consult the :ref:`bokeh.models.grids` section of the
 :ref:`refguide`.
 
+.. _tutorial_styling_legends:
+
 Legends
-~~~~~~~
+-------
 
 It is also possible to create legends easily by specifying the legend argument
 when creating the glyphs of a plot. Below is code that will create some

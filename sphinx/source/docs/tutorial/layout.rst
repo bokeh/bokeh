@@ -7,6 +7,11 @@ Laying Out Multiple Plots
     :local:
     :depth: 2
 
+.. _tutorial_layout_layout_vertical:
+
+Vertical Layout
+---------------
+
 .. bokeh-plot::
     :source-position: above
 
@@ -36,3 +41,19 @@ Laying Out Multiple Plots
 
     # show the results
     show(p)
+
+.. _tutorial_layout_layout_horizontal:
+
+Horizontal Layout
+-----------------
+
+.. _tutorial_layout_layout_grid:
+
+Grid Layout
+-----------
+
+.. _tutorial_layout_layout_form:
+
+Form Layout
+-----------
+

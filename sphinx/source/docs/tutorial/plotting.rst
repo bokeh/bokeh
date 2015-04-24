@@ -7,6 +7,8 @@ Plotting with Basic Glyphs
     :local:
     :depth: 2
 
+.. _tutorial_plotting_figures:
+
 Creating Figures
 ----------------
 
@@ -14,6 +16,8 @@ Note that Bokeh plots created using the |bokeh.plotting| interface come with
 a default set of tools, and default visual styles. See :ref:`tutorial_styling`
 for information about how to customize the visual style of plots, and
 :ref:`tutorial_tools` for information about changing or specifying tools.
+
+.. _tutorial_plotting_scatter_markers:
 
 Scatter Markers
 ~~~~~~~~~~~~~~~
@@ -80,6 +84,8 @@ of all of them below:
 Now you have learned how to plot scatter markers with the |bokeh.plotting|
 interface.
 
+.. _tutorial_plotting_lines:
+
 Lines
 ~~~~~
 
@@ -100,6 +106,8 @@ one dimensional sequences of *x* and y* points.
 
     show(p)
 
+.. _tutorial_plotting_patches:
+
 Patches
 ~~~~~~~
 
@@ -119,6 +127,8 @@ glyph from one dimensional sequences of *x* and y* points.
     p.patch([1, 2, 3, 4, 5], [6, 7, 8, 7, 3], alpha=0.5, line_width=2)
 
     show(p)
+
+.. _tutorial_plotting_images:
 
 Images
 ~~~~~~
@@ -158,6 +168,7 @@ It is possible to display images in Bokeh plots from raw RGBA data.
 Now you have learned how to plot images on Bokeh plots with the
 |bokeh.plotting| interface.
 
+.. _tutorial_plotting_multiple_glyphs:
 
 Combining Multiple Glyphs
 -------------------------
@@ -186,6 +197,45 @@ one glyph method on a single |Figure|:
 This principle holds in general for all the glyph methods in
 |bokeh.plotting|. You can add as many glyphs to a plot as you need.
 
+.. _tutorial_plotting_setting_ranges:
+
+Setting Ranges
+--------------
+
+By default, Bokeh will attempt to automatically set the data bounds
+of plots to fit snugly around the data. Sometimes you may need to
+set a plot's range explicitly. This can be accomplished by setting the
+``x_range`` or ``y_range`` properties using a |Range1d| object that
+gives the *start* and *end* points of the range you want:
+
+.. code-block:: python
+
+    p.x_range = Range1d(0, 100)
+
+As a convenience, the |figure| function can also accept tuples of
+*(start, end)* as values for the ``x_range`` or ``y_range`` parameters.
+Below is a an example that shows both methods of setting the range:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+    from bokeh.models import Range1d
+
+    output_file("title.html")
+
+    # create a new plot with a range set with a tuple
+    p = figure(plot_width=400, plot_height=400, title=None, x_range=(0, 20))
+
+    # set a range using a Range1d
+    p.y_range = Range1d(0, 15)
+
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    show(p)
+
+.. _tutorial_plotting_axis_types:
+
 Specifying Axis Types
 ---------------------
 
@@ -194,6 +244,8 @@ for many plots that need to show numerical data on a linear scale. In other
 cases you may have categorical data, or need to display numerical data on
 a datetime or log scale. This section shows how specify the axis type
 when using |bokeh.plotting| interface.
+
+.. _tutorial_plotting_categorical_axes:
 
 Categorical Axes
 ~~~~~~~~~~~~~~~~
@@ -213,6 +265,8 @@ Categorical Axes
     p.circle(x, factors, size=15, fill_color="orange", line_color="green", line_width=3)
 
     show(p)
+
+.. _tutorial_plotting_datetime_axes:
 
 Datetime Axes
 ~~~~~~~~~~~~~
@@ -258,6 +312,8 @@ Now you have learned how to specify a datetime axis for a Bokeh plot.
     Future versions of Bokeh will attempt to auto-detect situations when
     datetime axes are appropriate, and add them automatically by default.
 
+.. _tutorial_plotting_log_axes:
+
 Log Scale Axes
 ~~~~~~~~~~~~~~
 
@@ -292,9 +348,10 @@ the value of either of these parameters.
 
 Now you have learned how to specify a log scale axis for a Bokeh plot.
 
+.. _tutorial_plotting_twin_axes:
 
-.. Twin Axes
-.. ~~~~~~~~~
+Twin Axes
+~~~~~~~~~
 
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`

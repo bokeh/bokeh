@@ -33,9 +33,13 @@ topic:
     Create more sophisticated interactions including widgets or linked
     panning and selection.
 
-.. :ref:`tutorial_server`
-..     Deploy the Bokeh Server to build and publish sophisticated data
-..     applications.
+:ref:`tutorial_server`
+    Deploy the Bokeh Server to build and publish sophisticated data
+    applications.
+
+:ref:`tutorial_embed`
+    Embed static or server-based Bokeh plots and widgets into HTML documents
+    in a variety of ways.
 
 :ref:`tutorial_info`
     See where to go next for more information and examples.
@@ -61,6 +65,7 @@ own interesting data**.
    tutorial/layout
    tutorial/interaction
    tutorial/server
+   tutorial/embed
    tutorial/info
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
