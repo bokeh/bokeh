@@ -83,6 +83,8 @@ interface.
 Lines
 ~~~~~
 
+Below is an example that shows how to generate a single line glyph from
+one dimensional sequences of *x* and y* points.
 
 .. bokeh-plot::
     :source-position: above
@@ -98,11 +100,11 @@ Lines
 
     show(p)
 
-Now you have learned how to plot single or multiple line glyphs
-on Bokeh plots with the |bokeh.plotting| interface.
-
 Patches
 ~~~~~~~
+
+Below is an example that shows how to generate a single polygonal patch
+glyph from one dimensional sequences of *x* and y* points.
 
 .. bokeh-plot::
     :source-position: above
@@ -120,6 +122,38 @@ Patches
 
 Images
 ~~~~~~
+
+.. note::
+    This example depends on the open source NumPy library in order to more
+    easily generate an array of RGBA data.
+
+It is possible to display images in Bokeh plots from raw RGBA data.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+
+    from bokeh.plotting import figure, output_file, show
+
+    # create an array of RGBA data
+    N = 20
+    img = np.empty((N,N), dtype=np.uint32)
+    view = img.view(dtype=np.uint8).reshape((N, N, 4))
+    for i in range(N):
+        for j in range(N):
+            view[i, j, 0] = int(i/N*255.0)
+            view[i, j, 1] = 158
+            view[i, j, 2] = int(j/N*255.0)
+            view[i, j, 3] = 255
+
+    output_file("image_rgba.html")
+
+    p = figure(plot_width=400, plot_height=400, x_range=(0,10), y_range=(0,10))
+
+    p.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10])
+
+    show(p)
 
 Now you have learned how to plot images on Bokeh plots with the
 |bokeh.plotting| interface.
