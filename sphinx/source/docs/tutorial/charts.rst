@@ -193,3 +193,6 @@ passing ``legend=True`` to the chart function:
                    title="Stocks", ylabel='Stock Prices')
 
     show(p)
+
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+
