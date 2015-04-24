@@ -38,11 +38,11 @@ topic:
 ..     applications.
 
 :ref:`tutorial_info`
-    See where to go next, for more information and examples.
+    See where to go next for more information and examples.
 
 The examples in the tutorial are written to be as minimal as possible,
 while illustrating how to accomplish a single task within Bokeh. With a
-handful of exceptions, no outside libraries such and NumPy, Pandas, or
+handful of exceptions, no outside libraries such as NumPy, Pandas, or
 Blaze are required to run the examples as written. However, Bokeh works
 perfectly well with almost any array or table-like data structure. You are
 strongly encouraged to **experiment with modifying the examples to use your
@@ -65,9 +65,3 @@ own interesting data**.
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
-
-
-
-
-
