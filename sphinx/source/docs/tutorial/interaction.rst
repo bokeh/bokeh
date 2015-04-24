@@ -17,7 +17,7 @@ This section shows an easy way to do it using the |bokeh.plotting| interface.
 Linked Panning
 ~~~~~~~~~~~~~~
 
-It's often desired to link pan or zooming actions across many plots. All is
+It's often desired to link pan or zooming actions across many plots. All that is
 needed to enable this feature is to share range objects between |figure|
 calls.
 
@@ -60,7 +60,7 @@ Linked brushing in Bokeh is expressed by sharing data sources between glyph
 renderers. This is all Bokeh needs to understand that selections acted on one
 glyph must pass to all other glyphs that share that same source.
 
-The following code show an example of linked brushing between circle glyphs on
+The following code shows an example of linked brushing between circle glyphs on
 two different |figure| calls.
 
 .. bokeh-plot::
@@ -97,15 +97,15 @@ Now you have learned how to link brushing between plots.
 Adding Actions
 --------------
 
-Bokeh supports an increasing number of supported actions that can be specified
-from ``Python`` layer that results in an action on the ``javascript`` level without
+Bokeh exposes an increasing number of supported actions that can be specified
+from the ``Python`` layer that results in an action on the ``javascript`` level without
 the need of ``bokeh-server``.
 
 Open URLs
 ~~~~~~~~~
 
 Opening an URL when users click on a glyph (for instance a circle marker) is
-a very popular feature. Bokeh let's users enable this feature by exposing an
+a very popular feature. Bokeh lets users enable this feature by exposing an
 OpenURL action object that can be passed to a Tap tool in order to have that
 action called whenever the users clicks on the glyph.
 
@@ -142,16 +142,16 @@ Now you have learned how to open an URL when the user clicks on a glyph.
 Widgets and Callbacks
 ~~~~~~~~~~~~~~~~~~~~~
 
-Bokeh let's you express even more advanced actions that must be called on
+Bokeh lets you express even more advanced actions that must be called on
 the Javascript side in order to add custom logic and interactivity when a
 widget is used. For instance, we may want to change the data of a plot when
-an users clicks on an button or changes a slider Widget.
+a user clicks on a button or changes a slider Widget.
 
 Custom actions like these can be set using a Callback object and passing it
-as ``callback`` argument to a Widget object.
+as the ``callback`` argument to a Widget object.
 
-The code below shows an example of callback set on a slider Widget that
-changes the source of a plot when user uses the slider.
+The code below shows an example of Callback set on a slider Widget that
+changes the source of a plot when the slider is used.
 
 .. bokeh-plot::
     :source-position: above
@@ -194,4 +194,3 @@ change.
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
