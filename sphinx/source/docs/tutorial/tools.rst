@@ -146,7 +146,7 @@ tooltips attribute that maps display names to columns in the data source, or to 
 
 Field names starting with “@” are interpreted as columns on the data source.
 Field names starting with “$” are special, known fields. For more information about those fields can
-be found on the :class:`HoverTool <bokeh.models.tools.HoverTool>`
+be found on the |hovertool|
 reference.
 
 Here is an example of how to configure and use the hover tool:
