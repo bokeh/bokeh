@@ -215,6 +215,36 @@ on Bokeh plot grids, consult the :ref:`bokeh.models.grids` section of the
 Legends
 ~~~~~~~
 
+It is also possible to create legends easily by specifying the legend argument
+when creating the glyphs of a plot. Below is code that will create some
+glyphs and generate a related legend. Once again, you can execute this code,
+and try setting different values.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    N = 100
+    x = np.linspace(0, 4*np.pi, N)
+    y = np.sin(x)
+
+    output_file("legend.html", title="Legend example")
+
+    p = figure(title="Legend Example")
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    show(p)  # open a browser
+
+
 .. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`
 .. |xgrid|  replace:: :class:`~bokeh.plotting.Figure.xgrid`
