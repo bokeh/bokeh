@@ -7,9 +7,6 @@ Using High-level Charts
     :local:
     :depth: 2
 
-.. note::
-    Many |bokeh.charts| depend on the open source Pandas library.
-
 Creating Charts
 ---------------
 
@@ -100,7 +97,7 @@ HeatMap
 
     from bokeh.charts import HeatMap, output_file, show
     from collections import OrderedDict
-
+    import pandas as pd
     output_file('heatmap.html')
 
     # prepare some data
@@ -108,8 +105,9 @@ HeatMap
     data['apples'] = [4,5,8]
     data['bananas'] = [1,2,4]
     data['pears'] = [6,5,4]
+    df = pd.DataFrame(data, index=['2012', '2013', '2014'])
 
-    p = HeatMap(data, title='Fruits')
+    p = HeatMap(df, title='Fruits')
     # show the results
     show(p)
 
@@ -139,8 +137,6 @@ With this small example, we have learned the basics of creating a Donut chart wi
 TimeSeries
 ''''''''''
 
-The ``TimeSeries`` chart will automatically include a datetime axis:
-
 .. bokeh-plot::
     :source-position: above
 
@@ -159,39 +155,3 @@ The ``TimeSeries`` chart will automatically include a datetime axis:
 
     show(p)
 
-You can also easily plot multiple timeseries together, and add a legend by
-passing ``legend=True`` to the chart function:
-
-from collections import OrderedDict
-
-.. bokeh-plot::
-    :source-position: above
-
-    import pandas as pd
-
-    from bokeh.charts import TimeSeries, show, output_file
-
-    # read in some stock data from the Yahoo Finance API
-    AAPL = pd.read_csv(
-        "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
-        parse_dates=['Date'])
-    MSFT = pd.read_csv(
-        "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000&d=0&e=1&f=2010",
-        parse_dates=['Date'])
-    IBM = pd.read_csv(
-        "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
-        parse_dates=['Date'])
-
-    xyvalues = pd.DataFrame(dict(
-        AAPL=AAPL['Adj Close'],
-        Date=AAPL['Date'],
-        MSFT=MSFT['Adj Close'],
-        IBM=IBM['Adj Close'],
-    ))
-
-    output_file("stocks_timeseries.html")
-
-    p = TimeSeries(xyvalues, index='Date', legend=True,
-                   title="Stocks", ylabel='Stock Prices')
-
-    show(p)
