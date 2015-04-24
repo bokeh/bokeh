@@ -10,7 +10,7 @@ Plotting with Basic Glyphs
 Creating Figures
 ----------------
 
-Note that Bokeh plots creating using the |bokeh.plotting| interface come with
+Note that Bokeh plots created using the |bokeh.plotting| interface come with
 a default set of tools, and default visual styles. See :ref:`tutorial_styling`
 for information about how to customize the visual style of plots, and
 :ref:`tutorial_tools` for information about changing or specifying tools.
