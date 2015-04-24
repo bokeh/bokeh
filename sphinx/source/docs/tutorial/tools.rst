@@ -10,6 +10,41 @@ Configuring Plot Tools
 Positioning the Toolbar
 -----------------------
 
+By default Bokeh plots come with a toolbar above the plot. In this section
+you will learn how to specify a different location for the toolbar, or to
+remove it entirely.
+
+The toolbar location can be specified by passing the ``toolbar_location``
+parameter to the |figure| function or to any |bokeh.charts| Chart function.
+Valid values are:
+
+.. hlist::
+    :columns: 4
+
+    * ``"above"``
+    * ``"below"``
+    * ``"left"``
+    * ``"right"``
+
+If you would like there to be no toolbar, pass ``None``.
+
+Below is some code that positions the toolbar below the plot. Try
+running the code and changing the ``toolbar_position`` value.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("toolbar.html")
+
+    # create a new plot with the toolbar below
+    p = figure(plot_width=400, plot_height=400,
+               title=None, toolbar_location="below")
+
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    show(p)
 
 Specifying Tools
 ----------------
