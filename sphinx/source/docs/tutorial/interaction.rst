@@ -33,8 +33,8 @@ calls.
 
     x = list(range(11))
     y0 = x
-    y1 = [10-x for x in x]
-    y2 = [abs(x-5) for x in x]
+    y1 = [10-xx for xx in x]
+    y2 = [abs(xx-5) for xx in x]
 
     # create a new plot
     s1 = figure(width=250, plot_height=250, title=None)
@@ -77,8 +77,8 @@ two different |figure| calls.
     output_file("brushing.html")
 
     x = list(range(-20, 21))
-    y0 = [abs(x) for x in x]
-    y1 = [x**2 for x in x]
+    y0 = [abs(xx) for xx in x]
+    y1 = [xx**2 for xx in x]
 
     # create a column data source for the plots to share
     source = ColumnDataSource(data=dict(x=x, y0=y0, y1=y1))

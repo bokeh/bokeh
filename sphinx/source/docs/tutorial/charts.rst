@@ -19,7 +19,7 @@ Area, Line and Step Charts
 .. bokeh-plot::
     :source-position: above
 
-    from bokeh.charts import Area, Line, Step, output_file, show
+    from bokeh.charts import Line, Step, output_file, show
 
     # prepare some data
     data = {"y": [6, 7, 2, 4, 5], "z": [1, 5, 12, 4, 2]}
@@ -48,7 +48,7 @@ mentioning is that only change is the chart function and the definition of the c
 .. bokeh-plot::
     :source-position: above
 
-    from bokeh.charts import Bar, Dot, output_file, show
+    from bokeh.charts import Bar, output_file, show
 
     # prepare some data
     data = {"y": [6, 7, 2, 4, 5], "z": [1, 5, 12, 4, 2]}
@@ -96,19 +96,22 @@ HeatMap
     :source-position: above
 
     from bokeh.charts import HeatMap, output_file, show
-    from collections import OrderedDict
+
     import pandas as pd
+
     output_file('heatmap.html')
 
-    # prepare some data
-    data = OrderedDict()
-    data['apples'] = [4,5,8]
-    data['bananas'] = [1,2,4]
-    data['pears'] = [6,5,4]
-    df = pd.DataFrame(data, index=['2012', '2013', '2014'])
+    df = pd.DataFrame(
+        dict(
+            apples=[4,5,8],
+            bananas=[1,2,4],
+            pears=[6,5,4],
+        ),
+        index=['2012', '2013', '2014']
+    )
 
     p = HeatMap(df, title='Fruits')
-    # show the results
+
     show(p)
 
 With this small example, we have learned the basics of creating a HeatMap chart with Bokeh.

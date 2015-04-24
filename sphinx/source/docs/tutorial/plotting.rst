@@ -142,6 +142,8 @@ It is possible to display images in Bokeh plots from raw RGBA data.
 .. bokeh-plot::
     :source-position: above
 
+    from __future__ import division
+
     import numpy as np
 
     from bokeh.plotting import figure, output_file, show
@@ -152,9 +154,9 @@ It is possible to display images in Bokeh plots from raw RGBA data.
     view = img.view(dtype=np.uint8).reshape((N, N, 4))
     for i in range(N):
         for j in range(N):
-            view[i, j, 0] = int(i/N*255.0)
+            view[i, j, 0] = int(255 *i/N)
             view[i, j, 1] = 158
-            view[i, j, 2] = int(j/N*255.0)
+            view[i, j, 2] = int(255* j/N)
             view[i, j, 3] = 255
 
     output_file("image_rgba.html")
@@ -333,7 +335,7 @@ the value of either of these parameters.
     from bokeh.plotting import figure, output_file, show
 
     x = [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
-    y = [10**x for x in x]
+    y = [10**xx for xx in x]
 
     output_file("log.html")
 
