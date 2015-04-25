@@ -30,7 +30,7 @@ broad groups of properties that show up often. They are:
 
 * **line properties** line color, width, etc.
 * **fill properties** fill color, alpha, etc.
-* **text propertied** font styles, colors, etc.
+* **text properties** font styles, colors, etc.
 
 Below is more detail about each of these.
 
