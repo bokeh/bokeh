@@ -10,15 +10,20 @@ Configuring Plot Tools
 Bokeh comes with a number of interactive tools. There are three categories of tool
 interactions:
 
-* Gestures: :ref:`userguide_tools_pandrag`---:ref:`userguide_tools_clicktap`---:ref:`userguide_tools_scrollpinch`
+* Gestures:
+
+  - :ref:`userguide_tools_pandrag`
+  - :ref:`userguide_tools_clicktap`
+  - :ref:`userguide_tools_scrollpinch`
+
 * :ref:`userguide_tools_actions`
 * :ref:`userguide_tools_inspectors`
 
 For each type of gesture, one tool can be active at any given time, and
-the active tool is indicated on the toolbar by a highlight next to to the tool.
-Actions are immediate or modal operations that are only activated when their
-button in the toolbar is pressed. Inspectors are passive tools that merely
-report information or annotate the plot in some way.
+the active tool is indicated on the toolbar by a highlight next to to the
+tool icon. Actions are immediate or modal operations that are only activated
+when their button in the toolbar is pressed. Inspectors are passive tools
+that report information or annotate the plot in some way.
 
 .. _userguide_tools_toolbar:
 
@@ -33,15 +38,15 @@ The toolbar location can be specified by passing the ``toolbar_location``
 parameter to the |figure| function or to any |bokeh.charts| Chart function.
 Valid values are:
 
-.. hlist::
-    :columns: 4
+``"above"``
 
-    * ``"above"``
-    * ``"below"``
-    * ``"left"``
-    * ``"right"``
+``"below"``
 
-If you would like there to be no toolbar, pass ``None``.
+``"left"``
+
+``"right"``
+
+If you would like to hide the toolbar entirely, pass ``None``.
 
 Below is some code that positions the toolbar below the plot. Try
 running the code and changing the ``toolbar_position`` value.
@@ -360,6 +365,11 @@ Here is an example of how to configure and use the hover tool:
 
 Overlay Tools
 ~~~~~~~~~~~~~
+
+.. _userguide_tools_lod:
+
+Controlling Level of Detail
+---------------------------
 
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`

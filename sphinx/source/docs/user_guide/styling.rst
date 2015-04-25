@@ -9,8 +9,8 @@ Styling Visual Attributes
 
 .. _userguide_styling_colors:
 
-Colors
-------
+Specifying Colors
+-----------------
 
 Colors properties are used in many places in Bokeh, to specify the colors to
 use for lines, fills or text. Color values can be provided in any of the
@@ -60,11 +60,20 @@ Text Properties
 Selecting Plot Objects
 ----------------------
 
+.. _userguide_styling_plots:
 
-.. _userguide_styling_titles:
+Plots
+-----
 
-Titles
-------
+.. _userguide_styling_plot_dimensions:
+
+Dimensions
+~~~~~~~~~~
+
+.. _userguide_styling_plot_title:
+
+Title
+~~~~~
 
 .. bokeh-plot::
     :source-position: above
@@ -81,6 +90,21 @@ Titles
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     show(p)
+
+.. _userguide_styling_plot_background:
+
+Background
+~~~~~~~~~~
+
+.. _userguide_styling_plot_border:
+
+Border
+~~~~~~
+
+.. _userguide_styling_plot_outline:
+
+Outline
+~~~~~~~
 
 .. _userguide_styling_glyphs:
 
@@ -155,10 +179,10 @@ Labels
 Bounds
 ~~~~~~
 
-.. _userguide_styling_axes_ticks:
+.. _userguide_styling_axes_tick_lines:
 
-Ticks
-~~~~~
+Tick Lines
+~~~~~~~~~~
 
 .. _userguide_styling_axes_tick_labels:
 
