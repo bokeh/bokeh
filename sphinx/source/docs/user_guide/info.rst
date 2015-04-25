@@ -3,15 +3,12 @@
 Learning More
 =============
 
-Hopefully this Tutorial gets you started with the basics of using Bokeh.
+Hopefully this User Guide gets you started with the basics of using Bokeh.
 
-For more information about the different plotting APIs Bokeh offers,
-using the Bokeh server, and how to embed Bokeh plots in your own apps and
-documents, check out the :ref:`userguide`. For detailed information about
-all modules, classes, models, and objects, consult the :ref:`refguide`.
-If you are interested in learning how to build and develop Bokeh, or for
-information about how to create a new language binding, see the
-:ref:`devguide`.
+For detailed information about all modules, classes, models, and objects,
+consult the :ref:`refguide`. If you are interested in learning how to build
+and develop Bokeh, or for information about how to create a new language
+binding, see the :ref:`devguide`.
 
 To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery` on the main documentation site, as well as
