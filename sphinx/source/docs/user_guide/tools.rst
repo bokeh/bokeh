@@ -363,8 +363,8 @@ Here is an example of how to configure and use the hover tool:
 
     show(p)
 
-Overlay Tools
-~~~~~~~~~~~~~
+Selection Overlays
+~~~~~~~~~~~~~~~~~~
 
 .. _userguide_tools_lod:
 

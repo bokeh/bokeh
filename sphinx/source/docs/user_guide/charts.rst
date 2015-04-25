@@ -14,21 +14,36 @@ Generic Arguments
 
 All charts support a set of common arguments:
 
-* ``title`` (str) : the title of your chart.
-* ``xlabel`` (str) : the x-axis label of your chart.
-* ``ylabel`` (str) : the y-axis label of your chart.
-* ``legend`` (str, bool) : the legend of your chart.
-* ``xscale`` (str) : the x-axis type scale of your chart.
-* ``yscale`` (str) : the y-axis type scale of your chart.
-* ``xgrid`` (bool) : whether to draw an x-grid.
-* ``ygrid`` (bool) : whether to draw an y-grid.
-* ``width`` (int) : the width of your plot in pixels.
-* ``height`` (int) : the height of you plot in pixels.
-* ``tools`` (str or bool) : to enable or disable the tools in your chart.
-* ``palette`` (list) : a list containing the colormap as hex values.
-* ``filename`` (str or bool) : the name of the file where your chart will be written.
-* ``server`` (str or bool) : the name of your chart in the server.
-* ``notebook`` (bool) : whether to output inline in the IPython notebook.
+
+``title`` *(str)* : the title of your chart.
+
+``xlabel`` *(str)* : the x-axis label of your chart.
+
+``ylabel`` *(str)* : the y-axis label of your chart.
+
+``legend`` *(str, bool)* : the legend of your chart.
+
+``xscale`` *(str)* : the x-axis type scale of your chart.
+
+``yscale`` *(str)* : the y-axis type scale of your chart.
+
+``xgrid`` *(bool)* : whether to draw an x-grid.
+
+``ygrid`` *(bool)* : whether to draw an y-grid.
+
+``width`` *(int)* : the width of your plot in pixels.
+
+``height`` *(int)* : the height of you plot in pixels.
+
+``tools`` *(str or bool)* : to enable or disable the tools in your chart.
+
+``palette`` *(list)* : a list containing the colormap as hex values.
+
+``filename`` *(str or bool)* : the name of the file where your chart will be written.
+
+``server`` *(str or bool)* : the name of your chart in the server.
+
+``notebook`` *(bool)* : whether to output inline in the IPython notebook.
 
 Creating Charts
 ---------------
@@ -37,7 +52,7 @@ With the next examples, we'll learn the basics of using `bokeh.charts` to create
 rich charts commonly used without having to access lower level components.
 
 Area, Line and Step Charts
-''''''''''''''''''''''''''
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. bokeh-plot::
     :source-position: above
@@ -61,7 +76,7 @@ running the code and changing the Line function with Area or Step to create othe
 
 
 Bar and Dot Charts
-''''''''''''''''''
+~~~~~~~~~~~~~~~~~~
 
 Although the different nature of Bar and Dot charts compared to the ones we have seen in the
 previous paragraph, those charts can be created exactly in the same way.
@@ -90,7 +105,7 @@ With this small example, we have learned the basics of creating a Bar chart with
 running the code and changing the Bar function with Dot to create other chart types.
 
 BoxPlot
-'''''''
+~~~~~~~
 
 .. bokeh-plot::
     :source-position: above
@@ -111,9 +126,8 @@ BoxPlot
 
 With this small example, we have learned the basics of creating a BoxPlot chart with Bokeh.
 
-
 HeatMap
-'''''''
+~~~~~~~
 
 .. bokeh-plot::
     :source-position: above
@@ -141,7 +155,7 @@ With this small example, we have learned the basics of creating a HeatMap chart 
 
 
 Donut
-'''''
+~~~~~
 
 .. bokeh-plot::
     :source-position: above
@@ -161,7 +175,7 @@ With this small example, we have learned the basics of creating a Donut chart wi
 
 
 TimeSeries
-''''''''''
+~~~~~~~~~~
 
 .. bokeh-plot::
     :source-position: above
