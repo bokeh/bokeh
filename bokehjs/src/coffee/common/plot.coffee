@@ -272,7 +272,7 @@ class PlotView extends ContinuumView
       ctx.fillText(title, sx, sy)
   
     if @canvas_view.canvas3d?
-      console.log('render canvas2d into webgl canvas')      
+      console.log('render canvas2d into webgl canvas ' + performance.now())      
       @canvas_view.glx._render()
     else
       console.log('NOT rendering canvas2d into webgl canvas')

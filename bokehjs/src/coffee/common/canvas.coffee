@@ -40,8 +40,7 @@ gl_Position = vec4(a_position*2.0-1.0, 0.0, 1.0);
   }"""
   
   VERT_DATA = new Float32Array([0.0, 0.0,  1.0, 0.0,  0.0, 1.0,  0.0, 1.0,  1.0, 0.0,  1.0, 1.0, ])
-  
-  console.log([canvas3d, canvas3d.id])
+    
   window.canvas3d = canvas3d
   glx = vispy.init(canvas3d)
   
@@ -65,8 +64,7 @@ gl_Position = vec4(a_position*2.0-1.0, 0.0, 1.0);
   glx._render = () ->
     # Update texture
     @command(['DATA', 'ctx_tex', [0, 0], canvas2d])
-    # Render it
-    console.log('rendering GL ...')    
+    # Render it    
     @command(['DRAW', 'ctx_prog', 'TRIANGLES', [0, 6]])
     # We "manually" push the commands, we don't use Vispy's event loop
     glx.execute_pending_commands()    

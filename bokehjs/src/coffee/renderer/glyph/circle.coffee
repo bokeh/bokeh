@@ -25,9 +25,7 @@ class CircleView extends Glyph.View
       @sradius = (s/2 for s in @size)
 
   _mask_data: (all_indices) ->
-    if @glx?
-        return
-    
+       
     hr = @renderer.plot_view.frame.get('h_range')
     vr = @renderer.plot_view.frame.get('v_range')
 
@@ -62,7 +60,7 @@ class CircleView extends Glyph.View
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
     
-    console.log('render circle!')
+    console.log('render circle!' + performance.now())
     if ctx.glx        
         return @_render_gl(ctx.glx, indices)
 
@@ -85,40 +83,32 @@ class CircleView extends Glyph.View
     # Initialize
     if not @glx?
       window.tt = this
-      @glid = @id
-      console.log('===== assigned id ' + @glid + ' =====')
+      @glid = @id      
       @glx = glx
       setup_gl(glx, @glid)      
     
     if @_data_changed && @x?      
       #@glx.command(['SIZE', @glid+'_x', @x.length]);
-      #@glx.command(['SIZE', @glid+'_x', @y.length]);
-      x = []
-      y = []
-      for iter in [0..100]
-            x = x.concat(@x)
-            y = y.concat(@y)
-      @glx.command(['DATA', @glid+'_x', 0, new Float32Array(x)]);
-      @glx.command(['DATA', @glid+'_y', 0, new Float32Array(y)]);
-      @_data_length = x.length
+      #@glx.command(['SIZE', @glid+'_x', @y.length]);      
+      @glx.command(['DATA', @glid+'_x', 0, new Float32Array(@x)]);
+      @glx.command(['DATA', @glid+'_y', 0, new Float32Array(@y)]);
+      @_data_length = @x.length
       @_data_changed = false
-      console.log('upload data ' + x.length + '===================================')
+      #console.log('upload data ' + @x.length + '===================================')
     
-    [dx, dy] = @renderer.map_to_screen([0, 1], [0, 1])
-    console.log('d0: ' + dx.toSource() + '  d1:' + dy.toSource())     
+    [dx, dy] = @renderer.map_to_screen([0, 1], [0, 1])    
     #@glx.command(['UNIFORM', @glid+'_prog', 'u_offset', [d0[0], d0[1]]])
     @glx.command(['UNIFORM', @glid+'_prog', 'u_canvas_size', 'vec2', @glx.size])
     @glx.command(['UNIFORM', @glid+'_prog', 'u_offset', 'vec2', [dx[0], dy[0]]])
     @glx.command(['UNIFORM', @glid+'_prog', 'u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]]])
-    @glx.command(['UNIFORM', @glid+'_prog', 'u_color', 'vec4', [1, 0.7, 0, 0.1]])
+    @glx.command(['UNIFORM', @glid+'_prog', 'u_color', 'vec4', [0, 0, 1, 0.1]])
     
     # todo: use indices
     if @_data_length?
         @glx.command(['DRAW', @glid+'_prog', 'POINTS', [0, @_data_length]])
 
   _hit_point: (geometry) ->
-    if @glx?
-        return
+   
     [vx, vy] = [geometry.vx, geometry.vy]
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
@@ -171,8 +161,7 @@ class CircleView extends Glyph.View
     return result
 
   _hit_span: (geometry) ->
-      if @glx?
-        return
+      
       [vx, vy] = [geometry.vx, geometry.vy]
       [xb, yb] = this.bounds()
       result = hittest.create_hit_test_result()
@@ -291,7 +280,7 @@ setup_gl = (glx, glid) ->
   void main() {
       float x = 2.0*gl_PointCoord.x - 1.0;
       float y = 2.0*gl_PointCoord.y - 1.0;
-      gl_FragColor = u_color;
+      gl_FragColor = u_color.rgba;
       gl_FragColor.a *= 1.0 - (x*x + y*y);
   }"""
   
