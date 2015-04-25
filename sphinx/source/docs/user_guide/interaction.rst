@@ -99,10 +99,15 @@ two different |figure| calls.
 
 Now you have learned how to link brushing between plots.
 
+.. _userguide_interaction_widgets:
+
+Adding Widgets
+--------------
+
 .. _userguide_interaction_actions:
 
-Adding Actions
---------------
+Defining Actions
+----------------
 
 Bokeh exposes an increasing number of supported actions that can be specified
 from the ``Python`` layer that results in an action on the ``javascript`` level without
@@ -110,8 +115,8 @@ the need of ``bokeh-server``.
 
 .. _userguide_interaction_actions_openurl:
 
-Opening URLs
-~~~~~~~~~~~~
+OpenURL
+~~~~~~~
 
 Opening an URL when users click on a glyph (for instance a circle marker) is
 a very popular feature. Bokeh lets users enable this feature by exposing an
@@ -150,7 +155,7 @@ Now you have learned how to open an URL when the user clicks on a glyph.
 
 .. _userguide_interaction_actions_callbacks:
 
-Widgets and Callbacks
+Callbacks for Widgets
 ~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh lets you express even more advanced actions that must be called on

@@ -32,6 +32,9 @@ topic:
 :ref:`userguide_layout`
     Combine multiple plots and widgets into specified layouts.
 
+:ref:`userguide_notebook`
+    Creating and display interactive plots inside Jupyter/IPython notebooks.
+
 :ref:`userguide_interaction`
     Create more sophisticated interactions including widgets or linked
     panning and selection.
@@ -65,6 +68,7 @@ perfectly well with almost any array or table-like data structure.
     user_guide/styling
     user_guide/tools
     user_guide/layout
+    user_guide/notebook
     user_guide/interaction
     user_guide/server
     user_guide/embed
