@@ -1,185 +1,378 @@
 .. _userguide_plotting:
 
-Basic Plotting with Glyphs
+Plotting with Basic Glyphs
 ==========================
 
 .. contents::
     :local:
     :depth: 2
 
-At a Glance
------------
+.. _userguide_plotting_figures:
 
-.. warning::
-    The plotting api was recently changed as of version 0.7. Some old functions (for
-    instance, ``hold``) are now deprecated but still function. They will be completely
-    removed in the next release. Using  ``python -Wd`` when running Bokeh code will enable
-    printing of deprecation warnings.
+Creating Figures
+----------------
 
-To access the ``plotting.py`` interface:
+Note that Bokeh plots created using the |bokeh.plotting| interface come with
+a default set of tools, and default visual styles. See :ref:`userguide_styling`
+for information about how to customize the visual style of plots, and
+:ref:`userguide_tools` for information about changing or specifying tools.
 
-.. code-block:: python
+.. _userguide_plotting_scatter_markers:
 
-    # Clean alias
-    import bokeh.plotting as bk
+Scatter Markers
+~~~~~~~~~~~~~~~
 
-    # Alternatively, import plotting functions into the namespace
-    from bokeh.plotting import *
+To scatter circle markers on a plot, use the |circle| method of |Figure|:
 
-To select an output mode:
+.. bokeh-plot::
+    :source-position: above
 
-.. code-block:: python
+    from bokeh.plotting import figure, output_file, show
 
-    # Plots can be displayed inline in an IPython Notebook
-    bk.output_notebook()
+    # output to static HTML file
+    output_file("line.html")
 
-    # They can also be saved to file
-    bk.output_file("output_filename.html", title="Hello World!")
+    # create a new plot with a title and axis labels
+    p = figure(plot_width=400, plot_height=400, title=None)
 
-To create a new Bokeh plot (with optional plot parameters) use the ``figure`` function:
+    # add a circle renderer with a size, color, and alpha
+    p.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
 
-.. code-block:: python
+    # show the results
+    show(p)
 
-    p = bk.figure(plot_width=600, # in units of px
-                  plot_height=600,
-                  title="Hello World!")
+Similarly, to scatter square markers, use the |square| method of |Figure|:
 
-The plot objects returned by ``figure`` have methods on them for plotting all the different kinds of glyphs. A simple and common glyph is the line:
+.. bokeh-plot::
+    :source-position: above
 
-.. code-block:: python
+    from bokeh.plotting import figure, output_file, show
 
-    xs = [0,1,2,3,4,5]
-    ys = [x**2 for x in xs]
+    # output to static HTML file
+    output_file("square.html")
 
-    p.line(xs, ys, line_width=2)
+    # create a new plot with a title and axis labels
+    p = figure(plot_width=400, plot_height=400, title=None)
 
-.. note::
+    # add a square renderer with a size, color, and alpha
+    p.square([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="olive", alpha=0.5)
 
-    At the moment, the glyph functions are vectorized by default.
-    If you want to plot a single glyph, you will still have to pass in
-    the parameters as a list. For example: ``p.circle([0], [0], radius=[1])``.
+    # show the results
+    show(p)
 
-To add subsequent glyphs on the same plot, use glyph methods on that plot:
+There are lots of marker types available in Bokeh, you can see the details
+of all of them below:
 
-.. code-block:: python
+.. hlist::
+    :columns: 3
 
-    p.rect(x, y, w, h)
-    p.circle(x, y)
+    * |arc|
+    * |asterisk|
+    * |circle|
+    * |circle_cross|
+    * |circle_x|
+    * |cross|
+    * |diamond|
+    * |diamond_cross|
+    * |inverted_triangle|
+    * |square|
+    * |square_cross|
+    * |square_x|
+    * |triangle|
+    * |x|
 
-To save a plot to file:
+Now you have learned how to plot scatter markers with the |bokeh.plotting|
+interface.
 
-.. code-block:: python
+.. _userguide_plotting_lines:
 
-    # Assuming you have already declared `output_file()` above
-    bk.save(obj=p)
-
-To show a plot:
-
-.. code-block:: python
-
-    bk.show(p)
-
-In Depth
---------
-
-Setup
+Lines
 ~~~~~
 
-Begin by importing ``bokeh.plotting`` into your namespace. In this guide
-it is aliased to ``bk`` for clarity.
+Below is an example that shows how to generate a single line glyph from
+one dimensional sequences of *x* and y* points.
 
-.. code-block:: python
+.. bokeh-plot::
+    :source-position: above
 
-   import bokeh.plotting as bk
+    from bokeh.plotting import figure, output_file, show
 
-Then choose an output mode—see
-`Session Management <http://bokeh.pydata.org/docs/reference.html#session-management>`_
-for more information. If you are in an IPython Notebook and want to display plots inline:
+    output_file("line.html")
 
-.. code-block:: python
+    p = figure(plot_width=400, plot_height=400, title=None)
 
-   bk.output_notebook()
+    # add a line renderer
+    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
 
-Else, if you are in a script and want to save these plots to file:
+    show(p)
 
-.. code-block:: python
+.. _userguide_plotting_patches:
 
-    bk.output_file("output_filename.html", title="Hello World!")
+Patches
+~~~~~~~
 
-Subsequent calls to ``save()`` and ``show()`` will depend on the
-output mode.
+Below is an example that shows how to generate a single polygonal patch
+glyph from one dimensional sequences of *x* and y* points.
 
-Composition
-~~~~~~~~~~~
+.. bokeh-plot::
+    :source-position: above
 
-Bokeh plots are composed of "glyphs", which are semi-primitive visual markers.
-Each glyph has specified parameters for placement and styling. You can refer
-to :ref:`bokeh.models.glyphs` and :ref:`bokeh.models.markers` to see all the
-glyphs that are currently supported, and to :ref:`bokeh.plotting`
-to see how they are configured for the ``plotting.py`` interface.
+    from bokeh.plotting import figure, output_file, show
 
-.. note::
-    Parameters are *not* completely uniform across glyphs. for example, a ``rect``
-    glyph requires x- and y-coordinates (to define the center point) as well as
-    ``width`` and ``height`` parameters, while the ``quad`` glyph takes a parameter
-    each for the ``left``, ``right``, ``top``, and ``bottom`` sides of a ``quad``:
+    output_file("patch.html")
 
-.. code-block:: python
+    p = figure(plot_width=400, plot_height=400, title=None)
 
-    zeros = [0] * len(xs)
-    ones = [1] * len(xs)
+    # add a patch renderer with an alpha an line width
+    p.patch([1, 2, 3, 4, 5], [6, 7, 8, 7, 3], alpha=0.5, line_width=2)
 
-    p.rect(xs,    # x-coordinates
-           ys,    # y-coordinates
-           ones,  # widths
-           ones,  # heights
-           fill_color="steelblue")
+    show(p)
 
-    p.quad(xs[:-1],    # left
-           xs[1:],     # right
-           ys[:-1],    # top
-           ones[:-1],  # bottom
-           fill_color="crimson")
+.. _userguide_plotting_images:
 
-Each glyph also has a number of styling properties (see :ref:`userguide_objects_styling`),
-with the associated prefixes ``line_``, ``fill_``, and ``text_``:
-
-.. code-block:: python
-
-    p.circle(xs, ys,
-             size=ys, # px
-             fill_alpha=0.5,
-             fill_color="steelblue",
-             line_alpha=0.8,
-             line_color="crimson")
-
-
-Many glyphs have both line and fill properties that can be set in unison by dropping the prefix:
-
-.. code-block:: python
-
-    p.circle(xs, ys,
-             size=ys, # px
-             alpha=0.5,
-             color="steelblue")
-
-Output
+Images
 ~~~~~~
 
-Bokeh plots can be saved to file, persisted to the server, or displayed inline in an IPython Notebook.
+.. note::
+    This example depends on the open source NumPy library in order to more
+    easily generate an array of RGBA data.
 
-To save the current plots to file:
+It is possible to display images in Bokeh plots from raw RGBA data.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from __future__ import division
+
+    import numpy as np
+
+    from bokeh.plotting import figure, output_file, show
+
+    # create an array of RGBA data
+    N = 20
+    img = np.empty((N,N), dtype=np.uint32)
+    view = img.view(dtype=np.uint8).reshape((N, N, 4))
+    for i in range(N):
+        for j in range(N):
+            view[i, j, 0] = int(255 *i/N)
+            view[i, j, 1] = 158
+            view[i, j, 2] = int(255* j/N)
+            view[i, j, 3] = 255
+
+    output_file("image_rgba.html")
+
+    p = figure(plot_width=400, plot_height=400, x_range=(0,10), y_range=(0,10))
+
+    p.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10])
+
+    show(p)
+
+Now you have learned how to plot images on Bokeh plots with the
+|bokeh.plotting| interface.
+
+.. _userguide_plotting_multiple_glyphs:
+
+Combining Multiple Glyphs
+-------------------------
+
+Combining multiple glyphs on a single plot is a matter of calling more than
+one glyph method on a single |Figure|:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    x = [1, 2, 3, 4, 5]
+    y = [6, 7, 8, 7, 3]
+
+    output_file("multiple.html")
+
+    p = figure(plot_width=400, plot_height=400,title=None)
+
+    # add both a line and circles on the same plot
+    p.line(x, y, line_width=2)
+    p.circle(x, y, fill_color="white", size=8)
+
+    show(p)
+
+This principle holds in general for all the glyph methods in
+|bokeh.plotting|. You can add as many glyphs to a plot as you need.
+
+.. _userguide_plotting_setting_ranges:
+
+Setting Ranges
+--------------
+
+By default, Bokeh will attempt to automatically set the data bounds
+of plots to fit snugly around the data. Sometimes you may need to
+set a plot's range explicitly. This can be accomplished by setting the
+``x_range`` or ``y_range`` properties using a ``Range1d`` object that
+gives the *start* and *end* points of the range you want:
 
 .. code-block:: python
 
-    # If you have already declared `output_file()` above
-    bk.save(obj=p)
+    p.x_range = Range1d(0, 100)
 
-    # Else, specify the filename
-    bk.save(p, filename="output_filename.html")
+As a convenience, the |figure| function can also accept tuples of
+*(start, end)* as values for the ``x_range`` or ``y_range`` parameters.
+Below is a an example that shows both methods of setting the range:
 
-To show a plot:
+.. bokeh-plot::
+    :source-position: above
 
-.. code-block:: python
+    from bokeh.plotting import figure, output_file, show
+    from bokeh.models import Range1d
 
-    bk.show(p)
+    output_file("title.html")
+
+    # create a new plot with a range set with a tuple
+    p = figure(plot_width=400, plot_height=400, title=None, x_range=(0, 20))
+
+    # set a range using a Range1d
+    p.y_range = Range1d(0, 15)
+
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    show(p)
+
+.. _userguide_plotting_axis_types:
+
+Specifying Axis Types
+---------------------
+
+All the examples above use the default linear axis. This axis is suitable
+for many plots that need to show numerical data on a linear scale. In other
+cases you may have categorical data, or need to display numerical data on
+a datetime or log scale. This section shows how specify the axis type
+when using |bokeh.plotting| interface.
+
+.. _userguide_plotting_categorical_axes:
+
+Categorical Axes
+~~~~~~~~~~~~~~~~
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    x =  [50, 40, 65, 10, 25, 37, 80, 60]
+
+    output_file("categorical.html")
+
+    p = figure(y_range=factors)
+
+    p.circle(x, factors, size=15, fill_color="orange", line_color="green", line_width=3)
+
+    show(p)
+
+.. _userguide_plotting_datetime_axes:
+
+Datetime Axes
+~~~~~~~~~~~~~
+
+When dealing with timeseries data, or any data that involves dates or
+times, it is desirable to have an axis that can display labels that
+are appropriate to different date and time scales. In this section you
+will learn how to specify that a plot should use a datetime axis.
+
+.. note::
+    This example requires a network connection, and depends on the
+    open source Pandas library in order to more easily present realistic
+    timeseries data.
+
+We have seen how to use the |figure| function to create plots using the
+|bokeh.plotting| interface. This function accepts  ``x_axis_type`` and
+``y_axis_type`` as arguments. To specify a datetime axis, pass ``"datetime"``
+for the value of either of these parameters.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import pandas as pd
+    from bokeh.plotting import figure, output_file, show
+
+    AAPL = pd.read_csv(
+        "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
+        parse_dates=['Date']
+    )
+
+    output_file("datetime.html")
+
+    # create a new plot with a datetime axis type
+    p = figure(width=800, height=250, x_axis_type="datetime", title=None)
+
+    p.line(AAPL['Date'], AAPL['Close'], color='navy', alpha=0.5)
+
+    show(p)
+
+Now you have learned how to specify a datetime axis for a Bokeh plot.
+
+.. note::
+    Future versions of Bokeh will attempt to auto-detect situations when
+    datetime axes are appropriate, and add them automatically by default.
+
+.. _userguide_plotting_log_axes:
+
+Log Scale Axes
+~~~~~~~~~~~~~~
+
+When dealing with data that grows quicks (e.g., exponentially), it is often
+desired to plot one axis on a log scale. Another use-scenario involves
+fitting data to a power law, in which case is it desired to plot with both
+axes on a log scale. In this section you will learn how to specify a
+log axis type for a Bokeh plot.
+
+As we saw above, the |figure| function accepts ``x_axis_type`` and
+``y_axis_type`` as arguments. To specify a log axis, pass ``"log"`` for
+the value of either of these parameters.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    x = [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+    y = [10**xx for xx in x]
+
+    output_file("log.html")
+
+    # create a new plot with a log axis type
+    p = figure(plot_width=400, plot_height=400,
+               y_axis_type="log", y_range=(10**-1, 10**4), title=None)
+
+    p.line(x, y, line_width=2)
+    p.circle(x, y, fill_color="white", size=8)
+
+    show(p)
+
+Now you have learned how to specify a log scale axis for a Bokeh plot.
+
+.. _userguide_plotting_twin_axes:
+
+Twin Axes
+~~~~~~~~~
+
+
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+
+.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
+
+.. |figure| replace:: :func:`~bokeh.plotting.figure`
+
+.. |arc|               replace:: :func:`~bokeh.plotting.Figure.arc`
+.. |asterisk|          replace:: :func:`~bokeh.plotting.Figure.asterisk`
+.. |circle|            replace:: :func:`~bokeh.plotting.Figure.circle`
+.. |circle_cross|      replace:: :func:`~bokeh.plotting.Figure.circle_cross`
+.. |circle_x|          replace:: :func:`~bokeh.plotting.Figure.circle_x`
+.. |cross|             replace:: :func:`~bokeh.plotting.Figure.cross`
+.. |diamond|           replace:: :func:`~bokeh.plotting.Figure.diamond`
+.. |diamond_cross|     replace:: :func:`~bokeh.plotting.Figure.diamond_cross`
+.. |inverted_triangle| replace:: :func:`~bokeh.plotting.Figure.inverted_triangle`
+.. |square|            replace:: :func:`~bokeh.plotting.Figure.square`
+.. |square_cross|      replace:: :func:`~bokeh.plotting.Figure.square_cross`
+.. |square_x|          replace:: :func:`~bokeh.plotting.Figure.square_x`
+.. |triangle|          replace:: :func:`~bokeh.plotting.Figure.triangle`
+.. |x|                 replace:: :func:`~bokeh.plotting.Figure.x`

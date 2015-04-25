@@ -47,7 +47,7 @@ def Scatter(values, **kws):
             values matrix.
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`

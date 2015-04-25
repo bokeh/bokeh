@@ -1,4 +1,4 @@
-.. _tutorial_styling:
+.. _userguide_styling:
 
 Styling Visual Attributes
 =========================
@@ -7,7 +7,7 @@ Styling Visual Attributes
     :local:
     :depth: 3
 
-.. _tutorial_styling_colors:
+.. _userguide_styling_colors:
 
 Colors
 ------
@@ -18,7 +18,7 @@ following ways:
 
 .. include:: ../includes/colors.txt
 
-.. _tutorial_styling_visual_properties:
+.. _userguide_styling_visual_properties:
 
 Visual Properties
 -----------------
@@ -34,34 +34,34 @@ broad groups of properties that show up often. They are:
 
 Below is more detail about each of these.
 
-.. _tutorial_styling_line_properties:
+.. _userguide_styling_line_properties:
 
 Line Properties
 ~~~~~~~~~~~~~~~
 
 .. include:: ../includes/line_props.txt
 
-.. _tutorial_styling_fill_properties:
+.. _userguide_styling_fill_properties:
 
 Fill Properties
 ~~~~~~~~~~~~~~~
 
 .. include:: ../includes/fill_props.txt
 
-.. _tutorial_styling_text_properties:
+.. _userguide_styling_text_properties:
 
 Text Properties
 ~~~~~~~~~~~~~~~
 
 .. include:: ../includes/text_props.txt
 
-.. _tutorial_styling_selecting:
+.. _userguide_styling_selecting:
 
 Selecting Plot Objects
 ----------------------
 
 
-.. _tutorial_styling_titles:
+.. _userguide_styling_titles:
 
 Titles
 ------
@@ -82,12 +82,12 @@ Titles
 
     show(p)
 
-.. _tutorial_styling_glyphs:
+.. _userguide_styling_glyphs:
 
 Glyphs
 ------
 
-.. _tutorial_styling_axes:
+.. _userguide_styling_axes:
 
 Axes
 ----
@@ -145,22 +145,22 @@ execute this code, and try setting other properties as well.
 
     show(p)
 
-.. _tutorial_styling_axes_labels:
+.. _userguide_styling_axes_labels:
 
 Labels
 ~~~~~~
 
-.. _tutorial_styling_axes_bounds:
+.. _userguide_styling_axes_bounds:
 
 Bounds
 ~~~~~~
 
-.. _tutorial_styling_axes_ticks:
+.. _userguide_styling_axes_ticks:
 
 Ticks
 ~~~~~
 
-.. _tutorial_styling_axes_tick_labels:
+.. _userguide_styling_axes_tick_labels:
 
 
 Tick Labels
@@ -176,7 +176,7 @@ For a complete listing of all the various attributes that can be set
 on different types of Bokeh axes, consult the :ref:`bokeh.models.axes`
 section of of the :ref:`refguide`.
 
-.. _tutorial_styling_grids:
+.. _userguide_styling_grids:
 
 Grids
 -----
@@ -207,7 +207,7 @@ for every element of the list:
     x-axis (i.e., are vertical). Correspondingly, ``ygrid`` provides
     the grid objects that intersect the y-axis (i.e., are horizontal).
 
-.. _tutorial_styling_grid_lines:
+.. _userguide_styling_grid_lines:
 
 Lines
 ~~~~~
@@ -234,7 +234,7 @@ execute this code, and try setting other properties as well.
 
     show(p)
 
-.. _tutorial_styling_grid_bands:
+.. _userguide_styling_grid_bands:
 
 Bands
 ~~~~~
@@ -271,7 +271,7 @@ For a complete listing of all the various attributes that can be set
 on Bokeh plot grids, consult the :ref:`bokeh.models.grids` section of the
 :ref:`refguide`.
 
-.. _tutorial_styling_legends:
+.. _userguide_styling_legends:
 
 Legends
 -------

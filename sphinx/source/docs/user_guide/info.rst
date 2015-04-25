@@ -1,4 +1,4 @@
-.. _tutorial_info:
+.. _userguide_info:
 
 Learning More
 =============

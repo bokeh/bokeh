@@ -1,4 +1,4 @@
-.. _tutorial_setup:
+.. _userguide_setup:
 
 Getting Set Up
 ==============

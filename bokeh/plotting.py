@@ -225,7 +225,7 @@ class Figure(Plot):
             marker (str, optional): a valid marker_type, defaults to "circle"
             color (color value, optional): shorthand to set both fill and line color
 
-        All the :ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties` are
+        All the :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties` are
         also accepted as keyword parameters.
 
         Examples:

@@ -1,4 +1,4 @@
-.. _tutorial_embed:
+.. _userguide_embed:
 
 Embedding Bokeh Plots
 =====================

@@ -16,7 +16,6 @@ Reference Guide
    reference/compat
    reference/rest_api
    reference/bokehjs
-   reference/glyphs
    reference/sphinxext
 
 

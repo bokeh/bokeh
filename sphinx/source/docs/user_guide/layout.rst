@@ -1,4 +1,4 @@
-.. _tutorial_layout:
+.. _userguide_layout:
 
 Laying Out Multiple Plots
 =========================
@@ -7,7 +7,7 @@ Laying Out Multiple Plots
     :local:
     :depth: 2
 
-.. _tutorial_layout_layout_vertical:
+.. _userguide_layout_layout_vertical:
 
 Vertical Layout
 ---------------
@@ -42,17 +42,17 @@ Vertical Layout
     # show the results
     show(p)
 
-.. _tutorial_layout_layout_horizontal:
+.. _userguide_layout_layout_horizontal:
 
 Horizontal Layout
 -----------------
 
-.. _tutorial_layout_layout_grid:
+.. _userguide_layout_layout_grid:
 
 Grid Layout
 -----------
 
-.. _tutorial_layout_layout_form:
+.. _userguide_layout_layout_form:
 
 Form Layout
 -----------

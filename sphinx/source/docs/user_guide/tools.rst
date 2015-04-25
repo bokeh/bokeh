@@ -1,4 +1,4 @@
-.. _tutorial_tools:
+.. _userguide_tools:
 
 Configuring Plot Tools
 ======================
