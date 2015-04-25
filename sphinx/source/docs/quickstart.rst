@@ -576,8 +576,8 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. |hplot|    replace:: :func:`~bokeh.io.hplot`
 .. |vplot|    replace:: :func:`~bokeh.io.vplot`
 
-.. |line_props| replace:: :class:`Line Properties <bokeh.mixins.LineProps>`
-.. |fill_props| replace:: :class:`Fill Properties <bokeh.mixins.FillProps>`
-.. |text_props| replace:: :class:`Text Properties <bokeh.mixins.TextProps>`
+.. |line_props| replace:: :ref:`userguide_styling_line_properties`
+.. |fill_props| replace:: :ref:`userguide_styling_fill_properties`
+.. |text_props| replace:: :ref:`userguide_styling_text_properties`
 
 
