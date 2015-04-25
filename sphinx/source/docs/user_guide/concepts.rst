@@ -35,7 +35,7 @@ charts
 
 embedding
    Various methods of including Bokeh plots and widgets into web apps and
-   pages, or the IPython notebook. See :ref:`userguide_embedding` for more
+   pages, or the IPython notebook. See :ref:`userguide_embed` for more
    details.
 
 glyphs
@@ -50,7 +50,7 @@ models
    of interface to assemble plots directly.* However, ultimately all Bokeh
    plots consist of collections of models, so it is important to understand
    them enough to configure their attributes and properties. See
-   :ref:`userguide_objects` for more information.
+   :ref:`userguide_styling` for more information.
 
 server
    The ``bokeh-server`` is an optional component that can be used for sharing
@@ -61,7 +61,7 @@ server
 widgets
    User interface elements outside of a Bokeh plot such as sliders, drop down
    menues, buttons, etc. Events and updates from widgets can inform additional
-   computations, or cause Bokeh plots to update. See :ref:`userguide_widgets`
+   computations, or cause Bokeh plots to update. See :ref:`userguide_interaction`
    for examples and information.
 
 ----
