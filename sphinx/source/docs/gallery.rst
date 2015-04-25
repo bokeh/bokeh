@@ -1,8 +1,8 @@
 .. _gallery:
 
-=======
+
 Gallery
-=======
+#######
 
 .. toctree::
    :hidden:

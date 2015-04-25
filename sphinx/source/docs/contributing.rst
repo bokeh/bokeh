@@ -1,3 +1,4 @@
+.. _contributing:
 
 Contributing
 ############
@@ -30,6 +31,8 @@ Specific areas we'd like to get help on:
 * Designs & styling
 * Canvas performance optimization
 * Connectors to various data APIs (public data or even commercial software suites)
+
+.. _core_team:
 
 Core Team
 =========
