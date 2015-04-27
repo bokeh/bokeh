@@ -788,7 +788,7 @@ class CrossFilter(PlotObject):
                 if not obj.selected:
                     continue
 
-                # BEV: This works until CF selections are not made on
+                # TODO: (bev) This works until CF selections are not made on
                 # [multi]lines and [multi]patches
                 min_idx = np.min(obj.selected['1d']['indices'])
                 max_idx = np.max(obj.selected['1d']['indices'])
