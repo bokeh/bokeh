@@ -13,15 +13,30 @@ class DataSource(PlotObject):
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
     """)
-    #
-    # selected = List(Int, help="""
-    # A list of selected indices on this DataSource.
-    # """)
+    
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'flag': False, 'indices': []},
         '1d': {'indices': []},
         '2d': {'indices': []}
-    })
+    }, help="""
+    A dict to indicate selected indices on different dimensions on this DataSource. Keys are:
+
+    - 0d: indicates whether a Line or Patch glyphs have been hit. Value is a
+            dict with the following keys:
+
+            - flag (boolean): true if glyph was with false otherwise
+            - indices (list): indices hit (if applicable)
+
+    - 1d: indicates whether any of all other glyph (except [multi]line or
+            patches) was hit:
+
+            - indices (list): indices that were hit/selected
+
+    - 2d: indicates whether a [multi]line or patches) were hit:
+
+            - indices (list(list)): indices of the lines/patches that were
+                hit/selected
+    """)
 
     def columns(self, *columns):
         """ Returns a ColumnsRef object for a column or set of columns
