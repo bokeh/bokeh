@@ -12,7 +12,7 @@ a.logo {float:left; margin:9px 5px 0 0}
  */
 
 code > .pre {
-    color: #2A2A2A;
+    color: #2A6496;
 }
 
 .class,
@@ -61,14 +61,14 @@ dt:target, .highlighted {
     clear: both;
 }
 
-.attribute > dt > tt:before {
+.attribute > dt > code:before {
     content: ' attr ';
     font-style: italic;
     color: #B1CE2D;
     font-size: 0.8em;
 }
 
-.method > dt > tt:before {
+.method > dt > code:before {
     content: ' method ';
     font-style: italic;
     color: #1EA354;
