@@ -76,7 +76,7 @@ pv_source2 = pv.select(dict(name="vhist2"))[0].data_source
 
 # set up callbacks
 def on_selection_change(obj, attr, old, new):
-    inds = np.array(new)
+    inds = np.array(new['1d']['indices'])
     if len(inds) == 0 or len(inds) == len(x):
         hhist = hzeros
         vhist = vzeros

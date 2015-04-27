@@ -13,10 +13,15 @@ class DataSource(PlotObject):
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
     """)
-
-    selected = List(Int, help="""
-    A list of selected indices on this DataSource.
-    """)
+    #
+    # selected = List(Int, help="""
+    # A list of selected indices on this DataSource.
+    # """)
+    selected = Dict(String, Dict(String, Any), default={
+        '0d': {'flag': False, 'indices': []},
+        '1d': {'indices': []},
+        '2d': {'indices': []}
+    })
 
     def columns(self, *columns):
         """ Returns a ColumnsRef object for a column or set of columns
