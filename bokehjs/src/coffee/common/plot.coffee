@@ -254,14 +254,20 @@ class PlotView extends ContinuumView
 
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
-    if ctx.glx
-        ctx.glx._clear()
+    if ctx.gl
+        ctx.plot = this
+        ctx.gl.clearColor(0, 0, 0, 0)
+        ctx.gl.clear(ctx.gl.COLOR_BUFFER_BIT || ctx.gl.DEPTH_BUFFER_BIT)
+        ctx.gl.blendFunc(ctx.gl.SRC_ALPHA, ctx.gl.ONE_MINUS_SRC_ALPHA)
+        ctx.gl.enable(ctx.gl.BLEND)
     
     if @outline_props.do_stroke
       @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    if ctx.canvas3d?
+        ctx.drawImage(ctx.canvas3d, 0, 0);  # only apply to glyphs
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if title
@@ -272,10 +278,9 @@ class PlotView extends ContinuumView
       ctx.fillText(title, sx, sy)
   
     if @canvas_view.canvas3d?
-      console.log('render canvas2d into webgl canvas ' + performance.now())      
-      @canvas_view.glx._render()
+      console.log('render webgl canvas into 2d canvas ' + performance.now())
     else
-      console.log('NOT rendering canvas2d into webgl canvas')
+      console.log('NOT rendering with webgl')
 
     if not @initial_range_info?
       @set_initial_range()

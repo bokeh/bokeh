@@ -1,4 +1,5 @@
 _ = require "underscore"
+gloo2 = require "gloo2"
 Glyph = require "./glyph"
 
 class OvalView extends Glyph.View
@@ -26,8 +27,8 @@ class OvalView extends Glyph.View
       @sh = @height
 
   _render: (ctx, indices, {sx, sy, sw, sh}) ->
-    if ctx.glx        
-        return @_render_gl(ctx.glx, indices)
+    if ctx.gl        
+        return @_render_gl(ctx, indices)
     
     for i in indices
       if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+@angle[i])
@@ -53,40 +54,65 @@ class OvalView extends Glyph.View
       ctx.rotate(-@angle[i])
       ctx.translate(-sx[i], -sy[i])
     
-  _render_gl: (glx, indices) ->
+  _render_gl: (ctx, indices) ->
     that = this
+    gl = ctx.gl
     _render_gl_self = () ->
-        that._render_gl(that.glx, null)
-        window.requestAnimationFrame(_render_gl_self)    
-    # Initialize
-    if not @glx?
-      window.tt = this
-      @glid = @id      
-      @glx = glx
-      setup_gl(glx, @glid)      
-      window.requestAnimationFrame(_render_gl_self)
+        if @hack_ctx? and !self._grabbed
+            self._grabbed = true
+            @hack_ctx.fillStyle = 'blue';
+            @hack_ctx.fillRect(0, 0, 600, 400);        
+            #@hack_ctx.drawImage(ctx.canvas2d, 0, 0)  # take snapshot without the gl
+        ctx.gl.clearColor(0, 0, 0, 0)
+        ctx.gl.clear(ctx.gl.COLOR_BUFFER_BIT || ctx.gl.DEPTH_BUFFER_BIT)
+        #ctx.gl.blendFunc(ctx.gl.SRC_ALPHA, ctx.gl.ONE_MINUS_DST_COLOR)
+        #ctx.gl.blendConst(ctx.gl.SRC_ALPHA, ctx.gl.CONSTANT)
+        that._render_gl(ctx, undefined)        
+        ctx.drawImage(that.hack_canvas, 0, 0)
+        ctx.drawImage(ctx.canvas3d, 0, 0)
+        window.requestAnimationFrame(_render_gl_self)
     
+    if not @hack_canvas?
+        @hack_canvas = document.createElement('canvas')
+        @hack_ctx = @hack_canvas.getContext('2d')
+        @hack_canvas.width = ctx.canvas2d.width
+        @hack_canvas.height = ctx.canvas2d.height    
+    if indices?
+        self._grabbed = false
+        #console.log('INDICES=======================')
+        #@hack_ctx.fillStyle = '#00000000';
+        #@hack_ctx.fillRect(0, 0, 600, 400);        
+        
+    #else
+        #ctx.drawImage(@hack_canvas, 0, 0)
+    
+    #ctx.plot.request_render()
+    # Initialize
+    if not @_gl?
+      window.tt = this
+      @_gl = setup_gl(gl)
+      window.requestAnimationFrame(_render_gl_self)
+        
     if @_data_changed && @x?      
-      #@glx.command(['SIZE', @glid+'_x', @x.length]);
-      #@glx.command(['SIZE', @glid+'_x', @y.length]);      
-      @glx.command(['DATA', @glid+'_x', 0, new Float32Array(@x)]);
-      @glx.command(['DATA', @glid+'_y', 0, new Float32Array(@y)]);
-      @_data_length = @x.length
+      @_gl.vbo_x.set_size(@x.length * 4)  # size in bytes
+      @_gl.vbo_x.set_data(0, new Float32Array(@x))        
+      @_gl.vbo_y.set_size(@y.length * 4)
+      @_gl.vbo_y.set_data(0, new Float32Array(@y))      
+      #@_gl.vbo_c.set_size(@size.length * 4)
+      #@_gl.vbo_c.set_data(0, new Float32Array(@size))      
       @_data_changed = false
       #console.log('upload data ' + @x.length + '===================================')
     
     [dx, dy] = @renderer.map_to_screen([0, 1], [0, 1])    
-    #@glx.command(['UNIFORM', @glid+'_prog', 'u_offset', [d0[0], d0[1]]])
-    @glx.command(['UNIFORM', @glid+'_prog', 'u_canvas_size', 'vec2', @glx.size])
-    @glx.command(['UNIFORM', @glid+'_prog', 'u_offset', 'vec2', [dx[0], dy[0]]])
-    @glx.command(['UNIFORM', @glid+'_prog', 'u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]]])
-    @glx.command(['UNIFORM', @glid+'_prog', 'u_color', 'vec4', [0, 0, 1, 0.1]])
-    @glx.command(['UNIFORM', @glid+'_prog', 'u_time', 'float', [performance.now()]])
-        
+    @_gl.prog.set_uniform('u_canvas_size', 'vec2', ctx.size)
+    @_gl.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
+    @_gl.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
+    @_gl.prog.set_uniform('u_color', 'vec4', [0, 1, 0, 0.1])
+    @_gl.prog.set_uniform('u_time', 'float', [performance.now()])
+            
     # todo: use indices
-    if @_data_length?
-        @glx.command(['DRAW', @glid+'_prog', 'POINTS', [0, @_data_length]])
-        @glx.execute_pending_commands()
+    if @x
+        @_gl.prog.draw(gl.POINTS, [0, @x.length])
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     reference_point = @get_reference_point() ? 0
@@ -127,17 +153,19 @@ class Oval extends Glyph.Model
       angle: 0.0
     }
 
-setup_gl = (glx, glid) ->
+setup_gl = (gl) ->
   # This function sets up the visualization to render a line
   
   VERT = """
   precision mediump float;
   attribute float a_x;
   attribute float a_y;
+  attribute float a_color;
   uniform vec2 u_canvas_size;
   uniform vec2 u_offset;
   uniform vec2 u_scale;
   uniform float u_time;
+  varying float v_color;
   void main() {
       float random1 = sin(a_x*1007.0); // on 0..1
       float random2 = sin(a_y*1007.0); // on 0..1
@@ -153,24 +181,29 @@ setup_gl = (glx, glid) ->
       gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
       gl_Position.y *= -1.0;
       gl_PointSize = 3.0;
+      v_color = a_color;
   }"""
   FRAG = """
   precision mediump float;
   uniform vec4 u_color;
+  varying float v_color;
   void main() {
       float x = 2.0*gl_PointCoord.x - 1.0;
       float y = 2.0*gl_PointCoord.y - 1.0;
-      gl_FragColor = vec4(0.0, 0.0, 1.0, 0.4);
+      gl_FragColor = u_color;
+      //gl_FragColor.r *= v_color;
       gl_FragColor.a *= 1.0 - (x*x + y*y);
   }"""
   
-  # TODO: the ids need to be unique!
-  glx.command ['CREATE', glid+'_prog', 'Program']
-  glx.command ['SHADERS', glid+'_prog', VERT, FRAG]
-  glx.command(['CREATE', glid+'_x', 'VertexBuffer'])
-  glx.command(['CREATE', glid+'_y', 'VertexBuffer'])
-  glx.command(['ATTRIBUTE', glid+'_prog', 'a_x', 'float', [glid+'_x', 0, 0]])
-  glx.command(['ATTRIBUTE', glid+'_prog', 'a_y', 'float', [glid+'_y', 0, 0]])
+  prog = new gloo2.Program(gl)
+  prog.set_shaders(VERT, FRAG)
+  vbo_x = new gloo2.VertexBuffer(gl)
+  prog.set_attribute('a_x', 'float', [vbo_x, 0, 0])
+  vbo_y = new gloo2.VertexBuffer(gl)
+  prog.set_attribute('a_y', 'float', [vbo_y, 0, 0])
+  vbo_c = new gloo2.VertexBuffer(gl)
+  #prog.set_attribute('a_color', 'float', [vbo_c, 0, 0])
+  return {'gl': gl, 'prog': prog, 'vbo_x', vbo_x, 'vbo_y': vbo_y, 'vbo_c': vbo_c}
 
 module.exports =
   Model: Oval

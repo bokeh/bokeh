@@ -68,27 +68,18 @@
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js",
-    
-    "jquery": "/home/almar/dev/build/vispy.js/scripts/lib/jquery.min.js",
-    "jquery-ui": "/home/almar/dev/build/vispy.js/scripts/lib/jquery-ui/jquery-ui.min.js",
-    "vispy": "/home/almar/dev/build/vispy.js/dist/vispy.min.js"
+    "gloo2": "./src/vendor/gloo/gloo2.js"
     
   },
   "browserify-shim": {},
   "dependencies": {
-    
+    "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
-    
+    "jquery-ui": "^1.10.5",
     "jsnlog": "^2.7.5",
     "mathutils": "0.0.1",
     "rbush": "^1.3.5",
     "sprintf": "^0.1.5",
     "timezone": "0.0.38"
-  },
-  
-  "comments": {
-    "jquery": "^2.1.1",
-    
-    "jquery-ui": "^1.10.5"
   }
 }
