@@ -13,9 +13,7 @@
 }
 </style>
 
-<script src="/home/almar/dev/build/vispy.js/scripts/lib/jquery.min.js"></script>
-<script src="/home/almar/dev/build/vispy.js/scripts/lib/jquery-ui/jquery-ui.min.js"></script>
-<script src="/home/almar/dev/build/vispy.js/dist/vispy.min.js"></script>
+<script src="/home/almar/dev/build/vispy.js/scripts/gloo2.js"></script>
 
 <script>
 
@@ -28,48 +26,47 @@ function initialize_canvas() {
     // create 3D (invisible) canvas
     var canvas3d = document.createElement('canvas');
     var gl = canvas3d.getContext("webgl") || canvas3d.getContext("experimental-webgl");
-    glx = vispy.init($(canvas3d));
     window.canvas3d = canvas3d;
     
     canvas3d.width = 600;
     canvas3d.height = 400;
+
+    var VERT = "precision mediump float;\
+    attribute float a_x;\
+    attribute float a_y;\
+    void main() {\
+        vec2 pos = vec2(a_x, a_y);\
+        gl_Position = vec4(pos, 0.0, 1.0);\
+        gl_Position.y *= -1.0;\
+    }";
     
-    glx._init = function() {
-        var VERT = ("" + 
-        "precision mediump float;" +
-        "attribute float a_x;" +
-        "attribute float a_y;" +
-        "void main() {" +
-        "    vec2 pos = vec2(a_x, a_y);" +
-        "    gl_Position = vec4(pos, 0.0, 1.0);" +
-        "    gl_Position.y *= -1.0;" +
-        "}");
-        
-        var FRAG = ("" +
-        "precision mediump float;" +
-        "uniform vec4 u_color;" +
-        "void main() {" +
-        "    gl_FragColor = u_color;" +
-        "    gl_FragColor.a = 1.0;" +
-        "}");
-        
-        glx.command(['CREATE', 'line1_prog', 'Program']);
-        glx.command(['SHADERS', 'line1_prog', VERT, FRAG]);
-        glx.command(['CREATE', 'line1_x', 'VertexBuffer']);
-        glx.command(['CREATE', 'line1_y', 'VertexBuffer']);
-        glx.command(['ATTRIBUTE', 'line1_prog', 'a_x', 'float', ['line1_x', 0, 0]]);
-        glx.command(['ATTRIBUTE', 'line1_prog', 'a_y', 'float', ['line1_y', 0, 0]]);
-        glx.command(['DATA', 'line1_x', 0, new Float32Array([-1, -0.5, 0, 0.5, 1])]);
-        glx.command(['DATA', 'line1_y', 0, new Float32Array([0, 0.5, 0, -0.5, 0])]);
-        glx.execute_pending_commands()
-    }
+    var FRAG = "precision mediump float;\
+    uniform vec4 u_color;\
+    void main() {\
+        gl_FragColor = u_color;\
+        gl_FragColor.a = 1.0;\
+    }";
     
-    glx._render = function() {
-        glx.command(['FUNC', 'viewport', 0, 0, 600, 400]);  
-        glx.command(['FUNC', 'clearColor', 0, 0, 0, 0.0]);
-        glx.command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT']);
-        glx.command(['DRAW', 'line1_prog', 'LINE_STRIP', [0, 5]])
-        glx.execute_pending_commands()
+    var prog = new gloo2.Program(gl);
+    prog.set_shaders(VERT, FRAG);
+    
+    var vbox = new gloo2.VertexBuffer(gl);
+    var vboy = new gloo2.VertexBuffer(gl);
+    vbox.set_size(5*4);
+    vboy.set_size(5*4);
+    vbox.set_data(0, new Float32Array([-1, -0.5, 0, 0.5, 1]));
+    vboy.set_data(0, new Float32Array([ 0, 0.5, 0, -0.5, 0]));
+    
+    prog.set_attribute('a_x', 'float', [vbox, 0, 0]);
+    prog.set_attribute('a_y', 'float', [vboy, 0, 0]);
+    
+   
+    var _render = function() {
+        gl.viewport(0, 0, 600, 400);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        prog.set_uniform('u_color', 'vec4', [1, 0, 0, 1]);
+        prog.draw(gl.LINE_STRIP, [0, 5])
         
         ctx.fillStyle = 'blue';
         ctx.fillRect(10, 10, 580, 380);
@@ -85,17 +82,16 @@ function initialize_canvas() {
         document.getElementById('timing').innerHTML = msg;
     };
     
-    glx._init()
-    return glx;
+    return _render;
     
 };
 
 document.body.onload = function () {
-    var glx = initialize_canvas();
+    var _render = initialize_canvas();
     document.getElementById('timing').onclick = function () {document.body.innerHTML = ''; }
     
     function render (timestamp) {
-        glx._render();
+        _render();
         window.requestAnimationFrame(render);
     }
     window.requestAnimationFrame(render);
