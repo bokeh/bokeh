@@ -45,7 +45,6 @@ test:
     - pygments
     - sphinx-bootstrap-theme
     - sphinxcontrib-httpdomain
-    - sphinxcontrib-napoleon
 
     # tests
     - beautiful-soup

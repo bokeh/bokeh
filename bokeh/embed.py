@@ -183,7 +183,7 @@ def autoload_server(plot_object, session, public=False):
 
     Args:
         plot_object (PlotObject) :
-        session (session) :
+        session (Session) :
 
     Returns:
         tag :

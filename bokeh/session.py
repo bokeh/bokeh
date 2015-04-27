@@ -273,7 +273,7 @@ class Session(object):
             data (pd.DataFrame or np.array) : data to upload
 
         Returns:
-            source : ServerDataSource
+            a ServerDataSource
 
         """
         raise NotImplementedError
