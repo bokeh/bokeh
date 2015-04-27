@@ -33,8 +33,8 @@ plot2.add_glyph(source2, Circle(x="x", y="y", size=20, fill_color="color"))
 
 def on_selection_change1(obj, attr, _, inds):
     color = ["blue"]*N
-    if inds:
-        [index] = inds
+    if inds['1d']['indices']:
+        [index] = inds['1d']['indices']
         color[index] = "red"
     source2.data["color"] = color
     session.store_objects(source2)
@@ -42,6 +42,7 @@ def on_selection_change1(obj, attr, _, inds):
 source1.on_change('selected', on_selection_change1)
 
 def on_selection_change2(obj, attr, _, inds):
+    inds = inds['1d']['indices']
     if inds:
         [index] = inds
         size = [10]*N
@@ -56,8 +57,16 @@ source2.on_change('selected', on_selection_change2)
 reset = Button(label="Reset")
 
 def on_reset_click():
-    source1.selected = []
-    source2.selected = []
+    source1.selected = {
+        '0d': {'flag': False, 'indices': []},
+        '1d': {'indices': []},
+        '2d': {'indices': []}
+    }
+    source2.selected = {
+        '0d': {'flag': False, 'indices': []},
+        '1d': {'indices': []},
+        '2d': {'indices': []}
+    }
     session.store_objects(source1, source2)
 
 reset.on_click(on_reset_click)
