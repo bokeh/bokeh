@@ -89,7 +89,7 @@ for i in range(N):
         view[i, j, 3] = 255          # alpha
 
 # EXERCISE: use `image_rgba` to display the image above. Use the following
-# cordinates: (x0,y0) = (0,0)  and (x1,y1) = (10,10). Remember to set the
+# coordinates: (x0,y0) = (0,0)  and (x1,y1) = (10,10). Remember to set the
 # x_range and y_range explicitly as above.
 
 # show the plots arrayed in a vplot
