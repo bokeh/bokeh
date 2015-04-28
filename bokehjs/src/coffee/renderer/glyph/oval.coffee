@@ -57,18 +57,14 @@ class OvalView extends Glyph.View
   _render_gl: (ctx, indices) ->
     that = this
     gl = ctx.gl
-    _render_gl_self = () ->
-        if @hack_ctx? and !self._grabbed
-            self._grabbed = true
-            @hack_ctx.fillStyle = 'blue';
-            @hack_ctx.fillRect(0, 0, 600, 400);        
-            #@hack_ctx.drawImage(ctx.canvas2d, 0, 0)  # take snapshot without the gl
-        ctx.gl.clearColor(0, 0, 0, 0)
-        ctx.gl.clear(ctx.gl.COLOR_BUFFER_BIT || ctx.gl.DEPTH_BUFFER_BIT)
-        #ctx.gl.blendFunc(ctx.gl.SRC_ALPHA, ctx.gl.ONE_MINUS_DST_COLOR)
-        #ctx.gl.blendConst(ctx.gl.SRC_ALPHA, ctx.gl.CONSTANT)
-        that._render_gl(ctx, undefined)        
-        ctx.drawImage(that.hack_canvas, 0, 0)
+    _render_gl_self = () ->             
+        #ctx.gl.clearColor(0, 0, 0, 0)
+        #ctx.gl.clear(ctx.gl.COLOR_BUFFER_BIT || ctx.gl.DEPTH_BUFFER_BIT)
+        ctx.gl.blendFunc(ctx.gl.SRC_ALPHA, ctx.gl.ZERO)
+        that._render_gl(ctx, undefined)
+        #
+        ctx.clearRect(0, 0, ctx.canvas2d.width, ctx.canvas2d.height)
+        ctx.drawImage(that.hack_canvas, 0, 0)        
         ctx.drawImage(ctx.canvas3d, 0, 0)
         window.requestAnimationFrame(_render_gl_self)
     
@@ -78,13 +74,8 @@ class OvalView extends Glyph.View
         @hack_canvas.width = ctx.canvas2d.width
         @hack_canvas.height = ctx.canvas2d.height    
     if indices?
-        self._grabbed = false
-        #console.log('INDICES=======================')
-        #@hack_ctx.fillStyle = '#00000000';
-        #@hack_ctx.fillRect(0, 0, 600, 400);        
-        
-    #else
-        #ctx.drawImage(@hack_canvas, 0, 0)
+        that.hack_ctx.clearRect(0, 0, ctx.canvas2d.width, ctx.canvas2d.height)        
+        that.hack_ctx.drawImage(ctx.canvas2d, 0, 0)  # take snapshot without the gl        
     
     #ctx.plot.request_render()
     # Initialize
@@ -107,7 +98,7 @@ class OvalView extends Glyph.View
     @_gl.prog.set_uniform('u_canvas_size', 'vec2', ctx.size)
     @_gl.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
     @_gl.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
-    @_gl.prog.set_uniform('u_color', 'vec4', [0, 1, 0, 0.1])
+    @_gl.prog.set_uniform('u_color', 'vec4', [0, 1, 0, 0.5])
     @_gl.prog.set_uniform('u_time', 'float', [performance.now()])
             
     # todo: use indices
@@ -165,7 +156,7 @@ setup_gl = (gl) ->
   uniform vec2 u_offset;
   uniform vec2 u_scale;
   uniform float u_time;
-  varying float v_color;
+  varying vec4 v_color;
   void main() {
       float random1 = sin(a_x*1007.0); // on 0..1
       float random2 = sin(a_y*1007.0); // on 0..1
@@ -181,16 +172,19 @@ setup_gl = (gl) ->
       gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
       gl_Position.y *= -1.0;
       gl_PointSize = 3.0;
-      v_color = a_color;
+        
+      // determind color
+      v_color = vec4(floor(random1+0.5), 1.0, floor(random2+0.5), 1.0);
   }"""
   FRAG = """
   precision mediump float;
   uniform vec4 u_color;
-  varying float v_color;
+  varying vec4 v_color;
   void main() {
       float x = 2.0*gl_PointCoord.x - 1.0;
       float y = 2.0*gl_PointCoord.y - 1.0;
-      gl_FragColor = u_color;
+      gl_FragColor = v_color;
+      gl_FragColor.a *= 0.6;
       //gl_FragColor.r *= v_color;
       gl_FragColor.a *= 1.0 - (x*x + y*y);
   }"""
