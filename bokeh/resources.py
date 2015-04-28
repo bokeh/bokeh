@@ -136,7 +136,7 @@ class Resources(object):
     _default_js_files = ["js/bokeh.js"]
     _default_css_files = ["css/bokeh.css"]
 
-    _default_js_files_dev = ['js/bokeh.js']  #'js/vendor/requirejs/require.js', 'js/config.js']
+    _default_js_files_dev = ['js/bokeh.js']
     _default_css_files_dev = ['css/bokeh.css']
 
     _default_root_dir = "."
@@ -204,10 +204,6 @@ class Resources(object):
             self.css_files = list(server['css_files'])
             self.messages.extend(server['messages'])
 
-        # if self.dev:
-        #     require = 'require.config({ baseUrl: "%s" });' % base_url
-        #     self._js_raw.append(require)
-
     @property
     def log_level(self):
         return self._log_level
@@ -264,14 +260,7 @@ class Resources(object):
             return "\n".join([ " "*n + line for line in text.split("\n") ])
 
         wrapper = lambda code: 'Bokeh.$(function() {\n%s\n});' % pad(code)
-
-        if self.dev:
-            template = 'require(["jquery", "main"], function($, Bokeh) {\nBokeh.set_log_level("%s");\n%s\n});'
-            js_wrapper = lambda code: template % (self.log_level, pad(wrapper(code)))
-        else:
-            js_wrapper = wrapper
-
-        return wrapper # js_wrapper
+        return wrapper
 
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
