@@ -77,6 +77,8 @@ class OvalView extends Glyph.View
         that.hack_ctx.clearRect(0, 0, ctx.canvas2d.width, ctx.canvas2d.height)        
         that.hack_ctx.drawImage(ctx.canvas2d, 0, 0)  # take snapshot without the gl        
     
+    # @bryan: how could I get the array of fill_colors here?
+    
     #ctx.plot.request_render()
     # Initialize
     if not @_gl?
