@@ -1,6 +1,5 @@
 .. _gallery:
 
-
 Gallery
 #######
 
@@ -8,7 +7,6 @@ Gallery
    :hidden:
    :glob:
 
-   gallery/*
    server_gallery/*
 
 .. _gallery_server_examples:
@@ -47,4 +45,6 @@ plot.
 .. cssclass:: gallery clearfix
 
 .. bokeh-gallery:: main_gallery.json
+
+
 
