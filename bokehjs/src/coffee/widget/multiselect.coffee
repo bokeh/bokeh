@@ -25,11 +25,11 @@ class MultiSelectView extends ContinuumView
     @render_selection()
     return @
 
-  render_selection: () ->
+  render_selection: () =>
     values = {}
     _.map(@mget('value'), (x) -> values[x] = true)
-    @$('option').each((el) ->
-      el = $(el)
+    @$('option').each((el) =>
+      el = @$(el)
       if values[el.attr('value')]
         el.attr('selected', 'selected')
     )
