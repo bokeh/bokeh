@@ -4,6 +4,8 @@ from __future__ import absolute_import, print_function
 import os
 import unittest
 
+from os.path import basename
+
 from selenium.common.exceptions import NoSuchElementException
 
 from bokeh.tests.selenium.fixtures import BasicSeleniumTestFixture
@@ -42,7 +44,7 @@ class TestGestures(BasicSeleniumTestFixture):
         take_screenshot(self.driver, gen_file, self.test_settings.window_width, self.test_settings.window_height)
 
         if not check_if_images_are_the_same(ref_file, gen_file):
-            assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
+            assert 0, "No expected output from {} - according to {}".format(basename(gen_file), basename(ref_file))
 
     @unittest.skip("Not implemented yet.")
     def test_lasso_select_tool(self):
@@ -68,7 +70,7 @@ class TestGestures(BasicSeleniumTestFixture):
         take_screenshot(self.driver, gen_file, self.test_settings.window_width, self.test_settings.window_height)
 
         if not check_if_images_are_the_same(ref_file, gen_file):
-            assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
+            assert 0, "No expected output from {} - according to {}".format(basename(gen_file), basename(ref_file))
 
     @unittest.skip("Not implemented yet.")
     def test_poly_select_tool(self):
@@ -90,7 +92,7 @@ class TestGestures(BasicSeleniumTestFixture):
         take_screenshot(self.driver, gen_file, self.test_settings.window_width, self.test_settings.window_height)
 
         if not check_if_images_are_the_same(ref_file, gen_file):
-            assert 0, "No expected output from {} - according to {}".format(gen_file, ref_file)
+            assert 0, "No expected output from {} - according to {}".format(basename(gen_file), basename(ref_file))
 
     @unittest.skip("Not implemented yet.")
     def test_resize_tool(self):
