@@ -116,9 +116,9 @@ plot as shown below:
 
     # prepare some data
     x = [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
-    y0 = [x**2 for x in x]
-    y1 = [10**x for x in x]
-    y2 = [10**(x**2) for x in x]
+    y0 = [i**2 for i in x]
+    y1 = [10**i for i in x]
+    y2 = [10**(i**2) for i in x]
 
     # output to static HTML file
     output_file("log_lines.html")
