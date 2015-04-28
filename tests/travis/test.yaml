@@ -4,6 +4,7 @@
 - path: "compat/seaborn"
 - path: "compat/pandas"
 - path: "charts"
+  skip: ["blaze_input.py"]
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py", "ajax_source.py"]
