@@ -77,13 +77,13 @@ class TestGestures(BasicSeleniumTestFixture):
         pass
 
     def test_reset_tool(self):
-        doc_name = 'area_chart'
+        doc_name = 'simple_line'
         ref_file = os.path.join(self.test_settings.screenshot_dir, 'ref-screenshot-reset-tool.png')
         gen_file = os.path.join(self.test_settings.screenshot_dir, 'gen-screenshot-reset-tool.png')
 
         download_ref_screenshots(self.test_settings.screenshot_site_address, self.test_settings.screenshot_dir, files=[ref_file])
 
-        self.test_box_zoom_tool()
+        self.test_pan_tool()
 
         reset_button = look_for_element(self.driver, "img.bk-handler-reset")
 
