@@ -94,9 +94,29 @@ class TestGestures(BasicSeleniumTestFixture):
         if not check_if_images_are_the_same(ref_file, gen_file):
             assert 0, "No expected output from {} - according to {}".format(basename(gen_file), basename(ref_file))
 
-    @unittest.skip("Not implemented yet.")
     def test_resize_tool(self):
-        pass
+        """Check if resize tool is working as expected."""
+
+        doc_name = 'area_chart'
+        ref_file = os.path.join(self.test_settings.screenshot_dir, 'ref-screenshot-resize-tool.png')
+        gen_file = os.path.join(self.test_settings.screenshot_dir, 'gen-screenshot-resize-tool.png')
+
+        document_url = self.load_document(doc_name)
+
+        resize_button = look_for_element(self.driver, "img.bk-handler-resize")
+
+        resize_button.click()
+
+        plot = look_for_element(self.driver, "div.bk-canvas-events")
+
+        now = self.actions.move_to_element(plot)
+        now.drag_and_drop_by_offset(plot, 120, -40)
+        now.perform()
+
+        take_screenshot(self.driver, gen_file, self.test_settings.window_width, self.test_settings.window_height)
+
+        if not check_if_images_are_the_same(ref_file, gen_file):
+            assert 0, "No expected output from {} - according to {}".format(basename(gen_file), basename(ref_file))
 
     @unittest.skip("Not implemented yet.")
     def test_tap_tool(self):
