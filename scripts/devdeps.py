@@ -1,10 +1,5 @@
-# "missing bokehjs/node_modules directory.
-# Need to run 'npm install' in bokehjs directory"
-
 from __future__ import print_function
 from os import path
-
-import sys
 
 try:
     import colorama
@@ -37,7 +32,7 @@ def depend_check(deps_name, *args):
     for dependency in args:
         try:
             __import__(dependency)
-        except ImportError as e:
+        except ImportError:
             missing.append(dependency)
             found = False
 
