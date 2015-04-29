@@ -49,7 +49,8 @@ def components(plot_object, resources=None):
     '''
     
     if resources is not None:
-        warn('the ``resources`` argument is deprecated and will be removed in'
+        warn('Because the ``resources`` argument is no longer needed, '
+             'is it deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
     
     ref = plot_object.ref
