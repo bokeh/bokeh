@@ -42,8 +42,8 @@ offset_slider = Slider(start=-5, end=5, value=0, step=.1, title="Offset", callba
 callback.args["offset"] = offset_slider
 
 layout = hplot(
+    plot,
     vform(amp_slider, freq_slider, phase_slider, offset_slider),
-    plot
 )
 
 output_file("slider.html")
