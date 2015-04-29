@@ -19,18 +19,18 @@ def setUpModule():
 class TestComponents(unittest.TestCase):
 
     def test_return_type(self):
-        r = embed.components(_embed_test_plot, CDN)
+        r = embed.components(_embed_test_plot)
         self.assertEqual(len(r), 2)
 
     def test_result_attrs(self):
-        script, div = embed.components(_embed_test_plot, CDN)
+        script, div = embed.components(_embed_test_plot)
         html = bs4.BeautifulSoup(script)
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
 
     def test_div_attrs(self):
-        script, div = embed.components(_embed_test_plot, CDN)
+        script, div = embed.components(_embed_test_plot)
         html = bs4.BeautifulSoup(div)
 
         divs = html.findAll(name='div')

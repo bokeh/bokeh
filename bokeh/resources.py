@@ -112,11 +112,11 @@ class Resources(object):
     * ``'inline'`` configure to provide entire BokehJS code and CSS inline
     * ``'cdn'`` configure to load BokehJS code and CS from ``http://cdn.pydata.org``
     * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-concatenated JS using ``requirejs``
+    * ``'server-dev'`` same as ``server`` but supports non-minified JS
     * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-concatenated JS using ``requirejs``
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified JS 
     * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-concatenated JS using ``requirejs``
+    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified JS
 
     Once configured, a Resource object exposes the following public attributes:
 
@@ -222,10 +222,7 @@ class Resources(object):
     def js_raw(self):
         if six.callable(self._js_raw):
             self._js_raw = self._js_raw()
-        if self.dev:
-            return self._js_raw
-        else:
-            return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
+        return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
 
     @property
     def css_raw(self):
@@ -252,16 +249,7 @@ class Resources(object):
     def _css_paths(self, minified=True, dev=False):
         files = self._default_css_files_dev if self.dev else self._default_css_files
         return self._file_paths(files, False if dev else minified)
-
-    @property
-    def js_wrapper(self):
-
-        def pad(text, n=4):
-            return "\n".join([ " "*n + line for line in text.split("\n") ])
-
-        wrapper = lambda code: 'Bokeh.$(function() {\n%s\n});' % pad(code)
-        return wrapper
-
+    
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
 
