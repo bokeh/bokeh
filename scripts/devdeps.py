@@ -1,4 +1,8 @@
+# "missing bokehjs/node_modules directory.
+# Need to run 'npm install' in bokehjs directory"
+
 from __future__ import print_function
+from os import path
 
 import sys
 
@@ -10,9 +14,23 @@ except ImportError:
     def blue(text) : return text
     def red(text) : return text
 
+npm_missing = """
+npm packages do not appear to be installed.
+Please navigate to the bokehjs directory and type 'npm install'\n
+"""
+
+def npm_check():
+    """Check that the bokehjs/node_modules directory exists, as its absence
+    is the best indication that npm is not installed."""
+
+
+    if not path.exists('../bokehjs/node_modules'):
+        print(red(npm_missing))
+
+
 def depend_check(deps_name, *args):
-    """Check for missing dependencies
-    """
+    """Check for missing dependencies"""
+
     found = True
     missing = []
 
@@ -37,6 +55,8 @@ def depend_check(deps_name, *args):
         return True
 
 if __name__ == '__main__':
+
+    npm_check()
 
     #Dictionary maps module names to package names
     pkg_info_dict =  {'bs4'           : 'beautiful-soup',
