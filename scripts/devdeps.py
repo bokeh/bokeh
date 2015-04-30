@@ -26,7 +26,6 @@ def npm_check():
 def depend_check(deps_name, *args):
     """Check for missing dependencies"""
 
-    found = True
     missing = []
 
     for dependency in args:
@@ -37,7 +36,7 @@ def depend_check(deps_name, *args):
             found = False
 
     print('-'*80)
-    if not found:
+    if len(missing):
         print(red("You are missing the following %s dependencies:") % deps_name)
 
         for dep in missing:
