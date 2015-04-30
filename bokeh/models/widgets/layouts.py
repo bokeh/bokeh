@@ -68,7 +68,7 @@ class VBox(BaseBox):
 # parent class only, you need to set the fields you want
 class VBoxForm(VBox):
     """
-    Basically,  a VBox, where all components(generally form stuff)
+    Basically, a VBox, where all components (generally form stuff)
     is wrapped in a <form> tag - important for bootstrap css
     """
 class SimpleApp(Widget):
