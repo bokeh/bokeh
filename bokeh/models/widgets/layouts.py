@@ -184,7 +184,8 @@ class SimpleApp(Widget):
     def args_for_func(self, func):
         args = {}
         for k,v in self.widget_dict.items():
-            args[k] = v.value
+            if hasattr(v, 'value'):
+                args[k] = v.value
         args['app'] = self
         args = arg_filter(func, args)
         return args
