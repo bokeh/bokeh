@@ -70,10 +70,36 @@ Plots
 Dimensions
 ~~~~~~~~~~
 
+The dimensions (width and height) of a |Plot| are controlled by ``plot_width``
+and ``plot_height`` attributes. These values are in screen units, and they
+control the size of the entire canvas area, including any axes or titles (but
+not the toolbar). If you are using the |bokeh.plotting| or |bokeh.charts|
+interfaces, then these values can be passed to |figure| or the Chart function
+as a convenience:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("dimensions.html")
+
+    # create a new plot with a title
+    p = figure(plot_width=700)
+    p.plot_height=300
+
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    show(p)
+
 .. _userguide_styling_plot_title:
 
 Title
 ~~~~~
+
+The styling of the title of the plot is controlled by a set of `Text Properties`_
+on the |Plot|, that are prefixed with ``title_``. For instance, to set the color
+of the outline, use ``title_text_color``:
 
 .. bokeh-plot::
     :source-position: above
@@ -85,6 +111,7 @@ Title
     # create a new plot with a title
     p = figure(plot_width=400, plot_height=400, title="Some Title")
     p.title_text_color = "olive"
+    p.title_text_font = "times"
     p.title_text_font_style = "italic"
 
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
@@ -96,10 +123,59 @@ Title
 Background
 ~~~~~~~~~~
 
+The background fill color is controlled by the ``background_fill`` property
+of the |Plot| object:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("background.html")
+
+    # create a new plot with a title
+    p = figure(plot_width=400, plot_height=400)
+    p.background_fill = "beige"
+
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    show(p)
+
 .. _userguide_styling_plot_border:
 
 Border
 ~~~~~~
+
+The border fill color is controlled by the ``border_fill`` property
+of the |Plot| object. You can also set the minimum border on each side
+(in screen units) with the properties
+
+``min_border_left``
+
+``min_border_right``
+
+``min_border_top``
+
+``min_border_bottom``
+
+Additionally, setting ``min_border`` will apply a minimum border setting
+to all sides as a convenience.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("border.html")
+
+    # create a new plot with a title
+    p = figure(plot_width=400, plot_height=400)
+    p.border_fill = "whitesmoke"
+    p.min_border_left = 80
+
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    show(p)
 
 .. _userguide_styling_plot_outline:
 
@@ -107,6 +183,27 @@ Outline
 ~~~~~~~
 
 .. _userguide_styling_glyphs:
+
+The styling of the outline of the plotting area is controlled by a set of
+`Line Properties`_ on the |Plot|, that are prefixed with ``outline_``. For
+instance, to set the color of the outline, use ``outline_line_color``:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("outline.html")
+
+    # create a new plot with a title
+    p = figure(plot_width=400, plot_height=400)
+    p.outline_line_width = 7
+    p.outline_line_alpha = 0.3
+    p.outline_line_color = "navy"
+
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    show(p)
 
 Glyphs
 ------
@@ -174,18 +271,96 @@ execute this code, and try setting other properties as well.
 Labels
 ~~~~~~
 
+The text of an overall label for an axis is controlled by the ``axis_label``
+property. Additionally, there are `Text Properties`_ prefixed with
+``axis_label_`` that control the visual appearance of the label. For instance
+to set the color of the label, set ``axis_label_text_color``. Finally, to
+change the distance between the axis label and the major tick labels, set
+the ``axis_label_standoff`` property:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.models.ranges import Range1d
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("bounds.html")
+
+    p = figure(plot_width=400, plot_height=400, title=None)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis.axis_label = "Lot Number"
+    p.xaxis.axis_label_text_color = "#aa6666"
+    p.xaxis.axis_label_standoff = 30
+
+    p.yaxis.axis_label = "Bin Count"
+    p.yaxis.axis_label_text_font_style = "italic"
+
+    show(p)
+
+
 .. _userguide_styling_axes_bounds:
 
 Bounds
 ~~~~~~
+
+Sometimes it is useful to limit the bounds where axes are drawn. This can be
+accomplished by setting the ``bounds`` property of an axis object to a 2-tuple
+of *(start, end)*:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.models.ranges import Range1d
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("bounds.html")
+
+    p = figure(plot_width=400, plot_height=400, title=None)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis.bounds = (2, 4)
+
+    show(p)
 
 .. _userguide_styling_axes_tick_lines:
 
 Tick Lines
 ~~~~~~~~~~
 
-.. _userguide_styling_axes_tick_labels:
+The visual appearance of the major and minor ticks is controlled by
+a collection of `Line Properties`_, prefixed with ``major_tick_`` and
+``minor_tick_``, respectively. For instance, to set the color of the
+major ticks, use ``major_tick_line_color``. To hide either set of ticks,
+set the color to ``None``. Additionally, you can control how far in and
+out of the plotting area the ticks extend, with the properties
+``major_tick_in``/``major_tick_out`` and ``minor_tick_in``/``minor_tick_out``.
+These values are in screen units, and negative values are acceptable.
 
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("axes.html")
+
+    p = figure(plot_width=400, plot_height=400, title=None)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis.major_tick_line_color = "firebrick"
+    p.xaxis.major_tick_line_width = 3
+    p.xaxis.minor_tick_line_color = "orange"
+
+    p.yaxis.minor_tick_line_color = None
+
+    p.axis.major_tick_out = 10
+    p.axis.minor_tick_in = -3
+    p.axis.minor_tick_out = 8
+
+    show(p)
+
+
+.. _userguide_styling_axes_tick_labels:
 
 Tick Labels
 ~~~~~~~~~~~
@@ -300,38 +475,14 @@ on Bokeh plot grids, consult the :ref:`bokeh.models.grids` section of the
 Legends
 -------
 
-It is also possible to create legends easily by specifying the legend argument
-when creating the glyphs of a plot. Below is code that will create some
-glyphs and generate a related legend. Once again, you can execute this code,
-and try setting different values.
 
-.. bokeh-plot::
-    :source-position: above
 
-    import numpy as np
-    from bokeh.plotting import *
-
-    N = 100
-    x = np.linspace(0, 4*np.pi, N)
-    y = np.sin(x)
-
-    output_file("legend.html", title="Legend example")
-
-    p = figure(title="Legend Example")
-
-    p.circle(x, y, legend="sin(x)")
-    p.line(x, y, legend="sin(x)")
-
-    p.line(x, 2*y, legend="2*sin(x)",
-        line_dash=[4, 4], line_color="orange", line_width=2)
-    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-
-    show(p)  # open a browser
-
+.. |Plot| replace:: :class:`~bokeh.models.plots.plot`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
+.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 

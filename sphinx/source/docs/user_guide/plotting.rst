@@ -355,6 +355,64 @@ Now you have learned how to specify a log scale axis for a Bokeh plot.
 Twin Axes
 ~~~~~~~~~
 
+.. bokeh-plot::
+    :source-position: above
+
+    from numpy import pi, arange, sin, linspace
+
+    from bokeh.plotting import *
+    from bokeh.models import LinearAxis, Range1d
+
+    x = arange(-2*pi, 2*pi, 0.1)
+    y = sin(x)
+    y2 = linspace(0, 100, len(y))
+
+    output_file("twin_axis.html")
+
+    p = figure(x_range=(-6.5, 6.5), y_range=(-1.1, 1.1))
+
+    p.circle(x, y, color="red")
+
+    p.extra_y_ranges = {"foo": Range1d(start=0, end=100)}
+    p.circle(x, y2, color="blue", y_range_name="foo")
+    p.add_layout(LinearAxis(y_range_name="foo"), 'left')
+
+    show(p)
+
+Adding Legends
+--------------
+
+It is also possible to create legends easily by specifying a legend argument
+to the glyph methods, when creating a plot.
+
+.. note::
+    This example depends on the open source NumPy library in order to more
+    easily generate more data suitable for demonstrating legends.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    show(p)
+
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
