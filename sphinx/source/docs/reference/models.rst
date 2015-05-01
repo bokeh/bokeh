@@ -20,6 +20,15 @@ a serialized version of the model looks like.
     :local:
     :depth: 1
 
+.. _bokeh.models.actions:
+
+``bokeh.models.actions``
+------------------------
+
+.. automodule:: bokeh.models.actions
+   :members:
+   :undoc-members:
+
 .. _bokeh.models.axes:
 
 ``bokeh.models.axes``
