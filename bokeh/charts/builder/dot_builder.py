@@ -28,7 +28,7 @@ from ...models import FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
 from ...properties import Any, Bool, Either, List
 
-def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
+def Dot(data=None, cat=None, values=None, stem=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kws):
     """ Create a dot chart using :class:`DotBuilder <bokeh.charts.builder.dot_builder.DotBuilder>`
     to render the geometry from values and cat.
@@ -65,8 +65,14 @@ def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
         show(dot)
 
     """
+    if data is None:
+        data = {"values": values}
+
+    else:
+        kws['y'] = values
+
     return create_and_build(
-        DotBuilder, values, cat=cat, stem=stem, xscale=xscale, yscale=yscale,
+        DotBuilder, data, cat=cat, stem=stem, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kws
     )
 

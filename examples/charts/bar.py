@@ -63,6 +63,13 @@ np_mixed_grouped = Bar(
     ylabel="Random Number", width=width, height=height
 )
 
+categories = ['apples', 'bananas', 'kiwi', 'pears']
+values = [10, 15, 8, 12]
+fruits_bar = Bar(
+    cat=categories, values=values, title="Fruits flavor",
+    ylabel="Flavor", xlabel="Fruits", width=width, height=height, legend=True,
+)
+
 # collect and display
 output_file("bar.html")
 
@@ -70,4 +77,5 @@ show(vplot(
     hplot(dict_stacked, df_grouped),
     hplot(np_stacked, np_negative_grouped),
     hplot(np_mixed_grouped, np_custom),
+    fruits_bar
 ))

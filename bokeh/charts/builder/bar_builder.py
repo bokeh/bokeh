@@ -33,7 +33,7 @@ from ...properties import Any, Bool, Either, List
 #-----------------------------------------------------------------------------
 
 
-def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
+def Bar(data=None, cat=None, values=None, stacked=False, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, continuous_range=None, **kw):
     """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builder.bar_builder.BarBuilder>`
     render the geometry from values, cat and stacked.
@@ -77,6 +77,13 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
             show(bar)
 
     """
+    if data is None:
+        data = {"values": values}
+        values = None
+
+    else:
+        kw['y'] = values
+
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(
             "continuous_range must be an instance of bokeh.models.ranges.Range1d"
@@ -84,8 +91,10 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
 
+
+
     return create_and_build(
-        BarBuilder, values, cat=cat, stacked=stacked,
+        BarBuilder, data, cat=cat, stacked=stacked,
         xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, y_range=y_range, **kw
     )
