@@ -25,8 +25,6 @@ Ideally, you should have the following libraries installed:
  * Flask
  * Redis
  * Requests
- * gevent
- * gevent-websocket
  * Pandas
 
 These are best obtained via the `Anaconda Python Distribution <http://continuum.io/anaconda>`_,
