@@ -42,7 +42,7 @@ class TestHorizon(unittest.TestCase):
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
-            ts = create_chart(Horizon, _xy, x_names=['Date'])
+            ts = create_chart(Horizon, _xy, x=['Date'])
             builder = ts._builders[0]
             pre = builder.prefix
             self.assertEqual(pre, 'horizon_%s_' % (ts._id.lower().replace("-", "_")))

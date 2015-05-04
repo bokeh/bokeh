@@ -77,7 +77,7 @@ class TestBoxPlot(unittest.TestCase):
             builder = bp._builders[0]
             pre = builder.prefix
             self.assertEqual(pre, 'boxplot_%s_' % (bp._id.lower().replace("-", "_")))
-            self.assertEqual(sorted(builder.y_names), sorted(groups))
+            self.assertEqual(sorted(builder.y), sorted(groups))
             for key, expected_v in exptected_datarect.items():
                 self.assertEqual(builder._data[pre + key], expected_v)
 
@@ -111,7 +111,7 @@ class TestBoxPlot(unittest.TestCase):
             builder = bp._builders[0]
             pre = builder.prefix
             self.assertEqual(pre, 'boxplot_%s_' % (bp._id.lower().replace("-", "_")))
-            self.assertEqual(sorted(builder.y_names), sorted(groups))
+            self.assertEqual(sorted(builder.y), sorted(groups))
             for key, expected_v in exptected_datarect.items():
                 self.assertEqual(builder._data[pre + key], expected_v)
 

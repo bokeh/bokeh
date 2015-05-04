@@ -16,7 +16,9 @@ passing the arguments to the Chart class and calling the proper functions.
 # Imports
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
+from six import string_types
 
+import datetime as dt
 try:
     import pandas as pd
 except ImportError:
@@ -30,14 +32,17 @@ from ...models.glyphs import Line
 #-----------------------------------------------------------------------------
 
 
-def TimeSeries(values, index=None, xscale='datetime', **kws):
+def TimeSeries(data, time, values=None, orientation="horizontal", **kws):
     """ Create a timeseries chart using
     :class:`TimeSeriesBuilder <bokeh.charts.builder.timeseries_builder.TimeSeriesBuilder>`
     to render the lines from values and index.
 
     Args:
-        values (iterable): iterable 2d representing the data series
+        data (iterable): iterable 2d representing the data series
             values matrix.
+        time (str | iterable(str) | iterable(iterable) | iterable(dt)):
+        values (str | iterable(str)):
+        orientation (str): values: "horizontal" or "vertical"
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
@@ -71,9 +76,16 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
         show(ts)
 
     """
+    xscale=kws.pop('xscale', 'datetime')
+    index = None
 
+    if not isinstance(time, string_types) and isinstance(time[0], dt.datetime):
+        index, time = time, None
+
+    # x_names = time
+    # y_names = values
     return create_and_build(
-        TimeSeriesBuilder, values, index=index, xscale=xscale, **kws
+        TimeSeriesBuilder, data, x=time, y=values, xscale=xscale, index=index, **kws
     )
 
 
@@ -102,7 +114,7 @@ class TimeSeriesBuilder(TabularSourceBuilder):
             if col not in self._data:
                 self._data[col] = values
 
-        for xname in self.x_names:
+        for xname in self.x:
             if xname not in self._data:
                 self._data[xname] = self._values_index
 

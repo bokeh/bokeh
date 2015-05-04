@@ -78,7 +78,7 @@ class LineBuilder(TabularSourceBuilder):
             if col not in self._data:
                 self._data[col] = values
 
-        for xname in self.x_names:
+        for xname in self.x:
             if xname not in self._data:
                 self._data[xname] = np.array(self._values_index)
 

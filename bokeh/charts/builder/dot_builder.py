@@ -110,7 +110,7 @@ class DotBuilder(TabularSourceBuilder):
         # Grouping
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
         for i, (col, values) in enumerate(self._values.items()):
-            if col in self.y_names:
+            if col in self.y:
                 # x value
                 cats = [c + ":" + str(step[i + 1]) for c in self.cat]
                 self._data["%scat_%s" % (self.prefix, col)] = cats
@@ -122,7 +122,7 @@ class DotBuilder(TabularSourceBuilder):
         """ Calculate the proper ranges.
         """
         self.x_range = FactorRange(factors=self._source.data[self.prefix + "cat"])
-        end = 1.1 * max(max(self._data[name]) for name in self.y_names)
+        end = 1.1 * max(max(self._data[name]) for name in self.y)
         self.y_range = Range1d(start=0, end=end)
 
     def _yield_renderers(self):
@@ -132,7 +132,7 @@ class DotBuilder(TabularSourceBuilder):
         renders circle glyphs (and segments) on the related
         coordinates.
         """
-        for color, name in zip(self.colors, self.y_names):
+        for color, name in zip(self.colors, self.y):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
             cat = "%scat_%s" % (self.prefix, name)

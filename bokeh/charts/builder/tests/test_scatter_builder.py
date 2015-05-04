@@ -51,7 +51,7 @@ class TestScatter(unittest.TestCase):
             pre = builder.prefix
             self.assertEqual(pre, 'scatter_%s_' % (hm._id.lower().replace("-", "_")))
 
-            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
+            self.assertEqual(sorted(builder.y), sorted(list(xyvalues.keys())))
             assert_array_equal(builder._data['python'], y_python)
             assert_array_equal(builder._data['jython'], y_jython)
             assert_array_equal(builder._data['pypy'], y_pypy)
@@ -66,7 +66,7 @@ class TestScatter(unittest.TestCase):
             pre = builder.prefix
             self.assertEqual(pre, 'scatter_%s_' % (hm._id.lower().replace("-", "_")))
 
-            self.assertEqual(builder.y_names, ['0', '1', '2'])
+            self.assertEqual(builder.y, ['0', '1', '2'])
             assert_array_equal(builder._data['0'], y_python)
             assert_array_equal(builder._data['1'], y_pypy)
             assert_array_equal(builder._data['2'], y_jython)

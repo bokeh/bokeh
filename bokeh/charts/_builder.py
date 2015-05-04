@@ -149,19 +149,19 @@ class Builder(HasProps):
             self._data = {}
             self._values = []
 
-        # TODO: This should be modified to support multiple x_names
+        # TODO: This should be modified to support multiple x
         self._values_index, self._values = DataAdapter.get_index_and_data(
-            self._values, self.x_names
+            self._values, self.x
         )
-        if not self.x_names:
-            self.x_names = ["x"]
-        elif isinstance(self.x_names, string_types):
-                self.x_names = [self.x_names]
+        if not self.x:
+            self.x = ["x"]
+        elif isinstance(self.x, string_types):
+                self.x = [self.x]
 
-        if not self.y_names:
-            self.y_names = [k for k in self._values.keys() if k not in self.x_names]
-        elif isinstance(self.y_names, string_types):
-            self.y_names = [self.y_names]
+        if not self.y:
+            self.y = [k for k in self._values.keys() if k not in self.x]
+        elif isinstance(self.y, string_types):
+            self.y = [self.y]
 
     def _process_data(self):
         """Get the input data.
@@ -194,12 +194,12 @@ class Builder(HasProps):
         """ Yield the specific renderers of the charts being built by
         Builder
         """
-        if len(self.x_names) == len(self.y_names):
-            xnames = self.x_names
+        if len(self.x) == len(self.y):
+            xnames = self.x
         else:
-            xnames = len(self.y_names) * self.x_names
+            xnames = len(self.y) * self.x
 
-        for color, xname, yname in zip(self.colors, xnames, self.y_names):
+        for color, xname, yname in zip(self.colors, xnames, self.y):
             glyph = self._create_glyph(xname, yname, color)
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
             self._legends.append((yname, [renderer]))
@@ -263,15 +263,15 @@ class Builder(HasProps):
 
     @property
     def colors(self):
-        return cycle_colors(self.y_names, self.palette)
+        return cycle_colors(self.y, self.palette)
 
 
 class TabularSourceBuilder(Builder):
     # all the implementation for the xnames, ynames functionality goes here
     # added bonus: the __init__ signature can actually have xnames and ynames
     # as real parameters! Much better for docs
-    y_names = Seq(String)
-    x_names = Seq(String)
+    y = Seq(String)
+    x = Seq(String)
 
     index = Any(help="""
         An index to be used for all data series as follows:
@@ -302,27 +302,27 @@ class TabularSourceBuilder(Builder):
             self._values = []
 
         if self.index:
-            if self.x_names:
-                err_msg = "Attributes inconsistency! It's not possible to specify x_names and index on the same chart!"
+            if self.x:
+                err_msg = "Attributes inconsistency! It's not possible to specify x and index on the same chart!"
                 raise AttributeError(err_msg)
             self._values_index, self._values = DataAdapter.get_index_and_data(
                 self._values, self.index
                 )
-            self.x_names = ["x"]
+            self.x = ["x"]
         else:
-            # TODO: This should be modified to support multiple x_names
+            # TODO: This should be modified to support multiple x
             self._values_index, self._values = DataAdapter.get_index_and_data(
-                self._values, self.x_names
+                self._values, self.x
             )
-            if not self.x_names:
-                self.x_names = ["x"]
-            elif isinstance(self.x_names, string_types):
-                    self.x_names = [self.x_names]
+            if not self.x:
+                self.x = ["x"]
+            elif isinstance(self.x, string_types):
+                    self.x = [self.x]
 
-        if not self.y_names:
-            self.y_names = [k for k in self._values.keys() if k not in self.x_names]
-        elif isinstance(self.y_names, string_types):
-            self.y_names = [self.y_names]
+        if not self.y:
+            self.y = [k for k in self._values.keys() if k not in self.x]
+        elif isinstance(self.y, string_types):
+            self.y = [self.y]
 
     def _set_ranges(self):
         """Push data into the ColumnDataSource and build the

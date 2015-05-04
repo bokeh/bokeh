@@ -150,7 +150,7 @@ class BarBuilder(TabularSourceBuilder):
             if not val in self._data:
                 self._data[val] = list(values)
 
-            if val in self.y_names:
+            if val in self.y:
                 mid = np.array(values) / 2
                 self._data["%smid%s" % (self.prefix, val)] = mid
                 # Grouped
@@ -170,8 +170,8 @@ class BarBuilder(TabularSourceBuilder):
             if self.stacked:
                 data = np.array(self._data[self.prefix + 'zero'])
             else:
-                # cats = [i for i in self.y_names if not i.startswith(("mid", "stacked", "cat"))]
-                data = np.array([self._data[cat] for cat in self.y_names])
+                # cats = [i for i in self.y if not i.startswith(("mid", "stacked", "cat"))]
+                data = np.array([self._data[cat] for cat in self.y])
 
             all_positive = True if np.all(data > 0) else False
             all_negative = True if np.all(data < 0) else False

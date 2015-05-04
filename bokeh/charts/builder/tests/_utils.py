@@ -19,7 +19,7 @@
 #-----------------------------------------------------------------------------
 
 
-def create_chart(klass, values, compute_values=True, **kws):
+def create_chart(klass, data, compute_values=True, **kws):
     """ Create a new chart klass instance with values and the extra kws keyword
     parameters.
 
@@ -35,7 +35,7 @@ def create_chart(klass, values, compute_values=True, **kws):
         _chart: klass chart instance
     """
     _chart = klass(
-        values, title="title", xlabel="xlabel", ylabel="ylabel",
+        data, title="title", xlabel="xlabel", ylabel="ylabel",
         legend="top_left", xscale="linear", yscale="linear",
         width=800, height=600, tools=True,
         filename=False, server=False, notebook=False,

@@ -48,7 +48,7 @@ class TestStep(unittest.TestCase):
             pre = builder.prefix
             self.assertEqual(pre, 'step_%s_' % (hm._id.lower().replace("-", "_")))
 
-            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
+            self.assertEqual(sorted(builder.y), sorted(list(xyvalues.keys())))
             assert_array_equal(builder._data[pre + 'x'], x)
 
             assert_array_equal(builder._data[pre + 'python'], y_python)
@@ -62,7 +62,7 @@ class TestStep(unittest.TestCase):
             pre = builder.prefix
             self.assertEqual(pre, 'step_%s_' % (hm._id.lower().replace("-", "_")))
 
-            self.assertEqual(builder.y_names, ['0', '1', '2'])
+            self.assertEqual(builder.y, ['0', '1', '2'])
             assert_array_equal(builder._data[pre + '0'], y_python)
             assert_array_equal(builder._data[pre + '1'], y_pypy)
             assert_array_equal(builder._data[pre + '2'], y_jython)

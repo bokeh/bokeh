@@ -121,9 +121,9 @@ class BoxPlotBuilder(TabularSourceBuilder):
         """
 
         if isinstance(self._values, pd.DataFrame):
-            self._groups = [x for x in self._values.columns if x in self.y_names]
+            self._groups = [x for x in self._values.columns if x in self.y]
         else:
-            self._groups = [x for x in list(self._values.keys()) if x in self.y_names]
+            self._groups = [x for x in list(self._values.keys()) if x in self.y]
 
         # add group to the self._data_segment dict
         self._data[self.prefix+"groups"] = self._groups
@@ -145,7 +145,7 @@ class BoxPlotBuilder(TabularSourceBuilder):
             # Compute quantiles, center points, heights, IQR, etc.
             # quantiles
 
-            if level in self.y_names:
+            if level in self.y:
                 q = np.percentile(values, [25, 50, 75])
                 q0_points.append(q[0])
                 q2_points.append(q[2])
@@ -206,7 +206,7 @@ class BoxPlotBuilder(TabularSourceBuilder):
         )
         yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
-        for color, y_name in zip(self.palette, self.y_names):
+        for color, y_name in zip(self.palette, self.y):
             glyph = Rect(
                 x=self.prefix+"cat_"+y_name, y=self.prefix+"rect_center_"+y_name,
                 width=self.prefix+"width", height=self.prefix+"rect_height_"+y_name,

@@ -121,31 +121,31 @@ class ScatterBuilder(TabularSourceBuilder):
         DataFrameGroupBy and create the data 'x_...' and 'y_...' values
         for all data series
         """
-        self.x_names = []
+        self.x = []
         for i, val in enumerate(self._values.keys()):
             xy = self._values[val]
             self._data["%sx_%s" % (self.prefix, val)] = xy[:, 0]
             if not val in self._data:
                 self._data[val] = xy[:, 1]
-            self.x_names.append("%sx_%s" % (self.prefix, val))
+            self.x.append("%sx_%s" % (self.prefix, val))
 
     def _parse_data(self):
         for col, values in self._values.items():
             self._data[col] = values
 
-        if not self.x_names:
-            self.x_names = [self.prefix + 'x']
+        if not self.x:
+            self.x = [self.prefix + 'x']
             self._data[self.prefix + 'x'] = self._values.index
 
-        if len(self.x_names) == 1 and self.y_names > 1:
-             self.x_names *= len(self.y_names)
+        if len(self.x) == 1 and self.y > 1:
+             self.x *= len(self.y)
 
     def _parse_coupled_data(self):
         """Parse data in self._values in case it's an iterable (not a pandas
         DataFrameGroupBy) and create the data 'x_...' and 'y_...' values
         for all data series
         """
-        self.x_names = []
+        self.x = []
         for i, val in enumerate(self._values.keys()):
             x_, y_ = [], []
             xy = self._values[val]
@@ -155,7 +155,7 @@ class ScatterBuilder(TabularSourceBuilder):
 
             self._data["%sx_%s" % (self.prefix, val)] = x_
             self._data[val] = y_
-            self.x_names.append("%sx_%s" % (self.prefix, val))
+            self.x.append("%sx_%s" % (self.prefix, val))
 
     def _create_glyph(self, xname, yname, color):
         return make_scatter(self._source, xname, yname, self.marker, color)
@@ -194,11 +194,11 @@ class ScatterBuilder(TabularSourceBuilder):
 
         if not new_values:
             self._values_index, self._values = DataAdapter.get_index_and_data(
-                    self._values, self.x_names
+                    self._values, self.x
                 )
 
-        if self.x_names is None:
-            self.x_names = []
+        if self.x is None:
+            self.x = []
 
-        if not self.y_names:
-            self.y_names = [k for k in self._values.keys() if k not in self.x_names]
+        if not self.y:
+            self.y = [k for k in self._values.keys() if k not in self.x]

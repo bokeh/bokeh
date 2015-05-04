@@ -92,7 +92,7 @@ class DonutBuilder(TabularSourceBuilder):
         points to be used by the Wedge glyph inside the ``_yield_renderers`` method.
 
         """
-        dd = dict([(k, vs) for k, vs in self._values.items() if k in self.y_names])
+        dd = dict([(k, vs) for k, vs in self._values.items() if k in self.y])
 
         self._df = df = pd.DataFrame(dd)
         df.index = self.cat

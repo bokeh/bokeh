@@ -58,7 +58,7 @@ class TestHistogram(unittest.TestCase):
             builder = hm._builders[0]
             pre = builder.prefix
             self.assertEqual(pre, 'histogram_%s_' % (hm._id.lower().replace("-", "_")))
-            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
+            self.assertEqual(sorted(builder.y), sorted(list(xyvalues.keys())))
             for key, expected_v in exptected.items():
                 if key not in ['normal', 'lognormal']:
                     key = pre+key
@@ -71,7 +71,7 @@ class TestHistogram(unittest.TestCase):
             pre = builder.prefix
             self.assertEqual(pre, 'histogram_%s_' % (hm._id.lower().replace("-", "_")))
 
-            self.assertEqual(builder.y_names, ['0', '1'])
+            self.assertEqual(builder.y, ['0', '1'])
             for key, expected_v in exptected.items():
                 # replace the keys because we have 0, 1 instead of normal and lognormal
                 key = key.replace('lognormal', '1').replace('normal', '0')

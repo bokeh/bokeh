@@ -43,9 +43,9 @@ class TestTimeSeries(unittest.TestCase):
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy', 'jython']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
-            ts = create_chart(TimeSeries, _xy, x_names=['Date'])
+            ts = create_chart(TimeSeries, _xy, time=['Date'], values=groups)
             builder = ts._builders[0]
-            self.assertEqual(builder.y_names, groups)
+            self.assertEqual(builder.y, groups)
             if _xy is xyvaluesdf:
                 assert_array_equal(builder._data['Date'], xyvaluesdf['Date'])
             else:
@@ -57,9 +57,9 @@ class TestTimeSeries(unittest.TestCase):
 
         lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         for _xy in [lvalues, np.array(lvalues)]:
-            hm = create_chart(TimeSeries, _xy, index=dts)
+            hm = create_chart(TimeSeries, _xy, time=dts)
             builder = hm._builders[0]
-            self.assertEqual(builder.y_names, ['0', '1', '2'])
+            self.assertEqual(builder.y, ['0', '1', '2'])
             assert_array_equal(builder._data['x'], dts)
             
             assert_array_equal(builder._data['0'], y_python)

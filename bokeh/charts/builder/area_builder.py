@@ -32,7 +32,7 @@ from ...properties import Bool
 #-----------------------------------------------------------------------------
 
 
-def Area(values, index=None, **kws):
+def Area(data, x=None, y=None, **kws):
     """ Create an area chart using the :class:`AreaBuilder <bokeh.charts.builder.area_builder.AreaBuilder>`
     to render the geometry from values.
 
@@ -68,7 +68,7 @@ def Area(values, index=None, **kws):
             output_file('area.html')
             show(area)
     """
-    return create_and_build(AreaBuilder, values, index=index, **kws)
+    return create_and_build(AreaBuilder, data, x=x, y=y, **kws)
 
 
 class AreaBuilder(TabularSourceBuilder):
@@ -97,7 +97,7 @@ class AreaBuilder(TabularSourceBuilder):
         the patch glyph inside the ``_yield_renderers`` method.
 
         """
-        for x in self.x_names:
+        for x in self.x:
             try:
                 xs = self._values[x]
             except (KeyError, IndexError, ValueError):
@@ -109,7 +109,7 @@ class AreaBuilder(TabularSourceBuilder):
         last = np.zeros(len(self._values.index))
 
         for col, col_values in self._values.items():
-            if col in self.y_names:
+            if col in self.y:
                 # to draw area we need 2 coordinates. The lower values
                 # will always be:
                 # - 0 in case of non stacked area

@@ -55,7 +55,7 @@ class TestAreaBuilder(unittest.TestCase):
             self.assertEqual(pre, 'area_%s_' % (area._id.lower().replace("-", "_")))
             data_keys = [pre + 'jython', pre + 'pypy', pre + 'python', pre + 'x',
                         'jython', 'pypy', 'python']
-            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
+            self.assertEqual(sorted(builder.y), sorted(list(xyvalues.keys())))
             self.assertListEqual(sorted(builder._data.keys()), data_keys)
             assert_array_equal(builder._data[pre + 'x'], x)
             assert_array_equal(builder._data[pre + 'jython'], y_jython)
@@ -76,7 +76,7 @@ class TestAreaBuilder(unittest.TestCase):
             self.assertEqual(pre, 'area_%s_' % (area._id.lower().replace("-", "_")))
             data_keys = ['0', '1', '2', pre + '0', pre + '1', pre + '2', pre + 'x']
 
-            self.assertEqual(builder.y_names, ['0', '1', '2'])
+            self.assertEqual(builder.y, ['0', '1', '2'])
             self.assertListEqual(sorted(builder._data.keys()), data_keys)
             assert_array_equal(builder._data[pre + 'x'], x)
             assert_array_equal(builder._data[pre + '0'], y_0)

@@ -26,26 +26,26 @@ xs_sh = ['sepal_width', 'petal_width']
 
 
 
-scatter1 = Scatter(datasource, y_names=ys, title="Scatter Chart", **pkws)
-scatter2 = Scatter(datasource, y_names=ys_sh, x_names=xs_sh,
+scatter1 = Scatter(datasource, y=ys, title="Scatter Chart", **pkws)
+scatter2 = Scatter(datasource, y=ys_sh, x=xs_sh,
                    title="Scatter Length X Width", **pkws)
-line = Line(bbvalues, y_names=ys, title="Line Chart", **pkws)
-# area = Area(bbvalues, y_names=ys, title="Area Chart", **pkws)
+line = Line(bbvalues, y=ys, title="Line Chart", **pkws)
+# area = Area(bbvalues, y=ys, title="Area Chart", **pkws)
 
-mix = Line(df, y_names=ys, x_names='myx', width=1000, height=500,
+mix = Line(df, y=ys, x='myx', width=1000, height=500,
            title="Mixed Chart", ylabel='Petals', legend="top_left")
-Scatter(df, y_names=ys, x_names=['myx'], chart=mix)
+Scatter(df, y=ys, x=['myx'], chart=mix)
 
-line2 = Line(datasource, y_names=ys, x_names=['myx'], **pkws)
-step = Step(datasource, y_names=ys, x_names=['myx'],
+line2 = Line(datasource, y=ys, x=['myx'], **pkws)
+step = Step(datasource, y=ys, x=['myx'],
             title="Step Chart",
             x_range=line2.x_range, y_range=line2.y_range,
             **pkws)
 
-area = Area(bbvalues, y_names=ys, title="Area Chart", **pkws)
-bp = BoxPlot(bbvalues, title="BoxPlot", y_names=ys, width=400, height=400,)
-hist = Histogram(bbvalues, bins=10, y_names=ys, title="Histogram Chart", width=400, height=400)
-singleline = Line(df, y_names='sepal_length', x_names='myx', width=400,
+area = Area(bbvalues, y=ys, title="Area Chart", **pkws)
+bp = BoxPlot(bbvalues, title="BoxPlot", y=ys, width=400, height=400,)
+hist = Histogram(bbvalues, bins=10, y=ys, title="Histogram Chart", width=400, height=400)
+singleline = Line(df, y='sepal_length', x='myx', width=400,
                   height=400, title="Single Line", legend=True)
 show(
     vplot(

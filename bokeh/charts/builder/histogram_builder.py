@@ -131,7 +131,7 @@ class HistogramBuilder(TabularSourceBuilder):
             if not col in self._data:
                 self._data[col] = values
 
-            if col in self.y_names:
+            if col in self.y:
                 #build the histogram using the set bins number
                 hist, edges = np.histogram(
                     np.array(values), density=self.density, bins=self.bins
@@ -161,31 +161,31 @@ class HistogramBuilder(TabularSourceBuilder):
     def _set_ranges(self):
         """Push the Histogram data into the ColumnDataSource and calculate
         the proper ranges."""
-        x_names, y_names = ([], [])
+        x, y = ([], [])
         if not self._mu_and_sigma:
-            for name in self.y_names:
-                x_names.extend(["%sleft%s" % (self.prefix, name),
+            for name in self.y:
+                x.extend(["%sleft%s" % (self.prefix, name),
                                 "%sright%s" % (self.prefix, name)])
-                y_names.extend(["%shist%s" % (self.prefix, name),
+                y.extend(["%shist%s" % (self.prefix, name),
                                 "%sbottom%s" % (self.prefix, name)])
         else:
-            for name in self.y_names:
-                x_names.extend(["%sx%s" % (self.prefix, name),
+            for name in self.y:
+                x.extend(["%sx%s" % (self.prefix, name),
                                 "%sleft%s" % (self.prefix, name),
                                 "%sright%s" % (self.prefix, name)])
-                y_names.extend(["%shist%s" % (self.prefix, name),
+                y.extend(["%shist%s" % (self.prefix, name),
                                 "%sbottom%s" % (self.prefix, name),
                                 "%scdf%s" % (self.prefix, name),
                                 "%spdf%s" % (self.prefix, name)])
 
-        endx = max(max(self._data[name]) for name in x_names)
-        startx = min(min(self._data[name]) for name in x_names)
+        endx = max(max(self._data[name]) for name in x)
+        startx = min(min(self._data[name]) for name in x)
         self.x_range = Range1d(
             start=startx - 0.1 * (endx - startx),
             end=endx + 0.1 * (endx - startx)
         )
 
-        endy = max(max(self._data[i]) for i in y_names)
+        endy = max(max(self._data[i]) for i in y)
         self.y_range = Range1d(start=0, end=1.1 * endy)
 
     def _yield_renderers(self):
@@ -195,8 +195,8 @@ class HistogramBuilder(TabularSourceBuilder):
         bars, taking as reference points the data loaded at the
         ColumnDataSurce.
         """
-        colors = cycle_colors(self.y_names, self.palette)
-        for color, name in zip(colors, self.y_names):
+        colors = cycle_colors(self.y, self.palette)
+        for color, name in zip(colors, self.y):
             glyph = Quad(
                 top='%shist%s' % (self.prefix, name),
                 bottom='%sbottom%s' % (self.prefix, name),

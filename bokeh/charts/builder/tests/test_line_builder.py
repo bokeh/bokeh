@@ -41,7 +41,7 @@ class TestLine(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Line, _xy)
             builder = hm._builders[0]
-            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
+            self.assertEqual(sorted(builder.y), sorted(list(xyvalues.keys())))
             assert_array_equal(builder._data['x'], [0, 1, 2, 3, 4])
             assert_array_equal(builder._data['python'], y_python)
             assert_array_equal(builder._data['pypy'], y_pypy)
@@ -51,7 +51,7 @@ class TestLine(unittest.TestCase):
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(Line, _xy)
             builder = hm._builders[0]
-            self.assertEqual(builder.y_names, ['0', '1', '2'])
+            self.assertEqual(builder.y, ['0', '1', '2'])
             assert_array_equal(builder._data['x'], [0, 1, 2, 3, 4])
             assert_array_equal(builder._data['0'], y_python)
             assert_array_equal(builder._data['1'], y_pypy)

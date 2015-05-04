@@ -217,13 +217,13 @@ class HorizonBuilder(TabularSourceBuilder):
             if not col in self._data:
                 self._data[col] = values
 
-            if col in self.x_names:
+            if col in self.x:
                 continue
 
-            if col in self.y_names:
+            if col in self.y:
                 self._series.append(col)
                 self._max_y = max(max(values), self._max_y)
-                v_index = list(self._values[self.x_names[0]])
+                v_index = list(self._values[self.x[0]])
                 _data["x_%s" % col] = self.pad_list(v_index)
 
         self._fold_height = self._max_y / self.num_folds

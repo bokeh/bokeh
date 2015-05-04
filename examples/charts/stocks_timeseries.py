@@ -29,17 +29,11 @@ xyvalues = OrderedDict(
 #lxyvalues = np.array(xyvalues.values())
 
 TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
-
 output_file("stocks_timeseries.html")
 
 ts = TimeSeries(
-    xyvalues, x_names=['Date'], legend=True,
-    title="timeseries, pd_input", tools=TOOLS, ylabel='Stock Prices')
-
-# usage with iterable index
-#ts = TimeSeries(
-#    lxyvalues, index=lindex,
-#    title="timeseries, pd_input", ylabel='Stock Prices')
-
+    xyvalues, time=['Date'], values=['AAPL', 'MSFT', 'IBM'], legend=True,
+    title="timeseries, pd_input", tools=TOOLS, ylabel='Stock Prices'
+)
 show(ts)
 

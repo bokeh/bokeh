@@ -96,8 +96,8 @@ class HeatMapBuilder(TabularSourceBuilder):
         self._data[self.prefix + 'caty'] = caty = []
         self._data[self.prefix + 'color'] = color = []
         self._data[self.prefix + 'rate'] = rate = []
-        for y in self.y_names:
-            for m in self.x_names:
+        for y in self.y:
+            for m in self.x:
                 catx.append(m)
                 caty.append(y)
                 rate.append(self._values[m][y])
@@ -105,8 +105,8 @@ class HeatMapBuilder(TabularSourceBuilder):
         # Now that we have the min and max rates
         factor = len(self.palette) - 1
         den = max(rate) - min(rate)
-        for y in self.y_names:
-            for m in self.x_names:
+        for y in self.y:
+            for m in self.x:
                 c = int(round(factor*(self._values[m][y] - min(rate)) / den))
                 color.append(self.palette[c])
 
@@ -117,8 +117,8 @@ class HeatMapBuilder(TabularSourceBuilder):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
-        self.x_range = FactorRange(factors=self.x_names)
-        self.y_range = FactorRange(factors=self.y_names)
+        self.x_range = FactorRange(factors=self.x)
+        self.y_range = FactorRange(factors=self.y)
 
     def _yield_renderers(self):
         """Use the rect glyphs to display the categorical heatmap.
@@ -140,5 +140,5 @@ class HeatMapBuilder(TabularSourceBuilder):
         Converts data input (self._values) to a DataAdapter
         """
         self._values = DataAdapter(self._values, force_alias=True)
-        self.x_names = self.x_names or list(self._values.columns)
-        self.y_names = self.y_names or list(self._values.index)
+        self.x = self.x or list(self._values.columns)
+        self.y = self.y or list(self._values.index)

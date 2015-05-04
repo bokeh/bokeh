@@ -81,8 +81,8 @@ class StepBuilder(TabularSourceBuilder):
         # a new series from the original data to "build" the steps
         for col, values in self._values.items():
             # like we did with the x values, we need to do the same with
-            # the series selected with the "y_names" attribute.
-            if col in self.y_names:
+            # the series selected with the "y" attribute.
+            if col in self.y:
                 orig_ys = np.asarray(values)
                 ys = np.empty(2*len(orig_ys)-1)
                 ys[::2] = orig_ys[:]
@@ -94,7 +94,7 @@ class StepBuilder(TabularSourceBuilder):
             if not col in self._data:
                 self._data[col] = values
 
-        for x in self.x_names:
+        for x in self.x:
             try:
                 orig_xs = self._values[x]
             except (KeyError, IndexError, ValueError):
