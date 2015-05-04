@@ -157,6 +157,7 @@ class DonutBuilder(TabularSourceBuilder):
         for i, (cat, start_angle, end_angle) in enumerate(zip(
                 self.cat, self._data[self.prefix + 'start'],
                 self._data[self.prefix + 'end'])):
+
             details = self._df.ix[i]
             radians = lambda x: 2*pi*(x/self._total_units)
 
@@ -166,7 +167,10 @@ class DonutBuilder(TabularSourceBuilder):
             base_color = colors[i]
             #fill = [ base_color.lighten(i*0.05) for i in range(len(details) + 1) ]
             fill = [base_color for i in range(len(details) + 1)]
-            text = [rowlabel for rowlabel in details.index]
+            if len(details) > 1:
+                text = [rowlabel for rowlabel in details.index]
+            else:
+                text = [""]
             x, y = polar_to_cartesian(1.25, start, end)
 
             source = ColumnDataSource(dict(start=start, end=end, fill=fill))
@@ -174,8 +178,7 @@ class DonutBuilder(TabularSourceBuilder):
             glyph = AnnularWedge(
                 x=0, y=0, inner_radius=1, outer_radius=1.5,
                 start_angle="start", end_angle="end",
-                line_color="white", line_width=2,
-                fill_color="fill"
+                line_color="white", line_width=2, fill_color="fill"
             )
             yield GlyphRenderer(data_source=source, glyph=glyph)
 

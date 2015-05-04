@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import Donut, show, output_file
+from bokeh.charts import Donut, show, output_file, vplot
 from bokeh.sampledata.olympics2014 import data
 
 # throw the data into a pandas data frame
@@ -30,7 +30,10 @@ medals['gold'] = gold
 #medals = pd.DataFrame(medals)
 
 output_file("donut.html")
-
 donut = Donut(medals, countries)
 
-show(donut)
+fruits= Donut(
+    cat=['apples', 'bananas', 'kiwi', 'pears'], values=[10, 15, 8, 12], title="Fruits flavor",
+    ylabel="Flavor", xlabel="Fruits",
+)
+show(vplot(donut, fruits))
