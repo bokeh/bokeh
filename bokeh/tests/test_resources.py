@@ -2,14 +2,13 @@ from __future__ import absolute_import
 
 import unittest
 
-from os.path import join
-
 import bokeh.resources as resources
 from bokeh.resources import _get_cdn_urls
 
 WRAPPER = """Bokeh.$(function() {
     foo
 });"""
+
 
 WRAPPER_DEV = '''require(["jquery", "main"], function($, Bokeh) {
 Bokeh.set_log_level("info");
@@ -95,16 +94,12 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.dev, True)
 
         self.assertEqual(len(r.js_raw), 1)
-        self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
-        self.assertTrue(r.js_raw[0].endswith(join('bokehjs', 'build', 'js') + '" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
         r = resources.Resources(mode="server-dev", root_url="http://foo/")
 
-        self.assertEqual(len(r.js_raw), 1)
-        self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
-        self.assertTrue(r.js_raw[0].endswith(join('bokehjs', 'build', 'js') + '" });'))
+        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -122,9 +117,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "relative")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(len(r.js_raw), 1)
-        self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
-        self.assertTrue(r.js_raw[0].endswith(join('bokehjs', 'build', 'js') + '" });'))
+        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -142,9 +135,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "absolute")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(len(r.js_raw), 1)
-        self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
-        self.assertTrue(r.js_raw[0].endswith(join('bokehjs', 'build', 'js') + '" });'))
+        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -159,12 +150,3 @@ class TestResources(unittest.TestCase):
 
         for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
             self.assertRaises(ValueError, resources.Resources, mode, root_url="foo")
-
-    def test_js_wrapper(self):
-        for mode in ("inline", "server", "cdn", "relative", "absolute"):
-            r = resources.Resources(mode)
-            self.assertEqual(r.js_wrapper("foo"), WRAPPER)
-
-        for mode in ("server-dev", "relative-dev", "absolute-dev"):
-            r = resources.Resources(mode)
-            self.assertEqual(r.js_wrapper("foo"), WRAPPER_DEV)

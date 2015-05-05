@@ -107,7 +107,7 @@ def stock2_update_selection(ticker1, ticker2, app):
     source = app.select_one({'tags' : 'main_source'})
     df = get_data(ticker1, ticker2)
     if source.selected:
-        selected_df = df.iloc[source.selected, :]
+        selected_df = df.iloc[source.selected['1d']['indices'], :]
     else:
         selected_df = df
 

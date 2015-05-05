@@ -3,11 +3,19 @@ Bokeh
 
 <table>
 <tr>
-  <td>Release</td>
-  <td><img src="https://pypip.in/v/bokeh/badge.png" alt="latest release" /></td>
+  <td>Latest Release</td>
+  <td><img src="https://img.shields.io/pypi/v/bokeh.svg" alt="latest release" /></td>
 </tr>
 <tr>
-  <td>Status</td>
+  <td>License</td>
+  <td>
+    <a href="https://github.com/bokeh/bokeh/blob/master/LICENSE.txt">
+    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg" alt="Bokeh license" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>Build Status</td>
   <td>
     <a href="https://travis-ci.org/bokeh/bokeh">
     <img src="https://travis-ci.org/bokeh/bokeh.svg?branch=master" alt="build status" />
@@ -26,7 +34,7 @@ Bokeh
   <td>PyPI</td>
   <td>
     <a href="https://pypi.python.org/pypi/bokeh/">
-    <img src="https://pypip.in/download/bokeh/badge.png?period=month" alt="pypi downloads" />
+    <img src="https://img.shields.io/pypi/dm/bokeh.svg" alt="pypi downloads" />
     </a>
   </td>
 </tr>
@@ -39,11 +47,12 @@ capability with high-performance interactivity over very large or streaming
 datasets. Bokeh can help anyone who would like to quickly and easily create
 interactive plots, dashboards, and data applications.
 
-Please visit the [Bokeh web page](http://bokeh.pydata.org) for more information and full documentation.
+Please visit the [Bokeh web page](http://bokeh.pydata.org/en/latest) for more information and full documentation.
 
 To get started quickly, follow the [Quickstart](http://bokeh.pydata.org/en/latest/docs/quickstart.html) in the online documentation, or the QUICKSTART.md located in the top level of the bokeh repository.
 
-Be sure to follow us on Twitter [@bokehplots](http://twitter.com/BokehPlots)!
+Be sure to follow us on Twitter [@bokehplots](http://twitter.com/BokehPlots), as well as on
+[Vine](https://vine.co/bokehplots), and [Youtube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw)!
 
 
 Interactive gallery

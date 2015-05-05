@@ -787,8 +787,11 @@ class CrossFilter(PlotObject):
                 # hack because we don't have true range selection
                 if not obj.selected:
                     continue
-                min_idx = np.min(obj.selected)
-                max_idx = np.max(obj.selected)
+
+                # TODO: (bev) This works until CF selections are not made on
+                # [multi]lines and [multi]patches
+                min_idx = np.min(obj.selected['1d']['indices'])
+                max_idx = np.max(obj.selected['1d']['indices'])
 
                 min_val = obj.data['centers'][min_idx]
                 max_val = obj.data['centers'][max_idx]

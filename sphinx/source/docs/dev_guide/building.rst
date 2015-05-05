@@ -176,6 +176,45 @@ Testing dependencies include the following additional libraries:
 * coverage
 * websocket-client
 
+.. This comment is just here to fix a weird Sphinx formatting bug
+
+----
+
+To quickly and easily confirm that your environment contains all of the necessary
+dependencies to build both the docs and the development version of Bokeh,
+run the ``devdeps.py`` file inside the ``bokeh/scripts`` directory.
+
+If any needed packages are missing, you will be given output like this
+
+.. code-block:: sh
+
+    ------------------------------------------------------------------
+    You are missing the following Dev dependencies:
+     *  beautiful-soup
+
+    ------------------------------------------------------------------
+    You are missing the following Docs dependencies:
+     *  sphinx
+     *  sphinxcontrib-httpdomain
+
+Otherwise, you should see this message
+
+.. code-block:: sh
+
+    ------------------------------------------------------------------
+    All Dev dependencies installed!  You are good to go!
+
+    ------------------------------------------------------------------
+    All Docs dependencies installed!  You are good to go!
+
+
+Additionally, ``devdeps.py`` will check that the ``bokehjs/node_modules`` directory exists,
+which is where npm packages are installed.
+
+If this directory is not found, it will provide instructions on how and where to
+install npm packages.
+
+
 Windows Notes
 ~~~~~~~~~~~~~
 
