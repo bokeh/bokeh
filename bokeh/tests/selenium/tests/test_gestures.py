@@ -1,7 +1,6 @@
 
 from __future__ import absolute_import, print_function
 
-import os
 import unittest
 
 from os.path import basename
@@ -9,7 +8,7 @@ from os.path import basename
 from selenium.common.exceptions import NoSuchElementException
 
 from bokeh.tests.selenium.fixtures import BasicSeleniumTestFixture
-from bokeh.tests.selenium.utils import look_for_element, check_if_images_are_the_same, take_screenshot, download_ref_screenshots
+from bokeh.tests.selenium.utils import look_for_element, check_if_images_are_the_same, take_screenshot, download_ref_screenshots, ret_screenshot_path
 
 
 class TestGestures(BasicSeleniumTestFixture):
@@ -24,8 +23,8 @@ class TestGestures(BasicSeleniumTestFixture):
     def test_box_zoom_tool(self):
 
         doc_name = 'area_chart'
-        ref_file = os.path.join(self.test_settings.screenshot_dir, 'ref-screenshot-box-zoom-tool.png')
-        gen_file = os.path.join(self.test_settings.screenshot_dir, 'gen-screenshot-box-zoom-tool.png')
+        ref_file = ret_screenshot_path(self.test_settings, 'ref-screenshot-box-zoom-tool.png')
+        gen_file = ret_screenshot_path(self.test_settings, 'gen-screenshot-box-zoom-tool.png')
 
         download_ref_screenshots(self.test_settings.screenshot_site_address, self.test_settings.screenshot_dir, files=[ref_file])
 
@@ -54,8 +53,8 @@ class TestGestures(BasicSeleniumTestFixture):
         """Check if pan tool is working as expected."""
 
         doc_name = 'simple_line'
-        ref_file = os.path.join(self.test_settings.screenshot_dir, 'ref-screenshot-pan-tool.png')
-        gen_file = os.path.join(self.test_settings.screenshot_dir, 'gen-screenshot-pan-tool.png')
+        ref_file = ret_screenshot_path(self.test_settings, 'ref-screenshot-pan-tool.png')
+        gen_file = ret_screenshot_path(self.test_settings, 'gen-screenshot-pan-tool.png')
 
         download_ref_screenshots(self.test_settings.screenshot_site_address, self.test_settings.screenshot_dir, files=[ref_file])
 
@@ -78,12 +77,12 @@ class TestGestures(BasicSeleniumTestFixture):
 
     def test_reset_tool(self):
         doc_name = 'simple_line'
-        ref_file = os.path.join(self.test_settings.screenshot_dir, 'ref-screenshot-reset-tool.png')
-        gen_file = os.path.join(self.test_settings.screenshot_dir, 'gen-screenshot-reset-tool.png')
-
-        download_ref_screenshots(self.test_settings.screenshot_site_address, self.test_settings.screenshot_dir, files=[ref_file])
+        ref_file = ret_screenshot_path(self.test_settings, 'ref-screenshot-reset-tool.png')
+        gen_file = ret_screenshot_path(self.test_settings, 'gen-screenshot-reset-tool.png')
 
         self.test_pan_tool()
+
+        download_ref_screenshots(self.test_settings.screenshot_site_address, self.test_settings.screenshot_dir, files=[ref_file])
 
         reset_button = look_for_element(self.driver, "img.bk-handler-reset")
 
@@ -98,8 +97,10 @@ class TestGestures(BasicSeleniumTestFixture):
         """Check if resize tool is working as expected."""
 
         doc_name = 'area_chart'
-        ref_file = os.path.join(self.test_settings.screenshot_dir, 'ref-screenshot-resize-tool.png')
-        gen_file = os.path.join(self.test_settings.screenshot_dir, 'gen-screenshot-resize-tool.png')
+        ref_file = ret_screenshot_path(self.test_settings, 'ref-screenshot-resize-tool.png')
+        gen_file = ret_screenshot_path(self.test_settings, 'gen-screenshot-resize-tool.png')
+
+        download_ref_screenshots(self.test_settings.screenshot_site_address, self.test_settings.screenshot_dir, files=[ref_file])
 
         document_url = self.load_document(doc_name)
 
@@ -127,10 +128,10 @@ class TestGestures(BasicSeleniumTestFixture):
         """Check if wheel zoom tool is working as expected."""
 
         doc_name = 'area_chart'
-        ref_in_file = os.path.join(self.test_settings.screenshot_dir, 'ref-screenshot-wheel-zoom-in-tool.png')
-        gen_in_file = os.path.join(self.test_settings.screenshot_dir, 'gen-screenshot-wheel-zoom-in-tool.png')
-        ref_out_file = os.path.join(self.test_settings.screenshot_dir, 'ref-screenshot-wheel-zoom-out-tool.png')
-        gen_out_file = os.path.join(self.test_settings.screenshot_dir, 'gen-screenshot-wheel-zoom-out-tool.png')
+        ref_in_file = ret_screenshot_path(self.test_settings, 'ref-screenshot-wheel-zoom-in-tool.png')
+        gen_in_file = ret_screenshot_path(self.test_settings, 'gen-screenshot-wheel-zoom-in-tool.png')
+        ref_out_file = ret_screenshot_path(self.test_settings, 'ref-screenshot-wheel-zoom-out-tool.png')
+        gen_out_file = ret_screenshot_path(self.test_settings, 'gen-screenshot-wheel-zoom-out-tool.png')
 
         download_ref_screenshots(self.test_settings.screenshot_site_address, self.test_settings.screenshot_dir, files=[ref_in_file, ref_out_file])
 

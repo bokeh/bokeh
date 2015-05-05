@@ -241,6 +241,12 @@ def check_if_images_are_the_same(ref_file, gen_file):
         return True
 
 
+def ret_screenshot_path(settings, file_name):
+    file_name = os.path.splitext(file_name)[0] + '-' + settings.browser_engine +'.png'
+
+    return os.path.join(settings.screenshot_dir, file_name)
+
+
 def take_screenshot(driver, output_file, win_width, win_height):
     driver.set_window_size(win_width, win_height)
     driver.save_screenshot(output_file)
