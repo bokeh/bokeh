@@ -13,7 +13,6 @@ Reference Guide
    reference/palettes
    reference/resources_embedding
    reference/plot_objects
-   reference/compat
    reference/rest_api
    reference/bokehjs
    reference/sphinxext

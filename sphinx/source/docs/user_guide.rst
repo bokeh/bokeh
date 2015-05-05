@@ -21,6 +21,10 @@ topic:
     Use the high-level |bokeh.charts| interface to create common
     statistical charts quickly and easily.
 
+:ref:`userguide_compat`
+    Display a wide range of plots created using `Matplotlib`_, `Seaborn`_,
+    `pandas`_, or `ggplot.py`_ as Bokeh plots.
+
 :ref:`userguide_styling`
     Customize every visual aspect of Bokeh plots---axes, grids, labels,
     glyphs, and more.
@@ -65,6 +69,7 @@ perfectly well with almost any array or table-like data structure.
     user_guide/concepts
     user_guide/plotting
     user_guide/charts
+    user_guide/compat
     user_guide/styling
     user_guide/tools
     user_guide/layout
@@ -76,3 +81,8 @@ perfectly well with almost any array or table-like data structure.
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+
+.. _ggplot.py: https://github.com/yhat/ggplot
+.. _Matplotlib: http://matplotlib.org
+.. _Pandas: http://pandas.pydata.org
+.. _Seaborn: http://web.stanford.edu/~mwaskom/software/seaborn
