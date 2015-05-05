@@ -68,7 +68,7 @@ class VBox(BaseBox):
 # parent class only, you need to set the fields you want
 class VBoxForm(VBox):
     """
-    Basically,  a VBox, where all components(generally form stuff)
+    Basically, a VBox, where all components (generally form stuff)
     is wrapped in a <form> tag - important for bootstrap css
     """
 class SimpleApp(Widget):
@@ -184,7 +184,8 @@ class SimpleApp(Widget):
     def args_for_func(self, func):
         args = {}
         for k,v in self.widget_dict.items():
-            args[k] = v.value
+            if hasattr(v, 'value'):
+                args[k] = v.value
         args['app'] = self
         args = arg_filter(func, args)
         return args

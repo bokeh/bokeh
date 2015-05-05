@@ -515,9 +515,7 @@ if sys.version_info[:2] == (2, 6):
 
 if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
     REQUIRES.extend([
-        'websocket>=0.2.1',
-        'gevent>=1.0',
-        'gevent-websocket>=0.9.2',
+        'websocket>=0.2.1'
     ])
 
 # if sys.platform != "win32":
