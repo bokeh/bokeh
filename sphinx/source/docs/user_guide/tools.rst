@@ -335,7 +335,6 @@ Here is an example of how to configure and use the hover tool:
 
     from bokeh.plotting import figure, output_file, show, ColumnDataSource
     from bokeh.models import HoverTool
-    from collections import OrderedDict
 
     output_file("toolbar.html")
 
@@ -347,32 +346,58 @@ Here is an example of how to configure and use the hover tool:
         )
     )
 
-    TOOLS=[
-        HoverTool(tooltips = OrderedDict(
-            [
+    hover = HoverTool(
+        tooltips = [
             ("index", "$index"),
             ("(x,y)", "($x, $y)"),
             ("desc", "@desc"),
-            ]
-        ))]
+        ]
+    )
 
-    # create a new plot with the toolbar below
-    p = figure(plot_width=400, plot_height=400, title=None, tools=TOOLS)
+    p = figure(plot_width=400, plot_height=400, tools=[hover])
 
-    p.circle('x', 'y', size=10, source=source)
+    p.circle('x', 'y', size=20, source=source)
 
     show(p)
 
 Selection Overlays
 ~~~~~~~~~~~~~~~~~~
 
+The capability to style the selection overlays is not yet exposed to the
+python interface. See :bokeh-issue:`2239` for information about plans to
+add this feature.
+
 .. _userguide_tools_lod:
 
 Controlling Level of Detail
 ---------------------------
 
+Although the HTML canvas can comfortably display tens or even hundreds of
+thousands of glyphs, doing so can have adverse affects on interactive
+performance. In order to accommodate large-ish (but not enormous) data
+sizes, Bokeh plots offer "Level of Detail" (LOD) capability in the client.
+
+.. note::
+    Another option, when dealing with very large data volumes, is to use the
+    Bokeh Server to perform downsampling on data before it is sent to the
+    browser. Such an approach is unavoidable past a certain data size. See
+    :ref:`userguide_server` for more information.
+
+The basic idea is that during interactive operations (e.g., panning or zooming),
+the plot only draws some small fraction data points. This hopefully allows the
+general sense of the interaction to be preserved mid-flight, while maintaining
+interactive performance. There are four properties on |Plot| objects that control
+LOD behavior:
+
+.. bokeh-prop:: bokeh.models.plots.Plot.lod_factor
+.. bokeh-prop:: bokeh.models.plots.Plot.lod_interval
+.. bokeh-prop:: bokeh.models.plots.Plot.lod_threshold
+.. bokeh-prop:: bokeh.models.plots.Plot.lod_timeout
+
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
+
+.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
