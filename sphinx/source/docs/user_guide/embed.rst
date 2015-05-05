@@ -54,13 +54,12 @@ can be used in HTML documents however you like:
 .. code-block:: python
 
     from bokeh.plotting import figure
-    from bokeh.resources import CDN
     from bokeh.embed import components
 
     plot = figure()
     plot.circle([1,2], [3,4])
 
-    script, div = components(plot, CDN)
+    script, div = components(plot)
 
 The returned ``<script>`` will look something like:
 
@@ -76,7 +75,7 @@ The returned ``<script>`` will look something like:
             Bokeh.logger.info(" - modelid: fba97329-a355-499e-9252-0adc64b19d2e");
             Bokeh.logger.info(" - elementid: 8ed68feb-d258-4953-9dfb-fb1c13326509");
 
-            var all_models = [ JSON PLOT MODELS AND DATA GO HERE ];
+            var all_models = [ JSON PLOT MODELS AND DATA ARE HERE ];
 
             Bokeh.load_models(all_models);
             var model = Bokeh.Collections(modeltype).get(modelid);
@@ -88,8 +87,8 @@ The returned ``<script>`` will look something like:
     </script>
 
 All of the data and plot objects are contained in the ``all_models`` variable
-(contents omitted here for brevity). The resulting ``<div>`` will look something
-like:
+(contents omitted here for brevity). The resulting ``<div>`` will look
+something like:
 
 .. code-block:: html
 
@@ -98,23 +97,25 @@ like:
 These two elements can be inserted or templated into your HTML text, and the
 script, when executed, will replace the div with the plot.
 
-.. note::
-    Using these components assumes that BokehJS has already been loaded, for
-    instance either inline in the document text, or from CDN.
-
-If you want to load BokehJS from CDN you will have to add the following lines in your
-HTML text or template with the appropriate version:
+Using these components assumes that BokehJS has already been loaded, for
+instance either inline in the document text, or from CDN. To load BokehJS
+from CDN, add the following lines in your HTML text or template with the
+appropriate version replacing ``x.y.z``:
 
 .. code-block:: html
 
-    <link href="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css"
+        rel="stylesheet" type="text/css">
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js">
 
-For example, if you were using bokeh-0.8.2, you would add:
+For example, to use version ``0.8.2``:
 
 .. code-block:: html
 
-    <link href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css"
+        rel="stylesheet" type="text/css">
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js">
 
 
