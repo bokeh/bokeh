@@ -262,6 +262,8 @@ def download_ref_screenshots(site_address, output_dir, files):
             url = os.path.join(site_address, file)
             response = requests.get(url)
 
+            print("Downloading {}".format(url))
+
             if not response.ok:
                 assert 0, "Couldn't download file: {}".format(url)
 
