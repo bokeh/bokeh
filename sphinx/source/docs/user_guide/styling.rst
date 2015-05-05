@@ -477,7 +477,7 @@ Legends
 
 
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.plot`
+.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
