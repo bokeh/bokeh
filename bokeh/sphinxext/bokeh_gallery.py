@@ -102,7 +102,7 @@ class BokehGalleryDirective(Directive):
 
         result = ViewList()
         names = [detail['name'] for detail in details]
-        env.gallery_names = [join("docs", "gallery", name) for name in names]
+        env.gallery_names = [join("docs", "gallery", n) for n in names]
         text = GALLERY_TEMPLATE.render(names=names)
         for line in text.split("\n"):
             result.append(line, "<bokeh-gallery>")
