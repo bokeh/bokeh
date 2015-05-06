@@ -45,8 +45,8 @@ install:
     - scripts/travis_install
 
 script:
-    - rm -rf "$HOME/miniconda/lib/python*/site-packages/sphinx"
     - conda list sphinx
+    - python -c "import sphinx; print(sphinx)"
     - ( cd sphinx; make all SPHINXBUILD="$HOME/miniconda/bin/sphinx-build" )
     # TODO: remove the condition when conda build --quiet is available
     # Examples testing + building generates enough output to kill the build so
