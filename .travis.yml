@@ -49,7 +49,7 @@ script:
     # Examples testing + building generates enough output to kill the build so
     # we avoid testing for now.
     - if [[ -z "$TRAVIS_TAG" ]]; then nosetests --with-coverage --cover-package=bokeh; fi
-    #- ( cd sphinx; make all SPHINXBUILD="$HOME/miniconda/bin/sphinx-build" )
+    - ( cd sphinx; make all SPHINXBUILD="$HOME/miniconda/bin/sphinx-build" )
     # Flake/style testing (only needed on one machine)
     - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
 
