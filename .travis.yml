@@ -20,15 +20,11 @@ env:
 matrix:
     include:
         - python: 2.7
-          env: BOKEH_DEFAULT_NO_DEV=true BOKEH_DEFAULT_DIFF=FETCH_HEAD
+          env: BOKEH_DEFAULT_DIFF=FETCH_HEAD
         - python: 3.3
-          env: BOKEH_DEFAULT_NO_DEV=true
         - python: 3.4
-          env: BOKEH_DEFAULT_NO_DEV=true
     exclude:
         - python: 2.7
-        - python: 3.3
-        - python: 3.4
 
 branches:
   only:
@@ -55,7 +51,7 @@ script:
 
 after_success:
     |
-    if [[ ! -z "$TRAVIS_TAG" && $BOKEH_DEFAULT_NO_DEV == true ]]; then
+    if [[ ! -z "$TRAVIS_TAG" ]]; then
         echo "Building the packages and uploading to binstar. Also uploading JS and CSS to the CDN and uploading the devel docs."
         conda install binstar fabric --yes
         openssl aes-256-cbc -K $encrypted_d63f580d5c2a_key -iv $encrypted_d63f580d5c2a_iv -in secrets.tar.enc -out secrets.tar -d
@@ -71,7 +67,7 @@ after_success:
           bash release_upload.sh -b $BINSTAR_TOKEN
         fi
     else
-        echo "Not building because there is no tag (or BOKEH_DEFAULT_NO_DEV is false)."
+        echo "Not building because there is no tag."
     fi
 
 notifications:
