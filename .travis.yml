@@ -49,7 +49,7 @@ script:
 
 after_success:
     |
-    if [[ ! -z "$TRAVIS_TAG" ]]; then
+    if if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '2.7'  ]]; then
         echo "Building the packages and uploading to binstar. Also uploading JS and CSS to the CDN and uploading the devel docs."
         conda install binstar fabric --yes
         openssl aes-256-cbc -K $encrypted_d63f580d5c2a_key -iv $encrypted_d63f580d5c2a_iv -in secrets.tar.enc -out secrets.tar -d
