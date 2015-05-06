@@ -132,7 +132,15 @@ class TestMarkers(unittest.TestCase):
     def test_color_input_float(self):
         p = plt.figure()
         p.circle([1, 2, 3], [1, 2, 3], color=(100., 100., 100.))
+        p.circle([1, 2, 3], [2, 4, 6], color=(50., 100., 50., 0.5))
         plt.output_file('test.html')
+        plt.show(p)
+
+    def test_color_input_int(self):
+        p = plt.figure()
+        p.circle([1, 2, 3], [1, 2, 3], color=(100, 100, 100))
+        p.circle([1, 2, 3], [2, 4, 6], color=(50, 100, 50, 0.5))
+        plt.output_file('test2.html')
         plt.show(p)
 
 if __name__ == "__main__":
