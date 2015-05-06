@@ -21,8 +21,6 @@ matrix:
     include:
         - python: 2.7
           env: BOKEH_DEFAULT_DIFF=FETCH_HEAD
-        - python: 3.3
-        - python: 3.4
     exclude:
         - python: 2.7
 
