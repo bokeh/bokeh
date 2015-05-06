@@ -26,7 +26,7 @@ conda config --add channels bokeh
 conda config --add channels javascript   # TODO: move packages to bokeh?
 conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
 
-CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
+CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet conda.recipe
 conda install --use-local --yes bokeh
 
 DEPS_TEST=$(cat <<EOF | python -
