@@ -59,10 +59,10 @@ after_success:
         eval `ssh-agent -s`
         ssh-add bokeh_key
         if [[ "$TRAVIS_TAG" == *"dev"* ]] || [[ "$TRAVIS_TAG" == *"rc"* ]]; then
-          bash build_and_upload.sh -b $BINSTAR_TOKEN -u $RSUSER -k $RSAPIKEY
+          bash scripts/build_upload.sh -b $BINSTAR_TOKEN -u $RSUSER -k $RSAPIKEY
         else
           echo "" > __travis_build_id__.txt
-          bash release_upload.sh -b $BINSTAR_TOKEN
+          bash scripts/release_upload.sh -b $BINSTAR_TOKEN
         fi
     else
         echo "Not building because there is no tag."
