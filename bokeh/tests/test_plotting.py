@@ -11,7 +11,7 @@ class TestFigure(unittest.TestCase):
     def test_basic(self):
         p = plt.figure()
         q = plt.figure()
-        q.circle([1,2,3], [1,2,3])
+        q.circle([1, 2, 3], [1, 2, 3])
         self.assertNotEqual(p, q)
         r = plt.figure()
         self.assertNotEqual(p, r)
@@ -27,7 +27,7 @@ class TestFigure(unittest.TestCase):
 
     def test_xaxis(self):
         p = plt.figure()
-        p.circle([1,2,3], [1,2,3])
+        p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.xaxis), 1)
 
         expected = set(p.xaxis)
@@ -50,7 +50,7 @@ class TestFigure(unittest.TestCase):
 
     def test_yaxis(self):
         p = plt.figure()
-        p.circle([1,2,3], [1,2,3])
+        p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.yaxis), 1)
 
         expected = set(p.yaxis)
@@ -73,7 +73,7 @@ class TestFigure(unittest.TestCase):
 
     def test_axis(self):
         p = plt.figure()
-        p.circle([1,2,3], [1,2,3])
+        p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.axis), 2)
 
         expected = set(p.axis)
@@ -100,19 +100,19 @@ class TestFigure(unittest.TestCase):
 
     def test_xgrid(self):
         p = plt.figure()
-        p .circle([1,2,3], [1,2,3])
+        p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.xgrid), 1)
         self.assertEqual(p.xgrid[0].dimension, 0)
 
     def test_ygrid(self):
         p = plt.figure()
-        p.circle([1,2,3], [1,2,3])
+        p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.ygrid), 1)
         self.assertEqual(p.ygrid[0].dimension, 1)
 
     def test_grid(self):
         p = plt.figure()
-        p .circle([1,2,3], [1,2,3])
+        p.circle([1, 2, 3], [1, 2, 3])
         self.assertEqual(len(p.grid), 2)
 
     def test_legend(self):
@@ -129,8 +129,11 @@ class TestFigure(unittest.TestCase):
 
 class TestMarkers(unittest.TestCase):
 
-    def test(self):
-        pass
+    def test_color_input_float(self):
+        p = plt.figure()
+        p.circle([1, 2, 3], [1, 2, 3], color=(100., 100., 100.))
+        plt.output_file('test.html')
+        plt.show(p)
 
 if __name__ == "__main__":
     unittest.main()

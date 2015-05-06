@@ -93,7 +93,8 @@ def _match_data_params(argnames, glyphclass, datasource,
             glyph_val = val
         elif isinstance(val, dict) or isinstance(val, Number):
             glyph_val = val
-        elif isinstance(dataspecs.get(var, None), ColorSpec) and (ColorSpec.isconst(val) or val is None):
+        elif (isinstance(dataspecs.get(var, None), ColorSpec) and
+                  (ColorSpec.isconst(val) or val is None or ColorSpec.is_color_tuple(val))):
             # This check for color constants needs to happen relatively early on because
             # both strings and certain iterables are valid colors.
             glyph_val = val
