@@ -1,3 +1,4 @@
+.. _contributing:
 
 Contributing
 ############
@@ -14,8 +15,7 @@ to have available by default in Bokeh, we would be excited to make it available
 as a plug-in in Bokeh.
 
 If you are a JavaScript developer and want to help us make Bokeh easier to use
-on the JavaScript side, and plug in more nicely with libraries like Angular or
-Dart, please get in touch.
+on the JavaScript side, and plug in more nicely with libraries like React, please get in touch.
 
 If you are a designer and you want to help us build out a great set of default
 styles for our plots, we can definitely use your help!
@@ -28,10 +28,11 @@ Specific areas we'd like to get help on:
 * Mobile & touch platforms
 * IE support
 * Interactive widget library
-* WebGL and 3D integration
 * Designs & styling
 * Canvas performance optimization
 * Connectors to various data APIs (public data or even commercial software suites)
+
+.. _core_team:
 
 Core Team
 =========
@@ -40,11 +41,9 @@ The Bokeh core team comprises:
 
 * Damián Avila
 * Joseph Cottam
-* Karan Dodia
-* Christine Doig
+* Almar Klein
 * Mateusz Paprocki
 * Fabio Pliger
-* Hugo Shi
 * Bryan Van de Ven
 * Peter Wang
 

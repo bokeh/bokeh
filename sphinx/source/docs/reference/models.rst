@@ -1,8 +1,8 @@
 
 .. _bokeh.models:
 
-Model Objects
-#############
+``bokeh.models`` Interface
+==========================
 
 One of the central design principals of Bokeh is that, regardless of
 how the plot creation code is spelled in Python (or other languages),
@@ -19,6 +19,15 @@ a serialized version of the model looks like.
 .. contents::
     :local:
     :depth: 1
+
+.. _bokeh.models.actions:
+
+``bokeh.models.actions``
+------------------------
+
+.. automodule:: bokeh.models.actions
+   :members:
+   :undoc-members:
 
 .. _bokeh.models.axes:
 

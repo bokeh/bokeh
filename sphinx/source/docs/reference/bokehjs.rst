@@ -10,7 +10,8 @@ BokehJS Interface Reference
 .. _bokehjs_data_source:
 
 Data Sources
-************
+------------
+
 Data is typically passed to bokehjs through a ``ColumnDataSource`` which has named columns
 of data that are available to glyph renderers. Note that all the columns in a given
 ``ColumnDataSource`` should have the same length. It is possible and often necessary to have
@@ -21,7 +22,8 @@ different data sources for different renderers.
 .. _bokehjs_line_properties:
 
 Line Properties
-***************
+---------------
+
 BokehJS exposes all the standard HTML5 canvas path stroking properties. All of these
 properties may take single values, or references to vectors of data. For instance, it
 is possible to draw multiple rectangles at once using the ``rect`` glyph. They may
@@ -32,7 +34,8 @@ all be given the same ``line_width`` or each rectangle may be given its own ``li
 .. _bokehjs_fill_properties:
 
 Fill Properties
-***************
+---------------
+
 BokehJS exposes all the standard HTML5 path filling properties. All of these properties
 may take single values, or references to vectors of data. For instance, it is possible to
 draw multiple rectangles at once using the ``rect`` glyph. They may all be given the same
@@ -43,7 +46,8 @@ draw multiple rectangles at once using the ``rect`` glyph. They may all be given
 .. _bokehjs_text_properties:
 
 Text Properties
-***************
+---------------
+
 BokehJS exposes most of the standard HTML5 text properties. All of these properties
 may take single values, or references to vectors of data. For instance, it is possible to
 draw multiple text items at once using the ``text`` glyph. They may all be given the same
@@ -54,7 +58,8 @@ draw multiple text items at once using the ``text`` glyph. They may all be given
 .. _bokehjs_markers:
 
 Markers
-*******
+-------
+
 Markers are a subset of BokehJS glyphs that have a uniform interface and are suitable for simple
 scatter type plots. All markers expose the following fields:
 
@@ -66,18 +71,20 @@ and have :ref:`bokehjs_line_properties` and :ref:`bokehjs_fill_properties` as ap
 .. _bokehjs_glyphs:
 
 Glyphs
-******
+------
 
 Bokeh plots are centered around glyphs, which generally have some combination of line, fill, or
 text properties, depending on what is appropriate for a given glyph. For example, the ``Circle``
 glyph has both line and fill properties, but the ``Bezier`` glyph only has line properties.
 
-.. note:: Each of the glyph images below links to a live JSFiddle.
+.. note::
+    Each of the glyph images below links to a live JSFiddle.
 
 .. _bokehjs_annular_wedge:
 
 ``annular_wedge``
------------------
+~~~~~~~~~~~~~~~~~
+
 The annular_wedge glyph displays annular wedges centered at the given coordinates with the
 corresponding ``start_radius``, ``end_radius``,  ``start_angle`` and ``end_angle``.
 
@@ -104,7 +111,8 @@ corresponding ``start_radius``, ``end_radius``,  ``start_angle`` and ``end_angle
 .. _bokehjs_annulus:
 
 ``annulus``
------------
+~~~~~~~~~~~
+
 The annulus glyph displays annular rings centered at the given coordinates with the
 corresponding ``start_radius`` and ``end_radius``.
 
@@ -122,7 +130,8 @@ corresponding ``start_radius`` and ``end_radius``.
 .. _bokehjs_arc:
 
 ``arc``
--------
+~~~~~~~
+
 The annulus glyph displays circular line arcs centered at the given coordinates with the
 corresponding ``radius``, ``start_angle`` and ``end_angle``.
 
@@ -147,7 +156,8 @@ corresponding ``radius``, ``start_angle`` and ``end_angle``.
 .. _bokehjs_asterisk:
 
 ``asterisk``
-------------
+~~~~~~~~~~~~
+
 The asterisk glyph is a :ref:`marker <bokehjs_markers>` that displays asterisks at
 the given coordinates.
 
@@ -163,7 +173,8 @@ the given coordinates.
 .. _bokehjs_bezier:
 
 ``bezier``
-----------
+~~~~~~~~~~
+
 The bezier glyph displays Bezier curves with the given starting, ending, and control points.
 
 * ``x0``, ``y0`` - starting point coordinates
@@ -180,7 +191,8 @@ The bezier glyph displays Bezier curves with the given starting, ending, and con
 .. _bokehjs_circle:
 
 ``circle``
-----------
+~~~~~~~~~~
+
 The circle glyph has two forms, a :ref:`marker <bokehjs_markers>` form that takes a ``size``
 field or a non-marker form that takes a ``radius`` field.
 
@@ -199,7 +211,8 @@ field or a non-marker form that takes a ``radius`` field.
 .. _bokehjs_circle_cross:
 
 ``circle_cross``
-----------------
+~~~~~~~~~~~~~~~~
+
 The circle_cross glyph is a :ref:`marker <bokehjs_markers>` that displays circles
 together with a crossbar (+) at the given coordinates.
 
@@ -216,7 +229,8 @@ together with a crossbar (+) at the given coordinates.
 .. _bokehjs_circle_x:
 
 ``circle_x``
-------------
+~~~~~~~~~~~~
+
 The circle_x glyph is a :ref:`marker <bokehjs_markers>` that displays circles
 together with an X at the given coordinates.
 
@@ -233,7 +247,8 @@ together with an X at the given coordinates.
 .. _bokehjs_cross:
 
 ``cross``
----------
+~~~~~~~~~
+
 The cross glyph is a :ref:`marker <bokehjs_markers>` that displays crossbar symbols (+)
 at the given coordinates.
 
@@ -249,7 +264,8 @@ at the given coordinates.
 .. _bokehjs_diamond:
 
 ``diamond``
------------
+~~~~~~~~~~~
+
 The diamond glyph is a :ref:`marker <bokehjs_markers>` that displays diamonds
 at the given coordinates.
 
@@ -266,7 +282,8 @@ at the given coordinates.
 .. _bokehjs_diamond_cross:
 
 ``diamond_cross``
------------------
+~~~~~~~~~~~~~~~~~
+
 The diamond_cross glyph is a :ref:`marker <bokehjs_markers>` that displays diamonds
 together with a crossbar (+) at the given coordinates.
 
@@ -283,7 +300,8 @@ together with a crossbar (+) at the given coordinates.
 .. _bokehjs_image:
 
 ``image``
----------
+~~~~~~~~~
+
 The image glyph has two forms. The first form takes each ``image`` as a one-dimensional
 array of scalar values together with ``rows`` and ``cols`` fields that describe the two-dimensional
 shape of the array. The second form takes each ``image`` as a"array of arrays" (assumed to be
@@ -312,7 +330,8 @@ palette, currently) must also be supplied to use for color-mapping the scalar im
 .. _bokehjs_image_rgba:
 
 ``image_rgba``
---------------
+~~~~~~~~~~~~~~
+
 The image_rgba glyph has two forms. The first form takes each ``image`` as a one-dimensional
 array of RGBA values (encoded as 32-bit integers) together with ``rows`` and ``cols`` fields
 that describe the two-dimensional shape of the array. The second form takes each ``image`` as a
@@ -339,7 +358,8 @@ that describe the two-dimensional shape of the array. The second form takes each
 .. _bokehjs_image_url:
 
 ``image_url``
--------------
+~~~~~~~~~~~~~
+
 The image_url glyph accepts the URLs of an images to display. The images are centered
 on the given coordinates and rotated by the given angles.
 
@@ -350,7 +370,8 @@ on the given coordinates and rotated by the given angles.
 .. _bokehjs_inverted_triangle:
 
 ``inverted_triangle``
----------------------
+~~~~~~~~~~~~~~~~~~~~~
+
 The inverted_triangle glyph is a :ref:`marker <bokehjs_markers>` that displays
 upside-down triangles at the given coordinates.
 
@@ -367,7 +388,8 @@ upside-down triangles at the given coordinates.
 .. _bokehjs_line:
 
 ``line``
---------
+~~~~~~~~
+
 The line glyphs displays a single line that connects several points given by the arrays
 of coordinates ``x`` and ``y``.
 
@@ -382,7 +404,8 @@ of coordinates ``x`` and ``y``.
 .. _bokehjs_multi_line:
 
 ``multi_line``
---------------
+~~~~~~~~~~~~~~
+
 The multi_line glyphs displays several lines, each with points given by the arrays of
 coordinates that are the elements of ``xs`` and ``ys``. This glyph is especially useful for
 implementing parallel coordinates plots, or plotting several aligned series simultaneously.
@@ -400,7 +423,8 @@ implementing parallel coordinates plots, or plotting several aligned series simu
 .. _bokehjs_oval:
 
 ``oval``
---------
+~~~~~~~~
+
 The oval glyph displays ovals centered on the given coordinates with the given dimensions
 and angle.
 
@@ -422,7 +446,8 @@ and angle.
 .. _bokehjs_patch:
 
 ``patch``
----------
+~~~~~~~~~
+
 The line glyphs displays a single polygonal patch that connects several points given by the arrays
 of coordinates ``x`` and ``y``.
 
@@ -438,7 +463,8 @@ of coordinates ``x`` and ``y``.
 .. _bokehjs_patches:
 
 ``patches``
------------
+~~~~~~~~~~~
+
 The patches glyphs displays several patches, each with points given by the arrays of
 coordinates that are the elements of ``xs`` and ``ys``. This glyph is especially useful for
 implementing stacked area charts and cartograms.
@@ -457,7 +483,8 @@ implementing stacked area charts and cartograms.
 .. _bokehjs_quad:
 
 ``quad``
---------
+~~~~~~~~
+
 The quad glyph displays axis-aligned rectangles with the given dimensions.
 
 * ``left``
@@ -475,7 +502,8 @@ The quad glyph displays axis-aligned rectangles with the given dimensions.
 .. _bokehjs_quadratic:
 
 ``quadratic``
--------------
+~~~~~~~~~~~~~
+
 The quadratic glyph displays quadratic curves with the given starting, ending, and control points.
 
 * ``x0``, ``y0`` - starting point coordinates
@@ -491,7 +519,8 @@ The quadratic glyph displays quadratic curves with the given starting, ending, a
 .. _bokehjs_ray:
 
 ``ray``
--------
+~~~~~~~
+
 The ray glyph displays line segments starting at the given coordinate and extending the given
 ``length`` at the given ``angle``.
 
@@ -511,7 +540,8 @@ The ray glyph displays line segments starting at the given coordinate and extend
 .. _bokehjs_rect:
 
 ``rect``
---------
+~~~~~~~~
+
 The rect glyph displays rectangles centered on the given coordinates with the given dimensions
 and angle.
 
@@ -533,9 +563,9 @@ and angle.
 .. _bokehjs_segment:
 
 ``segment``
------------
-The segment glyph displays line segments with the given starting and ending coordinates.
+~~~~~~~~~~~
 
+The segment glyph displays line segments with the given starting and ending coordinates.
 
 * ``x0``, ``y0`` - starting point coordinates
 * ``x1``, ``y1`` - ending point coordinates
@@ -549,7 +579,8 @@ The segment glyph displays line segments with the given starting and ending coor
 .. _bokehjs_square:
 
 ``square``
-----------
+~~~~~~~~~~
+
 The square glyph is a :ref:`marker <bokehjs_markers>` that displays squares
 at the given coordinates.
 
@@ -566,7 +597,8 @@ at the given coordinates.
 .. _bokehjs_square_cross:
 
 ``square_cross``
-----------------
+~~~~~~~~~~~~~~~~
+
 The square_cross glyph is a :ref:`marker <bokehjs_markers>` that displays squares
 together with a crossbar (+) at the given coordinates.
 
@@ -583,7 +615,8 @@ together with a crossbar (+) at the given coordinates.
 .. _bokehjs_square_x:
 
 ``square_x``
-------------
+~~~~~~~~~~~~
+
 The square_x glyph is a :ref:`marker <bokehjs_markers>` that displays squares
 together with an X at the given coordinates.
 
@@ -600,7 +633,8 @@ together with an X at the given coordinates.
 .. _bokehjs_text:
 
 ``text``
---------
+~~~~~~~~
+
 The text glyph displays text at the given coordinates rotated by the given angle. The
 location of the coordinates relative to the text is indicated by the text properties.
 
@@ -620,7 +654,8 @@ location of the coordinates relative to the text is indicated by the text proper
 .. _bokehjs_triangle:
 
 ``triangle``
-------------
+~~~~~~~~~~~~
+
 The triangle glyph is a :ref:`marker <bokehjs_markers>` that displays triangles
 at the given coordinates.
 
@@ -637,7 +672,8 @@ at the given coordinates.
 .. _bokehjs_wedge:
 
 ``wedge``
----------
+~~~~~~~~~
+
 The annular_wedge glyph displays circular wedges centered at the given coordinates with the
 corresponding ``radius``,  ``start_angle`` and ``end_angle``.
 
@@ -663,7 +699,8 @@ corresponding ``radius``,  ``start_angle`` and ``end_angle``.
 .. _bokehjs_x:
 
 ``x``
------
+~~~~~
+
 The x glyph is a :ref:`marker <bokehjs_markers>` that displays X symbols at
 the given coordinates.
 
