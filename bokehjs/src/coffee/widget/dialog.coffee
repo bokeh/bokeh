@@ -12,7 +12,6 @@ class DialogView extends ContinuumView
 
   initialize: (options) ->
     super(options)
-    @views = {}
     @render()
     @render_content()
     @render_buttons()
