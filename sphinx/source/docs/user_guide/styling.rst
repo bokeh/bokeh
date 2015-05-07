@@ -365,12 +365,13 @@ These values are in screen units, and negative values are acceptable.
 Tick Labels
 ~~~~~~~~~~~
 
-
 Now we have seen that various line and text properties of plot axes
 can be easily set by using the |xaxis|, |yaxis| and |axis| properties
 of plots.
 
-There are many more properties that Bokeh axes support configuring.
+----
+
+There are more properties that Bokeh axes support configuring.
 For a complete listing of all the various attributes that can be set
 on different types of Bokeh axes, consult the :ref:`bokeh.models.axes`
 section of of the :ref:`refguide`.
@@ -411,8 +412,10 @@ for every element of the list:
 Lines
 ~~~~~
 
-Below is code that will set some of the properties of grid lines. You can
-execute this code, and try setting other properties as well.
+The visual appearance of grid lines is controlled by a collection of
+`Line Properties`_, prefixed with ``grid_``. For instance, to set the
+color of grid lines, use ``grid_line_color``. To hide grid lines, set
+their line color to ``None``.
 
 .. bokeh-plot::
     :source-position: above
@@ -439,8 +442,10 @@ Bands
 ~~~~~
 
 It is also possible to display filled, shaded bands between adjacent
-grid lines. Below is code that will set some of the fill properties of
-grids bands. You can execute this code, and try setting different values.
+grid lines. The visual appearance of these bands is controlled by a
+collection of `Fill Properties`_, prefixed with ``band_``. For instance,
+to set the color of grid bands, use ``band_fill_color``. To hide grid
+bands, set their fill color to ``None`` (this is the default).
 
 .. bokeh-plot::
     :source-position: above
@@ -460,6 +465,32 @@ grids bands. You can execute this code, and try setting different values.
     p.ygrid.band_fill_color = "navy"
 
     show(p)
+
+.. _userguide_styling_grid_bounds:
+
+Bounds
+~~~~~~
+
+Grids also support setting expicit bounds between which they are drawn.
+They are set in an identical fashion as axes bounds, with a 2-tuple
+of *(start, end)*:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.models.ranges import Range1d
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("bounds.html")
+
+    p = figure(plot_width=400, plot_height=400, title=None)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.grid.bounds = (2, 4)
+
+    show(p)
+
+
 
 ----
 
