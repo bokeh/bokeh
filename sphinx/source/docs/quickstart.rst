@@ -330,7 +330,7 @@ things to look out for in this example:
     import numpy as np
     from bokeh.plotting import *
 
-    # prepare some date
+    # prepare some data
     N = 100
     x = np.linspace(0, 4*np.pi, N)
     y0 = np.sin(x)
