@@ -359,7 +359,7 @@ Although the toolbar is hidden, the pan tool is still present and active. Click
 and drag the above plots to pan them, and see how their ranges are linked
 together.
 
-Another linkage that is often useful is **linked brushing** (where a selection)
+Another linkage that is often useful is **linked brushing** (where a selection
 on one plot causes a selection to update on other plots). Below is an example
 that demonstrates linked brushing by sharing a |ColumnDataSource| between two
 plots:
