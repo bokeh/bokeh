@@ -15,7 +15,7 @@ rm -rf $MINICONDA.sh
 python -V
 
 PINNED_PKGS=$(cat <<EOF
--binstar =0.10.1
+binstar =0.10.1
 EOF
 )
 echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
