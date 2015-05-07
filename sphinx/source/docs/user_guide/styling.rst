@@ -5,7 +5,7 @@ Styling Visual Attributes
 
 .. contents::
     :local:
-    :depth: 3
+    :depth: 2
 
 .. _userguide_styling_colors:
 
