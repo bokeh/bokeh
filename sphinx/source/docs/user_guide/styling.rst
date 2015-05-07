@@ -365,9 +365,77 @@ These values are in screen units, and negative values are acceptable.
 Tick Labels
 ~~~~~~~~~~~
 
-Now we have seen that various line and text properties of plot axes
-can be easily set by using the |xaxis|, |yaxis| and |axis| properties
-of plots.
+The text styling of axis labels is controlled by a ``TickFormatter`` object
+configured on the axis' ``formatter`` property. Bokeh uses a number of tickers
+by default in different situations:
+
+* |BasicTickFormatter| --- Default formatter for  linear axes.
+
+* |CategoricalTickFormatter| --- Default formatter for categorical axes.
+
+* |DatetimeTickFormatter| --- Default formatter for datetime axes.
+
+* |LogTickFormatter| --- Default formatter for log axes.
+
+These default tick formatters do not expose many configurable properties.
+To control tick formatting at a finer grained level, use on of the
+|NumeralTickFormatter| or |PrintfTickFormatter| described below.
+
+.. note::
+    To replace an tick formatter on an Axis, you must set the ``formatter``
+    property on an actual ``Axis`` object, not on a splattable list. This is
+    why ``p.yaxis[0].formatter``, etc. (with the subscript ``[0]``) is used.
+
+``NumeralTickFormatter``
+''''''''''''''''''''''''
+
+The |NumeralTickFormatter| has a ``format`` property that can be used
+to control the text formatting of axis ticks.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+    from bokeh.models import NumeralTickFormatter
+
+    output_file("gridlines.html")
+
+    p = figure(plot_width=400, plot_height=400, title=None)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+    p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
+
+    show(p)
+
+Many additional formats are understood, see the full |NumeralTickFormatter|
+documentation in the :ref:`refguide`.
+
+``PrintfTickFormatter``
+'''''''''''''''''''''''
+
+The |PrintfTickFormatter| has a ``format`` property that can be used
+to control the text formatting of axis ticks using ``printf`` style
+format strings.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+    from bokeh.models import PrintfTickFormatter
+
+    output_file("gridlines.html")
+
+    p = figure(plot_width=400, plot_height=400, title=None)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis[0].formatter = PrintfTickFormatter(format="%4.1e")
+    p.yaxis[0].formatter = PrintfTickFormatter(format="%5.3f mu")
+
+    show(p)
+
+For full details about formats, see the full |PrintfTickFormatter|
+documentation in the :ref:`refguide`.
 
 ----
 
@@ -695,6 +763,13 @@ spacing, etc. of the legend compononents:
 
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 
+.. |bokeh.models.formatters| replace:: :ref:`bokeh.models.formatters <bokeh.models.formatters>`
+.. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
+.. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
+.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
+.. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
+.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
+.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
 .. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`
