@@ -55,11 +55,11 @@ travis_build_id=$(cat __travis_build_id__.txt)
 conda convert -p all -f $BUILD_PATH/bokeh*$travis_build_id*.tar.bz2; # --quiet option will be available soon
 
 # upload conda pkgs to binstar
-array=(osx-64 linux-64 win-64 linux-32 win-32)
-for i in "${array[@]}"
+platforms=(osx-64 linux-64 win-64 linux-32 win-32)
+for plat in "${platforms[@]}"
 do
-    echo Uploading: $i;
-    binstar -t $bintoken upload -u bokeh $i/bokeh*$travis_build_id*.tar.bz2 --force --no-progress;
+    echo Uploading: $plat;
+    binstar -t $bintoken upload -u bokeh $plat/bokeh*$travis_build_id*.tar.bz2 --force --no-progress;
 done
 
 # create and upload pypi pkgs to binstar
@@ -76,9 +76,9 @@ echo "I'm done uploading to binstar"
 
 # clean up platform folders
 if [ $clean == true ]; then
-    for i in "${array[@]}"
+    for plat in "${platforms[@]}"
     do
-        rm -rf $i
+        rm -rf $plat
     done
     rm -rf dist/
 else
