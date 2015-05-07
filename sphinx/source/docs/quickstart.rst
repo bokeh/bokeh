@@ -106,7 +106,7 @@ examples of this below.
 
 The |bokeh.plotting| interface is also quite handy if we need to customize
 the output a bit more by adding more data series, glyphs, logarithmic axis,
-etc. It's also possibly to easily combine multiple glyphs together on one
+etc. It's also possible to easily combine multiple glyphs together on one
 plot as shown below:
 
 .. bokeh-plot::
@@ -172,7 +172,7 @@ Other Languages
 
 Bokeh's architecture makes it easy to create bindings for Bokeh in other
 languages, and in fact several already exist. We are obviously big Python
-fans, but having all many language options is a compelling feature. See some
+fans, but having many language options is a compelling feature. See some
 of  the other ways to use bokeh:
 
 * `Bokeh for R`_
