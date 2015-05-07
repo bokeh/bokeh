@@ -38,7 +38,7 @@ from the top level directory by executing:
 
 .. code-block:: sh
 
-    BOKEH_DEFAULT_NO_DEV=True nosetests
+    nosetests
 
 .. note::
     Currently this script does not support Windows.

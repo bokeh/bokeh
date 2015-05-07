@@ -36,9 +36,9 @@ Contents
 
    docs/quickstart.rst
    docs/installation.rst
-   tutorial/index.rst
    docs/gallery.rst
    docs/user_guide.rst
+   docs/tutorials.rst
    docs/dev_guide.rst
    docs/contributing.rst
    docs/faq.rst
@@ -109,8 +109,6 @@ hope that Bokeh will enable many other projects to build a rich suite of
 domain-specific applications that change existing, legacy paradigms of data
 processing workflow.
 
-
-
 .. _contact:
 
 Contact
@@ -131,6 +129,7 @@ development or embedding Bokeh in your applications, please contact
 To donate funds to support the development of Bokeh, please contact
 `info@pydata.org <info email_>`_.
 
+.. _thanks:
 
 Thanks
 ------
@@ -139,6 +138,7 @@ Bokeh is developed with funding from `DARPA`_'s `XDATA`_ program.
 
 Additionally, many thanks to all of the `Bokeh contributors`_.
 
+.. _license:
 
 License
 -------
@@ -176,7 +176,7 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-
+.. _indices:
 
 Indices and tables
 ------------------

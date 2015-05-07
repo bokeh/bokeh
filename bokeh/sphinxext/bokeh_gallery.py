@@ -30,6 +30,7 @@ GALLERY_TEMPLATE = jinja2.Template(u"""
 """)
 
 DETAIL_TEMPLATE = jinja2.Template(u"""
+:orphan:
 
 .. _gallery_{{ name }}:
 
@@ -56,9 +57,10 @@ class BokehGalleryDirective(Directive):
     }
 
     def run(self):
-
         env = self.state.document.settings.env
         app = env.app
+
+        spec_path = self.arguments[0]
 
         env.note_reread()
 
@@ -71,7 +73,7 @@ class BokehGalleryDirective(Directive):
 
         source_position = self.options.get('source-position', 'below')
 
-        spec = json.load(open(self.arguments[0]))
+        spec = json.load(open(spec_path))
 
         details = spec['details']
 
@@ -95,17 +97,25 @@ class BokehGalleryDirective(Directive):
             )
             with open(join(dest_dir, "%s.rst" % name), "w") as f:
                 f.write(rst)
+            env.clear_doc(join("docs", "gallery", name))
             env.read_doc(join("docs", "gallery", name), app=app)
 
         result = ViewList()
         names = [detail['name'] for detail in details]
+        env.gallery_names = [join("docs", "gallery", n) for n in names]
         text = GALLERY_TEMPLATE.render(names=names)
         for line in text.split("\n"):
             result.append(line, "<bokeh-gallery>")
         node = nodes.paragraph()
         node.document = self.state.document
         self.state.nested_parse(result, 0, node)
+
+
         return node.children
 
+def env_updated_handler(app, env):
+    return getattr(env, 'gallery_names', [])
+
 def setup(app):
+    app.connect('env-updated', env_updated_handler)
     app.add_directive('bokeh-gallery', BokehGalleryDirective)

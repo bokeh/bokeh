@@ -288,6 +288,7 @@ def html_visit_bokeh_plot(self, node):
             copy(cached_path, dest_path)
         else:
             filename = node['target_id'] + ".js"
+            if not exists(dest_dir): makedirs(dest_dir)
             dest_path = join(dest_dir, filename)
             plot = _render_plot(node['source'], None)
             js, script = autoload_static(plot, CDN, filename)

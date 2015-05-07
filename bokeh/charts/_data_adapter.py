@@ -267,8 +267,10 @@ class DataAdapter(object):
                 on the Chart classes
 
         Returns:
-            xs: iterable that represents the data index
-            values: iterable containing the values to be plotted
+            A tuple of (index, values), where: ``index`` is an iterable that
+            represents the data index and ``values`` is an iterable containing
+            the values to be plotted.
+
         """
         _values = DataAdapter(values, force_alias=False)
         if hasattr(values, 'keys'):

@@ -1,1 +1,0 @@
-../source/tutorial/more_info.rst

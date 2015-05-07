@@ -196,7 +196,7 @@ def cursession():
     ''' Return the session for the current default state, if there is one.
 
     Returns:
-        session : the current default session object (or None)
+        the current default Session object (or None)
 
     '''
     return _state.session

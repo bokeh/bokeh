@@ -517,7 +517,7 @@ information about how to create a new language binding, see the
 To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery`. To see detailed examples and walkthroughs as
 well as find exercises for learning Bokeh by doing, work through the
-:doc:`../tutorial/index`.
+:ref:`tutorials`.
 
 For questions and technical assistance, come join the `Bokeh mailing list`_.
 
@@ -576,8 +576,8 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. |hplot|    replace:: :func:`~bokeh.io.hplot`
 .. |vplot|    replace:: :func:`~bokeh.io.vplot`
 
-.. |line_props| replace:: :class:`Line Properties <bokeh.mixins.LineProps>`
-.. |fill_props| replace:: :class:`Fill Properties <bokeh.mixins.FillProps>`
-.. |text_props| replace:: :class:`Text Properties <bokeh.mixins.TextProps>`
+.. |line_props| replace:: :ref:`userguide_styling_line_properties`
+.. |fill_props| replace:: :ref:`userguide_styling_fill_properties`
+.. |text_props| replace:: :ref:`userguide_styling_text_properties`
 
 
