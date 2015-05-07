@@ -58,7 +58,6 @@ import numpy as np
 
 from . import enums
 from .util.string import nice_join
-from .colors import RGB
 
 bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
 
@@ -1145,7 +1144,7 @@ class ColorSpec(DataSpec):
 
         # Check for RGB or RGBa tuple
         if isinstance(val, tuple):
-            return dict(value=RGB(*val).to_hex())
+            return dict(value=self.format_tuple(val))
 
         # Check for data source field name
         if isinstance(val, string_types):
