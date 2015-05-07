@@ -176,6 +176,8 @@ changes the source of a plot when the slider is used.
     from bokeh.models import Callback, ColumnDataSource, Slider
     from bokeh.plotting import figure, output_file, show
 
+    output_file("callback.html")
+
     x = list(range(-50, 51))
     y = list(x)
 
