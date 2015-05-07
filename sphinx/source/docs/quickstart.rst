@@ -218,7 +218,7 @@ The second example also adds in calls to |Figure.circle| to display circle
 and line glyphs together on the same plot. Besides lines and circles, Bokeh
 makes many additional |glyphs| and |markers| available.
 
-The visual appearance a glyphs is tied directly to that data values that are
+The visual appearance of a glyph is tied directly to the data values that are
 associated with the glyph's various attributes. In the example above we see
 that positional attributes like `x` and `y` can be set to vectors of data.
 But glyphs also have some combination of |line_props|, |fill_props|, and
