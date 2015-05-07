@@ -387,7 +387,7 @@ to the glyph methods, when creating a plot.
 
 .. note::
     This example depends on the open source NumPy library in order to more
-    easily generate more data suitable for demonstrating legends.
+    easily generate better data suitable for demonstrating legends.
 
 .. bokeh-plot::
     :source-position: above

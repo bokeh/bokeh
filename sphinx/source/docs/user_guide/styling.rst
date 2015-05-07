@@ -461,9 +461,7 @@ grids bands. You can execute this code, and try setting different values.
 
     show(p)
 
-
-Now we have seen that various line properties of plot grids can be easily
-set by using the |xgrid|, |ygrid| and |grid| properties of plots.
+----
 
 There are other properties that Bokeh grids support configuring.
 For a complete listing of all the various attributes that can be set
@@ -475,6 +473,186 @@ on Bokeh plot grids, consult the :ref:`bokeh.models.grids` section of the
 Legends
 -------
 
+Similar to the convenience methods for axes and grids, there is a
+|legend| method on plots that can be used to get ahold of any legend
+objects:
+
+.. code-block:: python
+
+    >>> p.grid
+    [<bokeh.models.renderers.Legend at 0x106fa2278>]
+
+This method also returns a splattable list, so that you can set attributes
+on the list, as if it was a single object, and the attribute is changed
+for every element of the list:
+
+.. code-block:: python
+
+    p.legend.label_text_font = "times"
+
+.. note::
+    The examples in this section depend on the open source NumPy library in
+    order to more easily generate better data suitable for demonstrating legends.
+
+Location
+~~~~~~~~
+
+The location of the legend labels is controlled by the ``orientation``
+property. Valid values for this property are:
+
+``"top_right"``
+
+``"top_left"``
+
+``"bottom_left"``
+
+``"bottom_right"``
+
+The default location is ``"top_right"``.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend_labels.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    p.legend.orientation = "bottom_left"
+
+    show(p)
+
+.. note::
+    It is not currently possible to position a legend outside the plot area,
+    or using absolute coordinates. These and other improvements are planned.
+
+Label Text
+~~~~~~~~~~
+
+The visual appearance of the legend labels is controlled by  a collection of
+`Text Properties`_, prefixed with ``label_``. For instance, to set the font
+style of the labels, use ``label_text_font_style``.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend_labels.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    p.legend.label_text_font = "times"
+    p.legend.label_text_font_style = "italic"
+    p.legend.label_text_color = "navy"
+
+    show(p)
+
+Border
+~~~~~~
+
+The visual appearance of the legend border is controlled by  a collection of
+`Line Properties`_, prefixed with ``border_``. For instance, to set the color
+of the border, use ``border_line_color``. To make the border invisible, set the
+border line color to ``None``.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend_labels.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    p.legend.border_line_width = 3
+    p.legend.border_line_color = "navy"
+    p.legend.border_line_alpha = 0.5
+
+    show(p)
+
+Dimensions
+~~~~~~~~~~
+
+There are several properties that can be used to control the layout,
+spacing, etc. of the legend compononents:
+
+.. bokeh-prop:: bokeh.models.renderers.Legend.label_standoff
+.. bokeh-prop:: bokeh.models.renderers.Legend.label_width
+.. bokeh-prop:: bokeh.models.renderers.Legend.label_height
+.. bokeh-prop:: bokeh.models.renderers.Legend.glyph_width
+.. bokeh-prop:: bokeh.models.renderers.Legend.glyph_height
+.. bokeh-prop:: bokeh.models.renderers.Legend.legend_padding
+.. bokeh-prop:: bokeh.models.renderers.Legend.legend_spacing
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend_labels.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    p.legend.label_standoff = 5
+    p.legend.glyph_width = 50
+    p.legend.legend_spacing = 10
+    p.legend.legend_padding = 50
+
+    show(p)
 
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
