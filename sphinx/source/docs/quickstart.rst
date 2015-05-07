@@ -408,10 +408,10 @@ Datetime axes
 
 Dealing with date and time series is another common task. Bokeh has a
 sophisticated |DatetimeAxis| that can change the displayed ticks based
-on the current scale of the plot. There are some inputs that Bokeh
-will automatically default to |DatetimeAxis| for, but you can always
-explicitly ask for one by passing the value ``"datetime" to  the
-``x_axis_type`` or``y_axis_type`` parameters to |figure|. A few things
+on the current scale of the plot. There are some inputs for which Bokeh
+will automatically default to |DatetimeAxis|, but you can always
+explicitly ask for one by passing the value ``"datetime"`` to  the
+``x_axis_type`` or ``y_axis_type`` parameters to |figure|. A few things
 of interest to look out for in this example:
 
 * setting the ``width`` and ``height`` arguments to |figure|
