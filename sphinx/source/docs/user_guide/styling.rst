@@ -366,8 +366,8 @@ Tick Labels
 ~~~~~~~~~~~
 
 The text styling of axis labels is controlled by a ``TickFormatter`` object
-configured on the axis' ``formatter`` property. Bokeh uses a number of tickers
-by default in different situations:
+configured on the axis' ``formatter`` property. Bokeh uses a number of ticker
+formatters by default in different situations:
 
 * |BasicTickFormatter| --- Default formatter for  linear axes.
 
