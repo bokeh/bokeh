@@ -52,14 +52,14 @@ BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 travis_build_id=$(cat __travis_build_id__.txt)
 
 # convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*$travis_build_id*.tar.bz2 --quiet;
+conda convert -p all -f $BUILD_PATH/bokeh*$travis_build_id*.tar.bz2; # --quiet option will be available soon
 
 # upload conda pkgs to binstar
 array=(osx-64 linux-64 win-64 linux-32 win-32)
 for i in "${array[@]}"
 do
     echo Uploading: $i;
-    binstar -t $bintoken upload -u bokeh scripts/$i/bokeh*$travis_build_id*.tar.bz2 --force --no-progress;
+    binstar -t $bintoken upload -u bokeh $i/bokeh*$travis_build_id*.tar.bz2 --force --no-progress;
 done
 
 # create and upload pypi pkgs to binstar
