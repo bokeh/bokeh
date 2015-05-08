@@ -82,18 +82,7 @@ class WedgeView extends Glyph.View
     return result
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
-    indices = [reference_point]
-    sx = { }
-    sx[reference_point] = (x0+x1)/2
-    sy = { }
-    sy[reference_point] = (y0+y1)/2
-
-    sradius = { }
-    sradius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.4
-
-    @_render(ctx, indices, sx, sy, sradius)
+    @_generic_area_legend(ctx, x0, x1, y0, y1)
 
 class Wedge extends Glyph.Model
   default_view: WedgeView
