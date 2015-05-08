@@ -60,10 +60,45 @@ Text Properties
 Selecting Plot Objects
 ----------------------
 
+As described in :ref:`userguide_concepts`, Bokeh plots comprise graphs of
+objects that represent all the different parts of the plot: grids, axes,
+glyphs, etc. In order to style Bokeh plots, it is necessary to first find
+the right object, then set its various attributes. Some objects have
+convenience methods to help find the objects of interest (see `Axes`_,
+`Grids`_, and `Legends`_). But there is also a |select| method on |Plot|
+that can be used to query for Bokeh plot objects more generally.
+
+For example, you can query for objects by type. The following snippet
+returns all the `PanTool` objects a plot has:
+
+.. code-block:: python
+
+    >>> p.select(type=PanTool)
+    [<bokeh.models.tools.PanTool at 0x106608b90>]
+
+The |select| method can query on other attributes as well:
+
+.. code-block:: python
+
+    >>> p.circle(0, 0, name="mycircle")
+    <bokeh.plotting.Figure at 0x106608810>
+
+    >>> p.select(name="mycircle")
+    [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
+
+This sort of query can be expecially useful for styling visual attributes
+of `Glyphs`_.
+
 .. _userguide_styling_plots:
 
 Plots
 -----
+
+|Plot| objects themselves have many visual characteristics that can be styled:
+the dimensions of the plot, backgrounds, borders, outlines, etc. This section
+describes how to change these attributes of a Bokeh plot. The example code
+primarly use the |bokeh.plotting| interface to create plots, however the
+instructions apply regardless of how a Bokeh plot was created.
 
 .. _userguide_styling_plot_dimensions:
 
@@ -97,9 +132,9 @@ as a convenience:
 Title
 ~~~~~
 
-The styling of the title of the plot is controlled by a set of `Text Properties`_
-on the |Plot|, that are prefixed with ``title_``. For instance, to set the color
-of the outline, use ``title_text_color``:
+The styling of the plot title is controlled by a set of `Text Properties`_
+on the |Plot|, that are prefixed with ``title_``. For instance, to set the
+color of the title text, use ``title_text_color``:
 
 .. bokeh-plot::
     :source-position: above
@@ -679,8 +714,8 @@ Border
 
 The visual appearance of the legend border is controlled by  a collection of
 `Line Properties`_, prefixed with ``border_``. For instance, to set the color
-of the border, use ``border_line_color``. To make the border invisible, set the
-border line color to ``None``.
+of the border, use ``border_line_color``. To make the border invisible, set
+the border line color to ``None``.
 
 .. bokeh-plot::
     :source-position: above
@@ -755,6 +790,8 @@ spacing, etc. of the legend compononents:
 
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
+.. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
+
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
