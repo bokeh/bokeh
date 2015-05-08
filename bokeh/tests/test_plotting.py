@@ -129,19 +129,45 @@ class TestFigure(unittest.TestCase):
 
 class TestMarkers(unittest.TestCase):
 
+    def check_each_color_input(self, rgbs, func):
+        # run assertions for each rgb provided with the given function
+        for rgb in rgbs:
+            p = plt.figure()
+            func(p, rgb)
+
+    def color_only_checks(self, p, rgb):
+        p.circle([1, 2, 3], [1, 2, 3], color=rgb)
+        self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb)
+        self.assertTupleEqual(p.renderers[-1].glyph.fill_color, rgb)
+
+        if len(rgb) > 3:
+            # providing alpha via color should result in line and fill alphas equal to alpha in rgba
+            self.assertEqual(rgb[3], p.renderers[-1].glyph.line_alpha)
+            self.assertEqual(rgb[3], p.renderers[-1].glyph.fill_alpha)
+        # should always be an integer by the time it is added to property
+        [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.line_color)]
+        [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.fill_color)]
+
+    def line_color_input_checks(self, p, rgb):
+        p.circle([1, 2, 3], [1, 2, 3], line_color=rgb)
+
+        self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb)
+
+        if len(rgb) > 3:
+            # providing alpha via color should result in line and fill alphas equal to alpha in rgba
+            self.assertEqual(rgb[3], p.renderers[-1].glyph.line_alpha)
+        # should always be an integer by the time it is added to property
+        [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.line_color)]
+
     def test_color_input_float(self):
-        p = plt.figure()
-        p.circle([1, 2, 3], [1, 2, 3], color=(100., 100., 100.))
-        p.circle([1, 2, 3], [2, 4, 6], color=(50., 100., 50., 0.5))
-        plt.output_file('test.html')
-        plt.show(p)
+        rgbs = [(100., 100., 100.), (50., 100., 50., 0.5)]
+        self.check_each_color_input(rgbs=rgbs, func=self.color_only_checks)
+        self.check_each_color_input(rgbs=rgbs, func=self.line_color_input_checks)
 
     def test_color_input_int(self):
-        p = plt.figure()
-        p.circle([1, 2, 3], [1, 2, 3], color=(100, 100, 100))
-        p.circle([1, 2, 3], [2, 4, 6], color=(50, 100, 50, 0.5))
-        plt.output_file('test2.html')
-        plt.show(p)
+        rgbs = [(100, 100, 100), (50, 100, 50, 0.5)]
+        self.check_each_color_input(rgbs=rgbs, func=self.color_only_checks)
+        self.check_each_color_input(rgbs=rgbs, func=self.line_color_input_checks)
 
 if __name__ == "__main__":
     unittest.main()
