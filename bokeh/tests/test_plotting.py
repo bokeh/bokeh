@@ -140,10 +140,6 @@ class TestMarkers(unittest.TestCase):
         self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb)
         self.assertTupleEqual(p.renderers[-1].glyph.fill_color, rgb)
 
-        if len(rgb) > 3:
-            # providing alpha via color should result in line and fill alphas equal to alpha in rgba
-            self.assertEqual(rgb[3], p.renderers[-1].glyph.line_alpha)
-            self.assertEqual(rgb[3], p.renderers[-1].glyph.fill_alpha)
         # should always be an integer by the time it is added to property
         [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.line_color)]
         [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.fill_color)]
@@ -153,9 +149,6 @@ class TestMarkers(unittest.TestCase):
 
         self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb)
 
-        if len(rgb) > 3:
-            # providing alpha via color should result in line and fill alphas equal to alpha in rgba
-            self.assertEqual(rgb[3], p.renderers[-1].glyph.line_alpha)
         # should always be an integer by the time it is added to property
         [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.line_color)]
 

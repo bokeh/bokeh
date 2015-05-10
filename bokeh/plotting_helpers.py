@@ -135,10 +135,6 @@ def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
     for argname in ("fill_color", "line_color"):
         kwargs[argname] = kwargs.get(prefix + argname, color)
 
-        # Get alpha from color tuple if color is a 4 tuple
-        if ColorSpec.is_color_tuple(kwargs[argname]) and len(kwargs[argname]) == 4:
-            kwargs['_'.join([argname.split('_')[0], 'alpha'])] = kwargs[argname][3]
-
     # NOTE: text fill color should really always default to black, hard coding
     # this here now untils the stylesheet solution exists
     kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
