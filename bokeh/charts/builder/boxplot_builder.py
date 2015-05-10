@@ -22,7 +22,6 @@ from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 
-
 from ..utils import make_scatter, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
