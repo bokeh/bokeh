@@ -273,7 +273,7 @@ class BokehRenderer(Renderer):
         # we need to keep the current axes names to avoid writing them in draw_text
         self.non_text.append(ax.get_label_text())
 
-        if scale == "linear":
+        if scale in ("linear", "log"):
             laxis = LinearAxis(axis_label=ax.get_label_text())
         elif scale == "date":
             laxis = DatetimeAxis(axis_label=ax.get_label_text())
