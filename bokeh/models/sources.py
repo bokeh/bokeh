@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from .actions import Callback
 from ..plot_object import PlotObject
 from ..properties import HasProps
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
@@ -13,7 +14,7 @@ class DataSource(PlotObject):
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
     """)
-    
+
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'flag': False, 'indices': []},
         '1d': {'indices': []},
@@ -36,6 +37,10 @@ class DataSource(PlotObject):
 
             - indices (list(list)): indices of the lines/patches that were
                 hit/selected
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the selection is changed.
     """)
 
     def columns(self, *columns):
