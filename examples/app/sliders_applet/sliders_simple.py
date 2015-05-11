@@ -4,10 +4,6 @@ on a bokeh-server. See the README.md file in this directory for
 instructions on running.
 """
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-
 import numpy as np
 
 from bokeh.plotting import figure
@@ -17,6 +13,10 @@ from bokeh.simpleapp import simpleapp
 
 N = 200
 
+# Create a few widgets that will be used in our app.
+#
+# NOTE: Widgets can also be created inside the simpleapp decorated function
+#       but if they are created globaly like in this case
 title_widget = TextInput(title="title", name='title', value='my sine wave')
 offset_widget = Slider(title="offset", name='offset', value=0.0,
                        start=-5.0, end=5.0, step=0.1)
@@ -25,7 +25,8 @@ amplitude_widget = Slider(title="amplitude", name='amplitude',
 phase_widget = Slider(title="phase", name='phase', value=0.0, start=0.0, end=2*np.pi)
 freq_widget = Slider(title="freq", name='freq', value=1.0, start=0.1, end=5.1)
 
-
+# define a function that will create a plot object for us based on the
+# a set of parameters
 def create_plot(title, amplitude, offset, phase, freq):
     """ Create a plot object with a sin curve using received args
     """
@@ -44,16 +45,16 @@ def create_plot(title, amplitude, offset, phase, freq):
 
 
 # Let's create a simpleapp (SimpleAppWrapper) object by decorating our main
-# app function with the simpleapp decorator.
-# This will use the objects returned by the function to create the application
-# to be rendered through bokeh-server. The decorated function can return 2 type
+# app function with the simpleapp decorator. It will use the objects
+# returned by the function to create the application to be rendered
+# through bokeh-server. The decorated function can return 2 types
 # of objects:
+#
 # - dict: in this case it's expected to return keys (as str) that will be
-#       used as application widget ids and the related application widgets
-#       as values.
+#       used as application widget ids and the related widgets as values.
 #       IMPORTANT: In this case the SimpleAppWrapper instance created by
 #           the simpleapp decorator needs to decorate a second function
-#           needs to take of the app layout creation
+#           that will take care of the app layout creation
 #
 # - Layout object: in this case the layout and all objects are created
 #       in the context of this single decorated function. The function
@@ -64,24 +65,22 @@ def create_plot(title, amplitude, offset, phase, freq):
 # Please note that the simpleapp decorator can be called either without
 # arguments (if the application do not integrate interactive widgets)
 # or with a set of interactive widgets that can be used to interact and
-# be integrated in the application logic. In this case the wrapped
-# m
-#
-# In the following example we specify 5 widgets that will be used and integrated
-# in the app.
+# be integrated in the application logic. In the following example we
+# specify 5 widgets that will be used and integrated in the app.
 # It's important to mention that the name of arguments of the decorated
 # function need to be equal to the name of the widgets being passed to
 # the function otherwise they'll default to None.
 # Also note that those widgets do not need to be returned into the wrapped
 # function output dictionary in order to be available for the layout
-# creation function later
+# creation function later.
 @simpleapp(title_widget, amplitude_widget, offset_widget, phase_widget, freq_widget)
 def sliders(title, amplitude, offset, phase, freq):
     ''' SimpleApp main entry function. This function is to be wrapped by the
     simpleapp decorator holds the creation of all widgets or the application.
-
-    It can
     '''
+    # NOTE: The simpleapp creation function can create as many widgets and
+    #       plots it needs and doesn't necessarily need to create the widgets
+    #       outside to pass them to the creation function.
     return {'plot': create_plot(title, amplitude, offset, phase, freq)}
 
 # as we have created the SimpleAppWrapper and just provided the dict
