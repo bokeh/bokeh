@@ -217,8 +217,6 @@ to all sides as a convenience.
 Outline
 ~~~~~~~
 
-.. _userguide_styling_glyphs:
-
 The styling of the outline of the plotting area is controlled by a set of
 `Line Properties`_ on the |Plot|, that are prefixed with ``outline_``. For
 instance, to set the color of the outline, use ``outline_line_color``:
@@ -240,10 +238,88 @@ instance, to set the color of the outline, use ``outline_line_color``:
 
     show(p)
 
+.. _userguide_styling_glyphs:
+
 Glyphs
 ------
 
+As seen in `userguide_styling_selecting`_, the |select| method can be
+used to retrieve ``GlyphRenderer`` objects from a plot:
+
+.. code-block:: python
+
+    >>> p.select(name="mycircle")
+    [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
+
+To style the fill, line, or text properties of a glyph, it is first
+necessary to obtain a specific ``GlyphRenderer`` from the returned
+list:
+
+.. code-block:: python
+
+    >>> p.select(name="mycircle")[0]
+    <bokeh.models.renderers.GlyphRenderer at 0x106a4c810>
+
+Then, the glyph itself is obtained form the ``.glyph`` attribute of a
+``GlyphRenderer``:
+
 .. _userguide_styling_axes:
+
+.. code-block:: python
+
+    >>> p.select(name="mycircle")[0].glyph
+    <bokeh.models.markers.Circle at 0x10799ba10>
+
+This is the object to set fill, line, or text property values for:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("axes.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], name="mycircle")
+
+    glyph = p.select(name="mycircle")[0].glyph
+    glyph.size = 60
+    glyph.fill_alpha = 0.2
+    glyph.line_color = "firebrick"
+    glyph.line_dash = [6, 3]
+    glyph.line_width = 2
+
+    show(p)
+
+``GlyphRenderer`` objects can also be configured with ``selection_glyph``
+and ``nonselection_glyph`` attributes that control the visual appearance of
+glyphs when selection tools are used.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("axes.html")
+
+    p = figure(plot_width=400, plot_height=400, tools="lasso_select")
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=50, name="mycircle")
+
+    glyph = p.select(name="mycircle")[0].nonselection_glyph
+    glyph.fill_alpha = 0.2
+    glyph.line_color = "firebrick"
+    glyph.line_dash = [6, 3]
+    glyph.line_width = 2
+
+    show(p)
+
+Use the lasso tool to select circles on the plot above to see the effect
+on the nonselected glyphs.
+
+.. note::
+    Only the *visual* properties of ``selection_glyph`` and
+    ``nonselection_glyph`` are considered when renderering. Changing
+    positions, sizes, etc. will have no effect.
 
 Axes
 ----
@@ -282,7 +358,7 @@ execute this code, and try setting other properties as well.
 
     output_file("axes.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     # change just some things about the x-axes
@@ -321,7 +397,7 @@ the ``axis_label_standoff`` property:
 
     output_file("bounds.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.xaxis.axis_label = "Lot Number"
@@ -351,7 +427,7 @@ of *(start, end)*:
 
     output_file("bounds.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.xaxis.bounds = (2, 4)
@@ -379,7 +455,7 @@ These values are in screen units, and negative values are acceptable.
 
     output_file("axes.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.xaxis.major_tick_line_color = "firebrick"
@@ -435,7 +511,7 @@ to control the text formatting of axis ticks.
 
     output_file("gridlines.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
@@ -461,7 +537,7 @@ format strings.
 
     output_file("gridlines.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.xaxis[0].formatter = PrintfTickFormatter(format="%4.1e")
@@ -527,7 +603,7 @@ their line color to ``None``.
 
     output_file("gridlines.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     # change just some things about the x-grid
@@ -557,7 +633,7 @@ bands, set their fill color to ``None`` (this is the default).
 
     output_file("gridbands.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     # change just some things about the x-grid
@@ -586,7 +662,7 @@ of *(start, end)*:
 
     output_file("bounds.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.grid.bounds = (2, 4)
