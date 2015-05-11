@@ -13,6 +13,7 @@ class SelectionManager extends HasProperties
 
   set_selection: (indices) ->
     @_save_indices(indices)
+    source = @get('source')
     source.trigger('select')
 
   select: (tool, renderer_view, geometry, final, append=false) ->
