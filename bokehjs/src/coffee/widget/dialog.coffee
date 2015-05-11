@@ -26,9 +26,10 @@ class DialogView extends ContinuumView
 
     content = @mget('content')
     if typeof content is 'object'
-      @content_view = new content.default_view(model: content)
-      @$el.find('.bk-dialog-content').empty()
-      @$el.find('.bk-dialog-content').append(@content_view.$el)
+      if content?
+        @content_view = new content.default_view(model: content)
+        @$el.find('.bk-dialog-content').empty()
+        @$el.find('.bk-dialog-content').append(@content_view.$el)
     else
       @$el.find('.bk-dialog-content').empty()
       @$el.find('.bk-dialog-content').text(content)
@@ -38,9 +39,10 @@ class DialogView extends ContinuumView
     if @buttons_box_view?
       @buttons_box_view.remove()
     buttons_box = @mget('buttons_box')
-    @buttons_box_view = new buttons_box.default_view(model: buttons_box)
-    @$el.find('.bk-dialog-buttons_box').empty()
-    @$el.find('.bk-dialog-buttons_box').append(@buttons_box_view.$el)
+    if buttons_box?
+      @buttons_box_view = new buttons_box.default_view(model: buttons_box)
+      @$el.find('.bk-dialog-buttons_box').empty()
+      @$el.find('.bk-dialog-buttons_box').append(@buttons_box_view.$el)
     return @
 
   render: () ->
