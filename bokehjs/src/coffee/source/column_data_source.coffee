@@ -9,6 +9,12 @@ hittest = require "../common/hittest"
 class ColumnDataSource extends HasProperties
   type: 'ColumnDataSource'
 
+  initialize: (options) ->
+    super(options)
+    @listenTo(@, 'change:selected', () =>
+      @get('callback')?.execute(@)
+    )
+
   get_column: (colname) ->
     return @get('data')[colname] ? null
 
