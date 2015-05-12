@@ -25,14 +25,14 @@ class DialogView extends ContinuumView
       @content_view.remove()
 
     content = @mget('content')
-    if typeof content is 'object'
-      if content?
+    if content?
+      if typeof content is 'object'
         @content_view = new content.default_view(model: content)
         @$el.find('.bk-dialog-content').empty()
         @$el.find('.bk-dialog-content').append(@content_view.$el)
-    else
-      @$el.find('.bk-dialog-content').empty()
-      @$el.find('.bk-dialog-content').text(content)
+      else
+        @$el.find('.bk-dialog-content').empty()
+        @$el.find('.bk-dialog-content').text(content)
     return @
 
   render_buttons: () ->
