@@ -2,17 +2,9 @@
 /* Taken from Alex Russell http://infrequently.org/2009/08/css-3-progress/ */
 
 .hbox {
-  display: -webkit-box;
-  -webkit-box-orient: horizontal;
-  -webkit-box-align: stretch;
-
-  display: -moz-box;
-  -moz-box-orient: horizontal;
-  -moz-box-align: stretch;
-
-  display: box;
-  box-orient: horizontal;
-  box-align: stretch;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .hbox > * {
