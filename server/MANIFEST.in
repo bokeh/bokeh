@@ -1,0 +1,5 @@
+global-exclude .git*
+recursive-include bokeh_server/static *.js *.ico *.css *.eot *.svg *.ttf *.wof
+recursive-include bokeh_server/templates *.js *.html
+
+
