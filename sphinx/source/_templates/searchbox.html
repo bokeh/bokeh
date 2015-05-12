@@ -1,0 +1,28 @@
+{%- if pagename != "search" and builder != "singlehtml" %}
+  <script>
+    (function() {
+      var cx = '002545163150875166651:x_rsxrr49fs';
+      var gcse = document.createElement('script');
+      gcse.type = 'text/javascript';
+      gcse.async = true;
+      gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+          '//cse.google.com/cse.js?cx=' + cx;
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(gcse, s);
+    })();
+  </script>
+  <gcse:searchbox-only></gcse:searchbox-only>
+  <style type="text/css">
+  body {
+      margin: 10px;
+  }
+  #gsc-iw-id1{
+      height: 30px;
+      border-color: #898989;
+  }
+  input.gsc-search-button-v2{
+      width: 71px;
+      height: 29px;
+  }
+  </style>
+{%- endif %}
