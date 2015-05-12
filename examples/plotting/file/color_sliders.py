@@ -127,5 +127,5 @@ layout = bkplt.hplot(
 	vform(p1, p2)
 )
 
-bkplt.output_file("colorSliders.html")
+bkplt.output_file("color_sliders.html")
 bkplt.show(layout)
