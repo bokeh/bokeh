@@ -6,7 +6,7 @@ Bokeh Plot Server &mdash; {{ title }}
 
 {% block extra_scripts %}
   {% for modulename, classname, parentname in extra_generated_classes %}
-  <script src="{{url_for('bokeh.server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"></script>
+  <script src="{{url_for('bokeh_server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"></script>
   {% endfor %}
 {% endblock %}
 
@@ -23,3 +23,4 @@ Bokeh.one_object_page("{{docid}}", "{{objid}}")
   <div id="PlotPane"></div>
 </div>
 {% endblock %}
+

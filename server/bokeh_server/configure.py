@@ -155,5 +155,5 @@ def make_tornado_app(flask_app=None):
 
 
 # Gunicorn startup would look like
-# gunicorn bokeh.server.configure.make_tornado_app(config_file=filename) -k tornado
+# gunicorn bokeh_server.configure.make_tornado_app(config_file=filename) -k tornado
 # untested - but should work

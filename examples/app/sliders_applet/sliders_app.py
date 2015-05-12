@@ -13,8 +13,8 @@ import numpy as np
 from bokeh.plotting import figure
 from bokeh.models import Plot, ColumnDataSource
 from bokeh.properties import Instance
-from bokeh.server.app import bokeh_app
-from bokeh.server.utils.plugins import object_page
+from bokeh_server.app import bokeh_app
+from bokeh_server.utils.plugins import object_page
 from bokeh.models.widgets import HBox, Slider, TextInput, VBoxForm
 
 

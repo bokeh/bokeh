@@ -9,11 +9,13 @@ from flask import request
 from six import iteritems
 
 from ..app import bokeh_app
-from ... import protocol
-from ...transforms import line_downsample
-from ...transforms import image_downsample
-from ...transforms import ar_downsample
-from ...models.ranges import Range1d
+
+from bokeh import protocol
+from bokeh.transforms import line_downsample
+from bokeh.transforms import image_downsample
+from bokeh.transforms import ar_downsample
+from bokeh.models.ranges import Range1d
+
 from ..serverbb import prune
 from ..views.backbone import init_bokeh
 from ..views import make_json

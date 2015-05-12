@@ -34,11 +34,11 @@ class BokehBlueprint(flask.Blueprint):
         return js_files
 
 bokeh_app = BokehBlueprint(
-    'bokeh.server',
-    'bokeh.server',
+    'bokeh_server',
+    'bokeh_server',
     static_folder='static',
     static_url_path='/bokeh/static',
     template_folder='templates'
 )
 
-app = flask.Flask("bokeh.server")
+app = flask.Flask("bokeh_server")

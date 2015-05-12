@@ -14,7 +14,7 @@ except ImportError:
 
 
 def broadcast_reload():
-    from bokeh.server.app import bokeh_app
+    from bokeh_server.app import bokeh_app
     if hasattr(bokeh_app, 'wsmanager'):
         bokeh_app.wsmanager.send('debug:debug', 'reload')
 
