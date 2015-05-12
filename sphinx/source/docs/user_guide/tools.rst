@@ -106,8 +106,8 @@ The box select tool may be configured to select across only one dimension by
 setting the ``dimension`` property to ``width`` or ``height``.
 
 .. note::
-    To make a multiple selection, you have to press the SHIFT key and
-    to clear the selection you have to press ESC key.
+    To make a multiple selection, press the SHIFT key. To clear the
+    selection, press the ESC key.
 
 BoxZoomTool
 '''''''''''
@@ -129,8 +129,8 @@ The lasso selection tool allows the user to define an arbitrary region for
 selection by left-dragging a mouse, or dragging a finger across the plot area.
 
 .. note::
-    To make a multiple selection, you have to press the SHIFT key and
-    to clear the selection you have to press ESC key.
+    To make a multiple selection, press the SHIFT key. To clear the selection,
+    press the ESC key.
 
 PanTool
 '''''''
@@ -173,9 +173,9 @@ regions for selection by left-clicking a mouse, or tapping a finger at different
 locations.
 
 .. note::
-    To complete the selection, you have to make a double left-click or tapping
-    Also, to make a multiple selection, you have to press the SHIFT key and
-    to clear the selection you have to press ESC key.
+    To complete the selection, make a double left-click or tapping. To make a
+    multiple selection, press the SHIFT key. To clear the selection, press the
+    ESC key.
 
 TapSelectTool
 '''''''''''''
@@ -187,8 +187,8 @@ The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
 
 .. note::
-    To make a multiple selection, you have to press the SHIFT key and
-    to clear the selection you have to press ESC key.
+    To make a multiple selection, press the SHIFT key. To clear the selection,
+    press the ESC key.
 
 .. _userguide_tools_scrollpinch:
 

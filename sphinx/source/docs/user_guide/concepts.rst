@@ -26,25 +26,25 @@ BokehJS
    good to have basic knowledge of this dichotomy. For full details, see
    the :ref:`devguide_bokehjs` chapter of the :ref:`devguide`.
 
-charts
+Charts
    Schematic statistical plots such as bar charts, horizon plots, time
    series, etc. that may include faceting, grouping, or stacking based on
    the structure of the data. Bokeh provides a high level ``bokeh.charts``
    interface to quickly construct these kinds of plots. See
    :ref:`userguide_charts` for examples and usage.
 
-embedding
+Embedding
    Various methods of including Bokeh plots and widgets into web apps and
    pages, or the IPython notebook. See :ref:`userguide_embed` for more
    details.
 
-glyphs
+Glyphs
    The basic visual building blocks of Bokeh plots, e.g. lines, rectangles,
    squares, wedges, patches, etc. The ``bokeh.plotting`` interface provides
    a convenient way to create plots centered around glyphs. See
    :ref:`userguide_plotting` for more information.
 
-models
+Models
    The lowest-level objects that comprise Bokeh "scenegraphs". These live
    in the ``bokeh.models`` interface. *Most users will not use this level
    of interface to assemble plots directly.* However, ultimately all Bokeh
@@ -52,13 +52,13 @@ models
    them enough to configure their attributes and properties. See
    :ref:`userguide_styling` for more information.
 
-server
+Server
    The ``bokeh-server`` is an optional component that can be used for sharing
    and publishing Bokeh plots and apps, for handling streaming of large data
    sets, or for enabling sophisticated user interactions based off of widgets
    and selections. See :ref:`userguide_server` for more explanation.
 
-widgets
+Widgets
    User interface elements outside of a Bokeh plot such as sliders, drop down
    menues, buttons, etc. Events and updates from widgets can inform additional
    computations, or cause Bokeh plots to update. See :ref:`userguide_interaction`

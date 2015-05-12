@@ -29,8 +29,10 @@ Quick Installation
 
 There are a few different ways to install Bokeh.
 
-If you are using the `Anaconda Python distribution`_, enter this command at
-a Bash or Windows command prompt::
+If you are using the `Anaconda Python distribution`_ (which is recommended),
+enter this command at a Bash or Windows command prompt:
+
+.. code-block:: sh
 
     conda install bokeh
 
@@ -41,7 +43,9 @@ installs the examples into the ``examples/`` subdirectory of your Anaconda (or
 miniconda) installation directory.
 
 If you are confident you have dependencies like NumPy, Pandas, and Redis
-installed, then you can also use ``pip`` at the command line::
+installed, then you can also use ``pip`` at the command line:
+
+.. code-block:: sh
 
     pip install bokeh
 
@@ -49,7 +53,7 @@ installed, then you can also use ``pip`` at the command line::
     The ``pip`` method does not install the examples. Clone the git repository
     and look in the ``examples/`` directory of the checkout to see examples.
 
-Windows users,  see :ref:`install_windows` in the :ref:`installation` section.
+Windows users, see :ref:`install_windows` in the :ref:`installation` section.
 
 
 Getting Started
@@ -182,10 +186,9 @@ of  the other ways to use bokeh:
 Sample Data
 ===========
 
-We should also let you know that some of the examples included in the Bokeh
-source make use of sample data files that are distributed separately. To
-download this data, execute the following commands at a Bash or Windows command
-prompt:
+Some of the examples included in the Bokeh source make use of sample data files
+that are distributed separately. To download this data, execute the following
+commands at a Bash or Windows command prompt:
 
 .. code-block:: sh
 

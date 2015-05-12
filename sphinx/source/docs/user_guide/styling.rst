@@ -327,9 +327,8 @@ Axes
 In this section you will learn how to change various visual properties
 of Bokeh plot axes.
 
-The easiest way to get ahold of Axis objects, so that you can set
-style attributes on them, is to use the |xaxis|, |yaxis|, and |axis|
-methods on a plot:
+To set style attributes on Axis objects, use the |xaxis|, |yaxis|, and
+|axis| methods on |Plot| to first obtain a plot's Axis objects:
 
 .. code-block:: python
 
@@ -564,7 +563,7 @@ In this section you will learn how to set the visual properties of grid
 lines and grid bands on Bokeh plots.
 
 Similar to the convenience methods for axes, there are |xgrid|, |ygrid|,
-and |grid| methods on plots that can be used to get ahold of the grid
+and |grid| methods on |Plot| that can be used to obtain a plot's Grid
 objects:
 
 .. code-block:: python
@@ -673,9 +672,9 @@ of *(start, end)*:
 
 ----
 
-There are other properties that Bokeh grids support configuring.
-For a complete listing of all the various attributes that can be set
-on Bokeh plot grids, consult the :ref:`bokeh.models.grids` section of the
+There are other properties that Bokeh grids support configuring. For a
+complete listing of all the various attributes that can be set on Bokeh
+plot grids, consult the :ref:`bokeh.models.grids` section of the
 :ref:`refguide`.
 
 .. _userguide_styling_legends:
@@ -684,7 +683,7 @@ Legends
 -------
 
 Similar to the convenience methods for axes and grids, there is a
-|legend| method on plots that can be used to get ahold of any legend
+|legend| method on |Plot| that can be used to obtain a plot's legend
 objects:
 
 .. code-block:: python
@@ -701,8 +700,8 @@ for every element of the list:
     p.legend.label_text_font = "times"
 
 .. note::
-    The examples in this section depend on the open source NumPy library in
-    order to more easily generate better data suitable for demonstrating legends.
+    The examples in this section use NumPy to more easily generate better
+    data suitable for demonstrating legends.
 
 Location
 ~~~~~~~~
