@@ -4,11 +4,8 @@ import numpy as np
 import pandas as pd
 from bokeh.models import HoverTool
 from bokeh.charts import Chart, Step, Line, Area, Scatter, Bar, vplot, hplot, show, output_file
+from bokeh.sampledata.degrees import xyvalues
 
-from py import path
-HERE = path.local(__file__).dirpath()
-
-xyvalues = pd.read_csv(str(HERE.join("percent-bachelors-degrees-women-usa.csv")))
 index = xyvalues.pop("Year")
 xyvalues = xyvalues[['Biology', 'Business', 'Computer Science']]
 
