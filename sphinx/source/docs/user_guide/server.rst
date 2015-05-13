@@ -34,13 +34,9 @@ The basic task of the Bokeh Server is to be a mediator between the original data
 and plot models created by a user, and the reflected data and plot models in the
 BokehJS client:
 
-|
-
 .. image:: /_images/bokeh_server.png
     :align: center
-    :scale: 50 %
-
-|
+    :scale: 80 %
 
 Here you can see illustrated the most useful and compelling of the Bokeh server:
 **full two-way communication between the original code and the BokehJS plot.**
