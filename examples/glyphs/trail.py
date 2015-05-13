@@ -2,10 +2,9 @@
 
 from __future__ import print_function
 
-from math import sin, cos, atan2, sqrt, pi, radians
+from math import sin, cos, atan2, sqrt, radians
 
 import numpy as np
-import pandas as pd
 import scipy.ndimage as im
 
 from bokeh.document import Document
@@ -17,10 +16,9 @@ from bokeh.models.glyphs import Line, Patches
 from bokeh.models.widgets import VBox
 from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
-    Range1d, DataRange1d,
-    ColumnDataSource,
+    DataRange1d, ColumnDataSource,
     LinearAxis, Grid,
-    PanTool, WheelZoomTool, ResetTool, BoxSelectTool)
+    PanTool, WheelZoomTool, ResetTool)
 
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
 
@@ -87,7 +85,7 @@ def trail_map(data):
     ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker, grid_line_dash="dashed", grid_line_color="gray")
     plot.renderers.extend([xgrid, ygrid])
 
-    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool(), BoxSelectTool())
+    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
     line_source = ColumnDataSource(dict(x=data.lon, y=data.lat, dist=data.dist))
 
@@ -112,7 +110,7 @@ def altitude_profile(data):
     ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
     plot.renderers.extend([xgrid, ygrid])
 
-    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool(), BoxSelectTool())
+    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
     X, Y = data.dist, data.alt
     y0 = min(Y)
