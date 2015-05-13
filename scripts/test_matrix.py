@@ -78,10 +78,15 @@ def bokeh_installer(env_name, install_string):
     """Activate an environment and run its install string to either install or update bokeh using
     conda or pip.
     """
-    if os.name == 'nt':
-        command_string = 'activate %s & %s' % (env_name, install_string)
+    if '_pip_' in env_name:
+        channel = ''
     else:
-        command_string = 'source activate %s; %s' % (env_name, install_string)
+        channel = OPTIONS["channel"]
+    channel = OPTIONS["channel"]
+    if os.name == 'nt':
+        command_string = 'activate %s & %s %s' % (env_name, install_string, OPTIONS["channel"])
+    else:
+        command_string = 'source activate %s; %s %s' % (env_name, install_string, OPTIONS["channel"])
 
     result = call_wrapper(command_string, shell=True)
 
@@ -168,35 +173,38 @@ if __name__ == '__main__':
     envs = {
         "py27_conda_clean"    : {
             "init"    : "python=2.7 nose mock",
-            "install" : "conda install --yes bokeh"
+            "install" : [
+                "conda install --yes -c bokeh/channel/dev bokeh",
+                "conda install websocket-client -c auto",
+                "conda install nose mock blaze abstract-rendering beautiful-soup ipython scipy websocket multiuserblazeserver pillow -c bokeh",
             },
         "py27_conda_update"   : {
             "init"    : "python=2.7 nose mock bokeh=%s" % preversion,
-            "install" : "conda update --yes bokeh"
+            "install" : "conda update --yes -c bokeh/channel/dev bokeh"
             },
         "py27_pip_clean"      : {
             "init"    : "python=2.7 nose mock pip",
-            "install" : "pip install bokeh"
+            "install" : "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
             },
         "py27_pip_update"     : {
             "init"    : "python=2.7 pip nose mock bokeh=%s" % preversion,
-            "install" : "pip install --upgrade bokeh"
+            "install" : "pip install --upgrade --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
             },
         "py34_conda_clean"    : {
             "init"    : "python=3.4 nose mock",
-            "install" : "conda install --yes bokeh"
+            "install" : "conda install --yes -c bokeh/channel/dev bokeh"
             },
         "py34_conda_update"   : {
             "init"    : "python=3.4 nose mock bokeh=%s" % preversion,
-            "install" : "conda update --yes bokeh"
+            "install" : "conda update --yes -c bokeh/channel/dev bokeh"
             },
         "py34_pip_clean"      : {
             "init"    : "python=3.4 nose mock pip",
-            "install" : "pip install bokeh"
+            "install" : "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
             },
         "py34_pip_update"     : {
             "init"    : "python=3.4 pip nose mock bokeh=%s" % preversion,
-            "install" : "pip install --upgrade bokeh"
+            "install" : "pip install --upgrade --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
             }
     }
 
