@@ -77,7 +77,7 @@ class Angle extends Numeric
 
   transform: (values) ->
     if @units == "deg"
-      values = (x * Math.pi/180.0 for x in values)
+      values = (x * Math.PI/180.0 for x in values)
     values = (-x for x in values)
     return super(values)
 
