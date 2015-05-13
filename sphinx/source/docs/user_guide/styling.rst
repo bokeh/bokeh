@@ -469,11 +469,10 @@ These values are in screen units, and negative values are acceptable.
 
     show(p)
 
+.. _userguide_styling_axes_tick_label_formats:
 
-.. _userguide_styling_axes_tick_labels:
-
-Tick Labels
-~~~~~~~~~~~
+Tick Label Formats
+~~~~~~~~~~~~~~~~~~
 
 The text styling of axis labels is controlled by a ``TickFormatter`` object
 configured on the axis' ``formatter`` property. Bokeh uses a number of ticker
@@ -546,6 +545,32 @@ format strings.
 
 For full details about formats, see the full |PrintfTickFormatter|
 documentation in the :ref:`refguide`.
+
+.. _userguide_styling_axes_tick_label_orientation:
+
+Tick Label Orientation
+~~~~~~~~~~~~~~~~~~~~~~
+
+The orientation of major tick labels can be controlled with the
+``major_label_orientation`` property. This property accepts the
+values ``"horizontal"`` or ``"vertical"`` or a floating point number
+that gives the angle (in radians) to rotate from the horizontal:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from math import pi
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("gridlines.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis.major_label_orientation = pi/4
+    p.yaxis.major_label_orientation = "vertical"
+
+    show(p)
 
 ----
 
