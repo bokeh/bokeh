@@ -5,7 +5,7 @@ Plotting with Basic Glyphs
 
 .. contents::
     :local:
-    :depth: 2
+    :depth: 3
 
 .. _userguide_plotting_figures:
 
@@ -32,8 +32,7 @@ To scatter circle markers on a plot, use the |circle| method of |Figure|:
     # output to static HTML file
     output_file("line.html")
 
-    # create a new plot with a title and axis labels
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
 
     # add a circle renderer with a size, color, and alpha
     p.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
@@ -51,8 +50,7 @@ Similarly, to scatter square markers, use the |square| method of |Figure|:
     # output to static HTML file
     output_file("square.html")
 
-    # create a new plot with a title and axis labels
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
 
     # add a square renderer with a size, color, and alpha
     p.square([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="olive", alpha=0.5)
@@ -60,13 +58,12 @@ Similarly, to scatter square markers, use the |square| method of |Figure|:
     # show the results
     show(p)
 
-There are lots of marker types available in Bokeh, you can see the details
-of all of them below:
+There are lots of marker types available in Bokeh, you can see details and
+example plots for all of them by clicking on entries in the list below:
 
 .. hlist::
     :columns: 3
 
-    * |arc|
     * |asterisk|
     * |circle|
     * |circle_cross|
@@ -81,16 +78,21 @@ of all of them below:
     * |triangle|
     * |x|
 
-Now you have learned how to plot scatter markers with the |bokeh.plotting|
-interface.
+All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
+screen units), and ``angle`` (radians by default). Additionally, |circle| has
+a ``radius`` property that can be used to specify data-space units.
 
-.. _userguide_plotting_lines:
+.. _userguide_plotting_line_glyphs:
 
-Lines
-~~~~~
+Line Glyphs
+~~~~~~~~~~~
+
+Single Lines
+''''''''''''
 
 Below is an example that shows how to generate a single line glyph from
-one dimensional sequences of *x* and y* points.
+one dimensional sequences of *x* and y* points using the |line| glyph
+method:
 
 .. bokeh-plot::
     :source-position: above
@@ -99,20 +101,18 @@ one dimensional sequences of *x* and y* points.
 
     output_file("line.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
 
     # add a line renderer
     p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
 
     show(p)
 
-.. _userguide_plotting_patches:
+Multiple Lines
+''''''''''''''
 
-Patches
-~~~~~~~
-
-Below is an example that shows how to generate a single polygonal patch
-glyph from one dimensional sequences of *x* and y* points.
+Sometimes it is useful to plot multiple lines all at once. This can be
+accomplished with the |multi_line| glyph method:
 
 .. bokeh-plot::
     :source-position: above
@@ -121,10 +121,162 @@ glyph from one dimensional sequences of *x* and y* points.
 
     output_file("patch.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
+
+    p.multi_line([[1, 3, 2], [3, 4, 6, 6]], [[2, 1, 4], [4, 7, 8, 5]],
+                 color=["firebrick", "navy"], alpha=[0.8, 0.3], line_width=4)
+
+    show(p)
+
+.. note::
+    This glyph is unlike most other glyphs. Instead of accepting a one
+    dimensional list or array of scalar values, it accepts a "list of lists".
+
+Missing Points
+''''''''''''''
+
+``NaN`` values can be passed to |line| and |multi_line| glyphs. In this case,
+you end up with single logical line objects, that have multiple disjoint
+components when rendered:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("line.html")
+
+    p = figure(plot_width=400, plot_height=400)
+
+    # add a line renderer with a NaN
+    nan = float('nan')
+    p.line([1, 2, 3, nan, 4, 5], [6, 7, 2, 4, 4, 5], line_width=2)
+
+    show(p)
+
+.. _userguide_plotting_patch_glyphs:
+
+Patch Glyphs
+~~~~~~~~~~~~
+
+Single Patches
+''''''''''''''
+
+Below is an example that shows how to generate a single polygonal patch
+glyph from one dimensional sequences of *x* and *y* points using the
+|patch| glyph method:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("patch.html")
+
+    p = figure(plot_width=400, plot_height=400)
 
     # add a patch renderer with an alpha an line width
     p.patch([1, 2, 3, 4, 5], [6, 7, 8, 7, 3], alpha=0.5, line_width=2)
+
+    show(p)
+
+Multiple Patches
+''''''''''''''''
+
+Sometimes it is useful to plot multiple lines all at once. This can be
+accomplished with the |patches| glyph method:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("patch.html")
+
+    p = figure(plot_width=400, plot_height=400)
+
+    p.patches([[1, 3, 2], [3, 4, 6, 6]], [[2, 1, 4], [4, 7, 8, 5]],
+              color=["firebrick", "navy"], alpha=[0.8, 0.3], line_width=2)
+
+    show(p)
+
+.. note::
+    This glyph is unlike most other glyphs. Instead of accepting a one
+    dimensional list or array of scalar values, it accepts a "list of lists".
+
+Missing Points
+''''''''''''''
+
+Just as with |line| and |multi_line|, ``NaN`` values can be passed to
+|patch| and |patches| glyphs. In this case, you end up with single logical
+patch objects, that have multiple disjoint components when rendered:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("patch.html")
+
+    p = figure(plot_width=400, plot_height=400)
+
+    # add a patch renderer with a NaN value
+    nan = float('nan')
+    p.patch([1, 2, 3, nan, 4, 5, 6], [6, 7, 5, nan, 7, 3, 6], alpha=0.5, line_width=2)
+
+    show(p)
+
+.. warning::
+    Hit testing on patch objects with ``NaN`` values is not currently
+    supported.
+
+.. _userguide_plotting_quads_rects:
+
+Rectangles and Ovals
+~~~~~~~~~~~~~~~~~~~~
+
+To draw *axis aligned* rectangles ("quads"), use the |quad| glyph function,
+which accepts ``left``, ``right``, ``top``, and ``bottom`` values to specify
+positions:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.quad(top=[2, 3, 4], bottom=[1, 2, 3], left=[1, 2, 3],
+        right=[1.2, 2.5, 3.7], color="#B3DE69")
+
+    show(p)
+
+To draw arbitrary rectangles by specifying a center point, a width, height,
+and angle, use the |rect| glyph function:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from math import pi
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.rect(x=[1, 2, 3], y=[1, 2, 3], width=0.2, height=40, color="#CAB2D6",
+        angle = pi/3, height_units="screen")
+
+    show(p)
+
+The |oval| glyph method accepts the same properties as |rect|, but renders
+oval shapes:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from math import pi
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.oval(x=[1, 2, 3], y=[1, 2, 3], width=0.2, height=40, color="#CAB2D6",
+        angle = pi/3, height_units="screen")
 
     show(p)
 
@@ -133,11 +285,15 @@ glyph from one dimensional sequences of *x* and y* points.
 Images
 ~~~~~~
 
+You can dipslay images on Bokeh plots using the |image|, |image_rgba|, and
+|image_url| glyph methods.
+
+The first example here shows how to display images in Bokeh plots from
+raw RGBA data using |image_rgba|:
+
 .. note::
     This example depends on the open source NumPy library in order to more
     easily generate an array of RGBA data.
-
-It is possible to display images in Bokeh plots from raw RGBA data.
 
 .. bokeh-plot::
     :source-position: above
@@ -167,8 +323,115 @@ It is possible to display images in Bokeh plots from raw RGBA data.
 
     show(p)
 
-Now you have learned how to plot images on Bokeh plots with the
-|bokeh.plotting| interface.
+.. _userguide_plotting_segments_rays:
+
+Segments and Rays
+~~~~~~~~~~~~~~~~~
+
+Sometimes it is useful to be able to draw many individual line segments at
+once. Bokeh provides the |segment| and |ray| glyph methods to render these.
+
+The |segment| function accepts start points ``x0``, ``y0`` and end points
+``x1`` and ``y1`` and renders segments between these:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.segment(x0=[1, 2, 3], y0=[1, 2, 3], x1=[1.2, 2.4, 3.1],
+                y1=[1.2, 2.5, 3.7], color="#F4A582", line_width=3)
+
+    show(p)
+
+The |ray| function accepts start points ``x``, ``y`` with a ``length``
+(in screen units) and an ``angle``. The default ``angle_units`` are ``"rad"``
+but can also be changed to ``"deg"``. To have an "infinite" ray, that always
+extends to the edge of the plot, specify ``0`` for the length:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.ray(x=[1, 2, 3], y=[1, 2, 3], length=45, angle=[30, 45, 60],
+          angle_units="deg", color="#FB8072", line_width=2)
+
+    show(p)
+
+.. _userguide_plotting_wedges_arcs:
+
+Wedges and Arcs
+~~~~~~~~~~~~~~~
+
+To draw a simple line arc, Bokeh provides the |arc| glyph method, which
+accepts ``radius``, ``start_angle``, and ``end_angle`` to determine position.
+Additionally, the ``direction`` property determines whether to render
+clockwise (``"clocl"``) or anti-clockwise (``"anticlock"``) between the start
+and end angles.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.arc(x=[1, 2, 3], y=[1, 2, 3], radius=0.1, start_angle=0.4, end_angle=4.8, color="navy")
+
+    show(p)
+
+The |wedge| glyph method accepts the same properties as |arc|, but renders a
+filled wedge instead:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=0.2, start_angle=0.4, end_angle=4.8,
+            color="firebrick", alpha=0.6, direction="clock")
+
+    show(p)
+
+The |annular_wedge| glyph method is similar to |arc|, but draws a filled area.
+It accepts a ``inner_radius`` and ``outer_radius`` instead of just ``radius``:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.annular_wedge(x=[1, 2, 3], y=[1, 2, 3], inner_radius=0.1, outer_radius=0.25,
+                    start_angle=0.4, end_angle=4.8, color="green", alpha=0.6)
+
+    show(p)
+
+Finally, the |annulus| glyph methods, which accepts ``inner_radius`` and
+``outer_radius``, can be used to draw filled rings:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    p = figure(width=400, height=400)
+    p.annulus(x=[1, 2, 3], y=[1, 2, 3], inner_radius=0.1, outer_radius=0.25,
+              color="orange", alpha=0.6)
+
+    show(p)
+
+.. _userguide_plotting_quadratic_cubic_curves:
+
+Specialized Curves
+~~~~~~~~~~~~~~~~~~
+
+Bokeh also provides |quadratic| and |bezier| glyph methods for drawing
+parameterized quardratic and cubic curves. These are somewhat uncommon,
+please refer to the reference documentation linked above for details.
 
 .. _userguide_plotting_multiple_glyphs:
 
@@ -188,7 +451,7 @@ one glyph method on a single |Figure|:
 
     output_file("multiple.html")
 
-    p = figure(plot_width=400, plot_height=400,title=None)
+    p = figure(plot_width=400, plot_height=400)
 
     # add both a line and circles on the same plot
     p.line(x, y, line_width=2)
@@ -197,7 +460,8 @@ one glyph method on a single |Figure|:
     show(p)
 
 This principle holds in general for all the glyph methods in
-|bokeh.plotting|. You can add as many glyphs to a plot as you need.
+|bokeh.plotting|. Any number of glyphs may be added to a Bokeh
+plot.
 
 .. _userguide_plotting_setting_ranges:
 
@@ -227,7 +491,7 @@ Below is a an example that shows both methods of setting the range:
     output_file("title.html")
 
     # create a new plot with a range set with a tuple
-    p = figure(plot_width=400, plot_height=400, title=None, x_range=(0, 20))
+    p = figure(plot_width=400, plot_height=400, x_range=(0, 20))
 
     # set a range using a Range1d
     p.y_range = Range1d(0, 15)
@@ -244,7 +508,7 @@ Specifying Axis Types
 All the examples above use the default linear axis. This axis is suitable
 for many plots that need to show numerical data on a linear scale. In other
 cases you may have categorical data, or need to display numerical data on
-a datetime or log scale. This section shows how specify the axis type
+a datetime or log scale. This section shows how to specify the axis type
 when using |bokeh.plotting| interface.
 
 .. _userguide_plotting_categorical_axes:
@@ -275,8 +539,7 @@ Datetime Axes
 
 When dealing with timeseries data, or any data that involves dates or
 times, it is desirable to have an axis that can display labels that
-are appropriate to different date and time scales. In this section you
-will learn how to specify that a plot should use a datetime axis.
+are appropriate to different date and time scales.
 
 .. note::
     This example requires a network connection, and depends on the
@@ -302,13 +565,11 @@ for the value of either of these parameters.
     output_file("datetime.html")
 
     # create a new plot with a datetime axis type
-    p = figure(width=800, height=250, x_axis_type="datetime", title=None)
+    p = figure(width=800, height=250, x_axis_type="datetime")
 
     p.line(AAPL['Date'], AAPL['Close'], color='navy', alpha=0.5)
 
     show(p)
-
-Now you have learned how to specify a datetime axis for a Bokeh plot.
 
 .. note::
     Future versions of Bokeh will attempt to auto-detect situations when
@@ -322,8 +583,7 @@ Log Scale Axes
 When dealing with data that grows quicks (e.g., exponentially), it is often
 desired to plot one axis on a log scale. Another use-scenario involves
 fitting data to a power law, in which case is it desired to plot with both
-axes on a log scale. In this section you will learn how to specify a
-log axis type for a Bokeh plot.
+axes on a log scale.
 
 As we saw above, the |figure| function accepts ``x_axis_type`` and
 ``y_axis_type`` as arguments. To specify a log axis, pass ``"log"`` for
@@ -341,19 +601,24 @@ the value of either of these parameters.
 
     # create a new plot with a log axis type
     p = figure(plot_width=400, plot_height=400,
-               y_axis_type="log", y_range=(10**-1, 10**4), title=None)
+               y_axis_type="log", y_range=(10**-1, 10**4))
 
     p.line(x, y, line_width=2)
     p.circle(x, y, fill_color="white", size=8)
 
     show(p)
 
-Now you have learned how to specify a log scale axis for a Bokeh plot.
-
 .. _userguide_plotting_twin_axes:
 
 Twin Axes
 ~~~~~~~~~
+
+It is possible to add multiple axes representing different ranges to a single
+plot. To do this, configure the plot with "extra" named ranges in the
+``extra_x_range`` and ``extra_y_range`` properties. Then these named ranges
+can be referred to when adding new glyph methods, and also to add new axes
+objects using the ``add_layout`` method on |Plot|. An example is given
+below:
 
 .. bokeh-plot::
     :source-position: above
@@ -416,12 +681,17 @@ to the glyph methods, when creating a plot.
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
+.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
+
 .. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
+.. |annular_wedge|     replace:: :func:`~bokeh.plotting.Figure.annular_wedge`
+.. |annulus|           replace:: :func:`~bokeh.plotting.Figure.annulus`
 .. |arc|               replace:: :func:`~bokeh.plotting.Figure.arc`
 .. |asterisk|          replace:: :func:`~bokeh.plotting.Figure.asterisk`
+.. |bezier|            replace:: :func:`~bokeh.plotting.Figure.bezier`
 .. |circle|            replace:: :func:`~bokeh.plotting.Figure.circle`
 .. |circle_cross|      replace:: :func:`~bokeh.plotting.Figure.circle_cross`
 .. |circle_x|          replace:: :func:`~bokeh.plotting.Figure.circle_x`
@@ -429,8 +699,22 @@ to the glyph methods, when creating a plot.
 .. |diamond|           replace:: :func:`~bokeh.plotting.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.Figure.diamond_cross`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.Figure.inverted_triangle`
+.. |image|             replace:: :func:`~bokeh.plotting.Figure.image`
+.. |image_rgba|        replace:: :func:`~bokeh.plotting.Figure.image_rgba`
+.. |image_url|         replace:: :func:`~bokeh.plotting.Figure.image_url`
+.. |line|              replace:: :func:`~bokeh.plotting.Figure.line`
+.. |multi_line|        replace:: :func:`~bokeh.plotting.Figure.multi_line`
+.. |oval|              replace:: :func:`~bokeh.plotting.Figure.oval`
+.. |patch|             replace:: :func:`~bokeh.plotting.Figure.patch`
+.. |patches|           replace:: :func:`~bokeh.plotting.Figure.patches`
+.. |quad|              replace:: :func:`~bokeh.plotting.Figure.quad`
+.. |quadratic|         replace:: :func:`~bokeh.plotting.Figure.quadratic`
+.. |ray|               replace:: :func:`~bokeh.plotting.Figure.ray`
+.. |rect|              replace:: :func:`~bokeh.plotting.Figure.rect`
+.. |segment|           replace:: :func:`~bokeh.plotting.Figure.segment`
 .. |square|            replace:: :func:`~bokeh.plotting.Figure.square`
 .. |square_cross|      replace:: :func:`~bokeh.plotting.Figure.square_cross`
 .. |square_x|          replace:: :func:`~bokeh.plotting.Figure.square_x`
 .. |triangle|          replace:: :func:`~bokeh.plotting.Figure.triangle`
+.. |wedge|             replace:: :func:`~bokeh.plotting.Figure.wedge`
 .. |x|                 replace:: :func:`~bokeh.plotting.Figure.x`
