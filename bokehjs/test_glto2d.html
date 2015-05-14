@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Testing gloo</title>
+  </head>
+
+<body>
+
+<style>
+#thecanvas {
+    border: 2px solid blue;
+}
+</style>
+
+<script src="/home/almar/dev/build/vispy.js/scripts/lib/jquery.min.js"></script>
+<script src="/home/almar/dev/build/vispy.js/scripts/lib/jquery-ui/jquery-ui.min.js"></script>
+<script src="/home/almar/dev/build/vispy.js/dist/vispy.min.js"></script>
+
+<script>
+
+function initialize_canvas() {
+    
+    // Create 2D context for visible canvas
+    var canvas2d = document.getElementById('thecanvas');
+    ctx = canvas2d.getContext('2d')
+    
+    // create 3D (invisible) canvas
+    var canvas3d = document.createElement('canvas');
+    var gl = canvas3d.getContext("webgl") || canvas3d.getContext("experimental-webgl");
+    glx = vispy.init($(canvas3d));
+    window.canvas3d = canvas3d;
+    
+    canvas3d.width = 600;
+    canvas3d.height = 400;
+    
+    glx._init = function() {
+        var VERT = ("" + 
+        "precision mediump float;" +
+        "attribute float a_x;" +
+        "attribute float a_y;" +
+        "void main() {" +
+        "    vec2 pos = vec2(a_x, a_y);" +
+        "    gl_Position = vec4(pos, 0.0, 1.0);" +
+        "    gl_Position.y *= -1.0;" +
+        "}");
+        
+        var FRAG = ("" +
+        "precision mediump float;" +
+        "uniform vec4 u_color;" +
+        "void main() {" +
+        "    gl_FragColor = u_color;" +
+        "    gl_FragColor.a = 1.0;" +
+        "}");
+        
+        glx.command(['CREATE', 'line1_prog', 'Program']);
+        glx.command(['SHADERS', 'line1_prog', VERT, FRAG]);
+        glx.command(['CREATE', 'line1_x', 'VertexBuffer']);
+        glx.command(['CREATE', 'line1_y', 'VertexBuffer']);
+        glx.command(['ATTRIBUTE', 'line1_prog', 'a_x', 'float', ['line1_x', 0, 0]]);
+        glx.command(['ATTRIBUTE', 'line1_prog', 'a_y', 'float', ['line1_y', 0, 0]]);
+        glx.command(['DATA', 'line1_x', 0, new Float32Array([-1, -0.5, 0, 0.5, 1])]);
+        glx.command(['DATA', 'line1_y', 0, new Float32Array([0, 0.5, 0, -0.5, 0])]);
+        glx.execute_pending_commands()
+    }
+    
+    glx._render = function() {
+        glx.command(['FUNC', 'viewport', 0, 0, 600, 400]);  
+        glx.command(['FUNC', 'clearColor', 0, 0, 0, 0.0]);
+        glx.command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT']);
+        glx.command(['DRAW', 'line1_prog', 'LINE_STRIP', [0, 5]])
+        glx.execute_pending_commands()
+        
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(10, 10, 580, 380);
+        
+        var n = 100;
+        var t0 = performance.now();
+        for (var i =0; i<n; i++) {
+            ctx.drawImage(canvas3d, 0, 0);
+        }
+        var t1 = performance.now();
+        
+        var msg = 'time render gl into 2d: ' + (t1-t0)/n + ' ms'
+        document.getElementById('timing').innerHTML = msg;
+    };
+    
+    glx._init()
+    return glx;
+    
+};
+
+document.body.onload = function () {
+    var glx = initialize_canvas();
+    document.getElementById('timing').onclick = function () {document.body.innerHTML = ''; }
+    
+    function render (timestamp) {
+        glx._render();
+        window.requestAnimationFrame(render);
+    }
+    window.requestAnimationFrame(render);
+};
+
+    
+</script>
+    
+</body>
+    
+    <div id='timing'> </div>
+    <canvas id='thecanvas' width=600, height=400>You don't have a canvas</canvas>
+
+</html>

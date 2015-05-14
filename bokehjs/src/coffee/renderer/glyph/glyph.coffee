@@ -9,7 +9,7 @@ CategoricalMapper = require "../../mapper/categorical_mapper"
 
 
 class GlyphView extends ContinuumView
-
+  
   initialize: (options) ->
     super(options)
 
@@ -28,6 +28,7 @@ class GlyphView extends ContinuumView
       @_render(ctx, indicies, data)
 
   map_data: () ->
+    
     # map all the coordinate fields
     for [xname, yname] in @model.coords
       sxname = "s#{xname}"
@@ -91,6 +92,7 @@ class GlyphView extends ContinuumView
   _bounds: (bds) -> bds
 
   _xy_index: () ->
+    
     index = rbush()
     pts = []
 
@@ -137,6 +139,7 @@ class GlyphView extends ContinuumView
       return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
 
   hit_test: (geometry) ->
+    return
     result = null
 
     func = "_hit_#{geometry.type}"

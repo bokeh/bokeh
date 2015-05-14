@@ -1,4 +1,7 @@
 _ = require "underscore"
+$ = require "jquery"
+jquery_ui = require "jquery-ui"
+vispy = require "vispy"
 kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
 {Expression, Constraint, Operator} = kiwi
 canvas_template = require "./canvas_template"
@@ -6,6 +9,79 @@ ContinuumView = require "./continuum_view"
 LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 Solver = require "./solver"
+
+# So we have now modified this class to use a gl canvas instead of a 2D canvas,
+# but we still have the 2D canvas, and we're going to render the image of the 2D
+# canvas into the gl canvas. In this way, the rest of bokehjs can keep working
+# as it is, and we can update glyphs individually to make them use GL.
+# TODO: this functionality to create/assign the canvases should probably be moved 
+# to plot.coffee
+
+create_gl_vis = (canvas2d, canvas3d) ->
+  # This function sets up the visualization to render the 2D canvas into
+  # the 3D canvas. So as to blend the two.
+      
+  VERT = """
+  precision mediump float;
+  attribute vec2 a_position;
+  varying vec2 v_position;
+  void main() { 
+      //gl_Position = vec4(0.95 * (a_position*2.0-1.0), 0.0, 1.0);
+gl_Position = vec4(a_position*2.0-1.0, 0.0, 1.0);
+      v_position = a_position;
+  }"""
+  FRAG = """
+  precision mediump float;
+  uniform sampler2D tex;
+  varying vec2 v_position;
+  void main() {
+      gl_FragColor = texture2D(tex, vec2(v_position.x, 1.0-v_position.y));
+      //gl_FragColor.a = 1.0;
+  }"""
+  
+  VERT_DATA = new Float32Array([0.0, 0.0,  1.0, 0.0,  0.0, 1.0,  0.0, 1.0,  1.0, 0.0,  1.0, 1.0, ])
+    
+  window.canvas3d = canvas3d
+  glx = vispy.init(canvas3d)
+  
+  glx._initialize = (event) ->
+    @command ['CREATE', 'ctx_prog', 'Program']
+    @command ['SHADERS', 'ctx_prog', VERT, FRAG]
+    
+    @command(['CREATE', 'ctx_tex', 'Texture2D']);    
+    @command(['INTERPOLATION', 'ctx_tex', 'LINEAR', 'NEAREST']);
+    @command(['WRAPPING', 'ctx_tex', ['CLAMP_TO_EDGE', 'CLAMP_TO_EDGE']]);
+    
+    @command(['CREATE', 'ctx_vert', 'VertexBuffer']);
+    @command(['DATA', 'ctx_vert', 0, VERT_DATA]);     
+    # connect
+    @command(['ATTRIBUTE', 'ctx_prog', 'a_position', 'vec2', ['ctx_vert', 0, 0]]);
+    @command(['TEXTURE', 'ctx_prog', 'u_sampler', 'ctx_tex']);    
+    
+    @command(['FUNC', 'enable', 'BLEND']);
+    @command(['FUNC', 'blendFunc', 'ONE_MINUS_DST_ALPHA', 'ONE']);
+    
+  glx._render = () ->
+    # Update texture
+    @command(['DATA', 'ctx_tex', [0, 0], canvas2d])
+    # Render it    
+    @command(['DRAW', 'ctx_prog', 'TRIANGLES', [0, 6]])
+    # We "manually" push the commands, we don't use Vispy's event loop
+    glx.execute_pending_commands()    
+  
+  glx._clear = () ->
+    @command(['FUNC', 'clearColor', 0.0, 0, 0, 0.0])
+    @command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT'])
+
+  glx._resize = (width, height) ->
+    @size = [width, height]
+    @command(['FUNC', 'viewport', 0, 0, width, height]);  
+    @command(['SIZE', 'ctx_tex', [width, height], 'RGBA']);
+ 
+  glx._initialize()
+  glx._resize(canvas3d.width, canvas3d.height)
+  glx
+  
 
 class CanvasView extends ContinuumView
   className: "bk-canvas-wrapper"
@@ -30,24 +106,49 @@ class CanvasView extends ContinuumView
 
     logger.debug("CanvasView initialized")
 
+  init_canvases: () ->
+    @canvas3d = @canvas[0]
+    gl = @canvas3d.getContext("webgl") || @canvas3d.getContext("experimental-webgl")      
+    if gl?
+      @canvas2d = document.createElement('canvas')
+      @glx = create_gl_vis(@canvas2d, @canvas3d)
+    else
+      @canvas2d = @canvas3d
+      @canvas3d = null      
+      @glx = null
+
   render: (force=false) ->
     # normally we only want to render the canvas when the canvas itself
     # should be configured with new bounds.
     if not @model.new_bounds and not force
       return
-    @ctx = @canvas[0].getContext('2d')
-
+    console.log('in render canvas')
+    
+    # Assign canvases if not already done. Sync size of canvas2d with that of canvas3d
+    if not @canvas2d?
+      @init_canvases()
+    if @canvas3d?
+      @canvas2d.width = @canvas3d.width
+      @canvas2d.height = @canvas3d.height
+      @glx._resize(canvas3d.width, canvas3d.height)  # todo: only when resizing
+    
+    @ctx = @canvas2d.getContext('2d') 
+    
+    # Keep a reference of glx on th ctx object, so that we can access the 
+    # gl context whereever ctx is 
+    @ctx.glx = @glx
+    
     if @mget('use_hidpi')
       devicePixelRatio = window.devicePixelRatio || 1
       backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
                           @ctx.mozBackingStorePixelRatio ||
                           @ctx.msBackingStorePixelRatio ||
                           @ctx.oBackingStorePixelRatio ||
-                          @ctx.backingStorePixelRatio || 1
+                          @ctx.backingStorePixelRatio || 1  # ak: wtf?
       ratio = devicePixelRatio / backingStoreRatio
     else
       ratio = 1
-
+    
     width = @mget('width')
     height = @mget('height')
 
@@ -63,6 +164,7 @@ class CanvasView extends ContinuumView
     @ctx.translate(0.5, 0.5)
 
     # work around canvas incompatibilities
+    # todo: this is done ON EACH DRAW, is that intended?
     @_fixup_line_dash(@ctx)
     @_fixup_line_dash_offset(@ctx)
     @_fixup_image_smoothing(@ctx)

@@ -3,11 +3,15 @@ Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
 class CircleView extends Glyph.View
-
+    
   _index_data: () ->
     return @_xy_index()
 
-  _map_data: () ->
+  _set_data: () ->  
+    @_data_changed = true        
+
+  _map_data: () ->  
+    
     # NOTE: Order is important here: size is always present (at least
     # a default), but radius is only present if a user specifies it
     if @radius?
@@ -21,6 +25,7 @@ class CircleView extends Glyph.View
       @sradius = (s/2 for s in @size)
 
   _mask_data: (all_indices) ->
+       
     hr = @renderer.plot_view.frame.get('h_range')
     vr = @renderer.plot_view.frame.get('v_range')
 
@@ -54,6 +59,10 @@ class CircleView extends Glyph.View
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
+    
+    console.log('render circle!' + performance.now())
+    if ctx.glx        
+        return @_render_gl(ctx.glx, indices)
 
     for i in indices
       if isNaN(sx[i]+sy[i]+sradius[i])
@@ -70,7 +79,36 @@ class CircleView extends Glyph.View
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
+  _render_gl: (glx, indices) ->
+    # Initialize
+    if not @glx?
+      window.tt = this
+      @glid = @id      
+      @glx = glx
+      setup_gl(glx, @glid)      
+    
+    if @_data_changed && @x?      
+      #@glx.command(['SIZE', @glid+'_x', @x.length]);
+      #@glx.command(['SIZE', @glid+'_x', @y.length]);      
+      @glx.command(['DATA', @glid+'_x', 0, new Float32Array(@x)]);
+      @glx.command(['DATA', @glid+'_y', 0, new Float32Array(@y)]);
+      @_data_length = @x.length
+      @_data_changed = false
+      #console.log('upload data ' + @x.length + '===================================')
+    
+    [dx, dy] = @renderer.map_to_screen([0, 1], [0, 1])    
+    #@glx.command(['UNIFORM', @glid+'_prog', 'u_offset', [d0[0], d0[1]]])
+    @glx.command(['UNIFORM', @glid+'_prog', 'u_canvas_size', 'vec2', @glx.size])
+    @glx.command(['UNIFORM', @glid+'_prog', 'u_offset', 'vec2', [dx[0], dy[0]]])
+    @glx.command(['UNIFORM', @glid+'_prog', 'u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]]])
+    @glx.command(['UNIFORM', @glid+'_prog', 'u_color', 'vec4', [0, 0, 1, 0.1]])
+    
+    # todo: use indices
+    if @_data_length?
+        @glx.command(['DRAW', @glid+'_prog', 'POINTS', [0, @_data_length]])
+
   _hit_point: (geometry) ->
+   
     [vx, vy] = [geometry.vx, geometry.vy]
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
@@ -123,6 +161,7 @@ class CircleView extends Glyph.View
     return result
 
   _hit_span: (geometry) ->
+      
       [vx, vy] = [geometry.vx, geometry.vy]
       [xb, yb] = this.bounds()
       result = hittest.create_hit_test_result()
@@ -217,6 +256,41 @@ class Circle extends Glyph.Model
     return _.extend {}, super(), {
       radius_dimension: 'x'
     }
+
+setup_gl = (glx, glid) ->
+  # This function sets up the visualization to render a line
+  
+  VERT = """
+  precision mediump float;
+  attribute float a_x;
+  attribute float a_y;
+  uniform vec2 u_canvas_size;
+  uniform vec2 u_offset;
+  uniform vec2 u_scale;
+  void main() {
+      vec2 pos = vec2(a_x, a_y) * u_scale + u_offset; // in pixels
+      pos /= u_canvas_size;  // in 0..1
+      gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
+      gl_Position.y *= -1.0;
+      gl_PointSize = 15.0;
+  }"""
+  FRAG = """
+  precision mediump float;
+  uniform vec4 u_color;
+  void main() {
+      float x = 2.0*gl_PointCoord.x - 1.0;
+      float y = 2.0*gl_PointCoord.y - 1.0;
+      gl_FragColor = u_color.rgba;
+      gl_FragColor.a *= 1.0 - (x*x + y*y);
+  }"""
+  
+  # TODO: the ids need to be unique!
+  glx.command ['CREATE', glid+'_prog', 'Program']
+  glx.command ['SHADERS', glid+'_prog', VERT, FRAG]
+  glx.command(['CREATE', glid+'_x', 'VertexBuffer'])
+  glx.command(['CREATE', glid+'_y', 'VertexBuffer'])
+  glx.command(['ATTRIBUTE', glid+'_prog', 'a_x', 'float', [glid+'_x', 0, 0]])
+  glx.command(['ATTRIBUTE', glid+'_prog', 'a_y', 'float', [glid+'_y', 0, 0]])
 
 module.exports =
   Model: Circle

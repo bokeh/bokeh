@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Testing gloo</title>
+  </head>
+
+<body>
+
+<style>
+#thecanvas {
+    border: 2px solid blue;
+}
+</style>
+    
+<script src="/home/almar/dev/build/vispy.js/scripts/lib/jquery.min.js"></script>
+<script src="/home/almar/dev/build/vispy.js/scripts/lib/jquery-ui/jquery-ui.min.js"></script>
+<script src="/home/almar/dev/build/vispy.js/dist/vispy.min.js"></script>
+
+<script>
+
+function initialize_canvas() {
+    
+    var canvas3d = document.getElementById('thecanvas');
+    window.canvas3d = canvas3d;
+    var gl = canvas3d.getContext("webgl") || canvas3d.getContext("experimental-webgl");
+    var glx = vispy.init(canvas3d);
+    
+    // create 2D canvas
+    var canvas2d = document.createElement('canvas');
+    var ctx = canvas2d.getContext('2d')  
+        
+    //var canvas2d = document.getElementById('thecanvas');
+    canvas2d.width = 800;
+    canvas2d.height = 600;
+    
+    var VERT = "\
+    precision mediump float; \
+    attribute vec2 a_position; \
+    varying vec2 v_position; \
+    void main() { \
+        gl_Position = vec4((a_position*2.0)-1.1, 0.0, 1.0); \
+        v_position = a_position; \
+    }";
+    var FRAG = "\
+    precision mediump float; \
+    uniform sampler2D tex; \
+    varying vec2 v_position; \
+    void main() { \
+        gl_FragColor = texture2D(tex, vec2(v_position.x, 1.0-v_position.y)); \
+        gl_FragColor.a = 1.0; \
+    }";
+        
+    var vert_data = new Float32Array([0., 0.,  1., 0.,  0., 1.,  0., 1.,  1., 0.,  1., 1., ]);
+    
+    glx._init = function () {
+        this.command(['FUNC', 'viewport', 0, 0, 600, 400]);
+        
+        this.command(['CREATE', 'ctx_prog', 'Program']);
+        this.command(['SHADERS', 'ctx_prog', VERT, FRAG]);
+        
+        this.command(['CREATE', 'ctx_tex', 'Texture2D']);
+        this.command(['SIZE', 'ctx_tex', [800, 600], 'RGBA']);
+        this.command(['INTERPOLATION', 'ctx_tex', 'LINEAR', 'NEAREST']);
+        this.command(['WRAPPING', 'ctx_tex', ['CLAMP_TO_EDGE', 'CLAMP_TO_EDGE']]);
+        
+        this.command(['CREATE', 'ctx_vert', 'VertexBuffer']);
+        this.command(['DATA', 'ctx_vert', 0, vert_data]);
+        
+        // connect
+        this.command(['ATTRIBUTE', 'ctx_prog', 'a_position', 'vec2', ['ctx_vert', 0, 0]]);
+        this.command(['TEXTURE', 'ctx_prog', 'u_sampler', 'ctx_tex']);
+        
+        // transparency
+        this.command(['FUNC', 'blendFunc', 'SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA']);
+        this.command(['FUNC', 'enable', 'BLEND']);
+        glx.execute_pending_commands()
+    };
+    
+    glx._render = function() {
+        
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(10, 10, 580, 380);
+    
+        var gl = glx.gl;
+        var object = glx._ns['ctx_tex'];
+        gl.bindTexture(gl.TEXTURE_2D, object.handle);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
+        
+        var n = 100;
+        var t0 = performance.now();
+        for (var i =0; i<n; i++) {
+            gl.bindTexture(gl.TEXTURE_2D, object.handle);
+            //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
+        }
+        var t1 = performance.now();
+        
+        var msg = 'time to upload canvas to gl texture: ' + (t1-t0)/n + ' ms'
+        document.getElementById('timing').innerHTML = msg;
+        
+        this.command(['FUNC', 'clearColor', 0, 1, 1, 1]); 
+        this.command(['FUNC', 'clear', 'COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT']);
+        //this.command(['DATA', 'ctx_tex', [0, 0], ctx]);
+        this.command(['DRAW', 'ctx_prog', 'TRIANGLES', [0, 6]]);
+        glx.execute_pending_commands()
+    };
+    
+    glx._init()
+    return glx;
+    
+};
+
+document.body.onload = function () {
+    var glx = initialize_canvas();
+    document.getElementById('timing').onclick = function () {document.body.innerHTML = ''; }
+    
+    function render (timestamp) {
+        glx._render();
+        window.requestAnimationFrame(render);
+    }
+    window.requestAnimationFrame(render);
+};
+    
+</script>
+    
+</body>
+    <div id='timing'> </div>
+    <canvas id='thecanvas' width=600, height=400>You don't have a canvas</canvas>
+
+</html>
