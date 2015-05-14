@@ -140,12 +140,11 @@ def server_check(env_name):
     # Kill subprocess
 
 
-def logger(failure_list):
+def logger(failure_list, logfile='logfile.txt'):
     """Log items in a list of errors to a logfile.
     """
 
-    logfile = 'logfile'
-    while os.path.exists('%s.txt' % logfile):
+    while os.path.exists(logfile):
         logfile = logfile.split('-')
         if len(logfile) == 1:
             logfile.append('2')
@@ -153,7 +152,7 @@ def logger(failure_list):
             logfile[1] = str(int(logfile[1]) + 1)
         logfile = '-'.join(logfile)
 
-    with open('%s.txt' % logfile, 'w') as log:
+    with open(logfile, 'w') as log:
         for failure in failure_list:
             log.write(failure)
 
@@ -173,39 +172,62 @@ if __name__ == '__main__':
     envs = {
         "py27_conda_clean"    : {
             "init"    : "python=2.7 nose mock",
-            "install" : [
-                "conda install --yes -c bokeh/channel/dev bokeh",
-                "conda install websocket-client -c auto",
-                "conda install nose mock blaze abstract-rendering beautiful-soup ipython scipy websocket multiuserblazeserver pillow -c bokeh",
+            "install" : '; '.join([
+                    # install latest version from dev channel
+                    "conda install --yes -c bokeh/channel/dev bokeh",
+                    # install dependencies needed for testing
+                    "conda install --yes  -c auto websocket-client",
+                    "conda install --yes  -c bokeh nose mock blaze abstract-rendering beautiful-soup "
+                    "ipython scipy websocket multiuserblazeserver pillow",
+                ])
             },
         "py27_conda_update"   : {
             "init"    : "python=2.7 nose mock bokeh=%s" % preversion,
-            "install" : "conda update --yes -c bokeh/channel/dev bokeh"
+            "install" : '; '.join([
+                    "conda update --yes -c bokeh/channel/dev bokeh",
+                    # install dependencies needed for testing
+                    "conda install --yes -c auto websocket-client",
+                    "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup "
+                    "ipython scipy websocket multiuserblazeserver pillow",
+                ])
             },
         "py27_pip_clean"      : {
             "init"    : "python=2.7 nose mock pip",
-            "install" : "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
+            "install" : '; '.join([
+                "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple"
+                " bokeh --extra-index-url https://pypi.python.org/simple/",
+                # install dependencies needed for testing
+                "pip install nose mock blaze abstract-rendering beautifulsoup4"
+                " ipython scipy websocket-client multiuserblazeserver",
+                ])
             },
         "py27_pip_update"     : {
             "init"    : "python=2.7 pip nose mock bokeh=%s" % preversion,
-            "install" : "pip install --upgrade --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
+            "install" :  '; '.join([
+                "pip install --upgrade --pre -i "
+                "https://pypi.binstar.org/bokeh/channel/dev/simple "
+                "bokeh --extra-index-url https://pypi.python.org/simple/",
+                # install dependencies needed for testing
+                "pip install nose mock blaze abstract-rendering beautifulsoup4"
+                " ipython scipy websocket-client multiuserblazeserver",
+                ])
             },
-        "py34_conda_clean"    : {
-            "init"    : "python=3.4 nose mock",
-            "install" : "conda install --yes -c bokeh/channel/dev bokeh"
-            },
-        "py34_conda_update"   : {
-            "init"    : "python=3.4 nose mock bokeh=%s" % preversion,
-            "install" : "conda update --yes -c bokeh/channel/dev bokeh"
-            },
-        "py34_pip_clean"      : {
-            "init"    : "python=3.4 nose mock pip",
-            "install" : "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
-            },
-        "py34_pip_update"     : {
-            "init"    : "python=3.4 pip nose mock bokeh=%s" % preversion,
-            "install" : "pip install --upgrade --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
-            }
+        # "py34_conda_clean"    : {
+        #     "init"    : "python=3.4 nose mock",
+        #     "install" : "conda install --yes -c bokeh/channel/dev bokeh"
+        #     },
+        # "py34_conda_update"   : {
+        #     "init"    : "python=3.4 nose mock bokeh=%s" % preversion,
+        #     "install" : "conda update --yes -c bokeh/channel/dev bokeh"
+        #     },
+        # "py34_pip_clean"      : {
+        #     "init"    : "python=3.4 nose mock pip",
+        #     "install" : "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
+        #     },
+        # "py34_pip_update"     : {
+        #     "init"    : "python=3.4 pip nose mock bokeh=%s" % preversion,
+        #     "install" : "pip install --upgrade --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
+        #     }
     }
 
     results = {}
@@ -216,6 +238,8 @@ if __name__ == '__main__':
     root = subprocess.check_output(['conda', 'info', '--root']).rstrip()
 
     for environment in envs:
+        print
+        print ("CREATING NEW ENV", environment)
         results[environment] = {}
         cleaner(os.path.join(root, "envs", environment))
         conda_creator(environment, envs[environment]["init"])
@@ -234,4 +258,8 @@ if __name__ == '__main__':
     if not ops.dry_run:
         print(results)
         if test_failures:
-            logger(test_failures)
+            logfile = 'logfile.txt'
+            print()
+            print()
+            print("SOME TESTS FAILED, CHECK %s FOR MORE DETAILS" % logfile)
+            logger(test_failures, logfile=logfile)
