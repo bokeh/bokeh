@@ -2,7 +2,7 @@
 # Go to http://localhost:5006/bokeh to view this plot
 
 from bokeh.sampledata.iris import flowers
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 flowers['color'] = flowers['species'].map(lambda x: colormap[x])

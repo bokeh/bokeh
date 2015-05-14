@@ -2,7 +2,7 @@
 # Go to http://localhost:5006/bokeh to view this plot
 
 import numpy as np
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server
 from bokeh.models import ServerDataSource
 from bokeh.transforms import image_downsample
 from blaze.server.client import Client

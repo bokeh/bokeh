@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from six.moves import cStringIO as StringIO
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server
 
 antibiotics = """
 bacteria,                        penicillin, streptomycin, neomycin, gram

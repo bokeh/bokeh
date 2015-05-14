@@ -7,7 +7,7 @@ import itertools
 import numpy as np
 from six.moves import zip
 
-from bokeh.plotting import *
+from bokeh.plotting import ColumnDataSource, figure, show, output_server
 from bokeh.models import TapTool
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))

@@ -2,7 +2,7 @@
 # Go to http://localhost:5006/bokeh to view this plot
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server
 
 # Define Bollinger Bands.
 upperband = np.random.random_integers(100, 150, size=100)

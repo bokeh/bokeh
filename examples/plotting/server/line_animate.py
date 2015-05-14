@@ -5,7 +5,7 @@ import time
 
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import cursession, figure, show, output_server
 
 N = 80
 
