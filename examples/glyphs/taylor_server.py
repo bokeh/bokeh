@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import time
-
 import numpy as np
 import sympy as sy
 

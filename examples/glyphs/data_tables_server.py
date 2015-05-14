@@ -1,10 +1,10 @@
 from __future__ import print_function
 
-import time
-
 from bokeh.browserlib import view
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, GlyphRenderer, Circle, HoverTool, BoxSelectTool
-from bokeh.models.widgets import Select, HBox, VBox, DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
+from bokeh.models.widgets import (
+    Select, HBox, VBox, DataTable, TableColumn, StringFormatter,
+    NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.sampledata.autompg2 import autompg2 as mpg

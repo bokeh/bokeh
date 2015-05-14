@@ -4,8 +4,7 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.models.widgets import (
-    VBox, HBox,
-    Paragraph, Icon,
+    VBox, Icon,
     Button, Toggle, Dropdown,
     CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,

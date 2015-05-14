@@ -434,7 +434,7 @@ class Plot extends HasParent
       y_mapper_type: 'auto',
       plot_width: 600,
       plot_height: 600,
-      title: 'Plot',
+      title: '',
       above: [],
       below: [],
       left: [],

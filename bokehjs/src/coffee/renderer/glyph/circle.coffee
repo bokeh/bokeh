@@ -78,7 +78,7 @@ class CircleView extends Glyph.View
     # check radius first
     if @radius? and @distances.radius.units == "data"
       x0 = x - @max_radius
-      x1 = x+@max_radius
+      x1 = x + @max_radius
 
       y0 = y - @max_radius
       y1 = y + @max_radius
@@ -87,23 +87,17 @@ class CircleView extends Glyph.View
       vx0 = vx - @max_size
       vx1 = vx + @max_size
       [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+      [x0, x1] = [Math.min(x0, x1), Math.max(x0, x1)]
 
       vy0 = vy - @max_size
       vy1 = vy + @max_size
       [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+      [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
     candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
     hits = []
-    if @size
-      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
-      for i in candidates
-        r2 = Math.pow(@sradius[i], 2)
-        dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
-        if dist <= r2
-          hits.push([i, dist])
-    else
+    if @radius? and @distances.radius.units == "data"
       for i in candidates
         r2 = Math.pow(@sradius[i], 2)
         sx0 = @renderer.xmapper.map_to_target(x, true)
@@ -111,6 +105,14 @@ class CircleView extends Glyph.View
         sy0 = @renderer.ymapper.map_to_target(y, true)
         sy1 = @renderer.ymapper.map_to_target(@y[i], true)
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+        if dist <= r2
+          hits.push([i, dist])
+    else
+      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
+      for i in candidates
+        r2 = Math.pow(@sradius[i], 2)
+        dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
         if dist <= r2
           hits.push([i, dist])
     hits = _.chain(hits)
