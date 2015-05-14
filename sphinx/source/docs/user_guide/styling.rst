@@ -243,7 +243,7 @@ instance, to set the color of the outline, use ``outline_line_color``:
 Glyphs
 ------
 
-As seen in `userguide_styling_selecting`_, the |select| method can be
+As seen in :ref:`userguide_styling_selecting`, the |select| method can be
 used to retrieve ``GlyphRenderer`` objects from a plot:
 
 .. code-block:: python

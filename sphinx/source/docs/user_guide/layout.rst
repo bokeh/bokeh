@@ -138,7 +138,7 @@ Form Layout
 
 To include widgets in a layout, it is currently necessary to put everything
 in a |vform| layout. You can see an example of this in the section
-:ref:`userguide_interaction_actions_callbacks`.
+:ref:`userguide_interaction_actions_widget_callbacks`.
 
 .. note::
     Improving the spelling and ease-of-use of widget layouts is an area
