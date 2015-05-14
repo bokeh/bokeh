@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import time
 from math import pi
 
 from bokeh.browserlib import view

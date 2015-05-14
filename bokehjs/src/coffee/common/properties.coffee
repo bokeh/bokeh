@@ -77,7 +77,7 @@ class Angle extends Numeric
 
   transform: (values) ->
     if @units == "deg"
-      values = (x * Math.pi/180.0 for x in values)
+      values = (x * Math.PI/180.0 for x in values)
     values = (-x for x in values)
     return super(values)
 
@@ -251,7 +251,7 @@ class Line extends ContextProperties
 
     @cache_select("dash_offset", i)
     if ctx.getLineDashOffset() != @cache.dash_offset
-      ctx.setLineDash(@cache.dash_offset)
+      ctx.setLineDashOffset(@cache.dash_offset)
 
 
 class Fill extends ContextProperties

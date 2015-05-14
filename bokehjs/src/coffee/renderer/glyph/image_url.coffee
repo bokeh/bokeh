@@ -43,7 +43,7 @@ class ImageURLView extends Glyph.View
         img.src = url[i]
         need_load[i] = false
       else if @loaded[i]
-        @_render_image(ctx, i, image, sx, sy, sw, sh, angle)
+        @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
