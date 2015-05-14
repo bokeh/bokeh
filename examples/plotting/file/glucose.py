@@ -1,7 +1,7 @@
 import pandas as pd
 
 from bokeh.sampledata.glucose import data
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file, vplot
 
 output_file("glucose.html", title="glucose.py example")
 

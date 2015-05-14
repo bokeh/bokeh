@@ -2,7 +2,7 @@ from __future__ import division
 
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file, vplot
 
 def streamlines(x, y, u, v, density=1):
     '''Returns streamlines of a vector flow.

@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from numpy import pi, arange, sin, linspace
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 from bokeh.models import LinearAxis, Range1d
 
 x = arange(-2*pi, 2*pi, 0.1)
