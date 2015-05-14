@@ -251,7 +251,7 @@ class Line extends ContextProperties
 
     @cache_select("dash_offset", i)
     if ctx.getLineDashOffset() != @cache.dash_offset
-      ctx.setLineDash([@cache.dash_offset])
+      ctx.setLineDashOffset(@cache.dash_offset)
 
 
 class Fill extends ContextProperties
