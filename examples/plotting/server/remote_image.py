@@ -3,7 +3,6 @@
 
 import numpy as np
 from bokeh.plotting import figure, show, output_server
-from bokeh.models import ServerDataSource
 from bokeh.transforms import image_downsample
 from blaze.server.client import Client
 from blaze import Data

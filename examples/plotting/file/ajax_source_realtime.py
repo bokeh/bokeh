@@ -2,7 +2,6 @@ import numpy as np
 
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import AjaxDataSource
-from bokeh.models.ranges import Range1d
 
 output_file("ajax_source_realtime.html", title="ajax_source_realtime.py example")
 source = AjaxDataSource(data_url='http://localhost:5050/data', mode="append",

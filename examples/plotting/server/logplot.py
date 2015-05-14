@@ -1,9 +1,6 @@
 import numpy as np
 from bokeh.plotting import figure, show, output_server
 
-import numpy as np
-
-from bokeh.plotting import figure, show, output_server
 
 N = 100
 

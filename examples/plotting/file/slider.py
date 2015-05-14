@@ -1,6 +1,6 @@
 
 from bokeh.io import vform
-from bokeh.plotting import figure, hplot, output_file, show, vplot, ColumnDataSource
+from bokeh.plotting import figure, hplot, output_file, show, ColumnDataSource
 from bokeh.models.actions import Callback
 from bokeh.models.widgets import Slider
 

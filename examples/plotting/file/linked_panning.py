@@ -1,6 +1,5 @@
 import numpy as np
 from bokeh.plotting import figure, gridplot, show, output_file
-from bokeh.models import ColumnDataSource
 
 output_file("linked_panning.html", title="linked_panning.py example")
 
