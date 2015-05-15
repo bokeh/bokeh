@@ -48,8 +48,6 @@ def get_parser():
                         help='Previous version of bokeh', required=True)
     parser.add_argument('-v', '--version', action='store', default=False,
                         help='Version of bokeh to test', required=True)
-    parser.add_argument('-c', '--channel', action='store', default=False,
-                        help='binstar channel', required=False)
     parser.add_argument('--keep', action='store_true', default=False,
                         help="Don't delete conda envs created by this script")
     parser.add_argument('--dry-run', action='store_true', default=False,
@@ -80,15 +78,10 @@ def bokeh_installer(env_name, install_string):
     """Activate an environment and run its install string to either install or update bokeh using
     conda or pip.
     """
-    if '_pip_' in env_name:
-        channel = ''
-    else:
-        channel = OPTIONS["channel"]
-    channel = OPTIONS["channel"]
     if os.name == 'nt':
-        command_string = 'activate %s & %s %s' % (env_name, install_string, OPTIONS["channel"])
+        command_string = 'activate %s & %s' % (env_name, install_string)
     else:
-        command_string = 'source activate %s; %s %s' % (env_name, install_string, OPTIONS["channel"])
+        command_string = 'source activate %s; %s' % (env_name, install_string)
 
     result = call_wrapper(command_string, shell=True)
 
@@ -164,10 +157,7 @@ if __name__ == '__main__':
     parser = get_parser()
     ops = parser.parse_args()
     OPTIONS["dry-run"] = ops.dry_run
-    if ops.channel:
-        OPTIONS["channel"] = "-c %s" % ops.channel
-    else:
-        OPTIONS["channel"] = ""
+
     preversion = ops.previous
     current_version = ops.version
 
