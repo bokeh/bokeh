@@ -1,5 +1,5 @@
 from bokeh.plotting import ColumnDataSource, figure, hplot, output_file, show
-from bokeh.models import LinearColorMapper, HoverTool, TapTool
+from bokeh.models import LinearColorMapper, HoverTool
 from bokeh.models.actions import Callback
 from bokeh.models.widgets import Slider
 from bokeh.io import vform
