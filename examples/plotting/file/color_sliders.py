@@ -7,24 +7,24 @@ import colorsys
 
 # for plot 2: create colour spectrum of resolution N and brightness I, return as list of decimal RGB value tuples
 def generate_color_range(N, I):
-	HSV_tuples = [ (x*1.0/N, 0.5, I) for x in range(N) ]
-	RGB_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
-	for_conversion = []
-	for RGB_tuple in RGB_tuples:
-		for_conversion.append((int(RGB_tuple[0]*255), int(RGB_tuple[1]*255), int(RGB_tuple[2]*255)))
-	hex_colors = [ rgb_to_hex(RGB_tuple) for RGB_tuple in for_conversion ]
-	return hex_colors, for_conversion
+    HSV_tuples = [ (x*1.0/N, 0.5, I) for x in range(N) ]
+    RGB_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
+    for_conversion = []
+    for RGB_tuple in RGB_tuples:
+        for_conversion.append((int(RGB_tuple[0]*255), int(RGB_tuple[1]*255), int(RGB_tuple[2]*255)))
+    hex_colors = [ rgb_to_hex(RGB_tuple) for RGB_tuple in for_conversion ]
+    return hex_colors, for_conversion
 
 # convert RGB tuple to hexadecimal code
 def rgb_to_hex(rgb):
-	return '#%02x%02x%02x' % rgb
+    return '#%02x%02x%02x' % rgb
 
 # convert hexadecimal to RGB tuple
 def hex_to_dec(hex):
-	red = ''.join(hex.strip('#')[0:2])
-	green = ''.join(hex.strip('#')[2:4])
-	blue = ''.join(hex.strip('#')[4:6])
-	return (int(red, 16), int(green, 16), int(blue,16))
+    red = ''.join(hex.strip('#')[0:2])
+    green = ''.join(hex.strip('#')[2:4])
+    blue = ''.join(hex.strip('#')[4:6])
+    return (int(red, 16), int(green, 16), int(blue,16))
 
 # plot 1: create a color block with RGB values adjusted with sliders
 # initialise a white block for the first plot
@@ -52,30 +52,30 @@ hex_code_text = p1.text('x', 'y', text='color', text_color='text_color', alpha=0
 # NOTE: the JS functions for converting RGB to hex are taken from the excellent answer
 # by Tim Down at http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 callback = Callback(args=dict(source=source), code="""
-	function componentToHex(c) {
-		var hex = c.toString(16);
-		return hex.length == 1 ? "0" + hex : hex;
-	}
-	function rgbToHex(r, g, b) {
-		return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-	}
-	var data = source.get('data');
-	var RS = red_slider;
-	var GS = green_slider;
-	var BS = blue_slider;
-	color = data['color'];
-	var red_from_slider = RS.get('value');
-	var green_from_slider = GS.get('value');
-	var blue_from_slider = BS.get('value');
-	text_color = data['text_color'];
-	color[0] = rgbToHex(red_from_slider, green_from_slider, blue_from_slider);
-	if ((red_from_slider > 127) || (green_from_slider > 127) || (blue_from_slider > 127)) {
-		text_color[0] = '#000000';
-	}
-	else {
-		text_color[0] = '#ffffff';
-	}
-	source.trigger('change');
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+    var data = source.get('data');
+    var RS = red_slider;
+    var GS = green_slider;
+    var BS = blue_slider;
+    color = data['color'];
+    var red_from_slider = RS.get('value');
+    var green_from_slider = GS.get('value');
+    var blue_from_slider = BS.get('value');
+    text_color = data['text_color'];
+    color[0] = rgbToHex(red_from_slider, green_from_slider, blue_from_slider);
+    if ((red_from_slider > 127) || (green_from_slider > 127) || (blue_from_slider > 127)) {
+        text_color[0] = '#000000';
+    }
+    else {
+        text_color[0] = '#ffffff';
+    }
+    source.trigger('change');
 """)
 
 # create slider tool objects to control the RGB levels for first plot. Set callback function to allow refresh
@@ -103,9 +103,9 @@ color_range1 = p2.rect(x='x', y='y', width=1, height=10, color='crcolor', source
 # set up hover tool to show color hex code and sample swatch
 hover = p2.select(dict(type=HoverTool))
 hover.tooltips = [
-				   ('color', '$color[hex, rgb, swatch]:crcolor'),
-				   ('RGB levels', '@RGBs')
-				 ]
+                   ('color', '$color[hex, rgb, swatch]:crcolor'),
+                   ('RGB levels', '@RGBs')
+                    ]
 
 # get rid of axis details for cleaner look
 p1.ygrid.grid_line_color = None
@@ -123,8 +123,8 @@ p2.axis.major_tick_line_color = None
 p2.axis.minor_tick_line_color = None
 
 layout = bkplt.hplot(
-	vform(red_slider, green_slider, blue_slider),
-	vform(p1, p2)
+    vform(red_slider, green_slider, blue_slider),
+    vform(p1, p2)
 )
 
 bkplt.output_file("color_sliders.html")
