@@ -222,7 +222,7 @@ html_sidebars = {
     'docs/*': standard_sidebars,
     'docs/dev_guide/**': standard_sidebars,
     'docs/reference/**': standard_sidebars,
-    'docs/tutorial/**': standard_sidebars,
+    'docs/tutorials/**': standard_sidebars,
     'docs/user_guide/**': standard_sidebars,
     'docs/gallery': [],
     'docs/gallery/*': [],
