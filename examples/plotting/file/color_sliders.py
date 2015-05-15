@@ -1,4 +1,4 @@
-from bokeh import plotting as bkplt
+from bokeh.plotting import ColumnDataSource, figure, hplot, output_file, show
 from bokeh.models import LinearColorMapper, HoverTool, TapTool
 from bokeh.models.actions import Callback
 from bokeh.models.widgets import Slider
@@ -39,12 +39,12 @@ hex_color = rgb_to_hex((red,green,blue))
 text_color = '#000000'
 
 # create a data source to enable refreshing of fill & text color
-source = bkplt.ColumnDataSource(data=dict(x = x, y = y, color = [hex_color], text_color = [text_color]))
+source = ColumnDataSource(data=dict(x = x, y = y, color = [hex_color], text_color = [text_color]))
 
 tools1 = 'reset, save'
 
 # create first plot, as a rect() glyph and centered text label, with fill and text color taken from source
-p1 = bkplt.figure(x_range=(-8, 8), y_range=(-4, 4), plot_width=600, plot_height=300, title=None, tools=tools1)
+p1 = figure(x_range=(-8, 8), y_range=(-4, 4), plot_width=600, plot_height=300, title=None, tools=tools1)
 color_block = p1.rect(x='x', y='y', width=18, height=10, fill_color='color', line_color = 'black', source=source)
 hex_code_text = p1.text('x', 'y', text='color', text_color='text_color', alpha=0.6667, text_font_size='36pt', text_baseline='middle', text_align='center', source=source)
 
@@ -93,12 +93,12 @@ cry = [ 5 for i in range(len(crx)) ]
 crcolor, crRGBs = generate_color_range(1000,brightness) # produce spectrum
 
 # make data source object to allow information to be displayed by hover tool
-crsource = bkplt.ColumnDataSource(data=dict(x = crx, y = cry, crcolor = crcolor, RGBs = crRGBs))
+crsource = ColumnDataSource(data=dict(x = crx, y = cry, crcolor = crcolor, RGBs = crRGBs))
 
 tools2 = 'reset, save, hover'
 
 # create second plot
-p2 = bkplt.figure(x_range=(0,1000), y_range=(0,10), plot_width=600, plot_height=150, tools=tools2, title = 'hover over color')
+p2 = figure(x_range=(0,1000), y_range=(0,10), plot_width=600, plot_height=150, tools=tools2, title = 'hover over color')
 color_range1 = p2.rect(x='x', y='y', width=1, height=10, color='crcolor', source=crsource)
 # set up hover tool to show color hex code and sample swatch
 hover = p2.select(dict(type=HoverTool))
@@ -122,10 +122,10 @@ p2.axis.major_label_text_color = None
 p2.axis.major_tick_line_color = None
 p2.axis.minor_tick_line_color = None
 
-layout = bkplt.hplot(
+layout = hplot(
     vform(red_slider, green_slider, blue_slider),
     vform(p1, p2)
 )
 
-bkplt.output_file("color_sliders.html")
-bkplt.show(layout)
+output_file("color_sliders.html")
+show(layout)
