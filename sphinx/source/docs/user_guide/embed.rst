@@ -23,11 +23,12 @@ and are completely transportable, while still providing interactive tools
 
 .. code-block:: python
 
-    from bokeh.plotting import circle
+    from bokeh.plotting import figure
     from bokeh.resources import CDN
     from bokeh.embed import file_html
 
-    plot = circle([1,2], [3,4])
+    plot = figure()
+    plot.circle([1,2], [3,4])
 
     html = file_html(plot, CDN, "my plot")
 
@@ -179,7 +180,7 @@ with a default session:
     from bokeh.session import Session
     from bokeh.document import Document
 
-    # alternative to these lines, plotting.output_server(...)
+    # alternative to these lines, bokeh.io.output_server(...)
     document = Document()
     session = Session()
     session.use_doc('population_reveal')
@@ -206,6 +207,9 @@ a document looks like:
         data-bokeh-docapikey="8c4e34e5-04f9-4c1c-b92f-fb1ec0d52cae"
         data-bokeh-loglevel="info"
     ></script>
+
+.. note::
+    To execute the code above, a Bokeh server must be running.
 
 .. _userguide_embed_autoload_static:
 
