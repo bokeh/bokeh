@@ -1,3 +1,77 @@
+2015-05-15    0.9.0:
+--------------------
+  * Callback Action, serverless interactivity in static plots
+  * Hover inspection along lines
+  * Client side LOD downsampling for interactive tools
+  * Full User guide rewrite
+  * Reduce BokehJS boilerplate and switch to use browserify
+  * Several example bugfixes
+  * bugfixes:
+    - #746 Grid without axis?
+    - #1479 Indicator of stacked hover tooltip has vertical offset
+    - #1599 Glyph renderer not masking data before rendering
+    - #2066 Angle property not working for square glyph
+    - #2095 Examples/glyphs/data_tables.ipynb error
+    - #2105 Release_update.sh is generating a superfluous "id" package 
+    - #2119 Simpleapp broken
+    - #2124 Stock_app_simple.py does not respond to 2. change on the dropdown field
+    - #2128 [examples] Simpleapp stock demo histograms not updating on selection
+    - #2130 [docs] Fixed typo in documentation
+    - #2134 Selections not working with nominal/categorical axis
+    - #2153 [docs] Fix typo, example has two css, one should be js
+    - #2158 [charts] Color cycles for bokeh charts
+    - #2180 Add shrinkwrap to lock to versions and upgrade jsdom
+    - #2217 [regression] Selection_histogram example broken after new hit_test redesign
+    - #2228 [docs] Update quickstart.rst
+    - #2231 [bokehjs] Multiselect broken
+    - #2233 [bokehjs] [regression] Vboxform broken
+    - #2238 Avoid layout breaking when simpleapp managing buttons
+    - #2246 [regression] Update datarange1d that wasn't updated on notebook after last api change
+    - #2253 Run binstar upload in the correct 'scripts' location
+    - #2256 Use another env variable is case of weird previous use of the i var
+    - #2258 Pin binstar until binstar build fix the platform path problem
+    - #2261 [docs] Fix two small typos
+    - #2262 [bokehjs] Direction is not being passed to draw_legend in annular wedge, arc, and wedge
+    - #2269 [bokehjs] [regression] Hbox/hplot broken
+    - #2278 Examples failures
+    - #2280 [docs] Doc: grammar fix for intro to models
+  * features:
+    - #351 Cycle colors for plots
+    - #1486 Add line hit testing and hover inspection along lines
+    - #1517 Change datarange objects to query renderers for preferred bounds
+    - #1519 [starter] Add simple lod downsampling on the client side
+    - #2098 Decimal.decimal cannot be sent across session
+    - #2112 Remove as much of src/vendor as is practical
+    - #2137 Move data sources on to glyphrenderers
+    - #2140 [bokehjs] [build] Streamline bokehjs build in develop mode
+    - #2151 [docs] Add cdn links in embedding docs
+    - #2156 Add an option to remove the `help` button of the bokeh toolbar
+    - #2174 Simple callback action
+    - #2178 Add a "callback" to a source.selected event
+    - #2185 Allow users to specify a desired number of ticks
+    - #2207 [docs] User guide rewrite
+    - #2275 [examples] Initial commit of color_sliders.py
+  * tasks:
+    - #1751 Remove pinned packages
+    - #2038 [bokehjs] [build] What is the best way to develop bokehjs with incremental rebuilds?
+    - #2078 [tests] Use pyflakes
+    - #2087 Simplifying glyph units
+    - #2106 Setup.py build message improvements
+    - #2126 [examples] Update selection histogram example
+    - #2132 Reduce bokehjs boilerplate
+    - #2139 [docs] Updating exercises to match current master
+    - #2146 Automatic devel build only in py27 in the new travisci matrix
+    - #2168 Remove extraneous comma from unemployment csv
+    - #2196 Bokehjs install failing because dependencies source doesn't exist
+    - #2211 [bokehjs] [regression] Make relative dev work again
+    - #2224 Make a script to check for dev and docs dependencies
+    - #2237 [docs] Update readme.md
+    - #2241 [build] Obsolete protocole sslv3
+    - #2254 Revert "run binstar upload in the correct 'scripts' location"
+    - #2285 Setup.py: note that this also works with `develop`
+    - #2296 Remove '*' imports from examples
+    - #2298 [tests] Add info in the warn message about some missing dependecies
+
 2015-03-25    0.8.2:
 --------------------
   * Colect implicit interfaces into a single bokeh.io module

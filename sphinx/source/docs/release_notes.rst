@@ -11,6 +11,7 @@ Release Notes
 .. toctree::
     :maxdepth: 1
 
+    releases/0.9.0
     releases/0.8.2
     releases/0.8.1
     releases/0.8.0
@@ -33,13 +34,6 @@ Release Notes
 
 Roadmap
 =======
-
-0.9.0 Goals (Spring 2015)
--------------------------
-
-* JS plugins for allow sophisticated interactions in static plots
-* Updated tutorial, case-studies, and better User Guide organization
-* BokehJS switch to broswerify
 
 0.10.0 Goals (Summer 2015)
 
