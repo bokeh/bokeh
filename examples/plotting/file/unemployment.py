@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import ColumnDataSource, figure, show, output_file
 from bokeh.models import HoverTool
 from bokeh.sampledata.unemployment1948 import data
 

@@ -2,7 +2,7 @@ import time
 
 from numpy import cumprod, linspace, random
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file, vplot
 
 num_points = 300
 

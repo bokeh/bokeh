@@ -6,7 +6,7 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server
 from bokeh.palettes import brewer
 
 N = 20

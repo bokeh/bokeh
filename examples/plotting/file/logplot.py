@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 
 N = 100
 

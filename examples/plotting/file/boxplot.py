@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 
 # Generate some synthetic time series for six different categories
 cats = list("abcdef")
@@ -21,8 +21,8 @@ lower = q1 - 1.5*iqr
 
 # find the outliers for each category
 def outliers(group):
-   cat = group.name
-   return group[(group.score > upper.loc[cat][0]) | (group.score < lower.loc[cat][0])]['score']
+    cat = group.name
+    return group[(group.score > upper.loc[cat][0]) | (group.score < lower.loc[cat][0])]['score']
 out = groups.apply(outliers).dropna()
 
 # Prepare outlier data for plotting, we need coordinate for every outlier.
