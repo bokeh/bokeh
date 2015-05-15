@@ -55,6 +55,8 @@ def get_parser():
     parser.add_argument('--dry-run', action='store_true', default=False,
                         help="""Display commands that will be run in each environment
                         without executing them.""")
+    parser.add_argument('--skip-tests', action='store_true',
+                        help="""Skip running tests.""")
     # parser.add_argument('')
 
     return parser
@@ -212,22 +214,46 @@ if __name__ == '__main__':
                 " ipython scipy websocket-client multiuserblazeserver",
                 ])
             },
-        # "py34_conda_clean"    : {
-        #     "init"    : "python=3.4 nose mock",
-        #     "install" : "conda install --yes -c bokeh/channel/dev bokeh"
-        #     },
-        # "py34_conda_update"   : {
-        #     "init"    : "python=3.4 nose mock bokeh=%s" % preversion,
-        #     "install" : "conda update --yes -c bokeh/channel/dev bokeh"
-        #     },
-        # "py34_pip_clean"      : {
-        #     "init"    : "python=3.4 nose mock pip",
-        #     "install" : "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
-        #     },
-        # "py34_pip_update"     : {
-        #     "init"    : "python=3.4 pip nose mock bokeh=%s" % preversion,
-        #     "install" : "pip install --upgrade --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/"
-        #     }
+        "py34_conda_clean"    : {
+            "init"    : "python=3.4 nose mock",
+            "install" : '; '.join([
+                    # install latest version from dev channel
+                    "conda install --yes -c bokeh/channel/dev bokeh",
+                    # install dependencies needed for testing
+                    "conda install --yes  -c bokeh nose mock blaze abstract-rendering beautiful-soup "
+                    "ipython scipy multiuserblazeserver pillow",
+                ])
+            },
+        "py34_conda_update"   : {
+            "init"    : "python=3.4 nose mock bokeh=%s" % preversion,
+            "install" : '; '.join([
+                    "conda update --yes -c bokeh/channel/dev bokeh",
+                    # install dependencies needed for testing
+                    "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup "
+                    "ipython scipy multiuserblazeserver pillow",
+                ])
+            },
+        "py34_pip_clean"      : {
+            "init"    : "python=3.4 nose mock pip",
+            "install" : '; '.join([
+                "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple"
+                " bokeh --extra-index-url https://pypi.python.org/simple/",
+                # install dependencies needed for testing
+                "pip install nose mock blaze abstract-rendering beautifulsoup4"
+                " ipython scipy websocket-client multiuserblazeserver",
+                ])
+            },
+        "py34_pip_update"     : {
+            "init"    : "python=3.4 pip nose mock bokeh=%s" % preversion,
+            "install" :  '; '.join([
+                "pip install --upgrade --pre -i "
+                "https://pypi.binstar.org/bokeh/channel/dev/simple "
+                "bokeh --extra-index-url https://pypi.python.org/simple/",
+                # install dependencies needed for testing
+                "pip install nose mock blaze abstract-rendering beautifulsoup4"
+                " ipython scipy websocket-client multiuserblazeserver",
+                ])
+            },
     }
 
     results = {}
@@ -248,15 +274,24 @@ if __name__ == '__main__':
 
         results[environment]['version'] = version_check(environment, current_version)
 
-        results[environment]['test'], failure = run_tests(environment)
+        if not ops.skip_tests:
+            results[environment]['test'], failure = run_tests(environment)
 
-        if not ops.keep:
-            cleaner(os.path.join(root, "envs", environment))
-        if failure:
-            test_failures.append(failure)
+            if not ops.keep:
+                cleaner(os.path.join(root, "envs", environment))
+            if failure:
+                test_failures.append(failure)
 
-    if not ops.dry_run:
-        print(results)
+    print ("*********************")
+    print ("RESULTS")
+    print(results)
+    print ()
+    print ("*********************")
+
+    if ops.skip_tests:
+        print ("TESTS SKIPPED")
+    elif not not ops.dry_run:
+
         if test_failures:
             logfile = 'logfile.txt'
             print()
