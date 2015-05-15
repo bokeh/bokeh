@@ -88,7 +88,7 @@ callback.args['blue_slider'] = blue_slider
 
 # plot 2: create a color spectrum with a hover-over tool to inspect hex codes
 brightness = 0.8 # at the moment this is hard-coded. Change if you want brighter/darker colors
-crx = range(1,1001) # the resolution is 1000 colors
+crx = list(range(1,1001)) # the resolution is 1000 colors
 cry = [ 5 for i in range(len(crx)) ]
 crcolor, crRGBs = generate_color_range(1000,brightness) # produce spectrum
 
