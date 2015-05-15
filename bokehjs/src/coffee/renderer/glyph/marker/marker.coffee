@@ -32,11 +32,13 @@ class MarkerView extends Glyph.View
     vx0 = hr.get('start') - @max_size
     vx1 = hr.get('end') + @max_size
     [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
+    [x0, x1] = [Math.min(x0, x1), Math.max(x0, x1)]
 
     vr = @renderer.plot_view.frame.get('v_range')
     vy0 = vr.get('start') - @max_size
     vy1 = vr.get('end') + @max_size
     [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+    [y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 

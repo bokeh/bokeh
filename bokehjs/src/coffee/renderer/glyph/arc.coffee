@@ -25,20 +25,7 @@ class ArcView extends Glyph.View
         ctx.stroke()
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
-    reference_point = @get_reference_point() ? 0
-
-    indices = [reference_point]
-    sx = {}
-    sx[reference_point] = (x0+x1)/2
-    sy = {}
-    sy[reference_point] = (y0+y1)/2
-
-    sradius = {}
-    sradius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
-
-    data = {sx: sx, sy: sy, sradius: sradius}
-
-    @_render(ctx, indices, data)
+    @_generic_line_legend(ctx, x0, x1, y0, y1)
 
 class Arc extends Glyph.Model
   default_view: ArcView

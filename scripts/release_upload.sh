@@ -32,13 +32,6 @@ if [ "$bintoken" == "" ]; then
     echo "$bintoken"
 fi
 
-# build for each python version
-for py in 27 33 34;
-do
-    echo "Building py$py pkg"
-    CONDA_PY=$py conda build conda.recipe --quiet
-done
-
 # get conda info about root_prefix and platform
 function conda_info {
     conda info --json | python -c "import json, sys; print(json.load(sys.stdin)['$1'])"
@@ -48,6 +41,18 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
+# remove first bokeh build to avoid posterior upload
+first_build_loc=$BUILD_PATH/bokeh*.tar.bz2
+rm -rf $first_build_loc
+echo "Removing first bokeh build at $first_build_loc"
+
+# build for each python version
+for py in 27 33 34;
+do
+    echo "Building py$py pkg"
+    CONDA_PY=$py conda build conda.recipe --quiet
+done
+
 # get travis_build_id
 travis_build_id=$(cat __travis_build_id__.txt)
 
@@ -55,11 +60,11 @@ travis_build_id=$(cat __travis_build_id__.txt)
 conda convert -p all -f $BUILD_PATH/bokeh*$travis_build_id*.tar.bz2; # --quiet option will be available soon
 
 # upload conda pkgs to binstar
-array=(osx-64 linux-64 win-64 linux-32 win-32)
-for i in "${array[@]}"
+platforms=(osx-64 linux-64 win-64 linux-32 win-32)
+for plat in "${platforms[@]}"
 do
-    echo Uploading: $i;
-    binstar -t $bintoken upload -u bokeh $i/bokeh*$travis_build_id*.tar.bz2 --force --no-progress;
+    echo Uploading: $plat;
+    binstar -t $bintoken upload -u bokeh $plat/bokeh*$travis_build_id*.tar.bz2 --force --no-progress;
 done
 
 # create and upload pypi pkgs to binstar
@@ -76,9 +81,9 @@ echo "I'm done uploading to binstar"
 
 # clean up platform folders
 if [ $clean == true ]; then
-    for i in "${array[@]}"
+    for plat in "${platforms[@]}"
     do
-        rm -rf $i
+        rm -rf $plat
     done
     rm -rf dist/
 else

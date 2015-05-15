@@ -22,7 +22,7 @@ from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 
-from ..utils import make_scatter
+from ..utils import make_scatter, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect, Segment
@@ -156,6 +156,7 @@ class BoxPlotBuilder(Builder):
         lower_center_boxes = []
         lower_height_boxes = []
         out_x, out_y, out_color = ([], [], [])
+        colors = cycle_colors(self._groups, self.palette)
 
         for i, (level, values) in enumerate(self._values.items()):
             # Compute quantiles, center points, heights, IQR, etc.
@@ -187,7 +188,7 @@ class BoxPlotBuilder(Builder):
                 o = values[out]
                 out_x.append(level)
                 out_y.append(o)
-                out_color.append(self.palette[i])
+                out_color.append(colors[i])
 
         # Store
         self.set_and_get(self._data_scatter, self._attr_scatter, "out_x", out_x)
@@ -205,7 +206,7 @@ class BoxPlotBuilder(Builder):
         self.set_and_get(self._data_rect, self._attr_rect, "upper_height_boxes", upper_height_boxes)
         self.set_and_get(self._data_rect, self._attr_rect, "lower_center_boxes", lower_center_boxes)
         self.set_and_get(self._data_rect, self._attr_rect, "lower_height_boxes", lower_height_boxes)
-        self.set_and_get(self._data_rect, self._attr_rect, "colors", self.palette)
+        self.set_and_get(self._data_rect, self._attr_rect, "colors", colors)
 
     def _set_sources(self):
         "Push the BoxPlot data into the ColumnDataSource and calculate the proper ranges."

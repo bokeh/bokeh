@@ -106,7 +106,7 @@ examples of this below.
 
 The |bokeh.plotting| interface is also quite handy if we need to customize
 the output a bit more by adding more data series, glyphs, logarithmic axis,
-etc. It's also possibly to easily combine multiple glyphs together on one
+etc. It's also possible to easily combine multiple glyphs together on one
 plot as shown below:
 
 .. bokeh-plot::
@@ -172,7 +172,7 @@ Other Languages
 
 Bokeh's architecture makes it easy to create bindings for Bokeh in other
 languages, and in fact several already exist. We are obviously big Python
-fans, but having all many language options is a compelling feature. See some
+fans, but having many language options is a compelling feature. See some
 of  the other ways to use bokeh:
 
 * `Bokeh for R`_
@@ -218,7 +218,7 @@ The second example also adds in calls to |Figure.circle| to display circle
 and line glyphs together on the same plot. Besides lines and circles, Bokeh
 makes many additional |glyphs| and |markers| available.
 
-The visual appearance a glyphs is tied directly to that data values that are
+The visual appearance of a glyph is tied directly to the data values that are
 associated with the glyph's various attributes. In the example above we see
 that positional attributes like `x` and `y` can be set to vectors of data.
 But glyphs also have some combination of |line_props|, |fill_props|, and
@@ -330,7 +330,7 @@ things to look out for in this example:
     import numpy as np
     from bokeh.plotting import *
 
-    # prepare some date
+    # prepare some data
     N = 100
     x = np.linspace(0, 4*np.pi, N)
     y0 = np.sin(x)
@@ -359,7 +359,7 @@ Although the toolbar is hidden, the pan tool is still present and active. Click
 and drag the above plots to pan them, and see how their ranges are linked
 together.
 
-Another linkage that is often useful is **linked brushing** (where a selection)
+Another linkage that is often useful is **linked brushing** (where a selection
 on one plot causes a selection to update on other plots). Below is an example
 that demonstrates linked brushing by sharing a |ColumnDataSource| between two
 plots:
@@ -408,10 +408,10 @@ Datetime axes
 
 Dealing with date and time series is another common task. Bokeh has a
 sophisticated |DatetimeAxis| that can change the displayed ticks based
-on the current scale of the plot. There are some inputs that Bokeh
-will automatically default to |DatetimeAxis| for, but you can always
-explicitly ask for one by passing the value ``"datetime" to  the
-``x_axis_type`` or``y_axis_type`` parameters to |figure|. A few things
+on the current scale of the plot. There are some inputs for which Bokeh
+will automatically default to |DatetimeAxis|, but you can always
+explicitly ask for one by passing the value ``"datetime"`` to  the
+``x_axis_type`` or ``y_axis_type`` parameters to |figure|. A few things
 of interest to look out for in this example:
 
 * setting the ``width`` and ``height`` arguments to |figure|
