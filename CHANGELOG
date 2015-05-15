@@ -68,6 +68,7 @@
     - #2237 [docs] Update readme.md
     - #2241 [build] Obsolete protocole sslv3
     - #2254 Revert "run binstar upload in the correct 'scripts' location"
+    - #2257 Follow-on for user guide
     - #2285 Setup.py: note that this also works with `develop`
     - #2296 Remove '*' imports from examples
     - #2298 [tests] Add info in the warn message about some missing dependecies
