@@ -1,6 +1,6 @@
 Bokeh = {}
 Bokeh.require = require
-Bokeh.version = '0.8.2'
+Bokeh.version = '0.9.0'
 
 Bokeh.index = require("./common/base").index
 
