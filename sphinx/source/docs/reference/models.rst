@@ -1,12 +1,12 @@
 
 .. _bokeh.models:
 
-Model Objects
-#############
+``bokeh.models`` Interface
+==========================
 
 One of the central design principals of Bokeh is that, regardless of
 how the plot creation code is spelled in Python (or other languages),
-the result is an object graph of that encompass all the visual and
+the result is an object graph that encompasses all the visual and
 data aspects of the scene. Furthermore, this scene graph is to be
 serialized, and it is this serialized graph that the client library
 BokehJS uses to render the plot. The low-level objects that comprise
@@ -19,6 +19,15 @@ a serialized version of the model looks like.
 .. contents::
     :local:
     :depth: 1
+
+.. _bokeh.models.actions:
+
+``bokeh.models.actions``
+------------------------
+
+.. automodule:: bokeh.models.actions
+   :members:
+   :undoc-members:
 
 .. _bokeh.models.axes:
 

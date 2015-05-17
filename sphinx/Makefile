@@ -38,14 +38,6 @@ help:
 	@echo "  linkcheck        to check all external links for integrity"
 	@echo "  doctest          to run all doctests embedded in the documentation (if enabled)"
 
-tutorial: tutorial_html
-	cp -r $(BUILDDIR)/tutorial_gallery $(BUILDDIR)/html/tutorial/solutions/gallery
-
-tutorial_html:
-	$(SPHINXBUILD) -b html -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) tutorial_source $(BUILDDIR)/html
-	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
-
 all: html
 
 clean:

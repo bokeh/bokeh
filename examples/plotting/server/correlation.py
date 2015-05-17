@@ -5,7 +5,7 @@ import time
 
 from numpy import cumprod, linspace, random
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server, vplot
 
 num_points = 300
 
@@ -35,6 +35,3 @@ c.title = "ACME / CHOAM Correlations"
 c.grid.grid_line_alpha=0.3
 
 show(vplot(r, c))  # open a browser
-
-
-

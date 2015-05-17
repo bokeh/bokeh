@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import time
-
 import numpy as np
 import sympy as sy
 
@@ -92,7 +90,7 @@ def on_text_value_change(obj, attr, old, new):
     else:
         update_data()
 
-dialog = Dialog(title="Invalid expression", buttons=["Close"])
+dialog = Dialog(title="Invalid expression")
 
 slider = Slider(start=1, end=20, value=order, step=1, title="Order:")
 slider.on_change('value', on_slider_value_change)

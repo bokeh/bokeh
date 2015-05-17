@@ -31,7 +31,7 @@ extensions = [
     'sphinx.ext.graphviz',
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
-    'sphinxcontrib.napoleon',
+    'sphinx.ext.napoleon',
     'sphinxcontrib.autohttp.flask',
     'bokeh.sphinxext.bokeh_autodoc',
     'bokeh.sphinxext.bokeh_gallery',
@@ -137,7 +137,7 @@ html_theme_options = {
     ],
 
     # Render the next and previous page links in navbar. (Default: true)
-    'navbar_sidebarrel': True,
+    'navbar_sidebarrel': False,
 
     # Render the current pages TOC in the navbar. (Default: true)
     'navbar_pagenav': True,
@@ -216,13 +216,14 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
+standard_sidebars = ['sidebartoc.html', 'sourcelink.html', 'searchbox.html']
 html_sidebars = {
-    '*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'tutorial/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'docs/*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'docs/dev_guide/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'docs/reference/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-    'docs/user_guide/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    '*': standard_sidebars,
+    'docs/*': standard_sidebars,
+    'docs/dev_guide/**': standard_sidebars,
+    'docs/reference/**': standard_sidebars,
+    'docs/tutorials/**': standard_sidebars,
+    'docs/user_guide/**': standard_sidebars,
     'docs/gallery': [],
     'docs/gallery/*': [],
 }

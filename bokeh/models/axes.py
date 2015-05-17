@@ -10,7 +10,7 @@ from ..enums import Location
 
 from .renderers import GuideRenderer
 from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker
-from .formatters import (TickFormatter, BasicTickFormatter, LogTickFormatter, 
+from .formatters import (TickFormatter, BasicTickFormatter, LogTickFormatter,
                          CategoricalTickFormatter, DatetimeTickFormatter)
 
 class Axis(GuideRenderer):

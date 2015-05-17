@@ -12,7 +12,7 @@ for easy bulk addition of properties to model classes.
     :local:
     :depth: 2
 
-.. _bokeh_dot_properties:
+.. _bokeh.properties:
 
 ``bokeh.properties``
 --------------------
@@ -26,7 +26,7 @@ types. Click on any node to be taken to the corresponding documention.
 .. automodule:: bokeh.properties
     :members:
 
-.. _bokeh_dot_mixins:
+.. _bokeh.mixins:
 
 ``bokeh.mixins``
 ----------------

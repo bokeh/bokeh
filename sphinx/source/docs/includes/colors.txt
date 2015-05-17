@@ -1,0 +1,7 @@
+
+- any of the `147 named CSS colors`_, e.g ``'green'``, ``'indigo'``
+- an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
+- a 3-tuple of integers *(r,g,b)* between 0 and 255
+- a 4-tuple of *(r,g,b,a)* where *r*, *g*, *b* are integers between 0 and 255 and *a* is a floating point value between 0 and 1
+
+.. _147 named CSS colors: <http://www.w3schools.com/cssref/css_colornames.asp>

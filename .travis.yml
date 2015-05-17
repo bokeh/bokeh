@@ -9,7 +9,7 @@ python:
 
 env:
     global:
-        - MINICONDA_VERSION="3.5.5"
+        - MINICONDA_VERSION="latest"
         - BOKEH_DEFAULT_TIMEOUT=30
         - secure: "nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI="
         - secure: "oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY="
@@ -20,15 +20,9 @@ env:
 matrix:
     include:
         - python: 2.7
-          env: BOKEH_DEFAULT_NO_DEV=true BOKEH_DEFAULT_DIFF=FETCH_HEAD
-        - python: 3.3
-          env: BOKEH_DEFAULT_NO_DEV=true
-        - python: 3.4
-          env: BOKEH_DEFAULT_NO_DEV=true
+          env: BOKEH_DEFAULT_DIFF=FETCH_HEAD
     exclude:
         - python: 2.7
-        - python: 3.3
-        - python: 3.4
 
 branches:
   only:
@@ -55,7 +49,7 @@ script:
 
 after_success:
     |
-    if [[ ! -z "$TRAVIS_TAG" && $BOKEH_DEFAULT_NO_DEV == true ]]; then
+    if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '2.7'  ]]; then
         echo "Building the packages and uploading to binstar. Also uploading JS and CSS to the CDN and uploading the devel docs."
         conda install binstar fabric --yes
         openssl aes-256-cbc -K $encrypted_d63f580d5c2a_key -iv $encrypted_d63f580d5c2a_iv -in secrets.tar.enc -out secrets.tar -d
@@ -65,13 +59,13 @@ after_success:
         eval `ssh-agent -s`
         ssh-add bokeh_key
         if [[ "$TRAVIS_TAG" == *"dev"* ]] || [[ "$TRAVIS_TAG" == *"rc"* ]]; then
-          bash build_and_upload.sh -b $BINSTAR_TOKEN -u $RSUSER -k $RSAPIKEY
+          bash scripts/build_upload.sh -b $BINSTAR_TOKEN -u $RSUSER -k $RSAPIKEY
         else
           echo "" > __travis_build_id__.txt
-          bash release_upload.sh -b $BINSTAR_TOKEN
+          bash scripts/release_upload.sh -b $BINSTAR_TOKEN
         fi
     else
-        echo "Not building because there is no tag (or BOKEH_DEFAULT_NO_DEV is false)."
+        echo "Not building because there is no tag."
     fi
 
 notifications:

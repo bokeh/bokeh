@@ -62,8 +62,6 @@ parser.add_argument("-t", "--timeout", type=int, default=default_timeout,
                     help="how long can an example run (in seconds)")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
-parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
-                    help="don't use development JavaScript and CSS files")
 parser.add_argument("-all-n", "--all-notebooks", action="store_true", default=False,
                     help="test all the notebooks inside examples/plotting/notebook folder.")
 parser.add_argument("-o", "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain',
@@ -111,13 +109,6 @@ def ok(msg=None):
     msg = " " + msg if msg is not None else ""
     write("%s%s" % (green("[OK]"), msg))
 
-DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
-if DEFAULT_NO_DEV.lower() in ["true", "yes", "on", "1"]:
-    args.dev = False
-elif DEFAULT_NO_DEV.lower() not in ["false", "no", "off", "0"]:
-    write("unexpected value for BOKEH_DEFAULT_NO_DEV environmental variable, %s" % DEFAULT_NO_DEV)
-    sys.exit(1)
-
 write("%s Using configuration:" % green(">>>"))
 write("%s patterns      = %s" % (green("---"), args.patterns))
 write("%s bokeh-port    = %s" % (green("---"), args.bokeh_port))
@@ -125,7 +116,6 @@ write("%s ipython-port  = %s" % (green("---"), args.ipython_port))
 write("%s phantomjs     = %s" % (green("---"), args.phantomjs))
 write("%s timeout       = %s" % (green("---"), args.timeout))
 write("%s verbose       = %s" % (green("---"), args.verbose))
-write("%s dev           = %s" % (green("---"), args.dev))
 write("%s all-notebooks = %s" % (green("---"), args.all_notebooks))
 write("%s output-cells  = %s" % (green("---"), args.output_cells))
 write("%s log-file      = %s" % (green("---"), args.log_file.name))
@@ -281,9 +271,6 @@ def make_env():
     env = os.environ.copy()
     env['BOKEH_RESOURCES'] = 'relative'
     env['BOKEH_BROWSER'] = 'none'
-    if args.dev:
-        env['BOKEH_RESOURCES'] += '-dev'
-        env['BOKEH_PRETTY'] = 'yes'
     return env
 
 class Timeout(Exception):
@@ -460,9 +447,6 @@ def test_example(example, flags):
 def start_bokeh_server():
     cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
     argv = ["--bokeh-port=%s" % args.bokeh_port, "--backend=memory"]
-
-    if args.dev:
-        argv.extend(["--splitjs", "--debugjs", "--filter-logs"])
 
     try:
         proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)

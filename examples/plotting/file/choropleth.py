@@ -1,5 +1,5 @@
 from bokeh.sampledata import us_states, us_counties, unemployment
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 
 us_states = us_states.data.copy()
 us_counties = us_counties.data.copy()

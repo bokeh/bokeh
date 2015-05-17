@@ -273,7 +273,7 @@ class Session(object):
             data (pd.DataFrame or np.array) : data to upload
 
         Returns:
-            source : ServerDataSource
+            a ServerDataSource
 
         """
         raise NotImplementedError
@@ -626,7 +626,7 @@ class Session(object):
             obj (PlotObject) : object to render
 
         Returns:
-            url : str
+            URL string
 
         """
         link = "bokeh/doc/%s/%s" % (self.docid, obj._id)

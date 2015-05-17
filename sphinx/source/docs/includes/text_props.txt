@@ -1,32 +1,35 @@
-.. note:: There is currently only support for filling text. An interface to stroke the outlines of text have not yet been exposed.
 
-* ``text_font`` - font name, e.g., ``'times'``, ``'helvetica'``
-* ``text_font_size`` - font size in *px*, *em*, or *pt*, e.g., ``'12pt'``, ``'1.5em'``
-* ``text_font_style``
+``text_font``
+    font name, e.g., ``'times'``, ``'helvetica'``
 
-  - ``'normal'`` normal text
-  - ``'italic'`` *italic text*
-  - ``'bold'`` **bold text**
+``text_font_size``
+    font size in *px*, *em*, or *pt*, e.g., ``'12pt'``, ``'1.5em'``
 
-* ``text_color`` - color to use to render text with
+``text_font_style``
+    font style to use
 
-  - any of the `147 named CSS colors <http://www.w3schools.com/cssref/css_colornames.asp>`_, e.g ``'green'``, ``'indigo'``
-  - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-  - a 3-tuple of integers (r,g,b) between 0 and 255
-  - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
+    - ``'normal'`` normal text
+    - ``'italic'`` *italic text*
+    - ``'bold'`` **bold text**
 
-* ``text_alpha``- floating point between 0 (transparent) and 1 (opaque)
-* ``text_align`` - horizontal anchor point for text
+``text_color``
+    color to use to render text with
 
-  - ``'left'``
-  - ``'right'``
-  - ``'center'``
+``text_alpha``
+    floating point between 0 (transparent) and 1 (opaque)
 
-* ``text_baseline`` - vertical anchor point for text
+``text_align``
+     horizontal anchor point for text: ``'left'``, ``'right'``, ``'center'``
 
-  - ``'top'``
-  - ``'middle'``
-  - ``'bottom'``
-  - ``'alphabetic'``
-  - ``'hanging'``
+``text_baseline``
+    vertical anchor point for text
 
+    - ``'top'``
+    - ``'middle'``
+    - ``'bottom'``
+    - ``'alphabetic'``
+    - ``'hanging'``
+
+.. note::
+    There is currently only support for filling text. An interface to stroke
+    the outlines of text has not yet been exposed.

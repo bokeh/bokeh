@@ -1,0 +1,13 @@
+0.9.0 (May 2015)
+================
+
+This release was focused into allow sophisticated interactions in static plots
+using a new Callback Action, a complete rewrite of the User guide and big
+BokehJS refactoring switching to use broswerify.
+
+* Callback Action, serverless interactivity in static plots
+* Hover inspection along lines
+* Client side LOD downsampling for interactive tools
+* Full User guide rewrite
+* Reduce BokehJS boilerplate and switch to use browserify
+* Several example bugfixes

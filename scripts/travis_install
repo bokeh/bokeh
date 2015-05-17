@@ -15,8 +15,7 @@ rm -rf $MINICONDA.sh
 python -V
 
 PINNED_PKGS=$(cat <<EOF
-conda-build <1.10.1
-scipy <0.15.0
+binstar ==0.10.1
 EOF
 )
 echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
@@ -28,7 +27,7 @@ conda config --add channels bokeh
 conda config --add channels javascript   # TODO: move packages to bokeh?
 conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
 
-CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
+CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet conda.recipe
 conda install --use-local --yes bokeh
 
 DEPS_TEST=$(cat <<EOF | python -

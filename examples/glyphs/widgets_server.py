@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import time
-
 from datetime import date
 from random import randint
 
@@ -13,7 +11,9 @@ from bokeh.models import (
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
-from bokeh.models.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable, DateEditor, DateFormatter, IntEditor
+from bokeh.models.widgets import (
+    VBox, Button, TableColumn, DataTable,
+    DateEditor, DateFormatter, IntEditor)
 
 document = Document()
 session = Session()

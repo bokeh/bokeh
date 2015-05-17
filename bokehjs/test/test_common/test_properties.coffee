@@ -138,7 +138,7 @@ describe "properties module", ->
 
       it "should convert degrees to radians and flip sign", ->
         prop = new Properties.Angle({obj: generate_obj({a: 1, a_units: "deg"}), attr: 'a'})
-        expect(prop.transform [1, 2, 3]).to.be.deep.equal new Float64Array [-Math.pi/180.0, -2*Math.pi/180.0, -3*Math.pi/180.0]
+        expect(prop.transform [1, 2, 3]).to.be.deep.equal new Float64Array [-Math.PI/180.0, -2*Math.PI/180.0, -3*Math.PI/180.0]
 
       it "should pass radians with sign flipped", ->
         prop = new Properties.Angle({obj: generate_obj({a: 1, a_units: "rad"}), attr: 'a'})

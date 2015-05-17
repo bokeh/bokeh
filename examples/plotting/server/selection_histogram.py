@@ -48,7 +48,8 @@ hhist, hedges = np.histogram(x, bins=20)
 hzeros = np.zeros(len(hedges)-1)
 hmax = max(hhist)*1.1
 
-ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range, y_range=(-hmax, hmax), title=None, min_border=10, min_border_left=50)
+ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range,
+            y_range=(-hmax, hmax), title=None, min_border=10, min_border_left=50)
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hhist, color="white", line_color="#3A5785")
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785", alpha=0.5, line_color=None, name="hhist")
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785", alpha=0.1, line_color=None, name="hhist2")
@@ -65,7 +66,8 @@ vmax = max(vhist)*1.1
 # need to adjust for toolbar height, unfortunately
 th = 42
 
-pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height+th-10, x_range=(-vmax, vmax), y_range=p.y_range, title=None, min_border=10, min_border_top=th)
+pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height+th-10, x_range=(-vmax, vmax),
+            y_range=p.y_range, title=None, min_border=10, min_border_top=th)
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", line_color="#3A5785")
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785", alpha=0.5, line_color=None, name="vhist")
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785", alpha=0.1, line_color=None, name="vhist2")

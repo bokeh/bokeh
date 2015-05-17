@@ -119,7 +119,7 @@ Maintaining secure variables in .travis.yml
 
 *To be added:*
 
-* interactions with travis-ci from CLI (gem install --user-instal travis)
+* interactions with travis-ci from CLI (gem install --user-install travis)
 * how to update secure values in .travis.yml (S3, flowdock)
 
 Browser caching
