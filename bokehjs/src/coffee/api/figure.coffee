@@ -1,238 +1,238 @@
-define [
-  "common/base"
-  "common/logging"
-  "range/factor_range"
-  "range/range1d"
-  "source/column_data_source"
-  "./helpers"
-], (base, Logging, FactorRange, Range1d, ColumnDataSource) ->
+base = require "../common/base"
+Logging = require "../common/logging"
+FactorRange = require "../range/factor_range"
+Range1d = require "../range/range1d"
+ColumnDataSource = require "../source/column_data_source"
+helpers = "./helpers"
 
-  Collections = base.Collections
-  logger = Logging.logger
+Collections = base.Collections
+logger = Logging.logger
 
-  _get_num_minor_ticks = (axis_type, num_minor_ticks) ->
-    if not num_minor_ticks?
-      return 0
-
-    if _.isNumber(num_minor_ticks)
-      if num_minor_ticks <= 1
-        logger.error("num_minor_ticks must be > 1")
-        num_minor_ticks = 0
-      return num_minor_ticks
-
-    if num_minor_ticks == 'auto'
-      if axis_type? == "Log"
-        return 10
-      return 5
-
-    logger.error("unrecognized num_minor_ticks: #{num_minor_ticks}")
+_get_num_minor_ticks = (axis_type, num_minor_ticks) ->
+  if not num_minor_ticks?
     return 0
 
-  _get_axis_type = (axis_type, range) ->
-    if not axis_type?
-      return null
+  if _.isNumber(num_minor_ticks)
+    if num_minor_ticks <= 1
+      logger.error("num_minor_ticks must be > 1")
+      num_minor_ticks = 0
+    return num_minor_ticks
 
-    if axis_type == "auto"
-      if range instanceof FactorRange.Model
-        return Collections("CategoricalAxis")
+  if num_minor_ticks == 'auto'
+    if axis_type? == "Log"
+      return 10
+    return 5
 
-      else if range instanceof Range1d.Model
-        try
-          new Date.parse(range.get('start'))
-          return Collections("DatetimeAxis")
-        catch e
-          "pass"
+  logger.error("unrecognized num_minor_ticks: #{num_minor_ticks}")
+  return 0
 
-        return Collections("LinearAxis")
-
-    try
-      return Collections(axis_type + "Axis")
-    catch e
-      logger.error("unrecognized axis_type: #{axis_type}")
-      return null
-
-  _get_range = (range) ->
-    if not range?
-      return Collections("DataRange1d").create()
-
-    # TODO: (bev) accept existing ranges
-    # if range instanceof Range.Model
-    #   return range
-
-    if _.isArray(range)
-      if _.every(range, _.isString)
-        return Collections("FactorRange").create(factors: range)
-
-      if range.length == 2 and _.every(range, _.isNumber)
-        return Collections("Range1d").create({start: range[0], end: range[1]})
-
-    logger.error("Unrecognized range input: #{range.toJSON}")
+_get_axis_type = (axis_type, range) ->
+  if not axis_type?
     return null
 
-  _get_sources = (sources, glyph_source) ->
-    if glyph_source instanceof ColumnDataSource.Model
-      return glyph_source
+  if axis_type == "auto"
+    if range instanceof FactorRange.Model
+      return Collections("CategoricalAxis")
 
-    if _.isString(glyph_source)
-      return sources[glyph_source]
-
-    return Collections("ColumnDataSource").create({data: glyph_source})
-
-  _process_annotations = (annotations) ->
-    annotation_objs = []
-
-    return annotation_objs
-
-  _process_tools = (tools) ->
-    tool_objs = []
-
-    for tool in tools
-      if _.isString(tool)
-        tool_type = tool + "Tool"
-        tool_args = {}
-      else
-        tool_type = tool.type + "Tool"
-        tool_args = _.omit(tool, "type")
+    else if range instanceof Range1d.Model
       try
-        tool_obj = Collections(tool_type).create(tool_args)
-        tool_objs.push(tool_obj)
+        new Date.parse(range.get('start'))
+        return Collections("DatetimeAxis")
       catch e
-        logger.error("unrecognized tool: #{tool}")
+        "pass"
 
-    return tool_objs
+      return Collections("LinearAxis")
 
-  _process_glyphs = (glyphs, sources) ->
-    renderers = []
+  try
+    return Collections(axis_type + "Axis")
+  catch e
+    logger.error("unrecognized axis_type: #{axis_type}")
+    return null
 
-    for glyph in glyphs
+_get_range = (range) ->
+  if not range?
+    return Collections("DataRange1d").create()
 
-      glyph_type = glyph.type
+  # TODO: (bev) accept existing ranges
+  # if range instanceof Range.Model
+  #   return range
 
-      source = _get_sources(sources, glyph.source)
+  if _.isArray(range)
+    if _.every(range, _.isString)
+      return Collections("FactorRange").create(factors: range)
 
-      glyph_args = _.omit(glyph, 'source', 'selection', 'inspection', 'nonselection')
-      glyph_obj = Collections(glyph_type).create(glyph_args)
+    if range.length == 2 and _.every(range, _.isNumber)
+      return Collections("Range1d").create({start: range[0], end: range[1]})
 
-      renderer_args = {
-        data_source: source
-        glyph: glyph_obj
-      }
+  logger.error("Unrecognized range input: #{range.toJSON}")
+  return null
 
-      for x in ['selection', 'inspection', 'nonselection']
-        if glyph[x]?
-          # TODO: (bev) accept existing glyphs
-          # TODO: (bev) accept glyph mod functions
-          if glyph[x].type?
-            x_args = _.omit(glyph[x], 'type')
-            x_obj = Collections(glyph[x].type).create(x_args)
-          else
-            x_obj = _.clone(glyph_obj)
-            x_obj.set(glyph[x])
-          renderer_args[x] = x_obj
+_get_sources = (sources, glyph_source) ->
+  if glyph_source instanceof ColumnDataSource.Model
+    return glyph_source
 
-      renderer = Collections("GlyphRenderer").create(renderer_args)
+  if _.isString(glyph_source)
+    return sources[glyph_source]
 
-      renderers.push(renderer)
+  return Collections("ColumnDataSource").create({data: glyph_source})
 
-    return renderers
+_process_annotations = (annotations) ->
+  annotation_objs = []
 
-  _process_guides = (guides, plot) ->
-    guide_objs = []
+  return annotation_objs
 
-    for guide in guides
+_process_tools = (tools) ->
+  tool_objs = []
 
-      location = guide.location
-      if location == "below" or location == "above"
-        dim = 0
-        range = plot.get('x_range')
-      else if location == "left" or location == "right"
-        dim = 1
-        range = plot.get('y_range')
-      else
-        logger.error("unrecognized axis location: #{location}")
-        continue
+  for tool in tools
+    if _.isString(tool)
+      tool_type = tool + "Tool"
+      tool_args = {}
+    else
+      tool_type = tool.type + "Tool"
+      tool_args = _.omit(tool, "type")
+    try
+      tool_obj = Collections(tool_type).create(tool_args)
+      tool_objs.push(tool_obj)
+    catch e
+      logger.error("unrecognized tool: #{tool}")
 
-      axis_type = _get_axis_type(guide.type, range)
+  return tool_objs
 
-      axis_args = _.omit(guide, 'type', 'grid')
-      axis_args['plot'] = plot
-      axis = axis_type.create(axis_args)
+_process_glyphs = (glyphs, sources) ->
+  renderers = []
 
-      guide_objs.push(axis)
+  for glyph in glyphs
 
-      if guide.grid == true
-        grid = Collections("Grid").create(
-          dimension: dim
-          plot: plot
-          ticker: axis.get('ticker')
-        )
-        guide_objs.push(grid)
+    glyph_type = glyph.type
 
-    return guide_objs
+    source = _get_sources(sources, glyph.source)
 
-  make_plot = (options) ->
+    glyph_args = _.omit(glyph, 'source', 'selection', 'inspection', 'nonselection')
+    glyph_obj = Collections(glyph_type).create(glyph_args)
 
-    # handle shared ranges
-    options.x_range = _get_range(options.x_range)
-    options.y_range = _get_range(options.y_range)
+    renderer_args = {
+      data_source: source
+      glyph: glyph_obj
+    }
 
-    plot = Collections('Plot').create(options)
+    for x in ['selection', 'inspection', 'nonselection']
+      if glyph[x]?
+        # TODO: (bev) accept existing glyphs
+        # TODO: (bev) accept glyph mod functions
+        if glyph[x].type?
+          x_args = _.omit(glyph[x], 'type')
+          x_obj = Collections(glyph[x].type).create(x_args)
+        else
+          x_obj = _.clone(glyph_obj)
+          x_obj.set(glyph[x])
+        renderer_args[x] = x_obj
 
-    return plot
+    renderer = Collections("GlyphRenderer").create(renderer_args)
 
-  make_sources = (data) ->
-    source_objs = {}
+    renderers.push(renderer)
 
-    for key, value of data
-      source_objs[key] = Collections("ColumnDataSource").create({data: value})
+  return renderers
 
-    return source_objs
+_process_guides = (guides, plot) ->
+  guide_objs = []
 
-  add_glyphs = (plot, sources, glyphs) ->
-    glyphs = _process_glyphs(glyphs, sources)
-    plot.add_renderers(glyphs)
+  for guide in guides
 
-  add_guides = (plot, guides) ->
-    guides = _process_guides(guides, plot)
+    location = guide.location
+    if location == "below" or location == "above"
+      dim = 0
+      range = plot.get('x_range')
+    else if location == "left" or location == "right"
+      dim = 1
+      range = plot.get('y_range')
+    else
+      logger.error("unrecognized axis location: #{location}")
+      continue
 
-    for guide in guides
-      location = guide.get('location')
-      if location?
-        loc = plot.get(location)
-        loc.push(guide)
-        plot.set(location, loc)
+    axis_type = _get_axis_type(guide.type, range)
 
-    plot.add_renderers(guides)
+    axis_args = _.omit(guide, 'type', 'grid')
+    axis_args['plot'] = plot
+    axis = axis_type.create(axis_args)
 
-  add_annotations = (plot, annotations) ->
-    annotations = _process_annotations(annotations)
-    plot.add_renderers(annotations)
+    guide_objs.push(axis)
 
-  add_tools = (plot, tools) ->
-    tools = _process_tools(tools, plot)
-    for tool in tools
-      tool.set('plot', plot)
-    plot.set_obj('tools', tools)
+    if guide.grid == true
+      grid = Collections("Grid").create(
+        dimension: dim
+        plot: plot
+        ticker: axis.get('ticker')
+      )
+      guide_objs.push(grid)
 
-    # TODO: (bev) these should happen automatically
-    plot.get('tool_manager').set_obj('tools', tools)
-    plot.get('tool_manager')._init_tools()
+  return guide_objs
 
-  figure = ({options, sources, glyphs, guides, annotations, tools}) ->
-    options ?= {}
-    sources ?= {}
-    glyphs ?= []
-    guides ?= []
-    annotations ?= {}
-    tools ?= []
+make_plot = (options) ->
 
-    plot = make_plot(options)
+  # handle shared ranges
+  options.x_range = _get_range(options.x_range)
+  options.y_range = _get_range(options.y_range)
 
-    sources = make_sources(sources)
+  plot = Collections('Plot').create(options)
 
-    add_glyphs(plot, sources, glyphs)
-    add_guides(plot, guides)
-    add_annotations(plot, annotations)
-    add_tools(plot, tools)
+  return plot
 
-    return plot
+make_sources = (data) ->
+  source_objs = {}
+
+  for key, value of data
+    source_objs[key] = Collections("ColumnDataSource").create({data: value})
+
+  return source_objs
+
+add_glyphs = (plot, sources, glyphs) ->
+  glyphs = _process_glyphs(glyphs, sources)
+  plot.add_renderers(glyphs)
+
+add_guides = (plot, guides) ->
+  guides = _process_guides(guides, plot)
+
+  for guide in guides
+    location = guide.get('location')
+    if location?
+      loc = plot.get(location)
+      loc.push(guide)
+      plot.set(location, loc)
+
+  plot.add_renderers(guides)
+
+add_annotations = (plot, annotations) ->
+  annotations = _process_annotations(annotations)
+  plot.add_renderers(annotations)
+
+add_tools = (plot, tools) ->
+  tools = _process_tools(tools, plot)
+  for tool in tools
+    tool.set('plot', plot)
+  plot.set_obj('tools', tools)
+
+  # TODO: (bev) these should happen automatically
+  plot.get('tool_manager').set_obj('tools', tools)
+  plot.get('tool_manager')._init_tools()
+
+figure = ({options, sources, glyphs, guides, annotations, tools}) ->
+  options ?= {}
+  sources ?= {}
+  glyphs ?= []
+  guides ?= []
+  annotations ?= {}
+  tools ?= []
+
+  plot = make_plot(options)
+
+  sources = make_sources(sources)
+
+  add_glyphs(plot, sources, glyphs)
+  add_guides(plot, guides)
+  add_annotations(plot, annotations)
+  add_tools(plot, tools)
+
+  return plot
+
+module.exports = figure

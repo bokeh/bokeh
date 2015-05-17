@@ -1,4 +1,3 @@
-define(function() {
 /*==========================================================================*
   Filename: gearUtils-04.js
   By: Dr A.R.Collins
@@ -434,5 +433,7 @@ createIntGearTooth = function(module, teeth, pressureAngle)
 
 }());
 
-return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createIntGearTooth };
-});
+module.exports = {
+  create_gear_tooth: createGearTooth,
+  create_internal_gear_tooth: createIntGearTooth
+};

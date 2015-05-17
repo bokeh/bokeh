@@ -1,10 +1,8 @@
+_ = require "underscore"
+Backbone = require "backbone"
+ColumnDataSource = require "./column_data_source"
 
-define [
-  "backbone"
-  "underscore"
-  "./column_data_source"
-], (Backbone, _, ColumnDataSource) ->
+class RemoteDataSource extends ColumnDataSource.Model
 
-  class RemoteDataSource extends ColumnDataSource.Model
-
-  return {'RemoteDataSource' : RemoteDataSource}
+module.exports =
+  RemoteDataSource: RemoteDataSource

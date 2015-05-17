@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import time
 from math import pi
 
 from bokeh.browserlib import view
@@ -32,8 +31,8 @@ locations = sorted(df.Location.unique())
 source_pyramid = ColumnDataSource(data=dict())
 
 def pyramid():
-    xdr = DataRange1d(sources=[source_pyramid.columns("male"), source_pyramid.columns("female")])
-    ydr = DataRange1d(sources=[source_pyramid.columns("groups")])
+    xdr = DataRange1d()
+    ydr = DataRange1d()
 
     plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
@@ -60,7 +59,7 @@ source_predicted = ColumnDataSource(data=dict(x=[], y=[]))
 
 def population():
     xdr = FactorRange(factors=years)
-    ydr = DataRange1d(sources=[source_known.columns("y"), source_predicted.columns("y")])
+    ydr = DataRange1d()
 
     plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
 

@@ -6,7 +6,6 @@ Sphinx must be installed. Additionally, we use the Sphinx
 bootstrap theme:
 
     $ pip install sphinx-bootstrap-theme
-    $ pip install sphinxcontrib-napoleon
     $ pip install sphinxcontrib-httpdomain
 
 To build the gallery, ggplot and seaborn are also needed:

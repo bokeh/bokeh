@@ -13,6 +13,7 @@ these different cases.
 
 from __future__ import absolute_import
 
+from warnings import warn
 import uuid
 
 from .protocol import serialize_json
@@ -23,7 +24,14 @@ from .templates import (
 )
 from .util.string import encode_utf8
 
-def components(plot_object, resources):
+
+def _wrap_in_function(code):
+    # Indent and wrap Bokeh function def around
+    code = "\n".join([ "    " + line for line in code.split("\n") ])
+    return 'Bokeh.$(function() {\n%s\n});' % code
+
+
+def components(plot_object, resources=None):
     ''' Return HTML components to embed a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -34,15 +42,20 @@ def components(plot_object, resources):
     Args:
         plot_object (PlotObject) : Bokeh object to render
             typically a Plot or PlotContext
-        resources (Resources, optional) : BokehJS resources config
-
+        resources : Deprecated argument
     Returns:
         (script, div) : UTF-8 encoded
 
     '''
+    
+    if resources is not None:
+        warn('Because the ``resources`` argument is no longer needed, '
+             'is it deprecated and will be removed in'
+             'a future version.', DeprecationWarning, stacklevel=2)
+    
     ref = plot_object.ref
     elementid = str(uuid.uuid4())
-
+    
     js = PLOT_JS.render(
         elementid = elementid,
         modelid = ref["id"],
@@ -50,7 +63,7 @@ def components(plot_object, resources):
         all_models = serialize_json(plot_object.dump()),
     )
     script = PLOT_SCRIPT.render(
-        plot_js = resources.js_wrapper(js),
+        plot_js = _wrap_in_function(js),
     )
     div = PLOT_DIV.render(elementid=elementid)
 
@@ -75,7 +88,6 @@ def notebook_div(plot_object):
 
     '''
     ref = plot_object.ref
-    resources = Resources()
     elementid = str(uuid.uuid4())
 
     js = PLOT_JS.render(
@@ -85,7 +97,7 @@ def notebook_div(plot_object):
         all_models = serialize_json(plot_object.dump()),
     )
     script = PLOT_SCRIPT.render(
-        plot_js = resources.js_wrapper(js),
+        plot_js = _wrap_in_function(js),
     )
     div = PLOT_DIV.render(elementid=elementid)
     html = NOTEBOOK_DIV.render(
@@ -119,7 +131,7 @@ def file_html(plot_object, resources, title, template=FILE):
         js_files = resources.js_files,
         css_files = resources.css_files,
     )
-    script, div = components(plot_object, resources)
+    script, div = components(plot_object)
     html = template.render(
         title = title,
         plot_resources = plot_resources,
@@ -183,7 +195,7 @@ def autoload_server(plot_object, session, public=False):
 
     Args:
         plot_object (PlotObject) :
-        session (session) :
+        session (Session) :
 
     Returns:
         tag :

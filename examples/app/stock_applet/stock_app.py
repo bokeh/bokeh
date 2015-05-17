@@ -140,7 +140,7 @@ class StockApp(VBox):
     @property
     def selected_df(self):
         pandas_df = self.df
-        selected = self.source.selected
+        selected = self.source.selected['1d']['indices']
         if selected:
             pandas_df = pandas_df.iloc[selected, :]
         return pandas_df

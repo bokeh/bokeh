@@ -8,11 +8,10 @@ import re
 import difflib
 from six import string_types
 
-from .models import glyphs
 from .models import (
-    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
+    BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, RemoteSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
-    FactorRange, Grid, HoverTool, LassoSelectTool, Legend, LinearAxis,
+    FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
     WheelZoomTool)
@@ -91,87 +90,33 @@ def _match_data_params(argnames, glyphclass, datasource,
         val = attributes[var]
 
         if var.endswith("_units") and var[:-6] in dataspecs:
-            dspec = var[:-6]
-            if dspec not in glyph_params:
-                raise RuntimeError("Cannot set units on undefined field '%s'" % dspec)
-            curval = glyph_params[dspec]
-            if not isinstance(curval, dict):
-                # TODO: This assumes that string values are fields; this is invalid
-                # for ColorSpecs, but all this logic is to handle dataspec units, and
-                # ColorSpecs do not have units.  However, if there are other kinds of
-                # DataSpecs that do have string constants, then we will need to fix
-                # this up to have smarter detection of field names.
-                if isinstance(curval, string_types):
-                    glyph_params[dspec] = {"field": curval, "units": val}
-                else:
-                    glyph_params[dspec] = {"value": curval, "units": val}
-            else:
-                glyph_params[dspec]["units"] = val
-            continue
-
-        if isinstance(val, dict) or isinstance(val, Number):
+            glyph_val = val
+        elif isinstance(val, dict) or isinstance(val, Number):
             glyph_val = val
         elif isinstance(dataspecs.get(var, None), ColorSpec) and (ColorSpec.isconst(val) or val is None):
             # This check for color constants needs to happen relatively early on because
             # both strings and certain iterables are valid colors.
             glyph_val = val
         elif isinstance(val, string_types):
-            if glyphclass == glyphs.Text: # XXX: issubclass()
-                # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
-                glyph_val = [val]
-            elif not isinstance(datasource, RemoteSource) and val not in datasource.column_names:
+            if not isinstance(datasource, RemoteSource) and val not in datasource.column_names:
                 raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
             else:
                 if val not in datasource.column_names:
                     datasource.column_names.append(val)
                     datasource.data[val] = []
-                units = getattr(dataspecs[var], 'units', 'data')
-                glyph_val = {'field' : val, 'units' : units}
+                glyph_val = {'field' : val}
         elif isinstance(val, np.ndarray):
             if val.ndim != 1:
                 raise RuntimeError("Columns need to be 1D (%s is not)" % var)
             datasource.add(val, name=var)
-            units = getattr(dataspecs[var], 'units', 'data')
-            glyph_val = {'field' : var, 'units' : units}
+            glyph_val = {'field' : var}
         elif isinstance(val, Iterable):
             datasource.add(val, name=var)
-            units = getattr(dataspecs[var], 'units', 'data')
-            glyph_val = {'field' : var, 'units' : units}
+            glyph_val = {'field' : var}
         else:
             raise RuntimeError("Unexpected column type: %s" % type(val))
         glyph_params[var] = glyph_val
     return glyph_params
-
-def _update_plot_data_ranges(plot, datasource, xcols, ycols):
-    """
-    Parameters
-    ----------
-    plot : plot
-    datasource : datasource
-    xcols : names of columns that are in the X axis
-    ycols : names of columns that are in the Y axis
-    """
-    if isinstance(plot.x_range, DataRange1d):
-        x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
-        if len(x_column_ref) > 0:
-            x_column_ref = x_column_ref[0]
-            for cname in xcols:
-                if cname not in x_column_ref.columns:
-                    x_column_ref.columns.append(cname)
-        else:
-            plot.x_range.sources.append(datasource.columns(*xcols))
-        plot.x_range._dirty = True
-
-    if isinstance(plot.y_range, DataRange1d):
-        y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
-        if len(y_column_ref) > 0:
-            y_column_ref = y_column_ref[0]
-            for cname in ycols:
-                if cname not in y_column_ref.columns:
-                    y_column_ref.columns.append(cname)
-        else:
-            plot.y_range.sources.append(datasource.columns(*ycols))
-        plot.y_range._dirty = True
 
 def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
     """
@@ -297,6 +242,7 @@ _known_tools = {
     ]),
     "previewsave": lambda: PreviewSaveTool(),
     "reset": lambda: ResetTool(),
+    "help": lambda: HelpTool(),
 }
 
 def _tool_from_string(name):
@@ -392,7 +338,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
-        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker); xgrid
         if x_axis_location == "above":
             plot.above.append(xaxis)
         elif x_axis_location == "below":
@@ -407,7 +353,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:
             yaxis.axis_label = axis_label
-        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker); ygrid
         if y_axis_location == "left":
             plot.left.append(yaxis)
         elif y_axis_location == "right":

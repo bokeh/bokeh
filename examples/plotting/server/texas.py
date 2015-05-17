@@ -4,7 +4,7 @@
 from collections import OrderedDict
 
 from bokeh.sampledata import us_counties, unemployment
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server
 from bokeh.models import HoverTool
 
 county_xs=[
@@ -40,7 +40,7 @@ p.patches(county_xs, county_ys,
     line_color="white", line_width=0.5)
 
 hover = p.select(dict(type=HoverTool))
-hover.snap_to_data = False
+hover.point_policy = "follow_mouse"
 hover.tooltips = OrderedDict([
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),

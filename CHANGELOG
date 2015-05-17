@@ -1,3 +1,134 @@
+2015-05-15    0.9.0:
+--------------------
+  * Callback Action, serverless interactivity in static plots
+  * Hover inspection along lines
+  * Client side LOD downsampling for interactive tools
+  * Full User guide rewrite
+  * Reduce BokehJS boilerplate and switch to use browserify
+  * Several example bugfixes
+  * bugfixes:
+    - #746 Grid without axis?
+    - #1479 Indicator of stacked hover tooltip has vertical offset
+    - #1599 Glyph renderer not masking data before rendering
+    - #2066 Angle property not working for square glyph
+    - #2095 Examples/glyphs/data_tables.ipynb error
+    - #2105 Release_update.sh is generating a superfluous "id" package 
+    - #2119 Simpleapp broken
+    - #2124 Stock_app_simple.py does not respond to 2. change on the dropdown field
+    - #2128 [examples] Simpleapp stock demo histograms not updating on selection
+    - #2130 [docs] Fixed typo in documentation
+    - #2134 Selections not working with nominal/categorical axis
+    - #2153 [docs] Fix typo, example has two css, one should be js
+    - #2158 [charts] Color cycles for bokeh charts
+    - #2180 Add shrinkwrap to lock to versions and upgrade jsdom
+    - #2217 [regression] Selection_histogram example broken after new hit_test redesign
+    - #2228 [docs] Update quickstart.rst
+    - #2231 [bokehjs] Multiselect broken
+    - #2233 [bokehjs] [regression] Vboxform broken
+    - #2238 Avoid layout breaking when simpleapp managing buttons
+    - #2246 [regression] Update datarange1d that wasn't updated on notebook after last api change
+    - #2253 Run binstar upload in the correct 'scripts' location
+    - #2256 Use another env variable is case of weird previous use of the i var
+    - #2258 Pin binstar until binstar build fix the platform path problem
+    - #2261 [docs] Fix two small typos
+    - #2262 [bokehjs] Direction is not being passed to draw_legend in annular wedge, arc, and wedge
+    - #2269 [bokehjs] [regression] Hbox/hplot broken
+    - #2278 Examples failures
+    - #2280 [docs] Doc: grammar fix for intro to models
+  * features:
+    - #351 Cycle colors for plots
+    - #1486 Add line hit testing and hover inspection along lines
+    - #1517 Change datarange objects to query renderers for preferred bounds
+    - #1519 [starter] Add simple lod downsampling on the client side
+    - #2098 Decimal.decimal cannot be sent across session
+    - #2112 Remove as much of src/vendor as is practical
+    - #2137 Move data sources on to glyphrenderers
+    - #2140 [bokehjs] [build] Streamline bokehjs build in develop mode
+    - #2151 [docs] Add cdn links in embedding docs
+    - #2156 Add an option to remove the `help` button of the bokeh toolbar
+    - #2174 Simple callback action
+    - #2178 Add a "callback" to a source.selected event
+    - #2185 Allow users to specify a desired number of ticks
+    - #2207 [docs] User guide rewrite
+    - #2275 [examples] Initial commit of color_sliders.py
+  * tasks:
+    - #1751 Remove pinned packages
+    - #2038 [bokehjs] [build] What is the best way to develop bokehjs with incremental rebuilds?
+    - #2078 [tests] Use pyflakes
+    - #2087 Simplifying glyph units
+    - #2106 Setup.py build message improvements
+    - #2126 [examples] Update selection histogram example
+    - #2132 Reduce bokehjs boilerplate
+    - #2139 [docs] Updating exercises to match current master
+    - #2146 Automatic devel build only in py27 in the new travisci matrix
+    - #2168 Remove extraneous comma from unemployment csv
+    - #2196 Bokehjs install failing because dependencies source doesn't exist
+    - #2211 [bokehjs] [regression] Make relative dev work again
+    - #2224 Make a script to check for dev and docs dependencies
+    - #2237 [docs] Update readme.md
+    - #2241 [build] Obsolete protocole sslv3
+    - #2254 Revert "run binstar upload in the correct 'scripts' location"
+    - #2257 Follow-on for user guide
+    - #2285 Setup.py: note that this also works with `develop`
+    - #2296 Remove '*' imports from examples
+    - #2298 [tests] Add info in the warn message about some missing dependecies
+
+2015-03-25    0.8.2:
+--------------------
+  * Colect implicit interfaces into a single bokeh.io module
+  * Fixed notebook css issues
+  * Update notebooks to be compatible with IPython 3.0
+  * Easy bokeh applet generation using the simpleapp module
+  * Develop installation enhancements
+  * A new User guide intro and some other docs styling enhancements
+  * Some other minor examples bugfixes
+  * bugfixes:
+    - #1064 Invoking nosetests doesn't always work properly
+    - #1659 Explicit notebook display codes not working
+    - #1901 Charts xlabel and yabel defaults
+    - #1913 [build] Try to make y.y.yrc, not y.y.y.rc in dev build to avoid being listed above y.y.y release
+    - #1953 Develop installation fails: no such file or directory: '/usr/lib/python3.4/site-packages/bokeh.pth'
+    - #1956 [starter] Two instances of autoload_server??
+    - #1973 [starter] Logging.basicconfig should not be called by 'import bokeh'
+    - #1978 Restore glyph/trail.py (and fix the hover not working)
+    - #1983 Never use empty dict/list as default argument
+    - #1988 [starter] Use absolute_import throughout
+    - #1990 [bokehjs] Bokeh should use a private jquery
+    - #2001 [bokehjs] Map config not used for main.coffee it seems
+    - #2002 Check boxplot equation
+    - #2011 [docs] Fix grammar error
+    - #2024 [bokehjs] Ugly buttons when plotting inside notebook on firefox 36
+    - #2041 Load_notebook depends on utils.py which depends on flask
+    - #2048 [charts] Cannot seem to make x-values different than default in line
+    - #2063 [build] Fix dev fingerprint check on version
+    - #2067 [bokehjs] Spectrogram coffee needs recompile
+    - #2074 [docs] Typo in stock_applet docs for moving quantquote data
+  * features:
+    - #1218 Use production quality server for bokeh-server
+    - #1784 [starter] Automatically fill masked arrays when encoding
+    - #1797 Preliminary work to get bokehjs working in node.js
+    - #1881 Feature/simpleapp
+    - #1898 [bokehjs] Ajax realtime improvements
+    - #1998 [docs] Visual hierarchy on autogenerated docs could be clearer
+    - #2033 Is there any reason why p.select() shouldn't take **kwargs?
+    - #2062 [docs] Userguide intro and interfaces
+  * tasks:
+    - #1916 Collect implicit interfaces into a single module
+    - #1927 [docs] [examples] Bokeh-notebooks needs update to use the new plotting api
+    - #1936 Use _.isxxx(x) instead of typeof(x) == "xxx"
+    - #1949 [examples] [tests] Tests scripts enhancements
+    - #1961 [tests] Don't log intentional exceptions during tests
+    - #1966 Release 0.8.1
+    - #1970 Change default bokeh server backend to "memory"
+    - #2010 Deprecate vbox/hbox in plotting and charts
+    - #2017 [tests] Update tests/travis/nbexecuter to ipython 3
+    - #2023 [docs] Update/refresh installation guide and quick start
+    - #2043 [docs] Incorporate quickstart feedback
+    - #2047 Clean up __init__.py
+    - #2051 Simplify bokeh/__init__.py even more
+    - #2070 [docs] Minor style changes to interfaces docs
+    - #2073 [docs] User guide edits
+
 2015-02-23    0.8.1:
 --------------------
   * Fixed HoverTool

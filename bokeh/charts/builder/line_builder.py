@@ -46,7 +46,7 @@ def Line(values, index=None, **kws):
             or a pandas DataFrame)
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`
@@ -117,7 +117,7 @@ class LineBuilder(Builder):
         proper ranges.
         """
         self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[self._source.columns("x")])
+        self.x_range = DataRange1d()
 
         y_names = self._attr[1:]
         endy = max(max(self._data[i]) for i in y_names)

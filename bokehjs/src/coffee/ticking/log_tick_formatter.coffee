@@ -1,49 +1,38 @@
+_ = require "underscore"
+HasProperties = require "../common/has_properties"
+{logger} = require "../common/logging"
+BasicTickFormatter = require "./basic_tick_formatter"
 
-define [
-  "underscore",
-  "common/collection",
-  "common/has_properties",
-  "common/logging",
-  "ticking/basic_tick_formatter"
-], (_, Collection, HasProperties, Logging, BasicTickFormatter) ->
+class LogTickFormatter extends HasProperties
+  type: 'LogTickFormatter'
 
-  logger = Logging.logger
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @basic_formatter = new BasicTickFormatter.Model()
+    if not @get('ticker')?
+      logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
 
-  class LogTickFormatter extends HasProperties
-    type: 'LogTickFormatter'
+  format: (ticks) ->
+    if ticks.length == 0
+      return []
 
-    initialize: (attrs, options) ->
-      super(attrs, options)
-      @basic_formatter = new BasicTickFormatter.Model()
-      if not @get('ticker')?
-        logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
+    if @get('ticker')?
+      base = @get('ticker').get('base')
+    else
+      base = 10
 
-    format: (ticks) ->
-      if ticks.length == 0
-        return []
+    small_interval = false
+    labels = new Array(ticks.length)
+    for i in [0...ticks.length]
+      labels[i] = "#{base}^#{ Math.round(Math.log(ticks[i]) / Math.log(base)) }"
+      if (i > 0) and (labels[i] == labels[i-1])
+        small_interval = true
+        break
 
-      if @get('ticker')?
-        base = @get('ticker').get('base')
-      else
-        base = 10
+    if small_interval
+      labels = @basic_formatter.format(ticks)
 
-      small_interval = false
-      labels = new Array(ticks.length)
-      for i in [0...ticks.length]
-        labels[i] = "#{base}^#{ Math.round(Math.log(ticks[i]) / Math.log(base)) }"
-        if (i > 0) and (labels[i] == labels[i-1])
-          small_interval = true
-          break
+    return labels
 
-      if small_interval
-        labels = @basic_formatter.format(ticks)
-
-      return labels
-
-  class LogTickFormatters extends Collection
-    model: LogTickFormatter
-
-  return {
-    "Model": LogTickFormatter,
-    "Collection": new LogTickFormatters()
-  }
+module.exports =
+  Model: LogTickFormatter

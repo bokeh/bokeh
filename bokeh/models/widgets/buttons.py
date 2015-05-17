@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 from ...properties import Bool, Int, String, Enum, Instance, List, Tuple
 from ...enums import ButtonType
+from ..actions import Callback
 from ..widget import Widget
 from .icons import AbstractIcon
 
@@ -25,6 +26,10 @@ class AbstractButton(Widget):
 
     type = Enum(ButtonType, help="""
     A style for the button, signifying it's role.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the button is activated.
     """)
 
 class Button(AbstractButton):

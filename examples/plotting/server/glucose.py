@@ -4,7 +4,7 @@
 import pandas as pd
 
 from bokeh.sampledata.glucose import data
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server, vplot
 
 output_server("glucose")
 
@@ -51,4 +51,3 @@ p3.xaxis.axis_label = 'Date'
 p3.yaxis.axis_label = 'Proportion In-Range'
 
 show(vplot(p1,p2,p3))
-

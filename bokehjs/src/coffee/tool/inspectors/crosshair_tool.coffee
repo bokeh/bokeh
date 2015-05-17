@@ -1,70 +1,61 @@
+_ = require "underscore"
+Span = require "../../renderer/annotation/span"
+InspectTool = require "./inspect_tool"
 
-define [
-  "underscore"
-  "common/collection"
-  "renderer/annotation/span"
-  "./inspect_tool"
-], (_, Collection, Span, InspectTool) ->
+class CrosshairToolView extends InspectTool.View
 
-  class CrosshairToolView extends InspectTool.View
-
-    _move: (e) ->
-      if not @mget('active')
-        return
-      frame = @plot_model.get('frame')
-      canvas = @plot_model.get('canvas')
-      vx = canvas.sx_to_vx(e.bokeh.sx)
-      vy = canvas.sy_to_vy(e.bokeh.sy)
-      for dim in @mget('dimensions')
-        span = @mget('spans')[dim]
-        if not frame.contains(vx, vy)
-          span.unset('location')
-        else
-          if dim == "width"
-            span.set('location', vy)
-          else
-            span.set('location', vx)
-
-    _move_exit: (e)->
-      for dim in @mget('dimensions')
-        span = @mget('spans')[dim]
+  _move: (e) ->
+    if not @mget('active')
+      return
+    frame = @plot_model.get('frame')
+    canvas = @plot_model.get('canvas')
+    vx = canvas.sx_to_vx(e.bokeh.sx)
+    vy = canvas.sy_to_vy(e.bokeh.sy)
+    for dim in @mget('dimensions')
+      span = @mget('spans')[dim]
+      if not frame.contains(vx, vy)
         span.unset('location')
+      else
+        if dim == "width"
+          span.set('location', vy)
+        else
+          span.set('location', vx)
 
-  class CrosshairTool extends InspectTool.Model
-    default_view: CrosshairToolView
-    type: "CrosshairTool"
-    tool_name: "Crosshair"
+  _move_exit: (e)->
+    for dim in @mget('dimensions')
+      span = @mget('spans')[dim]
+      span.unset('location')
 
-    initialize: (attrs, options) ->
-      super(attrs, options)
+class CrosshairTool extends InspectTool.Model
+  default_view: CrosshairToolView
+  type: "CrosshairTool"
+  tool_name: "Crosshair"
 
-      @register_property('tooltip', () ->
-          @_get_dim_tooltip(
-            "Crosshair",
-            @_check_dims(@get('dimensions'), "crosshair tool")
-          )
-        , false)
-      @add_dependencies('tooltip', this, ['dimensions'])
+  initialize: (attrs, options) ->
+    super(attrs, options)
 
-      @set('spans', {
-        width: new Span.Model({dimension: "width"}),
-        height: new Span.Model({dimension: "height"})
-      })
-      renderers = @get('plot').get('renderers')
-      renderers.push(@get('spans').width)
-      renderers.push(@get('spans').height)
-      @get('plot').set('renderers', renderers)
+    @register_property('tooltip', () ->
+        @_get_dim_tooltip(
+          "Crosshair",
+          @_check_dims(@get('dimensions'), "crosshair tool")
+        )
+      , false)
+    @add_dependencies('tooltip', this, ['dimensions'])
 
-    defaults: () ->
-      return _.extend({}, super(), {
-        dimensions: ["width", "height"]
-      })
+    @set('spans', {
+      width: new Span.Model({dimension: "width"}),
+      height: new Span.Model({dimension: "height"})
+    })
+    renderers = @get('plot').get('renderers')
+    renderers.push(@get('spans').width)
+    renderers.push(@get('spans').height)
+    @get('plot').set('renderers', renderers)
 
-  class CrosshairTools extends Collection
-    model: CrosshairTool
+  defaults: () ->
+    return _.extend({}, super(), {
+      dimensions: ["width", "height"]
+    })
 
-  return {
-    "Model": CrosshairTool
-    "Collection": new CrosshairTools(),
-    "View": CrosshairToolView
-  }
+module.exports =
+  Model: CrosshairTool
+  View: CrosshairToolView

@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from .glyphs import Glyph
 from ..enums import enumeration
 from ..mixins import FillProps, LineProps
-from ..properties import DataSpec, Enum, Include
+from ..properties import DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
 
 class Marker(Glyph):
     """ Base class for glyphs that are simple markers with line and
@@ -22,17 +22,21 @@ class Marker(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-axis coordinates for the center of the markers.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-axis coordinates for the center of the markers.
     """)
 
-    size = DataSpec(units="screen", min_value=0, default=4, help="""
+    size = ScreenDistanceSpec(default=4, help="""
     The size (diameter) values for the markers. Interpreted as
     "screen space" units by default.
+    """)
+
+    angle = NumberSpec("angle", help="""
+    The angles to rotate the markers.
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
@@ -69,7 +73,7 @@ class Circle(Marker):
 
     """
 
-    radius = DataSpec(units="data", min_value=0, default=None, help="""
+    radius = DistanceSpec("radius", help="""
     The radius values for circle markers. Interpreted in
     "data space" units by default.
 
@@ -187,10 +191,6 @@ class Square(Marker):
     *source:* ``tests/glyphs/Square.py``
 
     """
-
-    angle = DataSpec("angle", help="""
-    The angles (in radians) to rotate square markers.
-    """)
 
 class SquareCross(Marker):
     """ Render square markers with a '+' cross through the center.

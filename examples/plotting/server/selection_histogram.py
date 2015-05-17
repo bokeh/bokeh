@@ -8,11 +8,24 @@ from bokeh.plotting import (
     curdoc, cursession, figure, output_server, show, hplot, vplot
 )
 
-N = 5000
+# create three normal population samples with different parameters
+N1 = 2000
+N2 = 5000
+N3 = 1000
 
-x = np.random.normal(size=N) * 100
-y = np.random.normal(size=N) * 100
-all_inds = np.arange(len(x))
+x1 = np.random.normal(loc=5.0, size=N1) * 100
+y1 = np.random.normal(loc=10.0, size=N1) * 10
+
+x2 = np.random.normal(loc=5.0, size=N2) * 50
+y2 = np.random.normal(loc=5.0, size=N2) * 10
+
+x3 = np.random.normal(loc=55.0, size=N3) * 10
+y3 = np.random.normal(loc=4.0, size=N3) * 10
+
+x = np.concatenate((x1, x2, x3))
+y = np.concatenate((y1, y2, y3))
+
+all_inds = np.arange(len(x1) + len(x2) + len(x3))
 
 output_server("selection_histogram")
 
@@ -35,7 +48,8 @@ hhist, hedges = np.histogram(x, bins=20)
 hzeros = np.zeros(len(hedges)-1)
 hmax = max(hhist)*1.1
 
-ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range, y_range=(-hmax, hmax), title=None, min_border=10, min_border_left=50)
+ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range,
+            y_range=(-hmax, hmax), title=None, min_border=10, min_border_left=50)
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hhist, color="white", line_color="#3A5785")
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785", alpha=0.5, line_color=None, name="hhist")
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785", alpha=0.1, line_color=None, name="hhist2")
@@ -52,7 +66,8 @@ vmax = max(vhist)*1.1
 # need to adjust for toolbar height, unfortunately
 th = 42
 
-pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height+th-10, x_range=(-vmax, vmax), y_range=p.y_range, title=None, min_border=10, min_border_top=th)
+pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height+th-10, x_range=(-vmax, vmax),
+            y_range=p.y_range, title=None, min_border=10, min_border_top=th)
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", line_color="#3A5785")
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785", alpha=0.5, line_color=None, name="vhist")
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785", alpha=0.1, line_color=None, name="vhist2")
@@ -63,7 +78,7 @@ pv_source2 = pv.select(dict(name="vhist2"))[0].data_source
 
 # set up callbacks
 def on_selection_change(obj, attr, old, new):
-    inds = np.array(new)
+    inds = np.array(new['1d']['indices'])
     if len(inds) == 0 or len(inds) == len(x):
         hhist = hzeros
         vhist = vzeros

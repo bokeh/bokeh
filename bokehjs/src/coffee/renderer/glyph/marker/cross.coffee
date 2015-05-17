@@ -1,40 +1,42 @@
-define [
-  "underscore",
-  "./marker",
-], (_, Marker) ->
+_ = require "underscore"
+Marker = require "./marker"
 
-  class CrossView extends Marker.View
+class CrossView extends Marker.View
 
-    _properties: ['line']
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
+    for i in indices
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
+        continue
 
-    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
-      for i in indices
-        if isNaN(sx[i] + sy[i] + size[i])
-          continue
+      r = size[i]/2
 
-        r = size[i]/2
-        ctx.beginPath()
-        ctx.moveTo(sx[i],   sy[i]+r)
-        ctx.lineTo(sx[i],   sy[i]-r)
-        ctx.moveTo(sx[i]-r, sy[i])
-        ctx.lineTo(sx[i]+r, sy[i])
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
-          ctx.stroke()
+      if angle[i]
+        ctx.rotate(angle[i])
+      ctx.moveTo(0, r)
+      ctx.lineTo(0, -r)
+      ctx.moveTo(-r, 0)
+      ctx.lineTo(r, 0)
+      if angle[i]
+        ctx.rotate(-angle[i])
 
-  class Cross extends Marker.Model
-    default_view: CrossView
-    type: 'Cross'
+      if @visuals.line.do_stroke
+        @visuals.line.set_vectorize(ctx, i)
+        if angle[i]
+          ctx.rotate(angle[i])
+        ctx.stroke()
+        if angle[i]
+          ctx.rotate(-angle[i])
 
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+      ctx.translate(-sx[i], -sy[i])
 
-  class Crosses extends Marker.Collection
-    model: Cross
+class Cross extends Marker.Model
+  default_view: CrossView
+  type: 'Cross'
+  props: ['line']
 
-  return {
-    Model: Cross
-    View: CrossView
-    Collection: new Crosses()
-  }
+module.exports =
+  Model: Cross
+  View: CrossView

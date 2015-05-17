@@ -1,10 +1,10 @@
 from __future__ import print_function
 
-import time
-
 from bokeh.browserlib import view
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, GlyphRenderer, Circle, HoverTool, BoxSelectTool
-from bokeh.models.widgets import Select, HBox, VBox, DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
+from bokeh.models.widgets import (
+    Select, HBox, VBox, DataTable, TableColumn, StringFormatter,
+    NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -61,8 +61,8 @@ class DataTables(object):
         ]
         data_table = DataTable(source=self.source, columns=columns, editable=True)
 
-        xdr = DataRange1d(sources=[self.source.columns("index")])
-        ydr = DataRange1d(sources=[self.source.columns("cty"), self.source.columns("hwy")])
+        xdr = DataRange1d()
+        ydr = DataRange1d()
         plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=300)
         xaxis = LinearAxis(plot=plot)
         plot.below.append(xaxis)

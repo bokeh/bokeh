@@ -1,45 +1,42 @@
-define [
-  "underscore",
-  "./marker",
-], (_, Marker) ->
+_ = require "underscore"
+Marker = require "./marker"
 
-  class CircleXView extends Marker.View
+class CircleXView extends Marker.View
 
-    _properties: ['line', 'fill']
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
+    for i in indices
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
+        continue
 
-    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
-      for i in indices
-        if isNaN(sx[i] + sy[i] + size[i])
-          continue
+      r = size[i]/2
 
-        ctx.beginPath()
-        r = size[i]/2
-        ctx.arc(sx[i], sy[i], r, 0, 2*Math.PI, false)
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
-          ctx.fill()
+      ctx.arc(0, 0, r, 0, 2*Math.PI, false)
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
-          ctx.moveTo(sx[i]-r, sy[i]+r)
-          ctx.lineTo(sx[i]+r, sy[i]-r)
-          ctx.moveTo(sx[i]-r, sy[i]-r)
-          ctx.lineTo(sx[i]+r, sy[i]+r)
-          ctx.stroke()
+      if @visuals.fill.do_fill
+        @visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
 
-  class CircleX extends Marker.Model
-    default_view: CircleXView
-    type: 'CircleX'
+      if @visuals.line.do_stroke
+        @visuals.line.set_vectorize(ctx, i)
+        if angle[i]
+          ctx.rotate(angle[i])
+        ctx.moveTo(-r,  r)
+        ctx.lineTo( r, -r)
+        ctx.moveTo(-r, -r)
+        ctx.lineTo( r,  r)
+        if angle[i]
+          ctx.rotate(-angle[i])
+        ctx.stroke()
 
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
+      ctx.translate(-sx[i], -sy[i])
 
-  class CircleXs extends Marker.Collection
-    model: CircleX
+class CircleX extends Marker.Model
+  default_view: CircleXView
+  type: 'CircleX'
 
-  return {
-    Model: CircleX
-    View: CircleXView
-    Collection: new CircleXs()
-  }
+module.exports =
+  Model: CircleX
+  View: CircleXView

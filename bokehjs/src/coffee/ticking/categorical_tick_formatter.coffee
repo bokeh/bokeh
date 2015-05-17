@@ -1,22 +1,11 @@
-define [
-  "common/collection",
-  "common/has_properties"
-], (Collection, HasProperties) ->
+HasProperties = require "../common/has_properties"
 
-  class CategoricalTickFormatter extends HasProperties
-    type: 'CategoricalTickFormatter'
+class CategoricalTickFormatter extends HasProperties
+  type: 'CategoricalTickFormatter'
 
-    initialize: (attrs, options) ->
-      super(attrs, options)
+  format: (ticks) ->
+    return ticks
 
-    format: (ticks) ->
-      return ticks
-
-  class CategoricalTickFormatters extends Collection
-    model: CategoricalTickFormatter
-
-  return {
-    "Model": CategoricalTickFormatter,
-    "Collection": new CategoricalTickFormatters()
-  }
+module.exports =
+  Model: CategoricalTickFormatter
 

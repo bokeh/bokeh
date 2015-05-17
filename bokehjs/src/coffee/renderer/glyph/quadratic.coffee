@@ -1,47 +1,64 @@
-define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
-], (_, Properties, Glyph) ->
+_ = require "underscore"
+rbush = require "rbush"
+Glyph = require "./glyph"
 
-  class QuadraticView extends Glyph.View
+# Formula from: http://pomax.nihongoresources.com/pages/bezier/
+#
+# if segment is quadratic bezier do:
+#   for both directions do:
+#     if control between start and end, compute linear bounding box
+#     otherwise, compute
+#       bound = u(1-t)^2 + 2v(1-t)t + wt^2
+#         (with t = ((u-v) / (u-2v+w)), with {u = start, v = control, w = end})
+#       if control precedes start, min = bound, otherwise max = bound
 
-    _fields: ['x0', 'y0', 'x1', 'y1', 'cx', 'cy']
-    _properties: ['line']
+_qbb = (u, v, w) ->
+  if v == (u+w)/2
+    return [u, w]
+  else
+    t = (u-v) / (u-2*v+w)
+    bd = u*Math.pow((1-t), 2) + 2*v*(1-t)*t + w*Math.pow(t, 2)
+    return [Math.min(u, w, bd), Math.max(u, w, bd)]
 
-    _map_data: () ->
-      [@sx0, @sy0] = @renderer.map_to_screen(@x0, @glyph.x0.units, @y0, @glyph.y0.units)
-      [@sx1, @sy1] = @renderer.map_to_screen(@x1, @glyph.x1.units, @y1, @glyph.y1.units)
-      [@scx, @scy] = @renderer.map_to_screen(@cx, @glyph.cx.units, @cy, @glyph.cy.units)
+class QuadraticView extends Glyph.View
 
-    _render: (ctx, indices) ->
-      if @props.line.do_stroke
-        for i in indices
-          if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
-            continue
+  _index_data: () ->
+    index = rbush()
+    pts = []
+    for i in [0...@x0.length]
+      if isNaN(@x0[i] + @x1[i] + @y0[i] + @y1[i] + @cx[i] + @cy[i])
+        continue
 
-          ctx.beginPath()
-          ctx.moveTo(@sx0[i], @sy0[i])
-          ctx.quadraticCurveTo(@scx[i], @scy[i], @sx1[i], @sy1[i])
+      [x0, x1] = _qbb(@x0[i], @cx[i], @x1[i])
+      [y0, y1] = _qbb(@y0[i], @cy[i], @y1[i])
 
-          @props.line.set_vectorize(ctx, i)
-          ctx.stroke()
+      pts.push([x0, y0, x1, y1, {'i': i}])
 
-    draw_legend: (ctx, x0, x1, y0, y1) ->
-      @_generic_line_legend(ctx, x0, x1, y0, y1)
+    index.load(pts)
+    return index
 
-  class Quadratic extends Glyph.Model
-    default_view: QuadraticView
-    type: 'Quadratic'
+  _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scy}) ->
+    if @visuals.line.do_stroke
+      for i in indices
+        if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx[i]+scy[i])
+          continue
 
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+        ctx.beginPath()
+        ctx.moveTo(sx0[i], sy0[i])
+        ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i])
 
-  class Quadratics extends Glyph.Collection
-    model: Quadratic
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
 
-  return {
-    Model: Quadratic
-    View: QuadraticView
-    Collection: new Quadratics()
-  }
+  draw_legend: (ctx, x0, x1, y0, y1) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1)
+
+class Quadratic extends Glyph.Model
+  default_view: QuadraticView
+  type: 'Quadratic'
+  visuals: ['line']
+  coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy'] ]
+
+module.exports =
+  Model: Quadratic
+  View: QuadraticView

@@ -1,10 +1,12 @@
 from __future__ import division
 
+import itertools
+
 import numpy as np
 from six.moves import zip
 from collections import OrderedDict
 
-from bokeh.plotting import *
+from bokeh.plotting import ColumnDataSource, figure, show, output_file
 from bokeh.models import HoverTool
 
 output_file("hover.html")

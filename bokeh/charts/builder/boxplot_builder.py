@@ -22,7 +22,7 @@ from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 
-from ..utils import make_scatter
+from ..utils import make_scatter, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect, Segment
@@ -46,7 +46,7 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
         outliers (bool, optional): Whether or not to plot outliers.
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`
@@ -156,6 +156,7 @@ class BoxPlotBuilder(Builder):
         lower_center_boxes = []
         lower_height_boxes = []
         out_x, out_y, out_color = ([], [], [])
+        colors = cycle_colors(self._groups, self.palette)
 
         for i, (level, values) in enumerate(self._values.items()):
             # Compute quantiles, center points, heights, IQR, etc.
@@ -187,7 +188,7 @@ class BoxPlotBuilder(Builder):
                 o = values[out]
                 out_x.append(level)
                 out_y.append(o)
-                out_color.append(self.palette[i])
+                out_color.append(colors[i])
 
         # Store
         self.set_and_get(self._data_scatter, self._attr_scatter, "out_x", out_x)
@@ -205,7 +206,7 @@ class BoxPlotBuilder(Builder):
         self.set_and_get(self._data_rect, self._attr_rect, "upper_height_boxes", upper_height_boxes)
         self.set_and_get(self._data_rect, self._attr_rect, "lower_center_boxes", lower_center_boxes)
         self.set_and_get(self._data_rect, self._attr_rect, "lower_height_boxes", lower_height_boxes)
-        self.set_and_get(self._data_rect, self._attr_rect, "colors", self.palette)
+        self.set_and_get(self._data_rect, self._attr_rect, "colors", colors)
 
     def _set_sources(self):
         "Push the BoxPlot data into the ColumnDataSource and calculate the proper ranges."
@@ -273,18 +274,6 @@ class BoxPlotBuilder(Builder):
             yield make_scatter(self._source_scatter, self._attr_scatter[0],
                               self._attr_scatter[1], self.marker,
                               self._attr_scatter[2])
-
-        # We need to build the legend here using dummy glyphs
-        for i, level in enumerate(self._groups):
-            # TODO: (bev) what is this None business?
-            glyph = Rect(
-                x="groups", y=None,
-                width=None, height=None,
-                line_color="black", fill_color=self.palette[i])
-            renderer = GlyphRenderer(data_source=self._source_legend, glyph=glyph)
-
-            # need to manually select the proper glyphs to be rendered as legends
-            self._legends.append((self._groups[i], [renderer]))
 
     # Some helper methods
     def set_and_get(self, data, attr, val, content):

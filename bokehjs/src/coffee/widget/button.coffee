@@ -1,67 +1,57 @@
-define [
-  "underscore"
-  "common/collection"
-  "common/continuum_view"
-  "common/has_parent"
-  "common/build_views"
-  "common/logging"
-], (_, Collection, ContinuumView, HasParent, build_views, Logging) ->
+_ = require "underscore"
+build_views = require "../common/build_views"
+ContinuumView = require "../common/continuum_view"
+HasParent = require "../common/has_parent"
 
-  logger = Logging.logger
+class ButtonView extends ContinuumView
+  tagName: "button"
+  events:
+    "click": "change_input"
 
-  class ButtonView extends ContinuumView
-    tagName: "button"
-    events:
-      "click": "change_input"
+  initialize: (options) ->
+    super(options)
+    @views = {}
+    @render()
+    @listenTo(@model, 'change', @render)
 
-    change_input: () ->
-      @mset('clicks', @mget('clicks') + 1)
-      @model.save()
+  render: () ->
+    icon = @mget('icon')
+    if icon?
+      build_views(@views, [icon])
+      for own key, val of @views
+        val.$el.detach()
 
-    initialize: (options) ->
-      super(options)
-      @views = {}
-      @render()
-      @listenTo(@model, 'change', @render)
+    @$el.empty()
+    @$el.addClass("bk-bs-btn")
+    @$el.addClass("bk-bs-btn-" + @mget("type"))
+    if @mget("disabled") then @$el.attr("disabled", "disabled")
 
-    render: () ->
-      icon = @mget('icon')
-      if icon?
-        build_views(@views, [icon])
-        for own key, val of @views
-          val.$el.detach()
+    label = @mget("label")
+    if icon?
+      @$el.append(@views[icon.id].$el)
+      label = " #{label}"
+    @$el.append(document.createTextNode(label))
 
-      @$el.empty()
-      @$el.addClass("bk-bs-btn")
-      @$el.addClass("bk-bs-btn-" + @mget("type"))
-      if @mget("disabled") then @$el.attr("disabled", "disabled")
+    return @
 
-      label = @mget("label")
-      if icon?
-        @$el.append(@views[icon.id].$el)
-        label = " #{label}"
-      @$el.append(document.createTextNode(label))
+  change_input: () ->
+    @mset('clicks', @mget('clicks') + 1)
+    @model.save()
+    @mget('callback')?.execute(@model)
 
-      return @
+class Button extends HasParent
+  type: "Button"
+  default_view: ButtonView
 
-  class Button extends HasParent
-    type: "Button"
-    default_view: ButtonView
+  defaults: () ->
+    return _.extend {}, super(), {
+      clicks: 0
+      label: "Button"
+      icon: null
+      type: "default"
+      disabled: false
+    }
 
-    defaults: ->
-      return _.extend {}, super(), {
-        clicks: 0
-        label: "Button"
-        icon: null
-        type: "default"
-        disabled: false
-      }
-
-  class Buttons extends Collection
-    model: Button
-
-  return {
-    Model: Button
-    Collection: new Buttons()
-    View: ButtonView
-  }
+module.exports =
+  Model: Button
+  View: ButtonView

@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import time
-
 from datetime import date
 from random import randint
 
@@ -13,7 +11,9 @@ from bokeh.models import (
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
-from bokeh.models.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable, DateEditor, DateFormatter, IntEditor
+from bokeh.models.widgets import (
+    VBox, Button, TableColumn, DataTable,
+    DateEditor, DateFormatter, IntEditor)
 
 document = Document()
 session = Session()
@@ -30,8 +30,8 @@ def make_data():
 source = ColumnDataSource(make_data())
 
 def make_plot():
-    xdr = DataRange1d(sources=[source.columns("dates")])
-    ydr = DataRange1d(sources=[source.columns("downloads")])
+    xdr = DataRange1d()
+    ydr = DataRange1d()
 
     plot = Plot(title="Product downloads", x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
 

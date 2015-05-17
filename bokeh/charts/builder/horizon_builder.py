@@ -42,7 +42,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
             (default: "#6495ed")
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`
@@ -286,7 +286,7 @@ class HorizonBuilder(Builder):
         calculate the proper ranges.
         """
         self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(rangepadding=0, sources=[self._source.columns(self._attr[0])])
+        self.x_range = DataRange1d(range_padding=0)
         self.y_range = Range1d(start=0, end=self._max_y)
 
     def _yield_renderers(self):

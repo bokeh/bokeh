@@ -3,11 +3,12 @@
 
 from __future__ import division
 
+import itertools
 import numpy as np
 from six.moves import zip
 from collections import OrderedDict
 
-from bokeh.plotting import *
+from bokeh.plotting import ColumnDataSource, figure, show, output_server
 from bokeh.models import HoverTool
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"

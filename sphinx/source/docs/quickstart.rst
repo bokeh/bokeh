@@ -29,8 +29,10 @@ Quick Installation
 
 There are a few different ways to install Bokeh.
 
-If you are using the `Anaconda Python distribution`_, enter this command at
-a Bash or Windows command prompt::
+If you are using the `Anaconda Python distribution`_ (which is recommended),
+enter this command at a Bash or Windows command prompt:
+
+.. code-block:: sh
 
     conda install bokeh
 
@@ -41,7 +43,9 @@ installs the examples into the ``examples/`` subdirectory of your Anaconda (or
 miniconda) installation directory.
 
 If you are confident you have dependencies like NumPy, Pandas, and Redis
-installed, then you can also use ``pip`` at the command line::
+installed, then you can also use ``pip`` at the command line:
+
+.. code-block:: sh
 
     pip install bokeh
 
@@ -49,7 +53,7 @@ installed, then you can also use ``pip`` at the command line::
     The ``pip`` method does not install the examples. Clone the git repository
     and look in the ``examples/`` directory of the checkout to see examples.
 
-Windows users,  see :ref:`install_windows` in the :ref:`installation` section.
+Windows users, see :ref:`install_windows` in the :ref:`installation` section.
 
 
 Getting Started
@@ -106,7 +110,7 @@ examples of this below.
 
 The |bokeh.plotting| interface is also quite handy if we need to customize
 the output a bit more by adding more data series, glyphs, logarithmic axis,
-etc. It's also possibly to easily combine multiple glyphs together on one
+etc. It's also possible to easily combine multiple glyphs together on one
 plot as shown below:
 
 .. bokeh-plot::
@@ -116,9 +120,9 @@ plot as shown below:
 
     # prepare some data
     x = [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
-    y0 = [x**2 for x in x]
-    y1 = [10**x for x in x]
-    y2 = [10**(x**2) for x in x]
+    y0 = [i**2 for i in x]
+    y1 = [10**i for i in x]
+    y2 = [10**(i**2) for i in x]
 
     # output to static HTML file
     output_file("log_lines.html")
@@ -172,7 +176,7 @@ Other Languages
 
 Bokeh's architecture makes it easy to create bindings for Bokeh in other
 languages, and in fact several already exist. We are obviously big Python
-fans, but having all many language options is a compelling feature. See some
+fans, but having many language options is a compelling feature. See some
 of  the other ways to use bokeh:
 
 * `Bokeh for R`_
@@ -182,10 +186,9 @@ of  the other ways to use bokeh:
 Sample Data
 ===========
 
-We should also let you know that some of the examples included in the Bokeh
-source make use of sample data files that are distributed separately. To
-download this data, execute the following commands at a Bash or Windows command
-prompt:
+Some of the examples included in the Bokeh source make use of sample data files
+that are distributed separately. To download this data, execute the following
+commands at a Bash or Windows command prompt:
 
 .. code-block:: sh
 
@@ -218,7 +221,7 @@ The second example also adds in calls to |Figure.circle| to display circle
 and line glyphs together on the same plot. Besides lines and circles, Bokeh
 makes many additional |glyphs| and |markers| available.
 
-The visual appearance a glyphs is tied directly to that data values that are
+The visual appearance of a glyph is tied directly to the data values that are
 associated with the glyph's various attributes. In the example above we see
 that positional attributes like `x` and `y` can be set to vectors of data.
 But glyphs also have some combination of |line_props|, |fill_props|, and
@@ -330,7 +333,7 @@ things to look out for in this example:
     import numpy as np
     from bokeh.plotting import *
 
-    # prepare some date
+    # prepare some data
     N = 100
     x = np.linspace(0, 4*np.pi, N)
     y0 = np.sin(x)
@@ -359,7 +362,7 @@ Although the toolbar is hidden, the pan tool is still present and active. Click
 and drag the above plots to pan them, and see how their ranges are linked
 together.
 
-Another linkage that is often useful is **linked brushing** (where a selection)
+Another linkage that is often useful is **linked brushing** (where a selection
 on one plot causes a selection to update on other plots). Below is an example
 that demonstrates linked brushing by sharing a |ColumnDataSource| between two
 plots:
@@ -408,10 +411,10 @@ Datetime axes
 
 Dealing with date and time series is another common task. Bokeh has a
 sophisticated |DatetimeAxis| that can change the displayed ticks based
-on the current scale of the plot. There are some inputs that Bokeh
-will automatically default to |DatetimeAxis| for, but you can always
-explicitly ask for one by passing the value ``"datetime" to  the
-``x_axis_type`` or``y_axis_type`` parameters to |figure|. A few things
+on the current scale of the plot. There are some inputs for which Bokeh
+will automatically default to |DatetimeAxis|, but you can always
+explicitly ask for one by passing the value ``"datetime"`` to  the
+``x_axis_type`` or ``y_axis_type`` parameters to |figure|. A few things
 of interest to look out for in this example:
 
 * setting the ``width`` and ``height`` arguments to |figure|
@@ -517,7 +520,7 @@ information about how to create a new language binding, see the
 To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery`. To see detailed examples and walkthroughs as
 well as find exercises for learning Bokeh by doing, work through the
-:doc:`../tutorial/index`.
+:ref:`tutorials`.
 
 For questions and technical assistance, come join the `Bokeh mailing list`_.
 
@@ -576,8 +579,8 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. |hplot|    replace:: :func:`~bokeh.io.hplot`
 .. |vplot|    replace:: :func:`~bokeh.io.vplot`
 
-.. |line_props| replace:: :class:`Line Properties <bokeh.mixins.LineProps>`
-.. |fill_props| replace:: :class:`Fill Properties <bokeh.mixins.FillProps>`
-.. |text_props| replace:: :class:`Text Properties <bokeh.mixins.TextProps>`
+.. |line_props| replace:: :ref:`userguide_styling_line_properties`
+.. |fill_props| replace:: :ref:`userguide_styling_fill_properties`
+.. |text_props| replace:: :ref:`userguide_styling_text_properties`
 
 

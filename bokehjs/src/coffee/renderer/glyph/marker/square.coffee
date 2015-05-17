@@ -1,44 +1,36 @@
-define [
-  "underscore",
-  "./marker",
-], (_, Marker) ->
+_ = require "underscore"
+Marker = require "./marker"
 
-  class SquareView extends Marker.View
+class SquareView extends Marker.View
 
-    _properties: ['line', 'fill']
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
+    for i in indices
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
+        continue
 
-    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
-      for i in indices
-        if isNaN(sx[i] + sy[i] + size[i])
-          continue
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
 
-        ctx.translate(sx[i], sy[i])
+      if angle[i]
+        ctx.rotate(angle[i])
+      ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
+      if angle[i]
+        ctx.rotate(-angle[i])
 
-        ctx.beginPath()
-        ctx.rect(-size[i]/2, -size[i]/2, size[i], size[i])
+      if @visuals.fill.do_fill
+        @visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
-          ctx.fill()
+      if @visuals.line.do_stroke
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
-          ctx.stroke()
+      ctx.translate(-sx[i], -sy[i])
 
-        ctx.translate(-sx[i], -sy[i])
+class Square extends Marker.Model
+  default_view: SquareView
+  type: 'Square'
 
-  class Square extends Marker.Model
-    default_view: SquareView
-    type: 'Square'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
-
-  class Squares extends Marker.Collection
-    model: Square
-
-  return {
-    Model: Square
-    View: SquareView
-    Collection: new Squares()
-  }
+module.exports =
+  Model: Square
+  View: SquareView

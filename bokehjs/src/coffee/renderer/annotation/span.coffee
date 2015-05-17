@@ -1,74 +1,63 @@
+_ = require "underscore"
+HasParent = require "../../common/has_parent"
+PlotWidget = require "../../common/plot_widget"
+{logger} = require "../../common/logging"
 
-define [
-  "underscore"
-  "common/has_parent"
-  "common/plot_widget"
-  "common/collection"
-  "common/logging"
-], (_, HasParent, PlotWidget, Collection, Logging) ->
+class SpanView extends PlotWidget
 
-  logger = Logging.logger
+  initialize: (options) ->
+    super(options)
+    @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
+    @$el.css({position: 'absolute'})
+    @$el.hide()
 
-  class SpanView extends PlotWidget
+  bind_bokeh_events: () ->
+    @listenTo(@model, 'change:location', @_draw_span)
 
-    initialize: (options) ->
-      super(options)
-      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-      @$el.css({position: 'absolute'})
+  render: () ->
+    @_draw_span()
+
+  _draw_span: () ->
+    if not @mget('location')?
       @$el.hide()
+      return
 
-    bind_bokeh_events: () ->
-      @listenTo(@model, 'change:location', @_draw_span)
+    frame = @plot_model.get('frame')
+    canvas = @plot_model.get('canvas')
 
-    render: () ->
-      @_draw_span()
+    if @mget('dimension') == 'width'
+      top = canvas.vy_to_sy(@mget('location'))
+      left = canvas.vx_to_sx(frame.get('left'))
+      width = "#{frame.get('width')}px"
+      height = "1px"
+    else
+      top = canvas.vy_to_sy(frame.get('top'))
+      left = canvas.vx_to_sx(@mget('location'))
+      width = "1px"
+      height = "#{frame.get('height')}px"
 
-    _draw_span: () ->
-      if not @mget('location')?
-        @$el.hide()
-        return
+    @$el.css({
+      'top': top,
+      'left': left,
+      'width': width,
+      'height': height
+      'z-index': 1000
+      'background-color': @mget('color')
+      })
+    @$el.show()
 
-      frame = @plot_model.get('frame')
-      canvas = @plot_model.get('canvas')
+class Span extends HasParent
+  default_view: SpanView
+  type: 'Span'
 
-      if @mget('dimension') == 'width'
-        top = canvas.vy_to_sy(@mget('location'))
-        left = canvas.vx_to_sx(frame.get('left'))
-        width = "#{frame.get('width')}px"
-        height = "1px"
-      else
-        top = canvas.vy_to_sy(frame.get('top'))
-        left = canvas.vx_to_sx(@mget('location'))
-        width = "1px"
-        height = "#{frame.get('height')}px"
+  defaults: ->
+    return _.extend {}, super(), {
+      level: "overlay"
+      dimension: "width"
+      units: "screen"
+      color: "black"
+    }
 
-      @$el.css({
-        'top': top,
-        'left': left,
-        'width': width,
-        'height': height
-        'z-index': 1000
-        'background-color': @mget('color')
-        });
-      @$el.show()
-
-  class Span extends HasParent
-    default_view: SpanView
-    type: 'Span'
-
-    defaults: ->
-      return _.extend {}, super(), {
-        level: "overlay"
-        dimension: "width"
-        units: "screen"
-        color: "black"
-      }
-
-  class Spans extends Collection
-    model: Span
-
-  return {
-    "Model": Span,
-    "Collection": new Spans()
-    "View": SpanView,
-  }
+module.exports =
+  Model: Span
+  View: SpanView

@@ -31,6 +31,7 @@ class TestPanel(unittest.TestCase):
         p1 = self.panelCls()
         p2 = self.panelCls()
         self.assertEqual(p1.title, None)
+        self.assertEqual(p2.title, None)
         self.assertEqual(p1.child, None)
         self.assertFalse(p1.closable)
 

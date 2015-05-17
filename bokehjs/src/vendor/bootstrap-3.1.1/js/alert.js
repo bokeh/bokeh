@@ -1,4 +1,4 @@
-define(["jquery"], function(jQuery) {
+var $ = require("jquery");
 
 /* ========================================================================
  * Bootstrap: alert.js v3.1.1
@@ -9,84 +9,79 @@ define(["jquery"], function(jQuery) {
  * ======================================================================== */
 
 
-+function ($) {
-  'use strict';
+'use strict';
 
-  // ALERT CLASS DEFINITION
-  // ======================
+// ALERT CLASS DEFINITION
+// ======================
 
-  var dismiss = '[data-bk-bs-dismiss="alert"]'
-  var Alert   = function (el) {
-    $(el).on('click', dismiss, this.close)
+var dismiss = '[data-bk-bs-dismiss="alert"]'
+var Alert   = function (el) {
+  $(el).on('click', dismiss, this.close)
+}
+
+Alert.prototype.close = function (e) {
+  var $this    = $(this)
+  var selector = $this.attr('data-bk-bs-target')
+
+  if (!selector) {
+    selector = $this.attr('href')
+    selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
   }
 
-  Alert.prototype.close = function (e) {
-    var $this    = $(this)
-    var selector = $this.attr('data-bk-bs-target')
+  var $parent = $(selector)
 
-    if (!selector) {
-      selector = $this.attr('href')
-      selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
-    }
+  if (e) e.preventDefault()
 
-    var $parent = $(selector)
-
-    if (e) e.preventDefault()
-
-    if (!$parent.length) {
-      $parent = $this.hasClass('bk-bs-alert') ? $this : $this.parent()
-    }
-
-    $parent.trigger(e = $.Event('close.bk-bs.alert'))
-
-    if (e.isDefaultPrevented()) return
-
-    $parent.removeClass('bk-bs-in')
-
-    function removeElement() {
-      $parent.trigger('closed.bk-bs.alert').remove()
-    }
-
-    $.support.transition && $parent.hasClass('bk-bs-fade') ?
-      $parent
-        .one($.support.transition.end, removeElement)
-        .emulateTransitionEnd(150) :
-      removeElement()
+  if (!$parent.length) {
+    $parent = $this.hasClass('bk-bs-alert') ? $this : $this.parent()
   }
 
+  $parent.trigger(e = $.Event('close.bk-bs.alert'))
 
-  // ALERT PLUGIN DEFINITION
-  // =======================
+  if (e.isDefaultPrevented()) return
 
-  var old = $.fn.alert
+  $parent.removeClass('bk-bs-in')
 
-  $.fn.alert = function (option) {
-    return this.each(function () {
-      var $this = $(this)
-      var data  = $this.data('bk-bs.alert')
-
-      if (!data) $this.data('bk-bs.alert', (data = new Alert(this)))
-      if (typeof option == 'string') data[option].call($this)
-    })
+  function removeElement() {
+    $parent.trigger('closed.bk-bs.alert').remove()
   }
 
-  $.fn.alert.Constructor = Alert
+  $.support.transition && $parent.hasClass('bk-bs-fade') ?
+    $parent
+      .one($.support.transition.end, removeElement)
+      .emulateTransitionEnd(150) :
+    removeElement()
+}
 
 
-  // ALERT NO CONFLICT
-  // =================
+// ALERT PLUGIN DEFINITION
+// =======================
 
-  $.fn.alert.noConflict = function () {
-    $.fn.alert = old
-    return this
-  }
+var old = $.fn.alert
+
+$.fn.alert = function (option) {
+  return this.each(function () {
+    var $this = $(this)
+    var data  = $this.data('bk-bs.alert')
+
+    if (!data) $this.data('bk-bs.alert', (data = new Alert(this)))
+    if (typeof option == 'string') data[option].call($this)
+  })
+}
+
+$.fn.alert.Constructor = Alert
 
 
-  // ALERT DATA-API
-  // ==============
+// ALERT NO CONFLICT
+// =================
 
-  $(document).on('click.bk-bs.alert.data-api', dismiss, Alert.prototype.close)
+$.fn.alert.noConflict = function () {
+  $.fn.alert = old
+  return this
+}
 
-}(jQuery);
 
-});
+// ALERT DATA-API
+// ==============
+
+$(document).on('click.bk-bs.alert.data-api', dismiss, Alert.prototype.close)

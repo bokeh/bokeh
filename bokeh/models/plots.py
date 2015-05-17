@@ -415,6 +415,28 @@ class Plot(Widget):
     be made equal (the top or bottom padding amount, whichever is larger).
     """)
 
+    lod_factor = Int(10, help="""
+    Decimation factor to use when applying level-of-detail decimation.
+    """)
+
+    lod_threshold = Int(2000, help="""
+    A number of data points, above which level-of-detail downsampling may
+    be performed by glyph renderers. Set to ``None`` to disable any
+    level-of-detail downsampling.
+    """)
+
+    lod_interval = Int(300, help="""
+    Interval (in ms) during which an interactive tool event will enable
+    level-of-detail downsampling.
+    """)
+
+    lod_timeout = Int(500, help="""
+    Timeout (in ms) for checking whether interactive tool events are still
+    occurring. Once level-of-detail mode is enabled, a check is made every
+    ``lod_timeout`` ms. If no interactive tool events have happened,
+    level-of-detail mode is disabled.
+    """)
+
 class GridPlot(Plot):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.
 

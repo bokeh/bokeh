@@ -32,34 +32,34 @@
     </p>
 
 .. |lines| image:: /_images/thumbs/lines_t.png
-    :target: ../tutorial/solutions/gallery/lines.html
+    :target: tutorials/solutions/gallery/lines.html
 
 .. |scatter| image:: /_images/thumbs/scatter_t.png
-    :target: ../tutorial/solutions/gallery/scatter.html
+    :target: tutorials/solutions/gallery/scatter.html
 
 .. |image| image:: /_images/thumbs/mandelbrot_t.png
-    :target: ../tutorial/solutions/gallery/image.html
+    :target: tutorials/solutions/gallery/image.html
 
 .. |style| image:: /_images/thumbs/stacked_t.png
-    :target: ../tutorial/solutions/gallery/style.html
+    :target: tutorials/solutions/gallery/style.html
 
 
 .. |hover| image:: /_images/thumbs/hover_t.png
-    :target: ../tutorial/solutions/gallery/hover.html
+    :target: tutorials/solutions/gallery/hover.html
 
 
 
 .. |stocks| image:: /_images/thumbs/stocks_t.png
-    :target: ../tutorial/solutions/gallery/stocks.html
+    :target: tutorials/solutions/gallery/stocks.html
 
 .. |histogram| image:: /_images/thumbs/histogram_t.png
-    :target: ../tutorial/solutions/gallery/histogram.html
+    :target: tutorials/solutions/gallery/histogram.html
 
 .. |boxplot| image:: /_images/thumbs/boxplot_t.png
-    :target: ../tutorial/solutions/gallery/boxplot.html
+    :target: tutorials/solutions/gallery/boxplot.html
 
 .. |unemployment| image:: /_images/thumbs/unemployment_t.png
-    :target: ../tutorial/solutions/gallery/unemployment.html
+    :target: tutorials/solutions/gallery/unemployment.html
 
 .. |olympics| image:: /_images/thumbs/olympics_t.png
-    :target: ../tutorial/solutions/gallery/olympics.html
+    :target: tutorials/solutions/gallery/olympics.html

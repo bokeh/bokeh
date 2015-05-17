@@ -2,7 +2,7 @@
 .. _bokeh.plotting:
 
 ``bokeh.plotting`` Interface
-############################
+============================
 
 .. contents::
     :local:

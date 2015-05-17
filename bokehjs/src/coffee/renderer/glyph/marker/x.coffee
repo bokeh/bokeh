@@ -1,40 +1,38 @@
-define [
-  "underscore",
-  "./marker",
-], (_, Marker) ->
+_ = require "underscore"
+Marker = require "./marker"
 
-  class XView extends Marker.View
+class XView extends Marker.View
 
-    _properties: ['line']
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
+    for i in indices
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
+        continue
 
-    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
-      for i in indices
-        if isNaN(sx[i] + sy[i] + size[i])
-          continue
+      r = size[i]/2
 
-        r = size[i]/2
-        ctx.beginPath()
-        ctx.moveTo(sx[i]-r, sy[i]+r)
-        ctx.lineTo(sx[i]+r, sy[i]-r)
-        ctx.moveTo(sx[i]-r, sy[i]-r)
-        ctx.lineTo(sx[i]+r, sy[i]+r)
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
-          ctx.stroke()
+      if angle[i]
+        ctx.rotate(angle[i])
+      ctx.moveTo(-r, r)
+      ctx.lineTo(r, -r)
+      ctx.moveTo(-r,-r)
+      ctx.lineTo(r, r)
+      if angle[i]
+        ctx.rotate(-angle[i])
 
-  class X extends Marker.Model
-    default_view: XView
-    type: 'X'
+      if @visuals.line.do_stroke
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
 
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+      ctx.translate(-sx[i], -sy[i])
 
-  class Xs extends Marker.Collection
-    model: X
+class X extends Marker.Model
+  default_view: XView
+  type: 'X'
+  props: ['line']
 
-  return {
-    Model: X
-    View: XView
-    Collection: new Xs()
-  }
+module.exports =
+  Model: X
+  View: XView

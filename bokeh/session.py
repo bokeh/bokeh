@@ -26,7 +26,7 @@ import tempfile
 #------------
 # third party
 #------------
-from six.moves.urllib.parse import urljoin, urlencode
+from six.moves.urllib.parse import urlencode
 from requests.exceptions import ConnectionError
 
 #---------
@@ -46,7 +46,6 @@ from . import browserlib
 from . import protocol
 from .embed import autoload_server
 from .exceptions import DataIntegrityException
-from .models import ServerDataSource
 from .util.notebook import publish_display_data
 from .util.serialization import dump, get_json, urljoin
 
@@ -274,7 +273,7 @@ class Session(object):
             data (pd.DataFrame or np.array) : data to upload
 
         Returns:
-            source : ServerDataSource
+            a ServerDataSource
 
         """
         raise NotImplementedError
@@ -627,7 +626,7 @@ class Session(object):
             obj (PlotObject) : object to render
 
         Returns:
-            url : str
+            URL string
 
         """
         link = "bokeh/doc/%s/%s" % (self.docid, obj._id)

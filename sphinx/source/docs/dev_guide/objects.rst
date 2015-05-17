@@ -35,7 +35,7 @@ models are classes that inherit from `HasProps` at some point::
         """ `Whatever` model. """
 
 Models can derive from other models as well as mixins that provide common
-sets of properties (e.g. see :class:`~bokeh.mixins.LineProps`, etc. in :ref:`bokeh_dot_mixins`).
+sets of properties (e.g. see :class:`~bokeh.mixins.LineProps`, etc. in :ref:`bokeh.mixins`).
 An example might look like this::
 
     class Another(Whatever, LineProps):
@@ -90,7 +90,7 @@ invalid type or value.
     types, and will accept any type of value. Since this circumvents all type validation,
     make sure to use it sparingly, it at all.
 
-See :ref:`bokeh_dot_properties` for full details.
+See :ref:`bokeh.properties` for full details.
 
 An example of a more complex, realistic model might look like this::
 

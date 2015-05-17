@@ -1,144 +1,117 @@
-define [
-  "underscore",
-  "rbush",
-  "renderer/properties",
-  "./glyph",
-], (_, rbush, Properties, Glyph) ->
+_ = require "underscore"
+Glyph = require "./glyph"
+rbush = require "rbush"
+hittest = require "../../common/hittest"
 
+class PatchesView extends Glyph.View
 
-  point_in_poly = (x, y, px, py) ->
-    inside = false
+  _index_data: () ->
+    index = rbush()
+    pts = []
+    for i in [0...@xs.length]
+      xs = (x for x in @xs[i] when not _.isNaN(x))
+      ys = (y for y in @ys[i] when not _.isNaN(y))
+      if xs.length == 0
+        continue
+      pts.push([
+        _.min(xs), _.min(ys),
+        _.max(xs), _.max(ys),
+        {'i': i}
+      ])
+    index.load(pts)
+    return index
 
-    x1 = px[px.length-1]
-    y1 = py[py.length-1]
+  _mask_data: (all_indices) ->
+    xr = @renderer.plot_view.x_range
+    [x0, x1] = [xr.get('start'), xr.get('end')]
 
-    for i in [0...px.length]
-        x2 = px[i]
-        y2 = py[i]
-        if ( y1 < y ) != ( y2 < y )
-            if x1 + ( y - y1 ) / ( y2 - y1 ) * ( x2 - x1 ) < x
-                inside = not inside
-        x1 = x2
-        y1 = y2
+    yr = @renderer.plot_view.y_range
+    [y0, y1] = [yr.get('start'), yr.get('end')]
 
-    return inside
+    return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-  class PatchesView extends Glyph.View
+  _render: (ctx, indices, {sxs, sys}) ->
+    for i in indices
+      [sx, sy] = [sxs[i], sys[i]]
 
-    _fields: ['xs', 'ys']
-    _properties: ['line', 'fill']
+      if @visuals.fill.do_fill
+        @visuals.fill.set_vectorize(ctx, i)
 
-    _set_data: () ->
-      @max_size = _.max(@size)
-      @index = rbush()
-      pts = []
-      for i in [0...@xs.length]
-        xs = (x for x in @xs[i] when not _.isNaN(x))
-        ys = (y for y in @ys[i] when not _.isNaN(y))
-        if xs.length == 0
-          continue
-        pts.push([
-          _.min(xs), _.min(ys),
-          _.max(xs), _.max(ys),
-          {'i': i}
-        ])
-      @index.load(pts)
+        for j in [0...sx.length]
+          if j == 0
+            ctx.beginPath()
+            ctx.moveTo(sx[j], sy[j])
+            continue
+          else if isNaN(sx[j] + sy[j])
+            ctx.closePath()
+            ctx.fill()
+            ctx.beginPath()
+            continue
+          else
+            ctx.lineTo(sx[j], sy[j])
 
-    _map_data: () ->
-      @sxs = []
-      @sys = []
-      for i in [0...@xs.length]
-        [sx, sy] = @renderer.map_to_screen(@xs[i], @glyph.xs.units, @ys[i], @glyph.ys.units)
-        @sxs.push(sx)
-        @sys.push(sy)
+        ctx.closePath()
+        ctx.fill()
 
-    _mask_data: () ->
-      # if user uses screen units, punt on trying to mask data
-      if @glyph.xs.units == "screen" or @glyph.ys.units == "screen"
-        return @all_indices
+      if @visuals.line.do_stroke
+        @visuals.line.set_vectorize(ctx, i)
 
-      xr = @renderer.plot_view.x_range
-      [x0, x1] = [xr.get('start'), xr.get('end')]
+        for j in [0...sx.length]
+          if j == 0
+            ctx.beginPath()
+            ctx.moveTo(sx[j], sy[j])
+            continue
+          else if isNaN(sx[j] + sy[j])
+            ctx.closePath()
+            ctx.stroke()
+            ctx.beginPath()
+            continue
+          else
+            ctx.lineTo(sx[j], sy[j])
 
-      yr = @renderer.plot_view.y_range
-      [y0, y1] = [yr.get('start'), yr.get('end')]
+        ctx.closePath()
+        ctx.stroke()
 
-      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+  _hit_point: (geometry) ->
+    [vx, vy] = [geometry.vx, geometry.vy]
+    sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+    sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
-    _render: (ctx, indices) ->
-      for i in indices
-        [sx, sy] = [@sxs[i], @sys[i]]
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+    candidates = (x[4].i for x in @index.search([x, y, x, y]))
 
-          for j in [0...sx.length]
-            if j == 0
-              ctx.beginPath()
-              ctx.moveTo(sx[j], sy[j])
-              continue
-            else if isNaN(sx[j] + sy[j])
-              ctx.closePath()
-              ctx.fill()
-              ctx.beginPath()
-              continue
-            else
-              ctx.lineTo(sx[j], sy[j])
+    hits = []
+    for i in [0...candidates.length]
+      idx = candidates[i]
+      if hittest.point_in_poly(sx, sy, @sxs[idx], @sys[idx])
+        hits.push(idx)
 
-          ctx.closePath()
-          ctx.fill()
+    result = hittest.create_hit_test_result()
+    result['1d'].indices = hits
+    return result
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+  scx: (i) ->
+    sum = 0
+    for sx in @sxs[i]
+      sum += sx
+    return sum / @sxs[i].length
 
-          for j in [0...sx.length]
-            if j == 0
-              ctx.beginPath()
-              ctx.moveTo(sx[j], sy[j])
-              continue
-            else if isNaN(sx[j] + sy[j])
-              ctx.closePath()
-              ctx.stroke()
-              ctx.beginPath()
-              continue
-            else
-              ctx.lineTo(sx[j], sy[j])
+  scy: (i) ->
+    sum = 0
+    for sy in @sys[i]
+      sum += sy
+    return sum / @sys[i].length
 
-          ctx.closePath()
-          ctx.stroke()
+  draw_legend: (ctx, x0, x1, y0, y1) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1)
 
-    _hit_point: (geometry) ->
-      [vx, vy] = [geometry.vx, geometry.vy]
-      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
+class Patches extends Glyph.Model
+  default_view: PatchesView
+  type: 'Patches'
+  coords: [ ['xs', 'ys'] ]
 
-      x = @renderer.xmapper.map_from_target(vx)
-      y = @renderer.ymapper.map_from_target(vy)
-
-      candidates = (x[4].i for x in @index.search([x, y, x, y]))
-
-      hits = []
-      for i in [0...candidates.length]
-        idx = candidates[i]
-        if point_in_poly(sx, sy, @sxs[idx], @sys[idx])
-          hits.push(idx)
-      return hits
-
-    draw_legend: (ctx, x0, x1, y0, y1) ->
-      @_generic_area_legend(ctx, x0, x1, y0, y1)
-
-  class Patches extends Glyph.Model
-    default_view: PatchesView
-    type: 'Patches'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
-
-  class Patcheses extends Glyph.Collection
-    model: Patches
-
-  return {
-    Model: Patches
-    View: PatchesView
-    Collection: new Patcheses()
-  }
+module.exports =
+  Model: Patches
+  View: PatchesView

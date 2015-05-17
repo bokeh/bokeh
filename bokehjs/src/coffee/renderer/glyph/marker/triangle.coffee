@@ -1,47 +1,45 @@
-define [
-  "underscore",
-  "./marker",
-], (_, Marker) ->
+_ = require "underscore"
+Marker = require "./marker"
 
-  class TriangleView extends Marker.View
+class TriangleView extends Marker.View
 
-    _properties: ['line', 'fill']
+  _render: (ctx, indices, {sx, sy, size, angle}) ->
+    for i in indices
+      if isNaN(sx[i]+sy[i]+size[i]+angle[i])
+        continue
 
-    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
-      for i in indices
-        if isNaN(sx[i] + sy[i] + size[i])
-          continue
+      a = size[i] * Math.sqrt(3)/6
+      r = size[i]/2
+      h = size[i] * Math.sqrt(3)/2
 
-        a = size[i] * Math.sqrt(3)/6
-        r = size[i]/2
-        h = size[i] * Math.sqrt(3)/2
-        ctx.beginPath()
-        # TODO (bev) use viewstate to take y-axis inversion into account
-        ctx.moveTo(sx[i]-r, sy[i]+a)
-        ctx.lineTo(sx[i]+r, sy[i]+a)
-        ctx.lineTo(sx[i],   sy[i]+a-h)
-        ctx.closePath()
+      ctx.beginPath()
+      ctx.translate(sx[i], sy[i])
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
-          ctx.fill()
+      # TODO (bev) use viewstate to take y-axis inversion into account
+      if angle[i]
+        ctx.rotate(angle[i])
+      ctx.moveTo(-r, a)
+      ctx.lineTo(r, a)
+      ctx.lineTo(0, a-h)
+      if angle[i]
+        ctx.rotate(-angle[i])
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
-          ctx.stroke()
+      ctx.translate(-sx[i], -sy[i])
+      ctx.closePath()
 
-  class Triangle extends Marker.Model
-    default_view: TriangleView
-    type: 'Triangle'
+      if @visuals.fill.do_fill
+        @visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
 
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
+      if @visuals.line.do_stroke
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
 
-  class Triangles extends Marker.Collection
-    model: Triangle
 
-  return {
-    Model: Triangle
-    View: TriangleView
-    Collection: new Triangles()
-  }
+class Triangle extends Marker.Model
+  default_view: TriangleView
+  type: 'Triangle'
+
+module.exports =
+  Model: Triangle
+  View: TriangleView

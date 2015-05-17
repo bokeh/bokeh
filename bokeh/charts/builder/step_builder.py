@@ -46,7 +46,7 @@ def Step(values, index=None, **kws):
             or a pandas DataFrame)
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`
@@ -127,11 +127,11 @@ class StepBuilder(Builder):
         """ Push the Step data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        sc = self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[sc.columns("x")])
+        self._source = ColumnDataSource(self._data)
+        self.x_range = DataRange1d()
 
-        y_sources = [sc.columns("y_%s" % col) for col in self._groups]
-        self.y_range = DataRange1d(sources=y_sources)
+        #y_sources = [sc.columns("y_%s" % col) for col in self._groups]
+        self.y_range = DataRange1d()
 
     def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Step.

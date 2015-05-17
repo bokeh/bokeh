@@ -1,69 +1,58 @@
-define [
-  "underscore"
-  "common/collection"
-  "jquery"
-  "bootstrap/button"
-  "common/continuum_view"
-  "common/has_parent"
-  "common/logging"
-], (_, Collection, $, $1, ContinuumView, HasParent, Logging) ->
+_ = require "underscore"
+$ = require "jquery"
+if global._bokehTest?
+  $1 = undefined  # TODO Make work
+else
+  $1 = require "bootstrap/button"
+ContinuumView = require "../common/continuum_view"
+HasParent = require "../common/has_parent"
 
-  logger = Logging.logger
+class CheckboxButtonGroupView extends ContinuumView
+  tagName: "div"
+  events:
+    "change input": "change_input"
 
-  class CheckboxButtonGroupView extends ContinuumView
-    tagName: "div"
-    events:
-      "change input": "change_input"
+  initialize: (options) ->
+    super(options)
+    @render()
+    @listenTo(@model, 'change', @render)
 
-    change_input: () ->
-      active = (i for checkbox, i in @$("input") when checkbox.checked)
-      @mset('active', active)
-      @model.save()
+  render: () ->
+    @$el.empty()
 
-    initialize: (options) ->
-      super(options)
-      @render()
-      @listenTo(@model, 'change', @render)
+    @$el.addClass("bk-bs-btn-group")
+    @$el.attr("data-bk-bs-toggle", "buttons")
 
-    render: () ->
-      @$el.empty()
-      return @
+    active = @mget("active")
+    for label, i in @mget("labels")
+      $input = $('<input type="checkbox">').attr(value: "#{i}")
+      if i in active then $input.prop("checked", true)
+      $label = $('<label class="bk-bs-btn"></label>')
+      $label.text(label).prepend($input)
+      $label.addClass("bk-bs-btn-" + @mget("type"))
+      if i in active then $label.addClass("bk-bs-active")
+      @$el.append($label)
 
-    render: () ->
-      @$el.empty()
+    return @
 
-      @$el.addClass("bk-bs-btn-group")
-      @$el.attr("data-bk-bs-toggle", "buttons")
+  change_input: () ->
+    active = (i for checkbox, i in @$("input") when checkbox.checked)
+    @mset('active', active)
+    @model.save()
+    @mget('callback')?.execute(@model)
 
-      active = @mget("active")
-      for label, i in @mget("labels")
-        $input = $('<input type="checkbox">').attr(value: "#{i}")
-        if i in active then $input.prop("checked", true)
-        $label = $('<label class="bk-bs-btn"></label>')
-        $label.text(label).prepend($input)
-        $label.addClass("bk-bs-btn-" + @mget("type"))
-        if i in active then $label.addClass("bk-bs-active")
-        @$el.append($label)
+class CheckboxButtonGroup extends HasParent
+  type: "CheckboxButtonGroup"
+  default_view: CheckboxButtonGroupView
 
-      return @
+  defaults: () ->
+    return _.extend {}, super(), {
+      active: []
+      labels: []
+      type: "default"
+      disabled: false
+    }
 
-  class CheckboxButtonGroup extends HasParent
-    type: "CheckboxButtonGroup"
-    default_view: CheckboxButtonGroupView
-
-    defaults: ->
-      return _.extend {}, super(), {
-        active: []
-        labels: []
-        type: "default"
-        disabled: false
-      }
-
-  class CheckboxButtonGroups extends Collection
-    model: CheckboxButtonGroup
-
-  return {
-    Model: CheckboxButtonGroup
-    Collection: new CheckboxButtonGroups()
-    View: CheckboxButtonGroupView
-  }
+module.exports =
+  Model: CheckboxButtonGroup
+  View: CheckboxButtonGroupView

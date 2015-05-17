@@ -6,7 +6,7 @@ from math import pi
 import pandas as pd
 
 from bokeh.sampledata.stocks import MSFT
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server
 
 df = pd.DataFrame(MSFT)[:50]
 df["date"] = pd.to_datetime(df["date"])

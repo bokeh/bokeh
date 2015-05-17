@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import time
-
 import numpy as np
 import sympy as sy
 
@@ -51,8 +49,8 @@ def update_data():
 
 source = ColumnDataSource(data=dict(x=[], fy=[], ty=[]))
 
-xdr = DataRange1d(sources=[source.columns("x")])
-ydr = DataRange1d(sources=[source.columns("fy")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
 
@@ -92,7 +90,7 @@ def on_text_value_change(obj, attr, old, new):
     else:
         update_data()
 
-dialog = Dialog(title="Invalid expression", buttons=["Close"])
+dialog = Dialog(title="Invalid expression")
 
 slider = Slider(start=1, end=20, value=order, step=1, title="Order:")
 slider.on_change('value', on_slider_value_change)

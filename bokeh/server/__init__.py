@@ -86,7 +86,7 @@ def build_parser():
     # dev, debugging, etc.
     class DevAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
-            namespace.splitjs = True
+            #namespace.splitjs = True
             namespace.debugjs = True
             namespace.backend = 'memory'
 

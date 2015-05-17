@@ -1,4 +1,3 @@
-import numpy as np
 from bokeh.plotting import figure, output_server, show
 from bokeh.models import ServerDataSource
 
@@ -36,8 +35,8 @@ ar.replot(plot,
 # ar.heatmap(plot, spread=3, client_color=True, palette="Reds9", title="Client-colored")
 
 # Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
-colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
-ar.contours(plot, palette=colors, title="ISO Contours")
+# colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
+# ar.contours(plot, palette=colors, title="ISO Contours")
 
 
 # # Multiple categories

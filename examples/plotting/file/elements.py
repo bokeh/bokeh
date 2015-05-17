@@ -1,6 +1,6 @@
 import pandas as pd
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 from bokeh.sampledata import periodic_table
 
 elements = periodic_table.elements

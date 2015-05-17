@@ -28,7 +28,7 @@ from .document import Document
 from .embed import notebook_div, file_html, autoload_server
 from .models import Widget
 from .models.plots import GridPlot
-from .models.widgets.layouts import HBox, VBox
+from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
@@ -196,7 +196,7 @@ def cursession():
     ''' Return the session for the current default state, if there is one.
 
     Returns:
-        session : the current default session object (or None)
+        the current default Session object (or None)
 
     '''
     return _state.session
@@ -429,5 +429,13 @@ def vplot(*children, **kwargs):
     '''
     layout = VBox(children=list(children), **kwargs)
     _deduplicate_plots(layout, children)
+    _push_or_save(layout)
+    return layout
+
+def vform(*children, **kwargs):
+    ''' Generate a layout that arranges several subplots vertically.
+
+    '''
+    layout = VBoxForm(children=list(children), **kwargs)
     _push_or_save(layout)
     return layout

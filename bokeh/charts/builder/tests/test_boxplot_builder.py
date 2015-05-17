@@ -45,7 +45,7 @@ class TestBoxPlot(unittest.TestCase):
         xyvaluesdf = pd.DataFrame(xyvalues)
         xyvaluesbl = blaze.Data(xyvaluesdf)
         exptected_datarect = {
-            'colors': ['#f22c40', '#5ab738', '#407ee7', '#df5320', '#00ad9c', '#c33ff3'],
+            'colors': ['#f22c40', '#5ab738', '#407ee7'],
             'groups': ['bronze', 'silver', 'gold'],
             'iqr_centers': [2.5, 2.5, 2.5],
             'iqr_lengths': [3.0, 3.0, 4.5],
@@ -80,8 +80,6 @@ class TestBoxPlot(unittest.TestCase):
             for key, expected_v in expected_seg.items():
                 self.assertEqual(builder._data_segment[key], expected_v)
 
-            self.assertEqual(len(builder._legends), 3)
-
         lvalues = [
             np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
                     4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
@@ -108,5 +106,3 @@ class TestBoxPlot(unittest.TestCase):
 
             for key, expected_v in expected_seg.items():
                 self.assertEqual(builder._data_segment[key], expected_v)
-
-            self.assertEqual(len(builder._legends), 3)
