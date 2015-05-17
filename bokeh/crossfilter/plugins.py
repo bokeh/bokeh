@@ -2,12 +2,13 @@ from __future__ import absolute_import
 
 import numpy as np
 
-from ..models import FactorRange, DataRange1d, Range1d, Dialog
+from ..models import FactorRange, DataRange1d, Range1d
 
 from ..plotting import figure
 from ..plotting_helpers import _get_select_tool
 
 from .plotting import make_continuous_bar_source, make_categorical_bar_source
+
 
 class CrossFilterPlugin(object):
     """An adapter class between CrossFilter and custom plotting plugins.
@@ -238,7 +239,7 @@ class CrossBarPlugin(CrossFilterPlugin):
             self.valid_plot = False
 
         self.valid_plot, title = self.valid_selections(self.col_meta, self.x,
-                                                             self.y, self.agg)
+                                                       self.y, self.agg)
         if title is not None:
             self._title = title
 
@@ -263,9 +264,9 @@ class CrossBarPlugin(CrossFilterPlugin):
         elif y != 'None' and agg_type in CrossBarPlugin.y_agg_types:
             return False, 'Y must be "None" for this aggregation type.'
         elif ((y == 'None' and agg_type not in CrossBarPlugin.y_agg_types) or
-            (y_type == 'DiscreteColumn' and agg_type not in CrossBarPlugin.y_agg_types)):
-            return False, 'Select continuous y column to aggregate by %s.' % \
-                   (agg_type.title())
+              (y_type == 'DiscreteColumn' and agg_type not in CrossBarPlugin.y_agg_types)):
+            return False, ('Select continuous y column to aggregate by %s.' %
+                           agg_type.title())
         else:
             return True, None
 
@@ -275,7 +276,7 @@ class CrossBarPlugin(CrossFilterPlugin):
             return "%s (%s)" % (self.agg.title(), self.x.title())
         else:
             return "%s (%s) by %s" % (self.agg.title(), self.y.title(),
-                                     self.x.title())
+                                      self.x.title())
 
     @staticmethod
     def make_xy_ranges(cf, bar_width=0.7):

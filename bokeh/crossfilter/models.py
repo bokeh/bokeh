@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 from ..plotting import curdoc
-from ..models import ColumnDataSource, GridPlot, Panel, Tabs, Range, Dialog
+from ..models import ColumnDataSource, GridPlot, Panel, Tabs, Range
 from ..models.widgets import Select, MultiSelect, InputWidget
 
 # crossfilter plotting utilities
