@@ -54,11 +54,11 @@ class Settings(object):
     def version(self, default=None):
         return self._get_str("VERSION", default)
 
-    def local_docs_cdn(self, default=None):
-        return self._get_str("LOCAL_DOCS_CDN", default)
+    def docs_cdn(self, default=None):
+        return self._get_str("DOCS_CDN", default)
 
-    def released_docs(self, default=None):
-        return self._get_bool("RELEASED_DOCS", default, False)
+    def docs_version(self, default=None):
+        return self._get_str("DOCS_VERSION", default, None)
 
     def minified(self, default=None):
         return self._get_bool("MINIFIED", default, False)
@@ -85,7 +85,7 @@ class Settings(object):
     """
     Server settings go here:
     """
-    
+
     def bokehjssrcdir(self):
         if self.debugjs:
             bokehjssrcdir = abspath(join(ROOT_DIR, '..', 'bokehjs', 'src'))
