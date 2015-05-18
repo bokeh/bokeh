@@ -80,23 +80,23 @@ class Legend(Renderer):
     """)
 
     label_standoff = Int(15, help="""
-    The distance in pixels to separate the label from its associated glyph.
+    The distance (in pixels) to separate the label from its associated glyph.
     """)
 
     label_height = Int(20, help="""
-    The height in pixels that the area legend labels should occupy.
+    The height (in pixels) of the area that legend labels should occupy.
     """)
 
     label_width = Int(50, help="""
-    The width in pixels that the area legend labels should occupy.
+    The width (in pixels) of the area that legend labels should occupy.
     """)
 
     glyph_height = Int(20, help="""
-    The height in pixels that the rendered legend glyph should occupy.
+    The height (in pixels) that the rendered legend glyph should occupy.
     """)
 
     glyph_width = Int(20, help="""
-    The width in pixels that the rendered legend glyph should occupy.
+    The width (in pixels) that the rendered legend glyph should occupy.
     """)
 
     legend_padding = Int(10, help="""
