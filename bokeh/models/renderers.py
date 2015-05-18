@@ -84,11 +84,11 @@ class Legend(Renderer):
     """)
 
     label_height = Int(20, help="""
-    The height in pixels that the area that legend labels should occupy.
+    The height in pixels that the area legend labels should occupy.
     """)
 
     label_width = Int(50, help="""
-    The width in pixels that the area that legend labels should occupy.
+    The width in pixels that the area legend labels should occupy.
     """)
 
     glyph_height = Int(20, help="""
@@ -104,7 +104,7 @@ class Legend(Renderer):
     """)
 
     legend_spacing = Int(3, help="""
-    Amount of spacing between legend entries
+    Amount of spacing between legend entries.
     """)
 
     legends = List(Tuple(String, List(Instance(GlyphRenderer))), help="""

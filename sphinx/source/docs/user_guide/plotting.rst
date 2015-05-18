@@ -91,7 +91,7 @@ Single Lines
 ''''''''''''
 
 Below is an example that shows how to generate a single line glyph from
-one dimensional sequences of *x* and y* points using the |line| glyph
+one dimensional sequences of *x* and *y* points using the |line| glyph
 method:
 
 .. bokeh-plot::

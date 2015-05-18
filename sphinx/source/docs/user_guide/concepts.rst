@@ -60,7 +60,7 @@ Server
 
 Widgets
    User interface elements outside of a Bokeh plot such as sliders, drop down
-   menues, buttons, etc. Events and updates from widgets can inform additional
+   menus, buttons, etc. Events and updates from widgets can inform additional
    computations, or cause Bokeh plots to update. See :ref:`userguide_interaction`
    for examples and information.
 
@@ -144,9 +144,8 @@ that BokehJS can render is handled automatically.
 The main class in the |bokeh.plotting| interface is the |Figure| class. This
 is a subclass of the basic |Plot| model, that includes methods for easily
 adding different kinds of glyphs to a plot. Additionally it composes default
-axes, grids, and tools in the proper way so that in many cases they need not be
-worried about at all. Typically, users will want to create |Figure| objects
-by using the |figure| function.
+axes, grids, and tools in the proper way without any extra effort. Typically,
+users will want to create |Figure| objects by using the |figure| function.
 
 A prototypical example of the |bokeh.plotting| usage is show below, along
 with the resulting plot:
@@ -290,4 +289,3 @@ just one additional line of code:
 .. |Histogram|  replace:: :func:`~bokeh.plotting.Histogram`
 .. |Scatter|    replace:: :func:`~bokeh.plotting.Scatter`
 .. |TimeSeries| replace:: :func:`~bokeh.plotting.TimeSeries`
-
