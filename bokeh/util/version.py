@@ -27,3 +27,11 @@ except ImportError:
     from .._version import get_versions
     __version__ = get_versions()['version']
     del get_versions
+
+def base_version():
+    import re
+    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc).*)?")
+    return VERSION_PAT.search(__version__).group(1)
+
+__base_version__ = base_version()
+del base_version
