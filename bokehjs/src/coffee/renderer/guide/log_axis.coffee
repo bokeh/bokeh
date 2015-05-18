@@ -1,7 +1,3 @@
-_ = require "underscore"
-Collections = require("../../common/base").Collections
-LogTicker = require "../../ticking/log_ticker"
-LogTickFormatter = require "../../ticking/log_tick_formatter"
 Axis = require "./axis"
 
 class LogAxisView extends Axis.View
@@ -12,6 +8,7 @@ class LogAxis extends Axis.Model
 
   initialize: (attrs, objects) ->
     super(attrs, objects)
+    Collections = require("../../common/base").Collections
     if not @get('ticker')?
       @set_obj('ticker', Collections('LogTicker').create())
     if not @get('formatter')?
