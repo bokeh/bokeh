@@ -256,7 +256,7 @@ class CrossBarPlugin(CrossFilterPlugin):
         checking. This factors some of the common checking out so that the
         validity checking isn't repeated in both areas.
         """
-        x_type = CrossBarPlugin.get_col_type(metadata, x)
+        # x_type = CrossBarPlugin.get_col_type(metadata, x)
         y_type = CrossBarPlugin.get_col_type(metadata, y)
 
         if x == y:
