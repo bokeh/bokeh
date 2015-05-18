@@ -36,7 +36,7 @@ BokehJS client:
 
 .. image:: /_images/bokeh_server.png
     :align: center
-    :scale: 80 %
+    :scale: 30 %
 
 Here you can see illustrated the most useful and compelling of the Bokeh server:
 **full two-way communication between the original code and the BokehJS plot.**
@@ -47,6 +47,8 @@ these interactions can be pulled back to the original code to inform some furthe
 query or analysis (possibly resulting in updates pushed back the plot).
 
 We will explore the capabilities afforded by the Bokeh server in detail below.
+
+.. _userguide_server_concepts:
 
 Concepts
 --------
@@ -66,6 +68,7 @@ session open to the server implies that an user is logged in to the server.
 More information about this can be found at the :ref:`Authentication` paragraph
 below.
 
+.. _userguide_server_example_server:
 
 Running the Example Server
 --------------------------
@@ -76,7 +79,7 @@ If Bokeh was installed running python setup.py or using a conda package, then th
 
 .. code-block:: sh
 
-    $ bokeh-server
+    bokeh-server
 
 .. note::
     This will create temporary files in the directory in which you are running it.
@@ -87,19 +90,20 @@ If you have Bokeh installed for development mode (see Building and Installing),
 then you should go into the checked-out source directory and run:
 
 .. code-block:: sh
-    $ python ./bokeh-server
+
+    python ./bokeh-server
 
 .. note::
-
-    ``bokeh-server`` accepts a many input argument options that let the user customize
+    ``bokeh-server`` accepts many input argument options that let the user customize
      it's configuration. Although we will use a few of those in this section we highly
      encourage the user to read XXXXX for more details.
 
-
 Now that we have learned how to run the server, it's time to start using it!
 
-Using the Server to store your plots
-------------------------------------
+.. _userguide_server_storing:
+
+Storing plots on the server
+---------------------------
 
 In order to use our running ``bokeh-server`` we need to create a plot and store it
 on the server.
@@ -114,8 +118,8 @@ that can be used for this. The result is that creating a line plot as a static
 html file (as we have seen on the XXXXXXX example) is not so different than
 creating it on a ``bokeh-server``, as we can see on the following example:
 
-
 .. code-block:: python
+
     from bokeh.plotting import figure, output_server, show
 
     output_server("line") # THIS LINE HAS CHANGED!
@@ -127,9 +131,10 @@ creating it on a ``bokeh-server``, as we can see on the following example:
 
     show(p)
 
+.. _userguide_server_authenticating:
 
-Authentication
---------------
+Authenticating Users
+--------------------
 
 As mentioned before ``bokeh-server`` does implement the concept of authentication.
 At this point one could raise the following question: Really? So why I wasn't asked
@@ -153,12 +158,14 @@ server.
 An user can be created with the following python code:
 
 .. code-block:: python
+
     session = Session(root_url=url)
     session.register(username, password)
 
 or login with:
 
 .. code-block:: python
+
     session = Session(root_url=url)
     session.login(username, password)
 
@@ -180,8 +187,10 @@ published so that different logged user can access it. This can be done,
 again, using the session object as the following snipped shows:
 
 .. code-block:: python
+
     output_server('myplot')
-    #make some plots
+
+    # make some plots
     cursession().publish()
 
 A public link to a plot on the bokeh server page can be viewed by appending
@@ -201,8 +210,8 @@ http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id?public=true.
 Streaming Data with the Server
 ------------------------------
 
-
 .. code-block:: python
+
     import time
     from random import shuffle
     from bokeh.plotting import figure, output_server, cursession, show
@@ -222,6 +231,7 @@ Streaming Data with the Server
     while True:
         # Update y data of the source object
         shuffle(ds.data["y"])
+
         # store the updated source on the server
         cursession().store_objects(ds)
         time.sleep(0.5)
