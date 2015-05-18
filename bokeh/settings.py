@@ -58,7 +58,7 @@ class Settings(object):
         return self._get_str("DOCS_CDN", default)
 
     def docs_version(self, default=None):
-        return self._get_str("DOCS_VERSION", default, None)
+        return self._get_str("DOCS_VERSION", default)
 
     def minified(self, default=None):
         return self._get_bool("MINIFIED", default, False)
