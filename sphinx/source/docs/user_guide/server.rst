@@ -51,16 +51,181 @@ We will explore the capabilities afforded by the Bokeh server in detail below.
 Concepts
 --------
 
+The core architecture of ``bokeh-server`` develops around 2 core models:
+
+* ``Document``
+* ``User``
+
+
+A User controls authentication information at the user level and both models
+combined determines the authorization information regarding user ``documents``
+that  are private, so can be accessed only by the user, or public.
+
+On thing to keep in mind when interacting with bokeh-server is that every
+session open to the server implies that an user is logged in to the server.
+More information about this can be found at the :ref:`Authentication` paragraph
+below.
+
+
 Running the Example Server
 --------------------------
 
+If Bokeh was installed running python setup.py or using a conda package, then the
+``bokeh-server`` command should be available and you can run it from any directory.
+
+
+.. code-block:: sh
+
+    $ bokeh-server
+
+.. note::
+    This will create temporary files in the directory in which you are running it.
+    You may want to create a ~/bokehtemp/ directory or some such, and run the
+    command there
+
+If you have Bokeh installed for development mode (see Building and Installing),
+then you should go into the checked-out source directory and run:
+
+.. code-block:: sh
+    $ python ./bokeh-server
+
+.. note::
+
+    ``bokeh-server`` accepts a many input argument options that let the user customize
+     it's configuration. Although we will use a few of those in this section we highly
+     encourage the user to read XXXXX for more details.
+
+
+Now that we have learned how to run the server, it's time to start using it!
+
+Using the Server to store your plots
+------------------------------------
+
+In order to use our running ``bokeh-server`` we need to create a plot and store it
+on the server.
+It's possible to do it by using the ``Document`` and the ``Session`` objects.
+The former can be considered as a ``namespace`` object that holds the plot
+information while the later willtake care of connecting and registering the
+information on the server. It also acts as an open channel that can be used
+to send/receive changes to/from the server.
+
+As usual, the ``bokeh.plotting`` interface provides a set of useful shortcuts
+that can be used for this. The result is that creating a line plot as a static
+html file (as we have seen on the XXXXXXX example) is not so different than
+creating it on a ``bokeh-server``, as we can see on the following example:
+
+
+.. code-block:: python
+    from bokeh.plotting import figure, output_server, show
+
+    output_server("line") # THIS LINE HAS CHANGED!
+
+    p = figure(plot_width=400, plot_height=400)
+
+    # add a line renderer
+    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
+
+    show(p)
+
+
+Authentication
+--------------
+
+As mentioned before ``bokeh-server`` does implement the concept of authentication.
+At this point one could raise the following question: Really? So why I wasn't asked
+to login to register or the plot I've created in the previous section?
+
+This is a good question and the reason is because ``bokeh-server`` defaults to
+single user mode when launched. This is very important to keep in mind: when in
+single user mode every request is automatically logged in as a user with username
+``defaultuser``.
+
+However for teams, and for plot publishing (see :ref:`publish_to_server` for
+more details), it makes more sense to add an authentication layer. This way
+users won’t be able to overwrite each other’s plots. To do enable multi
+user mode, You need to turn on the multi_user bokeh server setting by
+using the command line parameter ``-m``. Once this is done, all scripts that use
+the bokeh server must authenticate with the bokeh server.
+
+Once again the ``Session`` object can be used to create or login users to the
+server.
+
+An user can be created with the following python code:
+
+.. code-block:: python
+    session = Session(root_url=url)
+    session.register(username, password)
+
+or login with:
+
+.. code-block:: python
+    session = Session(root_url=url)
+    session.login(username, password)
+
+
+.. note::
+
+    The bokeh client library will store authentication keys (in the
+     ``~/.bokeh`` directory), so logging in is not necessary in subsequent
+     invocations.
+
+
+.. _publish_to_server:
 
 Publishing to the Server
 ------------------------
 
+As mentioned earlier, when running in multi user mode, a plot must be
+published so that different logged user can access it. This can be done,
+again, using the session object as the following snipped shows:
+
+.. code-block:: python
+    output_server('myplot')
+    #make some plots
+    cursession().publish()
+
+A public link to a plot on the bokeh server page can be viewed by appending
+?public=true To the url - for example if you have the url to a
+plot http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id,
+You can generate a public link to the published plot using
+http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id?public=true.
+
+.. note::
+
+    In addition, the autoload_server function call in bokeh.embed shown
+    in :ref:`userguide_embed_autoload_server` also takes a public=true
+    keyword argument, which will generate an embeddable html snippet
+    that will load the public version of a given plot
+
 
 Streaming Data with the Server
 ------------------------------
+
+
+.. code-block:: python
+    import time
+    from random import shuffle
+    from bokeh.plotting import figure, output_server, cursession, show
+
+    # prepare output to server
+    output_server("animated_line")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], name='ex_line')
+    show(p)
+
+    # create some simple animation..
+    # first get our figure example data source
+    renderer = p.select(dict(name="ex_line"))
+    ds = renderer[0].data_source
+
+    while True:
+        # Update y data of the source object
+        shuffle(ds.data["y"])
+        # store the updated source on the server
+        cursession().store_objects(ds)
+        time.sleep(0.5)
+
 
 
 Downsampling with Server
