@@ -61,7 +61,7 @@ copyright = u'2013, Continuum Analytics'
 
 # Get the standard computed Bokeh version string to use for |version|
 # and |release|
-from bokeh import __version__, __base_version__
+from bokeh import __version__
 
 # The short X.Y version.
 version = __version__
