@@ -86,7 +86,7 @@ The |select| method can query on other attributes as well:
     >>> p.select(name="mycircle")
     [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
 
-This sort of query can be expecially useful for styling visual attributes
+This sort of query can be especially useful for styling visual attributes
 of `Glyphs`_.
 
 .. _userguide_styling_plots:
@@ -97,7 +97,7 @@ Plots
 |Plot| objects themselves have many visual characteristics that can be styled:
 the dimensions of the plot, backgrounds, borders, outlines, etc. This section
 describes how to change these attributes of a Bokeh plot. The example code
-primarly use the |bokeh.plotting| interface to create plots, however the
+primarily uses the |bokeh.plotting| interface to create plots, however the
 instructions apply regardless of how a Bokeh plot was created.
 
 .. _userguide_styling_plot_dimensions:
@@ -260,7 +260,7 @@ list:
     >>> p.select(name="mycircle")[0]
     <bokeh.models.renderers.GlyphRenderer at 0x106a4c810>
 
-Then, the glyph itself is obtained form the ``.glyph`` attribute of a
+Then, the glyph itself is obtained from the ``.glyph`` attribute of a
 ``GlyphRenderer``:
 
 .. _userguide_styling_axes:
@@ -487,11 +487,11 @@ formatters by default in different situations:
 * |LogTickFormatter| --- Default formatter for log axes.
 
 These default tick formatters do not expose many configurable properties.
-To control tick formatting at a finer grained level, use on of the
+To control tick formatting at a finer grained level, use one of the
 |NumeralTickFormatter| or |PrintfTickFormatter| described below.
 
 .. note::
-    To replace an tick formatter on an Axis, you must set the ``formatter``
+    To replace a tick formatter on an Axis, you must set the ``formatter``
     property on an actual ``Axis`` object, not on a splattable list. This is
     why ``p.yaxis[0].formatter``, etc. (with the subscript ``[0]``) is used.
 
@@ -517,7 +517,7 @@ to control the text formatting of axis ticks.
 
     show(p)
 
-Many additional formats are understood, see the full |NumeralTickFormatter|
+Many additional formats are available, see the full |NumeralTickFormatter|
 documentation in the :ref:`refguide`.
 
 ``PrintfTickFormatter``
@@ -577,7 +577,7 @@ that gives the angle (in radians) to rotate from the horizontal:
 There are more properties that Bokeh axes support configuring.
 For a complete listing of all the various attributes that can be set
 on different types of Bokeh axes, consult the :ref:`bokeh.models.axes`
-section of of the :ref:`refguide`.
+section of the :ref:`refguide`.
 
 .. _userguide_styling_grids:
 
@@ -597,7 +597,7 @@ objects:
     [<bokeh.models.grids.Grid at 0x106fa2278>,
      <bokeh.models.grids.Grid at 0x106fa22e8>]
 
-These methods also return splattable lists, so that you can set attributes
+These methods also return splattable lists, so that you can set an attribute
 on the list, as if it was a single object, and the attribute is changed
 for every element of the list:
 
@@ -674,8 +674,8 @@ bands, set their fill color to ``None`` (this is the default).
 Bounds
 ~~~~~~
 
-Grids also support setting expicit bounds between which they are drawn.
-They are set in an identical fashion as axes bounds, with a 2-tuple
+Grids also support setting explicit bounds between which they are drawn.
+They are set in an identical fashion to axes bounds, with a 2-tuple
 of *(start, end)*:
 
 .. bokeh-plot::
@@ -716,7 +716,7 @@ objects:
     >>> p.grid
     [<bokeh.models.renderers.Legend at 0x106fa2278>]
 
-This method also returns a splattable list, so that you can set attributes
+This method also returns a splattable list, so that you can set an attribute
 on the list, as if it was a single object, and the attribute is changed
 for every element of the list:
 

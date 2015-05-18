@@ -115,7 +115,7 @@ BoxZoomTool
 * name: ``'box_zoom'``
 * icon: |box_zoom_icon|
 
-The box zoom tool allows the user to degine a rectangular region to zoom the
+The box zoom tool allows the user to define a rectangular region to zoom the
 plot bounds too, by left-dragging a mouse, or dragging a finger across the
 plot area.
 
@@ -141,7 +141,7 @@ PanTool
 The pan tool allows the user to pan the plot by left-dragging a mouse or dragging a
 finger across the plot region.
 
-It is also possible to constraint the pan tool to only act on either just the x-axis or
+It is also possible to constrain the pan tool to only act on either just the x-axis or
 just the y-axis by setting the ``dimension`` property to ``width`` or ``height``.
 Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``, respectively.
 
@@ -169,11 +169,11 @@ PolySelectTool
 * icon: |poly_select_icon|
 
 The polygon selection tool allows the user to define an arbitrary polygonal
-regions for selection by left-clicking a mouse, or tapping a finger at different
+region for selection by left-clicking a mouse, or tapping a finger at different
 locations.
 
 .. note::
-    To complete the selection, make a double left-click or tapping. To make a
+    Complete the selection by making a double left-click or tapping. To make a
     multiple selection, press the SHIFT key. To clear the selection, press the
     ESC key.
 
@@ -204,8 +204,8 @@ WheelZoomTool
 * name: ``'wheel_zoom'``, ``'xwheel_zoom'``, ``'ywheel_zoom'``
 * icon: |wheel_zoom_icon|
 
-The wheel zoom tool will zoom the plot in and out, centered on the curren
-t mouse location.
+The wheel zoom tool will zoom the plot in and out, centered on the current
+mouse location.
 
 It is also possible to constraint the wheel zoom tool to only act on either
 just the x-axis or just the y-axis by setting the ``dimension`` property to
@@ -455,7 +455,7 @@ sizes, Bokeh plots offer "Level of Detail" (LOD) capability in the client.
     :ref:`userguide_server` for more information.
 
 The basic idea is that during interactive operations (e.g., panning or zooming),
-the plot only draws some small fraction data points. This hopefully allows the
+the plot only draws some small fraction of data points. This hopefully allows the
 general sense of the interaction to be preserved mid-flight, while maintaining
 interactive performance. There are four properties on |Plot| objects that control
 LOD behavior:
