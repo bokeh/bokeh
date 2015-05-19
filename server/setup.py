@@ -17,10 +17,6 @@ with safeopen(os.path.join(here, 'README.txt')) as f:
 with safeopen(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 
-requires = [
-#    'bokeh',
-    ]
-
 setup(name='bokeh_server',
       version='0.0',
       description='Bokeh Server',
@@ -35,8 +31,10 @@ setup(name='bokeh_server',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      test_suite='alch',
-      install_requires=requires,
+      test_suite='bokeh_server.tests',
+      install_requires=[
+        'bokeh',
+        ],
       entry_points="""\
       [console_scripts]
       bokeh_server = bokeh_server:main
