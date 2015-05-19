@@ -6,7 +6,7 @@
 
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 
 N = 100
 x = np.linspace(0, 4*np.pi, N)

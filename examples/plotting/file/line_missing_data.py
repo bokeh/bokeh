@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, output_file, show
 
 x = np.linspace(0, 4*np.pi, 200)
 y1 = np.sin(x)
@@ -16,7 +16,6 @@ y1[y1<-0.9] = -np.inf
 # Set high values to nan and mask the low
 y2[y2>0.9] = np.nan
 y2 = np.ma.masked_array(y2, y2<-0.9)
-
 
 output_file("line_missing_data.html", title="line_missing_data.py example")
 

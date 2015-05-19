@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 
 # Define Bollinger Bands.
 upperband = np.random.random_integers(100, 150, size=100)

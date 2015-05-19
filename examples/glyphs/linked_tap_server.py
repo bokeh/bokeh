@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, VBox, HBox, Button, TapTool
+from bokeh.models import ColumnDataSource, DataRange1d, Plot, Circle, VBox, HBox, Button, TapTool
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.browserlib import view

@@ -1,14 +1,7 @@
-from collections import OrderedDict
-import os
-import numpy as np
-import pandas as pd
 from bokeh.models import HoverTool
-from bokeh.charts import Chart, Step, Line, Area, Scatter, Bar, vplot, hplot, show, output_file
+from bokeh.charts import Line, Scatter, vplot, hplot, show, output_file
+from bokeh.sampledata.degrees import xyvalues
 
-from py import path
-HERE = path.local(__file__).dirpath()
-
-xyvalues = pd.read_csv(str(HERE.join("percent-bachelors-degrees-women-usa.csv")))
 index = xyvalues.pop("Year")
 xyvalues = xyvalues[['Biology', 'Business', 'Computer Science']]
 
@@ -70,12 +63,15 @@ shover.mode = 'vline'
 shoverp = scatter_point.select(dict(type=HoverTool))
 shoverp.mode = 'mouse'
 
-int_vhover.tooltips = int_hhover.tooltips = tphover.tooltips = iphover.tooltips = shover.tooltips = shoverp.tooltips = vhover.tooltips = hhover.tooltips = OrderedDict([
+TOOLTIPS = [
     ("y", "$~y"),
     ("x", "$~x"),
-    # ("data_x", "$~x"),
-    # ("data_y", "$~y"),
-])
+]
+
+int_vhover.tooltips = int_hhover.tooltips = TOOLTIPS
+tphover.tooltips = iphover.tooltips = TOOLTIPS
+shover.tooltips = shoverp.tooltips = TOOLTIPS
+vhover.tooltips = hhover.tooltips = TOOLTIPS
 
 show(
     vplot(

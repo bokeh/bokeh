@@ -5,7 +5,7 @@ Styling Visual Attributes
 
 .. contents::
     :local:
-    :depth: 3
+    :depth: 2
 
 .. _userguide_styling_colors:
 
@@ -60,10 +60,45 @@ Text Properties
 Selecting Plot Objects
 ----------------------
 
+As described in :ref:`userguide_concepts`, Bokeh plots comprise graphs of
+objects that represent all the different parts of the plot: grids, axes,
+glyphs, etc. In order to style Bokeh plots, it is necessary to first find
+the right object, then set its various attributes. Some objects have
+convenience methods to help find the objects of interest (see `Axes`_,
+`Grids`_, and `Legends`_). But there is also a |select| method on |Plot|
+that can be used to query for Bokeh plot objects more generally.
+
+For example, you can query for objects by type. The following snippet
+returns all the `PanTool` objects a plot has:
+
+.. code-block:: python
+
+    >>> p.select(type=PanTool)
+    [<bokeh.models.tools.PanTool at 0x106608b90>]
+
+The |select| method can query on other attributes as well:
+
+.. code-block:: python
+
+    >>> p.circle(0, 0, name="mycircle")
+    <bokeh.plotting.Figure at 0x106608810>
+
+    >>> p.select(name="mycircle")
+    [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
+
+This sort of query can be especially useful for styling visual attributes
+of `Glyphs`_.
+
 .. _userguide_styling_plots:
 
 Plots
 -----
+
+|Plot| objects themselves have many visual characteristics that can be styled:
+the dimensions of the plot, backgrounds, borders, outlines, etc. This section
+describes how to change these attributes of a Bokeh plot. The example code
+primarily uses the |bokeh.plotting| interface to create plots, however the
+instructions apply regardless of how a Bokeh plot was created.
 
 .. _userguide_styling_plot_dimensions:
 
@@ -97,9 +132,9 @@ as a convenience:
 Title
 ~~~~~
 
-The styling of the title of the plot is controlled by a set of `Text Properties`_
-on the |Plot|, that are prefixed with ``title_``. For instance, to set the color
-of the outline, use ``title_text_color``:
+The styling of the plot title is controlled by a set of `Text Properties`_
+on the |Plot|, that are prefixed with ``title_``. For instance, to set the
+color of the title text, use ``title_text_color``:
 
 .. bokeh-plot::
     :source-position: above
@@ -182,8 +217,6 @@ to all sides as a convenience.
 Outline
 ~~~~~~~
 
-.. _userguide_styling_glyphs:
-
 The styling of the outline of the plotting area is controlled by a set of
 `Line Properties`_ on the |Plot|, that are prefixed with ``outline_``. For
 instance, to set the color of the outline, use ``outline_line_color``:
@@ -205,10 +238,88 @@ instance, to set the color of the outline, use ``outline_line_color``:
 
     show(p)
 
+.. _userguide_styling_glyphs:
+
 Glyphs
 ------
 
+As seen in :ref:`userguide_styling_selecting`, the |select| method can be
+used to retrieve ``GlyphRenderer`` objects from a plot:
+
+.. code-block:: python
+
+    >>> p.select(name="mycircle")
+    [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
+
+To style the fill, line, or text properties of a glyph, it is first
+necessary to obtain a specific ``GlyphRenderer`` from the returned
+list:
+
+.. code-block:: python
+
+    >>> p.select(name="mycircle")[0]
+    <bokeh.models.renderers.GlyphRenderer at 0x106a4c810>
+
+Then, the glyph itself is obtained from the ``.glyph`` attribute of a
+``GlyphRenderer``:
+
 .. _userguide_styling_axes:
+
+.. code-block:: python
+
+    >>> p.select(name="mycircle")[0].glyph
+    <bokeh.models.markers.Circle at 0x10799ba10>
+
+This is the object to set fill, line, or text property values for:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("axes.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], name="mycircle")
+
+    glyph = p.select(name="mycircle")[0].glyph
+    glyph.size = 60
+    glyph.fill_alpha = 0.2
+    glyph.line_color = "firebrick"
+    glyph.line_dash = [6, 3]
+    glyph.line_width = 2
+
+    show(p)
+
+``GlyphRenderer`` objects can also be configured with ``selection_glyph``
+and ``nonselection_glyph`` attributes that control the visual appearance of
+glyphs when selection tools are used.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("axes.html")
+
+    p = figure(plot_width=400, plot_height=400, tools="lasso_select")
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=50, name="mycircle")
+
+    glyph = p.select(name="mycircle")[0].nonselection_glyph
+    glyph.fill_alpha = 0.2
+    glyph.line_color = "firebrick"
+    glyph.line_dash = [6, 3]
+    glyph.line_width = 2
+
+    show(p)
+
+Use the lasso tool to select circles on the plot above to see the effect
+on the nonselected glyphs.
+
+.. note::
+    Only the *visual* properties of ``selection_glyph`` and
+    ``nonselection_glyph`` are considered when renderering. Changing
+    positions, sizes, etc. will have no effect.
 
 Axes
 ----
@@ -216,9 +327,8 @@ Axes
 In this section you will learn how to change various visual properties
 of Bokeh plot axes.
 
-The easiest way to get ahold of Axis objects, so that you can set
-style attributes on them, is to use the |xaxis|, |yaxis|, and |axis|
-methods on a plot:
+To set style attributes on Axis objects, use the |xaxis|, |yaxis|, and
+|axis| methods on |Plot| to first obtain a plot's Axis objects:
 
 .. code-block:: python
 
@@ -247,7 +357,7 @@ execute this code, and try setting other properties as well.
 
     output_file("axes.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     # change just some things about the x-axes
@@ -286,7 +396,7 @@ the ``axis_label_standoff`` property:
 
     output_file("bounds.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.xaxis.axis_label = "Lot Number"
@@ -316,7 +426,7 @@ of *(start, end)*:
 
     output_file("bounds.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.xaxis.bounds = (2, 4)
@@ -344,7 +454,7 @@ These values are in screen units, and negative values are acceptable.
 
     output_file("axes.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     p.xaxis.major_tick_line_color = "firebrick"
@@ -359,21 +469,115 @@ These values are in screen units, and negative values are acceptable.
 
     show(p)
 
+.. _userguide_styling_axes_tick_label_formats:
 
-.. _userguide_styling_axes_tick_labels:
+Tick Label Formats
+~~~~~~~~~~~~~~~~~~
 
-Tick Labels
-~~~~~~~~~~~
+The text styling of axis labels is controlled by a ``TickFormatter`` object
+configured on the axis' ``formatter`` property. Bokeh uses a number of ticker
+formatters by default in different situations:
 
+* |BasicTickFormatter| --- Default formatter for  linear axes.
 
-Now we have seen that various line and text properties of plot axes
-can be easily set by using the |xaxis|, |yaxis| and |axis| properties
-of plots.
+* |CategoricalTickFormatter| --- Default formatter for categorical axes.
 
-There are many more properties that Bokeh axes support configuring.
+* |DatetimeTickFormatter| --- Default formatter for datetime axes.
+
+* |LogTickFormatter| --- Default formatter for log axes.
+
+These default tick formatters do not expose many configurable properties.
+To control tick formatting at a finer grained level, use one of the
+|NumeralTickFormatter| or |PrintfTickFormatter| described below.
+
+.. note::
+    To replace a tick formatter on an Axis, you must set the ``formatter``
+    property on an actual ``Axis`` object, not on a splattable list. This is
+    why ``p.yaxis[0].formatter``, etc. (with the subscript ``[0]``) is used.
+
+``NumeralTickFormatter``
+''''''''''''''''''''''''
+
+The |NumeralTickFormatter| has a ``format`` property that can be used
+to control the text formatting of axis ticks.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+    from bokeh.models import NumeralTickFormatter
+
+    output_file("gridlines.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+    p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
+
+    show(p)
+
+Many additional formats are available, see the full |NumeralTickFormatter|
+documentation in the :ref:`refguide`.
+
+``PrintfTickFormatter``
+'''''''''''''''''''''''
+
+The |PrintfTickFormatter| has a ``format`` property that can be used
+to control the text formatting of axis ticks using ``printf`` style
+format strings.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+    from bokeh.models import PrintfTickFormatter
+
+    output_file("gridlines.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis[0].formatter = PrintfTickFormatter(format="%4.1e")
+    p.yaxis[0].formatter = PrintfTickFormatter(format="%5.3f mu")
+
+    show(p)
+
+For full details about formats, see the full |PrintfTickFormatter|
+documentation in the :ref:`refguide`.
+
+.. _userguide_styling_axes_tick_label_orientation:
+
+Tick Label Orientation
+~~~~~~~~~~~~~~~~~~~~~~
+
+The orientation of major tick labels can be controlled with the
+``major_label_orientation`` property. This property accepts the
+values ``"horizontal"`` or ``"vertical"`` or a floating point number
+that gives the angle (in radians) to rotate from the horizontal:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from math import pi
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("gridlines.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.xaxis.major_label_orientation = pi/4
+    p.yaxis.major_label_orientation = "vertical"
+
+    show(p)
+
+----
+
+There are more properties that Bokeh axes support configuring.
 For a complete listing of all the various attributes that can be set
 on different types of Bokeh axes, consult the :ref:`bokeh.models.axes`
-section of of the :ref:`refguide`.
+section of the :ref:`refguide`.
 
 .. _userguide_styling_grids:
 
@@ -384,7 +588,7 @@ In this section you will learn how to set the visual properties of grid
 lines and grid bands on Bokeh plots.
 
 Similar to the convenience methods for axes, there are |xgrid|, |ygrid|,
-and |grid| methods on plots that can be used to get ahold of the grid
+and |grid| methods on |Plot| that can be used to obtain a plot's Grid
 objects:
 
 .. code-block:: python
@@ -393,7 +597,7 @@ objects:
     [<bokeh.models.grids.Grid at 0x106fa2278>,
      <bokeh.models.grids.Grid at 0x106fa22e8>]
 
-These methods also return splattable lists, so that you can set attributes
+These methods also return splattable lists, so that you can set an attribute
 on the list, as if it was a single object, and the attribute is changed
 for every element of the list:
 
@@ -411,8 +615,10 @@ for every element of the list:
 Lines
 ~~~~~
 
-Below is code that will set some of the properties of grid lines. You can
-execute this code, and try setting other properties as well.
+The visual appearance of grid lines is controlled by a collection of
+`Line Properties`_, prefixed with ``grid_``. For instance, to set the
+color of grid lines, use ``grid_line_color``. To hide grid lines, set
+their line color to ``None``.
 
 .. bokeh-plot::
     :source-position: above
@@ -421,7 +627,7 @@ execute this code, and try setting other properties as well.
 
     output_file("gridlines.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     # change just some things about the x-grid
@@ -439,8 +645,10 @@ Bands
 ~~~~~
 
 It is also possible to display filled, shaded bands between adjacent
-grid lines. Below is code that will set some of the fill properties of
-grids bands. You can execute this code, and try setting different values.
+grid lines. The visual appearance of these bands is controlled by a
+collection of `Fill Properties`_, prefixed with ``band_``. For instance,
+to set the color of grid bands, use ``band_fill_color``. To hide grid
+bands, set their fill color to ``None`` (this is the default).
 
 .. bokeh-plot::
     :source-position: above
@@ -449,7 +657,7 @@ grids bands. You can execute this code, and try setting different values.
 
     output_file("gridbands.html")
 
-    p = figure(plot_width=400, plot_height=400, title=None)
+    p = figure(plot_width=400, plot_height=400)
     p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
     # change just some things about the x-grid
@@ -461,13 +669,37 @@ grids bands. You can execute this code, and try setting different values.
 
     show(p)
 
+.. _userguide_styling_grid_bounds:
 
-Now we have seen that various line properties of plot grids can be easily
-set by using the |xgrid|, |ygrid| and |grid| properties of plots.
+Bounds
+~~~~~~
 
-There are other properties that Bokeh grids support configuring.
-For a complete listing of all the various attributes that can be set
-on Bokeh plot grids, consult the :ref:`bokeh.models.grids` section of the
+Grids also support setting explicit bounds between which they are drawn.
+They are set in an identical fashion to axes bounds, with a 2-tuple
+of *(start, end)*:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.models.ranges import Range1d
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("bounds.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    p.grid.bounds = (2, 4)
+
+    show(p)
+
+
+
+----
+
+There are other properties that Bokeh grids support configuring. For a
+complete listing of all the various attributes that can be set on Bokeh
+plot grids, consult the :ref:`bokeh.models.grids` section of the
 :ref:`refguide`.
 
 .. _userguide_styling_legends:
@@ -475,9 +707,191 @@ on Bokeh plot grids, consult the :ref:`bokeh.models.grids` section of the
 Legends
 -------
 
+Similar to the convenience methods for axes and grids, there is a
+|legend| method on |Plot| that can be used to obtain a plot's legend
+objects:
+
+.. code-block:: python
+
+    >>> p.grid
+    [<bokeh.models.renderers.Legend at 0x106fa2278>]
+
+This method also returns a splattable list, so that you can set an attribute
+on the list, as if it was a single object, and the attribute is changed
+for every element of the list:
+
+.. code-block:: python
+
+    p.legend.label_text_font = "times"
+
+.. note::
+    The examples in this section use NumPy to more easily generate better
+    data suitable for demonstrating legends.
+
+Location
+~~~~~~~~
+
+The location of the legend labels is controlled by the ``orientation``
+property. Valid values for this property are:
+
+``"top_right"``
+
+``"top_left"``
+
+``"bottom_left"``
+
+``"bottom_right"``
+
+The default location is ``"top_right"``.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend_labels.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    p.legend.orientation = "bottom_left"
+
+    show(p)
+
+.. note::
+    It is not currently possible to position a legend outside the plot area,
+    or using absolute coordinates. These and other improvements are planned.
+
+Label Text
+~~~~~~~~~~
+
+The visual appearance of the legend labels is controlled by  a collection of
+`Text Properties`_, prefixed with ``label_``. For instance, to set the font
+style of the labels, use ``label_text_font_style``.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend_labels.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    p.legend.label_text_font = "times"
+    p.legend.label_text_font_style = "italic"
+    p.legend.label_text_color = "navy"
+
+    show(p)
+
+Border
+~~~~~~
+
+The visual appearance of the legend border is controlled by  a collection of
+`Line Properties`_, prefixed with ``border_``. For instance, to set the color
+of the border, use ``border_line_color``. To make the border invisible, set
+the border line color to ``None``.
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend_labels.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    p.legend.border_line_width = 3
+    p.legend.border_line_color = "navy"
+    p.legend.border_line_alpha = 0.5
+
+    show(p)
+
+Dimensions
+~~~~~~~~~~
+
+There are several properties that can be used to control the layout,
+spacing, etc. of the legend compononents:
+
+.. bokeh-prop:: bokeh.models.renderers.Legend.label_standoff
+.. bokeh-prop:: bokeh.models.renderers.Legend.label_width
+.. bokeh-prop:: bokeh.models.renderers.Legend.label_height
+.. bokeh-prop:: bokeh.models.renderers.Legend.glyph_width
+.. bokeh-prop:: bokeh.models.renderers.Legend.glyph_height
+.. bokeh-prop:: bokeh.models.renderers.Legend.legend_padding
+.. bokeh-prop:: bokeh.models.renderers.Legend.legend_spacing
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    from bokeh.plotting import *
+
+    x = np.linspace(0, 4*np.pi, 100)
+    y = np.sin(x)
+
+    output_file("legend_labels.html")
+
+    p = figure()
+
+    p.circle(x, y, legend="sin(x)")
+    p.line(x, y, legend="sin(x)")
+
+    p.line(x, 2*y, legend="2*sin(x)",
+        line_dash=[4, 4], line_color="orange", line_width=2)
+
+    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+
+    p.legend.label_standoff = 5
+    p.legend.glyph_width = 50
+    p.legend.legend_spacing = 10
+    p.legend.legend_padding = 50
+
+    show(p)
 
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
+.. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
+
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
@@ -486,6 +900,13 @@ Legends
 
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 
+.. |bokeh.models.formatters| replace:: :ref:`bokeh.models.formatters <bokeh.models.formatters>`
+.. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
+.. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
+.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
+.. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
+.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
+.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
 .. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`

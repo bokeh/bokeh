@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file, vplot
 
 output_file("stocks.html", title="stocks.py example")
 
