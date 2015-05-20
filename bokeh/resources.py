@@ -31,8 +31,8 @@ def _cdn_base_url():
 
 def _get_cdn_urls(version=None, minified=True):
     if version is None:
-        if settings.local_docs_cdn():
-            version = settings.local_docs_cdn()
+        if settings.docs_cdn():
+            version = settings.docs_cdn()
         else:
             version = __version__.split('-')[0]
 
