@@ -11,7 +11,7 @@ Leveraging Other Libraries
 Overview
 --------
 
-Bokeh currently utilizes the third part library `mplexporter`_ to help convert
+Bokeh currently utilizes the third party library `mplexporter`_ to help convert
 `Matplotlib`_ plots into Bokeh plots. MPL plots using features not supported
 by `mplexporter`_ may not render fully. However, there are plans (`MEP 25`_)
 for Matplotlib to adopt a native JSON ingest/export functionality of its own

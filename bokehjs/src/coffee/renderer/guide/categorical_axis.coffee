@@ -1,8 +1,4 @@
-Collections = require("../../common/base").Collections
 {logger} = require "../../common/logging"
-FactorRange = require "../../range/factor_range"
-CategoricalTicker = require "../../ticking/categorical_ticker"
-CategoricalTickFormatter = require "../../ticking/categorical_tick_formatter"
 Axis = require "./axis"
 
 class CategoricalAxisView extends Axis.View
@@ -13,6 +9,7 @@ class CategoricalAxis extends Axis.Model
 
   initialize: (attrs, objects) ->
     super(attrs, objects)
+    Collections = require("../../common/base").Collections
     if not @get('ticker')?
       @set_obj('ticker', Collections('CategoricalTicker').create())
     if not @get('formatter')?

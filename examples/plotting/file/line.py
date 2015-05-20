@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 
 x = np.linspace(0, 4*np.pi, 200)
 y = np.sin(x)

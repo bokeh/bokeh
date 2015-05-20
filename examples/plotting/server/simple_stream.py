@@ -9,7 +9,7 @@ import time
 
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import cursession, figure, show, output_server
 from bokeh.models import GlyphRenderer
 
 x = np.linspace(0, 4*np.pi, 200)
@@ -30,6 +30,3 @@ while True:
     ds.data["y"] = np.sin(newx)
     cursession().store_objects(ds)
     time.sleep(0.5)
-    
-
-

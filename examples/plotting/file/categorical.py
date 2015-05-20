@@ -1,4 +1,4 @@
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file, vplot
 
 N = 4000
 

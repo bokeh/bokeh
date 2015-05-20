@@ -78,10 +78,10 @@ running the code and changing the Line function with Area or Step to create othe
 Bar and Dot Charts
 ~~~~~~~~~~~~~~~~~~
 
-Although the different nature of Bar and Dot charts compared to the ones we have seen in the
-previous paragraph, those charts can be created exactly in the same way.
-Below is the code to create a Bar chart with the same data of the previous example. Worth
-mentioning is that only change is the chart function and the definition of the category names.
+Although the nature of Bar and Dot charts differs somewhat from those in the previous paragraph,
+they can be created in exactly the same way.  Below is the code to create a Bar chart with the
+same data as the previous example. Worth mentioning is that the only changes are the chart function and
+the definition of the category names.
 
 .. bokeh-plot::
     :source-position: above

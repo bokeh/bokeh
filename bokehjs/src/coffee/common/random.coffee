@@ -6,7 +6,7 @@ class Random
     @multiplier = 1664525
     @modulo = 4294967296 # 2**32-1;
     @offset = 1013904223
-    unless @seed? && 0 <= seed < @modulo
+    unless @seed? && 0 <= @seed < @modulo
       @seed = (new Date().valueOf() * new Date().getMilliseconds()) % @modulo
 
   # sets new seed value

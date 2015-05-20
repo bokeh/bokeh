@@ -1,5 +1,5 @@
 import numpy as np
-from bokeh.plotting import *
+from bokeh.plotting import figure, gridplot, show, output_file
 from bokeh.models import ColumnDataSource
 
 output_file("linked_brushing.html", title="linked_brushing.py example")

@@ -4,7 +4,7 @@
 import numpy as np
 
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_server, vplot
 
 output_server("stocks")
 
@@ -41,4 +41,3 @@ p2.ygrid.band_fill_color="olive"
 p2.ygrid.band_fill_alpha = 0.1
 
 show(vplot(p1,p2))  # open a browser
-

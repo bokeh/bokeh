@@ -2,7 +2,7 @@
 # Go to http://localhost:5006/bokeh to view this plot
 
 import numpy as np
-from bokeh.plotting import *
+from bokeh.plotting import figure, gridplot, show, output_server
 from bokeh.models import ColumnDataSource
 
 output_server("linked_brushing")

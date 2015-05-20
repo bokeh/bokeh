@@ -21,10 +21,9 @@ class HelpTool extends ActionTool.Model
   defaults: ->
     return _.extend {}, super(), {
       help_tooltip: 'Click the question mark to learn more about Bokeh plot tools.'
-      redirect: 'http://bokeh.pydata.org/en/latest/docs/user_guide/objects.html#tools'
+      redirect: 'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html'
     }
 
 module.exports =
   Model: HelpTool,
   View: HelpToolView,
-

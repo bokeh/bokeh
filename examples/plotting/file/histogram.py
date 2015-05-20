@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.special
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file, vplot
 
 output_file('histogram.html')
 

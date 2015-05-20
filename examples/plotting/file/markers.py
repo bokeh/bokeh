@@ -1,6 +1,6 @@
 from numpy.random import random
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 
 def mscatter(p, x, y, typestr):
     p.scatter(x, y, marker=typestr,

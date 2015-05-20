@@ -1,5 +1,5 @@
 from bokeh.sampledata.iris import flowers
-from bokeh.plotting import *
+from bokeh.plotting import figure, show, output_file
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 flowers['color'] = flowers['species'].map(lambda x: colormap[x])

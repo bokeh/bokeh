@@ -1,3 +1,4 @@
+_ = require "underscore"
 base = require "../common/base"
 Logging = require "../common/logging"
 FactorRange = require "../range/factor_range"
@@ -81,13 +82,13 @@ _process_annotations = (annotations) ->
 
   return annotation_objs
 
-_process_tools = (tools) ->
+_process_tools = (tools, plot) ->
   tool_objs = []
 
   for tool in tools
     if _.isString(tool)
       tool_type = tool + "Tool"
-      tool_args = {}
+      tool_args = {plot: plot}
     else
       tool_type = tool.type + "Tool"
       tool_args = _.omit(tool, "type")

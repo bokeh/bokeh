@@ -5,7 +5,7 @@ Configuring Plot Tools
 
 .. contents::
     :local:
-    :depth: 2
+    :depth: 3
 
 Bokeh comes with a number of interactive tools. There are three categories of tool
 interactions:
@@ -106,8 +106,8 @@ The box select tool may be configured to select across only one dimension by
 setting the ``dimension`` property to ``width`` or ``height``.
 
 .. note::
-    To make a multiple selection, you have to press the SHIFT key and
-    to clear the selection you have to press ESC key.
+    To make a multiple selection, press the SHIFT key. To clear the
+    selection, press the ESC key.
 
 BoxZoomTool
 '''''''''''
@@ -115,7 +115,7 @@ BoxZoomTool
 * name: ``'box_zoom'``
 * icon: |box_zoom_icon|
 
-The box zoom tool allows the user to degine a rectangular region to zoom the
+The box zoom tool allows the user to define a rectangular region to zoom the
 plot bounds too, by left-dragging a mouse, or dragging a finger across the
 plot area.
 
@@ -129,8 +129,8 @@ The lasso selection tool allows the user to define an arbitrary region for
 selection by left-dragging a mouse, or dragging a finger across the plot area.
 
 .. note::
-    To make a multiple selection, you have to press the SHIFT key and
-    to clear the selection you have to press ESC key.
+    To make a multiple selection, press the SHIFT key. To clear the selection,
+    press the ESC key.
 
 PanTool
 '''''''
@@ -141,7 +141,7 @@ PanTool
 The pan tool allows the user to pan the plot by left-dragging a mouse or dragging a
 finger across the plot region.
 
-It is also possible to constraint the pan tool to only act on either just the x-axis or
+It is also possible to constrain the pan tool to only act on either just the x-axis or
 just the y-axis by setting the ``dimension`` property to ``width`` or ``height``.
 Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``, respectively.
 
@@ -169,13 +169,13 @@ PolySelectTool
 * icon: |poly_select_icon|
 
 The polygon selection tool allows the user to define an arbitrary polygonal
-regions for selection by left-clicking a mouse, or tapping a finger at different
+region for selection by left-clicking a mouse, or tapping a finger at different
 locations.
 
 .. note::
-    To complete the selection, you have to make a double left-click or tapping
-    Also, to make a multiple selection, you have to press the SHIFT key and
-    to clear the selection you have to press ESC key.
+    Complete the selection by making a double left-click or tapping. To make a
+    multiple selection, press the SHIFT key. To clear the selection, press the
+    ESC key.
 
 TapSelectTool
 '''''''''''''
@@ -187,8 +187,8 @@ The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
 
 .. note::
-    To make a multiple selection, you have to press the SHIFT key and
-    to clear the selection you have to press ESC key.
+    To make a multiple selection, press the SHIFT key. To clear the selection,
+    press the ESC key.
 
 .. _userguide_tools_scrollpinch:
 
@@ -204,8 +204,8 @@ WheelZoomTool
 * name: ``'wheel_zoom'``, ``'xwheel_zoom'``, ``'ywheel_zoom'``
 * icon: |wheel_zoom_icon|
 
-The wheel zoom tool will zoom the plot in and out, centered on the curren
-t mouse location.
+The wheel zoom tool will zoom the plot in and out, centered on the current
+mouse location.
 
 It is also possible to constraint the wheel zoom tool to only act on either
 just the x-axis or just the y-axis by setting the ``dimension`` property to
@@ -325,10 +325,36 @@ to be displayed is configurable through a tooltips attribute that maps display
 names to columns in the data source, or to special known variables.
 
 Field names starting with “@” are interpreted as columns on the data source.
-Field names starting with “$” are special, known fields. More information
-about those fields can be found in the ``HoverTool`` reference.
+Field names starting with “$” are special, known fields, e.g. `$x` will
+display the x-coordinate under the current mouse position. More information
+about those fields can be found in the |HoverTool| reference.
 
-Here is an example of how to configure and use the hover tool:
+Basic Tooltips
+''''''''''''''
+
+The hover tool will generate a default "tabular" tooltip of field names
+and their associated values. These field names and values are supplied
+as a list of *(field name, value)* tuples. For instance, the tooltip
+list below on the left will produce the basic default tooltip below on
+the right:
+
+|
+
++-----------------------------------------------------------+--------------------+
+|::                                                         |                    |
+|                                                           |                    |
+|    hover.tooltips = [                                     |                    |
+|        ("index", "$index"),                               |                    |
+|        ("(x,y)", "($x, $y)"),                             |                    |
+|        ("radius", "@radius"),                             |   |hover_basic|    |
+|        ("fill color", "$color[hex, swatch]:fill_color"),  |                    |
+|        ("foo", "@foo"),                                   |                    |
+|        ("bar", "@bar"),                                   |                    |
+|    ]                                                      |                    |
++-----------------------------------------------------------+--------------------+
+
+Here is a complete example of how to configure and use the hover tool with
+default tooltip:
 
 .. bokeh-plot::
     :source-position: above
@@ -354,11 +380,56 @@ Here is an example of how to configure and use the hover tool:
         ]
     )
 
-    p = figure(plot_width=400, plot_height=400, tools=[hover])
+    p = figure(plot_width=400, plot_height=400, tools=[hover],
+               title="Mouse over the dots")
 
     p.circle('x', 'y', size=20, source=source)
 
     show(p)
+
+Custom Tooltip
+''''''''''''''
+
+It is also possible to supply a custom tooltip template. To do this,
+pass an HTML string, with the Bokeh tooltip field name symbols wherever
+substitutions are desired. An example is shown below:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show, ColumnDataSource
+    from bokeh.models import HoverTool
+
+    output_file("toolbar.html")
+
+    source = ColumnDataSource(
+        data=dict(
+            x=[1,2,3,4,5],
+            y=[2,5,8,2,7],
+            desc=['A', 'b', 'C', 'd', 'E'],
+        )
+    )
+
+    hover = HoverTool(
+        tooltips = """
+        <div>
+            <span style="font-size: 17px; font-weight: bold;">@desc</span>
+            <span style="font-size: 15px; color: #966;">[$index]</span>
+        </div>
+        <div>
+            <span style="font-size: 15px;">Location</span>
+            <span style="font-size: 10px; color: #696;">($x, $y)</span>
+        </div>
+        """
+    )
+
+    p = figure(plot_width=400, plot_height=400, tools=[hover],
+               title="Mouse over the dots")
+
+    p.circle('x', 'y', size=20, source=source)
+
+    show(p)
+
 
 Selection Overlays
 ~~~~~~~~~~~~~~~~~~
@@ -384,7 +455,7 @@ sizes, Bokeh plots offer "Level of Detail" (LOD) capability in the client.
     :ref:`userguide_server` for more information.
 
 The basic idea is that during interactive operations (e.g., panning or zooming),
-the plot only draws some small fraction data points. This hopefully allows the
+the plot only draws some small fraction of data points. This hopefully allows the
 general sense of the interaction to be preserved mid-flight, while maintaining
 interactive performance. There are four properties on |Plot| objects that control
 LOD behavior:
@@ -401,6 +472,9 @@ LOD behavior:
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
+.. |HoverTool| replace:: :func:`~bokeh.models.tools.HoverTool`
+
+.. |hover_basic| image:: /_images/hover_basic.png
 
 .. |box_select_icon| image:: /_images/icons/BoxSelect.png
     :height: 14pt

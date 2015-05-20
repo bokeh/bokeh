@@ -26,7 +26,7 @@ Bokeh with plain Python lists of values.
 The Bokeh plot server does take advantage of NumPy, and may have a hard
 dependency on several compiled libraries.
 
-Ideally, you should have the following libraries installed:
+Have the following libraries installed:
 
 .. hlist::
     :columns: 3
@@ -57,16 +57,20 @@ These Bokeh dependencies are best obtained via the
 versions of popular libraries for the Python scientific and data analysis
 stacks.
 
-If you are already an Anaconda user, you can simply run the command::
+If you are already an Anaconda user, you can simply run the command:
 
-    $ conda install bokeh
+.. code-block:: sh
+
+    conda install bokeh
 
 This will install the most recent published Bokeh release from the
 `Continuum Analytics`_ Anaconda repository, along with all dependencies.
 
-Alternatively, it is possible to install from PyPI using ``pip``::
+Alternatively, it is possible to install from PyPI using ``pip``:
 
-    $ pip install bokeh
+.. code-block:: sh
+
+    pip install bokeh
 
 .. _install_sampledata:
 
@@ -76,12 +80,14 @@ Sample Data
 Some of the Bokeh examples rely on sample data that is not included in the
 Bokeh GitHub repository or released packages, due to their size. Once Bokeh
 is installed, the sample data can be obtained by executing the following
-commands at a python prompt::
+commands at a python prompt:
+
+.. code-block:: python
 
     >>> import bokeh.sampledata
     >>> bokeh.sampledata.download()
 
-Or directly from a Bash or Windows comand prompt:
+Or directly from a Bash or Windows command prompt:
 
 .. code-block:: sh
 
@@ -93,19 +99,25 @@ Notes for Windows Users
 =======================
 
 If you are using Windows then installing `redis`_ may be challenging. On
-Windows the Bokeh plot server defaults to an in-memory (non-persistent)
-storage backend.
+Windows the Bokeh plot server defaults to an in-memory storage backend.
 
-If you would like to try using the Redis backend, we recommend grabbing
-the binaries from one of these locations:
+.. note::
+    The in-memory storage backend will still allow you to run any server
+    examples, but it cannot save any results in a persistent way. It is not
+    suitable for production use.
+
+If you would like to try using the Redis backend on Windows, we recommend
+downloading the binaries from one of these locations:
 
 * https://github.com/dmajkic/redis/downloads
 * http://cloud.github.com/downloads/rgl/redis/redis-2.4.6-setup-64-bit.exe
 
-Once installed, you should add ``C:\Program Files\Redis`` to your ``PATH``
-variable, and execute run the Bokeh server as follows::
+Once installed, add ``C:\Program Files\Redis`` to your ``PATH`` variable,
+and execute run the Bokeh server as follows:
 
-    $ bokeh-server --backend=redis
+.. code-block:: sh
+
+    bokeh-server --backend=redis
 
 .. _install_source:
 
@@ -115,7 +127,7 @@ Installing from Source
 Installing Bokeh from source requires rebuilding the BokehJS library
 from its CoffeeScript sources. Some additional toolchain support is required.
 Please consult the :ref:`devguide_building` section of the :ref:`devguide` for
-more detailed instructions.
+detailed instructions.
 
 .. _install_devbuild:
 
@@ -128,11 +140,16 @@ to make a new developer build available at least once a week, and sometimes more
 often.
 
 These builds are being made available on `binstar.org`_. If you are using
-Anaconda, you can install with conda by issuing the command::
+Anaconda, you can install with conda by issuing the command from a Bash or Windows
+command prompt:
+
+.. code-block:: sh
 
     conda install -c bokeh/channel/dev bokeh
 
-Alternatively you can install with pip::
+Alternatively you can install with pip from a Bash or Windows command prompt:
+
+.. code-block:: sh
 
     pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/
 
@@ -165,9 +182,11 @@ As a concrete example, the links for version ``0.8.1`` are:
 * http://cdn.pydata.org/bokeh/release/bokeh-0.8.1.min.css
 
 Alternatively, BokehJS is available from `npmjs`_ through the Node Package
-Manager::
+Manager. From a Bash or Windows command prompt, execute:
 
-    $ npm install bokehjs
+.. code-block:: sh
+
+    npm install bokehjs
 
 .. _Anaconda Python Distribution: http://continuum.io/anaconda
 .. _binstar.org: http://binstar.org

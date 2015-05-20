@@ -1,4 +1,3 @@
-import numpy as np
 from bokeh.plotting import figure, output_server, show
 from bokeh.models import ServerDataSource
 

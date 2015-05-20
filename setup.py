@@ -358,7 +358,7 @@ def parse_jsargs():
 
     if '--build_js' in sys.argv:
         if not installing:
-            print("Error: Option '--build_js' only valid with 'install', 'develop' or 'sdist', exiting.")
+            print("Error: Option '--build_js' only valid with 'install', 'develop', 'sdist', or 'build', exiting.")
             sys.exit(1)
         jsbuild = True
         sys.argv.remove('--build_js')
