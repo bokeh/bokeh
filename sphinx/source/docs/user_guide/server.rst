@@ -210,6 +210,13 @@ http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id?public=true.
 Streaming Data with the Server
 ------------------------------
 
+Streaming data to automatically update plots is very straightforward
+using ``bokeh-server``. As seen previously, ``Session`` object exposes
+the ``session.store_objects`` method that can be used to update objects
+on the server (and consequently on the browser) from your python code.
+
+Here's a simple example:
+
 .. code-block:: python
 
     import time
@@ -221,7 +228,7 @@ Streaming Data with the Server
 
     p = figure(plot_width=400, plot_height=400)
     p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], name='ex_line')
-    show(p)
+    show(p
 
     # create some simple animation..
     # first get our figure example data source
@@ -237,6 +244,9 @@ Streaming Data with the Server
         time.sleep(0.5)
 
 
+Notice that in order to update the plot values we only need to update
+it's data source using and store it on the server using the ``session``
+object.
 
 Downsampling with Server
 ------------------------
