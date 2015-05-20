@@ -180,7 +180,7 @@ locations.
 TapSelectTool
 '''''''''''''
 
-* name: ``'tap_select'``
+* name: ``'tap'``
 * icon: |tap_select_icon|
 
 The tap selection tool allows the user to select at single points by clicking
