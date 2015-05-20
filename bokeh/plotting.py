@@ -185,7 +185,7 @@ class Figure(Plot):
     bezier            = gf.bezier
     circle            = gf.circle
     circle_cross      = gf.circle_cross
-    circle_x          = gf. circle_x
+    circle_x          = gf.circle_x
     cross             = gf.cross
     diamond           = gf.diamond
     diamond_cross     = gf.diamond_cross
