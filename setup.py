@@ -476,12 +476,8 @@ elif '--help' in sys.argv:
 print()
 
 REQUIRES = [
-        'Flask>=0.10.1',
         'Jinja2>=2.7',
         'MarkupSafe>=0.18',
-        'Werkzeug>=0.9.1',
-        'greenlet>=0.4.1',
-        'itsdangerous>=0.21',
         'python-dateutil>=2.1',
         'pytz==2013b',
         'requests>=1.2.3',
@@ -491,7 +487,6 @@ REQUIRES = [
         'markdown>=2.3.1',
         'PyYAML>=3.10',
         'pyzmq>=14.3.1',
-        'tornado>=4.0.1',
         # cli
         # 'click>=3.3',
         # tests

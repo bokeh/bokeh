@@ -33,6 +33,11 @@ setup(name='bokeh_server',
       zip_safe=False,
       test_suite='bokeh_server.tests',
       install_requires=[
+        'Flask>=0.10.1',
+        'Werkzeug>=0.9.1',
+        'itsdangerous>=0.21',
+        'greenlet>=0.4.1',
+        'tornado>=4.0.1',
         'bokeh',
         ],
       entry_points="""\
