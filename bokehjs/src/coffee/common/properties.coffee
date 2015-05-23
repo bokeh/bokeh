@@ -139,7 +139,7 @@ class Color extends Property
 
       # check length of array based on rgb/rgba
       if contents.length != params.len
-        throw new Error("color expects rgba #{expect_len}-tuple")
+        throw new Error("color expects rgba #{expect_len}-tuple, received #{value}")
 
       # check for valid numerical values for rgba
       if params.alpha and !(0 < contents[3] <= 1)
