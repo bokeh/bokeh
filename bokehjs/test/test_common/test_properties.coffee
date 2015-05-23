@@ -253,7 +253,13 @@ describe "properties module", ->
       expect(Properties.Color.prototype).to.be.instanceof Properties.Property
 
     describe "validate", ->
-      good_tuples = ["rgb(255, 0, 0)", "rgba(200, 0, 0, 0.5)"]
+
+      good_tuples = ["rgb(255, 0, 0)",
+                     "rgba(200, 0, 0, 0.5)",
+                     "rgba(0, 255, 0, 0)",
+                     "rgba(0, 0, 255, 1)"
+      ]
+
       bad_tuples = ["rgb(254.5, 0, 0)",
                     "rgba(245.5, 0, 0, 0.5)",
                     "rgba(255.0, 0, 0, 0.5)",

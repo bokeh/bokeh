@@ -142,7 +142,7 @@ class Color extends Property
         throw new Error("color expects rgba #{expect_len}-tuple, received #{value}")
 
       # check for valid numerical values for rgba
-      if params.alpha and !(0 < contents[3] <= 1)
+      if params.alpha and !(0 <= contents[3] <= 1)
         throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1")
       if false in (0 <= rgb <= 255 for rgb in contents.slice(0, 3))
         throw new Error("color expects rgb to have value between 0 and 255")
