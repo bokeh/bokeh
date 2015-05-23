@@ -272,7 +272,7 @@ describe "properties module", ->
 
       it "should throw error on rgb and rgba tuples with bad numerical values", ->
         for bad_tuple in bad_tuples
-          expect(Properties.Color.prototype.validate bad_tuple).to.throw Error
+          expect(Properties.Color.prototype.validate, bad_tuple).to.throw Error
 
       it "should return true on svg color input", ->
         for color in svg_colors

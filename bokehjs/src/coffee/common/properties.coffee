@@ -124,14 +124,14 @@ class Color extends Property
       throw new Error("color property '#{attr}' given invalid value: #{value}")
     return true
 
-  valid_rgb = (value) ->
+  valid_rgb: (value) ->
       switch value.substring(0, 4)
           when "rgba" then params = {start: "rgba(", len: 4, alpha: true}
           when "rgb(" then params = {start: "rgb(", len: 3, alpha: false}
-          else return true
+          else return false
 
       # if '.' and then ',' found, we know decimals are used on rgb
-      if new Regex(".*?(\.).*?(,)").test(value)
+      if new RegExp(".*?(\\.).*(,)").test(value)
           throw new Error("color expects integers for rgb in rgb/rgba tuple, received #{value}")
 
       # extract the numerical values from inside parens
@@ -146,7 +146,6 @@ class Color extends Property
         throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1")
       if false in (0 <= rgb <= 255 for rgb in contents.slice(0, 3))
         throw new Error("color expects rgb to have value between 0 and 255")
-
       return true
 
 class String extends Property
