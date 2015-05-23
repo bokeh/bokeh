@@ -253,10 +253,26 @@ describe "properties module", ->
       expect(Properties.Color.prototype).to.be.instanceof Properties.Property
 
     describe "validate", ->
+      good_tuples = ["rgb(255, 0, 0)", "rgba(200, 0, 0, 0.5)"]
+      bad_tuples = ["rgb(254.5, 0, 0)",
+                    "rgba(245.5, 0, 0, 0.5)",
+                    "rgba(255.0, 0, 0, 0.5)",
+                    "rgba(2550, 0, 0, 0.5)",
+                    "rgba(255, 0, 0, 5)",
+                    "rgb(255, 0, 0, 0)",
+                    "rgba(255, 0, 0, 0.5, 0)"
+      ]
+
       it "should return true on RGBa input", ->
         expect(Properties.Color.prototype.validate "#aabbccdd").to.be.true
 
-      it "should test RGBa values more carefully"
+      it "should return true on integer rgb and rgba tuples", ->
+        for good_tuple in good_tuples
+          expect(Properties.Color.prototype.validate good_tuple).to.be.true
+
+      it "should throw error on rgb and rgba tuples with bad numerical values", ->
+        for bad_tuple in bad_tuples
+          expect(Properties.Color.prototype.validate bad_tuple).to.throw Error
 
       it "should return true on svg color input", ->
         for color in svg_colors

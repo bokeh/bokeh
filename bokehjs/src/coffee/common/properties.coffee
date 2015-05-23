@@ -120,9 +120,34 @@ class Coord extends Property
 class Color extends Property
 
   validate: (value, attr) ->
-    if not svg_colors[value]? and value.substring(0, 1) != "#" and value.substring(0, 3) != "rgb"
+    if not svg_colors[value]? and value.substring(0, 1) != "#" and not @valid_rgb(value)
       throw new Error("color property '#{attr}' given invalid value: #{value}")
     return true
+
+  valid_rgb = (value) ->
+      switch value.substring(0, 4)
+          when "rgba" then params = {start: "rgba(", len: 4, alpha: true}
+          when "rgb(" then params = {start: "rgb(", len: 3, alpha: false}
+          else return true
+
+      # if '.' and then ',' found, we know decimals are used on rgb
+      if new Regex(".*?(\.).*?(,)").test(value)
+          throw new Error("color expects integers for rgb in rgb/rgba tuple, received #{value}")
+
+      # extract the numerical values from inside parens
+      contents = value.replace(params.start, "").replace(")", "").split(',').map(parseFloat)
+
+      # check length of array based on rgb/rgba
+      if contents.length != params.len
+        throw new Error("color expects rgba #{expect_len}-tuple")
+
+      # check for valid numerical values for rgba
+      if params.alpha and !(0 < contents[3] <= 1)
+        throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1")
+      if false in (0 <= rgb <= 255 for rgb in contents.slice(0, 3))
+        throw new Error("color expects rgb to have value between 0 and 255")
+
+      return true
 
 class String extends Property
 
