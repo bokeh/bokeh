@@ -190,15 +190,18 @@ class CrossBarPlugin(CrossFilterPlugin):
         super(CrossBarPlugin, self).__init__(*args, **kwargs)
         self.bar_width = 1
 
+        if self.y == 'None':
+            self.agg_col = self.x
+        else:
+            self.agg_col = self.y
+
     def make_plot(self, plot):
         self.transform_data()
-        if self.y == 'None':
-            agg_col = self.agg
-        else:
-            agg_col = self.y
 
-        y = [val/2.0 for val in self.source.data[agg_col]]
-        plot.rect(self.x, y, self.bar_width, agg_col, source=self.source)
+        # centers of the rectangles are half way down from the top of them
+        y = [val/2.0 for val in self.source.data['heights']]
+
+        plot.rect('centers', y, self.bar_width, 'heights', source=self.source)
         plot.h_symmetry = False
         plot.v_symmetry = False
 
@@ -217,16 +220,16 @@ class CrossBarPlugin(CrossFilterPlugin):
         width_factor = 0.8
 
         if self.col_meta[self.x]['type'] != 'DiscreteColumn':
-            self.source = make_continuous_bar_source(self.df, self.x, self.y,
-                                                     self.agg)
-            x_vals = self.source.data[self.x]
+            self.source = make_continuous_bar_source(self.df, self.x, self.agg_col,
+                                                     self.cf.df, self.agg)
+            x_vals = self.source.data['centers']
             if len(x_vals) >= 2:
-                self.bar_width = np.min(np.diff(x_vals) * width_factor)
+                self.bar_width = np.abs(np.min(np.diff(x_vals) * width_factor))
             else:
                 self.bar_width = width_factor
         else:
-            self.source = make_categorical_bar_source(self.df, self.x, self.y,
-                                                      self.agg)
+            self.source = make_categorical_bar_source(self.df, self.x, self.agg_col,
+                                                      self.cf.df, self.agg)
             self.bar_width = width_factor
 
     def validate_plot(self):
@@ -259,10 +262,8 @@ class CrossBarPlugin(CrossFilterPlugin):
         # x_type = CrossBarPlugin.get_col_type(metadata, x)
         y_type = CrossBarPlugin.get_col_type(metadata, y)
 
-        if x == y:
+        if x == y and agg_type not in CrossBarPlugin.y_agg_types:
             return False, 'X and Y must be different columns.'
-        elif y != 'None' and agg_type in CrossBarPlugin.y_agg_types:
-            return False, 'Y must be "None" for this aggregation type.'
         elif ((y == 'None' and agg_type not in CrossBarPlugin.y_agg_types) or
               (y_type == 'DiscreteColumn' and agg_type not in CrossBarPlugin.y_agg_types)):
             return False, ('Select continuous y column to aggregate by %s.' %
@@ -294,29 +295,29 @@ class CrossBarPlugin(CrossFilterPlugin):
         col_meta = cf.column_descriptor_dict()
 
         if cf.y == 'None':
-            agg_col = cf.agg
+            agg_col = cf.x
         else:
             agg_col = cf.y
 
         # only return ranges if we have valid selections
-        is_valid, _ = CrossBarPlugin.valid_selections(col_meta, cf.x, cf.y,
+        is_valid, _ = CrossBarPlugin.valid_selections(col_meta, cf.x, agg_col,
                                                       cf.agg)
         if is_valid:
 
             # create x range
             if col_meta[cf.x]['type'] != 'DiscreteColumn':
-                source = make_continuous_bar_source(df, cf.x, cf.y, cf.agg)
+                source = make_continuous_bar_source(df, cf.x, agg_col, cf.df, cf.agg)
                 x_range = Range1d(start=df[cf.x].min() - bar_width,
                                   end=df[cf.x].max() + bar_width)
             else:
-                source = make_categorical_bar_source(df, cf.x, cf.y, cf.agg)
+                source = make_categorical_bar_source(df, cf.x, agg_col, cf.df, cf.agg)
                 x_range = FactorRange(factors=source.data[cf.x])
 
             # create y range
             if cf.agg == 'percent':
                 top = 100
             else:
-                top = np.max(source.data[agg_col]) * 1.05
+                top = np.max(source.data['heights']) * 1.05
             y_range = Range1d(start=0, end=top)
             return x_range, y_range
         else:
