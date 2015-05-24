@@ -130,34 +130,38 @@ class TestFigure(unittest.TestCase):
 class TestMarkers(unittest.TestCase):
 
     def check_each_color_input(self, rgbs, func):
-        # run assertions for each rgb provided with the given function
+        """Runs assertions for each rgb provided with the given function."""
         for rgb in rgbs:
             p = plt.figure()
             func(p, rgb)
 
     def color_only_checks(self, p, rgb):
+        """Helper method for checks specific to color= input."""
         p.circle([1, 2, 3], [1, 2, 3], color=rgb)
         self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb)
         self.assertTupleEqual(p.renderers[-1].glyph.fill_color, rgb)
 
-        # should always be an integer by the time it is added to property
-        [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.line_color)]
-        [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.fill_color)]
+        # rgb should always be an integer by the time it is added to property
+        [self.assertIsInstance(v, int) for v in p.renderers[-1].glyph.line_color[0:3]]
+        [self.assertIsInstance(v, int) for v in p.renderers[-1].glyph.fill_color[0:3]]
 
     def line_color_input_checks(self, p, rgb):
+        """Helper method for checks specific to line_color= only input."""
         p.circle([1, 2, 3], [1, 2, 3], line_color=rgb)
 
         self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb)
 
         # should always be an integer by the time it is added to property
-        [self.assertIsInstance(v, int) if i < 3 else None for i, v in enumerate(p.renderers[-1].glyph.line_color)]
+        [self.assertIsInstance(v, int) for v in p.renderers[-1].glyph.line_color[0:3]]
 
     def test_color_input_float(self):
+        """Test input of rgb with float values."""
         rgbs = [(100., 100., 100.), (50., 100., 50., 0.5)]
         self.check_each_color_input(rgbs=rgbs, func=self.color_only_checks)
         self.check_each_color_input(rgbs=rgbs, func=self.line_color_input_checks)
 
     def test_color_input_int(self):
+        """Test input of rgb with integers."""
         rgbs = [(100, 100, 100), (50, 100, 50, 0.5)]
         self.check_each_color_input(rgbs=rgbs, func=self.color_only_checks)
         self.check_each_color_input(rgbs=rgbs, func=self.line_color_input_checks)
