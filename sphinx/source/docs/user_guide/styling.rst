@@ -112,6 +112,13 @@ the inputs for line and fill alphas:
     p.yaxis[0].axis_label = "Line Options"
     show(p)
 
+.. note::
+    If using the |bokeh.plotting| interface, another option is to specify
+    ``color`` and/or ``alpha`` as a keyword, as well as the demonstrated color
+    properties. These inputs work by applying the provided value to both of the
+    corresponding ``line`` and ``fill`` properties. However, you can still
+    provide ``fill|line_alpha`` or ``fill|line_color`` in combination with
+    the ``color``/``alpha`` keywords, and the former will take precedence.
 
 .. _userguide_styling_selecting:
 

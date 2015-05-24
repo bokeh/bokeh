@@ -148,11 +148,34 @@ class TestMarkers(unittest.TestCase):
     def line_color_input_checks(self, p, rgb):
         """Helper method for checks specific to line_color= only input."""
         p.circle([1, 2, 3], [1, 2, 3], line_color=rgb)
-
         self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb)
-
         # should always be an integer by the time it is added to property
         [self.assertIsInstance(v, int) for v in p.renderers[-1].glyph.line_color[0:3]]
+
+    def test_mixed_inputs(self):
+        """Helper method to test mixed global and specific color args."""
+
+        p = plt.figure()
+        rgb = (100, 0, 0)
+        rgb_other = (0, 100, 0)
+        alpha1 = 0.5
+        alpha2 = 0.75
+
+        # color/line_color
+        p.circle([1, 2, 3], [1, 2, 3], color=rgb, line_color=rgb_other)
+        self.assertTupleEqual(p.renderers[-1].glyph.fill_color, rgb)
+        self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb_other)
+
+        # color/fill_color
+        p.circle([1, 2, 3], [1, 2, 3], color=rgb, fill_color=rgb_other)
+        self.assertTupleEqual(p.renderers[-1].glyph.line_color, rgb)
+        self.assertTupleEqual(p.renderers[-1].glyph.fill_color, rgb_other)
+
+        # alpha/line_alpha
+        p.circle([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1,
+                 line_alpha=alpha2)
+        self.assertEqual(p.renderers[-1].glyph.line_alpha, alpha2)
+        self.assertEqual(p.renderers[-1].glyph.fill_alpha, alpha1)
 
     def test_color_input_float(self):
         """Test input of rgb with float values."""
