@@ -84,14 +84,16 @@ def make_continuous_bar_source(df, x_field, y_field='None', df_orig=None, agg='c
 
     """
     # Generate dataframe required to use the categorical bar source function
-    labels, edges = pd.cut(x=df[x_field], bins=8, retbins=True, labels=False)
+    idx, edges = pd.cut(x=df[x_field], bins=8, retbins=True, labels=False)
+    labels, edges = pd.cut(x=df[x_field], bins=8, retbins=True)
     centers = pd.rolling_mean(edges, 2)[1:]
 
     # store new value of x as the bin it fell into
-    df['centers'] = centers[labels]
+    df['centers'] = centers[idx]
+    df['labels'] = labels
 
     # After making it discrete, create the categorical bar source
-    return make_categorical_bar_source(df, 'centers', y_field, df_orig, agg)
+    return make_categorical_bar_source(df, 'labels', y_field, df_orig, agg)
 
 
 def make_categorical_bar_source(df, x_field, y_field='None', df_orig=None, agg='count'):
@@ -112,6 +114,11 @@ def make_categorical_bar_source(df, x_field, y_field='None', df_orig=None, agg='
     if df_orig is None:
         df_orig = df
 
+    if 'labels' in df:
+        group_field = 'labels'
+    else:
+        group_field = x_field
+
     # handle x-only aggregations separately
     if agg == 'percent' or agg == 'count':
         # percent aggregations are a special case, since pandas doesn't directly support
@@ -124,23 +131,23 @@ def make_categorical_bar_source(df, x_field, y_field='None', df_orig=None, agg='
                 agg_func = 'sum'
 
             total = float(getattr(df_orig[y_field], agg_func)())
-            series = df.groupby(x_field)[y_field].apply(lambda x, total_agg=total, f=agg_func:
+            series = df.groupby(group_field)[y_field].apply(lambda x, total_agg=total, f=agg_func:
                                                         100*(getattr(x, f)()/total_agg))
         elif agg == 'count':
-            series = df.groupby(x_field).size()
+            series = df.groupby(group_field).size()
         else:
             raise ValueError('Unrecognized Aggregation Type for Y of "None"')
 
         # here we have a series where the values are the aggregation for the index (bars)
-        result = pd.DataFrame(data={'centers': series.index, 'heights': series.values})
+        result = pd.DataFrame(data={'labels': series.index, 'heights': series.values})
 
     # x and y aggregations
     else:
         # Get the y values after grouping by the x values
-        group = df.groupby(x_field)[y_field]
+        group = df.groupby(group_field)[y_field]
         aggregate = getattr(group, agg)
         result = aggregate().reset_index()
-        result.rename(columns={x_field: 'centers', y_field: 'heights'}, inplace=True)
+        result.rename(columns={group_field: 'labels', y_field: 'heights'}, inplace=True)
 
     return ColumnDataSource(data=result)
 

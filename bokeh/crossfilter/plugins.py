@@ -88,8 +88,8 @@ class CrossFilterPlugin(object):
 
         Override to disable default behavior. This should contain common formatting.
         """
+        # rotate labels if any are longer than some length
         if self.x_type == 'DiscreteColumn':
-            # rotate labels if any are longer than some length
             lengths = [len(x) for x in set(self.source.data[self.x])]
             if max(lengths) > 3:
                 plot.xaxis.major_label_orientation = np.pi / 3
@@ -201,7 +201,7 @@ class CrossBarPlugin(CrossFilterPlugin):
         # centers of the rectangles are half way down from the top of them
         y = [val/2.0 for val in self.source.data['heights']]
 
-        plot.rect('centers', y, self.bar_width, 'heights', source=self.source)
+        plot.rect('labels', y, self.bar_width, 'heights', source=self.source)
         plot.h_symmetry = False
         plot.v_symmetry = False
 
@@ -222,25 +222,25 @@ class CrossBarPlugin(CrossFilterPlugin):
         if self.col_meta[self.x]['type'] != 'DiscreteColumn':
             self.source = make_continuous_bar_source(self.df, self.x, self.agg_col,
                                                      self.cf.df, self.agg)
-            x_vals = self.source.data['centers']
-            if len(x_vals) >= 2:
-                self.bar_width = np.abs(np.min(np.diff(x_vals) * width_factor))
-            else:
-                self.bar_width = width_factor
+            self.bar_width = width_factor
         else:
             self.source = make_categorical_bar_source(self.df, self.x, self.agg_col,
                                                       self.cf.df, self.agg)
             self.bar_width = width_factor
+
+    def format_plot(self, plot):
+        """Performs some standard formatting as required.
+
+        Override to disable default behavior. This should contain common formatting.
+        """
+        # rotate labels
+        plot.xaxis.major_label_orientation = np.pi / 3
 
     def validate_plot(self):
         """Catches bad configurations.
 
         Note: The last if statement's title will be used.
         """
-        if self.x == 'None':
-            self._title = 'Select discrete or continuous column for x.'
-            self.valid_plot = False
-
         self.valid_plot, title = self.valid_selections(self.col_meta, self.x,
                                                        self.y, self.agg)
         if title is not None:
@@ -261,8 +261,9 @@ class CrossBarPlugin(CrossFilterPlugin):
         """
         # x_type = CrossBarPlugin.get_col_type(metadata, x)
         y_type = CrossBarPlugin.get_col_type(metadata, y)
-
-        if x == y and agg_type not in CrossBarPlugin.y_agg_types:
+        if x == 'None':
+            return False, 'Select discrete or continuous column for X.'
+        elif x == y and agg_type not in CrossBarPlugin.y_agg_types:
             return False, 'X and Y must be different columns.'
         elif ((y == 'None' and agg_type not in CrossBarPlugin.y_agg_types) or
               (y_type == 'DiscreteColumn' and agg_type not in CrossBarPlugin.y_agg_types)):
@@ -307,11 +308,9 @@ class CrossBarPlugin(CrossFilterPlugin):
             # create x range
             if col_meta[cf.x]['type'] != 'DiscreteColumn':
                 source = make_continuous_bar_source(df, cf.x, agg_col, cf.df, cf.agg)
-                x_range = Range1d(start=df[cf.x].min() - bar_width,
-                                  end=df[cf.x].max() + bar_width)
             else:
                 source = make_categorical_bar_source(df, cf.x, agg_col, cf.df, cf.agg)
-                x_range = FactorRange(factors=source.data[cf.x])
+            x_range = FactorRange(factors=source.data['labels'])
 
             # create y range
             if cf.agg == 'percent':
