@@ -114,11 +114,6 @@ def make_categorical_bar_source(df, x_field, y_field='None', df_orig=None, agg='
     if df_orig is None:
         df_orig = df
 
-    if 'labels' in df:
-        group_field = 'labels'
-    else:
-        group_field = x_field
-
     # handle x-only aggregations separately
     if agg == 'percent' or agg == 'count':
         # percent aggregations are a special case, since pandas doesn't directly support
@@ -131,10 +126,10 @@ def make_categorical_bar_source(df, x_field, y_field='None', df_orig=None, agg='
                 agg_func = 'sum'
 
             total = float(getattr(df_orig[y_field], agg_func)())
-            series = df.groupby(group_field)[y_field].apply(lambda x, total_agg=total, f=agg_func:
+            series = df.groupby(x_field)[y_field].apply(lambda x, total_agg=total, f=agg_func:
                                                         100*(getattr(x, f)()/total_agg))
         elif agg == 'count':
-            series = df.groupby(group_field).size()
+            series = df.groupby(x_field).size()
         else:
             raise ValueError('Unrecognized Aggregation Type for Y of "None"')
 
@@ -144,10 +139,10 @@ def make_categorical_bar_source(df, x_field, y_field='None', df_orig=None, agg='
     # x and y aggregations
     else:
         # Get the y values after grouping by the x values
-        group = df.groupby(group_field)[y_field]
+        group = df.groupby(x_field)[y_field]
         aggregate = getattr(group, agg)
         result = aggregate().reset_index()
-        result.rename(columns={group_field: 'labels', y_field: 'heights'}, inplace=True)
+        result.rename(columns={x_field: 'labels', y_field: 'heights'}, inplace=True)
 
     return ColumnDataSource(data=result)
 
