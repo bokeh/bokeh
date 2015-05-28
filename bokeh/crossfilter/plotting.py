@@ -68,51 +68,81 @@ def make_histogram_source(series):
     return ColumnDataSource(data={'counts': counts, 'centers': centers})
 
 
-def make_continuous_bar_source(df, x_field, y_field, agg):
+def make_continuous_bar_source(df, x_field, y_field='None', df_orig=None, agg='count'):
     """Makes discrete, then creates representation of the bars to be plotted.
 
     Args:
       df (DataFrame): contains the data to be converted to a discrete form
       x_field (str): the column in df that maps to the x dim of the plot
-      y_field (str):  the column in df that maps to the y dim of the plot
-      agg (str): the type of aggregation to be used
+      y_field (str, optional):  the column in df that maps to the y dim of the plot
+      df_orig (DataFrame, optional): original dataframe that the subset ``df`` was
+        generated from
+      agg (str, optional): the type of aggregation to be used
 
     Returns:
       ColumnDataSource: aggregated, discrete form of x,y values
 
     """
-
     # Generate dataframe required to use the categorical bar source function
-    labels, edges = pd.cut(x=df[x_field], bins=20, retbins=True, labels=False)
+    idx, edges = pd.cut(x=df[x_field], bins=8, retbins=True, labels=False)
+    labels, edges = pd.cut(x=df[x_field], bins=8, retbins=True)
     centers = pd.rolling_mean(edges, 2)[1:]
 
     # store new value of x as the bin it fell into
-    df[x_field] = centers[labels]
+    df['centers'] = centers[idx]
+    df['labels'] = labels
 
     # After making it discrete, create the categorical bar source
-    return make_categorical_bar_source(df, x_field, y_field, agg)
+    return make_categorical_bar_source(df, 'labels', y_field, df_orig, agg)
 
 
-def make_categorical_bar_source(df, x_field, y_field, agg):
+def make_categorical_bar_source(df, x_field, y_field='None', df_orig=None, agg='count'):
     """Creates representation of the bars to be plotted.
 
     Args:
       df (DataFrame): contains the data to be converted to a discrete form
       x_field (str): the column in df that maps to the x dim of the plot
-      y_field (str):  the column in df that maps to the y dim of the plot
-      agg (str): the type of aggregation to be used
+      y_field (str, optional):  the column in df that maps to the y dim of the plot
+      df_orig (DataFrame, optional): original dataframe that the subset ``df`` was
+        generated from
+      agg (str, optional): the type of aggregation to be used
 
     Returns:
       ColumnDataSource: aggregated, discrete form of x,y values
 
     """
+    if df_orig is None:
+        df_orig = df
 
-    # Get the y values after grouping by the x values
-    group = df.groupby(x_field)[y_field]
-    aggregate = getattr(group, agg)
+    # handle x-only aggregations separately
+    if agg == 'percent' or agg == 'count':
+        # percent aggregations are a special case, since pandas doesn't directly support
+        if agg == 'percent':
 
-    # Convert back to a DataFrame on the aggregated data
-    result = aggregate().reset_index()
+            # percent on discrete col using proportion, on continuous using percent
+            if df[y_field].dtype == 'object':
+                agg_func = 'count'
+            else:
+                agg_func = 'sum'
+
+            total = float(getattr(df_orig[y_field], agg_func)())
+            series = df.groupby(x_field)[y_field].apply(lambda x, total_agg=total, f=agg_func:
+                                                        100*(getattr(x, f)()/total_agg))
+        elif agg == 'count':
+            series = df.groupby(x_field).size()
+        else:
+            raise ValueError('Unrecognized Aggregation Type for Y of "None"')
+
+        # here we have a series where the values are the aggregation for the index (bars)
+        result = pd.DataFrame(data={'labels': series.index, 'heights': series.values})
+
+    # x and y aggregations
+    else:
+        # Get the y values after grouping by the x values
+        group = df.groupby(x_field)[y_field]
+        aggregate = getattr(group, agg)
+        result = aggregate().reset_index()
+        result.rename(columns={x_field: 'labels', y_field: 'heights'}, inplace=True)
 
     return ColumnDataSource(data=result)
 
