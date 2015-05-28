@@ -263,4 +263,3 @@ server invocation:
 .. _GitHub: https://github.com
 .. _Gulp: http://gulpjs.com/
 .. _NodeJS: http://nodejs.org/
-.. _SBT: http://www.scala-sbt.org
