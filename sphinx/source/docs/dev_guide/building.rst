@@ -50,7 +50,7 @@ Install npm and node
 First, install Node.js and npm (node package manager).
 You can download and install these directly, or use
 `conda <http://conda.pydata.org/>`_ to install them
-from the Bokeh channel on `Binstar <https://binstar.org>`_:
+from the Bokeh channel on `anaconda.org <https://anaconda.org>`_:
 
 .. code-block:: sh
 
@@ -258,7 +258,7 @@ server invocation:
     python example-server.py
 
 .. _AMD module: http://requirejs.org/docs/whyamd.html
-.. _Binstar: https://binstar.org
+.. _anaconda.org: https://anaconda.org
 .. _conda: http://conda.pydata.org/
 .. _GitHub: https://github.com
 .. _Gulp: http://gulpjs.com/
