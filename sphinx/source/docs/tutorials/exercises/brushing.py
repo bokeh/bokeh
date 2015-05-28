@@ -1,7 +1,7 @@
 from bokeh.plotting import ColumnDataSource, figure, gridplot, output_file, show
 from bokeh.sampledata.autompg import autompg
 
-output_file("panning.html")
+output_file("brushing.html")
 
 # Load some Automobile data into a data source. Interesting columns are:
 # "yr" - Year manufactured
