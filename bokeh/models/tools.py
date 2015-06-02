@@ -190,6 +190,14 @@ class CrosshairTool(Tool):
 
     """
 
+    dimensions = List(Enum(Dimension), default=["width", "height"], help="""
+    Which dimensions the crosshair tool is to track. By default,
+    the tool will draw crosshairs across both vertical and horizontal 
+    dimensions. If only "width" is supplied, only a horizontal line will
+    be drawn; If only “height” is supplied, only a vertical line will be 
+    drawn.
+    """)
+
 class BoxZoomTool(Tool):
     """ *toolbar icon*: |box_zoom_icon|
 
