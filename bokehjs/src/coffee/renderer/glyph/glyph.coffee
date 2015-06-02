@@ -25,6 +25,7 @@ class GlyphView extends ContinuumView
 
   render: (ctx, indicies, data) ->
     if @mget("visible")
+      ctx.beginPath();
       @_render(ctx, indicies, data)
 
   map_data: () ->
