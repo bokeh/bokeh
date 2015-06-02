@@ -18,30 +18,30 @@ following ways:
 
 .. include:: ../includes/colors.txt
 
-.. _userguide_styling_visual_properties:
+.. _userguide_styling_using_palettes:
 
 Using Palettes
 -----------------
 
 Palettes are sequences (lists or tuples) of RGB(A) hex strings that define a
-colormap and can set as the ``palette`` attribute of all chart types from
+colormap and be can set as the ``palette`` attribute of all chart types from
 ``bokeh.charts`` and as the ``color`` attribute of many plot objects from
 ``bokeh.plotting``. Bokeh offers many of the standard Brewer palettes, which
 can be imported from the ``bokeh.palettes`` module. For example, importing
-“Spectral6” gives a linearly-spaced, six element list of RBG(A) hex strings
-from the Brewer “Spectral” colormap.
+“Spectral6” gives a six element list of RBG(A) hex strings from the Brewer
+“Spectral” colormap.
 
 .. code-block:: python
 
     >>> from bokeh.palettes import Spectral6
-    >>> print(Spectral6)
+    >>> Spectral6
     ['#3288bd', '#99d594', '#e6f598', '#fee08b', '#fc8d59', '#d53e4f']
 
 All of the standard palettes included in bokeh can be found at
-:ref:`bokeh_dot_palettes`. Custom palettes can be created by instantiating
-arbitrary sequences of RGB(A) hex strings.
+:ref:`bokeh_dot_palettes`. Custom palettes can be creating sequences of RGB(A)
+hex strings.
 
-.. _userguide_styling_using_palettes:
+.. _userguide_styling_visual_properties:
 
 Visual Properties
 -----------------
