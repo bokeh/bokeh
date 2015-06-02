@@ -15,7 +15,7 @@ x3 = list(range(11))
 y3 = [x**2 for x in x3]
 
 # specify and output static HTML file
-output_file("scatter.html")
+output_file("lines.html")
 
 # EXERCISE: Plot all the sets of points on different plots p1, p2, p3.
 # Try setting `color` (or `line_color`) and `alpha` (or `line_alpha`).

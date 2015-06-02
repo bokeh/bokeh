@@ -9,7 +9,7 @@ y1 = [0, 8, 2, 4, 6, 9, 15, 18, 19, 25, 28]
 # you want. Make sure the corresponding x and y data are the same length
 
 # specify and output static HTML file
-output_file("scatter.html")
+output_file("lines.html")
 
 # EXERCISE: Plot all the sets of points on different plots p1, p2, p3.
 # Try setting `color` (or `line_color`) and `alpha` (or `line_alpha`).
