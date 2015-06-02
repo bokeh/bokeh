@@ -21,7 +21,7 @@ following ways:
 .. _userguide_styling_using_palettes:
 
 Using Palettes
------------------
+--------------
 
 Palettes are sequences (lists or tuples) of RGB(A) hex strings that define a
 colormap and be can set as the ``palette`` attribute of all chart types from
@@ -38,8 +38,8 @@ can be imported from the ``bokeh.palettes`` module. For example, importing
     ['#3288bd', '#99d594', '#e6f598', '#fee08b', '#fc8d59', '#d53e4f']
 
 All of the standard palettes included in bokeh can be found at
-:ref:`bokeh_dot_palettes`. Custom palettes can be creating sequences of RGB(A)
-hex strings.
+:ref:`bokeh_dot_palettes`. Custom palettes can be made by creating sequences of
+RGB(A) hex strings.
 
 .. _userguide_styling_visual_properties:
 
