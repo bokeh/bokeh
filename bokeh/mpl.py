@@ -373,6 +373,7 @@ class BokehRenderer(Renderer):
         widths = get_props_cycled(col, col.get_linewidth())
         patches.line_width = self.source.add(widths)
         patches.line_alpha = col.get_alpha()
+        patches.fill_alpha = col.get_alpha()
         offset = col.get_linestyle()[0][0]
         if not col.get_linestyle()[0][1]:
             on_off = []
