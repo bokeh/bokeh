@@ -34,6 +34,7 @@
         { "path": "examples/charts/file/histograms.py",        "name": "histograms_chart"                            },
         { "path": "examples/charts/file/iris_scatter.py",      "name": "iris_scatter_chart"                          },
         { "path": "examples/charts/file/lines.py",             "name": "line_chart"                                  },
+        { "path": "examples/charts/file/palettes.py",          "name": "palettes"                                    },
         { "path": "examples/charts/file/stacked_bar.py",       "name": "stacked_bar_chart"                           },
         { "path": "examples/charts/file/steps.py",             "name": "step_chart"                                  },
         { "path": "examples/charts/file/stocks_timeseries.py", "name": "stocks_timeseries_chart"                     },
