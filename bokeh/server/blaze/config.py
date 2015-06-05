@@ -53,7 +53,7 @@ except Exception as e:
 
 path = join(dirname(bokeh.server.tests.__file__), 'data', 'array.hdf5')
 try:
-    arr = resource(path + "::" + "array")
+    arr = resource("hdfstore://%s::__data__" % path)
 except Exception as e:
     arr = None
     log.error(e)
