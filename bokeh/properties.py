@@ -494,7 +494,7 @@ class JSON(String):
 
         try:
             import json
-            temp = json.loads(value)
+            json.loads(value)
         except ValueError:
             raise ValueError("expected JSON text, got %r" % value)
 
