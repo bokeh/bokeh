@@ -483,6 +483,21 @@ class Regex(String):
     def __str__(self):
         return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
 
+class JSON(String):
+    """ JSON type property validates that text values contain valid
+    JSON.
+    """
+    def validate(self, value):
+        super(JSON, self).validate(value)
+
+        if value is None: return
+
+        try:
+            import json
+            temp = json.loads(value)
+        except ValueError:
+            raise ValueError("expected JSON text, got %r" % value)
+
 class ParameterizedProperty(Property):
     """ Base class for Properties that have type parameters, e.g.
     ``List(String)``.
