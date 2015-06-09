@@ -27,7 +27,7 @@ from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, 
 from ..enums import Dimension
 
 from .renderers import Renderer
-from .actions import Action
+from .actions import Action, Callback
 
 class ToolEvents(PlotObject):
     """
@@ -192,8 +192,8 @@ class CrosshairTool(Tool):
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
     Which dimensions the crosshair tool is to track. By default, both a
-    vertical and horizontal line will be dran. If only "width" is supplied, 
-    only a horizontal line will be drawn. If only "height" is supplied, 
+    vertical and horizontal line will be dran. If only "width" is supplied,
+    only a horizontal line will be drawn. If only "height" is supplied,
     only a vertical line will be drawn.
     """)
 
@@ -376,6 +376,17 @@ class HoverTool(Tool):
     defaults to all renderers on a plot.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the input's value changes. The
+    cb_obj emitted on a mouseover contains five fields:
+
+    :index: index of the hovered point in the data source
+    :$x: x-coordinate under the cursor in data space
+    :$y: y-coordinate under the cursor in data space
+    :$sx: x-coordinate under the cursor in screen (canvas) space
+    :$sy: y-coordinate under the cursor in screen (canvas) space
+    """)
+
     tooltips = Either(String, List(Tuple(String, String)), help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.
@@ -387,10 +398,10 @@ class HoverTool(Tool):
     Field names starting with "$" are special, known fields:
 
     :$index: index of selected point in the data source
-    :$x: x-coordindate under the cursor in data space
-    :$y: y-coordindate under the cursor in data space
-    :$sx: x-coordindate under the cursor in screen (canvas) space
-    :$sy: y-coordindate under the cursor in screen (canvas) space
+    :$x: x-coordinate under the cursor in data space
+    :$y: y-coordinate under the cursor in data space
+    :$sx: x-coordinate under the cursor in screen (canvas) space
+    :$sy: y-coordinate under the cursor in screen (canvas) space
     :$color: color data from data source, with the syntax:
         ``$color[options]:field_name``. The available options
         are: 'hex' (to display the color as a hex value), and
