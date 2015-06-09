@@ -467,3 +467,9 @@ class _list_attr_splat(list):
     def __setattr__(self, attr, value):
         for x in self:
             setattr(x, attr, value)
+
+    def __dir__(self):
+        if len(set(type(x) for x in self)) == 1:
+            return dir(self[0])
+        else:
+            return dir(self)
