@@ -267,10 +267,12 @@ def getbyid(docid, typename, id, format='json'):
     )
     t.load()
     clientdoc = t.clientdoc
-    attr = clientdoc.dump(clientdoc._models[id])[0]['attributes']
+    model = clientdoc._models[id]
+    
     if format=='csv' and typename=='ColumnDataSource':
-        return clientdoc._models[id].to_df().to_csv()
+        return model.to_df().to_csv()
     else:
+        attr = clientdoc.dump(model)[0]['attributes']
         return make_json(protocol.serialize_json(attr))
 
 @handle_auth_error
