@@ -128,6 +128,8 @@ class PlotView extends ContinuumView
       rng.set(range_info.xrs[name])
     for name, rng of @frame.get('y_ranges')
       rng.set(range_info.yrs[name])
+    @x_range.save();
+    @y_range.save();
     @unpause()
 
   build_levels: () ->
