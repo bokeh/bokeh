@@ -7,6 +7,13 @@ LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 Solver = require "./solver"
 
+# So we have now modified this class to allow glyps to render into the original
+# 2D canvas, as well as in a (hidden) webgl canvas. 
+# In this way, the rest of bokehjs can keep working
+# as it is, and we can update glyphs individually to make them use GL.
+# TODO: this functionality to create/assign the canvases should probably be moved 
+# to plot.coffee
+
 class CanvasView extends ContinuumView
   className: "bk-canvas-wrapper"
   template: canvas_template
@@ -30,24 +37,53 @@ class CanvasView extends ContinuumView
 
     logger.debug("CanvasView initialized")
 
+  init_canvases: () ->
+    @canvas2d = @canvas[0]
+    @canvas3d = document.createElement('canvas')
+    gl = @canvas3d.getContext("webgl") || @canvas3d.getContext("experimental-webgl")      
+    if gl?
+      @canvas3d.gl = gl
+    else
+      @canvas3d = null  # disable webgl
+  
   render: (force=false) ->
     # normally we only want to render the canvas when the canvas itself
     # should be configured with new bounds.
     if not @model.new_bounds and not force
       return
-    @ctx = @canvas[0].getContext('2d')
-
+    console.log('in render canvas')
+    
+    # Assign canvases if not already done. Sync size of canvas2d with that of canvas3d
+    if not @canvas2d?
+      @init_canvases()
+    if @canvas3d?
+      @canvas3d.width = @canvas2d.width
+      @canvas3d.height = @canvas2d.height
+      @canvas3d.gl.viewport(0, 0, @canvas3d.width, @canvas3d.height)  # todo: only when resizing
+      
+    @ctx = @canvas2d.getContext('2d') 
+    @ctx.size = [@canvas3d.width, @canvas3d.height]  # needed at webgl
+    
+    # Keep a reference of gl on th ctx object, so that we can access the 
+    # gl context whereever ctx is
+    if @canvas3d?
+        @ctx.gl = @canvas3d.gl        
+    else
+        @ctx.gl = null
+    @ctx.canvas2d = @canvas2d
+    @ctx.canvas3d = @canvas3d
+    
     if @mget('use_hidpi')
       devicePixelRatio = window.devicePixelRatio || 1
       backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
                           @ctx.mozBackingStorePixelRatio ||
                           @ctx.msBackingStorePixelRatio ||
                           @ctx.oBackingStorePixelRatio ||
-                          @ctx.backingStorePixelRatio || 1
+                          @ctx.backingStorePixelRatio || 1  # ak: wtf?
       ratio = devicePixelRatio / backingStoreRatio
     else
       ratio = 1
-
+    
     width = @mget('width')
     height = @mget('height')
 
@@ -63,6 +99,7 @@ class CanvasView extends ContinuumView
     @ctx.translate(0.5, 0.5)
 
     # work around canvas incompatibilities
+    # todo: this is done ON EACH DRAW, is that intended?
     @_fixup_line_dash(@ctx)
     @_fixup_line_dash_offset(@ctx)
     @_fixup_image_smoothing(@ctx)

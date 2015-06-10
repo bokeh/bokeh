@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Testing gloo</title>
+  </head>
+
+<body>
+
+<style>
+#thecanvas {
+    border: 2px solid blue;
+}
+</style>
+
+<script>
+
+function initialize_canvas() {
+    
+    // Create 2D context for visible canvas
+    var canvas2d = document.getElementById('thecanvas');
+    var ctx = canvas2d.getContext('2d')
+    
+    // create 2D (invisible) canvas 
+    var canvas2d2 = document.createElement('canvas');
+    var ctx2 = canvas2d2.getContext('2d')
+    
+    canvas2d2.width = 300;
+    canvas2d2.height = 400;
+    
+    ctx._render = function () {
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(10, 10, 580, 380);
+        
+        ctx.fillStyle = 'red';
+        ctx.fillRect(50, 50, 500, 300);
+        
+        n = 100;
+        var t0 = performance.now();
+        for (var i =0; i<n; i++) {
+            ctx.drawImage(canvas2d2, 0, 0);
+        }
+        var t1 = performance.now();
+        
+        var msg = 'time to draw a canvas in another: ' + (t1-t0)/n + ' ms'
+        document.getElementById('timing').innerHTML = msg;
+    };
+    return ctx;
+    
+};
+
+document.body.onload = function () {
+    var ctx = initialize_canvas();
+    
+    document.getElementById('timing').onclick = function () {document.body.innerHTML = ''; }
+    
+    function render (timestamp) {
+        ctx._render();
+        window.requestAnimationFrame(render);
+    }
+    window.requestAnimationFrame(render);
+    
+};
+    
+</script>
+    
+</body>
+    
+    <div id='timing'> </div>
+    <canvas id='thecanvas' width=600, height=400>You don't have a canvas</canvas>
+
+</html>

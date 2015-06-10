@@ -1,13 +1,20 @@
 _ = require "underscore"
+gloo2 = require "gloo2"
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
 class CircleView extends Glyph.View
-
+    
   _index_data: () ->
     return @_xy_index()
 
-  _map_data: () ->
+  _set_data: () ->  
+    @_data_changed = true        
+
+  _map_data: () ->  
+    if @_gl?
+        return
+    
     # NOTE: Order is important here: size is always present (at least
     # a default), but radius is only present if a user specifies it
     if @radius?
@@ -21,6 +28,7 @@ class CircleView extends Glyph.View
       @sradius = (s/2 for s in @size)
 
   _mask_data: (all_indices) ->
+       
     hr = @renderer.plot_view.frame.get('h_range')
     vr = @renderer.plot_view.frame.get('v_range')
 
@@ -54,6 +62,10 @@ class CircleView extends Glyph.View
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
+    
+    console.log('render circle!' + performance.now())
+    if ctx.gl        
+        return @_render_gl(ctx, indices)
 
     for i in indices
       if isNaN(sx[i]+sy[i]+sradius[i])
@@ -70,7 +82,36 @@ class CircleView extends Glyph.View
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
+  _render_gl: (ctx, indices) ->
+    # Initialize
+    gl = ctx.gl
+    if not @_gl?
+      window.tt = this
+      @_gl = setup_gl(gl)
+    
+    if @._data_changed and @x
+      @._data_changed = false
+      @_gl.vbo_x.set_size(@x.length * 4)  # size in bytes
+      @_gl.vbo_x.set_data(0, new Float32Array(@x))        
+      @_gl.vbo_y.set_size(@y.length * 4)
+      @_gl.vbo_y.set_data(0, new Float32Array(@y))      
+      @_gl.vbo_s.set_size(@size.length * 4)
+      @_gl.vbo_s.set_data(0, new Float32Array(@size))
+      
+    
+    [dx, dy] = @renderer.map_to_screen([0, 1], [0, 1])
+    #console.log('d0: ' + dx.toSource() + '  d1:' + dy.toSource())     
+    @_gl.prog.set_uniform('u_canvas_size', 'vec2', ctx.size)
+    @_gl.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
+    @_gl.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
+    @_gl.prog.set_uniform('u_color', 'vec4', [0, 0, 1, 0.1])
+    
+    # todo: use indices
+    if @x
+      @_gl.prog.draw(gl.POINTS, [0, @x.length])
+
   _hit_point: (geometry) ->
+   
     [vx, vy] = [geometry.vx, geometry.vy]
     x = @renderer.xmapper.map_from_target(vx, true)
     y = @renderer.ymapper.map_from_target(vy, true)
@@ -125,6 +166,7 @@ class CircleView extends Glyph.View
     return result
 
   _hit_span: (geometry) ->
+      
       [vx, vy] = [geometry.vx, geometry.vy]
       [xb, yb] = this.bounds()
       result = hittest.create_hit_test_result()
@@ -219,6 +261,54 @@ class Circle extends Glyph.Model
     return _.extend {}, super(), {
       radius_dimension: 'x'
     }
+
+setup_gl = (gl) ->
+  # This function sets up the visualization to render a line
+  
+  VERT = """
+  precision mediump float;
+  attribute float a_x;
+  attribute float a_y;
+  attribute float a_size;
+  uniform vec2 u_canvas_size;
+  uniform vec2 u_offset;
+  uniform vec2 u_scale;
+  varying float v_color;
+  void main() {
+      vec2 pos = vec2(a_x, a_y) * u_scale + u_offset; // in pixels
+      pos /= u_canvas_size;  // in 0..1
+      gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
+      gl_Position.y *= -1.0;
+      gl_PointSize = a_size;
+      gl_PointSize += float(!bool(gl_PointSize)) * 10.0; // allow not giving radius
+      gl_PointSize += 0.5;
+      v_color = a_size;
+  }"""
+  FRAG = """
+  precision mediump float;
+  uniform vec4 u_color;
+  varying float v_color;
+  vec4 cmap(float t) {
+        return mix(vec4(1.0, 0.0, 0.0, 0.1), vec4(0.0, 1.0, 0.0, 0.1), t);        
+  }
+  void main() {
+      float x = 2.0*gl_PointCoord.x - 1.0;
+      float y = 2.0*gl_PointCoord.y - 1.0;
+      //gl_FragColor = u_color.rgba;
+      gl_FragColor = cmap(v_color / 40.0);
+      gl_FragColor.a = 0.1;
+      gl_FragColor.a *= 1.0 - (x*x + y*y);    
+  }"""
+  
+  prog = new gloo2.Program(gl)
+  prog.set_shaders(VERT, FRAG)
+  vbo_x = new gloo2.VertexBuffer(gl)
+  prog.set_attribute('a_x', 'float', [vbo_x, 0, 0])
+  vbo_y = new gloo2.VertexBuffer(gl)
+  prog.set_attribute('a_y', 'float', [vbo_y, 0, 0])
+  vbo_s = new gloo2.VertexBuffer(gl)
+  prog.set_attribute('a_size', 'float', [vbo_s, 0, 0])
+  return {'gl': gl, 'prog': prog, 'vbo_x', vbo_x, 'vbo_y': vbo_y, 'vbo_s': vbo_s}
 
 module.exports =
   Model: Circle

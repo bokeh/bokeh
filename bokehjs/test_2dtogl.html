@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <title>Testing gloo</title>
+  </head>
+
+<body>
+
+<style>
+#thecanvas {
+    border: 2px solid blue;
+}
+</style>
+    
+<script src="/home/almar/dev/pylib/bokeh/bokehjs/src/vendor/gloo/gloo2.js"></script>
+
+<script>
+
+function initialize_canvas() {
+    
+    var canvas3d = document.getElementById('thecanvas');
+    window.canvas3d = canvas3d;
+    var gl = canvas3d.getContext("webgl") || canvas3d.getContext("experimental-webgl");
+    
+    // create 2D canvas
+    var canvas2d = document.createElement('canvas');
+    var ctx = canvas2d.getContext('2d')  
+        
+    //var canvas2d = document.getElementById('thecanvas');
+    canvas2d.width = 600;
+    canvas2d.height = 400;
+    
+    var VERT = "\
+    precision mediump float; \
+    attribute vec2 a_position; \
+    varying vec2 v_position; \
+    void main() { \
+        gl_Position = vec4((a_position*2.0)-1.1, 0.0, 1.0); \
+        v_position = a_position; \
+    }";
+    var FRAG = "\
+    precision mediump float; \
+    uniform sampler2D tex; \
+    varying vec2 v_position; \
+    void main() { \
+        gl_FragColor = texture2D(tex, vec2(v_position.x, 1.0-v_position.y)); \
+        gl_FragColor.a = 1.0; \
+    }";
+        
+    var vert_data = new Float32Array([0., 0.,  1., 0.,  0., 1.,  0., 1.,  1., 0.,  1., 1., ]);
+    
+    
+    gl.viewport(0, 0, 600, 400);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.enable(gl.BLEND);
+    
+    var prog = new gloo2.Program(gl);
+    prog.set_shaders(VERT, FRAG);
+    
+    var tex = new gloo2.Texture2D(gl);
+    tex.set_interpolation(gl.LINEAR, gl.LINEAR);
+    tex.set_wrapping(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE);
+    tex.set_size([600, 400], gl.LUMINANCE);
+    //tex.set_data([0, 0], im);
+    prog.set_texture('tex', tex);
+    
+    var vbo = new gloo2.VertexBuffer(gl);
+    vbo.set_size(vert_data.length * 4);
+    vbo.set_data(0, vert_data);
+    
+    prog.set_attribute('a_position', 'vec2', [vbo, 0, 0]);
+    prog.set_texture('u_sampler', tex);
+    
+    
+    var _render = function() {
+        
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(10, 10, 580, 380);
+    
+        gl.bindTexture(gl.TEXTURE_2D, tex._handle);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
+        
+        var n = 100;
+        var t0 = performance.now();
+        for (var i =0; i<n; i++) {
+            gl.bindTexture(gl.TEXTURE_2D, tex._handle);
+            //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
+        }
+        var t1 = performance.now();
+        
+        var msg = 'time to upload canvas to gl texture: ' + (t1-t0)/n + ' ms'
+        document.getElementById('timing').innerHTML = msg;
+        
+        gl.clearColor(0, 1, 1, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        prog.draw(gl.TRIANGLES, [0, 6]);
+    };
+    
+   return _render;
+    
+};
+
+document.body.onload = function () {
+    var _render = initialize_canvas();
+    document.getElementById('timing').onclick = function () {document.body.innerHTML = ''; }
+    
+    function render (timestamp) {
+        _render();
+        window.requestAnimationFrame(render);
+    }
+    window.requestAnimationFrame(render);
+};
+    
+</script>
+    
+</body>
+    <div id='timing'> </div>
+    <canvas id='thecanvas' width=600, height=400>You don't have a canvas</canvas>
+
+</html>

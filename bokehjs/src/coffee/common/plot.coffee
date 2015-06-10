@@ -212,7 +212,8 @@ class PlotView extends ContinuumView
 
     if @tm_view?
       @tm_view.render()
-
+    
+    # Get 2D rendering context
     ctx = @canvas_view.ctx
 
     frame = @model.get('frame')
@@ -253,12 +254,20 @@ class PlotView extends ContinuumView
 
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
-
+    if ctx.gl
+        ctx.plot = this
+        ctx.gl.clearColor(0, 0, 0, 0)
+        ctx.gl.clear(ctx.gl.COLOR_BUFFER_BIT || ctx.gl.DEPTH_BUFFER_BIT)
+        ctx.gl.blendFunc(ctx.gl.SRC_ALPHA, ctx.gl.ONE_MINUS_SRC_ALPHA)
+        ctx.gl.enable(ctx.gl.BLEND)
+    
     if @outline_props.do_stroke
       @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    if ctx.canvas3d?
+        ctx.drawImage(ctx.canvas3d, 0, 0);  # only apply to glyphs
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if title
@@ -267,6 +276,11 @@ class PlotView extends ContinuumView
         @model.title_panel.get('bottom') + @model.get('title_standoff'))
       @title_props.set_value(ctx)
       ctx.fillText(title, sx, sy)
+  
+    if @canvas_view.canvas3d?
+      console.log('render webgl canvas into 2d canvas ' + performance.now())
+    else
+      console.log('NOT rendering with webgl')
 
     if not @initial_range_info?
       @set_initial_range()
@@ -295,11 +309,13 @@ class PlotView extends ContinuumView
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.fillStyle = @mget('border_fill')
-    ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
-                 @canvas_view.mget('canvas_height')) # TODO
-    ctx.fillStyle = @mget('background_fill')
-    ctx.fillRect.apply(ctx, frame_box)
+    # todo: paint bg color and border fill to webgl canvas
+    #ctx.fillStyle = @mget('border_fill')
+    #ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
+    #             @canvas_view.mget('canvas_height')) # TODO
+    #ctx.fillStyle = @mget('background_fill')
+    #ctx.fillStyle = "rgba(0, 0, 200, 0.0)";
+    #ctx.fillRect.apply(ctx, frame_box)
 
 class Plot extends HasParent
   type: 'Plot'
