@@ -164,13 +164,13 @@ def bulkget_with_typename(docid, typename):
     return _bulkget(docid, typename)
 
 @crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
-def _handle_specific_model(docid, typename, id, method):
+def _handle_specific_model(docid, typename, id, method, format='json'):
     if method == 'PUT':
         return update(docid, typename, id)
     elif method == 'PATCH':
         return update(docid, typename, id)
     elif method == 'GET':
-        return getbyid(docid, typename, id)
+        return getbyid(docid, typename, id, format)
     elif method == 'DELETE':
         return delete(docid, typename, id)
 
