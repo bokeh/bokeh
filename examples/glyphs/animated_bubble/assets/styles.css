@@ -1,0 +1,203 @@
+/*
+ *
+ * MAIN BOKEH SETUP
+ *
+ */ 
+.bk-plot-wrapper table tr td, 
+table, td, tr {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.bk-canvas {
+  clear: both;
+  position: absolute;
+}
+
+.bk-canvas-wrapper {
+  position: relative;
+  float: left;
+}
+
+/*
+ *
+ * HOVER
+ *
+ */ 
+
+
+/* Bokeh - plain styling */
+.bk-tooltip {
+  position: absolute;
+  padding: 5px;
+  border: 1px solid #1e4b6c;
+  background-color: #1e4b6c;
+  border-radius: 5px;
+  pointer-events: none;
+}
+.bk-tooltip.bk-left::before {
+  position: absolute;
+  margin: -7px 0 0 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 0;
+  border-color: transparent;
+  content: " ";
+  display: block;
+  left: -10px;
+  border-right-width: 10px;
+  border-right-color: #1e4b6c;
+}
+.bk-tooltip.bk-right::after {
+  position: absolute;
+  margin: -7px 0 0 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 0;
+  border-color: transparent;
+  content: " ";
+  display: block;
+  right: -10px;
+  border-left-width: 10px;
+  border-left-color: #1e4b6c;
+}
+.bk-tooltip.bk-tooltip-custom.bk-left::before {
+  border-right-color: black;
+}
+.bk-tooltip.bk-tooltip-custom.bk-right::after {
+  border-left-color: black;
+}
+.bk-tooltip.bk-tooltip-custom {
+  border-color: black;
+  background-color: white;
+}
+
+
+/* Custom hover styling */
+.bk-tooltip.bk-tooltip-custom {
+    background-color: black !important;
+    opacity: 0.9;
+    color: white;
+    font-size: 0.8em;
+    padding: 0.5em 1.5em;
+}
+
+.bk-tooltip.bk-tooltip-custom:before {
+    border: none !important;
+}
+
+.bk-tooltip.bk-tooltip-custom:after {
+    border: none !important;
+}
+
+.tooltip-text {
+    clear: both;
+    float: left;
+}
+.tooltip-text.country {
+    font-weight: bold;
+}
+.tooltip-text.value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #FFA500;
+}
+
+/*
+ *
+ * SLIDER
+ *
+ */ 
+
+.bk-slider-horizontal {
+  width: 100%;
+  height: 50px;
+  min-width: 200px;
+}
+
+.bk-ui-slider {
+    position: relative;
+    text-align: left;
+}
+.bk-ui-slider .bk-ui-slider-handle {
+    position: absolute;
+    top: -0.25em;
+    z-index: 2;
+    width: 1.2em;
+    height: 1.2em;
+    cursor: default;
+    -ms-touch-action: none;
+    touch-action: none;
+}
+
+.bk-ui-state-default,
+.bk-ui-widget-content .bk-ui-state-default,
+.bk-ui-widget-header .bk-ui-state-default {
+    border: 1px solid #d3d3d3;
+    font-weight: normal;
+    color: #555555;
+}
+
+.bk-ui-widget-content {
+    text-align: left;
+    border: 1px solid #aaaaaa;
+    background: #ffffff;
+    color: #222222;
+}
+
+
+/* Custom Slider styling */
+
+/* Hide the label and input */
+.bk-hbox > div,
+.bk-hbox > button {
+    float: left;
+    margin-left: 10px;
+}
+
+.bk-hbox > div > input,
+.bk-hbox > div > label {
+    display: none;
+}
+
+.bk-slider-horizontal { 
+    min-width: 400px;
+    padding-top: 15px;
+    padding-bottom: 0px;
+    border: none;
+}
+
+.bk-ui-slider .bk-ui-slider-handle {
+    top: -15px;
+    width: 60px;
+    height: 30px;
+    background: #fff;
+    border-radius: 10px;
+}
+
+.bk-ui-slider .bk-ui-slider-handle:focus {
+    outline: none;
+}
+
+
+/*
+ *
+ * PLAY
+ *
+ */ 
+
+.bk-bs-btn {
+    width: 60px;
+    height: 30px;
+    background: #fff;
+    border-radius: 10px;
+}
+
+.bk-bs-btn:focus {
+    outline: none;
+}

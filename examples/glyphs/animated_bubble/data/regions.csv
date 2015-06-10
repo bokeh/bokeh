@@ -1,0 +1,245 @@
+Country,Group,ID
+Angola,Sub-Saharan Africa,AO
+Benin,Sub-Saharan Africa,BJ
+Botswana,Sub-Saharan Africa,BW
+Burkina Faso,Sub-Saharan Africa,BF
+Burundi,Sub-Saharan Africa,BI
+Cameroon,Sub-Saharan Africa,CM
+Cape Verde,Sub-Saharan Africa,CV
+Central African Rep.,Sub-Saharan Africa,CF
+Chad,Sub-Saharan Africa,TD
+Comoros,Sub-Saharan Africa,KM
+"Congo, Dem. Rep.",Sub-Saharan Africa,CD
+"Congo, Rep.",Sub-Saharan Africa,CG
+Cote d'Ivoire,Sub-Saharan Africa,CI
+Equatorial Guinea,Sub-Saharan Africa,GQ
+Eritrea,Sub-Saharan Africa,ER
+Ethiopia,Sub-Saharan Africa,ET
+Gabon,Sub-Saharan Africa,GA
+Gambia,Sub-Saharan Africa,GM
+Ghana,Sub-Saharan Africa,GH
+Guinea,Sub-Saharan Africa,GN
+Guinea-Bissau,Sub-Saharan Africa,GW
+Kenya,Sub-Saharan Africa,KE
+Lesotho,Sub-Saharan Africa,LS
+Liberia,Sub-Saharan Africa,LR
+Madagascar,Sub-Saharan Africa,MG
+Malawi,Sub-Saharan Africa,MW
+Mali,Sub-Saharan Africa,ML
+Mauritania,Sub-Saharan Africa,MR
+Mauritius,Sub-Saharan Africa,MU
+Mayotte,Sub-Saharan Africa,YT
+Mozambique,Sub-Saharan Africa,MZ
+Namibia,Sub-Saharan Africa,
+Niger,Sub-Saharan Africa,NE
+Nigeria,Sub-Saharan Africa,NG
+Reunion,Sub-Saharan Africa,RE
+Rwanda,Sub-Saharan Africa,RW
+Saint Helena,Sub-Saharan Africa,SH
+Sao Tome and Principe,Sub-Saharan Africa,ST
+Senegal,Sub-Saharan Africa,SN
+Seychelles,Sub-Saharan Africa,SC
+Sierra Leone,Sub-Saharan Africa,SL
+Somalia,Sub-Saharan Africa,SO
+South Africa,Sub-Saharan Africa,ZA
+South Sudan,Sub-Saharan Africa,South Sudan
+Sudan,Sub-Saharan Africa,SD
+Swaziland,Sub-Saharan Africa,SZ
+Tanzania,Sub-Saharan Africa,TZ
+Togo,Sub-Saharan Africa,TG
+Uganda,Sub-Saharan Africa,UG
+Zambia,Sub-Saharan Africa,ZM
+Zimbabwe,Sub-Saharan Africa,ZW
+Afghanistan,South Asia,AF
+Bangladesh,South Asia,BD
+Bhutan,South Asia,BT
+India,South Asia,IN
+Maldives,South Asia,MV
+Nepal,South Asia,NP
+Pakistan,South Asia,PK
+Sri Lanka,South Asia,LK
+Algeria,Middle East & North Africa,DZ
+Bahrain,Middle East & North Africa,BH
+Djibouti,Middle East & North Africa,DJ
+Egypt,Middle East & North Africa,EG
+Iran,Middle East & North Africa,IR
+Iraq,Middle East & North Africa,IQ
+Israel,Middle East & North Africa,IL
+Jordan,Middle East & North Africa,JO
+Kuwait,Middle East & North Africa,KW
+Lebanon,Middle East & North Africa,LB
+Libya,Middle East & North Africa,LY
+Morocco,Middle East & North Africa,MA
+Oman,Middle East & North Africa,OM
+Qatar,Middle East & North Africa,QA
+Saudi Arabia,Middle East & North Africa,SA
+Syria,Middle East & North Africa,SY
+Tunisia,Middle East & North Africa,TN
+United Arab Emirates,Middle East & North Africa,AE
+West Bank and Gaza,Middle East & North Africa,PS
+"Yemen, Rep.",Middle East & North Africa,YE
+Anguilla,America,AI
+Antigua and Barbuda,America,AG
+Argentina,America,AR
+Aruba,America,AW
+Bahamas,America,BS
+Barbados,America,BB
+Belize,America,BZ
+Bermuda,America,BM
+Bolivia,America,BO
+Brazil,America,BR
+British Virgin Islands,America,VG
+Canada,America,CA
+Cayman Islands,America,KY
+Chile,America,CL
+Colombia,America,CO
+Costa Rica,America,CR
+Cuba,America,CU
+Dominica,America,DM
+Dominican Rep.,America,DO
+Ecuador,America,EC
+El Salvador,America,SV
+Falkland Islands (Malvinas),America,FK
+French Guiana,America,GF
+Grenada,America,GD
+Guadeloupe,America,GP
+Guatemala,America,GT
+Guyana,America,GY
+Haiti,America,HT
+Honduras,America,HN
+Jamaica,America,JM
+Martinique,America,MQ
+Mexico,America,MX
+Montserrat,America,MS
+Netherlands Antilles,America,AN
+Nicaragua,America,NI
+Panama,America,PA
+Paraguay,America,PY
+Peru,America,PE
+Puerto Rico,America,PR
+Saint Barthélemy,America,BL
+Saint Martin,America,MF
+Saint-Pierre-et-Miquelon,America,PM
+Saint Kitts and Nevis,America,KN
+Saint Lucia,America,LC
+Saint Vincent and the Grenadines,America,VC
+Suriname,America,SR
+Trinidad and Tobago,America,TT
+Turks and Caicos Islands,America,TC
+United States,America,US
+Uruguay,America,UY
+Albania,Europe & Central Asia,AL
+Andorra,Europe & Central Asia,AD
+Armenia,Europe & Central Asia,AM
+Austria,Europe & Central Asia,AT
+Azerbaijan,Europe & Central Asia,AZ
+Belarus,Europe & Central Asia,BY
+Belgium,Europe & Central Asia,BE
+Bosnia and Herzegovina,Europe & Central Asia,BA
+Bulgaria,Europe & Central Asia,BG
+Channel Islands,Europe & Central Asia,Channel_Islands
+Croatia,Europe & Central Asia,HR
+Cyprus,Europe & Central Asia,CY
+Czech Rep.,Europe & Central Asia,CZ
+Denmark,Europe & Central Asia,DK
+Estonia,Europe & Central Asia,EE
+Faeroe Islands,Europe & Central Asia,FO
+Finland,Europe & Central Asia,FI
+France,Europe & Central Asia,FR
+Georgia,Europe & Central Asia,GE
+Germany,Europe & Central Asia,DE
+Gibraltar,Europe & Central Asia,GI
+Greece,Europe & Central Asia,GR
+Greenland,Europe & Central Asia,GL
+Guernsey,Europe & Central Asia,GG
+Holy See,Europe & Central Asia,Holy_See
+Hungary,Europe & Central Asia,HU
+Iceland,Europe & Central Asia,IS
+Ireland,Europe & Central Asia,IE
+Isle of Man,Europe & Central Asia,IM
+Italy,Europe & Central Asia,IT
+Jersey,Europe & Central Asia,JE
+Kazakhstan,Europe & Central Asia,KZ
+Kosovo,Europe & Central Asia,Kosovo
+Kyrgyzstan,Europe & Central Asia,KG
+Latvia,Europe & Central Asia,LV
+Liechtenstein,Europe & Central Asia,LI
+Lithuania,Europe & Central Asia,LT
+Luxembourg,Europe & Central Asia,LU
+"Macedonia, FYR",Europe & Central Asia,MK
+Malta,Europe & Central Asia,MT
+Moldova,Europe & Central Asia,MD
+Monaco,Europe & Central Asia,MC
+Montenegro,Europe & Central Asia,ME
+Netherlands,Europe & Central Asia,NL
+Northern Cyprus,Europe & Central Asia,Northern_Cyprus
+Norway,Europe & Central Asia,NO
+Poland,Europe & Central Asia,PL
+Portugal,Europe & Central Asia,PT
+Romania,Europe & Central Asia,RO
+Russia,Europe & Central Asia,RU
+San Marino,Europe & Central Asia,SM
+Serbia,Europe & Central Asia,RS
+Serbia excluding Kosovo,Europe & Central Asia,Serbia_excluding_Kosovo
+Slovak Republic,Europe & Central Asia,SK
+Slovenia,Europe & Central Asia,SI
+Spain,Europe & Central Asia,ES
+Svalbard,Europe & Central Asia,SJ
+Sweden,Europe & Central Asia,SE
+Switzerland,Europe & Central Asia,CH
+Tajikistan,Europe & Central Asia,TJ
+Turkey,Europe & Central Asia,TR
+Turkmenistan,Europe & Central Asia,TM
+Ukraine,Europe & Central Asia,UA
+United Kingdom,Europe & Central Asia,GB
+Uzbekistan,Europe & Central Asia,UZ
+Åland,Europe & Central Asia,AX
+American Samoa,East Asia & Pacific,AS
+Australia,East Asia & Pacific,AU
+Brunei,East Asia & Pacific,BN
+Cambodia,East Asia & Pacific,KH
+China,East Asia & Pacific,CN
+Christmas Island,East Asia & Pacific,CX
+Cocos Island,East Asia & Pacific,CC
+Cook Islands,East Asia & Pacific,CK
+Fiji,East Asia & Pacific,FJ
+French Polynesia,East Asia & Pacific,PF
+Guam,East Asia & Pacific,GU
+"Hong Kong, China",East Asia & Pacific,HK
+Indonesia,East Asia & Pacific,ID
+Japan,East Asia & Pacific,JP
+Kiribati,East Asia & Pacific,KI
+"Korea, Dem. Rep.",East Asia & Pacific,KP
+"Korea, Rep.",East Asia & Pacific,KR
+Laos,East Asia & Pacific,LA
+"Macao, China",East Asia & Pacific,MO
+Malaysia,East Asia & Pacific,MY
+Marshall Islands,East Asia & Pacific,MH
+"Micronesia, Fed. Sts.",East Asia & Pacific,FM
+Mongolia,East Asia & Pacific,MN
+Myanmar,East Asia & Pacific,MM
+Nauru,East Asia & Pacific,NR
+New Caledonia,East Asia & Pacific,NC
+New Zealand,East Asia & Pacific,NZ
+Niue,East Asia & Pacific,NU
+Norfolk Island,East Asia & Pacific,NF
+Northern Mariana Islands,East Asia & Pacific,MP
+Palau,East Asia & Pacific,PW
+Papua New Guinea,East Asia & Pacific,PG
+Philippines,East Asia & Pacific,PH
+Pitcairn,East Asia & Pacific,PN
+Samoa,East Asia & Pacific,WS
+Singapore,East Asia & Pacific,SG
+Solomon Islands,East Asia & Pacific,SB
+Taiwan,East Asia & Pacific,TW
+Thailand,East Asia & Pacific,TH
+Timor-Leste,East Asia & Pacific,TL
+Tokelau,East Asia & Pacific,TK
+Tonga,East Asia & Pacific,TO
+Tuvalu,East Asia & Pacific,TV
+Wallis et Futuna,East Asia & Pacific,WF
+Venezuela,America,VE
+Western Sahara,Middle East & North Africa,EH
+Vietnam,East Asia & Pacific,VN
+Virgin Islands (U.S.),America,VI
+Vanuatu,East Asia & Pacific,VU
