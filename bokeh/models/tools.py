@@ -381,10 +381,10 @@ class HoverTool(Tool):
     cb_obj emitted on a mouseover contains five fields:
 
     :index: index of the hovered point in the data source
-    :$x: x-coordinate under the cursor in data space
-    :$y: y-coordinate under the cursor in data space
-    :$sx: x-coordinate under the cursor in screen (canvas) space
-    :$sy: y-coordinate under the cursor in screen (canvas) space
+    :x: x-coordinate under the cursor in data space
+    :y: y-coordinate under the cursor in data space
+    :sx: x-coordinate under the cursor in screen (canvas) space
+    :sy: y-coordinate under the cursor in screen (canvas) space
     """)
 
     tooltips = Either(String, List(Tuple(String, String)), help="""

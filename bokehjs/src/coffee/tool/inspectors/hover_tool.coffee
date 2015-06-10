@@ -144,7 +144,7 @@ class HoverToolView extends InspectTool.View
 
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
-    @mget('callback').execute({index: i, x: x, y: y, sx: sx, sy: sy})
+    @mget('callback')?.execute({index: i, x: x, y: y, sx: sx, sy: sy})
 
     return null
 
