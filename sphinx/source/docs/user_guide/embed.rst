@@ -60,7 +60,7 @@ can be used in HTML documents however you like:
     plot = figure()
     plot.circle([1,2], [3,4])
 
-    script, div = components(plot)
+    components(plot)
 
 The returned ``<script>`` will look something like:
 
