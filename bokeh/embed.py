@@ -31,7 +31,7 @@ def _wrap_in_function(code):
     return 'Bokeh.$(function() {\n%s\n});' % code
 
 
-def components(plot_object, resources=None):
+def components(plot_objects, resources=None):
     ''' Return HTML components to embed a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -40,19 +40,41 @@ def components(plot_object, resources=None):
               are **already loaded**.
 
     Args:
-        plot_object (PlotObject) : Bokeh object to render
-            typically a Plot or PlotContext
+        plot_objects (PlotObject|list|dict|tuple) : Will return script
+        and div element to render if PlotObject, or correlating structures
+        of script/div combinations
         resources : Deprecated argument
     Returns:
-        (script, div) : UTF-8 encoded
-
+        (script, div): UTF-8 encoded|list|dict|tuple
     '''
-    
+
     if resources is not None:
         warn('Because the ``resources`` argument is no longer needed, '
              'is it deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
     
+    if type(plot_objects) is list or type(plot_objects) is tuple:
+        script_divs = []
+        for plot_object in plot_objects:
+            script_divs.append(script_div_gen(plot_object))
+        return tuple(script_divs) if type(plot_objects) is tuple else script_divs
+    elif type(plot_objects) is dict:
+        script_divs = {}
+        for key, plot_object in plot_objects.iteritems():
+            script_divs[key] = script_div_gen(plot_object)
+        return script_divs
+    else:
+        # if single PlotObject
+        return script_div_gen(plot_objects)
+
+
+def script_div_gen(plot_object):
+    '''Args:
+        plot_object (PlotObject) : Bokeh object to render
+            typically a Plot or PlotContext
+    Returns:
+        (script, div) : UTF-8 encoded
+    '''
     ref = plot_object.ref
     elementid = str(uuid.uuid4())
     
