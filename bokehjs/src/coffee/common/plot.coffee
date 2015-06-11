@@ -253,13 +253,17 @@ class PlotView extends ContinuumView
 
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
+
     if ctx.glcanvas
       # Prepare GL for drawing
       gl = ctx.glcanvas.gl
       gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
+      flipped_top = ctx.glcanvas.height - (frame_box[1] + frame_box[3])
+      gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
       gl.clearColor(0, 0, 0, 0)
       gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+      gl.enable(gl.SCISSOR_TEST)
       gl.enable(gl.BLEND)
 
     if @outline_props.do_stroke
@@ -310,12 +314,11 @@ class PlotView extends ContinuumView
 
   _paint_empty: (ctx, frame_box) ->
     # todo: paint bg color and border fill to webgl canvas
-    #ctx.fillStyle = @mget('border_fill')
-    #ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
-    #             @canvas_view.mget('canvas_height')) # TODO
-    #ctx.fillStyle = @mget('background_fill')
-    #ctx.fillStyle = "rgba(0, 0, 200, 0.0)";
-    #ctx.fillRect.apply(ctx, frame_box)
+    ctx.fillStyle = @mget('border_fill')
+    ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
+                 @canvas_view.mget('canvas_height')) # TODO
+    ctx.fillStyle = @mget('background_fill')
+    ctx.fillRect.apply(ctx, frame_box)
 
 class Plot extends HasParent
   type: 'Plot'
