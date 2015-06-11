@@ -17,7 +17,8 @@ class LineView extends Glyph.View
 
   _render: (ctx, indices, {sx, sy}) ->
     if ctx.glcanvas
-        return @_render_gl(ctx, indices)
+        if not @_render_gl(ctx, indices)
+          return
 
     drawing = false
     @visuals.line.set_value(ctx)  # what does this do?
@@ -44,6 +45,11 @@ class LineView extends Glyph.View
     if not @_gl?
       @_gl = setup_gl(gl)
 
+    # Get transform, and verify that its linear
+    [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
+    if ((dx[1] - dx[0]) != (dx[2] - dx[1]) || (dy[1] - dy[0]) != (dy[2] - dy[1]))
+      return true 
+
     if @_data_changed
       @_data_changed = false
       @_gl.vbo_x.set_size(@x.length * 4)  # size in bytes
@@ -51,7 +57,6 @@ class LineView extends Glyph.View
       @_gl.vbo_x.set_data(0, new Float32Array(@x))
       @_gl.vbo_y.set_data(0, new Float32Array(@y))      
 
-    [dx, dy] = @renderer.map_to_screen([0, 1], [0, 1])    
     @_gl.prog.set_uniform('u_canvas_size', 'vec2', [ctx.glcanvas.width, ctx.glcanvas.height])
     @_gl.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
     @_gl.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
