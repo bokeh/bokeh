@@ -57,7 +57,7 @@ def start_simple_server(args=None):
     if args is not None and args.https:
         if args.https_certfile and args.https_keyfile:
             server = HTTPServer(tornado_app, ssl_options={"certfile": args.https_certfile, "keyfile": args.https_keyfile})
-            log.info('HTTPS Enabled)
+            log.info('HTTPS Enabled')
         else:
             server = HTTPServer(tornado_app)
             log.warning('WARNING: --https-certfile or --https-keyfile are not specified, using http instead')
