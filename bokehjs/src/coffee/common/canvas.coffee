@@ -67,7 +67,7 @@ class CanvasView extends ContinuumView
                           @ctx.mozBackingStorePixelRatio ||
                           @ctx.msBackingStorePixelRatio ||
                           @ctx.oBackingStorePixelRatio ||
-                          @ctx.backingStorePixelRatio || 1  # ak: wtf?
+                          @ctx.backingStorePixelRatio || 1
       ratio = devicePixelRatio / backingStoreRatio
     else
       ratio = 1

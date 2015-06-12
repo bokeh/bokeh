@@ -16,13 +16,14 @@ class LineView extends Glyph.View
     @_data_changed = true  # notify gl, lazy upload
 
   _render: (ctx, indices, {sx, sy}) ->
+    
+    @visuals.line.set_value(ctx)  # Set before gl, because it uses it too
+    
     if ctx.glcanvas
         if not @_render_gl(ctx, indices)
           return
 
     drawing = false
-    @visuals.line.set_value(ctx)  # what does this do?
-
     for i in indices
       if !isFinite(sx[i]+sy[i]) and drawing
         ctx.stroke()
@@ -49,6 +50,15 @@ class LineView extends Glyph.View
     [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
     if ((dx[1] - dx[0]) != (dx[2] - dx[1]) || (dy[1] - dy[0]) != (dy[2] - dy[1]))
       return true 
+    
+    # No gl if line has features that we do no support
+    # If we implement agg quality lines with shaders we can probably also add
+    # stippling and caps (Nicolas Rougier has done much work on this stuff)
+    console.log(@visuals.line.dash.value())
+    if @visuals.line.dash.value().length
+      return true
+    if ctx.lineCap != 'butt'
+      return true
 
     if @_data_changed
       @_data_changed = false
@@ -56,7 +66,20 @@ class LineView extends Glyph.View
       @_gl.vbo_y.set_size(@y.length * 4)
       @_gl.vbo_x.set_data(0, new Float32Array(@x))
       @_gl.vbo_y.set_data(0, new Float32Array(@y))      
-
+    
+    # Get RGBA as a tuple
+    # We query this (and other) values from the ctx, so we have the appropriate
+    # defaults, and colors like "red" will be transformed to hex.
+    colorparts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(ctx.strokeStyle)
+    color = [parseInt(colorparts[1], 16)/255, parseInt(colorparts[2], 16)/255, parseInt(colorparts[3], 16)/255]
+    color.push(ctx.globalAlpha)
+    
+    # Set line width - note that only width 1 is guaranteed to be supported
+    # We make width-1 lines a bit wider, otherwise they turn vague due to aa
+    lineWidth = if ctx.lineWidth > 1 then ctx.lineWidth else ctx.lineWidth + 0.15
+    ctx.glcanvas.gl.lineWidth(lineWidth)
+    
+    @_gl.prog.set_uniform('u_color', 'vec4', color)
     @_gl.prog.set_uniform('u_canvas_size', 'vec2', [ctx.glcanvas.width, ctx.glcanvas.height])
     @_gl.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
     @_gl.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
