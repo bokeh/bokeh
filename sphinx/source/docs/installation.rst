@@ -139,7 +139,7 @@ about building Bokeh yourself is to install a developer build. We typically try
 to make a new developer build available at least once a week, and sometimes more
 often.
 
-These builds are being made available on `binstar.org`_. If you are using
+These builds are being made available on `anaconda.org`_. If you are using
 Anaconda, you can install with conda by issuing the command from a Bash or Windows
 command prompt:
 
@@ -151,7 +151,7 @@ Alternatively you can install with pip from a Bash or Windows command prompt:
 
 .. code-block:: sh
 
-    pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/
+    pip install --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/
 
 We attempt to make sure the developer builds are relatively stable, however please
 be aware they they are not tested as rigorously as standard releases. Any problems
@@ -189,7 +189,7 @@ Manager. From a Bash or Windows command prompt, execute:
     npm install bokehjs
 
 .. _Anaconda Python Distribution: http://continuum.io/anaconda
-.. _binstar.org: http://binstar.org
+.. _anaconda.org: http://anaconda.org
 .. _Continuum Analytics: http://continuum.io
 .. _npmjs: https://www.npmjs.org/package/bokehjs
 .. _redis: http://redis.io

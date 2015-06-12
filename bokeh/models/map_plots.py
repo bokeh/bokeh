@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..properties import HasProps
-from ..properties import Int, Float, Enum, Instance
+from ..properties import Enum, Float, Instance, Int, JSON
 from ..enums import MapType
 
 from .plots import Plot
@@ -23,16 +23,22 @@ class GMapOptions(HasProps):
     """)
 
     zoom = Int(12, help="""
-    The initial `zoom level`_ to use when displaying the GMapPlot.
-
-    .. _zoom level: https://developers.google.com/maps/documentation/staticmaps/#Zoomlevels
-
+    The initial zoom level to use when displaying the GMapPlot.
     """)
 
     map_type = Enum(MapType, help="""
     The `map type`_ to use for the GMapPlot.
 
-    .. _map type: https://developers.google.com/maps/documentation/staticmaps/#MapTypes
+    .. _map type: https://developers.google.com/maps/documentation/javascript/reference#MapTypeId
+
+    """)
+
+    styles = JSON(help="""
+    A JSON array of `map styles`_ to use for the GMapPlot. Many example styles can
+    `be found here`_.
+
+    .. _map styles: https://developers.google.com/maps/documentation/javascript/reference#MapTypeStyle
+    .. _be found here: https://snazzymaps.com
 
     """)
 

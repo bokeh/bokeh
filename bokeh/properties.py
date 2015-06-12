@@ -483,6 +483,26 @@ class Regex(String):
     def __str__(self):
         return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
 
+class JSON(String):
+    """ JSON type property validates that text values are valid JSON. 
+    
+    ..  note::
+        The string is transmitted and received by BokehJS as a *string* 
+        containing JSON content. i.e., you must use ``JSON.parse`` to unpack
+        the value into a JavaScript hash. 
+        
+    """
+    def validate(self, value):
+        super(JSON, self).validate(value)
+
+        if value is None: return
+
+        try:
+            import json
+            json.loads(value)
+        except ValueError:
+            raise ValueError("expected JSON text, got %r" % value)
+
 class ParameterizedProperty(Property):
     """ Base class for Properties that have type parameters, e.g.
     ``List(String)``.
@@ -853,6 +873,7 @@ class Color(Either):
     def __str__(self):
         return self.__class__.__name__
 
+
 class Align(Property):
     pass
 
@@ -1121,6 +1142,10 @@ class ColorSpec(DataSpec):
                ((len(arg) == 7 and arg[0] == "#") or arg in enums.NamedColor._values)
 
     @classmethod
+    def is_color_tuple(cls, val):
+        return isinstance(val, tuple) and len(val) in (3, 4)
+
+    @classmethod
     def format_tuple(cls, colortuple):
         if len(colortuple) == 3:
             return "rgb%r" % (colortuple,)
@@ -1147,3 +1172,21 @@ class ColorSpec(DataSpec):
 
         # Must be dict, return as-is
         return val
+
+    def validate(self, value):
+        try:
+            return super(ColorSpec, self).validate(value)
+        except ValueError as e:
+            # Check for tuple input if not yet a valid input type
+            if self.is_color_tuple(value):
+                return True
+            else:
+                raise e
+
+    def transform(self, value):
+
+        # Make sure that any tuple has either three integers, or three integers and one float
+        if isinstance(value, tuple):
+            value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
+
+        return value

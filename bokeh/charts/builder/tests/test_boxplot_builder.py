@@ -106,3 +106,10 @@ class TestBoxPlot(unittest.TestCase):
 
             for key, expected_v in expected_seg.items():
                 self.assertEqual(builder._data_segment[key], expected_v)
+
+    def test_no_outliers(self):
+        xyvalues = [7.0, 7.0, 8.0, 8.0, 9.0, 9.0]
+        bp = create_chart(BoxPlot, xyvalues, outliers=True)
+        builder = bp._builders[0]
+        outliers = builder._data_scatter['out_y']
+        self.assertEqual(len(outliers), 0)

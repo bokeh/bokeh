@@ -220,7 +220,7 @@ class BoxPlotBuilder(Builder):
         end_y = max(self._data_segment[self._attr_segment[3]])
 
         ## Expand min/max to encompass outliers
-        if self.outliers:
+        if self.outliers and self._data_scatter[self._attr_scatter[1]]:
             start_out_y = min(self._data_scatter[self._attr_scatter[1]])
             end_out_y = max(self._data_scatter[self._attr_scatter[1]])
             # it could be no outliers in some sides...

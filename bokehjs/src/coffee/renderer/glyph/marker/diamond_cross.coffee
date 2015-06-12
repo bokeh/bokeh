@@ -21,7 +21,6 @@ class DiamondCrossView extends Marker.View
       ctx.lineTo(-r/1.5, 0)
       if angle[i]
         ctx.rotate(-angle[i])
-      ctx.translate(-sx[i], -sy[i])
       ctx.closePath()
 
       if @visuals.fill.do_fill
@@ -39,6 +38,8 @@ class DiamondCrossView extends Marker.View
         if angle[i]
           ctx.rotate(-angle[i])
         ctx.stroke()
+
+      ctx.translate(-sx[i], -sy[i])
 
 
 class DiamondCross extends Marker.Model
