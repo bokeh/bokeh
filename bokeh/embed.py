@@ -45,52 +45,68 @@ def components(plot_objects, resources=None):
         of script/div combinations
         resources : Deprecated argument
     Returns:
-        (script, div): UTF-8 encoded|list|dict|tuple
+        (script, div[s]): UTF-8 encoded
     '''
 
     if resources is not None:
         warn('Because the ``resources`` argument is no longer needed, '
              'is it deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
-    
-    if type(plot_objects) is list or type(plot_objects) is tuple:
-        script_divs = []
-        for plot_object in plot_objects:
-            script_divs.append(script_div_gen(plot_object))
-        return tuple(script_divs) if type(plot_objects) is tuple else script_divs
-    elif type(plot_objects) is dict:
-        script_divs = {}
-        for key, plot_object in plot_objects.iteritems():
-            script_divs[key] = script_div_gen(plot_object)
-        return script_divs
+    all_models = []
+    plots = []
+    if isinstance(plot_objects, list) or isinstance(plot_objects, tuple):
+        divs = []
+        for idx, plot_object in enumerate(plot_objects):
+            elementid = str(uuid.uuid4())
+            _append_plot(all_models, plots, plot_object, elementid)
+            divs = _append_div(elementid, divs)
+        divs = tuple(divs) if isinstance(plot_objects, tuple) else divs
+        return _component_pair(all_models, plots, divs)
+    elif isinstance(plot_objects, dict):
+        divs = {}
+        for key in plot_objects.keys():
+            elementid = str(uuid.uuid4())
+            _append_plot(all_models, plots, plot_objects[key], elementid)
+            divs = _append_div(elementid, divs, key)
+        return _component_pair(all_models, plots, divs)
     else:
         # if single PlotObject
-        return script_div_gen(plot_objects)
+        elementid = str(uuid.uuid4())
+        _append_plot(all_models, plots, plot_objects, elementid)
+        divs = _append_div(elementid)
+        return _component_pair(all_models, plots, divs)
 
-
-def script_div_gen(plot_object):
-    '''Args:
-        plot_object (PlotObject) : Bokeh object to render
-            typically a Plot or PlotContext
-    Returns:
-        (script, div) : UTF-8 encoded
-    '''
-    ref = plot_object.ref
-    elementid = str(uuid.uuid4())
-    
+def _component_pair(all_models, plots, divs):
     js = PLOT_JS.render(
-        elementid = elementid,
-        modelid = ref["id"],
-        modeltype = ref["type"],
-        all_models = serialize_json(plot_object.dump()),
+        all_models = serialize_json(all_models),
+        plots = plots
     )
     script = PLOT_SCRIPT.render(
         plot_js = _wrap_in_function(js),
     )
-    div = PLOT_DIV.render(elementid=elementid)
+    return encode_utf8(script), divs
 
-    return encode_utf8(script), encode_utf8(div)
+def _append_plot(all_models, plots, plot_object, elementid):
+    ref = plot_object.ref
+    all_models.extend(plot_object.dump())
+    plots.append({
+        'modelid': ref["id"],
+        'elementid': '#' + elementid,
+        'modeltype': ref["type"]
+    })
 
+def _append_div(elementid, divs=None, key=None):
+    div = PLOT_DIV.render(
+        elementid = elementid
+    )
+    if isinstance(divs, list):
+        divs.append(encode_utf8(div))
+        return divs
+    elif isinstance(divs, dict):
+        divs[key] = encode_utf8(div)
+        return divs
+    else:
+        return encode_utf8(div)
 
 def notebook_div(plot_object):
     ''' Return HTML for a div that will display a Bokeh plot in an
