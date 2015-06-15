@@ -48,7 +48,7 @@ class Plot(Widget):
 
     """
     callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the input's value changes.
+    A callback to run in the browser when the plot object is initialized.
     """)
 
     def __init__(self, **kwargs):
