@@ -48,33 +48,38 @@ def components(plot_objects, resources=None):
         (script, div[s]): UTF-8 encoded
     '''
 
+    from .plot_object import PlotObject
+    if isinstance(plot_objects, PlotObject):
+        plot_objects = [plot_objects]
     if resources is not None:
         warn('Because the ``resources`` argument is no longer needed, '
              'is it deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
     all_models = []
     plots = []
-    if isinstance(plot_objects, list) or isinstance(plot_objects, tuple):
+    value_error = 'Input must be single or iterable collection of PlotObjects'
+    if isinstance(plot_objects, (list, tuple)):
         divs = []
         for idx, plot_object in enumerate(plot_objects):
+            if not isinstance(plot_object, PlotObject):
+                raise ValueError(value_error)
             elementid = str(uuid.uuid4())
             _append_plot(all_models, plots, plot_object, elementid)
             divs = _append_div(elementid, divs)
+        divs = divs[0] if len(divs) == 1 else divs
         divs = tuple(divs) if isinstance(plot_objects, tuple) else divs
         return _component_pair(all_models, plots, divs)
     elif isinstance(plot_objects, dict):
         divs = {}
         for key in plot_objects.keys():
+            if not isinstance(plot_objects[key], PlotObject):
+                raise ValueError(value_error)
             elementid = str(uuid.uuid4())
             _append_plot(all_models, plots, plot_objects[key], elementid)
             divs = _append_div(elementid, divs, key)
         return _component_pair(all_models, plots, divs)
     else:
-        # if single PlotObject
-        elementid = str(uuid.uuid4())
-        _append_plot(all_models, plots, plot_objects, elementid)
-        divs = _append_div(elementid)
-        return _component_pair(all_models, plots, divs)
+        raise ValueError(value_error)
 
 def _component_pair(all_models, plots, divs):
     js = PLOT_JS.render(
@@ -163,6 +168,10 @@ def file_html(plot_object, resources, title, template=FILE):
         html : standalone HTML document with embedded plot
 
     '''
+    from .plot_object import PlotObject
+    if not isinstance(plot_object, PlotObject):
+        raise ValueError('plot_object must be a single PlotObject')
+
     plot_resources = RESOURCES.render(
         js_raw = resources.js_raw,
         css_raw = resources.css_raw,
