@@ -119,6 +119,20 @@ For example, to use version ``0.8.2``:
         rel="stylesheet" type="text/css">
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js">
 
+The |components| function takes either a single PlotObject, an array or a 
+touple of PlotObjects, or even a dictionary of keys and PlotObjects. All return
+a corresponding data structure of script and div pairs.
+
+The following illustrates how different input types correlate to outputs:
+
+.. code-block:: python
+    components(foo)                      # (script, foo_div)
+
+    components([foo, bar])               # (script, [foo_div, bar_div])
+
+    components((foo, bar))               # (script, (foo_div, bar_div))
+
+    components({"foo": foo, "bar": bar}) # (script, {"foo": foo_div, "bar": bar_div})
 
 .. _userguide_embed_notebook:
 
