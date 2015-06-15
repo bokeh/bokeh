@@ -49,6 +49,8 @@ def components(plot_objects, resources=None):
     '''
 
     from .plot_object import PlotObject
+    from collections import Sequence
+    from six import string_types
     if isinstance(plot_objects, PlotObject):
         plot_objects = [plot_objects]
     if resources is not None:
@@ -57,29 +59,26 @@ def components(plot_objects, resources=None):
              'a future version.', DeprecationWarning, stacklevel=2)
     all_models = []
     plots = []
-    value_error = 'Input must be single or iterable collection of PlotObjects'
-    if isinstance(plot_objects, (list, tuple)):
+    if isinstance(plot_objects, Sequence) and all(isinstance(x, PlotObject) for x in plot_objects):
         divs = []
         for idx, plot_object in enumerate(plot_objects):
-            if not isinstance(plot_object, PlotObject):
-                raise ValueError(value_error)
             elementid = str(uuid.uuid4())
             _append_plot(all_models, plots, plot_object, elementid)
             divs = _append_div(elementid, divs)
-        divs = divs[0] if len(divs) == 1 else divs
-        divs = tuple(divs) if isinstance(plot_objects, tuple) else divs
+        if len(divs) == 1:
+            divs = divs[0]
+        else:
+            divs = tuple(divs)
         return _component_pair(all_models, plots, divs)
-    elif isinstance(plot_objects, dict):
+    elif isinstance(plot_objects, dict) and all(isinstance(x, string_types) for x in plot_objects.keys()) and all(isinstance(x, PlotObject) for x in plot_objects.values()):
         divs = {}
         for key in plot_objects.keys():
-            if not isinstance(plot_objects[key], PlotObject):
-                raise ValueError(value_error)
             elementid = str(uuid.uuid4())
             _append_plot(all_models, plots, plot_objects[key], elementid)
             divs = _append_div(elementid, divs, key)
         return _component_pair(all_models, plots, divs)
     else:
-        raise ValueError(value_error)
+        raise ValueError('Input must be a PlotObject, a Sequence of PlotObjects, or a mapping of string to PlotObjects')
 
 def _component_pair(all_models, plots, divs):
     js = PLOT_JS.render(
