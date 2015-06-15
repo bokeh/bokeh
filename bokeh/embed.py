@@ -71,7 +71,9 @@ def components(plot_objects, resources=None):
         else:
             divs = tuple(divs)
         return _component_pair(all_models, plots, divs)
-    elif isinstance(plot_objects, dict) and all(isinstance(x, string_types) for x in plot_objects.keys()) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
+    elif isinstance(plot_objects, dict) and \
+         all(isinstance(x, string_types) for x in plot_objects.keys()) and \
+         all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
         divs = {}
         for key in plot_objects.keys():
             elementid = str(uuid.uuid4())
