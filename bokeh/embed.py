@@ -49,9 +49,10 @@ def components(plot_objects, resources=None):
     '''
 
     from .plot_object import PlotObject
+    from .document import Document
     from collections import Sequence
     from six import string_types
-    if isinstance(plot_objects, PlotObject):
+    if isinstance(plot_objects, (PlotObject, Document)):
         plot_objects = [plot_objects]
     if resources is not None:
         warn('Because the ``resources`` argument is no longer needed, '
@@ -59,7 +60,7 @@ def components(plot_objects, resources=None):
              'a future version.', DeprecationWarning, stacklevel=2)
     all_models = []
     plots = []
-    if isinstance(plot_objects, Sequence) and all(isinstance(x, PlotObject) for x in plot_objects):
+    if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
         divs = []
         for idx, plot_object in enumerate(plot_objects):
             elementid = str(uuid.uuid4())
@@ -70,7 +71,7 @@ def components(plot_objects, resources=None):
         else:
             divs = tuple(divs)
         return _component_pair(all_models, plots, divs)
-    elif isinstance(plot_objects, dict) and all(isinstance(x, string_types) for x in plot_objects.keys()) and all(isinstance(x, PlotObject) for x in plot_objects.values()):
+    elif isinstance(plot_objects, dict) and all(isinstance(x, string_types) for x in plot_objects.keys()) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
         divs = {}
         for key in plot_objects.keys():
             elementid = str(uuid.uuid4())
@@ -168,7 +169,8 @@ def file_html(plot_object, resources, title, template=FILE):
 
     '''
     from .plot_object import PlotObject
-    if not isinstance(plot_object, PlotObject):
+    from .document import Document
+    if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 
     plot_resources = RESOURCES.render(
