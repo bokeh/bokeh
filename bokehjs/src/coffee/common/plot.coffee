@@ -285,7 +285,7 @@ class PlotView extends ContinuumView
     indices = {}
     for renderer, i in @mget("renderers")
       indices[renderer.id] = i
-    sortKey = (renderer) -> indices[renderer.model.id]
+    sortKey = (renderer) -> indices[renderer.id]
 
     for level in levels
       renderers = _.sortBy(_.values(@levels[level]), sortKey)
