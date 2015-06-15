@@ -31,7 +31,7 @@ def _wrap_in_function(code):
     return 'Bokeh.$(function() {\n%s\n});' % code
 
 
-def components(plot_object, resources=None):
+def components(plot_objects, resources=None):
     ''' Return HTML components to embed a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -40,35 +40,78 @@ def components(plot_object, resources=None):
               are **already loaded**.
 
     Args:
-        plot_object (PlotObject) : Bokeh object to render
-            typically a Plot or PlotContext
+        plot_objects (PlotObject|list|dict|tuple) : Will return script
+        and div element to render if PlotObject, or correlating structures
+        of script/div combinations
         resources : Deprecated argument
     Returns:
-        (script, div) : UTF-8 encoded
-
+        (script, div[s]): UTF-8 encoded
     '''
-    
+
+    from .plot_object import PlotObject
+    if isinstance(plot_objects, PlotObject):
+        plot_objects = [plot_objects]
     if resources is not None:
         warn('Because the ``resources`` argument is no longer needed, '
              'is it deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
-    
-    ref = plot_object.ref
-    elementid = str(uuid.uuid4())
-    
+    all_models = []
+    plots = []
+    value_error = 'Input must be single or iterable collection of PlotObjects'
+    if isinstance(plot_objects, (list, tuple)):
+        divs = []
+        for idx, plot_object in enumerate(plot_objects):
+            if not isinstance(plot_object, PlotObject):
+                raise ValueError(value_error)
+            elementid = str(uuid.uuid4())
+            _append_plot(all_models, plots, plot_object, elementid)
+            divs = _append_div(elementid, divs)
+        divs = divs[0] if len(divs) == 1 else divs
+        divs = tuple(divs) if isinstance(plot_objects, tuple) else divs
+        return _component_pair(all_models, plots, divs)
+    elif isinstance(plot_objects, dict):
+        divs = {}
+        for key in plot_objects.keys():
+            if not isinstance(plot_objects[key], PlotObject):
+                raise ValueError(value_error)
+            elementid = str(uuid.uuid4())
+            _append_plot(all_models, plots, plot_objects[key], elementid)
+            divs = _append_div(elementid, divs, key)
+        return _component_pair(all_models, plots, divs)
+    else:
+        raise ValueError(value_error)
+
+def _component_pair(all_models, plots, divs):
     js = PLOT_JS.render(
-        elementid = elementid,
-        modelid = ref["id"],
-        modeltype = ref["type"],
-        all_models = serialize_json(plot_object.dump()),
+        all_models = serialize_json(all_models),
+        plots = plots
     )
     script = PLOT_SCRIPT.render(
         plot_js = _wrap_in_function(js),
     )
-    div = PLOT_DIV.render(elementid=elementid)
+    return encode_utf8(script), divs
 
-    return encode_utf8(script), encode_utf8(div)
+def _append_plot(all_models, plots, plot_object, elementid):
+    ref = plot_object.ref
+    all_models.extend(plot_object.dump())
+    plots.append({
+        'modelid': ref["id"],
+        'elementid': '#' + elementid,
+        'modeltype': ref["type"]
+    })
 
+def _append_div(elementid, divs=None, key=None):
+    div = PLOT_DIV.render(
+        elementid = elementid
+    )
+    if isinstance(divs, list):
+        divs.append(encode_utf8(div))
+        return divs
+    elif isinstance(divs, dict):
+        divs[key] = encode_utf8(div)
+        return divs
+    else:
+        return encode_utf8(div)
 
 def notebook_div(plot_object):
     ''' Return HTML for a div that will display a Bokeh plot in an
@@ -125,6 +168,10 @@ def file_html(plot_object, resources, title, template=FILE):
         html : standalone HTML document with embedded plot
 
     '''
+    from .plot_object import PlotObject
+    if not isinstance(plot_object, PlotObject):
+        raise ValueError('plot_object must be a single PlotObject')
+
     plot_resources = RESOURCES.render(
         js_raw = resources.js_raw,
         css_raw = resources.css_raw,
