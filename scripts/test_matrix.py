@@ -169,9 +169,11 @@ if __name__ == '__main__':
 
     print()
     print("*********************")
-    print("All environments have been installed!  See below for their names.")
-    for environment in envs:
-        print(environment)
-    print("NOTE: All of these envs will be deleted and replaced if you rerun this script.")
-    print("successful_install =", successful_install)
+    if successful_install:
+        print("All environments have been installed!  See below for their names.")
+        for environment in envs:
+            print(environment)
+        print("NOTE: All of these envs will be deleted and replaced if you rerun this script.")
+    else:
+        print("Some (or all) of the environments failed to install.")
     print("*********************")
