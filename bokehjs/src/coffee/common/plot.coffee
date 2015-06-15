@@ -95,6 +95,8 @@ class PlotView extends ContinuumView
         el: @$(toolbar_selector)
       })
 
+      @mget('callback')?.execute(@model)
+
     @update_dataranges()
 
     @unpause()
