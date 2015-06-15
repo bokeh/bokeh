@@ -134,3 +134,6 @@ require("./api/plugin")
 Bokeh.Bokeh = Bokeh
 window.Bokeh = Bokeh
 module.exports = Bokeh
+
+window.onerror = (msg, url, line) ->
+    alert 'Oh no! There was an error. After clicking "OK", you can try again by refreshing the page or visit your console for more details.'
