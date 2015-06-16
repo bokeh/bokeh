@@ -126,11 +126,15 @@ a corresponding data structure of script and div pairs.
 The following illustrates how different input types correlate to outputs:
 
 .. code-block:: python
-    components(plot)                      # (script, plot_div)
 
-    components((plot_1, plot_2))               # (script, (plot_1_div, plot_2_div))
+    components(plot)
+    #=> (script, plot_div)
 
-    components({"Plot 1": plot_1, "Plot 2": plot_2}) # (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
+    components((plot_1, plot_2))
+    #=> (script, (plot_1_div, plot_2_div))
+
+    components({"Plot 1": plot_1, "Plot 2": plot_2})
+    #=> (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
 
 .. _userguide_embed_notebook:
 
