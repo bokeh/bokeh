@@ -70,13 +70,34 @@ class TestFileHTML(unittest.TestCase):
     def test_return_type(self):
 
         class fake_template:
-            def render(self, title, plot_resources, plot_script, plot_div):
+            def __init__(self, tester, user_template_variables=None):
+                self.tester = tester
+                self.template_variables = {
+                    "title",
+                    "plot_resources",
+                    "plot_script",
+                    "plot_div"
+                }
+                if user_template_variables is not None:
+                    self.template_variables.update(user_template_variables)
+
+            def render(self, template_variables):
+                self.tester.assertTrue(
+                    self.template_variables.issubset(
+                        set(template_variables.keys())
+                    )
+                )
                 return "template result"
 
         r = embed.file_html(_embed_test_plot, CDN, "title")
         self.assertTrue(isinstance(r, str))
 
-        r = embed.file_html(_embed_test_plot, CDN, "title", fake_template())
+        r = embed.file_html(_embed_test_plot, CDN, "title", fake_template(self))
+        self.assertTrue(isinstance(r, str))
+
+        r = embed.file_html(_embed_test_plot, CDN, "title",
+                            fake_template(self, {"test_var"}),
+                            {"test_var": "test"})
         self.assertTrue(isinstance(r, str))
 
 class TestAutoloadStatic(unittest.TestCase):
