@@ -107,7 +107,7 @@ def notebook_div(plot_object):
     return encode_utf8(html)
 
 
-def file_html(plot_object, resources, title, template=FILE):
+def file_html(plot_object, resources, title, template=FILE, template_variables=None):
     ''' Return an HTML document that embeds a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -120,6 +120,9 @@ def file_html(plot_object, resources, title, template=FILE):
         template (Template, optional) : HTML document template (default: FILE)
             A Jinja2 Template, see bokeh.templates.FILE for the required
             template parameters
+        template_variables (dict, optional) : variables to be used in the Jinja2
+            template. If used, the following variable names will be overwritten:
+            title, plot_resources, plot_script, plot_div
 
     Returns:
         html : standalone HTML document with embedded plot
@@ -132,12 +135,17 @@ def file_html(plot_object, resources, title, template=FILE):
         css_files = resources.css_files,
     )
     script, div = components(plot_object)
-    html = template.render(
-        title = title,
-        plot_resources = plot_resources,
-        plot_script = script,
-        plot_div = div,
+    template_variables_full = \
+        template_variables.copy() if template_variables is not None else {}
+    template_variables_full.update(
+        {
+            'title': title,
+            'plot_resources': plot_resources,
+            'plot_script': script,
+            'plot_div': div,
+        }
     )
+    html = template.render(template_variables_full)
     return encode_utf8(html)
 
 
