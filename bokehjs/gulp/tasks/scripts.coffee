@@ -14,6 +14,7 @@ utils = require "../utils"
 gulp.task "scripts:build", ->
   opts =
     extensions: [".coffee", ".eco"]
+    debug: true
 
   browserified = transform (filename) ->
     browserify filename, opts
