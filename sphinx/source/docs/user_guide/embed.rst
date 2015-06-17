@@ -221,7 +221,11 @@ Then inserting the script and div elements into this boilerplate:
         </body>
     </html>
 
-will give you something like `this <http://codepen.io/anon/pen/RPZYoq?editors=100>`_
+You can see an example by running:
+
+.. code:: bash
+
+    python /bokeh/examples/plotting/embed.py
 
 .. _userguide_embed_notebook:
 
