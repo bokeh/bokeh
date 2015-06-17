@@ -7,7 +7,7 @@ from flask import abort, jsonify
 
 from ..app import bokeh_app
 from ..models import docs
-from ...exceptions import AuthenticationException
+from bokeh.exceptions import AuthenticationException
 
 logger = logging.getLogger(__name__)
 

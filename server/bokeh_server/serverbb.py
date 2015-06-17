@@ -18,7 +18,7 @@ from bokeh.document import Document
 from bokeh.util.serialization import dump
 from bokeh.util.string import decode_utf8, encode_utf8
 
-from ..exceptions import AuthenticationException
+from bokeh.exceptions import AuthenticationException
 from .app import bokeh_app
 class StoreAdapter(object):
     """API modeled after Redis that other stores have to adapt to. """
@@ -315,9 +315,9 @@ class BokehServerTransaction(object):
                  temporary_docid=None):
         """
         bokeh_app : bokeh_app blueprint
-        server_userobj : instance of bokeh.server.models.user.User - current user
+        server_userobj : instance of bokeh_server.models.user.User - current user
           for a request
-        server_docobj : instance of bokeh.server.models.docs.Doc
+        server_docobj : instance of bokeh_server.models.docs.Doc
         mode : 'r', or 'rw', or 'auto' - auto means rw if possible, else r
         temporary_docid : temporary docid for copy on write
         """

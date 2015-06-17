@@ -23,7 +23,7 @@ from ..settings import settings as server_settings
 def object_page(prefix):
     """ Decorator for a function which turns an object into a web page
 
-    from bokeh.server.app import bokeh_app
+    from bokeh_server.app import bokeh_app
     @bokeh_app.route("/myapp")
     @object_page("mypage")
     def make_object():

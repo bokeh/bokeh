@@ -1,21 +1,21 @@
 {% extends "_base.html" %}
 
 {% block head %}
-  <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
+  <link href="{{ url_for('bokeh_server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
   {% block extra_scripts %}
   {% endblock %}
   {% if splitjs %}
-  <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
-  <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/config.js') }}"></script>
+  <script src="{{ url_for('bokeh_server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
+  <script src="{{ url_for('bokeh_server.bokehjs_file', filename='js/config.js') }}"></script>
   <script type="text/javascript">
-    require.config({ baseUrl: "{{ url_for('bokeh.server.bokehjs_file', filename='js') }}" });
+    require.config({ baseUrl: "{{ url_for('bokeh_server.bokehjs_file', filename='js') }}" });
     require(["main"], function(Bokeh) {
       {% block script %}
       {% endblock %}
     });
   </script>
   {% else %}
-  <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"></script>
+  <script src="{{ url_for('bokeh_server.bokehjs_file', filename='js/bokeh.js') }}"></script>
   <script type="text/javascript">
     {{ self.script() }}
   </script>
@@ -27,7 +27,7 @@
     {% if not hide_navbar %}
       {% from "_navbar.html" import navbar %}
       {% call navbar(title) %}
-        <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
+        <li><a href="{{ url_for('bokeh_server.logout') }}">logout</a></li>
       {% endcall %}
     {% endif %}
     <div class="row">
@@ -36,3 +36,4 @@
     </div>
   </div>
 {% endblock %}
+

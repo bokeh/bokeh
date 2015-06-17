@@ -5,10 +5,10 @@ from os.path import join, dirname, abspath, normpath, realpath, isdir
 ROOT_DIR = dirname(dirname(abspath(__file__)))
 
 
-def serverdir():
-    """ Get the location of the server subpackage
+def staticdir():
+    """ Get the location of the static resources
     """
-    path = join(ROOT_DIR, 'server')
+    path = join(ROOT_DIR, 'static')
     path = normpath(path)
     if sys.platform == 'cygwin': path = realpath(path)
     return path
@@ -20,7 +20,7 @@ def bokehjsdir(dev=False):
     in bokeh/server/static.
     """
     dir1 = join(ROOT_DIR, '..', 'bokehjs', 'build')
-    dir2 = join(serverdir(), 'static')
+    dir2 = staticdir()
     if dev and isdir(dir1):
         return dir1
     else:

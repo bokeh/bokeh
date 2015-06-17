@@ -4,9 +4,9 @@
   <div class="container">
     {% from "_navbar.html" import navbar %}
     {% call navbar(title) %}
-      <li><a href="{{ url_for('bokeh.server.register_get') }}">register</a></li>
-      <li><a href="{{ url_for('bokeh.server.login_get') }}">login</a></li>
-      <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
+      <li><a href="{{ url_for('bokeh_server.register_get') }}">register</a></li>
+      <li><a href="{{ url_for('bokeh_server.login_get') }}">login</a></li>
+      <li><a href="{{ url_for('bokeh_server.logout') }}">logout</a></li>
     {% endcall %}
     <div class="row">
       <div class="col-md-12">
@@ -28,3 +28,4 @@
     {% endblock %}
   </div>
 {% endblock %}
+

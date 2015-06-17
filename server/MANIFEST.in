@@ -1,0 +1,5 @@
+global-exclude .git*
+recursive-include bokeh_server/static *.js *.ico *.css *.eot *.svg *.ttf *.woff *.png
+recursive-include bokeh_server/templates *.js *.html
+recursive-include bokeh_server/tests/data *.hdf5
+include bokeh_server/redis.conf

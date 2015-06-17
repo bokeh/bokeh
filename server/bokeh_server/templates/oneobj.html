@@ -7,7 +7,7 @@
 {% block extra_scripts %}
   {% for modulename, classname, parentname in extra_generated_classes %}
   <script
-    src="{{ url_for('bokeh.server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"
+    src="{{ url_for('bokeh_server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"
   ></script>
   {% endfor %}
 {% endblock %}
@@ -18,7 +18,7 @@
   window.{{modulename}}.main();
   {% endfor %}
   Bokeh.$(document).ready(function() {
-    container = $("#PlotPane");
+    container = Bokeh.$("#PlotPane");
     Bokeh.set_log_level("{{ loglevel }}")
     Bokeh.embed.add_plot_server(container, "{{ docid }}", "{{ objid }}", {{ public }});
   });
@@ -30,3 +30,5 @@
   <div id="PlotPane"></div>
 </div>
 {% endblock %}
+
+

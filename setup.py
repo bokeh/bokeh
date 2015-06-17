@@ -65,7 +65,7 @@ BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
 CSS = join(BOKEHJSBUILD, 'css')
 JS = join(BOKEHJSBUILD, 'js')
 
-SERVER = join(ROOT, 'bokeh/server')
+STATIC = join(ROOT, 'bokeh/static')
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -302,8 +302,8 @@ def build_js():
 
 
 def install_js():
-    target_jsdir = join(SERVER, 'static', 'js')
-    target_cssdir = join(SERVER, 'static', 'css')
+    target_jsdir = join(STATIC, 'js')
+    target_cssdir = join(STATIC, 'css')
 
     STATIC_ASSETS = [
         join(JS, 'bokeh.js'),
@@ -425,14 +425,9 @@ if jsinstall:
 
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
-package_path(join(SERVER, 'static'))
-package_path(join(SERVER, 'templates'))
+package_path(STATIC)
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
-package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
-package_path(join(SERVER, 'tests', 'config'))
-package_path(join(SERVER, 'tests', 'data'))
-scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
     site_packages = site.USER_SITE
@@ -452,7 +447,7 @@ if 'develop' in sys.argv:
     if jsinstall:
         print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
-        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % yellow("PACKAGED"))
+        print("  - using %s BokehJS, located in 'bokeh/static'\n" % yellow("PACKAGED"))
     sys.exit()
 
 elif 'clean' in sys.argv:
@@ -466,7 +461,7 @@ elif 'install' in sys.argv:
     if jsinstall:
         print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
-        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % bright(yellow("PACKAGED")))
+        print("  - using %s BokehJS, located in 'bokeh/static'\n" % bright(yellow("PACKAGED")))
 
 elif '--help' in sys.argv:
     if jsinstall:
@@ -475,18 +470,14 @@ elif '--help' in sys.argv:
         print("  --build_js          build and install a fresh BokehJS")
         print("  --install_js        install only last previously built BokehJS")
     else:
-        print("Bokeh is using PACKAGED BokehJS, located in 'bokeh.server.static'")
+        print("Bokeh is using PACKAGED BokehJS, located in 'bokeh/static'")
         print()
 
 print()
 
 REQUIRES = [
-        'Flask>=0.10.1',
         'Jinja2>=2.7',
         'MarkupSafe>=0.18',
-        'Werkzeug>=0.9.1',
-        'greenlet>=0.4.1',
-        'itsdangerous>=0.21',
         'python-dateutil>=2.1',
         'pytz==2013b',
         'requests>=1.2.3',
@@ -496,7 +487,6 @@ REQUIRES = [
         'markdown>=2.3.1',
         'PyYAML>=3.10',
         'pyzmq>=14.3.1',
-        'tornado>=4.0.1',
         # cli
         # 'click>=3.3',
         # tests
@@ -545,12 +535,6 @@ setup(
         'bokeh.mplexporter',
         'bokeh.mplexporter.renderers',
         'bokeh.sampledata',
-        'bokeh.server',
-        'bokeh.server.models',
-        'bokeh.server.views',
-        'bokeh.server.blaze',
-        'bokeh.server.utils',
-        'bokeh.server.tests',
         'bokeh.sphinxext',
         'bokeh.tests',
         'bokeh.transforms',
@@ -563,7 +547,6 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=scripts,
     zip_safe=False,
     install_requires=REQUIRES
 )

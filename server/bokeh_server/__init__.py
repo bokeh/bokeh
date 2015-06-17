@@ -6,9 +6,11 @@ import logging
 import werkzeug.serving
 
 from bokeh import __version__; __version__
-from bokeh.server.utils.reload import robust_reloader; robust_reloader
-from bokeh.server.app import bokeh_app; bokeh_app
 from bokeh.settings import settings; settings
+
+from .utils.reload import robust_reloader; robust_reloader
+from .app import bokeh_app; bokeh_app
+from .start import stop
 
 DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'memory')
 if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
@@ -185,3 +187,10 @@ def start_with_reloader(args, js_files, robust):
         helper = robust_reloader(helper)
     werkzeug.serving.run_with_reloader(
         helper, extra_files=js_files)
+
+def main():
+    try:
+        run()
+    except KeyboardInterrupt:
+        stop()
+        print("Shutting down bokeh-server ...")

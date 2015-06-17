@@ -6,7 +6,7 @@ import imp
 
 import zmq
 
-from ..settings import settings as bokeh_settings
+from bokeh.settings import settings as bokeh_settings
 
 default_blaze_config = join(dirname(__file__), 'blaze', 'config.py')
 
