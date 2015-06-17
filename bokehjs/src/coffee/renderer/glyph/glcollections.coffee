@@ -63,16 +63,17 @@ class BaseGLGlyph
     else 
       @coll = gl._collections[@GLYPH] = {glglyphs:[]}
       @init_collection(@coll)
-    
-    # Register this item
-    @coll.glglyphs.push(this)
 
+    # Register this item    
+    @coll.glglyphs.push(this)
+      
     # Init this item
     @glyph = glyph
     @nvertices = 0
     @size_changed = false
     @data_changed = false
     @uniforms_changed = false  # simulated uniforms, that is
+    @drawn_once = false
 
   set_data_changed: (n) ->
     if n != @nvertices
@@ -97,97 +98,92 @@ class MarkerGLGlyph extends BaseGLGlyph
   
   VERT: """
     precision mediump float;
-    //
+    const float SQRT_2 = 1.4142135623730951;
+    //        
     uniform vec2 u_canvas_size;
     uniform vec2 u_offset;
     uniform vec2 u_scale;
     uniform float u_antialias;
+    //
     attribute float a_x;
     attribute float a_y;
-    attribute vec4  a_fg_color;
-    attribute vec4  a_bg_color;  
-    attribute float a_edge_width;
     attribute float a_size;
+    attribute float a_orientation;    
+    attribute float a_linewidth;
+    attribute vec4  a_fg_color;
+    attribute vec4  a_bg_color;
     //
-    varying float v_size;  
-    varying vec4 v_fg_color;
-    varying vec4 v_bg_color;
-    varying float v_edge_width;
-          
-    void main (void) {
-        v_size = a_size * 1.0;  // u_px_scale
-        v_edge_width = a_edge_width;        
-        v_fg_color  = a_fg_color;
-        v_bg_color  = a_bg_color;
+    varying float v_linewidth;
+    varying float v_size;
+    varying vec4  v_fg_color;
+    varying vec4  v_bg_color;
+    varying vec2  v_rotation;
+    
+    void main (void)
+    {
+        v_size = a_size;
+        v_linewidth = a_linewidth;
+        v_fg_color = a_fg_color;
+        v_bg_color = a_bg_color;
+        v_rotation = vec2(cos(a_orientation), sin(a_orientation));
+        // Calculate position
         vec2 pos = vec2(a_x, a_y) * u_scale + u_offset; // in pixels
         pos /= u_canvas_size;  // in 0..1
         gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
-        gl_Position.y *= -1.0;
-        float edgewidth = max(v_edge_width, 1.0);
-        gl_PointSize = v_size + 4.0*(edgewidth + 1.5*u_antialias);
+        gl_Position.y *= -1.0;        
+        gl_PointSize = SQRT_2 * v_size + 2.0 * (a_linewidth + 1.5*u_antialias);
     }
     """
 
   FRAG: """
     precision mediump float;
+    const float SQRT_2 = 1.4142135623730951;
+    const float PI = 3.14159265358979323846264;
+    //
+    uniform float u_antialias;
+    //
+    varying vec4  v_fg_color;
+    varying vec4  v_bg_color;
+    varying float v_linewidth;
     varying float v_size;
-    varying vec4 v_fg_color;
-    varying vec4 v_bg_color;
-    varying float v_edge_width;
-    uniform float u_antialias;  
+    varying vec2  v_rotation;
     
     MARKERCODE
     
-    void main() {
-        float edgewidth = max(v_edge_width, 1.0);
-        float edgealphafactor = min(v_edge_width, 1.0);
-    
-        float size = v_size + 4.0*(edgewidth + 1.5*u_antialias);
-        // factor 6 for acute edge angles that need room as for star marker
-
-        // The marker function needs to be linked with this shader
-        float r = marker(gl_PointCoord, size);
-    
-        // it takes into account an antialising layer
-        // of size u_antialias inside the edge
-        // r:
-        // [-e/2-a, -e/2+a] antialising face-edge
-        // [-e/2+a, e/2-a] core edge (center 0, diameter e-2a = 2t)
-        // [e/2-a, e/2+a] antialising edge-background
-        float t = 0.5*v_edge_width - u_antialias;
-        float d = abs(r) - t;
-
-        vec4 edgecolor = vec4(v_fg_color.rgb, edgealphafactor*v_fg_color.a);
-
-        if (r > 0.5*v_edge_width + u_antialias) {
-            // out of the marker (beyond the outer edge of the edge
-            // including transition zone due to antialiasing)
-            discard;
-        }
-        else if (d < 0.0) {
-            // inside the width of the edge
-            // (core, out of the transition zone for antialiasing)
-            gl_FragColor = edgecolor;
+    vec4 outline(float distance, float linewidth, float antialias, vec4 fg_color, vec4 bg_color)
+    {
+        vec4 frag_color;
+        float t = linewidth/2.0 - antialias;
+        float signed_distance = distance;
+        float border_distance = abs(signed_distance) - t;
+        float alpha = border_distance/antialias;
+        alpha = exp(-alpha*alpha);
+        float crispness = 0.05;  // Nico defined this at 0.5, I want it crisper (lower)
+        
+        if( border_distance < 0.0)
+            frag_color = fg_color;
+        else if( signed_distance < 0.0 ) {
+            frag_color = mix(bg_color, fg_color, pow(alpha, crispness));            
         } else {
-            if (v_edge_width == 0.) {// no edge
-                if (r > -u_antialias) {
-                    float alpha = 1.0 + r/u_antialias;
-                    alpha = exp(-alpha*alpha);
-                    gl_FragColor = vec4(v_bg_color.rgb, alpha*v_bg_color.a);
-                } else {
-                    gl_FragColor = v_bg_color;
-                }
+            if( abs(signed_distance) < (linewidth/2.0 + antialias) ) {
+                frag_color = vec4(fg_color.rgb, fg_color.a * alpha);
             } else {
-                float alpha = d/u_antialias;
-                alpha = exp(-alpha*alpha);
-                if (r > 0.0) {
-                    // outer part of the edge: fade out into the background...
-                    gl_FragColor = vec4(edgecolor.rgb, alpha*edgecolor.a);
-                } else {
-                    gl_FragColor = mix(v_bg_color, edgecolor, alpha);
-                }
+                discard;
             }
         }
+        return frag_color;
+    }
+    
+    void main()
+    {
+        vec2 P = gl_PointCoord.xy - vec2(0.5, 0.5);
+        P = vec2(v_rotation.x*P.x - v_rotation.y*P.y,
+                 v_rotation.y*P.x + v_rotation.x*P.y);
+        float point_size = SQRT_2*v_size  + 2.0 * (v_linewidth + 1.5*u_antialias);
+        float distance = marker(P*point_size, v_size);
+        gl_FragColor = outline(distance, v_linewidth, u_antialias, v_fg_color, v_bg_color);
+        //gl_FragColor.a *= 3.0;
+        //gl_FragColor.rb = gl_FragColor.br;
     }
     """
     
@@ -209,8 +205,8 @@ class MarkerGLGlyph extends BaseGLGlyph
     @coll.vbo_s = new gloo2.VertexBuffer(gl)
     @coll.prog.set_attribute('a_size', 'float', [@coll.vbo_s, 0, 0])    
     # Fake uniforms
-    @coll.vbo_edge_width = new gloo2.VertexBuffer(gl)
-    @coll.prog.set_attribute('a_edge_width', 'float', [@coll.vbo_edge_width, 0, 0])
+    @coll.vbo_linewidth = new gloo2.VertexBuffer(gl)
+    @coll.prog.set_attribute('a_linewidth', 'float', [@coll.vbo_linewidth, 0, 0])
     @coll.vbo_fg_color = new gloo2.VertexBuffer(gl)
     @coll.prog.set_attribute('a_fg_color', 'vec4', [@coll.vbo_fg_color, 0, 0])
     @coll.vbo_bg_color = new gloo2.VertexBuffer(gl)
@@ -234,18 +230,22 @@ class MarkerGLGlyph extends BaseGLGlyph
 
       # Update parts that need updating
       offset = 0
+      draw_offset = 0
       for glglyph in @coll.glglyphs
         if size_changed || glglyph.data_changed
           @_set_data(offset, glglyph)
         if size_changed || glglyph.uniforms_changed
           @_set_uniforms(offset, glglyph)
+        if not glglyph.drawn_once
+          draw_offset = offset
         offset += glglyph.nvertices  # x 4?
-
+      
       # Reset and get full size      
       for glglyph in @coll.glglyphs      
         glglyph.size_changed = false
         glglyph.data_changed = false
         glglyph.uniforms_changed = false
+        glglyph.drawn_once = true
       
       # Handle transformation to device coordinates
       dx = trans.dx; dy = trans.dy
@@ -254,7 +254,7 @@ class MarkerGLGlyph extends BaseGLGlyph
       @coll.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
       
       # todo: use indices
-      @coll.prog.draw(@gl.POINTS, [0, total_size])
+      @coll.prog.draw(@gl.POINTS, [draw_offset, total_size-draw_offset])
 
   _set_size: (n) ->
     n *= 4  # in bytes
@@ -264,7 +264,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     @coll.vbo_y.set_size(n)
     @coll.vbo_s.set_size(n)
     #
-    @coll.vbo_edge_width.set_size(n)
+    @coll.vbo_linewidth.set_size(n)
     @coll.vbo_fg_color.set_size(n * 4)
     @coll.vbo_bg_color.set_size(n * 4)
   
@@ -281,34 +281,65 @@ class MarkerGLGlyph extends BaseGLGlyph
     glyph = glglyph.glyph
     nvertices = glglyph.nvertices
     # edgewidth
-    a = fill_array_with_float(nvertices, line_width(glyph.visuals.line.width.value()))
-    @coll.vbo_edge_width.set_data(offset, a)
+    a = fill_array_with_float(nvertices, glyph.visuals.line.width.value())
+    @coll.vbo_linewidth.set_data(offset, a)
     # fg_color
-    a = fill_array_with_vec(nvertices, 4, hex2rgb(glyph.visuals.fill.color.value()), glyph.visuals.fill.alpha.value())
+    a = fill_array_with_vec(nvertices, 4, hex2rgb(glyph.visuals.line.color.value(), glyph.visuals.line.alpha.value()))
     @coll.vbo_fg_color.set_data(offset*4, a)
     # bg_color
-    a = fill_array_with_vec(nvertices, 4, hex2rgb(glyph.visuals.line.color.value()), glyph.visuals.line.alpha.value())
+    a = fill_array_with_vec(nvertices, 4, hex2rgb(glyph.visuals.fill.color.value(), glyph.visuals.fill.alpha.value()))
     @coll.vbo_bg_color.set_data(offset*4, a)
     window.tt = glyph
     
-    # Static value for antialias
-    @coll.prog.set_uniform('u_antialias', 'float', [1.0])
-
+    # Static value for antialias. Smaller aa-region to obtain crisper images
+    @coll.prog.set_uniform('u_antialias', 'float', [0.25])
 
 
 class CircleGLGlyph extends MarkerGLGlyph
   
   GLYPH: 'circle'
   
-  MARKERCODE: """
-    float marker(vec2 pointcoord, float size) {
-      float r1 = length((pointcoord.xy - vec2(0.5,0.5))*size) - v_size/2.0;
-      float r2 = length((pointcoord.xy - vec2(0.5,0.5))*size) - v_size/4.0;
-      float r = max(r1,-r2);
-      return r;
+  MARKERCODE: """    
+    // --- disc
+    float marker(vec2 P, float size)
+    {
+        return length(P) - size/2.0;
     }
     """
 
+
+class CloverGlyph extends MarkerGLGlyph
+  
+  GLYPH: 'clover'
+  
+  MARKERCODE: """    
+    float marker(vec2 P, float size)
+    {
+        // clover (3 discs)
+        float t1 = -PI/2.0;
+        vec2  c1 = 0.225*vec2(cos(t1),sin(t1));
+        float t2 = t1+2.0*PI/3.0;
+        vec2  c2 = 0.225*vec2(cos(t2),sin(t2));
+        float t3 = t2+2.0*PI/3.0;
+        vec2  c3 = 0.225*vec2(cos(t3),sin(t3));
+        float r1 = length( P - c1*size) - size/4.25;
+        float r2 = length( P - c2*size) - size/4.25;
+        float r3 = length( P - c3*size) - size/4.25;
+        float r4 =  min(min(r1,r2),r3);
+    
+        // Root (2 circles and 2 planes)
+        vec2 c4 = vec2(+0.65, 0.125);
+        vec2 c5 = vec2(-0.65, 0.125);
+        float r5 = length(P-c4*size) - size/1.6;
+        float r6 = length(P-c5*size) - size/1.6;
+        float r7 = P.y - 0.5*size;
+        float r8 = 0.2*size - P.y;
+        float r9 = max(-min(r5,r6), max(r7,r8));
+    
+        return min(r4,r9);
+    }
+    """
+  
 
 module.exports =
   CircleGLGlyph: CircleGLGlyph

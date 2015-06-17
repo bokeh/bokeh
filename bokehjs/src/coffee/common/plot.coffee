@@ -258,13 +258,18 @@ class PlotView extends ContinuumView
       # Prepare GL for drawing
       gl = ctx.glcanvas.gl
       gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
-      flipped_top = ctx.glcanvas.height - (frame_box[1] + frame_box[3])
-      gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
       gl.clearColor(0, 0, 0, 0)
       gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+      # Clipping
       gl.enable(gl.SCISSOR_TEST)
+      flipped_top = ctx.glcanvas.height - (frame_box[1] + frame_box[3])
+      gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
+      # Setup blending so that everything *within* gl blends correctly, and
+      # the resulting total alpha causes correct blending with the 2D canvas.
+      # todo: at some point we should implement Order Independent Transparency
+      #gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)  # This would probably work on a black background
       gl.enable(gl.BLEND)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE)
 
     if @outline_props.do_stroke
       @outline_props.set_value(ctx)
