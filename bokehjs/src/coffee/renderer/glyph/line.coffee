@@ -47,8 +47,8 @@ class LineView extends Glyph.View
       @_gl = setup_gl(gl)
 
     # Get transform, and verify that its linear
-    [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
-    if ((dx[1] - dx[0]) != (dx[2] - dx[1]) || (dy[1] - dy[0]) != (dy[2] - dy[1]))
+    if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
+        Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)   
       return true 
     
     # No gl if line has features that we do no support
@@ -85,6 +85,7 @@ class LineView extends Glyph.View
     @_gl.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
 
     # todo: use indices
+    console.log(indices)
     @_gl.prog.draw(gl.LINE_STRIP, [0, @x.length])
 
   _hit_point: (geometry) ->

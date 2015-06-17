@@ -87,6 +87,7 @@
     
 
     Program.prototype.UTYPEMAP = {'float': 'uniform1fv', 'vec2': 'uniform2fv', 'vec3': 'uniform3fv', 'vec4': 'uniform4fv', 'int': 'uniform1iv', 'ivec2': 'uniform2iv', 'ivec3': 'uniform3iv', 'ivec4': 'uniform4iv', 'bool': 'uniform1iv', 'bvec2': 'uniform2iv', 'bvec3': 'uniform3iv', 'bvec4': 'uniform4iv', 'mat2': 'uniformMatrix2fv', 'mat3': 'uniformMatrix3fv', 'mat4': 'uniformMatrix4fv', 'sampler1D': 'uniform1i', 'sampler2D': 'uniform1i', 'sampler3D': 'uniform1i'};
+    Program.prototype.ATYPEMAP = {'float': 'vertexAttrib1f', 'vec2': 'vertexAttrib2f', 'vec3': 'vertexAttrib3f', 'vec4': 'vertexAttrib4f'};
     Program.prototype.ATYPEINFO = {'float': [1, 5126], 'vec2': [2, 5126], 'vec3': [3, 5126], 'vec4': [4, 5126]};
     Program.prototype._create = function () {
         this._handle = this._gl.createProgram();
@@ -276,9 +277,12 @@
         (this._gl[funcname])(handle, value);
     };
 
-    Program.prototype.set_attribute = function (name, type_, value) {
+    Program.prototype.set_attribute = function (name, type_, vbo_info, value) {
         var args, dummy24_, dummy25_, dummy26_, dummy27_, dummy28_, err_3, funcname, gtype, handle, offset, size, stride, vbo;
-        // Set an attribute value. Value is assumed to have been checked.
+        value = (value === undefined) ? null: value;
+        // Set an attribute value. vbo_info is (vbo, stride, offset).
+        // It can also be null, in which case value must be an array with
+        // the actual values to apply to all vertices (as in a uniform).
         if (!this._linked) {
             err_3 = new Error('RuntimeError:' + 'Cannot set attribute when program has no code'); err_3.name = "RuntimeError"; throw err_3;
         }
@@ -294,7 +298,7 @@
             this._handles[name] = handle;
             if (handle < 0) {
                 (this._known_invalid.append || this._known_invalid.push).apply(this._known_invalid, [name]);
-                if (((value[0]) != 0) && ((value[2]) > 0)) {
+                if (vbo_info && ((vbo_info[0]) != 0) && ((vbo_info[2]) > 0)) {
                     return;
                 }
                 console.log(('Variable ' + name + ' is not an active attribute'));
@@ -302,11 +306,11 @@
             }
         }
         this.activate();
-        if ((value[0]) == 0) {
+        if (vbo_info === null) {
             funcname = this.ATYPEMAP[type_];
-            this._attributes[name] = [0, handle, funcname, value.slice(1)];
+            this._attributes[name] = [0, handle, funcname, value];
         } else {
-            dummy27_ = value;
+            dummy27_ = vbo_info;
             vbo = dummy27_[0];stride = dummy27_[1];offset = dummy27_[2];
             dummy28_ = this.ATYPEINFO[type_];
             size = dummy28_[0];gtype = dummy28_[1];
@@ -339,7 +343,7 @@
                 this._gl.enableVertexAttribArray(attr_handle);
                 (this._gl[funcname]).apply(this._gl, [attr_handle].concat(args));
             } else {
-                this._gl.bindBuffer(this._gl.ARRAY_BUFFER, 0);
+                this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
                 this._gl.disableVertexAttribArray(attr_handle);
                 (this._gl[funcname]).apply(this._gl, [attr_handle].concat(args));
             }
@@ -418,7 +422,7 @@
     };
 
     Buffer.prototype.deactivate = function () {
-        this._gl.bindBuffer(this._target, 0);
+        this._gl.bindBuffer(this._target, null);
     };
 
     Buffer.prototype.set_size = function (nbytes) {
