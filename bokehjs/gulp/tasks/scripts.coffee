@@ -8,6 +8,7 @@ transform = require "vinyl-transform"
 uglify = require "gulp-uglify"
 runSequence = require "run-sequence"
 sourcemaps = require "gulp-sourcemaps"
+argv = require("yargs").argv
 
 paths = require "../paths"
 utils = require "../utils"
@@ -15,6 +16,8 @@ utils = require "../utils"
 gulp.task "scripts:build", ->
   opts =
     extensions: [".coffee", ".eco"]
+
+  opts.debug = if argv.debug then argv.debug else false
 
   browserified = transform (filename) ->
     browserify filename, opts
