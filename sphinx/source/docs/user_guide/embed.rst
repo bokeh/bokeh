@@ -179,8 +179,8 @@ Here's an example of how you would use the multiple plot generator:
     plots = {'Red': p1, 'Blue': p2, 'Green': p3}
 
     script, div = components(plots)
-    print script
-    print div
+    print(script)
+    print(div)
 
 Running ``python scatter.py`` will print out:
 
