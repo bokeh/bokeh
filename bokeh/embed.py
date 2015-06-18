@@ -25,7 +25,6 @@ from .templates import (
 from .util.string import encode_utf8
 
 from .plot_object import PlotObject
-from .document import Document
 from collections import Sequence
 from six import string_types
 
@@ -60,13 +59,13 @@ def components(plot_objects, resources=None):
             components({"Plot 1": plot_1, "Plot 2": plot_2})
             #=> (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
 
-        An example can be found in examples/plotting/file/embed.py
+        An example can be found in examples/embed/embed_multiple.py
 
         resources : Deprecated argument
     Returns:
         (script, div[s]): UTF-8 encoded
     '''
-
+    from .document import Document
     if isinstance(plot_objects, (PlotObject, Document)):
         plot_objects = [plot_objects]
     if resources is not None:
@@ -185,6 +184,7 @@ def file_html(plot_object, resources, title, template=FILE):
         html : standalone HTML document with embedded plot
 
     '''
+    from .document import Document
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 

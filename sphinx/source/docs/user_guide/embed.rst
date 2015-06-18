@@ -232,7 +232,7 @@ You can see an example by running:
 
 .. code:: bash
 
-    python /bokeh/examples/plotting/embed.py
+    python /bokeh/examples/embed/embed_multiple.py
 
 .. _userguide_embed_notebook:
 

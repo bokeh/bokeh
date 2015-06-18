@@ -1,6 +1,10 @@
 from bokeh.plotting import figure
 from bokeh.models import Range1d
 from bokeh.embed import components
+from jinja2 import Template
+import webbrowser
+import os
+import six
 
 # create some data
 x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -36,38 +40,26 @@ plots = {'Red': p1, 'Blue': p2, 'Green': p3}
 
 script, div = components(plots)
 
-open('embed.html', 'w').close()
-with open("embed.html", "a") as textfile:
-    textfile.write('''<!DOCTYPE html>
+template = Template('''<!DOCTYPE html>
 <html lang="en">
-
     <head>
         <meta charset="utf-8">
         <title>Bokeh Scatter Plots</title>
         <style> div{float: left;} </style>
         <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css" />
         <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
-    ''')
-    # insert your script here
-    textfile.write(script)
-    textfile.write('''
+        {{ script }}
     </head>
     <body>
-    ''')
-    # iterating through the returned divs in the dictionary
-    for key in div.keys():
-        textfile.write(div[key])
-    textfile.write('''
+    {% for key in div.keys() %}
+        {{ div[key] }}
+    {% endfor %}
     </body>
 </html>
-    ''')
+''')
 
-import webbrowser
-import os
-try:
-    from urllib import pathname2url         # Python 2.x
-except:
-    from urllib.request import pathname2url # Python 3.x
-
-url = 'file:{}'.format(pathname2url(os.path.abspath('embed.html')))
+html_file = 'embed_multiple.html'
+with open(html_file, 'w') as textfile:
+    textfile.write(template.render(script=script, div=div))
+url = 'file:{}'.format(six.moves.urllib.request.pathname2url(os.path.abspath(html_file)))
 webbrowser.open(url)
