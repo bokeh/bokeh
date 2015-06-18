@@ -24,6 +24,10 @@ from .templates import (
 )
 from .util.string import encode_utf8
 
+from .plot_object import PlotObject
+from .document import Document
+from collections import Sequence
+from six import string_types
 
 def _wrap_in_function(code):
     # Indent and wrap Bokeh function def around
@@ -40,18 +44,29 @@ def components(plot_objects, resources=None):
               are **already loaded**.
 
     Args:
-        plot_objects (PlotObject|list|dict|tuple) : Will return script
-        and div element to render if PlotObject, or correlating structures
-        of script/div combinations
+        plot_objects (PlotObject|list|dict|tuple) :
+        The |components| function takes either a single PlotObject, a list/tuple of
+        PlotObjects, or a dictionary of keys and PlotObjects. Each returns
+        a corresponding data structure of script and div pairs.
+
+        The following illustrates how different input types correlate to outputs:
+
+            components(plot)
+            #=> (script, plot_div)
+
+            components((plot_1, plot_2))
+            #=> (script, (plot_1_div, plot_2_div))
+
+            components({"Plot 1": plot_1, "Plot 2": plot_2})
+            #=> (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
+
+        An example can be found in examples/plotting/file/embed.py
+
         resources : Deprecated argument
     Returns:
         (script, div[s]): UTF-8 encoded
     '''
 
-    from .plot_object import PlotObject
-    from .document import Document
-    from collections import Sequence
-    from six import string_types
     if isinstance(plot_objects, (PlotObject, Document)):
         plot_objects = [plot_objects]
     if resources is not None:
@@ -170,8 +185,6 @@ def file_html(plot_object, resources, title, template=FILE):
         html : standalone HTML document with embedded plot
 
     '''
-    from .plot_object import PlotObject
-    from .document import Document
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 
