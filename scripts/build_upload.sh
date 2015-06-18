@@ -47,13 +47,6 @@ if [ "$key" == "" ]; then
     echo "$key"
 fi
 
-# build for each python version
-for py in 27 33 34;
-do
-    echo "Building py$py pkg"
-    CONDA_PY=$py conda build conda.recipe --quiet
-done
-
 # get conda info about root_prefix and platform
 function conda_info {
     conda info --json | python -c "import json, sys; print(json.load(sys.stdin)['$1'])"
@@ -62,6 +55,18 @@ function conda_info {
 CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
+
+# remove first bokeh build to avoid posterior upload
+first_build_loc=$BUILD_PATH/bokeh*.tar.bz2
+rm -rf $first_build_loc
+echo "Removing first bokeh build at $first_build_loc"
+
+# build for each python version
+for py in 27 33 34;
+do
+    echo "Building py$py pkg"
+    CONDA_PY=$py conda build conda.recipe --quiet
+done
 
 # get travis_build_id
 travis_build_id=$(cat __travis_build_id__.txt)
@@ -74,14 +79,26 @@ platforms=(osx-64 linux-64 win-64 linux-32 win-32)
 for plat in "${platforms[@]}"
 do
     echo Uploading: $plat;
-    binstar -t $bintoken upload -u bokeh $plat/bokeh*$travis_build_id*.tar.bz2 -c dev --force --no-progress;
+    if [[ -z "$travis_build_id" ]]; then
+        # for releases we need to upload to the main channel
+        binstar -t $bintoken upload -u bokeh $plat/bokeh*$travis_build_id*.tar.bz2 --force --no-progress;
+    else
+        # for devel builds we need to upload to the dev channel
+        binstar -t $bintoken upload -u bokeh $plat/bokeh*$travis_build_id*.tar.bz2 -c dev --force --no-progress;
+    fi
 done
 
 # create and upload pypi pkgs to binstar
 # zip is currently not working
-
 python setup.py sdist --formats=gztar
-binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi -c dev --force --no-progress;
+
+if [[ -z "$travis_build_id" ]]; then
+    # for releases we need to upload to the main channel
+    binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi --force --no-progress;
+else
+    # for devel builds we need to upload to the dev channel
+    binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi -c dev --force --no-progress;
+fi
 
 echo "I'm done uploading to binstar"
 
@@ -99,15 +116,22 @@ id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 # get complete version
 complete_version=$(cat __conda_version__.txt)
 
+# get subdirectory to upload
+if [[ -z "$travis_build_id" ]]; then
+    subdir=release
+else
+    subdir=dev
+fi
+
 # push the js and css files
 curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$complete_version.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.js";
 curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$complete_version.min.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.min.js";
 curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$complete_version.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.css";
 curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$complete_version.min.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.min.css";
 
 echo "I'm done uploading to Rackspace"
 
@@ -124,15 +148,15 @@ echo "I'm done uploading the devel docs"
 ########################
 
 # clean up platform folders
-if [ $clean == true ]; then
-    for plat in "${platforms[@]}"
-    do
-        rm -rf $plat
-    done
-    rm -rf dist/
-else
-    echo "Not cleaning the packages."
-fi
+# if [ $clean == true ]; then
+#     for plat in "${platforms[@]}"
+#     do
+#         rm -rf $plat
+#     done
+#     rm -rf dist/
+# else
+#     echo "Not cleaning the packages."
+# fi
 
 # clean up the additional building stuff (useful if you are doing it locally)
 # rm -rf build/
