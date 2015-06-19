@@ -11,6 +11,7 @@ if [ "$1" == "-h" ]; then
         -u     RackSpace username
         -k     RackSpace APIkey
         -c     whether to clean the built packages, defaults to true
+        -l     whether to build locally, defaults to false
     "
     echo "$usage"
     exit 0
@@ -18,15 +19,17 @@ fi
 
 # defauls
 clean=true
+local=false
 
 # handling of arguments
-while getopts b:u:k:c: option;
+while getopts b:u:k:c:l: option;
 do
     case "${option}" in
         b) bintoken=${OPTARG};;
         u) username=${OPTARG};;
         k) key=${OPTARG};;
         c) clean=${OPTARG};;
+        l) local=${OPTARG};;
     esac 
 done
 
@@ -68,6 +71,11 @@ do
     CONDA_PY=$py conda build conda.recipe --quiet
 done
 
+# create an empty __travis_build_id__.txt file if you are building locally
+if [ $local == true ]; then
+    echo "" > __travis_build_id__.txt
+fi
+
 # get travis_build_id
 travis_build_id=$(cat __travis_build_id__.txt)
 
@@ -90,14 +98,18 @@ done
 
 # create and upload pypi pkgs to binstar
 # zip is currently not working
-python setup.py sdist --formats=gztar
+if [[ -z "$travis_build_id" ]]; then
+    python setup.py register sdist --formats=gztar,zip upload
+else
+    python setup.py sdist --formats=gztar
+fi
 
 if [[ -z "$travis_build_id" ]]; then
     # for releases we need to upload to the main channel
-    binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi --force --no-progress;
+    binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.gztar --package-type pypi --force --no-progress;
 else
     # for devel builds we need to upload to the dev channel
-    binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi -c dev --force --no-progress;
+    binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.gztar --package-type pypi -c dev --force --no-progress;
 fi
 
 echo "I'm done uploading to binstar"
@@ -137,11 +149,31 @@ echo "I'm done uploading to Rackspace"
 
 # upload devel docs
 pushd sphinx
+
 make clean all
-fab update:dev
+
+# to the correct location
+if [[ -z "$travis_build_id" ]]; then
+    fab deploy
+else
+    fab update:dev
+fi
+
 popd
 
 echo "I'm done uploading the devel docs"
+
+# publish to npmjs.org
+pushd bokehjs
+
+if [[ -z "$travis_build_id" ]]; then
+    npm publish --tag $complete_version
+    npm tag bokehjs@$complete_version latest
+fi
+
+popd
+
+echo "I'm done publishing to npmjs.org"
 
 ########################
 #   General clean up   #
