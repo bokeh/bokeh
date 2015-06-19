@@ -3,17 +3,19 @@
 from __future__ import print_function
 
 import argparse
+import datetime
 import dateutil.parser
 import dateutil.tz
 import gzip
 import json
 import logging
 import pickle
-import urllib2
+import sys
 
 from collections import OrderedDict
 from functools import partial
 from itertools import count, groupby
+from six.moves.urllib.request import urlopen
 
 logging.basicConfig(level=logging.INFO)
 
@@ -182,8 +184,8 @@ def parse_timestamp(timestamp):
 def read_url(url):
     """Reads given URL as JSON and returns data as loaded python object."""
     logging.debug('reading {url} ...'.format(url=url))
-    r = urllib2.urlopen(url).read()
-    return json.loads(r)
+    r = urlopen(url).read()
+    return json.loads(r.decode("UTF-8"))
 
 
 def query_tags():
@@ -278,16 +280,34 @@ def issue_line(issue):
     return template.format(**params)
 
 
-def generate_changelog(issues, after, heading):
+def generate_changelog(issues, after, heading, rtag=False):
     """Prints out changelog."""
     relevent = relevant_issues(issues, after)
     relevent = sorted(relevent, key=ISSUES_SORT_KEY)
 
-    print(heading + '\n' + '-' * 20)
-    for section, issue_group in groupby(relevent, key=ISSUES_BY_SECTION):
-        print('  * {}:'.format(section))
-        for issue in issue_group:
-            print('    - {}'.format(issue_line(issue)))
+    def write(func, endofline="", append=""):
+        func(heading + '\n' + '-' * 20 + endofline)
+        for section, issue_group in groupby(relevent, key=ISSUES_BY_SECTION):
+            func('  * {}:'.format(section) + endofline)
+            for issue in issue_group:
+                func('    - {}'.format(issue_line(issue)) + endofline)
+        func(endofline + append)
+
+    if rtag is not False:
+        with open("../CHANGELOG", "r+") as f:
+            content = f.read()
+            f.seek(0)
+            write(f.write, '\n', content)
+        # Insert the summary points from the <tag>.rst file into the CHANGELOG
+        flines = []
+        with open("../CHANGELOG", "r") as f:
+            flines = f.readlines()
+        with open("../sphinx/source/docs/releases/" + rtag + ".rst", "r") as f:
+            flines[2:2] = ["  " + line for line in f.readlines() if line.startswith("*")]
+        with open("../CHANGELOG", "w") as f:
+            f.writelines(flines)
+    else:
+        write(print)
 
 
 if __name__ == '__main__':
@@ -296,11 +316,14 @@ if __name__ == '__main__':
     limit_group = parser.add_mutually_exclusive_group(required=True)
     limit_group.add_argument('-d', '--since-date', metavar='DATE',
                              help='select issues that occurred after the given ISO8601 date')
-    limit_group.add_argument('-t', '--since-tag', metavar='TAG',
+    limit_group.add_argument('-p', '--since-tag', metavar='TAG',
                              help='select issues that occurred after the given git tag')
 
     parser.add_argument('-c', '--check', action='store_true', default=False,
                         help='check closed issues for BEP 1 compliance')
+    parser.add_argument('-r', '--release-tag', metavar='RELEASE',
+                        help='the proposed new release tag.\n'
+                             'NOTE: this will automatically write the output to the CHANGELOG')
 
     data_group = parser.add_mutually_exclusive_group()
     data_group.add_argument('-s', '--save-data', action='store_true', default=False,
@@ -324,4 +347,8 @@ if __name__ == '__main__':
     if args.check:
         check_issues(issues)
 
-    generate_changelog(issues, after, heading)
+    if args.release_tag:
+        heading = '{} {:>8}:'.format(str(datetime.date.today()), args.release_tag)
+        generate_changelog(issues, after, heading, args.release_tag)
+    else:
+        generate_changelog(issues, after, heading)
