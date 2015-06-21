@@ -119,6 +119,120 @@ For example, to use version ``0.8.2``:
         rel="stylesheet" type="text/css">
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js">
 
+The |components| function takes either a single PlotObject, a list/tuple of
+PlotObjects, or a dictionary of keys and PlotObjects. Each returns
+a corresponding data structure of script and div pairs.
+
+The following illustrates how different input types correlate to outputs:
+
+.. code-block:: python
+
+    components(plot)
+    #=> (script, plot_div)
+
+    components((plot_1, plot_2))
+    #=> (script, (plot_1_div, plot_2_div))
+
+    components({"Plot 1": plot_1, "Plot 2": plot_2})
+    #=> (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
+
+Here's an example of how you would use the multiple plot generator:
+
+.. code-block:: python
+
+    # scatter.py
+
+    from bokeh.plotting import figure
+    from bokeh.models import Range1d
+    from bokeh.embed import components
+
+    # create some data
+    x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    y1 = [0, 8, 2, 4, 6, 9, 5, 6, 25, 28, 4, 7]
+    x2 = [2, 5, 7, 15, 18, 19, 25, 28, 9, 10, 4]
+    y2 = [2, 4, 6, 9, 15, 18, 0, 8, 2, 25, 28]
+    x3 = [0, 1, 0, 8, 2, 4, 6, 9, 7, 8, 9]
+    y3 = [0, 8, 4, 6, 9, 15, 18, 19, 19, 25, 28]
+
+    # select the tools we want
+    TOOLS="pan,wheel_zoom,box_zoom,reset,save"
+
+    # the red and blue graphs will share this data range
+    xr1 = Range1d(start=0, end=30)
+    yr1 = Range1d(start=0, end=30)
+
+    # only the green will use this data range
+    xr2 = Range1d(start=0, end=30)
+    yr2 = Range1d(start=0, end=30)
+
+    # build our figures
+    p1 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, plot_width=300, plot_height=300)
+    p1.scatter(x1, y1, size=12, color="red", alpha=0.5)
+
+    p2 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, plot_width=300, plot_height=300)
+    p2.scatter(x2, y2, size=12, color="blue", alpha=0.5)
+
+    p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, plot_width=300, plot_height=300)
+    p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
+
+    # plots can be a single PlotObject, a list/tuple, or even a dictionary
+    plots = {'Red': p1, 'Blue': p2, 'Green': p3}
+
+    script, div = components(plots)
+    print(script)
+    print(div)
+
+Running ``python scatter.py`` will print out:
+
+.. code-block:: shell
+
+    <script type="text/javascript">
+        Bokeh.$(function() {
+            var all_models = [ JSON PLOT MODELS AND DATA ARE HERE ]
+            for (idx in plots) {
+                var plot = plots[idx]
+                var model = Bokeh.Collections(plot.modeltype).get(plot.modelid);
+                Bokeh.logger.info('Realizing plot:')
+                Bokeh.logger.info(' - modeltype: ' + plot.modeltype);
+                Bokeh.logger.info(' - modelid: ' + plot.modelid);
+                Bokeh.logger.info(' - elementid: ' + plot.elementid);
+                var view = new model.default_view({
+                    model: model,
+                    el: plot.elementid
+                });
+                Bokeh.index[plot.modelid] = view;
+            }
+        });
+    </script>
+
+    {'Blue': '<div class="plotdiv" id="5fb494f2-e2cb-4eb8-8ec7-11b38143ea30"></div>', 'Green': '<div class="plotdiv" id="f37808b2-e1cc-494e-a126-32f979e2a60d"></div>', 'Red': '<div class="plotdiv" id="a30e4c01-290a-4a19-9b36-c242c53cba8b"></div>'}
+
+Then inserting the script and div elements into this boilerplate:
+
+.. code-block:: html
+
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <title>Bokeh Scatter Plots</title>
+
+            <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css" />
+            <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
+
+            <!-- COPY/PASTE SCRIPT HERE -->
+
+        </head>
+        <body>
+            <!-- INSERT DIVS HERE -->
+        </body>
+    </html>
+
+You can see an example by running:
+
+.. code:: bash
+
+    python /bokeh/examples/embed/embed_multiple.py
 
 .. _userguide_embed_notebook:
 

@@ -8,6 +8,7 @@ import bokeh.embed as embed
 from bokeh.resources import CDN, INLINE, Resources
 from bokeh.plotting import figure
 from bokeh.session import Session
+from six import string_types
 
 _embed_test_plot = None
 
@@ -21,6 +22,15 @@ class TestComponents(unittest.TestCase):
     def test_return_type(self):
         r = embed.components(_embed_test_plot)
         self.assertEqual(len(r), 2)
+
+        script, divs = embed.components((_embed_test_plot, _embed_test_plot))
+        self.assertTrue(isinstance(divs, tuple))
+
+        script, divs = embed.components([_embed_test_plot, _embed_test_plot])
+        self.assertTrue(isinstance(divs, tuple))
+
+        script, divs = embed.components({"Plot 1": _embed_test_plot, "Plot 2": _embed_test_plot})
+        self.assertTrue(isinstance(divs, dict) and all(isinstance(x, string_types) for x in divs.keys()))
 
     def test_result_attrs(self):
         script, div = embed.components(_embed_test_plot)
