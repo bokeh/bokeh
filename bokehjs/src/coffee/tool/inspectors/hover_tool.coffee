@@ -57,9 +57,16 @@ class HoverToolView extends InspectTool.View
         else
           geometry.direction = 'v'
 
+    hovered_indexes = []
+    hovered_renderers = []
+
     for r in @mget('renderers')
       sm = r.get('data_source').get('selection_manager')
       sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
+
+    if @mget('callback')?
+      @_emit_callback(geometry)
+
     return
 
   _update: (indices, tool, renderer, ds, {geometry}) ->
@@ -130,9 +137,6 @@ class HoverToolView extends InspectTool.View
       vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx:rx, ry:ry}
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
-      vars['renderer'] = renderer
-      @mget('callback')?.execute(vars)
-
     for i in indices['1d'].indices
       # patches will not have .x, .y attributes, for instance
       data_x = renderer.glyph.x?[i]
@@ -147,10 +151,26 @@ class HoverToolView extends InspectTool.View
 
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
-      vars['renderer'] = renderer
-      @mget('callback')?.execute(vars)
-
     return null
+
+  _emit_callback: (geometry) ->
+    r = @mget('renderers')[0]
+    indices = @plot_view.renderers[r.id].hit_test(geometry)
+
+    canvas = @plot_model.get('canvas')
+    frame = @plot_model.get('frame')
+
+    geometry['sx'] = canvas.vx_to_sx(geometry.vx)
+    geometry['sy'] = canvas.vy_to_sy(geometry.vy)
+
+    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
+    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    geometry['x'] = xmapper.map_from_target(geometry.vx)
+    geometry['y'] = ymapper.map_from_target(geometry.vy)
+
+    @mget('callback').execute({model: @model, index: indices, geometry: geometry})
+
+    return
 
   _render_tooltips: (ds, i, vars) ->
     tooltips = @mget("tooltips")
