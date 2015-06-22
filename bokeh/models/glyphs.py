@@ -346,6 +346,11 @@ class Image(Glyph):
 
     """)
 
+    level = Enum('image', 'underlay', 'glyph', help="""
+    Specifies the level in which to render the image.
+
+    """)
+
     # TODO: (bev) support anchor property for Image
     # ref: https://github.com/bokeh/bokeh/issues/1763
 
@@ -398,6 +403,11 @@ class ImageRGBA(Glyph):
 
     This setting may be useful if pixel rounding errors are causing
     images to have a gap between them, when they should appear flush.
+    """)
+
+    level = Enum('image', 'underlay', 'glyph', help="""
+    Specifies the level in which to render the image.
+
     """)
 
     # TODO: (bev) support anchor property for ImageRGBA
@@ -475,6 +485,11 @@ class ImageURL(Glyph):
     anchor = Enum(Anchor, help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
+    """)
+
+    level = Enum('image', 'underlay', 'glyph', help="""
+    Specifies the level in which to render the image.
+
     """)
 
 class Line(Glyph):

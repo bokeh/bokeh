@@ -34,6 +34,10 @@ class GlyphRendererView extends PlotWidget
 
     @set_data(false)
 
+    # if level attr is set on glyph, add level to glyphrenderer
+    if @mget("glyph").get("level")?
+      @model.set({level: @mget("glyph").get("level")})
+
     if @mget('data_source') instanceof RemoteDataSource.RemoteDataSource
       @mget('data_source').setup(@plot_view, @glyph)
 
@@ -163,6 +167,8 @@ class GlyphRendererView extends PlotWidget
 
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
+
+
 
 class GlyphRenderer extends HasParent
   default_view: GlyphRendererView
