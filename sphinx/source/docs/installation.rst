@@ -105,7 +105,7 @@ config file:
 
     sampledata_dir: /tmp/bokeh_data
 
-Will cause the sample data to be stored in ``/tmp/bokeh_data``.
+will cause the sample data to be stored in ``/tmp/bokeh_data``.
 
 .. _install_windows:
 
