@@ -500,8 +500,13 @@ REQUIRES = [
         # cli
         # 'click>=3.3',
         # tests
-        # 'nose>=1.3.0',
-        # 'mock>=1.0.1',
+        #'nose>=1.3.0',
+        #'mock>=1.0.1',
+        #'flask-testing>=0.4.1',
+        #'selenium>=2.43,0',
+        #'selenium-server-standalone>=2.42.1',
+        #'selenium-chromedriver>=2.1',
+        #'phantomjs>=1.9.7'
         'colorama>=0.2.7'
     ]
 
@@ -553,6 +558,8 @@ setup(
         'bokeh.server.tests',
         'bokeh.sphinxext',
         'bokeh.tests',
+        'bokeh.tests.selenium',
+        'bokeh.tests.selenium.tests',
         'bokeh.transforms',
         'bokeh.util',
         'bokeh.util.tests',

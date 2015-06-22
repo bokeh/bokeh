@@ -42,6 +42,7 @@ class ButtonTool extends Tool.Model
       active: false
       tool_name: @tool_name
       icon: @icon
+      selenium_handler: @selenium_handler
     })
 
 module.exports =

@@ -12,6 +12,7 @@ before_script:
 
 script: |
   export c_env=/opt/anaconda/conda-bld/
+  conda config --add channels bokeh;
   conda build conda.recipe  --quiet;
   mkdir -p c_env/win-64 c_env/osx-64;
   ls -al;
@@ -26,6 +27,10 @@ script: |
   filename=`ls osx-64/bokeh*.tar.bz2 | xargs -n 1 basename`;
   echo $filename
   cp -r osx-64/$filename c_env/osx-64/$filename;
+
+test:
+  - python setup.py develop > develop.output
+  - python bokeh/tests/runtests.py
 
 build_targets:
     files: c_env/*/bokeh*.tar.bz2

@@ -59,6 +59,11 @@ test:
     - ipython-notebook
     - gulp
     - flake8
+    - flask-testing
+    - selenium
+    - selenium-server-standalone
+    - selenium-chromedriver
+    - phantomjs
 
     # examples
     - scipy
