@@ -33,6 +33,13 @@ class CanvasView extends ContinuumView
     @canvas_events = @$('div.bk-canvas-events')
     @canvas_overlay = @$('div.bk-canvas-overlays')
     @map_div = @$('div.bk-canvas-map') ? null
+    
+    # Get 2D context object
+    @ctx = @canvas[0].getContext('2d')
+    
+    # Assign webgl canvas if possible.
+    if @ctx.glcanvas is undefined  # Note that it can be null (meaning no webgl support)
+      @ctx.glcanvas = @init_webgl_canvas()
 
     logger.debug("CanvasView initialized")
 
@@ -51,12 +58,9 @@ class CanvasView extends ContinuumView
     # normally we only want to render the canvas when the canvas itself
     # should be configured with new bounds.
     if not @model.new_bounds and not force
-      return
-    @ctx = @canvas[0].getContext('2d')
+      return    
     
-    # Assign canvases if not already done. Sync size of canvas.
-    if @ctx.glcanvas is undefined  # Note that it can be null (meaning no webgl support)
-      @ctx.glcanvas = @init_webgl_canvas()
+    # Sync size of canvases
     if @ctx.glcanvas?
       @ctx.glcanvas.width = @canvas[0].width
       @ctx.glcanvas.height = @canvas[0].height

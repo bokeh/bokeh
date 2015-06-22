@@ -4,6 +4,12 @@ Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
 class CircleView extends Glyph.View
+ 
+  _init_gl: () ->    
+    if @glglyph is undefined
+      ctx = @renderer.plot_view.canvas_view.ctx
+      if ctx.glcanvas?
+        @glglyph = new glcollections.CircleGLGlyph(ctx.glcanvas.gl, this)
 
   _index_data: () ->
     return @_xy_index()
@@ -11,9 +17,11 @@ class CircleView extends Glyph.View
   _map_data: () ->
     if @glglyph?
         return  # performance
-
+   
   _set_data: () ->
-    @_data_changed = true  # notify gl; lazy upload    
+    @_init_gl()
+    if @glglyph?
+      @glglyph.set_data_changed(@x.length)
     
     # NOTE: Order is important here: size is always present (at least
     # a default), but radius is only present if a user specifies it
@@ -26,6 +34,11 @@ class CircleView extends Glyph.View
         @max_size = 2 * @max_radius
     else
       @sradius = (s/2 for s in @size)
+
+  _set_visuals: () ->
+    @_init_gl()
+    if @glglyph?
+      @glglyph.set_uniforms_changed()
 
   _mask_data: (all_indices) ->
     hr = @renderer.plot_view.frame.get('h_range')
@@ -62,7 +75,7 @@ class CircleView extends Glyph.View
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
     if ctx.glcanvas        
-        if not @_render_gl(ctx, indices)
+        if @_render_gl(ctx, indices)          
           return
  
     for i in indices
@@ -81,19 +94,11 @@ class CircleView extends Glyph.View
         ctx.stroke()
 
   _render_gl: (ctx, indices) ->
-    if not @glglyph?      
-      @glglyph = new glcollections.CircleGLGlyph(ctx.glcanvas.gl, this)
-
     # Get transform, and verify that its linear
     [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 || 
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
       return true 
-        
-    if @._data_changed and @x
-      @._data_changed = false
-      @glglyph.set_data_changed(@x.length)      
-      #@glglyph.set_uniforms_changed()
     
     trans = {width: ctx.glcanvas.width, height: ctx.glcanvas.height, dx: dx, dy: dy}
     @glglyph.draw(indices, trans)  

@@ -70,6 +70,8 @@ class GlyphView extends ContinuumView
     # finally, warm the visual properties cache
     for name, prop of @visuals
       prop.warm_cache(source)
+    
+    @_set_visuals()
 
   bounds: () ->
     if not @index?
@@ -87,6 +89,7 @@ class GlyphView extends ContinuumView
 
   # any additional customization can happen here
   _set_data: () -> null
+  _set_visuals: () -> null
   _map_data: () -> null
   _mask_data: (inds) -> inds
   _bounds: (bds) -> bds

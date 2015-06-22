@@ -14,6 +14,9 @@ gloo2 = require "gloo2"
 
 # todo: Can we implement all gl-specifics that's still needed in glyph.coffee?
 # todo: update GLSL with latest version from glumpy
+# todo: implement that colors set per-vertex work.
+# todo: implement angles.
+
 
 hex2rgb = (hex, alpha=1) ->
     # Convert hex color to RGBA tuple    
@@ -72,8 +75,7 @@ class BaseGLGlyph
     @nvertices = 0
     @size_changed = false
     @data_changed = false
-    @uniforms_changed = false  # simulated uniforms, that is
-    @drawn_once = false
+    @uniforms_changed = false  # simulated uniforms, that is    
 
   set_data_changed: (n) ->
     if n != @nvertices
@@ -213,48 +215,47 @@ class MarkerGLGlyph extends BaseGLGlyph
     @coll.prog.set_attribute('a_bg_color', 'vec4', [@coll.vbo_bg_color, 0, 0])
 
   draw: (indices, trans) ->
-        
-    # Draw on the last glyph
-    lastOne = @coll.glglyphs.slice(-1)[0]    
-    if this is lastOne
-      
-      # Need resize?
-      total_size = 0
-      size_changed = false
-      for glglyph in @coll.glglyphs
-        size_changed ||= glglyph.size_changed          
-        total_size += glglyph.nvertices
-      # Resize if we must
-      if size_changed
-        @_set_size(total_size)
+    # Assume same trans for all glyphs
+    # todo: allow trans per glyph, but be smart if it *is* the same.
+    @coll.trans = trans
 
-      # Update parts that need updating
-      offset = 0
-      draw_offset = 0
-      for glglyph in @coll.glglyphs
-        if size_changed || glglyph.data_changed
-          @_set_data(offset, glglyph)
-        if size_changed || glglyph.uniforms_changed
-          @_set_uniforms(offset, glglyph)
-        if not glglyph.drawn_once
-          draw_offset = offset
-        offset += glglyph.nvertices  # x 4?
-      
-      # Reset and get full size      
-      for glglyph in @coll.glglyphs      
-        glglyph.size_changed = false
-        glglyph.data_changed = false
-        glglyph.uniforms_changed = false
-        glglyph.drawn_once = true
-      
-      # Handle transformation to device coordinates
-      dx = trans.dx; dy = trans.dy
-      @coll.prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-      @coll.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
-      @coll.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
-      
-      # todo: use indices
-      @coll.prog.draw(@gl.POINTS, [draw_offset, total_size-draw_offset])
+  draw_collection: () ->
+    trans = @coll.trans
+    
+    # Need resize?
+    total_size = 0
+    size_changed = false
+    for glglyph in @coll.glglyphs
+      size_changed ||= glglyph.size_changed
+      total_size += glglyph.nvertices
+    # Resize if we must
+    if size_changed
+      @_set_size(total_size)
+
+    # Update parts that need updating
+    offset = 0  # in number of vertices
+    draw_offset = 0
+    for glglyph in @coll.glglyphs
+      if glglyph.nvertices && (size_changed || glglyph.data_changed)
+        @_set_data(offset, glglyph)
+      if glglyph.nvertices && (size_changed || glglyph.uniforms_changed)
+        @_set_uniforms(offset, glglyph)
+      offset += glglyph.nvertices
+    
+    # Reset and get full size
+    for glglyph in @coll.glglyphs
+      glglyph.size_changed = false
+      glglyph.data_changed = false
+      glglyph.uniforms_changed = false
+
+    # Handle transformation to device coordinates
+    dx = trans.dx; dy = trans.dy
+    @coll.prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
+    @coll.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
+    @coll.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
+
+    # todo: use indices
+    @coll.prog.draw(@gl.POINTS, [draw_offset, total_size-draw_offset])
 
   _set_size: (n) ->
     n *= 4  # in bytes
@@ -269,7 +270,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     @coll.vbo_bg_color.set_size(n * 4)
   
   _set_data: (offset, glglyph) ->
-    console.log('setting data')
+    console.log('setting data')    
     offset *= 4  # offset is in bytes
     @coll.vbo_x.set_data(offset, new Float32Array(glglyph.glyph.x))
     @coll.vbo_y.set_data(offset, new Float32Array(glglyph.glyph.y))
@@ -289,8 +290,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     # bg_color
     a = fill_array_with_vec(nvertices, 4, hex2rgb(glyph.visuals.fill.color.value(), glyph.visuals.fill.alpha.value()))
     @coll.vbo_bg_color.set_data(offset*4, a)
-    window.tt = glyph
-    
+        
     # Static value for antialias. Smaller aa-region to obtain crisper images
     @coll.prog.set_uniform('u_antialias', 'float', [0.25])
 
