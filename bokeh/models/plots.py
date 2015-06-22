@@ -19,6 +19,7 @@ from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .widget import Widget
+from .actions import Callback
 
 
 class PlotContext(PlotObject):
@@ -46,6 +47,9 @@ class Plot(Widget):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
     """
+    callback = Instance(Callback, help="""
+    A callback to run in the browser when the plot object is initialized.
+    """)
 
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
