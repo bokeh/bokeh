@@ -61,7 +61,7 @@ def _glyph_doc(args, props, desc):
     """ % (desc, params, props)
 
 def _match_data_params(argnames, glyphclass, datasource,
-                       args, kwargs):
+                       user_source, args, kwargs):
     """ Processes the arguments and kwargs passed in to __call__ to line
     them up with the argnames of the underlying Glyph
 
@@ -107,11 +107,15 @@ def _match_data_params(argnames, glyphclass, datasource,
                     datasource.data[val] = []
                 glyph_val = {'field' : val}
         elif isinstance(val, np.ndarray):
+            if user_source:
+                raise RuntimeError("Can supply datasource OR iterable values to glyph methods, not both")
             if val.ndim != 1:
                 raise RuntimeError("Columns need to be 1D (%s is not)" % var)
             datasource.add(val, name=var)
             glyph_val = {'field' : var}
         elif isinstance(val, Iterable):
+            if user_source:
+                raise RuntimeError("Can supply datasource OR iterable values to glyph methods, not both")
             datasource.add(val, name=var)
             glyph_val = {'field' : var}
         else:

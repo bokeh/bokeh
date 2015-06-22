@@ -15,11 +15,11 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
             _make_legend, _get_select_tool
         )
         from .models import ColumnDataSource, GlyphRenderer, Plot
-        source = kwargs.pop('source', None)
-        if source is None:
+        user_source = kwargs.pop('source', None)
+        if user_source is None:
             datasource = ColumnDataSource()
         else:
-            datasource = source
+            datasource = user_source
 
         legend_name = kwargs.pop("legend", None)
 
@@ -32,7 +32,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
 
         # Process the glyph dataspec parameters
         glyph_params = _match_data_params(dsnames, glyphclass,
-                                          datasource,
+                                          datasource, user_source,
                                           args, _materialize_colors_and_alpha(kwargs))
 
         kwargs.update(glyph_params)
