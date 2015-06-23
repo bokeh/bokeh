@@ -137,6 +137,7 @@ class SpectrogramPlot
       @images = [img].concat(@images[0..])
       @xs.pop()
       @xs = [1-@image_width].concat(@xs[0..])
+      @source.set('data', {image: @images, x: @xs})
 
     image32 = new Uint32Array(@images[0])
     buf32 = new Uint32Array(buf)
@@ -144,8 +145,8 @@ class SpectrogramPlot
     for i in [0...@config.SPECTROGRAM_LENGTH]
       image32[i*@image_width+@col] = buf32[i]
 
-    @source.set('data', {image: @images, x: @xs})
-    @source.trigger('change', @source)
+    @source.get('data')['x'] = @xs
+    @source.trigger('change', true, 0)
 
   set_yrange: (y0, y1) ->
     @y_range.set({'start': y0, 'end' : y1})
