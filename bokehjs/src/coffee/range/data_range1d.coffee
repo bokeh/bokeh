@@ -38,6 +38,14 @@ class DataRange1d extends Range1d.Model
     @register_property('auto_ranging', @_get_auto_ranging, true)
     @add_dependencies('start', this, ['_start', '_end'])
 
+    if attrs.start?
+      @set('start', attrs.start)
+      attrs.start = undefined
+
+    if attrs.end?
+      @set('end', attrs.end)
+      attrs.end = undefined
+
     super(attrs, options)
 
     @plot_bounds = {}
