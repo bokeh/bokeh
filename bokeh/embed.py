@@ -24,6 +24,9 @@ from .templates import (
 )
 from .util.string import encode_utf8
 
+from .plot_object import PlotObject
+from collections import Sequence
+from six import string_types
 
 def _wrap_in_function(code):
     # Indent and wrap Bokeh function def around
@@ -31,7 +34,7 @@ def _wrap_in_function(code):
     return 'Bokeh.$(function() {\n%s\n});' % code
 
 
-def components(plot_object, resources=None):
+def components(plot_objects, resources=None):
     ''' Return HTML components to embed a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -40,35 +43,91 @@ def components(plot_object, resources=None):
               are **already loaded**.
 
     Args:
-        plot_object (PlotObject) : Bokeh object to render
-            typically a Plot or PlotContext
+        plot_objects (PlotObject|list|dict|tuple) :
+        The |components| function takes either a single PlotObject, a list/tuple of
+        PlotObjects, or a dictionary of keys and PlotObjects. Each returns
+        a corresponding data structure of script and div pairs.
+
+        The following illustrates how different input types correlate to outputs:
+
+            components(plot)
+            #=> (script, plot_div)
+
+            components((plot_1, plot_2))
+            #=> (script, (plot_1_div, plot_2_div))
+
+            components({"Plot 1": plot_1, "Plot 2": plot_2})
+            #=> (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
+
+        An example can be found in examples/embed/embed_multiple.py
+
         resources : Deprecated argument
     Returns:
-        (script, div) : UTF-8 encoded
-
+        (script, div[s]): UTF-8 encoded
     '''
-    
+    from .document import Document
+    if isinstance(plot_objects, (PlotObject, Document)):
+        plot_objects = [plot_objects]
     if resources is not None:
         warn('Because the ``resources`` argument is no longer needed, '
              'is it deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
-    
-    ref = plot_object.ref
-    elementid = str(uuid.uuid4())
-    
+    all_models = []
+    plots = []
+    if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
+        divs = []
+        for idx, plot_object in enumerate(plot_objects):
+            elementid = str(uuid.uuid4())
+            _append_plot(all_models, plots, plot_object, elementid)
+            divs = _append_div(elementid, divs)
+        if len(divs) == 1:
+            divs = divs[0]
+        else:
+            divs = tuple(divs)
+        return _component_pair(all_models, plots, divs)
+    elif isinstance(plot_objects, dict) and \
+         all(isinstance(x, string_types) for x in plot_objects.keys()) and \
+         all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
+        divs = {}
+        for key in plot_objects.keys():
+            elementid = str(uuid.uuid4())
+            _append_plot(all_models, plots, plot_objects[key], elementid)
+            divs = _append_div(elementid, divs, key)
+        return _component_pair(all_models, plots, divs)
+    else:
+        raise ValueError('Input must be a PlotObject, a Sequence of PlotObjects, or a mapping of string to PlotObjects')
+
+def _component_pair(all_models, plots, divs):
     js = PLOT_JS.render(
-        elementid = elementid,
-        modelid = ref["id"],
-        modeltype = ref["type"],
-        all_models = serialize_json(plot_object.dump()),
+        all_models = serialize_json(all_models),
+        plots = plots
     )
     script = PLOT_SCRIPT.render(
         plot_js = _wrap_in_function(js),
     )
-    div = PLOT_DIV.render(elementid=elementid)
+    return encode_utf8(script), divs
 
-    return encode_utf8(script), encode_utf8(div)
+def _append_plot(all_models, plots, plot_object, elementid):
+    ref = plot_object.ref
+    all_models.extend(plot_object.dump())
+    plots.append({
+        'modelid': ref["id"],
+        'elementid': '#' + elementid,
+        'modeltype': ref["type"]
+    })
 
+def _append_div(elementid, divs=None, key=None):
+    div = PLOT_DIV.render(
+        elementid = elementid
+    )
+    if isinstance(divs, list):
+        divs.append(encode_utf8(div))
+        return divs
+    elif isinstance(divs, dict):
+        divs[key] = encode_utf8(div)
+        return divs
+    else:
+        return encode_utf8(div)
 
 def notebook_div(plot_object):
     ''' Return HTML for a div that will display a Bokeh plot in an
@@ -125,6 +184,10 @@ def file_html(plot_object, resources, title, template=FILE):
         html : standalone HTML document with embedded plot
 
     '''
+    from .document import Document
+    if not isinstance(plot_object, (PlotObject, Document)):
+        raise ValueError('plot_object must be a single PlotObject')
+
     plot_resources = RESOURCES.render(
         js_raw = resources.js_raw,
         css_raw = resources.css_raw,
