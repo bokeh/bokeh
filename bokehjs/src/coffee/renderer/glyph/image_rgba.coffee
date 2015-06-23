@@ -47,7 +47,6 @@ class ImageRGBAView extends Glyph.View
       @max_dh = 0
       if @dh.units == "data"
         @max_dh = _.max(@dh)
-      @_xy_index()
 
   _map_data: () ->
     @sw = @sdist(@renderer.xmapper, @x, @dw, 'edge', @mget('dilate'))
