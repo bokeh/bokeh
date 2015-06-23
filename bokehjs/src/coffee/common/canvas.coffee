@@ -34,25 +34,31 @@ class CanvasView extends ContinuumView
     @canvas_overlay = @$('div.bk-canvas-overlays')
     @map_div = @$('div.bk-canvas-map') ? null
     
-    # Get 2D context object
-    @ctx = @canvas[0].getContext('2d')
-    
-    # Assign webgl canvas if possible.
-    if @ctx.glcanvas is undefined  # Note that it can be null (meaning no webgl support)
-      @ctx.glcanvas = @init_webgl_canvas()
-
+    @init_canvas()
+        
     logger.debug("CanvasView initialized")
 
-  init_webgl_canvas: () ->
+  init_canvas: () ->
+    
+    # Get visible and invisible canvas 
+    # (doing it like this makes it easy to swap them during debugging)
+    canvas1 = @canvas[0]
+    canvas2 = document.createElement('canvas')
+    
+    # Create 2D context to draw to 
+    @ctx = canvas1.getContext('2d')
+    @ctx.canvas = canvas1
+    window.ctx = @ctx  # todo: debugging
+        
+    # Create GL context to draw to
     # If WebGL is available, we store a reference to the gl canvas on
-    # the ctx object, because that's what gets passed everywhere.
-    glcanvas = document.createElement('canvas')
-    gl = glcanvas.getContext("webgl") || @canvas3d.getContext("experimental-webgl")      
+    # the ctx object, because that's what gets passed everywhere.    
+    gl = canvas2.getContext("webgl") || canvas2.getContext("experimental-webgl")      
     if gl?
-      glcanvas.gl = gl
-      return glcanvas
+      canvas2.gl = gl
+      @ctx.glcanvas = canvas2
     else
-      return null  # disable webgl
+      @ctx.glcanvas = null  # disable webgl
 
   render: (force=false) ->
     # normally we only want to render the canvas when the canvas itself

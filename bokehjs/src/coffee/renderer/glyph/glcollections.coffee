@@ -27,15 +27,16 @@ hex2rgb = (hex, alpha=1) ->
 
 
 line_width = (width) ->
-    # Reduce line width for small values to make it more similar to canvas
+    # Increase small values to make it more similar to canvas
     if width < 2
-      width = width*width / 2
+      width = Math.sqrt(width*2)
     return width
 
 
 fill_array_with_float = (n, val) ->
     a = new Float32Array(n)
-    a.fill(val)
+    for i in [0..n]
+        a[i] = val
     return a
 
 
@@ -128,8 +129,8 @@ class MarkerGLGlyph extends BaseGLGlyph
         v_fg_color = a_fg_color;
         v_bg_color = a_bg_color;
         v_rotation = vec2(cos(a_orientation), sin(a_orientation));
-        // Calculate position
-        vec2 pos = vec2(a_x, a_y) * u_scale + u_offset; // in pixels
+        // Calculate position - the -0.5 is to correct for canvas origin
+        vec2 pos = vec2(a_x, a_y) * u_scale + u_offset - vec2(0.5, 0.5); // in pixels
         pos /= u_canvas_size;  // in 0..1
         gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
         gl_Position.y *= -1.0;        
@@ -160,12 +161,11 @@ class MarkerGLGlyph extends BaseGLGlyph
         float border_distance = abs(signed_distance) - t;
         float alpha = border_distance/antialias;
         alpha = exp(-alpha*alpha);
-        float crispness = 0.05;  // Nico defined this at 0.5, I want it crisper (lower)
-        
+
         if( border_distance < 0.0)
             frag_color = fg_color;
         else if( signed_distance < 0.0 ) {
-            frag_color = mix(bg_color, fg_color, pow(alpha, crispness));            
+            frag_color = mix(bg_color, fg_color, sqrt(alpha));
         } else {
             if( abs(signed_distance) < (linewidth/2.0 + antialias) ) {
                 frag_color = vec4(fg_color.rgb, fg_color.a * alpha);
@@ -175,7 +175,7 @@ class MarkerGLGlyph extends BaseGLGlyph
         }
         return frag_color;
     }
-    
+
     void main()
     {
         vec2 P = gl_PointCoord.xy - vec2(0.5, 0.5);
@@ -292,7 +292,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     @coll.vbo_bg_color.set_data(offset*4, a)
         
     # Static value for antialias. Smaller aa-region to obtain crisper images
-    @coll.prog.set_uniform('u_antialias', 'float', [0.25])
+    @coll.prog.set_uniform('u_antialias', 'float', [0.9])
 
 
 class CircleGLGlyph extends MarkerGLGlyph

@@ -277,7 +277,15 @@ class PlotView extends ContinuumView
 
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
     if ctx.glcanvas?
-      ctx.drawImage(ctx.glcanvas, 0, 0)  # blit the gl-drawn glyphs
+      # Blit gl canvas into the 2D canvas. We need to turn off interpolation, otherwise
+      # all gl-rendered content is blurry. The 0.1 offset is to force the samples
+      # to be *inside* the pixels, otherwise round-off errors can sometimes cause
+      # missing/double scanlines (seen in Chrome).
+      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
+         ctx[prefix + 'SmoothingEnabled'] = false
+      ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
+      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
+         ctx[prefix + 'SmoothingEnabled'] = true
       console.log('render webgl canvas into 2d canvas ' + performance.now())
     else
       console.log('NOT rendering with webgl')  # todo: remove this
@@ -326,7 +334,7 @@ class PlotView extends ContinuumView
       coll.glglyphs[0].draw_collection()
     
     ctx.restore()
-
+  
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
