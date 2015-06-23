@@ -24,7 +24,7 @@ MAX_FREQ = SAMPLING_RATE / 2
 FREQ_SAMPLES = NUM_SAMPLES / 8
 NGRAMS = 800
 SPECTROGRAM_LENGTH = 512
-TILE_WIDTH = 500
+TILE_WIDTH = 200
 TIMESLICE = 40 # ms
 
 mutex = RLock()
@@ -70,7 +70,7 @@ def params():
         "TILE_WIDTH": TILE_WIDTH,
         "TIMESLICE": TIMESLICE,
         "EQ_CLAMP": 20,
-        "FRAMES_PER_SECOND": 20
+        "FRAMES_PER_SECOND": 15
     })
 
 
