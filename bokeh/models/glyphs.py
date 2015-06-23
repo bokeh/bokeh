@@ -346,7 +346,7 @@ class Image(Glyph):
 
     """)
 
-    level = Enum('image', 'underlay', 'glyph', help="""
+    level = Enum('image', 'underlay', 'glyph', default='underlay', help="""
     Specifies the level in which to render the image.
 
     """)
@@ -405,7 +405,7 @@ class ImageRGBA(Glyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    level = Enum('image', 'underlay', 'glyph', help="""
+    level = Enum('image', 'underlay', 'glyph', default='underlay', help="""
     Specifies the level in which to render the image.
 
     """)
@@ -487,7 +487,7 @@ class ImageURL(Glyph):
     coordinates.
     """)
 
-    level = Enum('image', 'underlay', 'glyph', help="""
+    level = Enum('image', 'underlay', 'glyph', default='underlay', help="""
     Specifies the level in which to render the image.
 
     """)
