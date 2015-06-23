@@ -32,11 +32,11 @@ class DataRange1d extends Range1d.Model
       '_end', 'flipped', '_auto_end', 'range_padding', 'default_span'
     ])
 
-    if attrs.start?
+    if attrs?.start?
       @set('start', attrs.start)
       attrs.start = undefined
 
-    if attrs.end?
+    if attrs?.end?
       @set('end', attrs.end)
       attrs.end = undefined
 
@@ -47,7 +47,7 @@ class DataRange1d extends Range1d.Model
   update: (bounds, dimension, plot_view) ->
     # TODO (bev)
     # check that renderers actually configured with this range
-    renderers = @get('renderers')
+    renderers = @get('renderers') ? []
 
     all_renderers = []
     if renderers.length == 0
