@@ -21,12 +21,6 @@ from .tools import Tool, ToolEvents
 from .widget import Widget
 
 
-# TODO (bev) dupe, move to utils
-class _list_attr_splat(list):
-    def __setattr__(self, attr, value):
-        for x in self:
-            setattr(x, attr, value)
-
 class PlotContext(PlotObject):
     """ A container for multiple plot objects.
 
@@ -129,6 +123,7 @@ class Plot(Widget):
             selector = kwargs
 
         # Want to pass selector that is a dictionary
+        from ..plotting_helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -463,6 +458,7 @@ class GridPlot(Plot):
             seq[PlotObject]
 
         '''
+        from ..plotting_helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):

@@ -73,6 +73,9 @@ class GMapPlotView extends Plot.View
         disableDefaultUI: true
         mapTypeId: map_types[mo.map_type]
 
+      if mo.styles?
+        map_options.styles = JSON.parse(mo.styles)
+
       # Create the map with above options in div
       @map = new maps.Map(@canvas_view.map_div[0], map_options)
       maps.event.addListener(@map, 'bounds_changed', @bounds_change)
@@ -92,7 +95,7 @@ class GMapPlotView extends Plot.View
         _.each(window._bokeh_gmap_loads, _.defer)
       script = document.createElement('script')
       script.type = 'text/javascript'
-      script.src = "https://maps.googleapis.com/maps/api/js?v=3.exp&
+      script.src = "https://maps.googleapis.com/maps/api/js?v=3&
                     sensor=false&callback=_bokeh_gmap_callback"
       document.body.appendChild(script)
 
