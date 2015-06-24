@@ -13,14 +13,14 @@ class Callback extends HasProperties
     @register_property('func', @_make_func, true)
     @add_dependencies('func', @, ['args', 'code'])
 
-  execute: (value) ->
-    @get('func')(@get('values')..., value)
+  execute: (cb_obj, cb_data=null) ->
+    @get('func')(@get('values')..., cb_obj, cb_data)
 
   _make_values: () ->
     _.map(_.values(@get("args")), @resolve_ref)
 
   _make_func: () ->
-    new Function(_.keys(@get("args"))..., "cb_obj", @get("code"))
+    new Function(_.keys(@get("args"))..., "cb_obj", "cb_data", @get("code"))
 
   defaults: ->
     return _.extend {}, super(), {
