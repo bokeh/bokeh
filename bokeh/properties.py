@@ -59,6 +59,48 @@ import numpy as np
 from . import enums
 from .util.string import nice_join
 
+def field(name):
+    ''' Convenience function do explicitly mark a field specification for
+    a Bokeh model property.
+
+    Args:
+        name (str) : name of a data source field to reference for a property.
+
+    Returns:
+        dict : {"field": name}
+
+    Note:
+        This function is included for completeness. String values for
+        property specifications are by default interpreted as field names.
+
+    '''
+    return dict(field=name)
+
+def value(val):
+    ''' Convenience function do explicitly mark a value specification for
+    a Bokeh model property.
+
+    Args:
+        val (any) : a fixed value to specify for a property.
+
+    Returns:
+        dict : {"value": name}
+
+    Note:
+        String values for property specifications are by default interpreted
+        as field names. This function is especially useful when you want to
+        specify a fixed value with text properties.
+
+    Example:
+
+        # The following will take text values to render from a data source
+        # column "text_column", but use a fixed value "12pt" for font size
+        p.text("x", "y", text="text_column",
+               text_font_size=value("12pt"), source=source)
+
+    '''
+    return dict(value=val)
+
 bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
 
 # used to indicate properties that are not set (vs null, None, etc)
