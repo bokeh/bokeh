@@ -192,7 +192,6 @@ class ContextProperties extends HasProperties
     @cache = {}
     super(attrs, options)
 
-
   warm_cache: (source, attrs) ->
     for attr in attrs
       prop = @[attr]
@@ -335,36 +334,20 @@ class Text extends ContextProperties
       values: "top middle bottom alphabetic hanging"
 
   warm_cache: (source) ->
-    super(source, ["color", "alpha", "align", "baseline"])
-    if (@font.fixed_value? and @font_size.fixed_value? and
-        @font_style.fixed_value?)
-      @cache["font"] = @font_value()
-    else
-      @cache["font_array"] = @font_array(source)
+    super(source, ["font", "font_size", "font_style", "color", "alpha", "align", "baseline"])
 
   cache_select: (name, i) ->
     if name == "font"
-      if @font.fixed_value? and @font_size.fixed_value? and @font_style.fixed_value?
-        @cache.font = @font_value()
-      else
-        @cache.font = @cache.font_array[i]
-      return
-    super(name, i)
+      val = super("font_style", i) + " " + super("font_size", i) + " " + super("font", i)
+      @cache.font = val
+    else
+      super(name, i)
 
   font_value: () ->
     font       = @font.value()
     font_size  = @font_size.value()
     font_style = @font_style.value()
     return font_style + " " + font_size + " " + font
-
-  font_array: (source) ->
-    font       = @font.array(source)
-    font_size  = @font_size.array(source)
-    font_style = @font_style.array(source)
-    result = []
-    for i in [0...font.length]
-      result.push(font_style[i] + " " + font_size[i] + " " + font[i])
-    return result
 
   set_value: (ctx) ->
     ctx.font         = @font_value()
@@ -451,7 +434,6 @@ fields = (model, attr="fields") ->
       when "string" then result[field] = new String({obj: model, attr: field})
 
   return result
-
 
 visuals = (model, attr="visuals") ->
   result = {}
