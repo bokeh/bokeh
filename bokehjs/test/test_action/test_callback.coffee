@@ -60,7 +60,7 @@ describe "callback module", ->
 
     it "should return cb_data with value of null if cb_data kwarg is unset", ->
       r = Collections('Callback').create({code: "return cb_data"})
-      expect(r.execute('foo')).to.be.equal null
+      expect(r.execute('foo')).to.be.equal undefined 
 
     it "should return cb_data with value of kwarg parameter to execute", ->
       r = Collections('Callback').create({code: "return cb_data"})

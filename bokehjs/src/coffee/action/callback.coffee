@@ -13,7 +13,7 @@ class Callback extends HasProperties
     @register_property('func', @_make_func, true)
     @add_dependencies('func', @, ['args', 'code'])
 
-  execute: (cb_obj, cb_data=null) ->
+  execute: (cb_obj, cb_data) ->
     @get('func')(@get('values')..., cb_obj, cb_data)
 
   _make_values: () ->
