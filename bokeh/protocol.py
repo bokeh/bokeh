@@ -121,7 +121,7 @@ class BokehJSONEncoder(json.JSONEncoder):
 def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
     if settings.pretty(False):
         kwargs["indent"] = 4
-    return json.dumps(obj, cls=encoder, **kwargs)
+    return json.dumps(obj, cls=encoder, allow_nan=False, **kwargs)
 
 deserialize_json = json.loads
 
