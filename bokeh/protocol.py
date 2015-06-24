@@ -49,7 +49,7 @@ class BokehJSONEncoder(json.JSONEncoder):
                     return (obj.astype('int64') / millifactor).tolist()
                 # else punt.
             else:
-                return obj.astype('datetime64[ms]').astype('int64').tolist()
+                return (obj.astype('datetime64[us]').astype('int64') / 1000.).tolist()
         elif obj.dtype.kind in ('u', 'i', 'f'):
             return self.transform_numerical_array(obj)
         return obj.tolist()
