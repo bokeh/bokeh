@@ -344,7 +344,7 @@ class Text extends ContextProperties
 
   cache_select: (name, i) ->
     if name == "font"
-      if @font.value? and @font_size.value? and @font_style.value?
+      if @font.fixed_value? and @font_size.fixed_value? and @font_style.fixed_value?
         @cache.font = @font_value()
       else
         @cache.font = @cache.font_array[i]
