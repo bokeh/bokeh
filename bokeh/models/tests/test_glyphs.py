@@ -209,7 +209,6 @@ def test_Image():
     assert glyph.dw == "dw"
     assert glyph.dh == "dh"
     assert glyph.dilate == False
-    assert glyph.level == 'underlay'
     yield (check_props, glyph, [
         "image",
         "x",
@@ -220,7 +219,6 @@ def test_Image():
         "dh_units",
         "dilate",
         "color_mapper",
-        "level",
     ])
 
 def test_ImageRGBA():
@@ -233,7 +231,6 @@ def test_ImageRGBA():
     assert glyph.rows == "rows"
     assert glyph.cols == "cols"
     assert glyph.dilate == False
-    assert glyph.level == 'underlay'
     yield (check_props, glyph, [
         "image",
         "x",
@@ -245,7 +242,6 @@ def test_ImageRGBA():
         "rows",
         "cols",
         "dilate",
-        "level",
     ])
 
 def test_ImageURL():
@@ -258,7 +254,6 @@ def test_ImageURL():
     assert glyph.angle == 0
     assert glyph.dilate == False
     assert glyph.anchor == Anchor.top_left
-    assert glyph.level == 'underlay'
     yield (check_props, glyph, [
         "url",
         "x",
@@ -271,7 +266,6 @@ def test_ImageURL():
         "angle_units",
         "dilate",
         "anchor",
-        "level",
     ])
 
 def test_Line():

@@ -64,6 +64,8 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
             glyph_renderer.x_range_name = kwargs['x_range_name']
         if 'y_range_name' in kwargs:
             glyph_renderer.y_range_name = kwargs['y_range_name']
+        if 'level' in kwargs:
+            glyph_renderer.level = kwargs['level']
 
         if legend_name:
             legend = _get_legend(plot)
