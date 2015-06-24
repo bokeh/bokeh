@@ -16,8 +16,10 @@ if not window.Float64Array
 
 # binding the libs that bokeh uses so others can reference them
 Bokeh._                 = require("underscore")
-Bokeh.$ = $ = jQuery    = require("jquery")
-$.noConflict true
+if $ || jQuery
+    Bokeh.$ = $ = jQuery = require("jquery").noConflict(true)
+else
+    Bokeh.$ = $ = jQuery = require("jquery")
 require "jquery-ui"
 Bokeh.Backbone          = require("backbone")
 Bokeh.Backbone.$        = Bokeh.$
