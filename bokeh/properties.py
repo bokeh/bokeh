@@ -484,13 +484,13 @@ class Regex(String):
         return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
 
 class JSON(String):
-    """ JSON type property validates that text values are valid JSON. 
-    
+    """ JSON type property validates that text values are valid JSON.
+
     ..  note::
-        The string is transmitted and received by BokehJS as a *string* 
+        The string is transmitted and received by BokehJS as a *string*
         containing JSON content. i.e., you must use ``JSON.parse`` to unpack
-        the value into a JavaScript hash. 
-        
+        the value into a JavaScript hash.
+
     """
     def validate(self, value):
         super(JSON, self).validate(value)
