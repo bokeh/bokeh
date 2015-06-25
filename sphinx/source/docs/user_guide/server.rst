@@ -58,15 +58,14 @@ The core architecture of ``bokeh-server`` develops around 2 core models:
 * ``Document``
 * ``User``
 
-
 A User controls authentication information at the user level and both models
 combined determines the authorization information regarding user ``documents``
-that  are private, so can be accessed only by the user, or public.
+that are private, so can be accessed only by the user, or public.
 
-On thing to keep in mind when interacting with bokeh-server is that every
+One thing to keep in mind when interacting with bokeh-server is that every
 session open to the server implies that an user is logged in to the server.
-More information about this can be found at the :ref:`Authentication` paragraph
-below.
+More information about this can be found at the
+:ref:`userguide_server_authenticating` paragraph below.
 
 .. _userguide_server_example_server:
 
@@ -76,14 +75,13 @@ Running the Example Server
 If Bokeh was installed running python setup.py or using a conda package, then the
 ``bokeh-server`` command should be available and you can run it from any directory.
 
-
 .. code-block:: sh
 
     bokeh-server
 
 .. note::
     This will create temporary files in the directory in which you are running it.
-    You may want to create a ~/bokehtemp/ directory or some such, and run the
+    You may want to create a ``~/bokehtemp/`` directory or some such, and run the
     command there
 
 If you have Bokeh installed for development mode (see Building and Installing),
@@ -95,8 +93,8 @@ then you should go into the checked-out source directory and run:
 
 .. note::
     ``bokeh-server`` accepts many input argument options that let the user customize
-     it's configuration. Although we will use a few of those in this section we highly
-     encourage the user to read XXXXX for more details.
+    it's configuration. Although we will use a few of those in this section we highly
+    encourage the user to run ``bokeh-server -h`` for more details.
 
 Now that we have learned how to run the server, it's time to start using it!
 
@@ -109,14 +107,14 @@ In order to use our running ``bokeh-server`` we need to create a plot and store 
 on the server.
 It's possible to do it by using the ``Document`` and the ``Session`` objects.
 The former can be considered as a ``namespace`` object that holds the plot
-information while the later willtake care of connecting and registering the
+information while the later will take care of connecting and registering the
 information on the server. It also acts as an open channel that can be used
 to send/receive changes to/from the server.
 
 As usual, the ``bokeh.plotting`` interface provides a set of useful shortcuts
 that can be used for this. The result is that creating a line plot as a static
-html file (as we have seen on the XXXXXXX example) is not so different than
-creating it on a ``bokeh-server``, as we can see on the following example:
+html file is not so different than creating it on a ``bokeh-server``, as we can
+see on the following example:
 
 .. code-block:: python
 
@@ -147,10 +145,10 @@ single user mode every request is automatically logged in as a user with usernam
 
 However for teams, and for plot publishing (see :ref:`publish_to_server` for
 more details), it makes more sense to add an authentication layer. This way
-users won’t be able to overwrite each other’s plots. To do enable multi
-user mode, You need to turn on the multi_user bokeh server setting by
-using the command line parameter ``-m``. Once this is done, all scripts that use
-the bokeh server must authenticate with the bokeh server.
+users won’t be able to overwrite each other’s plots. To do enable multi user
+mode, you need to turn on the multi_user bokeh server setting by using the
+command line parameter ``-m``. Once this is done, all scripts that use the
+bokeh server must authenticate with the bokeh server.
 
 Once again the ``Session`` object can be used to create or login users to the
 server.
@@ -169,13 +167,11 @@ or login with:
     session = Session(root_url=url)
     session.login(username, password)
 
-
 .. note::
 
     The bokeh client library will store authentication keys (in the
      ``~/.bokeh`` directory), so logging in is not necessary in subsequent
      invocations.
-
 
 .. _publish_to_server:
 
@@ -183,7 +179,7 @@ Publishing to the Server
 ------------------------
 
 As mentioned earlier, when running in multi user mode, a plot must be
-published so that different logged user can access it. This can be done,
+published so that different logged users can access it. This can be done,
 again, using the session object as the following snipped shows:
 
 .. code-block:: python
@@ -194,10 +190,10 @@ again, using the session object as the following snipped shows:
     cursession().publish()
 
 A public link to a plot on the bokeh server page can be viewed by appending
-?public=true To the url - for example if you have the url to a
-plot http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id,
+``?public=true`` To the url - for example if you have the url to a
+plot ``http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id``,
 You can generate a public link to the published plot using
-http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id?public=true.
+``http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id?public=true``.
 
 .. note::
 
@@ -244,9 +240,8 @@ Here's a simple example:
         time.sleep(0.5)
 
 
-Notice that in order to update the plot values we only need to update
-it's data source using and store it on the server using the ``session``
-object.
+Notice that in order to update the plot values we only need to update it's
+datasource and store it on the server using the ``session`` object.
 
 Downsampling with Server
 ------------------------
