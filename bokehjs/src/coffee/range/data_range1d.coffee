@@ -34,11 +34,11 @@ class DataRange1d extends Range1d.Model
 
     if attrs?.start?
       @set('start', attrs.start)
-      attrs.start = undefined
+      delete attrs.start
 
     if attrs?.end?
       @set('end', attrs.end)
-      attrs.end = undefined
+      delete attrs.end
 
     super(attrs, options)
 
