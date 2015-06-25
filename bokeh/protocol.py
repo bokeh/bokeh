@@ -21,6 +21,7 @@ except ImportError:
     is_dateutil = False
 
 from .settings import settings
+from six import string_types
 
 log = logging.getLogger(__name__)
 
@@ -68,6 +69,25 @@ class BokehJSONEncoder(json.JSONEncoder):
             transformed[np.isneginf(obj)] = '-Infinity'
             return transformed.tolist()
 
+    def traverse_data(self, datum):
+        for idx, item in enumerate(datum):
+            if isinstance(item, (list, tuple)):
+                datum[idx] = self.traverse_data(datum[idx])
+            elif isinstance(item, string_types):
+                pass
+            elif np.isnan(item):
+                datum[idx] = 'NaN'
+            elif np.isposinf(item):
+                datum[idx] = 'Infinity'
+            elif np.isneginf(item):
+                datum[idx] = '-Infinity'
+        return datum
+
+    def transform_column_source_data(self, data):
+        for key in data.keys():
+            data[key] = self.traverse_data(data[key])
+        return data
+
     def transform_python_types(self, obj):
         """handle special scalars, default to default json encoder
         """
@@ -104,12 +124,15 @@ class BokehJSONEncoder(json.JSONEncoder):
         from .plot_object import PlotObject
         from .properties import HasProps
         from .colors import Color
+        from .models import ColumnDataSource
         ## array types
         if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
             return self.transform_series(obj)
         elif isinstance(obj, np.ndarray):
             return self.transform_array(obj)
         elif isinstance(obj, PlotObject):
+            if isinstance(obj, ColumnDataSource):
+                obj.data = self.transform_column_source_data(obj.data)
             return obj.ref
         elif isinstance(obj, HasProps):
             return obj.changed_properties_with_values()

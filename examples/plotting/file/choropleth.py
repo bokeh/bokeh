@@ -1,6 +1,5 @@
 from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.plotting import figure, show, output_file
-import math
 
 us_states = us_states.data.copy()
 us_counties = us_counties.data.copy()
@@ -14,14 +13,6 @@ state_ys = [us_states[code]["lats"] for code in us_states]
 
 county_xs=[us_counties[code]["lons"] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]]
 county_ys=[us_counties[code]["lats"] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]]
-
-check_list = [state_xs, state_ys, county_xs, county_ys]
-
-for idx1, x in enumerate(check_list):
-    for idx2, y in enumerate(check_list[idx1]):
-        for idx3, z in enumerate(check_list[idx1][idx2]):
-            if z is None or math.isnan(z):
-                check_list[idx1][idx2][idx3] = 'NaN'
 
 colors = ["#F1EEF6", "#D4B9DA", "#C994C7", "#DF65B0", "#DD1C77", "#980043"]
 

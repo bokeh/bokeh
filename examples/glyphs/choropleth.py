@@ -9,7 +9,6 @@ from bokeh.models import (
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata import us_states, us_counties, unemployment
-import math
 
 us_states = us_states.data.copy()
 us_counties = us_counties.data
@@ -18,23 +17,10 @@ unemployment = unemployment.data
 del us_states["HI"]
 del us_states["AK"]
 
-state_xs = [us_states[code]["lons"] for code in us_states]
-state_ys=[us_states[code]["lats"] for code in us_states]
-county_xs=[us_counties[code]["lons"] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]]
-county_ys=[us_counties[code]["lats"] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]]
-
-check_list = [state_xs, state_ys, county_xs, county_ys]
-
-for idx1, x in enumerate(check_list):
-    for idx2, y in enumerate(check_list[idx1]):
-        for idx3, z in enumerate(check_list[idx1][idx2]):
-            if z is None or math.isnan(z):
-                check_list[idx1][idx2][idx3] = 'NaN'
-
 state_source = ColumnDataSource(
     data=dict(
-        state_xs=state_xs,
-        state_ys=state_ys,
+        state_xs=[us_states[code]["lons"] for code in us_states],
+        state_ys=[us_states[code]["lats"] for code in us_states],
     )
 )
 
@@ -53,8 +39,8 @@ for county_id in us_counties:
 
 county_source = ColumnDataSource(
     data=dict(
-        county_xs=county_xs,
-        county_ys=county_ys,
+        county_xs=[us_counties[code]["lons"] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]],
+        county_ys=[us_counties[code]["lats"] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]],
         county_colors=county_colors
     )
 )
