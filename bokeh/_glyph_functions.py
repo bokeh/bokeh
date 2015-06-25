@@ -27,6 +27,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
         source = kwargs.pop('source', None)
         x_range_name = kwargs.pop('x_range_name', None)
         y_range_name = kwargs.pop('y_range_name', None)
+        level = kwargs.pop('level', None)
 
         # create a new data source if necessary
         if source is None:
@@ -62,6 +63,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
             name=name)
         if x_range_name: glyph_renderer.x_range_name = x_range_name
         if y_range_name: glyph_renderer.y_range_name = y_range_name
+        if level: glyph_renderer.level = level
 
         if legend_name:
             legend = _get_legend(plot)

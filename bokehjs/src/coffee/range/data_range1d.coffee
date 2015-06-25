@@ -19,9 +19,6 @@ class DataRange1d extends Range1d.Model
   _set_end: (end) ->
     @set('_end', end)
 
-  _get_auto_ranging: () ->
-    return not get('_start') and not get('_end')
-
   initialize: (attrs, options) ->
     @register_property('start', @_get_start, true)
     @register_setter('start', @_set_start)
@@ -35,8 +32,13 @@ class DataRange1d extends Range1d.Model
       '_end', 'flipped', '_auto_end', 'range_padding', 'default_span'
     ])
 
-    @register_property('auto_ranging', @_get_auto_ranging, true)
-    @add_dependencies('start', this, ['_start', '_end'])
+    if attrs?.start?
+      @set('start', attrs.start)
+      delete attrs.start
+
+    if attrs?.end?
+      @set('end', attrs.end)
+      delete attrs.end
 
     super(attrs, options)
 
@@ -45,7 +47,7 @@ class DataRange1d extends Range1d.Model
   update: (bounds, dimension, plot_view) ->
     # TODO (bev)
     # check that renderers actually configured with this range
-    renderers = @get('renderers')
+    renderers = @get('renderers') ? []
 
     all_renderers = []
     if renderers.length == 0

@@ -49,7 +49,7 @@ class BokehJSONEncoder(json.JSONEncoder):
                     return (obj.astype('int64') / millifactor).tolist()
                 # else punt.
             else:
-                return obj.astype('datetime64[ms]').astype('int64').tolist()
+                return (obj.astype('datetime64[us]').astype('int64') / 1000.).tolist()
         elif obj.dtype.kind in ('u', 'i', 'f'):
             return self.transform_numerical_array(obj)
         return obj.tolist()
@@ -80,8 +80,12 @@ class BokehJSONEncoder(json.JSONEncoder):
             return int(obj)
         elif np.issubdtype(type(obj), np.bool_):
             return bool(obj)
-        # Datetime, Date
-        elif isinstance(obj, (dt.datetime, dt.date)):
+        # Datetime
+        # datetime is a subclass of date.
+        elif isinstance(obj, dt.datetime):
+            return calendar.timegm(obj.timetuple()) * 1000. + obj.microsecond / 1000.            
+        # Date
+        elif isinstance(obj, dt.date):
             return calendar.timegm(obj.timetuple()) * 1000.
         # Numpy datetime64
         elif isinstance(obj, np.datetime64):
@@ -89,7 +93,7 @@ class BokehJSONEncoder(json.JSONEncoder):
             return (epoch_delta / np.timedelta64(1, 'ms'))
         # Time
         elif isinstance(obj, dt.time):
-            return (obj.hour*3600 + obj.minute*60 + obj.second)*1000 + obj.microsecond / 1000.
+            return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
         elif is_dateutil and isinstance(obj, relativedelta):
             return dict(years=obj.years, months=obj.months, days=obj.days, hours=obj.hours,
                 minutes=obj.minutes, seconds=obj.seconds, microseconds=obj.microseconds)
