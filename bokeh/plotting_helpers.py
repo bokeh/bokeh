@@ -60,8 +60,36 @@ def _glyph_doc(args, props, desc):
     plot : :py:class:`Plot <bokeh.models.Plot>`
     """ % (desc, params, props)
 
-def _match_data_params(argnames, glyphclass, datasource,
-                       args, kwargs):
+def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
+    """
+    Given a kwargs dict, a prefix, and a default value, looks for different
+    color and alpha fields of the given prefix, and fills in the default value
+    if it doesn't exist.
+    """
+    result = dict()
+
+    # TODO: The need to do this and the complexity of managing this kind of
+    # thing throughout the codebase really suggests that we need to have
+    # a real stylesheet class, where defaults and Types can declaratively
+    # substitute for this kind of imperative logic.
+    color = kwargs.pop(prefix+"color", get_default_color())
+    for argname in ("fill_color", "line_color"):
+        if argname not in glyphclass.properties(): continue
+        result[argname] = kwargs.get(prefix + argname, color)
+
+    # NOTE: text fill color should really always default to black, hard coding
+    # this here now untils the stylesheet solution exists
+    if "text_color" in glyphclass.properties():
+        result["text_color"] = kwargs.get(prefix + "text_color", "black")
+
+    alpha = kwargs.pop(prefix+"alpha", default_alpha)
+    for argname in ("fill_alpha", "line_alpha", "text_alpha"):
+        if argname not in glyphclass.properties(): continue
+        result[argname] = kwargs.get(prefix + argname, alpha)
+
+    return result
+
+def _match_args(argnames, glyphclass, datasource, args, kwargs):
     """ Processes the arguments and kwargs passed in to __call__ to line
     them up with the argnames of the underlying Glyph
 
@@ -78,72 +106,27 @@ def _match_data_params(argnames, glyphclass, datasource,
                 attributes[argname] = kwargs.pop(argname)
             else:
                 raise RuntimeError("Missing required glyph parameter '%s'" % argname)
-    # Go through keys in alpha order, so that *_units are handled after
-    # the dataspec dict is already created
+    kwargs.update(attributes)
+
+def _process_sequence_literals(glyphclass, kwargs, source):
     dataspecs = glyphclass.dataspecs_with_refs()
-    for kw in kwargs:
-        if (kw.endswith("_units") and kw[:-6] in dataspecs) or kw in dataspecs:
-            attributes[kw] = kwargs[kw]
+    for var, val in kwargs.items():
 
-    glyph_params = {}
-    for var in sorted(attributes.keys()):
-        val = attributes[var]
+        # strings validation is handled by the properties themselves
+        if isinstance(val, string_types): continue
 
-        if var.endswith("_units") and var[:-6] in dataspecs:
-            glyph_val = val
-        elif isinstance(val, dict) or isinstance(val, Number):
-            glyph_val = val
-        elif (isinstance(dataspecs.get(var, None), ColorSpec) and
-                  (ColorSpec.isconst(val) or val is None or ColorSpec.is_color_tuple(val))):
-            # This check for color constants needs to happen relatively early on because
-            # both strings and certain iterables are valid colors.
-            glyph_val = val
-        elif isinstance(val, string_types):
-            if not isinstance(datasource, RemoteSource) and val not in datasource.column_names:
-                raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-            else:
-                if val not in datasource.column_names:
-                    datasource.column_names.append(val)
-                    datasource.data[val] = []
-                glyph_val = {'field' : val}
-        elif isinstance(val, np.ndarray):
+        # we do need to pass over color values for color specs, so check here
+        if (isinstance(dataspecs.get(var, None), ColorSpec) and ColorSpec.is_color_tuple(val)):
+            continue
+
+        if isinstance(val, np.ndarray):
             if val.ndim != 1:
                 raise RuntimeError("Columns need to be 1D (%s is not)" % var)
-            datasource.add(val, name=var)
-            glyph_val = {'field' : var}
+            source.add(val, name=var)
+            kwargs[var] = var
         elif isinstance(val, Iterable):
-            datasource.add(val, name=var)
-            glyph_val = {'field' : var}
-        else:
-            raise RuntimeError("Unexpected column type: %s" % type(val))
-        glyph_params[var] = glyph_val
-    return glyph_params
-
-def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
-    """
-    Given a kwargs dict, a prefix, and a default value, looks for different
-    color and alpha fields of the given prefix, and fills in the default value
-    if it doesn't exist.
-    """
-    kwargs = kwargs.copy()
-
-    # TODO: The need to do this and the complexity of managing this kind of
-    # thing throughout the codebase really suggests that we need to have
-    # a real stylesheet class, where defaults and Types can declaratively
-    # substitute for this kind of imperative logic.
-    color = kwargs.pop(prefix+"color", get_default_color())
-    for argname in ("fill_color", "line_color"):
-        kwargs[argname] = kwargs.get(prefix + argname, color)
-
-    # NOTE: text fill color should really always default to black, hard coding
-    # this here now untils the stylesheet solution exists
-    kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
-
-    alpha = kwargs.pop(prefix+"alpha", default_alpha)
-    for argname in ("fill_alpha", "line_alpha", "text_alpha"):
-        kwargs[argname] = kwargs.get(prefix + argname, alpha)
-
-    return kwargs
+            source.add(val, name=var)
+            kwargs[var] = var
 
 def _get_legend(plot):
     legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
@@ -206,7 +189,6 @@ def _get_axis_class(axis_type, range_input):
         return LinearAxis
     else:
         raise ValueError("Unrecognized axis_type: '%r'" % axis_type)
-
 
 def _get_num_minor_ticks(axis_class, num_minor_ticks):
     if isinstance(num_minor_ticks, int):

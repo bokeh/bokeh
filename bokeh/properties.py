@@ -1105,6 +1105,16 @@ class StringSpec(DataSpec):
             value = dict(value=value[0])
         super(StringSpec, self).__set__(obj, value)
 
+class FontSizeSpec(DataSpec):
+    def __init__(self, default, help=None):
+        super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
+
+    def __set__(self, obj, value):
+        if isinstance(value, string_types):
+            if len(value) > 0 and value[0].isdigit():
+                value = dict(value=value)
+        super(FontSizeSpec, self).__set__(obj, value)
+
 class UnitsSpec(NumberSpec):
     def __init__(self, default, units_type, units_default, help=None):
         super(UnitsSpec, self).__init__(default=default, help=help)
