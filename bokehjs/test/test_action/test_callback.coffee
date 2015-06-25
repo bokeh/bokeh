@@ -35,13 +35,13 @@ describe "callback module", ->
 
     it "should have code property as function body", ->
       r = Collections('Callback').create({code: "return 10"})
-      f = new Function("cb_obj", "return 10")
+      f = new Function("cb_obj", "cb_data", "return 10")
       expect(r.get('func').toString()).to.be.equal f.toString()
 
     it "should have values as function args", ->
       rng = Collections('Range1d').create()
       r = Collections('Callback').create({args: {foo: rng.ref()}, code: "return 10"})
-      f = new Function("foo", "cb_obj", "return 10")
+      f = new Function("foo", "cb_obj", "cb_data", "return 10")
       expect(r.get('func').toString()).to.be.equal f.toString()
 
   describe "execute method", ->
@@ -53,3 +53,15 @@ describe "callback module", ->
     it "should execute the code with args parameters passed", ->
       r = Collections('Callback').create({args: {foo: 5}, code: "return 10 + foo"})
       expect(r.execute()).to.be.equal 15
+
+    it "should return the cb_obj passed an args parameter to execute", ->
+      r = Collections('Callback').create({code: "return cb_obj"})
+      expect(r.execute('foo')).to.be.equal 'foo'
+
+    it "should return cb_data with value of null if cb_data kwarg is unset", ->
+      r = Collections('Callback').create({code: "return cb_data"})
+      expect(r.execute('foo')).to.be.equal undefined 
+
+    it "should return cb_data with value of kwarg parameter to execute", ->
+      r = Collections('Callback').create({code: "return cb_data"})
+      expect(r.execute('foo', 'bar')).to.be.equal 'bar'
