@@ -84,6 +84,8 @@ if [[ -z "$travis_build_id" ]]; then
 else
     #devel build
     channel=dev               #binstar channel
+    register=""               #register to pypi
+    upload=""                 #upload to pypi
     subdir=dev                #CDN subdir where to upload the js and css
 fi
 
@@ -119,7 +121,7 @@ done
 # zip is currently not working on binstar
 python setup.py $register sdist --formats=gztar,zip $upload
 echo "sdist pkg built"
-if [ $upload == true ]; then
+if [[ ! -z "$upload" ]]; then
     echo "I'm done uploading to pypi"
 fi
 
@@ -163,13 +165,15 @@ make clean all
 # to the correct location
 if [[ -z "$travis_build_id" ]]; then
     fab deploy
+    echo "I'm done uploading the release docs"
 else
     fab update:dev
+    echo "I'm done uploading the devel docs"
 fi
 
 popd
 
-echo "I'm done uploading the devel docs"
+
 
 ######################
 # Publish to npm.org #
@@ -180,11 +184,10 @@ pushd bokehjs
 if [[ -z "$travis_build_id" ]]; then
     npm publish --tag $complete_version
     npm tag bokehjs@$complete_version latest
+    echo "I'm done publishing to npmjs.org"
 fi
 
 popd
-
-echo "I'm done publishing to npmjs.org"
 
 ####################
 # General clean up #
