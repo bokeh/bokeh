@@ -86,6 +86,8 @@ class BokehJSONEncoder(json.JSONEncoder):
                 datum[idx] = self.transform_array(item)
             elif isinstance(item, safe_types):
                 continue
+            elif item is None:
+                continue
             elif np.isnan(item):
                 datum[idx] = 'NaN'
             elif np.isposinf(item):
