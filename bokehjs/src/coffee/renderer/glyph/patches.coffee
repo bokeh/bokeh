@@ -23,10 +23,10 @@ class PatchesView extends Glyph.View
 
   _mask_data: (all_indices) ->
     xr = @renderer.plot_view.x_range
-    [x0, x1] = [xr.get('start'), xr.get('end')]
+    [x0, x1] = [xr.get('min'), xr.get('max')]
 
     yr = @renderer.plot_view.y_range
-    [y0, y1] = [yr.get('start'), yr.get('end')]
+    [y0, y1] = [yr.get('min'), yr.get('max')]
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
