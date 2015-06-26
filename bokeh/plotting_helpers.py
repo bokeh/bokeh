@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 from collections import Iterable, Sequence
 import itertools
-from numbers import Number
 import numpy as np
 import re
 import difflib
@@ -10,7 +9,7 @@ from six import string_types
 
 from .models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
-    ColumnDataSource, RemoteSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
+    TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
@@ -250,7 +249,6 @@ def _tool_from_string(name):
 
         raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
 
-
 def _process_tools_arg(plot, tools):
     """ Adds tools to the plot object
 
@@ -294,7 +292,6 @@ def _process_tools_arg(plot, tools):
         warnings.warn("%s are being repeated" % ",".join(repeated_tools))
 
     return tool_objs
-
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
@@ -399,54 +396,6 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         warnings.warn("%s are being repeated" % ",".join(repeated_tools))
 
     return plot
-
-
-def _handle_1d_data_args(args, datasource=None, create_autoindex=True):
-    """ Returns a datasource and a list of names corresponding (roughly)
-    to the input data.  If only a single array was given, and an index
-    array was created, then the index's name is returned first.
-    """
-    arrays = []
-    if datasource is None:
-        datasource = ColumnDataSource()
-    # First process all the arguments to homogenize shape.  After this
-    # process, "arrays" should contain a uniform list of string/ndarray/iterable
-    # corresponding to the inputs.
-    for arg in args:
-        if isinstance(arg, string_types):
-            # This has to be handled before our check for Iterable
-            arrays.append(arg)
-
-        elif isinstance(arg, np.ndarray):
-            if arg.ndim == 1:
-                arrays.append(arg)
-            else:
-                arrays.extend(arg)
-
-        elif isinstance(arg, Iterable):
-            arrays.append(arg)
-
-        elif isinstance(arg, Number):
-            arrays.append([arg])
-
-    # Now handle the case when they've only provided a single array of
-    # inputs (i.e. just the values, and no x positions).  Generate a new
-    # dummy array for this.
-    if create_autoindex and len(arrays) == 1:
-        arrays.insert(0, np.arange(len(arrays[0])))
-
-    # Now put all the data into a DataSource, or insert into existing one
-    names = []
-    for i, ary in enumerate(arrays):
-        if isinstance(ary, string_types):
-            name = ary
-        else:
-            if i == 0 and create_autoindex:
-                name = datasource.add(ary, name="_autoindex")
-            else:
-                name = datasource.add(ary)
-        names.append(name)
-    return names, datasource
 
 class _list_attr_splat(list):
     def __setattr__(self, attr, value):

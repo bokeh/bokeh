@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-from six import iteritems
 from collections import OrderedDict
 
 from .models import glyphs, markers
