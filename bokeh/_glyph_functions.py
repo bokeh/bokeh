@@ -9,19 +9,17 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
         # Note: We want to reuse the glyph functions by attaching them the Plot
         # class. Imports are here to prevent circular imports.
         from .plotting_helpers import (
-            _match_args, _pop_colors_and_alpha, _process_sequence_literals, _update_legend)
-        from .models import ColumnDataSource, GlyphRenderer, Plot
+            _match_args, _pop_renderer_args, _pop_colors_and_alpha, _process_sequence_literals,
+            _update_legend, _make_glyph)
+        from .models import GlyphRenderer, Plot
 
         if not isinstance(plot, Plot):
             raise ValueError("expected plot object for first argument")
 
         # pop off glyph *function* parameters that are not glyph class properties
         legend_name = kwargs.pop("legend", None)
-        name = kwargs.pop('name', None)
-        source = kwargs.pop('source', ColumnDataSource())
-        x_range_name = kwargs.pop('x_range_name', None)
-        y_range_name = kwargs.pop('y_range_name', None)
-        level = kwargs.pop('level', None)
+        renderer_kws = _pop_renderer_args(kwargs)
+        source = renderer_kws['data_source']
 
         # pop off all color values for the glyph or nonselection glyphs
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
@@ -35,23 +33,11 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
         _process_sequence_literals(glyphclass, glyph_ca, source)
         _process_sequence_literals(glyphclass, nsglyph_ca, source)
 
-        # create the default glyph
-        kwargs.update(glyph_ca)
-        glyph = glyphclass(**kwargs)
+        # create the default and nonselection glyphs
+        glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
+        nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
 
-        # create the nonselection glyph by cloning and updating attrs
-        nonselection_glyph = glyph.clone()
-        for attr, val in nsglyph_ca.items():
-            setattr(nonselection_glyph, attr, val)
-
-        glyph_renderer = GlyphRenderer(
-            data_source=source,
-            glyph=glyph,
-            nonselection_glyph=nonselection_glyph,
-            name=name)
-        if x_range_name: glyph_renderer.x_range_name = x_range_name
-        if y_range_name: glyph_renderer.y_range_name = y_range_name
-        if level: glyph_renderer.level = level
+        glyph_renderer = GlyphRenderer(glyph=glyph, nonselection_glyph=nsglyph, **renderer_kws)
 
         if legend_name:
             _update_legend(plot, legend_name, glyph_renderer)

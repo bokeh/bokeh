@@ -13,7 +13,7 @@ from .models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
-    WheelZoomTool)
+    WheelZoomTool, ColumnDataSource)
 
 from .properties import ColorSpec, Datetime
 from .util.string import nice_join
@@ -58,6 +58,13 @@ def _glyph_doc(args, props, desc):
     -------
     plot : :py:class:`Plot <bokeh.models.Plot>`
     """ % (desc, params, props)
+
+def _pop_renderer_args(kwargs):
+    result = dict(data_source=kwargs.pop('source', ColumnDataSource()))
+    for attr in ['name', 'x_range_name', 'y_range_name', 'level']:
+        val = kwargs.pop(attr, None)
+        if val: result[attr] = val
+    return result
 
 def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     """
@@ -126,6 +133,11 @@ def _process_sequence_literals(glyphclass, kwargs, source):
         elif isinstance(val, Iterable):
             source.add(val, name=var)
             kwargs[var] = var
+
+def _make_glyph(glyphclass, kws, extra):
+        kws = kws.copy()
+        kws.update(extra)
+        return glyphclass(**kws)
 
 def _update_legend(plot, legend_name, glyph_renderer):
     legends = plot.select(type=Legend)
