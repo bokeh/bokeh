@@ -63,9 +63,9 @@ class BokehJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         else:
             transformed = obj.astype('object')
-            transformed[np.isnan(obj)] = 'NaN'
-            transformed[np.isposinf(obj)] = 'Infinity'
-            transformed[np.isneginf(obj)] = '-Infinity'
+            transformed[np.isnan(obj)] = str('NaN')
+            transformed[np.isposinf(obj)] = str('Infinity')
+            transformed[np.isneginf(obj)] = str('-Infinity')
             return transformed.tolist()
 
     def traverse_data(self, datum):
@@ -76,11 +76,11 @@ class BokehJSONEncoder(json.JSONEncoder):
                 datum[idx] = self.transform_array(item)
             elif isinstance(item, float):
                 if np.isnan(item):
-                    datum[idx] = 'NaN'
+                    datum[idx] = str('NaN')
                 elif np.isposinf(item):
-                    datum[idx] = 'Infinity'
+                    datum[idx] = str('Infinity')
                 elif np.isneginf(item):
-                    datum[idx] = '-Infinity'
+                    datum[idx] = str('-Infinity')
         return datum
 
     def transform_column_source_data(self, data):
