@@ -106,7 +106,7 @@ def _match_args(argnames, glyphclass, datasource, args, kwargs):
     # Go through the list of position and keyword arguments, matching up
     # the full list of required glyph data attributes
     attributes = dict(zip(argnames, args))
-    missing = set(argnames[len(args):]) - kwargs.keys()
+    missing = set(argnames[len(args):]) - set(kwargs.keys())
     if missing:
         raise RuntimeError("Missing required glyph parameters: %s" % ", ".join(sorted(missing)))
     kwargs.update(attributes)
