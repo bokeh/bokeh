@@ -4,8 +4,6 @@ from collections import OrderedDict
 
 from .models import glyphs, markers
 
-
-
 def _glyph_function(glyphclass, dsnames, argnames, docstring):
 
     def func(plot, *args, **kwargs):
@@ -23,28 +21,22 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
         # pop off glyph *function* parameters that are not glyph class properties
         legend_name = kwargs.pop("legend", None)
         name = kwargs.pop('name', None)
-        source = kwargs.pop('source', None)
+        source = kwargs.pop('source', ColumnDataSource())
         x_range_name = kwargs.pop('x_range_name', None)
         y_range_name = kwargs.pop('y_range_name', None)
         level = kwargs.pop('level', None)
-
-        # create a new data source if necessary
-        if source is None:
-            datasource = ColumnDataSource()
-        else:
-            datasource = source
 
         # pop off all color values for the glyph or nonselection glyphs
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
         nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
 
         # add the positional arguments as kwargs and make sure all required args are present
-        _match_args(dsnames, glyphclass, datasource, args, kwargs)
+        _match_args(dsnames, glyphclass, source, args, kwargs)
 
         # if there are any hardcoded data sequences, move them to the data source and update
-        _process_sequence_literals(glyphclass, kwargs, datasource)
-        _process_sequence_literals(glyphclass, glyph_ca, datasource)
-        _process_sequence_literals(glyphclass, nsglyph_ca, datasource)
+        _process_sequence_literals(glyphclass, kwargs, source)
+        _process_sequence_literals(glyphclass, glyph_ca, source)
+        _process_sequence_literals(glyphclass, nsglyph_ca, source)
 
         # create the default glyph
         kwargs.update(glyph_ca)
@@ -56,7 +48,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
             setattr(nonselection_glyph, attr, val)
 
         glyph_renderer = GlyphRenderer(
-            data_source=datasource,
+            data_source=source,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
             name=name)
