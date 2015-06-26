@@ -21,6 +21,37 @@ from .tools import Tool, ToolEvents
 from .widget import Widget
 
 
+def _select_helper(args, kwargs):
+    """
+    Allow fexible selector syntax.
+    Returns:
+        a dict
+    """
+    if len(args) > 1:
+        raise TypeError("select accepts at most ONE positional argument.")
+
+    if len(args) > 0 and len(kwargs) > 0:
+        raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
+
+    if len(args) == 0 and len(kwargs) == 0:
+        raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
+
+    if args:
+        arg = args[0]
+        if isinstance(arg, dict):
+            selector = arg
+        elif isinstance(arg, string_types):
+            selector = dict(name=arg)
+        elif issubclass(arg, PlotObject):
+            selector = {"type" : arg}
+        else:
+            raise RuntimeError("Selector must be a dictionary, string or plot object.")
+
+    else:
+        selector = kwargs    
+    return selector
+
+
 class PlotContext(PlotObject):
     """ A container for multiple plot objects.
 
@@ -98,29 +129,8 @@ class Plot(Widget):
                 p.select(name="foo", type=HoverTool)
 
         '''
-
-        if len(args) > 1:
-            raise TypeError("select accepts at most ONE positional argument.")
-
-        if len(args) > 0 and len(kwargs) > 0:
-            raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
-
-        if len(args) == 0 and len(kwargs) == 0:
-            raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
-
-        if args:
-            arg = args[0]
-            if isinstance(arg, dict):
-                selector = arg
-            elif isinstance(arg, string_types):
-                selector = dict(name=arg)
-            elif issubclass(arg, PlotObject):
-                selector = {"type" : arg}
-            else:
-                raise RuntimeError("Selector must be a dictionary, string or plot object.")
-
-        else:
-            selector = kwargs
+        
+        selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
         from ..plotting_helpers import _list_attr_splat
@@ -454,29 +464,9 @@ class GridPlot(Plot):
         Returns:
             seq[PlotObject]
         
-        '''       
-        if len(args) > 1:
-            raise TypeError("select accepts at most ONE positional argument.")
-
-        if len(args) > 0 and len(kwargs) > 0:
-            raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
-
-        if len(args) == 0 and len(kwargs) == 0:
-            raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
-
-        if args:
-            arg = args[0]
-            if isinstance(arg, dict):
-                selector = arg
-            elif isinstance(arg, string_types):
-                selector = dict(name=arg)
-            elif issubclass(arg, PlotObject):
-                selector = {"type" : arg}
-            else:
-                raise RuntimeError("Selector must be a dictionary, string or plot object.")
-
-        else:
-            selector = kwargs
+        '''
+        
+        selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
         from ..plotting_helpers import _list_attr_splat
