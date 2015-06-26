@@ -1,8 +1,6 @@
 from __future__ import absolute_import
 
-from collections import OrderedDict
-
-from .models import glyphs, markers
+from .models import glyphs, markers, BoxSelectTool
 
 def _glyph_function(glyphclass, dsnames, argnames, docstring):
 
@@ -11,8 +9,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
         # Note: We want to reuse the glyph functions by attaching them the Plot
         # class. Imports are here to prevent circular imports.
         from .plotting_helpers import (
-            _match_args, _pop_colors_and_alpha, _process_sequence_literals,
-            _get_legend, _make_legend, _get_select_tool)
+            _match_args, _pop_colors_and_alpha, _process_sequence_literals, _update_legend)
         from .models import ColumnDataSource, GlyphRenderer, Plot
 
         if not isinstance(plot, Plot):
@@ -57,21 +54,16 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
         if level: glyph_renderer.level = level
 
         if legend_name:
-            legend = _get_legend(plot)
-            if not legend:
-                legend = _make_legend(plot)
-            legends = OrderedDict(legend.legends)
-            legends.setdefault(legend_name, []).append(glyph_renderer)
-            legend.legends = list(legends.items())
+            _update_legend(plot, legend_name, glyph_renderer)
 
-        select_tool = _get_select_tool(plot)
-        if select_tool :
-            select_tool.renderers.append(glyph_renderer)
-            select_tool._dirty = True
+        for tool in plot.select(type=BoxSelectTool):
+            tool.renderers.append(glyph_renderer)
+            tool._dirty = True
 
         plot.renderers.append(glyph_renderer)
         plot._dirty = True
         return plot
+
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring
     return func

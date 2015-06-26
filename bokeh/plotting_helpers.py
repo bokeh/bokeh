@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from collections import Iterable, Sequence
+from collections import Iterable, OrderedDict, Sequence
 import itertools
 import numpy as np
 import re
@@ -127,29 +127,19 @@ def _process_sequence_literals(glyphclass, kwargs, source):
             source.add(val, name=var)
             kwargs[var] = var
 
-def _get_legend(plot):
-    legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
-    if len(legend) > 0:
-        legend = legend[0]
+def _update_legend(plot, legend_name, glyph_renderer):
+    legends = plot.select(type=Legend)
+    if not legends:
+        legend = Legend(plot=plot)
+        plot.renderers.append(legend)
+        plot._dirty = True
+    elif len(legends) == 1:
+        legend = legends[0]
     else:
-        legend = None
-    return legend
-
-def _make_legend(plot):
-    legend = Legend(plot=plot)
-    plot.renderers.append(legend)
-    plot._dirty = True
-    return legend
-
-def _get_select_tool(plot):
-    """returns select tool on a plot, if it's there
-    """
-    select_tool = [x for x in plot.tools if x.__view_model__ == "BoxSelectTool"]
-    if len(select_tool) > 0:
-        select_tool = select_tool[0]
-    else:
-        select_tool = None
-    return select_tool
+        raise RuntimeError("Plot %s configured with more than one legend renderer" % plot)
+    specs = OrderedDict(legend.legends)
+    specs.setdefault(legend_name, []).append(glyph_renderer)
+    legend.legends = list(specs.items())
 
 def _get_range(range_input):
     if range_input is None:
