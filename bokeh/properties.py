@@ -49,6 +49,7 @@ import dateutil.parser
 import collections
 from importlib import import_module
 from copy import copy
+from warnings import warn
 import inspect
 import logging
 logger = logging.getLogger(__name__)
@@ -1111,6 +1112,9 @@ class FontSizeSpec(DataSpec):
 
     def __set__(self, obj, value):
         if isinstance(value, string_types):
+            warn('Setting a fixed font size value as a string %r is deprecated, '
+                 'set with value(%r) or [%r] instead' % (value, value, value),
+                 DeprecationWarning, stacklevel=2)
             if len(value) > 0 and value[0].isdigit():
                 value = dict(value=value)
         super(FontSizeSpec, self).__set__(obj, value)
