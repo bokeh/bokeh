@@ -234,16 +234,7 @@ class Figure(Plot):
             >>> p.scatter("data1", "data2", source=data_source, ...)
 
         """
-        ds = kwargs.get("source", None)
-        names, datasource = _handle_1d_data_args(args, datasource=ds)
-        kwargs["source"] = datasource
-
-        markertype = kwargs.get("marker", "circle")
-
-        if not len(_color_fields.intersection(set(kwargs.keys()))):
-            kwargs['color'] = get_default_color()
-        if not len(_alpha_fields.intersection(set(kwargs.keys()))):
-            kwargs['alpha'] = get_default_alpha()
+        markertype = kwargs.pop("marker", "circle")
 
         if markertype not in _marker_types:
             raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
