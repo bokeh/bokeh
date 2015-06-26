@@ -72,28 +72,18 @@ class BokehJSONEncoder(json.JSONEncoder):
             return transformed.tolist()
 
     def traverse_data(self, datum):
-        safe_types = (
-            string_types,
-            pd.tslib.Timestamp,
-            datetime.date,
-            datetime.time,
-            Color
-        )
         for idx, item in enumerate(datum):
             if isinstance(item, (list, tuple)):
                 datum[idx] = self.traverse_data(datum[idx])
             elif isinstance(item, np.ndarray):
                 datum[idx] = self.transform_array(item)
-            elif isinstance(item, safe_types):
-                continue
-            elif item is None:
-                continue
-            elif np.isnan(item):
-                datum[idx] = 'NaN'
-            elif np.isposinf(item):
-                datum[idx] = 'Infinity'
-            elif np.isneginf(item):
-                datum[idx] = '-Infinity'
+            elif isinstance(item, (float)):
+                if np.isnan(item):
+                    datum[idx] = 'NaN'
+                elif np.isposinf(item):
+                    datum[idx] = 'Infinity'
+                elif np.isneginf(item):
+                    datum[idx] = '-Infinity'
         return datum
 
     def transform_column_source_data(self, data):
