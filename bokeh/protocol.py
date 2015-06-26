@@ -21,6 +21,7 @@ except ImportError:
     is_dateutil = False
 
 from .settings import settings
+from six import iterkeys
 
 log = logging.getLogger(__name__)
 
@@ -63,33 +64,38 @@ class BokehJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         else:
             transformed = obj.astype('object')
-            transformed[np.isnan(obj)] = str('NaN')
-            transformed[np.isposinf(obj)] = str('Infinity')
-            transformed[np.isneginf(obj)] = str('-Infinity')
+            transformed[np.isnan(obj)] = 'NaN'
+            transformed[np.isposinf(obj)] = 'Infinity'
+            transformed[np.isneginf(obj)] = '-Infinity'
             return transformed.tolist()
 
     def traverse_data(self, datum):
+        datum_copy = []
         for idx, item in enumerate(datum):
             if isinstance(item, (list, tuple)):
-                datum[idx] = self.traverse_data(datum[idx])
+                datum_copy.append(self.traverse_data(item))
             elif isinstance(item, np.ndarray):
-                datum[idx] = self.transform_array(item)
+                datum_copy.append(self.transform_array(item))
             elif isinstance(item, float):
                 if np.isnan(item):
-                    datum[idx] = str('NaN')
+                    item = 'NaN'
                 elif np.isposinf(item):
-                    datum[idx] = str('Infinity')
+                    item = 'Infinity'
                 elif np.isneginf(item):
-                    datum[idx] = str('-Infinity')
-        return datum
+                    item = '-Infinity'
+                datum_copy.append(item)
+            else:
+                datum_copy.append(item)
+        return datum_copy
 
     def transform_column_source_data(self, data):
-        for key in data.keys():
+        data_copy = {}
+        for key in iterkeys(data):
             if is_pandas and isinstance(data[key], (pd.Series, pd.Index)):
-                data[key] = self.transform_series(data[key])
+                data_copy[key] = self.transform_series(data[key])
             else:
-                data[key] = self.traverse_data(data[key])
-        return data
+                data_copy[key] = self.traverse_data(data[key])
+        return data_copy
 
     def transform_python_types(self, obj):
         """handle special scalars, default to default json encoder
@@ -139,7 +145,7 @@ class BokehJSONEncoder(json.JSONEncoder):
             return self.transform_array(obj)
         elif isinstance(obj, PlotObject):
             if isinstance(obj, ColumnDataSource):
-                obj.data = self.transform_column_source_data(obj.data)
+                obj.data.update(self.transform_column_source_data(obj.data))
             return obj.ref
         elif isinstance(obj, HasProps):
             return obj.changed_properties_with_values()
