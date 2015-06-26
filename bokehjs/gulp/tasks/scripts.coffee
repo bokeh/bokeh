@@ -5,8 +5,10 @@ change = require "gulp-change"
 gulp = require "gulp"
 rename = require "gulp-rename"
 transform = require "vinyl-transform"
-uglify = require "gulp-uglifyjs"
+uglify = require "gulp-uglify"
 runSequence = require "run-sequence"
+sourcemaps = require "gulp-sourcemaps"
+argv = require("yargs").argv
 
 paths = require "../paths"
 utils = require "../utils"
@@ -14,6 +16,8 @@ utils = require "../utils"
 gulp.task "scripts:build", ->
   opts =
     extensions: [".coffee", ".eco"]
+
+  opts.debug = if argv.debug then argv.debug else false
 
   browserified = transform (filename) ->
     browserify filename, opts
@@ -25,12 +29,17 @@ gulp.task "scripts:build", ->
     .pipe browserified
     .pipe change (content) ->
       "(function() { var define = undefined; #{content} })()"
-    .pipe rename "bokeh.js"
+    .pipe rename paths.coffee.destination.full
     .pipe gulp.dest paths.buildDir.js
 
 gulp.task "scripts:minify", ->
   gulp.src paths.coffee.destination.fullWithPath
-    .pipe uglify paths.coffee.destination.minified
+    .pipe rename paths.coffee.destination.minified
+    .pipe gulp.dest paths.buildDir.js
+    .pipe sourcemaps.init
+      loadMaps: true
+    .pipe uglify()
+    .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.js
 
 gulp.task "scripts", (cb) ->
