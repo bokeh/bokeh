@@ -22,6 +22,8 @@ except ImportError:
 
 from .settings import settings
 from six import string_types
+import datetime
+from .colors import Color
 
 log = logging.getLogger(__name__)
 
@@ -70,11 +72,20 @@ class BokehJSONEncoder(json.JSONEncoder):
             return transformed.tolist()
 
     def traverse_data(self, datum):
+        safe_types = (
+            string_types,
+            pd.tslib.Timestamp,
+            datetime.date,
+            datetime.time,
+            Color
+        )
         for idx, item in enumerate(datum):
             if isinstance(item, (list, tuple)):
                 datum[idx] = self.traverse_data(datum[idx])
-            elif isinstance(item, string_types):
-                pass
+            elif isinstance(item, np.ndarray):
+                datum[idx] = self.transform_array(item)
+            elif isinstance(item, safe_types):
+                continue
             elif np.isnan(item):
                 datum[idx] = 'NaN'
             elif np.isposinf(item):
@@ -103,7 +114,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         # Datetime
         # datetime is a subclass of date.
         elif isinstance(obj, dt.datetime):
-            return calendar.timegm(obj.timetuple()) * 1000. + obj.microsecond / 1000.            
+            return calendar.timegm(obj.timetuple()) * 1000. + obj.microsecond / 1000.
         # Date
         elif isinstance(obj, dt.date):
             return calendar.timegm(obj.timetuple()) * 1000.
