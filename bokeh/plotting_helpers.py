@@ -112,11 +112,14 @@ def _process_sequence_literals(glyphclass, kwargs, source):
     dataspecs = glyphclass.dataspecs_with_refs()
     for var, val in kwargs.items():
 
-        # strings validation is handled by the properties themselves
+        # let any non-dataspecs do their own validation (e.g., line_dash properties)
+        if var not in dataspecs: continue
+
+        # strings sequences are handled by the dataspec as-is
         if isinstance(val, string_types): continue
 
-        # we do need to pass over color values for color specs, so check here
-        if (isinstance(dataspecs.get(var, None), ColorSpec) and ColorSpec.is_color_tuple(val)):
+        # similarly colorspecs handle color tuple sequences as-is
+        if (isinstance(dataspecs[var], ColorSpec) and ColorSpec.is_color_tuple(val)):
             continue
 
         if isinstance(val, np.ndarray):
