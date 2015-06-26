@@ -168,7 +168,7 @@ class HoverToolView extends InspectTool.View
     geometry['x'] = xmapper.map_from_target(geometry.vx)
     geometry['y'] = ymapper.map_from_target(geometry.vy)
 
-    @mget('callback').execute({model: @model, index: indices, geometry: geometry})
+    @mget('callback').execute(@model, {index: indices, geometry: geometry})
 
     return
 

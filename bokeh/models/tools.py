@@ -378,19 +378,12 @@ class HoverTool(Tool):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the input's value changes. The
-    cb_obj emitted on a mouseover contains the following fields:
+    cb_data parameter that is available to the Callback code will contain two
+    HoverTool specific fields:
 
-    :model: the object that the callback is defined on
     :index: object containing the indices of the hovered points in the data
     source
-    :geometry: object containing the geometry of the cursor point
-        :x: x-coordinate under the cursor in data space
-        :y: y-coordinate under the cursor in data space
-        :vx: view x-coordinate of the geometry
-        :vy: view y-coordinate of the geometry
-        :sx: x-coordinate under the cursor in screen (canvas) space
-        :sy: y-coordinate under the cursor in screen (canvas) space
-        :type: the point policy ("point" or "span")
+    :geometry: object containing the coordinates of the hover cursor
     """)
 
     tooltips = Either(String, List(Tuple(String, String)), help="""

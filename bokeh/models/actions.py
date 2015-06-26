@@ -30,6 +30,6 @@ class Callback(Action):
     made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,
     a ``cb_obj`` parameter contains the object that triggered the callback
-    and an optional ``cb_data`` parameter that contains any related data
-    (i.e. mouse coordinates for the HoverTool).
+    and an optional ``cb_data`` parameter that contains any tool-specific data
+    (i.e. mouse coordinates and hovered glyph indices for the HoverTool).
     """)
