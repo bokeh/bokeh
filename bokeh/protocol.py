@@ -85,7 +85,10 @@ class BokehJSONEncoder(json.JSONEncoder):
 
     def transform_column_source_data(self, data):
         for key in data.keys():
-            data[key] = self.traverse_data(data[key])
+            if is_pandas and isinstance(data[key], (pd.Series, pd.Index)):
+                data[key] = self.transform_series(data[key])
+            else:
+                data[key] = self.traverse_data(data[key])
         return data
 
     def transform_python_types(self, obj):
