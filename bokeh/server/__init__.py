@@ -34,6 +34,19 @@ def build_parser():
                          help="URL prefix for server. e.g. 'host:port/<prefix>/bokeh' (default: None)",
                          type=str
                          )
+    general.add_argument("--https",
+                         help="If present, the server will be use HTTPS instead of HTTP (defualt: False).",
+                         action="store_true",
+                         default=False
+                         )
+    general.add_argument("--https-certfile",
+                         help="Required with the --https flag. Must be the filename of a valid HTTPS crt file (default: None)",
+                         type=str
+                         )
+    general.add_argument("--https-keyfile",
+                         help="Required with the --https flag. Must be the filename of a valid HTTPS key file (default: None)",
+                         type=str
+                         )
 
     # advanced configuration
     advanced = parser.add_argument_group('Advanced Options')
