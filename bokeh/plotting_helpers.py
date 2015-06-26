@@ -99,12 +99,9 @@ def _match_args(argnames, glyphclass, datasource, args, kwargs):
     # Go through the list of position and keyword arguments, matching up
     # the full list of required glyph data attributes
     attributes = dict(zip(argnames, args))
-    if len(args) < len(argnames):
-        for argname in argnames[len(args):]:
-            if argname in kwargs:
-                attributes[argname] = kwargs.pop(argname)
-            else:
-                raise RuntimeError("Missing required glyph parameter '%s'" % argname)
+    missing = set(argnames[len(args):]) - kwargs.keys()
+    if missing:
+        raise RuntimeError("Missing required glyph parameters: %s" % ", ".join(sorted(missing)))
     kwargs.update(attributes)
 
 def _process_sequence_literals(glyphclass, kwargs, source):
