@@ -21,9 +21,6 @@ except ImportError:
     is_dateutil = False
 
 from .settings import settings
-from six import string_types
-import datetime
-from .colors import Color
 
 log = logging.getLogger(__name__)
 
@@ -77,7 +74,7 @@ class BokehJSONEncoder(json.JSONEncoder):
                 datum[idx] = self.traverse_data(datum[idx])
             elif isinstance(item, np.ndarray):
                 datum[idx] = self.transform_array(item)
-            elif isinstance(item, (float)):
+            elif isinstance(item, float):
                 if np.isnan(item):
                     datum[idx] = 'NaN'
                 elif np.isposinf(item):
