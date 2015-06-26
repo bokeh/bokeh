@@ -742,9 +742,9 @@ Minor Lines
 ~~~~~~~~~~~
 
 The visual appearance of minor grid lines is controlled by a collection of
-`Line Properties`_, prefixed with ``grid_``. For instance, to set the
-color of grid lines, use ``minor_grid_line_color``. To hide grid lines, set
-their line color to ``None``.
+`Line Properties`_, prefixed with ``minor_grid_``. For instance, to set the
+color of grid lines, use ``minor_grid_line_color``. By default, minor grid
+lines are hidden (i.e., their line color is set to ``None``).
 
 .. bokeh-plot::
     :source-position: above
