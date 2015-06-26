@@ -674,7 +674,7 @@ to the glyph methods, when creating a plot.
         line_dash=[4, 4], line_color="orange", line_width=2)
 
     p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
     show(p)
 
