@@ -447,17 +447,38 @@ class GridPlot(Plot):
     Distance (in pixels) between adjacent plots.
     """)
 
-    def select(self, selector):
+    def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
-        match the given selector.
-
-        Args:
-            selector (JSON-like) :
-
+        match the given selector. See Plot.select for detailed usage infomation.
+        
         Returns:
             seq[PlotObject]
+        
+        '''       
+        if len(args) > 1:
+            raise TypeError("select accepts at most ONE positional argument.")
 
-        '''
+        if len(args) > 0 and len(kwargs) > 0:
+            raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
+
+        if len(args) == 0 and len(kwargs) == 0:
+            raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
+
+        if args:
+            arg = args[0]
+            if isinstance(arg, dict):
+                selector = arg
+            elif isinstance(arg, string_types):
+                selector = dict(name=arg)
+            elif issubclass(arg, PlotObject):
+                selector = {"type" : arg}
+            else:
+                raise RuntimeError("Selector must be a dictionary, string or plot object.")
+
+        else:
+            selector = kwargs
+
+        # Want to pass selector that is a dictionary
         from ..plotting_helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
