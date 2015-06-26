@@ -149,11 +149,15 @@ def notebook_div(plot_object):
     ref = plot_object.ref
     elementid = str(uuid.uuid4())
 
+    plots = [{
+        'modelid': ref["id"],
+        'elementid': '#' + elementid,
+        'modeltype': ref["type"]
+    }]
+
     js = PLOT_JS.render(
-        elementid = elementid,
-        modelid = ref["id"],
-        modeltype = ref["type"],
         all_models = serialize_json(plot_object.dump()),
+        plots = plots
     )
     script = PLOT_SCRIPT.render(
         plot_js = _wrap_in_function(js),
