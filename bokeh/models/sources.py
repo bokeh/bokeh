@@ -4,6 +4,7 @@ from .actions import Callback
 from ..plot_object import PlotObject
 from ..properties import HasProps
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
+from bokeh.protocol import BokehJSONEncoder
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -170,6 +171,12 @@ class ColumnDataSource(DataSource):
         self.column_names.append(name)
         self.data[name] = data
         return name
+
+    def vm_serialize(self, changed_only=True):
+        attrs = super(ColumnDataSource, self).vm_serialize(changed_only=changed_only)
+        bokeh_json = BokehJSONEncoder()
+        self.data.update(bokeh_json.transform_column_source_data(self.data))
+        return attrs
 
     def remove(self, name):
         """ Remove a column of data.

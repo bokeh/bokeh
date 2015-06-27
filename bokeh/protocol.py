@@ -71,7 +71,7 @@ class BokehJSONEncoder(json.JSONEncoder):
 
     def traverse_data(self, datum):
         datum_copy = []
-        for idx, item in enumerate(datum):
+        for item in datum:
             if isinstance(item, (list, tuple)):
                 datum_copy.append(self.traverse_data(item))
             elif isinstance(item, np.ndarray):
@@ -144,8 +144,6 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             return self.transform_array(obj)
         elif isinstance(obj, PlotObject):
-            if isinstance(obj, ColumnDataSource):
-                obj.data.update(self.transform_column_source_data(obj.data))
             return obj.ref
         elif isinstance(obj, HasProps):
             return obj.changed_properties_with_values()
