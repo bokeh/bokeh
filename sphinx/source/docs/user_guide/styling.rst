@@ -738,6 +738,31 @@ their line color to ``None``.
 
     show(p)
 
+Minor Lines
+~~~~~~~~~~~
+
+The visual appearance of minor grid lines is controlled by a collection of
+`Line Properties`_, prefixed with ``minor_grid_``. For instance, to set the
+color of grid lines, use ``minor_grid_line_color``. By default, minor grid
+lines are hidden (i.e., their line color is set to ``None``).
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("minorgridlines.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    # change just some things about the y-grid
+    p.ygrid.minor_grid_line_color = 'navy'
+    p.ygrid.minor_grid_line_alpha = 0.1
+
+    show(p)
+
+
 .. _userguide_styling_grid_bands:
 
 Bands
