@@ -27,5 +27,8 @@ def check_integrity(models):
         messages.extend(func(models))
 
     for message in messages:
-        logger.error(message)
+        if   message.startswith("E"):
+            logger.error(message)
+        elif message.startswith("W"):
+            logger.warn(message)
 
