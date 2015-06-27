@@ -1,8 +1,8 @@
 var all_models = {{ all_models }};
 Bokeh.load_models(all_models);
-var plots = {{plots}}
+var plots = {{ plots }};
 for (idx in plots) {
-	var plot = plots[idx]
+	var plot = plots[idx];
 	var model = Bokeh.Collections(plot.modeltype).get(plot.modelid);
 	Bokeh.logger.info('Realizing plot:')
 	Bokeh.logger.info(' - modeltype: ' + plot.modeltype);
