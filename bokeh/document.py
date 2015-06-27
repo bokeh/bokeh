@@ -14,6 +14,7 @@ from .exceptions import DataIntegrityException
 from .models import PlotContext
 from .plot_object import PlotObject
 from .util.serialization import dump
+from .validation import check_integrity
 
 class Document(object):
     """ The Document class is a container to hold Bokeh objects that
@@ -216,13 +217,15 @@ class Document(object):
 
         return all_models
 
-    def dump(self, *models):
+    def dump(self, *models, validate=True):
         """ Convert models to json objects.
 
         Args:
             *models (PlotObject) : models to convert to json objects
                 If models is empty, ``dump`` converts all models in this d
                 ocument.
+            validate (bool, optional) : whether to perform integrity checks on
+                the object graph (default: True)
 
         Return:
             dict : json objects
@@ -231,6 +234,8 @@ class Document(object):
         self._add(*self.context.references())
         if not models:
             models = self._models.values()
+        if validate:
+            check_integrity(models)
         json = dump(models, docid=self.docid)
         return json
 
