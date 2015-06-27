@@ -137,7 +137,6 @@ class BokehJSONEncoder(json.JSONEncoder):
         from .plot_object import PlotObject
         from .properties import HasProps
         from .colors import Color
-        from .models import ColumnDataSource
         ## array types
         if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
             return self.transform_series(obj)
