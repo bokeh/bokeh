@@ -1,3 +1,7 @@
+# !!! WARNING - THIS IS CURRENTLY OUT OF DATE
+# javascript in static has not been compiled from this file
+
+
 _ = Bokeh._
 
 # something like this will make it into Bokeh proper

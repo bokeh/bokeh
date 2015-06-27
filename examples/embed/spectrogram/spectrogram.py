@@ -12,7 +12,6 @@ from bokeh.embed import components
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
 from bokeh.resources import Resources
-from bokeh.templates import RESOURCES
 from bokeh.util.string import encode_utf8
 from bokeh.models.widgets import HBox, Paragraph, Slider, VBox
 
@@ -25,7 +24,7 @@ FREQ_SAMPLES = NUM_SAMPLES / 8
 NGRAMS = 800
 SPECTROGRAM_LENGTH = 512
 TILE_WIDTH = 200
-TIMESLICE = 40 # ms
+TIMESLICE = 40  # ms
 
 mutex = RLock()
 data = None
@@ -36,27 +35,23 @@ stream = None
 def root():
     """ Returns the spectrogram of audio data served from /data """
 
-    spectrogram = make_spectrogram()
+    freq_slider, gain_slider, spectrum, signal, spec, eq = make_spectrogram()
 
-    resources = Resources("inline")
-    plot_resources = RESOURCES.render(
-        js_raw = resources.js_raw,
-        css_raw = resources.css_raw,
-        js_files = resources.js_files,
-        css_files = resources.css_files,
-    )
+    spectrogram_plots = {
+        'freq_slider': freq_slider,  # slider
+        'gain_slider': gain_slider,  # slider
+        'spec': spec,  # image
+        'spectrum': spectrum,  # line
+        'signal': signal,  # line
+        'equalizer': eq  # radial
+    }
 
-    plot_script, plot_div = components(
-        spectrogram, resources
-    )
+    script, divs = components(spectrogram_plots)
+    bokeh = Resources(mode="inline")
 
-    html = flask.render_template(
-        "spectrogram.html",
-        plot_resources = plot_resources,
-        plot_script = plot_script,
-        plot_div = plot_div,
-    )
+    html = flask.render_template("spectrogram.html", bokeh=bokeh, script=script, divs=divs)
     return encode_utf8(html)
+
 
 @app.route("/params")
 def params():
@@ -111,25 +106,15 @@ def main():
 
     app.run(debug=True)
 
+
 def make_spectrogram():
 
     plot_kw = dict(
-        tools="", min_border=1, h_symmetry=False, v_symmetry=False, toolbar_location=None
+        tools="", min_border=20, h_symmetry=False, v_symmetry=False, toolbar_location=None
     )
 
-    freq = VBox(
-        children=[
-            Paragraph(text="Freq Range"),
-            Slider(orientation="vertical", start=1, end=MAX_FREQ, value=MAX_FREQ, step=1, name="freq")
-        ]
-    )
-
-    gain = VBox(
-        children=[
-            Paragraph(text="Gain"),
-            Slider(orientation="vertical", start=1, end=20, value=1, step=1, name="gain")
-        ]
-    )
+    freq_slider = Slider(start=1, end=MAX_FREQ, value=MAX_FREQ, step=1, name="freq", title="Frequency")
+    gain_slider = Slider(start=1, end=20, value=1, step=1, name="gain", title="Gain")
 
     spec_source = ColumnDataSource(data=dict(image=[], x=[]))
     spec = figure(
@@ -158,7 +143,7 @@ def make_spectrogram():
     signal.line(
         x="x", y="y", line_color="darkblue",
         source=signal_source,  name="signal")
-    signal.xgrid.grid_line_dash=[2, 2]
+    signal.xgrid.grid_line_dash = [2, 2]
 
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[],
@@ -171,20 +156,46 @@ def make_spectrogram():
         inner_radius="inner_radius", outer_radius="outer_radius",
         start_angle="start_angle", end_angle="end_angle",
         source=radial_source, name="eq")
-    eq.grid.grid_line_color=None
+    eq.grid.grid_line_color = None
+
+    return freq_slider, gain_slider, spectrum, signal, spec, eq
+
+
+def get_layout():
+    '''
+    This demonstrates how you could use the VBox & HBox widgets to make a layout.
+    We don't use the VBox layout in this example, but instead use html to layout
+    our different plot objects (see root() method).
+    '''
+    spectrum, signal, freq_slider, gain_slider, spec, eq = make_spectrogram()
+
+    freq = VBox(
+        children=[
+            Paragraph(text="Freq Range"),
+            freq_slider
+        ]
+    )
+
+    gain = VBox(
+        children=[
+            Paragraph(text="Gain"),
+            gain_slider
+        ]
+    )
 
     lines = VBox(
         children=[spectrum, signal]
     )
 
     layout = VBox(
-        children = [
+        children=[
             HBox(children=[freq, gain, spec]),
             HBox(children=[lines, eq])
         ]
     )
 
     return layout
+
 
 def get_audio_data():
     global data, stream
