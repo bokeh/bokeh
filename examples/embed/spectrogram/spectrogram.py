@@ -118,7 +118,7 @@ def make_spectrogram():
 
     spec_source = ColumnDataSource(data=dict(image=[], x=[]))
     spec = figure(
-        title=None, plot_width=800, plot_height=300,
+        title=None, plot_width=900, plot_height=300,
         x_range=[0, NGRAMS], y_range=[0, MAX_FREQ], **plot_kw)
     spec.image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
@@ -128,7 +128,7 @@ def make_spectrogram():
 
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = figure(
-        title="Power Spectrum", plot_width=800, plot_height=250,
+        title="Power Spectrum", plot_width=600, plot_height=250,
         y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ],
         y_axis_type="log", **plot_kw)
     spectrum.line(
@@ -138,7 +138,7 @@ def make_spectrogram():
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = figure(
-        title="Signal", plot_width=800, plot_height=250,
+        title="Signal", plot_width=600, plot_height=250,
         x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], **plot_kw)
     signal.line(
         x="x", y="y", line_color="darkblue",

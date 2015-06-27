@@ -6,15 +6,20 @@
 
     <title>Bokeh Spectrogram Demo</title>
     
-    <style>{{ bokeh.css_raw[0]|safe }}</style>
+    {% for raw in bokeh.css_raw %}
+        <style>{{ raw|safe }}</style>
+    {% endfor %}
+    <link href="static/css/styles.css" type="text/css" rel="stylesheet" />
 
   </head>
   <body>
-
     {# start CONTENT BLOCK #}
 
     {# bk-bs is bokeh's namespacing of normal bootstrap classes #}
     <div class="bk-bs-container">
+        <h1>Bokeh Spectrogram demo</h1> 
+        <h3>with custom templating</h3>
+        
         <div class="bk-bs-row">
             <div class="bk-bs-col-sm-2">
                 <div id="freq-slider">
@@ -51,7 +56,10 @@
 
     {# start JS BLOCK #}
 
-        <script type="text/javascript">{{ bokeh.js_raw[0]|safe }}</script>
+        {% for raw in bokeh.js_raw %}
+            <script type="text/javascript">{{ raw|safe }}</script>
+        {% endfor %}
+
         {{ script|indent(8)|safe }}
         <script type="text/javascript" src="static/js/spectrogram.js" defer></script>
 
