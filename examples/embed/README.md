@@ -1,10 +1,16 @@
+### Embed mutltiple
+
+To run the example:
+
+    python embed_multiple.py
+
+---
+
+### Widget, animated
+
 To try these example you first have to start the bokeh-server, ie.,
 
-    bokeh-server --backend=memory
-
-Some examples (e.g. publishing) need the server to run in multi-user mode:
-    
-    bokeh-server -m --backend=memory
+    bokeh-server
 
 Then run the examples:
 
@@ -28,16 +34,41 @@ or if you are using python 3, run:
 
 and use the links provided when you run the scripts.
 
-For app_reveal.py, first run:
+---
+### Publishing
 
+Publishing needs the server to run in multi-user mode:
+    
+    bokeh-server --multi-user
+
+Then run:
+
+    python publishing.py
+
+Open the file `publishing.html` in your browser - you will see it is animated.
+
+---
+
+### Bokeh plots in an online slideshow
+
+    cd slideshow
     python app_reveal.py
 
 and then navigate to:
 
     http://127.0.0.1:5000/
 
-Finally, the spectrogram example requires a working pyaudio library installed.
-To view it, run:
+---
+
+### Spectrogram
+
+The spectrogram example requires the pyaudio library, which is available
+via conda on py27. Or see the documentation here: https://people.csail.mit.edu/hubert/pyaudio/
+
+    conda install -c mutirri pyaudio
+
+To run the spectrogram example:
 
     python spectogram.py
 
+Then open your webbrowser at: http://localhost:5000
