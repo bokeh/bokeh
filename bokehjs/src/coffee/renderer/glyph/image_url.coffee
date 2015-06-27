@@ -88,7 +88,6 @@ class ImageURL extends Glyph.Model
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'underlay'
     }
 
 module.exports =

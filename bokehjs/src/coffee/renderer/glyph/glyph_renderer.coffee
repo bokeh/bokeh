@@ -167,6 +167,8 @@ class GlyphRendererView extends PlotWidget
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
 
+
+
 class GlyphRenderer extends HasParent
   default_view: GlyphRendererView
   type: 'GlyphRenderer'

@@ -738,6 +738,31 @@ their line color to ``None``.
 
     show(p)
 
+Minor Lines
+~~~~~~~~~~~
+
+The visual appearance of minor grid lines is controlled by a collection of
+`Line Properties`_, prefixed with ``minor_grid_``. For instance, to set the
+color of grid lines, use ``minor_grid_line_color``. By default, minor grid
+lines are hidden (i.e., their line color is set to ``None``).
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("minorgridlines.html")
+
+    p = figure(plot_width=400, plot_height=400)
+    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
+
+    # change just some things about the y-grid
+    p.ygrid.minor_grid_line_color = 'navy'
+    p.ygrid.minor_grid_line_alpha = 0.1
+
+    show(p)
+
+
 .. _userguide_styling_grid_bands:
 
 Bands
@@ -863,7 +888,7 @@ The default location is ``"top_right"``.
         line_dash=[4, 4], line_color="orange", line_width=2)
 
     p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
     p.legend.orientation = "bottom_left"
 
@@ -900,7 +925,7 @@ style of the labels, use ``label_text_font_style``.
         line_dash=[4, 4], line_color="orange", line_width=2)
 
     p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
     p.legend.label_text_font = "times"
     p.legend.label_text_font_style = "italic"
@@ -936,7 +961,7 @@ the border line color to ``None``.
         line_dash=[4, 4], line_color="orange", line_width=2)
 
     p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
     p.legend.border_line_width = 3
     p.legend.border_line_color = "navy"
@@ -978,7 +1003,7 @@ spacing, etc. of the legend compononents:
         line_dash=[4, 4], line_color="orange", line_width=2)
 
     p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
+    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
     p.legend.label_standoff = 5
     p.legend.glyph_width = 50

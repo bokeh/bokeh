@@ -94,7 +94,6 @@ class ImageRGBA extends Glyph.Model
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'underlay'
       dilate: false
     }
 
