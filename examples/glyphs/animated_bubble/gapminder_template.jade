@@ -2,8 +2,8 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>{{ title if title else "Bokeh Plot" }}</title>
-        <link href="assets/styles.css" type="text/css" rel="stylesheet" />
+        <title>{{ title }}</title>
+        <link href="gapminder_styles.css" type="text/css" rel="stylesheet" />
     </head>
     <body>
         <h1>Bokeh - Gapminder example</h1>
@@ -25,7 +25,9 @@
         <p>
         You can skip ahead to 3m 58s to see him talking through the plot we've just made. Or sit back and enjoy a great example of statistics communication.
         </p>
-        <script type="text/javascript" src="assets/bokeh.min.js"></script>
+        <script type="text/javascript">
+            {{ bokeh_min_js }}
+        </script>
         {{ plot_script|indent(8) }}
     </body>
 </html>
