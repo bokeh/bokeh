@@ -9,6 +9,7 @@ from .properties import Any, HasProps, List, MetaHasProps, Instance, String
 from .query import find
 from .exceptions import DataIntegrityException
 from .util.serialization import dump, make_id
+from .validation import check_integrity
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -275,14 +276,18 @@ class PlotObject(HasProps):
         attrs['id'] = self._id
         return attrs
 
-    def dump(self, docid=None, changed_only=True):
+    def dump(self, docid=None, changed_only=True, validate=True):
         """convert all references to json
 
         Args:
             changed_only (bool, optional) : whether to dump only attributes
                 that have had their values changed at some point (default: True)
+            validate (bool, optional) : whether to perform integrity checks on
+                the object graph (default: True)
         """
         models = self.references()
+        if validate:
+            check_integrity(models)
         return dump(models, docid=docid, changed_only=changed_only)
 
     def update(self, **kwargs):

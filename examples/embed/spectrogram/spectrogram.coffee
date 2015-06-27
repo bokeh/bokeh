@@ -1,30 +1,37 @@
 _ = Bokeh._
 
-# something like this will make it into Bokeh proper
-find = (obj, name) ->
-  if obj.get('name')? and obj.get('name') == name
-    return obj
-  if obj.get('children')?
-    for c in obj.get('children')
-      result = find(c, name)
-      if result?
-        return result
-  if obj.get('renderers')?
-    for r in obj.get('renderers')
-      result = find(r, name)
-      if result?
-        return result
-  return null
+find_glyph_renderer = (index_item) ->
+    for key, r of index_item.renderers
+        data_source = r.model.get('data_source')
+        if data_source?
+            return r.model
+    return null
+
+get_plot_id = (id) ->
+    item = Bokeh.$('#' + id + ' > .plotdiv')
+    if item.length is 1
+        return item[0].id
+    return null
+
 
 class SpectrogramApp
 
-  constructor: (@layout) ->
+  constructor: (@keys) ->
     @paused = false
     @gain = 1
 
-    @freq_slider = find(@layout, "freq")
+
+    for key in @keys
+        item = Bokeh.index[key]
+        item_id = item.el.id
+        @freq_slider = item if item_id is get_plot_id('freq-slider')
+        @gain_slider = item if item_id is get_plot_id('gain-slider')
+        @spectrogram = item if item_id is get_plot_id('spectrogram')
+        @signal = item if item_id is get_plot_id('signal')
+        @spectrum = item if item_id is get_plot_id('spectrum')
+        @equalizer = item if item_id is get_plot_id('equalizer')
+
     @freq_slider.on("change:value", @update_freq)
-    @gain_slider = find(@layout, "gain")
     @gain_slider.on("change:value", @update_gain)
 
     config = Bokeh.$.ajax('http://localhost:5000/params', {
@@ -46,10 +53,10 @@ class SpectrogramApp
   _config: (data) ->
     @config = data
     console.log "Got config:", @config
-    @spectrogram_plot = new SpectrogramPlot(find(@layout, "spectrogram"), @config)
-    @signal_plot = new SimpleXYPlot(find(@layout, "signal"), @config)
-    @power_plot = new SimpleXYPlot(find(@layout, "spectrum"), @config)
-    @eq_plot = new RadialHistogramPlot(find(@layout, "eq"), @config)
+    @spectrogram_plot = new SpectrogramPlot(find_glyph_renderer(@spectrogram), @config)
+    @signal_plot = new SimpleXYPlot(find_glyph_renderer(@signal), @config)
+    @power_plot = new SimpleXYPlot(find_glyph_renderer(@spectrum), @config)
+    @eq_plot = new RadialHistogramPlot(find_glyph_renderer(@equalizer), @config)
 
   request_data: () =>
     in_flight = false
@@ -196,8 +203,7 @@ setup = () ->
   clearInterval(timer)
 
   console.log("Bokeh loaded, starting SpectrogramApp")
-  id = keys[0]
-  app = new SpectrogramApp(index[id].model)
+  app = new SpectrogramApp(keys)
 
 timer = setInterval(setup, 100)
 
