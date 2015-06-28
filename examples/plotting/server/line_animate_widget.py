@@ -79,5 +79,5 @@ def background_thread(ds):
 Thread(target=background_thread, args=(ds,)).start()
 
 # endlessly poll to check widgets
-cursession().poll_document(curdoc(), 0.5)
+cursession().poll_document(curdoc(), 0.05)
 
