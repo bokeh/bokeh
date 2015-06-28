@@ -5,6 +5,7 @@ from ..plot_object import PlotObject
 from ..properties import HasProps
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
 import numpy as np
+from six import iterkeys
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is

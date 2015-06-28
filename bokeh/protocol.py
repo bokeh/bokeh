@@ -21,7 +21,6 @@ except ImportError:
     is_dateutil = False
 
 from .settings import settings
-from six import iterkeys
 
 log = logging.getLogger(__name__)
 
