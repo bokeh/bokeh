@@ -9,11 +9,10 @@ import scipy as sp
 from scipy.integrate import simps
 
 from bokeh.embed import components
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.util.string import encode_utf8
-from bokeh.models.widgets import HBox, Paragraph, Slider, VBox
 
 app = flask.Flask(__name__)
 
@@ -159,42 +158,6 @@ def make_spectrogram():
     eq.grid.grid_line_color = None
 
     return freq_slider, gain_slider, spectrum, signal, spec, eq
-
-
-def get_layout():
-    '''
-    This demonstrates how you could use the VBox & HBox widgets to make a layout.
-    We don't use the VBox layout in this example, but instead use html to layout
-    our different plot objects (see root() method).
-    '''
-    spectrum, signal, freq_slider, gain_slider, spec, eq = make_spectrogram()
-
-    freq = VBox(
-        children=[
-            Paragraph(text="Freq Range"),
-            freq_slider
-        ]
-    )
-
-    gain = VBox(
-        children=[
-            Paragraph(text="Gain"),
-            gain_slider
-        ]
-    )
-
-    lines = VBox(
-        children=[spectrum, signal]
-    )
-
-    layout = VBox(
-        children=[
-            HBox(children=[freq, gain, spec]),
-            HBox(children=[lines, eq])
-        ]
-    )
-
-    return layout
 
 
 def get_audio_data():
