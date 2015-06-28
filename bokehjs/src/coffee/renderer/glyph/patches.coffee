@@ -51,6 +51,8 @@ class PatchesView extends Glyph.View
       for j in [0...xss[i].length]
         xs = xss[i][j]
         ys = yss[i][j]
+        if xs.length == 0
+          continue
         pts.push([
           _.min(xs), _.min(ys),
           _.max(xs), _.max(ys),
