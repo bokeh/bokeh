@@ -9,15 +9,34 @@ class PatchesView extends Glyph.View
     index = rbush()
     pts = []
     for i in [0...@xs.length]
-      xs = (x for x in @xs[i] when not _.isNaN(x))
-      ys = (y for y in @ys[i] when not _.isNaN(y))
-      if xs.length == 0
-        continue
-      pts.push([
-        _.min(xs), _.min(ys),
-        _.max(xs), _.max(ys),
-        {'i': i}
-      ])
+
+      xs = @xs[i]
+      ys = @ys[i]
+
+      while xs.length > 0
+
+        xs_nan_index = _.findLastIndex(xs, (x) ->  _.isNaN(x))
+        ys_nan_index = _.findLastIndex(ys, (y) ->  _.isNaN(y))
+        
+        if xs_nan_index >= 0
+          xs_loop = xs.splice(xs_nan_index)
+        else
+          xs_loop = xs
+          xs = []
+
+        if ys_nan_index >= 0
+          ys_loop = ys.splice(ys_nan_index)
+        else
+          ys_loop = ys
+          ys = []
+
+        xs_push = (x for x in xs_loop when not _.isNaN(x))
+        ys_push = (y for y in ys_loop when not _.isNaN(y))
+        pts.push([
+          _.min(xs_push), _.min(ys_push),
+          _.max(xs_push), _.max(ys_push),
+          {'i': i}
+        ])
     index.load(pts)
     return index
 
