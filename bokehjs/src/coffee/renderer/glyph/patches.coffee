@@ -122,14 +122,14 @@ class PatchesView extends Glyph.View
 
     candidates = (x[4].i for x in @index.search([x, y, x, y]))
 
-    sxss = @_build_discontinuous_object(@sxs)
-    syss = @_build_discontinuous_object(@sys)
+    @sxss = @_build_discontinuous_object(@sxs)
+    @syss = @_build_discontinuous_object(@sys)
 
     hits = []
     for i in [0...candidates.length]
       idx = candidates[i]
-      sxs = sxss[idx]
-      sys = syss[idx]
+      sxs = @sxss[idx]
+      sys = @syss[idx]
       for j in [0...sxs.length]
         if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
           hits.push(idx)
@@ -138,17 +138,38 @@ class PatchesView extends Glyph.View
     result['1d'].indices = hits
     return result
 
-  scx: (i) ->
-    sum = 0
-    for sx in @sxs[i]
-      sum += sx
-    return sum / @sxs[i].length
+  _get_snap_coord: (array) ->
+      sum = 0
+      for s in array
+        sum += s
+      return sum / array.length
 
-  scy: (i) ->
-    sum = 0
-    for sy in @sys[i]
-      sum += sy
-    return sum / @sys[i].length
+  scx: (i, sx, sy) ->
+    if @sxss[i].length is 1
+      # We don't have discontinuous objects so we're ok
+      return @_get_snap_coord(@sxs[i])
+    else
+      # We have discontinuous objects, so we need to find which 
+      # one we're in, we can use point_in_poly again
+      sxs = @sxss[i]
+      sys = @syss[i]
+      for j in [0...sxs.length]
+        if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
+          return @_get_snap_coord(sxs[j])
+    return null
+
+  scy: (i, sx, sy) ->
+    if @syss[i].length is 1
+      # We don't have discontinuous objects so we're ok
+      return @_get_snap_coord(@sys[i])
+    else
+      # We have discontinuous objects, so we need to find which 
+      # one we're in, we can use point_in_poly again
+      sxs = @sxss[i]
+      sys = @syss[i]
+      for j in [0...sxs.length]
+        if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
+          return @_get_snap_coord(sys[j])
 
   draw_legend: (ctx, x0, x1, y0, y1) ->
     @_generic_area_legend(ctx, x0, x1, y0, y1)
