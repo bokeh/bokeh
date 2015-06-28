@@ -71,6 +71,10 @@ class PatchesView extends Glyph.View
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
   _render: (ctx, indices, {sxs, sys}) ->
+    # @sxss and @syss are used by _hit_point and sxc, syc
+    # This is the earliest we can build them, and only build them once
+    @sxss = @_build_discontinuous_object(@sxs)
+    @syss = @_build_discontinuous_object(@sys)
     for i in indices
       [sx, sy] = [sxs[i], sys[i]]
 
@@ -121,9 +125,6 @@ class PatchesView extends Glyph.View
     y = @renderer.ymapper.map_from_target(vy, true)
 
     candidates = (x[4].i for x in @index.search([x, y, x, y]))
-
-    @sxss = @_build_discontinuous_object(@sxs)
-    @syss = @_build_discontinuous_object(@sys)
 
     hits = []
     for i in [0...candidates.length]
