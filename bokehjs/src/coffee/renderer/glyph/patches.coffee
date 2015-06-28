@@ -25,7 +25,7 @@ class PatchesView extends Glyph.View
     ds = {}
     for i in [0...nanned_qs.length]
       ds[i] = []
-      qs = nanned_qs[i]
+      qs = _.toArray(nanned_qs[i])
       while qs.length > 0
 
         nan_index = _.findLastIndex(qs, (q) ->  _.isNaN(q))
