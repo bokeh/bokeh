@@ -121,7 +121,7 @@ callback.args["text_source"] = text_source
 layout = vplot(plot, slider)
 
 # Open our custom template
-with open('gapminder_template.jade', 'r') as f:
+with open('gapminder_template.jinja', 'r') as f:
     template = Template(f.read())
 
 # Use inline resources, render the html and open
