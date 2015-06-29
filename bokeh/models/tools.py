@@ -27,7 +27,7 @@ from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, 
 from ..enums import Dimension
 
 from .renderers import Renderer
-from .actions import Action
+from .actions import Action, Callback
 
 class ToolEvents(PlotObject):
     """
@@ -192,8 +192,8 @@ class CrosshairTool(Tool):
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
     Which dimensions the crosshair tool is to track. By default, both a
-    vertical and horizontal line will be dran. If only "width" is supplied, 
-    only a horizontal line will be drawn. If only "height" is supplied, 
+    vertical and horizontal line will be dran. If only "width" is supplied,
+    only a horizontal line will be drawn. If only "height" is supplied,
     only a vertical line will be drawn.
     """)
 
@@ -256,6 +256,14 @@ class BoxSelectTool(Tool):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on completion of drawing a selection box.
+    The cb_data parameter that is available to the Callback code will contain
+    one BoxSelectTool-specific field:
+
+    :geometry: object containing the coordinates of the selection box
     """)
 
 class BoxSelectionOverlay(Renderer):
