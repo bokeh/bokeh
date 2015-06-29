@@ -206,17 +206,18 @@
         this.images = [img].concat(this.images.slice(0));
         this.xs.pop();
         this.xs = [1 - this.image_width].concat(this.xs.slice(0));
+        this.source.set('data', {
+          image: this.images,
+          x: this.xs
+        });
       }
       image32 = new Uint32Array(this.images[0]);
       buf32 = new Uint32Array(buf);
       for (i = _j = 0, _ref1 = this.config.SPECTROGRAM_LENGTH; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
         image32[i * this.image_width + this.col] = buf32[i];
       }
-      this.source.set('data', {
-        image: this.images,
-        x: this.xs
-      });
-      return this.source.trigger('change', this.source);
+      this.source.get('data')['x'] = this.xs;
+      return this.source.trigger('change', true, 0);
     };
 
     SpectrogramPlot.prototype.set_yrange = function(y0, y1) {
