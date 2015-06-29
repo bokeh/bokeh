@@ -6,7 +6,6 @@ from ..properties import HasProps
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
 from bokeh.protocol import BokehJSONEncoder
 
-
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
     not generally useful to instantiate on its own.
