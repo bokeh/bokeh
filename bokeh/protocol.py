@@ -74,8 +74,6 @@ class BokehJSONEncoder(json.JSONEncoder):
         for item in datum:
             if isinstance(item, (list, tuple)):
                 datum_copy.append(self.traverse_data(item))
-            elif isinstance(item, np.ndarray):
-                datum_copy.append(self.transform_array(item))
             elif isinstance(item, float):
                 if np.isnan(item):
                     item = 'NaN'
@@ -93,6 +91,8 @@ class BokehJSONEncoder(json.JSONEncoder):
         for key in iterkeys(data):
             if is_pandas and isinstance(data[key], (pd.Series, pd.Index)):
                 data_copy[key] = self.transform_series(data[key])
+            elif isinstance(data[key], np.ndarray):
+                data_copy[key] = self.transform_array(data[key])
             else:
                 data_copy[key] = self.traverse_data(data[key])
         return data_copy
