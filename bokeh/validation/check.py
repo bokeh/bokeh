@@ -26,5 +26,6 @@ def check_integrity(models):
     for msg in sorted(messages['warning']):
         logger.error("W-%d (%s): %s: %s" % msg)
 
-    if len(messages['error']) or (len(messages['warning']) and settings.strict()):
-        raise ValidationError("Errors encountered during validation (see log output)")
+    # This will be turned on in a future release
+    # if len(messages['error']) or (len(messages['warning']) and settings.strict()):
+    #     raise ValidationError("Errors encountered during validation (see log output)")
