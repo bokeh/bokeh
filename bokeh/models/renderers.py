@@ -38,9 +38,10 @@ class GlyphRenderer(Renderer):
         if not self.glyph: return
         if not self.data_source: return
         missing = set()
-        for name, d in self.glyph.vm_serialize().items():
-            if 'field' in d and d['field'] not in self.data_source.column_names:
-                missing.add(d['field'])
+        for name, item in self.glyph.vm_serialize().items():
+            if not isinstance(item, dict): continue
+            if 'field' in item and item['field'] not in self.data_source.column_names:
+                missing.add(item['field'])
         if missing:
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
