@@ -217,7 +217,7 @@ class Document(object):
 
         return all_models
 
-    def dump(self, *models, validate=True):
+    def dump(self, *models, **kw):
         """ Convert models to json objects.
 
         Args:
@@ -231,6 +231,7 @@ class Document(object):
             dict : json objects
 
         """
+        validate = kw.get("validate", True)
         self._add(*self.context.references())
         if not models:
             models = self._models.values()
