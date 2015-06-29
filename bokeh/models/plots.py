@@ -452,10 +452,21 @@ class Plot(Widget):
     level-of-detail mode is disabled.
     """)
 
-class GridPlot(Widget):
+class GridPlot(Plot):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.
 
     """
+
+    # TODO (bev) really, GridPlot should be a layout, not a Plot subclass
+    @validation.warning(MISSING_RENDERERS)
+    def _check_missing_renderers(self):
+        if len(self.renderers) == 0:
+            return str(self)
+
+    @validation.warning(NO_GLYPH_RENDERERS)
+    def _check_no_glyph_renderers(self):
+        if len(self.select(GlyphRenderer)) == 0:
+            return str(self)
 
     children = List(List(Instance(Plot)), help="""
     An array of plots to display in a grid, given as a list of lists of
