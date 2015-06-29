@@ -270,7 +270,7 @@ hover tool is over.
 .. bokeh-plot::
     :source-position: above
 
-    fromm bokeh.sampledata.glucose import data
+    from bokeh.sampledata.glucose import data
     (x, y) = (data.ix['2010-10-06'].index.to_series(), data.ix['2010-10-06']['glucose'])
 
     from bokeh.plotting import figure, gridplot, output_file, show
