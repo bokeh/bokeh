@@ -315,24 +315,12 @@ class PlotView extends ContinuumView
     for renderer, i in @mget("renderers")
       indices[renderer.id] = i
     sortKey = (renderer) -> indices[renderer.model.id]
-    
-    gl_collections = []
+
     for level in levels
       renderers = _.sortBy(_.values(@levels[level]), sortKey)
       for renderer in renderers
         renderer.render()
-        # If that glyph renders in gl, store its collection.
-        # Note that multiple glyphs can share a collection.
-        if renderer.glyph?
-          glglyph = renderer.glyph.glglyph
-          if glglyph?          
-            if glglyph.coll not in gl_collections              
-              gl_collections.push(glglyph.coll)
-    
-    # Draw collections 
-    for coll in gl_collections
-      coll.glglyphs[0].draw_collection()
-    
+
     ctx.restore()
   
   _map_hook: (ctx, frame_box) ->

@@ -1,5 +1,5 @@
 _ = require "underscore"
-glcollections = require "./glcollections"
+bokehgl = require "./bokehgl"
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
@@ -9,7 +9,7 @@ class CircleView extends Glyph.View
     if @glglyph is undefined
       ctx = @renderer.plot_view.canvas_view.ctx
       if ctx.glcanvas?
-        @glglyph = new glcollections.CircleGLGlyph(ctx.glcanvas.gl, this)
+        @glglyph = new bokehgl.CircleGLGlyph(ctx.glcanvas.gl, this)
 
   _index_data: () ->
     return @_xy_index()
@@ -96,7 +96,7 @@ class CircleView extends Glyph.View
   _render_gl: (ctx, indices) ->
     # Get transform, and verify that its linear
     [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
-    if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 || 
+    if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
       return true 
     

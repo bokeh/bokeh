@@ -58,25 +58,13 @@ class BaseGLGlyph
   constructor: (gl, glyph) ->
     @gl = gl
     
-    # Ensure there is a collections dict on the context
-    @gl._collections ?= {}
-    
-    # If there is no collection for this glyph yet, create it
-    if gl._collections[@GLYPH]?
-      @coll = gl._collections[@GLYPH]
-    else 
-      @coll = gl._collections[@GLYPH] = {glglyphs:[]}
-      @init_collection(@coll)
-
-    # Register this item    
-    @coll.glglyphs.push(this)
-      
-    # Init this item
     @glyph = glyph
     @nvertices = 0
     @size_changed = false
     @data_changed = false
-    @uniforms_changed = false  # simulated uniforms, that is    
+    @uniforms_changed = false
+    
+    @init()
 
   set_data_changed: (n) ->
     if n != @nvertices
@@ -93,7 +81,6 @@ class LineGLGlyph extends BaseGLGlyph
     GLYPH: 'line'
     VERT: 'xxx'
     FRAG: 'xxx'
-
 
 class MarkerGLGlyph extends BaseGLGlyph
   # Base class for markers. All markers share the same GLSL, except for one
@@ -191,108 +178,84 @@ class MarkerGLGlyph extends BaseGLGlyph
     
   MARKERCODE: "<defined in subclasses>" 
      
-  init_collection: () ->
-    # This gets called only once per context for each kind of glyph 
+  init: () ->
+     
     gl = @gl
     frag = @FRAG.replace /MARKERCODE/, @MARKERCODE
     
     # The program
-    @coll.prog = new gloo2.Program(gl)
-    @coll.prog.set_shaders(@VERT, frag)
-    @coll.vbo_x = new gloo2.VertexBuffer(gl)
+    @prog = new gloo2.Program(gl)
+    @prog.set_shaders(@VERT, frag)
+    @vbo_x = new gloo2.VertexBuffer(gl)
     # Real attributes
-    @coll.prog.set_attribute('a_x', 'float', [@coll.vbo_x, 0, 0])
-    @coll.vbo_y = new gloo2.VertexBuffer(gl)
-    @coll.prog.set_attribute('a_y', 'float', [@coll.vbo_y, 0, 0])
-    @coll.vbo_s = new gloo2.VertexBuffer(gl)
-    @coll.prog.set_attribute('a_size', 'float', [@coll.vbo_s, 0, 0])    
+    @prog.set_attribute('a_x', 'float', [@vbo_x, 0, 0])
+    @vbo_y = new gloo2.VertexBuffer(gl)
+    @prog.set_attribute('a_y', 'float', [@vbo_y, 0, 0])
+    @vbo_s = new gloo2.VertexBuffer(gl)
+    @prog.set_attribute('a_size', 'float', [@vbo_s, 0, 0])    
     # Fake uniforms
-    @coll.vbo_linewidth = new gloo2.VertexBuffer(gl)
-    @coll.prog.set_attribute('a_linewidth', 'float', [@coll.vbo_linewidth, 0, 0])
-    @coll.vbo_fg_color = new gloo2.VertexBuffer(gl)
-    @coll.prog.set_attribute('a_fg_color', 'vec4', [@coll.vbo_fg_color, 0, 0])
-    @coll.vbo_bg_color = new gloo2.VertexBuffer(gl)
-    @coll.prog.set_attribute('a_bg_color', 'vec4', [@coll.vbo_bg_color, 0, 0])
+    @vbo_linewidth = new gloo2.VertexBuffer(gl)
+    @prog.set_attribute('a_linewidth', 'float', [@vbo_linewidth, 0, 0])
+    @vbo_fg_color = new gloo2.VertexBuffer(gl)
+    @prog.set_attribute('a_fg_color', 'vec4', [@vbo_fg_color, 0, 0])
+    @vbo_bg_color = new gloo2.VertexBuffer(gl)
+    @prog.set_attribute('a_bg_color', 'vec4', [@vbo_bg_color, 0, 0])
 
   draw: (indices, trans) ->
-    # Assume same trans for all glyphs
-    # todo: allow trans per glyph, but be smart if it *is* the same.
-    @coll.trans = trans
 
-  draw_collection: () ->
-    trans = @coll.trans
+    # Resize if we must. Upload data if we must.
+    if @size_changed
+      @_set_size(@nvertices)
+      @size_changed = false
+    if @data_changed
+      @_set_data()
+      @data_changed = false
+    if @uniforms_changed
+      @_set_uniforms()
+      @uniforms_changed = false
     
-    # Need resize?
-    total_size = 0
-    size_changed = false
-    for glglyph in @coll.glglyphs
-      size_changed ||= glglyph.size_changed
-      total_size += glglyph.nvertices
-    # Resize if we must
-    if size_changed
-      @_set_size(total_size)
-
-    # Update parts that need updating
-    offset = 0  # in number of vertices
-    draw_offset = 0
-    for glglyph in @coll.glglyphs
-      if glglyph.nvertices && (size_changed || glglyph.data_changed)
-        @_set_data(offset, glglyph)
-      if glglyph.nvertices && (size_changed || glglyph.uniforms_changed)
-        @_set_uniforms(offset, glglyph)
-      offset += glglyph.nvertices
-    
-    # Reset and get full size
-    for glglyph in @coll.glglyphs
-      glglyph.size_changed = false
-      glglyph.data_changed = false
-      glglyph.uniforms_changed = false
-
     # Handle transformation to device coordinates
     dx = trans.dx; dy = trans.dy
-    @coll.prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    @coll.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
-    @coll.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
+    @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
+    @prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
+    @prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
 
     # todo: use indices
-    @coll.prog.draw(@gl.POINTS, [draw_offset, total_size-draw_offset])
+    @prog.draw(@gl.POINTS, [0, @nvertices])
 
   _set_size: (n) ->
     n *= 4  # in bytes
     console.log('resizing')
     # todo: base class can do this if it had a list of vbo names    
-    @coll.vbo_x.set_size(n)  
-    @coll.vbo_y.set_size(n)
-    @coll.vbo_s.set_size(n)
+    @vbo_x.set_size(n)  
+    @vbo_y.set_size(n)
+    @vbo_s.set_size(n)
     #
-    @coll.vbo_linewidth.set_size(n)
-    @coll.vbo_fg_color.set_size(n * 4)
-    @coll.vbo_bg_color.set_size(n * 4)
+    @vbo_linewidth.set_size(n)
+    @vbo_fg_color.set_size(n * 4)
+    @vbo_bg_color.set_size(n * 4)
   
-  _set_data: (offset, glglyph) ->
+  _set_data: () ->
     console.log('setting data')    
-    offset *= 4  # offset is in bytes
-    @coll.vbo_x.set_data(offset, new Float32Array(glglyph.glyph.x))
-    @coll.vbo_y.set_data(offset, new Float32Array(glglyph.glyph.y))
-    @coll.vbo_s.set_data(offset, new Float32Array(glglyph.glyph.size))
+    @vbo_x.set_data(0, new Float32Array(@glyph.x))
+    @vbo_y.set_data(0, new Float32Array(@glyph.y))
+    @vbo_s.set_data(0, new Float32Array(@glyph.size))
   
   _set_uniforms: (offset, glglyph) ->
-    console.log('setting uniforms')
-    offset *= 4  # offset is in bytes. For vec4 we multiply with 4 again below
-    glyph = glglyph.glyph
-    nvertices = glglyph.nvertices
+    console.log('setting uniforms')    
+        
     # edgewidth
-    a = fill_array_with_float(nvertices, glyph.visuals.line.width.value())
-    @coll.vbo_linewidth.set_data(offset, a)
+    a = fill_array_with_float(@nvertices, @glyph.visuals.line.width.value())
+    @vbo_linewidth.set_data(0, a)
     # fg_color
-    a = fill_array_with_vec(nvertices, 4, hex2rgb(glyph.visuals.line.color.value(), glyph.visuals.line.alpha.value()))
-    @coll.vbo_fg_color.set_data(offset*4, a)
+    a = fill_array_with_vec(@nvertices, 4, hex2rgb(@glyph.visuals.line.color.value(), @glyph.visuals.line.alpha.value()))
+    @vbo_fg_color.set_data(0, a)
     # bg_color
-    a = fill_array_with_vec(nvertices, 4, hex2rgb(glyph.visuals.fill.color.value(), glyph.visuals.fill.alpha.value()))
-    @coll.vbo_bg_color.set_data(offset*4, a)
+    a = fill_array_with_vec(@nvertices, 4, hex2rgb(@glyph.visuals.fill.color.value(), @glyph.visuals.fill.alpha.value()))
+    @vbo_bg_color.set_data(0, a)
         
     # Static value for antialias. Smaller aa-region to obtain crisper images
-    @coll.prog.set_uniform('u_antialias', 'float', [0.9])
+    @prog.set_uniform('u_antialias', 'float', [0.9])
 
 
 class CircleGLGlyph extends MarkerGLGlyph
