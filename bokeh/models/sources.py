@@ -4,8 +4,8 @@ from .actions import Callback
 from ..plot_object import PlotObject
 from ..properties import HasProps
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
-import numpy as np
-from six import iterkeys
+from bokeh.protocol import BokehJSONEncoder
+
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -173,32 +173,9 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
-    def traverse_data(self, datum):
-        datum_copy = []
-        for item in datum:
-            if isinstance(item, (list, tuple)):
-                datum_copy.append(self.traverse_data(item))
-            elif isinstance(item, float):
-                if np.isnan(item):
-                    item = 'NaN'
-                elif np.isposinf(item):
-                    item = 'Infinity'
-                elif np.isneginf(item):
-                    item = '-Infinity'
-                datum_copy.append(item)
-            else:
-                datum_copy.append(item)
-        return datum_copy
-
-    def transform_column_source_data(self, data):
-        data_copy = {}
-        for key in iterkeys(data):
-            data_copy[key] = self.traverse_data(data[key])
-        return data_copy
-
     def vm_serialize(self, changed_only=True):
         attrs = super(ColumnDataSource, self).vm_serialize(changed_only=changed_only)
-        attrs['data'] = self.transform_column_source_data(attrs['data'])
+        attrs['data'] = BokehJSONEncoder().transform_column_source_data(attrs['data'])
         return attrs
 
     def remove(self, name):

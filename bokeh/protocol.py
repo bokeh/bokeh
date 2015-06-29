@@ -7,6 +7,7 @@ import calendar
 import decimal
 
 import numpy as np
+from six import iterkeys
 
 try:
     import pandas as pd
@@ -67,6 +68,34 @@ class BokehJSONEncoder(json.JSONEncoder):
             transformed[np.isposinf(obj)] = 'Infinity'
             transformed[np.isneginf(obj)] = '-Infinity'
             return transformed.tolist()
+
+    def traverse_data(self, datum):
+        datum_copy = []
+        for item in datum:
+            if isinstance(item, (list, tuple)):
+                datum_copy.append(self.traverse_data(item))
+            elif isinstance(item, np.ndarray):
+                datum_copy.append(self.transform_array(item))
+            elif isinstance(item, float):
+                if np.isnan(item):
+                    item = 'NaN'
+                elif np.isposinf(item):
+                    item = 'Infinity'
+                elif np.isneginf(item):
+                    item = '-Infinity'
+                datum_copy.append(item)
+            else:
+                datum_copy.append(item)
+        return datum_copy
+
+    def transform_column_source_data(self, data):
+        data_copy = {}
+        for key in iterkeys(data):
+            if is_pandas and isinstance(data[key], (pd.Series, pd.Index)):
+                data_copy[key] = self.transform_series(data[key])
+            else:
+                data_copy[key] = self.traverse_data(data[key])
+        return data_copy
 
     def transform_python_types(self, obj):
         """handle special scalars, default to default json encoder
