@@ -3,8 +3,11 @@
 '''
 
 codes = {
-    1000: ("COLUMN_LENGTHS",    "ColumnDataSource column lengths are not all the same"),
-    9999: ("EXT",               "Custom extension reports error"),
+    1000: ("COLUMN_LENGTHS",        "ColumnDataSource column lengths are not all the same"),
+    1001: ("BAD_COLUMN_NAME",       "Glyph refers to nonexistent column name"),
+    1002: ("MISSING_GLYPH",         "Glyph renderer has no glyph set"),
+    1003: ("NO_SOURCE_FOR_GLYPH",   "Glyph renderer has no data source"),
+    9999: ("EXT",                   "Custom extension reports error"),
 }
 
 for code in codes:

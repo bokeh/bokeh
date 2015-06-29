@@ -8,6 +8,8 @@ from ..plot_object import PlotObject
 from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Units, Orientation, RenderLevel
+from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
+from .. import validation
 
 from .sources import DataSource
 from .glyphs import Glyph
@@ -22,6 +24,25 @@ class GlyphRenderer(Renderer):
     """
 
     """
+
+    @validation.error(MISSING_GLYPH)
+    def _check_missing_glyph(self):
+        if not self.glyph: return str(self)
+
+    @validation.error(NO_SOURCE_FOR_GLYPH)
+    def _check_no_source_for_glyph(self):
+        if not self.data_source: return str(self)
+
+    @validation.error(BAD_COLUMN_NAME)
+    def _check_bad_column_name(self):
+        if not self.glyph: return
+        if not self.data_source: return
+        missing = set()
+        for name, d in self.glyph.vm_serialize().items():
+            if 'field' in d and d['field'] not in self.data_source.column_names:
+                missing.add(d['field'])
+        if missing:
+            return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
     data_source = Instance(DataSource, help="""
     Local data source to use when rendering glyphs on the plot.
