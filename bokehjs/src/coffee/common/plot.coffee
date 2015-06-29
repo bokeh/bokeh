@@ -254,7 +254,7 @@ class PlotView extends ContinuumView
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
 
-    if ctx.glcanvas
+    if ctx.glcanvas? and window.BOKEH_WEBGL
       # Prepare GL for drawing
       gl = ctx.glcanvas.gl
       gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
@@ -276,7 +276,7 @@ class PlotView extends ContinuumView
       ctx.strokeRect.apply(ctx, frame_box)
 
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
-    if ctx.glcanvas?
+    if ctx.glcanvas? and window.BOKEH_WEBGL
       # Blit gl canvas into the 2D canvas. We need to turn off interpolation, otherwise
       # all gl-rendered content is blurry. The 0.1 offset is to force the samples
       # to be *inside* the pixels, otherwise round-off errors can sometimes cause

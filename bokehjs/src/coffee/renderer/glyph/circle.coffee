@@ -74,8 +74,8 @@ class CircleView extends Glyph.View
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
   _render: (ctx, indices, {sx, sy, sradius}) ->
-    if ctx.glcanvas        
-        if @_render_gl(ctx, indices)          
+    if ctx.glcanvas and window.BOKEH_WEBGL
+        if not @_render_gl(ctx, indices) and window.BOKEH_WEBGL != 'both'
           return
  
     for i in indices

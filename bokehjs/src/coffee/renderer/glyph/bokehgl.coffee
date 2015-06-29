@@ -19,7 +19,7 @@ gloo2 = require "gloo2"
 
 
 hex2rgb = (hex, alpha=1) ->
-    # Convert hex color to RGBA tuple    
+    # Convert hex color to RGBA tuple
     colorparts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
     color = [parseInt(colorparts[1], 16)/255, parseInt(colorparts[2], 16)/255, parseInt(colorparts[3], 16)/255]
     color.push(alpha)
@@ -214,10 +214,13 @@ class MarkerGLGlyph extends BaseGLGlyph
       @_set_uniforms()
       @uniforms_changed = false
     
+    # Bit of a secret feature to allow easy comparison during dev
+    offset = (window.BOKEH_WEBGL == 'both') * 10
+    
     # Handle transformation to device coordinates
     dx = trans.dx; dy = trans.dy
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    @prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
+    @prog.set_uniform('u_offset', 'vec2', [dx[0] + offset, dy[0]])
     @prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
 
     # todo: use indices
@@ -242,8 +245,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     @vbo_s.set_data(0, new Float32Array(@glyph.size))
   
   _set_uniforms: (offset, glglyph) ->
-    console.log('setting uniforms')    
-        
+    console.log('setting uniforms')
     # edgewidth
     a = fill_array_with_float(@nvertices, @glyph.visuals.line.width.value())
     @vbo_linewidth.set_data(0, a)
