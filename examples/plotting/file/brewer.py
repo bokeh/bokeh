@@ -36,4 +36,5 @@ output_file("brewer.html", title="brewer.py example")
 p = figure()
 p.patches([x2 for a in areas], list(areas.values()), color=colors, alpha=0.8, line_color=None)
 
+p.grid.minor_grid_line_color = '#eeeeee'
 show(p)
