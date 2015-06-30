@@ -168,7 +168,7 @@ def transform_array(obj):
     if obj.dtype.kind == 'M':
         if legacy_datetime64:
             if obj.dtype == np.dtype('datetime64[ns]'):
-                return (obj.astype('int64') / millifactor).tolist()
+                return (obj.astype('int64') / 10**6.0).tolist()
             # else punt.
         else:
             return (obj.astype('datetime64[us]').astype('int64') / 1000.).tolist()

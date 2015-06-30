@@ -8,7 +8,6 @@ import decimal
 
 from .util.serialization import transform_series, transform_array
 import numpy as np
-from six import iterkeys
 
 try:
     import pandas as pd
@@ -26,15 +25,13 @@ from .settings import settings
 
 log = logging.getLogger(__name__)
 
-millifactor = 10**6.0
-
 class BokehJSONEncoder(json.JSONEncoder):
     def transform_python_types(self, obj):
         """handle special scalars, default to default json encoder
         """
         # Pandas Timestamp
         if is_pandas and isinstance(obj, pd.tslib.Timestamp):
-            return obj.value / millifactor  #nanosecond to millisecond
+            return obj.value / 10**6.0  #nanosecond to millisecond
         elif np.issubdtype(type(obj), np.float):
             return float(obj)
         elif np.issubdtype(type(obj), np.int):
