@@ -65,7 +65,7 @@ test:
     - matplotlib
     - sympy
     - ggplot
-    - seaborn
+    - seaborn =0.5.1
     - icalendar
 
   commands:
