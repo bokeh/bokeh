@@ -219,7 +219,7 @@ add a Rect glyph to the plot with identical dimensions.
     :source-position: above
 
     from bokeh.models import Callback, ColumnDataSource, BoxSelectTool, Range1d, Rect
-    from bokeh.plotting import hplot, figure, output_file, show
+    from bokeh.plotting import figure, output_file, show
 
     output_file("boxselecttool_callback.html")
 
@@ -230,19 +230,19 @@ add a Rect glyph to the plot with identical dimensions.
         var data = source.get('data');
 
         /// get BoxSelectTool dimensions from cb_data parameter of Callback
-        var geometry = cb_data['geometry']
+        var geometry = cb_data['geometry'];
 
         /// calculate Rect attributes
-        var width = geometry['x1'] - geometry['x0']
-        var height = geometry['y1'] - geometry['y0']
-        var x = geometry['x0'] + width/2
-        var y = geometry['y0'] + height/2
+        var width = geometry['x1'] - geometry['x0'];
+        var height = geometry['y1'] - geometry['y0'];
+        var x = geometry['x0'] + width/2;
+        var y = geometry['y0'] + height/2;
 
         /// update data source with new Rect attributes
-        data['x'].push(x)
-        data['y'].push(y)
-        data['width'].push(width)
-        data['height'].push(height)
+        data['x'].push(x);
+        data['y'].push(y);
+        data['width'].push(width);
+        data['height'].push(height);
 
         // trigger update of data source
         source.trigger('change');
