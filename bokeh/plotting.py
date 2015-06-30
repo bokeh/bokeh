@@ -7,8 +7,7 @@ from . import _glyph_functions as gf
 from .deprecate import deprecated
 from .models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
 from .plotting_helpers import (
-    get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
-    _get_range, _get_axis_class, _get_num_minor_ticks, _process_tools_arg
+    _list_attr_splat, _get_range, _get_axis_class, _get_num_minor_ticks, _process_tools_arg
 )
 
 # extra imports -- just things to add to 'from plotting import *'
@@ -234,16 +233,7 @@ class Figure(Plot):
             >>> p.scatter("data1", "data2", source=data_source, ...)
 
         """
-        ds = kwargs.get("source", None)
-        names, datasource = _handle_1d_data_args(args, datasource=ds)
-        kwargs["source"] = datasource
-
-        markertype = kwargs.get("marker", "circle")
-
-        if not len(_color_fields.intersection(set(kwargs.keys()))):
-            kwargs['color'] = get_default_color()
-        if not len(_alpha_fields.intersection(set(kwargs.keys()))):
-            kwargs['alpha'] = get_default_alpha()
+        markertype = kwargs.pop("marker", "circle")
 
         if markertype not in _marker_types:
             raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)

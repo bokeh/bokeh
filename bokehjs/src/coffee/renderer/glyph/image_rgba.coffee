@@ -6,7 +6,9 @@ class ImageRGBAView extends Glyph.View
   _index_data: () ->
     @_xy_index()
 
-  _set_data: () ->
+  # TODO (bev) to improve. Currently, if only one image has changed, can
+  # pass index as "arg" to prevent full re-preocessing (useful for streaming)
+  _set_data: (source, arg) ->
     if not @image_data? or @image_data.length != @image.length
       @image_data = new Array(@image.length)
 
@@ -17,6 +19,9 @@ class ImageRGBAView extends Glyph.View
       @height = new Array(@image.length)
 
     for i in [0...@image.length]
+      if arg?
+        if i != arg
+          continue
       if @rows?
         @height[i] = @rows[i]
         @width[i] = @cols[i]
@@ -47,7 +52,6 @@ class ImageRGBAView extends Glyph.View
       @max_dh = 0
       if @dh.units == "data"
         @max_dh = _.max(@dh)
-      @_xy_index()
 
   _map_data: () ->
     @sw = @sdist(@renderer.xmapper, @x, @dw, 'edge', @mget('dilate'))
@@ -90,7 +94,6 @@ class ImageRGBA extends Glyph.Model
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'underlay'
       dilate: false
     }
 

@@ -3,10 +3,8 @@ from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, BoxSelectTool
 from ..plotting import figure
-from ..plotting_helpers import _get_select_tool
-
 
 def cross(start, facets):
     """Creates a unique combination of provided facets.
@@ -203,9 +201,8 @@ def make_bar_plot(datasource, counts_name="counts",
     plot.h_symmetry = False
     plot.v_symmetry = False
 
-    select_tool = _get_select_tool(plot)
-    if select_tool:
-        select_tool.dimensions = ['width']
+    for tool in plot.select(type=BoxSelectTool):
+        tool.dimensions = ['width']
 
     return plot
 

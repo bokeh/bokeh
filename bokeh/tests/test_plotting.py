@@ -189,5 +189,12 @@ class TestMarkers(unittest.TestCase):
         self.check_each_color_input(rgbs=rgbs, func=self.color_only_checks)
         self.check_each_color_input(rgbs=rgbs, func=self.line_color_input_checks)
 
+    def test_render_level(self):
+        p = plt.figure()
+        p.circle([1, 2, 3], [1, 2, 3], level="underlay")
+        self.assertEqual(p.renderers[-1].level, "underlay")
+        with self.assertRaises(ValueError):
+            p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
+
 if __name__ == "__main__":
     unittest.main()
