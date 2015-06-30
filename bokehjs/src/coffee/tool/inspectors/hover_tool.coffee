@@ -227,11 +227,13 @@ class HoverTool extends InspectTool.Model
     super(attrs, options)
     ttmodels = {}
     renderers = @get('plot').get('renderers')
-    for r in @get('renderers')
-      tooltip = new Tooltip.Model()
-      tooltip.set("custom", _.isString(@get("tooltips")))
-      ttmodels[r.id] = tooltip
-      renderers.push(tooltip)
+    tooltips = @get("tooltips")
+    if tooltips
+      for r in @get('renderers')
+        tooltip = new Tooltip.Model()
+        tooltip.set("custom", _.isString(tooltips))
+        ttmodels[r.id] = tooltip
+        renderers.push(tooltip)
     @set('ttmodels', ttmodels)
     @get('plot').set('renderers', renderers)
     return

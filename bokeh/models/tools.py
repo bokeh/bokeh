@@ -339,7 +339,7 @@ class HoverTool(Tool):
     all times, but can be configured in the inspector's menu associated
     with the *toolbar icon* shown above.
 
-    The hover tool displays informational tooltips whenever the cursor
+    By default, the hover tool displays informational tooltips whenever the cursor
     is directly over a glyph. The data to show comes from the glyph's
     data source, and what is to be displayed is configurable through a
     ``tooltips`` attribute that maps display names to columns in the
@@ -358,7 +358,10 @@ class HoverTool(Tool):
             ("bar", "@bar"),
         ]
 
-    .. note::
+    You can also supply a ``Callback`` to the HoverTool, to build custom interactions
+    on hover. In this case you may want to turn the tooltips off by setting ``tooltips=None``
+
+    .. warning::
         Point hit testing is not currently available on all glyphs. Hover tool
         currently does not work with line or image type glyphs.
 
@@ -405,6 +408,10 @@ class HoverTool(Tool):
         ``$color[options]:field_name``. The available options
         are: 'hex' (to display the color as a hex value), and
         'swatch' to also display a small color swatch.
+
+    ``None`` is also a valid value for tooltips. This turns off the
+    rendering of tooltips. This is mostly useful when supplying other
+    actions on hover via the callback property.
 
     .. note::
         The tooltips attribute can also be configured with a mapping type,
