@@ -11,7 +11,7 @@ from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..query import find
 from ..util.string import nice_join
-from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
+from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS, EMPTY_LAYOUT
 from .. import validation
 
 from .glyphs import Glyph
@@ -465,6 +465,12 @@ class GridPlot(Plot):
     @validation.warning(NO_GLYPH_RENDERERS)
     def _check_no_glyph_renderers(self):
         pass
+
+    @validation.warning(EMPTY_LAYOUT)
+    def _check_empty_layout(self):
+        from itertools import chain
+        if not list(chain(self.children)):
+            return str(self)
 
     children = List(List(Instance(Plot)), help="""
     An array of plots to display in a grid, given as a list of lists of
