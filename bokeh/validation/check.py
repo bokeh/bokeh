@@ -12,11 +12,14 @@ def check_integrity(models):
     messages = dict(error=[], warning=[])
 
     for model in models:
-        validators = [
-            obj for obj in model.__class__.__dict__.values() if getattr(obj, "validator_type", None)
-        ]
+        validators = []
+        for name in dir(model):
+            if not name.startswith("_check"): continue
+            obj = getattr(model, name)
+            if getattr(obj, "validator_type", None):
+                validators.append(obj)
         for func in validators:
-            messages[func.validator_type].extend(func(model))
+            messages[func.validator_type].extend(func())
 
     for msg in sorted(messages['error']):
         logger.error("E-%d (%s): %s: %s" % msg)
