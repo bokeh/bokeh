@@ -6,8 +6,6 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-from ..settings import settings
-from .exceptions import ValidationError
 
 def check_integrity(models):
 
