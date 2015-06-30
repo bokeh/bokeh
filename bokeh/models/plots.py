@@ -12,6 +12,7 @@ from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either,
 from ..query import find
 from ..util.string import nice_join
 from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS, EMPTY_LAYOUT
+from ..validation.errors import REQUIRED_RANGE
 from .. import validation
 
 from .glyphs import Glyph
@@ -243,6 +244,14 @@ class Plot(Widget):
         self.renderers.append(g)
         return g
 
+    @validation.error(REQUIRED_RANGE)
+    def _check_required_range(self):
+        missing = []
+        if not self.x_range: missing.append('x_range')
+        if not self.y_range: missing.append('y_range')
+        if missing:
+            return ", ".join(missing) + " [%s]" % self
+
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         if len(self.renderers) == 0:
@@ -458,10 +467,12 @@ class GridPlot(Plot):
     """
 
     # TODO (bev) really, GridPlot should be a layout, not a Plot subclass
+    @validation.error(REQUIRED_RANGE)
+    def _check_required_range(self):
+        pass
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass
-
     @validation.warning(NO_GLYPH_RENDERERS)
     def _check_no_glyph_renderers(self):
         pass
