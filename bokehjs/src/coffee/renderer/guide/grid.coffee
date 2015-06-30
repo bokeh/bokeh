@@ -7,6 +7,7 @@ class GridView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
     @grid_props = new properties.Line({obj: @model, prefix: 'grid_'})
+    @minor_grid_props = new properties.Line({obj: @model, prefix: 'minor_grid_'})
     @band_props = new properties.Fill({obj: @model, prefix: 'band_'})
     @x_range_name = @mget('x_range_name')
     @y_range_name = @mget('y_range_name')
@@ -16,6 +17,7 @@ class GridView extends PlotWidget
 
     ctx.save()
     @_draw_regions(ctx)
+    @_draw_minor_grids(ctx)
     @_draw_grids(ctx)
     ctx.restore()
 
@@ -41,7 +43,16 @@ class GridView extends PlotWidget
     if not @grid_props.do_stroke
       return
     [xs, ys] = @mget('grid_coords')
-    @grid_props.set_value(ctx)
+    @_draw_grid_helper(ctx, @grid_props, xs, ys)
+
+  _draw_minor_grids: (ctx) ->
+    if not @minor_grid_props.do_stroke
+      return
+    [xs, ys] = @mget('minor_grid_coords')
+    @_draw_grid_helper(ctx, @minor_grid_props, xs, ys)
+
+  _draw_grid_helper: (ctx, props, xs, ys) ->
+    props.set_value(ctx)
     for i in [0...xs.length]
       [sx, sy] = @plot_view.map_to_screen(xs[i], ys[i], @x_range_name,
                                           @y_range_name)
@@ -64,6 +75,10 @@ class Grid extends HasParent
 
     @register_property('grid_coords', @_grid_coords, false)
     @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension',
+                                            'ticker'])
+
+    @register_property('minor_grid_coords', @_minor_grid_coords, false)
+    @add_dependencies('minor_grid_coords', this, ['computed_bounds', 'dimension',
                                             'ticker'])
 
     @register_property('ranges', @_ranges, true)
@@ -101,6 +116,12 @@ class Grid extends HasParent
     return [start, end]
 
   _grid_coords: () ->
+    return @_grid_coords_helper('major')
+
+  _minor_grid_coords: () ->
+    return @_grid_coords_helper('minor')
+
+  _grid_coords_helper: (location) ->
     i = @get('dimension')
     j = (i + 1) % 2
     [range, cross_range] = @get('ranges')
@@ -111,7 +132,7 @@ class Grid extends HasParent
     end = Math.max(start, end)
     start = tmp
 
-    ticks = @get('ticker').get_ticks(start, end, range, {}).major
+    ticks = @get('ticker').get_ticks(start, end, range, {})[location]
 
     min = range.get('min')
     max = range.get('max')
@@ -153,7 +174,15 @@ class Grid extends HasParent
       grid_line_cap: 'butt'
       grid_line_dash: []
       grid_line_dash_offset: 0
+      minor_grid_line_color: null
+      minor_grid_line_width: 1
+      minor_grid_line_alpha: 1.0
+      minor_grid_line_join: 'miter'
+      minor_grid_line_cap: 'butt'
+      minor_grid_line_dash: []
+      minor_grid_line_dash_offset: 0
     }
+
 
 module.exports =
   Model: Grid
