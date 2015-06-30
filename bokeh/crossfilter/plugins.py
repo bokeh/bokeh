@@ -2,10 +2,9 @@ from __future__ import absolute_import
 
 import numpy as np
 
-from ..models import FactorRange, DataRange1d, Range1d
+from ..models import FactorRange, DataRange1d, Range1d, BoxSelectTool
 
 from ..plotting import figure
-from ..plotting_helpers import _get_select_tool
 
 from .plotting import make_continuous_bar_source, make_categorical_bar_source
 
@@ -205,9 +204,8 @@ class CrossBarPlugin(CrossFilterPlugin):
         plot.h_symmetry = False
         plot.v_symmetry = False
 
-        select_tool = _get_select_tool(plot)
-        if select_tool:
-            select_tool.dimensions = ['width']
+        for tool in plot.select(type=BoxSelectTool):
+            tool.dimensions = ['width']
 
         return plot
 
