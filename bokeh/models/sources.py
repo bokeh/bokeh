@@ -174,7 +174,7 @@ class ColumnDataSource(DataSource):
 
     def vm_serialize(self, changed_only=True):
         attrs = super(ColumnDataSource, self).vm_serialize(changed_only=changed_only)
-        if not changed_only:
+        if 'data' in attrs:
             attrs['data'] = transform_column_source_data(attrs['data'])
         return attrs
 
