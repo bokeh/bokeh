@@ -4,7 +4,7 @@ from .actions import Callback
 from ..plot_object import PlotObject
 from ..properties import HasProps
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
-from bokeh.util.serialization import transform_column_source_data
+from ..util.serialization import transform_column_source_data
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is

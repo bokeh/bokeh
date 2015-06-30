@@ -150,7 +150,7 @@ def json_apply(fragment, check_func, func):
         return fragment
 
 def transform_series(obj):
-    """transform series
+    """transforms pandas series into array of values
     """
     vals = obj.values
     return transform_array(vals)
@@ -169,7 +169,6 @@ def transform_array(obj):
         if legacy_datetime64:
             if obj.dtype == np.dtype('datetime64[ns]'):
                 return (obj.astype('int64') / 10**6.0).tolist()
-            # else punt.
         else:
             return (obj.astype('datetime64[us]').astype('int64') / 1000.).tolist()
     elif obj.dtype.kind in ('u', 'i', 'f'):
@@ -191,6 +190,9 @@ def transform_numerical_array(obj):
         return transformed.tolist()
 
 def traverse_data(datum):
+    """recursively look for NaN, Infinity, and -Infinity objects
+    and replace them with JSON-compliant strings
+    """
     datum_copy = []
     for item in datum:
         if isinstance(item, (list, tuple)):
@@ -208,6 +210,9 @@ def traverse_data(datum):
     return datum_copy
 
 def transform_column_source_data(data):
+    """iterate through the data of a ColumnSourceData object replacing
+    non-JSON-compliant objects with compliant ones
+    """
     data_copy = {}
     for key in iterkeys(data):
         if is_pandas and isinstance(data[key], (pd.Series, pd.Index)):
