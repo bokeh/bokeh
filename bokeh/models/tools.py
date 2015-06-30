@@ -27,7 +27,7 @@ from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, 
 from ..enums import Dimension
 
 from .renderers import Renderer
-from .actions import Action
+from .actions import Action, Callback
 
 class ToolEvents(PlotObject):
     """
@@ -192,8 +192,8 @@ class CrosshairTool(Tool):
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
     Which dimensions the crosshair tool is to track. By default, both a
-    vertical and horizontal line will be dran. If only "width" is supplied, 
-    only a horizontal line will be drawn. If only "height" is supplied, 
+    vertical and horizontal line will be drawn. If only "width" is supplied,
+    only a horizontal line will be drawn. If only "height" is supplied,
     only a vertical line will be drawn.
     """)
 
@@ -339,7 +339,7 @@ class HoverTool(Tool):
     all times, but can be configured in the inspector's menu associated
     with the *toolbar icon* shown above.
 
-    The hover tool displays informational tooltips whenever the cursor
+    By default, the hover tool displays informational tooltips whenever the cursor
     is directly over a glyph. The data to show comes from the glyph's
     data source, and what is to be displayed is configurable through a
     ``tooltips`` attribute that maps display names to columns in the
@@ -358,7 +358,10 @@ class HoverTool(Tool):
             ("bar", "@bar"),
         ]
 
-    .. note::
+    You can also supply a ``Callback`` to the HoverTool, to build custom interactions
+    on hover. In this case you may want to turn the tooltips off by setting ``tooltips=None``
+
+    .. warning::
         Point hit testing is not currently available on all glyphs. Hover tool
         currently does not work with line or image type glyphs.
 
@@ -376,6 +379,16 @@ class HoverTool(Tool):
     defaults to all renderers on a plot.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the input's value changes. The
+    cb_data parameter that is available to the Callback code will contain two
+    HoverTool specific fields:
+
+    :index: object containing the indices of the hovered points in the data
+    source
+    :geometry: object containing the coordinates of the hover cursor
+    """)
+
     tooltips = Either(String, List(Tuple(String, String)), help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.
@@ -387,14 +400,18 @@ class HoverTool(Tool):
     Field names starting with "$" are special, known fields:
 
     :$index: index of selected point in the data source
-    :$x: x-coordindate under the cursor in data space
-    :$y: y-coordindate under the cursor in data space
-    :$sx: x-coordindate under the cursor in screen (canvas) space
-    :$sy: y-coordindate under the cursor in screen (canvas) space
+    :$x: x-coordinate under the cursor in data space
+    :$y: y-coordinate under the cursor in data space
+    :$sx: x-coordinate under the cursor in screen (canvas) space
+    :$sy: y-coordinate under the cursor in screen (canvas) space
     :$color: color data from data source, with the syntax:
         ``$color[options]:field_name``. The available options
         are: 'hex' (to display the color as a hex value), and
         'swatch' to also display a small color swatch.
+
+    ``None`` is also a valid value for tooltips. This turns off the
+    rendering of tooltips. This is mostly useful when supplying other
+    actions on hover via the callback property.
 
     .. note::
         The tooltips attribute can also be configured with a mapping type,
