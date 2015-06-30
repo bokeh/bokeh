@@ -218,71 +218,54 @@ add a Rect glyph to the plot with identical dimensions.
 .. bokeh-plot::
     :source-position: above
 
-    import pandas as pd
+    from bokeh.models import Callback, ColumnDataSource, BoxSelectTool, Range1d, Rect
+    from bokeh.plotting import hplot, figure, output_file, show
 
-    from bokeh.plotting import output_file, figure, show, hplot
-    from bokeh.models import Range1d, Callback, ColumnDataSource, BoxSelectTool, Range1d
+    output_file("boxselecttool_callback.html")
 
-    output_file("stocks_timeseries.html")
+    source = ColumnDataSource(data=dict(x=[], y=[], width=[], height=[]))
 
-    # read in some stock data from the Yahoo Finance API
-    AAPL = pd.read_csv(
-        "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
-        parse_dates=['Date'])
-    MSFT = pd.read_csv(
-        "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000&d=0&e=1&f=2010",
-        parse_dates=['Date'])
-    IBM = pd.read_csv(
-        "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
-        parse_dates=['Date'])
+    callback = Callback(args=dict(source=source), code="""
+        // get data source from Callback args
+        var data = source.get('data');
 
-    s1 = ColumnDataSource(data=dict(AAPL=AAPL['Adj Close'],
-                                    MSFT=MSFT['Adj Close'],
-                                    IBM=IBM['Adj Close'],
-                                    Date=AAPL['Date'])
-    )
-    s2 = ColumnDataSource(data=dict(AAPL=[], MSFT=[], IBM=[], Date=[]))
-
-    callback = Callback(args=dict(s1=s1, s2=s2), code="""
+        /// get BoxSelectTool dimensions from cb_data parameter of Callback
         var geometry = cb_data['geometry']
-        var d1 = s1.get('data')
-        var d2 = s2.get('data')
-        d2['AAPL'] = []
-        d2['MSFT'] = []
-        d2['IBM'] = []
-        d2['Date'] = []
-        start = Math.min(geometry['x0'], geometry['x1'])
-        end = Math.max(geometry['x0'], geometry['x1'])
-        for (i = 0; i < d1['Date'].length; i++) {
-            if (d1['Date'][i] >= start && d1['Date'][i] <= end) {
-                d2['AAPL'].push(d1['AAPL'][i])
-                d2['MSFT'].push(d1['MSFT'][i])
-                d2['IBM'].push(d1['IBM'][i])
-                d2['Date'].push(d1['Date'][i])
-            }
-        }
-        s2.trigger('change')
+
+        /// calculate Rect attributes
+        var width = geometry['x1'] - geometry['x0']
+        var height = geometry['y1'] - geometry['y0']
+        var x = geometry['x0'] + width/2
+        var y = geometry['y0'] + height/2
+
+        /// update data source with new Rect attributes
+        data['x'].push(x)
+        data['y'].push(y)
+        data['width'].push(width)
+        data['height'].push(height)
+
+        // trigger update of data source
+        source.trigger('change');
     """)
 
-    box_select = BoxSelectTool(callback=callback, dimensions=['width'])
+    box_select = BoxSelectTool(callback=callback)
 
-    p1 = figure(plot_width=400, plot_height=400, y_range=Range1d(start=-5, end=165),
-                x_axis_type='datetime', title='BoxSelect Here', tools=[box_select])
-    p1.line(x='Date', y='AAPL', color='red', legend='AAPL', source=s1)
-    p1.line(x='Date', y='MSFT', color='blue', legend='MSFT', source=s1)
-    p1.line(x='Date', y='IBM', color='green', legend='IBM', source=s1)
-    p1.scatter(x='Date', y='AAPL', color='red', size=0.4, source=s1)
-    p1.scatter(x='Date', y='MSFT', color='blue', size=0.4, source=s1)
-    p1.scatter(x='Date', y='IBM', color='green', size=0.4, source=s1)
-    p1.legend.orientation = 'top_left'
+    p = figure(plot_width=400,
+               plot_height=400,
+               tools=[box_select],
+               title="Select Below",
+               x_range=Range1d(start=0.0, end=1.0),
+               y_range=Range1d(start=0.0, end=1.0))
 
-    p2 = figure(plot_width=400, plot_height=400, x_axis_type='datetime',
-                title='Watch Here', tools="")
-    p2.line(x='Date', y='AAPL', color='red', source=s2)
-    p2.line(x='Date', y='MSFT', color='blue', source=s2)
-    p2.line(x='Date', y='IBM', color='green', source=s2)
+    rect = Rect(x='x',
+                y='y',
+                width='width',
+                height='height',
+                fill_alpha=0.3,
+                fill_color='#009933')
 
-    show(hplot(p1, p2))
+    p.add_glyph(source, rect, selection_glyph=rect, nonselection_glyph=rect)
+    show(p)
 
 .. _userguide_interaction_actions_selection_callbacks:
 
