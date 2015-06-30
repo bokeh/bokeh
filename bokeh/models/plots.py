@@ -460,13 +460,11 @@ class GridPlot(Plot):
     # TODO (bev) really, GridPlot should be a layout, not a Plot subclass
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
-        if len(self.renderers) == 0:
-            return str(self)
+        pass
 
     @validation.warning(NO_GLYPH_RENDERERS)
     def _check_no_glyph_renderers(self):
-        if len(self.select(GlyphRenderer)) == 0:
-            return str(self)
+        pass
 
     children = List(List(Instance(Plot)), help="""
     An array of plots to display in a grid, given as a list of lists of
