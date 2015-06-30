@@ -4,6 +4,14 @@ Bokeh objects.
 """
 from __future__ import absolute_import
 
+from six import iterkeys
+import numpy as np
+try:
+    import pandas as pd
+    is_pandas = True
+except ImportError:
+    is_pandas = False
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -140,3 +148,72 @@ def json_apply(fragment, check_func, func):
         return output
     else:
         return fragment
+
+def transform_series(obj):
+    """transform series
+    """
+    vals = obj.values
+    return transform_array(vals)
+
+def transform_array(obj):
+    """Transform arrays into lists of json safe types
+    also handles pandas series, and replacing
+    nans and infs with strings
+    """
+    # Check for astype failures (putative Numpy < 1.7)
+    dt2001 = np.datetime64('2001')
+    legacy_datetime64 = (dt2001.astype('int64') ==
+                         dt2001.astype('datetime64[ms]').astype('int64'))
+    ## not quite correct, truncates to ms..
+    if obj.dtype.kind == 'M':
+        if legacy_datetime64:
+            if obj.dtype == np.dtype('datetime64[ns]'):
+                return (obj.astype('int64') / millifactor).tolist()
+            # else punt.
+        else:
+            return (obj.astype('datetime64[us]').astype('int64') / 1000.).tolist()
+    elif obj.dtype.kind in ('u', 'i', 'f'):
+        return transform_numerical_array(obj)
+    return obj.tolist()
+
+def transform_numerical_array(obj):
+    """handles nans/inf conversion
+    """
+    if isinstance(obj, np.ma.MaskedArray):
+        obj = obj.filled(np.nan)  # Set masked values to nan
+    if not np.isnan(obj).any() and not np.isinf(obj).any():
+        return obj.tolist()
+    else:
+        transformed = obj.astype('object')
+        transformed[np.isnan(obj)] = 'NaN'
+        transformed[np.isposinf(obj)] = 'Infinity'
+        transformed[np.isneginf(obj)] = '-Infinity'
+        return transformed.tolist()
+
+def traverse_data(datum):
+    datum_copy = []
+    for item in datum:
+        if isinstance(item, (list, tuple)):
+            datum_copy.append(traverse_data(item))
+        elif isinstance(item, float):
+            if np.isnan(item):
+                item = 'NaN'
+            elif np.isposinf(item):
+                item = 'Infinity'
+            elif np.isneginf(item):
+                item = '-Infinity'
+            datum_copy.append(item)
+        else:
+            datum_copy.append(item)
+    return datum_copy
+
+def transform_column_source_data(data):
+    data_copy = {}
+    for key in iterkeys(data):
+        if is_pandas and isinstance(data[key], (pd.Series, pd.Index)):
+            data_copy[key] = transform_series(data[key])
+        elif isinstance(data[key], np.ndarray):
+            data_copy[key] = transform_array(data[key])
+        else:
+            data_copy[key] = traverse_data(data[key])
+    return data_copy
