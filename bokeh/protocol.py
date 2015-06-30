@@ -71,9 +71,9 @@ class BokehJSONEncoder(json.JSONEncoder):
         from .colors import Color
         ## array types
         if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
-            return self.transform_series(obj)
+            return transform_series(obj)
         elif isinstance(obj, np.ndarray):
-            return self.transform_array(obj)
+            return transform_array(obj)
         elif isinstance(obj, PlotObject):
             return obj.ref
         elif isinstance(obj, HasProps):
