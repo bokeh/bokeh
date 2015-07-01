@@ -353,7 +353,7 @@ hover tool is over.
 
     show(p)
 
-  .. _userguide_interaction_actions_range_update_callbacks:
+.. _userguide_interaction_actions_range_update_callbacks:
 
 Callbacks for Range Update
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -403,16 +403,16 @@ interactions such as a box zoom, wheel scroll or pan.
     """)
 
     p1 = figure(title='Box Zoom Here', x_range=[0,10], y_range=[0,10], tools = ['box_zoom', 'reset'])
-    p1.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10], layer='image')
+    p1.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10], level='image')
     p1.x_range.callback = xrange_callback
     p1.y_range.callback = yrange_callback
 
     p2 = figure(title='See Zoom Window Here', x_range=[0,10], y_range=[0,10], tools="")
-    p2.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10], layer='image')
+    p2.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10], level='image')
     rect = Rect(x='x', y='y', width='width', height='height', fill_alpha=0.0, line_color='black')
     p2.add_glyph(source, rect)
 
-    layout = hplot(p1, p1)
+    layout = hplot(p1, p2)
     show(layout)
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
