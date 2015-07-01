@@ -8,8 +8,11 @@ import logging
 import copy
 
 from ...properties import Int, Instance, List, String, Dict, Either
-from ..widget import Widget
 from ...util.functions import cached_property, arg_filter
+from ...validation.warnings import EMPTY_LAYOUT
+from ... import validation
+
+from ..widget import Widget
 
 logger= logging.getLogger(__name__)
 
@@ -42,6 +45,12 @@ class BaseBox(Layout):
         elif len(args) > 0:
             kwargs["children"] = list(args)
         super(BaseBox, self).__init__(**kwargs)
+
+    @validation.warning(EMPTY_LAYOUT)
+    def _check_empty_layout(self):
+        from itertools import chain
+        if not list(chain(self.children)):
+            return str(self)
 
     children = List(Instance(Widget), help="""
     The list of children, which can be other widgets (including layouts)

@@ -7,17 +7,6 @@ Styling Visual Attributes
     :local:
     :depth: 2
 
-.. _userguide_styling_colors:
-
-Specifying Colors
------------------
-
-Colors properties are used in many places in Bokeh, to specify the colors to
-use for lines, fills or text. Color values can be provided in any of the
-following ways:
-
-.. include:: ../includes/colors.txt
-
 .. _userguide_styling_using_palettes:
 
 Using Palettes

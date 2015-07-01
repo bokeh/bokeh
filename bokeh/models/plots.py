@@ -11,7 +11,9 @@ from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..query import find
 from ..util.string import nice_join
-
+from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS, EMPTY_LAYOUT
+from ..validation.errors import REQUIRED_RANGE
+from .. import validation
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d
@@ -19,7 +21,6 @@ from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .widget import Widget
-
 
 def _select_helper(args, kwargs):
     """
@@ -48,7 +49,7 @@ def _select_helper(args, kwargs):
             raise RuntimeError("Selector must be a dictionary, string or plot object.")
 
     else:
-        selector = kwargs    
+        selector = kwargs
     return selector
 
 
@@ -129,7 +130,7 @@ class Plot(Widget):
                 p.select(name="foo", type=HoverTool)
 
         '''
-        
+
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
@@ -242,6 +243,24 @@ class Plot(Widget):
         g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
         self.renderers.append(g)
         return g
+
+    @validation.error(REQUIRED_RANGE)
+    def _check_required_range(self):
+        missing = []
+        if not self.x_range: missing.append('x_range')
+        if not self.y_range: missing.append('y_range')
+        if missing:
+            return ", ".join(missing) + " [%s]" % self
+
+    @validation.warning(MISSING_RENDERERS)
+    def _check_missing_renderers(self):
+        if len(self.renderers) == 0:
+            return str(self)
+
+    @validation.warning(NO_GLYPH_RENDERERS)
+    def _check_no_glyph_renderers(self):
+        if len(self.select(GlyphRenderer)) == 0:
+            return str(self)
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -447,6 +466,23 @@ class GridPlot(Plot):
 
     """
 
+    # TODO (bev) really, GridPlot should be a layout, not a Plot subclass
+    @validation.error(REQUIRED_RANGE)
+    def _check_required_range(self):
+        pass
+    @validation.warning(MISSING_RENDERERS)
+    def _check_missing_renderers(self):
+        pass
+    @validation.warning(NO_GLYPH_RENDERERS)
+    def _check_no_glyph_renderers(self):
+        pass
+
+    @validation.warning(EMPTY_LAYOUT)
+    def _check_empty_layout(self):
+        from itertools import chain
+        if not list(chain(self.children)):
+            return str(self)
+
     children = List(List(Instance(Plot)), help="""
     An array of plots to display in a grid, given as a list of lists of
     Plot objects. To leave a position in the grid empty, pass None for
@@ -460,12 +496,12 @@ class GridPlot(Plot):
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
         match the given selector. See Plot.select for detailed usage infomation.
-        
+
         Returns:
             seq[PlotObject]
-        
+
         '''
-        
+
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
