@@ -68,7 +68,7 @@ def field(name):
         name (str) : name of a data source field to reference for a property.
 
     Returns:
-        dict : {"field": name}
+        dict : `{"field": name}`
 
     Note:
         This function is included for completeness. String values for
@@ -85,7 +85,7 @@ def value(val):
         val (any) : a fixed value to specify for a property.
 
     Returns:
-        dict : {"value": name}
+        dict : `{"value": name}`
 
     Note:
         String values for property specifications are by default interpreted
@@ -93,6 +93,8 @@ def value(val):
         specify a fixed value with text properties.
 
     Example:
+
+    .. code-block:: python
 
         # The following will take text values to render from a data source
         # column "text_column", but use a fixed value "12pt" for font size
