@@ -556,6 +556,7 @@ setup(
         'bokeh.transforms',
         'bokeh.util',
         'bokeh.util.tests',
+        'bokeh.validation',
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',

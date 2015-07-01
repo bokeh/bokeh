@@ -93,6 +93,8 @@ class Settings(object):
             self.blaze_config = args.blaze_config
         if args.script:
             self.scripts = [args.script]
+        if args.url_prefix:
+            self.url_prefix = args.url_prefix
 
     def process_settings(self):
         if self.url_prefix:
