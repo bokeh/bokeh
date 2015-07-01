@@ -125,7 +125,7 @@ if [[ ! -z "$upload" ]]; then
     echo "I'm done uploading to pypi"
 fi
 
-binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.gztar --package-type pypi -c $channel --force --no-progress
+binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.tar.gz --package-type pypi -c $channel --force --no-progress
 echo "I'm done uploading to binstar"
 
 ###########################
