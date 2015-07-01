@@ -57,9 +57,16 @@ class HoverToolView extends InspectTool.View
         else
           geometry.direction = 'v'
 
+    hovered_indexes = []
+    hovered_renderers = []
+
     for r in @mget('renderers')
       sm = r.get('data_source').get('selection_manager')
       sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
+
+    if @mget('callback')?
+      @_emit_callback(geometry)
+
     return
 
   _update: (indices, tool, renderer, ds, {geometry}) ->
@@ -141,9 +148,29 @@ class HoverToolView extends InspectTool.View
         [rx, ry] = [vx, vy]
 
       vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+
       tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
     return null
+
+  _emit_callback: (geometry) ->
+    r = @mget('renderers')[0]
+    indices = @plot_view.renderers[r.id].hit_test(geometry)
+
+    canvas = @plot_model.get('canvas')
+    frame = @plot_model.get('frame')
+
+    geometry['sx'] = canvas.vx_to_sx(geometry.vx)
+    geometry['sy'] = canvas.vy_to_sy(geometry.vy)
+
+    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
+    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    geometry['x'] = xmapper.map_from_target(geometry.vx)
+    geometry['y'] = ymapper.map_from_target(geometry.vy)
+
+    @mget('callback').execute(@model, {index: indices, geometry: geometry})
+
+    return
 
   _render_tooltips: (ds, i, vars) ->
     tooltips = @mget("tooltips")
@@ -200,11 +227,13 @@ class HoverTool extends InspectTool.Model
     super(attrs, options)
     ttmodels = {}
     renderers = @get('plot').get('renderers')
-    for r in @get('renderers')
-      tooltip = new Tooltip.Model()
-      tooltip.set("custom", _.isString(@get("tooltips")))
-      ttmodels[r.id] = tooltip
-      renderers.push(tooltip)
+    tooltips = @get("tooltips")
+    if tooltips
+      for r in @get('renderers')
+        tooltip = new Tooltip.Model()
+        tooltip.set("custom", _.isString(tooltips))
+        ttmodels[r.id] = tooltip
+        renderers.push(tooltip)
     @set('ttmodels', ttmodels)
     @get('plot').set('renderers', renderers)
     return
