@@ -10,9 +10,6 @@ c = Client('http://localhost:5006')
 d = Data(c)
 source = BlazeDataSource()
 source.from_blaze(d.gauss)
-p = figure()
-p.circle('oneA', 'oneB',
-       color='#A6CEE3',
-       tools="pan,wheel_zoom,box_zoom,reset,previewsave",
-       source=source)
+p = figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+p.circle('oneA', 'oneB', color='#A6CEE3', source=source)
 show(p)

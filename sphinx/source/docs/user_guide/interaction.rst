@@ -204,6 +204,68 @@ changes the source of a plot when the slider is used.
 
     show(layout)
 
+.. _userguide_interaction_actions_tool_callbacks:
+
+Callbacks for Tools
+~~~~~~~~~~~~~~~~~~~
+
+Bokeh allows for some tool events to trigger custom Javascript callbacks that
+have access to the tool's attributes. Below, a callback on the BoxSelectTool
+uses the selection box dimensions (accessed in the geometry field of the
+cb_data object that is injected into the Callback code attribute), in order to
+add a Rect glyph to the plot with identical dimensions.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.models import Callback, ColumnDataSource, BoxSelectTool, Range1d, Rect
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("boxselecttool_callback.html")
+
+    source = ColumnDataSource(data=dict(x=[], y=[], width=[], height=[]))
+
+    callback = Callback(args=dict(source=source), code="""
+        // get data source from Callback args
+        var data = source.get('data');
+
+        /// get BoxSelectTool dimensions from cb_data parameter of Callback
+        var geometry = cb_data['geometry'];
+
+        /// calculate Rect attributes
+        var width = geometry['x1'] - geometry['x0'];
+        var height = geometry['y1'] - geometry['y0'];
+        var x = geometry['x0'] + width/2;
+        var y = geometry['y0'] + height/2;
+
+        /// update data source with new Rect attributes
+        data['x'].push(x);
+        data['y'].push(y);
+        data['width'].push(width);
+        data['height'].push(height);
+
+        // trigger update of data source
+        source.trigger('change');
+    """)
+
+    box_select = BoxSelectTool(callback=callback)
+
+    p = figure(plot_width=400,
+               plot_height=400,
+               tools=[box_select],
+               title="Select Below",
+               x_range=Range1d(start=0.0, end=1.0),
+               y_range=Range1d(start=0.0, end=1.0))
+
+    rect = Rect(x='x',
+                y='y',
+                width='width',
+                height='height',
+                fill_alpha=0.3,
+                fill_color='#009933')
+
+    p.add_glyph(source, rect, selection_glyph=rect, nonselection_glyph=rect)
+    show(p)
 
 .. _userguide_interaction_actions_selection_callbacks:
 
@@ -254,6 +316,42 @@ similar way.
 
     show(layout)
 
+.. _userguide_interaction_actions_hover_callbacks:
+
+Callbacks for Hover
+~~~~~~~~~~~~~~~~~~~
+
+The HoverTool has a callback which comes with two pieces of built-in data: the
+`index`, and the `geometry`. The `index` is the indices of any points that the
+hover tool is over.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.sampledata.glucose import data
+    (x, y) = (data.ix['2010-10-06'].index.to_series(), data.ix['2010-10-06']['glucose'])
+
+    from bokeh.plotting import figure, output_file, show
+    from bokeh.models import ColumnDataSource, Circle, HoverTool, Callback
+
+    output_file("hover_callback.html")
+
+    # Basic plot setup
+    p = figure(width=600, height=300, x_axis_type="datetime", tools="", toolbar_location=None, title='Hover over points')
+    p.line(x, y, line_dash="4 4", line_width=1, color='gray')
+
+    # Add a circle, that is visible only when selected
+    source = ColumnDataSource({'x': x, 'y': y})
+    invisible_circle = Circle(x='x', y='y', fill_color='gray', fill_alpha=0.05, line_color=None, size=20)
+    visible_circle = Circle(x='x', y='y', fill_color='firebrick', fill_alpha=0.5, line_color=None, size=20)
+    cr = p.add_glyph(source, invisible_circle, selection_glyph=visible_circle, nonselection_glyph=invisible_circle)
+
+    # Add a hover tool, that selects the circle
+    code = "source.set('selected', cb_data['index']);"
+    callback = Callback(args={'source': source}, code=code)
+    p.add_tools(HoverTool(tooltips=None, callback=callback, renderers=[cr], mode='hline'))
+
+    show(p)
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 

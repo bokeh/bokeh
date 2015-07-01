@@ -29,5 +29,7 @@ class Callback(Action):
     A snippet of JavaScript code to execute in the browser. The code is
     made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,
-    a ``cb_obj`` parameter contains the object that triggered the callback.
+    a ``cb_obj`` parameter contains the object that triggered the callback
+    and an optional ``cb_data`` parameter that contains any tool-specific data
+    (i.e. mouse coordinates and hovered glyph indices for the HoverTool).
     """)

@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
-from .actions import Callback
 from ..plot_object import PlotObject
 from ..properties import HasProps
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
+from ..validation.errors import COLUMN_LENGTHS
+from .. import validation
+
+from .actions import Callback
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -219,6 +222,12 @@ class ColumnDataSource(DataSource):
             ds.set(data);
         """.format(model=model, id=id, json=json)
         display.display_javascript(js, raw=True)
+
+    @validation.error(COLUMN_LENGTHS)
+    def _check_column_lengths(self):
+        lengths = set(len(x) for x in self.data.values())
+        if len(lengths) > 1:
+            return str(self)
 
 class RemoteSource(DataSource):
     data_url = String(help="""

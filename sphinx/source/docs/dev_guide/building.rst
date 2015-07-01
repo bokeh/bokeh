@@ -97,7 +97,7 @@ use ``bokehjs/node_modules/.bin/gulp``, install Gulp globally via
 
     conda install -c javascript gulp
 
-To generate the compiled and optimized BokehJS libraries, and deploy
+To generate the compiled and optimized BokehJS libraries with source maps, and deploy
 them to the ``build`` subdirectory:
 
 .. code-block:: sh
@@ -110,6 +110,13 @@ trigger a recompile if any source file changes:
 .. code-block:: sh
 
     gulp watch
+
+To enable inline coffeescript source mapping, you may add the ``--debug`` flag
+to either of the ``gulp build`` or ``gulp watch`` commands:
+
+.. code-block:: sh
+
+    gulp build --debug
 
 
 .. _devguide_python_setup:

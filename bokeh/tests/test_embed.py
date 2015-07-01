@@ -8,6 +8,7 @@ import bokeh.embed as embed
 from bokeh.resources import CDN, INLINE, Resources
 from bokeh.plotting import figure
 from bokeh.session import Session
+from six import string_types
 
 _embed_test_plot = None
 
@@ -21,6 +22,15 @@ class TestComponents(unittest.TestCase):
     def test_return_type(self):
         r = embed.components(_embed_test_plot)
         self.assertEqual(len(r), 2)
+
+        script, divs = embed.components((_embed_test_plot, _embed_test_plot))
+        self.assertTrue(isinstance(divs, tuple))
+
+        script, divs = embed.components([_embed_test_plot, _embed_test_plot])
+        self.assertTrue(isinstance(divs, tuple))
+
+        script, divs = embed.components({"Plot 1": _embed_test_plot, "Plot 2": _embed_test_plot})
+        self.assertTrue(isinstance(divs, dict) and all(isinstance(x, string_types) for x in divs.keys()))
 
     def test_result_attrs(self):
         script, div = embed.components(_embed_test_plot)
@@ -70,13 +80,34 @@ class TestFileHTML(unittest.TestCase):
     def test_return_type(self):
 
         class fake_template:
-            def render(self, title, plot_resources, plot_script, plot_div):
+            def __init__(self, tester, user_template_variables=None):
+                self.tester = tester
+                self.template_variables = {
+                    "title",
+                    "plot_resources",
+                    "plot_script",
+                    "plot_div"
+                }
+                if user_template_variables is not None:
+                    self.template_variables.update(user_template_variables)
+
+            def render(self, template_variables):
+                self.tester.assertTrue(
+                    self.template_variables.issubset(
+                        set(template_variables.keys())
+                    )
+                )
                 return "template result"
 
         r = embed.file_html(_embed_test_plot, CDN, "title")
         self.assertTrue(isinstance(r, str))
 
-        r = embed.file_html(_embed_test_plot, CDN, "title", fake_template())
+        r = embed.file_html(_embed_test_plot, CDN, "title", fake_template(self))
+        self.assertTrue(isinstance(r, str))
+
+        r = embed.file_html(_embed_test_plot, CDN, "title",
+                            fake_template(self, {"test_var"}),
+                            {"test_var": "test"})
         self.assertTrue(isinstance(r, str))
 
 class TestAutoloadStatic(unittest.TestCase):

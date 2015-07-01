@@ -1,85 +1,55 @@
 from __future__ import absolute_import
 
-from six import iteritems
-from collections import OrderedDict
-
-from .models import glyphs, markers
+from .models import glyphs, markers, BoxSelectTool
 
 def _glyph_function(glyphclass, dsnames, argnames, docstring):
 
     def func(plot, *args, **kwargs):
+
         # Note: We want to reuse the glyph functions by attaching them the Plot
         # class. Imports are here to prevent circular imports.
         from .plotting_helpers import (
-            _match_data_params, _materialize_colors_and_alpha, _get_legend,
-            _make_legend, _get_select_tool
-        )
-        from .models import ColumnDataSource, GlyphRenderer, Plot
-        source = kwargs.pop('source', None)
-        if source is None:
-            datasource = ColumnDataSource()
-        else:
-            datasource = source
-
-        legend_name = kwargs.pop("legend", None)
+            _match_args, _pop_renderer_args, _pop_colors_and_alpha, _process_sequence_literals,
+            _update_legend, _make_glyph)
+        from .models import GlyphRenderer, Plot
 
         if not isinstance(plot, Plot):
             raise ValueError("expected plot object for first argument")
 
-        name = kwargs.pop('name', None)
+        # pop off glyph *function* parameters that are not glyph class properties
+        legend_name = kwargs.pop("legend", None)
+        renderer_kws = _pop_renderer_args(kwargs)
+        source = renderer_kws['data_source']
 
-        select_tool = _get_select_tool(plot)
+        # pop off all color values for the glyph or nonselection glyphs
+        glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
+        nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
 
-        # Process the glyph dataspec parameters
-        glyph_params = _match_data_params(dsnames, glyphclass,
-                                          datasource,
-                                          args, _materialize_colors_and_alpha(kwargs))
+        # add the positional arguments as kwargs and make sure all required args are present
+        _match_args(dsnames, glyphclass, source, args, kwargs)
 
-        kwargs.update(glyph_params)
+        # if there are any hardcoded data sequences, move them to the data source and update
+        _process_sequence_literals(glyphclass, kwargs, source)
+        _process_sequence_literals(glyphclass, glyph_ca, source)
+        _process_sequence_literals(glyphclass, nsglyph_ca, source)
 
-        glyph_props = glyphclass.properties() | set(argnames)
-        glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
-        glyph = glyphclass(**glyph_kwargs)
+        # create the default and nonselection glyphs
+        glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
+        nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
 
-        nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
-        nonselection_glyph = glyph.clone()
-
-        # TODO: (bev) This is a bit hacky.
-        if hasattr(nonselection_glyph, 'fill_color'):
-            nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
-            nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
-
-        if hasattr(nonselection_glyph, 'line_color'):
-            nonselection_glyph.line_color = nonselection_glyph_params['line_color']
-            nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
-
-        glyph_renderer = GlyphRenderer(
-            data_source=datasource,
-            glyph=glyph,
-            nonselection_glyph=nonselection_glyph,
-            name=name)
-
-        # TODO (bev) hacky, fix up when glyphspecs are simplified/removed
-        if 'x_range_name' in kwargs:
-            glyph_renderer.x_range_name = kwargs['x_range_name']
-        if 'y_range_name' in kwargs:
-            glyph_renderer.y_range_name = kwargs['y_range_name']
+        glyph_renderer = GlyphRenderer(glyph=glyph, nonselection_glyph=nsglyph, **renderer_kws)
 
         if legend_name:
-            legend = _get_legend(plot)
-            if not legend:
-                legend = _make_legend(plot)
-            legends = OrderedDict(legend.legends)
-            legends.setdefault(legend_name, []).append(glyph_renderer)
-            legend.legends = list(legends.items())
+            _update_legend(plot, legend_name, glyph_renderer)
 
-        if select_tool :
-            select_tool.renderers.append(glyph_renderer)
-            select_tool._dirty = True
+        for tool in plot.select(type=BoxSelectTool):
+            tool.renderers.append(glyph_renderer)
+            tool._dirty = True
 
         plot.renderers.append(glyph_renderer)
         plot._dirty = True
         return plot
+
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring
     return func
