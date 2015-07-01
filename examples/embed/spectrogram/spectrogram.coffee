@@ -20,7 +20,6 @@ class SpectrogramApp
     @paused = false
     @gain = 1
 
-
     for key in @keys
         item = Bokeh.index[key]
         item_id = item.el.id
@@ -31,8 +30,8 @@ class SpectrogramApp
         @spectrum = item if item_id is get_plot_id('spectrum')
         @equalizer = item if item_id is get_plot_id('equalizer')
 
-    @freq_slider.on("change:value", @update_freq)
-    @gain_slider.on("change:value", @update_gain)
+    @freq_slider.model.on("change:value", @update_freq)
+    @gain_slider.model.on("change:value", @update_gain)
 
     config = Bokeh.$.ajax('http://localhost:5000/params', {
       type: 'GET'
@@ -43,12 +42,14 @@ class SpectrogramApp
     ).then(@request_data)
 
   update_freq: () =>
-    freq = @freq_slider.get('value')
+    freq = @freq_slider.model.get('value')
+    console.log("setting upper freq range:", freq)
     @spectrogram_plot.set_yrange(0, freq)
     @power_plot.set_xrange(0, freq)
 
   update_gain: () =>
-    @gain = @gain_slider.get('value')
+    @gain = @gain_slider.model.get('value')
+    console.log("setting gain value:", @gain)
 
   _config: (data) ->
     @config = data
