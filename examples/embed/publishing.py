@@ -31,8 +31,20 @@ html = """
 </html>
 """
 html = html % (tag)
+
 with open("publishing.html", "w+") as f:
     f.write(html)
+
+print("""
+To view this example, run
+
+    python -m SimpleHTTPServer (or http.server on python 3)
+
+in this directory, then navigate to
+
+    http://localhost:8000/publishing.html
+""")
+
 while True:
     for i in np.hstack((np.linspace(1, -1, 100), np.linspace(-1, 1, 100))):
         ds.data["y"] = y * i
