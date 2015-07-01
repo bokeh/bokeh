@@ -254,14 +254,10 @@ similar way.
 
     show(layout)
 
-
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
-
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
+.. _userguide_interaction_actions_hover_callbacks:
 
 Callbacks for Hover
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 The HoverTool has a callback which comes with two pieces of built-in data: the
 `index`, and the `geometry`. The `index` is the indices of any points that the
