@@ -5,7 +5,7 @@ from ..properties import HasProps
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
-
+from ..util.serialization import transform_column_source_data
 from .actions import Callback
 
 class DataSource(PlotObject):
@@ -173,6 +173,12 @@ class ColumnDataSource(DataSource):
         self.column_names.append(name)
         self.data[name] = data
         return name
+
+    def vm_serialize(self, changed_only=True):
+        attrs = super(ColumnDataSource, self).vm_serialize(changed_only=changed_only)
+        if 'data' in attrs:
+            attrs['data'] = transform_column_source_data(attrs['data'])
+        return attrs
 
     def remove(self, name):
         """ Remove a column of data.

@@ -6,6 +6,7 @@ import datetime as dt
 import calendar
 import decimal
 
+from .util.serialization import transform_series, transform_array
 import numpy as np
 
 try:
@@ -24,56 +25,13 @@ from .settings import settings
 
 log = logging.getLogger(__name__)
 
-millifactor = 10**6.0
-
 class BokehJSONEncoder(json.JSONEncoder):
-    def transform_series(self, obj):
-        """transform series
-        """
-        vals = obj.values
-        return self.transform_array(vals)
-
-    # Check for astype failures (putative Numpy < 1.7)
-    dt2001 = np.datetime64('2001')
-    legacy_datetime64 = (dt2001.astype('int64') ==
-                         dt2001.astype('datetime64[ms]').astype('int64'))
-    def transform_array(self, obj):
-        """Transform arrays into lists of json safe types
-        also handles pandas series, and replacing
-        nans and infs with strings
-        """
-        ## not quite correct, truncates to ms..
-        if obj.dtype.kind == 'M':
-            if self.legacy_datetime64:
-                if obj.dtype == np.dtype('datetime64[ns]'):
-                    return (obj.astype('int64') / millifactor).tolist()
-                # else punt.
-            else:
-                return (obj.astype('datetime64[us]').astype('int64') / 1000.).tolist()
-        elif obj.dtype.kind in ('u', 'i', 'f'):
-            return self.transform_numerical_array(obj)
-        return obj.tolist()
-
-    def transform_numerical_array(self, obj):
-        """handles nans/inf conversion
-        """
-        if isinstance(obj, np.ma.MaskedArray):
-            obj = obj.filled(np.nan)  # Set masked values to nan
-        if not np.isnan(obj).any() and not np.isinf(obj).any():
-            return obj.tolist()
-        else:
-            transformed = obj.astype('object')
-            transformed[np.isnan(obj)] = 'NaN'
-            transformed[np.isposinf(obj)] = 'Infinity'
-            transformed[np.isneginf(obj)] = '-Infinity'
-            return transformed.tolist()
-
     def transform_python_types(self, obj):
         """handle special scalars, default to default json encoder
         """
         # Pandas Timestamp
         if is_pandas and isinstance(obj, pd.tslib.Timestamp):
-            return obj.value / millifactor  #nanosecond to millisecond
+            return obj.value / 10**6.0  #nanosecond to millisecond
         elif np.issubdtype(type(obj), np.float):
             return float(obj)
         elif np.issubdtype(type(obj), np.int):
@@ -83,7 +41,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         # Datetime
         # datetime is a subclass of date.
         elif isinstance(obj, dt.datetime):
-            return calendar.timegm(obj.timetuple()) * 1000. + obj.microsecond / 1000.            
+            return calendar.timegm(obj.timetuple()) * 1000. + obj.microsecond / 1000.
         # Date
         elif isinstance(obj, dt.date):
             return calendar.timegm(obj.timetuple()) * 1000.
@@ -110,9 +68,9 @@ class BokehJSONEncoder(json.JSONEncoder):
         from .colors import Color
         ## array types
         if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
-            return self.transform_series(obj)
+            return transform_series(obj)
         elif isinstance(obj, np.ndarray):
-            return self.transform_array(obj)
+            return transform_array(obj)
         elif isinstance(obj, PlotObject):
             return obj.ref
         elif isinstance(obj, HasProps):
@@ -125,7 +83,7 @@ class BokehJSONEncoder(json.JSONEncoder):
 def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
     if settings.pretty(False):
         kwargs["indent"] = 4
-    return json.dumps(obj, cls=encoder, **kwargs)
+    return json.dumps(obj, cls=encoder, allow_nan=False, **kwargs)
 
 deserialize_json = json.loads
 
