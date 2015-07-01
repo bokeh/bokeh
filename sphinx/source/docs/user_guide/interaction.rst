@@ -204,6 +204,68 @@ changes the source of a plot when the slider is used.
 
     show(layout)
 
+.. _userguide_interaction_actions_tool_callbacks:
+
+Callbacks for Tools
+~~~~~~~~~~~~~~~~~~~
+
+Bokeh allows for some tool events to trigger custom Javascript callbacks that
+have access to the tool's attributes. Below, a callback on the BoxSelectTool
+uses the selection box dimensions (accessed in the geometry field of the
+cb_data object that is injected into the Callback code attribute), in order to
+add a Rect glyph to the plot with identical dimensions.
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.models import Callback, ColumnDataSource, BoxSelectTool, Range1d, Rect
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("boxselecttool_callback.html")
+
+    source = ColumnDataSource(data=dict(x=[], y=[], width=[], height=[]))
+
+    callback = Callback(args=dict(source=source), code="""
+        // get data source from Callback args
+        var data = source.get('data');
+
+        /// get BoxSelectTool dimensions from cb_data parameter of Callback
+        var geometry = cb_data['geometry'];
+
+        /// calculate Rect attributes
+        var width = geometry['x1'] - geometry['x0'];
+        var height = geometry['y1'] - geometry['y0'];
+        var x = geometry['x0'] + width/2;
+        var y = geometry['y0'] + height/2;
+
+        /// update data source with new Rect attributes
+        data['x'].push(x);
+        data['y'].push(y);
+        data['width'].push(width);
+        data['height'].push(height);
+
+        // trigger update of data source
+        source.trigger('change');
+    """)
+
+    box_select = BoxSelectTool(callback=callback)
+
+    p = figure(plot_width=400,
+               plot_height=400,
+               tools=[box_select],
+               title="Select Below",
+               x_range=Range1d(start=0.0, end=1.0),
+               y_range=Range1d(start=0.0, end=1.0))
+
+    rect = Rect(x='x',
+                y='y',
+                width='width',
+                height='height',
+                fill_alpha=0.3,
+                fill_color='#009933')
+
+    p.add_glyph(source, rect, selection_glyph=rect, nonselection_glyph=rect)
+    show(p)
 
 .. _userguide_interaction_actions_selection_callbacks:
 

@@ -258,6 +258,14 @@ class BoxSelectTool(Tool):
     dimension can be controlled.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser on completion of drawing a selection box.
+    The cb_data parameter that is available to the Callback code will contain
+    one BoxSelectTool-specific field:
+
+    :geometry: object containing the coordinates of the selection box
+    """)
+
 class BoxSelectionOverlay(Renderer):
     """ An overlay renderer that Tool objects can use to render a
     'rubber band' selection box on a Plot.
