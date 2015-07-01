@@ -62,6 +62,7 @@ def components(plot_objects, resources=None):
         An example can be found in examples/embed/embed_multiple.py
 
         resources : Deprecated argument
+
     Returns:
         (script, div[s]): UTF-8 encoded
     '''
@@ -142,8 +143,9 @@ def notebook_div(plot_object):
     Returns:
         div : UTF-8 encoded HTML text
 
-    .. note:: Assumes ``bokeh.load_notebook()`` or the equivalent has
-              already been executed.
+    .. note::
+        Assumes ``bokeh.load_notebook()`` or the equivalent has already
+        been executed.
 
     '''
     ref = plot_object.ref
