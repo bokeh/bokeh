@@ -8,6 +8,7 @@ Reference Guide
 
    reference/properties
    reference/models
+   reference/validation
    reference/plotting
    reference/charts
    reference/palettes

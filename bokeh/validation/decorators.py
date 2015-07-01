@@ -36,5 +36,70 @@ def _validator(code_or_name, validator_type):
     return decorator
 
 error = partial(_validator, validator_type="error")
+error.__doc__ = ''' Mark a validator method for a Bokeh error condition
+
+Args:
+    code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
+
+Returns:
+    callable : decorator for Bokeh model methods
+
+Examples:
+
+The first example uses a numeric code for a standard error provided in
+``bokeh.validation.errors``. This usage is primarily of interest to Bokeh
+core developers.
+
+.. code-block:: python
+
+    from bokeh.validation.errors import REQUIRED_RANGES
+
+    @error(REQUIRED_RANGES)
+    def _check_no_glyph_renderers(self):
+
+The second example shows how a custom warning check can be implemented by
+passing an arbitrary string label to the decorator. This usage is primarily
+of interest to anyone extending Bokeh with their own custom models.
+
+.. code-block:: python
+
+    @error("MY_CUSTOM_WARNING")
+    def _check_my_custom_warning(self):
+
+
+'''
 
 warning = partial(_validator, validator_type="warning")
+warning.__doc__ = ''' Mark a validator method for a Bokeh error condition
+
+Args:
+    code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
+
+Returns:
+    callable : decorator for Bokeh model methods
+
+Examples:
+
+The first example uses a numeric code for a standard warning provided in
+``bokeh.validation.warnings``. This usage is primarily of interest to Bokeh
+core developers.
+
+.. code-block:: python
+
+    from bokeh.validation.warnings import NO_GLYPH_RENDERERS
+
+    @warning(NO_GLYPH_RENDERERS)
+    def _check_no_glyph_renderers(self):
+
+The second example shows how a custom warning check can be implemented by
+passing an arbitrary string label to the decorator. This usage is primarily
+of interest to anyone extending Bokeh with their own custom models.
+
+.. code-block:: python
+
+    @warning("MY_CUSTOM_WARNING")
+    def _check_my_custom_warning(self):
+
+
+
+'''
