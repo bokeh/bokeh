@@ -112,13 +112,9 @@ class SpectrogramApp
 class SpectrogramPlot
 
   constructor: (@model, @config) ->
-    @source = @model.get('data_source')
     @cmap = new Bokeh.LinearColorMapper.Model({
       palette: Bokeh.Palettes.YlGnBu9, low: 0, high: 5
     })
-
-    plot = @model.attributes.parent
-    @y_range = plot.get('frame').get('y_ranges')[@model.get('y_range_name')]
 
     @num_images = Math.ceil(@config.NGRAMS/@config.TILE_WIDTH) + 1
 
@@ -153,18 +149,19 @@ class SpectrogramPlot
     for i in [0...@config.SPECTROGRAM_LENGTH]
       image32[i*@image_width+@col] = buf32[i]
 
-    @source.get('data')['x'] = @xs
-    @source.trigger('change', true, 0)
+    source = @model.get('data_source')
+    source.get('data')['x'] = @xs
+    source.trigger('change', true, 0)
 
   set_yrange: (y0, y1) ->
-    @y_range.set({'start': y0, 'end' : y1})
+    plot = @model.attributes.parent
+    y_range = plot.get('frame').get('y_ranges')[@model.get('y_range_name')]
+    y_range.set({'start': y0, 'end' : y1})
 
 class RadialHistogramPlot
 
-  constructor: (@model, @config) ->
-    @source = @model.get('data_source')
-
   update: (bins) ->
+    source = @model.get('data_source')
     angle = 2*Math.PI/bins.length
     [inner, outer, start, end, alpha] = [[], [], [], [], []]
     for i in [0...bins.length]
@@ -175,24 +172,22 @@ class RadialHistogramPlot
       end   = end.concat((i+0.95) * angle for j in range)
       alpha = alpha.concat(1 - 0.08*j for j in range)
 
-    @source.set('data', {
+    source.set('data', {
       inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: alpha
     })
-    @source.trigger('change', @source)
+    source.trigger('change', source)
 
 class SimpleXYPlot
 
-  constructor: (@model, @config) ->
-    @source = @model.get('data_source')
-    plot = @model.attributes.parent
-    @x_range = plot.get('frame').get('x_ranges')[@model.get('x_range_name')]
-
   update: (x, y) ->
-    @source.set('data', {x: x, y: y})
-    @source.trigger('change', @source)
+    source = @model.get('data_source')
+    source.set('data', {x: x, y: y})
+    source.trigger('change', source)
 
   set_xrange: (x0, x1) ->
-    @x_range.set({'start': x0, 'end' : x1})
+    plot = @model.attributes.parent
+    x_range = plot.get('frame').get('x_ranges')[@model.get('x_range_name')]
+    x_range.set({'start': x0, 'end' : x1})
 
 setup = () ->
   index = window.Bokeh.index

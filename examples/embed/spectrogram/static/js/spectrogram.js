@@ -190,17 +190,14 @@
 
   SpectrogramPlot = (function() {
     function SpectrogramPlot(model, config) {
-      var i, plot, _i, _ref;
+      var i, _i, _ref;
       this.model = model;
       this.config = config;
-      this.source = this.model.get('data_source');
       this.cmap = new Bokeh.LinearColorMapper.Model({
         palette: Bokeh.Palettes.YlGnBu9,
         low: 0,
         high: 5
       });
-      plot = this.model.attributes.parent;
-      this.y_range = plot.get('frame').get('y_ranges')[this.model.get('y_range_name')];
       this.num_images = Math.ceil(this.config.NGRAMS / this.config.TILE_WIDTH) + 1;
       this.image_width = this.config.TILE_WIDTH;
       this.images = new Array(this.num_images);
@@ -212,7 +209,7 @@
     }
 
     SpectrogramPlot.prototype.update = function(spectrum) {
-      var buf, buf32, i, image32, img, _i, _j, _ref, _ref1;
+      var buf, buf32, i, image32, img, source, _i, _j, _ref, _ref1;
       buf = this.cmap.v_map_screen(spectrum);
       for (i = _i = 0, _ref = this.xs.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         this.xs[i] += 1;
@@ -234,12 +231,16 @@
       for (i = _j = 0, _ref1 = this.config.SPECTROGRAM_LENGTH; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
         image32[i * this.image_width + this.col] = buf32[i];
       }
-      this.source.get('data')['x'] = this.xs;
-      return this.source.trigger('change', true, 0);
+      source = this.model.get('data_source');
+      source.get('data')['x'] = this.xs;
+      return source.trigger('change', true, 0);
     };
 
     SpectrogramPlot.prototype.set_yrange = function(y0, y1) {
-      return this.y_range.set({
+      var plot, y_range;
+      plot = this.model.attributes.parent;
+      y_range = plot.get('frame').get('y_ranges')[this.model.get('y_range_name')];
+      return y_range.set({
         'start': y0,
         'end': y1
       });
@@ -250,14 +251,11 @@
   })();
 
   RadialHistogramPlot = (function() {
-    function RadialHistogramPlot(model, config) {
-      this.model = model;
-      this.config = config;
-      this.source = this.model.get('data_source');
-    }
+    function RadialHistogramPlot() {}
 
     RadialHistogramPlot.prototype.update = function(bins) {
-      var alpha, angle, end, i, inner, j, outer, range, start, _i, _j, _ref, _ref1, _ref2, _results;
+      var alpha, angle, end, i, inner, j, outer, range, source, start, _i, _j, _ref, _ref1, _ref2, _results;
+      source = this.model.get('data_source');
       angle = 2 * Math.PI / bins.length;
       _ref = [[], [], [], [], []], inner = _ref[0], outer = _ref[1], start = _ref[2], end = _ref[3], alpha = _ref[4];
       for (i = _i = 0, _ref1 = bins.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
@@ -312,14 +310,14 @@
           return _results1;
         })());
       }
-      this.source.set('data', {
+      source.set('data', {
         inner_radius: inner,
         outer_radius: outer,
         start_angle: start,
         end_angle: end,
         fill_alpha: alpha
       });
-      return this.source.trigger('change', this.source);
+      return source.trigger('change', source);
     };
 
     return RadialHistogramPlot;
@@ -327,25 +325,23 @@
   })();
 
   SimpleXYPlot = (function() {
-    function SimpleXYPlot(model, config) {
-      var plot;
-      this.model = model;
-      this.config = config;
-      this.source = this.model.get('data_source');
-      plot = this.model.attributes.parent;
-      this.x_range = plot.get('frame').get('x_ranges')[this.model.get('x_range_name')];
-    }
+    function SimpleXYPlot() {}
 
     SimpleXYPlot.prototype.update = function(x, y) {
-      this.source.set('data', {
+      var source;
+      source = this.model.get('data_source');
+      source.set('data', {
         x: x,
         y: y
       });
-      return this.source.trigger('change', this.source);
+      return source.trigger('change', source);
     };
 
     SimpleXYPlot.prototype.set_xrange = function(x0, x1) {
-      return this.x_range.set({
+      var plot, x_range;
+      plot = this.model.attributes.parent;
+      x_range = plot.get('frame').get('x_ranges')[this.model.get('x_range_name')];
+      return x_range.set({
         'start': x0,
         'end': x1
       });
