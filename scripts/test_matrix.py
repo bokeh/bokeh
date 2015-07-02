@@ -24,8 +24,8 @@ def get_parser():
                     Ex: ' python test_matrix.py -p 0.7.0'
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('-p', '--previous', action='store', default=False,
-                        help='Previous version of bokeh', required=True)
+    parser.add_argument('-v', '--version', action='store', default=False,
+                        help='Version of bokeh', required=True)
     # parser.add_argument('')
 
     return parser
