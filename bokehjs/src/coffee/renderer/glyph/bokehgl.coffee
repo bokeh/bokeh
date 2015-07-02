@@ -20,8 +20,12 @@ gloo2 = require "gloo2"
 
 hex2rgb = (hex, alpha=1) ->
     # Convert hex color to RGBA tuple
-    colorparts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-    color = [parseInt(colorparts[1], 16)/255, parseInt(colorparts[2], 16)/255, parseInt(colorparts[3], 16)/255]
+    if hex.length < 5
+      colorparts = /^#?([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i.exec(hex)
+      color = [parseInt(colorparts[1], 16)/15, parseInt(colorparts[2], 16)/15, parseInt(colorparts[3], 16)/15]      
+    else
+      colorparts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+      color = [parseInt(colorparts[1], 16)/255, parseInt(colorparts[2], 16)/255, parseInt(colorparts[3], 16)/255]
     color.push(alpha)
     return color
 
@@ -35,18 +39,49 @@ line_width = (width) ->
 
 fill_array_with_float = (n, val) ->
     a = new Float32Array(n)
-    for i in [0..n]
+    for i in [0...n]
         a[i] = val
     return a
 
 
 fill_array_with_vec = (n, m, val) ->    
     a = new Float32Array(n*m)
-    for i in [0..n]
-      for j in [0..m]
+    for i in [0...n]
+      for j in [0...m]
         a[i*m+j] = val[j]
     return a
 
+fill_array_with_color = (n, m, visual) ->    
+    a = new Float32Array(n*m)
+    if visual.color.fixed_value? and visual.alpha.fixed_value?
+      console.log('simple ' + visual.color.fixed_value)
+      rgba = hex2rgb(visual.color.fixed_value, visual.alpha.fixed_value)
+      for i in [0...n]
+        for j in [0...m]
+          a[i*m+j] = rgba[j]
+    else
+      # Get array of colors
+      if visual.color.fixed_value?
+        colors = []
+        for i in [0...n]
+          colors.push(visual.color.fixed_value)
+      else
+        colors = visual.cache.color_array
+      # Get array of alphas
+      if visual.alpha.fixed_value?
+        alphas = []
+        for i in [0...n]
+          alphas.push(visual.alpha.fixed_value)
+      else
+        alphas = visual.cache.alpha_array
+      # Get array of rgbs
+      console.log('many ' + colors.length + '  ' + n)
+      for i in [0...n]
+        rgba = hex2rgb(colors[i], alphas[i])
+        for j in [0...m]
+          a[i*m+j] = rgba[j]
+    return a
+   
 
 class BaseGLGlyph
   
@@ -250,10 +285,11 @@ class MarkerGLGlyph extends BaseGLGlyph
     a = fill_array_with_float(@nvertices, @glyph.visuals.line.width.value())
     @vbo_linewidth.set_data(0, a)
     # fg_color
-    a = fill_array_with_vec(@nvertices, 4, hex2rgb(@glyph.visuals.line.color.value(), @glyph.visuals.line.alpha.value()))
+    window.tt =@glyph 
+    a = fill_array_with_color(@nvertices, 4, @glyph.visuals.line, @glyph.visuals.line)
     @vbo_fg_color.set_data(0, a)
     # bg_color
-    a = fill_array_with_vec(@nvertices, 4, hex2rgb(@glyph.visuals.fill.color.value(), @glyph.visuals.fill.alpha.value()))
+    a = fill_array_with_color(@nvertices, 4, @glyph.visuals.fill, @glyph.visuals.fill)    
     @vbo_bg_color.set_data(0, a)
         
     # Static value for antialias. Smaller aa-region to obtain crisper images
