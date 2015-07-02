@@ -258,6 +258,7 @@ class BokehRenderer(Renderer):
             #if mplText.get_weight() in ("bold", "heavy"):
                 #text.text_font_style = bold
 
+            source = ColumnDataSource()
             self.plot.add_glyph(source, text)
 
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
