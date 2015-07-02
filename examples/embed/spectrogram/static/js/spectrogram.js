@@ -211,6 +211,7 @@
     SpectrogramPlot.prototype.update = function(spectrum) {
       var buf, buf32, i, image32, img, source, _i, _j, _ref, _ref1;
       buf = this.cmap.v_map_screen(spectrum);
+      source = this.model.get('data_source');
       for (i = _i = 0, _ref = this.xs.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         this.xs[i] += 1;
       }
@@ -221,7 +222,7 @@
         this.images = [img].concat(this.images.slice(0));
         this.xs.pop();
         this.xs = [1 - this.image_width].concat(this.xs.slice(0));
-        this.source.set('data', {
+        source.set('data', {
           image: this.images,
           x: this.xs
         });
@@ -231,7 +232,6 @@
       for (i = _j = 0, _ref1 = this.config.SPECTROGRAM_LENGTH; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
         image32[i * this.image_width + this.col] = buf32[i];
       }
-      source = this.model.get('data_source');
       source.get('data')['x'] = this.xs;
       return source.trigger('change', true, 0);
     };
@@ -251,7 +251,10 @@
   })();
 
   RadialHistogramPlot = (function() {
-    function RadialHistogramPlot() {}
+    function RadialHistogramPlot(model, config) {
+      this.model = model;
+      this.config = config;
+    }
 
     RadialHistogramPlot.prototype.update = function(bins) {
       var alpha, angle, end, i, inner, j, outer, range, source, start, _i, _j, _ref, _ref1, _ref2, _results;
@@ -325,7 +328,10 @@
   })();
 
   SimpleXYPlot = (function() {
-    function SimpleXYPlot() {}
+    function SimpleXYPlot(model, config) {
+      this.model = model;
+      this.config = config;
+    }
 
     SimpleXYPlot.prototype.update = function(x, y) {
       var source;

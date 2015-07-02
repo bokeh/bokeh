@@ -130,6 +130,7 @@ class SpectrogramPlot
 
   update: (spectrum) ->
     buf = @cmap.v_map_screen(spectrum)
+    source = @model.get('data_source')
 
     for i in [0...@xs.length]
       @xs[i] += 1
@@ -141,7 +142,7 @@ class SpectrogramPlot
       @images = [img].concat(@images[0..])
       @xs.pop()
       @xs = [1-@image_width].concat(@xs[0..])
-      @source.set('data', {image: @images, x: @xs})
+      source.set('data', {image: @images, x: @xs})
 
     image32 = new Uint32Array(@images[0])
     buf32 = new Uint32Array(buf)
@@ -149,7 +150,6 @@ class SpectrogramPlot
     for i in [0...@config.SPECTROGRAM_LENGTH]
       image32[i*@image_width+@col] = buf32[i]
 
-    source = @model.get('data_source')
     source.get('data')['x'] = @xs
     source.trigger('change', true, 0)
 
@@ -159,6 +159,8 @@ class SpectrogramPlot
     y_range.set({'start': y0, 'end' : y1})
 
 class RadialHistogramPlot
+
+  constructor: (@model, @config) ->
 
   update: (bins) ->
     source = @model.get('data_source')
@@ -178,6 +180,8 @@ class RadialHistogramPlot
     source.trigger('change', source)
 
 class SimpleXYPlot
+
+  constructor: (@model, @config) ->
 
   update: (x, y) ->
     source = @model.get('data_source')
