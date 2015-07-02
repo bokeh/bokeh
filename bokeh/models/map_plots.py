@@ -6,6 +6,9 @@ from __future__ import absolute_import
 from ..properties import HasProps
 from ..properties import Enum, Float, Instance, Int, JSON
 from ..enums import MapType
+from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
+from ..validation.errors import REQUIRED_RANGE
+from .. import validation
 
 from .plots import Plot
 
@@ -49,6 +52,17 @@ class GMapPlot(Plot):
 
     """
 
+    # TODO (bev) map plot might not have these
+    @validation.error(REQUIRED_RANGE)
+    def _check_required_range(self):
+        pass
+    @validation.warning(MISSING_RENDERERS)
+    def _check_missing_renderers(self):
+        pass
+    @validation.warning(NO_GLYPH_RENDERERS)
+    def _check_no_glyph_renderers(self):
+        pass
+
     map_options = Instance(GMapOptions, help="""
     Options for displaying the plot.
     """)
@@ -80,6 +94,17 @@ class GeoJSPlot(Plot):
     .. _GeoJS Map: https://github.com/OpenGeoscience/geojs
 
     """
+
+    # TODO (bev) map plot might not have these
+    @validation.error(REQUIRED_RANGE)
+    def _check_required_range(self):
+        pass
+    @validation.warning(MISSING_RENDERERS)
+    def _check_missing_renderers(self):
+        pass
+    @validation.warning(NO_GLYPH_RENDERERS)
+    def _check_no_glyph_renderers(self):
+        pass
 
     map_options = Instance(GeoJSOptions, help="""
     Options for displaying the plot.
