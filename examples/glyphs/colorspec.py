@@ -11,9 +11,9 @@ from bokeh.resources import INLINE
 
 source = ColumnDataSource(
     data = dict(
-        x = [1,2,3,4,5],
-        y = [5,4,3,2,1],
-        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "rgba(120, 230, 150, 0.5)"]
+        x = [1, 2, 3, 4, 4,   5, 5],
+        y = [5, 4, 3, 2, 2.1, 1, 1.1],
+        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "#2c7fb8", "rgba(120, 230, 150, 0.5)", "rgba(120, 230, 150, 0.5)"]
     )
 )
 
@@ -22,12 +22,19 @@ ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr)
 
-circle = Circle(x="x", y="y", size=15,
+circle = Circle(x="x", y="y", radius=0.2,
     # Set the fill color to be dependent on the "color" field of the
     # data source.  If the field is missing, then the default value is
     # used. Since no explicit default is provided, this picks up the
     # default in FillProps, which is "gray".
     fill_color="color",
+
+    # Alternative to using fill_color with rgba values, you can also use
+    # the fill_alpha setting to set the alpha values of your circle or
+    # other glyphs. This can be set as a single value or powered by a
+    # column in your data source. Uncomment the following line
+    # to see the effect.
+    # fill_alpha=0.2,
 
     # An alternative form that explicitly sets a default value:
     #fill_color={"default": "red", "field": "color"},
