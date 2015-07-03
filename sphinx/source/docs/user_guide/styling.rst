@@ -282,7 +282,7 @@ of the |Plot| object. You can also set the minimum border on each side
 ``min_border_bottom``
 
 Additionally, setting ``min_border`` will apply a minimum border setting
-to all sides as a convenience.
+to all sides as a convenience. The ``min_border`` default value is 40px.
 
 .. bokeh-plot::
     :source-position: above
