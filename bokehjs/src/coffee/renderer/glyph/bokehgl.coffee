@@ -1,4 +1,6 @@
 gloo2 = require "gloo2"
+color = require "../../common/color"
+color2rgba = color.color2rgba
 
 # Copyright notice: many of the awesome GLSL code contained in this module is based
 # on code developed by Nicolas Rougier as part of the Glumpy and Vispy projects.
@@ -18,16 +20,7 @@ gloo2 = require "gloo2"
 # todo: implement angles.
 
 
-hex2rgb = (hex, alpha=1) ->
-    # Convert hex color to RGBA tuple
-    if hex.length < 5
-      colorparts = /^#?([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i.exec(hex)
-      color = [parseInt(colorparts[1], 16)/15, parseInt(colorparts[2], 16)/15, parseInt(colorparts[3], 16)/15]      
-    else
-      colorparts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-      color = [parseInt(colorparts[1], 16)/255, parseInt(colorparts[2], 16)/255, parseInt(colorparts[3], 16)/255]
-    color.push(alpha)
-    return color
+
 
 
 line_width = (width) ->
@@ -55,7 +48,7 @@ fill_array_with_color = (n, m, visual) ->
     a = new Float32Array(n*m)
     if visual.color.fixed_value? and visual.alpha.fixed_value?
       console.log('simple ' + visual.color.fixed_value)
-      rgba = hex2rgb(visual.color.fixed_value, visual.alpha.fixed_value)
+      rgba = color2rgba(visual.color.fixed_value, visual.alpha.fixed_value)
       for i in [0...n]
         for j in [0...m]
           a[i*m+j] = rgba[j]
@@ -77,7 +70,7 @@ fill_array_with_color = (n, m, visual) ->
       # Get array of rgbs
       console.log('many ' + colors.length + '  ' + n)
       for i in [0...n]
-        rgba = hex2rgb(colors[i], alphas[i])
+        rgba = color2rgba(colors[i], alphas[i])
         for j in [0...m]
           a[i*m+j] = rgba[j]
     return a
