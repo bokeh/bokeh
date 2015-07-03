@@ -111,7 +111,7 @@ def main():
 def make_spectrogram():
 
     plot_kw = dict(
-        tools="", min_border=20, h_symmetry=False, v_symmetry=False, toolbar_location=None
+        tools="", min_border=20, h_symmetry=False, v_symmetry=False, toolbar_location=None, outline_line_color='#595959',
     )
 
     freq_slider = Slider(start=1, end=MAX_FREQ, value=MAX_FREQ, step=1, name="freq", title="Frequency")
