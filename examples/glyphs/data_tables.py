@@ -1,7 +1,6 @@
-
-from bokeh.document import Document
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, GlyphRenderer, Circle, HoverTool, BoxSelectTool
-from bokeh.models.widgets import VBox, DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
+from bokeh.io import vplot
+from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
+from bokeh.models.widgets import DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.browserlib import view
@@ -29,18 +28,21 @@ columns = [
 ]
 data_table = DataTable(source=source, columns=columns, editable=True)
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=1000, plot_height=300)
-xaxis = LinearAxis(plot=plot)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot)
-ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
-plot.left.append(yaxis)
+plot = Plot(title=None, x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
+
+# Set up x & y axis
+plot.add_layout(LinearAxis(), 'below')
+yaxis = LinearAxis()
+plot.add_layout(yaxis, 'left')
+plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+
+# Add Glyphs
 cty_glyph = Circle(x="index", y="cty", fill_color="#396285", size=8, fill_alpha=0.5, line_alpha=0.5)
 hwy_glyph = Circle(x="index", y="hwy", fill_color="#CE603D", size=8, fill_alpha=0.5, line_alpha=0.5)
-cty = GlyphRenderer(data_source=source, glyph=cty_glyph)
-hwy = GlyphRenderer(data_source=source, glyph=hwy_glyph)
+cty = plot.add_glyph(source, cty_glyph)
+hwy = plot.add_glyph(source, hwy_glyph)
+
+# Add the tools
 tooltips = [
     ("Manufacturer", "@manufacturer"),
     ("Model", "@model"),
@@ -51,20 +53,16 @@ tooltips = [
     ("Drive", "@drv"),
     ("Class", "@class"),
 ]
-cty_hover_tool = HoverTool(plot=plot, renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
-hwy_hover_tool = HoverTool(plot=plot, renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
-select_tool = BoxSelectTool(plot=plot, renderers=[cty, hwy], dimensions=['width'])
-plot.tools.extend([cty_hover_tool, hwy_hover_tool, select_tool])
-plot.renderers.extend([cty, hwy, ygrid])
+cty_hover_tool = HoverTool(renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
+hwy_hover_tool = HoverTool(renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
+select_tool = BoxSelectTool(renderers=[cty, hwy], dimensions=['width'])
+plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
-layout = VBox(children=[plot, data_table])
-
-doc = Document()
-doc.add(layout)
+layout = vplot(plot, data_table)
 
 if __name__ == "__main__":
     filename = "data_tables.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Data Tables"))
+        f.write(file_html(layout, INLINE, "Data Tables"))
     print("Wrote %s" % filename)
     view(filename)
