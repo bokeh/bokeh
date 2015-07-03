@@ -77,7 +77,7 @@
       freq = this.freq_slider.model.get('value');
       console.log("setting upper freq range:", freq);
       this.spectrogram_plot.set_yrange(0, freq);
-      return this.power_plot.set_xrange(0, freq);
+      return this.power_plot.set_xrange(0, freq * 0.001);
     };
 
     SpectrogramApp.prototype.update_gain = function() {
@@ -176,7 +176,7 @@
         var _i, _ref, _results;
         _results = [];
         for (i = _i = 0, _ref = spectrum.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-          _results.push(i / spectrum.length * this.config.MAX_FREQ);
+          _results.push((i * 0.001) / spectrum.length * this.config.MAX_FREQ);
         }
         return _results;
       }).call(this);

@@ -45,7 +45,7 @@ class SpectrogramApp
     freq = @freq_slider.model.get('value')
     console.log("setting upper freq range:", freq)
     @spectrogram_plot.set_yrange(0, freq)
-    @power_plot.set_xrange(0, freq)
+    @power_plot.set_xrange(0, freq*0.001)
 
   update_gain: () =>
     @gain = @gain_slider.model.get('value')
@@ -104,7 +104,7 @@ class SpectrogramApp
     t = (i/signal.length*@config.TIMESLICE for i in [0...signal.length])
     @signal_plot.update(t, signal)
 
-    f = (i/spectrum.length*@config.MAX_FREQ for i in [0...spectrum.length])
+    f = ((i*0.001)/spectrum.length*@config.MAX_FREQ for i in [0...spectrum.length])
     @power_plot.update(f, spectrum)
 
     @eq_plot.update(data.bins)

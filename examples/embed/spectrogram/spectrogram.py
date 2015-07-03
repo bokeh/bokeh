@@ -129,17 +129,20 @@ def make_spectrogram():
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = figure(
         title=None, plot_width=600, plot_height=250,
-        y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ],
+        y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ*0.001],
         y_axis_type="log", background_fill="#f2f7f6", **plot_kw)
     spectrum.line(
         x="x", y="y", line_color="#024768",
         source=spectrum_source, name="spectrum")
     spectrum.xgrid.grid_line_dash=[2, 2]
-    spectrum.xaxis.axis_label = "Time"
-    spectrum.xaxis.axis_label_text_align = "left"
-    spectrum.xaxis.axis_label_text_font = "Times"
-    spectrum.xaxis.axis_label_text_font_size = "16pt"
+    spectrum.xaxis.axis_label = "Frequency (kHz)"
+    spectrum.xaxis.axis_label_text_font = "Georgia"
+    spectrum.xaxis.axis_label_text_font_size = "12pt"
     spectrum.xaxis.axis_label_text_font_style = "bold"
+    spectrum.xaxis.axis_label_text_color = "#231f20"
+    spectrum.xaxis.major_label_text_font = "Georgia"
+    spectrum.xaxis.major_label_text_font_size = "12pt"
+    spectrum.xaxis.major_label_text_color = "#231f20"
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = figure(
@@ -149,11 +152,14 @@ def make_spectrogram():
         x="x", y="y", line_color="#024768",
         source=signal_source,  name="signal")
     signal.xgrid.grid_line_dash = [2, 2]
-    signal.xaxis.axis_label = "Time"
-    signal.xaxis.axis_label_text_align = "left"
-    signal.xaxis.axis_label_text_font = "Times"
-    signal.xaxis.axis_label_text_font_size = "16pt"
+    signal.xaxis.axis_label = "Time (ms)"
+    signal.xaxis.axis_label_text_font = "Georgia"
+    signal.xaxis.axis_label_text_font_size = "12pt"
     signal.xaxis.axis_label_text_font_style = "bold"
+    signal.xaxis.axis_label_text_color = "#231f20"
+    signal.xaxis.major_label_text_font = "Georgia"
+    signal.xaxis.major_label_text_font_size = "12pt"
+    signal.xaxis.major_label_text_color = "#231f20"
 
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[],
