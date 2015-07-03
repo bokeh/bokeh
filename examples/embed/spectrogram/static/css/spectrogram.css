@@ -1,5 +1,5 @@
 body {
-  font-family: "Source Code Pro", Helvetica, Arial, sans-serif;
+  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
   font-size: 12pt;
   line-height: 1.42857143;
   color: #595959;
@@ -24,8 +24,8 @@ input[type="radio"]{
 }
 
 input[type="radio"] + label {
-  height: 48px;
-  width: 48px;
+  height: 32px;
+  width: 32px;
   display:inline-block;
   padding: 0 0 0 0px;
 }
@@ -44,8 +44,8 @@ input[type="radio"] + label {
 }
 
 input[type="radio"]:checked + label {
-  height: 48px;
-  width: 48px;
+  height: 32px;
+  width: 32px;
   display:inline-block;
   padding: 0 0 0 0px;
   background-color: #afd8d4;
@@ -69,7 +69,7 @@ input[type="radio"]:checked + label {
 
 .heading {
   background-color: #3f3f3f;
-  padding: 20px;
+  padding: 10px;
 }
 .heading-container {
   margin: auto;
@@ -79,11 +79,11 @@ input[type="radio"]:checked + label {
   margin: auto;
   width: 1170px;
   padding-top: 20px;
-  padding-bottom: 80px;
+  padding-bottom: 20px;
   background-color: #d4e7e4;
 }
 .bk-bs-row {
-  padding-top: 20px;
+  padding-top: 10px;
 }
 #signal-label,
 #spectrum-label {
@@ -99,6 +99,7 @@ input[type="radio"]:checked + label {
  *
 */
 #slider-box {
+  padding-top: 15px;
   font-family: Georgia, "Times New Roman", Times, serif;
   color: #231f30;
   background-color: #afd8d4;
@@ -109,17 +110,19 @@ input[type="radio"]:checked + label {
   margin: auto;
 }
 #slider-box h4 {
-  font-size: 16px;
+  font-size: 14px;
 }
 #slider-box input {
   background-color: #afd8d4;
   font-family: "Georgia";
   font-weight: normal !important;
   color: #231f20 !important;
-  width: 80px !important;
+  width: 60px !important;
 }
 #slider-box label {
-  padding: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 28px
 }
 .ui-slider-horizontal {
   width: 140px;
@@ -139,7 +142,7 @@ input[type="radio"]:checked + label {
 .ui-widget-content,
 .bk-ui-widget-content {
   border: 1px solid #aaaaaa;
-  background: #afd8d4;
+  background: #ddd;
   color: #222222;
 }
 .ui-state-default,
@@ -183,4 +186,5 @@ input[type="radio"]:checked + label {
 }
 #equalizer {
   margin-top: 18px;
+  margin-left: 71px;
 }

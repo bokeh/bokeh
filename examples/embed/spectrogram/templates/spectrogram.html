@@ -57,31 +57,35 @@
             </div>
         </div>
         <div class="bk-bs-row">
-            <div class="bk-bs-col-sm-2">
-                <div id="signal-label">
-                  <h4 class="pull-right">Signal</h4>
+            <div class="bk-bs-col-sm-8">
+                <div class="bk-bs-row">
+                    <div class="bk-bs-col-sm-3">
+                        <div id="signal-label">
+                          <h4 class="pull-right">Signal</h4>
+                        </div>
+                    </div>
+                    <div class="bk-bs-col-sm-6 line-plots">
+                        <div id="signal">
+                        {{ divs.signal|safe }}
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="bk-bs-col-sm-6 line-plots">
-                <div id="signal">
-                {{ divs.signal|safe }}
+                <div class="bk-bs-row">
+                    <div class="bk-bs-col-sm-3">
+                        <div id="spectrum-label">
+                          <h4 class="pull-right">Power Spectrum</h4>
+                        </div>
+                    </div>
+                    <div class="bk-bs-col-sm-6 line-plots">
+                        <div id="spectrum">
+                        {{ divs.spectrum|safe }}
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="bk-bs-col-sm-2">
                 <div id="equalizer">
                     {{ divs.equalizer|safe }}
-                </div>
-            </div>
-        </div>
-        <div class="bk-bs-row">
-            <div class="bk-bs-col-sm-2">
-                <div id="spectrum-label">
-                  <h4 class="pull-right">Power Spectrum</h4>
-                </div>
-            </div>
-            <div class="bk-bs-col-sm-6 line-plots">
-                <div id="spectrum">
-                {{ divs.spectrum|safe }}
                 </div>
             </div>
         </div>

@@ -130,6 +130,9 @@ def make_spectrogram():
         source=spec_source, dilate=True, name="spectrogram")
     spec.grid.grid_line_color = None
     spec.background_fill="#024768"
+    spec.axis.major_label_text_font = "Georgia"
+    spec.axis.major_label_text_font_size = "8pt"
+    spec.axis.major_label_text_color = "#231f20"
 
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = figure(
