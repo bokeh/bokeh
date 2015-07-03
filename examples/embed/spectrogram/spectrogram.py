@@ -177,8 +177,9 @@ def make_spectrogram():
     eq = figure(
         title=None, plot_width=300, plot_height=300,
         x_axis_type=None, y_axis_type=None,
-        x_range=[-20, 20], y_range=[-20, 20], background_fill="#f2f7f6",
+        x_range=[-20, 20], y_range=[-20, 20], background_fill="#d4e7e4",
         border_fill= "#d4e7e4",**plot_kw)
+    eq.outline_line_color = None
     eq.annular_wedge(
         x=0, y=0, fill_color="#024768", fill_alpha="fill_alpha", line_color=None,
         inner_radius="inner_radius", outer_radius="outer_radius",
@@ -210,8 +211,9 @@ def get_audio_data():
             spectrum = abs(fft)[:NUM_SAMPLES/2]
             power = spectrum**2
             bins = [simps(a) for a in np.split(power, 16)]
+            new_data = signal.tolist(), spectrum.tolist(), bins
             with mutex:
-                data = signal.tolist(), spectrum.tolist(), bins
+                data = new_data
         except:
             with mutex:
                 data = None
