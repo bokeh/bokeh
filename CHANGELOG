@@ -1,3 +1,93 @@
+2015-07-03    0.9.1:
+--------------------
+  * New callbacks options for hover, selection, and range updates
+  * Documentation for widgets and new callbacks in the User's Guide
+  * Much more flexible embed.components that can embed multiple objects
+  * Implemented a validation framework to provide errors and warnings
+  * More than 30 smaller bugfixes
+  * bugfixes:
+    - #1254 [docs] Setting small plot_width or plot_height to categorical plot without min_border
+    - #1255 [docs] Bokeh.embed.components second parameter not optional
+    - #1926 [docs] Tap_select tool is actually tap
+    - #2040 Expose level parameter in python
+    - #2161 Color tuples not supported 
+    - #2176 Fix error: unable to parse uri to data
+    - #2245 Bokeh-server --url-prefix is being ignored
+    - #2282 [starter] [tests] Testmatrix script not in sync with bep 2
+    - #2303 [build] Tagging on release produce wrong names in binstar packages
+    - #2306 [bokehjs] [regression] Fix issues preventing bokehjs 0.9 working on jsfiddle site
+    - #2311 [bokehjs] [docs] Broken link to help pages from bokeh plots
+    - #2316 Text glyph font size from columndatasource field not working in 0.9
+    - #2329 Diamond/diamondcross both show diamonds
+    - #2336 [docs] Categorial heatmap gallery example missing (bad path)
+    - #2338 Valueerror: min() arg is an empty sequence
+    - #2356 [bokehjs] Force glyphs to always beginpath before rendering
+    - #2357 Crosshairtool lacks "dimension" property
+    - #2359 [docs] Animated line and animated glyph gallery examples are broken
+    - #2365 [examples] Compat/seaborn/sinerror.py is broken
+    - #2366 Patches doesn't render with reversed ranges
+    - #2376 Hover on discontinuous patches
+    - #2396 [bokehjs] [docs] Tools seems to be broken in latest version of chrome and chromium
+    - #2416 Datetime scalar transformation loss of resolution
+    - #2431 Datarange1d start and end bug
+    - #2436 Bokeh jquery overriding previously loaded jquery
+    - #2445 Prevent non-compliant json generation
+    - #2459 Hotfix for components 
+    - #2478 [examples] Pin seaborn version
+    - #2482 Deactivate tests before building to avoid huge packages
+    - #2484 Use the correct extension
+    - #2498 Use bokeh's jquery for server template
+  * features:
+    - #602 Add object integrity validation
+    - #1727 Add categorical y axis
+    - #1754 `to_bokeh` ignores alpha
+    - #1873 [docs] Palette argument for charts not well documented
+    - #1960 Throw exception if nonexistent keyword arguments are given
+    - #2100 Fix handling of initial columns in crossfilter
+    - #2213 Feature: bokeh-server with https enabled
+    - #2335 Tab completion for splattable lists
+    - #2348 Extend embed.component to let multiple objects be rendered in multiple divs 
+    - #2354 Add support for `styles` in google map `map_options`
+    - #2368 [bokehjs] Minor grid lines
+    - #2371 [docs] Add mailing list to gmane
+    - #2390 [examples] Slider demo - animated bubble
+    - #2410 Allow users to specify jinja2 template variables
+    - #2411 Task/add range update callback
+    - #2465 Callback for box selection tool
+  * tasks:
+    - #850 [docs] Clarify how axes can be labelled
+    - #853 [docs] Widget documentation
+    - #2234 [bokehjs] Better bokehjs debug mode
+    - #2293 [docs] [starter] Update bep2 install instructions
+    - #2302 Updating bokeh server image
+    - #2305 [docs] Server section on user guide
+    - #2308 [build] [docs] Improve some tooling around version reporting
+    - #2309 [docs] User guide improvements/typo corrections
+    - #2313 [docs] Sampledata.download() defaults to home directory
+    - #2320 Remove extra whitespace
+    - #2322 [docs] [doc] changed `tap_select` to `tap`
+    - #2337 [docs] Change binstar.org references to anaconda.org references
+    - #2342 [build] Remove sbt-based build system
+    - #2343 [docs] Keep output html filename consistent with exercise name
+    - #2358 [examples] Added palettes example to gallery
+    - #2400 [branches] Extend embed.component to let multiple objects be rendered in multiple divs
+    - #2403 [branches] Added test, improved conditionals
+    - #2404 [branches] Added error prompt wth message
+    - #2406 [branches] Added document support alongside plotobject
+    - #2407 [branches] Line too long
+    - #2412 [bokehjs] Standardize callback interface with args
+    - #2420 Build enhancements
+    - #2421 Quasi-complete automation
+    - #2433 Spectrogram improvements
+    - #2440 Allow gridplot.select uses name & type paramters
+    - #2457 [examples] Add example plotting widget with play stop
+    - #2477 Add hovertool callback examples
+    - #2481 [docs] Open docs pr for 0.9.1 release
+    - #2483 [examples] Open pr for small example (only) updates for 0.9.1
+    - #2485 Elide some unnecessary checks for map plots
+    - #2510 [docs] Add 0.9.1 release highlights
+    - #2511 Revert some automated commits
+
 2015-05-15    0.9.0:
 --------------------
   * Callback Action, serverless interactivity in static plots
