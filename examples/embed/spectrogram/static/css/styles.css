@@ -8,6 +8,20 @@ body {
     min-height: 100%;
 }
 
+h1 {
+    font-family: "Source Sans Pro";
+    font-weight: bold;
+    font-size: 37 pt;
+    color: #e475ae;
+}
+
+h3 {
+    font-family: "Source Sans Pro";
+    font-weight: normal;
+    font-size: 21 pt;
+    color: #afd8d4;
+}
+
 .bk-bs-container {
     padding-top: 20px;
     padding-bottom: 80px;
@@ -22,7 +36,7 @@ body {
  *
  * SLIDER
  *
-*/  
+*/
 
 .ui-slider-horizontal {
   width: 190px;
