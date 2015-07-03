@@ -266,10 +266,10 @@ class PlotView extends ContinuumView
       gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
       # Setup blending so that everything *within* gl blends correctly, and
       # the resulting total alpha causes correct blending with the 2D canvas.
+      # Does not blend exactly the same way with 2D-drawn content though. 
       # todo: at some point we should implement Order Independent Transparency
-      #gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)  # This would probably work on a black background
       gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)
 
     if @outline_props.do_stroke
       @outline_props.set_value(ctx)
@@ -283,6 +283,7 @@ class PlotView extends ContinuumView
       # missing/double scanlines (seen in Chrome).
       for prefix in ['image', 'mozImage', 'webkitImage','msImage']
          ctx[prefix + 'SmoothingEnabled'] = false
+      #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
       ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
       for prefix in ['image', 'mozImage', 'webkitImage','msImage']
          ctx[prefix + 'SmoothingEnabled'] = true
