@@ -139,13 +139,13 @@ def make_spectrogram():
         source=spectrum_source, name="spectrum")
     spectrum.xgrid.grid_line_dash=[2, 2]
     spectrum.xaxis.axis_label = "Frequency (kHz)"
-    spectrum.xaxis.axis_label_text_font = "Georgia"
-    spectrum.xaxis.axis_label_text_font_size = "12pt"
-    spectrum.xaxis.axis_label_text_font_style = "bold"
-    spectrum.xaxis.axis_label_text_color = "#231f20"
-    spectrum.xaxis.major_label_text_font = "Georgia"
-    spectrum.xaxis.major_label_text_font_size = "12pt"
-    spectrum.xaxis.major_label_text_color = "#231f20"
+    spectrum.axis.axis_label_text_font = "Georgia"
+    spectrum.axis.axis_label_text_font_size = "12pt"
+    spectrum.axis.axis_label_text_font_style = "bold"
+    spectrum.axis.axis_label_text_color = "#231f20"
+    spectrum.axis.major_label_text_font = "Georgia"
+    spectrum.axis.major_label_text_font_size = "8pt"
+    spectrum.axis.major_label_text_color = "#231f20"
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = figure(
@@ -156,13 +156,13 @@ def make_spectrogram():
         source=signal_source,  name="signal")
     signal.xgrid.grid_line_dash = [2, 2]
     signal.xaxis.axis_label = "Time (ms)"
-    signal.xaxis.axis_label_text_font = "Georgia"
-    signal.xaxis.axis_label_text_font_size = "12pt"
-    signal.xaxis.axis_label_text_font_style = "bold"
-    signal.xaxis.axis_label_text_color = "#231f20"
-    signal.xaxis.major_label_text_font = "Georgia"
-    signal.xaxis.major_label_text_font_size = "12pt"
-    signal.xaxis.major_label_text_color = "#231f20"
+    signal.axis.axis_label_text_font = "Georgia"
+    signal.axis.axis_label_text_font_size = "12pt"
+    signal.axis.axis_label_text_font_style = "bold"
+    signal.axis.axis_label_text_color = "#231f20"
+    signal.axis.major_label_text_font = "Georgia"
+    signal.axis.major_label_text_font_size = "8pt"
+    signal.axis.major_label_text_color = "#231f20"
 
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[],

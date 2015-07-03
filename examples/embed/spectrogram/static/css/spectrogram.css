@@ -1,6 +1,6 @@
 body {
   font-family: "Source Code Pro", Helvetica, Arial, sans-serif;
-  font-size: 16pt;
+  font-size: 12pt;
   line-height: 1.42857143;
   color: #595959;
   background-color: #d4e7e4;
@@ -64,10 +64,14 @@ h3 {
   font-size: 16px;
 }
 #slider-box input {
-  display: none;
+  background-color: #afd8d4;
+  font-family: "Georgia";
+  font-weight: normal !important;
+  color: #231f20 !important;
+  width: 80px !important;
 }
 #slider-box label {
-  padding: 10px;
+  padding: 5px;
 }
 .ui-slider-horizontal {
   width: 140px;
@@ -87,7 +91,7 @@ h3 {
 .ui-widget-content,
 .bk-ui-widget-content {
   border: 1px solid #aaaaaa;
-  background: #ffffff;
+  background: #afd8d4
   color: #222222;
 }
 .ui-state-default,
@@ -112,7 +116,8 @@ h3 {
   cursor: default;
   -ms-touch-action: none;
   touch-action: none;
-  border-radius: 2px;
+  border-radius: 12px;
+  background: #024768;
 }
 .ui-slider .ui-slider-handle:focus {
   outline: none;
