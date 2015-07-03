@@ -2,7 +2,7 @@
  * General Theme
  *
  */
-body {
+.bk-body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
@@ -18,8 +18,9 @@ body {
  * MAIN BOKEH SETUP
  *
  */ 
-.bk-plot-wrapper table tr td, 
-table, td, tr {
+.bk-plot-wrapper table,
+.bk-plot-wrapper tr,
+.bk-plot-wrapper td {
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
@@ -129,7 +130,8 @@ table, td, tr {
  *
 */  
 
-input, label {
+.plotdiv input,
+.plotdiv label {
     display: none;
 }
 
