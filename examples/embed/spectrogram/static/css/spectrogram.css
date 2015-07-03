@@ -19,6 +19,54 @@ h3 {
   color: #afd8d4;
   margin: 0;
 }
+input[type="radio"]{
+    display:none;
+}
+
+input[type="radio"] + label {
+  height: 48px;
+  width: 48px;
+  display:inline-block;
+  padding: 0 0 0 0px;
+}
+
+#bkplay + label {
+  background-color: #afd8d4;
+  background: url(/images/PlayGrey.gif);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+#bkpause + label {
+  background-color: #afd8d4;
+  background: url(/images/PauseGrey.gif);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+input[type="radio"]:checked + label {
+  height: 48px;
+  width: 48px;
+  display:inline-block;
+  padding: 0 0 0 0px;
+  background-color: #afd8d4;
+}
+#bkplay:checked + label {
+  background: url(/images/PlayOrange.gif);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+#bkpause:checked + label {
+  background: url(/images/PauseOrange.gif);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+#button-box {
+  margin-top: 15px;
+  width:auto;
+  text-align:center
+}
+
 .heading {
   background-color: #3f3f3f;
   padding: 20px;
@@ -91,7 +139,7 @@ h3 {
 .ui-widget-content,
 .bk-ui-widget-content {
   border: 1px solid #aaaaaa;
-  background: #afd8d4
+  background: #afd8d4;
   color: #222222;
 }
 .ui-state-default,

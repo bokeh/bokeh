@@ -20,6 +20,19 @@ class SpectrogramApp
     @paused = false
     @gain = 1
 
+    @play_button = Bokeh.$('#bkplay')
+    @play_button.click(() =>
+      @paused=false
+      @play_button.prop('checked', true)
+      @pause_button.prop('checked', false)
+    )
+    @pause_button = Bokeh.$('#bkpause')
+    @pause_button.click(() =>
+      @paused=true
+      @play_button.prop('checked', false)
+      @pause_button.prop('checked', true)
+    )
+
     for key in @keys
         item = Bokeh.index[key]
         item_id = item.el.id
@@ -62,7 +75,7 @@ class SpectrogramApp
   request_data: () =>
     in_flight = false
     helper = () =>
-      if in_flight
+      if in_flight or @paused
         return
       in_flight = true
       Bokeh.$.ajax('/data',

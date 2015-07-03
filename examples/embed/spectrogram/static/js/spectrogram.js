@@ -37,6 +37,18 @@
       this.update_freq = __bind(this.update_freq, this);
       this.paused = false;
       this.gain = 1;
+      this.play_button = Bokeh.$('#bkplay');
+      this.play_button.click(function() {
+        _this.paused = false;
+        _this.play_button.prop('checked', true);
+        return _this.pause_button.prop('checked', false);
+      });
+      this.pause_button = Bokeh.$('#bkpause');
+      this.pause_button.click(function() {
+        _this.paused = true;
+        _this.play_button.prop('checked', false);
+        return _this.pause_button.prop('checked', true);
+      });
       _ref = this.keys;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         key = _ref[_i];
@@ -99,7 +111,7 @@
         _this = this;
       in_flight = false;
       helper = function() {
-        if (in_flight) {
+        if (in_flight || _this.paused) {
           return;
         }
         in_flight = true;

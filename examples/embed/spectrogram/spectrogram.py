@@ -3,6 +3,7 @@ import json
 from threading import Thread, RLock
 
 import flask
+from flask import send_from_directory
 import pyaudio
 import numpy as np
 import scipy as sp
@@ -92,6 +93,10 @@ def data():
         })
 
 
+@app.route('/images/<path:path>')
+def send_image(path):
+    return send_from_directory('images', path)
+
 def main():
     """ Start the sound server, which retains the audio data inside
     its process space, and forks out workers when web connections are
@@ -104,8 +109,6 @@ def main():
     t.start()
 
     app.run(debug=True)
-
-
 
 
 def make_spectrogram():
@@ -130,7 +133,7 @@ def make_spectrogram():
 
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = figure(
-        title=None, plot_width=600, plot_height=300,
+        title=None, plot_width=600, plot_height=220,
         y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ*0.001],
         y_axis_type="log", background_fill="#f2f7f6", border_fill= "#d4e7e4",
         **plot_kw)
@@ -149,7 +152,7 @@ def make_spectrogram():
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = figure(
-        title=None, plot_width=600, plot_height=300, background_fill="#f2f7f6",
+        title=None, plot_width=600, plot_height=220, background_fill="#f2f7f6",
         x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], border_fill= "#d4e7e4",**plot_kw)
     signal.line(
         x="x", y="y", line_color="#024768",
