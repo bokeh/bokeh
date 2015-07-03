@@ -9,7 +9,7 @@
     {% for raw in bokeh.css_raw %}
         <style>{{ raw|safe }}</style>
     {% endfor %}
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:300,400,700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700' rel='stylesheet' type='text/css'>
     <link href="static/css/spectrogram.css" type="text/css" rel="stylesheet" />
 
   </head>
@@ -25,9 +25,7 @@
       </div>
     <div class="bk-bs-container">
         <div class="bk-bs-row">
-            <div class="bk-bs-col-sm-2">
-            </div>
-            <div class="bk-bs-col-sm-8 explan-text">
+            <div class="bk-bs-col-sm-offset-3 bk-bs-col-sm-8 explan-text">
               <p>
               This spectrogram demo uses <a href="https://people.csail.mit.edu/hubert/pyaudio/">PyAudio</a> to
               sample the computer's microphone, <a href="http://www.numpy.org">NumPy</a> to compute the FFT and
@@ -68,7 +66,7 @@
             <div class="bk-bs-col-sm-8">
                 <div class="bk-bs-row">
                     <div class="bk-bs-col-sm-3">
-                        <div id="signal-label">
+                        <div id="signal-label" class="clearfix">
                           <h4 class="pull-right">Signal</h4>
                         </div>
                     </div>
@@ -80,7 +78,7 @@
                 </div>
                 <div class="bk-bs-row">
                     <div class="bk-bs-col-sm-3">
-                        <div id="spectrum-label">
+                        <div id="spectrum-label" class="clearfix">
                           <h4 class="pull-right">Power Spectrum</h4>
                         </div>
                     </div>
