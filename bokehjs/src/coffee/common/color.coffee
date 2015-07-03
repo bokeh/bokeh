@@ -4,27 +4,37 @@
 # CSS colors courtesy MIT-licensed code from Dave Eddy:
 # github.com/bahamas10/css-color-names/blob/master/css-color-names.json
 
+_component2hex = (v) ->
+  h = Number(v).toString(16)
+  h = if h.length == 1 then '0' + h else h
+
 color2hex = (color) ->
- 
-  if color.slice(0, 1) == '#'
+  if color.indexOf('#') == 0
     return color
   else if _color_dict[color]?
     return _color_dict[color]
+  else if color.indexOf('rgb') == 0
+    rgb = color.match(/\d+/g)
+    hex = (_component2hex(v) for v in rgb).join('')
+    return '#' + hex.slice(0, 8)  # can also be rgba
   else
     return color
 
 color2rgba = (color, alpha=1) ->
+    # Convert to hex and then to clean version of 6 or 8 chars
     hex = color2hex(color)
-    console.log('coloring: ' + color + '   ' + hex)
-    # Convert hex color to RGBA tuple
-    if hex.length < 7
-      colorparts = /^#?([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i.exec(hex)
-      color = [parseInt(colorparts[1], 16)/15, parseInt(colorparts[2], 16)/15, parseInt(colorparts[3], 16)/15]      
-    else
-      colorparts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-      color = [parseInt(colorparts[1], 16)/255, parseInt(colorparts[2], 16)/255, parseInt(colorparts[3], 16)/255]
-    color.push(alpha)
-    return color
+    hex = hex.replace(/ |#/g, '')
+    if hex.length <= 4
+      hex = hex.replace(/(.)/g, '$1$1')
+    # Convert pairs to numbers
+    hex = hex.match(/../g)
+    rgba = (parseInt(i, 16)/255 for i in hex)
+    # Ensure correct length, add alpha if necessary
+    while rgba.length < 3
+      rgba.push(0)
+    if rgba.length < 4
+      rgba.push(alpha)    
+    return rgba.slice(0, 4)  # return 4 elements
 
 _color_dict = {
     # Matlab/MPL style colors
