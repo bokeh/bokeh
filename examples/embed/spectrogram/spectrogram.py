@@ -106,6 +106,8 @@ def main():
     app.run(debug=True)
 
 
+
+
 def make_spectrogram():
 
     plot_kw = dict(
@@ -117,7 +119,7 @@ def make_spectrogram():
 
     spec_source = ColumnDataSource(data=dict(image=[], x=[]))
     spec = figure(
-        title=None, plot_width=900, plot_height=300, min_border_left=80,
+        title=None, plot_width=990, plot_height=300, min_border_left=80,
         x_range=[0, NGRAMS], y_range=[0, MAX_FREQ], border_fill= "#d4e7e4", **plot_kw)
     spec.image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
@@ -128,7 +130,7 @@ def make_spectrogram():
 
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = figure(
-        title=None, plot_width=600, plot_height=250,
+        title=None, plot_width=600, plot_height=300,
         y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ*0.001],
         y_axis_type="log", background_fill="#f2f7f6", border_fill= "#d4e7e4",
         **plot_kw)
@@ -147,7 +149,7 @@ def make_spectrogram():
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = figure(
-        title=None, plot_width=600, plot_height=250, background_fill="#f2f7f6",
+        title=None, plot_width=600, plot_height=300, background_fill="#f2f7f6",
         x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], border_fill= "#d4e7e4",**plot_kw)
     signal.line(
         x="x", y="y", line_color="#024768",
@@ -165,8 +167,9 @@ def make_spectrogram():
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[],
     ))
+    plot_kw['min_border'] = 0
     eq = figure(
-        title=None, plot_width=500, plot_height=520,
+        title=None, plot_width=300, plot_height=300,
         x_axis_type=None, y_axis_type=None,
         x_range=[-20, 20], y_range=[-20, 20], background_fill="#f2f7f6",
         border_fill= "#d4e7e4",**plot_kw)

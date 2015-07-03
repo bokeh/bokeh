@@ -9,46 +9,73 @@
     {% for raw in bokeh.css_raw %}
         <style>{{ raw|safe }}</style>
     {% endfor %}
-    <link href="static/css/styles.css" type="text/css" rel="stylesheet" />
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:300,400,700' rel='stylesheet' type='text/css'>
+    <link href="static/css/spectrogram.css" type="text/css" rel="stylesheet" />
 
   </head>
   <body>
     {# start CONTENT BLOCK #}
 
     {# bk-bs is bokeh's namespacing of normal bootstrap classes #}
-    <div class="bk-bs-container">
-        <div class="bk-bs-row heading">
-            <h1>Bokeh Spectrogram demo</h1>
-            <h3>with custom templating</h3>
+      <div class="bk-bs-row heading">
+        <div class="heading-container">
+          <h1>Bokeh Spectrogram demo</h1>
+          <h3>with custom templating</h3>
         </div>
-
+      </div>
+    <div class="bk-bs-container">
         <div class="bk-bs-row">
             <div class="bk-bs-col-sm-2">
+            </div>
+            <div class="bk-bs-col-sm-8 explan-text">
+              <p>Explanatory text Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
+              eu consectetur ipsum, id congue leo. Donec nec mollis dolor, eu tempor felis.</p>
+            </div>
+
+        </div>
+        <div class="bk-bs-row">
+            <div class="bk-bs-col-sm-2">
+              <div id="slider-box">
                 <div id="freq-slider">
                     {{ divs.freq_slider|safe }}
                 </div>
                 <div id="gain-slider">
                     {{ divs.gain_slider|safe }}
                 </div>
+              </div>
             </div>
-            <div class="bk-bs-col-sm-9">
+            <div class="bk-bs-col-sm-8">
                 <div id="spectrogram">
                     {{ divs.spec|safe }}
                 </div>
             </div>
         </div>
         <div class="bk-bs-row">
-            <div class="bk-bs-col-md-6">
+            <div class="bk-bs-col-sm-2">
+                <div id="signal-label">
+                  <h4>Signal</h4>
+                </div>
+            </div>
+            <div class="bk-bs-col-sm-6 line-plots">
                 <div id="signal">
                 {{ divs.signal|safe }}
                 </div>
-                <div id="spectrum">
-                {{ divs.spectrum|safe }}
-                </div>
             </div>
-            <div class="bk-bs-col-md-5">
+            <div class="bk-bs-col-sm-2">
                 <div id="equalizer">
                     {{ divs.equalizer|safe }}
+                </div>
+            </div>
+        </div>
+        <div class="bk-bs-row">
+            <div class="bk-bs-col-sm-2">
+                <div id="spectrum-label">
+                  <h4>Spectrum</h4>
+                </div>
+            </div>
+            <div class="bk-bs-col-sm-6 line-plots">
+                <div id="spectrum">
+                {{ divs.spectrum|safe }}
                 </div>
             </div>
         </div>
