@@ -38,7 +38,7 @@ class CircleView extends Glyph.View
   _set_visuals: () ->
     @_init_gl()
     if @glglyph?
-      @glglyph.set_uniforms_changed()
+      @glglyph.set_visuals_changed()
 
   _mask_data: (all_indices) ->
     hr = @renderer.plot_view.frame.get('h_range')

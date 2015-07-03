@@ -15,12 +15,8 @@ color2rgba = color.color2rgba
 # - glyph.coffee, other glyphs?
 
 # todo: Can we implement all gl-specifics that's still needed in glyph.coffee?
-# todo: update GLSL with latest version from glumpy
 # todo: implement that colors set per-vertex work.
 # todo: implement angles.
-
-
-
 
 
 line_width = (width) ->
@@ -29,13 +25,11 @@ line_width = (width) ->
       width = Math.sqrt(width*2)
     return width
 
-
 fill_array_with_float = (n, val) ->
     a = new Float32Array(n)
     for i in [0...n]
         a[i] = val
     return a
-
 
 fill_array_with_vec = (n, m, val) ->    
     a = new Float32Array(n*m)
@@ -44,37 +38,54 @@ fill_array_with_vec = (n, m, val) ->
         a[i*m+j] = val[j]
     return a
 
-fill_array_with_color = (n, m, visual) ->    
-    a = new Float32Array(n*m)
-    if visual.color.fixed_value? and visual.alpha.fixed_value?
-      console.log('simple ' + visual.color.fixed_value)
-      rgba = color2rgba(visual.color.fixed_value, visual.alpha.fixed_value)
-      for i in [0...n]
-        for j in [0...m]
-          a[i*m+j] = rgba[j]
+attach_float = (prog, vbo, att_name, n, visual, name) ->
+    # Attach a float attribute to the program. Use singleton value if we can,
+    # otherwise use VBO to apply array.
+    if visual[name].fixed_value?
+      console.log('simple ' + name + ' ' + visual[name].fixed_value)
+      prog.set_attribute(att_name, 'float', null, visual[name].fixed_value)
     else
+      console.log('many ' + name + ' ' + n)
+      a = new Float32Array(visual.cache[name + '_array'])
+      vbo.set_size(n*4)
+      vbo.set_data(0, a)
+      prog.set_attribute(att_name, 'float', [vbo, 0, 0])
+    return a
+
+attach_color = (prog, vbo, att_name, n, visual) ->
+    # Attach the color attribute to the program. If there's just one color,
+    # then use this single color for all vertices (no VBO). Otherwise we
+    # create an array and upload that to the VBO, which we attahce to the prog.
+    m = 4    
+    if visual.color.fixed_value? and visual.alpha.fixed_value?      
+      console.log('simple colors ' + visual.color.fixed_value)      
+      rgba = color2rgba(visual.color.fixed_value, visual.alpha.fixed_value)
+      prog.set_attribute(att_name, 'vec4', null, rgba)
+
+    else      
       # Get array of colors
       if visual.color.fixed_value?
-        colors = []
-        for i in [0...n]
-          colors.push(visual.color.fixed_value)
+        colors = (visual.color.fixed_value for i in [0...n])
       else
         colors = visual.cache.color_array
       # Get array of alphas
       if visual.alpha.fixed_value?
-        alphas = []
-        for i in [0...n]
-          alphas.push(visual.alpha.fixed_value)
+        alphas = fill_array_with_float(n, visual.alpha.fixed_value)
       else
         alphas = visual.cache.alpha_array
       # Get array of rgbs
-      console.log('many ' + colors.length + '  ' + n)
+      console.log('many colors ' + colors.length + '  ' + n)
+      a = new Float32Array(n*m)
       for i in [0...n]
         rgba = color2rgba(colors[i], alphas[i])
         for j in [0...m]
           a[i*m+j] = rgba[j]
+      # Attach vbo      
+      vbo.set_size(n*m*4)
+      vbo.set_data(0, a)
+      prog.set_attribute(att_name, 'vec4', [vbo, 0, 0])
     return a
-   
+ 
 
 class BaseGLGlyph
   
@@ -90,7 +101,7 @@ class BaseGLGlyph
     @nvertices = 0
     @size_changed = false
     @data_changed = false
-    @uniforms_changed = false
+    @visuals_changed = false
     
     @init()
 
@@ -100,8 +111,8 @@ class BaseGLGlyph
       @size_changed = true    
     @data_changed = true
 
-  set_uniforms_changed: () ->
-      @uniforms_changed = true
+  set_visuals_changed: () ->
+      @visuals_changed = true
 
 
 class LineGLGlyph extends BaseGLGlyph
@@ -221,13 +232,10 @@ class MarkerGLGlyph extends BaseGLGlyph
     @prog.set_attribute('a_y', 'float', [@vbo_y, 0, 0])
     @vbo_s = new gloo2.VertexBuffer(gl)
     @prog.set_attribute('a_size', 'float', [@vbo_s, 0, 0])    
-    # Fake uniforms
-    @vbo_linewidth = new gloo2.VertexBuffer(gl)
-    @prog.set_attribute('a_linewidth', 'float', [@vbo_linewidth, 0, 0])
-    @vbo_fg_color = new gloo2.VertexBuffer(gl)
-    @prog.set_attribute('a_fg_color', 'vec4', [@vbo_fg_color, 0, 0])
-    @vbo_bg_color = new gloo2.VertexBuffer(gl)
-    @prog.set_attribute('a_bg_color', 'vec4', [@vbo_bg_color, 0, 0])
+    # VBO's for attributes (they may not be used if value is singleton)
+    @vbo_linewidth = new gloo2.VertexBuffer(gl)    
+    @vbo_fg_color = new gloo2.VertexBuffer(gl)    
+    @vbo_bg_color = new gloo2.VertexBuffer(gl)    
 
   draw: (indices, trans) ->
 
@@ -238,9 +246,9 @@ class MarkerGLGlyph extends BaseGLGlyph
     if @data_changed
       @_set_data()
       @data_changed = false
-    if @uniforms_changed
-      @_set_uniforms()
-      @uniforms_changed = false
+    if @visuals_changed
+      @_set_visuals()
+      @visuals_changed = false
     
     # Bit of a secret feature to allow easy comparison during dev
     offset = (window.BOKEH_WEBGL == 'both') * 10
@@ -261,30 +269,18 @@ class MarkerGLGlyph extends BaseGLGlyph
     @vbo_x.set_size(n)  
     @vbo_y.set_size(n)
     @vbo_s.set_size(n)
-    #
-    @vbo_linewidth.set_size(n)
-    @vbo_fg_color.set_size(n * 4)
-    @vbo_bg_color.set_size(n * 4)
-  
+
   _set_data: () ->
     console.log('setting data')    
     @vbo_x.set_data(0, new Float32Array(@glyph.x))
     @vbo_y.set_data(0, new Float32Array(@glyph.y))
     @vbo_s.set_data(0, new Float32Array(@glyph.size))
-  
-  _set_uniforms: (offset, glglyph) ->
-    console.log('setting uniforms')
-    # edgewidth
-    a = fill_array_with_float(@nvertices, @glyph.visuals.line.width.value())
-    @vbo_linewidth.set_data(0, a)
-    # fg_color
-    window.tt =@glyph 
-    a = fill_array_with_color(@nvertices, 4, @glyph.visuals.line, @glyph.visuals.line)
-    @vbo_fg_color.set_data(0, a)
-    # bg_color
-    a = fill_array_with_color(@nvertices, 4, @glyph.visuals.fill, @glyph.visuals.fill)    
-    @vbo_bg_color.set_data(0, a)
-        
+
+  _set_visuals: (offset, glglyph) ->
+    console.log('setting visuals')
+    attach_float(@prog, @vbo_linewidth, 'a_linewidth', @nvertices, @glyph.visuals.line, 'width')
+    attach_color(@prog, @vbo_fg_color, 'a_fg_color', @nvertices, @glyph.visuals.line)
+    attach_color(@prog, @vbo_bg_color, 'a_bg_color', @nvertices, @glyph.visuals.fill)
     # Static value for antialias. Smaller aa-region to obtain crisper images
     @prog.set_uniform('u_antialias', 'float', [0.9])
 
