@@ -14,7 +14,12 @@ class GlyphView extends ContinuumView
     super(options)
 
     @renderer = options.renderer
-
+    
+    # Init gl
+    ctx = @renderer.plot_view.canvas_view.ctx
+    if ctx.glcanvas?
+      @_init_gl(ctx.glcanvas.gl)
+    
     for name, func of properties.factories
       @[name] = {}
       @[name] = _.extend(@[name], func(@model))
@@ -22,13 +27,31 @@ class GlyphView extends ContinuumView
     @warned = {}
 
     return @
-
-  render: (ctx, indicies, data) ->
+    
+  render: (ctx, indices, data) ->
     if @mget("visible")
       ctx.beginPath();
-      @_render(ctx, indicies, data)
+      
+      if @glglyph? and window.BOKEH_WEBGL
+        if not @_render_gl(ctx, indices) and window.BOKEH_WEBGL != 'both'
+          return
+      
+      @_render(ctx, indices, data)
+  
+  _render_gl: (ctx, indices) ->
+    # Get transform, and verify that its linear
+    [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
+    if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
+        Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
+      return true 
+    
+    trans = {width: ctx.glcanvas.width, height: ctx.glcanvas.height, dx: dx, dy: dy}
+    @glglyph.draw(indices, trans)  
 
   map_data: () ->
+    
+    # todo: if using gl, skip this (when is this called?)
+    
     # map all the coordinate fields
     for [xname, yname] in @model.coords
       sxname = "s#{xname}"
@@ -41,7 +64,7 @@ class GlyphView extends ContinuumView
           @[syname].push(sy)
       else
         [ @[sxname], @[syname] ] = @renderer.map_to_screen(@[xname], @[yname])
-
+        
     @_map_data()
 
   set_data: (source) ->
@@ -62,6 +85,9 @@ class GlyphView extends ContinuumView
     for name, prop of @fields
       @[name] = prop.array(source)
 
+    if @glglyph?
+      @glglyph.set_data_changed(@x.length)
+
     @_set_data()
 
     @index = @_index_data()
@@ -71,6 +97,9 @@ class GlyphView extends ContinuumView
     for name, prop of @visuals
       prop.warm_cache(source)
     
+    if @glglyph?
+      @glglyph.set_visuals_changed()
+
     @_set_visuals()
 
   bounds: () ->
@@ -88,6 +117,7 @@ class GlyphView extends ContinuumView
   scy: (i) -> return @sy[i]
 
   # any additional customization can happen here
+  _init_gl: () -> null
   _set_data: () -> null
   _set_visuals: () -> null
   _map_data: () -> null
