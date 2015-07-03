@@ -22,10 +22,14 @@ h3 {
     color: #afd8d4;
 }
 
+.heading {
+    background-color: #3f3f3f;
+}
+
 .bk-bs-container {
     padding-top: 20px;
     padding-bottom: 80px;
-    background-color: #fff;
+    background-color: #d4e7e4;
 }
 
 .bk-bs-row {

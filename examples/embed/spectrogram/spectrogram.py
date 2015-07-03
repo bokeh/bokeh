@@ -118,7 +118,7 @@ def make_spectrogram():
     spec_source = ColumnDataSource(data=dict(image=[], x=[]))
     spec = figure(
         title=None, plot_width=900, plot_height=300, min_border_left=80,
-        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ], **plot_kw)
+        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ], border_fill= "#d4e7e4", **plot_kw)
     spec.image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
         cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH,
@@ -130,7 +130,8 @@ def make_spectrogram():
     spectrum = figure(
         title=None, plot_width=600, plot_height=250,
         y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ*0.001],
-        y_axis_type="log", background_fill="#f2f7f6", **plot_kw)
+        y_axis_type="log", background_fill="#f2f7f6", border_fill= "#d4e7e4",
+        **plot_kw)
     spectrum.line(
         x="x", y="y", line_color="#024768",
         source=spectrum_source, name="spectrum")
@@ -147,7 +148,7 @@ def make_spectrogram():
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = figure(
         title=None, plot_width=600, plot_height=250, background_fill="#f2f7f6",
-        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], **plot_kw)
+        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], border_fill= "#d4e7e4",**plot_kw)
     signal.line(
         x="x", y="y", line_color="#024768",
         source=signal_source,  name="signal")
@@ -167,7 +168,8 @@ def make_spectrogram():
     eq = figure(
         title=None, plot_width=500, plot_height=520,
         x_axis_type=None, y_axis_type=None,
-        x_range=[-20, 20], y_range=[-20, 20], background_fill="#f2f7f6", **plot_kw)
+        x_range=[-20, 20], y_range=[-20, 20], background_fill="#f2f7f6",
+        border_fill= "#d4e7e4",**plot_kw)
     eq.annular_wedge(
         x=0, y=0, fill_color="#024768", fill_alpha="fill_alpha", line_color=None,
         inner_radius="inner_radius", outer_radius="outer_radius",
