@@ -13,9 +13,9 @@ class PatchesView extends Glyph.View
     # on any NaNs
     #
     # So:
-    # { 0: [x11, x12], 
-    #   1: [x21, x22, x23], 
-    #   2: [x31, NaN, x32] 
+    # { 0: [x11, x12],
+    #   1: [x21, x22, x23],
+    #   2: [x31, NaN, x32]
     # }
     # becomes
     # { 0: [[x11, x12]],
@@ -29,7 +29,7 @@ class PatchesView extends Glyph.View
       while qs.length > 0
 
         nan_index = _.findLastIndex(qs, (q) ->  _.isNaN(q))
-        
+
         if nan_index >= 0
           qs_part = qs.splice(nan_index)
         else
@@ -73,8 +73,8 @@ class PatchesView extends Glyph.View
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
     # This is the earliest we can build them, and only build them once
-    @sxss = @_build_discontinuous_object(@sxs)
-    @syss = @_build_discontinuous_object(@sys)
+    @sxss = @_build_discontinuous_object(sxs)
+    @syss = @_build_discontinuous_object(sys)
     for i in indices
       [sx, sy] = [sxs[i], sys[i]]
 
@@ -150,7 +150,7 @@ class PatchesView extends Glyph.View
       # We don't have discontinuous objects so we're ok
       return @_get_snap_coord(@sxs[i])
     else
-      # We have discontinuous objects, so we need to find which 
+      # We have discontinuous objects, so we need to find which
       # one we're in, we can use point_in_poly again
       sxs = @sxss[i]
       sys = @syss[i]
@@ -164,7 +164,7 @@ class PatchesView extends Glyph.View
       # We don't have discontinuous objects so we're ok
       return @_get_snap_coord(@sys[i])
     else
-      # We have discontinuous objects, so we need to find which 
+      # We have discontinuous objects, so we need to find which
       # one we're in, we can use point_in_poly again
       sxs = @sxss[i]
       sys = @syss[i]
