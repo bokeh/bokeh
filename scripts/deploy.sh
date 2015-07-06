@@ -33,7 +33,8 @@ if [[ -z "$dtag" && ! -z "$ptag" && ! -z "$rtag" ]]; then
 
     # version number updates
     python version_update.py $rtag
-    git add ../.
+    git add ../bokehjs/src/coffee/main.coffee
+    git add ../bokehjs/package.json
     git commit -m "Updating bokehjs version to $rtag."
 
     # CHANGELOG generation
@@ -42,9 +43,10 @@ if [[ -z "$dtag" && ! -z "$ptag" && ! -z "$rtag" ]]; then
     if [ $ret -ne 0 ]; then
         echo "Exiting because CHANGELOG generation failed."
         echo "Check you actually have a ../sphinx/source/docs/releases/<tag>/.rst file."
+        echo "And you actually updated ../sphinx/source/docs/release_notes.rst with the latest releases/<tag>."
         exit 1
     fi
-    git add ../.
+    git add ../CHANGELOG
     git commit -m "Updating CHANGELOG."
 
     # Merge branch into master and push to origin
