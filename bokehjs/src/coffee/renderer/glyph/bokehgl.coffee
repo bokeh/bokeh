@@ -297,7 +297,7 @@ class CircleGLGlyph extends MarkerGLGlyph
   
   GLYPH: 'circle'
   
-  MARKERCODE: """    
+  MARKERCODE: """
     // --- disc
     float marker(vec2 P, float size)
     {
@@ -305,6 +305,17 @@ class CircleGLGlyph extends MarkerGLGlyph
     }
     """
 
+class SquareGLGlyph extends MarkerGLGlyph
+  
+  GLYPH: 'square'
+  
+  MARKERCODE: """
+    // --- square
+    float marker(vec2 P, float size)
+    {
+        return max(abs(P.x), abs(P.y)) - size/2.0;
+    }
+    """
 
 class CloverGlyph extends MarkerGLGlyph
   
@@ -341,3 +352,4 @@ class CloverGlyph extends MarkerGLGlyph
 
 module.exports =
   CircleGLGlyph: CircleGLGlyph
+  SquareGLGlyph: SquareGLGlyph
