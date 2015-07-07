@@ -7,7 +7,8 @@ class CircleView extends Glyph.View
  
   _init_gl: (gl) ->
     # This is how you enable gl for a glyph
-    window.tt = this    
+    if not window.tt?
+      window.tt = this
     @glglyph = new bokehgl.CircleGLGlyph(gl, this)
 
   _index_data: () ->

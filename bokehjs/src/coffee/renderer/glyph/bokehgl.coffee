@@ -218,6 +218,8 @@ class MarkerGLGlyph extends BaseGLGlyph
     gl = @gl
     frag = @FRAG.replace /MARKERCODE/, @MARKERCODE
     
+    @last_trans = {}  # Keep track of transform
+    
     # The program
     @prog = new gloo2.Program(gl)
     @prog.set_shaders(@VERT, frag)
@@ -243,7 +245,11 @@ class MarkerGLGlyph extends BaseGLGlyph
     if @data_changed
       @_set_data(nvertices)
       @data_changed = false
-    
+    else if @glyph.radius? and (trans.sx != @last_trans.sx or trans.sy != @last_trans.sy)
+      # Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
+      @last_trans = trans
+      @vbo_s.set_data(0, new Float32Array((s*2 for s in @glyph.sradius)))
+
     # Update visuals if we must. Can happen for all glyphs.
     if @visuals_changed
       @_set_visuals(nvertices)
@@ -253,10 +259,9 @@ class MarkerGLGlyph extends BaseGLGlyph
     offset = (window.BOKEH_WEBGL == 'both') * 10
        
     # Handle transformation to device coordinates
-    dx = trans.dx; dy = trans.dy
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    @prog.set_uniform('u_offset', 'vec2', [dx[0] + offset, dy[0]])
-    @prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
+    @prog.set_uniform('u_offset', 'vec2', [trans.dx[0] + offset, trans.dy[0]])
+    @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
     
     # Select buffers from main glyph 
     # (which may be this glyph but maybe not if this is a (non)selection glyph)
@@ -283,7 +288,11 @@ class MarkerGLGlyph extends BaseGLGlyph
     @vbo_s.set_size(n)
     @vbo_x.set_data(0, new Float32Array(@glyph.x))
     @vbo_y.set_data(0, new Float32Array(@glyph.y))
-    @vbo_s.set_data(0, new Float32Array(@glyph.size))
+    if @glyph.radius?
+      # @radius tells us that radius is in units, sradius is the pre-calculated screen radius
+      @vbo_s.set_data(0, new Float32Array((s*2 for s in @glyph.sradius)))
+    else
+      @vbo_s.set_data(0, new Float32Array(@glyph.size))
 
   _set_visuals: (nvertices) ->    
     attach_float(@prog, @vbo_linewidth, 'a_linewidth', nvertices, @glyph.visuals.line, 'width')

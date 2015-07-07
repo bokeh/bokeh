@@ -21,6 +21,8 @@ color2hex = (color) ->
     return color
 
 color2rgba = (color, alpha=1) ->
+    if Bokeh._.isNaN(color)  # Better NaN func. NaN means to not color the element
+      return [0, 0, 0, 0]  # transparent
     # Convert to hex and then to clean version of 6 or 8 chars
     hex = color2hex(color)
     hex = hex.replace(/ |#/g, '')

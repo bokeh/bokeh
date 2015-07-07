@@ -45,7 +45,9 @@ class GlyphView extends ContinuumView
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
       return false 
     
-    trans = {width: ctx.glcanvas.width, height: ctx.glcanvas.height, dx: dx, dy: dy}     
+    trans = 
+        width: ctx.glcanvas.width, height: ctx.glcanvas.height, 
+        dx: dx, dy: dy, sx: (dx[1]-dx[0]), sy: (dy[1]-dy[0])  
     @glglyph.draw(indices, mainglyph, trans)
     return true  # success
 

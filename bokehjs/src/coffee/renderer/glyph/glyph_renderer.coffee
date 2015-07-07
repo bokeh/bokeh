@@ -105,7 +105,9 @@ class GlyphRendererView extends PlotWidget
         selected = []
 
     lod_threshold = @plot_model.get('lod_threshold')
-    if @plot_view.interactive and lod_threshold? and @all_indices.length > lod_threshold
+    glsupport = @glyph.glglyph and window.BOKEH_WEBGL
+    if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
+      # Render decimated during interaction if too many elements and not using GL
       indices = @decimated
       glyph = @decimated_glyph
       nonselection_glyph = @decimated_glyph
