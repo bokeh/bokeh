@@ -42,10 +42,8 @@ attach_float = (prog, vbo, att_name, n, visual, name) ->
     # Attach a float attribute to the program. Use singleton value if we can,
     # otherwise use VBO to apply array.
     if visual[name].fixed_value?
-      console.log('simple ' + name + ' ' + visual[name].fixed_value)
       prog.set_attribute(att_name, 'float', null, visual[name].fixed_value)
     else
-      console.log('many ' + name + ' ' + n)
       a = new Float32Array(visual.cache[name + '_array'])
       vbo.set_size(n*4)
       vbo.set_data(0, a)
@@ -57,8 +55,7 @@ attach_color = (prog, vbo, att_name, n, visual) ->
     # then use this single color for all vertices (no VBO). Otherwise we
     # create an array and upload that to the VBO, which we attahce to the prog.
     m = 4    
-    if visual.color.fixed_value? and visual.alpha.fixed_value?      
-      console.log('simple colors ' + visual.color.fixed_value)      
+    if visual.color.fixed_value? and visual.alpha.fixed_value?
       rgba = color2rgba(visual.color.fixed_value, visual.alpha.fixed_value)
       prog.set_attribute(att_name, 'vec4', null, rgba)
 
@@ -74,7 +71,6 @@ attach_color = (prog, vbo, att_name, n, visual) ->
       else
         alphas = visual.cache.alpha_array
       # Get array of rgbs
-      console.log('many colors ' + colors.length + '  ' + n)
       a = new Float32Array(n*m)
       for i in [0...n]
         rgba = color2rgba(colors[i], alphas[i])
@@ -236,51 +232,63 @@ class MarkerGLGlyph extends BaseGLGlyph
     @vbo_linewidth = new gloo2.VertexBuffer(gl)    
     @vbo_fg_color = new gloo2.VertexBuffer(gl)    
     @vbo_bg_color = new gloo2.VertexBuffer(gl)    
-
-  draw: (indices, trans) ->
-
-    # Resize if we must. Upload data if we must.
-    if @size_changed
-      @_set_size(@nvertices)
-      @size_changed = false
+    @index_buffer = new gloo2.IndexBuffer(gl)
+ 
+  draw: (indices, mainGlyph, trans) ->
+    
+    # The main glyph has the data, *this* glyph has the visuals.
+    nvertices = mainGlyph.glglyph.nvertices
+    
+    # Upload data if we must. Only happens for main glyph.
     if @data_changed
-      @_set_data()
+      @_set_data(nvertices)
       @data_changed = false
+    
+    # Update visuals if we must. Can happen for all glyphs.
     if @visuals_changed
-      @_set_visuals()
+      @_set_visuals(nvertices)
       @visuals_changed = false
     
     # Bit of a secret feature to allow easy comparison during dev
     offset = (window.BOKEH_WEBGL == 'both') * 10
-    
+       
     # Handle transformation to device coordinates
     dx = trans.dx; dy = trans.dy
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
     @prog.set_uniform('u_offset', 'vec2', [dx[0] + offset, dy[0]])
     @prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
+    
+    # Select buffers from main glyph 
+    # (which may be this glyph but maybe not if this is a (non)selection glyph)
+    @prog.set_attribute('a_x', 'float', [mainGlyph.glglyph.vbo_x, 0, 0])
+    @prog.set_attribute('a_y', 'float', [mainGlyph.glglyph.vbo_y, 0, 0])
+    @prog.set_attribute('a_size', 'float', [mainGlyph.glglyph.vbo_s, 0, 0])
+    
+    # Draw directly or using indices. Do not handle indices if they do not 
+    # fit in a uint16; WebGL 1.0 does not support uint32.
+    if nvertices > 65535
+      @prog.draw(@gl.POINTS, [0, nvertices])
+      console.log('BOKEHGL ERROR: cannot handle selections for datasets of over 65535 elements.')
+    else if indices.length == nvertices
+      @prog.draw(@gl.POINTS, [0, nvertices])
+    else
+      @index_buffer.set_size(indices.length*2)
+      @index_buffer.set_data(0, new Uint16Array(indices))
+      @prog.draw(@gl.POINTS, @index_buffer)
 
-    # todo: use indices
-    @prog.draw(@gl.POINTS, [0, @nvertices])
-
-  _set_size: (n) ->
-    n *= 4  # in bytes
-    console.log('resizing')
-    # todo: base class can do this if it had a list of vbo names    
+  _set_data: (nvertices) ->    
+    n = nvertices * 4  # in bytes
     @vbo_x.set_size(n)  
     @vbo_y.set_size(n)
     @vbo_s.set_size(n)
-
-  _set_data: () ->
-    console.log('setting data')    
     @vbo_x.set_data(0, new Float32Array(@glyph.x))
     @vbo_y.set_data(0, new Float32Array(@glyph.y))
     @vbo_s.set_data(0, new Float32Array(@glyph.size))
 
-  _set_visuals: (offset, glglyph) ->
-    console.log('setting visuals')
-    attach_float(@prog, @vbo_linewidth, 'a_linewidth', @nvertices, @glyph.visuals.line, 'width')
-    attach_color(@prog, @vbo_fg_color, 'a_fg_color', @nvertices, @glyph.visuals.line)
-    attach_color(@prog, @vbo_bg_color, 'a_bg_color', @nvertices, @glyph.visuals.fill)
+  _set_visuals: (nvertices) ->    
+    attach_float(@prog, @vbo_linewidth, 'a_linewidth', nvertices, @glyph.visuals.line, 'width')
+    attach_color(@prog, @vbo_fg_color, 'a_fg_color', nvertices, @glyph.visuals.line)
+    attach_color(@prog, @vbo_bg_color, 'a_bg_color', nvertices, @glyph.visuals.fill)
     # Static value for antialias. Smaller aa-region to obtain crisper images
     @prog.set_uniform('u_antialias', 'float', [0.9])
 

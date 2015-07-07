@@ -12,9 +12,8 @@ class CircleView extends Glyph.View
 
   _index_data: () ->
     return @_xy_index()
-     
-  _set_data: () ->
 
+  _map_data: () ->
     # NOTE: Order is important here: size is always present (at least
     # a default), but radius is only present if a user specifies it
     if @radius?

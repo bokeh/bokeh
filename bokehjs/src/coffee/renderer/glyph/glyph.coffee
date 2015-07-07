@@ -33,20 +33,21 @@ class GlyphView extends ContinuumView
       ctx.beginPath();
       
       if @glglyph? and window.BOKEH_WEBGL
-        if not @_render_gl(ctx, indices) and window.BOKEH_WEBGL != 'both'
+        if @_render_gl(ctx, indices, data) and window.BOKEH_WEBGL != 'both'
           return
       
       @_render(ctx, indices, data)
   
-  _render_gl: (ctx, indices) ->
+  _render_gl: (ctx, indices, mainglyph) ->
     # Get transform, and verify that its linear
     [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
-      return true 
+      return false 
     
-    trans = {width: ctx.glcanvas.width, height: ctx.glcanvas.height, dx: dx, dy: dy}
-    @glglyph.draw(indices, trans)  
+    trans = {width: ctx.glcanvas.width, height: ctx.glcanvas.height, dx: dx, dy: dy}     
+    @glglyph.draw(indices, mainglyph, trans)
+    return true  # success
 
   map_data: () ->
     

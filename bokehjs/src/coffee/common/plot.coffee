@@ -287,7 +287,7 @@ class PlotView extends ContinuumView
       ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
       for prefix in ['image', 'mozImage', 'webkitImage','msImage']
          ctx[prefix + 'SmoothingEnabled'] = true
-      console.log('render webgl canvas into 2d canvas ' + performance.now())
+      console.log('render webgl canvas into 2d canvas')
     else
       console.log('NOT rendering with webgl')  # todo: remove this
 
