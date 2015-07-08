@@ -15,7 +15,7 @@ import csv
 
 data = {}
 
-with open(join(dirname(__file__),'london_postcodes.csv') as f:
+with open(join(dirname(__file__),'london_postcodes.csv')) as f:
     reader = csv.DictReader(f)
     for row in reader:
         parent_id = row['parent_id']
