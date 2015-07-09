@@ -124,7 +124,7 @@ class MarkerGLGlyph extends BaseGLGlyph
   VERT: """
     precision mediump float;
     const float SQRT_2 = 1.4142135623730951;
-    //        
+    //
     uniform vec2 u_canvas_size;
     uniform vec2 u_offset;
     uniform vec2 u_scale;
@@ -133,7 +133,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     attribute float a_x;
     attribute float a_y;
     attribute float a_size;
-    attribute float a_orientation;    
+    attribute float a_angle;  // in radians
     attribute float a_linewidth;
     attribute vec4  a_fg_color;
     attribute vec4  a_bg_color;
@@ -150,7 +150,7 @@ class MarkerGLGlyph extends BaseGLGlyph
         v_linewidth = a_linewidth;
         v_fg_color = a_fg_color;
         v_bg_color = a_bg_color;
-        v_rotation = vec2(cos(a_orientation), sin(a_orientation));
+        v_rotation = vec2(cos(-a_angle), sin(-a_angle));
         // Calculate position - the -0.5 is to correct for canvas origin
         vec2 pos = vec2(a_x, a_y) * u_scale + u_offset - vec2(0.5, 0.5); // in pixels
         pos /= u_canvas_size;  // in 0..1
@@ -229,11 +229,13 @@ class MarkerGLGlyph extends BaseGLGlyph
     @vbo_y = new gloo2.VertexBuffer(gl)
     @prog.set_attribute('a_y', 'float', [@vbo_y, 0, 0])
     @vbo_s = new gloo2.VertexBuffer(gl)
-    @prog.set_attribute('a_size', 'float', [@vbo_s, 0, 0])    
+    @prog.set_attribute('a_size', 'float', [@vbo_s, 0, 0])
+    @vbo_a = new gloo2.VertexBuffer(gl)
+    @prog.set_attribute('a_angle', 'float', [@vbo_a, 0, 0])
     # VBO's for attributes (they may not be used if value is singleton)
-    @vbo_linewidth = new gloo2.VertexBuffer(gl)    
-    @vbo_fg_color = new gloo2.VertexBuffer(gl)    
-    @vbo_bg_color = new gloo2.VertexBuffer(gl)    
+    @vbo_linewidth = new gloo2.VertexBuffer(gl)
+    @vbo_fg_color = new gloo2.VertexBuffer(gl)
+    @vbo_bg_color = new gloo2.VertexBuffer(gl)
     @index_buffer = new gloo2.IndexBuffer(gl)
  
   draw: (indices, mainGlyph, trans) ->
@@ -283,13 +285,20 @@ class MarkerGLGlyph extends BaseGLGlyph
 
   _set_data: (nvertices) ->    
     n = nvertices * 4  # in bytes
-    @vbo_x.set_size(n)  
+    # Set buffer size
+    @vbo_x.set_size(n)
     @vbo_y.set_size(n)
+    @vbo_a.set_size(n)
     @vbo_s.set_size(n)
+    # Upload data for x and y
     @vbo_x.set_data(0, new Float32Array(@glyph.x))
     @vbo_y.set_data(0, new Float32Array(@glyph.y))
+    # Angle if available; circle does not have angle. If we don't set data, angle is default 0 in glsl
+    if @glyph.angle?  
+      @vbo_a.set_data(0, new Float32Array(@glyph.angle))
+    # Radius is special; some markes allow radius in data-coords instead of screen coords
+    # @radius tells us that radius is in units, sradius is the pre-calculated screen radius 
     if @glyph.radius?
-      # @radius tells us that radius is in units, sradius is the pre-calculated screen radius
       @vbo_s.set_data(0, new Float32Array((s*2 for s in @glyph.sradius)))
     else
       @vbo_s.set_data(0, new Float32Array(@glyph.size))
