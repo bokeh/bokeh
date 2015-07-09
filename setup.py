@@ -488,7 +488,7 @@ REQUIRES = [
         'greenlet>=0.4.1',
         'itsdangerous>=0.21',
         'python-dateutil>=2.1',
-        'pytz==2013b',
+        'pytz>=2013b',
         'requests>=1.2.3',
         'six>=1.5.2',
         'pygments>=1.6',
