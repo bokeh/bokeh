@@ -1,5 +1,4 @@
 _ = require "underscore"
-gloo2 = require "gloo2"
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
@@ -8,22 +7,10 @@ class LineView extends Glyph.View
   _index_data: () ->
     @_xy_index()
 
-  _map_data: () ->
-    if @_gl?
-        return  # performance
-
-  _set_data: () ->
-    @_data_changed = true  # notify gl, lazy upload
-
   _render: (ctx, indices, {sx, sy}) ->
-    
-    @visuals.line.set_value(ctx)  # Set before gl, because it uses it too
-    
-    if ctx.glcanvas
-        if not @_render_gl(ctx, indices)
-          return
-
     drawing = false
+    @visuals.line.set_value(ctx)  # Set before gl, because it uses it too
+
     for i in indices
       if !isFinite(sx[i]+sy[i]) and drawing
         ctx.stroke()
@@ -40,53 +27,6 @@ class LineView extends Glyph.View
 
     if drawing
       ctx.stroke()
-
-  _render_gl: (ctx, indices) ->    
-    gl = ctx.glcanvas.gl
-    if not @_gl?
-      @_gl = setup_gl(gl)
-
-    # Get transform, and verify that its linear
-    if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
-        Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)   
-      return true 
-    
-    # No gl if line has features that we do no support
-    # If we implement agg quality lines with shaders we can probably also add
-    # stippling and caps (Nicolas Rougier has done much work on this stuff)
-    console.log(@visuals.line.dash.value())
-    if @visuals.line.dash.value().length
-      return true
-    if ctx.lineCap != 'butt'
-      return true
-
-    if @_data_changed
-      @_data_changed = false
-      @_gl.vbo_x.set_size(@x.length * 4)  # size in bytes
-      @_gl.vbo_y.set_size(@y.length * 4)
-      @_gl.vbo_x.set_data(0, new Float32Array(@x))
-      @_gl.vbo_y.set_data(0, new Float32Array(@y))      
-    
-    # Get RGBA as a tuple
-    # We query this (and other) values from the ctx, so we have the appropriate
-    # defaults, and colors like "red" will be transformed to hex.
-    colorparts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(ctx.strokeStyle)
-    color = [parseInt(colorparts[1], 16)/255, parseInt(colorparts[2], 16)/255, parseInt(colorparts[3], 16)/255]
-    color.push(ctx.globalAlpha)
-    
-    # Set line width - note that only width 1 is guaranteed to be supported
-    # We make width-1 lines a bit wider, otherwise they turn vague due to aa
-    lineWidth = if ctx.lineWidth > 1 then ctx.lineWidth else ctx.lineWidth + 0.15
-    ctx.glcanvas.gl.lineWidth(lineWidth)
-    
-    @_gl.prog.set_uniform('u_color', 'vec4', color)
-    @_gl.prog.set_uniform('u_canvas_size', 'vec2', [ctx.glcanvas.width, ctx.glcanvas.height])
-    @_gl.prog.set_uniform('u_offset', 'vec2', [dx[0], dy[0]])
-    @_gl.prog.set_uniform('u_scale', 'vec2', [dx[1]-dx[0], dy[1]-dy[0]])
-
-    # todo: use indices
-    console.log(indices)
-    @_gl.prog.draw(gl.LINE_STRIP, [0, @x.length])
 
   _hit_point: (geometry) ->
     ### Check if the point geometry hits this line glyph and return an object
@@ -163,40 +103,6 @@ class Line extends Glyph.Model
   default_view: LineView
   type: 'Line'
   visuals: ['line']
-
-
-setup_gl = (gl) ->
-  # This function sets up the visualization to render a line
-
-  VERT = """
-  precision mediump float;
-  attribute float a_x;
-  attribute float a_y;
-  uniform vec2 u_canvas_size;
-  uniform vec2 u_offset;
-  uniform vec2 u_scale;
-  void main() {
-      vec2 pos = vec2(a_x, a_y) * u_scale + u_offset; // in pixels
-      pos /= u_canvas_size;  // in 0..1
-      gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
-      gl_Position.y *= -1.0;
-  }"""
-
-  FRAG = """
-  precision mediump float;
-  uniform vec4 u_color;
-  void main() {      
-      gl_FragColor = u_color;
-      gl_FragColor.a = 1.0;
-  }"""
-    
-  prog = new gloo2.Program(gl)
-  prog.set_shaders(VERT, FRAG)
-  vbo_x = new gloo2.VertexBuffer(gl)
-  prog.set_attribute('a_x', 'float', [vbo_x, 0, 0])
-  vbo_y = new gloo2.VertexBuffer(gl)
-  prog.set_attribute('a_y', 'float', [vbo_y, 0, 0])
-  return {'gl': gl, 'prog': prog, 'vbo_x', vbo_x, 'vbo_y': vbo_y}
 
 
 module.exports =
