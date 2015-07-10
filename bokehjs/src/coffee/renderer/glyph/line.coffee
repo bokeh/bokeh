@@ -9,7 +9,7 @@ class LineView extends Glyph.View
 
   _render: (ctx, indices, {sx, sy}) ->
     drawing = false
-    @visuals.line.set_value(ctx)  # Set before gl, because it uses it too
+    @visuals.line.set_value(ctx)
 
     for i in indices
       if !isFinite(sx[i]+sy[i]) and drawing
@@ -103,7 +103,6 @@ class Line extends Glyph.Model
   default_view: LineView
   type: 'Line'
   visuals: ['line']
-
 
 module.exports =
   Model: Line
