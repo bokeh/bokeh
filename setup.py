@@ -507,11 +507,6 @@ REQUIRES = [
 if sys.version_info[:2] == (2, 6):
     REQUIRES.append('argparse>=1.1')
 
-if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
-    REQUIRES.extend([
-        'websocket>=0.2.1'
-    ])
-
 # if sys.platform != "win32":
 #     REQUIRES.append('redis>=2.7.6')
 
