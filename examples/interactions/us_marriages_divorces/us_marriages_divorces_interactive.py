@@ -22,7 +22,14 @@ md_data = pd.read_csv('../../bokeh/sampledata/us_marriages_divorces.csv')
 # Fill in missing data with a simple linear interpolation
 md_data = md_data.interpolate(method='linear', axis=0).ffill().bfill()
 
-output_file('us_marriages_divorces_per_capita.html', mode='cdn',
+# Tell Bokeh where to save the interactive chart
+output_file('us_marriages_divorces_per_capita.html',
+            # Tell Bokeh to use its minified JavaScript hosted on a
+            # cdn instead of putting the Bokeh JS in the output file
+            
+            # Warning: This makes it so people can only view the
+            # chart with an internet connection
+            mode='cdn',
             title='144 years of marriage and divorce in the U.S.A.')
 
 # Set up the data sources for the lines we'll be plotting.
