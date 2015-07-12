@@ -235,6 +235,9 @@ class BokehRenderer(Renderer):
         if text_type in ['xlabel', 'ylabel', 'title']:
             return
 
+        if coordinates != 'data':
+            return
+
         x, y = position
         text = Text(x=x, y=y, text=[text])
 
