@@ -15,7 +15,6 @@ from __future__ import absolute_import
 
 import matplotlib.pyplot as plt
 
-from ..plotting import curdoc, output_file, output_notebook, output_server
 from .bokeh_exporter import BokehExporter
 from .bokeh_renderer import BokehRenderer
 
@@ -63,31 +62,9 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True, xkcd
     if fig is None:
         fig = plt.gcf()
 
-    if any([name, server, notebook]):
-        if name:
-            if not server:
-                filename = name + ".html"
-                output_file(filename)
-            else:
-                output_server(name, url=server)
-        elif server:
-            if not notebook:
-                output_server("unnameuuuuuuuuuuuuuud", url=server)
-            else:
-                output_notebook(url=server)
-        elif notebook:
-            output_notebook()
-    else:
-        output_file("Unnamed.html")
-
-    doc = curdoc()
-
     renderer = BokehRenderer(pd_obj, xkcd)
     exporter = BokehExporter(renderer)
 
     exporter.run(fig)
-
-    doc._current_plot = renderer.fig  # TODO (bev) do not rely on private attrs
-    doc.add(renderer.fig)
 
     return renderer.fig

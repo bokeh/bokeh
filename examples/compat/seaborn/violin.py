@@ -1,8 +1,7 @@
 import seaborn as sns
-from bokeh import mpl
-from bokeh.plotting import show
 
-import numpy as np
+from bokeh import mpl
+from bokeh.plotting import output_file, show
 
 tips = sns.load_dataset("tips")
 
@@ -27,4 +26,6 @@ ax = sns.violinplot(x="day", y="total_bill", hue="sex",
 #                     data=planets[planets.orbital_period < 1000],
 #                     scale="width", palette="Set3")
 
-show(mpl.to_bokeh(name="violin"))
+output_file("violin.html")
+
+show(mpl.to_bokeh())

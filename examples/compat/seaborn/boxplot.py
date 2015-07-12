@@ -1,6 +1,7 @@
 import seaborn as sns
+
 from bokeh import mpl
-from bokeh.plotting import show
+from bokeh.plotting import output_file, show
 
 sns.set(style="ticks")
 
@@ -11,5 +12,7 @@ tips = sns.load_dataset("tips")
 sns.boxplot(x="day", y="total_bill", hue="sex", data=tips, palette="PRGn")
 sns.despine(offset=10, trim=True)
 
-show(mpl.to_bokeh(name="violin"))
+output_file("boxplot.html")
+
+show(mpl.to_bokeh())
 

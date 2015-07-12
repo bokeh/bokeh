@@ -1,7 +1,8 @@
-import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 from bokeh import mpl
-from bokeh.plotting import show
+from bokeh.plotting import output_file, show
 
 sns.set(style="darkgrid")
 iris = sns.load_dataset("iris")
@@ -26,4 +27,6 @@ blue = sns.color_palette("Blues")[-2]
 ax.text(2.5, 8.2, "virginica", size=16, color=blue)
 ax.text(3.8, 4.5, "setosa", size=16, color=red)
 
-show(mpl.to_bokeh(name="kde"))
+output_file("kde.html")
+
+show(mpl.to_bokeh())

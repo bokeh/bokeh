@@ -1,7 +1,8 @@
 import pandas as pd
 import seaborn as sns
+
 from bokeh import mpl
-from bokeh.plotting import show
+from bokeh.plotting import output_file, show
 
 sns.set(style="whitegrid", palette="pastel")
 
@@ -15,5 +16,7 @@ iris = pd.melt(iris, "species", var_name="measurement")
 sns.stripplot(x="measurement", y="value", hue="species", data=iris,
               jitter=True, edgecolor="gray")
 
-show(mpl.to_bokeh(name="violin"))
+output_file("stripplot.html")
+
+show(mpl.to_bokeh())
 
