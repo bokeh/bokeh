@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import warnings
 from .base import Renderer
 from ..exporter import Exporter

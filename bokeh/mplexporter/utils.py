@@ -2,8 +2,6 @@
 Utility Routines for Working with Matplotlib Objects
 ====================================================
 """
-from __future__ import absolute_import
-
 import itertools
 import io
 import base64
@@ -29,20 +27,20 @@ def color_to_hex(color):
         return '#{0:02X}{1:02X}{2:02X}'.format(*(int(255 * c) for c in rgb))
 
 
-def many_to_one(input_dict):
+def _many_to_one(input_dict):
     """Convert a many-to-one mapping to a one-to-one mapping"""
     return dict((key, val)
                 for keys, val in input_dict.items()
                 for key in keys)
 
-LINESTYLES = many_to_one({('solid', '-', (None, None)): "10,0",
-                          ('dashed', '--'): "6,6",
-                          ('dotted', ':'): "2,2",
-                          ('dashdot', '-.'): "4,4,2,4",
-                          ('', ' ', 'None', 'none'): "none"})
+LINESTYLES = _many_to_one({('solid', '-', (None, None)): 'none',
+                           ('dashed', '--'): "6,6",
+                           ('dotted', ':'): "2,2",
+                           ('dashdot', '-.'): "4,4,2,4",
+                           ('', ' ', 'None', 'none'): None})
 
 
-def get_dasharray(obj, i=None):
+def get_dasharray(obj):
     """Get an SVG dash array for the given matplotlib linestyle
 
     Parameters
@@ -50,7 +48,6 @@ def get_dasharray(obj, i=None):
     obj : matplotlib object
         The matplotlib line or path object, which must have a get_linestyle()
         method which returns a valid matplotlib line code
-    i : integer (optional)
 
     Returns
     -------
@@ -61,14 +58,11 @@ def get_dasharray(obj, i=None):
         return ','.join(map(str, obj._dashSeq))
     else:
         ls = obj.get_linestyle()
-        if i is not None:
-            ls = ls[i]
-
-        dasharray = LINESTYLES.get(ls, None)
-        if dasharray is None:
-            warnings.warn("dash style '{0}' not understood: "
-                          "defaulting to solid.".format(ls))
-            dasharray = LINESTYLES['-']
+        dasharray = LINESTYLES.get(ls, 'not found')
+        if dasharray == 'not found':
+            warnings.warn("line style '{0}' not understood: "
+                          "defaulting to solid line.".format(ls))
+            dasharray = LINESTYLES['solid']
         return dasharray
 
 
@@ -180,6 +174,7 @@ def get_text_style(text):
     style['color'] = color_to_hex(text.get_color())
     style['halign'] = text.get_horizontalalignment()  # left, center, right
     style['valign'] = text.get_verticalalignment()  # baseline, center, top
+    style['malign'] = text._multialignment # text alignment when '\n' in text
     style['rotation'] = text.get_rotation()
     style['zorder'] = text.get_zorder()
     return style
@@ -215,6 +210,8 @@ def get_axis_properties(axis):
     formatter = axis.get_major_formatter()
     if isinstance(formatter, ticker.NullFormatter):
         props['tickformat'] = ""
+    elif isinstance(formatter, ticker.FixedFormatter):
+        props['tickformat'] = list(formatter.seq)
     elif not any(label.get_visible() for label in axis.get_ticklabels()):
         props['tickformat'] = ""
     else:
@@ -233,6 +230,9 @@ def get_axis_properties(axis):
     # Get associated grid
     props['grid'] = get_grid_style(axis)
 
+    # get axis visibility
+    props['visible'] = axis.get_visible()
+
     return props
 
 
@@ -247,7 +247,7 @@ def get_grid_style(axis):
                     dasharray=dasharray,
                     alpha=alpha)
     else:
-        return {"gridOn":False}
+        return {"gridOn": False}
 
 
 def get_figure_properties(fig):
@@ -261,6 +261,9 @@ def get_axes_properties(ax):
              'axesbgalpha': ax.patch.get_alpha(),
              'bounds': ax.get_position().bounds,
              'dynamic': ax.get_navigate(),
+             'axison': ax.axison,
+             'frame_on': ax.get_frame_on(),
+             'patch_visible':ax.patch.get_visible(),
              'axes': [get_axis_properties(ax.xaxis),
                       get_axis_properties(ax.yaxis)]}
 
@@ -293,7 +296,7 @@ def get_axes_properties(ax):
 
         if scale not in ['date', 'linear', 'log']:
             raise ValueError("Unknown axis scale: "
-                             "{0}".format(axis[axname].get_scale()))
+                             "{0}".format(axis.get_scale()))
 
         props[axname + 'scale'] = scale
         props[axname + 'lim'] = lim
