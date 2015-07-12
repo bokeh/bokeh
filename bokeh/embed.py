@@ -71,7 +71,7 @@ def components(plot_objects, resources=None):
         plot_objects = [plot_objects]
     if resources is not None:
         warn('Because the ``resources`` argument is no longer needed, '
-             'is it deprecated and will be removed in'
+             'it is deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
     all_models = []
     plots = []
