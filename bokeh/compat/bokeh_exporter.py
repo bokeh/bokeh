@@ -31,13 +31,10 @@ class BokehExporter(Exporter):
         elif isinstance(collection, PolyCollection):
             self.renderer.make_poly_collection(collection)
         else:
-            pass
-            #super(BokehExporter, self).draw_collection(ax, collection, force_pathtrans, force_offsettrans)
+            super(BokehExporter, self).draw_collection(ax, collection, force_pathtrans, force_offsettrans)
 
-    # def draw_patch(self, ax, patch, force_trans=None):
-    #     markerstyle = utils.get_marker_style(patch)
-    #     if (markerstyle['marker'] in ['None', 'none', None]
-    #             or markerstyle['markerpath'][0].size == 0):
-    #         markerstyle = None
+    def draw_patch(self, ax, patch, force_trans=None):
+        super(BokehExporter, self).draw_patch(ax, patch, force_trans)
+
 
 

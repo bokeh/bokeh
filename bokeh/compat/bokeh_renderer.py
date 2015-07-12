@@ -22,10 +22,8 @@ import numpy as np
 import pandas as pd
 from six import string_types
 
-
-
 from ..models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
-                     Grid, GridPlot, LinearAxis, Plot, CategoricalAxis)
+                     Grid, GridPlot, LinearAxis, Plot, CategoricalAxis, Legend)
 from ..models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from ..plotting import (curdoc, output_file, output_notebook, output_server,
@@ -48,6 +46,7 @@ class BokehRenderer(Renderer):
         self.pd_obj = pd_obj
         self.xkcd = xkcd
         self.zorder = {}
+        self.handles = {}
 
     def open_figure(self, fig, props):
         "Get the main plot properties and create the plot."
@@ -147,7 +146,13 @@ class BokehRenderer(Renderer):
         self.plot.renderers.append(GlyphRenderer(data_source=dummy_source, glyph=X()))
 
     def open_legend(self, legend, props):
-        pass
+        lgnd = Legend(orientation="top_right")
+        try:
+            for label, obj in zip(props['labels'], props['handles']):
+                lgnd.legends.append((label, [self.handles[id(obj)]]))
+            self.plot.add_layout(lgnd)
+        except KeyError:
+            pass
 
     def close_legend(self, legend):
         pass
@@ -183,7 +188,7 @@ class BokehRenderer(Renderer):
 
         r = self.plot.add_glyph(source, line)
         self.zorder[r._id] = style['zorder']
-
+        self.handles[id(mplobj)] = r
 
     def draw_markers(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Marker glyph."
@@ -197,6 +202,7 @@ class BokehRenderer(Renderer):
             "^": Triangle,
             "v": InvertedTriangle,
             "x": X,
+            "d": Diamond,
             "D": Diamond,
             "*": Asterisk,
         }
@@ -220,7 +226,7 @@ class BokehRenderer(Renderer):
 
         r = self.plot.add_glyph(source, marker)
         self.zorder[r._id] = style['zorder']
-
+        self.handles[id(mplobj)] = r
 
     def draw_path(self, data, coordinates, pathcodes, style,
                   offset=None, offset_coordinates="data", mplobj=None):
@@ -262,9 +268,9 @@ class BokehRenderer(Renderer):
         source = ColumnDataSource()
         r = self.plot.add_glyph(source, text)
         self.zorder[r._id] = style['zorder']
+        self.handles[id(mplobj)] = r
 
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
-        2/0
         pass
 
     def make_axis(self, ax, location, props):
@@ -344,6 +350,7 @@ class BokehRenderer(Renderer):
 
         r = self.plot.add_glyph(source, multiline)
         self.zorder[r._id] = col.zorder
+        self.handles[id(col)] = r
 
     def make_poly_collection(self, col):
         "Given a mpl collection instance create a Bokeh Patches glyph."
@@ -365,6 +372,7 @@ class BokehRenderer(Renderer):
 
         r = self.plot.add_glyph(source, patches)
         self.zorder[r._id] = col.zorder
+        self.handles[id(col)] = r
 
     def multiline_props(self, source, multiline, col):
         "Takes a mpl collection object to extract and set up some Bokeh multiline properties."
