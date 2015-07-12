@@ -103,6 +103,15 @@ class FactorRange(Range):
 
     """
 
+    offset = Float(0, help="""
+    An offset to the (synthetic) range (default: 0)
+
+    .. note::
+        The primary usage of this is to support compatibility and integration
+        with other plotting systems, and will not generally of interest to
+        most users.
+    """)
+
     factors = Either(List(String), List(Int), help="""
     A list of string or integer factors (categories) to comprise
     this categorical range.

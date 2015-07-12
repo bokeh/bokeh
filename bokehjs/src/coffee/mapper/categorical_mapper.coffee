@@ -9,13 +9,14 @@ class CategoricalMapper extends LinearMapper.Model
         return x
       else
         return super(x)
-    factors = @get('source_range').get('factors')
+    range = @get('source_range')
+    factors = range.get('factors')
     if x.indexOf(':') >= 0
       [factor, percent] = x.split(':')
       percent = parseFloat(percent)
-      result = factors.indexOf(factor) + 0.5 + percent
+      result = factors.indexOf(factor) + 0.5 + range.get('offset') + percent
     else
-      result = factors.indexOf(x) + 1
+      result = factors.indexOf(x) + 1 + range.get('offset')
     if return_synthetic
       return result
     else
@@ -27,16 +28,17 @@ class CategoricalMapper extends LinearMapper.Model
         return xs
       else
         return super(xs)
-    factors = @get('source_range').get('factors')
+    range = @get('source_range')
+    factors = range.get('factors')
     results = Array(xs.length)
     for i in [0...xs.length]
       x = xs[i]
       if x.indexOf(':') >= 0
         [factor, percent] = x.split(':')
         percent = parseFloat(percent)
-        results[i] = factors.indexOf(factor) + 0.5 + percent
+        results[i] = factors.indexOf(factor) + 0.5 + range.get('offset') + percent
       else
-        results[i] = factors.indexOf(x) + 1
+        results[i] = factors.indexOf(x) + 1 + range.get('offset')
     if return_synthetic
       return results
     else
@@ -46,8 +48,9 @@ class CategoricalMapper extends LinearMapper.Model
     xprime = super(xprime)
     if skip_cat
       return xprime
-    factors = @get('source_range').get('factors')
-    return factors[Math.floor(xprime-0.5)]
+    range = @get('source_range')
+    factors = range.get('factors')
+    return factors[Math.floor(xprime - 0.5 - range.get('offset'))]
 
   v_map_from_target: (xprimes, skip_cat=false) ->
     x = super(xprimes)
@@ -56,9 +59,10 @@ class CategoricalMapper extends LinearMapper.Model
     if skip_cat
       return x
     result = Array(x)
-    factors = @get('source_range').get('factors')
+    range = @get('source_range')
+    factors = range.get('factors')
     for i in [0...xprimes.length]
-      result[i] = factors[Math.floor(x[i]-0.5)]
+      result[i] = factors[Math.floor(x[i] - 0.5 - range.get('offset'))]
     return result
 
 module.exports =

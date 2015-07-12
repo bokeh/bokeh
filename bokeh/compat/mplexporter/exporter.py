@@ -4,14 +4,13 @@ Matplotlib Exporter
 This submodule contains tools for crawling a matplotlib figure and exporting
 relevant pieces to a renderer.
 """
-from __future__ import absolute_import
 import warnings
 import io
 from . import utils
 
 import matplotlib
 from matplotlib import transforms
-
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 class Exporter(object):
     """Matplotlib Exporter
@@ -43,6 +42,8 @@ class Exporter(object):
         """
         # Calling savefig executes the draw() command, putting elements
         # in the correct place.
+        if fig.canvas is None:
+            fig.canvas = FigureCanvasAgg(fig)
         fig.savefig(io.BytesIO(), format='png', dpi=fig.dpi)
         if self.close_mpl:
             import matplotlib.pyplot as plt
@@ -168,6 +169,9 @@ class Exporter(object):
                         self.draw_text(ax, child, force_trans=ax.transAxes)
                 elif isinstance(child, matplotlib.lines.Line2D):
                     self.draw_line(ax, child, force_trans=ax.transAxes)
+                elif isinstance(child, matplotlib.collections.Collection):
+                    self.draw_collection(ax, child,
+                                         force_pathtrans=ax.transAxes)
                 else:
                     warnings.warn("Legend element %s not impemented" % child)
             except NotImplementedError:
@@ -179,7 +183,7 @@ class Exporter(object):
                                                    ax, line.get_xydata(),
                                                    force_trans=force_trans)
         linestyle = utils.get_line_style(line)
-        if linestyle['dasharray'] in ['None', 'none', None]:
+        if linestyle['dasharray'] is None:
             linestyle = None
         markerstyle = utils.get_marker_style(line)
         if (markerstyle['marker'] in ['None', 'none', None]
@@ -231,12 +235,12 @@ class Exporter(object):
 
         offset_coords, offsets = self.process_transform(
             transOffset, ax, offsets, force_trans=force_offsettrans)
+        path_coords = self.process_transform(
+            transform, ax, force_trans=force_pathtrans)
 
         processed_paths = [utils.SVG_path(path) for path in paths]
-        path_coords, tr = self.process_transform(
-            transform, ax, return_trans=True, force_trans=force_pathtrans)
-
-        processed_paths = [(tr.transform(path[0]), path[1])
+        processed_paths = [(self.process_transform(
+            transform, ax, path[0], force_trans=force_pathtrans)[1], path[1])
                            for path in processed_paths]
 
         path_transforms = collection.get_transforms()
