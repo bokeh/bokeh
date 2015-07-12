@@ -232,8 +232,9 @@ class BokehRenderer(Renderer):
         # mpl give you the title and axes names as a text object (with specific locations)
         # inside the plot itself. That does not make sense inside Bokeh, so we
         # just skip the title and axes names from the conversion and covert any other text.
-        if text_type in ['xlabel', 'ylabel']:
+        if text_type in ['xlabel', 'ylabel', 'title']:
             return
+
         x, y = position
         text = Text(x=x, y=y, text=[text])
 
