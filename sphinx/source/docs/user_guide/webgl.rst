@@ -62,7 +62,13 @@ Notes
 Example
 -------
 
-A Plot of 10.000 points:
+Here's a Plot of 10.000 points. You should notice how panning the plot
+is a bit slow, even though a decimated version of the data is shown
+during user interaction.
+
+If you now now open your browser developer console (e.g. by pressing
+F12), and type ``BOKEH_WEBGL = 1``, the plot should look the same, but
+interaction should be much smoother.
 
 
 .. bokeh-plot::
@@ -77,51 +83,9 @@ A Plot of 10.000 points:
     x = np.random.normal(0, np.pi, N)
     y = np.sin(x) + np.random.normal(0, 0.2, N)
     
-    output_file("scatter.html", title="scatter %i points without WebGL" % N)
+    output_file("scatter.html", title="scatter %i points" % N)
     
     p = figure()
     p.scatter(x,y)
     show(p)
 
-
-The same Plot, now drawn using WebGL:
-
-.. bokeh-plot::
-    :source-position: above
-    
-    import os
-    import numpy as np
-    
-    from bokeh.plotting import figure, show, output_file
-    
-    os.environ['BOKEH_WEBGL'] = '1'  # Enable WebGL
-    
-    N = 10000
-    
-    x = np.random.normal(0, np.pi, N)
-    y = np.sin(x) + np.random.normal(0, 0.2, N)
-    
-    output_file("scatter.html", title="scatter %i points without WebGL" % N)
-    
-    p = figure()
-    p.scatter(x,y)
-    show(p)
-
-
-.. bokeh-plot::
-    :source-position: above
-
-    import numpy as np
-    
-    from bokeh.plotting import figure, show, output_file
-    
-    N = 10000
-    
-    x = np.random.normal(0, np.pi, N)
-    y = np.sin(x) + np.random.normal(0, 0.2, N)
-    
-    output_file("scatter.html", title="scatter %i points without WebGL" % N)
-    
-    p = figure()
-    p.scatter(x,y)
-    show(p)
