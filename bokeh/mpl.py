@@ -20,16 +20,18 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from six import string_types
 
 from .models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
+from .mplexporter import utils
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           is_ax_end, xkcd_line)
-from .models import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
+from .models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
                      Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
-                     ResetTool, WheelZoomTool)
+                     ResetTool, WheelZoomTool, CategoricalAxis)
 from .plotting import (curdoc, output_file, output_notebook, output_server,
                        DEFAULT_TOOLS)
 from .plotting_helpers import _process_tools_arg
@@ -41,6 +43,26 @@ from .plotting_helpers import _process_tools_arg
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+class BokehExporter(Exporter):
+    def draw_collection(self, ax, collection,
+                        force_pathtrans=None,
+                        force_offsettrans=None):
+
+        if isinstance(collection, mpl.collections.LineCollection):
+            self.renderer.make_line_collection(collection)
+        elif isinstance(collection, mpl.collections.PolyCollection):
+            self.renderer.make_poly_collection(collection)
+        else:
+            pass
+            #super(BokehExporter, self).draw_collection(ax, collection, force_pathtrans, force_offsettrans)
+
+    # def draw_patch(self, ax, patch, force_trans=None):
+    #     markerstyle = utils.get_marker_style(patch)
+    #     if (markerstyle['marker'] in ['None', 'none', None]
+    #             or markerstyle['markerpath'][0].size == 0):
+    #         markerstyle = None
+
+
 
 class BokehRenderer(Renderer):
 
@@ -49,16 +71,14 @@ class BokehRenderer(Renderer):
         self.fig = None
         self.pd_obj = pd_obj
         self.xkcd = xkcd
-        self.xdr = DataRange1d()
-        self.ydr = DataRange1d()
-        self.non_text = [] # to save the text we don't want to convert by draw_text
+        self.zorder = {}
 
     def open_figure(self, fig, props):
         "Get the main plot properties and create the plot."
         self.width = int(props['figwidth'] * props['dpi'])
         self.height = int(props['figheight'] * props['dpi'])
-        self.plot = Plot(x_range=self.xdr,
-                         y_range=self.ydr,
+        self.plot = Plot(x_range=DataRange1d(),
+                         y_range=DataRange1d(),
                          plot_width=self.width,
                          plot_height=self.height)
 
@@ -71,6 +91,7 @@ class BokehRenderer(Renderer):
         # Simple or Grid plot setup
         if len(fig.axes) <= 1:
             self.fig = self.plot
+            self.plot.renderers.sort(key=lambda x: self.zorder.get(x._id, 0))
         else:
             # This list comprehension splits the plot.renderers list at the "marker"
             # points returning small sublists corresponding with each subplot.
@@ -79,10 +100,11 @@ class BokehRenderer(Renderer):
             plots = []
             for i, axes in enumerate(fig.axes):
                 # create a new plot for each subplot
-                _plot = Plot(x_range=self.xdr,
-                             y_range=self.ydr,
+                _plot = Plot(x_range=self.plot.x_range,
+                             y_range=self.plot.y_range,
                              plot_width=self.width,
                              plot_height=self.height)
+
                 _plot.title = ""
                 # and add new tools
                 _tool_objs = _process_tools_arg(_plot, DEFAULT_TOOLS)
@@ -93,12 +115,22 @@ class BokehRenderer(Renderer):
                     if not isinstance(r, GlyphRenderer):
                         r.plot = None
                 # add all the renderers into the new subplot
-                _plot.add_layout(_plot_rends[0], 'below')  # xaxis
-                _plot.add_layout(_plot_rends[1], 'left')  # yaxis
-                _plot.add_layout(_plot_rends[2])  # xgrid
-                _plot.add_layout(_plot_rends[3])  # ygrid
-                for r in _plot_rends[4:]:  # all the glyphs
-                    _plot.renderers.append(r)
+                for r in _plot_rends:
+                    if isinstance(r, GlyphRenderer):
+                        _plot.renderers.append(r)
+                    elif isinstance(r, Grid):
+                        _plot.add_layout(r)
+                    else:
+                        if r in self.plot.below:
+                            _plot.add_layout(r, 'below')
+                        elif r in self.plot.above:
+                            _plot.add_layout(r, 'above')
+                        elif r in self.plot.left:
+                            _plot.add_layout(r, 'left')
+                        elif r in self.plot.right:
+                            _plot.add_layout(r, 'right')
+
+                _plot.renderers.sort(key=lambda x: self.zorder.get(x._id, 0))
                 plots.append(_plot)
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
@@ -112,24 +144,16 @@ class BokehRenderer(Renderer):
         self.ax = ax
         self.plot.title = ax.get_title()
         # to avoid title conversion by draw_text later
-        self.non_text.append(self.plot.title)
         self.grid = ax.get_xgridlines()[0]
 
         # Add axis
-        bxaxis = self.make_axis(ax.xaxis, "below", props['xscale'])
-        byaxis = self.make_axis(ax.yaxis, "left", props['yscale'])
+        for props in props['axes']:
+            if   props['position'] == "bottom" : location, dim, thing = "below", 0, ax.xaxis
+            elif props['position'] == "top"    : location, dim, thing = "above", 0, ax.xaxis
+            else: location, dim, thing = props['position'], 1, ax.yaxis
 
-        # Add grids
-        self.make_grid(bxaxis, 0)
-        self.make_grid(byaxis, 1)
-
-        # Setup collections info
-        nones = ("", " ", "None", "none", None)
-        cols = [col for col in self.ax.collections if col.get_paths() not in nones]
-
-        # Add collections renderers
-        [self.make_line_collection(col) for col in cols if isinstance(col, mpl.collections.LineCollection)]
-        [self.make_poly_collection(col) for col in cols if isinstance(col, mpl.collections.PolyCollection)]
+            baxis = self.make_axis(thing, location, props)
+            self.make_grid(baxis, dim)
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
@@ -175,14 +199,15 @@ class BokehRenderer(Renderer):
         line.line_color = style['color']
         line.line_width = style['linewidth']
         line.line_alpha = style['alpha']
-        line.line_dash = [int(i) for i in style['dasharray'].split(",")]  # str2list(int)
-        #style['zorder'] # not in Bokeh
-        #line.line_join = line2d.get_solid_joinstyle() # not in mplexporter
-        #line.line_cap = cap_style_map[line2d.get_solid_capstyle()] # not in mplexporter
+        line.line_dash = [] if style['dasharray'] is "none" else [int(i) for i in style['dasharray'].split(",")]  # str2list(int)
+        # line.line_join = line2d.get_solid_joinstyle() # not in mplexporter
+        # line.line_cap = cap_style_map[line2d.get_solid_capstyle()] # not in mplexporter
         if self.xkcd:
             line.line_width = 3
 
-        self.plot.add_glyph(source, line)
+        r = self.plot.add_glyph(source, line)
+        self.zorder[r._id] = style['zorder']
+
 
     def draw_markers(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Marker glyph."
@@ -216,17 +241,13 @@ class BokehRenderer(Renderer):
         marker.line_width = style['edgewidth']
         marker.size = style['markersize']
         marker.fill_alpha = marker.line_alpha = style['alpha']
-        #style['zorder'] # not in Bokeh
 
-        self.plot.add_glyph(source, marker)
+        r = self.plot.add_glyph(source, marker)
+        self.zorder[r._id] = style['zorder']
 
-    def draw_path_collection(self, paths, path_coordinates, path_transforms,
-                             offsets, offset_coordinates, offset_order,
-                             styles, mplobj=None):
-        """Path not implemented in Bokeh, but we have our own line ans poly
-        collection implementations, so passing here to avoid the NonImplemented
-        error.
-        """
+
+    def draw_path(self, data, coordinates, pathcodes, style,
+                  offset=None, offset_coordinates="data", mplobj=None):
         pass
 
     def draw_text(self, text, position, coordinates, style,
@@ -235,36 +256,38 @@ class BokehRenderer(Renderer):
         # mpl give you the title and axes names as a text object (with specific locations)
         # inside the plot itself. That does not make sense inside Bokeh, so we
         # just skip the title and axes names from the conversion and covert any other text.
-        if text not in self.non_text:
-            x, y = position
-            text = Text(x=x, y=y, text=[text])
+        if text_type in ['xlabel', 'ylabel']:
+            return
+        x, y = position
+        text = Text(x=x, y=y, text=[text])
 
-            alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
-            # baseline not implemented in Bokeh, deafulting to bottom.
-            text.text_alpha = style['alpha']
-            text.text_font_size = "%dpx" % style['fontsize']
-            text.text_color = style['color']
-            text.text_align = style['halign']
-            text.text_baseline = alignment_map[style['valign']]
-            text.angle = style['rotation']
-            #style['zorder'] # not in Bokeh
+        alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
+        # baseline not implemented in Bokeh, deafulting to bottom.
+        text.text_alpha = style['alpha']
+        text.text_font_size = "%dpx" % style['fontsize']
+        text.text_color = style['color']
+        text.text_align = style['halign']
+        text.text_baseline = alignment_map[style['valign']]
+        text.angle = style['rotation']
 
-            ## Using get_fontname() works, but it's oftentimes not available in the browser,
-            ## so it's better to just use the font family here.
-            #text.text_font = mplText.get_fontname()) not in mplexporter
-            #text.text_font = mplText.get_fontfamily()[0] # not in mplexporter
-            #text.text_font_style = fontstyle_map[mplText.get_fontstyle()] # not in mplexporter
-            ## we don't really have the full range of font weights, but at least handle bold
-            #if mplText.get_weight() in ("bold", "heavy"):
-                #text.text_font_style = bold
+        ## Using get_fontname() works, but it's oftentimes not available in the browser,
+        ## so it's better to just use the font family here.
+        #text.text_font = mplText.get_fontname()) not in mplexporter
+        #text.text_font = mplText.get_fontfamily()[0] # not in mplexporter
+        #text.text_font_style = fontstyle_map[mplText.get_fontstyle()] # not in mplexporter
+        ## we don't really have the full range of font weights, but at least handle bold
+        #if mplText.get_weight() in ("bold", "heavy"):
+            #text.text_font_style = bold
 
-            source = ColumnDataSource()
-            self.plot.add_glyph(source, text)
+        source = ColumnDataSource()
+        r = self.plot.add_glyph(source, text)
+        self.zorder[r._id] = style['zorder']
 
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
+        2/0
         pass
 
-    def make_axis(self, ax, location, scale):
+    def make_axis(self, ax, location, props):
         "Given a mpl axes instance, returns a Bokeh LinearAxis object."
         # TODO:
         #  * handle log scaling
@@ -272,26 +295,31 @@ class BokehRenderer(Renderer):
         #  * deal with minor ticks once BokehJS supports them
         #  * handle custom tick locations once that is added to bokehJS
 
-        # we need to keep the current axes names to avoid writing them in draw_text
-        self.non_text.append(ax.get_label_text())
+        tf = props['tickformat']
+        if tf and any(isinstance(x, string_types) for x in tf):
+            laxis = CategoricalAxis(axis_label=ax.get_label_text())
+            rng = FactorRange(factors=[str(x) for x in tf], offset=-1.0)
+            if location in ["above", "below"]:
+                self.plot.x_range = rng
+            else:
+                self.plot.y_range = rng
 
-        if scale == "linear":
-            laxis = LinearAxis(axis_label=ax.get_label_text())
-        elif scale == "date":
-            laxis = DatetimeAxis(axis_label=ax.get_label_text())
+        else:
+            if props['scale'] == "linear":
+                laxis = LinearAxis(axis_label=ax.get_label_text())
+            elif props['scale'] == "date":
+                laxis = DatetimeAxis(axis_label=ax.get_label_text())
 
         self.plot.add_layout(laxis, location)
 
         # First get the label properties by getting an mpl.Text object
-        #label = ax.get_label()
-        #self.text_props(label, laxis, prefix="axis_label_")
-        #self.draw_text(label, position, coordinates, style, text_type="axis_label_")
+        label = ax.get_label()
+        self.text_props(label, laxis, prefix="axis_label_")
 
         # To get the tick label format, we look at the first of the tick labels
         # and assume the rest are formatted similarly.
-        #ticktext = ax.get_ticklabels()[0]
-        #self.text_props(ticktext, laxis, prefix="major_label_")
-        #self.draw_text(ticktext, position, coordinates, style, text_type="major_label_")
+        ticktext = ax.get_ticklabels()[0]
+        self.text_props(ticktext, laxis, prefix="major_label_")
 
         #newaxis.bounds = axis.get_data_interval()  # I think this is the right func...
 
@@ -334,15 +362,19 @@ class BokehRenderer(Renderer):
 
         self.multiline_props(source, multiline, col)
 
-        self.plot.add_glyph(source, multiline)
+        r = self.plot.add_glyph(source, multiline)
+        self.zorder[r._id] = col.zorder
 
     def make_poly_collection(self, col):
         "Given a mpl collection instance create a Bokeh Patches glyph."
-        paths = col.get_paths()
-        polygons = [paths[i].to_polygons() for i in range(len(paths))]
-        polygons = [np.transpose(delete_last_col(polygon)) for polygon in polygons]
-        xs = [polygons[i][0] for i in range(len(polygons))]
-        ys = [polygons[i][1] for i in range(len(polygons))]
+
+        xs = []
+        ys = []
+        for path in col.get_paths():
+            for sub_poly in path.to_polygons():
+                xx, yy = sub_poly.transpose()
+                xs.append(xx)
+                ys.append(yy)
 
         patches = Patches()
         source = ColumnDataSource()
@@ -351,7 +383,8 @@ class BokehRenderer(Renderer):
 
         self.patches_props(source, patches, col)
 
-        self.plot.add_glyph(source, patches)
+        r = self.plot.add_glyph(source, patches)
+        self.zorder[r._id] = col.zorder
 
     def multiline_props(self, source, multiline, col):
         "Takes a mpl collection object to extract and set up some Bokeh multiline properties."
@@ -386,6 +419,11 @@ class BokehRenderer(Renderer):
         patches.line_dash_offset = convert_dashes(offset)
         patches.line_dash = list(convert_dashes(tuple(on_off)))
 
+    def text_props(self, text, obj, prefix=""):
+        fp = text.get_font_properties()
+        setattr(obj, prefix+"text_font", fp.get_family()[0])
+        setattr(obj, prefix+"text_font_size", "%fpt" % fp.get_size_in_points())
+        setattr(obj, prefix+"text_font_style", fp.get_style())
 
 def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True, xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
@@ -447,7 +485,7 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True, xkcd
     doc = curdoc()
 
     renderer = BokehRenderer(pd_obj, xkcd)
-    exporter = Exporter(renderer)
+    exporter = BokehExporter(renderer)
 
     exporter.run(fig)
 

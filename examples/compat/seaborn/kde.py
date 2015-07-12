@@ -1,19 +1,29 @@
-import numpy as np
-import pandas as pd
 import seaborn as sns
-import matplotlib as mplc
 import matplotlib.pyplot as plt
 from bokeh import mpl
 from bokeh.plotting import show
 
-# Generate the pandas dataframe
-data = np.random.multivariate_normal([0, 0], [[1, 2], [2, 20]], size=100)
-data = pd.DataFrame(data, columns=["X", "Y"])
-mplc.rc("figure", figsize=(6, 6))
+sns.set(style="darkgrid")
+iris = sns.load_dataset("iris")
 
-# Just plot seaborn kde
-sns.kdeplot(data, cmap="BuGn_d")
+# Subset the iris dataset by species
+setosa = iris.query("species == 'setosa'")
+virginica = iris.query("species == 'virginica'")
 
-plt.title("Seaborn kdeplot in bokeh.")
+# Set up the figure
+f, ax = plt.subplots(figsize=(8, 8))
+ax.set_aspect("equal")
+
+# Draw the two density plots
+ax = sns.kdeplot(setosa.sepal_width, setosa.sepal_length,
+                 cmap="Reds", shade=True, shade_lowest=False)
+ax = sns.kdeplot(virginica.sepal_width, virginica.sepal_length,
+                 cmap="Blues", shade=True, shade_lowest=False)
+
+# Add labels to the plot
+red = sns.color_palette("Reds")[-2]
+blue = sns.color_palette("Blues")[-2]
+ax.text(2.5, 8.2, "virginica", size=16, color=blue)
+ax.text(3.8, 4.5, "setosa", size=16, color=red)
 
 show(mpl.to_bokeh(name="kde"))
