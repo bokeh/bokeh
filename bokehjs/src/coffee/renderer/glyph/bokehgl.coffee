@@ -1,4 +1,7 @@
-gloo2 = require "gloo2"
+if global._bokehTest?
+  gloo2 = undefined  # TODO Make work?
+else
+  gloo2 = require "gloo2"
 color = require "../../common/color"
 color2rgba = color.color2rgba
 
@@ -9,14 +12,10 @@ color2rgba = color.color2rgba
 # This module contains all gl-specific code to add gl support for the glyphs.
 # By implementing it separetely, the GL functionality can be spun off in a
 # separate library.
-# Other locations where we work with GL, or prepare for GL-renderinh:
+# Other locations where we work with GL, or prepare for GL-rendering:
 # - canvas.coffee (maybe refactor so this one is gl-unaware?)
 # - plot.coffee
 # - glyph.coffee, other glyphs?
-
-# todo: Can we implement all gl-specifics that's still needed in glyph.coffee?
-# todo: implement that colors set per-vertex work.
-# todo: implement angles.
 
 
 line_width = (width) ->
@@ -85,7 +84,7 @@ attach_color = (prog, vbo, att_name, n, visual) ->
 
 class BaseGLGlyph
   
-  GLYPH: ''  # name of the glyph that this collection applies to
+  GLYPH: ''  # name of the glyph that this gl-glyph applies to
   
   VERT: ''
   FRAG: ''
@@ -336,38 +335,6 @@ class SquareGLGlyph extends MarkerGLGlyph
     }
     """
 
-class CloverGlyph extends MarkerGLGlyph
-  
-  GLYPH: 'clover'
-  
-  MARKERCODE: """    
-    float marker(vec2 P, float size)
-    {
-        // clover (3 discs)
-        float t1 = -PI/2.0;
-        vec2  c1 = 0.225*vec2(cos(t1),sin(t1));
-        float t2 = t1+2.0*PI/3.0;
-        vec2  c2 = 0.225*vec2(cos(t2),sin(t2));
-        float t3 = t2+2.0*PI/3.0;
-        vec2  c3 = 0.225*vec2(cos(t3),sin(t3));
-        float r1 = length( P - c1*size) - size/4.25;
-        float r2 = length( P - c2*size) - size/4.25;
-        float r3 = length( P - c3*size) - size/4.25;
-        float r4 =  min(min(r1,r2),r3);
-    
-        // Root (2 circles and 2 planes)
-        vec2 c4 = vec2(+0.65, 0.125);
-        vec2 c5 = vec2(-0.65, 0.125);
-        float r5 = length(P-c4*size) - size/1.6;
-        float r6 = length(P-c5*size) - size/1.6;
-        float r7 = P.y - 0.5*size;
-        float r8 = 0.2*size - P.y;
-        float r9 = max(-min(r5,r6), max(r7,r8));
-    
-        return min(r4,r9);
-    }
-    """
-  
 
 module.exports =
   CircleGLGlyph: CircleGLGlyph

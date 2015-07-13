@@ -27,7 +27,7 @@ class GlyphView extends ContinuumView
     @warned = {}
 
     return @
-    
+
   render: (ctx, indices, data) ->
     if @mget("visible")
       ctx.beginPath();
@@ -67,7 +67,7 @@ class GlyphView extends ContinuumView
           @[syname].push(sy)
       else
         [ @[sxname], @[syname] ] = @renderer.map_to_screen(@[xname], @[yname])
-        
+
     @_map_data()
 
   set_data: (source) ->
@@ -103,8 +103,6 @@ class GlyphView extends ContinuumView
     if @glglyph?
       @glglyph.set_visuals_changed()
 
-    @_set_visuals()
-
   bounds: () ->
     if not @index?
       return bbox.empty()
@@ -122,7 +120,6 @@ class GlyphView extends ContinuumView
   # any additional customization can happen here
   _init_gl: () -> null
   _set_data: () -> null
-  _set_visuals: () -> null
   _map_data: () -> null
   _mask_data: (inds) -> inds
   _bounds: (bds) -> bds

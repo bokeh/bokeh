@@ -264,10 +264,7 @@ class PlotView extends ContinuumView
       gl.enable(gl.SCISSOR_TEST)
       flipped_top = ctx.glcanvas.height - (frame_box[1] + frame_box[3])
       gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
-      # Setup blending so that everything *within* gl blends correctly, and
-      # the resulting total alpha causes correct blending with the 2D canvas.
-      # Does not blend exactly the same way with 2D-drawn content though. 
-      # todo: at some point we should implement Order Independent Transparency
+      # Setup blending
       gl.enable(gl.BLEND)
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
       #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
@@ -288,9 +285,6 @@ class PlotView extends ContinuumView
       ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
       for prefix in ['image', 'mozImage', 'webkitImage','msImage']
          ctx[prefix + 'SmoothingEnabled'] = true
-      console.log('render webgl canvas into 2d canvas')
-    else
-      console.log('NOT rendering with webgl')  # todo: remove this
 
     @_render_levels(ctx, ['overlay', 'tool'])
 
@@ -324,7 +318,7 @@ class PlotView extends ContinuumView
         renderer.render()
 
     ctx.restore()
-  
+
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->

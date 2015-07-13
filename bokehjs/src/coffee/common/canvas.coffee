@@ -8,10 +8,10 @@ LayoutBox = require "./layout_box"
 Solver = require "./solver"
 
 # Notes on WebGL support:
-# Glyps can be rendered into the original 2D canvas, as well as in a
-# (hidden) webgl canvas. In this way, the rest of bokehjs can keep
-# working as it is, and we can incrementally update glyphs to make them
-# use GL.
+# Glyps can be rendered into the original 2D canvas, or in a (hidden)
+# webgl canvas that we create below. In this way, the rest of bokehjs
+# can keep working as it is, and we can incrementally update glyphs to
+# make them use GL.
 
 class CanvasView extends ContinuumView
   className: "bk-canvas-wrapper"
@@ -48,7 +48,6 @@ class CanvasView extends ContinuumView
     # Create 2D context to draw to 
     @ctx = canvas1.getContext('2d')
     @ctx.canvas = canvas1
-    window.ctx = @ctx  # todo: debugging
 
     # Create GL context to draw to
     # If WebGL is available, we store a reference to the gl canvas on
