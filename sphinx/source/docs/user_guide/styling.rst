@@ -86,54 +86,8 @@ Additionally, there is also the freedom to use a combination of the two, or no
 alpha at all. The following figure demonstrates each possible combination of
 the inputs for line and fill alphas:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_specifying_colors.py
     :source-position: none
-
-    from bokeh.plotting import figure, show, output_file
-    from itertools import product
-    from math import pi
-    output_file('properties_alpha.html')
-
-    cats = ['None', 'Alpha', 'RGB', 'RGBA', 'Alpha+RGB', 'Alpha+RGBA']
-    p = figure(x_range=cats, y_range=cats,
-               title="Fill and Line Color Property Combinations")
-
-    alpha = 0.5
-    fill_color = (242, 44, 64)
-    fill_color_alpha = (242, 44, 64, alpha)
-    line_color = (0, 0, 0)
-    line_color_alpha = (0, 0, 0, alpha)
-
-    # define fill and line color combinations
-    fill = [(1, {}),
-            (2, {'fill_alpha': alpha}),
-            (3, {'fill_color': fill_color}),
-            (4, {'fill_color': fill_color_alpha}),
-            (5, {'fill_alpha': alpha, 'fill_color': fill_color}),
-            (6, {'fill_alpha': alpha, 'fill_color': fill_color_alpha})]
-
-    line = [(1, {}),
-            (2, {'line_alpha': alpha}),
-            (3, {'line_color': line_color}),
-            (4, {'line_color': line_color_alpha}),
-            (5, {'line_alpha': alpha, 'line_color': line_color}),
-            (6, {'line_alpha': alpha, 'line_color': line_color_alpha})]
-
-    # plot intersection of fill and line combinations
-    combinations = product(fill, line)
-    for comb in combinations:
-        x, fill_options = comb[0]
-        y, line_options = comb[1]
-
-        options = fill_options.copy()
-        options.update(line_options)
-
-        p.circle(x, y, line_width=7, size=50, **options)
-
-    p.xaxis[0].axis_label = "Fill Options"
-    p.xaxis[0].major_label_orientation = pi/4
-    p.yaxis[0].axis_label = "Line Options"
-    show(p)
 
 .. note::
     If using the |bokeh.plotting| interface, another option is to specify
@@ -200,20 +154,8 @@ not the toolbar). If you are using the |bokeh.plotting| or |bokeh.charts|
 interfaces, then these values can be passed to |figure| or the Chart function
 as a convenience:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_dimensions.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("dimensions.html")
-
-    # create a new plot with a title
-    p = figure(plot_width=700)
-    p.plot_height=300
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
 
 .. _userguide_styling_plot_title:
 
@@ -224,22 +166,8 @@ The styling of the plot title is controlled by a set of `Text Properties`_
 on the |Plot|, that are prefixed with ``title_``. For instance, to set the
 color of the title text, use ``title_text_color``:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_title.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("title.html")
-
-    # create a new plot with a title
-    p = figure(plot_width=400, plot_height=400, title="Some Title")
-    p.title_text_color = "olive"
-    p.title_text_font = "times"
-    p.title_text_font_style = "italic"
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
 
 .. _userguide_styling_plot_background:
 
@@ -249,20 +177,8 @@ Background
 The background fill color is controlled by the ``background_fill`` property
 of the |Plot| object:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_background_fill.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("background.html")
-
-    # create a new plot with a title
-    p = figure(plot_width=400, plot_height=400)
-    p.background_fill = "beige"
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
 
 .. _userguide_styling_plot_border:
 
@@ -284,21 +200,8 @@ of the |Plot| object. You can also set the minimum border on each side
 Additionally, setting ``min_border`` will apply a minimum border setting
 to all sides as a convenience. The ``min_border`` default value is 40px.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_min_border.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("border.html")
-
-    # create a new plot with a title
-    p = figure(plot_width=400, plot_height=400)
-    p.border_fill = "whitesmoke"
-    p.min_border_left = 80
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
 
 .. _userguide_styling_plot_outline:
 
@@ -309,22 +212,8 @@ The styling of the outline of the plotting area is controlled by a set of
 `Line Properties`_ on the |Plot|, that are prefixed with ``outline_``. For
 instance, to set the color of the outline, use ``outline_line_color``:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_plot_outline_line_color.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("outline.html")
-
-    # create a new plot with a title
-    p = figure(plot_width=400, plot_height=400)
-    p.outline_line_width = 7
-    p.outline_line_alpha = 0.3
-    p.outline_line_color = "navy"
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
 
 .. _userguide_styling_glyphs:
 
@@ -360,46 +249,15 @@ Then, the glyph itself is obtained from the ``.glyph`` attribute of a
 
 This is the object to set fill, line, or text property values for:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_properties.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("axes.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], name="mycircle")
-
-    glyph = p.select(name="mycircle")[0].glyph
-    glyph.size = 60
-    glyph.fill_alpha = 0.2
-    glyph.line_color = "firebrick"
-    glyph.line_dash = [6, 3]
-    glyph.line_width = 2
-
-    show(p)
 
 ``GlyphRenderer`` objects can also be configured with ``selection_glyph``
 and ``nonselection_glyph`` attributes that control the visual appearance of
 glyphs when selection tools are used.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_selections.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("axes.html")
-
-    p = figure(plot_width=400, plot_height=400, tools="lasso_select")
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=50, name="mycircle")
-
-    glyph = p.select(name="mycircle")[0].nonselection_glyph
-    glyph.fill_alpha = 0.2
-    glyph.line_color = "firebrick"
-    glyph.line_dash = [6, 3]
-    glyph.line_width = 2
-
-    show(p)
 
 Use the lasso tool to select circles on the plot above to see the effect
 on the nonselected glyphs.
@@ -438,31 +296,8 @@ many there may be).
 Below is code that will set some of the properties of axes. You can
 execute this code, and try setting other properties as well.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_axis_properties.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("axes.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    # change just some things about the x-axes
-    p.xaxis.axis_label = "Temp"
-    p.xaxis.axis_line_width = 3
-    p.xaxis.axis_line_color = "red"
-
-    # change just some things about the y-axes
-    p.yaxis.axis_label = "Pressure"
-    p.yaxis.major_label_text_color = "orange"
-    p.yaxis.major_label_orientation = "vertical"
-
-    # change things on all axes
-    p.axis.minor_tick_in = -3
-    p.axis.minor_tick_out = 6
-
-    show(p)
 
 .. _userguide_styling_axes_labels:
 
@@ -476,26 +311,8 @@ to set the color of the label, set ``axis_label_text_color``. Finally, to
 change the distance between the axis label and the major tick labels, set
 the ``axis_label_standoff`` property:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_labels.py
     :source-position: above
-
-    from bokeh.models.ranges import Range1d
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("bounds.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    p.xaxis.axis_label = "Lot Number"
-    p.xaxis.axis_label_text_color = "#aa6666"
-    p.xaxis.axis_label_standoff = 30
-
-    p.yaxis.axis_label = "Bin Count"
-    p.yaxis.axis_label_text_font_style = "italic"
-
-    show(p)
-
 
 .. _userguide_styling_axes_bounds:
 
@@ -506,20 +323,8 @@ Sometimes it is useful to limit the bounds where axes are drawn. This can be
 accomplished by setting the ``bounds`` property of an axis object to a 2-tuple
 of *(start, end)*:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_bounds.py
     :source-position: above
-
-    from bokeh.models.ranges import Range1d
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("bounds.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    p.xaxis.bounds = (2, 4)
-
-    show(p)
 
 .. _userguide_styling_axes_tick_lines:
 
@@ -535,27 +340,8 @@ out of the plotting area the ticks extend, with the properties
 ``major_tick_in``/``major_tick_out`` and ``minor_tick_in``/``minor_tick_out``.
 These values are in screen units, and negative values are acceptable.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_tick_lines.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("axes.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    p.xaxis.major_tick_line_color = "firebrick"
-    p.xaxis.major_tick_line_width = 3
-    p.xaxis.minor_tick_line_color = "orange"
-
-    p.yaxis.minor_tick_line_color = None
-
-    p.axis.major_tick_out = 10
-    p.axis.minor_tick_in = -3
-    p.axis.minor_tick_out = 8
-
-    show(p)
 
 .. _userguide_styling_axes_tick_label_formats:
 
@@ -589,21 +375,8 @@ To control tick formatting at a finer grained level, use one of the
 The |NumeralTickFormatter| has a ``format`` property that can be used
 to control the text formatting of axis ticks.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_numerical_tick_formatter.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.models import NumeralTickFormatter
-
-    output_file("gridlines.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    p.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
-    p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
-
-    show(p)
 
 Many additional formats are available, see the full |NumeralTickFormatter|
 documentation in the :ref:`refguide`.
@@ -615,21 +388,8 @@ The |PrintfTickFormatter| has a ``format`` property that can be used
 to control the text formatting of axis ticks using ``printf`` style
 format strings.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_printf_tick_formatter.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.models import PrintfTickFormatter
-
-    output_file("gridlines.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    p.xaxis[0].formatter = PrintfTickFormatter(format="%4.1e")
-    p.yaxis[0].formatter = PrintfTickFormatter(format="%5.3f mu")
-
-    show(p)
 
 For full details about formats, see the full |PrintfTickFormatter|
 documentation in the :ref:`refguide`.
@@ -644,21 +404,8 @@ The orientation of major tick labels can be controlled with the
 values ``"horizontal"`` or ``"vertical"`` or a floating point number
 that gives the angle (in radians) to rotate from the horizontal:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_tick_label_orientation.py
     :source-position: above
-
-    from math import pi
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("gridlines.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    p.xaxis.major_label_orientation = pi/4
-    p.yaxis.major_label_orientation = "vertical"
-
-    show(p)
 
 ----
 
@@ -708,24 +455,8 @@ The visual appearance of grid lines is controlled by a collection of
 color of grid lines, use ``grid_line_color``. To hide grid lines, set
 their line color to ``None``.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_grid_lines.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("gridlines.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    # change just some things about the x-grid
-    p.xgrid.grid_line_color = None
-
-    # change just some things about the y-grid
-    p.ygrid.grid_line_alpha = 0.5
-    p.ygrid.grid_line_dash = [6, 4]
-
-    show(p)
 
 Minor Lines
 ~~~~~~~~~~~
@@ -735,22 +466,8 @@ The visual appearance of minor grid lines is controlled by a collection of
 color of grid lines, use ``minor_grid_line_color``. By default, minor grid
 lines are hidden (i.e., their line color is set to ``None``).
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_minor_grid_lines.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("minorgridlines.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    # change just some things about the y-grid
-    p.ygrid.minor_grid_line_color = 'navy'
-    p.ygrid.minor_grid_line_alpha = 0.1
-
-    show(p)
-
 
 .. _userguide_styling_grid_bands:
 
@@ -763,24 +480,8 @@ collection of `Fill Properties`_, prefixed with ``band_``. For instance,
 to set the color of grid bands, use ``band_fill_color``. To hide grid
 bands, set their fill color to ``None`` (this is the default).
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_grid_band_fill.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("gridbands.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    # change just some things about the x-grid
-    p.xgrid.grid_line_color = None
-
-    # change just some things about the y-grid
-    p.ygrid.band_fill_alpha = 0.1
-    p.ygrid.band_fill_color = "navy"
-
-    show(p)
 
 .. _userguide_styling_grid_bounds:
 
@@ -791,21 +492,8 @@ Grids also support setting explicit bounds between which they are drawn.
 They are set in an identical fashion to axes bounds, with a 2-tuple
 of *(start, end)*:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_grid_bounds.py
     :source-position: above
-
-    from bokeh.models.ranges import Range1d
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("bounds.html")
-
-    p = figure(plot_width=400, plot_height=400)
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    p.grid.bounds = (2, 4)
-
-    show(p)
-
 
 
 ----
@@ -857,31 +545,8 @@ property. Valid values for this property are:
 
 The default location is ``"top_right"``.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_location.py
     :source-position: above
-
-    import numpy as np
-    from bokeh.plotting import *
-
-    x = np.linspace(0, 4*np.pi, 100)
-    y = np.sin(x)
-
-    output_file("legend_labels.html")
-
-    p = figure()
-
-    p.circle(x, y, legend="sin(x)")
-    p.line(x, y, legend="sin(x)")
-
-    p.line(x, 2*y, legend="2*sin(x)",
-        line_dash=[4, 4], line_color="orange", line_width=2)
-
-    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
-
-    p.legend.orientation = "bottom_left"
-
-    show(p)
 
 .. note::
     It is not currently possible to position a legend outside the plot area,
@@ -894,33 +559,8 @@ The visual appearance of the legend labels is controlled by  a collection of
 `Text Properties`_, prefixed with ``label_``. For instance, to set the font
 style of the labels, use ``label_text_font_style``.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_label_text.py
     :source-position: above
-
-    import numpy as np
-    from bokeh.plotting import *
-
-    x = np.linspace(0, 4*np.pi, 100)
-    y = np.sin(x)
-
-    output_file("legend_labels.html")
-
-    p = figure()
-
-    p.circle(x, y, legend="sin(x)")
-    p.line(x, y, legend="sin(x)")
-
-    p.line(x, 2*y, legend="2*sin(x)",
-        line_dash=[4, 4], line_color="orange", line_width=2)
-
-    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
-
-    p.legend.label_text_font = "times"
-    p.legend.label_text_font_style = "italic"
-    p.legend.label_text_color = "navy"
-
-    show(p)
 
 Border
 ~~~~~~
@@ -930,33 +570,8 @@ The visual appearance of the legend border is controlled by  a collection of
 of the border, use ``border_line_color``. To make the border invisible, set
 the border line color to ``None``.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_border.py
     :source-position: above
-
-    import numpy as np
-    from bokeh.plotting import *
-
-    x = np.linspace(0, 4*np.pi, 100)
-    y = np.sin(x)
-
-    output_file("legend_labels.html")
-
-    p = figure()
-
-    p.circle(x, y, legend="sin(x)")
-    p.line(x, y, legend="sin(x)")
-
-    p.line(x, 2*y, legend="2*sin(x)",
-        line_dash=[4, 4], line_color="orange", line_width=2)
-
-    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
-
-    p.legend.border_line_width = 3
-    p.legend.border_line_color = "navy"
-    p.legend.border_line_alpha = 0.5
-
-    show(p)
 
 Dimensions
 ~~~~~~~~~~
@@ -972,35 +587,8 @@ spacing, etc. of the legend compononents:
 .. bokeh-prop:: bokeh.models.renderers.Legend.legend_padding
 .. bokeh-prop:: bokeh.models.renderers.Legend.legend_spacing
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_dimensions.py
     :source-position: above
-
-    import numpy as np
-    from bokeh.plotting import *
-
-    x = np.linspace(0, 4*np.pi, 100)
-    y = np.sin(x)
-
-    output_file("legend_labels.html")
-
-    p = figure()
-
-    p.circle(x, y, legend="sin(x)")
-    p.line(x, y, legend="sin(x)")
-
-    p.line(x, 2*y, legend="2*sin(x)",
-        line_dash=[4, 4], line_color="orange", line_width=2)
-
-    p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
-    p.line(x, 3*y, legend="3*sin(x)", line_color="green")
-
-    p.legend.label_standoff = 5
-    p.legend.glyph_width = 50
-    p.legend.legend_spacing = 10
-    p.legend.legend_padding = 50
-
-    show(p)
-
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
