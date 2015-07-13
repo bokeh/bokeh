@@ -9,6 +9,7 @@ _component2hex = (v) ->
   h = if h.length == 1 then '0' + h else h
 
 color2hex = (color) ->
+  color = color + ''
   if color.indexOf('#') == 0
     return color
   else if _color_dict[color]?

@@ -272,11 +272,13 @@ class MarkerGLGlyph extends BaseGLGlyph
     
     # Draw directly or using indices. Do not handle indices if they do not 
     # fit in a uint16; WebGL 1.0 does not support uint32.
-    if nvertices > 65535
-      @prog.draw(@gl.POINTS, [0, nvertices])
-      console.log('BOKEHGL ERROR: cannot handle selections for datasets of over 65535 elements.')
+    if indices.length == 0
+      return
     else if indices.length == nvertices
       @prog.draw(@gl.POINTS, [0, nvertices])
+    else if nvertices > 65535
+      @prog.draw(@gl.POINTS, [0, nvertices])
+      console.log('BOKEHGL ERROR: cannot handle selections for datasets of over 65535 elements.')
     else
       @index_buffer.set_size(indices.length*2)
       @index_buffer.set_data(0, new Uint16Array(indices))
