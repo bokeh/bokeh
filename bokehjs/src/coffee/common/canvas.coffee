@@ -35,11 +35,11 @@ class CanvasView extends ContinuumView
     @map_div = @$('div.bk-canvas-map') ? null
     
     @init_canvas()
-        
+
     logger.debug("CanvasView initialized")
 
   init_canvas: () ->
-    
+
     # Get visible and invisible canvas 
     # (doing it like this makes it easy to swap them during debugging)
     canvas1 = @canvas[0]
@@ -49,11 +49,12 @@ class CanvasView extends ContinuumView
     @ctx = canvas1.getContext('2d')
     @ctx.canvas = canvas1
     window.ctx = @ctx  # todo: debugging
-        
+
     # Create GL context to draw to
     # If WebGL is available, we store a reference to the gl canvas on
-    # the ctx object, because that's what gets passed everywhere.    
-    gl = canvas2.getContext("webgl") || canvas2.getContext("experimental-webgl")      
+    # the ctx object, because that's what gets passed everywhere.
+    opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
+    gl = canvas2.getContext("webgl", opts) || canvas2.getContext("experimental-webgl", opts)
     if gl?
       canvas2.gl = gl
       @ctx.glcanvas = canvas2

@@ -4,8 +4,8 @@ Speeding up visualizations with WebGL
 =====================================
 
 When visualizing large datasets with Bokeh, the interaction can become
-rather slow. To counter this, you can enable WebGL, which allows
-rendering some glyph types on your graphics hardware.
+rather slow. To counter this, one can enable WebGL, which allows
+rendering some glyph types on graphics hardware.
 
 What is WebGL?
 --------------
@@ -16,6 +16,8 @@ WebGL is standardized and available in all modern browsers.
 
 How to enable WebGL
 -------------------
+
+*Note: the way in which WebGL is enabled may change*
 
 Inside the browser, the global boolean variable ``window.BOKEH_WEBGL``
 indicates whether WebGL is enabled. This value can be modified in the
@@ -47,9 +49,8 @@ something we plan to improve over time.
 Notes
 -----
 
-* Semi transparent glyphs drawn in WebGL blend exactly the same as
-  normal glyphs, but they do not blend exactly the same with normal
-  glyphs.
+* Glyphs drawn using WebGL are drawn on top of glyphs that are not drawn
+  in WebGL.
 * When the scale is non-linear (e.g. log), the system falls back to 2D
   rendering.
 * Making selections does not work when there are more than 65k data points
@@ -83,9 +84,8 @@ interaction should be much smoother.
     x = np.random.normal(0, np.pi, N)
     y = np.sin(x) + np.random.normal(0, 0.2, N)
     
-    output_file("scatter.html", title="scatter %i points" % N)
+    output_file("scatter10k.html", title="scatter 10k points")
     
     p = figure()
-    p.scatter(x,y)
+    p.scatter(x,y, alpha=0.1)
     show(p)
-
