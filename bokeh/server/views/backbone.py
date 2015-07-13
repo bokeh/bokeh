@@ -17,7 +17,10 @@ from ..views import make_json
 from ..models import docs
 
 def init_bokeh(clientdoc):
-    request.bokeh_server_document = clientdoc
+    # there's no request if we're pushing a new doc from
+    # inside the server itself
+    if request:
+        request.bokeh_server_document = clientdoc
     clientdoc.autostore = False
     clientdoc.autoadd = False
 
@@ -35,6 +38,22 @@ def gc(docid):
     t.save()
     return jsonify(status='success')
 
+def push_data(client, docid, temporary_docid, data):
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    t = BokehServerTransaction(
+        bokehuser, doc, 'rw', temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
+    if client == 'python':
+        clientdoc.load(*data, events='none', dirty=True)
+    else:
+        clientdoc.load(*data, events='existing', dirty=True)
+    t.save()
+    msg = ws_update(clientdoc, t.write_docid, t.changed)
+    return msg
+
 # bulk upsert
 @bokeh_app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 @handle_auth_error
@@ -51,21 +70,9 @@ def bulk_upsert(docid):
     # endpoint is only used by python, therefore we don't process
     # callbacks here
     client = request.headers.get('client', 'python')
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)
-    t = BokehServerTransaction(
-        bokehuser, doc, 'rw', temporary_docid=temporary_docid
-    )
-    t.load()
-    clientdoc = t.clientdoc
     data = protocol.deserialize_json(request.data.decode('utf-8'))
-    if client == 'python':
-        clientdoc.load(*data, events='none', dirty=True)
-    else:
-        clientdoc.load(*data, events='existing', dirty=True)
-    t.save()
-    msg = ws_update(clientdoc, t.write_docid, t.changed)
+    msg = push_data(client, docid, temporary_docid, data)
     return make_json(msg)
 
 def ws_update(clientdoc, docid, models):
