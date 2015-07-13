@@ -1,17 +1,24 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-import uuid
+import mock
 import threading
 import time
+import uuid
 import unittest
-import mock
 
 import requests
 from requests.exceptions import ConnectionError
 
-from ..models import user
 from .. import start, configure
 from ..app import bokeh_app, app
+from ..models import user
 from ..settings import settings as server_settings
 
 def wait_flask():

@@ -1,7 +1,13 @@
-"""
-In our python interface to the backbone system, we separate the local collection
-which stores models, from the http client which interacts with a remote store
-In applications, we would use a class that combines both
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+""" In our python interface to the backbone system, we separate the local
+collection which stores models, from the http client which interacts with
+a remote store. In applications, we would use a class that combines both
 """
 
 from __future__ import absolute_import
@@ -15,11 +21,12 @@ import shelve
 
 from bokeh import protocol
 from bokeh.document import Document
+from bokeh.exceptions import AuthenticationException
 from bokeh.util.serialization import dump
 from bokeh.util.string import decode_utf8, encode_utf8
 
-from ..exceptions import AuthenticationException
 from .app import bokeh_app
+
 class StoreAdapter(object):
     """API modeled after Redis that other stores have to adapt to. """
 

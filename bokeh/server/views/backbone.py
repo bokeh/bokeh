@@ -1,20 +1,24 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
 log = logging.getLogger(__name__)
 
+from bokeh import protocol
 from flask import request, jsonify
 
-from bokeh import protocol
-
-from .bbauth import (
-    handle_auth_error
-)
+from .bbauth import handle_auth_error
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
+from ..models import docs
 from ..serverbb import get_temporary_docid, BokehServerTransaction
 from ..views import make_json
-from ..models import docs
 
 def init_bokeh(clientdoc):
     request.bokeh_server_document = clientdoc

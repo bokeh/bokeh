@@ -1,32 +1,44 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
-from os.path import dirname
+
 import imp
+from os.path import dirname
 import sys
 
 from six.moves.queue import Queue
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
-from .settings import settings as server_settings
 from . import websocket
-##bokeh_app is badly named - it's really a blueprint
 from .app import bokeh_app, app
+from .blaze import get_blueprint as get_mbs_blueprint
+from .forwarder import Forwarder
 from .models import convenience as mconv
 from .models import docs
+from .settings import settings as server_settings
 from .zmqpub import Publisher
 from .zmqsub import Subscriber
-from .forwarder import Forwarder
-from .blaze import get_blueprint as get_mbs_blueprint
 
 from .server_backends import (
     InMemoryServerModelStorage,
-    MultiUserAuthentication, RedisServerModelStorage, ShelveServerModelStorage,
+    MultiUserAuthentication,
+    RedisServerModelStorage,
+    ShelveServerModelStorage,
     SingleUserAuthentication,
 )
+
 from .serverbb import (
-    InMemoryBackboneStorage, RedisBackboneStorage, ShelveBackboneStorage
+    InMemoryBackboneStorage,
+    RedisBackboneStorage,
+    ShelveBackboneStorage
 )
 
 REDIS_PORT = 6379

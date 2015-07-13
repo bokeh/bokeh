@@ -1,20 +1,25 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import json
+from unittest import skip
 
+from bokeh.plotting import (reset_output, output_server, push, curdoc, figure)
+from bokeh.models.sources import ServerDataSource
+from bokeh.models.ranges import Range1d
+from bokeh.models.renderers import GlyphRenderer
+from bokeh.session import TestSession
+from bokeh.transforms import ar_downsample as ar
 import numpy as np
 
-from ..app import app
-
 from . import test_utils
-from ...plotting import (reset_output, output_server, push, curdoc, figure)
-from ...session import TestSession
-from ...models.sources import ServerDataSource
-from ...models.ranges import Range1d
-from ...models.renderers import GlyphRenderer
-from ...transforms import ar_downsample as ar
-
-from unittest import skip
+from ..app import app
 
 @skip
 class TestAr(test_utils.FlaskClientTestCase):

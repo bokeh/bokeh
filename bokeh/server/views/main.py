@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
@@ -6,16 +13,15 @@ log = logging.getLogger(__name__)
 import os
 import uuid
 
+from bokeh import protocol
+from bokeh.exceptions import DataIntegrityException
+from bokeh.resources import Resources
+from bokeh.templates import AUTOLOAD
 from flask import (
     render_template, request, send_from_directory,
     abort, jsonify, Response, redirect, url_for
 )
 from six import string_types
-
-from bokeh import protocol
-from bokeh.exceptions import DataIntegrityException
-from bokeh.resources import Resources
-from bokeh.templates import AUTOLOAD
 
 from .bbauth import handle_auth_error
 from ..app import bokeh_app

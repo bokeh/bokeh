@@ -1,15 +1,23 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
+logger = logging.getLogger(__name__)
+
 from functools import wraps
 
+from bokeh.exceptions import AuthenticationException
 from flask import abort, jsonify
 
 from ..app import bokeh_app
 from ..models import docs
-from ...exceptions import AuthenticationException
 
-logger = logging.getLogger(__name__)
 
 def handle_auth_error(func):
     """Decorator wraps a function and watches for AuthenticationException
