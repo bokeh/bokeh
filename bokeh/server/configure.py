@@ -19,7 +19,6 @@ from tornado.wsgi import WSGIContainer
 
 from . import websocket
 from .app import bokeh_app, app
-from .blaze import get_blueprint as get_mbs_blueprint
 from .forwarder import Forwarder
 from .models import convenience as mconv
 from .models import docs
@@ -102,10 +101,7 @@ def register_blueprint():
             "register_blueprint has already been called, why is it being called again"
         )
         return
-    blaze_blueprint = get_mbs_blueprint(config_file=server_settings.blaze_config)
     app.register_blueprint(bokeh_app, url_prefix=server_settings.url_prefix)
-    if blaze_blueprint:
-        app.register_blueprint(blaze_blueprint, url_prefix=server_settings.url_prefix)
     registered = True
 
 class SimpleBokehTornadoApp(Application):
