@@ -546,7 +546,6 @@ setup(
         'bokeh.mplexporter.renderers',
         'bokeh.sampledata',
         'bokeh.server',
-        'bokeh.server.blaze',
         'bokeh.server.models',
         'bokeh.server.storage',
         'bokeh.server.tests',
