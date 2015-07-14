@@ -93,29 +93,6 @@ class BackboneStorage(AbstractBackboneStorage):
         self.srem(_dockey(docid), mkey)
         self.delete(mkey)
 
-    # UNUSED FOR NOW
-    # def load_all_callbacks(self, get_json=False):
-    #     """get_json = return json of callbacks, rather than
-    #     loading them into models
-    #     """
-    #     doc_keys = self.smembers(_dockey(docid))
-    #     callback_keys = [x.replace("bbmodel", "bbcallback") for x in doc_keys]
-    #     callbacks = self.mget(callback_keys)
-    #     callbacks = [x for x in callbacks if x]
-    #     callbacks = [protocol.deserialize_json(x) for x in callbacks]
-    #     if get_json:
-    #         return callbacks
-    #     self.load_callbacks_json(callbacks)
-
-    def store_callbacks(self, to_store):
-        for callbacks in to_store:
-            typename = callbacks['type']
-            _id = callbacks['id']
-            key = self._callbackskey(typename, self.docid, _id)
-            data = self.serialize(callbacks)
-            self.set(key, data)
-
-
 def _dockey(docid):
     docid = encode_utf8('doc:' + docid)
     return docid
@@ -124,9 +101,6 @@ def _modelkey(typename, docid, modelid):
     docid = encode_utf8(docid)
     modelid = encode_utf8(modelid)
     return 'bbmodel:%s:%s:%s' % (typename, docid, modelid)
-
-def _callbackskey(typename, docid, modelid):
-    return 'bbcallback:%s:%s:%s' % (typename, docid, modelid)
 
 def _parse_modelkey(key):
     _, typename, docid, modelid = decode_utf8(key).split(":")

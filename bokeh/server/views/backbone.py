@@ -52,8 +52,6 @@ def bulk_upsert(docid):
     :status 401: when user is not authorized
 
     '''
-    # endpoint is only used by python, therefore we don't process
-    # callbacks here
     client = request.headers.get('client', 'python')
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
