@@ -22,7 +22,7 @@ import uuid
 
 from bokeh.models import PlotContext
 
-from .. import models
+from .server_model import ServerModel
 
 def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
             apikey=None, readonlyapikey=None):
@@ -37,7 +37,7 @@ def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
     doc.save(flaskapp.servermodel_storage)
     return doc
 
-class Doc(models.ServerModel):
+class Doc(ServerModel):
     typename = 'doc'
     idfield = 'docid'
 
