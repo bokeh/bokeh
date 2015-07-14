@@ -26,19 +26,7 @@ from .settings import settings as server_settings
 from .zmqpub import Publisher
 from .zmqsub import Subscriber
 
-from .server_backends import (
-    InMemoryServerModelStorage,
-    MultiUserAuthentication,
-    RedisServerModelStorage,
-    ShelveServerModelStorage,
-    SingleUserAuthentication,
-)
-
-from .serverbb import (
-    InMemoryBackboneStorage,
-    RedisBackboneStorage,
-    ShelveBackboneStorage
-)
+from .server_backends import MultiUserAuthentication, SingleUserAuthentication
 
 REDIS_PORT = 6379
 
@@ -58,18 +46,21 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
     backend = server_settings.model_backend
     if backend['type'] == 'redis':
         import redis
+        from .storage.redis import RedisModelStorage, RedisBackboneStorage
         rhost = backend.get('redis_host', '127.0.0.1')
         rport = backend.get('redis_port', REDIS_PORT)
         bbstorage = RedisBackboneStorage(redis.Redis(host=rhost, port=rport, db=2))
-        servermodel_storage = RedisServerModelStorage(redis.Redis(host=rhost,
-                                                                  port=rport, db=3))
+        servermodel_storage = RedisModelStorage(redis.Redis(host=rhost, port=rport, db=3))
+
     elif backend['type'] == 'memory':
+        from .storage.in_memory import InMemoryModelStorage, InMemoryBackboneStorage
         bbstorage = InMemoryBackboneStorage()
-        servermodel_storage = InMemoryServerModelStorage()
+        servermodel_storage = InMemoryModelStorage()
 
     elif backend['type'] == 'shelve':
+        from .storage.shelve import ShelveModelStorage, ShelveBackboneStorage
         bbstorage = ShelveBackboneStorage()
-        servermodel_storage = ShelveServerModelStorage()
+        servermodel_storage = ShelveModelStorage()
 
     if not server_settings.multi_user:
         authentication = SingleUserAuthentication()
