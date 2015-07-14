@@ -13,9 +13,10 @@ color2rgba = color.color2rgba
 # By implementing it separetely, the GL functionality can be spun off in a
 # separate library.
 # Other locations where we work with GL, or prepare for GL-rendering:
-# - canvas.coffee (maybe refactor so this one is gl-unaware?)
 # - plot.coffee
-# - glyph.coffee, other glyphs?
+# - glyph.coffee
+# - glyph_renderer.coffee
+# - a few lines in each glyph-module that supports WebGL
 
 
 line_width = (width) ->

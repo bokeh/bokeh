@@ -26,6 +26,11 @@ properties = require "./properties"
 # webgl canvas that we create below. In this way, the rest of bokehjs
 # can keep working as it is, and we can incrementally update glyphs to
 # make them use GL.
+#
+# When the author or user wants to, we try to create a webgl canvas,
+# which is saved on the ctx object that gets passed around during drawing.
+# The presence (and not-being-false) of the ctx.glcanvas attribute is the
+# marker that we use throughout that determines whether we have gl support. 
 
 
 class PlotView extends ContinuumView

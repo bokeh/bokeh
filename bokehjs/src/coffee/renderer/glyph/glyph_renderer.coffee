@@ -88,7 +88,7 @@ class GlyphRendererView extends PlotWidget
 
     tmask = Date.now()
     if glsupport
-      indices = @all_indices
+      indices = @all_indices  # WebGL can do the clipping much more efficiently
     else
       indices = @glyph._mask_data(@all_indices)
     dtmask = Date.now() - tmask

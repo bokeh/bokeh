@@ -49,6 +49,8 @@ Notes
   rendering.
 * Making selections does not work when there are more than 65k data points
   (due to the WebGL limitation that index buffers can only be uint16).
+* Making a selections of markers on Internet Explorer will reduce the size
+  of the markers to 1 pixel (bug)
 * Typical browsers restrict the number of GL contexts to 16. When there
   are many plots on one page, some are likely to produce wrong visual
   output.
