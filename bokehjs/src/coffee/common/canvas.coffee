@@ -7,11 +7,6 @@ LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 Solver = require "./solver"
 
-# Notes on WebGL support:
-# Glyps can be rendered into the original 2D canvas, or in a (hidden)
-# webgl canvas that we create below. In this way, the rest of bokehjs
-# can keep working as it is, and we can incrementally update glyphs to
-# make them use GL.
 
 class CanvasView extends ContinuumView
   className: "bk-canvas-wrapper"
@@ -34,42 +29,17 @@ class CanvasView extends ContinuumView
     @canvas_overlay = @$('div.bk-canvas-overlays')
     @map_div = @$('div.bk-canvas-map') ? null
     
-    @init_canvas()
-
-    logger.debug("CanvasView initialized")
-
-  init_canvas: () ->
-
-    # Get visible and invisible canvas 
-    # (doing it like this makes it easy to swap them during debugging)
-    canvas1 = @canvas[0]
-    canvas2 = document.createElement('canvas')
+    # Create context. This is the object that gets passed arount while drawing
+    @ctx = @canvas[0].getContext('2d')
+    @ctx.glcanvas = null  # init without webgl support (can be overriden in plot.coffee)
     
-    # Create 2D context to draw to 
-    @ctx = canvas1.getContext('2d')
-    @ctx.canvas = canvas1
-
-    # Create GL context to draw to
-    # If WebGL is available, we store a reference to the gl canvas on
-    # the ctx object, because that's what gets passed everywhere.
-    opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
-    gl = canvas2.getContext("webgl", opts) || canvas2.getContext("experimental-webgl", opts)
-    if gl?
-      canvas2.gl = gl
-      @ctx.glcanvas = canvas2
-    else
-      @ctx.glcanvas = null  # disable webgl
+    logger.debug("CanvasView initialized")
 
   render: (force=false) ->
     # normally we only want to render the canvas when the canvas itself
     # should be configured with new bounds.
     if not @model.new_bounds and not force
       return    
-    
-    # Sync size of canvases
-    if @ctx.glcanvas?
-      @ctx.glcanvas.width = @canvas[0].width
-      @ctx.glcanvas.height = @canvas[0].height
 
     if @mget('use_hidpi')
       devicePixelRatio = window.devicePixelRatio || 1

@@ -17,19 +17,13 @@ WebGL is standardized and available in all modern browsers.
 How to enable WebGL
 -------------------
 
-*Note: the way in which WebGL is enabled may change*
+To enable WebGL, set the plot's ``webgl`` property to ``True``:
+    
+    p = Plot(webgl=True)  # for the glyph API
+    p = figure(webgl=True)  # for the plotting API
 
-Inside the browser, the global boolean variable ``window.BOKEH_WEBGL``
-indicates whether WebGL is enabled. This value can be modified in the
-browser (by opening the developer console) to toggle between normal
-and WebGL rendering.
-
-The initial value of ``window.BOKEH_WEBGL`` is determined by the
-environment variable ``BOKEH_WEBGL`` at the moment that the
-visualization is created. Thus, to enable WebGL by default, set the
-``BOKEH_WEBGL` environment variable to '1', for instance using:
-
-    os.environ['BOKEH_WEBGL'] = '1'
+Alternatively, WebGL can be explicitly enabled or disabled on a page
+by adding ``?webgl=1`` or ``#webgl=0`` to the URL.
 
 
 Support
@@ -63,13 +57,24 @@ Notes
 Example
 -------
 
-Here's a Plot of 10.000 points. You should notice how panning the plot
-is a bit slow, even though a decimated version of the data is shown
-during user interaction.
 
-If you now now open your browser developer console (e.g. by pressing
-F12), and type ``BOKEH_WEBGL = 1``, the plot should look the same, but
-interaction should be much smoother.
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    
+    from bokeh.plotting import figure, show, output_file
+    
+    N = 10000
+    
+    x = np.random.normal(0, np.pi, N)
+    y = np.sin(x) + np.random.normal(0, 0.2, N)
+    
+    output_file("scatter10k.html", title="scatter 10k points (no WebGL)")
+    
+    p = figure(webgl=False)
+    p.scatter(x,y, alpha=0.1)
+    show(p)
 
 
 .. bokeh-plot::
@@ -84,8 +89,8 @@ interaction should be much smoother.
     x = np.random.normal(0, np.pi, N)
     y = np.sin(x) + np.random.normal(0, 0.2, N)
     
-    output_file("scatter10k.html", title="scatter 10k points")
+    output_file("scatter10k.html", title="scatter 10k points (with WebGL)")
     
-    p = figure()
+    p = figure(webgl=True)
     p.scatter(x,y, alpha=0.1)
     show(p)

@@ -25,7 +25,8 @@ map_options = GMapOptions(lat=35, lng=-100, zoom=4)
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
     map_options=map_options,
-    title = "US Cities"
+    title = "US Cities",
+    webgl=True,
 )
 plot.map_options.map_type="hybrid"
 

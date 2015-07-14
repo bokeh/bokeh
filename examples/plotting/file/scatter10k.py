@@ -9,6 +9,6 @@ y = np.sin(x) + np.random.normal(0, 0.2, N)
 
 output_file("scatter10k.html", title="scatter 10k points")
 
-p = figure()
+p = figure(webgl=True)
 p.scatter(x,y, alpha=0.1)
 show(p)

@@ -255,12 +255,9 @@ class MarkerGLGlyph extends BaseGLGlyph
       @_set_visuals(nvertices)
       @visuals_changed = false
     
-    # Bit of a secret feature to allow easy comparison during dev
-    offset = (window.BOKEH_WEBGL == 'both') * 10
-       
     # Handle transformation to device coordinates
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    @prog.set_uniform('u_offset', 'vec2', [trans.dx[0] + offset, trans.dy[0]])
+    @prog.set_uniform('u_offset', 'vec2', [trans.dx[0], trans.dy[0]])
     @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
     
     # Select buffers from main glyph 

@@ -21,7 +21,7 @@ flowers2['color'] = flowers['species'].map(lambda x: colormap2[x])
 
 output_file("iris_blend.html", title="iris_blend.py example")
 
-p = figure(title = "Iris Morphology")
+p = figure(title = "Iris Morphology", webgl=True)
 p.xaxis.axis_label = 'Petal Length'
 p.yaxis.axis_label = 'Petal Width'
 

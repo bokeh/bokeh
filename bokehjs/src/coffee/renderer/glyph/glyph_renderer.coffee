@@ -80,7 +80,7 @@ class GlyphRendererView extends PlotWidget
   render: () ->
     t0 = Date.now()
     
-    glsupport = @glyph.glglyph and window.BOKEH_WEBGL
+    glsupport = @glyph.glglyph
     
     tmap = Date.now()
     @glyph.map_data()

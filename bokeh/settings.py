@@ -44,10 +44,7 @@ class Settings(object):
 
     def browser(self, default=None):
         return self._get_str("BROWSER", default, "none")
-    
-    def webgl(self, default=False):
-        return self._get_bool('WEBGL', default, False)
-    
+
     def resources(self, default=None):
         return self._get_str("RESOURCES", default, "absolute-dev")
 

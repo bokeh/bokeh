@@ -14,12 +14,12 @@ class GlyphView extends ContinuumView
     super(options)
 
     @renderer = options.renderer
-    
+
     # Init gl
     ctx = @renderer.plot_view.canvas_view.ctx
     if ctx.glcanvas?
       @_init_gl(ctx.glcanvas.gl)
-    
+
     for name, func of properties.factories
       @[name] = {}
       @[name] = _.extend(@[name], func(@model))
@@ -29,13 +29,14 @@ class GlyphView extends ContinuumView
     return @
 
   render: (ctx, indices, data) ->
+    
     if @mget("visible")
       ctx.beginPath();
-      
-      if @glglyph? and window.BOKEH_WEBGL
-        if @_render_gl(ctx, indices, data) and window.BOKEH_WEBGL != 'both'
+
+      if @glglyph?
+        if @_render_gl(ctx, indices, data)
           return
-      
+
       @_render(ctx, indices, data)
   
   _render_gl: (ctx, indices, mainglyph) ->
@@ -118,7 +119,7 @@ class GlyphView extends ContinuumView
   scy: (i) -> return @sy[i]
 
   # any additional customization can happen here
-  _init_gl: () -> null
+  _init_gl: () -> false
   _set_data: () -> null
   _map_data: () -> null
   _mask_data: (inds) -> inds
