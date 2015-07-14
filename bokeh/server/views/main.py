@@ -85,7 +85,7 @@ def favicon():
     :status 200: return favicon
 
     '''
-    return send_from_directory(os.path.join(bokeh_app.root_path, 'static'),
+    return send_from_directory(os.path.join(bokeh_app.root_path, '_static'),
                                'favicon.ico', mimetype='image/x-icon')
 
 def _makedoc(redisconn, u, title):
