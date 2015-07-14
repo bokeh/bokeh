@@ -15,6 +15,7 @@ from bokeh.models import (
     BoxSelectionOverlay, GMapOptions,
     NumeralTickFormatter, PrintfTickFormatter)
 from bokeh.resources import INLINE
+from bokeh.sampledata.us_cities import data
 
 x_range = Range1d()
 y_range = Range1d()
@@ -28,10 +29,9 @@ plot = GMapPlot(
 )
 plot.map_options.map_type="hybrid"
 
-city_data = json.load(open(os.path.expanduser('~/us_cities.json'), 'rt'))
-source = ColumnDataSource(data=city_data)
+source = ColumnDataSource(data=data)
 
-circle = Circle(x="lon", y="lat", size=20, line_color=None, fill_color='cyan', fill_alpha=0.1)
+circle = Circle(x="lon", y="lat", size=10, line_color=None, fill_color='cyan', fill_alpha=0.1)
 plot.add_glyph(source, circle)
 
 pan = PanTool()
