@@ -24,7 +24,6 @@ from flask import abort, render_template
 from ..app import bokeh_app
 from ..views.backbone import init_bokeh
 from ..views.main import _makedoc
-from ..settings import settings as server_settings
 
 def object_page(prefix):
     """ Decorator for a function which turns an object into a web page
