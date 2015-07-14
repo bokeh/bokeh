@@ -168,6 +168,10 @@ locations =
   AppVBox:                  require '../widget/layouts/appvbox'
   AppVBoxForm:              require '../widget/layouts/appvboxform'
 
+  Reloading:                require '../develop/reloading'
+  ErrorPanel:               require '../develop/errorpanel'
+  DevelopShell:             require '../develop/developshell'
+
   ar_transforms:            [require '../ar/transforms']
 
 collection_overrides = {}

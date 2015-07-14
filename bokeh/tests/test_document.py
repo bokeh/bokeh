@@ -42,6 +42,26 @@ class TestDocument(unittest.TestCase):
         self.assertRaises(TypeError, setattr, d, "context", "foo")
         self.assertRaises(DataIntegrityException, setattr, d, "context", p)
 
+    def test_develop_shell(self):
+        d = document.Document()
+        p = PlotContext()
+        d.context = p
+        self.assertEqual(d.context, p)
+        self.assertIsNotNone(d.context.develop_shell)
+        self.assertIsNotNone(d.context.develop_shell.error_panel)
+        self.assertIsNotNone(d.context.develop_shell.reloading)
+        self.assertEqual(d.context.develop_shell.error_panel.visible, False)
+        self.assertEqual(d.context.develop_shell.error_panel.error, "")
+        self.assertEqual(d.context.develop_shell.reloading.visible, False)
+
+        d.context.develop_shell.error_panel.visible = True
+        d.context.develop_shell.error_panel.error = "Bad stuff"
+        d.context.develop_shell.reloading.visible = True
+
+        self.assertEqual(d.context.develop_shell.error_panel.visible, True)
+        self.assertEqual(d.context.develop_shell.error_panel.error, "Bad stuff")
+        self.assertEqual(d.context.develop_shell.reloading.visible, True)
+
     def test_autoadd(self):
         d = document.Document()
         d.autoadd = True
@@ -64,7 +84,8 @@ class TestDocument(unittest.TestCase):
         p.circle([1], [2])
         d.add(p)
         self.assertListEqual(d.context.children, [p])
-        self.assertEqual(len(d._models), len(p.references())+1)
+        # +4 = plot context, develop shell, error panel, reloading indicator
+        self.assertEqual(len(d._models), len(p.references())+4)
         self.assertTrue(d.context._dirty)
 
     def test_merge(self):
