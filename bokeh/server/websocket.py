@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
@@ -6,16 +13,16 @@ log = logging.getLogger(__name__)
 import threading
 import uuid
 
+from bokeh import protocol
 from tornado import websocket, ioloop
 from tornado.web import Application
 from tornado.httpserver import HTTPServer
-
-from bokeh import protocol
 
 from .wsmanager import WebSocketManager
 from .zmqsub import Subscriber
 
 class WebSocketHandler(websocket.WebSocketHandler):
+
     @property
     def manager(self):
         return self.application.wsmanager
@@ -50,6 +57,7 @@ class WebSocketHandler(websocket.WebSocketHandler):
 
 
 class TornadoWebSocketApplication(Application):
+
     def __init__(self, handlers, **settings):
         super(TornadoWebSocketApplication, self).__init__(handlers, **settings)
         self.wsmanager = WebSocketManager()
@@ -93,8 +101,11 @@ def make_app(url_prefix, zmqaddrs, port):
         if not url_prefix.endswith("/"):
             url_prefix = url_prefix + "/"
         url = url_prefix + "bokeh/sub/"
-    application = TornadoWebSocketApplication([(url, WebSocketHandler)],
-                                              zmqaddrs=zmqaddrs
+
+    application = TornadoWebSocketApplication(
+        [(url, WebSocketHandler)],
+        zmqaddrs=zmqaddrs
     )
     application.listen(port)
+
     return application

@@ -1,16 +1,25 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function
 
-import argparse, os, sys
+import argparse
 import logging
-
-import werkzeug.serving
+import os
+import sys
 
 from bokeh import __version__; __version__
 from bokeh.server.utils.reload import robust_reloader; robust_reloader
 from bokeh.server.app import bokeh_app; bokeh_app
 from bokeh.settings import settings; settings
+import werkzeug.serving
 
 DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'memory')
+
 if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
     print("Unrecognized default backend: '%s'. Accepted values are: 'redis', 'shelve', 'memory'" % DEFAULT_BACKEND)
     sys.exit(1)
@@ -50,11 +59,6 @@ def build_parser():
 
     # advanced configuration
     advanced = parser.add_argument_group('Advanced Options')
-    advanced.add_argument("-D", "--blaze-config",
-                          help="blaze_config_File",
-                          type=str,
-                          default=None
-                          )
     advanced.add_argument("-m", "--multi-user",
                           help="start in multi-user configuration (default: False)",
                           action="store_true",
