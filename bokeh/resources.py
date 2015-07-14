@@ -224,6 +224,7 @@ class Resources(object):
             self._js_raw = self._js_raw()
         return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
 
+
     @property
     def css_raw(self):
         if six.callable(self._css_raw):

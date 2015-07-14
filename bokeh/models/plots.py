@@ -460,6 +460,12 @@ class Plot(Widget):
     ``lod_timeout`` ms. If no interactive tool events have happened,
     level-of-detail mode is disabled.
     """)
+    
+    webgl = Bool(False, help="""
+    Whether WebGL is enabled for this plot. If True, the glyphs that
+    support this will render via WebGL instead of the 2D canvas.
+    """)
+
 
 class GridPlot(Plot):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.
