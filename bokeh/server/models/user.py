@@ -14,7 +14,7 @@ from six import string_types
 from werkzeug import generate_password_hash, check_password_hash
 
 from .docs import Doc
-from .. import models
+from .server_model import ServerModel, UnauthorizedException
 
 def apiuser_from_request(app, request):
     apikey = request.headers.get('BOKEHUSER-API-KEY')
@@ -43,15 +43,15 @@ def new_user(client, username, password, apikey=None, docs=None):
 def auth_user(client, username, password=None, apikey=None):
     user = User.load(client, username)
     if user is None:
-        raise models.UnauthorizedException
+        raise UnauthorizedException
     if password and check_password_hash(user.passhash, password):
         return user
     elif apikey and user.apikey == apikey:
         return user
     else:
-        raise models.UnauthorizedException
+        raise UnauthorizedException
 
-class User(models.ServerModel):
+class User(ServerModel):
     idfield = 'username'
     typename = 'user'
     #we're using username as the id for now...
@@ -77,8 +77,10 @@ class User(models.ServerModel):
         for doc in docs:
             if isinstance(doc, string_types):
                 doc = Doc.load(client, doc)
-                newdocs.append({'title' : doc.title,
-                                'docid' : doc.docid})
+                newdocs.append({
+                    'title' : doc.title,
+                    'docid' : doc.docid
+                })
                 changed = True
             else:
                 newdocs.append(doc)
@@ -102,20 +104,24 @@ class User(models.ServerModel):
 
 
     def to_public_json(self):
-        return {'username' : self.username,
-                'docs' : self.docs}
+        return {
+            'username' : self.username,
+            'docs'     : self.docs
+        }
 
     def to_json(self):
-        return {'username' : self.username,
-                'passhash' : self.passhash,
-                'apikey' : self.apikey,
-                'docs' : self.docs,
-                }
+        return {
+            'username' : self.username,
+            'passhash' : self.passhash,
+            'apikey'   : self.apikey,
+            'docs'     : self.docs,
+        }
 
     @staticmethod
     def from_json(obj):
-        return User(obj['username'],
-                    obj['passhash'],
-                    obj['apikey'],
-                    obj['docs'],
-                    )
+        return User(
+            obj['username'],
+            obj['passhash'],
+            obj['apikey'],
+            obj['docs'],
+        )

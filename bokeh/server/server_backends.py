@@ -18,7 +18,7 @@ from flask import (
 
 from .app import bokeh_app
 from .models import user, docs, convenience
-from .models import UnauthorizedException
+from .models.server_model import UnauthorizedException
 
 class AbstractAuthentication(object):
     def current_user_name(self):
