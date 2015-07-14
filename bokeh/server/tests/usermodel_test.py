@@ -7,10 +7,11 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+from bokeh.exceptions import UnauthorizedException
+
 from . import test_utils
 from ..app import bokeh_app
 from ..models import user
-from ..models.server_model import UnauthorizedException
 
 class TestUser(test_utils.BokehServerTestCase):
     def setUp(self):

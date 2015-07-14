@@ -9,12 +9,12 @@ from __future__ import absolute_import
 
 import uuid
 
-from bokeh.exceptions import DataIntegrityException
+from bokeh.exceptions import DataIntegrityException, UnauthorizedException
 from six import string_types
 from werkzeug import generate_password_hash, check_password_hash
 
 from .docs import Doc
-from .server_model import ServerModel, UnauthorizedException
+from .server_model import ServerModel
 
 def apiuser_from_request(app, request):
     apikey = request.headers.get('BOKEHUSER-API-KEY')
