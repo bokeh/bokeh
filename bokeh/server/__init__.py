@@ -108,7 +108,6 @@ def build_parser():
     # dev, debugging, etc.
     class DevAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
-            #namespace.splitjs = True
             namespace.debugjs = True
             namespace.backend = 'memory'
 
@@ -126,16 +125,11 @@ def build_parser():
     dev.add_argument("--filter-logs",
                      action="store_true",
                      default=False,
-                     help="don't show 'GET /static/... 200 OK', useful with --splitjs")
+                     help="don't show 'GET /static/... 200 OK'")
     dev.add_argument("-j", "--debugjs",
                      action="store_true",
                      default=False,
                      help="serve BokehJS files from the bokehjs build directory in the source tree"
-                     )
-    dev.add_argument("-s", "--splitjs",
-                     action="store_true",
-                     default=False,
-                     help="serve individual JS files instead of compiled bokeh.js, requires --debugjs"
                      )
     dev.add_argument("--robust-reload",
                      help="protect debug server reloading from syntax errors",
@@ -172,7 +166,7 @@ def run():
         name.replace('_', '-') + ":" + onoff[vars(args).get(name)] for name in ['debug', 'verbose', 'filter_logs', 'multi_user']
     )
     js_options = ", ".join(
-        name + ":" + onoff[vars(args).get(name)]for name in ['splitjs', 'debugjs']
+        name + ":" + onoff[vars(args).get(name)]for name in ['debugjs']
     )
 
     if not args.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':

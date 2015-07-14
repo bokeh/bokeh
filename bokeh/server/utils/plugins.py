@@ -75,7 +75,6 @@ def object_page(prefix):
                                    objid=obj._id,
                                    hide_navbar=True,
                                    extra_generated_classes=extra_generated_classes,
-                                   splitjs=server_settings.splitjs,
                                    public='true',
                                    loglevel=resources.log_level)
         wrapper.__name__ = func.__name__
