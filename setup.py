@@ -552,6 +552,8 @@ setup(
         'bokeh.server.tests',
         'bokeh.server.utils',
         'bokeh.server.views',
+        'bokeh.server.websocket',
+        'bokeh.server.zmq',
         'bokeh.sphinxext',
         'bokeh.tests',
         'bokeh.transforms',

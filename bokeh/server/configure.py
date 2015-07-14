@@ -17,15 +17,14 @@ from six.moves.queue import Queue
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
-from . import websocket
 from .app import bokeh_app, app
 from .blaze import get_blueprint as get_mbs_blueprint
 from .forwarder import Forwarder
 from .models import convenience as mconv
 from .models import docs
 from .settings import settings as server_settings
-from .zmqpub import Publisher
-from .zmqsub import Subscriber
+from .websocket import WebSocketHandler, WebSocketManager
+from .zmq import Publisher, Subscriber
 
 from .server_backends import MultiUserAuthentication, SingleUserAuthentication
 
@@ -105,11 +104,11 @@ class SimpleBokehTornadoApp(Application):
         tornado_flask = WSGIContainer(flask_app)
         url_prefix = server_settings.url_prefix
         handlers = [
-            (url_prefix + "/bokeh/sub", websocket.WebSocketHandler),
+            (url_prefix + "/bokeh/sub", WebSocketHandler),
             (r".*", FallbackHandler, dict(fallback=tornado_flask))
         ]
         super(SimpleBokehTornadoApp, self).__init__(handlers, **settings)
-        self.wsmanager = websocket.WebSocketManager()
+        self.wsmanager = WebSocketManager()
         def auth(auth, docid):
             #HACKY
             if docid.startswith("temporary-"):
