@@ -25,15 +25,3 @@ def bokehjs_file(filename):
 
     """
     return flask.send_from_directory(bokeh_app.bokehjsdir, filename)
-
-@bokeh_app.route('/bokehjs/src/<path:filename>')
-def bokehjssrc_file(filename):
-    """ Return a specific BokehJS source code file
-
-    :param filename: name of the file to retrieve
-
-    :status 200: file is found
-    :status 404: file is not found
-
-    """
-    return flask.send_from_directory(bokeh_app.bokehjssrcdir, filename)

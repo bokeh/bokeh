@@ -26,7 +26,6 @@ class BokehBlueprint(flask.Blueprint):
         self.servermodel_storage = servermodel_storage
         self.authentication = authentication
         self.bokehjsdir = settings.bokehjsdir()
-        self.bokehjssrcdir = settings.bokehjssrcdir()
 
     def current_user(self):
         return self.authentication.current_user()
