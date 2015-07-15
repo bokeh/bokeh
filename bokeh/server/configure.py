@@ -18,12 +18,12 @@ from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
 from .app import bokeh_app, app
-from .forwarder import Forwarder
+from .blaze import get_blueprint as get_mbs_blueprint
 from .models import convenience as mconv
 from .models import docs
 from .settings import settings as server_settings
 from .websocket import WebSocketHandler, WebSocketManager
-from .zmq import Publisher, Subscriber
+from .zmq import Forwarder, Publisher, Subscriber
 
 from .server_backends import MultiUserAuthentication, SingleUserAuthentication
 
