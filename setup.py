@@ -553,7 +553,6 @@ setup(
         'bokeh.server.zmq',
         'bokeh.sphinxext',
         'bokeh.tests',
-        'bokeh.transforms',
         'bokeh.util',
         'bokeh.util.tests',
         'bokeh.validation',

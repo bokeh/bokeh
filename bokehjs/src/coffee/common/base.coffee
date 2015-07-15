@@ -168,10 +168,7 @@ locations =
   AppVBox:                  require '../widget/layouts/appvbox'
   AppVBoxForm:              require '../widget/layouts/appvboxform'
 
-  ar_transforms:            [require '../ar/transforms']
-
 collection_overrides = {}
-
 
 make_collection = (model) ->
   class C extends Collection
