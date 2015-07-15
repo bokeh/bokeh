@@ -429,7 +429,7 @@ package_path(join(SERVER, '_static'))
 package_path(join(SERVER, '_templates'))
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
-package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
+package_path(join(ROOT, 'bokeh', 'server', 'demo', 'redis.conf'))
 scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
