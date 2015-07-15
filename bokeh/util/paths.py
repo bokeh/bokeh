@@ -20,7 +20,7 @@ def bokehjsdir(dev=False):
     in bokeh/server/static.
     """
     dir1 = join(ROOT_DIR, '..', 'bokehjs', 'build')
-    dir2 = join(serverdir(), '_static')
+    dir2 = join(serverdir(), 'static')
     if dev and isdir(dir1):
         return dir1
     else:
