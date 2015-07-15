@@ -1,33 +1,32 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
-from os.path import dirname
+
 import imp
+from os.path import dirname
 import sys
 
 from six.moves.queue import Queue
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
-from .settings import settings as server_settings
-from . import websocket
-##bokeh_app is badly named - it's really a blueprint
 from .app import bokeh_app, app
+from .blaze import get_blueprint as get_mbs_blueprint
+from .forwarder import Forwarder
 from .models import convenience as mconv
 from .models import docs
-from .zmqpub import Publisher
-from .zmqsub import Subscriber
-from .forwarder import Forwarder
-from .blaze import get_blueprint as get_mbs_blueprint
+from .settings import settings as server_settings
+from .websocket import WebSocketHandler, WebSocketManager
+from .zmq import Publisher, Subscriber
 
-from .server_backends import (
-    InMemoryServerModelStorage,
-    MultiUserAuthentication, RedisServerModelStorage, ShelveServerModelStorage,
-    SingleUserAuthentication,
-)
-from .serverbb import (
-    InMemoryBackboneStorage, RedisBackboneStorage, ShelveBackboneStorage
-)
+from .server_backends import MultiUserAuthentication, SingleUserAuthentication
 
 REDIS_PORT = 6379
 
@@ -47,18 +46,21 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
     backend = server_settings.model_backend
     if backend['type'] == 'redis':
         import redis
+        from .storage.redis import RedisModelStorage, RedisBackboneStorage
         rhost = backend.get('redis_host', '127.0.0.1')
         rport = backend.get('redis_port', REDIS_PORT)
         bbstorage = RedisBackboneStorage(redis.Redis(host=rhost, port=rport, db=2))
-        servermodel_storage = RedisServerModelStorage(redis.Redis(host=rhost,
-                                                                  port=rport, db=3))
+        servermodel_storage = RedisModelStorage(redis.Redis(host=rhost, port=rport, db=3))
+
     elif backend['type'] == 'memory':
+        from .storage.in_memory import InMemoryModelStorage, InMemoryBackboneStorage
         bbstorage = InMemoryBackboneStorage()
-        servermodel_storage = InMemoryServerModelStorage()
+        servermodel_storage = InMemoryModelStorage()
 
     elif backend['type'] == 'shelve':
+        from .storage.shelve import ShelveModelStorage, ShelveBackboneStorage
         bbstorage = ShelveBackboneStorage()
-        servermodel_storage = ShelveServerModelStorage()
+        servermodel_storage = ShelveModelStorage()
 
     if not server_settings.multi_user:
         authentication = SingleUserAuthentication()
@@ -102,11 +104,11 @@ class SimpleBokehTornadoApp(Application):
         tornado_flask = WSGIContainer(flask_app)
         url_prefix = server_settings.url_prefix
         handlers = [
-            (url_prefix + "/bokeh/sub", websocket.WebSocketHandler),
+            (url_prefix + "/bokeh/sub", WebSocketHandler),
             (r".*", FallbackHandler, dict(fallback=tornado_flask))
         ]
         super(SimpleBokehTornadoApp, self).__init__(handlers, **settings)
-        self.wsmanager = websocket.WebSocketManager()
+        self.wsmanager = WebSocketManager()
         def auth(auth, docid):
             #HACKY
             if docid.startswith("temporary-"):

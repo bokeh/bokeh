@@ -1,16 +1,22 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
-import warnings
-from os.path import dirname, join
+log = logging.getLogger(__name__)
 
+from os.path import dirname, join
+import warnings
+
+from blaze import resource
+import bokeh.server.tests
 import numpy as np
 import pandas as pd
-from blaze import resource
-
-import bokeh.server.tests
-
-log = logging.getLogger(__name__)
 
 qty=10000
 
