@@ -42,18 +42,11 @@ def _build_parser():
                          type=str
                          )
 
-    # advanced configuration
-    advanced = parser.add_argument_group('Advanced Options')
-    advanced.add_argument("-m", "--multi-user",
-                          help="start in multi-user configuration (default: False)",
-                          action="store_true",
-                          default=False
-                          )
-    advanced.add_argument("--script",
-                          help="script to load (for applets)",
-                          default=None,
-                          type=str
-                          )
+    general.add_argument("--script",
+                         help="script to load (for applets)",
+                         default=None,
+                         type=str
+                         )
 
     # storage config
     storage = parser.add_argument_group('Storage Options')

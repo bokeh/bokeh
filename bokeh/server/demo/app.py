@@ -98,7 +98,7 @@ def start():
     onoff = {True:"ON", False:"OFF"}
 
     py_options = ", ".join(
-        name.replace('_', '-') + ":" + onoff[vars(args).get(name)] for name in ['debug', 'verbose', 'filter_logs', 'multi_user']
+        name.replace('_', '-') + ":" + onoff[vars(args).get(name)] for name in ['debug', 'verbose', 'filter_logs']
     )
     js_options = ", ".join(
         name + ":" + onoff[vars(args).get(name)]for name in ['debugjs']
