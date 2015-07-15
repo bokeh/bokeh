@@ -42,7 +42,7 @@ class BokehBlueprint(flask.Blueprint):
 bokeh_app = BokehBlueprint(
     'bokeh.server',
     'bokeh.server',
-    static_folder='_static',
+    static_folder='static',
     static_url_path='/bokeh/static',
     template_folder='_templates'
 )
