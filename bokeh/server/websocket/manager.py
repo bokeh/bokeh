@@ -13,9 +13,10 @@ log = logging.getLogger(__name__)
 import atexit
 import uuid
 
-from .utils.multi_dict import MultiDict
+from ..utils.multi_dict import MultiDict
 
 class WebSocketManager(object):
+
     def __init__(self):
         self.sockets = {}
         self.topic_clientid_map = MultiDict()

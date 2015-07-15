@@ -33,7 +33,6 @@ _defaults = dict(
     sub_zmqaddr="inproc://bokeh_out",
     debug=False,
     dev=False,
-    splitjs=False,
     robust_reload=False,
     verbose=False,
     run_forwarder=True,
@@ -89,7 +88,6 @@ class Settings(object):
         self.ws_conn_string = args.ws_conn_string
         self.debug = args.debug
         self.debugjs = args.debugjs
-        self.splitjs = args.splitjs
         self.robust_reload = args.robust_reload
         self.verbose = args.verbose
         self.run_forwarder = True

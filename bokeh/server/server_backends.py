@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 
 import uuid
 
+from bokeh.exceptions import UnauthorizedException
 from flask import (
     request, session, flash, redirect, url_for, render_template, jsonify
 )
 
 from .app import bokeh_app
 from .models import user, docs, convenience
-from .models.server_model import UnauthorizedException
 
 class AbstractAuthentication(object):
     def current_user_name(self):

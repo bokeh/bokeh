@@ -74,7 +74,6 @@ def index(*unused_all, **kwargs):
     if not bokehuser:
         return redirect(url_for('.login_get'))
     return render('bokeh.html',
-                  splitjs=server_settings.splitjs,
                   username=bokehuser.username,
                   title="Bokeh Documents for %s" % bokehuser.username
     )
@@ -86,7 +85,7 @@ def favicon():
     :status 200: return favicon
 
     '''
-    return send_from_directory(os.path.join(bokeh_app.root_path, 'static'),
+    return send_from_directory(os.path.join(bokeh_app.root_path, '_static'),
                                'favicon.ico', mimetype='image/x-icon')
 
 def _makedoc(redisconn, u, title):
@@ -195,7 +194,7 @@ def show_doc_by_title(title):
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
-    return render('show.html', title=title, docid=docid, splitjs=server_settings.splitjs)
+    return render('show.html', title=title, docid=docid)
 
 @bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=None)
@@ -288,7 +287,6 @@ def show_obj(docid, objid):
                   objid=objid,
                   public=public,
                   hide_navbar=True,
-                  splitjs=server_settings.splitjs,
                   loglevel=resources.log_level)
 
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET', 'OPTIONS'])
