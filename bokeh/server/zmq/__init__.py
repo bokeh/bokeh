@@ -1,3 +1,3 @@
 
-from .publisher import Publisher
-from .subscriber import Subscriber
+from .publisher import Publisher; Publisher
+from .subscriber import Subscriber; Subscriber
