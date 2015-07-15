@@ -1,9 +1,6 @@
 from __future__ import absolute_import
 
-from bokeh.exceptions import DataIntegrityException
-
-class UnauthorizedException(Exception):
-    pass
+from bokeh.exceptions import DataIntegrityException, UnauthorizedException
 
 class ServerModel(object):
     idfield = None

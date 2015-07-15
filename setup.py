@@ -302,8 +302,8 @@ def build_js():
 
 
 def install_js():
-    target_jsdir = join(SERVER, 'static', 'js')
-    target_cssdir = join(SERVER, 'static', 'css')
+    target_jsdir = join(SERVER, '_static', 'js')
+    target_cssdir = join(SERVER, '_static', 'css')
 
     STATIC_ASSETS = [
         join(JS, 'bokeh.js'),
@@ -425,8 +425,8 @@ if jsinstall:
 
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
-package_path(join(SERVER, 'static'))
-package_path(join(SERVER, 'templates'))
+package_path(join(SERVER, '_static'))
+package_path(join(SERVER, '_templates'))
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
 package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
@@ -450,7 +450,7 @@ if 'develop' in sys.argv:
     if jsinstall:
         print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
-        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % yellow("PACKAGED"))
+        print("  - using %s BokehJS, located in 'bokeh.server._static'\n" % yellow("PACKAGED"))
     sys.exit()
 
 elif 'clean' in sys.argv:
@@ -464,7 +464,7 @@ elif 'install' in sys.argv:
     if jsinstall:
         print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
-        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % bright(yellow("PACKAGED")))
+        print("  - using %s BokehJS, located in 'bokeh.server._static'\n" % bright(yellow("PACKAGED")))
 
 elif '--help' in sys.argv:
     if jsinstall:
@@ -473,7 +473,7 @@ elif '--help' in sys.argv:
         print("  --build_js          build and install a fresh BokehJS")
         print("  --install_js        install only last previously built BokehJS")
     else:
-        print("Bokeh is using PACKAGED BokehJS, located in 'bokeh.server.static'")
+        print("Bokeh is using PACKAGED BokehJS, located in 'bokeh.server._static'")
         print()
 
 print()
@@ -549,6 +549,8 @@ setup(
         'bokeh.server.tests',
         'bokeh.server.utils',
         'bokeh.server.views',
+        'bokeh.server.websocket',
+        'bokeh.server.zmq',
         'bokeh.sphinxext',
         'bokeh.tests',
         'bokeh.util',
