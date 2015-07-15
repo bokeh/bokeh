@@ -1,3 +1,3 @@
 
-from .handler import WebSocketHandler
-from .manager import WebSocketManager
+from .handler import WebSocketHandler; WebSocketHandler
+from .manager import WebSocketManager; WebSocketManager
