@@ -183,7 +183,15 @@ class MarkerGLGlyph extends BaseGLGlyph
         float border_distance = abs(signed_distance) - t;
         float alpha = border_distance/antialias;
         alpha = exp(-alpha*alpha);
-
+        
+        // If fg alpha is zero, it probably means no outline. To avoid a dark outline
+        // shining through due to aa, we set the fg color to the bg color. Avoid if (i.e. branching).
+        float select = float(bool(fg_color.a));
+        fg_color.rgb = select * fg_color.rgb + (1.0  - select) * bg_color.rgb;
+        // Similarly, if we want a transparent bg
+        select = float(bool(bg_color.a));
+        bg_color.rgb = select * bg_color.rgb + (1.0  - select) * fg_color.rgb;
+        
         if( border_distance < 0.0)
             frag_color = fg_color;
         else if( signed_distance < 0.0 ) {
