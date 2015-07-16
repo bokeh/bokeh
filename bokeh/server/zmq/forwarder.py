@@ -33,5 +33,5 @@ class Forwarder(object):
         self.device.start()
 
     def stop(self):
-        self.ctx.term()
+        self.device.ctx.term()
         self.device.join()
