@@ -22,6 +22,7 @@ class ThreadDevice(ZMQThreadDevice):
         return self.ctx
 
 class Forwarder(object):
+
     def __init__(self, ctx, input_addr, output_addr):
         self.device = ThreadDevice(ctx, zmq.FORWARDER, in_type=zmq.SUB, out_type=zmq.PUB)
         self.device.bind_in(input_addr)

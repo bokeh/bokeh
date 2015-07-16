@@ -27,6 +27,7 @@ matrix:
 branches:
   only:
     - master
+    - /^dev_.+$/
     - /^\d.\d.\ddev-.+$/
     - /^\d.\d.\drc-.+$/
     - /^\d.\d.\d$/
