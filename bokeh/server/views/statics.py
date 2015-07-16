@@ -9,12 +9,12 @@ from __future__ import absolute_import
 
 import flask
 
-from ..app import bokeh_app
+from ..blueprint import bokeh_blueprint
 
 ## This URL heirarchy is important, because of the way we build bokehjs
 ## the source mappings list the source file as being inside ../../src
 
-@bokeh_app.route('/bokehjs/static/<path:filename>')
+@bokeh_blueprint.route('/bokehjs/static/<path:filename>')
 def bokehjs_file(filename):
     """ Return a specific BokehJS deployment file
 
@@ -24,4 +24,4 @@ def bokehjs_file(filename):
     :status 404: file is not found
 
     """
-    return flask.send_from_directory(bokeh_app.bokehjsdir, filename)
+    return flask.send_from_directory(bokeh_blueprint.bokehjsdir, filename)

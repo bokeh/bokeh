@@ -7,8 +7,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from os import walk
-from os.path import join
+import logging
 
 from bokeh.settings import settings
 import flask
@@ -17,11 +16,8 @@ class BokehBlueprint(flask.Blueprint):
 
     def __init__(self, *args, **kwargs):
         super(BokehBlueprint, self).__init__(*args, **kwargs)
-        self.debugjs = None
 
-    def setup(self, backend, backbone_storage, servermodel_storage,
-              authentication):
-        self.backend = backend
+    def setup(self, backbone_storage, servermodel_storage, authentication):
         self.backbone_storage = backbone_storage
         self.servermodel_storage = servermodel_storage
         self.authentication = authentication
@@ -30,21 +26,10 @@ class BokehBlueprint(flask.Blueprint):
     def current_user(self):
         return self.authentication.current_user()
 
-    def js_files(self):
-        bokehjsdir = self.bokehjsdir
-        js_files = []
-        for root, dirnames, files in walk(bokehjsdir):
-            for fname in files:
-                if fname.endswith(".js") and 'vendor' not in root:
-                    js_files.append(join(root, fname))
-        return js_files
-
-bokeh_app = BokehBlueprint(
+bokeh_blueprint = BokehBlueprint(
     'bokeh.server',
     'bokeh.server',
     static_folder='static',
     static_url_path='/bokeh/static',
     template_folder='_templates'
 )
-
-app = flask.Flask("bokeh.server")

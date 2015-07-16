@@ -14,7 +14,7 @@ class Forwarder(object):
 
     def __init__(self, ctx, input_addr, output_addr):
         self.ctx = ctx
-        self.device = ThreadDevice(ctx, zmq.FORWARDER, in_type=zmq.SUB, out_type=zmq.PUB)
+        self.device = ThreadDevice(zmq.FORWARDER, in_type=zmq.SUB, out_type=zmq.PUB)
         self.device.bind_in(input_addr)
         self.device.bind_out(output_addr)
         self.device.setsockopt_in(zmq.SUBSCRIBE, b"")

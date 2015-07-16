@@ -9,9 +9,9 @@ from __future__ import absolute_import
 
 from flask import render_template
 
-from ..app import bokeh_app
+from ..blueprint import bokeh_blueprint
 
-@bokeh_app.route('/bokeh/jsgenerate/<parentname>/<modulename>/<classname>')
+@bokeh_blueprint.route('/bokeh/jsgenerate/<parentname>/<modulename>/<classname>')
 def generatejs(parentname, modulename, classname):
     return render_template(
         "app.js",

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 from bokeh.exceptions import AuthenticationException
 
-from .app import bokeh_app
+from .blueprint import bokeh_blueprint
 
 def prune(document, temporary_docid=None, delete=False):
     if temporary_docid is not None:
@@ -22,7 +22,7 @@ def prune(document, temporary_docid=None, delete=False):
     to_delete = document.prune()
     if delete:
         for obj in to_delete:
-            bokeh_app.backbone_storage.del_obj(storage_id, obj)
+            bokeh_blueprint.backbone_storage.del_obj(storage_id, obj)
 
 def get_temporary_docid(request, docid):
     key = 'temporary-%s' % docid
@@ -51,7 +51,7 @@ class BokehServerTransaction(object):
     def __init__(self, server_userobj, server_docobj, mode,
                  temporary_docid=None):
         """
-        bokeh_app : bokeh_app blueprint
+        bokeh_blueprint : bokeh_blueprint blueprint
         server_userobj : instance of bokeh.server.models.user.User - current user
           for a request
         server_docobj : instance of bokeh.server.models.docs.Doc
@@ -65,14 +65,14 @@ class BokehServerTransaction(object):
         self.server_userobj = server_userobj
         self.server_docobj = server_docobj
         self.temporary_docid = temporary_docid
-        can_write = bokeh_app.authentication.can_write_doc(
+        can_write = bokeh_blueprint.authentication.can_write_doc(
             self.server_docobj,
             userobj=self.server_userobj,
             temporary_docid=self.temporary_docid)
         if can_write:
             can_read = True
         else:
-            can_read = bokeh_app.authentication.can_read_doc(
+            can_read = bokeh_blueprint.authentication.can_read_doc(
                 self.server_docobj,
                 userobj=self.server_userobj)
         docid = self.server_docobj.docid
@@ -106,9 +106,9 @@ class BokehServerTransaction(object):
 
     def load(self, gc=False):
         from .views.backbone import init_bokeh
-        clientdoc = bokeh_app.backbone_storage.get_document(self.server_docobj.docid)
+        clientdoc = bokeh_blueprint.backbone_storage.get_document(self.server_docobj.docid)
         if self.temporary_docid:
-            temporary_json = bokeh_app.backbone_storage.pull(self.temporary_docid)
+            temporary_json = bokeh_blueprint.backbone_storage.pull(self.temporary_docid)
             #no events - because we're loading from datastore, so nothing is new
             clientdoc.load(*temporary_json, events='none', dirty=False)
         if gc and self.mode != 'rw':
@@ -123,7 +123,7 @@ class BokehServerTransaction(object):
     def save(self):
         if self.mode != 'rw':
             raise AuthenticationException("cannot save in read only mode")
-        self.changed = bokeh_app.backbone_storage.store_document(
+        self.changed = bokeh_blueprint.backbone_storage.store_document(
             self.clientdoc,
             temporary_docid=self.temporary_docid
         )

@@ -18,128 +18,101 @@ from bokeh import plotting; plotting  # imports custom objects for plugin
 from bokeh import models; models      # import objects so that we can resolve them
 from bokeh import protocol; protocol  # import objects so that we can resolve them
 from tornado.httpserver import HTTPServer
-from tornado import ioloop
-import werkzeug.serving
+from tornado.ioloop import IOLoop
 
-from .args import parser
 from . import services
-from ..app import bokeh_app, app
-from ..configure import configure_flask, make_tornado_app, register_blueprint
-from ..settings import settings
-from ..utils.reload import robust_reloader
+from .args import parser
+from ..configure import create_flask_app
+from ..tornado import create_tornado_app
 
-def doc_prepare():
-    settings.model_backend = {'type' : 'memory'}
-    configure_flask()
-    register_blueprint()
-    return app
+_server = None
+_redis_proc = None
 
-http_server = None
-def start_redis():
-    work_dir = getattr(bokeh_app, 'work_dir', os.getcwd())
-    data_file = getattr(bokeh_app, 'data_file', 'redis.db')
-    stdout = getattr(bokeh_app, 'stdout', sys.stdout)
-    stderr = getattr(bokeh_app, 'stdout', sys.stderr)
-    redis_save = getattr(bokeh_app, 'redis_save', True)
-    mproc = services.start_redis(pidfilename=os.path.join(work_dir, "bokehpids.json"),
-                                 port=bokeh_app.backend.get('redis_port', 6379),
-                                 data_dir=work_dir,
-                                 data_file=data_file,
-                                 stdout=stdout,
-                                 stderr=stderr,
-                                save=redis_save)
-    bokeh_app.redis_proc = mproc
+def print_configuration(app):
+    storage_backend = app.config['STORAGE_BACKEND']
+    if storage_backend == 'redis':
+        host = app.config['REDIS_HOST']
+        port = app.config['REDIS_PORT']
+        storage_backend += " (host=%s, port=%d)" % (host, port)
 
-server = None
+    opts = []
+    for opt in ['FILTER_LOGS', 'DEBUG', 'HTTPS', 'RUN_FORWARDER']:
+        if app.config['' + opt]: opts.append(opt)
 
-def make_tornado(config_file=None):
-    configure_flask(config_file=config_file)
-    register_blueprint()
-    tornado_app = make_tornado_app(flask_app=app)
-    return tornado_app
-
-def start_server(args=None):
-    global server
-    configure_flask(config_argparse=args)
-    if settings.model_backend.get('start-redis', False):
-        start_redis()
-    register_blueprint()
-    tornado_app = make_tornado_app(flask_app=app)
-    if args is not None and args.https:
-        if args.https_certfile and args.https_keyfile:
-            server = HTTPServer(tornado_app, ssl_options={"certfile": args.https_certfile, "keyfile": args.https_keyfile})
-            log.info('HTTPS Enabled')
-        else:
-            server = HTTPServer(tornado_app)
-            log.warning('WARNING: --https-certfile or --https-keyfile are not specified, using http instead')
-    else:
-        server = HTTPServer(tornado_app)
-    server.listen(settings.port, settings.ip)
-    ioloop.IOLoop.instance().start()
-
-
-
-def start():
-    args = parser.parse_args(sys.argv[1:])
-
-    level = logging.DEBUG if args.debug else logging.INFO
-    # TODO: this does nothing - because bokeh/__init__.py is already imported
-    # and basicConfig was already called
-    logging.basicConfig(level=level, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
-
-
-    backend_options = args.backend
-    if backend_options == 'redis':
-        if args.start_redis:
-            backend_options += " (start=%s, port=%d)" % (args.start_redis, args.redis_port)
-        else:
-            backend_options += " (start=False)"
-
-    onoff = {True:"ON", False:"OFF"}
-
-    py_options = ", ".join(
-        name.replace('_', '-') + ":" + onoff[vars(args).get(name)] for name in ['debug', 'verbose', 'filter_logs']
-    )
-    js_options = ", ".join(
-        name + ":" + onoff[vars(args).get(name)]for name in ['debugjs']
-    )
-
-    if not args.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-        print("""
+    print("""
     Bokeh Server Configuration
     ==========================
-    python version : %s
-    bokeh version  : %s
-    listening      : %s:%d
-    backend        : %s
-    python options : %s
-    js options     : %s
+    python version  : %s
+    bokeh version   : %s
+    listening       : %s:%d
+    storage backend : %s
+    options         : %s
     """ % (
         sys.version.split()[0], __version__,
-        args.ip, args.port,
-        backend_options,
-        py_options,
-        js_options,
+        app.config['IP'], app.config['PORT'],
+        storage_backend,
+        ",".join(opts),
     ))
 
-    settings.debugjs = args.debugjs
-    start_server(args)
+def start():
+    global _server
+    global _redis_proc
 
+    from ..views import deps ; deps
 
-def start_with_reloader(args, js_files, robust):
-    def helper():
-        start_server(args)
-    if robust:
-        helper = robust_reloader(helper)
-    werkzeug.serving.run_with_reloader(
-        helper, extra_files=js_files)
+    args = parser.parse_args()
 
+    app = create_flask_app(args)
+    app.debug = app.config['DEBUG']
+
+    print_configuration(app)
+
+    if app.config['STORAGE_BACKEND'] == 'redis' and args.start_redis:
+        _redis_proc = start_redis(app)
+
+    tornado_app = create_tornado_app(app)
+
+    start_http_server(app, tornado_app)
 
 def stop():
-    if hasattr(bokeh_app, 'redis_proc'):
-        bokeh_app.redis_proc.close()
-    server.stop()
-    bokehapp = server.request_callback
-    bokehapp.stop_threads()
-    ioloop.IOLoop.instance().stop()
-    ioloop.IOLoop.instance().clear_instance()
+    if _redis_proc:
+        _redis_proc.close()
+    _server.stop()
+    _server.request_callback.stop_threads()
+    IOLoop.instance().stop()
+    IOLoop.instance().clear_instance()
+
+
+def start_http_server(flask_app, tornado_app):
+    global _server
+
+    if flask_app.config['HTTPS']:
+        certfile = flask_app.config['CERTFILE']
+        keyfile = flask_app.config['KEYFILE']
+        if not certfile or not keyfile:
+            raise RuntimeError("certfile and keyfile required with HTTPS enbaled")
+        _server = HTTPServer(tornado_app, ssl_options={"certfile": certfile, "keyfile": keyfile})
+        log.info('HTTPS Enabled')
+    else:
+        _server = HTTPServer(tornado_app)
+
+    port = flask_app.config['PORT']
+    ip = flask_app.config['IP']
+    _server.listen(port, ip)
+
+    IOLoop.instance().start()
+
+def start_redis(app):
+    return services.start_redis(
+        pidfilename=os.path.join(os.getcwd(), "bokehpids.json"),
+        port=app.config['REDIS_PORT'],
+        data_dir=os.getcwd(),
+        data_file='redis.db',
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        save=True
+    )
+
+
+
+
