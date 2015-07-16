@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
@@ -6,29 +13,14 @@ log = logging.getLogger(__name__)
 import atexit
 import uuid
 
-class MultiDictionary(object):
-    def __init__(self):
-        self.dict = {}
-
-    def add(self, k, v):
-        self.dict.setdefault(k, set()).add(v)
-
-    def remove_val(self, k, v):
-        self.dict.setdefault(k, set()).remove(v)
-        if len(self.dict[k]) == 0:
-            self.remove(k)
-
-    def remove(self, k):
-        del self.dict[k]
-
-    def get(self, *args):
-        return self.dict.get(*args)
+from ..utils.multi_dict import MultiDict
 
 class WebSocketManager(object):
+
     def __init__(self):
         self.sockets = {}
-        self.topic_clientid_map = MultiDictionary()
-        self.clientid_topic_map = MultiDictionary()
+        self.topic_clientid_map = MultiDict()
+        self.clientid_topic_map = MultiDict()
         self.auth_functions = {}
         atexit.register(self._atexit)
 

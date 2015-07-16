@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 from os.path import dirname, join
@@ -28,7 +35,6 @@ _defaults = dict(
     sub_zmqaddr="inproc://bokeh_out",
     debug=False,
     dev=False,
-    splitjs=False,
     robust_reload=False,
     verbose=False,
     run_forwarder=True,
@@ -85,7 +91,6 @@ class Settings(object):
         self.ws_conn_string = args.ws_conn_string
         self.debug = args.debug
         self.debugjs = args.debugjs
-        self.splitjs = args.splitjs
         self.robust_reload = args.robust_reload
         self.verbose = args.verbose
         self.run_forwarder = True
