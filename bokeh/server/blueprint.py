@@ -7,7 +7,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.settings import settings
 import flask
 
 class BokehBlueprint(flask.Blueprint):

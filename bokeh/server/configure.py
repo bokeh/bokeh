@@ -17,7 +17,7 @@ from .blueprint import bokeh_blueprint
 from .settings import Settings
 from .zmq import Publisher
 
-from .server_backends import MultiUserAuthentication, SingleUserAuthentication
+from .server_backends import SingleUserAuthentication #, MultiUserAuthentication
 
 def create_flask_app(config=None):
     """Create a a Bokeh Server Flask application"""
