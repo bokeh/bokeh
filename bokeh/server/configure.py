@@ -1,159 +1,86 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
-from os.path import dirname
-import imp
-import sys
 
+from flask import Flask
 from six.moves.queue import Queue
-from tornado.web import Application, FallbackHandler
-from tornado.wsgi import WSGIContainer
+import zmq
 
-from .settings import settings as server_settings
-from . import websocket
-##bokeh_app is badly named - it's really a blueprint
-from .app import bokeh_app, app
-from .models import convenience as mconv
-from .models import docs
-from .zmqpub import Publisher
-from .zmqsub import Subscriber
-from .forwarder import Forwarder
-from .blaze import get_blueprint as get_mbs_blueprint
+from .blueprint import bokeh_blueprint
+from .settings import Settings
+from .zmq import Publisher
 
-from .server_backends import (
-    InMemoryServerModelStorage,
-    MultiUserAuthentication, RedisServerModelStorage, ShelveServerModelStorage,
-    SingleUserAuthentication,
-)
-from .serverbb import (
-    InMemoryBackboneStorage, RedisBackboneStorage, ShelveBackboneStorage
-)
+from .server_backends import SingleUserAuthentication #, MultiUserAuthentication
 
-REDIS_PORT = 6379
+def create_flask_app(config=None):
+    """Create a a Bokeh Server Flask application"""
 
-def configure_flask(config_argparse=None, config_file=None, config_dict=None):
-    if config_argparse:
-        server_settings.from_args(config_argparse)
-    if config_dict:
-        server_settings.from_dict(config_dict)
-    if config_file:
-        server_settings.from_file(config_file)
-    for handler in logging.getLogger().handlers:
-        handler.addFilter(StaticFilter())
-    # must import views before running apps
-    from .views import deps
-    # this just shuts up pyflakes
-    deps
-    backend = server_settings.model_backend
-    if backend['type'] == 'redis':
-        import redis
-        rhost = backend.get('redis_host', '127.0.0.1')
-        rport = backend.get('redis_port', REDIS_PORT)
-        bbstorage = RedisBackboneStorage(redis.Redis(host=rhost, port=rport, db=2))
-        servermodel_storage = RedisServerModelStorage(redis.Redis(host=rhost,
-                                                                  port=rport, db=3))
-    elif backend['type'] == 'memory':
-        bbstorage = InMemoryBackboneStorage()
-        servermodel_storage = InMemoryServerModelStorage()
+    app = Flask('bokeh.server')
 
-    elif backend['type'] == 'shelve':
-        bbstorage = ShelveBackboneStorage()
-        servermodel_storage = ShelveServerModelStorage()
+    # this is to get the routes defined
+    from .views import backbone, bbauth, main, plugins, statics
+    backbone, bbauth, main, plugins, statics
 
-    if not server_settings.multi_user:
-        authentication = SingleUserAuthentication()
-    else:
-        authentication = MultiUserAuthentication()
-    bokeh_app.url_prefix = server_settings.url_prefix
-    bokeh_app.publisher = Publisher(server_settings.ctx, server_settings.pub_zmqaddr, Queue())
+    configure_app(app, config)
+    configure_logging(app)
+    configure_storage(app)
+    configure_blueprint(app)
 
-    for script in server_settings.scripts:
-        script_dir = dirname(script)
-        if script_dir not in sys.path:
-            print ("adding %s to python path" % script_dir)
-            sys.path.append(script_dir)
-        print ("importing %s" % script)
-        imp.load_source("_bokeh_app", script)
+    return app
 
-    #todo - push some of this into bokeh_app.setup?
-    bokeh_app.setup(
-        backend,
-        bbstorage,
-        servermodel_storage,
-        authentication,
+def configure_app(app, config=None):
+
+    # apply the default/environment var settings
+    app.config.from_object(Settings)
+
+    # layer on any customizations (e.g., from argparse)
+    if config:
+        app.config.from_object(config)
+
+def configure_blueprint(app):
+    ctx = zmq.Context()
+    app.config['ctx'] = ctx
+    bokeh_blueprint.url_prefix = app.config['URL_PREFIX']
+    bokeh_blueprint.publisher = Publisher(ctx, app.config['PUB_ZMQADDR'], Queue())
+    bokeh_blueprint.setup(
+        app.config['backbone_storage'],
+        app.config['model_storage'],
+        SingleUserAuthentication(),
     )
-registered = False
-def register_blueprint():
-    global registered
-    if registered:
-        logging.warn(
-            "register_blueprint has already been called, why is it being called again"
-        )
-        return
-    blaze_blueprint = get_mbs_blueprint(config_file=server_settings.blaze_config)
-    app.register_blueprint(bokeh_app, url_prefix=server_settings.url_prefix)
-    if blaze_blueprint:
-        app.register_blueprint(blaze_blueprint, url_prefix=server_settings.url_prefix)
-    registered = True
+    app.register_blueprint(bokeh_blueprint, url_prefix=app.config['URL_PREFIX'])
 
-class SimpleBokehTornadoApp(Application):
-    def __init__(self, flask_app, **settings):
-        self.flask_app = flask_app
-        tornado_flask = WSGIContainer(flask_app)
-        url_prefix = server_settings.url_prefix
-        handlers = [
-            (url_prefix + "/bokeh/sub", websocket.WebSocketHandler),
-            (r".*", FallbackHandler, dict(fallback=tornado_flask))
-        ]
-        super(SimpleBokehTornadoApp, self).__init__(handlers, **settings)
-        self.wsmanager = websocket.WebSocketManager()
-        def auth(auth, docid):
-            #HACKY
-            if docid.startswith("temporary-"):
-                return True
-            doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-            status = mconv.can_read_doc_api(doc, auth)
-            return status
-        self.wsmanager.register_auth('bokehplot', auth)
+def configure_logging(app):
+    level = app.config['LOG_LEVEL']
+    logging.basicConfig(level=level, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
 
-        self.subscriber = Subscriber(server_settings.ctx,
-                                     [server_settings.sub_zmqaddr],
-                                     self.wsmanager)
-        if server_settings.run_forwarder:
-            self.forwarder = Forwarder(server_settings.ctx, server_settings.pub_zmqaddr, server_settings.sub_zmqaddr)
-        else:
-            self.forwarder = None
+def configure_storage(app):
+    if app.config['STORAGE_BACKEND'] == 'redis':
+        import redis
+        from .storage.redis import RedisModelStorage, RedisBackboneStorage
+        rhost = app.config['REDIS_HOST']
+        rport = app.config['REDIS_PORT']
+        backbone_storage = RedisBackboneStorage(redis.Redis(host=rhost, port=rport, db=2))
+        model_storage = RedisModelStorage(redis.Redis(host=rhost, port=rport, db=3))
 
-    def start_threads(self):
-        bokeh_app.publisher.start()
-        self.subscriber.start()
-        if self.forwarder:
-            self.forwarder.start()
+    # The storage backends below are just here for convenience of the demo server. Real
+    # deployments require the redis backend
 
-    def stop_threads(self):
-        bokeh_app.publisher.stop()
-        self.subscriber.stop()
-        if self.forwarder:
-            self.forwarder.stop()
+    elif app.config['STORAGE_BACKEND'] == 'memory':
+        from .storage.in_memory import InMemoryModelStorage, InMemoryBackboneStorage
+        backbone_storage = InMemoryBackboneStorage()
+        model_storage = InMemoryModelStorage()
 
-class StaticFilter(logging.Filter):
-    def filter(self, record):
-        msg = record.getMessage()
-        return not (msg.startswith(("200 GET /static", "200 GET /bokehjs/static")))
+    elif app.config['STORAGE_BACKEND'] == 'shelve':
+        from .storage.shelve import ShelveModelStorage, ShelveBackboneStorage
+        backbone_storage = ShelveBackboneStorage()
+        model_storage = ShelveModelStorage()
 
-
-
-def make_tornado_app(flask_app=None):
-    if flask_app is None:
-        flask_app = app
-    if server_settings.debug:
-        flask_app.debug = True
-    flask_app.secret_key = server_settings.secret_key
-    tornado_app = SimpleBokehTornadoApp(flask_app, debug=server_settings.debug)
-    tornado_app.start_threads()
-    return tornado_app
-
-
-# Gunicorn startup would look like
-# gunicorn bokeh.server.configure.make_tornado_app(config_file=filename) -k tornado
-# untested - but should work
+    app.config['backbone_storage'] = backbone_storage
+    app.config['model_storage'] = model_storage

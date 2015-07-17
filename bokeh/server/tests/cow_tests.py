@@ -1,17 +1,24 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+from bokeh.exceptions import AuthenticationException
+from bokeh.models.plots import Plot
+from bokeh.session import TestSession
 from werkzeug.exceptions import Unauthorized
 
 from . import test_utils
-from ..views.bbauth import handle_auth_error
-from ...exceptions import AuthenticationException
-from ...models.plots import Plot
+from ..app import app, bokeh_app
 from ..models.user import User, new_user
 from ..models.docs import Doc
 from ..serverbb import BokehServerTransaction
-from ..app import app, bokeh_app
+from ..views.bbauth import handle_auth_error
 from ..views.main import _makedoc
-from ...session import TestSession
 
 class AuthTestCase(test_utils.FlaskClientTestCase):
     options = {'multi_user' : True}

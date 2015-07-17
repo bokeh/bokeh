@@ -1,0 +1,15 @@
+{% extends "_page_base.html" %}
+
+{% block title %}
+Bokeh Plot Server
+{% endblock %}
+
+{% block script %}
+Bokeh.embed.server_page();
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+  <div id="PlotPane"></div>
+</div>
+{% endblock %}

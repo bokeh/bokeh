@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %}</title>
+    {# TODO: Remove this in favor of bundling inside bokeh.css #}
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    {% block head %}
+    {% endblock %}
+  </head>
+  <body>
+    {% block body %}
+    {% endblock %}
+  </body>
+</html>

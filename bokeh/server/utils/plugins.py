@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Utilities for writing plugins.
 
 This is different from bokeh.pluginutils because these are ways of
@@ -10,15 +17,13 @@ from __future__ import absolute_import
 
 import uuid
 
-from flask import abort, render_template
-
 from bokeh.exceptions import DataIntegrityException
 from bokeh.resources import Resources
+from flask import abort, render_template
 
 from ..app import bokeh_app
 from ..views.backbone import init_bokeh
 from ..views.main import _makedoc
-from ..settings import settings as server_settings
 
 def object_page(prefix):
     """ Decorator for a function which turns an object into a web page
@@ -69,7 +74,6 @@ def object_page(prefix):
                                    objid=obj._id,
                                    hide_navbar=True,
                                    extra_generated_classes=extra_generated_classes,
-                                   splitjs=server_settings.splitjs,
                                    public='true',
                                    loglevel=resources.log_level)
         wrapper.__name__ = func.__name__

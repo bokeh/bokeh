@@ -1,32 +1,35 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
 log = logging.getLogger(__name__)
 
+from bokeh import protocol
 from flask import request, jsonify
 
-from bokeh import protocol
-
-from .bbauth import (
-    handle_auth_error
-)
-from ..app import bokeh_app
-from ..crossdomain import crossdomain
+from ..blueprint import bokeh_blueprint
+from ..decorators import crossdomain, handle_auth_error
+from ..models import docs
 from ..serverbb import get_temporary_docid, BokehServerTransaction
 from ..views import make_json
-from ..models import docs
 
 def init_bokeh(clientdoc):
     request.bokeh_server_document = clientdoc
     clientdoc.autostore = False
     clientdoc.autoadd = False
 
-@bokeh_app.route("/bokeh/bb/<docid>/gc", methods=['POST'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/gc", methods=['POST'])
 @handle_auth_error
 def gc(docid):
     # client = request.headers.get('client', 'python')  # todo: not used?
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'rw', temporary_docid=temporary_docid
@@ -36,7 +39,7 @@ def gc(docid):
     return jsonify(status='success')
 
 # bulk upsert
-@bokeh_app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 @handle_auth_error
 def bulk_upsert(docid):
     ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
@@ -48,11 +51,9 @@ def bulk_upsert(docid):
     :status 401: when user is not authorized
 
     '''
-    # endpoint is only used by python, therefore we don't process
-    # callbacks here
     client = request.headers.get('client', 'python')
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'rw', temporary_docid=temporary_docid
@@ -71,10 +72,11 @@ def bulk_upsert(docid):
 def ws_update(clientdoc, docid, models):
     log.debug("sending wsupdate to %s", docid)
     attrs = clientdoc.dump(*models)
-    msg = protocol.serialize_json({'msgtype' : 'modelpush',
-                                   'modelspecs' : attrs
-                               })
-    bokeh_app.publisher.send("bokehplot:" + docid, msg)
+    msg = protocol.serialize_json({
+        'msgtype'    : 'modelpush',
+        'modelspecs' : attrs
+    })
+    bokeh_blueprint.publisher.send("bokehplot:" + docid, msg)
     return msg
 
 def ws_delete(clientdoc, docid, models):
@@ -84,11 +86,11 @@ def ws_delete(clientdoc, docid, models):
         'modelspecs' : attrs,
     }
     msg = protocol.serialize_json(msg)
-    bokeh_app.wsmanager.send("bokehplot:" + docid, msg)
+    bokeh_blueprint.wsmanager.send("bokehplot:" + docid, msg)
     return msg
 
 # backbone functionality
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @handle_auth_error
 def create(docid, typename):
     ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
@@ -100,8 +102,8 @@ def create(docid, typename):
     :status 401: when user is not authorized
 
     '''
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'rw', temporary_docid=temporary_docid
@@ -117,8 +119,8 @@ def create(docid, typename):
 
 @handle_auth_error
 def _bulkget(docid, typename=None):
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'r', temporary_docid=temporary_docid
@@ -135,7 +137,7 @@ def _bulkget(docid, typename=None):
         attrs = clientdoc.dump(*all_models)
         return make_json(protocol.serialize_json(attrs))
 
-@bokeh_app.route("/bokeh/bb/<docid>/", methods=['GET'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/", methods=['GET'])
 def bulkget_without_typename(docid):
     ''' Retrieve all objects for a given :class:`Document <bokeh.document.Document>`.
 
@@ -148,7 +150,7 @@ def bulkget_without_typename(docid):
     '''
     return _bulkget(docid)
 
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
 def bulkget_with_typename(docid, typename):
     ''' Retrieve all objects of a specified typename for a
     given :class:`Document <bokeh.document.Document>`.
@@ -175,7 +177,7 @@ def _handle_specific_model(docid, typename, id, method):
         return delete(docid, typename, id)
 
 # route for working with individual models
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET', 'OPTIONS'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET', 'OPTIONS'])
 def _handle_specific_model_get(docid, typename, id):
     ''' Retrieve a specific model with a given id and typename for a
     given :class:`Document <bokeh.document.Document>`.
@@ -191,7 +193,7 @@ def _handle_specific_model_get(docid, typename, id):
     '''
     return _handle_specific_model(docid, typename, id, request.method)
 
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['PUT'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['PUT'])
 def _handle_specific_model_put(docid, typename, id):
     ''' Update a specific model with a given id and typename for a
     given :class:`Document <bokeh.document.Document>`.
@@ -207,7 +209,7 @@ def _handle_specific_model_put(docid, typename, id):
     '''
     return _handle_specific_model(docid, typename, id, request.method)
 
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['PATCH'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['PATCH'])
 def _handle_specific_model_patch(docid, typename, id):
     ''' Update a specific model with a given id and typename for a
     given :class:`Document <bokeh.document.Document>`.
@@ -223,7 +225,7 @@ def _handle_specific_model_patch(docid, typename, id):
     '''
     return _handle_specific_model(docid, typename, id, request.method)
 
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['DELETE'])
+@bokeh_blueprint.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['DELETE'])
 def _handle_specific_model_delete(docid, typename, id):
     ''' Delete a specific model with a given id and typename for a
     given :class:`Document <bokeh.document.Document>`.
@@ -243,8 +245,8 @@ def _handle_specific_model_delete(docid, typename, id):
 # individual model methods
 @handle_auth_error
 def getbyid(docid, typename, id):
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'r', temporary_docid=temporary_docid
@@ -260,8 +262,8 @@ def update(docid, typename, id):
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'rw', temporary_docid=temporary_docid
@@ -288,15 +290,15 @@ def update(docid, typename, id):
 def delete(docid, typename, id):
     #I don't think this works right now
     obj = 'No this does not work, because obj is not defined, should it be an arg?'
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'rw', temporary_docid=temporary_docid
     )
     clientdoc = t.clientdoc
     model = clientdoc._models[id]
-    bokeh_app.backbone_storage.del_obj(t.write_docid, obj)
+    bokeh_blueprint.backbone_storage.del_obj(t.write_docid, obj)
     t.save()
     ws_delete(clientdoc, t.write_docid, [model])
     return make_json(protocol.serialize_json(clientdoc.dump(model)[0]['attributes']))
