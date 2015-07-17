@@ -150,22 +150,8 @@ users will want to create |Figure| objects by using the |figure| function.
 A prototypical example of the |bokeh.plotting| usage is show below, along
 with the resulting plot:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_plotting.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    # create a Figure object
-    p = figure(width=300, height=300, tools="pan,reset,save")
-
-    # add a Circle renderer to this figure
-    p.circle([1, 2.5, 3, 2], [2, 3, 1, 1.5], radius=0.3, alpha=0.5)
-
-    # specify how to output the plot(s)
-    output_file("foo.html")
-
-    # display the figure
-    show(p)
 
 The main observation is that the typical usage involves creating plots objects
 with the |figure| function, then using the glyph methods like |Figure.circle|
@@ -202,24 +188,8 @@ The interface includes chart types such as: |Bar|, |BoxPlot|, |Histogram|,
 |Timeseries|, and many others. One simple example using |Scatter| is shown
 below:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_charts.py
     :source-position: above
-
-    from bokeh.charts import Scatter, output_file, show
-
-    # prepare some data, a Pandas GroupBy object in this case
-    from bokeh.sampledata.iris import flowers
-    grouped = flowers[["petal_length", "petal_width", "species"]].groupby("species")
-
-    # create a scatter chart
-    p = Scatter(grouped, title="iris data", width=400, height=400,
-                xlabel="petal length", ylabel="petal width", legend='top_left')
-
-    # specify how to output the plot(s)
-    output_file("foo.html")
-
-    # display the figure
-    show(p)
 
 Important to note is that the same output functions are used across different
 interfaces. As with |bokeh.plotting|, the output functions |output_file| and
@@ -238,24 +208,8 @@ plots very easily. There are several examples in the :ref:`gallery`. Here is
 a quick example that shows a Seaborn_ plot converted to a Bokeh plot with
 just one additional line of code:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/concepts_other_interfaces.py
     :source-position: above
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    from bokeh import mpl
-    from bokeh.plotting import show
-
-    # generate some random data
-    data = 1 + np.random.randn(20, 6)
-
-    # Use Seaborn and Matplotlib normally
-    sns.violinplot(data, color="Set3")
-    plt.title("Seaborn violin plot in Bokeh")
-
-    # Convert to interactive Bokeh plot with one command
-    show(mpl.to_bokeh(name="violin"))
 
 .. _Backbone: http://backbonejs.org
 .. _ggplot.py: https://github.com/yhat/ggplot

@@ -49,7 +49,10 @@ class Grid(GuideRenderer):
     The %s of the Grid lines.
     """)
 
+    minor_grid_props = Include(LineProps, help="""
+    The %s of the minor Grid lines.
+    """)
+
     band_props = Include(FillProps, help="""
     The %s of alternating bands between Grid lines.
     """)
-

@@ -82,6 +82,9 @@ class Settings(object):
     def simple_ids(self, default=None):
         return self._get_bool("SIMPLE_IDS", default, True)
 
+    def strict(self, default=None):
+        return self._get_bool("STRICT", default, False)
+
     """
     Server settings go here:
     """

@@ -62,9 +62,33 @@ class BoxSelectToolView extends SelectTool.View
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
 
+    if @mget('callback')?
+      @_emit_callback(geometry)
+
     @_save_geometry(geometry, final, append)
 
     return null
+
+  _emit_callback: (geometry) ->
+    r = @mget('renderers')[0]
+    canvas = @plot_model.get('canvas')
+    frame = @plot_model.get('frame')
+
+    geometry['sx0'] = canvas.vx_to_sx(geometry.vx0)
+    geometry['sx1'] = canvas.vx_to_sx(geometry.vx1)
+    geometry['sy0'] = canvas.vy_to_sy(geometry.vy0)
+    geometry['sy1'] = canvas.vy_to_sy(geometry.vy1)
+
+    xmapper = frame.get('x_mappers')[r.get('x_range_name')]
+    ymapper = frame.get('y_mappers')[r.get('y_range_name')]
+    geometry['x0'] = xmapper.map_from_target(geometry.vx0)
+    geometry['x1'] = xmapper.map_from_target(geometry.vx1)
+    geometry['y0'] = ymapper.map_from_target(geometry.vy0)
+    geometry['y1'] = ymapper.map_from_target(geometry.vy1)
+
+    @mget('callback').execute(@model, {geometry: geometry})
+
+    return
 
 class BoxSelectTool extends SelectTool.Model
   default_view: BoxSelectToolView

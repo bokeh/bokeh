@@ -49,6 +49,7 @@ import dateutil.parser
 import collections
 from importlib import import_module
 from copy import copy
+from warnings import warn
 import inspect
 import logging
 logger = logging.getLogger(__name__)
@@ -58,6 +59,50 @@ import numpy as np
 
 from . import enums
 from .util.string import nice_join
+
+def field(name):
+    ''' Convenience function do explicitly mark a field specification for
+    a Bokeh model property.
+
+    Args:
+        name (str) : name of a data source field to reference for a property.
+
+    Returns:
+        dict : `{"field": name}`
+
+    Note:
+        This function is included for completeness. String values for
+        property specifications are by default interpreted as field names.
+
+    '''
+    return dict(field=name)
+
+def value(val):
+    ''' Convenience function do explicitly mark a value specification for
+    a Bokeh model property.
+
+    Args:
+        val (any) : a fixed value to specify for a property.
+
+    Returns:
+        dict : `{"value": name}`
+
+    Note:
+        String values for property specifications are by default interpreted
+        as field names. This function is especially useful when you want to
+        specify a fixed value with text properties.
+
+    Example:
+
+    .. code-block:: python
+
+        # The following will take text values to render from a data source
+        # column "text_column", but use a fixed value "12pt" for font size
+        p.text("x", "y", text="text_column",
+               text_font_size=value("12pt"), source=source)
+
+    '''
+    return dict(value=val)
 
 bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
 
@@ -484,13 +529,13 @@ class Regex(String):
         return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
 
 class JSON(String):
-    """ JSON type property validates that text values are valid JSON. 
-    
+    """ JSON type property validates that text values are valid JSON.
+
     ..  note::
-        The string is transmitted and received by BokehJS as a *string* 
+        The string is transmitted and received by BokehJS as a *string*
         containing JSON content. i.e., you must use ``JSON.parse`` to unpack
-        the value into a JavaScript hash. 
-        
+        the value into a JavaScript hash.
+
     """
     def validate(self, value):
         super(JSON, self).validate(value)
@@ -1062,6 +1107,19 @@ class StringSpec(DataSpec):
                 raise TypeError("StringSpec convenience list values must have length 1")
             value = dict(value=value[0])
         super(StringSpec, self).__set__(obj, value)
+
+class FontSizeSpec(DataSpec):
+    def __init__(self, default, help=None):
+        super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
+
+    def __set__(self, obj, value):
+        if isinstance(value, string_types):
+            warn('Setting a fixed font size value as a string %r is deprecated, '
+                 'set with value(%r) or [%r] instead' % (value, value, value),
+                 DeprecationWarning, stacklevel=2)
+            if len(value) > 0 and value[0].isdigit():
+                value = dict(value=value)
+        super(FontSizeSpec, self).__set__(obj, value)
 
 class UnitsSpec(NumberSpec):
     def __init__(self, default, units_type, units_default, help=None):

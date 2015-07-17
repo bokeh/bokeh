@@ -22,7 +22,7 @@ select_tool = p1.select(dict(type=BoxSelectTool))
 select_tool.select_every_mousemove = False
 
 p2 = figure(title="selection on mousemove", tools=TOOLS)
-p2.circle(x, y, marker="square", color="green", size=6)
+p2.square(x, y, color="green", size=6)
 
 select_tool = p2.select(dict(type=BoxSelectTool))
 select_tool.select_every_mousemove = True

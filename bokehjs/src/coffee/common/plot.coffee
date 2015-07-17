@@ -159,9 +159,15 @@ class PlotView extends ContinuumView
       range_info = @initial_range_info
     @pause()
     for name, rng of @frame.get('x_ranges')
-      rng.set(range_info.xrs[name])
+      if rng.get('start') != range_info.xrs[name]['start'] or
+          rng.get('end') != range_info.xrs[name]['end']
+        rng.set(range_info.xrs[name])
+        rng.get('callback')?.execute(@model)
     for name, rng of @frame.get('y_ranges')
-      rng.set(range_info.yrs[name])
+      if rng.get('start') != range_info.yrs[name]['start'] or
+          rng.get('end') != range_info.yrs[name]['end']
+        rng.set(range_info.yrs[name])
+        rng.get('callback')?.execute(@model)
     @unpause()
 
   build_levels: () ->
@@ -348,7 +354,7 @@ class PlotView extends ContinuumView
     indices = {}
     for renderer, i in @mget("renderers")
       indices[renderer.id] = i
-    sortKey = (renderer) -> indices[renderer.model.id]
+    sortKey = (renderer) -> indices[renderer.id]
 
     for level in levels
       renderers = _.sortBy(_.values(@levels[level]), sortKey)

@@ -82,7 +82,7 @@ II  = make_plot('II',  'xii',  'yii')
 III = make_plot('III', 'xiii', 'yiii')
 IV  = make_plot('IV',  'xiv',  'yiv')
 
-grid = GridPlot(children=[[I, II], [III, IV]], plot_width=800)
+grid = GridPlot(children=[[I, II], [III, IV]])
 
 doc = Document()
 doc.add(grid)

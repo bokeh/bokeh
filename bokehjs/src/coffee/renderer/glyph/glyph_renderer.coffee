@@ -50,11 +50,14 @@ class GlyphRendererView extends PlotWidget
   #TODO: There are glyph sub-type-vs-resample_op concordance issues...
   setup_server_data: () ->
 
-  set_data: (request_render=true) ->
+  # TODO (bev) arg is a quick-fix to allow some hinting for things like
+  # partial data updates (especially useful on expensive set_data calls
+  # for image, e.g.)
+  set_data: (request_render=true, arg) ->
     t0 = Date.now()
     source = @mget('data_source')
 
-    @glyph.set_data(source)
+    @glyph.set_data(source, arg)
 
     @glyph.set_visuals(source)
     @selection_glyph.set_visuals(source)
@@ -169,6 +172,8 @@ class GlyphRendererView extends PlotWidget
 
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
+
+
 
 class GlyphRenderer extends HasParent
   default_view: GlyphRendererView

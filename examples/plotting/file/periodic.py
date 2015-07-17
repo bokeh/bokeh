@@ -4,6 +4,7 @@ from bokeh.plotting import figure, show, output_file
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.sampledata import periodic_table
 
+periodic_table.elements["atomic mass"] = periodic_table.elements["atomic mass"].astype(str)
 
 elements = periodic_table.elements[periodic_table.elements["group"] != "-"]
 

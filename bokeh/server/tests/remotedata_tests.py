@@ -14,6 +14,9 @@ from ...models.ranges import Range1d
 from ...models.renderers import GlyphRenderer
 from ...transforms import ar_downsample as ar
 
+from unittest import skip
+
+@skip
 class TestAr(test_utils.FlaskClientTestCase):
     def test_ar(self):
         #move to setUp
@@ -44,7 +47,7 @@ class TestAr(test_utils.FlaskClientTestCase):
         glyph = arplot.select({'type' : GlyphRenderer})[0].glyph
         #extract the original data source because it was replaced?!
         source = arplot.select({'type' : ServerDataSource})[0]
-        
+
         #our docs don't have screen ranges, because we make those on the fly in javascript
         #so we make fake ones!
         screen_x_range = Range1d(start=0, end=200)

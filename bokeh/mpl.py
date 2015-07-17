@@ -49,7 +49,6 @@ class BokehRenderer(Renderer):
         self.fig = None
         self.pd_obj = pd_obj
         self.xkcd = xkcd
-        self.source = ColumnDataSource()
         self.xdr = DataRange1d()
         self.ydr = DataRange1d()
         self.non_text = [] # to save the text we don't want to convert by draw_text
@@ -169,8 +168,9 @@ class BokehRenderer(Renderer):
             x, y = xkcd_line(x, y)
 
         line = Line()
-        line.x = self.source.add(x)
-        line.y = self.source.add(y)
+        source = ColumnDataSource()
+        line.x = source.add(x)
+        line.y = source.add(y)
 
         line.line_color = style['color']
         line.line_width = style['linewidth']
@@ -182,7 +182,7 @@ class BokehRenderer(Renderer):
         if self.xkcd:
             line.line_width = 3
 
-        self.plot.add_glyph(self.source, line)
+        self.plot.add_glyph(source, line)
 
     def draw_markers(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Marker glyph."
@@ -207,8 +207,9 @@ class BokehRenderer(Renderer):
         except KeyError:
             warnings.warn("Unable to handle marker: %s; defaulting to Circle" % style['marker'])
             marker = Circle()
-        marker.x = self.source.add(x)
-        marker.y = self.source.add(y)
+        source = ColumnDataSource()
+        marker.x = source.add(x)
+        marker.y = source.add(y)
 
         marker.line_color = style['edgecolor']
         marker.fill_color = style['facecolor']
@@ -217,7 +218,7 @@ class BokehRenderer(Renderer):
         marker.fill_alpha = marker.line_alpha = style['alpha']
         #style['zorder'] # not in Bokeh
 
-        self.plot.add_glyph(self.source, marker)
+        self.plot.add_glyph(source, marker)
 
     def draw_path_collection(self, paths, path_coordinates, path_transforms,
                              offsets, offset_coordinates, offset_order,
@@ -257,7 +258,8 @@ class BokehRenderer(Renderer):
             #if mplText.get_weight() in ("bold", "heavy"):
                 #text.text_font_style = bold
 
-            self.plot.add_glyph(self.source, text)
+            source = ColumnDataSource()
+            self.plot.add_glyph(source, text)
 
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
         pass
@@ -326,12 +328,13 @@ class BokehRenderer(Renderer):
             ys = xkcd_ys
 
         multiline = MultiLine()
-        multiline.xs = self.source.add(xs)
-        multiline.ys = self.source.add(ys)
+        source = ColumnDataSource()
+        multiline.xs = source.add(xs)
+        multiline.ys = source.add(ys)
 
-        self.multiline_props(multiline, col)
+        self.multiline_props(source, multiline, col)
 
-        self.plot.add_glyph(self.source, multiline)
+        self.plot.add_glyph(source, multiline)
 
     def make_poly_collection(self, col):
         "Given a mpl collection instance create a Bokeh Patches glyph."
@@ -342,19 +345,20 @@ class BokehRenderer(Renderer):
         ys = [polygons[i][1] for i in range(len(polygons))]
 
         patches = Patches()
-        patches.xs = self.source.add(xs)
-        patches.ys = self.source.add(ys)
+        source = ColumnDataSource()
+        patches.xs = source.add(xs)
+        patches.ys = source.add(ys)
 
-        self.patches_props(patches, col)
+        self.patches_props(source, patches, col)
 
-        self.plot.add_glyph(self.source, patches)
+        self.plot.add_glyph(source, patches)
 
-    def multiline_props(self, multiline, col):
+    def multiline_props(self, source, multiline, col):
         "Takes a mpl collection object to extract and set up some Bokeh multiline properties."
         colors = get_props_cycled(col, col.get_colors(), fx=lambda x: mpl.colors.rgb2hex(x))
         widths = get_props_cycled(col, col.get_linewidth())
-        multiline.line_color = self.source.add(colors)
-        multiline.line_width = self.source.add(widths)
+        multiline.line_color = source.add(colors)
+        multiline.line_width = source.add(widths)
         multiline.line_alpha = col.get_alpha()
         offset = col.get_linestyle()[0][0]
         if not col.get_linestyle()[0][1]:
@@ -364,14 +368,14 @@ class BokehRenderer(Renderer):
         multiline.line_dash_offset = convert_dashes(offset)
         multiline.line_dash = list(convert_dashes(tuple(on_off)))
 
-    def patches_props(self, patches, col):
+    def patches_props(self, source, patches, col):
         "Takes a mpl collection object to extract and set up some Bokeh patches properties."
         face_colors = get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
-        patches.fill_color = self.source.add(face_colors)
+        patches.fill_color = source.add(face_colors)
         edge_colors = get_props_cycled(col, col.get_edgecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
-        patches.line_color = self.source.add(edge_colors)
+        patches.line_color = source.add(edge_colors)
         widths = get_props_cycled(col, col.get_linewidth())
-        patches.line_width = self.source.add(widths)
+        patches.line_width = source.add(widths)
         patches.line_alpha = col.get_alpha()
         patches.fill_alpha = col.get_alpha()
         offset = col.get_linestyle()[0][0]
