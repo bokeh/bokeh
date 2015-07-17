@@ -7,15 +7,12 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from os.path import dirname, join
 import uuid
 import imp
 
 import zmq
 
 from ..settings import settings as bokeh_settings
-
-default_blaze_config = join(dirname(__file__), 'blaze', 'config.py')
 
 _defaults = dict(
     ip="0.0.0.0",
@@ -39,7 +36,6 @@ _defaults = dict(
     verbose=False,
     run_forwarder=True,
     secret_key=str(uuid.uuid4()),
-    blaze_config=default_blaze_config,
 )
 
 class Settings(object):
@@ -94,8 +90,6 @@ class Settings(object):
         self.robust_reload = args.robust_reload
         self.verbose = args.verbose
         self.run_forwarder = True
-        if args.blaze_config is not None:
-            self.blaze_config = args.blaze_config
         if args.script:
             self.scripts = [args.script]
         if args.url_prefix:

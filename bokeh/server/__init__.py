@@ -59,11 +59,6 @@ def build_parser():
 
     # advanced configuration
     advanced = parser.add_argument_group('Advanced Options')
-    advanced.add_argument("-D", "--blaze-config",
-                          help="blaze_config_File",
-                          type=str,
-                          default=None
-                          )
     advanced.add_argument("-m", "--multi-user",
                           help="start in multi-user configuration (default: False)",
                           action="store_true",
