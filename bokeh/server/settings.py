@@ -62,7 +62,7 @@ class Settings(object):
 
     STORAGE_BACKEND = "redis"
     REDIS_PORT = integer("REDIS_PORT", "7001")
-    REDIS_HOST = optional("REDIS_HOST", "127.0.0.1")
+    REDIS_HOST = optional("REDIS_HOST", "0.0.0.0")
 
     BOKEHJS_DIR = optional("BOKEHJS_DIR", bokehjsdir(optional("DEV", "no")))
 

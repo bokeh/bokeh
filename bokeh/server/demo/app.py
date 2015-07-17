@@ -58,10 +58,6 @@ def start():
     global _server
     global _redis_proc
 
-    # this is to get he routes defined
-    from ..views import backbone, bbauth, main, plugins, statics
-    backbone, bbauth, main, plugins, statics
-
     args = parser.parse_args()
 
     app = create_flask_app(args)

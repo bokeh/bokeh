@@ -24,6 +24,10 @@ def create_flask_app(config=None):
 
     app = Flask('bokeh.server')
 
+    # this is to get the routes defined
+    from .views import backbone, bbauth, main, plugins, statics
+    backbone, bbauth, main, plugins, statics
+
     configure_app(app, config)
     configure_logging(app)
     configure_storage(app)
