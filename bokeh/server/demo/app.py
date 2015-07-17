@@ -58,7 +58,9 @@ def start():
     global _server
     global _redis_proc
 
-    from ..views import deps ; deps
+    # this is to get he routes defined
+    from ..views import backbone, bbauth, main, plugins, statics
+    backbone, bbauth, main, plugins, statics
 
     args = parser.parse_args()
 

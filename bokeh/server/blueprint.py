@@ -7,8 +7,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-import logging
-
 from bokeh.settings import settings
 import flask
 
@@ -21,7 +19,6 @@ class BokehBlueprint(flask.Blueprint):
         self.backbone_storage = backbone_storage
         self.servermodel_storage = servermodel_storage
         self.authentication = authentication
-        self.bokehjsdir = settings.bokehjsdir()
 
     def current_user(self):
         return self.authentication.current_user()

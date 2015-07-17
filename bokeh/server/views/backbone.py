@@ -13,9 +13,8 @@ log = logging.getLogger(__name__)
 from bokeh import protocol
 from flask import request, jsonify
 
-from .bbauth import handle_auth_error
 from ..blueprint import bokeh_blueprint
-from ..crossdomain import crossdomain
+from ..decorators import crossdomain, handle_auth_error
 from ..models import docs
 from ..serverbb import get_temporary_docid, BokehServerTransaction
 from ..views import make_json

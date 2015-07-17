@@ -7,48 +7,10 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-import logging
-logger = logging.getLogger(__name__)
-
-from functools import wraps
-
-from bokeh.exceptions import AuthenticationException
 from flask import abort, jsonify
 
 from ..blueprint import bokeh_blueprint
 from ..models import docs
-
-
-def handle_auth_error(func):
-    """Decorator wraps a function and watches for AuthenticationException
-    If one is thrown, log and abort 401 instead
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except AuthenticationException as e:
-            logger.exception(e)
-            return abort(401)
-    return wrapper
-
-def check_read_authentication(func):
-    @wraps(func)
-    def wrapper(docid, *args, **kwargs):
-        if bokeh_blueprint.authentication.can_read_doc(docid):
-            return func(docid, *args, **kwargs)
-        else:
-            abort(401)
-    return wrapper
-
-def check_write_authentication(func):
-    @wraps(func)
-    def wrapper(docid, *args, **kwargs):
-        if bokeh_blueprint.authentication.can_write_doc(docid):
-            return func(docid, *args, **kwargs)
-        else:
-            abort(401)
-    return wrapper
 
 @bokeh_blueprint.route('/bokeh/login', methods=['GET'])
 def login_get():

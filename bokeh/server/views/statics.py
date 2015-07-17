@@ -8,6 +8,7 @@
 from __future__ import absolute_import
 
 import flask
+from flask import current_app
 
 from ..blueprint import bokeh_blueprint
 
@@ -24,4 +25,4 @@ def bokehjs_file(filename):
     :status 404: file is not found
 
     """
-    return flask.send_from_directory(bokeh_blueprint.bokehjsdir, filename)
+    return flask.send_from_directory(current_app.config["BOKEHJS_DIR"], filename)

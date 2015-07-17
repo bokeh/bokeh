@@ -7,11 +7,18 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
+from bokeh.exceptions import AuthenticationException
 from datetime import timedelta
+from flask import abort
 from functools import update_wrapper, wraps
 
 from flask import make_response, request, current_app
 from six import string_types
+
+from .blueprint import bokeh_blueprint
 
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
@@ -60,3 +67,43 @@ def crossdomain(origin=None, methods=None, headers=None,
         return update_wrapper(wrapped_function, f)
 
     return decorator
+
+
+def handle_auth_error(func):
+    """Decorator wraps a function and watches for AuthenticationException
+    If one is thrown, log and abort 401 instead
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except AuthenticationException as e:
+            logger.exception(e)
+            return abort(401)
+    return wrapper
+
+def check_read_authentication(func):
+    @wraps(func)
+    def wrapper(docid, *args, **kwargs):
+        if bokeh_blueprint.authentication.can_read_doc(docid):
+            return func(docid, *args, **kwargs)
+        else:
+            abort(401)
+    return wrapper
+
+def check_write_authentication(func):
+    @wraps(func)
+    def wrapper(docid, *args, **kwargs):
+        if bokeh_blueprint.authentication.can_write_doc(docid):
+            return func(docid, *args, **kwargs)
+        else:
+            abort(401)
+    return wrapper
+
+def login_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not bokeh_blueprint.current_user():
+            return abort(401, "You must be logged in")
+        return func(*args, **kwargs)
+    return wrapper

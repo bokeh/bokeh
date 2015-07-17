@@ -23,14 +23,11 @@ from flask import (
 )
 from six import string_types
 
-from .bbauth import handle_auth_error
 from ..blueprint import bokeh_blueprint
-from ..crossdomain import crossdomain
-from ..models import docs
-from ..models import user
+from ..decorators import crossdomain, handle_auth_error, login_required
+from ..models import docs, user
 from ..serverbb import prune, BokehServerTransaction, get_temporary_docid
 from ..views import make_json
-from ..views.decorators import login_required
 
 def request_resources():
     """Creates resources instance based on url info from

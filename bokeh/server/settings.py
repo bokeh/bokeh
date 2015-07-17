@@ -9,6 +9,8 @@ from __future__ import absolute_import
 
 import uuid
 
+from bokeh.util.paths import bokehjsdir
+
 _prefix = "BOKEH_SERVER_"
 
 def optional(key, default=None, prefix=_prefix):
@@ -56,14 +58,15 @@ class Settings(object):
 
     IP = optional("IP", "0.0.0.0")
     PORT = integer("PORT", "5006")
+    URL_PREFIX = optional("URL_PREFIX", "")
 
     STORAGE_BACKEND = "redis"
     REDIS_PORT = integer("REDIS_PORT", "7001")
     REDIS_HOST = optional("REDIS_HOST", "127.0.0.1")
 
-    URL_PREFIX = optional("URL_PREFIX", "")
+    BOKEHJS_DIR = optional("BOKEHJS_DIR", bokehjsdir(optional("DEV", "no")))
+
     MULTI_USER = boolean("MULTI_USER", "no")
-    FILTER_LOGS = boolean("FILTER_LOGS", "no")
 
     HTTPS = boolean("HTTPS", "no")
     CERTFILE = optional("CERTFILE")
@@ -71,15 +74,15 @@ class Settings(object):
 
     DEBUG = boolean("DEBUG", "no")
     LOG_LEVEL = log_level("LOG_LEVEL", "none")
+    FILTER_LOGS = boolean("FILTER_LOGS", "no")
 
     PUB_ZMQADDR = optional("PUB_ZMQADDR", "inproc://bokeh_in")
     SUB_ZMQADDR = optional("SUB_ZMQADDR", "inproc://bokeh_out")
 
-    SECRET_KEY = optional("SECRET_KEY", str(uuid.uuid4()))
-
     WS_CONN_STRING = optional("WS_CONN_STRING")
-
     RUN_FORWARDER = boolean("RUN_FORWARDER", "yes")
+
+    SECRET_KEY = optional("SECRET_KEY", str(uuid.uuid4()))
 
 # clean up
 #del _prefix, optional, integer, boolean, log_level, uuid
