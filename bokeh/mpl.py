@@ -28,8 +28,8 @@ from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           is_ax_end, xkcd_line)
 from .models import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
-                     Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
-                     ResetTool, WheelZoomTool)
+                     Grid, GridPlot, LinearAxis, LogAxis, PanTool, Plot,
+                     PreviewSaveTool, ResetTool, WheelZoomTool)
 from .plotting import (curdoc, output_file, output_notebook, output_server,
                        DEFAULT_TOOLS)
 from .plotting_helpers import _process_tools_arg
@@ -277,6 +277,8 @@ class BokehRenderer(Renderer):
 
         if scale == "linear":
             laxis = LinearAxis(axis_label=ax.get_label_text())
+        elif scale == "log":
+            laxis = LogAxis(axis_label=ax.get_label_text())
         elif scale == "date":
             laxis = DatetimeAxis(axis_label=ax.get_label_text())
 
