@@ -1,6 +1,7 @@
 import seaborn as sns
+
 from bokeh import mpl
-from bokeh.plotting import show
+from bokeh.plotting import output_file, show
 
 sns.set(style="darkgrid")
 
@@ -11,5 +12,7 @@ gammas = sns.load_dataset("gammas")
 sns.tsplot(data=gammas, time="timepoint", unit="subject",
            condition="ROI", value="BOLD signal")
 
-show(mpl.to_bokeh(name="violin"))
+output_file("tsplot.html")
+
+show(mpl.to_bokeh())
 

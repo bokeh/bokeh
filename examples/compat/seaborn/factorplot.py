@@ -1,8 +1,8 @@
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
+
 from bokeh import mpl
-from bokeh.plotting import show
+from bokeh.plotting import output_file, show
 
 sns.set(style="white")
 
@@ -16,4 +16,7 @@ years = np.arange(2000, 2015)
 g = sns.factorplot(x="year", data=planets, kind="count",
                    palette="BuPu", size=6, aspect=1.5, order=years)
 g.set_xticklabels(step=2)
-show(mpl.to_bokeh(name="kde"))
+
+output_file("factorplot.html")
+
+show(mpl.to_bokeh())

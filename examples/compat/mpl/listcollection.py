@@ -1,8 +1,9 @@
-import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
+import matplotlib.pyplot as plt
+import numpy as np
+
 from bokeh import mpl
-from bokeh.plotting import show
+from bokeh.plotting import output_file, show
 
 
 def make_segments(x, y):
@@ -52,4 +53,6 @@ plt.title("MPL support for ListCollection in Bokeh")
 plt.xlim(x.min(), x.max())
 plt.ylim(-1.0, 1.0)
 
-show(mpl.to_bokeh(name="listcollection"))
+output_file("listcollection.html")
+
+show(mpl.to_bokeh())

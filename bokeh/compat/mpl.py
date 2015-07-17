@@ -13,9 +13,10 @@
 
 from __future__ import absolute_import
 
+from warnings import warn
+
 import matplotlib.pyplot as plt
 
-from ..plotting import curdoc, output_file, output_notebook, output_server
 from .bokeh_exporter import BokehExporter
 from .bokeh_renderer import BokehRenderer
 
@@ -23,7 +24,7 @@ from .bokeh_renderer import BokehRenderer
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True, xkcd=False):
+def to_bokeh(fig=None, name=None, server=None, notebook=None, pd_obj=True, xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
     You can store a bokeh plot in a standalone HTML file, as a document in
@@ -60,34 +61,19 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True, xkcd
         xkcd style.
     """
 
+    if name is not None:
+        warn("Use standard output_file(...) from bokeh.io")
+    if server is not None:
+        warn("Use standard output_server(...) from bokeh.io")
+    if notebook is not None:
+        warn("Use standard output_notebook() from bokeh.io")
+
     if fig is None:
         fig = plt.gcf()
-
-    if any([name, server, notebook]):
-        if name:
-            if not server:
-                filename = name + ".html"
-                output_file(filename)
-            else:
-                output_server(name, url=server)
-        elif server:
-            if not notebook:
-                output_server("unnameuuuuuuuuuuuuuud", url=server)
-            else:
-                output_notebook(url=server)
-        elif notebook:
-            output_notebook()
-    else:
-        output_file("Unnamed.html")
-
-    doc = curdoc()
 
     renderer = BokehRenderer(pd_obj, xkcd)
     exporter = BokehExporter(renderer)
 
     exporter.run(fig)
-
-    doc._current_plot = renderer.fig  # TODO (bev) do not rely on private attrs
-    doc.add(renderer.fig)
 
     return renderer.fig
