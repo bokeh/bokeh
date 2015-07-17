@@ -488,7 +488,6 @@ REQUIRES = [
         'greenlet>=0.4.1',
         'itsdangerous>=0.21',
         'python-dateutil>=2.1',
-        'pytz==2013b',
         'requests>=1.2.3',
         'six>=1.5.2',
         'pygments>=1.6',
@@ -507,11 +506,6 @@ REQUIRES = [
 
 if sys.version_info[:2] == (2, 6):
     REQUIRES.append('argparse>=1.1')
-
-if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
-    REQUIRES.extend([
-        'websocket>=0.2.1'
-    ])
 
 # if sys.platform != "win32":
 #     REQUIRES.append('redis>=2.7.6')
