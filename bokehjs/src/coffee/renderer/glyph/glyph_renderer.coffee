@@ -82,13 +82,18 @@ class GlyphRendererView extends PlotWidget
 
   render: () ->
     t0 = Date.now()
-
+    
+    glsupport = @glyph.glglyph
+    
     tmap = Date.now()
     @glyph.map_data()
     dtmap = Date.now() - t0
 
     tmask = Date.now()
-    indices = @glyph._mask_data(@all_indices)
+    if glsupport
+      indices = @all_indices  # WebGL can do the clipping much more efficiently
+    else
+      indices = @glyph._mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
@@ -108,7 +113,8 @@ class GlyphRendererView extends PlotWidget
         selected = []
 
     lod_threshold = @plot_model.get('lod_threshold')
-    if @plot_view.interactive and lod_threshold? and @all_indices.length > lod_threshold
+    if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
+      # Render decimated during interaction if too many elements and not using GL
       indices = @decimated
       glyph = @decimated_glyph
       nonselection_glyph = @decimated_glyph
