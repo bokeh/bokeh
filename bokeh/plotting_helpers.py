@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from collections import OrderedDict, Sequence
+from collections import Iterable, OrderedDict, Sequence
 import difflib
 import itertools
 import re
@@ -116,8 +116,11 @@ def _process_sequence_literals(glyphclass, kwargs, source):
     dataspecs = glyphclass.dataspecs_with_refs()
     for var, val in kwargs.items():
 
-        # ignore things that are not sequences
-        if not isinstance(val, Sequence): continue
+        # ignore things that are not iterable
+        if not isinstance(val, Iterable): continue
+
+        # pass dicts (i.e., values or fields) on as-is
+        if isinstance(val, dict): continue
 
         # let any non-dataspecs do their own validation (e.g., line_dash properties)
         if var not in dataspecs: continue
