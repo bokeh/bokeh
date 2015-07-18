@@ -121,6 +121,9 @@ def _process_sequence_literals(glyphclass, kwargs, source):
         # strings sequences are handled by the dataspec as-is
         if isinstance(val, string_types): continue
 
+        # dicts also get passed through as-is
+        if isinstance(val, dict): continue
+
         # similarly colorspecs handle color tuple sequences as-is
         if (isinstance(dataspecs[var], ColorSpec) and ColorSpec.is_color_tuple(val)):
             continue
