@@ -328,6 +328,25 @@ of *(start, end)*:
 
 .. _userguide_styling_axes_tick_lines:
 
+Tick Locations
+~~~~~~~~~~~~~~
+
+Bokeh has several "ticker" models that can choose nice locations for ticks.
+These are configured on the ``.ticker`` property of an axis. With the
+|bokeh.plotting| and |bokeh.charts| interfaces, choosing an approriate ticker
+type (categorical, datetime, linear or log scale) normally happens
+automatically. However, there are cases when more explicit control is
+useful.
+
+``FixedTicker``
+'''''''''''''''
+
+This ticker model allows users to specify exact tick locations
+explicitly.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_fixed_ticker.py
+    :source-position: above
+
 Tick Lines
 ~~~~~~~~~~
 
