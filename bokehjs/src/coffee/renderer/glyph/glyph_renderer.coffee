@@ -60,6 +60,7 @@ class GlyphRendererView extends PlotWidget
     @glyph.set_data(source, arg)
 
     @glyph.set_visuals(source)
+    @decimated_glyph.set_visuals(source)
     @selection_glyph.set_visuals(source)
     @nonselection_glyph.set_visuals(source)
 
