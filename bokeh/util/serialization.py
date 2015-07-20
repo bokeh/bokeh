@@ -190,23 +190,16 @@ def transform_numerical_array(obj):
         return transformed.tolist()
 
 def traverse_data(datum):
-    """recursively look for NaN, Infinity, and -Infinity objects
-    and replace them with JSON-compliant strings
+    """recursively dig until a flat array is found
+    convert it to a numpy array and send off to transform_array()
+    to handle nan, inf, -inf
     """
+    if not any(isinstance(el, (list, tuple)) for el in datum):
+        return transform_array(np.asarray(datum))
     datum_copy = []
     for item in datum:
         if isinstance(item, (list, tuple)):
             datum_copy.append(traverse_data(item))
-        elif isinstance(item, float):
-            if np.isnan(item):
-                item = 'NaN'
-            elif np.isposinf(item):
-                item = 'Infinity'
-            elif np.isneginf(item):
-                item = '-Infinity'
-            datum_copy.append(item)
-        else:
-            datum_copy.append(item)
     return datum_copy
 
 def transform_column_source_data(data):
