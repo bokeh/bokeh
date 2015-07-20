@@ -3,18 +3,17 @@ import json
 from threading import Thread, RLock
 
 import flask
+from flask import send_from_directory
 import pyaudio
 import numpy as np
 import scipy as sp
 from scipy.integrate import simps
 
 from bokeh.embed import components
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
 from bokeh.resources import Resources
-from bokeh.templates import RESOURCES
 from bokeh.util.string import encode_utf8
-from bokeh.models.widgets import HBox, Paragraph, Slider, VBox
 
 app = flask.Flask(__name__)
 
@@ -25,7 +24,7 @@ FREQ_SAMPLES = NUM_SAMPLES / 8
 NGRAMS = 800
 SPECTROGRAM_LENGTH = 512
 TILE_WIDTH = 200
-TIMESLICE = 40 # ms
+TIMESLICE = 40  # ms
 
 mutex = RLock()
 data = None
@@ -36,27 +35,23 @@ stream = None
 def root():
     """ Returns the spectrogram of audio data served from /data """
 
-    spectrogram = make_spectrogram()
+    freq_slider, gain_slider, spectrum, signal, spec, eq = make_spectrogram()
 
-    resources = Resources("inline")
-    plot_resources = RESOURCES.render(
-        js_raw = resources.js_raw,
-        css_raw = resources.css_raw,
-        js_files = resources.js_files,
-        css_files = resources.css_files,
-    )
+    spectrogram_plots = {
+        'freq_slider': freq_slider,  # slider
+        'gain_slider': gain_slider,  # slider
+        'spec': spec,  # image
+        'spectrum': spectrum,  # line
+        'signal': signal,  # line
+        'equalizer': eq  # radial
+    }
 
-    plot_script, plot_div = components(
-        spectrogram, resources
-    )
+    script, divs = components(spectrogram_plots)
+    bokeh = Resources(mode="inline")
 
-    html = flask.render_template(
-        "spectrogram.html",
-        plot_resources = plot_resources,
-        plot_script = plot_script,
-        plot_div = plot_div,
-    )
+    html = flask.render_template("spectrogram.html", bokeh=bokeh, script=script, divs=divs)
     return encode_utf8(html)
+
 
 @app.route("/params")
 def params():
@@ -98,6 +93,10 @@ def data():
         })
 
 
+@app.route('/images/<path:path>')
+def send_image(path):
+    return send_from_directory('images', path)
+
 def main():
     """ Start the sound server, which retains the audio data inside
     its process space, and forks out workers when web connections are
@@ -111,80 +110,85 @@ def main():
 
     app.run(debug=True)
 
+
 def make_spectrogram():
 
     plot_kw = dict(
-        tools="", min_border=1, h_symmetry=False, v_symmetry=False, toolbar_location=None
+        tools="", min_border=20, h_symmetry=False, v_symmetry=False, toolbar_location=None, outline_line_color='#595959',
     )
 
-    freq = VBox(
-        children=[
-            Paragraph(text="Freq Range"),
-            Slider(orientation="vertical", start=1, end=MAX_FREQ, value=MAX_FREQ, step=1, name="freq")
-        ]
-    )
-
-    gain = VBox(
-        children=[
-            Paragraph(text="Gain"),
-            Slider(orientation="vertical", start=1, end=20, value=1, step=1, name="gain")
-        ]
-    )
+    freq_slider = Slider(start=1, end=MAX_FREQ, value=MAX_FREQ, step=1, name="freq", title="Frequency")
+    gain_slider = Slider(start=1, end=20, value=1, step=1, name="gain", title="Gain")
 
     spec_source = ColumnDataSource(data=dict(image=[], x=[]))
     spec = figure(
-        title=None, plot_width=800, plot_height=300,
-        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ], **plot_kw)
+        title=None, plot_width=990, plot_height=300, min_border_left=80,
+        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ], border_fill= "#d4e7e4", **plot_kw)
     spec.image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
         cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH,
         source=spec_source, dilate=True, name="spectrogram")
     spec.grid.grid_line_color = None
+    spec.background_fill="#024768"
+    spec.axis.major_label_text_font = "Georgia"
+    spec.axis.major_label_text_font_size = "8pt"
+    spec.axis.major_label_text_color = "#231f20"
 
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = figure(
-        title="Power Spectrum", plot_width=800, plot_height=250,
-        y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ],
-        y_axis_type="log", **plot_kw)
+        title=None, plot_width=600, plot_height=220,
+        y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ*0.001],
+        y_axis_type="log", background_fill="#f2f7f6", border_fill= "#d4e7e4",
+        **plot_kw)
     spectrum.line(
-        x="x", y="y", line_color="darkblue",
+        x="x", y="y", line_color="#024768",
         source=spectrum_source, name="spectrum")
     spectrum.xgrid.grid_line_dash=[2, 2]
+    spectrum.xaxis.axis_label = "Frequency (kHz)"
+    spectrum.axis.axis_label_text_font = "Georgia"
+    spectrum.axis.axis_label_text_font_size = "12pt"
+    spectrum.axis.axis_label_text_font_style = "bold"
+    spectrum.axis.axis_label_text_color = "#231f20"
+    spectrum.axis.major_label_text_font = "Georgia"
+    spectrum.axis.major_label_text_font_size = "8pt"
+    spectrum.axis.major_label_text_color = "#231f20"
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = figure(
-        title="Signal", plot_width=800, plot_height=250,
-        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], **plot_kw)
+        title=None, plot_width=600, plot_height=220, background_fill="#f2f7f6",
+        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], border_fill= "#d4e7e4",**plot_kw)
     signal.line(
-        x="x", y="y", line_color="darkblue",
+        x="x", y="y", line_color="#024768",
         source=signal_source,  name="signal")
-    signal.xgrid.grid_line_dash=[2, 2]
+    signal.xgrid.grid_line_dash = [2, 2]
+    signal.xaxis.axis_label = "Time (ms)"
+    signal.axis.axis_label_text_font = "Georgia"
+    signal.axis.axis_label_text_font_size = "12pt"
+    signal.axis.axis_label_text_font_style = "bold"
+    signal.axis.axis_label_text_color = "#231f20"
+    signal.axis.major_label_text_font = "Georgia"
+    signal.axis.major_label_text_font_size = "8pt"
+    signal.axis.major_label_text_color = "#231f20"
 
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[],
     ))
+    plot_kw['min_border'] = 0
     eq = figure(
-        title=None, plot_width=500, plot_height=520,
-        x_range=[-20, 20], y_range=[-20, 20], **plot_kw)
+        title=None, plot_width=300, plot_height=300,
+        x_axis_type=None, y_axis_type=None,
+        x_range=[-20, 20], y_range=[-20, 20], background_fill="#d4e7e4",
+        border_fill= "#d4e7e4",**plot_kw)
+    eq.outline_line_color = None
     eq.annular_wedge(
-        x=0, y=0, fill_color="#688AB9", fill_alpha="fill_alpha", line_color=None,
+        x=0, y=0, fill_color="#024768", fill_alpha="fill_alpha", line_color=None,
         inner_radius="inner_radius", outer_radius="outer_radius",
         start_angle="start_angle", end_angle="end_angle",
         source=radial_source, name="eq")
-    eq.grid.grid_line_color=None
+    eq.grid.grid_line_color = None
 
-    lines = VBox(
-        children=[spectrum, signal]
-    )
+    return freq_slider, gain_slider, spectrum, signal, spec, eq
 
-    layout = VBox(
-        children = [
-            HBox(children=[freq, gain, spec]),
-            HBox(children=[lines, eq])
-        ]
-    )
-
-    return layout
 
 def get_audio_data():
     global data, stream
@@ -207,8 +211,9 @@ def get_audio_data():
             spectrum = abs(fft)[:NUM_SAMPLES/2]
             power = spectrum**2
             bins = [simps(a) for a in np.split(power, 16)]
+            new_data = signal.tolist(), spectrum.tolist(), bins
             with mutex:
-                data = signal.tolist(), spectrum.tolist(), bins
+                data = new_data
         except:
             with mutex:
                 data = None

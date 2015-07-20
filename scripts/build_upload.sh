@@ -71,9 +71,6 @@ fi
 # get travis_build_id
 travis_build_id=$(cat __travis_build_id__.txt)
 
-# get complete version
-complete_version=$(cat __conda_version__.txt)
-
 # specify some varibles specific of the release or devel build process
 if [[ -z "$travis_build_id" ]]; then
     #release
@@ -125,12 +122,16 @@ if [[ ! -z "$upload" ]]; then
     echo "I'm done uploading to pypi"
 fi
 
-binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.gztar --package-type pypi -c $channel --force --no-progress
+binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.tar.gz --package-type pypi -c $channel --force --no-progress
 echo "I'm done uploading to binstar"
 
 ###########################
 # JS and CSS into the CDN #
 ###########################
+# get complete version
+# Note: we need to get the version here to avoid being bitten by the
+# __conda_version__.txt file generated at the first build (by travis_install)
+complete_version=$(cat __conda_version__.txt)
 
 # get token
 token=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
@@ -160,7 +161,10 @@ echo "I'm done uploading to Rackspace"
 
 pushd sphinx
 
-make clean all
+# being explicit to pass the correct version
+# Note: we need to override the version here to avoid being bitten by the
+# __version__ used from the first build (by travis_install)
+BOKEH_LOCAL_DOCS_CDN=$complete_version BOKEH_DOCS_VERSION=$complete_version make clean all
 
 # to the correct location
 if [[ -z "$travis_build_id" ]]; then

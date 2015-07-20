@@ -347,10 +347,10 @@ class HoverTool(Tool):
     all times, but can be configured in the inspector's menu associated
     with the *toolbar icon* shown above.
 
-    By default, the hover tool displays informational tooltips whenever the cursor
-    is directly over a glyph. The data to show comes from the glyph's
-    data source, and what is to be displayed is configurable through a
-    ``tooltips`` attribute that maps display names to columns in the
+    By default, the hover tool displays informational tooltips whenever
+    the cursor is directly over a glyph. The data to show comes from the
+    glyph's data source, and what is to be displayed is configurable with
+    the ``tooltips`` attribute that maps display names to columns in the
     data source, or to special known variables.
 
     Here is an example of how to configure and use the hover tool::
@@ -366,8 +366,9 @@ class HoverTool(Tool):
             ("bar", "@bar"),
         ]
 
-    You can also supply a ``Callback`` to the HoverTool, to build custom interactions
-    on hover. In this case you may want to turn the tooltips off by setting ``tooltips=None``
+    You can also supply a ``Callback`` to the HoverTool, to build custom
+    interactions on hover. In this case you may want to turn the tooltips
+    off by setting ``tooltips=None``.
 
     .. warning::
         Point hit testing is not currently available on all glyphs. Hover tool
@@ -392,8 +393,7 @@ class HoverTool(Tool):
     cb_data parameter that is available to the Callback code will contain two
     HoverTool specific fields:
 
-    :index: object containing the indices of the hovered points in the data
-    source
+    :index: object containing the indices of the hovered points in the data source
     :geometry: object containing the coordinates of the hover cursor
     """)
 

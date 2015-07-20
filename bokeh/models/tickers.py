@@ -5,7 +5,7 @@ of plots.
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Int, Float, List, Instance
+from ..properties import Int, Float, Seq, Instance
 
 class Ticker(PlotObject):
     """ A base class for all ticker types. ``Ticker`` is
@@ -28,6 +28,19 @@ class Ticker(PlotObject):
         as can be, in the context of a specific ticking strategy.
     """)
 
+class FixedTicker(Ticker):
+    """ Generate ticks at fixed, explicitly supplied locations.
+
+    .. note::
+        The ``desired_num_ticks`` property is ignored by this Ticker.
+
+    """
+
+    ticks = Seq(Float, help="""
+    List of tick locations.
+    """)
+
+
 class AdaptiveTicker(Ticker):
     """ Generate "nice" round ticks at any magnitude.
 
@@ -43,7 +56,7 @@ class AdaptiveTicker(Ticker):
     The multiplier to use for scaling mantissas.
     """)
 
-    mantissas = List(Float, [2, 5, 10], help="""
+    mantissas = Seq(Float, [2, 5, 10], help="""
     The acceptable list numbers to generate multiples of.
     """)
 
@@ -64,7 +77,7 @@ class CompositeTicker(Ticker):
 
     """
 
-    tickers = List(Instance(Ticker), help="""
+    tickers = Seq(Instance(Ticker), help="""
     A list of Ticker objects to combine at different scales in order
     to generate tick values. The supplied tickers should be in order.
     Specifically, if S comes before T, then it should be the case that::
@@ -87,7 +100,7 @@ class DaysTicker(SingleIntervalTicker):
     """ Generate ticks spaced apart by specific, even multiples of days.
 
     """
-    days = List(Int, help="""
+    days = Seq(Int, help="""
     The intervals of days to use.
     """)
 
@@ -95,7 +108,7 @@ class MonthsTicker(SingleIntervalTicker):
     """ Generate ticks spaced apart by specific, even multiples of months.
 
     """
-    months = List(Int, help="""
+    months = Seq(Int, help="""
     The intervals of months to use.
     """)
 

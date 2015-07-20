@@ -3,5 +3,8 @@
 '''
 
 class ValidationError(Exception):
+    ''' Failed Bokeh validation check
+
+    '''
     pass
 

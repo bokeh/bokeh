@@ -62,6 +62,7 @@ def components(plot_objects, resources=None):
         An example can be found in examples/embed/embed_multiple.py
 
         resources : Deprecated argument
+
     Returns:
         (script, div[s]): UTF-8 encoded
     '''
@@ -70,7 +71,7 @@ def components(plot_objects, resources=None):
         plot_objects = [plot_objects]
     if resources is not None:
         warn('Because the ``resources`` argument is no longer needed, '
-             'is it deprecated and will be removed in'
+             'it is deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
     all_models = []
     plots = []
@@ -142,8 +143,9 @@ def notebook_div(plot_object):
     Returns:
         div : UTF-8 encoded HTML text
 
-    .. note:: Assumes ``bokeh.load_notebook()`` or the equivalent has
-              already been executed.
+    .. note::
+        Assumes ``bokeh.load_notebook()`` or the equivalent has already
+        been executed.
 
     '''
     ref = plot_object.ref

@@ -7,6 +7,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import Int, Float, String, Datetime, Instance, List, Either
+from .actions import Callback
 from .renderers import Renderer
 
 class Range(PlotObject):
@@ -14,6 +15,10 @@ class Range(PlotObject):
     useful to instantiate on its own.
 
     """
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the range is updated.
+    """)
 
 class Range1d(Range):
     """ A fixed, closed range [start, end] in a continuous scalar

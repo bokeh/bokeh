@@ -1,0 +1,10 @@
+0.9.1 (Jul 2015)
+================
+
+This release focused on extending Bokeh's new callback system by adding more places where callbacks can be used, expanding and improving the new User's Guide, exposing better ways to embed Bokeh plots and widgets into your own layouts, and providing validation error and warning feedback to diagnose problems.
+
+* New callbacks options for hover, selection, and range updates
+* Documentation for widgets and new callbacks in the User's Guide
+* Much more flexible embed.components that can embed multiple objects
+* Implemented a validation framework to provide errors and warnings
+* More than 30 smaller bugfixes
