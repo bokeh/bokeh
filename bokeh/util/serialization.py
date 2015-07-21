@@ -201,7 +201,7 @@ def traverse_data(datum):
     and send off to transform_array() to handle nan, inf, -inf
     otherwise iterate through items in array converting non-json items
     """
-    if not any(isinstance(el, (list, tuple)) for el in datum) and is_numpy:
+    if is_numpy and not any(isinstance(el, (list, tuple)) for el in datum):
         return transform_array(np.asarray(datum))
     datum_copy = []
     for item in datum:
