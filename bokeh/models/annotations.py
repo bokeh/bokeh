@@ -5,11 +5,11 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..enums import Orientation
-from ..mixins import LineProps, TextProps
+from ..mixins import LineProps, FillProps, TextProps
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include)
+                          Include, NumberSpec, Bool, Either, Auto)
 
-from .renderers import Renderer, GlyphRenderer
+from .renderers import Renderer
 
 class Legend(Renderer):
     """ Render informational legends for a plot.
@@ -72,3 +72,31 @@ class Legend(Renderer):
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
+
+class Shade(Renderer):
+    """ Render an annotation box "shade" thing
+
+    """
+    left = Either(Auto, NumberSpec("left"), help="""
+    The x-coordinates of the left edges.
+    """)
+
+    right = Either(Auto, NumberSpec("right"), help="""
+    The x-coordinates of the right edges.
+    """)
+
+    bottom = Either(Auto, NumberSpec("bottom"), help="""
+    The y-coordinates of the bottom edges.
+    """)
+
+    top = Either(Auto, NumberSpec("top"), help="""
+    The y-coordinates of the top edges.
+    """)
+
+    border_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the shades.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the shades.
+    """)
