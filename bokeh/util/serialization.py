@@ -5,7 +5,13 @@ Bokeh objects.
 from __future__ import absolute_import
 
 from six import iterkeys
-import numpy as np
+
+try:
+    import numpy as np
+    is_numpy = True
+except ImportError:
+    is_numpy = False
+
 try:
     import pandas as pd
     is_pandas = True
@@ -190,16 +196,27 @@ def transform_numerical_array(obj):
         return transformed.tolist()
 
 def traverse_data(datum):
-    """recursively dig until a flat array is found
-    convert it to a numpy array and send off to transform_array()
-    to handle nan, inf, -inf
+    """recursively dig until a flat list is found
+    if numpy is available convert the flat list to a numpy array
+    and send off to transform_array() to handle nan, inf, -inf
+    otherwise iterate through items in array converting non-json items
     """
-    if not any(isinstance(el, (list, tuple)) for el in datum):
+    if not any(isinstance(el, (list, tuple)) for el in datum) and is_numpy:
         return transform_array(np.asarray(datum))
     datum_copy = []
     for item in datum:
         if isinstance(item, (list, tuple)):
             datum_copy.append(traverse_data(item))
+        elif isinstance(item, float):
+            if np.isnan(item):
+                item = 'NaN'
+            elif np.isposinf(item):
+                item = 'Infinity'
+            elif np.isneginf(item):
+                item = '-Infinity'
+            datum_copy.append(item)
+        else:
+            datum_copy.append(item)
     return datum_copy
 
 def transform_column_source_data(data):
