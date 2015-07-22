@@ -17,7 +17,6 @@ import itertools
 import warnings
 
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from six import string_types
@@ -26,11 +25,9 @@ from ..models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, 
                      Grid, GridPlot, LinearAxis, Plot, CategoricalAxis, Legend)
 from ..models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
-from ..plotting import (curdoc, output_file, output_notebook, output_server,
-                       DEFAULT_TOOLS)
+from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
 
-from .bokeh_exporter import BokehExporter
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import convert_dashes, get_props_cycled, is_ax_end, xkcd_line
 
