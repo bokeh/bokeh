@@ -1,4 +1,5 @@
 from bokeh.plotting import figure, output_file, show
+from bokeh.models import FixedTicker
 
 output_file("axes.html")
 
