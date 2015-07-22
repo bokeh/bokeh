@@ -205,7 +205,7 @@ def traverse_data(datum, is_numpy=is_numpy, use_numpy=True):
 
     Args:
         datum (list) : a list of values or lists
-        is_numpy: True is numpy is present (see imports)
+        is_numpy: True if numpy is present (see imports)
         use_numpy: toggle numpy as a dependency for testing purposes
     """
     is_numpy = is_numpy and use_numpy
