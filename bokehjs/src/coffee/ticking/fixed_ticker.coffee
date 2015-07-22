@@ -1,3 +1,4 @@
+_ = require "underscore"
 AbstractTicker = require "./abstract_ticker"
 
 class FixedTicker extends AbstractTicker.Model
