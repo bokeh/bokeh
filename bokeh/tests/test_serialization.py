@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import unittest
-import json
 from bokeh.util.serialization import traverse_data
 
 class TestTraverseData(unittest.TestCase):
