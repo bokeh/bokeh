@@ -195,12 +195,14 @@ def transform_numerical_array(obj):
         transformed[np.isneginf(obj)] = '-Infinity'
         return transformed.tolist()
 
-def traverse_data(datum):
+def traverse_data(datum, use_numpy=True):
     """recursively dig until a flat list is found
     if numpy is available convert the flat list to a numpy array
     and send off to transform_array() to handle nan, inf, -inf
     otherwise iterate through items in array converting non-json items
     """
+    global is_numpy
+    is_numpy = is_numpy and use_numpy
     if is_numpy and not any(isinstance(el, (list, tuple)) for el in datum):
         return transform_array(np.asarray(datum))
     datum_copy = []
