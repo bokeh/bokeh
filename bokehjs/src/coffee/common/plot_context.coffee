@@ -3,12 +3,15 @@ _ = require "underscore"
 build_views = require "./build_views"
 HasParent = require "./has_parent"
 ContinuumView = require "./continuum_view"
+DevelopShell = require "../develop/developshell"
 
 class PlotContextView extends ContinuumView
   initialize: (options) ->
     @views = {}
     @child_models = []
+    @develop_shell_view = null
     super(options)
+    @$el.addClass("bk-plot-context")
     @render()
 
   delegateEvents: () ->
@@ -46,13 +49,27 @@ class PlotContextView extends ContinuumView
     for own key, val of @views
       val.$el.detach()
     @$el.html('')
-    numplots = _.keys(@views).length
-    to_render = []
-    tab_names = {}
+
+    plot_root = @$el
+
+    shell = @mget("develop_shell")
+
+    if @develop_shell_view?
+        @develop_shell_view.$el.detach()
+        if @develop_shell_view.model != shell
+            @develop_shell_view = null
+
+    if shell?
+        if not @develop_shell_view?
+            @develop_shell_view = new DevelopShell.View({ model : shell })
+        @develop_shell_view.render()
+        @$el.append(@develop_shell_view.el)
+        plot_root = @develop_shell_view.$el
+
     for modelref, index in @mget('children')
       view = @views[modelref.id]
       node = $("<div class='jsp' data-plot_num='#{index}'></div>")
-      @$el.append(node)
+      plot_root.append(node)
       node.append(view.el)
     _.defer(() =>
       for textarea in @$el.find('.plottitle')
@@ -69,7 +86,8 @@ class PlotContext extends HasParent
 
   defaults: ->
     return _.extend {}, super(), {
-      children: []
+      children: [],
+      develop_shell: null
     }
 
 module.exports =

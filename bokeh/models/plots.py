@@ -21,6 +21,7 @@ from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .widget import Widget
+from .develop import DevelopShell
 
 def _select_helper(args, kwargs):
     """
@@ -67,6 +68,15 @@ class PlotContext(PlotObject):
     children = List(Instance(PlotObject), help="""
     A list of top level objects in this ``PlotContext`` container.
     """)
+
+    develop_shell = Instance(DevelopShell, help="""
+    The UI for develop mode (may be null).
+    """)
+
+    def __init__(self, **kwargs):
+        if "develop_shell" not in kwargs:
+            kwargs["develop_shell"] = DevelopShell()
+        super(PlotContext, self).__init__(**kwargs)
 
 # TODO (bev) : is this used anywhere?
 class PlotList(PlotContext):
