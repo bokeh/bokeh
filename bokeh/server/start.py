@@ -30,7 +30,6 @@ def doc_prepare():
     register_blueprint()
     return app
 
-http_server = None
 def start_redis():
     work_dir = getattr(bokeh_app, 'work_dir', os.getcwd())
     data_file = getattr(bokeh_app, 'data_file', 'redis.db')
@@ -46,23 +45,22 @@ def start_redis():
                                 save=redis_save)
     bokeh_app.redis_proc = mproc
 
-server = None
+server_instance = None
 def make_tornado(config_file=None):
     configure_flask(config_file=config_file)
     register_blueprint()
     tornado_app = make_tornado_app(flask_app=app)
     return tornado_app
 
-def start_simple_server(args=None):
-    global server
-    configure_flask(config_argparse=args)
+def create_listening_server(https=None, https_certfile=None, https_keyfile=None):
+    """Create a server listening for connections, assumes configure_flask has been called"""
     if server_settings.model_backend.get('start-redis', False):
         start_redis()
     register_blueprint()
     tornado_app = make_tornado_app(flask_app=app)
-    if args is not None and args.https:
-        if args.https_certfile and args.https_keyfile:
-            server = HTTPServer(tornado_app, ssl_options={"certfile": args.https_certfile, "keyfile": args.https_keyfile})
+    if https:
+        if https_certfile and https_keyfile:
+            server = HTTPServer(tornado_app, ssl_options={"certfile": https_certfile, "keyfile": https_keyfile})
             log.info('HTTPS Enabled')
         else:
             server = HTTPServer(tornado_app)
@@ -70,9 +68,39 @@ def start_simple_server(args=None):
     else:
         server = HTTPServer(tornado_app)
     server.listen(server_settings.port, server_settings.ip)
+    return server
+
+def start_simple_server(args=None):
+    """Configure and start a server singleton"""
+    global server_instance
+
+    configure_flask(config_argparse=args)
+    if args is not None and args.https:
+        https = args.https
+        https_certfile = args.https_certfile
+        https_keyfile = args.https_keyfile
+    else:
+        https = None
+        https_certfile = None
+        https_keyfile = None
+    server_instance = create_listening_server(https=https, https_certfile=https_certfile, https_keyfile=https_keyfile)
+    start(server_instance)
+
+def start(server=None):
+    """Start server main loop"""
+    global server_instance
+
+    if server is None:
+        server = server_instance
     ioloop.IOLoop.instance().start()
 
-def stop():
+def stop(server=None):
+    """Shut down server main loop"""
+    global server_instance
+
+    if server is None:
+        server = server_instance
+
     if hasattr(bokeh_app, 'redis_proc'):
         bokeh_app.redis_proc.close()
     server.stop()

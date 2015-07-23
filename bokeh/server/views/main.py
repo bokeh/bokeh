@@ -196,14 +196,7 @@ def show_doc_by_title(title):
     docid = doc['docid']
     return render('show.html', title=title, docid=docid)
 
-@bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
-@crossdomain(origin="*", headers=None)
-@login_required
-def doc_by_title():
-    if request.json:
-        title = request.json['title']
-    else:
-        title = request.values['title']
+def find_or_create_docid_by_title(title):
     bokehuser = bokeh_app.current_user()
     docs = [doc for doc in bokehuser.docs if doc['title'] == title]
     if len(docs) == 0:
@@ -217,8 +210,22 @@ def doc_by_title():
     else:
         doc = docs[0]
         docid = doc['docid']
-    return get_bokeh_info(docid)
+    return docid
 
+@bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=None)
+@login_required
+def doc_by_title():
+    if request.json:
+        title = request.json['title']
+    else:
+        title = request.values['title']
+
+    try:
+        docid = find_or_create_docid_by_title(title)
+        return get_bokeh_info(docid)
+    except DataIntegrityException as e:
+        return abort(409, e.message)
 
 @bokeh_app.route('/bokeh/sampleerror')
 def sampleerror():
