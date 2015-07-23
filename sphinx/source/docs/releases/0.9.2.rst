@@ -1,0 +1,14 @@
+0.9.2 (Jul 2015)
+================
+
+This release focused mainly in provide several bugfixes over our last 0.9.1 release bugs.
+Additionally, we also updated the MPL compatibility layer. 
+You should expect some more point releases before 0.10.0 which is in active development in a separate branch.
+
+* Several nan-related fixes including the slow rendering of plots
+* Removed some unused dependencies
+* Fixes in our automated release process
+* Fixed the patchs vanishing on selection
+* More control over ticks and gridlines
+* MPL compatibility updated
+* Several examples updated

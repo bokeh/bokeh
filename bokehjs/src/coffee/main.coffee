@@ -1,6 +1,6 @@
 Bokeh = {}
 Bokeh.require = require
-Bokeh.version = '0.9.1'
+Bokeh.version = '0.9.2'
 
 # binding the libs that bokeh uses so others can reference them
 Bokeh._                 = require("underscore")
