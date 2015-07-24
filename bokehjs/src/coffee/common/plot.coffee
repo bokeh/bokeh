@@ -122,17 +122,17 @@ class PlotView extends ContinuumView
   
   init_webgl: () ->
 
-    # Get visible and invisible canvas 
-    # (doing it like this makes it easy to swap them during debugging)    
-    glcanvas = document.createElement('canvas')
-    
-    # Create GL context to draw to
+    # We use a global invisible canvas and gl context. By having a global context,
+    # we avoid the limitation of max 16 contexts that most browsers have. 
+    glcanvas = window._bokeh_gl_canvas
+    if not glcanvas?
+      window._bokeh_gl_canvas = glcanvas = document.createElement('canvas')
+      opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
+      glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
+
     # If WebGL is available, we store a reference to the gl canvas on
     # the ctx object, because that's what gets passed everywhere.
-    opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
-    gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
-    if gl?
-      glcanvas.gl = gl
+    if glcanvas.gl?
       @canvas_view.ctx.glcanvas = glcanvas
     else
       @canvas_view.ctx.glcanvas = false  # disable webgl
