@@ -26,7 +26,6 @@
     - #2600 [bokehjs] Hotfix/fixed ticker
   * features:
     - #194 [widgets] Widget/controls integration
-    - #2036 [bokehjs] Implementation of renderers in webgl 
     - #2379 Get a warning about an invalid column name
     - #2496 Improve mouseover information in texas example
     - #2548 [bokehjs] Need more control over ticks and gridlines
@@ -38,9 +37,6 @@
     - #2546 Clean up examples, use standard bokeh.io output
     - #2547 [docs] Fix typo in components deprecation message
     - #2554 [branches] Fix bug on ie (avoid using indices)
-    - #2566 Server cleanup and refactor
-    - #2571 [build] Enable test on dev branches
-    - #2576 Remove mubs
     - #2577 [docs] Editing up to concepts
     - #2598 Serializing data with numpy optional
     - #2605 Hotfixes 0.9.2
