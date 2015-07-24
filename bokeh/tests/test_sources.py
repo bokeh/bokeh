@@ -87,6 +87,17 @@ class TestColumnDataSourcs(unittest.TestCase):
             self.assertEquals(w[0].category, UserWarning)
             self.assertEquals(str(w[0].message), "Unable to find column 'foo' in data source")
 
+    @skipIf(not is_pandas, "pandas not installed")
+    def test_from_df_warn(self):
+        data = dict(a=[1, 2], b=[2, 3])
+        df = pd.DataFrame(data)
+        with warnings.catch_warnings(record=True) as w:
+            ds = ColumnDataSource()
+            data_dict = ds.from_df(df)
+            self.assertEquals(len(w), 1)
+            self.assertEquals(w[0].category, UserWarning)
+            self.assertEquals(str(w[0].message), "Method deprecated in Bokeh 0.9.3")
+
 class TestServerDataSourcs(unittest.TestCase):
 
     def test_basic(self):
