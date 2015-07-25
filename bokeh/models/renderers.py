@@ -9,6 +9,7 @@ from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Units, Orientation, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
+from ..validation.warnings import COLON_IN_CATEGORY_LABEL
 from .. import validation
 
 from .sources import DataSource
@@ -44,6 +45,30 @@ class GlyphRenderer(Renderer):
                 missing.add(item['field'])
         if missing:
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
+
+    @validation.warning(COLON_IN_CATEGORY_LABEL)
+    def _check_colon_in_category_label(self):
+        if not self.glyph: return
+        if not self.data_source: return
+
+        label_list = ['x', 'y']
+        vm_dict = self.glyph.vm_serialize()
+        broken_list = []
+
+        for label in label_list:
+            if label in vm_dict:
+                for value in self.data_source.data[vm_dict[label]['field']]:
+                    if ':' in value:
+                        broken_list.append((vm_dict[label]['field'], value))
+                        break
+
+        if broken_list:
+            field_tpl = '[label:%s] [first_value: %s]'
+            msg_tpl = '%xs [renderer: %s]'
+            field_msg = ' '.join(field_tpl % (label, value) for label, value in broken_list)
+            return msg_tpl % (field_msg, self)
+        else:
+            return
 
     data_source = Instance(DataSource, help="""
     Local data source to use when rendering glyphs on the plot.
