@@ -33,29 +33,9 @@ class Server(object):
     def push(self, doc, dirty_only=True):
         """Push changes to the document to the client"""
 
-        from ..server.views.backbone import push_data
-        from .. import protocol
+        from ..server.views.backbone import push_clientdoc
 
-        doc._add_all()
-        models = doc._models.values()
-
-        if dirty_only:
-            models = [x for x in models if getattr(x, '_dirty', False)]
-
-        if len(models) < 1:
-            return
-
-        # TODO clearly serializing to json here is absurd
-        # but it's difficult to eliminate because we rely
-        # on the JSONEncoder to convert data types, but it
-        # goes straight to a string, so hard to avoid the string
-        json = protocol.serialize_json(doc.dump(*models))
-        data = protocol.deserialize_json(json.decode('utf-8'))
-
-        for model in models:
-            model._dirty = False
-
-        push_data(client='python', docid=self.docid, temporary_docid=None, data=data)
+        push_clientdoc(self.docid, doc)
 
     def waitFor(self):
         """Block until server shuts down"""
