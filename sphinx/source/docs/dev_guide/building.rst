@@ -83,9 +83,9 @@ At this point you can typically use the ``setup.py`` script at the top level
 of the source chekcout to manage building and installing BokehJS as part of
 the complete Bokeh library (see :ref:`devguide_python_setup`).
 
-However, if you are using BokehJS as a standalone JavaScript library, then
-the instructions below describe the process to iteratively build BokehJS with
-Gulp for development purposes.
+However, if you want to work on the BokehJS sources or use BokehJS as a
+standalone library, then you need to use Gulp to build the BokehJS library
+as shown below.
 
 Building BokehJS with Gulp
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
