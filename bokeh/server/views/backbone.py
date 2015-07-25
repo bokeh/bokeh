@@ -11,6 +11,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from bokeh import protocol
+from bokeh.models import ServerCallback
 from flask import request, jsonify
 
 from .bbauth import handle_auth_error
@@ -333,3 +334,20 @@ def delete(docid, typename, id):
     t.save()
     ws_delete(clientdoc, t.write_docid, [model])
     return make_json(protocol.serialize_json(clientdoc.dump(model)[0]['attributes']))
+
+@bokeh_app.route("/bokeh/bb/execute/<docid>/<typename>/<id>", methods=['POST'])
+def execute_model(docid, typename, id):
+    ''' Execute a model (presumably a callback)
+    '''
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'r', temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
+    m = clientdoc._models[id]
+    m.execute_with(clientdoc)
+    push_clientdoc(docid, clientdoc)
+    return make_json("{}")

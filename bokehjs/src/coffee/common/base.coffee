@@ -29,6 +29,7 @@ locations =
 
   Callback:                 require '../action/callback'
   OpenURL:                  require '../action/open_url'
+  ServerCallback:           require '../action/servercallback'
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'

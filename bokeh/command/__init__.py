@@ -56,6 +56,7 @@ class LocalServer(Subcommand):
         self.port = 5006
         self.develop_mode = False
         self.server = None
+        self.app_module = None
 
     def load(self, src_path):
         import ast
@@ -63,8 +64,8 @@ class LocalServer(Subcommand):
         source = open(src_path, 'r').read()
         nodes = ast.parse(source, src_path)
         code = compile(nodes, filename=src_path, mode='exec')
-        module = ModuleType(self.appname)
-        exec(code, module.__dict__)
+        self.app_module = ModuleType(self.appname)
+        exec(code, self.app_module.__dict__)
 
     def refresh(self, open_browser):
         from bokeh.io import curdoc
