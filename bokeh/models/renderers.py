@@ -4,6 +4,8 @@ types that Bokeh supports.
 """
 from __future__ import absolute_import
 
+import six
+
 from ..plot_object import PlotObject
 from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
@@ -58,6 +60,7 @@ class GlyphRenderer(Renderer):
 
         for label in labels:
             for value in self.data_source.data[vm[label]['field']]:
+                if not isinstance(value, six.string_types): break
                 if ':' in value:
                     broken.append((vm[label]['field'], value))
                     break
