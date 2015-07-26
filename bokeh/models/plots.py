@@ -271,7 +271,7 @@ class Plot(Widget):
 
         for range_name in ['x_range', 'y_range']:
             category_range = getattr(self, range_name)
-            if not isinstance(category_range, FactorRange): break
+            if not isinstance(category_range, FactorRange): continue
 
             for value in category_range.factors:
                 if not isinstance(value, string_types): break
