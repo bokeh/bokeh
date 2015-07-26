@@ -12,9 +12,9 @@ from bokeh.validation import check_integrity
 class TestGlyphRenderer(unittest.TestCase):
     def test_warning_about_colons_in_column_labels(self):
         sh = ['0', '1:0']
-        p = figure()
-        p.rect('a', 'b', 1, 1, source=ColumnDataSource(data={'a': sh, 'b': sh}))
-        renderer = p.renderers[-1]
+        plot = figure()
+        plot.rect('a', 'b', 1, 1, source=ColumnDataSource(data={'a': sh, 'b': sh}))
+        renderer = plot.select({'type': GlyphRenderer})[0]
 
         errors = renderer._check_colon_in_category_label()
 
