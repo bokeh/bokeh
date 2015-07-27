@@ -162,7 +162,7 @@ class LocalServer(Subcommand):
             self.server.waitFor()
         except KeyboardInterrupt:
             self.server.stop()
-            observer.stop()
+        observer.stop()
         observer.join()
 
 class Develop(LocalServer):
