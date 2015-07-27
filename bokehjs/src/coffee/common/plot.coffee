@@ -32,6 +32,8 @@ properties = require "./properties"
 # The presence (and not-being-false) of the ctx.glcanvas attribute is the
 # marker that we use throughout that determines whether we have gl support. 
 
+global_gl_canvas = null
+
 
 class PlotView extends ContinuumView
   className: "bk-plot"
@@ -124,9 +126,9 @@ class PlotView extends ContinuumView
 
     # We use a global invisible canvas and gl context. By having a global context,
     # we avoid the limitation of max 16 contexts that most browsers have. 
-    glcanvas = window._bokeh_gl_canvas
+    glcanvas = global_gl_canvas
     if not glcanvas?
-      window._bokeh_gl_canvas = glcanvas = document.createElement('canvas')
+      global_gl_canvas = glcanvas = document.createElement('canvas')
       opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
       glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
 
@@ -328,7 +330,7 @@ class PlotView extends ContinuumView
       ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
       for prefix in ['image', 'mozImage', 'webkitImage','msImage']
          ctx[prefix + 'SmoothingEnabled'] = true
-      console.log('drawing with WebGL')
+      #console.log('drawing with WebGL')
 
     @_render_levels(ctx, ['overlay', 'tool'])
 
