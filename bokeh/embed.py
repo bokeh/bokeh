@@ -66,16 +66,11 @@ def components(plot_objects, resources=None):
     Returns:
         (script, div[s]): UTF-8 encoded
     '''
-    from .document import Document
-    if isinstance(plot_objects, (PlotObject, Document)):
-        plot_objects = [plot_objects]
-    if resources is not None:
-        warn('Because the ``resources`` argument is no longer needed, '
-             'it is deprecated and will be removed in'
-             'a future version.', DeprecationWarning, stacklevel=2)
-    all_models = []
-    plots = []
-    if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
+    plot_objects = _check_components_input(plot_objects, resources)
+
+    if isinstance(plot_objects, Sequence):
+        all_models = []
+        plots = []
         divs = []
         for idx, plot_object in enumerate(plot_objects):
             elementid = str(uuid.uuid4())
@@ -85,37 +80,134 @@ def components(plot_objects, resources=None):
             divs = divs[0]
         else:
             divs = tuple(divs)
-        return _component_pair(all_models, plots, divs)
-    elif isinstance(plot_objects, dict) and \
-         all(isinstance(x, string_types) for x in plot_objects.keys()) and \
-         all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
+
+    if isinstance(plot_objects, dict):
+        all_models = []
+        plots = []
         divs = {}
         for key in plot_objects.keys():
             elementid = str(uuid.uuid4())
             _append_plot(all_models, plots, plot_objects[key], elementid)
             divs = _append_div(elementid, divs, key)
-        return _component_pair(all_models, plots, divs)
-    else:
+
+    script = _get_script(all_models, plots)
+
+    return encode_utf8(script), divs
+
+
+def raw_components(plot_objects):
+    ''' Return the javascript code and the plotinfo dictionary that can be used to embed a bokeh plot
+    into an html template. Unlike the |components| method, this does not wrap the javascript or
+    id in a <script> or <div> tag. The user must do this manually, allowing for complete customization
+    on the html side.
+
+    The plot_info for each plot is a dictionary with the following information:
+        {
+            'modelid':  'The plots id, which can be used in the Bokeh.index',
+            'elementid': 'The css identifier the BokehJS will look for to target the plot',
+            'modeltype': 'Plot',
+        }
+
+    If a local datasource is used, the data for the plot is stored directly in the returned javascript.
+
+    Also see the |components| method.
+
+    Args:
+        plot_objects (PlotObject|list|dict|tuple) :
+        The |raw_components| function takes either a single PlotObject, a list/tuple of
+        PlotObjects, or a dictionary of keys and PlotObjects.
+
+        The following illustrates how different input types correlate to outputs:
+
+            components(plot)
+            #=> (raw_script, plot_info)
+
+            components((plot_1, plot_2))
+            #=> (raw_script, (plot_1_info, plot_2_info))
+
+            components({"Plot 1": plot_1, "Plot 2": plot_2})
+            #=> (raw_script, {"Plot 1": plot_1_info, "Plot 2": plot_2_info})
+
+    Returns:
+        (script, plotid[s]): UTF-8 encoded
+    '''
+    plot_objects = _check_components_input(plot_objects)
+    all_models = []
+    plots = []
+
+    if isinstance(plot_objects, Sequence):
+        for idx, plot_object in enumerate(plot_objects):
+            elementid = str(uuid.uuid4())
+            _append_plot(all_models, plots, plot_object, elementid)
+        if len(plots) == 1:
+            plot_info = plots[0]
+        else:
+            plot_info = tuple(plots)
+
+    if isinstance(plot_objects, dict):
+        plot_info = {}
+        for key in plot_objects.keys():
+            elementid = str(uuid.uuid4())
+            plot_info[key] = _append_plot(all_models, plots, plot_objects[key], elementid)
+
+    js = _get_js(all_models, plots)
+
+    return encode_utf8(js), plot_info
+
+
+def _check_components_input(plot_objects, resources=None):
+    from .document import Document
+    if resources is not None:
+        warn('Because the ``resources`` argument is no longer needed, '
+             'it is deprecated and will be removed in'
+             'a future version.', DeprecationWarning, stacklevel=2)
+
+    input_type_valid = False
+
+    # Check for single item
+    if isinstance(plot_objects, (PlotObject, Document)):
+        plot_objects = [plot_objects]
+
+    # Check for sequence
+    if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
+        input_type_valid = True
+
+    if isinstance(plot_objects, dict) and \
+         all(isinstance(x, string_types) for x in plot_objects.keys()) and \
+         all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
+        input_type_valid = True
+
+    if not input_type_valid:
         raise ValueError('Input must be a PlotObject, a Sequence of PlotObjects, or a mapping of string to PlotObjects')
 
-def _component_pair(all_models, plots, divs):
+    return plot_objects
+
+
+def _get_js(all_models, plots):
     js = PLOT_JS.render(
         all_models = serialize_json(all_models),
         plots = plots
     )
+    return _wrap_in_function(js)
+
+
+def _get_script(all_models, plots):
+    js = _get_js(all_models, plots)
     script = PLOT_SCRIPT.render(
-        plot_js = _wrap_in_function(js),
+        plot_js = js,
     )
-    return encode_utf8(script), divs
+    return script
 
 def _append_plot(all_models, plots, plot_object, elementid):
     ref = plot_object.ref
     all_models.extend(plot_object.dump())
-    plots.append({
+    plot_info = {
         'modelid': ref["id"],
         'elementid': '#' + elementid,
         'modeltype': ref["type"]
-    })
+    }
+    plots.append(plot_info)
+    return plot_info
 
 def _append_div(elementid, divs=None, key=None):
     div = PLOT_DIV.render(
