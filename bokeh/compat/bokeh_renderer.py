@@ -116,7 +116,6 @@ class BokehRenderer(Renderer):
         self.ax = ax
         self.plot.title = ax.get_title()
         # to avoid title conversion by draw_text later
-        self.grid = ax.get_xgridlines()[0]
 
         # Add axis
         for props in props['axes']:
@@ -125,7 +124,14 @@ class BokehRenderer(Renderer):
             else: location, dim, thing = props['position'], 1, ax.yaxis
 
             baxis = self.make_axis(thing, location, props)
-            self.make_grid(baxis, dim)
+
+            if dim==0:
+                gridlines = ax.get_xgridlines()
+            else:
+                gridlines = ax.get_ygridlines()
+
+            if gridlines:
+                self.make_grid(baxis, dim, gridlines[0])
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
@@ -301,8 +307,9 @@ class BokehRenderer(Renderer):
 
         # To get the tick label format, we look at the first of the tick labels
         # and assume the rest are formatted similarly.
-        ticktext = ax.get_ticklabels()[0]
-        self.text_props(ticktext, laxis, prefix="major_label_")
+        ticklabels = ax.get_ticklabels()
+        if ticklabels:
+            self.text_props(ticklabels[0], laxis, prefix="major_label_")
 
         #newaxis.bounds = axis.get_data_interval()  # I think this is the right func...
 
@@ -317,12 +324,12 @@ class BokehRenderer(Renderer):
 
         return laxis
 
-    def make_grid(self, baxis, dimension):
+    def make_grid(self, baxis, dimension, gridline):
         "Given a mpl axes instance, returns a Bokeh Grid object."
         lgrid = Grid(dimension=dimension,
                      ticker=baxis.ticker,
-                     grid_line_color=self.grid.get_color(),
-                     grid_line_width=self.grid.get_linewidth())
+                     grid_line_color=gridline.get_color(),
+                     grid_line_width=gridline.get_linewidth())
 
         self.plot.add_layout(lgrid)
 
