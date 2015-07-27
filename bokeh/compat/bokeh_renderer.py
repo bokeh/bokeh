@@ -305,6 +305,14 @@ class BokehRenderer(Renderer):
         label = ax.get_label()
         self.text_props(label, laxis, prefix="axis_label_")
 
+
+        # Set the tick properties (for now just turn off if necessary)
+        #  TODO: mirror tick properties
+        if props['nticks'] == 0:
+            laxis.major_tick_line_color = None
+            laxis.minor_tick_line_color = None
+            laxis.major_label_text_color = None
+        
         # To get the tick label format, we look at the first of the tick labels
         # and assume the rest are formatted similarly.
         ticklabels = ax.get_ticklabels()
