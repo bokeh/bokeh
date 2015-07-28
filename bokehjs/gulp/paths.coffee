@@ -45,3 +45,7 @@ module.exports =
       "./src/coffee/**/**",
     ]
 
+  phosphorTypes:
+    sources: [
+      "./src/vendor/phosphor-0.4.0/phosphor.d.ts"
+    ]
