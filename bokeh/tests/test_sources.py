@@ -93,7 +93,7 @@ class TestColumnDataSourcs(unittest.TestCase):
         df = pd.DataFrame(data)
         with warnings.catch_warnings(record=True) as w:
             ds = ColumnDataSource()
-            data_dict = ds.from_df(df)
+            ds.from_df(df)
             self.assertEquals(len(w), 1)
             self.assertEquals(w[0].category, UserWarning)
             self.assertEquals(str(w[0].message), "Method deprecated in Bokeh 0.9.3")
