@@ -9,7 +9,7 @@ from ..mixins import LineProps, FillProps, TextProps
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
                           Include, NumberSpec, Bool, Either, Auto)
 
-from .renderers import Renderer
+from .renderers import Renderer, GlyphRenderer AssertionError(arg)
 
 class Legend(Renderer):
     """ Render informational legends for a plot.
