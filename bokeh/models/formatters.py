@@ -207,9 +207,14 @@ class DatetimeTickFormatter(TickFormatter):
 
     The enum values correspond roughly to different "time scales". The
     corresponding value is a list of `strftime`_ formats to use for
-    formatting datetime values that fall in in that "time scale".
+    formatting datetime tick values that fall in in that "time scale".
+
+    By default, only the first format string passed for each time scale
+    will be used. By default, all leading zeros are stripped away from
+    the formatted labels. These behaviors cannot be changed as of now.
 
     This list of supported `strftime`_ formats is reproduced below.
+
 
     .. warning::
         The client library BokehJS uses the `timezone`_ library to
@@ -296,7 +301,8 @@ class DatetimeTickFormatter(TickFormatter):
         The minute as a decimal number (range 00 to 59).
 
     %n
-        A newline character.
+        A newline character. Bokeh text does not currently support
+        newline characters.
 
     %p
         Either "AM" or "PM" according to the given time value, or the
@@ -324,7 +330,8 @@ class DatetimeTickFormatter(TickFormatter):
         is up to 60 to allow for occasional leap seconds.)
 
     %t
-        A tab character.
+        A tab character. Bokeh text does not currently support tab
+        characters.
 
     %T
         The time in 24-hour notation (%H:%M:%S).
