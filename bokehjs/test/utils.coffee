@@ -1,4 +1,4 @@
-jsdom = require "jsdom"
+jsdom = require "node-jsdom"
 SandboxedModule = require "sandboxed-module"
 
 moduleRequire = (name) ->
