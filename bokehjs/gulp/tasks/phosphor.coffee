@@ -139,19 +139,31 @@ parseFile = (path, contents) ->
       else
         report(node, "unknown heritage token " + ts.SyntaxKind[node.token])
 
+  isPrivate = (node) ->
+    if not node.modifiers
+      false
+    else
+      for m in node.modifiers
+        if m.kind == ts.SyntaxKind.PrivateKeyword
+          return true
+      false
+
   parseClassChild = (className, node, accumulateSupers, accumulateMethods, accumulateProperties) ->
     switch node.kind
       when ts.SyntaxKind.HeritageClause
         parseHeritage(node, accumulateSupers)
       when ts.SyntaxKind.PropertyDeclaration, ts.SyntaxKind.PropertySignature
         console.log("  property " + node.name.text)
-        # the typescript file can omit a type completely like "property foo;"
-        type =
-          if node.type
-            parseType(node.type)
-          else
-            new UnknownType()
-        accumulateProperties.push(new Property(node.name.text, type))
+        if isPrivate(node)
+          console.log("    (private)")
+        else
+          # the typescript file can omit a type completely like "property foo;"
+          type =
+            if node.type
+              parseType(node.type)
+            else
+              new UnknownType()
+          accumulateProperties.push(new Property(node.name.text, type))
       when ts.SyntaxKind.MethodDeclaration, ts.SyntaxKind.MethodSignature
         console.log("  method " + node.name.text)
       when ts.SyntaxKind.Constructor, ts.SyntaxKind.ConstructSignature
@@ -171,16 +183,19 @@ parseFile = (path, contents) ->
     switch node.kind
       when ts.SyntaxKind.ClassDeclaration, ts.SyntaxKind.InterfaceDeclaration
         console.log("class=" + node.name.text)
-        supers = []
-        methods = []
-        properties = []
-        ts.forEachChild(node, (child) -> parseClassChild(node.name.text, child, supers, methods, properties))
-        c =
-          if node.kind == ts.SyntaxKind.ClassDeclaration
-            new Class(node.name.text, supers, methods, properties)
-          else
-            new Interface(node.name.text, supers, methods, properties)
-        accumulateClasses.push(c)
+        if isPrivate(node)
+          console.log("  (private)")
+        else
+          supers = []
+          methods = []
+          properties = []
+          ts.forEachChild(node, (child) -> parseClassChild(node.name.text, child, supers, methods, properties))
+          c =
+            if node.kind == ts.SyntaxKind.ClassDeclaration
+              new Class(node.name.text, supers, methods, properties)
+            else
+              new Interface(node.name.text, supers, methods, properties)
+          accumulateClasses.push(c)
       when ts.SyntaxKind.ModuleDeclaration
         console.log("moduledecl=" + node.name.text)
       when ts.SyntaxKind.FunctionDeclaration
