@@ -55,15 +55,6 @@ def check_line(annotation):
     assert annotation.line_cap == LineCap.butt
     assert annotation.line_dash == []
     assert annotation.line_dash_offset == 0
-#
-# def check_text(annotation):
-#     assert annotation.text_font == "Helvetica"
-#     assert annotation.text_font_size == "12pt"
-#     assert annotation.text_font_style == FontStyle.normal
-#     assert annotation.text_color == "#444444"
-#     assert annotation.text_alpha == 1.0
-#     assert annotation.text_align == TextAlign.left
-#     assert annotation.text_baseline == TextBaseline.bottom
 
 def test_Legend():
     legend = Legend()
@@ -94,6 +85,10 @@ def test_Legend():
 
 def test_Shade():
     shade = Shade()
+    assert shade.left == 'auto'
+    assert shade.right == 'auto'
+    assert shade.bottom == 'auto'
+    assert shade.top == 'auto'
     yield check_line, shade
     yield check_fill, shade
     yield (check_props, shade, [
