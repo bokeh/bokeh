@@ -24,4 +24,3 @@ del logconfig
 # module as transitive imports
 
 from . import sampledata; sampledata
-from .util.testing import runtests as test; test

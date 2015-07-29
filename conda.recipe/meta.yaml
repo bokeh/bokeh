@@ -51,7 +51,8 @@ test:
     - pdiff
     - boto                 [py2k]
     - jinja2
-    - nose
+    - pytest
+    - pytest-cov   # Available in jrderuiter channel
     - mock
     - coverage
     - websocket-client

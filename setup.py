@@ -499,7 +499,7 @@ REQUIRES = [
         # cli
         # 'click>=3.3',
         # tests
-        # 'nose>=1.3.0',
+        # 'pytest'
         # 'mock>=1.0.1',
         'colorama>=0.2.7'
     ]
