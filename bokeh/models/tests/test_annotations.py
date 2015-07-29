@@ -9,12 +9,13 @@ FILL = ["fill_color", "fill_alpha"]
 BORDER = ["border_line_color", "border_line_width", "border_line_alpha",
     "border_line_join", "border_line_cap", "border_line_dash",
     "border_line_dash_offset"]
+LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
+    "line_dash", "line_dash_offset"]
 LABEL = ["label_text_font", "label_text_font_size", "label_text_font_style",
     "label_text_color", "label_text_alpha", "label_text_align",
     "label_text_baseline"]
 
 PROPS = ["session", "name", "tags"]
-MARKER = ["x", "y", "size", "angle"]
 
 def check_border(annotation):
     assert annotation.border_line_color == Color.black
@@ -46,14 +47,14 @@ def check_fill(annotation):
     assert annotation.fill_color == Color.gray
     assert annotation.fill_alpha == 1.0
 
-# def check_line(annotation):
-#     assert annotation.line_color == Color.black
-#     assert annotation.line_width == 1
-#     assert annotation.line_alpha == 1.0
-#     assert annotation.line_join == LineJoin.miter
-#     assert annotation.line_cap == LineCap.butt
-#     assert annotation.line_dash == []
-#     assert annotation.line_dash_offset == 0
+def check_line(annotation):
+    assert annotation.line_color == Color.black
+    assert annotation.line_width == 1
+    assert annotation.line_alpha == 1.0
+    assert annotation.line_join == LineJoin.miter
+    assert annotation.line_cap == LineCap.butt
+    assert annotation.line_dash == []
+    assert annotation.line_dash_offset == 0
 #
 # def check_text(annotation):
 #     assert annotation.text_font == "Helvetica"
@@ -74,8 +75,8 @@ def test_Legend():
     assert legend.glyph_height == 20
     assert legend.glyph_width == 20
     assert legend.legend_padding == 10
-    assert legend.legend_spacing = 3
-    assert legend.legends = []
+    assert legend.legend_spacing == 3
+    assert legend.legends == []
     yield check_border, legend
     yield check_label, legend
     yield (check_props, legend, [
@@ -90,3 +91,14 @@ def test_Legend():
         "legend_spacing",
         "legends"
     ], LABEL, BORDER)
+
+def test_Shade():
+    shade = Shade()
+    yield check_line, shade
+    yield check_fill, shade
+    yield (check_props, shade, [
+        "left",
+        "right",
+        "bottom",
+        "top"
+    ], LINE, FILL)
