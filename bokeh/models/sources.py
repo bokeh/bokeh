@@ -138,7 +138,7 @@ class ColumnDataSource(DataSource):
         return new_data
 
     @classmethod
-    @deprecated("Bokeh 0.9.3")
+    @deprecated("Bokeh 0.9.3", "ColumnDataSource initializer")
     def from_df(cls, data):
         """ Create a ``dict`` of columns from a Pandas DataFrame,
         suitable for creating a ColumnDataSource.
