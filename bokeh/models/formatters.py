@@ -217,7 +217,7 @@ class DatetimeTickFormatter(TickFormatter):
         claim that `timezone`_ makes to support "the full compliment
         of GNU date format specifiers." However, this claim has not
         been tested exhaustively against this list. If you find formats
-        that do not function as expected, please submit a `github issue`,
+        that do not function as expected, please submit a `github issue`_,
         so that the documentation can be updated appropriately.
 
     %a
@@ -253,6 +253,11 @@ class DatetimeTickFormatter(TickFormatter):
     %e
         Like %d, the day of the month as a decimal number, but a
         leading zero is replaced by a space.
+
+    %f
+        Microsecond as a decimal number, zero-padded on the left (range
+        000000-999999). This is an extension to the set of directives
+        available to `timezone`_.
 
     %F
         Equivalent to %Y-%m-%d (the ISO 8601 date format).
@@ -297,6 +302,13 @@ class DatetimeTickFormatter(TickFormatter):
 
     %n
         A newline character.
+
+    %N
+        Nanosecond as a decimal number, zero-padded on the left (range
+        000000000-999999999). Supports a padding width specifier, i.e.
+        %3N displays 3 leftmost digits. However, this is only accurate
+        to the millisecond level of precision due to limitations of
+        `timezone`_.
 
     %p
         Either "AM" or "PM" according to the given time value, or the
