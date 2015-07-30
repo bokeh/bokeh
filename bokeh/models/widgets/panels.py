@@ -38,3 +38,14 @@ class Tabs(Widget):
     The index of the active tab.
     """)
 
+    def on_click(self, handler):
+        """ Set up a handler for tab link clicks.
+
+        Args:
+            handler (func) : handler function to call when button is activated.
+
+        Returns:
+            None
+
+        """
+        self.on_change('active', lambda obj, attr, old, new: handler(new))

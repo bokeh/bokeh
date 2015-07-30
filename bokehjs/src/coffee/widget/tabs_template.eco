@@ -1,7 +1,7 @@
 <ul class="bk-bs-nav bk-bs-nav-tabs">
   <% for tab, i in @tabs: %>
     <li class="<%= @active(i) %>">
-      <a href="#tab-<%= tab.get('id') %>"><%= tab.get('title') %></a>
+      <a data-index="<%= i %>" href="#tab-<%= tab.get('id') %>"><%= tab.get('title') %></a>
     </li>
   <% end %>
 </ul>
