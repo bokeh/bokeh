@@ -42,9 +42,10 @@ class DropdownView extends ContinuumView
 
     for item in @mget("menu")
       $item = if item?
-        [label, action] = item
-        $a = $('<a></a>').text(label)
-        $a.click(() => @change_input(action))
+        [label, value] = item
+        $a = $('<a></a>').text(label).data('value', value)
+        that = this
+        $a.click((e) -> that.change_input($(this).data('value')))
         $('<li></li>').append($a)
       else
         $divider
