@@ -41,8 +41,10 @@ fill_array_with_vec = (n, m, val) ->
 attach_float = (prog, vbo, att_name, n, visual, name) ->
     # Attach a float attribute to the program. Use singleton value if we can,
     # otherwise use VBO to apply array.
+    vbo.used = true
     if visual[name].fixed_value?
       prog.set_attribute(att_name, 'float', null, visual[name].fixed_value)
+      vbo.used = false
     else
       a = new Float32Array(visual.cache[name + '_array'])
       vbo.set_size(n*4)
@@ -54,10 +56,12 @@ attach_color = (prog, vbo, att_name, n, visual) ->
     # Attach the color attribute to the program. If there's just one color,
     # then use this single color for all vertices (no VBO). Otherwise we
     # create an array and upload that to the VBO, which we attahce to the prog.
-    m = 4    
+    m = 4
+    vbo.used = true
     if visual.color.fixed_value? and visual.alpha.fixed_value?
       rgba = color2rgba(visual.color.fixed_value, visual.alpha.fixed_value)
       prog.set_attribute(att_name, 'vec4', null, rgba)
+      vbo.used = false
 
     else      
       # Get array of colors
@@ -274,6 +278,7 @@ class MarkerGLGlyph extends BaseGLGlyph
     @prog.set_attribute('a_x', 'float', [mainGlyph.glglyph.vbo_x, 0, 0])
     @prog.set_attribute('a_y', 'float', [mainGlyph.glglyph.vbo_y, 0, 0])
     @prog.set_attribute('a_size', 'float', [mainGlyph.glglyph.vbo_s, 0, 0])
+    @prog.set_attribute('a_angle', 'float', [mainGlyph.glglyph.vbo_a, 0, 0])
     
     # Draw directly or using indices. Do not handle indices if they do not 
     # fit in a uint16; WebGL 1.0 does not support uint32.
@@ -281,13 +286,42 @@ class MarkerGLGlyph extends BaseGLGlyph
       return
     else if indices.length == nvertices
       @prog.draw(@gl.POINTS, [0, nvertices])
-    else if nvertices > 65535
-      @prog.draw(@gl.POINTS, [0, nvertices])
-      console.log('BOKEHGL ERROR: cannot handle selections for datasets of over 65535 elements.')
-    else
+    else if nvertices < 65535
       @index_buffer.set_size(indices.length*2)
       @index_buffer.set_data(0, new Uint16Array(indices))
       @prog.draw(@gl.POINTS, @index_buffer)
+    else
+      # Work around the limit that the indexbuffer must be uint16. We draw in chunks.
+      # First collect indices in chunks
+      chunksize = 64000  # 65536
+      chunks = []
+      for i in [0...Math.ceil(nvertices/chunksize)]
+         chunks.push([])
+      for i in [0...indices.length]
+        uint16_index = indices[i] % chunksize
+        chunk = Math.floor(indices[i] / chunksize)
+        chunks[chunk].push(uint16_index)
+      # Then draw each chunk
+      for chunk in [0...chunks.length]
+        these_indices = new Uint16Array(chunks[chunk])
+        offset = chunk * chunksize * 4
+        if these_indices.length == 0
+          continue
+        @prog.set_attribute('a_x', 'float', [mainGlyph.glglyph.vbo_x, 0, offset])
+        @prog.set_attribute('a_y', 'float', [mainGlyph.glglyph.vbo_y, 0, offset])
+        @prog.set_attribute('a_size', 'float', [mainGlyph.glglyph.vbo_s, 0, offset])
+        @prog.set_attribute('a_angle', 'float', [mainGlyph.glglyph.vbo_a, 0, offset])
+        if @vbo_linewidth.used
+          @prog.set_attribute('a_linewidth', 'float', [@vbo_linewidth, 0, offset])
+        if @vbo_fg_color.used
+          @prog.set_attribute('a_fg_color', 'vec4', [@vbo_fg_color, 0, offset * 4])
+        if @vbo_bg_color.used
+          @prog.set_attribute('a_bg_color', 'vec4', [@vbo_bg_color, 0, offset * 4])
+        # The actual drawing
+        @index_buffer.set_size(these_indices.length*2)
+        @index_buffer.set_data(0, these_indices)
+        @prog.draw(@gl.POINTS, @index_buffer)
+
 
   _set_data: (nvertices) ->    
     n = nvertices * 4  # in bytes
