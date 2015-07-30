@@ -13,7 +13,6 @@ these different cases.
 
 from __future__ import absolute_import
 
-from warnings import warn
 import uuid
 
 from .protocol import serialize_json
@@ -34,7 +33,7 @@ def _wrap_in_function(code):
     return 'Bokeh.$(function() {\n%s\n});' % code
 
 
-def components(plot_objects, resources=None):
+def components(plot_objects):
     ''' Return HTML components to embed a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -69,10 +68,6 @@ def components(plot_objects, resources=None):
     from .document import Document
     if isinstance(plot_objects, (PlotObject, Document)):
         plot_objects = [plot_objects]
-    if resources is not None:
-        warn('Because the ``resources`` argument is no longer needed, '
-             'it is deprecated and will be removed in'
-             'a future version.', DeprecationWarning, stacklevel=2)
     all_models = []
     plots = []
     if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
