@@ -29,6 +29,7 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 def _cdn_base_url():
     return "http://cdn.pydata.org"
 
+
 def _get_cdn_urls(version=None, minified=True):
     if version is None:
         if settings.docs_cdn():
@@ -50,26 +51,27 @@ def _get_cdn_urls(version=None, minified=True):
         logger.debug("Getting CDN URL for local dev version will not produce usable URL")
 
     result = {
-        'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
-        'css_files' : ['%s/%s/bokeh-%s%s.css' % (base_url, container, version, _min)],
-        'messages'  : [],
+        'js_files': ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
+        'css_files': ['%s/%s/bokeh-%s%s.css' % (base_url, container, version, _min)],
+        'messages': [],
     }
 
     if len(__version__.split('-')) > 1:
         result['messages'].append({
-            "type" : "warn",
-            "text" : ("Requesting CDN BokehJS version '%s' from Bokeh development version '%s'. "
-                      "This configuration is unsupported and may not work!" % (version, __version__))
+            "type": "warn",
+            "text": ("Requesting CDN BokehJS version '%s' from Bokeh development version '%s'. "
+                     "This configuration is unsupported and may not work!" % (version, __version__))
         })
 
     return result
 
+
 def _get_server_urls(root_url, minified=True):
     _min = ".min" if minified else ""
     result = {
-        'js_files'  : ['%sbokehjs/static/js/bokeh%s.js' % (root_url, _min)],
-        'css_files' : ['%sbokehjs/static/css/bokeh%s.css' % (root_url, _min)],
-        'messages'  : [],
+        'js_files': ['%sbokehjs/static/js/bokeh%s.js' % (root_url, _min)],
+        'css_files': ['%sbokehjs/static/css/bokeh%s.css' % (root_url, _min)],
+        'messages': [],
     }
     return result
 
@@ -187,8 +189,8 @@ class Resources(object):
             self._css_raw = lambda: _inline(css_paths)
         elif self.mode == "relative":
             root_dir = self.root_dir or self._default_root_dir
-            self.js_files = [ relpath(p, root_dir) for p in js_paths ]
-            self.css_files = [ relpath(p, root_dir) for p in css_paths ]
+            self.js_files = [relpath(p, root_dir) for p in js_paths]
+            self.css_files = [relpath(p, root_dir) for p in css_paths]
             base_url = relpath(base_url, root_dir)
         elif self.mode == "absolute":
             self.js_files = list(js_paths)
@@ -217,7 +219,6 @@ class Resources(object):
             raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
         self._log_level = level
 
-
     @property
     def js_raw(self):
         if six.callable(self._js_raw):
@@ -239,8 +240,8 @@ class Resources(object):
 
     def _file_paths(self, files, minified):
         if minified:
-            files = [ root + ".min" + ext for (root, ext) in map(splitext, files) ]
-        return [ join(bokehjsdir(self.dev), file) for file in files ]
+            files = [root + ".min" + ext for (root, ext) in map(splitext, files)]
+        return [join(bokehjsdir(self.dev), f) for f in files]
 
     def _js_paths(self, minified=True, dev=False):
         files = self._default_js_files_dev if self.dev else self._default_js_files
