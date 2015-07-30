@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
-from ..mixins import LineProps, TextProps
+from ..mixins import LineProps, TextProps, FillProps
 from ..enums import Units, Orientation, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from .. import validation
@@ -99,6 +99,10 @@ class Legend(Renderer):
 
     border_props = Include(LineProps, help="""
     The %s for the legend border outline.
+    """)
+
+    background_props = Include(FillProps, help="""
+    The %s for the legend background style.
     """)
 
     label_props = Include(TextProps, help="""
