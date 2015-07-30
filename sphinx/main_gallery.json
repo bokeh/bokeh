@@ -43,7 +43,6 @@
         { "path": "examples/compat/ggplot/step.py",            "name": "step"                                        },
         { "path": "examples/compat/ggplot/xkcd_density.py",    "name": "xkcd_density"                                },
         { "path": "examples/compat/seaborn/violin.py",         "name": "violin"                                      },
-        { "path": "examples/compat/seaborn/kde.py",            "name": "kde"                                         },
         { "path": "examples/compat/seaborn/sinerror.py",       "name": "sinerror"                                    }
     ]
 }

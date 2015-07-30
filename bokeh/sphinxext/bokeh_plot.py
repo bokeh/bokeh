@@ -134,9 +134,9 @@ class BokehPlotDirective(Directive):
     optional_arguments = 2
 
     option_spec = {
-        'source-position' : _source_position,
-        'linenos'         : flag,
-        'emphasize-lines' : unchanged,
+        'source-position': _source_position,
+        'linenos': flag,
+        'emphasize-lines': unchanged,
     }
 
     def run(self):
@@ -170,6 +170,7 @@ class BokehPlotDirective(Directive):
         try:
             source = self._get_source()
         except Exception:
+            app.warn("Unable to generate Bokeh plot at %s:%d:" % (basename(rst_source), self.lineno)),
             node = nodes.error(None,
                                nodes.paragraph(text="Unable to generate Bokeh plot at %s:%d:" % (basename(rst_source), self.lineno)),
                                nodes.paragraph(text=str(sys.exc_info()[1])))
@@ -223,12 +224,15 @@ class BokehPlotDirective(Directive):
         self.state.nested_parse(result, 0, node)
         return node.children
 
+
 # patch open and show and save to be no-ops
 def _open(*args, **kwargs):
     pass
 
+
 def _save(*args, **kwargs):
     pass
+
 
 def _show(obj=None):
     if obj:
@@ -243,6 +247,7 @@ _show.__module__ = io.show.__module__
 webbrowser.open = _open
 io.save = _save
 io.show = _show
+
 
 def _render_plot(source, symbol):
     io._state._document = Document()
@@ -259,14 +264,15 @@ def _render_plot(source, symbol):
         obj = io._obj
     return obj
 
+
 def html_visit_bokeh_plot(self, node):
     env = self.builder.env
     dest_dir = join(self.builder.outdir, node["relpath"])
 
     try:
-        if node.has_key('path'):
+        if "path" in node:
             path = node['path']
-            filename = "bokeh-plot-%s.js" %  hashlib.md5(path.encode('utf-8')).hexdigest()
+            filename = "bokeh-plot-%s.js" % hashlib.md5(path.encode('utf-8')).hexdigest()
             dest_path = join(dest_dir, filename)
             tmpdir = join(env.bokeh_plot_tmpdir, node["relpath"])
             if not exists(tmpdir): makedirs(tmpdir)
@@ -348,9 +354,3 @@ def setup(app):
                  text=(text_visit_bokeh_plot, None),
                  man=(man_visit_bokeh_plot, None))
     app.add_directive('bokeh-plot', BokehPlotDirective)
-
-
-
-
-
-

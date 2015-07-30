@@ -18,7 +18,7 @@ import numpy as np
 from itertools import cycle, islice
 from scipy import interpolate, signal
 
-from .models import GlyphRenderer
+from ..models import GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -62,12 +62,6 @@ def convert_dashes(dash):
     }
     # If the value doesn't exist in the map, then just return the value back.
     return mpl_dash_map.get(dash, dash)
-
-
-def delete_last_col(x):
-    "Just delete the last column of the array."
-    x = np.delete(x, (-1), axis=1)
-    return x
 
 
 def get_props_cycled(col, prop, fx=lambda x: x):

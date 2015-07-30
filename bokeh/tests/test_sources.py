@@ -87,7 +87,7 @@ class TestColumnDataSourcs(unittest.TestCase):
             self.assertEquals(w[0].category, UserWarning)
             self.assertEquals(str(w[0].message), "Unable to find column 'foo' in data source")
 
-class TestServerDataSourcs(unittest.TestCase):
+class TestServerDataSources(unittest.TestCase):
 
     def test_basic(self):
         ds = ServerDataSource()

@@ -100,6 +100,7 @@ locations =
   CompositeTicker:          require '../ticking/composite_ticker'
   DatetimeTicker:           require '../ticking/datetime_ticker'
   DaysTicker:               require '../ticking/days_ticker'
+  FixedTicker:              require '../ticking/fixed_ticker'
   LogTicker:                require '../ticking/log_ticker'
   MonthsTicker:             require '../ticking/months_ticker'
   SingleIntervalTicker:     require '../ticking/single_interval_ticker'

@@ -1,13 +1,14 @@
-from ggplot import *
-from bokeh import mpl
-from bokeh.plotting import show
+from ggplot import aes, geom_line, ggplot, meat
 import matplotlib.pyplot as plt
 
-g = ggplot(aes(x='date', y='beef'), data=meat) + \
-    geom_line()
+from bokeh import mpl
+from bokeh.plotting import output_file, show
 
+g = ggplot(aes(x='date', y='beef'), data=meat) + geom_line()
 g.draw()
 
 plt.title("Line ggplot-based plot in Bokeh.")
 
-show(mpl.to_bokeh(name="line"))
+output_file("line.html")
+
+show(mpl.to_bokeh())
