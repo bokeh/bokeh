@@ -4,7 +4,7 @@ from bokeh.plotting import output_file, figure, show
 x = np.linspace(0, 4*np.pi, 100)
 y = np.sin(x)
 
-output_file("legend_border.html")
+output_file("legend_background.html")
 
 p = figure()
 
@@ -17,8 +17,10 @@ p.line(x, 2*y, legend="2*sin(x)",
 p.square(x, 3*y, legend="3*sin(x)", fill_color=None, line_color="green")
 p.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
-p.legend.border_line_width = 3
-p.legend.border_line_color = "navy"
-p.legend.border_line_alpha = 0.5
+#  3*sin(x) curve should be under this legend at initial viewing, so
+# we can see that the legend is transparent
+p.legend.orientation = "bottom_right"
+p.legend.background_fill_color = "navy"
+p.legend.background_fill_alpha = 0.5
 
 show(p)
