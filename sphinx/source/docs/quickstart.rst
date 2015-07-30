@@ -9,10 +9,10 @@ Introduction
 Bokeh is a Python interactive visualization library that targets modern web
 browsers for presentation providing elegant, concise construction of novel
 graphics with high-performance interactivity over very large or streaming
-datasets in quick and easy way.
+datasets in a quick and easy way.
 
 Offering both powerful and flexible features to enable very advanced
-customizations in one hand and simplicity on the other Bokeh exposes different
+customizations in one hand and simplicity on the other, Bokeh exposes different
 interface levels to the users:
 
 * a *low-level* |bokeh.models| interface that provides the most flexibility
@@ -22,7 +22,7 @@ interface levels to the users:
 * a *high-level* |bokeh.charts| interface that can be used to build complex
   statistical plots as quickly and as simply as possible.
 
-This Quickstart focuses the |bokeh.plotting| interface.
+This Quickstart focuses on the |bokeh.plotting| interface.
 
 Quick Installation
 ==================
@@ -37,12 +37,12 @@ enter this command at a Bash or Windows command prompt:
     conda install bokeh
 
 This installs all the dependencies that you need to be ready to run Bokeh
-and we strongly recommend using it. It reduces the installation effort nearly
-to zero on any platform and configuration (including Windows). It also
+and we strongly recommend using it. It reduces the installation effort to
+nearly zero on any platform and configuration (including Windows). It also
 installs the examples into the ``examples/`` subdirectory of your Anaconda (or
 miniconda) installation directory.
 
-If you are confident you have dependencies like NumPy, Pandas, and Redis
+If you are confident that you have dependencies such as NumPy, Pandas, and Redis
 installed, then you can also use ``pip`` at the command line:
 
 .. code-block:: sh
@@ -50,7 +50,7 @@ installed, then you can also use ``pip`` at the command line:
     pip install bokeh
 
 .. note::
-    The ``pip`` method does not install the examples. Clone the git repository
+    The ``pip`` method does not install the examples. Clone the Git repository
     and look in the ``examples/`` directory of the checkout to see examples.
 
 Windows users, see :ref:`install_windows` in the :ref:`installation` section.
@@ -65,7 +65,7 @@ detailed information please consult the full :ref:`userguide`.
 
 Let's begin with some examples.
 
-Plotting some data in basic python lists as a line chart including zoom,
+Plotting some data in basic Python lists as a line chart including zoom,
 pan, resize, save, and other tools is simple and straightforward:
 
 .. bokeh-plot::
@@ -145,14 +145,14 @@ plot as shown below:
     # show the results
     show(p)
 
-IPython Notebooks
+Jupyter Notebooks
 =================
 
-At this point we should mention IPython notebooks.
+At this point we should mention Jupyter (formerly IPython) notebooks.
 
-IPython notebooks are a fantastic tool for exploratory data analysis, and they
+Jupyter notebooks are a fantastic tool for exploratory data analysis, and they
 are widely used across the "PyData" community. Bokeh integrates seamlessly with
-IPython notebooks. To view the above examples in a notebook, you would only change
+Jupyter notebooks. To view the above examples in a notebook, you would only change
 |output_file| to a call to |output_notebook| instead.
 
 A large number of static examples may be viewed directly online at the
@@ -167,7 +167,7 @@ navigate there and run::
 You can open and interact with any of the notebooks listed in the index page
 that automatically opens up. In particular, you might check out the
 `interact_basic`_ and `interact_numba`_ examples that show how Bokeh can
-be used together with IPython interactive widgets.
+be used together with Jupyter interactive widgets.
 
 .. _quickstart_other_languages:
 
@@ -176,8 +176,8 @@ Other Languages
 
 Bokeh's architecture makes it easy to create bindings for Bokeh in other
 languages, and in fact several already exist. We are obviously big Python
-fans, but having many language options is a compelling feature. See some
-of  the other ways to use bokeh:
+fans, but having many language options is a compelling feature. Here are some
+of the other ways to use Bokeh:
 
 * `Bokeh for R`_
 * `Bokeh for Scala`_

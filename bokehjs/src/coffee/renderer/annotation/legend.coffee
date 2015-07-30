@@ -28,6 +28,7 @@ class LegendView extends PlotWidget
     super(options)
     @label_props = new properties.Text({obj:@model, prefix: 'label_'})
     @border_props = new properties.Line({obj: @model, prefix: 'border_'})
+    @background_props = new properties.Fill({obj: @model, prefix: 'background_'})
     @need_calc_dims = true
     @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
@@ -83,13 +84,15 @@ class LegendView extends PlotWidget
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
-    ctx.fillStyle = @plot_model.get('background_fill')
-    @border_props.set_value(ctx)
     ctx.beginPath()
     ctx.rect(@box_coords[0], @box_coords[1],
       @legend_width, @legend_height
     )
+    # Populate background fill properties (fill_color/fill_alpha) for legend,
+    # defaulting to opaque white
+    @background_props.set_value(ctx)
     ctx.fill()
+    @border_props.set_value(ctx)
     ctx.stroke()
     legend_spacing = @mget('legend_spacing')
     for [legend_name, glyphs], idx in @mget("legends")
@@ -129,6 +132,9 @@ class Legend extends HasParent
       border_line_cap: 'butt'
       border_line_dash: []
       border_line_dash_offset: 0
+
+      background_fill_color: '#fff'
+      background_fill_alpha: 1.0
 
       label_standoff: 15
       label_text_font: "helvetica"

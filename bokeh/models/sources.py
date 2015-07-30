@@ -7,6 +7,7 @@ from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
 from .actions import Callback
+from bokeh.deprecate import deprecated
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -76,11 +77,12 @@ class ColumnsRef(HasProps):
 class ColumnDataSource(DataSource):
     """ Maps names of columns to sequences or arrays.
 
-    If the ColumnDataSource initializer is called with a single
-    argument that is a dict, that argument is used as the value for
-    the "data" attribute. For example::
+    If the ColumnDataSource initializer is called with a single argument that
+    is a dict or pandas.DataFrame, that argument is used as the value for the
+    "data" attribute. For example::
 
         ColumnDataSource(mydict) # same as ColumnDataSource(data=mydict)
+        ColumnDataSource(df) # same as ColumnDataSource(data=df)
 
     .. note::
         There is an implicit assumption that all the columns in a
@@ -94,8 +96,8 @@ class ColumnDataSource(DataSource):
     """)
 
     def __init__(self, *args, **kw):
-        """ If called with a single argument that is a dict, treat
-        that implicitly as the "data" attribute.
+        """ If called with a single argument that is a dict or
+        pandas.DataFrame, treat that implicitly as the "data" attribute.
         """
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
@@ -104,15 +106,39 @@ class ColumnDataSource(DataSource):
         if not isinstance(raw_data, dict):
             import pandas as pd
             if isinstance(raw_data, pd.DataFrame):
-                raw_data = self.from_df(raw_data)
+                raw_data = self._data_from_df(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         for name, data in raw_data.items():
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
 
-    # TODO: (bev) why not just return a ColumnDataSource?
+    @staticmethod
+    def _data_from_df(df):
+        """ Create a ``dict`` of columns from a Pandas DataFrame,
+        suitable for creating a ColumnDataSource.
+
+        Args:
+            df (DataFrame) : data to convert
+
+        Returns:
+            dict(str, list)
+
+        """
+        index = df.index
+        new_data = {}
+        for colname in df:
+            new_data[colname] = df[colname].tolist()
+        if index.name:
+            new_data[index.name] = index.tolist()
+        elif index.names and not all([x is None for x in index.names]):
+            new_data["_".join(index.names)] = index.tolist()
+        else:
+            new_data["index"] = index.tolist()
+        return new_data
+
     @classmethod
+    @deprecated("Bokeh 0.9.3", "ColumnDataSource initializer")
     def from_df(cls, data):
         """ Create a ``dict`` of columns from a Pandas DataFrame,
         suitable for creating a ColumnDataSource.
@@ -124,17 +150,9 @@ class ColumnDataSource(DataSource):
             dict(str, list)
 
         """
-        index = data.index
-        new_data = {}
-        for colname in data:
-            new_data[colname] = data[colname].tolist()
-        if index.name:
-            new_data[index.name] = index.tolist()
-        elif index.names and not all([x is None for x in index.names]):
-            new_data["_".join(index.names)] = index.tolist()
-        else:
-            new_data["index"] = index.tolist()
-        return new_data
+        import warnings
+        warnings.warn("Method deprecated in Bokeh 0.9.3")
+        return cls._data_from_df(data)
 
     def to_df(self):
         """ Convert this data source to pandas dataframe.

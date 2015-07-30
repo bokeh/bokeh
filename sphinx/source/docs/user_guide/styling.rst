@@ -328,6 +328,25 @@ of *(start, end)*:
 
 .. _userguide_styling_axes_tick_lines:
 
+Tick Locations
+~~~~~~~~~~~~~~
+
+Bokeh has several "ticker" models that can choose nice locations for ticks.
+These are configured on the ``.ticker`` property of an axis. With the
+|bokeh.plotting| and |bokeh.charts| interfaces, choosing an approriate ticker
+type (categorical, datetime, linear or log scale) normally happens
+automatically. However, there are cases when more explicit control is
+useful.
+
+``FixedTicker``
+'''''''''''''''
+
+This ticker model allows users to specify exact tick locations
+explicitly.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_fixed_ticker.py
+    :source-position: above
+
 Tick Lines
 ~~~~~~~~~~
 
@@ -555,7 +574,7 @@ The default location is ``"top_right"``.
 Label Text
 ~~~~~~~~~~
 
-The visual appearance of the legend labels is controlled by  a collection of
+The visual appearance of the legend labels is controlled by a collection of
 `Text Properties`_, prefixed with ``label_``. For instance, to set the font
 style of the labels, use ``label_text_font_style``.
 
@@ -565,12 +584,23 @@ style of the labels, use ``label_text_font_style``.
 Border
 ~~~~~~
 
-The visual appearance of the legend border is controlled by  a collection of
+The visual appearance of the legend border is controlled by a collection of
 `Line Properties`_, prefixed with ``border_``. For instance, to set the color
 of the border, use ``border_line_color``. To make the border invisible, set
 the border line color to ``None``.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_border.py
+    :source-position: above
+
+Background
+~~~~~~~~~~
+
+The visual appearance of the legend background is controlled by a collection
+of `Fill Properties`_, prefixed with ``background_``. For instance, to set the
+color of the background, use ``background_fill_color``. To make the background
+transparent, set the ``background_fill_alpha`` to ``0``.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_background.py
     :source-position: above
 
 Dimensions

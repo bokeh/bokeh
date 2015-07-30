@@ -1,3 +1,46 @@
+2015-07-23    0.9.2:
+--------------------
+  * Several nan-related fixes including the slow rendering of plots
+  * Removed some unused dependencies
+  * Fixes in our automated release process
+  * Fixed the patchs vanishing on selection
+  * More control over ticks and gridlines
+  * MPL compatibility updated
+  * Several examples updated
+  * bugfixes:
+    - #735 Inconsistent conversion of np.nan to json data in bokehjs
+    - #1005 Nan in data source column causes problem with glyph interface
+    - #1039 Bokeh server can display an empty document without any visible errors
+    - #1075 [tests] Test failure if websocket client is not installed
+    - #1139 Hover tool swaps sides at an off-center position
+    - #1176 Session.store_document() fails in table_server example
+    - #1264 Stock app fails to refresh after drop down is updated
+    - #1381 Fill_color argument doesn't handle rgb(a) tuples properly
+    - #2513 Fix release script failures
+    - #2514 Bug: all patches vanish on selection
+    - #2524 Setting a fixed font size value as a string is deprecated warnings
+    - #2529 [docs] Internal server error on quickstart
+    - #2582 [bokehjs] [regression] Slow plot rendering for 0.9.1
+    - #2586 [bokehjs] Decimated glyph needs visuals set also
+    - #2593 [docs] Fix typo in charts user guide
+    - #2600 [bokehjs] Hotfix/fixed ticker
+  * features:
+    - #194 [widgets] Widget/controls integration
+    - #2379 Get a warning about an invalid column name
+    - #2496 Improve mouseover information in texas example
+    - #2548 [bokehjs] Need more control over ticks and gridlines
+  * tasks:
+    - #2441 Warning when instantiating plot with no arguments
+    - #2540 Add console warning when bokeh-plot fails
+    - #2541 [docs] Breaking out inline plot examples in user guide into files
+    - #2543 Mpl update
+    - #2546 Clean up examples, use standard bokeh.io output
+    - #2547 [docs] Fix typo in components deprecation message
+    - #2554 [branches] Fix bug on ie (avoid using indices)
+    - #2577 [docs] Editing up to concepts
+    - #2598 Serializing data with numpy optional
+    - #2605 Hotfixes 0.9.2
+
 2015-07-03    0.9.1:
 --------------------
   * New callbacks options for hover, selection, and range updates

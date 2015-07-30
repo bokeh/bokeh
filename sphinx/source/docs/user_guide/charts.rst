@@ -33,7 +33,7 @@ All charts support a set of common arguments:
 
 ``width`` *(int)* : the width of your plot in pixels.
 
-``height`` *(int)* : the height of you plot in pixels.
+``height`` *(int)* : the height of your plot in pixels.
 
 ``tools`` *(str or bool)* : to enable or disable the tools in your chart.
 
