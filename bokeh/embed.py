@@ -20,7 +20,7 @@ from .protocol import serialize_json
 from .resources import Resources
 from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
+    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, JS_RESOURCES, CSS_RESOURCES
 )
 from .util.string import encode_utf8
 
@@ -187,7 +187,7 @@ def file_html(plot_object, resources, title, template=FILE, template_variables=N
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
-            title, plot_resources, plot_script, plot_div
+            title, js_resources, css_resources, plot_script, plot_div
 
     Returns:
         html : standalone HTML document with embedded plot
@@ -197,19 +197,37 @@ def file_html(plot_object, resources, title, template=FILE, template_variables=N
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 
-    plot_resources = RESOURCES.render(
-        js_raw = resources.js_raw,
-        css_raw = resources.css_raw,
-        js_files = resources.js_files,
-        css_files = resources.css_files,
-    )
+    bokeh_js = ""
+    bokeh_css = ""
+
+    try:
+        bokeh_js = JS_RESOURCES.render(
+            js_raw=resources.js_raw,
+            js_files=resources.js_files,
+        )
+    except AttributeError:
+        warn(
+            'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
+        )
+
+    try:
+        bokeh_css = CSS_RESOURCES.render(
+            css_raw=resources.css_raw,
+            css_files=resources.css_files,
+        )
+    except AttributeError:
+        warn(
+            'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
+        )
+
     script, div = components(plot_object)
     template_variables_full = \
         template_variables.copy() if template_variables is not None else {}
     template_variables_full.update(
         {
             'title': title,
-            'plot_resources': plot_resources,
+            'bokeh_js': bokeh_js,
+            'bokeh_css': bokeh_css,
             'plot_script': script,
             'plot_div': div,
         }

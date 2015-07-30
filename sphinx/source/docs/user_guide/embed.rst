@@ -41,6 +41,12 @@ operations.
     typically call the function |output_file| in conjuction with |show| or
     |save| instead.
 
+You can also provide your own template and pass in custom, or additional, template variables.
+See the |file_html| function for more details. You can see an example of this
+in the `gapminder example plot`_.
+
+.. _gapminder example plot: https://github.com/bokeh/bokeh/blob/master/examples/interactions/interactive_bubble/gapminder.py
+
 .. _userguide_embed_components:
 
 Components

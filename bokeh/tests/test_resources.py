@@ -21,6 +21,40 @@ LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
+
+class TestJSResources(unittest.TestCase):
+
+    def test_basic(self):
+        r = resources.JSResources()
+        self.assertEqual(r.mode, "inline")
+
+    def test_inline_has_no_css(self):
+        r = resources.JSResources(mode="inline")
+        self.assertEqual(r.mode, "inline")
+        self.assertEqual(r.dev, False)
+
+        self.assertEqual(len(r.js_raw), 2)
+        self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW)
+        self.assertFalse(hasattr(r, 'css_raw'))
+        self.assertEqual(r.messages, [])
+
+
+class TestCSSResources(unittest.TestCase):
+
+    def test_basic(self):
+        r = resources.CSSResources()
+        self.assertEqual(r.mode, "inline")
+
+    def test_inline(self):
+        r = resources.CSSResources(mode="inline")
+        self.assertEqual(r.mode, "inline")
+        self.assertEqual(r.dev, False)
+
+        self.assertFalse(hasattr(r, 'js_raw'))
+        self.assertEqual(len(r.css_raw), 1)
+        self.assertEqual(r.messages, [])
+
+
 class TestResources(unittest.TestCase):
 
     def test_basic(self):
