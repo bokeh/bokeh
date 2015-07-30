@@ -73,10 +73,14 @@ class Legend(Renderer):
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
 
-class Shade(Renderer):
+class BoxAnnotation(Renderer):
     """ Render an annotation box "shade" thing
 
     """
+    plot = Instance(".models.plots.Plot", help="""
+    The Plot to which this Legend is attached.
+    """)
+
     left = Either(Auto, NumberSpec("left"), help="""
     The x-coordinates of the left edges.
     """)
