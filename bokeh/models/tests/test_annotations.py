@@ -1,6 +1,6 @@
 from __future__ import  absolute_import
 
-from bokeh.models.annotations import Legend, Shade
+from bokeh.models.annotations import Legend, BoxAnnotation
 from bokeh.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -83,15 +83,15 @@ def test_Legend():
         "legends"
     ], LABEL, BORDER)
 
-def test_Shade():
-    shade = Shade()
-    assert shade.left == 'auto'
-    assert shade.right == 'auto'
-    assert shade.bottom == 'auto'
-    assert shade.top == 'auto'
-    yield check_line, shade
-    yield check_fill, shade
-    yield (check_props, shade, [
+def test_BoxAnnotation():
+    box = BoxAnnotation()
+    assert box.left == 'auto'
+    assert box.right == 'auto'
+    assert box.bottom == 'auto'
+    assert box.top == 'auto'
+    yield check_line, box
+    yield check_fill, box
+    yield (check_props, box, [
         "left",
         "right",
         "bottom",
