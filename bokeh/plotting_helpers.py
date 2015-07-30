@@ -1,10 +1,11 @@
 from __future__ import absolute_import
 
 from collections import Iterable, OrderedDict, Sequence
-import itertools
-import numpy as np
-import re
 import difflib
+import itertools
+import re
+
+import numpy as np
 from six import string_types
 
 from .models import (
@@ -115,6 +116,12 @@ def _process_sequence_literals(glyphclass, kwargs, source):
     dataspecs = glyphclass.dataspecs_with_refs()
     for var, val in kwargs.items():
 
+        # ignore things that are not iterable
+        if not isinstance(val, Iterable): continue
+
+        # pass dicts (i.e., values or fields) on as-is
+        if isinstance(val, dict): continue
+
         # let any non-dataspecs do their own validation (e.g., line_dash properties)
         if var not in dataspecs: continue
 
@@ -125,14 +132,11 @@ def _process_sequence_literals(glyphclass, kwargs, source):
         if (isinstance(dataspecs[var], ColorSpec) and ColorSpec.is_color_tuple(val)):
             continue
 
-        if isinstance(val, np.ndarray):
-            if val.ndim != 1:
-                raise RuntimeError("Columns need to be 1D (%s is not)" % var)
-            source.add(val, name=var)
-            kwargs[var] = var
-        elif isinstance(val, Iterable):
-            source.add(val, name=var)
-            kwargs[var] = var
+        if isinstance(val, np.ndarray) and val.ndim != 1:
+            raise RuntimeError("Columns need to be 1D (%s is not)" % var)
+
+        source.add(val, name=var)
+        kwargs[var] = var
 
 def _make_glyph(glyphclass, kws, extra):
         kws = kws.copy()

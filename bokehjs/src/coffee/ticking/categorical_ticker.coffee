@@ -7,7 +7,8 @@ class CategoricalTicker extends HasProperties
     majors = []
     factors = range.get("factors")
     for i in [0...factors.length]
-      if (i+1) > start and (i+1) < end
+      ii = i + range.get('offset')
+      if (ii+1) > start and (ii+1) < end
         majors.push(factors[i])
     return {
       "major": majors
