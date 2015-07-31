@@ -4,6 +4,8 @@ types that Bokeh supports.
 """
 from __future__ import absolute_import
 
+import logging
+
 from six import string_types
 
 from ..plot_object import PlotObject
@@ -16,6 +18,9 @@ from .. import validation
 
 from .sources import DataSource
 from .glyphs import Glyph
+
+logger = logging.getLogger(__name__)
+
 
 class Renderer(PlotObject):
     """ A base class for renderer types. ``Renderer`` is not
@@ -59,11 +64,17 @@ class GlyphRenderer(Renderer):
         broken = []
 
         for label in labels:
-            for value in self.data_source.data[vm[label]['field']]:
-                if not isinstance(value, string_types): break
-                if ':' in value:
-                    broken.append((vm[label]['field'], value))
-                    break
+            try:
+                for value in self.data_source.data[vm[label]['field']]:
+                    if not isinstance(value, string_types): break
+                    if ':' in value:
+                        broken.append((vm[label]['field'], value))
+                        break
+            except KeyError:
+                logging.info(
+                    'Can\'t check category labels for %s data source',
+                    self.data_source
+                )
 
         if broken:
             field_msg = ' '.join('[field:%s] [first_value: %s]' % (field, value)
