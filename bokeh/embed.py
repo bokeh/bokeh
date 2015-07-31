@@ -35,7 +35,7 @@ def _wrap_in_function(code):
     return 'Bokeh.$(function() {\n%s\n});' % code
 
 
-def components(plot_objects, resources=None):
+def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=True):
     ''' Return HTML components to embed a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -46,7 +46,7 @@ def components(plot_objects, resources=None):
     Args:
         plot_objects (PlotObject|list|dict|tuple) :
         The |components| function takes either a single PlotObject, a list/tuple of
-        PlotObjects, or a dictionary of keys and PlotObjects. Each returns
+        PlotObjects, or a dictionary of keys and PlotObjects. The default returned items are
         a corresponding data structure of script and div pairs.
 
         The following illustrates how different input types correlate to outputs:
@@ -64,56 +64,37 @@ def components(plot_objects, resources=None):
 
         resources : Deprecated argument
 
-    Returns:
-        (script, div[s]): UTF-8 encoded
-    '''
-    all_models, plots, plot_info, divs = build_components(plot_objects, resources)
-    script = _get_script(all_models, plots)
-    return encode_utf8(script), divs
+        wrap_script (boolean, optional): If set to false, the returned javascript is not wrapped
+        in a script tag. (default: True)
 
-
-def raw_components(plot_objects):
-    ''' Return the javascript code and the plotinfo dictionary that can be used to embed a bokeh plot
-    into an html template. Unlike the |components| method, this does not wrap the javascript or
-    id in a <script> or <div> tag. The user must do this manually, allowing for complete customization
-    on the html side.
-
-    The plot_info for each plot is a dictionary with the following information:
+        wrap_plot_info (boolean, optional): If true, then a set of divs are returned as described
+        above. If set to false, then dictionaries are returned that can be used to manually
+        build your own divs. The dictionary contains following information:
         {
             'modelid':  'The plots id, which can be used in the Bokeh.index',
             'elementid': 'The css identifier the BokehJS will look for to target the plot',
             'modeltype': 'Plot',
         }
+        (default: True)
 
-    If a local datasource is used, the data for the plot is stored directly in the returned javascript.
-
-    Also see the |components| method.
-
-    Args:
-        plot_objects (PlotObject|list|dict|tuple) :
-        The |raw_components| function takes either a single PlotObject, a list/tuple of
-        PlotObjects, or a dictionary of keys and PlotObjects.
-
-        The following illustrates how different input types correlate to outputs:
-
-            components(plot)
-            #=> (raw_script, plot_info)
-
-            components((plot_1, plot_2))
-            #=> (raw_script, (plot_1_info, plot_2_info))
-
-            components({"Plot 1": plot_1, "Plot 2": plot_2})
-            #=> (raw_script, {"Plot 1": plot_1_info, "Plot 2": plot_2_info})
 
     Returns:
-        (script, plotid[s]): UTF-8 encoded
+        (script, div[s]): UTF-8 encoded
+        or
+        (raw_script, plot_info[s]): UTF-8 encoded
     '''
-    all_models, plots, plot_info, divs = build_components(plot_objects)
-    js = _get_js(all_models, plots)
-    return encode_utf8(js), plot_info
+    all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
+
+    if wrap_script:
+        script = _get_script(all_models, plots)
+    else:
+        script = _get_js(all_models, plots)
+    script = encode_utf8(script)
+
+    return script, divs if wrap_plot_info else plot_info
 
 
-def build_components(plot_objects, resources=None):
+def _get_components(plot_objects, resources=None):
     plot_objects = _check_components_input(plot_objects, resources)
 
     all_models = []
