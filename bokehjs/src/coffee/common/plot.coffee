@@ -330,7 +330,7 @@ class PlotView extends ContinuumView
       ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
       for prefix in ['image', 'mozImage', 'webkitImage','msImage']
          ctx[prefix + 'SmoothingEnabled'] = true
-      #console.log('drawing with WebGL')
+      logger.debug('drawing with WebGL')
 
     @_render_levels(ctx, ['overlay', 'tool'])
 
