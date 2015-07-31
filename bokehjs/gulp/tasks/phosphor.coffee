@@ -478,12 +478,17 @@ buildPymodelsFromFile = (file, config) ->
         if h.resolved
           place(h.resolved)
 
+      placeType = (type) ->
+        if type.resolved and not (type.resolved instanceof Enum)
+          place(type.resolved)
+
       # we also need any types we reference for props, parameters
       # to come before us
       for p in c.properties
-        if p.type.resolved and not (p.type.resolved instanceof Enum)
-          place(p.type.resolved)
-        # TODO handle array element types here
+        placeType(p.type)
+
+        if p.type instanceof ArrayType
+          placeType(p.type.elementType)
 
       # TODO: methods, constructors need to
       # handle their parameters here
