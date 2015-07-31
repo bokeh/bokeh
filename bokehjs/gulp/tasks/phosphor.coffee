@@ -139,7 +139,7 @@ class Property
             if type.resolved instanceof Enum
               """Enum(#{type.name})"""
             else
-              """Instance(#{type.name})"""
+              """Instance("#{type.name}")"""
           else
             null
     else if type instanceof ArrayType
