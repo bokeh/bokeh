@@ -93,7 +93,13 @@ Building BokehJS with Gulp
 Below are the main Gulp commands for development (to be executed from
 the ``bokehjs`` subdirectory). To run these commands, you can either
 use ``bokehjs/node_modules/.bin/gulp``, install Gulp globally via
-`npm`, or install gulp via conda (recommended):
+`npm`:
+
+.. code-block:: sh
+
+    npm install -g gulp
+
+or install gulp via conda (recommended):
 
 .. code-block:: sh
 
@@ -114,7 +120,7 @@ trigger a recompile if any source file changes:
     gulp watch
 
 To enable inline coffeescript source mapping, you may add the ``--debug`` flag
-to either of the ``gulp build`` or ``gulp watch`` commands:
+to any of the ``gulp``, ``gulp build``, or ``gulp watch`` commands:
 
 .. code-block:: sh
 
