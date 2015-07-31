@@ -28,9 +28,10 @@ from .plot_object import PlotObject
 from collections import Sequence
 from six import string_types
 
+
 def _wrap_in_function(code):
     # Indent and wrap Bokeh function def around
-    code = "\n".join([ "    " + line for line in code.split("\n") ])
+    code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
 
@@ -66,32 +67,8 @@ def components(plot_objects, resources=None):
     Returns:
         (script, div[s]): UTF-8 encoded
     '''
-    plot_objects = _check_components_input(plot_objects, resources)
-
-    if isinstance(plot_objects, Sequence):
-        all_models = []
-        plots = []
-        divs = []
-        for idx, plot_object in enumerate(plot_objects):
-            elementid = str(uuid.uuid4())
-            _append_plot(all_models, plots, plot_object, elementid)
-            divs = _append_div(elementid, divs)
-        if len(divs) == 1:
-            divs = divs[0]
-        else:
-            divs = tuple(divs)
-
-    if isinstance(plot_objects, dict):
-        all_models = []
-        plots = []
-        divs = {}
-        for key in plot_objects.keys():
-            elementid = str(uuid.uuid4())
-            _append_plot(all_models, plots, plot_objects[key], elementid)
-            divs = _append_div(elementid, divs, key)
-
+    all_models, plots, plot_info, divs = build_components(plot_objects, resources)
     script = _get_script(all_models, plots)
-
     return encode_utf8(script), divs
 
 
@@ -131,28 +108,39 @@ def raw_components(plot_objects):
     Returns:
         (script, plotid[s]): UTF-8 encoded
     '''
-    plot_objects = _check_components_input(plot_objects)
+    all_models, plots, plot_info, divs = build_components(plot_objects)
+    js = _get_js(all_models, plots)
+    return encode_utf8(js), plot_info
+
+
+def build_components(plot_objects, resources=None):
+    plot_objects = _check_components_input(plot_objects, resources)
+
     all_models = []
     plots = []
 
     if isinstance(plot_objects, Sequence):
+        divs = []
         for idx, plot_object in enumerate(plot_objects):
             elementid = str(uuid.uuid4())
             _append_plot(all_models, plots, plot_object, elementid)
-        if len(plots) == 1:
+            divs = _append_div(elementid, divs)
+        if len(divs) == 1:
+            divs = divs[0]
             plot_info = plots[0]
         else:
+            divs = tuple(divs)
             plot_info = tuple(plots)
 
     if isinstance(plot_objects, dict):
+        divs = {}
         plot_info = {}
         for key in plot_objects.keys():
             elementid = str(uuid.uuid4())
             plot_info[key] = _append_plot(all_models, plots, plot_objects[key], elementid)
+            divs = _append_div(elementid, divs, key)
 
-    js = _get_js(all_models, plots)
-
-    return encode_utf8(js), plot_info
+    return all_models, plots, plot_info, divs
 
 
 def _check_components_input(plot_objects, resources=None):
@@ -173,8 +161,8 @@ def _check_components_input(plot_objects, resources=None):
         input_type_valid = True
 
     if isinstance(plot_objects, dict) and \
-         all(isinstance(x, string_types) for x in plot_objects.keys()) and \
-         all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
+       all(isinstance(x, string_types) for x in plot_objects.keys()) and \
+       all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
         input_type_valid = True
 
     if not input_type_valid:
@@ -185,8 +173,8 @@ def _check_components_input(plot_objects, resources=None):
 
 def _get_js(all_models, plots):
     js = PLOT_JS.render(
-        all_models = serialize_json(all_models),
-        plots = plots
+        all_models=serialize_json(all_models),
+        plots=plots
     )
     return _wrap_in_function(js)
 
@@ -194,9 +182,10 @@ def _get_js(all_models, plots):
 def _get_script(all_models, plots):
     js = _get_js(all_models, plots)
     script = PLOT_SCRIPT.render(
-        plot_js = js,
+        plot_js=js,
     )
     return script
+
 
 def _append_plot(all_models, plots, plot_object, elementid):
     ref = plot_object.ref
@@ -209,9 +198,10 @@ def _append_plot(all_models, plots, plot_object, elementid):
     plots.append(plot_info)
     return plot_info
 
+
 def _append_div(elementid, divs=None, key=None):
     div = PLOT_DIV.render(
-        elementid = elementid
+        elementid=elementid
     )
     if isinstance(divs, list):
         divs.append(encode_utf8(div))
@@ -221,6 +211,7 @@ def _append_div(elementid, divs=None, key=None):
         return divs
     else:
         return encode_utf8(div)
+
 
 def notebook_div(plot_object):
     ''' Return HTML for a div that will display a Bokeh plot in an
