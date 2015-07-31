@@ -446,6 +446,10 @@ buildPymodelsFromFile = (file, config) ->
   allClasses = []
   allEnums = []
   dumpModule = (module) ->
+    if module.name == 'virtualdom' or module.name == 'collections'
+      console.log("Skipping module " + module.name)
+      return
+
     #console.log(module.toString())
     for c in module.classes
       allClasses.push(c)
