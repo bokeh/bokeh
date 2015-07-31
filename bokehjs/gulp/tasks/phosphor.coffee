@@ -99,7 +99,7 @@ class ClassOrInterface
     """
 class #{@name}(#{pyparents}):
 
-    __view_model__ = 'phosphor_' + '#{@name}'
+    __view_model__ = 'phosphor_#{@name}'
 
 #{pyproperties}
 
