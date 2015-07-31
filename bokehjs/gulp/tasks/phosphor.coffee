@@ -181,6 +181,8 @@ class Property
         """# omitted property #{@name} with external type #{@type.name}"""
       else if @type instanceof IdentifierType and (@type.name == "ElemTag")
         """# omitted property #{@name} with unhandled type alias type #{@type.name}"""
+      else if @type instanceof IdentifierType and (@type.name == "IContainer")
+        """# omitted property #{@name} because we don't bind type #{@type.name} from di module"""
       else
         throw new Error("Unhandled or unresolved property type " + @type)
 
@@ -213,6 +215,9 @@ class IdentifierType extends Type
 
   resolveIdentifiers: (lookup) ->
     @resolved = lookup(@name)
+    if not @resolved
+      if @name not in ["T", "U", "HTMLElement", "ElemTag", "IContainer"]
+        throw new Error("cannot resolve #{@name}")
 
 class ArrayType extends Type
   constructor: (@elementType) ->
@@ -387,8 +392,6 @@ parseFile = (path, contents) ->
             else
               new Interface(node.name.text, supers, methods, properties)
           accumulateClasses.push(c)
-      when ts.SyntaxKind.ModuleDeclaration
-        console.log("moduledecl=" + node.name.text)
       when ts.SyntaxKind.FunctionDeclaration
         console.log("function=" + node.name.text)
       when ts.SyntaxKind.EnumDeclaration
@@ -414,13 +417,16 @@ parseFile = (path, contents) ->
         submodules = []
         classes = []
         enums = []
-        switch node.body.kind
-          when ts.SyntaxKind.ModuleBlock
-            ts.forEachChild(node.body, (child) -> parseModuleChild(node.name.text, child, submodules, classes, enums))
-          when ts.SyntaxKind.ModuleDeclaration
-            parseModules(node.body, submodules)
-          else
-            throw new Error("Unexpected module body " + node.body)
+
+        # leave some modules empty
+        if node.name.text not in ['virtualdom', 'collections', 'di']
+          switch node.body.kind
+            when ts.SyntaxKind.ModuleBlock
+              ts.forEachChild(node.body, (child) -> parseModuleChild(node.name.text, child, submodules, classes, enums))
+            when ts.SyntaxKind.ModuleDeclaration
+              parseModules(node.body, submodules)
+            else
+              throw new Error("Unexpected module body " + node.body)
 
         accumulateModules.push(new Module(node.name.text, submodules, classes, enums))
       when ts.SyntaxKind.EndOfFileToken
@@ -446,10 +452,6 @@ buildPymodelsFromFile = (file, config) ->
   allClasses = []
   allEnums = []
   dumpModule = (module) ->
-    if module.name == 'virtualdom' or module.name == 'collections'
-      console.log("Skipping module " + module.name)
-      return
-
     #console.log(module.toString())
     for c in module.classes
       allClasses.push(c)
@@ -505,7 +507,7 @@ buildPymodelsFromFile = (file, config) ->
 
   if allClasses.length != orderedClasses.length
     console.log("#{allClasses.length} allClasses:\n", allClasses.map((c) -> c.name).join("\n"))
-    console.log("#{orderedClasses.length} orderedClasses:\n", orderedClasses.map((c) -> c.name).join("\n"))
+    console.log("\n#{orderedClasses.length} orderedClasses:\n", orderedClasses.map((c) -> c.name).join("\n"))
     throw new Error("We messed up reordering the classes somehow")
 
   allClasses = orderedClasses
