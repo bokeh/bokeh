@@ -42,7 +42,7 @@ class TabsView extends ContinuumView
         return panel.id == panelId
       ))
       that.model.save('active', panelIdx)
-      that.model.get('callback')?.execute(@model)
+      that.model.get('callback')?.execute(that.model)
 
     $panels = html.children(".bk-bs-tab-pane")
 
