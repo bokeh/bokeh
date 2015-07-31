@@ -74,11 +74,25 @@ class ClassOrInterface
       p.resolveIdentifiers(lookup)
 
   toPython: () ->
+    # we have to fix up inheritance to avoid
+    # something like "Super, SubOfSuper" because
+    # python doesn't allow that.
+    deduplicated = []
+    for h in @heritage
+      redundant = false
+      # h is redundant if any o inherits from it
+      for o in @heritage
+        if h.name != o.name
+          if o.resolved and h.resolved and inheritsFrom(o.resolved, h.resolved)
+            redundant = true
+      if not redundant
+        deduplicated.push(h)
+
     pyparents = null
-    if @heritage.length == 0
+    if deduplicated.length == 0
       pyparents = "PlotObject"
     else
-      pyparents = @heritage.map((h) -> h.name).join()
+      pyparents = deduplicated.map((h) -> h.name).join()
     pyproperties =
       (@properties.map (prop) -> "    " + prop.toPython()).join("\n")
 
