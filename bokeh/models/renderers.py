@@ -11,7 +11,7 @@ from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Units, Orientation, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
-from ..validation.warnings import COLON_IN_CATEGORY_LABEL
+from ..validation.warnings import MALFORMED_CATEGORY_LABEL
 from .. import validation
 
 from .sources import DataSource
@@ -48,7 +48,7 @@ class GlyphRenderer(Renderer):
         if missing:
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
-    @validation.warning(COLON_IN_CATEGORY_LABEL)
+    @validation.warning(MALFORMED_CATEGORY_LABEL)
     def _check_colon_in_category_label(self):
         if not self.glyph: return
         if not self.data_source: return

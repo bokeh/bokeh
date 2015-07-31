@@ -11,7 +11,8 @@ from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..query import find
 from ..util.string import nice_join
-from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS, EMPTY_LAYOUT, COLON_IN_CATEGORY_LABEL
+from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+    EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..validation.errors import REQUIRED_RANGE
 from .. import validation
 
@@ -262,7 +263,7 @@ class Plot(Widget):
         if len(self.select(GlyphRenderer)) == 0:
             return str(self)
 
-    @validation.warning(COLON_IN_CATEGORY_LABEL)
+    @validation.warning(MALFORMED_CATEGORY_LABEL)
     def _check_colon_in_category_label(self):
         if not self.x_range: return
         if not self.y_range: return

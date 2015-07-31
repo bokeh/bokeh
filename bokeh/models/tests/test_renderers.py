@@ -19,8 +19,8 @@ class TestGlyphRenderer(unittest.TestCase):
 
         self.assertEqual(errors, [(
             1003,
-            'COLON_IN_CATEGORY_LABEL',
-            'Category label contains colons',
+            'MALFORMED_CATEGORY_LABEL',
+            'Category labels are malformed',
             '[field:a] [first_value: 1:0] [field:b] [first_value: 1:0] '
             '[renderer: '
             'GlyphRenderer, ViewModel:GlyphRenderer, ref _id: '
@@ -40,8 +40,8 @@ class TestGlyphRenderer(unittest.TestCase):
 
         self.assertEqual(errors, [(
             1003,
-            'COLON_IN_CATEGORY_LABEL',
-            'Category label contains colons',
+            'MALFORMED_CATEGORY_LABEL',
+            'Category labels are malformed',
             '[range:x_range] [first_value: 2:0] '
             '[range:y_range] [first_value: 2:0] '
             '[renderer: Figure, ViewModel:Plot, ref _id: '
@@ -60,8 +60,8 @@ class TestGlyphRenderer(unittest.TestCase):
 
         self.assertEqual(errors, [(
             1003,
-            'COLON_IN_CATEGORY_LABEL',
-            'Category label contains colons',
+            'MALFORMED_CATEGORY_LABEL',
+            'Category labels are malformed',
             '[range:y_range] [first_value: 2:0] '
             '[renderer: Figure, ViewModel:Plot, ref _id: '
             '%s]' % plot._id

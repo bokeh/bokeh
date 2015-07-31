@@ -21,7 +21,7 @@ codes = {
     1000: ("MISSING_RENDERERS",         "Plot has no renderers"),
     1001: ("NO_GLYPH_RENDERERS",        "Plot has no glyph renderers"),
     1002: ("EMPTY_LAYOUT",              "Layout has no children"),
-    1003: ("COLON_IN_CATEGORY_LABEL",   "Category label contains colons"),
+    1003: ("MALFORMED_CATEGORY_LABEL",  "Category labels are malformed"),
     9999: ("EXT",                       "Custom extension reports warning"),
 }
 
