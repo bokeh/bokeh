@@ -175,12 +175,12 @@ class Property
       if spec
         """#{@name} = #{spec}"""
       else if @type instanceof IdentifierType and (@type.name == "T" or @type.name == "U")
-        """# omitted generic property #{@name} with type #{@type.name}"""
+        """#{@name} = Any() # generic property with type #{@type.name}"""
       else if @type instanceof IdentifierType and (@type.name == "HTMLElement")
         # HTMLElement or other DOM types like that
         """# omitted property #{@name} with external type #{@type.name}"""
       else if @type instanceof IdentifierType and (@type.name == "ElemTag")
-        """# omitted prpoerty #{@name} with unhandled type alias type #{@type.name}"""
+        """# omitted property #{@name} with unhandled type alias type #{@type.name}"""
       else
         throw new Error("Unhandled or unresolved property type " + @type)
 
