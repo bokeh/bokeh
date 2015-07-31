@@ -503,11 +503,6 @@ buildPymodelsFromFile = (file, config) ->
 
   # generate the Python
 
-  # TODO remaining issues include
-  #  - classes can't refer to themselves http://stackoverflow.com/questions/1020279/self-referencing-class-definition-in-python
-  #  - circular references like Layout-to-Widget
-  #  - namespace conflicts with models.widgets: Layout, Widget, Panel
-
   builder = ""
   append = (s) ->
     builder = builder + s + "\n"
