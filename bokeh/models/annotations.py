@@ -15,7 +15,7 @@ class Legend(Renderer):
     """ Render informational legends for a plot.
 
     """
-    
+
     plot = Instance(".models.plots.Plot", help="""
     The Plot to which this Legend is attached.
     """)
@@ -26,6 +26,10 @@ class Legend(Renderer):
 
     border_props = Include(LineProps, help="""
     The %s for the legend border outline.
+    """)
+
+    background_props = Include(FillProps, help="""
+    The %s for the legend background style.
     """)
 
     label_props = Include(TextProps, help="""

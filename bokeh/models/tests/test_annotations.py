@@ -6,6 +6,7 @@ from bokeh.enums import (
     TextBaseline)
 
 FILL = ["fill_color", "fill_alpha"]
+BACKGROUND = ['background_fill_color', 'background_fill_alpha']
 BORDER = ["border_line_color", "border_line_width", "border_line_alpha",
     "border_line_join", "border_line_cap", "border_line_dash",
     "border_line_dash_offset"]
@@ -47,6 +48,10 @@ def check_fill(annotation):
     assert annotation.fill_color == Color.gray
     assert annotation.fill_alpha == 1.0
 
+def check_background(annotation):
+    assert annotation.background_fill_color == Color.gray
+    assert annotation.background_fill_alpha == 1.0
+
 def check_line(annotation):
     assert annotation.line_color == Color.black
     assert annotation.line_width == 1
@@ -70,6 +75,7 @@ def test_Legend():
     assert legend.legends == []
     yield check_border, legend
     yield check_label, legend
+    yield check_background, legend
     yield (check_props, legend, [
         "plot",
         "orientation",
@@ -81,7 +87,7 @@ def test_Legend():
         "legend_padding",
         "legend_spacing",
         "legends"
-    ], LABEL, BORDER)
+    ], LABEL, BORDER, BACKGROUND)
 
 def test_BoxAnnotation():
     box = BoxAnnotation()
