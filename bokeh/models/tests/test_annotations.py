@@ -6,10 +6,7 @@ from bokeh.enums import (
     TextBaseline)
 
 FILL = ["fill_color", "fill_alpha"]
-<<<<<<< HEAD
 BACKGROUND = ['background_fill_color', 'background_fill_alpha']
-=======
->>>>>>> cc5c574870c378e26247b496cbd919e0eb2d689f
 BORDER = ["border_line_color", "border_line_width", "border_line_alpha",
     "border_line_join", "border_line_cap", "border_line_dash",
     "border_line_dash_offset"]
@@ -18,7 +15,6 @@ LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
 LABEL = ["label_text_font", "label_text_font_size", "label_text_font_style",
     "label_text_color", "label_text_alpha", "label_text_align",
     "label_text_baseline"]
-
 PROPS = ["session", "name", "tags"]
 
 def check_border(annotation):
@@ -51,13 +47,10 @@ def check_fill(annotation):
     assert annotation.fill_color == Color.gray
     assert annotation.fill_alpha == 1.0
 
-<<<<<<< HEAD
 def check_background(annotation):
     assert annotation.background_fill_color == Color.gray
     assert annotation.background_fill_alpha == 1.0
 
-=======
->>>>>>> cc5c574870c378e26247b496cbd919e0eb2d689f
 def check_line(annotation):
     assert annotation.line_color == Color.black
     assert annotation.line_width == 1
@@ -81,10 +74,7 @@ def test_Legend():
     assert legend.legends == []
     yield check_border, legend
     yield check_label, legend
-<<<<<<< HEAD
     yield check_background, legend
-=======
->>>>>>> cc5c574870c378e26247b496cbd919e0eb2d689f
     yield (check_props, legend, [
         "plot",
         "orientation",
@@ -96,11 +86,7 @@ def test_Legend():
         "legend_padding",
         "legend_spacing",
         "legends"
-<<<<<<< HEAD
     ], LABEL, BORDER, BACKGROUND)
-=======
-    ], LABEL, BORDER)
->>>>>>> cc5c574870c378e26247b496cbd919e0eb2d689f
 
 def test_BoxAnnotation():
     box = BoxAnnotation()
