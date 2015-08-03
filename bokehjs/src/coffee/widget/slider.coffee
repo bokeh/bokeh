@@ -3,6 +3,7 @@ ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
 slidertemplate = require "./slidertemplate"
+build_views = require "../common/build_views"
 
 class SliderView extends ContinuumView
   tagName: "div"
@@ -30,6 +31,7 @@ class SliderView extends ContinuumView
       step: step,
     })
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
+    build_views.traverse_views(@$el)
     return @
 
   slide: (event, ui) =>

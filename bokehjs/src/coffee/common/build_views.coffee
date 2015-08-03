@@ -28,8 +28,7 @@ build_views = (view_storage, view_models, options, view_types=[]) ->
     else
       view_storage[model.id] = new model.default_view(view_specific_option)
 
-    view_storage[model.id].$el.find("*[class*='ui-']").each (idx, el) ->
-      el.className = jQueryUIPrefixer(el)
+    traverse_views(view_storage[model.id].$el)
     created_views.push(view_storage[model.id])
 
   to_remove = _.difference(_.keys(view_storage), _.pluck(view_models, 'id'))
@@ -39,6 +38,10 @@ build_views = (view_storage, view_models, options, view_types=[]) ->
     delete view_storage[key]
 
   return created_views
+
+traverse_views = ($el) ->
+  $el.find("*[class*='ui-']").each (idx, el) ->
+        el.className = jQueryUIPrefixer(el)
 
 jQueryUIPrefixer = (el) ->
   return unless el.className?
@@ -50,6 +53,8 @@ jQueryUIPrefixer = (el) ->
 
 # FIXME Hack to expose jQueryUIPrefixer
 build_views.jQueryUIPrefixer = jQueryUIPrefixer
+
+build_views.traverse_views = traverse_views
 
 # FIXME This export is the same as module.exports = build_views
 module.exports =
