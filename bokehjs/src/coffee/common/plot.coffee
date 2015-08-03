@@ -264,7 +264,7 @@ class PlotView extends ContinuumView
       @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
-    @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if title

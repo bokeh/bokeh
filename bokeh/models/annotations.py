@@ -4,7 +4,7 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..enums import Orientation
+from ..enums import Orientation, SpatialUnits, RenderLevel
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
                           Include, NumberSpec, Bool, Either, Auto)
@@ -85,19 +85,39 @@ class BoxAnnotation(Renderer):
     The x-coordinates of the left edges.
     """)
 
+    left_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the left attribute. Interpreted as "data space" units
+    by default
+    """)
+
     right = Either(Auto, NumberSpec("right"), help="""
     The x-coordinates of the right edges.
+    """)
+
+    right_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the right attribute. Interpreted as "data space" units
+    by default
     """)
 
     bottom = Either(Auto, NumberSpec("bottom"), help="""
     The y-coordinates of the bottom edges.
     """)
 
+    bottom_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the bottom attribute. Interpreted as "data space" units
+    by default
+    """)
+
     top = Either(Auto, NumberSpec("top"), help="""
     The y-coordinates of the top edges.
     """)
 
-    border_props = Include(LineProps, use_prefix=False, help="""
+    top_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the top attribute. Interpreted as "data space" units
+    by default
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the shades.
     """)
 

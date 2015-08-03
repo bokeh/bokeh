@@ -85,15 +85,25 @@ def test_Legend():
 
 def test_BoxAnnotation():
     box = BoxAnnotation()
+    assert box.plot is None
     assert box.left == 'auto'
+    assert box.left_units == 'data'
     assert box.right == 'auto'
+    assert box.right_units == 'data'
     assert box.bottom == 'auto'
+    assert box.bottom_units == 'data'
     assert box.top == 'auto'
+    assert box.top_units == 'data'
     yield check_line, box
     yield check_fill, box
     yield (check_props, box, [
+        "plot",
         "left",
+        "left_units",
         "right",
+        "right_units",
         "bottom",
-        "top"
+        "bottom_units",
+        "top",
+        "top_units"
     ], LINE, FILL)
