@@ -15,7 +15,7 @@ class Legend(Renderer):
     """ Render informational legends for a plot.
 
     """
-
+    
     plot = Instance(".models.plots.Plot", help="""
     The Plot to which this Legend is attached.
     """)
