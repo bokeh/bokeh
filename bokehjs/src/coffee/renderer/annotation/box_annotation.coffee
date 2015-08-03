@@ -4,10 +4,10 @@ PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 
 class BoxAnnotationView extends PlotWidget
-  initialize: (attrs, options) ->
-    super(attrs, options)
-    @fill_props = new properties.Fill({obj: @model, prefix: 'fill_'})
-    @line_props = new properties.Line({obj: @model, prefix: 'line_'})
+  initialize: (options) ->
+    super(options)
+    @fill_props = new properties.Fill({obj: @model, prefix: ''})
+    @line_props = new properties.Line({obj: @model, prefix: ''})
 
   render: () ->
     ctx = @plot_view.canvas_view.ctx
@@ -18,15 +18,13 @@ class BoxAnnotationView extends PlotWidget
     ctx.beginPath()
     ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
 
-    @fill_props.set(ctx)
+    @fill_props.set_value(ctx)
     ctx.fill()
 
-    @line_props.set(ctx)
+    @line_props.set_value(ctx)
     ctx.stroke()
 
     ctx.restore()
-
-    console.log(ctx)
 
   _calc_dims: () ->
     canvas = @plot_model.get('canvas')
@@ -64,9 +62,9 @@ class BoxAnnotation extends HasParent
       right_units: 'data'
       top_units: 'data'
       bottom_units: 'data'
-      fill_color: 'yellow'
-      fill_alpha: 0.6
-      line_color: 'black'
+      fill_color: '#fff9ba'
+      fill_alpha: 1.0
+      line_color: '#cccccc'
       line_width: 1
       line_alpha: 1.0
       line_join: 'miter'
