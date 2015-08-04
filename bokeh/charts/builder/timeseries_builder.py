@@ -41,8 +41,9 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
     to render the lines from values and index.
 
     Args:
-        values (iterable): iterable 2d representing the data series
-            values matrix.
+        values (iterable): a 2d iterable containing the values.  Can be anything that 
+            can be converted to a 2d array, and which is the x (time) axis is determined
+            by ``index``, while the others are interpreted as y values. 
         index (str|1d iterable, optional): can be used to specify a common custom
             index for all data series as an **1d iterable** of any sort that will be used as
             series common index or a **string** that corresponds to the key of the

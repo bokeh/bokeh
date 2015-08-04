@@ -533,7 +533,7 @@ objects:
 
 .. code-block:: python
 
-    >>> p.grid
+    >>> p.legend
     [<bokeh.models.renderers.Legend at 0x106fa2278>]
 
 This method also returns a splattable list, so that you can set an attribute
