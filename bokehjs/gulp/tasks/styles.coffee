@@ -2,7 +2,7 @@
 
 gulp = require "gulp"
 less = require "gulp-less"
-minifyCSS = require "gulp-minify-css"
+uglifycss = require "gulp-uglifycss"
 rename = require "gulp-rename"
 runSequence = require "run-sequence"
 sourcemaps = require "gulp-sourcemaps"
@@ -23,7 +23,7 @@ gulp.task "styles:minify", ->
     .pipe rename "bokeh.min.css"
     .pipe sourcemaps.init
       loadMaps: true
-    .pipe minifyCSS()
+    .pipe uglifycss()
     .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.css
 
