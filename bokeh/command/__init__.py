@@ -136,6 +136,12 @@ class LocalServer(Subcommand):
         if not os.path.exists(self.mainpy):
             die("No 'main.py' found in %s." % (self.directory))
 
+        # this allows apps to refer to relative files in their directory,
+        # but it prohibits multiple apps in the same process...
+        # it might be better eventually to offer an API for apps to get their
+        # directory path from.
+        os.chdir(self.directory)
+
         self.appname = os.path.basename(self.directory)
 
         if self.directory not in sys.path:
