@@ -20,12 +20,12 @@ a serialized version of the model looks like.
     :local:
     :depth: 1
 
-.. _bokeh.models.actions:
+.. _bokeh.models.callbacks:
 
-``bokeh.models.actions``
+``bokeh.models.callbacks``
 ------------------------
 
-.. automodule:: bokeh.models.actions
+.. automodule:: bokeh.models.callbacks
    :members:
    :undoc-members:
 

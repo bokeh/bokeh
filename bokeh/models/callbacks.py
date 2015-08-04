@@ -5,10 +5,13 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..properties import Dict, Instance, String
 
-class Action(PlotObject):
-    """ Base class for interactive actions. """
 
-class OpenURL(Action):
+class Callback(PlotObject):
+    """ Base class for interactive callback. ``Callback`` is generally
+    not useful to instantiate on its own."""
+
+
+class OpenURL(Callback):
     """ Open a URL in a new tab or window (browser dependent). """
 
     url = String("http://", help="""
@@ -16,7 +19,8 @@ class OpenURL(Action):
     which will be formatted with data from the data source.
     """)
 
-class Callback(Action):
+
+class CustomJS(Callback):
     """ Execute a JavaScript function. """
 
     args = Dict(String, Instance(PlotObject), help="""

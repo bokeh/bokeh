@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.plotting import output_file, figure, show, hplot
-from bokeh.models import ColumnDataSource, Callback, Rect
+from bokeh.models import ColumnDataSource, CustomJS, Rect
 
 output_file('range_update_callback.html')
 
@@ -27,9 +27,9 @@ p1 = figure(title='Pan and Zoom Here', x_range=(0, 100), y_range=(0, 100),
             tools='box_zoom,wheel_zoom,pan,reset', plot_width=400, plot_height=400)
 p1.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
-p1.x_range.callback = Callback(
+p1.x_range.callback = CustomJS(
         args=dict(source=source, range=p1.x_range), code=jscode % ('x', 'width'))
-p1.y_range.callback = Callback(
+p1.y_range.callback = CustomJS(
         args=dict(source=source, range=p1.y_range), code=jscode % ('y', 'height'))
 
 p2 = figure(title='See Zoom Window Here', x_range=(0, 100), y_range=(0, 100),

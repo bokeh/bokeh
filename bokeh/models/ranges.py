@@ -7,7 +7,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import Int, Float, String, Datetime, Instance, List, Either
-from .actions import Callback
+from .callbacks import Callback
 from .renderers import Renderer
 
 class Range(PlotObject):

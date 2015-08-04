@@ -1,8 +1,8 @@
 _ = require "underscore"
 HasProperties = require "../common/has_properties"
 
-class Callback extends HasProperties
-  type: 'Callback'
+class CustomJS extends HasProperties
+  type: 'CustomJS'
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -29,4 +29,4 @@ class Callback extends HasProperties
     }
 
 module.exports =
-  Model: Callback
+  Model: CustomJS

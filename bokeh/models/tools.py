@@ -27,7 +27,8 @@ from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, 
 from ..enums import Dimension
 
 from .renderers import Renderer
-from .actions import Action, Callback
+from .callbacks import Callback
+
 
 class ToolEvents(PlotObject):
     """
@@ -35,6 +36,7 @@ class ToolEvents(PlotObject):
     """
 
     geometries = List(Dict(String, Any))
+
 
 class Tool(PlotObject):
     """ A base class for all interactive tool types. ``Tool`` is
@@ -45,6 +47,7 @@ class Tool(PlotObject):
     plot = Instance(".models.plots.Plot", help="""
     The Plot that this tool will act on.
     """)
+
 
 class PanTool(Tool):
     """ *toolbar icon*: |pan_icon|
@@ -70,6 +73,7 @@ class PanTool(Tool):
     height of the plot.
     """)
 
+
 class WheelZoomTool(Tool):
     """ *toolbar icon*: |wheel_zoom_icon|
 
@@ -93,6 +97,7 @@ class WheelZoomTool(Tool):
     vertically across the height of the plot.
     """)
 
+
 class PreviewSaveTool(Tool):
     """ *toolbar icon*: |save_icon|
 
@@ -110,6 +115,7 @@ class PreviewSaveTool(Tool):
 
     """
 
+
 class ResetTool(Tool):
     """ *toolbar icon*: |reset_icon|
 
@@ -126,6 +132,7 @@ class ResetTool(Tool):
         :height: 18pt
     """
 
+
 class ResizeTool(Tool):
     """ *toolbar icon*: |resize_icon|
 
@@ -136,6 +143,7 @@ class ResizeTool(Tool):
         :height: 18pt
 
     """
+
 
 class TapTool(Tool):
     """ *toolbar icon*: |tap_select_icon|
@@ -164,7 +172,7 @@ class TapTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    action = Instance(Action, help="""
+    callback = Instance(Callback, help="""
     A client-side action specification, like opening a URL, showing
     a dialog box, etc. See :class:`bokeh.models.Action` for details.
     """)
@@ -172,6 +180,7 @@ class TapTool(Tool):
     always_active = Bool(True, help="""
     Whether the hover tool must be explicitly activated.
     """)
+
 
 class CrosshairTool(Tool):
     """ *toolbar icon*: |inspector_icon|
@@ -197,6 +206,7 @@ class CrosshairTool(Tool):
     only a vertical line will be drawn.
     """)
 
+
 class BoxZoomTool(Tool):
     """ *toolbar icon*: |box_zoom_icon|
 
@@ -219,6 +229,7 @@ class BoxZoomTool(Tool):
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
     """)
+
 
 class BoxSelectTool(Tool):
     """ *toolbar icon*: |box_select_icon|
@@ -266,6 +277,7 @@ class BoxSelectTool(Tool):
     :geometry: object containing the coordinates of the selection box
     """)
 
+
 class BoxSelectionOverlay(Renderer):
     """ An overlay renderer that Tool objects can use to render a
     'rubber band' selection box on a Plot.
@@ -277,6 +289,7 @@ class BoxSelectionOverlay(Renderer):
     tool = Instance(Tool, help="""
     The tool that this overlay should respond to.
     """)
+
 
 class LassoSelectTool(Tool):
     """ *toolbar icon*: |lasso_select_icon|
@@ -311,6 +324,7 @@ class LassoSelectTool(Tool):
     event, or only once, when the selection region is completed.
     """)
 
+
 class PolySelectTool(Tool):
     """ *toolbar icon*: |poly_select_icon|
 
@@ -339,6 +353,7 @@ class PolySelectTool(Tool):
     An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
     """)
+
 
 class HoverTool(Tool):
     """ *toolbar icon*: |inspector_icon|
@@ -449,6 +464,7 @@ class HoverTool(Tool):
     current mouse position, or interpolate along the line to the current
     mouse position.
     """)
+
 
 class HelpTool(Tool):
     """
