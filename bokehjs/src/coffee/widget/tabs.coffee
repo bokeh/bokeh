@@ -32,9 +32,16 @@ class TabsView extends ContinuumView
       active: (i) -> if i == active then 'bk-bs-active' else ''
     }))
 
+    that = this
     html.find("> li > a").click (event) ->
       event.preventDefault()
       $(this).tab('show')
+      panelId = $(this).attr('href').replace('#tab-','')
+      tabs = that.model.get('tabs')
+      panelIdx = _.indexOf(tabs, _.find(tabs, (panel) ->
+        return panel.id == panelId
+      ))
+      that.model.save('active', panelIdx)
 
     $panels = html.children(".bk-bs-tab-pane")
 
