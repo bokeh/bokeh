@@ -99,6 +99,8 @@ def test_BoxAnnotation():
     assert box.bottom_units == 'data'
     assert box.top == 'auto'
     assert box.top_units == 'data'
+    assert box.x_range_name == 'default'
+    assert box.y_range_name == 'default'
     yield check_line, box
     yield check_fill, box
     yield (check_props, box, [
@@ -110,5 +112,7 @@ def test_BoxAnnotation():
         "bottom",
         "bottom_units",
         "top",
-        "top_units"
+        "top_units",
+        "x_range_name",
+        "y_range_name"
     ], LINE, FILL)
