@@ -135,7 +135,8 @@ class PlotView extends ContinuumView
       glcanvas.gl = gl
       @canvas_view.ctx.glcanvas = glcanvas
     else
-      @canvas_view.ctx.glcanvas = false  # disable webgl
+      logger.warn('WebGL is not supported, falling back to 2D canvas.')
+      # Do not set @canvas_view.ctx.glcanvas
 
   update_dataranges: () ->
     # Update any DataRange1ds here
