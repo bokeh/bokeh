@@ -10,7 +10,7 @@ def convert_rgb_to_bokehrbga(img):
 
     Bokeh require rbga
     :param img: (N,M, 3) array (dtype = uint8)
-    :return: (K, R, dtype=uint32) array
+    :return: (N, M, dtype=uint32) array
     """
     if img.dtype != np.uint8:
         raise NotImplementedError
@@ -28,7 +28,7 @@ def convert_gray_to_bokehrbga(img):
     convert grayscale image to two-dimensional array of RGBA values (encoded as 32-bit integers)
 
     :param img: (N,M) array (dtype = uint8)
-    :return: (K, R, dtype=uint32) array
+    :return: (N, M, dtype=uint32) array
     """
     if img.dtype != np.uint8:
         raise NotImplementedError
