@@ -10,9 +10,17 @@ class BoxAnnotationView extends PlotWidget
     @line_props = new properties.Line({obj: @model, prefix: ''})
 
   render: () ->
-    ctx = @plot_view.canvas_view.ctx
-    [sleft, sright, stop, sbottom] = @_calc_dims()
+    @frame = @plot_model.get('frame')
+    @canvas = @plot_model.get('canvas')
+    @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
+    @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
 
+    sleft = @canvas.vx_to_sx(@_calc_dim('left', @xmapper, @frame.get('h_range').get('start')))
+    sright = @canvas.vx_to_sx(@_calc_dim('right', @xmapper, @frame.get('h_range').get('end')))
+    sbottom = @canvas.vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.get('v_range').get('start')))
+    stop = @canvas.vy_to_sy(@_calc_dim('top', @ymapper, @frame.get('v_range').get('end')))
+
+    ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
     ctx.beginPath()
@@ -26,34 +34,25 @@ class BoxAnnotationView extends PlotWidget
 
     ctx.restore()
 
-  _calc_dims: () ->
-    canvas = @plot_model.get('canvas')
-    frame = @plot_model.get('frame')
-
-    sleft = @mget('left') ? frame.get('x_range').get('start')
-    sright = @mget('right') ? frame.get('x_range').get('end')
-    sbottom = @mget('bottom') ? frame.get('y_range').get('start')
-    stop = @mget('top') ? frame.get('y_range').get('end')
-
-    # refactor to pass x/y mapper names
-    [[sleft, sright], [stop, sbottom]] = frame.map_to_screen([sleft, sright],
-                                                             [stop, sbottom],
-                                                             canvas)
-    # ugly control logic, may refactor
-    if @mget('left_units') == 'screen' and @mget('left')?
-      sleft = canvas.vx_to_sx(@mget('left'))
-    if @mget('right_units') == 'screen' and @mget('right')?
-      sright = canvas.vx_to_sx(@mget('right'))
-    if @mget('bottom_units') == 'screen' and @mget('bottom')?
-      sbottom = canvas.vy_to_sy(@mget('bottom'))
-    if @mget('top_units') == 'screen' and @mget('top')?
-      stop = canvas.vy_to_sy(@mget('top'))
-
-    return [sleft, sright, stop, sbottom]
+  _calc_dim: (dim, mapper, frame_extrema) ->
+    if @mget(dim)?
+      if @mget(dim+'_units') == 'data'
+        vdim = mapper.map_to_target(@mget(dim))
+      else
+        vdim = @mget(dim)
+    else
+      vdim = frame_extrema
+    return vdim
 
 class BoxAnnotation extends HasParent
   default_view: BoxAnnotationView
   type: 'BoxAnnotation'
+
+  defaults: ->
+    return _.extend {}, super(), {
+      x_range_name: "default"
+      y_range_name: "default"
+    }
 
   display_defaults: ->
     return _.extend {}, super(), {
