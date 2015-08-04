@@ -4,10 +4,10 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..enums import Orientation, SpatialUnits, RenderLevel
+from ..enums import Orientation, SpatialUnits
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, NumberSpec, Bool, Either, Auto)
+                          Include, NumberSpec, Either, Auto)
 
 from .renderers import Renderer, GlyphRenderer
 
@@ -86,39 +86,39 @@ class BoxAnnotation(Renderer):
     """)
 
     left = Either(Auto, NumberSpec("left"), help="""
-    The x-coordinates of the left edges.
+    The x-coordinates of the left edge of the box annotation.
     """)
 
     left_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the left attribute. Interpreted as "data space" units
-    by default
+    by default.
     """)
 
     right = Either(Auto, NumberSpec("right"), help="""
-    The x-coordinates of the right edges.
+    The x-coordinates of the right edge of the box annotation.
     """)
 
     right_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the right attribute. Interpreted as "data space" units
-    by default
+    by default.
     """)
 
     bottom = Either(Auto, NumberSpec("bottom"), help="""
-    The y-coordinates of the bottom edges.
+    The y-coordinates of the bottom edge of the box annotation.
     """)
 
     bottom_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the bottom attribute. Interpreted as "data space" units
-    by default
+    by default.
     """)
 
     top = Either(Auto, NumberSpec("top"), help="""
-    The y-coordinates of the top edges.
+    The y-coordinates of the top edge of the box annotation.
     """)
 
     top_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the top attribute. Interpreted as "data space" units
-    by default
+    by default.
     """)
 
     x_range_name = String('default', help="""
@@ -128,7 +128,7 @@ class BoxAnnotation(Renderer):
 
     y_range_name = String('default', help="""
     A particular (named) y-range to use for computing screen locations when
-    rendering glyphs on the plot. If unset, use the default y-range.
+    rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
