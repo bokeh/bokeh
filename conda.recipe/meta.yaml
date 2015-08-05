@@ -57,7 +57,7 @@ test:
     - boto                 [py2k]
     - jinja2
     - pytest
-    - pytest-cov =1.8.1
+    - pytest-cov ==1.8.1
     - mock
     - coverage
     - websocket-client
