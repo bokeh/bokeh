@@ -42,7 +42,8 @@ script:
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
     # Eventually, we need to get rid of the generated stuff before packaging
     - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m js; fi  # Run just the JS first so we see the output
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m 'not js' --cov=bokeh; fi
+    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m 'not (examples or js)' --cov=bokeh; fi  # Run the not examples or js tests (we can eat stdout for this one)
+    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m examples --cov=bokeh; fi  # Then run the examples to see coverage from examples
     - ( cd sphinx; make all )
     # Flake/style testing (only needed on one machine)
     - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
