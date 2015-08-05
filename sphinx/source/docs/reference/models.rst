@@ -19,7 +19,7 @@ a serialized version of the model looks like.
 .. toctree::
    :maxdepth: 2
 
-   models/actions
+   models/callbacks
    models/axes
    models/formatters
    models/glyphs
