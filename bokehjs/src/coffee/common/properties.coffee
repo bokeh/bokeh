@@ -6,10 +6,19 @@ class Property extends HasProperties
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    obj = @get('obj')
-    attr = @get('attr')
+    @obj = @get('obj')
+    @attr = @get('attr')
 
-    attr_value = obj.get(attr)
+    @listenTo(@obj, "change:#{@attr}", () ->
+        @_init()
+        @obj.trigger("propchange")
+    )
+
+    @_init()
+
+  _init: () ->
+
+    attr_value = @obj.get(@attr)
 
     if _.isObject(attr_value) and not _.isArray(attr_value)
       # use whichever the spec provides if there is a spec
@@ -28,7 +37,7 @@ class Property extends HasProperties
       throw new Error("field value for property '#{attr}' is not a string")
 
     if @fixed_value?
-      @validate(@fixed_value, attr)
+      @validate(@fixed_value, @attr)
 
   value: () ->
     result = if @fixed_value? then @fixed_value else NaN
