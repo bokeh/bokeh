@@ -13,10 +13,10 @@ warn(
 def Action(*args, **kwargs):
     warn(
         '`bokeh.models.actions.Action` is now `bokeh.models.callbacks.Callback`. '
-        '`bokeh.models.actions.Actions` will be removed in v0.10.',
+        '`bokeh.models.actions.Action` will be removed in v0.10.',
         FutureWarning, stacklevel=2
     )
-    return callbacks.CustomJS(*args, **kwargs)
+    return callbacks.Callback(*args, **kwargs)
 
 
 def Callback(*args, **kwargs):
