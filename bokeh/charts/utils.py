@@ -37,47 +37,8 @@ from ..util.notebook import publish_display_data
 _default_cycle_palette = [
     "#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"
 ]
-def cycle_colors(chunk, palette=_default_cycle_palette):
-    """ Build a color list just cycling through a given palette.
 
-    Args:
-        chuck (seq): the chunk of elements to generate the color list
-        palette (seq[color]) : a palette of colors to cycle through
-
-    Returns:
-        colors
-
-    """
-    colors = []
-
-    g = itertools.cycle(palette)
-    for i in range(len(chunk)):
-        colors.append(next(g))
-
-    return colors
-
-# TODO: (bev) this should go in a plotting utils one level up
-def make_scatter(source, x, y, markertype, color, line_color=None,
-                 size=10, fill_alpha=0.2, line_alpha=1.0):
-    """Create a marker glyph and appends it to the renderers list.
-
-    Args:
-        source (obj): datasource object containing markers references.
-        x (str or list[float]) : values or field names of line ``x`` coordinates
-        y (str or list[float]) : values or field names of line ``y`` coordinates
-        markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
-        color (str): color of the points
-        size (int) : size of the scatter marker
-        fill_alpha(float) : alpha value of the fill color
-        line_alpha(float) : alpha value of the line color
-
-    Return:
-        scatter: Marker Glyph instance
-    """
-    if line_color is None:
-        line_color = color
-
-    _marker_types = OrderedDict(
+_marker_types = OrderedDict(
         [
             ("circle", Circle),
             ("square", Square),
@@ -95,6 +56,41 @@ def make_scatter(source, x, y, markertype, color, line_color=None,
         ]
     )
 
+def cycle_colors(chunk, palette=_default_cycle_palette):
+    """ Build a color list just cycling through a given palette.
+    Args:
+        chuck (seq): the chunk of elements to generate the color list
+        palette (seq[color]) : a palette of colors to cycle through
+    Returns:
+        colors
+    """
+    colors = []
+
+    g = itertools.cycle(palette)
+    for i in range(len(chunk)):
+        colors.append(next(g))
+
+    return colors
+
+# TODO: (bev) this should go in a plotting utils one level up
+def make_scatter(source, x, y, markertype, color, line_color=None,
+                 size=10, fill_alpha=0.2, line_alpha=1.0):
+    """Create a marker glyph and appends it to the renderers list.
+    Args:
+        source (obj): datasource object containing markers references.
+        x (str or list[float]) : values or field names of line ``x`` coordinates
+        y (str or list[float]) : values or field names of line ``y`` coordinates
+        markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
+        color (str): color of the points
+        size (int) : size of the scatter marker
+        fill_alpha(float) : alpha value of the fill color
+        line_alpha(float) : alpha value of the line color
+    Return:
+        scatter: Marker Glyph instance
+    """
+    if line_color is None:
+        line_color = color
+
     g = itertools.cycle(_marker_types.keys())
     if isinstance(markertype, int):
         for i in range(markertype):
@@ -105,12 +101,11 @@ def make_scatter(source, x, y, markertype, color, line_color=None,
         x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
         line_color=line_color, line_alpha=line_alpha
     )
-
-    return GlyphRenderer(data_source=source, glyph=glyph)
+    return glyph
+    # return GlyphRenderer(data_source=source, glyph=glyph)
 
 def chunk(l, n):
     """Yield successive n-sized chunks from l.
-
     Args:
         l (list: the incomming list to be chunked
         n (int): lenght of you chucks
@@ -120,12 +115,10 @@ def chunk(l, n):
 
 def polar_to_cartesian(r, start_angles, end_angles):
     """Translate polar coordinates to cartesian.
-
     Args:
     r (float): radial coordinate
     start_angles (list(float)): list of start angles
     end_angles (list(float)): list of end_angles angles
-
     Returns:
         x, y points
     """
@@ -185,7 +178,6 @@ class Figure(object):
 
     def show(self):
         """Main show function.
-
         It shows the Figure in file, server and notebook outputs.
         """
         show(self, self.title, self.filename, self.server, self.notebook)
@@ -195,10 +187,8 @@ def show(obj, title='test', filename=False, server=False, notebook=False, **kws)
     """ 'shows' a plot object, by auto-raising the window or tab
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).
-
     Args:
         obj (Widget/Plot object, optional): it accepts a plot object and just shows it.
-
     """
     if filename:
         if filename is True:

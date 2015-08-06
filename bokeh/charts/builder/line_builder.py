@@ -29,7 +29,14 @@ class ChartLineGlyph(object):
 
     def __init__(self, source, x, y, **kws):
         self.main_source = source
-        self.source = ColumnDataSource(data=source.data)
+        data = {y: source.data[y]}
+
+        if x == "_index":
+            data[x] = range(len(data[y]))
+        else:
+            data[x] = source.data[x]
+
+        self.source = ColumnDataSource(data=data)
         source.tags = [y]
 
         self.glyph = LineGlyph(x=x, y=y, **kws)
@@ -37,7 +44,12 @@ class ChartLineGlyph(object):
 
         self.legend_label = y
 
-    def create_legend(self):
+    @property
+    def renderers(self):
+        return [self.renderer]
+
+    @property
+    def legend(self):
         return (self.legend_label, [self.renderer])
 
 def Line(values, index=None, **kws):
@@ -75,11 +87,3 @@ class LineBuilder(TabularSourceBuilder):
 
     def _create_glyph(self, xname, yname, color):
         return ChartLineGlyph(self.source, x=xname, y=yname, line_color=color)
-        # glyph = LineGlyph(x=xname, y=yname, line_color=color)
-        # renderer = GlyphRenderer(data_source=source, glyph=glyph)
-        #
-        # # TODO: This is a problem for complex Higher Level Glyphs.
-        # # Better to let those have their own "legend" creator method?
-        # self._legends.append((yname, [renderer]))
-        #
-        # return renderer

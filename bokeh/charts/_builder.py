@@ -184,7 +184,7 @@ class Builder(HasProps):
         """
         if not self.source:
             d = dict(self._values)
-            d['_index'] = self._values.index
+            # d['_index'] = self._values.index
             self.source = ColumnDataSource(d)
 
     def _set_ranges(self):
@@ -200,8 +200,11 @@ class Builder(HasProps):
         Builder
         """
         for color, xname, yname in zip(self.colors, self.x, self.y):
-            renderer = self._create_glyph(xname, yname, color)
-            yield renderer
+            higher_level_glyph = self._create_glyph(xname, yname, color)
+            self._legends.append(higher_level_glyph.legend)
+
+            for renderer in higher_level_glyph.renderers:
+                yield renderer
 
     def _create_glyph(self, xname, yname, color):
         """ Create and return a glyph related to the xname and yname
@@ -314,7 +317,7 @@ class TabularSourceBuilder(Builder):
         #     self._values, self.x
         # )
         if not self.y:
-            self.y = [k for k in self._values.columns]
+            self.y = [k for k in self._values.keys()]
 
         elif isinstance(self.y, string_types):
             self.y = [self.y]

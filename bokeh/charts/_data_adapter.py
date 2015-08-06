@@ -84,13 +84,16 @@ def convert(data):
         raise NotImplementedError
 
     elif isinstance(data, pd.DataFrame):
+        return dict(pd.DataFrame)
         return data
 
     elif isinstance(data, list):
+        return {i: v for i, v in enumerate(data)}
         # assuming we don't have column headers...
         return pd.DataFrame(data)
 
     elif isinstance(data, (dict, OrderedDict)):
+        return data
         return pd.DataFrame(data)
 
 class DataAdapter(object):
