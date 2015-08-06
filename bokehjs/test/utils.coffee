@@ -7,9 +7,8 @@ moduleRequire = (name) ->
 global._bokehTest =
   kiwi: require "../src/vendor/kiwi/kiwi"
 
+# Register the eco template loading
 require "eco"
-
-
 
 module.exports =
   require: moduleRequire
