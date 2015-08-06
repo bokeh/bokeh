@@ -22,7 +22,7 @@ from six import string_types
 from ._chart import Chart
 from ._data_adapter import DataAdapter, convert
 from ..models.ranges import Range
-from ..models import ColumnDataSource, DataRange1d, GlyphRenderer
+from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, FactorRange
 from ..models.sources import AjaxDataSource
 from ..properties import Color, HasProps, Instance, Seq, String, Any, Either
 from .utils import cycle_colors
@@ -346,3 +346,52 @@ class TabularSourceBuilder(Builder):
             self.x_range = DataRange1d()
         if not self.y_range:
             self.y_range = DataRange1d()
+
+
+class DistributionBuilder(Builder):
+    categories = Seq(String)
+
+    def _adapt_values(self):
+        """Prepare the input data.
+
+        Converts data input (self._values) to a DataAdapter and creates
+        instance index if needed
+        """
+        if isinstance(self._values, ColumnDataSource):
+            self.source = self._values
+            self._values = self.source.data
+            self._data = self.source.data
+
+        if isinstance(self._values, AjaxDataSource):
+            self.source = self._values
+            self._data = {}
+            self._values = []
+
+        # TODO: This should be modified to support multiple x
+        self._values = convert(self._values)
+
+        if not self.categories:
+            self.categories = [k for k in self._values.keys()]
+
+        elif isinstance(self.y, string_types):
+            self.categories = [self.y]
+
+
+    def _set_ranges(self):
+        self.x_range = FactorRange(factors=self._values.keys())
+        self.y_range = DataRange1d(range_padding=1)
+
+    def _yield_renderers(self):
+        """ Yield the specific renderers of the charts being built by
+        Builder
+        """
+        for color, cat in zip(self.colors, self.categories):
+            higher_level_glyph = self._create_glyph(cat, color)
+            self._legends.append(higher_level_glyph.legend)
+
+            for renderer in higher_level_glyph.renderers:
+                yield renderer
+
+    @property
+    def colors(self):
+        return cycle_colors(self.categories, self.palette)
