@@ -19,4 +19,4 @@ data = pd.read_csv(
     join(dirname(__file__), 'us_marriages_divorces.csv'))
 
 # Fill in missing data with a simple linear interpolation
-data = md_data.interpolate(method='linear', axis=0).ffill().bfill()
+data = data.interpolate(method='linear', axis=0).ffill().bfill()
