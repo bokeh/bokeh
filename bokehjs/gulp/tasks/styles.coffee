@@ -15,16 +15,17 @@ gulp.task "styles:build", ->
     .pipe sourcemaps.init
       loadMaps: true
     .pipe less()
-    .pipe gulp.dest(paths.buildDir.css)
+    .pipe gulp.dest paths.buildDir.css
 
 gulp.task "styles:minify", ->
   gulp.src paths.css.sources
-    .pipe rename((path) -> path.basename += ".min")
+    .pipe rename (path) -> path.basename += ".min"
     .pipe gulp.dest(paths.buildDir.css)
-    .pipe sourcemaps.init({loadMaps: true})
-    .pipe minifyCSS opts
-    .pipe sourcemaps.write("./")
-    .pipe gulp.dest(paths.buildDir.css)
+    .pipe sourcemaps.init
+      loadMaps: true
+    .pipe uglifycss()
+    .pipe sourcemaps.write './'
+    .pipe gulp.dest paths.buildDir.css
 
 gulp.task "styles", (cb) ->
   runSequence("styles:build", "styles:minify", cb)
