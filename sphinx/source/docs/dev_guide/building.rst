@@ -120,13 +120,14 @@ trigger a recompile if any source file changes:
 
     gulp watch
 
-To enable inline coffeescript source mapping, you may add the ``--debug``
-flag to either of the ``gulp build`` or ``gulp watch`` commands:
+A Gulp build will automatically generate the sources and their associated source
+maps. With "source mapping" enabled in your browser, you will be able to:
 
-.. code-block:: sh
+* debug the original .coffeescript files when using ``js/bokeh.js``
+* debug the compiled non-minified javascript when using ``js/bokeh.min.js``
+* debug the original .less files when using ``css/bokeh.css`` or ``css/bokeh.min.css``
 
-    gulp build --debug
-
+in your developer console.
 
 .. _devguide_python_setup:
 
