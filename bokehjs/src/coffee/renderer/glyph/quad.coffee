@@ -31,14 +31,10 @@ class QuadView extends Glyph.View
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-    sy = @renderer.plot_view.canvas.vy_to_sy(vy)
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
-    hits = []
-    for i in [0...@sleft.length]
-      if (sx >= @sleft[i] and sx <= @sright[i] and sy >= @stop[i] and
-          sy < @sbottom[i])
-        hits.push(i)
+    hits = (x[4].i for x in @index.search([x, y, x, y]))
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits
