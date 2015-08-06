@@ -18,11 +18,15 @@ types on top of it.
 
 from __future__ import absolute_import
 
+from six import string_types
 from ._chart import Chart
-from ._data_adapter import DataAdapter
+from ._data_adapter import DataAdapter, convert
 from ..models.ranges import Range
-from ..properties import Color, HasProps, Instance, Seq
-
+from ..models import ColumnDataSource, DataRange1d, GlyphRenderer
+from ..models.sources import AjaxDataSource
+from ..properties import Color, HasProps, Instance, Seq, String, Any, Either
+from .utils import cycle_colors
+import warnings
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
 #-----------------------------------------------------------------------------
@@ -37,8 +41,13 @@ def create_and_build(builder_class, values, **kws):
     builder = builder_class(values, **builder_kws)
 
     # create a chart to return, since there isn't one already
-    chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
-    chart = Chart(**chart_kws)
+    chart = kws.pop('chart', None)
+    chart_kws = {k:v for k,v in kws.items() if k not in builder_props}
+    if chart:
+        if chart_kws:
+            warnings.warn("Received both an existing chart and new keywords. Keywords are being ignored!")
+    else:
+        chart = Chart(**chart_kws)
     chart.add_builder(builder)
 
     return chart
@@ -78,6 +87,9 @@ class Builder(HasProps):
     y_range = Instance(Range)
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
+    source = Either(Instance(ColumnDataSource), Instance(AjaxDataSource))
+
+    source_prefix = ""
 
     def __init__(self, values=None, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -119,6 +131,7 @@ class Builder(HasProps):
         self._data = {}
         self._groups = []
         self._attr = []
+        self._id = ""
 
     def _adapt_values(self):
         """Prepare the input data.
@@ -126,13 +139,32 @@ class Builder(HasProps):
         Converts data input (self._values) to a DataAdapter and creates
         instance index if needed
         """
-        if hasattr(self, 'index'):
-            self._values_index, self._values = DataAdapter.get_index_and_data(
-                self._values, self.index
-            )
-        else:
-            if not isinstance(self._values, DataAdapter):
-                self._values = DataAdapter(self._values, force_alias=False)
+        if isinstance(self._values, ColumnDataSource):
+            self.source = self._values
+            self._values = self.source.data
+            self._data = self.source.data
+
+        elif isinstance(self._values, AjaxDataSource):
+            self.source = self._values
+            self._data = {}
+            self._values = []
+
+        # TODO: This should be modified to support multiple x
+        self._values = convert(self._values)
+
+
+        # self._values_index, self._values = DataAdapter.get_index_and_data(
+        #     self._values, self.x
+        # )
+        # if not self.x:
+        #     self.x = ["x"]
+        # elif isinstance(self.x, string_types):
+        #         self.x = [self.x]
+        #
+        # if not self.y:
+        #     self.y = [k for k in self._values.keys() if k not in self.x]
+        # elif isinstance(self.y, string_types):
+        #     self.y = [self.y]
 
     def _process_data(self):
         """Get the input data.
@@ -150,20 +182,57 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        pass
+        if not self.source:
+            d = dict(self._values)
+            d['_index'] = self._values.index
+            self.source = ColumnDataSource(d)
 
-    def _yield_renderers(self):
-        """ Generator that yields the glyphs to be draw on the plot
+    def _set_ranges(self):
+        """Push data into the ColumnDataSource and build the
+        proper ranges.
 
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
+
+    def _yield_renderers(self):
+        """ Yield the specific renderers of the charts being built by
+        Builder
+        """
+        for color, xname, yname in zip(self.colors, self.x, self.y):
+            renderer = self._create_glyph(xname, yname, color)
+            yield renderer
+
+    def _create_glyph(self, xname, yname, color):
+        """ Create and return a glyph related to the xname and yname
+        linked to the builder source with the specified color
+
+        Args:
+            xname (str): name of the serie used for the glyph x coordinate.
+            yname (str): name of the serie used for the glyph x coordinate.
+            yname (str): color of the glyph
+
+        Output:
+            glyph to be rendered
+        """
         pass
 
     def create(self, chart=None):
+        """ Create the ranges, renderers and legends to be drawn on the
+        chart
+
+        Args:
+            chart (Chart): chart where the Builder will create all related
+                renderers, ranges and legends
+
+        Output:
+            chart
+        """
+        self._id = chart._id.replace('-', '_')
         self._adapt_values()
         self._process_data()
         self._set_sources()
+        self._set_ranges()
         renderers = self._yield_renderers()
 
         chart.add_renderers(self, renderers)
@@ -183,29 +252,94 @@ class Builder(HasProps):
     #***************************
     # Some helper methods
     #***************************
+    @property
+    def prefix(self):
+        pre = getattr(self, "_prefix", self.source_prefix)
+        if not pre:
+            pre = str(self.__class__.__name__).lower().replace("builder", "")
+        return "%s_%s_" % (pre, self._id)
 
-    def _set_and_get(self, data, prefix, attr, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
+    @property
+    def colors(self):
+        return cycle_colors(self.y, self.palette)
 
-        Keep track of the attributes created.
 
-        Args:
-            data (dict): where to store the new attribute content
-            attr (list): where to store the new attribute names
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
+class TabularSourceBuilder(Builder):
+    # all the implementation for the xnames, ynames functionality goes here
+    # added bonus: the __init__ signature can actually have xnames and ynames
+    # as real parameters! Much better for docs
+    y = Seq(String)
+    x = Seq(String)
+
+    # index = Any(help="""
+    #     An index to be used for all data series as follows:
+    #
+    #     - A 1d iterable of any sort that will be used as
+    #        series common index
+    #
+    #     - As a string that corresponds to the key of the
+    #        mapping to be used as index (and not as data
+    #        series) if area.values is a mapping (like a dict,
+    #        an OrderedDict or a pandas DataFrame)
+    # """)
+
+    def _adapt_values(self):
+        """Prepare the input data.
+
+        Converts data input (self._values) to a DataAdapter and creates
+        instance index if needed
         """
-        data["%s%s" % (prefix, val)] = content
-        attr.append("%s%s" % (prefix, val))
+        if isinstance(self._values, ColumnDataSource):
+            self.source = self._values
+            self._values = self.source.data
+            self._data = self.source.data
 
-    def set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
+        if isinstance(self._values, AjaxDataSource):
+            self.source = self._values
+            self._data = {}
+            self._values = []
 
-        Keep track of the attributes created.
+        # if self.index:
+        #     if self.x:
+        #         err_msg = "Attributes inconsistency! It's not possible to specify x and index on the same chart!"
+        #         raise AttributeError(err_msg)
+        #     self._values_index, self._values = DataAdapter.get_index_and_data(
+        #         self._values, self.index
+        #         )
+        #     self.x = ["x"]
+        # else:
+        # TODO: This should be modified to support multiple x
+        self._values = convert(self._values)
+        # self._values_index, self._values = DataAdapter.get_index_and_data(
+        #     self._values, self.x
+        # )
+        if not self.y:
+            self.y = [k for k in self._values.columns]
 
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
+        elif isinstance(self.y, string_types):
+            self.y = [self.y]
+
+        if not self.x:
+            self.x = ["_index"]
+
+        elif isinstance(self.x, string_types):
+                self.x = [self.x]
+
+        if isinstance(self.x, list):
+            if len(self.x) == 1:
+                self.x *= len(self.y)
+
+            elif len(self.x) != len(self.y):
+                raise ValueError("")
+
+    def _set_ranges(self):
+        """Push data into the ColumnDataSource and build the
+        proper ranges.
+
+        It has to be implemented by any of the inherited class
+        representing each different chart type.
         """
-        self._set_and_get(self._data, prefix, self._attr, val, content)
+        if not self.x_range:
+            self.x_range = DataRange1d()
+        if not self.y_range:
+            self.y_range = DataRange1d()

@@ -36,14 +36,62 @@ except ImportError:
     pd = None
 try:
     import blaze
+    from odo import odo
 except ImportError:
     blaze=None
+
+
+from bokeh.properties import HasProps, List, String, Either, Instance, Bool, Any
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
 DEFAULT_INDEX_ALIASES += list(zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES))
+
+
+class Data(HasProps):
+    """Model for a blaze data source."""
+    source = String
+    data = Any
+    symbol = Any
+
+    def __init__(self, source, **properties):
+        if isinstance(source, str):
+            properties['data'] = blaze.Data(source)
+            properties['source'] = source
+        elif isinstance(source, pd.DataFrame):
+            properties['data'] = source
+            properties['source'] = 'DataFrame'
+        # elif isinstance(source, (list, tuple)):
+        #     properties['data'] = blaze.Data(source)
+        #     properties['source'] = str(type(source))
+        # elif isinstance(source, (dict, OrderedDict)):
+        #     properties['data'] = blaze.Data(source)
+        #     properties['source'] = str(type(source))
+
+        super(Data, self).__init__(**properties)
+
+    @property
+    def df(self):
+        return self.data
+        # return odo(self.data, pd.DataFrame)
+
+def convert(data):
+    if isinstance(data, str):
+        # TODO: We probable need something like return blaze.Data(source)
+        raise NotImplementedError
+
+    elif isinstance(data, pd.DataFrame):
+        return data
+
+    elif isinstance(data, list):
+        # assuming we don't have column headers...
+        return pd.DataFrame(data)
+
+    elif isinstance(data, (dict, OrderedDict)):
+        return pd.DataFrame(data)
 
 class DataAdapter(object):
     """
