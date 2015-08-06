@@ -120,6 +120,14 @@ trigger a recompile if any source file changes:
 
     gulp watch
 
+A Gulp build will automatically generate the sources and their associated source
+maps. With "source mapping" enabled in your browser, you will be able to:
+
+* debug the original .coffeescript files when using ``js/bokeh.js``
+* debug the compiled non-minified javascript when using ``js/bokeh.min.js``
+* debug the original .less files when using ``css/bokeh.css`` or ``css/bokeh.min.css``
+
+in your developer console.
 
 .. _devguide_python_setup:
 
