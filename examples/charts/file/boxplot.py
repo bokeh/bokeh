@@ -30,7 +30,7 @@ medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 output_file("boxplot.html")
 
 boxplot = BoxPlot(
-    medals, marker='circle', outliers=True, title="boxplot test",
+    medals, marker='circle', outliers=True, title="boxplot test", legend=True,
     xlabel="medal type", ylabel="medal count", width=800, height=600)
 
 show(boxplot)
