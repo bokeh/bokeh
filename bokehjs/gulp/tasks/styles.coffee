@@ -15,6 +15,7 @@ gulp.task "styles:build", ->
     .pipe sourcemaps.init
       loadMaps: true
     .pipe less()
+    .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.css
 
 gulp.task "styles:minify", ->
