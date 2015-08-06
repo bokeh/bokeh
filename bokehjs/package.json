@@ -46,7 +46,8 @@
     "underscore": "^1.5.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "vinyl-transform": "^1.0.0"
+    "vinyl-transform": "^1.0.0",
+    "yargs": "^3.11.0"
   },
   "browserify": {
     "extensions": [
