@@ -15,8 +15,7 @@ class TabsView extends ContinuumView
     super(options)
     @views = {}
     @render()
-    @listenTo @model, 'change:active', (model, value) =>
-      @$el.find("li:eq(#{value}) a").tab('show')
+    @listenTo @model, 'change', this.render
 
   render: () ->
     for own key, val of @views
