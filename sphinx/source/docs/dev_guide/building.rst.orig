@@ -120,6 +120,16 @@ trigger a recompile if any source file changes:
 
     gulp watch
 
+<<<<<<< HEAD
+=======
+To enable inline coffeescript source mapping, you may add the ``--debug``
+flag to either of the ``gulp build`` or ``gulp watch`` commands:
+
+.. code-block:: sh
+
+    gulp build --debug
+
+>>>>>>> 59b0904d05aa8a9e1df8cbc2e7b7a6649f122ae3
 
 .. _devguide_python_setup:
 
