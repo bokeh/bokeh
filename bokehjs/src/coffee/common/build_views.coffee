@@ -39,13 +39,16 @@ build_views = (view_storage, view_models, options, view_types=[]) ->
 
   return created_views
 
-traverse_views = ($el) ->
-  $el.find("*[class*='ui-']").each (idx, el) ->
-        el.className = jQueryUIPrefixer(el)
+traverse_views = ($el, $) ->
+  # 'cheerio' can be passed in as $ to simulate a jquery environment. Used
+  # for testing
+  $ ||= Bokeh.$
+  $el.find("*[class*='ui-']").each ->
+    $(this).attr('class', jQueryUIPrefixer $(this).attr('class'))
 
-jQueryUIPrefixer = (el) ->
-  return unless el.className?
-  classList = el.className.split " "
+jQueryUIPrefixer = (classList) ->
+  return unless classList?
+  classList = classList.split " "
   prefixedClassList = _.map classList, (a) ->
     a = a.trim()
     return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
