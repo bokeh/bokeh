@@ -5,6 +5,11 @@ package:
 build:
   number: {{ environ.get('BINSTAR_BUILD', 1) }}
 
+extra:
+  channels:
+    - bokeh
+    - javascript
+
 requirements:
   build:
     - python

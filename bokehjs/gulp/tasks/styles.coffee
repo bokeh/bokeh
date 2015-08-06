@@ -13,18 +13,17 @@ utils = require "../utils"
 gulp.task "styles:build", ->
   gulp.src paths.less.sources
     .pipe less()
-    .pipe gulp.dest paths.buildDir.css
+    .pipe gulp.dest(paths.buildDir.css)
 
 gulp.task "styles:minify", ->
   opts = {}
   gulp.src paths.css.sources
-    .pipe rename "bokeh.min.css"
-    .pipe gulp.dest paths.buildDir.css
-    .pipe sourcemaps.init
-      loadMaps: true
+    .pipe rename((path) -> path.basename += ".min")
+    .pipe gulp.dest(paths.buildDir.css)
+    .pipe sourcemaps.init({loadMaps: true})
     .pipe minifyCSS opts
-    .pipe sourcemaps.write './'
-    .pipe gulp.dest paths.buildDir.css
+    .pipe sourcemaps.write("./")
+    .pipe gulp.dest(paths.buildDir.css)
 
 gulp.task "styles", (cb) ->
   runSequence("styles:build", "styles:minify", cb)
