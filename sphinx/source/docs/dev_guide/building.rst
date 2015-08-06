@@ -10,8 +10,8 @@ Building and Installing
 
 The Bokeh project encompasses two major components: the Bokeh package source
 code, written in Python, and the BokehJS client-side library, written in
-CoffeeScript. Accordingly, development of Bokeh is slightly complicated by the
-fact that BokehJS requires an explicit compilation step to render the
+CoffeeScript. Accordingly, development of Bokeh is slightly complicated by
+the fact that BokehJS requires an explicit compilation step to render the
 CoffeeScript source into deployable JavaScript.
 
 For this reason, in order to develop Bokeh from a source checkout, you must
@@ -99,12 +99,19 @@ use ``bokehjs/node_modules/.bin/gulp``, install Gulp globally via
 
     conda install -c javascript gulp
 
-To generate the compiled and optimized BokehJS libraries with source maps, and deploy
-them to the ``build`` subdirectory:
+To generate the compiled and optimized BokehJS libraries with source maps,
+and deploy them to the ``build`` subdirectory:
 
 .. code-block:: sh
 
     gulp build
+
+Additionally, ``gulp build`` accepts a ``--build-dir`` argument to specify
+where the built resources should be produced:
+
+.. code-block:: sh
+
+    gulp build --build-dir=/home/bokeh/mybuilddir
 
 To direct Gulp to automatically watch the source tree for changes and
 trigger a recompile if any source file changes:
@@ -113,8 +120,8 @@ trigger a recompile if any source file changes:
 
     gulp watch
 
-To enable inline coffeescript source mapping, you may add the ``--debug`` flag
-to either of the ``gulp build`` or ``gulp watch`` commands:
+To enable inline coffeescript source mapping, you may add the ``--debug``
+flag to either of the ``gulp build`` or ``gulp watch`` commands:
 
 .. code-block:: sh
 
@@ -126,8 +133,8 @@ to either of the ``gulp build`` or ``gulp watch`` commands:
 Python Setup
 ------------
 
-Once you have a working BokehJS build (which you can verify by completing the
-steps described in :ref:`devguide_building_bokehjs`), you can use the
+Once you have a working BokehJS build (which you can verify by completing
+the steps described in :ref:`devguide_building_bokehjs`), you can use the
 ``setup.py`` script at the top level of the source checkout to install or
 develop the full Bokeh library from source.
 
@@ -169,9 +176,9 @@ If you have any problems with the steps here, please contact the developers
 Dependencies
 ~~~~~~~~~~~~
 
-If you are working within a Conda environment, you will need to make sure you
-have the python requirements installed. You can install these via ``conda
-install`` or ``pip install`` for the packages referenced at
+If you are working within a Conda environment, you will need to make sure
+you have the python requirements installed. You can install these via
+``conda install`` or ``pip install`` for the packages referenced at
 :ref:`install_dependencies`.
 
 Testing dependencies include the following additional libraries:
@@ -189,9 +196,9 @@ Testing dependencies include the following additional libraries:
 
 ----
 
-To quickly and easily confirm that your environment contains all of the necessary
-dependencies to build both the docs and the development version of Bokeh,
-run the ``devdeps.py`` file inside the ``bokeh/scripts`` directory.
+To quickly and easily confirm that your environment contains all of the
+necessary dependencies to build both the docs and the development version
+of Bokeh, run the ``devdeps.py`` file inside the ``bokeh/scripts`` directory.
 
 If any needed packages are missing, you will be given output like this
 
@@ -217,8 +224,8 @@ Otherwise, you should see this message
     All Docs dependencies installed!  You are good to go!
 
 
-Additionally, ``devdeps.py`` will check that the ``bokehjs/node_modules`` directory exists,
-which is where npm packages are installed.
+Additionally, ``devdeps.py`` will check that the ``bokehjs/node_modules``
+directory exists, which is where npm packages are installed.
 
 If this directory is not found, it will provide instructions on how and where to
 install npm packages.

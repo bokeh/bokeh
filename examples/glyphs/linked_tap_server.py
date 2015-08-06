@@ -34,8 +34,9 @@ plot2.add_glyph(source2, Circle(x="x", y="y", size=20, fill_color="color"))
 def on_selection_change1(obj, attr, _, inds):
     color = ["blue"]*N
     if inds['1d']['indices']:
-        [index] = inds['1d']['indices']
-        color[index] = "red"
+        indices = inds['1d']['indices']
+        for i in indices:
+            color[i] = "red"
     source2.data["color"] = color
     session.store_objects(source2)
 
