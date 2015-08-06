@@ -371,8 +371,22 @@ class HoverTool(Tool):
     off by setting ``tooltips=None``.
 
     .. warning::
-        Point hit testing is not currently available on all glyphs. Hover tool
-        currently does not work with line or image type glyphs.
+        Hover tool does not currently work with the following glyphs:
+            * annulus
+            * arc
+            * bezier
+            * gear
+            * image
+            * image_rgba
+            * image_url
+            * multi_line
+            * oval
+            * patch
+            * quad
+            * quadratic
+            * ray
+            * segment
+            * text
 
     .. |hover_icon| image:: /_images/icons/Inspector.png
         :height: 18pt
