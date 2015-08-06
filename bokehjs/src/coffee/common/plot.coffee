@@ -40,6 +40,12 @@ class PlotView extends ContinuumView
       @throttled_render(true)
     return
 
+  remove: () =>
+    super()
+    # When this view is removed, also remove all of the tools.
+    for id, tool_view of @tools
+      tool_view.remove()
+
   initialize: (options) ->
     super(options)
     @pause()

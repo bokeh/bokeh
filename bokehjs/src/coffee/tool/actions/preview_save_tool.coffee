@@ -13,9 +13,12 @@ class PreviewSaveToolView extends ActionTool.View
 
   initialize: (options) ->
     super(options)
+    @render()
+
+  render: () ->
+    @$el.empty()
     @$el.html(@template())
     @$el.attr("tabindex", "-1")
-    $('body').append(@$el)
     @$el.on('hidden', () => @$el.modal('hide'))
     @$el.modal({show: false})
 
