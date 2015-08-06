@@ -4,7 +4,7 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..enums import Orientation, SpatialUnits
+from ..enums import Orientation, SpatialUnits, RenderLevel
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
                           Include, NumberSpec, Either, Auto)
@@ -129,6 +129,10 @@ class BoxAnnotation(Renderer):
     y_range_name = String('default', help="""
     A particular (named) y-range to use for computing screen locations when
     rendering box annotations on the plot. If unset, use the default y-range.
+    """)
+
+    level = Enum(RenderLevel, default="annotation", help="""
+    Specifies the level in which to render the box annotation.
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""

@@ -101,6 +101,7 @@ def test_BoxAnnotation():
     assert box.top_units == 'data'
     assert box.x_range_name == 'default'
     assert box.y_range_name == 'default'
+    assert box.level == 'annotation'
     yield check_line, box
     yield check_fill, box
     yield (check_props, box, [
@@ -114,5 +115,6 @@ def test_BoxAnnotation():
         "top",
         "top_units",
         "x_range_name",
-        "y_range_name"
+        "y_range_name",
+        "level",
     ], LINE, FILL)
