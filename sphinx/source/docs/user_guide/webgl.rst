@@ -49,10 +49,6 @@ Notes
   rendering.
 * Making a selections of markers on Internet Explorer will reduce the size
   of the markers to 1 pixel (looks like a bug in IE).
-* Typical browsers restrict the number of GL contexts to 16. When there
-  are many plots on one page, some are likely to produce wrong visual
-  output.
-
 
 Example
 -------
