@@ -34,7 +34,7 @@ gulp.task "scripts:build", ->
 
 gulp.task "scripts:minify", ->
   gulp.src paths.coffee.destination.fullWithPath
-    .pipe rename paths.coffee.destination.minified
+    .pipe rename((path) -> path.basename += ".min")
     .pipe gulp.dest paths.buildDir.js
     .pipe sourcemaps.init
       loadMaps: true
