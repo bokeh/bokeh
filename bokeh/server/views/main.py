@@ -18,28 +18,24 @@ from bokeh.exceptions import DataIntegrityException
 from bokeh.resources import Resources
 from bokeh.templates import AUTOLOAD
 from flask import (
-    render_template, request, send_from_directory,
+    render_template, request, send_from_directory, current_app,
     abort, jsonify, Response, redirect, url_for
 )
 from six import string_types
 
-from .bbauth import handle_auth_error
-from ..app import bokeh_app
-from ..crossdomain import crossdomain
-from ..models import docs
-from ..models import user
+from ..blueprint import bokeh_blueprint
+from ..decorators import crossdomain, handle_auth_error, login_required
+from ..models import docs, user
 from ..serverbb import prune, BokehServerTransaction, get_temporary_docid
 from ..views import make_json
-from ..views.decorators import login_required
-from ..settings import settings as server_settings
 
 def request_resources():
     """Creates resources instance based on url info from
     current app/request context
     """
-    if bokeh_app.url_prefix:
+    if bokeh_blueprint.url_prefix:
         # strip of leading slash
-        root_url  = request.url_root + bokeh_app.url_prefix[1:]
+        root_url  = request.url_root + bokeh_blueprint.url_prefix[1:]
     else:
         root_url  = request.url_root
     resources = Resources(root_url=root_url, mode='server')
@@ -51,7 +47,7 @@ def render(fname, **kwargs):
     return render_template(fname, bokeh_prefix=bokeh_prefix,
                            **kwargs)
 
-@bokeh_app.route('/bokeh/ping')
+@bokeh_blueprint.route('/bokeh/ping')
 def ping():
     ''' Test whether Bokeh server is up.
 
@@ -61,8 +57,8 @@ def ping():
     # test route, to know if the server is up
     return "pong"
 
-@bokeh_app.route('/')
-@bokeh_app.route('/bokeh/')
+@bokeh_blueprint.route('/')
+@bokeh_blueprint.route('/bokeh/')
 def index(*unused_all, **kwargs):
     ''' Render main page.
 
@@ -70,7 +66,7 @@ def index(*unused_all, **kwargs):
     :status 302: otherwise redirect to login
 
     '''
-    bokehuser = bokeh_app.current_user()
+    bokehuser = bokeh_blueprint.current_user()
     if not bokehuser:
         return redirect(url_for('.login_get'))
     return render('bokeh.html',
@@ -78,21 +74,21 @@ def index(*unused_all, **kwargs):
                   title="Bokeh Documents for %s" % bokehuser.username
     )
 
-@bokeh_app.route('/bokeh/favicon.ico')
+@bokeh_blueprint.route('/bokeh/favicon.ico')
 def favicon():
     ''' Return favicon.
 
     :status 200: return favicon
 
     '''
-    return send_from_directory(os.path.join(bokeh_app.root_path, 'static'),
+    return send_from_directory(os.path.join(bokeh_blueprint.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
 
 def _makedoc(redisconn, u, title):
     docid = str(uuid.uuid4())
     if isinstance(u, string_types):
         u = user.User.load(redisconn, u)
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
+    clientdoc = bokeh_blueprint.backbone_storage.get_document(docid)
     prune(clientdoc)
     if u is not None:
         rw_users = [u.username]
@@ -101,50 +97,50 @@ def _makedoc(redisconn, u, title):
     else:
         #anonyomus user case
         rw_users = []
-    doc = docs.new_doc(bokeh_app, docid,
+    doc = docs.new_doc(bokeh_blueprint, docid,
                        title, clientdoc,
                        rw_users=rw_users)
-    bokeh_app.backbone_storage.store_document(clientdoc)
+    bokeh_blueprint.backbone_storage.store_document(clientdoc)
     return doc
 
-@bokeh_app.route('/bokeh/doc', methods=['POST'])
-@bokeh_app.route('/bokeh/doc/', methods=['POST'])
+@bokeh_blueprint.route('/bokeh/doc', methods=['POST'])
+@bokeh_blueprint.route('/bokeh/doc/', methods=['POST'])
 @login_required
 def makedoc():
     if request.json:
         title = request.json['title']
     else:
         title = request.values['title']
-    bokehuser = bokeh_app.current_user()
+    bokehuser = bokeh_blueprint.current_user()
     try:
-        _makedoc(bokeh_app.servermodel_storage, bokehuser, title)
+        _makedoc(bokeh_blueprint.servermodel_storage, bokehuser, title)
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
-    bokeh_app.publisher.send("bokehuser:" + bokehuser.username, msg)
+    bokeh_blueprint.publisher.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
-@bokeh_app.route('/bokeh/doc/<docid>', methods=['delete'])
-@bokeh_app.route('/bokeh/doc/<docid>/', methods=['delete'])
+@bokeh_blueprint.route('/bokeh/doc/<docid>', methods=['delete'])
+@bokeh_blueprint.route('/bokeh/doc/<docid>/', methods=['delete'])
 @login_required
 def deletedoc(docid):
-    bokehuser = bokeh_app.current_user()
+    bokehuser = bokeh_blueprint.current_user()
     try:
         bokehuser.remove_doc(docid)
-        bokehuser.save(bokeh_app.servermodel_storage)
+        bokehuser.save(bokeh_blueprint.servermodel_storage)
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
-    bokeh_app.publisher.send("bokehuser:" + bokehuser.username, msg)
+    bokeh_blueprint.publisher.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
-@bokeh_app.route('/bokeh/getdocapikey/<docid>')
+@bokeh_blueprint.route('/bokeh/getdocapikey/<docid>')
 @handle_auth_error
 def get_doc_api_key(docid):
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     t = BokehServerTransaction(bokehuser, doc, 'auto')
     if t.mode == 'rw':
         return jsonify({'apikey' : t.server_docobj.apikey})
@@ -152,21 +148,21 @@ def get_doc_api_key(docid):
         return jsonify({'readonlyapikey' : t.server_docobj.readonlyapikey})
 
 
-@bokeh_app.route('/bokeh/userinfo/', methods=['GET', 'OPTIONS'])
+@bokeh_blueprint.route('/bokeh/userinfo/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=None)
 @login_required
 def get_user():
-    bokehuser = bokeh_app.current_user()
+    bokehuser = bokeh_blueprint.current_user()
     content = protocol.serialize_web(bokehuser.to_public_json())
     return make_json(content)
 
-@bokeh_app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
-@bokeh_app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
+@bokeh_blueprint.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
+@bokeh_blueprint.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=None)
 @handle_auth_error
 def get_bokeh_info(docid):
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(bokehuser, doc, 'r',
                                temporary_docid=temporary_docid
@@ -186,17 +182,17 @@ def get_bokeh_info(docid):
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
 
-@bokeh_app.route('/bokeh/doc/<title>/show', methods=['GET', 'OPTIONS'])
+@bokeh_blueprint.route('/bokeh/doc/<title>/show', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=None)
 @login_required
 def show_doc_by_title(title):
-    bokehuser = bokeh_app.current_user()
+    bokehuser = bokeh_blueprint.current_user()
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
     return render('show.html', title=title, docid=docid)
 
-@bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
+@bokeh_blueprint.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=None)
 @login_required
 def doc_by_title():
@@ -204,28 +200,28 @@ def doc_by_title():
         title = request.json['title']
     else:
         title = request.values['title']
-    bokehuser = bokeh_app.current_user()
+    bokehuser = bokeh_blueprint.current_user()
     docs = [doc for doc in bokehuser.docs if doc['title'] == title]
     if len(docs) == 0:
         try:
-            doc = _makedoc(bokeh_app.servermodel_storage, bokehuser, title)
+            doc = _makedoc(bokeh_blueprint.servermodel_storage, bokehuser, title)
             docid = doc.docid
         except DataIntegrityException as e:
             return abort(409, e.message)
         msg = protocol.serialize_web({'msgtype' : 'docchange'})
-        bokeh_app.publisher.send("bokehuser:" + bokehuser.username, msg)
+        bokeh_blueprint.publisher.send("bokehuser:" + bokehuser.username, msg)
     else:
         doc = docs[0]
         docid = doc['docid']
     return get_bokeh_info(docid)
 
 
-@bokeh_app.route('/bokeh/sampleerror')
+@bokeh_blueprint.route('/bokeh/sampleerror')
 def sampleerror():
     return 1 + "sdf"
 
 
-@bokeh_app.route("/bokeh/autoload.js/<elementid>")
+@bokeh_blueprint.route("/bokeh/autoload.js/<elementid>")
 def autoload_js(elementid):
     ''' Return autoload script for given elementid
 
@@ -243,12 +239,12 @@ def autoload_js(elementid):
     return Response(rendered, 200,
                     {'Content-Type':'application/javascript'})
 
-@bokeh_app.route('/bokeh/objinfo/<docid>/<objid>', methods=['GET', 'OPTIONS'])
+@bokeh_blueprint.route('/bokeh/objinfo/<docid>/<objid>', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=None)
 @handle_auth_error
 def get_bokeh_info_one_object(docid, objid):
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'r', temporary_docid=temporary_docid
@@ -269,10 +265,10 @@ def get_bokeh_info_one_object(docid, objid):
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
 
-@bokeh_app.route('/bokeh/doc/<docid>/<objid>', methods=['GET'])
+@bokeh_blueprint.route('/bokeh/doc/<docid>/<objid>', methods=['GET'])
 def show_obj(docid, objid):
-    bokehuser = bokeh_app.current_user()
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_blueprint.current_user()
+    doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, docid)
     if not bokehuser and not doc.published:
         return redirect(url_for(".login_get", next=request.url))
     resources = request_resources()
@@ -289,16 +285,17 @@ def show_obj(docid, objid):
                   hide_navbar=True,
                   loglevel=resources.log_level)
 
-@bokeh_app.route('/bokeh/wsurl/', methods=['GET', 'OPTIONS'])
+@bokeh_blueprint.route('/bokeh/wsurl/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=None)
 def wsurl():
-    if server_settings.ws_conn_string:
-        return server_settings.ws_conn_string
+    if current_app.config['WS_CONN_STRING']:
+        return current_app.config['WS_CONN_STRING']
     if request.scheme == "http":
         scheme = 'ws'
     else:
         scheme = 'wss'
     url = "%s://%s%s" % (scheme,
                          request.host,
-                         server_settings.url_prefix + "/bokeh/sub")
+                         current_app.config['URL_PREFIX'] + "/bokeh/sub")
+    log.info("returning wsurl: %s", url)
     return url

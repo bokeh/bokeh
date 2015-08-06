@@ -8,100 +8,81 @@
 from __future__ import absolute_import
 
 import uuid
-import imp
 
-import zmq
+from bokeh.util.paths import bokehjsdir
 
-from ..settings import settings as bokeh_settings
+_prefix = "BOKEH_SERVER_"
 
-_defaults = dict(
-    ip="0.0.0.0",
-    port=5006,
-    url_prefix="",
-    multi_user=False,
-    # make scripts for now - for now cli will only
-    # pass one script
-    scripts="",
-    model_backend={'type' : 'shelve'},
-    # model_backend={'type' : redis, 'redis_port' : 7001, 'start-redis' : True},
-    # model_backend={'type' : memory},
-    # model_backend={'type' : shelve},
-    filter_logs=False,
-    ws_conn_string=None,
-    pub_zmqaddr="inproc://bokeh_in",
-    sub_zmqaddr="inproc://bokeh_out",
-    debug=False,
-    dev=False,
-    robust_reload=False,
-    verbose=False,
-    run_forwarder=True,
-    secret_key=str(uuid.uuid4()),
-)
+def optional(key, default=None, prefix=_prefix):
+    from os import environ
+    return environ.get(prefix+key, default)
+
+def boolean(key, default=None):
+    value = optional(key, default)
+
+    if value.lower() in ["true", "yes", "on", "1"]:
+        value = True
+    elif value.lower() in ["false", "no", "off", "0"]:
+        value = False
+    else:
+        raise ValueError("invalid value %r for boolean property" % (value, _prefix, key))
+
+    return value
+
+def integer(key, default=None):
+    value = optional(key, default)
+
+    try:
+        return int(value)
+    except ValueError:
+        raise ValueError("invalid value %r for integer property %s%s" % (value, _prefix, key))
+
+def log_level(key, default):
+    value = optional(key, default)
+
+    try:
+        import logging
+        LEVELS = {
+            'debug': logging.DEBUG,
+            'info' : logging.INFO,
+            'warn' : logging.WARNING,
+            'error': logging.ERROR,
+            'fatal': logging.CRITICAL,
+            'none' : None
+        }
+        return LEVELS[value]
+    except KeyError:
+        raise ValueError("invalid value %r for log level property %s%s" % (value, _prefix, key))
 
 class Settings(object):
-    _debugjs = False
-    _ctx = None
-    fields = _defaults.keys()
 
-    def reset(self):
-        for k,v in _defaults.items():
-            setattr(self, k, v)
+    IP = optional("IP", "0.0.0.0")
+    PORT = integer("PORT", "5006")
+    URL_PREFIX = optional("URL_PREFIX", "")
 
-    @property
-    def ctx(self):
-        if self._ctx is None or self._ctx.closed:
-            self._ctx = zmq.Context()
-        return self._ctx
+    STORAGE_BACKEND = "redis"
+    REDIS_PORT = integer("REDIS_PORT", "7001")
+    REDIS_HOST = optional("REDIS_HOST", "0.0.0.0")
 
-    @property
-    def debugjs(self):
-        return bokeh_settings.debugjs
+    BOKEHJS_DIR = optional("BOKEHJS_DIR", bokehjsdir(optional("DEV", "no")))
 
-    @debugjs.setter
-    def debugjs(self, val):
-        bokeh_settings.debugjs = val
+    MULTI_USER = boolean("MULTI_USER", "no")
 
-    def from_file(self, filename=None):
-        name = "_bokeh_server_configuration"
-        mod = imp.load_source(name, filename)
-        for k in self.fields:
-            v = getattr(mod, k, None)
-            if v is not None:
-                setattr(self, k, v)
-        self.process_settings()
+    HTTPS = boolean("HTTPS", "no")
+    CERTFILE = optional("CERTFILE")
+    KEYFILE = optional("KEYFILE")
 
-    def from_dict(self, input_dict):
-        for k,v in input_dict.items():
-            setattr(self, k, v)
+    DEBUG = boolean("DEBUG", "no")
+    LOG_LEVEL = log_level("LOG_LEVEL", "none")
+    FILTER_LOGS = boolean("FILTER_LOGS", "no")
 
-    def from_args(self, args):
-        self.ip = args.ip
-        self.port = args.port
-        self.multi_user = args.multi_user
-        self.model_backend = {'type' : args.backend}
-        if self.model_backend['type'] == 'redis':
-            self.model_backend.update({
-                'redis_port' : args.redis_port,
-                'start-redis' : args.start_redis
-            })
-        self.ws_conn_string = args.ws_conn_string
-        self.debug = args.debug
-        self.debugjs = args.debugjs
-        self.robust_reload = args.robust_reload
-        self.verbose = args.verbose
-        self.run_forwarder = True
-        if args.script:
-            self.scripts = [args.script]
-        if args.url_prefix:
-            self.url_prefix = args.url_prefix
+    PUB_ZMQADDR = optional("PUB_ZMQADDR", "inproc://bokeh_in")
+    SUB_ZMQADDR = optional("SUB_ZMQADDR", "inproc://bokeh_out")
 
-    def process_settings(self):
-        if self.url_prefix:
-            if not self.url_prefix.startswith("/"):
-                self.url_prefix = "/" + self.url_prefix
-            if self.url_prefix.endswith("/"):
-                self.url_prefix = self.url_prefix[:-1]
+    WS_CONN_STRING = optional("WS_CONN_STRING")
+    RUN_FORWARDER = boolean("RUN_FORWARDER", "yes")
 
-settings = Settings()
-settings.reset()
-del Settings
+    SECRET_KEY = optional("SECRET_KEY", str(uuid.uuid4()))
+
+# clean up
+#del _prefix, optional, integer, boolean, log_level, uuid

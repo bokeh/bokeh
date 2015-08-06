@@ -17,7 +17,7 @@ from flask import (
     request, session, flash, redirect, url_for, render_template, jsonify
 )
 
-from .app import bokeh_app
+from .blueprint import bokeh_blueprint
 from .models import user, docs, convenience
 
 class AbstractAuthentication(object):
@@ -45,7 +45,7 @@ class AbstractAuthentication(object):
         username = self.current_user_name()
         if username is None:
             return None
-        bokehuser = user.User.load(bokeh_app.servermodel_storage, username)
+        bokehuser = user.User.load(bokeh_blueprint.servermodel_storage, username)
         return bokehuser
 
     def login_get(self):
@@ -107,17 +107,17 @@ class SingleUserAuthentication(AbstractAuthentication):
         if the user does not exist, one will be created
         """
         username = self.current_user_name()
-        bokehuser = user.User.load(bokeh_app.servermodel_storage, username)
+        bokehuser = user.User.load(bokeh_blueprint.servermodel_storage, username)
         if bokehuser is not None:
             return bokehuser
-        bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",
+        bokehuser = user.new_user(bokeh_blueprint.servermodel_storage, "defaultuser",
                                   str(uuid.uuid4()), apikey='nokey', docs=[])
         return bokehuser
 
 class MultiUserAuthentication(AbstractAuthentication):
     def can_write_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
         if not isinstance(doc_or_docid, docs.Doc):
-            doc = docs.Doc.load(bokeh_app.servermodel_storage, doc_or_docid)
+            doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, doc_or_docid)
         else:
             doc = doc_or_docid
         if userobj is None:
@@ -127,7 +127,7 @@ class MultiUserAuthentication(AbstractAuthentication):
 
     def can_read_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
         if not isinstance(doc_or_docid, docs.Doc):
-            doc = docs.Doc.load(bokeh_app.servermodel_storage, doc_or_docid)
+            doc = docs.Doc.load(bokeh_blueprint.servermodel_storage, doc_or_docid)
         else:
             doc = doc_or_docid
         if userobj is None:
@@ -152,7 +152,7 @@ class MultiUserAuthentication(AbstractAuthentication):
             return username
         else:
             # check for auth via apis and headers
-            bokehuser = user.apiuser_from_request(bokeh_app, request)
+            bokehuser = user.apiuser_from_request(bokeh_blueprint, request)
             if bokehuser:
                 return bokehuser.username
         return None
@@ -168,7 +168,7 @@ class MultiUserAuthentication(AbstractAuthentication):
         password = request.values['password']
         try:
             bokehuser = user.new_user(
-                bokeh_app.servermodel_storage, username, password
+                bokeh_blueprint.servermodel_storage, username, password
                 )
             self.login(username)
             self.print_connection_info(bokehuser)
@@ -190,7 +190,7 @@ class MultiUserAuthentication(AbstractAuthentication):
             return redirect(url_for('.register_get'))
         try:
             bokehuser = user.new_user(
-                bokeh_app.servermodel_storage, username, password
+                bokeh_blueprint.servermodel_storage, username, password
                 )
             self.login(username)
             self.print_connection_info(bokehuser)
@@ -203,7 +203,7 @@ class MultiUserAuthentication(AbstractAuthentication):
         username = request.values['username']
         password = request.values['password']
         try:
-            bokehuser = user.auth_user(bokeh_app.servermodel_storage,
+            bokehuser = user.auth_user(bokeh_blueprint.servermodel_storage,
                                        username,
                                        password)
             self.login(username)
@@ -221,7 +221,7 @@ class MultiUserAuthentication(AbstractAuthentication):
         username = request.values['username']
         password = request.values['password']
         try:
-            bokehuser = user.auth_user(bokeh_app.servermodel_storage,
+            bokehuser = user.auth_user(bokeh_blueprint.servermodel_storage,
                                        username,
                                        password=password)
             self.login(username)
@@ -235,7 +235,7 @@ class MultiUserAuthentication(AbstractAuthentication):
         username = request.values.get('username')
         apikey = request.values.get('userapikey')
         try:
-            bokehuser = user.auth_user(bokeh_app.servermodel_storage,
+            bokehuser = user.auth_user(bokeh_blueprint.servermodel_storage,
                                        username,
                                        apikey=apikey)
 
