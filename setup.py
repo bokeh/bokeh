@@ -380,6 +380,14 @@ def parse_jsargs():
 # Main script
 # -----------------------------------------------------------------------------
 
+# Aliases for build_js and install_js
+
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '--build-js':
+        sys.argv[i] = '--build_js'
+    if sys.argv[i] == '--install-js':
+        sys.argv[i] = '--install_js'
+
 # Set up this checkout or source archive with the right BokehJS files.
 
 if sys.version_info[:2] < (2, 6):
@@ -499,7 +507,7 @@ REQUIRES = [
         # cli
         # 'click>=3.3',
         # tests
-        # 'nose>=1.3.0',
+        # 'pytest'
         # 'mock>=1.0.1',
         'colorama>=0.2.7'
     ]

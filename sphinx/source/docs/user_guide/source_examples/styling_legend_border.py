@@ -4,7 +4,7 @@ from bokeh.plotting import output_file, figure, show
 x = np.linspace(0, 4*np.pi, 100)
 y = np.sin(x)
 
-output_file("legend_labels.html")
+output_file("legend_border.html")
 
 p = figure()
 

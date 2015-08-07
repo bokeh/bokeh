@@ -533,7 +533,7 @@ objects:
 
 .. code-block:: python
 
-    >>> p.grid
+    >>> p.legend
     [<bokeh.models.renderers.Legend at 0x106fa2278>]
 
 This method also returns a splattable list, so that you can set an attribute
@@ -574,7 +574,7 @@ The default location is ``"top_right"``.
 Label Text
 ~~~~~~~~~~
 
-The visual appearance of the legend labels is controlled by  a collection of
+The visual appearance of the legend labels is controlled by a collection of
 `Text Properties`_, prefixed with ``label_``. For instance, to set the font
 style of the labels, use ``label_text_font_style``.
 
@@ -584,12 +584,23 @@ style of the labels, use ``label_text_font_style``.
 Border
 ~~~~~~
 
-The visual appearance of the legend border is controlled by  a collection of
+The visual appearance of the legend border is controlled by a collection of
 `Line Properties`_, prefixed with ``border_``. For instance, to set the color
 of the border, use ``border_line_color``. To make the border invisible, set
 the border line color to ``None``.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_border.py
+    :source-position: above
+
+Background
+~~~~~~~~~~
+
+The visual appearance of the legend background is controlled by a collection
+of `Fill Properties`_, prefixed with ``background_``. For instance, to set the
+color of the background, use ``background_fill_color``. To make the background
+transparent, set the ``background_fill_alpha`` to ``0``.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_background.py
     :source-position: above
 
 Dimensions
