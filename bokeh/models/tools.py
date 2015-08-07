@@ -371,7 +371,12 @@ class HoverTool(Tool):
     off by setting ``tooltips=None``.
 
     .. warning::
+
         Hover tool does not currently work with the following glyphs:
+
+        .. hlist::
+            :columns: 3
+
             * annulus
             * arc
             * bezier
@@ -382,7 +387,6 @@ class HoverTool(Tool):
             * multi_line
             * oval
             * patch
-            * quad
             * quadratic
             * ray
             * segment
