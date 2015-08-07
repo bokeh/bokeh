@@ -52,7 +52,7 @@ glyphs = [
     ("oval", Oval(x="x", y="y", width=screen(15), height=screen(25), angle=-0.7, fill_color="#1D91C0")),
     ("patch", Patch(x="x", y="y", fill_color="#A6CEE3")),
     ("patches", Patches(xs="xs", ys="ys", fill_color="#FB9A99")),
-    ("quad", Quad(left="x", right="xm01", top="y", bottom="ym01", fill_color="#B3DE69")),
+    ("quad", Quad(left="x", right="xp01", top="y", bottom="ym01", fill_color="#B3DE69")),
     ("quadratic", Quadratic(x0="x", y0="y", x1="xp02", y1="y", cx="xp01", cy="yp01", line_color="#4DAF4A", line_width=3)),
     ("ray", Ray(x="x", y="y", length=45, angle=-0.7, line_color="#FB8072", line_width=2)),
     ("rect", Rect(x="x", y="y", width=screen(10), height=screen(20), angle=-0.7, fill_color="#CAB2D6")),
