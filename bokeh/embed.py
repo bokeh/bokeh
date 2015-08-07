@@ -36,20 +36,47 @@ def _wrap_in_function(code):
 
 
 def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=True):
-    ''' Return HTML components to embed a Bokeh plot.
+    '''
+    Return HTML components to embed a Bokeh plot. The data for the plot is
+    stored directly in the returned HTML.
 
-    The data for the plot is stored directly in the returned HTML.
+    An example can be found in examples/embed/embed_multiple.py
+
 
     .. note:: The returned components assume that BokehJS resources
               are **already loaded**.
 
-    Args:
-        plot_objects (PlotObject|list|dict|tuple) :
-        The |components| function takes either a single PlotObject, a list/tuple of
-        PlotObjects, or a dictionary of keys and PlotObjects. The default returned items are
-        a corresponding data structure of script and div pairs.
+    Args
+    ----
+    plot_objects : PlotObject|list|dict|tuple
+        A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
 
-        The following illustrates how different input types correlate to outputs:
+    resources :
+        Deprecated argument
+
+    wrap_script : boolean, optional
+        If true, the returned javascript is wrapped in a script tag. (default: True)
+
+    wrap_plot_info : boolean, optional
+        If true, then a set of divs are returned.
+        If set to false, then dictionaries are returned that can be used to manually
+        build your own divs. (default: True)
+
+        If false, the returned dictionary contains the following information::
+
+            {
+                'modelid':  'The plots id, which can be used in the Bokeh.index',
+                'elementid': 'The css identifier the BokehJS will look for to target the plot',
+                'modeltype': 'Plot',
+            }
+
+
+
+    Returns
+    -------
+    (script, div[s]) :  UTF-8 encoded
+
+        The output, depends on the input as follows::
 
             components(plot)
             #=> (script, plot_div)
@@ -60,28 +87,18 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
             components({"Plot 1": plot_1, "Plot 2": plot_2})
             #=> (script, {"Plot 1": plot_1_div, "Plot 2": plot_2_div})
 
-        An example can be found in examples/embed/embed_multiple.py
+    (raw_script, plot_info[s]) : UTF-8 encoded
 
-        resources : Deprecated argument
+        The output, depends on the input as follows::
 
-        wrap_script (boolean, optional): If set to false, the returned javascript is not wrapped
-        in a script tag. (default: True)
+            components(plot, wrap_script=False, wrap_plot_info=False)
+            #=> (javascript, plot_dict)
 
-        wrap_plot_info (boolean, optional): If true, then a set of divs are returned as described
-        above. If set to false, then dictionaries are returned that can be used to manually
-        build your own divs. The dictionary contains following information:
-        {
-            'modelid':  'The plots id, which can be used in the Bokeh.index',
-            'elementid': 'The css identifier the BokehJS will look for to target the plot',
-            'modeltype': 'Plot',
-        }
-        (default: True)
+            components((plot_1, plot_2), wrap_script=False, wrap_plot_info=False)
+            #=> (javascript, (plot_1_dict, plot_2_dict))
 
-
-    Returns:
-        (script, div[s]): UTF-8 encoded
-        or
-        (raw_script, plot_info[s]): UTF-8 encoded
+            components({"Plot 1": plot_1, "Plot 2": plot_2}, wrap_script=False, wrap_plot_info=False)
+            #=> (javascript, {"Plot 1": plot_1_dict, "Plot 2": plot_2_dict})
     '''
     all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
 
@@ -91,7 +108,10 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
         script = _get_js(all_models, plots)
     script = encode_utf8(script)
 
-    return script, divs if wrap_plot_info else plot_info
+    if wrap_plot_info:
+        return script, divs
+    else:
+        return script, plot_info
 
 
 def _get_components(plot_objects, resources=None):
