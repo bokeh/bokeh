@@ -9,6 +9,7 @@ class Property extends HasProperties
     @obj = @get('obj')
     @attr = @get('attr')
 
+    # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
     @listenTo(@obj, "change:#{@attr}", () ->
         @_init()
         @obj.trigger("propchange")

@@ -43,6 +43,12 @@ class GlyphRendererView extends PlotWidget
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
+
+    # TODO (bev) This is a quick change that  allows the plot to be
+    # update/re-rendered when properties change on the JS side. It would
+    # be better to make this more fine grained in terms of setting visuals
+    # and also could potentiall be improved by making proper models out
+    # of "Spec" properties. See https://github.com/bokeh/bokeh/pull/2684
     @listenTo(@mget('glyph'), 'propchange', () ->
         @glyph.set_visuals(@mget('data_source'))
         @request_render()
