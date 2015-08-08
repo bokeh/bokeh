@@ -8,14 +8,12 @@ build:
 extra:
   channels:
     - bokeh
-    - javascript
 
 requirements:
   build:
     - python
     - distribute
     - setuptools
-    - gulp  # in javascript channel
 
   run:
     # bokeh
@@ -56,13 +54,13 @@ test:
     - pdiff
     - boto                 [py2k]
     - jinja2
-    - nose
+    - pytest
+    - pytest-cov ==1.8.1
     - mock
     - coverage
     - websocket-client
     - ipython
     - ipython-notebook
-    - gulp
     - flake8
 
     # examples

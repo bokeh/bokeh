@@ -1,41 +1,36 @@
 # scripts - build or minify JS
 
 browserify = require "browserify"
-change = require "gulp-change"
 gulp = require "gulp"
 rename = require "gulp-rename"
 transform = require "vinyl-transform"
 uglify = require "gulp-uglify"
 runSequence = require "run-sequence"
 sourcemaps = require "gulp-sourcemaps"
-argv = require("yargs").argv
-
+source = require 'vinyl-source-stream'
+buffer = require 'vinyl-buffer'
 paths = require "../paths"
-utils = require "../utils"
 
 gulp.task "scripts:build", ->
   opts =
+    entries: ['./src/coffee/main.coffee']
     extensions: [".coffee", ".eco"]
+    debug: true
 
-  opts.debug = if argv.debug then argv.debug else false
-
-  browserified = transform (filename) ->
-    browserify filename, opts
-      .transform "browserify-eco"
-      .transform "coffeeify"
-      .bundle()
-
-  gulp.src paths.coffee.sources
-    .pipe browserified
-    .pipe change (content) ->
-      "(function() { var define = undefined; #{content} })()"
-    .pipe rename paths.coffee.destination.full
+  browserify opts
+    .transform "browserify-eco"
+    .transform "coffeeify"
+    .bundle()
+    .pipe source paths.coffee.destination.full
+    .pipe buffer()
+    .pipe sourcemaps.init
+      loadMaps: true
+    .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.js
 
 gulp.task "scripts:minify", ->
   gulp.src paths.coffee.destination.fullWithPath
-    .pipe rename paths.coffee.destination.minified
-    .pipe gulp.dest paths.buildDir.js
+    .pipe rename (path) -> path.basename += '.min'
     .pipe sourcemaps.init
       loadMaps: true
     .pipe uglify()

@@ -60,7 +60,7 @@ if __name__ == '__main__':
                       'pdiffer'                    : 'pdiff'
                      }
 
-    dev_deps = ['bs4', 'colorama', 'pdiffer', 'boto', 'nose', 'mock', 'coverage',
+    dev_deps = ['bs4', 'colorama', 'pdiffer', 'boto', 'pytest', 'mock', 'coverage',
                 'websocket']
     depend_check('Dev', *dev_deps)
 
