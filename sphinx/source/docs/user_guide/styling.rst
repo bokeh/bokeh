@@ -253,11 +253,11 @@ This is the object to set fill, line, or text property values for:
 .. _userguide_styling_selected_unselected_glyphs:
 
 Selected & Unselected Glyphs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The styling of selected and non-selected glyphs can be customized by
 setting the |selection_glyph| and/or |nonselection_glyph| attributes
-of the |GlyphRenderer| either manually or be passing them to |add_glyph|.
+of the |GlyphRenderer| either manually or by passing them to |add_glyph|.
 
 .. |add_glyph| replace:: :func:`~bokeh.models.plots.Plot.add_glyph`
 .. |GlyphRenderer| replace:: :class:`~bokeh.models.renderers.GlyphRenderer`
