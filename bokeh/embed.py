@@ -193,7 +193,7 @@ def _append_plot(all_models, plots, plot_object, elementid):
     all_models.extend(plot_object.dump())
     plot_info = {
         'modelid': ref["id"],
-        'elementid': '#' + elementid,
+        'elementid': elementid,
         'modeltype': ref["type"]
     }
     plots.append(plot_info)

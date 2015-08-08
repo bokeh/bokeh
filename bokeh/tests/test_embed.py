@@ -77,7 +77,7 @@ class TestComponents(unittest.TestCase):
         mock_uuid.uuid4.return_value = 'uuid'
 
         plot = _embed_test_plot
-        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "#uuid", "modeltype": "Plot"}
+        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "uuid", "modeltype": "Plot"}
         script, plotdict = embed.components(_embed_test_plot, wrap_plot_info=False)
         self.assertEqual(plotdict, expected_plotdict)
 
