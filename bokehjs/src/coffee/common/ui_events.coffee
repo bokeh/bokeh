@@ -95,6 +95,9 @@ class UIEvents extends Backbone.Model
     gestures = tm.get('gestures')
     active = gestures[base_event_type].active
     if active?
+      if event_type == "scroll"
+        e.preventDefault()
+        e.stopPropagation()
       @trigger("#{event_type}:#{active.id}", e)
 
   _bokify_hammer: (e) ->
@@ -192,8 +195,6 @@ class UIEvents extends Backbone.Model
     @_bokify_jq(e)
     e.bokeh.delta = delta
     @_trigger('scroll', e)
-    e.preventDefault()
-    e.stopPropagation()
 
   _key_down: (e) ->
     # NOTE: keydown event triggered unconditionally
