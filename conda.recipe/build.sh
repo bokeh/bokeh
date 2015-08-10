@@ -27,6 +27,9 @@ fi
 cp __conda_version__.txt $BLD_DIR
 
 pushd bokehjs
+wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.25.4/install.sh | bash
+nvm install stable
+nvm use stable
 echo "npm version $(npm -v)"
 echo "node version $(node -v)"
 npm install
