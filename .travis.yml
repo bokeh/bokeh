@@ -7,8 +7,6 @@ python:
     - 3.3
     - 3.4
 
-node_js: "0.12"
-
 env:
     global:
         - MINICONDA_VERSION="latest"
