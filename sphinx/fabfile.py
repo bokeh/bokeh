@@ -11,9 +11,8 @@ env.roledefs = {
 env.user = "bokeh"
 
 @roles('web')
-def deploy(v=None, latest=None):
+def deploy(v=None):
 
-    # TODO (bev) confirm this version is not the latest
     if v is None:
         v = conf.version
 
@@ -21,11 +20,6 @@ def deploy(v=None, latest=None):
     run("rm -rf /www/bokeh/en/%s.bak" % v)
     run("mkdir -p /www/bokeh/en/%s" % v)
     run("cp -ar /www/bokeh/en/%s /www/bokeh/en/%s.bak" % (v, v))
-
-    # switch latest symlink to archive docs
-    if latest == 'latest':
-        run("rm /www/bokeh/en/latest")
-        run("ln -s /www/bokeh/en/%s.bak /www/bokeh/en/latest" % v)
 
     rsync_project(
         local_dir="_build/html/",
@@ -36,7 +30,12 @@ def deploy(v=None, latest=None):
     # set permissions
     run("chmod -R g+w /www/bokeh/en/%s" % v)
 
+@roles('web')
+def latest(v=None):
+
+    if v is None:
+        raise RuntimeError("You need to specify version number: fab latest:x.x.x")
+
     # switch the current symlink to new docs
-    if latest == 'latest':
-        run("rm /www/bokeh/en/latest")
-        run("ln -s /www/bokeh/en/%s /www/bokeh/en/latest" % v)
+    run("rm /www/bokeh/en/latest")
+    run("ln -s /www/bokeh/en/%s /www/bokeh/en/latest" % v)
