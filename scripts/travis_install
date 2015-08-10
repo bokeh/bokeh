@@ -20,7 +20,7 @@ EOF
 )
 echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2 anaconda-client"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
 conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
