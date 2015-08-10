@@ -62,10 +62,10 @@ class BoxAnnotation extends HasParent
       top_units: 'data'
       bottom_units: 'data'
       fill_color: '#fff9ba'
-      fill_alpha: 1.0
+      fill_alpha: 0.4
       line_color: '#cccccc'
       line_width: 1
-      line_alpha: 1.0
+      line_alpha: 0.3
       line_join: 'miter'
       line_cap: 'butt'
       line_dash: []

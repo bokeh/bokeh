@@ -355,11 +355,22 @@ below:
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_twin_axes.py
     :source-position: above
 
-Adding Legends
---------------
+.. _userguide_plotting_annotations:
 
-It is also possible to create legends easily by specifying a legend argument
-to the glyph methods, when creating a plot.
+Adding Annotations
+------------------
+
+Bokeh includes annotations to allow users to add supplemental information to
+their visualizations. This includes legends to identify the distinct variables
+and box annotations to highlight specific plot regions.
+
+.. _userguide_plotting_legends:
+
+Legends
+~~~~~~~
+
+It is possible to create legends easily by specifying a legend argument to the
+glyph methods, when creating a plot.
 
 .. note::
     This example depends on the open source NumPy library in order to more
@@ -368,6 +379,16 @@ to the glyph methods, when creating a plot.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends.py
     :source-position: above
 
+.. _userguide_plotting_box_annotations
+
+Box Annotations
+~~~~~~~~~~~~~~~
+
+Box annotations can be linked to either data or screen coordinates in order to
+emphasize desired plot regions.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_glucose.py
+    :source-position: above
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
