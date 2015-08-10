@@ -54,7 +54,7 @@ def bokeh_installer(env_name, install_string):
     else:
         command_string = 'source activate %s; %s' % (env_name, install_string)
 
-    result = subprocess.call(command_string, shell=True)
+    result = subprocess.call(command_string, shell=True, executable="/bin/bash")
 
     return result == 0
 
