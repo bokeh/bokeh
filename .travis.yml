@@ -34,7 +34,8 @@ branches:
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_ID > __travis_build_id__.txt
-    - nvm use 0.12
+    - nvm install stable
+    - nvm use stable
 
 install:
     - scripts/travis_install
