@@ -14,11 +14,11 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-# PINNED_PKGS=$(cat <<EOF
-# binstar ==0.10.1
-# EOF
-# )
-# echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
+PINNED_PKGS=$(cat <<EOF
+
+EOF
+)
+echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2 anaconda-client"
 conda install --yes $DEPS_TRAVIS
