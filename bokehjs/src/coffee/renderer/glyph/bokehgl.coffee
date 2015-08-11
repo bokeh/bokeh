@@ -2,10 +2,11 @@ gloo2 = require "gloo2"
 color = require "../../common/color"
 color2rgba = color.color2rgba
 
-# Copyright notice: many of the awesome GLSL code contained in this module is based
-# on code developed by Nicolas Rougier as part of the Glumpy and Vispy projects.
-# The algorithms are published in http://jcgt.org/published/0003/04/01/
-
+# Copyright notice: many of the awesome techniques and  GLSL code contained in
+# this module are based on work by Nicolas Rougier as part of the Glumpy and 
+# Vispy projects. The algorithms are published in
+# http://jcgt.org/published/0003/04/01/ and http://jcgt.org/published/0002/02/08/
+# 
 # This module contains all gl-specific code to add gl support for the glyphs.
 # By implementing it separetely, the GL functionality can be spun off in a
 # separate library.
@@ -117,6 +118,155 @@ class LineGLGlyph extends BaseGLGlyph
     GLYPH: 'line'
     VERT: 'xxx'
     FRAG: 'xxx'
+    
+    init: () ->
+      gl = @gl
+      
+      # The program
+      @prog = new gloo2.Program(gl)
+      @prog.set_shaders(@VERT, @FRAG)
+      # Buffers
+      @vbo_pos = new gloo2.VertexBuffer(gl)
+    
+    draw: (indices, mainGlyph, trans) ->
+      
+      if @data_changed
+        @data_changed = false
+        @_set_data(@nvertices)
+      
+    
+    _set_data: (nvertices) ->
+    
+    
+    _bake: () ->
+         #     self.vtype = np.dtype( [('a_position', 'f4', 2),
+         #                       ('a_segment',  'f4', 2),
+         #                       ('a_angles',   'f4', 2),
+         #                       ('a_tangents', 'f4', 4),
+         #                       ('a_texcoord', 'f4', 2) ])
+                                
+      # Init array of implicit shape nx2
+      n = @nvertices
+      _x = new Float32Array(@x)
+      _y = new Float32Array(@y)
+      
+      # Init vertex data
+      V_position = Vp = new Float32Array(n*2)
+      V_segment = new Float32Array(n*2)
+      V_angles = new Float32Array(n*2)
+      V_tangents = Vt = new Float32Array(n*4)  # mind the 4!
+      V_texcoord = new Float32Array(n*2)
+      
+      # todo: what if I split the tangents up in two arrays, I think it would simplify the code ...
+      
+      # Positipn
+      for i in [0...n]
+          V_position[i*2+0] = _x[i]
+          V_position[i*2+1] = _y[i]
+      
+      # Tangents & norms
+      T = new Float32Array(n*2-2)
+      N = new Float32Array(n-1)
+      for i in [0...n-1]
+        T[i*2+0] = Vp[i*2+0+1] - Vp[i*2+0]
+        T[i*2+1] = Vp[i*2+1+1] - Vp[i*2+1]
+        
+        N[i] = Math.sqrt(Math.pow(T[i*2+0], 2), Math.pow(T[i*2+1], 2))
+        
+        # V['a_tangents'][+1:, :2] = T
+        V_tangents[(i+1)*4+0] = T[i*2+0]
+        V_tangents[(i+1)*4+1] = T[i*2+1]        
+        # V['a_tangents'][:-1, 2:] = T
+        V_tangents[i*4+2] = T[i*2+0]
+        V_tangents[i*4+3] = T[i*2+1]
+         
+      # V['a_tangents'][0  , :2] = T[0]
+      V_tangents[0*i+0] = T[0]
+      V_tangents[0*i+1] = T[1]
+      # V['a_tangents'][ -1, 2:] = T[-1]
+      V_tangents[(n-1)+2] = T[(n-2)+0]
+      V_tangents[(n-1)+3] = T[(n-2)+1]
+      
+      # Angles
+      A = new float32Array(n)
+      for i in [0...n]
+        A[i] = Math.atan2(Vt[i*4+0]*Vt[i*4+3] - Vt[i*4+1]*Vt[i*4+2],
+                          Vt[i*4+0]*Vt[i*4+2] - Vt[i*4+1]*Vt[i*4+3])
+      for i in [0...n-1]
+        V_angles[i*2+0] = A[i]
+        V_angles[i*2+1] = A[i+1]
+      
+      # Segment
+      cumsum = 0
+      for i in [0...n-1]
+        cumsum += i
+        V_segment[(i+1)*2+0] = cumsum
+        V_segment[i*2+1] = cumsum
+      
+      # Step 1: A -- B -- C  =>  A -- B, B' -- C
+      
+      # Repeat our array 4 times
+      m = 4 * n
+      @V_position = V_position2 = new Float32Array(m*2)
+      @V_segment = V_segment2 = new Float32Array(m*2)
+      @V_angles = V_angles2 = new Float32Array(m*2)
+      @V_tangents = V_tangents2 = new Float32Array(m*4)  # mind the 4!
+      @V_texcoord = V_texcoord2 = new Float32Array(m*2)
+      #
+      # Arg, we really need an ndarray thing in JS :/
+      for i in [0...n]
+         for j in [0...4]
+            for k in [0...2]
+              V_position2[4*i*2+j*2+k] = V_position[i*2+k]
+              V_segment2[4*i*2+j*2+k] = V_segment[i*2+k]
+              V_angles2[4*i*2+j*2+k] = V_angles[i*2+k]
+              #V_texcoord2[4*i*2+j*2+k] = V_texcoord[i*2+k]
+            for k in [0...4]
+              V_tangents2[4*i*4+j*4+k] = V_tangents[i*4+k]
+      
+      for i in [0..n]         
+        V_texcoord2[4*i*2+0*2+0] = -1
+        V_texcoord2[4*i*2+1*2+0] = -1
+        V_texcoord2[4*i*2+2*2+0] = +1
+        V_texcoord2[4*i*2+3*2+0] = +1
+        #
+        V_texcoord2[4*i*2+0*2+1] = -1
+        V_texcoord2[4*i*2+1*2+1] = +1
+        V_texcoord2[4*i*2+2*2+1] = -1
+        V_texcoord2[4*i*2+3*2+1] = +1
+      
+      # Note: we need to strip two elements on each side, but we'll do that by
+      # giving nonzero offset and a smaller count to opengl. 
+      V_position2.gl_offset = 4
+      V_segment2.gl_offset = 0
+      V_angles2.gl_offset = 0
+      V_tangents2.gl_offset = 8
+      V_texcoord2.gl_offset = 0
+      
+      # Indices
+      #I = np.resize( np.array([0,1,2,1,2,3], dtype=np.uint32), (n-1)*(2*3))
+      #I += np.repeat( 4*np.arange(n-1), 6)
+      ni = (n-1) * 6
+      @I_triangles = I = new Uint32Array(ni*2)
+      for i in [0...ni]
+        I[i*6+0] = 0
+        I[i*6+1] = 1
+        I[i*6+2] = 2
+        I[i*6+3] = 1
+        I[i*6+4] = 2
+        I[i*6+5] = 3
+      # todo: I have *no* idea what this second part is for...
+      for i in [0...ni]
+        I[ni+i*6+0] = i*4
+        I[ni+i*6+1] = i*4
+        I[ni+i*6+2] = i*4
+        I[ni+i*6+3] = i*4
+        I[ni+i*6+4] = i*4
+        I[ni+i*6+5] = i*4
+      
+      # todo: if I is larger than 65k, we need to draw in parts
+      @cumsum = cumsum  # L[-1] in Nico's code
+
 
 class MarkerGLGlyph extends BaseGLGlyph
   # Base class for markers. All markers share the same GLSL, except for one
