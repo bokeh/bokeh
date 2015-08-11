@@ -30,15 +30,21 @@ To serve the built docs into a local browser:
 
 Issue "make help" to see a list of all make commands.
 
-To deploy the docs to bokeh.pydata.org you have multiple options, such as:
+To deploy docs to bokeh.pydata.org you have multiple options, such as:
 
-    $ fab deploy #will deploy the current version at /version
+     $ fab deploy # deploy the current checked out version at /<version>
 
-    $ fab deploy:0.9.2 #will deploy/redeploy 0.9.2 version at /0.9.2
+     $ fab deploy:<name> # deploy the current checked out version at /<name>
 
-    $ fab deploy:dev #will deploy current version at /dev (same for /test) 
+For example:
 
-    $ fab deploy:0.9.3,latest #should be use to also link /latest to 0.9.3 version (for releases)
+     $ fab deploy:0.9.2 # deploy at /0.9.2
+     $ fab deploy:test  # deploy at /test
+     $ fab deploy:dev   # deploy at /dev
+
+Additionally, you have the "latest" task to update the `/latest` link to the specified version:
+
+    $ fab latest:0.9.3 # link /latest to 0.9.3 version
 
 Note: requires having SSH keys for "bokeh" user.
 
