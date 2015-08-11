@@ -46,4 +46,4 @@ def latest(v=None):
         run("ln -s /www/bokeh/en/%s /www/bokeh/en/latest" % v)
     else:
         raise RuntimeError("We did not detect a %s docs version, please use "
-                           "fab deploy:%s first." % v)
+                           "fab deploy:%s first." % (v, v))
