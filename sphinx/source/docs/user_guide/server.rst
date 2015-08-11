@@ -224,7 +224,7 @@ Here's a simple example:
 
     p = figure(plot_width=400, plot_height=400)
     p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], name='ex_line')
-    show(p
+    show(p)
 
     # create some simple animation..
     # first get our figure example data source
