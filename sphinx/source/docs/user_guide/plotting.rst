@@ -387,8 +387,9 @@ Box Annotations
 Box annotations can be linked to either data or screen coordinates in order to
 emphasize desired plot regions.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_glucose.py
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
     :source-position: above
+
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
