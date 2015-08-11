@@ -1,4 +1,5 @@
 from fabric.api import run, env, roles
+from fabric.contrib.files import exists
 from fabric.contrib.project import rsync_project
 
 import sys
@@ -15,6 +16,9 @@ def deploy(v=None):
 
     if v is None:
         v = conf.version
+    elif v == "latest":
+        raise RuntimeError("You can not pass 'latest' as fab argument. Use "
+                           "fab latest:x.x.x instead.")
 
     # make a backup of the old directory
     run("rm -rf /www/bokeh/en/%s.bak" % v)
@@ -34,8 +38,12 @@ def deploy(v=None):
 def latest(v=None):
 
     if v is None:
-        raise RuntimeError("You need to specify version number: fab latest:x.x.x")
+        raise RuntimeError("You need to specify a version number: fab latest:x.x.x")
 
-    # switch the current symlink to new docs
-    run("rm /www/bokeh/en/latest")
-    run("ln -s /www/bokeh/en/%s /www/bokeh/en/latest" % v)
+    if exists("/www/bokeh/en/%s" % v):
+        # switch the current symlink to new docs
+        run("rm /www/bokeh/en/latest")
+        run("ln -s /www/bokeh/en/%s /www/bokeh/en/latest" % v)
+    else:
+        raise RuntimeError("We did not detect a %s docs version, please use "
+                           "fab deploy:%s first." % v)
