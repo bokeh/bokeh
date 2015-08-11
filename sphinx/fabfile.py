@@ -17,8 +17,7 @@ def deploy(v=None):
     if v is None:
         v = conf.version
     elif v == "latest":
-        raise RuntimeError("You can not pass 'latest' as fab argument. Use "
-                           "fab latest:x.x.x instead.")
+        raise RuntimeError("You can not pass 'latest' as fab argument. Use fab latest:x.x.x instead.")
 
     # make a backup of the old directory
     run("rm -rf /www/bokeh/en/%s.bak" % v)
@@ -45,5 +44,4 @@ def latest(v=None):
         run("rm /www/bokeh/en/latest")
         run("ln -s /www/bokeh/en/%s /www/bokeh/en/latest" % v)
     else:
-        raise RuntimeError("We did not detect a %s docs version, please use "
-                           "fab deploy:%s first." % (v, v))
+        raise RuntimeError("We did not detect a %s docs version, please use fab deploy:%s first." % (v, v))
