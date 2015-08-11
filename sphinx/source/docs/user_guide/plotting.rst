@@ -390,7 +390,6 @@ emphasize desired plot regions.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
     :source-position: above
 
-
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`

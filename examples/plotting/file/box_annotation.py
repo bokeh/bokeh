@@ -2,7 +2,7 @@ from bokeh.sampledata.glucose import data
 from bokeh.plotting import figure, show, output_file
 from bokeh.models import BoxAnnotation
 
-output_file("glucose.html", title="glucose.py example")
+output_file("box_annotation.html", title="box_annotation.py example")
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
