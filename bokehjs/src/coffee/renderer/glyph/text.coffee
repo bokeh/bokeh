@@ -31,7 +31,7 @@ class TextView extends Glyph.View
     ctx.font = ctx.font.replace(/\b[\d\.]+[\w]+\b/, '10pt')
     ctx.textAlign = "right"
     ctx.textBaseline = "middle"
-    ctx.fillText("txt", x2, (y1+y2)/2)
+    ctx.fillText("text", x2, (y1+y2)/2)
     ctx.restore()
 
 class Text extends Glyph.Model
