@@ -1,10 +1,13 @@
 from __future__ import print_function
 
 import os
+import pytest
 from os.path import join
 import unittest
 import subprocess
 
+
+@pytest.mark.js
 class TestBokehJS(unittest.TestCase):
 
     def test_bokehjs(self):

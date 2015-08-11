@@ -1,10 +1,12 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
-from bokeh.models.widgets import VBox, Tabs, Panel
-from bokeh.models.glyphs import (AnnularWedge, Annulus, Arc, Bezier, Circle, Line, MultiLine, Oval,
-    Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Wedge, CircleX, Triangle,
-    Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross)
+from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool
+from bokeh.models.widgets import VBox, Tabs, Panel, Paragraph
+from bokeh.models.glyphs import (
+    AnnularWedge, Annulus, Arc, Bezier, Gear, Circle, ImageURL, Line, MultiLine, Oval,
+    Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Text, Wedge, CircleX, Triangle,
+    Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross, X
+)
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
@@ -43,16 +45,19 @@ glyphs = [
     ("annulus", Annulus(x="x", y="y", inner_radius=screen(10), outer_radius=screen(20), fill_color="#7FC97F")),
     ("arc", Arc(x="x", y="y", radius=screen(20), start_angle=0.6, end_angle=4.1, line_color="#BEAED4", line_width=3)),
     ("bezier", Bezier(x0="x", y0="y", x1="xp02", y1="y", cx0="xp01", cy0="yp01", cx1="xm01", cy1="ym01", line_color="#D95F02", line_width=2)),
+    ("gear", Gear(x="x", y="y", module=0.1, teeth=8, angle=0, shaft_size=0.02, fill_color="#FDF6E3", line_color="D95F02")),
+    ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=dict(value="http://bokeh.pydata.org/en/latest/_static/bokeh-transparent.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
     ("multi_line", MultiLine(xs="xs", ys="ys", line_color="#8073AC", line_width=2)),
     ("oval", Oval(x="x", y="y", width=screen(15), height=screen(25), angle=-0.7, fill_color="#1D91C0")),
     ("patch", Patch(x="x", y="y", fill_color="#A6CEE3")),
     ("patches", Patches(xs="xs", ys="ys", fill_color="#FB9A99")),
-    ("quad", Quad(left="x", right="xm01", top="y", bottom="ym01", fill_color="#B3DE69")),
+    ("quad", Quad(left="x", right="xp01", top="y", bottom="ym01", fill_color="#B3DE69")),
     ("quadratic", Quadratic(x0="x", y0="y", x1="xp02", y1="y", cx="xp01", cy="yp01", line_color="#4DAF4A", line_width=3)),
     ("ray", Ray(x="x", y="y", length=45, angle=-0.7, line_color="#FB8072", line_width=2)),
     ("rect", Rect(x="x", y="y", width=screen(10), height=screen(20), angle=-0.7, fill_color="#CAB2D6")),
     ("segment", Segment(x0="x", y0="y", x1="xm01", y1="ym01", line_color="#F4A582", line_width=3)),
+    ("text", Text(x="x", y="y", text=["hello"])),
     ("wedge", Wedge(x="x", y="y", radius=screen(15), start_angle=0.6, end_angle=4.1, fill_color="#B3DE69")),
 ]
 
@@ -69,6 +74,7 @@ markers = [
     ("inverted_triangle", InvertedTriangle(x="x", y="y", size="sizes", line_color="#DE2D26", line_width=2)),
     ("cross", Cross(x="x", y="y", size="sizes", line_color="#E6550D", fill_color=None, line_width=2)),
     ("asterisk", Asterisk(x="x", y="y", size="sizes", line_color="#F0027F", fill_color=None, line_width=2)),
+    ("x", X(x="x", y="y", size="sizes", line_color="milkshake", fill_color=None, line_width=2)),
 ]
 
 def make_tab(title, glyph):
@@ -85,6 +91,8 @@ def make_tab(title, glyph):
     plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
     plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
+    plot.add_tools(HoverTool())
+
     tab = Panel(child=plot, title=title)
 
     return tab
@@ -92,7 +100,7 @@ def make_tab(title, glyph):
 def make_tabs(objs):
     return Tabs(tabs=[ make_tab(title, obj) for title, obj in objs ])
 
-layout = VBox(children=[make_tabs(glyphs), make_tabs(markers)])
+layout = VBox(children=[Paragraph(text="Only Image and ImageRGBA glyphs are not demonstrated."), make_tabs(glyphs), make_tabs(markers)])
 
 doc = Document()
 doc.add(layout)

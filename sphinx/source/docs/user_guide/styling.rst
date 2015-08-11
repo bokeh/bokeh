@@ -240,8 +240,6 @@ list:
 Then, the glyph itself is obtained from the ``.glyph`` attribute of a
 ``GlyphRenderer``:
 
-.. _userguide_styling_axes:
-
 .. code-block:: python
 
     >>> p.select(name="mycircle")[0].glyph
@@ -252,20 +250,53 @@ This is the object to set fill, line, or text property values for:
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_properties.py
     :source-position: above
 
-``GlyphRenderer`` objects can also be configured with ``selection_glyph``
-and ``nonselection_glyph`` attributes that control the visual appearance of
-glyphs when selection tools are used.
+.. _userguide_styling_selected_unselected_glyphs:
+
+Selected & Unselected Glyphs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The styling of selected and non-selected glyphs can be customized by
+setting the |selection_glyph| and/or |nonselection_glyph| attributes
+of the |GlyphRenderer| either manually or by passing them to |add_glyph|.
+
+.. |add_glyph| replace:: :func:`~bokeh.models.plots.Plot.add_glyph`
+.. |GlyphRenderer| replace:: :class:`~bokeh.models.renderers.GlyphRenderer`
+.. |selection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.selection_glyph`
+.. |nonselection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.nonselection_glyph`
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_selections.py
     :source-position: above
 
-Use the lasso tool to select circles on the plot above to see the effect
-on the nonselected glyphs.
+Click/Tap to select circles on the plot above to see the effect on the nonselected glyphs.
+
+Click in the plot, but not on a circle, to see their original state (this
+is set by the original call ``p.circle()``).  
+
+The same could be achieved with the models interface as follows:
+
+.. code-block:: python
+    
+    p = Plot()
+    source = ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3]))
+
+    initial_circle = Circle(x='x', y='y', fill_color='blue', size=50)
+    selected_circle = Circle(fill_alpha=1, fill_color="firebrick", line_color=None)
+    nonselected_circle = Circle(fill_alpha=0.2, fill_color="blue", line_color="firebrick")
+
+    p.add_glyph(
+      source,
+      initial_circle,
+      selection_glyph=selected_circle,
+      nonselection_glyph=nonselected_circle
+    )
+
 
 .. note::
     Only the *visual* properties of ``selection_glyph`` and
     ``nonselection_glyph`` are considered when renderering. Changing
     positions, sizes, etc. will have no effect.
+
+.. _userguide_styling_axes:
 
 Axes
 ----
