@@ -168,10 +168,11 @@ BOKEH_LOCAL_DOCS_CDN=$complete_version BOKEH_DOCS_VERSION=$complete_version make
 
 # to the correct location
 if [[ -z "$travis_build_id" ]]; then
-    fab deploy
+    fab deploy:$complete_version
+    fab latest:$complete_version
     echo "I'm done uploading the release docs"
 else
-    fab update:dev
+    fab deploy:dev
     echo "I'm done uploading the devel docs"
 fi
 
