@@ -125,8 +125,6 @@ class LocalServer(Subcommand):
         # don't even watch for them
         if self.develop_mode and path == self.mainpy:
             self.refresh(open_browser=False)
-        else:
-            print("Ignoring change to " + path + " expecting " + self.mainpy)
 
     def func(self, args):
 
