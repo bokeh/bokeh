@@ -4,21 +4,16 @@
 #
 # Example code by Randal S. Olson (http://www.randalolson.com)
 
-from bokeh.plotting import figure, show, output_notebook, ColumnDataSource
+from bokeh.plotting import figure, show, output_file, ColumnDataSource
 from bokeh.models import HoverTool, NumeralTickFormatter
 from bokeh.models import SingleIntervalTicker, LinearAxis
 import pandas as pd
 
-# Once the data set is loaded in the bokeh data repository, we can do this:
+# Since the data set is loaded in the bokeh data repository, we can do this:
 
-# from bokeh.sampledata.us_marriages_divorces import data
+from bokeh.sampledata.us_marriages_divorces import data
 
-# md_data = data.copy()
-
-# For now, just point to the data directly:
-
-# First read in the marriage and divorce time series data with pandas
-md_data = pd.read_csv('../../bokeh/sampledata/us_marriages_divorces.csv')
+md_data = data.copy()
 
 # Fill in missing data with a simple linear interpolation
 md_data = md_data.interpolate(method='linear', axis=0).ffill().bfill()
