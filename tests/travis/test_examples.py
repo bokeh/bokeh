@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import subprocess
+import pytest
 
 from os.path import join, dirname, pardir
 from unittest import TestCase, skipIf
@@ -12,6 +13,7 @@ except ImportError:
 else:
     is_IPython = True
 
+@pytest.mark.examples
 class TestExamples(TestCase):
 
     def test_examples(self):

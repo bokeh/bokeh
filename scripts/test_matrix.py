@@ -102,7 +102,7 @@ def version_check(env_name, expected_ver):
 
 
 def run_tests(env_name):
-    """Run bokeh.test() in a given environment.  Writes results to a tmpfile that will be returned as a string
+    """Run py.test in a given environment.  Writes results to a tmpfile that will be returned as a string
     in the event of a failure.
     """
 
@@ -111,9 +111,9 @@ def run_tests(env_name):
     tmpfile = open(file_name, "w+")
 
     if os.name == 'nt':
-        command_string = 'activate %s & python -c "import nose, os, sys, bokeh; bokeh.test(exit=True)"' % env_name
+        command_string = 'activate %s & py.test -s --cov=bokeh"' % env_name
     else:
-        command_string = 'source activate %s; python -c "import nose, os, sys, bokeh; bokeh.test(exit=True)"' % env_name
+        command_string = 'source activate %s; py.test -s --cov=bokeh"' % env_name
 
     result = call_wrapper(command_string, shell=True, stderr=tmpfile)
 
@@ -163,84 +163,84 @@ if __name__ == '__main__':
 
     envs = {
         "py27_conda_clean"    : {
-            "init"    : "python=2.7 nose mock",
+            "init"    : "python=2.7 pytest pytest-cov mock",
             "install" : '; '.join([
                     # install latest version from dev channel
                     "conda install --yes -c bokeh/channel/dev bokeh",
                     # install dependencies needed for testing
                     "conda install --yes  -c auto websocket-client",
-                    "conda install --yes  -c bokeh nose mock blaze abstract-rendering beautiful-soup "
+                    "conda install --yes  -c bokeh pytest pytest-cov mock blaze abstract-rendering beautiful-soup "
                     "ipython scipy websocket multiuserblazeserver pillow",
                 ])
             },
         "py27_conda_update"   : {
-            "init"    : "python=2.7 nose mock bokeh=%s" % preversion,
+            "init"    : "python=2.7 pytest pytest-cov mock bokeh=%s" % preversion,
             "install" : '; '.join([
                     "conda update --yes -c bokeh/channel/dev bokeh",
                     # install dependencies needed for testing
                     "conda install --yes -c auto websocket-client",
-                    "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup "
+                    "conda install --yes -c bokeh pytest pytest-cov mock blaze abstract-rendering beautiful-soup "
                     "ipython scipy websocket multiuserblazeserver pillow",
                 ])
             },
         "py27_pip_clean"      : {
-            "init"    : "python=2.7 nose mock pip",
+            "init"    : "python=2.7 pytest pytest-cov mock pip",
             "install" : '; '.join([
                 "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple"
                 " bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install nose mock blaze abstract-rendering beautifulsoup4"
+                "pip install pytest pytest-cov mock blaze abstract-rendering beautifulsoup4"
                 " ipython scipy websocket-client multiuserblazeserver",
                 ])
             },
         "py27_pip_update"     : {
-            "init"    : "python=2.7 pip nose mock bokeh=%s" % preversion,
+            "init"    : "python=2.7 pip pytest pytest-cov mock bokeh=%s" % preversion,
             "install" :  '; '.join([
                 "pip install --upgrade --pre -i "
                 "https://pypi.binstar.org/bokeh/channel/dev/simple "
                 "bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install nose mock blaze abstract-rendering beautifulsoup4"
+                "pip install pytest pytest-cov mock blaze abstract-rendering beautifulsoup4"
                 " ipython scipy websocket-client multiuserblazeserver",
                 ])
             },
         "py34_conda_clean"    : {
-            "init"    : "python=3.4 nose mock",
+            "init"    : "python=3.4 pytest pytest-cov mock",
             "install" : '; '.join([
                     # install latest version from dev channel
                     "conda install --yes -c bokeh/channel/dev bokeh",
                     # install dependencies needed for testing
-                    "conda install --yes  -c bokeh nose mock blaze abstract-rendering beautiful-soup "
+                    "conda install --yes  -c bokeh pytest pytest-cov mock blaze abstract-rendering beautiful-soup "
                     "ipython scipy multiuserblazeserver pillow",
                 ])
             },
         "py34_conda_update"   : {
-            "init"    : "python=3.4 nose mock bokeh=%s" % preversion,
+            "init"    : "python=3.4 pytest pytest-cov mock bokeh=%s" % preversion,
             "install" : '; '.join([
                     "conda update --yes -c bokeh/channel/dev bokeh",
                     # install dependencies needed for testing
-                    "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup "
+                    "conda install --yes -c bokeh pytest pytest-cov mock blaze abstract-rendering beautiful-soup "
                     "ipython scipy multiuserblazeserver pillow",
                 ])
             },
         "py34_pip_clean"      : {
-            "init"    : "python=3.4 nose mock pip",
+            "init"    : "python=3.4 pytest pytest-cov mock pip",
             "install" : '; '.join([
                 "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple"
                 " bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install nose mock blaze abstract-rendering beautifulsoup4"
+                "pip install pytest pytest-cov mock blaze abstract-rendering beautifulsoup4"
                 " ipython scipy websocket-client multiuserblazeserver",
                 ])
             },
         "py34_pip_update"     : {
-            "init"    : "python=3.4 pip nose mock bokeh=%s" % preversion,
+            "init"    : "python=3.4 pip pytest pytest-cov mock bokeh=%s" % preversion,
             "install" :  '; '.join([
                 "pip install --upgrade --pre -i "
                 "https://pypi.binstar.org/bokeh/channel/dev/simple "
                 "bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install nose mock blaze abstract-rendering beautifulsoup4"
+                "pip install pytest pytest-cov mock blaze abstract-rendering beautifulsoup4"
                 " ipython scipy websocket-client multiuserblazeserver",
                 ])
             },
