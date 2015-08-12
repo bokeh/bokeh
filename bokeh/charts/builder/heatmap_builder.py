@@ -18,7 +18,7 @@ the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import, print_function, division
 
 from .._builder import Builder, create_and_build
-from .._data_adapter import ChartDataSource
+from .._data_source import ChartDataSource
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, HoverTool
 from ...models.glyphs import Rect
 

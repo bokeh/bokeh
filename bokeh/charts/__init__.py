@@ -14,7 +14,7 @@ from .builder.heatmap_builder import HeatMap
 from .builder.horizon_builder import Horizon
 
 from ._chart import Chart
-from ._data_adapter import ChartDataSource
+from ._data_source import ChartDataSource
 
 from ..deprecate import deprecated
 from ..models import ColumnDataSource

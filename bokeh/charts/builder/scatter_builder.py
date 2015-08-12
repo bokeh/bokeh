@@ -29,7 +29,7 @@ from collections import OrderedDict
 
 from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build, Builder
-from .._data_adapter import ChartDataSource
+from .._data_source import ChartDataSource
 from ...models import ColumnDataSource, Range1d
 from ...properties import String
 

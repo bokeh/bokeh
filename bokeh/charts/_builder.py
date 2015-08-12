@@ -19,7 +19,7 @@ types on top of it.
 from __future__ import absolute_import
 
 from ._chart import Chart
-from ._data_adapter import ChartDataSource
+from ._data_source import ChartDataSource
 from ..models.ranges import Range
 from ..properties import Color, HasProps, Instance, Seq
 
