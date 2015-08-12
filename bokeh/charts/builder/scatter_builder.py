@@ -29,7 +29,7 @@ from collections import OrderedDict
 
 from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build, Builder
-from .._data_adapter import DataAdapter
+from .._data_adapter import ChartDataSource
 from ...models import ColumnDataSource, Range1d
 from ...properties import String
 
@@ -109,7 +109,7 @@ class ScatterBuilder(Builder):
         """Parse data received from self._values and create correct x, y
         series values checking if input is a pandas DataFrameGroupBy
         object or one of the stardard supported types (that can be
-        converted to a DataAdapter)
+        converted to a DataGrouper)
         """
         if pd is not None and \
                 isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
@@ -196,12 +196,12 @@ class ScatterBuilder(Builder):
                     y = getattr(self._values.get_group(i), yname)
                     pdict[i] = np.array([x.values, y.values]).T
 
-                self._values = DataAdapter(pdict)
+                self._values = ChartDataSource(pdict)
                 self._labels = self._values.keys()
             else:
-                self._values = DataAdapter(self._values)
+                self._values = ChartDataSource(self._values)
                 self._labels = self._values.keys()
 
         else:
-            self._values = DataAdapter(self._values)
+            self._values = ChartDataSource(self._values)
             self._labels = self._values.keys()

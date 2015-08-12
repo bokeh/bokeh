@@ -22,7 +22,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 import pandas as pd
 
-from bokeh.charts import DataAdapter
+from bokeh.charts import ChartDataSource
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -30,59 +30,42 @@ from bokeh.charts import DataAdapter
 
 class TestDataAdapter(unittest.TestCase):
     def setUp(self):
-        self._values = OrderedDict()
-        self._values['first'] = [2., 5., 3.]
-        self._values['second'] = [4., 1., 4.]
-        self._values['third'] = [6., 4., 3.]
+        self._list_data = [[1, 2, 3, 4], [2, 3, 4, 5]]
+        self._array_data = [np.array(item) for item in self._list_data]
+        self._dict_data = {'col1': self._list_data[0],
+                           'col2': self._list_data[1]}
+        self._pd_data = pd.DataFrame(self._dict_data)
+        self._records_data = self._pd_data.to_dict(orient='records')
 
     def test_list(self):
-        values = list(self._values.values())
-        da = DataAdapter(values)
-
-        self.assertEqual(da.values(), list(self._values.values()))
-        self.assertEqual(da.columns, ['0', '1', '2'])
-        self.assertEqual(da.keys(), ['0', '1', '2'])
-        self.assertEqual(da.index, ['a', 'b', 'c'])
+        ds = ChartDataSource.from_data(*self._list_data)
+        assert len(ds.columns) == 2
+        assert len(ds.index) == 4
 
     def test_array(self):
-        values = np.array(list(self._values.values()))
-        da = DataAdapter(values)
-
-        assert_array_equal(da.values(), list(self._values.values()))
-        self.assertEqual(da.columns, ['0', '1', '2'])
-        self.assertEqual(da.keys(), ['0', '1', '2'])
-        self.assertEqual(da.index, ['a', 'b', 'c'])
+        ds = ChartDataSource.from_data(*self._array_data)
+        assert len(ds.columns) == 2
+        assert len(ds.index) == 4
 
     def test_pandas(self):
-        values = pd.DataFrame(self._values)
-        da = DataAdapter(values)
+        ds = ChartDataSource.from_data(self._pd_data)
+        assert len(ds.columns) == 2
+        assert len(ds.index) == 4
 
-        # TODO: THIS SHOULD BE FIXED..
-        #self.assertEqual(da.values(), list(self._values.values()))
-        self.assertEqual(da.columns, ['first', 'second', 'third'])
-        self.assertEqual(da.keys(), ['first', 'second', 'third'])
-        # We expect data adapter index to be the same as the underlying pandas
-        # object and not the default created by DataAdapter
-        self.assertEqual(da.index, [0, 1, 2])
+        ds = ChartDataSource(self._pd_data)
+        assert len(ds.columns) == 2
+        assert len(ds.index) == 4
 
-    def test_ordered_dict(self):
-        da = DataAdapter(self._values)
+    def test_dict(self):
+        ds = ChartDataSource.from_data(self._dict_data)
+        assert len(ds.columns) == 2
+        assert len(ds.index) == 4
 
-        self.assertEqual(da.values(), list(self._values.values()))
-        self.assertEqual(da.columns, ['first', 'second', 'third'])
-        self.assertEqual(da.keys(), ['first', 'second', 'third'])
-        self.assertEqual(da.index, ['a', 'b', 'c'])
+    def test_records(self):
+        ds = ChartDataSource.from_data(self._records_data)
+        assert len(ds.columns) == 2
+        assert len(ds.index) == 4
 
     def test_blaze_data_no_fields(self):
-        import blaze
-        valuesdf = pd.DataFrame(self._values)
-        values = blaze.Data(valuesdf)
-        da = DataAdapter(values)
-
-        assert_array_equal(da.values(), list(self._values.values()))
-        self.assertEqual(da.columns, ['first', 'second', 'third'])
-        self.assertEqual(da.keys(), ['first', 'second', 'third'])
-        self.assertEqual(da.index, [0, 1, 2])
-
-        xs, _values = DataAdapter.get_index_and_data(values, None)
-        assert_array_equal([0,1,2], xs)
+        #import blaze
+        pass

@@ -19,7 +19,7 @@ types on top of it.
 from __future__ import absolute_import
 
 from ._chart import Chart
-from ._data_adapter import DataAdapter
+from ._data_adapter import ChartDataSource
 from ..models.ranges import Range
 from ..properties import Color, HasProps, Instance, Seq
 
@@ -123,16 +123,16 @@ class Builder(HasProps):
     def _adapt_values(self):
         """Prepare the input data.
 
-        Converts data input (self._values) to a DataAdapter and creates
+        Converts data input (self._values) to a DataGrouper and creates
         instance index if needed
         """
         if hasattr(self, 'index'):
-            self._values_index, self._values = DataAdapter.get_index_and_data(
+            self._values_index, self._values = ChartDataSource.get_index_and_data(
                 self._values, self.index
             )
         else:
-            if not isinstance(self._values, DataAdapter):
-                self._values = DataAdapter(self._values, force_alias=False)
+            if not isinstance(self._values, ChartDataSource):
+                self._values = ChartDataSource(self._values, force_alias=False)
 
     def _process_data(self):
         """Get the input data.

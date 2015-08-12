@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 from six import string_types
 from collections import OrderedDict
+from itertools import islice, product
 from ..properties import bokeh_integer_types, Datetime
 
 try:
@@ -29,11 +30,8 @@ try:
 except ImportError:
     np = None
 
-try:
-    import pandas as pd
+import pandas as pd
 
-except ImportError:
-    pd = None
 try:
     import blaze
 except ImportError:
@@ -42,63 +40,124 @@ except ImportError:
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
-DEFAULT_INDEX_ALIASES += list(zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES))
 
-class DataAdapter(object):
+DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
+ARRAY_TYPES = [tuple, list, np.ndarray, pd.Series]
+TABLE_TYPES = [dict, pd.DataFrame]
+
+def take(n, iterable):
+    """Return first n items of the iterable as a list."""
+    return islice(iterable, n)
+
+
+def gen_column_names(n):
+    """Produces list of unique column names of length n."""
+    col_names = list(DEFAULT_COLUMN_NAMES)
+
+    # a-z
+    if n < len(col_names):
+        return list(take(n, col_names))
+    # a-z and aa-zz (500+ columns)
+    else:
+        n_left = n - len(col_names)
+        labels = [''.join(item) for item in take(n_left, product(DEFAULT_COLUMN_NAMES, DEFAULT_COLUMN_NAMES))]
+        col_names.extend(labels)
+        return col_names
+
+
+class ChartDataSource(object):
+    """Validates, normalizes, groups, and assigns Chart attributes to groups.
+
+    Supported inputs are:
+        Array-like - list, tuple, np.ndarray, pd.Series
+        Table-like - records: list(dict), columns: dict(list), pd.DataFrame, blaze resource
+
+    Converts inputs that could be treated as table-like data to pandas
+    DataFrame, which is used for assigning attributes to data groups.
     """
-    Adapter object used to normalize Charts inputs to a common interface.
-    Supported inputs are dict, list, tuple, np.ndarray and pd.DataFrame.
-    """
-    def __init__(self, data, index=None, columns=None, force_alias=True):
-        self.__values = data
-        self._values = self.validate_values(data)
+    def __init__(self, df):
+        self._data = df
+        self.meta = self.collect_metadata(df)
 
-        self.convert_index_to_int = False
-        self._columns_map = {}
-        self.convert_items_to_dict = False
+    @classmethod
+    def from_data(cls, *args, **kwargs):
+        """Automatically handle all valid inputs."""
+        arrays = [arg for arg in args if cls.is_array(arg)]
+        tables = [arg for arg in args if cls.is_table(arg) or cls.is_list_dicts(arg)]
 
-        if columns is None and force_alias:
-            # no column 'labels' defined for data... in this case we use
-            # default names
-            keys = getattr(self._values, 'keys', None)
-            if callable(keys):
-                columns = list(keys())
-            elif keys is None:
-                columns = list(map(str, range(len(data))))
+        # only accept array-like or table-like input for simplicity
+        if len(arrays) > 0 and len(tables) > 0:
+            raise TypeError('Only input either array or table data.')
+
+        # handle array-like
+        if len(arrays) > 0:
+            columns = kwargs.pop('columns', gen_column_names(len(arrays)))
+            return cls.from_arrays(arrays, column_names=columns, **kwargs)
+
+        # handle table-like
+        elif len(tables) > 0:
+
+            # single table input only
+            if len(tables) != 1:
+                raise TypeError('Input a single table data type.')
             else:
-                columns = list(keys)
+                table = tables[0]
 
-        if columns:
-            self._columns = columns
+            # dict of arrays
+            if isinstance(table, dict):
+                if all([cls.is_array(col) for col in table.values()]):
+                    return cls(df=pd.DataFrame.from_dict(data=table), **kwargs)
+                else:
+                    raise TypeError('Input of table-like dict must be column-oriented.')
 
-            # define a mapping between the real keys to access data and the aliases
-            # we have defined using 'columns'
-            self._columns_map = dict(zip(columns, self.keys()))
+            # list of dicts
+            elif cls.is_list_dicts(table):
+                return cls(df=pd.DataFrame.from_records(data=table), **kwargs)
 
-        if index is not None:
-            self._index = index
-            self.convert_items_to_dict = True
+            # blaze data source
+            #elif string or datasource
 
-        elif force_alias:
-            _index = getattr(self._values, 'index', None)
+            # pandas dataframe
+            elif isinstance(table, pd.DataFrame):
+                return cls(df=table, **kwargs)
 
-            # check because if it is a callable self._values is not a
-            # dataframe (probably a list)
-            if _index is None:
-                indexes = self.index
-
-                if isinstance(indexes[0], int):
-                    self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
-                    self.convert_items_to_dict = True
-
-            elif not callable(_index):
-                self._index = list(_index)
-                self.convert_items_to_dict = True
-
+            # unrecognized input type
             else:
-                self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
-                self.convert_items_to_dict = True
+                raise TypeError('Unable to recognize inputs for conversion to dataframe for %s'
+                                % type(table))
+
+
+
+    @classmethod
+    def from_arrays(cls, arrays, column_names=None, **kwargs):
+        if not column_names:
+            column_names = gen_column_names(len(arrays))
+        table = {column_name: array for column_name, array in zip(column_names, arrays)}
+        return cls(df=pd.DataFrame.from_dict(data=table), **kwargs)
+
+    @classmethod
+    def from_dict(cls, data, **kwargs):
+        return cls(df=pd.DataFrame.from_dict(data), **kwargs)
+
+    @staticmethod
+    def is_table(data):
+        return ChartDataSource._is_valid(data, TABLE_TYPES) or ChartDataSource.is_list_dicts(data)
+
+    @staticmethod
+    def is_list_dicts(data):
+        return isinstance(data, list) and all([isinstance(row, dict) for row in data])
+
+    @staticmethod
+    def is_array(data):
+        if ChartDataSource.is_list_dicts(data):
+            # list of dicts is table type
+            return False
+        else:
+            return ChartDataSource._is_valid(data, ARRAY_TYPES)
+
+    @staticmethod
+    def _is_valid(data, types):
+        return any([isinstance(data, valid_type) for valid_type in types])
 
     @staticmethod
     def is_number(value):
@@ -116,180 +175,18 @@ class DataAdapter(object):
             return False
 
     @staticmethod
-    def validate_values(values):
-        if np and isinstance(values, np.ndarray):
-            if len(values.shape) == 1:
-                return np.array([values])
-            else:
-                return values
-
-        elif pd and isinstance(values, pd.DataFrame):
-            return values
-
-        elif isinstance(values, (dict, OrderedDict)):
-            if all(DataAdapter.is_number(x) for x in values.values()):
-                return values
-
-            return values
-
-        elif isinstance(values, (list, tuple)):
-            if all(DataAdapter.is_number(x) for x in values):
-                return [values]
-
-            return values
-
-        elif hasattr(values, '__array__'):
-            values = pd.DataFrame(np.asarray(values))
-            return values
-
-        # TODO: Improve this error message..
-        raise TypeError("Input type not supported! %s" % values)
-
-
-    def index_converter(self, x):
-        key = self._columns_map.get(x, x)
-        if self.convert_index_to_int:
-            key = int(key)
-        return key
-
-    def keys(self):
-        # assuming it's a dict or dataframe
-        keys = getattr(self._values, "keys", None)
-
-        if callable(keys):
-            return list(keys())
-
-        elif keys is None:
-            self.convert_index_to_int = True
-            indexes = range(len(self._values))
-            return list(map(str, indexes))
-
-        else:
-            return list(keys)
-
-    def __len__(self):
-        return len(self.values())
-
-    def __iter__(self):
-        for k in self.keys():
-            yield k
-
-    def __getitem__(self, key):
-        val = self._values[self.index_converter(key)]
-
-        # if we have "index aliases" we need to remap the values...
-        if self.convert_items_to_dict:
-            val = dict(zip(self._index, val))
-
-        return val
-
-    def values(self):
-        return self.normalize_values(self._values)
-
-    @staticmethod
-    def normalize_values(values):
-        _values = getattr(values, "values", None)
-
-        if callable(_values):
-            return list(_values())
-
-        elif _values is None:
-            return values
-
-        else:
-            # assuming it's a dataframe, in that case it returns transposed
-            # values compared to it's dict equivalent..
-            return list(_values.T)
-
-    def items(self):
-        return [(key, self[key]) for key in self]
-
-    def iterkeys(self):
-        return iter(self)
-
-    def itervalues(self):
-        for k in self:
-            yield self[k]
-
-    def iteritems(self):
-        for k in self:
-            yield (k, self[k])
+    def collect_metadata(data):
+        return {}
 
     @property
     def columns(self):
-        try:
-            return self._columns
-
-        except AttributeError:
-            return list(self.keys())
+        return self._data.columns
 
     @property
     def index(self):
-        try:
-            return self._index
+        return self._data.index
 
-        except AttributeError:
-            index = getattr(self._values, "index", None)
+    @property
+    def values(self):
+        return self._data.values
 
-            if not callable(index) and index is not None:
-                # guess it's a pandas dataframe..
-                return index
-
-        # no, it's not. So it's probably a list so let's get the
-        # values and check
-        values = self.values()
-
-        if isinstance(values, dict):
-            return list(values.keys())
-
-        else:
-            first_el = self.values()[0]
-
-            if isinstance(first_el, dict):
-                indexes = list(first_el.keys())
-
-            else:
-                indexes = range(0, len(self.values()[0]))
-                self._index = indexes
-            return indexes
-
-    #-----------------------------------------------------------------------------
-    # Convenience methods
-    #-----------------------------------------------------------------------------
-    @staticmethod
-    def get_index_and_data(values, index=None):
-        """Parse values (that must be one of the DataAdapter supported
-        input types) and create an separate/create index and data
-        depending on values type and index.
-
-        Args:
-            values (iterable): container that holds data to be plotted using
-                on the Chart classes
-
-        Returns:
-            A tuple of (index, values), where: ``index`` is an iterable that
-            represents the data index and ``values`` is an iterable containing
-            the values to be plotted.
-
-        """
-        _values = DataAdapter(values, force_alias=False)
-        if hasattr(values, 'keys'):
-            if index is not None:
-                if isinstance(index, string_types):
-                    xs = _values[index]
-                else:
-                    xs = index
-            else:
-                try:
-                    xs = _values.index
-                except AttributeError:
-                    xs = values.index
-        else:
-            if index is None:
-                xs = _values.index
-            elif isinstance(index, string_types):
-                xs = _values[index]
-            else:
-                xs = index
-
-        return xs, _values
