@@ -71,9 +71,7 @@
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js"
   },
-  "browserify-shim": {
-    "backbone": "node_modules/backbone/backbone.js"
-  },
+  "browserify-shim": {},
   "dependencies": {
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
