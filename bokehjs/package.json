@@ -27,6 +27,7 @@
     "del": "^1.1.1",
     "eco": "^1.1.0-rc-3",
     "gulp": "^3.8.10",
+    "gulp-change": "https://registry.npmjs.org/gulp-change/-/gulp-change-1.0.0.tgz",
     "gulp-coffeeify": "^0.1.2",
     "gulp-eco-template": "^0.1.0",
     "gulp-less": "^3.0.2",
@@ -70,7 +71,9 @@
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js"
   },
-  "browserify-shim": {},
+  "browserify-shim": {
+    "backbone": "node_modules/backbone/backbone.js"
+  },
   "dependencies": {
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
