@@ -31,7 +31,7 @@ gulp.task "scripts:build", ->
     # looks for `define` before looking for `module.exports`, which eats up
     # our backbone.
     .pipe change (content) ->
-      '(function() { var define = undefined; #{content} })()'
+      "(function() { var define = undefined; #{content} })()"
     .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.js
 
