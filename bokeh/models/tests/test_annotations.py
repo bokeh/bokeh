@@ -1,6 +1,6 @@
 from __future__ import  absolute_import
 
-from bokeh.models.annotations import Legend, BoxAnnotation
+from bokeh.models.annotations import Legend, BoxAnnotation, TextAnnotation
 from bokeh.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -15,6 +15,8 @@ LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
 LABEL = ["label_text_font", "label_text_font_size", "label_text_font_style",
     "label_text_color", "label_text_alpha", "label_text_align",
     "label_text_baseline"]
+TEXT = ["text_font", "text_font_size", "text_font_style", "text_color",
+    "text_alpha", "text_align", "text_baseline"]
 PROPS = ["session", "name", "tags"]
 
 def check_border(annotation):
@@ -34,6 +36,15 @@ def check_label(annotation):
     assert annotation.label_text_alpha == 1.0
     assert annotation.label_text_align == TextAlign.left
     assert annotation.label_text_baseline == TextBaseline.bottom
+
+def check_text(annotation):
+    assert annotation.text_font == "Helvetica"
+    assert annotation.text_font_size == "12pt"
+    assert annotation.text_font_style == FontStyle.normal
+    assert annotation.text_color == "#444444"
+    assert annotation.text_alpha == 1.0
+    assert annotation.text_align == TextAlign.left
+    assert annotation.text_baseline == TextBaseline.bottom
 
 def check_props(annotation, *props):
     expected = set(sum((PROPS,) + props, []))
@@ -118,3 +129,30 @@ def test_BoxAnnotation():
         "y_range_name",
         "level",
     ], LINE, FILL)
+
+def test_TextAnnotation():
+    text = TextAnnotation()
+    assert text.plot is None
+    assert text.x == 'x'
+    assert text.x_units == 'data'
+    assert text.y == 'y'
+    assert text.y_units == 'data'
+    assert text.angle == 0
+    assert text.angle_units == 'rad'
+    assert text.x_range_name == 'default'
+    assert text.y_range_name == 'default'
+    assert text.level == 'overlay'
+    yield check_text, text
+    yield (check_props, text, [
+        "plot",
+        "x",
+        "x_units",
+        "y",
+        "y_units",
+        "text",
+        "angle",
+        "angle_units",
+        "x_range_name",
+        "y_range_name",
+        "level",
+        ], TEXT)

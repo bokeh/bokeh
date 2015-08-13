@@ -7,7 +7,8 @@ from __future__ import absolute_import
 from ..enums import Orientation, SpatialUnits, RenderLevel
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, NumberSpec, Either, Auto)
+                          Include, NumberSpec, Either, Auto, StringSpec,
+                          AngleSpec)
 
 from .renderers import Renderer, GlyphRenderer
 
@@ -78,9 +79,10 @@ class Legend(Renderer):
     )
 
 class BoxAnnotation(Renderer):
-    """ Render an annotation box "shade" thing
+    """ Render an annotation box onto the plot
 
     """
+
     plot = Instance(".models.plots.Plot", help="""
     The Plot to which this Legend is attached.
     """)
@@ -141,4 +143,57 @@ class BoxAnnotation(Renderer):
 
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the shades.
+    """)
+
+class TextAnnotation(Renderer):
+    """ Render a text annotation onto the plot
+
+    """
+
+    plot = Instance(".models.plots.Plot", help="""
+    The Plot to which this Legend is attached.
+    """)
+
+    x = NumberSpec("x", help="""
+    The x-coordinates to locate the text anchors.
+    """)
+
+    x_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the x attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    y = NumberSpec("y", help="""
+    The y-coordinates to locate the text anchors.
+    """)
+
+    y_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the y attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    text = StringSpec("text", help="""
+    The text values to render.
+    """)
+
+    angle = AngleSpec(default=0, help="""
+    The angles to rotate the text, in radians, as measured from the horizontal.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering text annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering text annotations on the plot. If unset, use the default y-range.
+    """)
+
+    level = Enum(RenderLevel, default="overlay", help="""
+    Specifies the level in which to render the text annotation.
+    """)
+
+    text_props = Include(TextProps, use_prefix=False, help="""
+    The %s values for the text.
     """)
