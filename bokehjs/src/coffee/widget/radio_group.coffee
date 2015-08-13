@@ -36,6 +36,7 @@ class RadioGroupView extends ContinuumView
     active = (i for radio, i in @$("input") when radio.checked)
     @mset('active', active[0])
     @model.save()
+    @mget('callback')?.execute(@model)
 
 class RadioGroup extends HasParent
   type: "RadioGroup"
