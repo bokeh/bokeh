@@ -3,7 +3,8 @@
 """
 from __future__ import absolute_import
 
-from ...properties import Bool, Int, String, Enum, List
+from ...properties import Bool, Int, String, Enum, List, Instance
+from ..actions import Callback
 from ...enums import ButtonType
 from ..widget import Widget
 
@@ -15,6 +16,10 @@ class AbstractGroup(Widget):
 
     labels = List(String, help="""
     List of text labels contained in this group.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the input's value changes.
     """)
 
     def on_click(self, handler):
