@@ -21,7 +21,7 @@ gulp.task "styles:build", ->
 gulp.task "styles:minify", ->
   gulp.src paths.css.sources
     .pipe rename (path) -> path.basename += ".min"
-    .pipe gulp.dest(paths.buildDir.css)
+    .pipe gulp.dest paths.buildDir.css
     .pipe sourcemaps.init
       loadMaps: true
     .pipe uglifycss()
