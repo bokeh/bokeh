@@ -15,7 +15,7 @@ class UIEvents extends Backbone.Model
 
     hit_area = @get('hit_area')
 
-    if not options.testing
+    unless options.testing
       @hammer = new Hammer(hit_area[0])
 
       # This is to be able to distinguish double taps from single taps
