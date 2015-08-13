@@ -23,7 +23,8 @@ describe "ui_events", ->
         tool_manager: gestures: scroll: active: true
       }, testing: true)
 
-      expect(ui_event._trigger('scroll', e)._stopPropagation).to.equal true
+      ui_event._trigger 'scroll', e
+      expect(e._stopPropagation).to.equal true
 
     it "propogates wheel event if scroll gesture is nonactive", ->
 
@@ -36,4 +37,5 @@ describe "ui_events", ->
         tool_manager: gestures: scroll: {}
       }, testing: true)
 
-      expect(ui_event._trigger('scroll', e)._stopPropagation).to.equal false
+      ui_event._trigger 'scroll', e
+      expect(e._stopPropagation).to.equal false

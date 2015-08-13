@@ -101,7 +101,6 @@ class UIEvents extends Backbone.Model
         e.preventDefault()
         e.stopPropagation()
       @trigger("#{event_type}:#{active.id}", e)
-    return e
 
   _bokify_hammer: (e) ->
     if e.pointerType == "mouse"
