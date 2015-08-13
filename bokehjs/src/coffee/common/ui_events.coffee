@@ -94,7 +94,7 @@ class UIEvents extends Backbone.Model
     tm = @get('tool_manager')
     base_event_type = event_type.split(":")[0]
     # if testing, tm.gestures will be defined instead of tm.get('gestures')
-    gestures = tm.gestures || tm.get('gestures')
+    gestures = tm.gestures or tm.get('gestures')
     active = gestures[base_event_type].active
     if active?
       if event_type == "scroll"
