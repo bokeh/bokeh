@@ -78,9 +78,8 @@ class DataGroup(object):
     def __getitem__(self, key):
         return self.attr_specs[key]
 
-    def __str__(self):
-        return 'Label: ' + str(self.label) + '\n' + \
-               '\n'.join([k + ': ' + v for k, v in self.attr_specs.iteritems()])
+    def __repr__(self):
+        return '<DataGroup(%s) - attributes: %s>' % (str(self.label), self.attr_specs)
 
     def __len__(self):
         return len(self.data.index)
@@ -99,9 +98,16 @@ def groupby(df, *specs):
             # get index of the unique column values grouped on for this spec
             name_idx = tuple([spec_cols.index(col) for col in spec.columns])
 
-            # get attribute value for attribute, given the unique column values associated with it
-            # this handles the case of utilizing one or more and overlapping column names for different attrs
-            attrs[spec.attribute] = spec[itemgetter(*name_idx)(name)]
+            if isinstance(name, tuple):
+                # this handles the case of utilizing one or more and overlapping column names for different attrs
+                # name (label) is a tuple of the column values
+                # we extract only the data associated with the columns that this attr spec was configured with
+                label = itemgetter(*name_idx)(name)
+            else:
+                label = name
+
+            # get attribute value for this spec, given the unique column values associated with it
+            attrs[spec.attribute] = spec[label]
 
         yield DataGroup(label=name, data=data, attr_specs=attrs)
 

@@ -22,8 +22,10 @@ class AttrSpec(object):
 
     @staticmethod
     def _ensure_list(attr):
-        if not isinstance(attr, list):
+        if isinstance(attr, str):
             return [attr]
+        elif isinstance(attr, tuple):
+            return list(attr)
         else:
             return attr
 

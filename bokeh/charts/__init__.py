@@ -15,6 +15,7 @@ from .builder.horizon_builder import Horizon
 
 from ._chart import Chart
 from ._data_source import ChartDataSource
+from ._attributes import AttrSpec, color
 
 from ..deprecate import deprecated
 from ..models import ColumnDataSource
