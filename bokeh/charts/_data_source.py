@@ -13,37 +13,25 @@ methods.
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
 from __future__ import absolute_import
 
-from six import string_types
-from collections import OrderedDict
+from itertools import chain
+from operator import itemgetter
 from itertools import islice, product
-from ..properties import bokeh_integer_types, Datetime
-
-try:
-    import numpy as np
-
-except ImportError:
-    np = None
-
+import numpy as np
 import pandas as pd
+
+from ..properties import bokeh_integer_types, Datetime
 
 try:
     import blaze
 except ImportError:
-    blaze=None
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
-
+    blaze = None
 
 DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
 ARRAY_TYPES = [tuple, list, np.ndarray, pd.Series]
 TABLE_TYPES = [dict, pd.DataFrame]
+
 
 def take(n, iterable):
     """Return first n items of the iterable as a list."""
@@ -65,6 +53,59 @@ def gen_column_names(n):
         return col_names
 
 
+def ordered_set(iterable):
+    """Creates an ordered list from strings, tuples or other hashable items."""
+
+    mmap = {}
+    ord_set = []
+
+    for item in iterable:
+        # Save unique items in input order
+        if item not in mmap:
+            mmap[item] = 1
+            ord_set.append(item)
+    return ord_set
+
+
+class DataGroup(object):
+    """Contains subset of data and metadata about it."""
+
+    def __init__(self, label, data, attr_specs):
+        self.label = label
+        self.data = data
+        self.attr_specs = attr_specs
+
+    def __getitem__(self, key):
+        return self.attr_specs[key]
+
+    def __str__(self):
+        return 'Label: ' + str(self.label) + '\n' + \
+               '\n'.join([k + ': ' + v for k, v in self.attr_specs.iteritems()])
+
+    def __len__(self):
+        return len(self.data.index)
+
+
+def groupby(df, *specs):
+    """Convenience iterator around pandas groupby and attribute specs."""
+
+    spec_cols = ordered_set(list(chain.from_iterable([spec.columns for spec in specs])))
+    df = df.sort(columns=spec_cols)
+
+    for name, data in df.groupby(spec_cols):
+
+        attrs = {}
+        for spec in specs:
+            # get index of the unique column values grouped on for this spec
+            name_idx = tuple([spec_cols.index(col) for col in spec.columns])
+
+            # get attribute value for attribute, given the unique column values associated with it
+            # this handles the case of utilizing one or more and overlapping column names for different attrs
+            attrs[spec.attribute] = spec[itemgetter(*name_idx)(name)]
+
+        yield DataGroup(label=name, data=data, attr_specs=attrs)
+
+
 class ChartDataSource(object):
     """Validates, normalizes, groups, and assigns Chart attributes to groups.
 
@@ -78,6 +119,17 @@ class ChartDataSource(object):
     def __init__(self, df):
         self._data = df
         self.meta = self.collect_metadata(df)
+
+    def groupby(self, *specs):
+        """Iterable of chart attribute specifications, associated with columns.
+
+        Iterates over DataGroup, which represent the lowest level of data that is assigned
+        to the attributes for plotting.
+        """
+        if len(specs) == 0:
+            raise ValueError('You must provide one or more Attribute Specs to support iteration.')
+
+        return groupby(self._data, *specs)
 
     @classmethod
     def from_data(cls, *args, **kwargs):
@@ -125,8 +177,6 @@ class ChartDataSource(object):
             else:
                 raise TypeError('Unable to recognize inputs for conversion to dataframe for %s'
                                 % type(table))
-
-
 
     @classmethod
     def from_arrays(cls, arrays, column_names=None, **kwargs):
