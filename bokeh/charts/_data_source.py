@@ -145,6 +145,9 @@ class ChartDataSource(object):
         else:
             return select_map
 
+    def __getitem__(self, key):
+        return self._selections[key]
+
     def groupby(self, *specs):
         """Iterable of chart attribute specifications, associated with columns.
 
@@ -219,7 +222,6 @@ class ChartDataSource(object):
     def from_arrays(cls, arrays, column_names=None, **kwargs):
         if not column_names:
             column_names = gen_column_names(len(arrays))
-        dims = cls._collect_dimensions(**kwargs)
         table = {column_name: array for column_name, array in zip(column_names, arrays)}
         return cls(df=pd.DataFrame.from_dict(data=table), **kwargs)
 

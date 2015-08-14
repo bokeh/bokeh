@@ -83,6 +83,13 @@ class TestChartDataSource(unittest.TestCase):
         groups = list(ds.groupby(*self._multi_col_spec))
         assert len(groups) == 9
 
+    def test_selections(self):
+        ds = ChartDataSource.from_data(*self._array_data)
+        try:
+            selections = [ds[dim] for dim in ds._required_dims]
+        except KeyError:
+            self.fail('Required dimension not correctly set by ChartDataSource.')
+
     def test_blaze_data_no_fields(self):
         #import blaze
         pass
