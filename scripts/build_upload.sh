@@ -6,12 +6,12 @@
 
 # CLI user interface
 if [ "$1" == "-h" ]; then
-    usage="$(basename "$0") [-h] -- program to build and upload bokeh pkgs to binstar
+    usage="$(basename "$0") [-h] -- program to build and upload bokeh pkgs to anaconda.org
 
     where:
         -h     show this help text
 
-        -b     Binstar token
+        -b     Anaconda.org token
         -u     RackSpace username
         -k     RackSpace APIkey
         -c     whether to clean the built packages, defaults to true
@@ -37,7 +37,7 @@ do
     esac 
 done
 
-# get binstar token from env variable if it is not provided with args
+# get anaconda.org token from env variable if it is not provided with args
 if [ "$bintoken" == "" ]; then
     bintoken=$BOKEH_DEVEL_TOKEN
     echo "$bintoken"
@@ -74,13 +74,13 @@ travis_build_id=$(cat __travis_build_id__.txt)
 # specify some varibles specific of the release or devel build process
 if [[ -z "$travis_build_id" ]]; then
     #release
-    channel=main              #binstar channel
+    channel=main              #anaconda.org channel
     register=register         #register to pypi
     upload=upload             #upload to pypi
     subdir=release            #CDN subdir where to upload the js and css
 else
     #devel build
-    channel=dev               #binstar channel
+    channel=dev               #anaconda.org channel
     register=""               #register to pypi
     upload=""                 #upload to pypi
     subdir=dev                #CDN subdir where to upload the js and css
@@ -106,24 +106,24 @@ done
 conda convert -p all -f $BUILD_PATH/bokeh*$travis_build_id*.tar.bz2 --quiet
 echo "pkgs converted"
 
-# upload conda pkgs to binstar
+# upload conda pkgs to anaconda.org
 platforms=(osx-64 linux-64 win-64 linux-32 win-32)
 for plat in "${platforms[@]}"
 do
     echo Uploading: $plat
-    binstar -t $bintoken upload -u bokeh $plat/bokeh*$travis_build_id*.tar.bz2 -c $channel --force --no-progress
+    anaconda -t $bintoken upload -u bokeh $plat/bokeh*$travis_build_id*.tar.bz2 -c $channel --force --no-progress
 done
 
-# create, register and upload pypi pkgs to pypi and binstar
-# zip is currently not working on binstar
+# create, register and upload pypi pkgs to pypi and anaconda.org
+# zip is currently not working on anaconda.org
 python setup.py $register sdist --formats=gztar,zip $upload
 echo "sdist pkg built"
 if [[ ! -z "$upload" ]]; then
     echo "I'm done uploading to pypi"
 fi
 
-binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.tar.gz --package-type pypi -c $channel --force --no-progress
-echo "I'm done uploading to binstar"
+anaconda -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.tar.gz --package-type pypi -c $channel --force --no-progress
+echo "I'm done uploading to anaconda.org"
 
 ###########################
 # JS and CSS into the CDN #
