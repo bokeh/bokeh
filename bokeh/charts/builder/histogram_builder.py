@@ -199,7 +199,7 @@ class HistogramBuilder(Builder):
                     line_color="white", line_alpha=1.0
                 )
                 renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-                self._legends.append((self._groups[i], [renderer]))
+                self.legends.append((self._groups[i], [renderer]))
                 yield renderer
 
         else:
@@ -216,7 +216,7 @@ class HistogramBuilder(Builder):
                     line_color="white", line_alpha=1.0
                 )
                 renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-                self._legends.append((self._groups[i], [renderer]))
+                self.legends.append((self._groups[i], [renderer]))
                 yield renderer
 
                 glyph = Line(x=nonet[6], y=nonet[7], line_color="black")

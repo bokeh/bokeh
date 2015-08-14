@@ -17,7 +17,7 @@ from __future__ import absolute_import
 
 from itertools import chain
 from operator import itemgetter
-from itertools import islice, product
+from itertools import islice, product, izip
 import numpy as np
 import pandas as pd
 
@@ -122,9 +122,28 @@ class ChartDataSource(object):
     Converts inputs that could be treated as table-like data to pandas
     DataFrame, which is used for assigning attributes to data groups.
     """
-    def __init__(self, df):
+    def __init__(self, df, dims=('x', 'y'), required_dims=('x',), selections=()):
         self._data = df
+        self._dims = dims
+        self._required_dims = required_dims
+        self._selections = self.get_selections(selections)
         self.meta = self.collect_metadata(df)
+
+    def get_selections(self, selections):
+        """Maps chart dimensions to selections and checks that required dim requirements are met."""
+        if not selections:
+            # if no selections are provided, we assume they were provided in order
+            select_map = {dim: sel for dim, sel in izip(self._dims, self._data.columns)}
+        else:
+            select_map = {dim: sel for dim, sel in izip(self._dims, selections)}
+
+        # make sure we have enough dimensions as required either way
+        unmatched = list(set(self._required_dims) - set(select_map.keys()))
+        if len(unmatched) > 0:
+            raise ValueError('You must provide all required columns assigned to dimensions, no match for: %s'
+                             % ', '.join(unmatched))
+        else:
+            return select_map
 
     def groupby(self, *specs):
         """Iterable of chart attribute specifications, associated with columns.
@@ -184,10 +203,23 @@ class ChartDataSource(object):
                 raise TypeError('Unable to recognize inputs for conversion to dataframe for %s'
                                 % type(table))
 
+    @property
+    def df(self):
+        return self._data
+
+    @staticmethod
+    def _collect_dimensions(**kwargs):
+        dims = kwargs.pop(kwargs, None)
+        if not dims:
+            return 'x', 'y'
+        else:
+            return dims
+
     @classmethod
     def from_arrays(cls, arrays, column_names=None, **kwargs):
         if not column_names:
             column_names = gen_column_names(len(arrays))
+        dims = cls._collect_dimensions(**kwargs)
         table = {column_name: array for column_name, array in zip(column_names, arrays)}
         return cls(df=pd.DataFrame.from_dict(data=table), **kwargs)
 
@@ -232,6 +264,7 @@ class ChartDataSource(object):
 
     @staticmethod
     def collect_metadata(data):
+        # ToDo: implement column metadata collection
         return {}
 
     @property

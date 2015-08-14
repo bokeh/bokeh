@@ -74,6 +74,7 @@ def Scatter(values, **kws):
     """
     return create_and_build(ScatterBuilder, values, **kws)
 
+
 class ScatterBuilder(Builder):
     """This is the Scatter class and it is in charge of plotting
     Scatter charts in an easy and intuitive way.
@@ -101,46 +102,6 @@ class ScatterBuilder(Builder):
         self._attr = []
         # list to save all the groups available in the incoming input
         self._groups.extend(self._values.keys())
-        # Grouping
-        self.parse_data()
-
-    @property
-    def parse_data(self):
-        """Parse data received from self._values and create correct x, y
-        series values checking if input is a pandas DataFrameGroupBy
-        object or one of the stardard supported types (that can be
-        converted to a DataGrouper)
-        """
-        if pd is not None and \
-                isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
-            return self._parse_groupped_data
-        else:
-            return self._parse_data
-
-    def _parse_groupped_data(self):
-        """Parse data in self._values in case it's a pandas
-        DataFrameGroupBy and create the data 'x_...' and 'y_...' values
-        for all data series
-        """
-        for i, val in enumerate(self._values.keys()):
-            xy = self._values[val]
-            self._set_and_get("x_", val, xy[:, 0])
-            self._set_and_get("y_", val, xy[:, 1])
-
-    def _parse_data(self):
-        """Parse data in self._values in case it's an iterable (not a pandas
-        DataFrameGroupBy) and create the data 'x_...' and 'y_...' values
-        for all data series
-        """
-        for i, val in enumerate(self._values.keys()):
-            x_, y_ = [], []
-            xy = self._values[val]
-            for value in self._values.index:
-                x_.append(xy[value][0])
-                y_.append(xy[value][1])
-
-            self.set_and_get("x_", val, x_)
-            self.set_and_get("y_", val, y_)
 
     def _set_sources(self):
         """Push the Scatter data into the ColumnDataSource and
@@ -173,35 +134,5 @@ class ScatterBuilder(Builder):
             renderer = make_scatter(
                 self._source, duplet[0], duplet[1], self.marker, colors[i - 1]
             )
-            self._legends.append((self._groups[i-1], [renderer]))
+            self.legends.append((self._groups[i-1], [renderer]))
             yield renderer
-
-    def _adapt_values(self):
-        """Prepare context before main show method is invoked.
-
-        Customize show preliminary actions by handling DataFrameGroupBy
-        values in order to create the series values and labels."""
-        # check if pandas is installed
-        if pd:
-            # if it is we try to take advantage of it's data structures
-            # asumming we get an groupby object
-            if isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
-                pdict = OrderedDict()
-
-                for i in self._values.groups.keys():
-                    self._labels = self._values.get_group(i).columns
-                    xname = self._values.get_group(i).columns[0]
-                    yname = self._values.get_group(i).columns[1]
-                    x = getattr(self._values.get_group(i), xname)
-                    y = getattr(self._values.get_group(i), yname)
-                    pdict[i] = np.array([x.values, y.values]).T
-
-                self._values = ChartDataSource(pdict)
-                self._labels = self._values.keys()
-            else:
-                self._values = ChartDataSource(self._values)
-                self._labels = self._values.keys()
-
-        else:
-            self._values = ChartDataSource(self._values)
-            self._labels = self._values.keys()

@@ -177,5 +177,5 @@ class AreaBuilder(Builder):
             glyph = Patch(
                 x='x', y=series_name, fill_color=colors[i], fill_alpha=0.9)
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i], [renderer]))
+            self.legends.append((self._groups[i], [renderer]))
             yield renderer

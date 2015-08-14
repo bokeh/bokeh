@@ -29,12 +29,13 @@ DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33f
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def create_and_build(builder_class, values, **kws):
+
+def create_and_build(builder_class, *data, **kws):
     builder_props = set(builder_class.properties())
 
     # create the new builder
     builder_kws = { k:v for k,v in kws.items() if k in builder_props}
-    builder = builder_class(values, **builder_kws)
+    builder = builder_class(*data, **builder_kws)
 
     # create a chart to return, since there isn't one already
     chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
@@ -79,7 +80,7 @@ class Builder(HasProps):
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
-    def __init__(self, values=None, **kws):
+    def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -104,20 +105,17 @@ class Builder(HasProps):
             data (dict): to be filled with the incoming data and be passed
                 to the ColumnDataSource in each chart inherited class.
                 Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
+            attr (list(AttrSpec)): to be filled with the new attributes created after
                 loading the data dict.
-                Needed for _set_And_get method.
         """
         super(Builder, self).__init__(**kws)
-        if values is None:
-            values = []
+        if len(args) == 0:
+            data = None
+        else:
+            data = ChartDataSource.from_data(*args, **kws)
 
-        self._values = values
-        # TODO: No real reason why legends should be *private*, should be
-        # legends
-        self._legends = []
-        self._data = {}
-        self._groups = []
+        self.data = data
+        self.legends = []
         self._attr = []
 
     def _adapt_values(self):
@@ -126,13 +124,8 @@ class Builder(HasProps):
         Converts data input (self._values) to a DataGrouper and creates
         instance index if needed
         """
-        if hasattr(self, 'index'):
-            self._values_index, self._values = ChartDataSource.get_index_and_data(
-                self._values, self.index
-            )
-        else:
-            if not isinstance(self._values, ChartDataSource):
-                self._values = ChartDataSource(self._values, force_alias=False)
+        pass
+        # ToDo: Is this still needed?
 
     def _process_data(self):
         """Get the input data.
@@ -175,37 +168,7 @@ class Builder(HasProps):
             chart.y_range = self.y_range
 
         # always contribute legends, let Chart sort it out
-        legends = self._legends
+        legends = self.legends
         chart.add_legend(legends)
 
         return chart
-
-    #***************************
-    # Some helper methods
-    #***************************
-
-    def _set_and_get(self, data, prefix, attr, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            data (dict): where to store the new attribute content
-            attr (list): where to store the new attribute names
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        data["%s%s" % (prefix, val)] = content
-        attr.append("%s%s" % (prefix, val))
-
-    def set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        self._set_and_get(self._data, prefix, self._attr, val, content)

@@ -135,5 +135,5 @@ class LineBuilder(Builder):
         for i, duplet in enumerate(self._attr[1:], start=1):
             glyph = LineGlyph(x='x', y=duplet, line_color=colors[i - 1])
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i-1], [renderer]))
+            self.legends.append((self._groups[i-1], [renderer]))
             yield renderer

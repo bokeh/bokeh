@@ -217,5 +217,5 @@ class BarBuilder(Builder):
                     line_color="white"
                 )
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i], [renderer]))
+            self.legends.append((self._groups[i], [renderer]))
             yield renderer

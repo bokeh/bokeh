@@ -144,5 +144,5 @@ class StepBuilder(Builder):
             # draw the step horizontal segment
             glyph = Line(x="x", y="y_%s" % name, line_color=colors[i], line_width=2)
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i], [renderer]))
+            self.legends.append((self._groups[i], [renderer]))
             yield renderer

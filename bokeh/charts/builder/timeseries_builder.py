@@ -161,5 +161,5 @@ class TimeSeriesBuilder(Builder):
         for i, (x, y) in enumerate(self._duplet, start=1):
             glyph = Line(x=x, y=y, line_color=colors[i - 1])
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i-1], [renderer]))
+            self.legends.append((self._groups[i-1], [renderer]))
             yield renderer
