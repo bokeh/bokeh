@@ -93,7 +93,8 @@ class DataGroup(object):
 def groupby(df, *specs):
     """Convenience iterator around pandas groupby and attribute specs."""
 
-    spec_cols = ordered_set(list(chain.from_iterable([spec.columns for spec in specs if spec.columns])))
+    selected_specs = [spec for spec in specs if spec.columns]
+    spec_cols = ordered_set(list(chain.from_iterable([spec.columns for spec in selected_specs])))
 
     # if there was any input for chart attributes, which require grouping
     if spec_cols:
@@ -103,16 +104,19 @@ def groupby(df, *specs):
 
             attrs = {}
             for spec in specs:
-                # get index of the unique column values grouped on for this spec
-                name_idx = tuple([spec_cols.index(col) for col in spec.columns])
+                if spec.columns:
+                    # get index of the unique column values grouped on for this spec
+                    name_idx = tuple([spec_cols.index(col) for col in spec.columns])
 
-                if isinstance(name, tuple):
-                    # this handles the case of utilizing one or more and overlapping column names for different attrs
-                    # name (label) is a tuple of the column values
-                    # we extract only the data associated with the columns that this attr spec was configured with
-                    label = itemgetter(*name_idx)(name)
+                    if isinstance(name, tuple):
+                        # this handles the case of utilizing one or more and overlapping column names for different attrs
+                        # name (label) is a tuple of the column values
+                        # we extract only the data associated with the columns that this attr spec was configured with
+                        label = itemgetter(*name_idx)(name)
+                    else:
+                        label = name
                 else:
-                    label = name
+                    label = spec.default
 
                 # get attribute value for this spec, given the unique column values associated with it
                 attrs[spec.attribute] = spec[label]

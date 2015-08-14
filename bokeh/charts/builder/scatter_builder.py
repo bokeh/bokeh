@@ -77,7 +77,7 @@ def Scatter(*args, **kws):
     return create_and_build(ScatterBuilder, *args, **kws)
 
 
-def scatter_glyph(x, y, line_color='blue', fill_color='blue', marker='circle', size=8):
+def scatter_glyph(x, y, line_color='blue', fill_color='blue', marker='circle', size=5):
     """Produces a glyph that represents one distinct group of data."""
 
     return marker_types[marker](x=x, y=y, line_color=line_color, fill_color=fill_color, size=size)
