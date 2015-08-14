@@ -56,6 +56,24 @@ def cycle_colors(chunk, palette=_default_cycle_palette):
 
     return colors
 
+marker_types = OrderedDict(
+    [
+        ("circle", Circle),
+        ("square", Square),
+        ("triangle", Triangle),
+        ("diamond", Diamond),
+        ("inverted_triangle", InvertedTriangle),
+        ("asterisk", Asterisk),
+        ("cross", Cross),
+        ("x", X),
+        ("circle_cross", CircleCross),
+        ("circle_x", CircleX),
+        ("square_x", SquareX),
+        ("square_cross", SquareCross),
+        ("diamond_cross", DiamondCross),
+    ]
+)
+
 # TODO: (bev) this should go in a plotting utils one level up
 def make_scatter(source, x, y, markertype, color, line_color=None,
                  size=10, fill_alpha=0.2, line_alpha=1.0):
@@ -77,31 +95,13 @@ def make_scatter(source, x, y, markertype, color, line_color=None,
     if line_color is None:
         line_color = color
 
-    _marker_types = OrderedDict(
-        [
-            ("circle", Circle),
-            ("square", Square),
-            ("triangle", Triangle),
-            ("diamond", Diamond),
-            ("inverted_triangle", InvertedTriangle),
-            ("asterisk", Asterisk),
-            ("cross", Cross),
-            ("x", X),
-            ("circle_cross", CircleCross),
-            ("circle_x", CircleX),
-            ("square_x", SquareX),
-            ("square_cross", SquareCross),
-            ("diamond_cross", DiamondCross),
-        ]
-    )
-
-    g = itertools.cycle(_marker_types.keys())
+    g = itertools.cycle(marker_types.keys())
     if isinstance(markertype, int):
         for i in range(markertype):
             shape = next(g)
     else:
         shape = markertype
-    glyph = _marker_types[shape](
+    glyph = marker_types[shape](
         x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
         line_color=line_color, line_alpha=line_alpha
     )

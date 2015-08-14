@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from itertools import cycle
+from copy import copy
 
 
 class AttrSpec(object):
@@ -13,12 +14,22 @@ class AttrSpec(object):
     be a one dimensional tuple of values, representing the unique group in the data.
     """
 
-    def __init__(self, df, columns, attribute, iterable):
+    def __init__(self, df, columns, attribute, iterable, default=None):
         self.df = df
-        self.columns = self._ensure_list(columns)
         self.attribute = attribute
+        self.columns = self._ensure_list(columns)
         self.iterable = cycle(iterable)
-        self.attr_map = self._create_attr_map()
+
+        if not default and iterable:
+            default_iter = copy(iterable)
+            default = next(iter(default_iter))
+
+        self.default = default
+
+        if not columns:
+            self.attr_map = {}
+        else:
+            self.attr_map = self._create_attr_map()
 
     @staticmethod
     def _ensure_list(attr):
@@ -50,7 +61,10 @@ class AttrSpec(object):
 
     def __getitem__(self, item):
         """Lookup the attribute to use for the given unique group label."""
-        return self.attr_map[self._ensure_tuple(item)]
+        if not self.attr_map:
+            return self.default
+        else:
+            return self.attr_map[self._ensure_tuple(item)]
 
 
 """ Attribute Spec Generators
@@ -64,9 +78,13 @@ of a Pandas DataFrame, and returns an AttrSpec object.
 """
 
 
+def color_spec(df, cols, palette):
+    return AttrSpec(df, columns=cols, attribute='color', iterable=palette)
+
+
 def color(cols, palette):
     """Generates a callable that produces a color attribute spec."""
     def color_spec_gen(df):
-        return AttrSpec(df, columns=cols, attribute='color', iterable=palette)
+        color_spec(df, cols=cols, palette=palette)
 
     return color_spec_gen

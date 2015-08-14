@@ -27,18 +27,20 @@ except:
 
 from collections import OrderedDict
 
-from ..utils import chunk, cycle_colors, make_scatter
+from ..utils import chunk, cycle_colors, marker_types
 from .._builder import create_and_build, Builder
 from .._data_source import ChartDataSource
 from ...models import ColumnDataSource, Range1d
 from ...properties import String
+from ...models import GlyphRenderer
+from .._attributes import AttrSpec, color_spec
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def Scatter(values, **kws):
+def Scatter(*args, **kws):
     """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builder.scatter_builder.ScatterBuilder>`
     to render the geometry from values.
 
@@ -72,7 +74,13 @@ def Scatter(values, **kws):
         show(scatter)
 
     """
-    return create_and_build(ScatterBuilder, values, **kws)
+    return create_and_build(ScatterBuilder, *args, **kws)
+
+
+def scatter_glyph(x, y, line_color='blue', fill_color='blue', marker='circle', size=8):
+    """Produces a glyph that represents one distinct group of data."""
+
+    return marker_types[marker](x=x, y=y, line_color=line_color, fill_color=fill_color, size=size)
 
 
 class ScatterBuilder(Builder):
@@ -87,9 +95,14 @@ class ScatterBuilder(Builder):
     """
 
     # TODO: (bev) should be an enumeration
-    marker = String("circle", help="""
+    x = String()
+    y = String()
+
+    marker = String(help="""
     The marker type to use (default: ``circle``).
     """)
+
+    color = String()
 
     def _process_data(self):
         """Take the scatter.values data to calculate the chart properties
@@ -97,26 +110,29 @@ class ScatterBuilder(Builder):
         calculated points to be used by the marker glyph inside the
         ``_yield_renderers`` method.
         """
-        self._data = dict()
+        #self._data = dict()
         # list to save all the attributes we are going to create
         self._attr = []
-        # list to save all the groups available in the incoming input
-        self._groups.extend(self._values.keys())
 
     def _set_sources(self):
         """Push the Scatter data into the ColumnDataSource and
         calculate the proper ranges."""
-        self._source = ColumnDataSource(self._data)
+        #self._source = ColumnDataSource(self._data)
+        # ToDo: handle when only single dimension is provided
 
-        x_names, y_names = self._attr[::2], self._attr[1::2]
-        endx = max(max(self._data[i]) for i in x_names)
-        startx = min(min(self._data[i]) for i in x_names)
+        #x_names, y_names = self._attr[::2], self._attr[1::2]
+        x = self._data['x']
+        y = self._data['y']
+
+        endx = self._data.df[x].max()
+        startx = self._data.df[x].min()
         self.x_range = Range1d(
             start=startx - 0.1 * (endx - startx),
             end=endx + 0.1 * (endx - startx)
         )
-        endy = max(max(self._data[i]) for i in y_names)
-        starty = min(min(self._data[i]) for i in y_names)
+
+        endy = self._data.df[y].max()
+        starty = self._data.df[y].min()
         self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
@@ -127,12 +143,18 @@ class ScatterBuilder(Builder):
 
         Takes reference points from data loaded at the ColumnDataSource.
         """
-        duplets = list(chunk(self._attr, 2))
-        colors = cycle_colors(duplets, self.palette)
 
-        for i, duplet in enumerate(duplets, start=1):
-            renderer = make_scatter(
-                self._source, duplet[0], duplet[1], self.marker, colors[i - 1]
-            )
-            self.legends.append((self._groups[i-1], [renderer]))
-            yield renderer
+        color = color_spec(self._data.df, cols=self.color, palette=self.palette)
+        marker = AttrSpec(self._data.df, columns=self.marker, default='circle',
+                               attribute='marker', iterable=marker_types.keys())
+
+        for group in self._data.groupby(color, marker):
+
+            glyph = scatter_glyph(self._data['x'], self._data['y'],
+                                  line_color=group['color'], fill_color=group['color'],
+                                  marker=group['marker'])
+
+            yield GlyphRenderer(data_source=group.source, glyph=glyph)
+
+            #self.legends.append((self._groups[i-1], [renderer]))
+            #yield renderer

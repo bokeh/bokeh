@@ -21,7 +21,7 @@ from __future__ import absolute_import
 from ._chart import Chart
 from ._data_source import ChartDataSource
 from ..models.ranges import Range
-from ..properties import Color, HasProps, Instance, Seq
+from ..properties import Color, HasProps, Instance, Seq, List, String
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -77,6 +77,10 @@ class Builder(HasProps):
 
     x_range = Instance(Range)
     y_range = Instance(Range)
+    dimensions = List(String, default=['x', 'y'], help="""The dimension
+        labels that drive the position of the glyphs.""")
+    req_dimensions = List(String, default=['x'], help="""The dimension
+        labels that must exist to produce the glyphs.""")
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
@@ -84,7 +88,7 @@ class Builder(HasProps):
         """Common arguments to be used by all the inherited classes.
 
         Args:
-            values (iterable): iterable 2d representing the data series
+            data (iterable): iterable 2d representing the data series
                 values matrix.
             legend (str, bool): the legend of your plot. The legend content is
                 inferred from incoming input.It can be ``top_left``,
@@ -112,10 +116,12 @@ class Builder(HasProps):
         if len(args) == 0:
             data = None
         else:
+            for dim in self.dimensions:
+                kws[dim] = getattr(self, dim)
             data = ChartDataSource.from_data(*args, **kws)
 
-        self.data = data
-        self.legends = []
+        self._data = data
+        self._legends = []
         self._attr = []
 
     def _adapt_values(self):
@@ -128,7 +134,7 @@ class Builder(HasProps):
         # ToDo: Is this still needed?
 
     def _process_data(self):
-        """Get the input data.
+        """Make any global data manipulations before grouping.
 
         It has to be implemented by any of the inherited class
         representing each different chart type. It is the place
@@ -144,6 +150,7 @@ class Builder(HasProps):
         representing each different chart type.
         """
         pass
+        # ToDo: Is this still needed? Should be set in yield_renderers?
 
     def _yield_renderers(self):
         """ Generator that yields the glyphs to be draw on the plot
@@ -168,7 +175,7 @@ class Builder(HasProps):
             chart.y_range = self.y_range
 
         # always contribute legends, let Chart sort it out
-        legends = self.legends
-        chart.add_legend(legends)
+        #legends = self.legends
+        #chart.add_legend(legends)
 
         return chart

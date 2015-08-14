@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 from ..properties import bokeh_integer_types, Datetime
+from ..models.sources import ColumnDataSource
 
 try:
     import blaze
@@ -75,6 +76,10 @@ class DataGroup(object):
         self.data = data
         self.attr_specs = attr_specs
 
+    @property
+    def source(self):
+        return ColumnDataSource(self.data)
+
     def __getitem__(self, key):
         return self.attr_specs[key]
 
@@ -88,28 +93,39 @@ class DataGroup(object):
 def groupby(df, *specs):
     """Convenience iterator around pandas groupby and attribute specs."""
 
-    spec_cols = ordered_set(list(chain.from_iterable([spec.columns for spec in specs])))
-    df = df.sort(columns=spec_cols)
+    spec_cols = ordered_set(list(chain.from_iterable([spec.columns for spec in specs if spec.columns])))
 
-    for name, data in df.groupby(spec_cols):
+    # if there was any input for chart attributes, which require grouping
+    if spec_cols:
+        df = df.sort(columns=spec_cols)
 
+        for name, data in df.groupby(spec_cols):
+
+            attrs = {}
+            for spec in specs:
+                # get index of the unique column values grouped on for this spec
+                name_idx = tuple([spec_cols.index(col) for col in spec.columns])
+
+                if isinstance(name, tuple):
+                    # this handles the case of utilizing one or more and overlapping column names for different attrs
+                    # name (label) is a tuple of the column values
+                    # we extract only the data associated with the columns that this attr spec was configured with
+                    label = itemgetter(*name_idx)(name)
+                else:
+                    label = name
+
+                # get attribute value for this spec, given the unique column values associated with it
+                attrs[spec.attribute] = spec[label]
+
+            yield DataGroup(label=name, data=data, attr_specs=attrs)
+
+    # collect up the defaults from the attribute specs
+    else:
         attrs = {}
         for spec in specs:
-            # get index of the unique column values grouped on for this spec
-            name_idx = tuple([spec_cols.index(col) for col in spec.columns])
+            attrs[spec.attribute] = spec.default
 
-            if isinstance(name, tuple):
-                # this handles the case of utilizing one or more and overlapping column names for different attrs
-                # name (label) is a tuple of the column values
-                # we extract only the data associated with the columns that this attr spec was configured with
-                label = itemgetter(*name_idx)(name)
-            else:
-                label = name
-
-            # get attribute value for this spec, given the unique column values associated with it
-            attrs[spec.attribute] = spec[label]
-
-        yield DataGroup(label=name, data=data, attr_specs=attrs)
+        yield DataGroup(label='all', data=df, attr_specs=attrs)
 
 
 class ChartDataSource(object):
@@ -122,20 +138,29 @@ class ChartDataSource(object):
     Converts inputs that could be treated as table-like data to pandas
     DataFrame, which is used for assigning attributes to data groups.
     """
-    def __init__(self, df, dims=('x', 'y'), required_dims=('x',), selections=()):
+    def __init__(self, df, dims=('x', 'y'), required_dims=('x',), selections=(), **kwargs):
         self._data = df
         self._dims = dims
         self._required_dims = required_dims
-        self._selections = self.get_selections(selections)
+        self._selections = self.get_selections(selections, **kwargs)
         self.meta = self.collect_metadata(df)
 
-    def get_selections(self, selections):
+    def get_selections(self, selections, **kwargs):
         """Maps chart dimensions to selections and checks that required dim requirements are met."""
-        if not selections:
-            # if no selections are provided, we assume they were provided in order
-            select_map = {dim: sel for dim, sel in izip(self._dims, self._data.columns)}
-        else:
-            select_map = {dim: sel for dim, sel in izip(self._dims, selections)}
+        select_map = {}
+
+        # extract selections from kwargs using dimension list
+        for dim in self._dims:
+            dim_select = kwargs.pop(dim, None)
+            if dim_select:
+                select_map[dim] = dim_select
+
+        if len(select_map.keys()) == 0:
+            if len(selections) == 0:
+                # if no selections are provided, we assume they were provided in order
+                select_map = {dim: sel for dim, sel in izip(self._dims, self._data.columns)}
+            else:
+                select_map = {dim: sel for dim, sel in izip(self._dims, selections)}
 
         # make sure we have enough dimensions as required either way
         unmatched = list(set(self._required_dims) - set(select_map.keys()))
