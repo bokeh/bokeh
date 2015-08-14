@@ -20,7 +20,7 @@ from __future__ import absolute_import
 
 from ._chart import Chart
 from ._data_source import ChartDataSource
-from ..models.ranges import Range
+from ..models.ranges import Range, Range1d
 from ..properties import Color, HasProps, Instance, Seq, List, String
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
@@ -179,3 +179,32 @@ class Builder(HasProps):
         #chart.add_legend(legends)
 
         return chart
+
+
+class XYBuilder(Builder):
+    """Implements common functionality for XY Builders."""
+
+    x = String()
+    y = String()
+
+    def _set_sources(self):
+        """Push the Scatter data into the ColumnDataSource and
+        calculate the proper ranges."""
+        # ToDo: handle when only single dimension is provided
+
+        x = self._data['x']
+        y = self._data['y']
+
+        endx = self._data.df[x].max()
+        startx = self._data.df[x].min()
+        self.x_range = Range1d(
+            start=startx - 0.1 * (endx - startx),
+            end=endx + 0.1 * (endx - startx)
+        )
+
+        endy = self._data.df[y].max()
+        starty = self._data.df[y].min()
+        self.y_range = Range1d(
+            start=starty - 0.1 * (endy - starty),
+            end=endy + 0.1 * (endy - starty)
+        )

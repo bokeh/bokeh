@@ -15,6 +15,7 @@ methods.
 
 from __future__ import absolute_import
 
+from six.moves import zip
 from itertools import chain
 from operator import itemgetter
 from itertools import islice, product, izip
@@ -109,7 +110,8 @@ def groupby(df, *specs):
                     name_idx = tuple([spec_cols.index(col) for col in spec.columns])
 
                     if isinstance(name, tuple):
-                        # this handles the case of utilizing one or more and overlapping column names for different attrs
+                        # this handles the case of utilizing one or more and overlapping
+                        # column names for different attrs
                         # name (label) is a tuple of the column values
                         # we extract only the data associated with the columns that this attr spec was configured with
                         label = itemgetter(*name_idx)(name)

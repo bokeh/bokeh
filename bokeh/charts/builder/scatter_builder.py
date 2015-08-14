@@ -18,19 +18,8 @@ functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-import numpy as np
-
-try:
-    import pandas as pd
-except:
-    pd = None
-
-from collections import OrderedDict
-
-from ..utils import chunk, cycle_colors, marker_types
-from .._builder import create_and_build, Builder
-from .._data_source import ChartDataSource
-from ...models import ColumnDataSource, Range1d
+from ..utils import marker_types
+from .._builder import create_and_build, XYBuilder
 from ...properties import String
 from ...models import GlyphRenderer
 from .._attributes import AttrSpec, color_spec
@@ -45,8 +34,7 @@ def Scatter(*args, **kws):
     to render the geometry from values.
 
     Args:
-        values (iterable): iterable 2d representing the data series
-            values matrix.
+        data (arrays or dict(array) or list(dict) or pd.DataFrame): table-like data
 
     In addition the the parameters specific to this chart,
     :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
@@ -59,16 +47,11 @@ def Scatter(*args, **kws):
     .. bokeh-plot::
         :source-position: above
 
-        from collections import OrderedDict
+        from bokeh.sampledata.autompg import autompg as df
         from bokeh.charts import Scatter, output_file, show
 
-        # (dict, OrderedDict, lists, arrays and DataFrames of (x, y) tuples are valid inputs)
-        xyvalues = OrderedDict()
-        xyvalues['python'] = [(1, 2), (3, 3), (4, 7), (5, 5), (8, 26)]
-        xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
-        xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
-
-        scatter = Scatter(xyvalues, title="Scatter", legend="top_left", ylabel='Languages')
+        scatter = Scatter(df, x='mpg', y='hp', color='cyl', marker='origin',
+                          title="mpg", xlabel="Miles Per Gallon", ylabel="Horsepower")
 
         output_file('scatter.html')
         show(scatter)
@@ -83,7 +66,7 @@ def scatter_glyph(x, y, line_color='blue', fill_color='blue', marker='circle', s
     return marker_types[marker](x=x, y=y, line_color=line_color, fill_color=fill_color, size=size)
 
 
-class ScatterBuilder(Builder):
+class ScatterBuilder(XYBuilder):
     """This is the Scatter class and it is in charge of plotting
     Scatter charts in an easy and intuitive way.
 
@@ -93,10 +76,6 @@ class ScatterBuilder(Builder):
     the needed glyphs (markers) taking the references from the source.
 
     """
-
-    # TODO: (bev) should be an enumeration
-    x = String()
-    y = String()
 
     marker = String(help="""
     The marker type to use (default: ``circle``).
@@ -110,33 +89,7 @@ class ScatterBuilder(Builder):
         calculated points to be used by the marker glyph inside the
         ``_yield_renderers`` method.
         """
-        #self._data = dict()
-        # list to save all the attributes we are going to create
         self._attr = []
-
-    def _set_sources(self):
-        """Push the Scatter data into the ColumnDataSource and
-        calculate the proper ranges."""
-        #self._source = ColumnDataSource(self._data)
-        # ToDo: handle when only single dimension is provided
-
-        #x_names, y_names = self._attr[::2], self._attr[1::2]
-        x = self._data['x']
-        y = self._data['y']
-
-        endx = self._data.df[x].max()
-        startx = self._data.df[x].min()
-        self.x_range = Range1d(
-            start=startx - 0.1 * (endx - startx),
-            end=endx + 0.1 * (endx - startx)
-        )
-
-        endy = self._data.df[y].max()
-        starty = self._data.df[y].min()
-        self.y_range = Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
-        )
 
     def _yield_renderers(self):
         """Use the marker glyphs to display the points.
