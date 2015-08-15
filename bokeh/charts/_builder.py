@@ -21,7 +21,7 @@ from __future__ import absolute_import
 from ._chart import Chart
 from ._data_source import ChartDataSource
 from ..models.ranges import Range, Range1d
-from ..properties import Color, HasProps, Instance, Seq, List, String
+from ..properties import Color, HasProps, Instance, Seq, List, String, Property
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -31,7 +31,14 @@ DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33f
 
 
 def create_and_build(builder_class, *data, **kws):
+
+    if isinstance(builder_class.dimensions, Property):
+        raise NotImplementedError('Each builder must specify its dimensions.')
+
     builder_props = set(builder_class.properties())
+
+    for dim in builder_class.dimensions:
+        builder_props.add(dim)
 
     # create the new builder
     builder_kws = { k:v for k,v in kws.items() if k in builder_props}
@@ -77,9 +84,11 @@ class Builder(HasProps):
 
     x_range = Instance(Range)
     y_range = Instance(Range)
-    dimensions = List(String, default=['x', 'y'], help="""The dimension
+
+    # Dimensional Modeling
+    dimensions = List(String, help="""The dimension
         labels that drive the position of the glyphs.""")
-    req_dimensions = List(String, default=['x'], help="""The dimension
+    req_dimensions = List(String, help="""The dimension
         labels that must exist to produce the glyphs.""")
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
@@ -116,8 +125,8 @@ class Builder(HasProps):
         if len(args) == 0:
             data = None
         else:
-            for dim in self.dimensions:
-                kws[dim] = getattr(self, dim)
+            kws['dims'] = tuple(self.dimensions)
+            kws['required_dims'] = tuple(self.req_dimensions)
             data = ChartDataSource.from_data(*args, **kws)
 
         self._data = data
@@ -186,6 +195,8 @@ class XYBuilder(Builder):
 
     x = String()
     y = String()
+    dimensions = ['x', 'y']
+    req_dimensions = ['x']
 
     def _set_sources(self):
         """Push the Scatter data into the ColumnDataSource and
