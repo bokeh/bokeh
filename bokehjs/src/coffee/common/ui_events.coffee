@@ -15,38 +15,39 @@ class UIEvents extends Backbone.Model
 
     hit_area = @get('hit_area')
 
-    @hammer = new Hammer(hit_area[0])
+    unless options and options.testing
+      @hammer = new Hammer(hit_area[0])
 
-    # This is to be able to distinguish double taps from single taps
-    @hammer.get('doubletap').recognizeWith('tap')
-    @hammer.get('tap').requireFailure('doubletap')
-    @hammer.get('doubletap').dropRequireFailure('tap')
+      # This is to be able to distinguish double taps from single taps
+      @hammer.get('doubletap').recognizeWith('tap')
+      @hammer.get('tap').requireFailure('doubletap')
+      @hammer.get('doubletap').dropRequireFailure('tap')
 
-    @hammer.on('doubletap', (e) => @_doubletap(e))
-    @hammer.on('tap', (e) => @_tap(e))
-    @hammer.on('press', (e) => @_press(e))
+      @hammer.on('doubletap', (e) => @_doubletap(e))
+      @hammer.on('tap', (e) => @_tap(e))
+      @hammer.on('press', (e) => @_press(e))
 
-    @hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL })
-    @hammer.on('panstart', (e) => @_pan_start(e))
-    @hammer.on('pan', (e) => @_pan(e))
-    @hammer.on('panend', (e) => @_pan_end(e))
+      @hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL })
+      @hammer.on('panstart', (e) => @_pan_start(e))
+      @hammer.on('pan', (e) => @_pan(e))
+      @hammer.on('panend', (e) => @_pan_end(e))
 
-    @hammer.get('pinch').set({ enable: true })
-    @hammer.on('pinchstart', (e) => @_pinch_start(e))
-    @hammer.on('pinch', (e) => @_pinch(e))
-    @hammer.on('pinchend', (e) => @_pinch_end(e))
+      @hammer.get('pinch').set({ enable: true })
+      @hammer.on('pinchstart', (e) => @_pinch_start(e))
+      @hammer.on('pinch', (e) => @_pinch(e))
+      @hammer.on('pinchend', (e) => @_pinch_end(e))
 
-    @hammer.get('rotate').set({ enable: true })
-    @hammer.on('rotatestart', (e) => @_rotate_start(e))
-    @hammer.on('rotate', (e) => @_rotate(e))
-    @hammer.on('rotateend', (e) => @_rotate_end(e))
+      @hammer.get('rotate').set({ enable: true })
+      @hammer.on('rotatestart', (e) => @_rotate_start(e))
+      @hammer.on('rotate', (e) => @_rotate(e))
+      @hammer.on('rotateend', (e) => @_rotate_end(e))
 
-    hit_area.mousemove((e) => @_mouse_move(e))
-    hit_area.mouseenter((e) => @_mouse_enter(e))
-    hit_area.mouseleave((e) => @_mouse_exit(e))
-    hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
-    $(document).keydown((e) => @_key_down(e))
-    $(document).keyup((e) => @_key_up(e))
+      hit_area.mousemove((e) => @_mouse_move(e))
+      hit_area.mouseenter((e) => @_mouse_enter(e))
+      hit_area.mouseleave((e) => @_mouse_exit(e))
+      hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
+      $(document).keydown((e) => @_key_down(e))
+      $(document).keyup((e) => @_key_up(e))
 
   register_tool: (tool_view) ->
     et = tool_view.mget('event_type')
@@ -92,7 +93,8 @@ class UIEvents extends Backbone.Model
   _trigger: (event_type, e) ->
     tm = @get('tool_manager')
     base_event_type = event_type.split(":")[0]
-    gestures = tm.get('gestures')
+    # if testing, tm.gestures will be defined instead of tm.get('gestures')
+    gestures = tm.gestures or tm.get('gestures')
     active = gestures[base_event_type].active
     if active?
       if event_type == "scroll"
