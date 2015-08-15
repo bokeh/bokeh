@@ -6,7 +6,7 @@ cheerio = require 'cheerio'
 ui_events = utils.require "common/ui_events"
 
 describe "ui_events", ->
-  describe "_trigger", ->
+  describe "_trigger_scroll", ->
     jsdom()
 
     html = '<body><canvas></canvas></body>'
