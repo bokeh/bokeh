@@ -40,6 +40,7 @@ conda install --yes abstract-rendering
 conda install --yes multiuserblazeserver pillow
 ##hack - we need latest blaze right now
 conda install --yes -c blaze blaze
+pip install git+https://github.com/birdsarah/pytest-selenium.git
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
