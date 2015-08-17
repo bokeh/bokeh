@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <link href="gapminder_styles.css" type="text/css" rel="stylesheet" />
+    </head>
+    <body class="bk-body">
+        <h1>Bokeh - Gapminder example</h1>
+        <p>
+        In Hans Rosling's iconic TED Talk he showed why our ongoing perceptions of 
+        a "first" world and a "third" world are wrong and that the world 
+        is now a spectrum of developing countries and many advances 
+        have been made since our early notions of development from the 60s.
+        </p>
+        {{ plot_div|indent(8) }}
+        <br />
+        <br />
+        <p>
+        <iframe 
+            width="800" height="315"
+            src="https://www.youtube.com/embed/hVimVzgtD6w?t=3m57s">
+        </iframe>
+        </p>
+        <p>
+        You can skip ahead to 3m 58s to see him talking through the plot we've just made. Or sit back and enjoy a great example of statistics communication.
+        </p>
+        <script type="text/javascript">
+            {{ bokeh_min_js }}
+        </script>
+        {{ plot_script|indent(8) }}
+    </body>
+</html>
+

@@ -135,4 +135,24 @@ commands at a python prompt::
     >>> import bokeh.sampledata
     >>> bokeh.sampledata.download()
 
+Troubleshooting
+===============
 
+*Are the tools not working in Chrome/Cromium?*
+----------------------------------------------
+
+If you have a device with touchscreen capabilities, is possible that
+Chrome/Chromium is "flagged" to capture touch events which makes not
+possible to interact with the Bokeh tools with you mouse.
+
+To solve this issue you need to configure Chrome/Cromium going to the
+url bar and pasting the following:
+
+``chrome://flags/#touch-events``
+
+then you will see something like:
+
+``Enable touch events Mac, Windows, Linux, Chrome OS
+Force touchscreen support to always be enabled or disabled, or to be enabled when a touchscreen is detected on startup (Automatic, the default). #touch-events``
+
+and a drop-down button that you have to set to ``Disabled``.

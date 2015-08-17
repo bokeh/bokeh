@@ -1,0 +1,189 @@
+/* 
+ * General Theme
+ *
+ */
+.bk-body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333333;
+  background-color: #ffffff;
+  width: 800px; 
+  margin: auto;
+}
+
+
+/*
+ *
+ * MAIN BOKEH SETUP
+ *
+ */ 
+.bk-plot-wrapper table,
+.bk-plot-wrapper tr,
+.bk-plot-wrapper td {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.bk-canvas {
+  clear: both;
+  position: absolute;
+}
+
+.bk-canvas-wrapper {
+  position: relative;
+  float: left;
+}
+
+/*
+ *
+ * HOVER
+ *
+ */ 
+
+
+/* Bokeh - plain styling */
+.bk-tooltip {
+  position: absolute;
+  padding: 5px;
+  border: 1px solid #1e4b6c;
+  background-color: #1e4b6c;
+  border-radius: 5px;
+  pointer-events: none;
+}
+.bk-tooltip.bk-left::before {
+  position: absolute;
+  margin: -7px 0 0 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 0;
+  border-color: transparent;
+  content: " ";
+  display: block;
+  left: -10px;
+  border-right-width: 10px;
+  border-right-color: #1e4b6c;
+}
+.bk-tooltip.bk-right::after {
+  position: absolute;
+  margin: -7px 0 0 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 0;
+  border-color: transparent;
+  content: " ";
+  display: block;
+  right: -10px;
+  border-left-width: 10px;
+  border-left-color: #1e4b6c;
+}
+.bk-tooltip.bk-tooltip-custom.bk-left::before {
+  border-right-color: black;
+}
+.bk-tooltip.bk-tooltip-custom.bk-right::after {
+  border-left-color: black;
+}
+.bk-tooltip.bk-tooltip-custom {
+  border-color: black;
+  background-color: white;
+}
+
+
+/* Custom hover styling */
+.bk-tooltip.bk-tooltip-custom {
+    background-color: black !important;
+    opacity: 0.9;
+    color: white;
+    font-size: 0.8em;
+    padding: 0.5em 1.5em;
+}
+
+.bk-tooltip.bk-tooltip-custom:before {
+    border: none !important;
+}
+
+.bk-tooltip.bk-tooltip-custom:after {
+    border: none !important;
+}
+
+.tooltip-text {
+    clear: both;
+    float: left;
+}
+.tooltip-text.country {
+    font-weight: bold;
+}
+.tooltip-text.value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #FFA500;
+}
+
+/*
+ *
+ * SLIDER
+ *
+*/  
+
+.plotdiv input,
+.plotdiv label {
+    display: none;
+}
+
+
+.bk-slider-horizontal {
+  width: 705px;
+  height: 50px;
+  min-width: 200px;
+  margin-top: 20px;
+  margin-left: 55px;
+}
+
+.bk-ui-slider {
+	position: relative;
+	text-align: left;
+}
+
+.bk-ui-widget {
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 1.1em;
+}
+
+.bk-ui-widget-content {
+	border: 1px solid #aaaaaa;
+	background: #ffffff;
+	color: #222222;
+}
+.bk-ui-state-default {
+	border: 1px solid #7c7e71;
+	background: #eeeeee;
+	font-weight: normal;
+}
+
+
+
+.bk-ui-slider-horizontal {
+	height: .8em;
+}
+
+.bk-ui-slider-handle {
+	position: absolute;
+	z-index: 2;
+	top: -0.6em;
+	margin-left: -0.5em;
+	width: 1.0em;
+	height: 1.8em;
+	cursor: default;
+	-ms-touch-action: none;
+	touch-action: none;
+    border-radius: 2px;
+}
+
+.bk-ui-slider .bk-ui-slider-handle:focus {
+    outline: none;
+}

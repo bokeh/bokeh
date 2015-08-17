@@ -380,6 +380,14 @@ def parse_jsargs():
 # Main script
 # -----------------------------------------------------------------------------
 
+# Aliases for build_js and install_js
+
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '--build-js':
+        sys.argv[i] = '--build_js'
+    if sys.argv[i] == '--install-js':
+        sys.argv[i] = '--install_js'
+
 # Set up this checkout or source archive with the right BokehJS files.
 
 if sys.version_info[:2] < (2, 6):
@@ -488,7 +496,6 @@ REQUIRES = [
         'greenlet>=0.4.1',
         'itsdangerous>=0.21',
         'python-dateutil>=2.1',
-        'pytz==2013b',
         'requests>=1.2.3',
         'six>=1.5.2',
         'pygments>=1.6',
@@ -500,18 +507,13 @@ REQUIRES = [
         # cli
         # 'click>=3.3',
         # tests
-        # 'nose>=1.3.0',
+        # 'pytest'
         # 'mock>=1.0.1',
         'colorama>=0.2.7'
     ]
 
 if sys.version_info[:2] == (2, 6):
     REQUIRES.append('argparse>=1.1')
-
-if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
-    REQUIRES.extend([
-        'websocket>=0.2.1'
-    ])
 
 # if sys.platform != "win32":
 #     REQUIRES.append('redis>=2.7.6')
@@ -541,9 +543,10 @@ setup(
         'bokeh.charts.builder',
         'bokeh.charts.builder.tests',
         'bokeh.charts.tests',
+        'bokeh.compat',
+        'bokeh.compat.mplexporter',
+        'bokeh.compat.mplexporter.renderers',
         'bokeh.crossfilter',
-        'bokeh.mplexporter',
-        'bokeh.mplexporter.renderers',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.models',
@@ -556,6 +559,7 @@ setup(
         'bokeh.transforms',
         'bokeh.util',
         'bokeh.util.tests',
+        'bokeh.validation',
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',

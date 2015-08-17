@@ -51,20 +51,8 @@ If you would like to hide the toolbar entirely, pass ``None``.
 Below is some code that positions the toolbar below the plot. Try
 running the code and changing the ``toolbar_position`` value.
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/tools_position_toolbar.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("toolbar.html")
-
-    # create a new plot with the toolbar below
-    p = figure(plot_width=400, plot_height=400,
-               title=None, toolbar_location="below")
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
 
 .. _userguide_tools_specifying_tools:
 
@@ -86,6 +74,15 @@ containing tool shortcut names:
 
     tools = "pan,wheel_zoom,box_zoom,reset,resize"
 
+However, this method does not allow setting properties of the tools.
+To use shortcut names but also add tools with properties, one can
+also call the ``add_tools`` method:
+
+.. code-block:: python
+
+    fig = figure(tools="pan,wheel_zoom,box_zoom,reset,resize")
+    fig.add_tools(BoxSelectTool(dimensions=["width"]))
+
 .. _userguide_tools_pandrag:
 
 Pan/Drag Tools
@@ -103,7 +100,8 @@ BoxSelectTool
 The box selection tool allows the user to define a rectangular selection
 region by left-dragging a mouse, or dragging a finger across the plot area.
 The box select tool may be configured to select across only one dimension by
-setting the ``dimension`` property to ``width`` or ``height``.
+setting the ``dimensions`` property to a list containing ``width`` or
+``height``.
 
 .. note::
     To make a multiple selection, press the SHIFT key. To clear the
@@ -142,8 +140,9 @@ The pan tool allows the user to pan the plot by left-dragging a mouse or draggin
 finger across the plot region.
 
 It is also possible to constrain the pan tool to only act on either just the x-axis or
-just the y-axis by setting the ``dimension`` property to ``width`` or ``height``.
-Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``, respectively.
+just the y-axis by setting the ``dimensions`` property to a list containing ``width``
+or ``height``. Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``,
+respectively.
 
 ResizeTool
 ''''''''''
@@ -208,9 +207,9 @@ The wheel zoom tool will zoom the plot in and out, centered on the current
 mouse location.
 
 It is also possible to constraint the wheel zoom tool to only act on either
-just the x-axis or just the y-axis by setting the ``dimension`` property to
-``width`` or ``height``. Additionally, there are tool aliases ``'xwheel_zoom'``
-and ``'ywheel_zoom'``, respectively.
+just the x-axis or just the y-axis by setting the ``dimensions`` property to
+a list containing ``width`` or ``height``. Additionally, there are tool aliases
+``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
 .. _userguide_tools_actions:
 
@@ -228,8 +227,8 @@ ResetTool
 
 The reset tool will restore the plot ranges to their original values.
 
-SaveTool
-''''''''
+PreviewSaveTool
+'''''''''''''''
 
 * name: ``'save'``
 * icon: |save_icon|
@@ -256,8 +255,8 @@ CrosshairTool
 
 Th crosshair tool draws a crosshair annotation over the plot, centered on
 the current mouse position. The crosshair tool may be configured to draw
-accross only one dimension by setting the ``dimension`` property to
-``width`` or ``height``.
+accross only one dimension by setting the ``dimensions`` property to a
+list containing ``width`` or ``height``.
 
 HoverTool
 '''''''''
@@ -277,38 +276,13 @@ toolbar.
 Try running the code and changing the name of tools being added to the
 tools with valid values
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_string.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("toolbar.html")
-
-    TOOLS='box_zoom,box_select,crosshair,resize,reset'
-
-    # create a new plot with the toolbar below
-    p = figure(plot_width=400, plot_height=400, title=None, tools=TOOLS)
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
 
 or with a list of the tool instances:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_instance.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.models import HoverTool, BoxSelectTool
-
-    output_file("toolbar.html")
-    TOOLS=[BoxSelectTool(), HoverTool()]
-
-    p = figure(plot_width=400, plot_height=400, title=None, tools=TOOLS)
-
-    p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
-
-    show(p)
 
 Setting Tool Visuals
 --------------------
@@ -356,36 +330,8 @@ the right:
 Here is a complete example of how to configure and use the hover tool with
 default tooltip:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_tooltips.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show, ColumnDataSource
-    from bokeh.models import HoverTool
-
-    output_file("toolbar.html")
-
-    source = ColumnDataSource(
-        data=dict(
-            x=[1,2,3,4,5],
-            y=[2,5,8,2,7],
-            desc=['A', 'b', 'C', 'd', 'E'],
-        )
-    )
-
-    hover = HoverTool(
-        tooltips = [
-            ("index", "$index"),
-            ("(x,y)", "($x, $y)"),
-            ("desc", "@desc"),
-        ]
-    )
-
-    p = figure(plot_width=400, plot_height=400, tools=[hover],
-               title="Mouse over the dots")
-
-    p.circle('x', 'y', size=20, source=source)
-
-    show(p)
 
 Custom Tooltip
 ''''''''''''''
@@ -394,42 +340,8 @@ It is also possible to supply a custom tooltip template. To do this,
 pass an HTML string, with the Bokeh tooltip field name symbols wherever
 substitutions are desired. An example is shown below:
 
-.. bokeh-plot::
+.. bokeh-plot:: source/docs/user_guide/source_examples/tools_hover_custom_tooltip.py
     :source-position: above
-
-    from bokeh.plotting import figure, output_file, show, ColumnDataSource
-    from bokeh.models import HoverTool
-
-    output_file("toolbar.html")
-
-    source = ColumnDataSource(
-        data=dict(
-            x=[1,2,3,4,5],
-            y=[2,5,8,2,7],
-            desc=['A', 'b', 'C', 'd', 'E'],
-        )
-    )
-
-    hover = HoverTool(
-        tooltips = """
-        <div>
-            <span style="font-size: 17px; font-weight: bold;">@desc</span>
-            <span style="font-size: 15px; color: #966;">[$index]</span>
-        </div>
-        <div>
-            <span style="font-size: 15px;">Location</span>
-            <span style="font-size: 10px; color: #696;">($x, $y)</span>
-        </div>
-        """
-    )
-
-    p = figure(plot_width=400, plot_height=400, tools=[hover],
-               title="Mouse over the dots")
-
-    p.circle('x', 'y', size=20, source=source)
-
-    show(p)
-
 
 Selection Overlays
 ~~~~~~~~~~~~~~~~~~
@@ -472,7 +384,7 @@ LOD behavior:
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
-.. |HoverTool| replace:: :func:`~bokeh.models.tools.HoverTool`
+.. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
 
 .. |hover_basic| image:: /_images/hover_basic.png
 

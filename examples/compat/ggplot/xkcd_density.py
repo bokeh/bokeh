@@ -1,13 +1,14 @@
-from ggplot import *
-from bokeh import mpl
-from bokeh.plotting import show
+from ggplot import aes, diamonds, geom_density, ggplot
 import matplotlib.pyplot as plt
 
-g = ggplot(diamonds, aes(x='price', color='cut')) + \
-    geom_density()
+from bokeh import mpl
+from bokeh.plotting import output_file, show
 
+g = ggplot(diamonds, aes(x='price', color='cut')) + geom_density()
 g.draw()
 
 plt.title("xkcd-ggplot-mpl based plot in Bokeh.")
 
-show(mpl.to_bokeh(name="xkcd_density", xkcd=True))
+output_file("xkcd_density.html")
+
+show(mpl.to_bokeh(xkcd=True))

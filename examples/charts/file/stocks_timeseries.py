@@ -34,7 +34,7 @@ output_file("stocks_timeseries.html")
 
 ts = TimeSeries(
     xyvalues, index='Date', legend=True,
-    title="timeseries, pd_input", tools=TOOLS, ylabel='Stock Prices')
+    title="Timeseries", tools=TOOLS, ylabel='Stock Prices')
 
 # usage with iterable index
 #ts = TimeSeries(

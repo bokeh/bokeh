@@ -66,6 +66,10 @@ def download(progress=True):
         (s3, 'IBM.csv'),
         (s3, 'MSFT.csv'),
         (s3, 'WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.zip'),
+        (s3, 'gapminder_fertility.csv'),
+        (s3, 'gapminder_population.csv'),
+        (s3, 'gapminder_life_expectancy.csv'),
+        (s3, 'gapminder_regions.csv'),
     ]
 
     for base_url, file_name in files:

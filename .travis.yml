@@ -39,10 +39,11 @@ install:
     - scripts/travis_install
 
 script:
-    # TODO: remove the condition when conda build --quiet is available
-    # Examples testing + building generates enough output to kill the build so
-    # we avoid testing for now.
-    - if [[ -z "$TRAVIS_TAG" ]]; then nosetests --with-coverage --cover-package=bokeh; fi
+    # Deactivate tests on building to avoid huge packages contaning the pics and outout html
+    # Eventually, we need to get rid of the generated stuff before packaging
+    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m js; fi  # Run just the JS first so we see the output
+    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m 'not (examples or js)' --cov=bokeh; fi  # Run the not examples or js tests (we can eat stdout for this one)
+    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m examples --cov=bokeh; fi  # Then run the examples to see coverage from examples
     - ( cd sphinx; make all )
     # Flake/style testing (only needed on one machine)
     - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
@@ -50,20 +51,26 @@ script:
 after_success:
     |
     if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '2.7'  ]]; then
-        echo "Building the packages and uploading to binstar. Also uploading JS and CSS to the CDN and uploading the devel docs."
+        #install some additional dependencies
         conda install binstar fabric --yes
-        openssl aes-256-cbc -K $encrypted_d63f580d5c2a_key -iv $encrypted_d63f580d5c2a_iv -in secrets.tar.enc -out secrets.tar -d
+        #decrypt some files and place them in the correct location
+        openssl aes-256-cbc -K $encrypted_c19429b59af5_key -iv $encrypted_c19429b59af5_iv -in secrets.tar.enc -out secrets.tar -d
         tar xvf secrets.tar
-        chmod 600 bokeh_key
         cp known_hosts ~/.ssh/known_hosts
+        cp .npmrc ~/.npmrc
+        cp .pypirc ~/.pypirc
+        chmod 600 bokeh_key
         eval `ssh-agent -s`
         ssh-add bokeh_key
+        #signal the correct build
         if [[ "$TRAVIS_TAG" == *"dev"* ]] || [[ "$TRAVIS_TAG" == *"rc"* ]]; then
-          bash scripts/build_upload.sh -b $BINSTAR_TOKEN -u $RSUSER -k $RSAPIKEY
+          echo "Building a dev or rc package."
         else
+          echo "Building a release package."
+          #we signal the release with an empty __travis_build_id__.txt file
           echo "" > __travis_build_id__.txt
-          bash scripts/release_upload.sh -b $BINSTAR_TOKEN
         fi
+        bash scripts/build_upload.sh -b $BINSTAR_TOKEN -u $RSUSER -k $RSAPIKEY
     else
         echo "Not building because there is no tag."
     fi

@@ -4,7 +4,7 @@ related properties in bulk. """
 from __future__ import absolute_import
 
 from .properties import (
-    HasProps, ColorSpec, Enum, DashPattern, Int, NumberSpec, String)
+    HasProps, ColorSpec, Enum, DashPattern, Int, NumberSpec, String, FontSizeSpec)
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 
 class FillProps(HasProps):
@@ -132,7 +132,7 @@ class TextProps(HasProps):
 
     """)
 
-    text_font_size = String("12pt")
+    text_font_size = FontSizeSpec("12pt")
 
     text_font_style = Enum(FontStyle, help="""
     A style to use for rendering text.

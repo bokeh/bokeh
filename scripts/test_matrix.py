@@ -42,6 +42,7 @@ def cleaner(env_path):
 def conda_creator(env_name, pkgs):
     """Create a conda environment of a given name containing a given string of pkgs.
     """
+
     subprocess.call("conda create --yes -n %s %s" % (env_name, pkgs), shell=True)
 
 
@@ -49,6 +50,7 @@ def bokeh_installer(env_name, install_string):
     """Activate an environment and run its install string to either install or update bokeh using
     conda or pip.
     """
+
     if os.name == 'nt':
         command_string = 'activate %s & %s' % (env_name, install_string)
     else:
@@ -68,11 +70,12 @@ if __name__ == '__main__':
 
     envs = {
         "py27_conda_clean"    : {
-            "init"    : "python=2.7 nose mock",
+            "init"    : "python=2.7 pytest mock",
             "install" : '; '.join([
                     # install latest version from dev channel
                     "conda install --yes -c bokeh/channel/dev bokeh",
                     # install dependencies needed for testing
+                    "conda install --yes  -c jrderuiter pytest-cov",
                     "conda install --yes  -c auto websocket-client",
                     "conda install --yes  -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy websocket multiuserblazeserver pillow",
                 ])
@@ -87,12 +90,14 @@ if __name__ == '__main__':
                 ])
             },
         "py27_pip_clean"      : {
-            "init"    : "python=2.7 nose mock pip",
+            "init"    : "python=2.7 pytest mock pip",
             "install" : '; '.join([
                 # Latest version of pip not included in anaconda 2.3.0
                 "pip install --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install nose mock blaze abstract-rendering beautifulsoup4 ipython scipy websocket-client multiuserblazeserver",
+                "conda install --yes  -c jrderuiter pytest-cov",
+                "conda install --yes -c auto websocket-client",
+                "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy websocket-client multiuserblazeserver",
                 ])
             },
         "py27_pip_update"     : {
@@ -101,33 +106,18 @@ if __name__ == '__main__':
                 # Latest version of pip not included in anaconda 2.3.0
                 "pip install --upgrade --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install nose mock blaze abstract-rendering beautifulsoup4 ipython scipy websocket-client multiuserblazeserver",
-                ])
-            },
-        "py34_conda_clean"    : {
-            "init"    : "python=3.4 nose mock",
-            "install" : '; '.join([
-                    # install latest version from dev channel
-                    "conda install --yes -c bokeh/channel/dev bokeh",
-                    # install dependencies needed for testing
-                    "conda install --yes  -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy multiuserblazeserver pillow",
-                ])
-            },
-        "py34_conda_update"   : {
-            "init"    : "python=3.4 nose mock bokeh=%s" % ver,
-            "install" : '; '.join([
-                    "conda update --yes -c bokeh/channel/dev bokeh",
-                    # install dependencies needed for testing
-                    "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy multiuserblazeserver pillow",
+                "conda install --yes -c auto websocket-client",
+                "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy multiuserblazeserver",
                 ])
             },
         "py34_pip_clean"      : {
-            "init"    : "python=3.4 nose mock pip",
+            "init"    : "python=3.4 pytest mock pip",
             "install" : '; '.join([
                 # Latest version of pip not included in anaconda 2.3.0
                 "pip install --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install nose mock blaze abstract-rendering beautifulsoup4 ipython scipy websocket-client multiuserblazeserver",
+                "conda install --yes  -c jrderuiter pytest-cov",
+                "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy multiuserblazeserver",
                 ])
             },
         "py34_pip_update"     : {
@@ -136,7 +126,7 @@ if __name__ == '__main__':
                 # Latest version of pip not included in anaconda 2.3.0
                 "pip install --upgrade --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install nose mock blaze abstract-rendering beautifulsoup4 ipython scipy websocket-client multiuserblazeserver",
+                "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy multiuserblazeserver",
                 ])
             },
     }
@@ -152,6 +142,7 @@ if __name__ == '__main__':
 
     for environment in envs:
         successful_install = True
+        fails = []
         cleaner(os.path.join(root, "envs", environment))
         print()
         print("CREATING NEW ENV", environment)
@@ -159,15 +150,18 @@ if __name__ == '__main__':
 
         install = bokeh_installer(environment, envs[environment]["install"])
         if not install:
+            fails.append(environment)
             successful_install = False
 
     print()
     print("*********************")
     if successful_install:
-        print("All environments have been installed!  See below for their names.")
+        print("All environments have been installed!  See below for their names.\n")
         for environment in envs:
             print(environment)
-        print("NOTE: All of these envs will be deleted and replaced if you rerun this script.")
+        print("\nNOTE: All of these environments will be deleted and replaced if you rerun test_matrix.py")
     else:
-        print("Some (or all) of the environments failed to install.")
+        print("The following environments have failed to install:\n")
+        for install_fail in fails:
+            print(install_fail)
     print("*********************")

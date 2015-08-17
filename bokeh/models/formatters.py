@@ -209,6 +209,17 @@ class DatetimeTickFormatter(TickFormatter):
     corresponding value is a list of `strftime`_ formats to use for
     formatting datetime values that fall in in that "time scale".
 
+    An example of specifying the same date format over a range of time scales::
+
+        DatetimeTickFormatter(
+            formats=dict(
+                hours=["%B %Y"],
+                days=["%B %Y"],
+                months=["%B %Y"],
+                years=["%B %Y"],
+            )
+        )
+
     This list of supported `strftime`_ formats is reproduced below.
 
     .. warning::

@@ -47,7 +47,7 @@ def _get_cdn_urls(version=None, minified=True):
     container = dev_container if _DEV_PAT.match(version) else rel_container
 
     if version.endswith(('dev', 'rc')):
-        logger.warn("Getting CDN URL for local dev version will not produce usable URL")
+        logger.debug("Getting CDN URL for local dev version will not produce usable URL")
 
     result = {
         'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
@@ -114,7 +114,7 @@ class Resources(object):
     * ``'server'`` configure to load from a Bokeh Server
     * ``'server-dev'`` same as ``server`` but supports non-minified JS
     * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified JS 
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified JS
     * ``'absolute'`` configure to load from the installed Bokeh library static directory
     * ``'absolute-dev'`` same as ``absolute`` but supports non-minified JS
 
@@ -236,7 +236,7 @@ class Resources(object):
             return self._root_url
         else:
             return self._default_root_url
-    
+
     def _file_paths(self, files, minified):
         if minified:
             files = [ root + ".min" + ext for (root, ext) in map(splitext, files) ]
@@ -249,7 +249,7 @@ class Resources(object):
     def _css_paths(self, minified=True, dev=False):
         files = self._default_css_files_dev if self.dev else self._default_css_files
         return self._file_paths(files, False if dev else minified)
-    
+
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
 

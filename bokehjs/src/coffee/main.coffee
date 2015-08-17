@@ -1,26 +1,27 @@
 Bokeh = {}
 Bokeh.require = require
-Bokeh.version = '0.9.0'
+Bokeh.version = '0.9.2'
 
-Bokeh.index = require("./common/base").index
+# binding the libs that bokeh uses so others can reference them
+Bokeh._                 = require("underscore")
+Bokeh.$                 = require("jquery")
+
+require "jquery-ui"
+Bokeh.Backbone          = require("backbone")
+Bokeh.Backbone.$        = Bokeh.$
+Bokeh.Backbone.$.ui     = Bokeh.$.ui
 
 # set up logger
 logging = require("./common/logging")
-Bokeh.logger = logging.logger
-Bokeh.set_log_level = logging.set_log_level
+Bokeh.logger            = logging.logger
+Bokeh.set_log_level     = logging.set_log_level
 
 # fallback to Array if necessary
 if not window.Float64Array
   Bokeh.logger.warn("Float64Array is not supported. Using generic Array instead.")
   window.Float64Array = Array
 
-# binding the libs that bokeh uses so others can reference them
-Bokeh._                 = require("underscore")
-Bokeh.$ = $ = jQuery    = require("jquery")
-require "jquery-ui"
-Bokeh.Backbone          = require("backbone")
-Bokeh.Backbone.$        = Bokeh.$
-Bokeh.Backbone.$.ui     = jQuery.ui
+Bokeh.index             = require("./common/base").index
 
 # common
 Bokeh.Collections       = require("./common/base").Collections

@@ -1,31 +1,50 @@
 _ = Bokeh._
 
-# something like this will make it into Bokeh proper
-find = (obj, name) ->
-  if obj.get('name')? and obj.get('name') == name
-    return obj
-  if obj.get('children')?
-    for c in obj.get('children')
-      result = find(c, name)
-      if result?
-        return result
-  if obj.get('renderers')?
-    for r in obj.get('renderers')
-      result = find(r, name)
-      if result?
-        return result
-  return null
+find_glyph_renderer = (index_item) ->
+    for key, r of index_item.renderers
+        data_source = r.model.get('data_source')
+        if data_source?
+            return r.model
+    return null
+
+get_plot_id = (id) ->
+    item = Bokeh.$('#' + id + ' > .plotdiv')
+    if item.length is 1
+        return item[0].id
+    return null
+
 
 class SpectrogramApp
 
-  constructor: (@layout) ->
+  constructor: (@keys) ->
     @paused = false
     @gain = 1
 
-    @freq_slider = find(@layout, "freq")
-    @freq_slider.on("change:value", @update_freq)
-    @gain_slider = find(@layout, "gain")
-    @gain_slider.on("change:value", @update_gain)
+    @play_button = Bokeh.$('#bkplay')
+    @play_button.click(() =>
+      @paused=false
+      @play_button.prop('checked', true)
+      @pause_button.prop('checked', false)
+    )
+    @pause_button = Bokeh.$('#bkpause')
+    @pause_button.click(() =>
+      @paused=true
+      @play_button.prop('checked', false)
+      @pause_button.prop('checked', true)
+    )
+
+    for key in @keys
+        item = Bokeh.index[key]
+        item_id = item.el.id
+        @freq_slider = item if item_id is get_plot_id('freq-slider')
+        @gain_slider = item if item_id is get_plot_id('gain-slider')
+        @spectrogram = item if item_id is get_plot_id('spectrogram')
+        @signal = item if item_id is get_plot_id('signal')
+        @spectrum = item if item_id is get_plot_id('spectrum')
+        @equalizer = item if item_id is get_plot_id('equalizer')
+
+    @freq_slider.model.on("change:value", @update_freq)
+    @gain_slider.model.on("change:value", @update_gain)
 
     config = Bokeh.$.ajax('http://localhost:5000/params', {
       type: 'GET'
@@ -36,25 +55,27 @@ class SpectrogramApp
     ).then(@request_data)
 
   update_freq: () =>
-    freq = @freq_slider.get('value')
+    freq = @freq_slider.model.get('value')
+    console.log("setting upper freq range:", freq)
     @spectrogram_plot.set_yrange(0, freq)
-    @power_plot.set_xrange(0, freq)
+    @power_plot.set_xrange(0, freq*0.001)
 
   update_gain: () =>
-    @gain = @gain_slider.get('value')
+    @gain = @gain_slider.model.get('value')
+    console.log("setting gain value:", @gain)
 
   _config: (data) ->
     @config = data
     console.log "Got config:", @config
-    @spectrogram_plot = new SpectrogramPlot(find(@layout, "spectrogram"), @config)
-    @signal_plot = new SimpleXYPlot(find(@layout, "signal"), @config)
-    @power_plot = new SimpleXYPlot(find(@layout, "spectrum"), @config)
-    @eq_plot = new RadialHistogramPlot(find(@layout, "eq"), @config)
+    @spectrogram_plot = new SpectrogramPlot(find_glyph_renderer(@spectrogram), @config)
+    @signal_plot = new SimpleXYPlot(find_glyph_renderer(@signal), @config)
+    @power_plot = new SimpleXYPlot(find_glyph_renderer(@spectrum), @config)
+    @eq_plot = new RadialHistogramPlot(find_glyph_renderer(@equalizer), @config)
 
   request_data: () =>
     in_flight = false
     helper = () =>
-      if in_flight
+      if in_flight or @paused
         return
       in_flight = true
       Bokeh.$.ajax('/data',
@@ -96,7 +117,7 @@ class SpectrogramApp
     t = (i/signal.length*@config.TIMESLICE for i in [0...signal.length])
     @signal_plot.update(t, signal)
 
-    f = (i/spectrum.length*@config.MAX_FREQ for i in [0...spectrum.length])
+    f = ((i*0.001)/spectrum.length*@config.MAX_FREQ for i in [0...spectrum.length])
     @power_plot.update(f, spectrum)
 
     @eq_plot.update(data.bins)
@@ -104,13 +125,9 @@ class SpectrogramApp
 class SpectrogramPlot
 
   constructor: (@model, @config) ->
-    @source = @model.get('data_source')
     @cmap = new Bokeh.LinearColorMapper.Model({
       palette: Bokeh.Palettes.YlGnBu9, low: 0, high: 5
     })
-
-    plot = @model.attributes.parent
-    @y_range = plot.get('frame').get('y_ranges')[@model.get('y_range_name')]
 
     @num_images = Math.ceil(@config.NGRAMS/@config.TILE_WIDTH) + 1
 
@@ -126,6 +143,7 @@ class SpectrogramPlot
 
   update: (spectrum) ->
     buf = @cmap.v_map_screen(spectrum)
+    source = @model.get('data_source')
 
     for i in [0...@xs.length]
       @xs[i] += 1
@@ -137,6 +155,7 @@ class SpectrogramPlot
       @images = [img].concat(@images[0..])
       @xs.pop()
       @xs = [1-@image_width].concat(@xs[0..])
+      source.set('data', {image: @images, x: @xs})
 
     image32 = new Uint32Array(@images[0])
     buf32 = new Uint32Array(buf)
@@ -144,18 +163,20 @@ class SpectrogramPlot
     for i in [0...@config.SPECTROGRAM_LENGTH]
       image32[i*@image_width+@col] = buf32[i]
 
-    @source.set('data', {image: @images, x: @xs})
-    @source.trigger('change', @source)
+    source.get('data')['x'] = @xs
+    source.trigger('change', true, 0)
 
   set_yrange: (y0, y1) ->
-    @y_range.set({'start': y0, 'end' : y1})
+    plot = @model.attributes.parent
+    y_range = plot.get('frame').get('y_ranges')[@model.get('y_range_name')]
+    y_range.set({'start': y0, 'end' : y1})
 
 class RadialHistogramPlot
 
   constructor: (@model, @config) ->
-    @source = @model.get('data_source')
 
   update: (bins) ->
+    source = @model.get('data_source')
     angle = 2*Math.PI/bins.length
     [inner, outer, start, end, alpha] = [[], [], [], [], []]
     for i in [0...bins.length]
@@ -166,24 +187,24 @@ class RadialHistogramPlot
       end   = end.concat((i+0.95) * angle for j in range)
       alpha = alpha.concat(1 - 0.08*j for j in range)
 
-    @source.set('data', {
+    source.set('data', {
       inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: alpha
     })
-    @source.trigger('change', @source)
+    source.trigger('change', source)
 
 class SimpleXYPlot
 
   constructor: (@model, @config) ->
-    @source = @model.get('data_source')
-    plot = @model.attributes.parent
-    @x_range = plot.get('frame').get('x_ranges')[@model.get('x_range_name')]
 
   update: (x, y) ->
-    @source.set('data', {x: x, y: y})
-    @source.trigger('change', @source)
+    source = @model.get('data_source')
+    source.set('data', {x: x, y: y})
+    source.trigger('change', source)
 
   set_xrange: (x0, x1) ->
-    @x_range.set({'start': x0, 'end' : x1})
+    plot = @model.attributes.parent
+    x_range = plot.get('frame').get('x_ranges')[@model.get('x_range_name')]
+    x_range.set({'start': x0, 'end' : x1})
 
 setup = () ->
   index = window.Bokeh.index
@@ -195,8 +216,7 @@ setup = () ->
   clearInterval(timer)
 
   console.log("Bokeh loaded, starting SpectrogramApp")
-  id = keys[0]
-  app = new SpectrogramApp(index[id].model)
+  app = new SpectrogramApp(keys)
 
 timer = setInterval(setup, 100)
 
