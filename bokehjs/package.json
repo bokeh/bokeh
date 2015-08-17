@@ -45,6 +45,8 @@
     "phantomjs": "^1.9.7",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
+    "sinon": "^1.15.4",
+    "sinon-chai": "^2.8.0",
     "through": "^2.3.6",
     "underscore": "^1.5.2",
     "vinyl-buffer": "^1.0.0",
