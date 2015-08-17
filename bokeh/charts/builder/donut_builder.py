@@ -111,7 +111,7 @@ class DonutBuilder(Builder):
         self.set_and_get("", "end", end_angles)
         self.set_and_get("", "start", start_angles)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Donut data into the ColumnDataSource and calculate
          the proper ranges.
 

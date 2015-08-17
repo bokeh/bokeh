@@ -118,7 +118,7 @@ class HeatMapBuilder(Builder):
         self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
                          width=width, height=height)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """

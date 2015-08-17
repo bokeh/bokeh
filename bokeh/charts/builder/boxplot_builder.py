@@ -208,7 +208,7 @@ class BoxPlotBuilder(Builder):
         self.set_and_get(self._data_rect, self._attr_rect, "lower_height_boxes", lower_height_boxes)
         self.set_and_get(self._data_rect, self._attr_rect, "colors", colors)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         "Push the BoxPlot data into the ColumnDataSource and calculate the proper ranges."
         self._source_segment = ColumnDataSource(self._data_segment)
         self._source_scatter = ColumnDataSource(self._data_scatter)

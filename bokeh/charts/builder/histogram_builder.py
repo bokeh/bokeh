@@ -160,7 +160,7 @@ class HistogramBuilder(Builder):
                 else:
                     print("You need scipy to get the theoretical probability distributions.")
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Histogram data into the ColumnDataSource and calculate
         the proper ranges."""
         self._source = ColumnDataSource(data=self._data)

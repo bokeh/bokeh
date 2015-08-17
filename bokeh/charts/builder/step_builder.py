@@ -123,7 +123,7 @@ class StepBuilder(Builder):
             ys[1::2] = orig_ys[:-1]
             self._data['y_%s' % col] = ys
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """ Push the Step data into the ColumnDataSource and calculate
         the proper ranges.
         """

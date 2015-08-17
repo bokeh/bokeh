@@ -149,7 +149,7 @@ class AreaBuilder(Builder):
             self.set_and_get("y_", grp, values)
             self._groups.append(u"%s" % grp)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """

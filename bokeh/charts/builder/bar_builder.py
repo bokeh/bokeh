@@ -162,7 +162,7 @@ class BarBuilder(Builder):
             # Stacked
             zero += values
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """

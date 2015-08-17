@@ -131,16 +131,6 @@ class Builder(HasProps):
 
         self._data = data
         self._legends = []
-        self._attr = []
-
-    def _adapt_values(self):
-        """Prepare the input data.
-
-        Converts data input (self._values) to a DataGrouper and creates
-        instance index if needed
-        """
-        pass
-        # ToDo: Is this still needed?
 
     def _process_data(self):
         """Make any global data manipulations before grouping.
@@ -151,15 +141,13 @@ class Builder(HasProps):
         """
         pass
 
-    def _set_sources(self):
-        """Push data into the ColumnDataSource and build the
-        proper ranges.
+    def _set_ranges(self):
+        """Calculate and set the x and y ranges.
 
-        It has to be implemented by any of the inherited class
+        It has to be implemented by any of the subclasses of builder
         representing each different chart type.
         """
-        pass
-        # ToDo: Is this still needed? Should be set in yield_renderers?
+        raise NotImplementedError('Subclasses of builder must implement _set_ranges.')
 
     def _yield_renderers(self):
         """ Generator that yields the glyphs to be draw on the plot
@@ -167,17 +155,16 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        pass
+        raise NotImplementedError('Subclasses of builder must implement _yield_renderers.')
 
     def create(self, chart=None):
-        self._adapt_values()
         self._process_data()
-        self._set_sources()
+        self._set_ranges()
         renderers = self._yield_renderers()
 
         chart.add_renderers(self, renderers)
 
-        # create chart ranges..
+        # create chart ranges
         if not chart.x_range:
             chart.x_range = self.x_range
         if not chart.y_range:
@@ -188,6 +175,9 @@ class Builder(HasProps):
         #chart.add_legend(legends)
 
         return chart
+    #
+    # def get_selection(self, dim):
+    #
 
 
 class XYBuilder(Builder):
@@ -198,9 +188,8 @@ class XYBuilder(Builder):
     dimensions = ['x', 'y']
     req_dimensions = ['x']
 
-    def _set_sources(self):
-        """Push the Scatter data into the ColumnDataSource and
-        calculate the proper ranges."""
+    def _set_ranges(self):
+        """Calculate and set the x and y ranges."""
         # ToDo: handle when only single dimension is provided
 
         x = self._data['x']

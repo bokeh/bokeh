@@ -136,7 +136,7 @@ class TimeSeriesBuilder(Builder):
             self.set_and_get("x_", col, xs)
             self.set_and_get("y_", col, values)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the TimeSeries data into the ColumnDataSource and
         calculate the proper ranges.
         """

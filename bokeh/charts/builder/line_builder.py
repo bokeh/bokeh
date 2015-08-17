@@ -111,7 +111,7 @@ class LineBuilder(Builder):
             self._groups.append(col)
             self.set_and_get("y_", col, values)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """
         Push the Line data into the ColumnDataSource and calculate the
         proper ranges.
