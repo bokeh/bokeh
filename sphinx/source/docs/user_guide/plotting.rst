@@ -379,7 +379,7 @@ glyph methods, when creating a plot.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_legends.py
     :source-position: above
 
-.. _userguide_plotting_box_annotations
+.. _userguide_plotting_box_annotations:
 
 Box Annotations
 ~~~~~~~~~~~~~~~
