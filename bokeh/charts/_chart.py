@@ -21,6 +21,7 @@ the generation of several outputs (file, server, notebook).
 from __future__ import absolute_import
 
 import numpy as np
+from collections import defaultdict
 
 from ._chart_options import ChartOptions
 from ..browserlib import view
@@ -28,6 +29,7 @@ from ..document import Document
 from ..embed import file_html
 from ..models import (
     CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
+from ..models.ranges import FactorRange
 from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
 from ..resources import INLINE
@@ -91,6 +93,7 @@ class Chart(Plot):
 
         self._builders = []
         self._renderer_map = []
+        self._ranges = defaultdict(list)
 
         # Add to document and session if server output is asked
         _doc = None
@@ -105,9 +108,6 @@ class Chart(Plot):
                 self._session = _session
             else:
                 self._session = Session()
-
-        # create chart axis, grids and tools
-        self.start_plot()
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -124,9 +124,12 @@ class Chart(Plot):
             self.tools = []
             self.create_tools(self._options.tools)
 
+    def add_ranges(self, dim, range):
+        self._ranges[dim].append(range)
+
     def create_axes(self):
-        self._xaxis = self.make_axis("below", self._options.xscale, self._options.xlabel)
-        self._yaxis = self.make_axis("left", self._options.yscale, self._options.ylabel)
+        self._xaxis = self.make_axis('x', "below", self._options.xscale, self._options.xlabel)
+        self._yaxis = self.make_axis('y', "left", self._options.yscale, self._options.ylabel)
 
     def create_grids(self, xgrid=True, ygrid=True):
         if xgrid:
@@ -176,7 +179,7 @@ class Chart(Plot):
             legend = Legend(orientation=orientation, legends=legends)
             self.add_layout(legend)
 
-    def make_axis(self, location, scale, label):
+    def make_axis(self, dim, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
         scale and with the proper labels.
 
@@ -191,7 +194,18 @@ class Chart(Plot):
             axis: Axis instance
         """
 
-        if scale == "linear" or scale == "auto":
+        # ToDo: revisit how to handle multiple ranges
+        # set the last range to the chart's range
+        data_range = self._ranges[dim][-1]
+        setattr(self, dim + '_range', data_range)
+
+        if scale == "auto":
+            if isinstance(data_range, FactorRange):
+                scale = 'categorical'
+            else:
+                scale = 'linear'
+
+        if scale == "linear":
             axis = LinearAxis(axis_label=label)
         elif scale == "datetime":
             axis = DatetimeAxis(axis_label=label)

@@ -20,8 +20,10 @@ from __future__ import absolute_import
 
 from ._chart import Chart
 from ._data_source import ChartDataSource
-from ..models.ranges import Range, Range1d
-from ..properties import Color, HasProps, Instance, Seq, List, String, Property
+from ..models.ranges import Range, Range1d, FactorRange
+from ..properties import (Color, HasProps, Instance, Seq, List, String, Property,
+                          Either, Dict)
+from ._properties import Dimension
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -48,6 +50,7 @@ def create_and_build(builder_class, *data, **kws):
     chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
     chart = Chart(**chart_kws)
     chart.add_builder(builder)
+    chart.start_plot()
 
     return chart
 
@@ -88,8 +91,9 @@ class Builder(HasProps):
     # Dimensional Modeling
     dimensions = List(String, help="""The dimension
         labels that drive the position of the glyphs.""")
-    req_dimensions = List(String, help="""The dimension
-        labels that must exist to produce the glyphs.""")
+    req_dimensions = Either(List(String), List(List(String)), List(Dict(String, String)), help="""The dimension
+        labels that must exist to produce the glyphs. This specifies what are the valid configurations
+        for the chart, with the option of specifying the type of the columns.""")
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
@@ -121,13 +125,27 @@ class Builder(HasProps):
             attr (list(AttrSpec)): to be filled with the new attributes created after
                 loading the data dict.
         """
-        super(Builder, self).__init__(**kws)
+
         if len(args) == 0:
             data = None
         else:
-            kws['dims'] = tuple(self.dimensions)
-            kws['required_dims'] = tuple(self.req_dimensions)
-            data = ChartDataSource.from_data(*args, **kws)
+
+            # pop the dimension inputs from kwargs
+            data_args = {}
+            for dim in self.dimensions:
+                if dim in kws.keys():
+                    data_args[dim] = kws.pop(dim)
+
+            data_args['dims'] = tuple(self.dimensions)
+            data_args['required_dims'] = tuple(self.req_dimensions)
+            data = ChartDataSource.from_data(*args, **data_args)
+
+            # make sure that the column options have access to the data
+            for dim in self.dimensions:
+                getattr(getattr(self, dim), 'set_data')(data)
+
+        super(Builder, self).__init__(**kws)
+
 
         self._data = data
         self._legends = []
@@ -147,7 +165,7 @@ class Builder(HasProps):
         It has to be implemented by any of the subclasses of builder
         representing each different chart type.
         """
-        raise NotImplementedError('Subclasses of builder must implement _set_ranges.')
+        raise NotImplementedError('Subclasses of %s must implement _set_ranges.' % self.__class__.__name__)
 
     def _yield_renderers(self):
         """ Generator that yields the glyphs to be draw on the plot
@@ -155,7 +173,7 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        raise NotImplementedError('Subclasses of builder must implement _yield_renderers.')
+        raise NotImplementedError('Subclasses of %s must implement _yield_renderers.' % self.__class__.__name__)
 
     def create(self, chart=None):
         self._process_data()
@@ -164,47 +182,44 @@ class Builder(HasProps):
 
         chart.add_renderers(self, renderers)
 
-        # create chart ranges
-        if not chart.x_range:
-            chart.x_range = self.x_range
-        if not chart.y_range:
-            chart.y_range = self.y_range
+        # ToDo: should this be x,y specific?
+        chart.add_ranges('x', self.x_range)
+        chart.add_ranges('y', self.y_range)
 
         # always contribute legends, let Chart sort it out
         #legends = self.legends
         #chart.add_legend(legends)
 
         return chart
-    #
-    # def get_selection(self, dim):
-    #
 
 
 class XYBuilder(Builder):
     """Implements common functionality for XY Builders."""
 
-    x = String()
-    y = String()
+    x = Dimension('x')
+    y = Dimension('y')
     dimensions = ['x', 'y']
-    req_dimensions = ['x']
+    req_dimensions = [['x'],
+                      ['y'],
+                      ['x', 'y']]
 
     def _set_ranges(self):
         """Calculate and set the x and y ranges."""
         # ToDo: handle when only single dimension is provided
 
-        x = self._data['x']
-        y = self._data['y']
+        endx = self.x.max
+        startx = self.x.min
+        self.x_range = self._get_range(startx, endx)
 
-        endx = self._data.df[x].max()
-        startx = self._data.df[x].min()
-        self.x_range = Range1d(
-            start=startx - 0.1 * (endx - startx),
-            end=endx + 0.1 * (endx - startx)
-        )
+        endy = self.y.max
+        starty = self.y.min
+        self.y_range = self._get_range(starty, endy)
 
-        endy = self._data.df[y].max()
-        starty = self._data.df[y].min()
-        self.y_range = Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
-        )
+    @staticmethod
+    def _get_range(start, end):
+
+        diff = end - start
+        if diff == 0:
+            return FactorRange(factors=['None'])
+
+        return Range1d(start=start - 0.1 * diff, end=end + 0.1 * diff)

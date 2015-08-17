@@ -493,7 +493,7 @@ class PrimitiveProperty(Property):
 
 class Bool(PrimitiveProperty):
     """ Boolean type property. """
-    _underlying_type = (bool,)
+    _underlying_type = (bool, np.bool_)
 
 class Int(PrimitiveProperty):
     """ Signed integer type property. """
@@ -640,6 +640,7 @@ class Array(Seq):
 
     def _new_instance(self, value):
         return np.array(value)
+
 
 class Dict(ContainerProperty):
     """ Python dict type property.

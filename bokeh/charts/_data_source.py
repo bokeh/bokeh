@@ -144,12 +144,18 @@ class ChartDataSource(object):
     Converts inputs that could be treated as table-like data to pandas
     DataFrame, which is used for assigning attributes to data groups.
     """
-    def __init__(self, df, dims=('x', 'y'), required_dims=('x',), selections=(), **kwargs):
+    def __init__(self, df, dims=('x', 'y'), required_dims=('x',), selections=None, **kwargs):
         self._data = df
         self._dims = dims
         self._required_dims = required_dims
         self._selections = self.get_selections(selections, **kwargs)
         self.meta = self.collect_metadata(df)
+        self._validate_selections()
+        self._add_chart_columns()
+
+    def _add_chart_columns(self):
+        # ToDo: reconsider how to get these values into each group
+        self._data['_charts_ones'] = 1
 
     def get_selections(self, selections, **kwargs):
         """Maps chart dimensions to selections and checks that required dim requirements are met."""
@@ -158,26 +164,38 @@ class ChartDataSource(object):
         # extract selections from kwargs using dimension list
         for dim in self._dims:
             dim_select = kwargs.pop(dim, None)
-            if dim_select:
-                select_map[dim] = dim_select
+            select_map[dim] = dim_select
 
+        # handle case where dimension kwargs were not provided
         if len(select_map.keys()) == 0:
-            if len(selections) == 0:
+            if selections is None:
                 # if no selections are provided, we assume they were provided in order
                 select_map = {dim: sel for dim, sel in izip(self._dims, self._data.columns)}
+            elif isinstance(selections, dict):
+                if len(selections.keys()) != 0:
+                    # selections were specified in inputs
+                    select_map = selections
             else:
-                select_map = {dim: sel for dim, sel in izip(self._dims, selections)}
+                # selection input type isn't valid
+                raise ValueError('selections input must be provided as: dict(dimension: column) or None')
 
-        # make sure we have enough dimensions as required either way
-        unmatched = list(set(self._required_dims) - set(select_map.keys()))
-        if len(unmatched) > 0:
-            raise ValueError('You must provide all required columns assigned to dimensions, no match for: %s'
-                             % ', '.join(unmatched))
+        # # make sure we have enough dimensions as required either way
+        # unmatched = list(set(self._required_dims) - set(select_map.keys()))
+        # if len(unmatched) > 0:
+        #     raise ValueError('You must provide all required columns assigned to dimensions, no match for: %s'
+        #                      % ', '.join(unmatched))
+        # else:
+        return select_map
+
+    def __getitem__(self, dim):
+        """Get the columns selected for the given dimension name.
+
+        e.g. dim='x'
+        """
+        if self._selections[dim] is not None:
+            return self._selections[dim]
         else:
-            return select_map
-
-    def __getitem__(self, key):
-        return self._selections[key]
+            return '_charts_ones'
 
     def groupby(self, *specs):
         """Iterable of chart attribute specifications, associated with columns.
@@ -226,7 +244,8 @@ class ChartDataSource(object):
                 return cls(df=pd.DataFrame.from_records(data=table), **kwargs)
 
             # blaze data source
-            #elif string or datasource
+            # elif string or datasource
+            # Todo: implement handling of blaze data sources if available
 
             # pandas dataframe
             elif isinstance(table, pd.DataFrame):
@@ -279,6 +298,39 @@ class ChartDataSource(object):
     @staticmethod
     def _is_valid(data, types):
         return any([isinstance(data, valid_type) for valid_type in types])
+
+    def _validate_selections(self):
+        """Raises selection error if selections are not valid compared to requirements."""
+
+        required_dims = self._required_dims
+        selections = self._selections
+        dims = [dim for dim, sel in selections.iteritems() if sel is not None]
+
+        # look for a match for selections to dimensional requirements
+        if len(required_dims) > 0:
+            for req in required_dims:
+                # ToDo: handle column type specifications
+
+                if len(dims) < len(req):
+                    # not an exact match
+                    continue
+
+                if all([dim in req for dim in dims]):
+                    # found a match to the requirements
+                    return
+
+            # If we reach this point, nothing was validated, let's construct useful error messages
+            error_str = 'Did not receive a valid combination of selections.\n\nValid configurations are: %s' + \
+                        '\nReceived inputs are: %s' + \
+                        '\n\nAvailable columns are: %s'
+            req_str = [' and '.join(['%s = <Any Column>' % dim for dim in required_dim])
+                       for required_dim in required_dims]
+            selection_str = ['%s = %s' % (str(dim), str(sel)) for dim, sel in selections.iteritems() if sel is not None]
+
+            raise ValueError(error_str % (' or '.join(req_str), ', '.join(selection_str), ', '.join(self.columns)))
+        else:
+            # if we have no dimensional requirements, they all pass
+            return
 
     @staticmethod
     def is_number(value):
