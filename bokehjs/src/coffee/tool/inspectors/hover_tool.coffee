@@ -213,7 +213,7 @@ class HoverToolView extends InspectTool.View
         else
           value = value.replace("$~", "$data_")
           value = Util.replace_placeholders(value, ds, i, vars)
-          td.append($('<span>').text(value))
+          td.append($('<span>').html(value))
 
         row.append(td)
         table.append(row)
