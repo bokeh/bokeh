@@ -108,7 +108,14 @@ class DataTableView extends ContinuumView
 
   updateSelection: () ->
     selected = @mget("source").get("selected")
-    @grid.setSelectedRows(selected['1d'].indices)
+    indices = selected['1d'].indices
+    @grid.setSelectedRows(indices)
+    # Scroll datatable to start at the row before the first selected row,
+    # to immediately bring selections into view.
+    # TODO: should this be default behavior / configurable?
+    min_index = Math.max(0, Math.min.apply(null, indices) - 1)
+    # console.log("DataTableView::updateSelection", min_index, indices)
+    @grid.scrollRowToTop(min_index)
 
   newIndexColumn: () ->
     return {
