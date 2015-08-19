@@ -710,6 +710,13 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(" round"))
         self.assertFalse(prop.is_valid(" bevel"))
 
+        from bokeh.enums import NamedColor
+        prop = Enum(NamedColor)
+
+        self.assertTrue(prop.is_valid("red"))
+        self.assertTrue(prop.is_valid("Red"))
+        self.assertTrue(prop.is_valid("RED"))
+
     def test_Color(self):
         prop = Color()
 
@@ -744,7 +751,7 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid("#00AaFff"))
 
         self.assertTrue(prop.is_valid("blue"))
-        self.assertFalse(prop.is_valid("BLUE"))
+        self.assertTrue(prop.is_valid("BLUE"))
         self.assertFalse(prop.is_valid("foobar"))
 
     def test_Align(self):
