@@ -12,10 +12,9 @@ class UIEvents extends Backbone.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-
     hit_area = @get('hit_area')
-
     @_hammer_element hit_area[0]
+
 
   _hammer_element: (el)->
     @hammer = new Hammer(el)
@@ -102,6 +101,9 @@ class UIEvents extends Backbone.Model
 
   _trigger_event: (event_type, active, e)->
     if active?
+      if event_type == 'scroll'
+        e.preventDefault()
+        e.stopPropagation()
       @trigger("#{event_type}:#{active.id}", e)
 
   _bokify_hammer: (e) ->
@@ -199,8 +201,6 @@ class UIEvents extends Backbone.Model
     @_bokify_jq(e)
     e.bokeh.delta = delta
     @_trigger('scroll', e)
-    e.preventDefault()
-    e.stopPropagation()
 
   _key_down: (e) ->
     # NOTE: keydown event triggered unconditionally
