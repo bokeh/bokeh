@@ -5,6 +5,8 @@ cheerio = require 'cheerio'
 sinon = require 'sinon'
 
 ui_events = utils.require "common/ui_events"
+# Stub out _hammer_element as not used in testing
+sinon.stub(ui_events.prototype, "_hammer_element") 
 
 
 describe "ui_events", ->
@@ -27,7 +29,7 @@ describe "ui_events", ->
     @ui_event = new ui_events({
       hit_area: $('canvas')
       tool_manager: gestures: scroll: active: true
-    }, testing: true)
+    })
 
   describe "_trigger_scroll", ->
 
@@ -42,7 +44,7 @@ describe "ui_events", ->
       ui_event = new ui_events({
         hit_area: $('canvas')
         tool_manager: gestures: scroll: {}
-      }, testing: true)
+      })
 
       ui_event._trigger_event 'scroll', undefined, @e
       expect(@stopPropagation.callCount).to.equal 0
