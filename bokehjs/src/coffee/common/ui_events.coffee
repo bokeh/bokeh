@@ -12,12 +12,12 @@ class UIEvents extends Backbone.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
+    @_hammer_element()
+
+
+  _hammer_element: ->
     hit_area = @get('hit_area')
-    @_hammer_element hit_area[0]
-
-
-  _hammer_element: (el)->
-    @hammer = new Hammer(el)
+    @hammer = new Hammer(hit_area[0])
 
     # This is to be able to distinguish double taps from single taps
     @hammer.get('doubletap').recognizeWith('tap')
