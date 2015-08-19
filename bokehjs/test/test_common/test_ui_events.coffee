@@ -9,7 +9,7 @@ ui_events = utils.require "common/ui_events"
 
 describe "ui_events", ->
   jsdom()
-  
+
   html = '<body><canvas></canvas></body>'
   $ = cheerio.load html
 
@@ -19,7 +19,7 @@ describe "ui_events", ->
     deltaY: 100
     deltaX: 100
     e.bokeh = {}
-    
+
     @preventDefault = sinon.spy(e, "preventDefault")
     @stopPropagation = sinon.spy(e, "stopPropagation")
     @e = e
@@ -33,7 +33,7 @@ describe "ui_events", ->
 
     it "should stopPropagation & preventDefault of event if scroll gesture is active", ->
 
-      @ui_event._trigger 'scroll', @e
+      @ui_event._trigger_event 'scroll', true, @e
       expect(@stopPropagation.callCount).to.equal 1
       expect(@preventDefault.callCount).to.equal 1
 
@@ -44,7 +44,7 @@ describe "ui_events", ->
         tool_manager: gestures: scroll: {}
       }, testing: true)
 
-      ui_event._trigger 'scroll', @e
+      ui_event._trigger_event 'scroll', undefined, @e
       expect(@stopPropagation.callCount).to.equal 0
       expect(@preventDefault.callCount).to.equal 0
 
