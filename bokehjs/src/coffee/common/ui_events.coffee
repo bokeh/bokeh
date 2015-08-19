@@ -15,8 +15,7 @@ class UIEvents extends Backbone.Model
 
     hit_area = @get('hit_area')
 
-    unless options and options.testing
-      this._hammer_element hit_area[0]
+    @_hammer_element hit_area[0]
 
   _hammer_element: (el)->
     @hammer = new Hammer(el)
@@ -99,7 +98,7 @@ class UIEvents extends Backbone.Model
     base_event_type = event_type.split(":")[0]
     gestures = tm.get('gestures')
     active = gestures[base_event_type].active
-    this._trigger_event event_type, active e
+    @_trigger_event event_type, active e
 
   _trigger_event: (event_type, active, e)->
     if active?
