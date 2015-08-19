@@ -8,7 +8,6 @@ def _verify_base_url(request, base_url):
 
 
 @pytest.fixture(scope='session', autouse=True)
-@pytest.fixture
 def _sensitive_skipping(request, base_url):
     # Override the default pytest-selenium behavior
     pass
