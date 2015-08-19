@@ -31,10 +31,6 @@ branches:
     - /^\d.\d.\drc-.+$/
     - /^\d.\d.\d$/
 
-addons:
-  firefox: 
-    "39.0"
-
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_ID > __travis_build_id__.txt
