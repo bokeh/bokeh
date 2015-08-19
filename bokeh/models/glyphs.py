@@ -229,11 +229,11 @@ class Gear(Glyph):
     The y-coordinates of the center of the gears.
     """)
 
-    angle = NumberSpec(default=0, help="""
+    angle = AngleSpec(default=0, help="""
     The angle the gears are rotated from horizontal. [rad]
     """)
 
-    module = AngleSpec("module", help="""
+    module = NumberSpec("module", help="""
     A scaling factor, given by::
 
         m = p / pi
