@@ -24,7 +24,7 @@ class Property extends HasProperties
     if _.isObject(attr_value) and not _.isArray(attr_value)
       # use whichever the spec provides if there is a spec
       @spec = attr_value
-      if @spec.value?
+      if not _.isUndefined(@spec.value)
         @fixed_value = @spec.value
       else if @spec.field?
         @field = @spec.field
