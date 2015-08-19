@@ -31,11 +31,17 @@ branches:
     - /^\d.\d.\drc-.+$/
     - /^\d.\d.\d$/
 
+addons:
+  firefox: 
+    "39.0"
+
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_ID > __travis_build_id__.txt
     - nvm install stable
     - nvm use stable
+    - "export DISPLAY=:99.0"
+    - "sh -e /etc/init.d/xvfb start"
 
 install:
     - scripts/travis_install
@@ -45,7 +51,7 @@ script:
     # Eventually, we need to get rid of the generated stuff before packaging
     - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m js; fi  # Run just the JS first so we see the output
     - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh; fi  # Run the not examples or js tests (we can eat stdout for this one)
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m integration --driver=PhantomJS; fi  # Run the integration tests
+    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m integration; fi  # Run the integration tests
     - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m examples; fi  # Run the examples
     - ( cd sphinx; make all )
     # Flake/style testing (only needed on one machine)
