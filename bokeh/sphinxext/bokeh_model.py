@@ -90,7 +90,7 @@ class BokehModelDirective(Directive):
         model_obj = model()
 
         model_json = json.dumps(
-            json.loads(serialize_json(model_obj.dump(changed_only=False))),
+            json.loads(serialize_json(model_obj.dump(changed_only=False, validate=False))),
             sort_keys=True,
             indent=2,
             separators=(',', ': ')
