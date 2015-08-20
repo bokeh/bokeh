@@ -37,13 +37,21 @@ load_models = (modelspecs) ->
 
   logger.debug("load_models: start")
 
+  seen_specs = {}
+
   for model in modelspecs
-    coll = Collections(model['type'])
+    modeltype = model['type']
     attrs = model['attributes']
-    if coll and coll.get(attrs['id'])
+    modelid = attrs['id']
+    coll = Collections(modeltype)
+    if coll and coll.get(modelid)
       oldspecs.push([coll, attrs])
     else
-      newspecs.push([coll, attrs])
+      if modelid of seen_specs
+        logger.warn("load_models: ignoring duplicate model #{ modeltype } (#{ modelid })")
+      else
+        seen_specs[modelid] = true
+        newspecs.push([coll, attrs])
 
   # add new objects to collections silently
   for coll_attrs in newspecs
