@@ -24,7 +24,6 @@ def gen_entry():
     while True:
         last_entry = Entry(x, np.sin(x*np.pi/10), time.time())
         entries.append(last_entry)
-        print("Entry generated: %s" % str(last_entry))
         x += 1
         if x > entries.maxlen and x % 10 == 0:
             time.sleep(2)
