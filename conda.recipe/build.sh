@@ -30,7 +30,6 @@ pushd bokehjs
 echo "npm version $(npm -v)"
 echo "node version $(node -v)"
 npm install
-npm install platfora/Canteen
 popd
 
 $PYTHON setup.py --quiet install nightly --build_js --single-version-externally-managed --record=record.txt
