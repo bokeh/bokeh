@@ -177,12 +177,13 @@ class Builder(HasProps):
 
     def create(self, chart=None):
         self._process_data()
-        self._set_ranges()
-        renderers = self._yield_renderers()
 
+        renderers = self._yield_renderers()
         chart.add_renderers(self, renderers)
 
-        # ToDo: should this be x,y specific?
+        # handle ranges after renders, since ranges depend on aggregations
+        # ToDo: should reconsider where this occurs
+        self._set_ranges()
         chart.add_ranges('x', self.x_range)
         chart.add_ranges('y', self.y_range)
 

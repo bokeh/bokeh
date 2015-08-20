@@ -3,8 +3,10 @@ from __future__ import absolute_import
 from itertools import cycle
 from copy import copy
 
+from bokeh.properties import HasProps, String, List, Dict, Any
 
-class AttrSpec(object):
+
+class AttrSpec(HasProps):
     """A container for assigning attributes to values and retrieving them as needed.
 
     A special function this provides is automatically handling cases where the provided
@@ -14,22 +16,27 @@ class AttrSpec(object):
     be a one dimensional tuple of values, representing the unique group in the data.
     """
 
+    attribute = String(help='Name of the attribute the spec provides.')
+    columns = List(String)
+    attr_map = Any()
+
     def __init__(self, df, columns, attribute, iterable, default=None):
-        self.df = df
-        self.attribute = attribute
-        self.columns = self._ensure_list(columns)
-        self.iterable = cycle(iterable)
+
+        columns = self._ensure_list(columns)
 
         if not default and iterable:
             default_iter = copy(iterable)
             default = next(iter(default_iter))
 
-        self.default = default
-
+        iterable = cycle(iterable)
+        self._default = default
         if not columns:
-            self.attr_map = {}
+            attr_map = {}
         else:
-            self.attr_map = self._create_attr_map()
+            attr_map = self._create_attr_map(df, iterable, columns)
+
+        properties = dict(attribute=attribute, columns=columns, attr_map=attr_map)
+        super(AttrSpec, self).__init__(**properties)
 
     @staticmethod
     def _ensure_list(attr):
@@ -47,22 +54,22 @@ class AttrSpec(object):
         else:
             return attr
 
-    def _create_attr_map(self):
+    def _create_attr_map(self, df, iterable, columns):
         """Creates map between unique values and available attributes."""
-        df = self.df.sort(columns=self.columns)
-        items = df[self.columns].drop_duplicates()
+        df = df.sort(columns=columns)
+        items = df[columns].drop_duplicates()
         items = [tuple(x) for x in items.to_records(index=False)]
 
         iter_map = {}
         for item in items:
             item = self._ensure_tuple(item)
-            iter_map[item] = next(self.iterable)
+            iter_map[item] = next(iterable)
         return iter_map
 
     def __getitem__(self, item):
         """Lookup the attribute to use for the given unique group label."""
         if not self.attr_map:
-            return self.default
+            return self._default
         else:
             return self.attr_map[self._ensure_tuple(item)]
 

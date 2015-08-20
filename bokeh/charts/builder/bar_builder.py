@@ -29,13 +29,14 @@ from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect
 from ...properties import Any, Bool, Either, List
+from .._properties import Dimension
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
+def Bar(data, items=None, values=None, color=None, stack=None, group=None, agg="sum", xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, continuous_range=None, **kw):
     """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builder.bar_builder.BarBuilder>`
     render the geometry from values, cat and stacked.
@@ -86,12 +87,19 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
 
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
+    kw['items'] = items
+    kw['values'] = values
+    kw['color'] = color
+    kw['stack'] = stack
+    kw['group'] = group
+    kw['agg'] = agg
+    kw['xscale'] = xscale
+    kw['yscale'] = yscale
+    kw['xgrid'] = xgrid
+    kw['ygrid'] = ygrid
+    kw['y_range'] = y_range
 
-    return create_and_build(
-        BarBuilder, values, cat=cat, stacked=stacked,
-        xscale=xscale, yscale=yscale,
-        xgrid=xgrid, ygrid=ygrid, y_range=y_range, **kw
-    )
+    return create_and_build(BarBuilder, data, **kw)
 
 
 class BarBuilder(Builder):
@@ -116,9 +124,12 @@ class BarBuilder(Builder):
 
     """
 
-    cat = Either(Bool, List(Any), help="""
-    List of string representing the categories. (Defaults to None.)
-    """)
+    items = Dimension('items')
+    values = Dimension('values')
+    dimensions = ['items', 'values']
+    req_dimensions = [['items'],
+                      ['values'],
+                      ['items', 'values']]
 
     stacked = Bool(False, help="""
     Whether to stack the bars. (Defaults to False)
@@ -166,7 +177,7 @@ class BarBuilder(Builder):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
+        #self._source = ColumnDataSource(self._data)
         self.x_range = FactorRange(factors=self._source.data["cat"])
 
         if not self.y_range:
