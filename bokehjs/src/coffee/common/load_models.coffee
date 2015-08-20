@@ -37,50 +37,58 @@ load_models = (modelspecs) ->
 
   logger.debug("load_models: start")
 
-  seen_specs = {}
+  dupe_specs = {}
 
   for model in modelspecs
     modeltype = model['type']
     attrs = model['attributes']
     modelid = attrs['id']
     coll = Collections(modeltype)
-    if coll and coll.get(modelid)
-      oldspecs.push([coll, attrs])
+    if not coll?
+      logger.warn("load_models: no collection for #{ modeltype } (#{ modelid }), ignoring")
+      continue
+
+    if coll.get(modelid)
+      oldspecs.push([coll, attrs, modeltype])
+
     else
-      if modelid of seen_specs
-        logger.warn("load_models: ignoring duplicate model #{ modeltype } (#{ modelid })")
+      if modelid of dupe_specs
+        logger.warn("load_models: ignoring duplicate #{ modeltype } (#{ modelid })")
       else
-        seen_specs[modelid] = true
-        newspecs.push([coll, attrs])
+        dupe_specs[modelid] = true
+        newspecs.push([coll, attrs, modeltype])
+
+  logger.debug("load_models: adding #{ newspecs.length } new models to collections")
 
   # add new objects to collections silently
-  for coll_attrs in newspecs
-    [coll, attrs] = coll_attrs
-    if coll
-      coll.add(attrs, {'silent' : true, 'defer_initialization' : true})
+  for i in [0...newspecs.length]
+    [coll, attrs, type] = newspecs[i]
+    logger.trace("load_models: adding [#{ i }] #{ type } (#{ attrs['id'] })")
+    coll.add(attrs, {'silent' : true, 'defer_initialization' : true})
 
-  logger.debug("load_models: starting deferred initializations")
+  logger.debug("load_models: finished adding new models to collections")
+
+  logger.debug("load_models: starting deferred initializations of #{ newspecs.length } new models")
 
   # call deferred initialization on all new models
-  for coll_attrs in newspecs
-    [coll, attrs] = coll_attrs
-    if coll
-      coll.get(attrs['id']).initialize(attrs)
+  for i in [0...newspecs.length]
+    [coll, attrs, type] = newspecs[i]
+    model = coll.get(attrs['id'])
+    logger.trace("load_models: initializing [#{ i }] #{ model.type } (#{ attrs['id'] })")
+    model.initialize(attrs)
 
   logger.debug("load_models: finished deferred initializations")
 
   # trigger add events on all new models
-  for coll_attrs in newspecs
-    [coll, attrs] = coll_attrs
-    if coll
-      model = coll.get(attrs.id)
-      model.trigger('add', model, coll, {})
+  for i in [0...newspecs.length]
+    [coll, attrs, type] = newspecs[i]
+    model = coll.get(attrs.id)
+    model.trigger('add', model, coll, {})
 
   # set attributes on old models
-  for coll_attrs in oldspecs
-    [coll, attrs] = coll_attrs
-    if coll
-      coll.get(attrs['id']).set(attrs)
+  for i in [0...oldspecs.length]
+    [coll, attrs, type] = oldspecs[i]
+    coll.get(attrs['id']).set(attrs)
 
   logger.debug("load_models: finish")
 
