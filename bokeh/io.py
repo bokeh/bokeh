@@ -49,7 +49,7 @@ _state = State()
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
+def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     ''' Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
@@ -128,6 +128,7 @@ def output_notebook(url=None, docname=None, session=None, name=None,
         session or the top of a script.
 
     '''
+    # load_notebook will use CDN resources if resources is None (the default)
     load_notebook(resources, verbose, hide_banner)
     _state.output_notebook(
         url=url, docname=docname, session=session, name=name
