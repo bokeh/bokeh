@@ -2,8 +2,9 @@ from __future__ import absolute_import
 
 # This file is excluded from flake8 checking in setup.cfg
 
-from .callbacks import *
+from .annotations import *
 from .axes import *
+from .callbacks import *
 from .formatters import *
 from .glyphs import *
 from .grids import *

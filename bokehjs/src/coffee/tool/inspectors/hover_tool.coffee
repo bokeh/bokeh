@@ -185,14 +185,14 @@ class HoverToolView extends InspectTool.View
 
       for [label, value] in tooltips
         row = $("<tr></tr>")
-        row.append($("<td class='bk-tooltip-row-label'>#{ label }: </td>"))
+        row.append($("<td class='bk-tooltip-row-label'>").text("#{label}: "))
         td = $("<td class='bk-tooltip-row-value'></td>")
 
         if value.indexOf("$color") >= 0
           [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
           column = ds.get_column(colname)
           if not column?
-            span = $("<span>#{ colname } unknown</span>")
+            span = $("<span>").text("#{colname} unknown")
             td.append(span)
             continue
           hex = opts?.indexOf("hex") >= 0
@@ -204,7 +204,7 @@ class HoverToolView extends InspectTool.View
             continue
           if hex
             color = _color_to_hex(color)
-          span = $("<span>#{ color }</span>")
+          span = $("<span>").text(color)
           td.append(span)
           if swatch
             span = $("<span class='bk-tooltip-color-block'> </span>")
@@ -213,7 +213,7 @@ class HoverToolView extends InspectTool.View
         else
           value = value.replace("$~", "$data_")
           value = Util.replace_placeholders(value, ds, i, vars)
-          td.append($('<span>').text(value))
+          td.append($('<span>').html(value))
 
         row.append(td)
         table.append(row)

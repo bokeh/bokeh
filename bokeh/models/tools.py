@@ -30,6 +30,7 @@ from .renderers import Renderer
 from .callbacks import Callback
 
 
+
 class ToolEvents(PlotObject):
     """
 
@@ -151,15 +152,17 @@ class TapTool(Tool):
     The tap selection tool allows the user to select at single points by
     left-clicking a mouse, or tapping with a finger.
 
+    See :ref:`userguide_styling_selected_unselected_glyphs` for information
+    on styling selected and unselected glyphs.
+
     .. |tap_select_icon| image:: /_images/icons/TapSelect.png
         :height: 18pt
 
-   .. note::
+    .. note::
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
         previous seletion that might exist.
-
     """
 
     names = List(String, help="""
@@ -174,7 +177,7 @@ class TapTool(Tool):
 
     callback = Instance(Callback, help="""
     A client-side action specification, like opening a URL, showing
-    a dialog box, etc. See :class:`bokeh.models.Action` for details.
+    a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
     """)
 
     always_active = Bool(True, help="""
@@ -239,6 +242,10 @@ class BoxSelectTool(Tool):
     mouse or a finger over the plot region. The end of the drag
     event indicates the selection region is ready.
 
+    See :ref:`userguide_styling_selected_unselected_glyphs` for information
+    on styling selected and unselected glyphs.
+
+
     .. |box_select_icon| image:: /_images/icons/BoxSelect.png
         :height: 18pt
 
@@ -299,6 +306,9 @@ class LassoSelectTool(Tool):
     mouse or a finger over the plot region. The end of the drag
     event indicates the selection region is ready.
 
+    See :ref:`userguide_styling_selected_unselected_glyphs` for information
+    on styling selected and unselected glyphs.
+
     .. note::
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
@@ -333,6 +343,9 @@ class PolySelectTool(Tool):
     clicks (or taps) add successive points to the definition of the
     polygon, and a double click (or tap) indicates the selection
     region is ready.
+
+    See :ref:`userguide_styling_selected_unselected_glyphs` for information
+    on styling selected and unselected glyphs.
 
     .. note::
         Selections can be comprised of multiple regions, even those
@@ -386,8 +399,26 @@ class HoverTool(Tool):
     off by setting ``tooltips=None``.
 
     .. warning::
-        Point hit testing is not currently available on all glyphs. Hover tool
-        currently does not work with line or image type glyphs.
+
+        Hover tool does not currently work with the following glyphs:
+
+        .. hlist::
+            :columns: 3
+
+            * annulus
+            * arc
+            * bezier
+            * gear
+            * image
+            * image_rgba
+            * image_url
+            * multi_line
+            * oval
+            * patch
+            * quadratic
+            * ray
+            * segment
+            * text
 
     .. |hover_icon| image:: /_images/icons/Inspector.png
         :height: 18pt

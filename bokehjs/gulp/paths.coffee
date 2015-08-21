@@ -1,21 +1,25 @@
-BUILD_DIR = "./build/"
-JS_BUILD = "#{BUILD_DIR}js/"
+path = require("path")
+argv = require("yargs").argv
+
+BUILD_DIR = if typeof argv.buildDir == "string" then argv.buildDir else "./build"
+JS_BUILD_DIR = path.join(BUILD_DIR, "js")
+CSS_BUILD_DIR = path.join(BUILD_DIR, "css")
 SERVER_DIR = "../bokeh/server/static/"
 
-module.exports =
+module.exports = {
   buildDir:
     all: BUILD_DIR
-    js: JS_BUILD
-    css: "#{BUILD_DIR}css/"
+    js: JS_BUILD_DIR
+    css: CSS_BUILD_DIR
   serverDir:
     all: SERVER_DIR
-    js: "#{SERVER_DIR}js/"
-    css: "#{SERVER_DIR}css/"
+    js: path.join(SERVER_DIR, "js")
+    css: path.join(SERVER_DIR, "css")
+
   coffee:
     destination:
       full: "bokeh.js"
-      fullWithPath: "#{JS_BUILD}bokeh.js"
-      minified: "bokeh.min.js"
+      fullWithPath: path.join(JS_BUILD_DIR, "bokeh.js")
     sources: [
       "./src/coffee/main.coffee"
     ]
@@ -25,10 +29,10 @@ module.exports =
 
   css:
     sources: [
-      "./build/css/bokeh.css"
+      path.join(CSS_BUILD_DIR, "bokeh.css")
     ]
     watchSources: [
-      "./build/css/bokeh.css",
+      path.join(CSS_BUILD_DIR, "bokeh.css")
     ]
 
   less:
@@ -44,4 +48,4 @@ module.exports =
       "./test/**/**",
       "./src/coffee/**/**",
     ]
-
+}

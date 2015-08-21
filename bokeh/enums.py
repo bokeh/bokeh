@@ -55,5 +55,5 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
                               "en-gb", "es-ES", "es", "et", "fi", "fr-CA", "fr-ch",
                               "fr", "hu", "it", "ja", "nl-nl", "pl", "pt-br",
                               "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
-RenderLevel = enumeration("image", "underlay", "glyph", "overlay",
-                          "annotation", "tool")
+RenderLevel = enumeration("image", "underlay", "glyph", "annotation",
+                          "overlay", "tool")
