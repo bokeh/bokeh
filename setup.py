@@ -332,7 +332,16 @@ Please build BokehJS by running setup.py with the `--build_js` option.
 
 def clean():
     print("Removing prior-built items...", end=" ")
-    dir_util.remove_tree('build/lib/bokeh')
+
+    build_dir = 'build/lib/bokeh'
+    if os.path.exists(build_dir):
+        dir_util.remove_tree(build_dir)
+
+    for root, dirs, files in os.walk('.'):
+        for item in files:
+            if item.endswith('.pyc'):
+                os.remove(os.path.join(root, item))
+
     print("Done")
 
 
@@ -379,6 +388,14 @@ def parse_jsargs():
 # -----------------------------------------------------------------------------
 # Main script
 # -----------------------------------------------------------------------------
+
+# Aliases for build_js and install_js
+
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '--build-js':
+        sys.argv[i] = '--build_js'
+    if sys.argv[i] == '--install-js':
+        sys.argv[i] = '--install_js'
 
 # Set up this checkout or source archive with the right BokehJS files.
 
@@ -497,7 +514,7 @@ REQUIRES = [
         # cli
         # 'click>=3.3',
         # tests
-        # 'nose>=1.3.0',
+        # 'pytest'
         # 'mock>=1.0.1',
         'colorama>=0.2.7'
     ]

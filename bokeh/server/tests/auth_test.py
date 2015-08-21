@@ -9,8 +9,8 @@ from __future__ import absolute_import
 
 from contextlib import contextmanager
 
-from nose.tools import assert_raises
 from werkzeug.exceptions import Unauthorized
+import pytest
 
 from ..app import bokeh_app
 from ..models.user import User
@@ -30,6 +30,7 @@ def test_login_required():
     def test(x):
         return x
     with patch_current_user(lambda : None):
-        assert_raises(Unauthorized, test)
+        with pytest.raises(Unauthorized):
+            test()
     with patch_current_user(lambda : User):
         assert test(1) == 1

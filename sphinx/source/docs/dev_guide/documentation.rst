@@ -15,7 +15,6 @@ packages installed in order to build Bokeh documentation:
 
 * docutils
 * sphinx
-* sphinxcontrib-napoleon
 * sphinxcontrib-httpdomain
 * sphinx-bootstrap-theme
 * seaborn

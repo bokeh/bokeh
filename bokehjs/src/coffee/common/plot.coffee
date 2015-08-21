@@ -30,7 +30,7 @@ properties = require "./properties"
 # When the author or user wants to, we try to create a webgl canvas,
 # which is saved on the ctx object that gets passed around during drawing.
 # The presence (and not-being-false) of the ctx.glcanvas attribute is the
-# marker that we use throughout that determines whether we have gl support. 
+# marker that we use throughout that determines whether we have gl support.
 
 global_gl_canvas = null
 
@@ -53,6 +53,12 @@ class PlotView extends ContinuumView
     if not @is_paused
       @throttled_render(true)
     return
+
+  remove: () =>
+    super()
+    # When this view is removed, also remove all of the tools.
+    for id, tool_view of @tools
+      tool_view.remove()
 
   initialize: (options) ->
     super(options)
@@ -121,11 +127,11 @@ class PlotView extends ContinuumView
     logger.debug("PlotView initialized")
 
     return this
-  
+
   init_webgl: () ->
 
     # We use a global invisible canvas and gl context. By having a global context,
-    # we avoid the limitation of max 16 contexts that most browsers have. 
+    # we avoid the limitation of max 16 contexts that most browsers have.
     glcanvas = global_gl_canvas
     if not glcanvas?
       global_gl_canvas = glcanvas = document.createElement('canvas')
@@ -319,7 +325,8 @@ class PlotView extends ContinuumView
       @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
-    @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
+
     if ctx.glcanvas
       # Blit gl canvas into the 2D canvas. We need to turn off interpolation, otherwise
       # all gl-rendered content is blurry. The 0.1 offset is to force the samples
@@ -357,12 +364,14 @@ class PlotView extends ContinuumView
     indices = {}
     for renderer, i in @mget("renderers")
       indices[renderer.id] = i
-    sortKey = (renderer) -> indices[renderer.id]
+
+    sortKey = (renderer_view) -> indices[renderer_view.model.id]
 
     for level in levels
-      renderers = _.sortBy(_.values(@levels[level]), sortKey)
-      for renderer in renderers
-        renderer.render()
+      renderer_views = _.sortBy(_.values(@levels[level]), sortKey)
+
+      for renderer_view in renderer_views
+        renderer_view.render()
 
     ctx.restore()
 

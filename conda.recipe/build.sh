@@ -27,6 +27,8 @@ fi
 cp __conda_version__.txt $BLD_DIR
 
 pushd bokehjs
+echo "npm version $(npm -v)"
+echo "node version $(node -v)"
 npm install
 popd
 
