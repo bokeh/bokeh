@@ -1,7 +1,8 @@
 """ Functions to help with testing Bokeh and reporting issues.
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
+
 
 def skipIfPy3(message):
     """ unittest decoractor to skip a test for Python 3
@@ -20,6 +21,7 @@ def skipIfPyPy(message):
     from .platform import is_pypy
     return skipIf(is_pypy(), message)
 
+
 def print_versions():
     """ Print the versions for Bokeh and the current Python and OS.
 
@@ -37,52 +39,36 @@ def print_versions():
            pt.python_implementation(), pt.platform())
     print(message)
 
-def runtests(verbosity=1, xunitfile=None, exit=False):
-    """ Run the full Bokeh test suite, and output the results of the tests
-    to sys.stdout.
 
-    This function uses nosetests to discover which tests to run, and will
-    run tests in any 'tests' subdirectory within the Bokeh module.
-
-    Args:
-        verbosity (int, optional) :
-            Acceptable values are 0 (less verbose) to 2 (most verbose)
-
-        xunitfile (str, optional) :
-            Write xunit-style XML test results to a given filename. This
-            is useful for running tests on a CI server. (default: None)
-
-        exit (bool, optional) :
-            Whether to return or exit. If True, call sys.exit with an
-            error code after the tests are finished. (default: False)
-
-    Returns:
-        int : Nose return code
+def runtests(args=None):
 
     """
+    Run the Bokeh tests under the bokeh python directory using pytest.
 
-    import nose, os, sys
+    Does not run tests from bokehjs or examples.
 
-    argv = ['nosetests', '--verbosity=%d' % verbosity]
+    Args:
+        args(list, optional): List of command line arguments accepted by py.test
+        e.g. args=['-s', '-k charts'] prevents capture of standard
+        out and only runs tests that match charts. For more py.test options see
+        http://pytest.org/latest/usage.html#usage.
 
-    # Output an xunit file if requested
-    if xunitfile:
-        argv.extend(['--with-xunit', '--xunit-file=%s' % xunitfile])
+    Returns:
+        int: pytest exitcode
+    """
 
-    # Set the logging level to warn
-    argv.extend(['--logging-level=WARN'])
+    import pytest
+    import os
 
-    # Add all 'tests' subdirectories to the options
-    rootdir = os.path.join(os.path.dirname(__file__), "..")
-    for root, dirs, files in os.walk(rootdir):
-        if 'tests' in dirs:
-            testsdir = os.path.join(root, 'tests')
-            argv.append(testsdir)
-            print('Test dir: %s' % testsdir[len(rootdir)+1:])
+    try:
+        import faulthandler
+        faulthandler.enable()
+    except ImportError:
+        # We can live without in python 2.7
+        pass
 
-    # print versions (handy when reporting problems)
-    print_versions()
-    sys.stdout.flush()
+    # change to the bokeh python source directory, for test collection
+    rootdir = os.path.join(os.path.dirname(__file__), os.pardir)
+    os.chdir(rootdir)
 
-    # Run the tests
-    return nose.main(argv=argv, exit=exit)
+    return pytest.main(args=args)

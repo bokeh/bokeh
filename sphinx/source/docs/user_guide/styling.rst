@@ -240,8 +240,6 @@ list:
 Then, the glyph itself is obtained from the ``.glyph`` attribute of a
 ``GlyphRenderer``:
 
-.. _userguide_styling_axes:
-
 .. code-block:: python
 
     >>> p.select(name="mycircle")[0].glyph
@@ -252,20 +250,53 @@ This is the object to set fill, line, or text property values for:
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_properties.py
     :source-position: above
 
-``GlyphRenderer`` objects can also be configured with ``selection_glyph``
-and ``nonselection_glyph`` attributes that control the visual appearance of
-glyphs when selection tools are used.
+.. _userguide_styling_selected_unselected_glyphs:
+
+Selected & Unselected Glyphs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The styling of selected and non-selected glyphs can be customized by
+setting the |selection_glyph| and/or |nonselection_glyph| attributes
+of the |GlyphRenderer| either manually or by passing them to |add_glyph|.
+
+.. |add_glyph| replace:: :func:`~bokeh.models.plots.Plot.add_glyph`
+.. |GlyphRenderer| replace:: :class:`~bokeh.models.renderers.GlyphRenderer`
+.. |selection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.selection_glyph`
+.. |nonselection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.nonselection_glyph`
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_selections.py
     :source-position: above
 
-Use the lasso tool to select circles on the plot above to see the effect
-on the nonselected glyphs.
+Click/Tap to select circles on the plot above to see the effect on the nonselected glyphs.
+
+Click in the plot, but not on a circle, to see their original state (this
+is set by the original call ``p.circle()``).  
+
+The same could be achieved with the models interface as follows:
+
+.. code-block:: python
+    
+    p = Plot()
+    source = ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3]))
+
+    initial_circle = Circle(x='x', y='y', fill_color='blue', size=50)
+    selected_circle = Circle(fill_alpha=1, fill_color="firebrick", line_color=None)
+    nonselected_circle = Circle(fill_alpha=0.2, fill_color="blue", line_color="firebrick")
+
+    p.add_glyph(
+      source,
+      initial_circle,
+      selection_glyph=selected_circle,
+      nonselection_glyph=nonselected_circle
+    )
+
 
 .. note::
     Only the *visual* properties of ``selection_glyph`` and
     ``nonselection_glyph`` are considered when renderering. Changing
     positions, sizes, etc. will have no effect.
+
+.. _userguide_styling_axes:
 
 Axes
 ----
@@ -533,8 +564,8 @@ objects:
 
 .. code-block:: python
 
-    >>> p.grid
-    [<bokeh.models.renderers.Legend at 0x106fa2278>]
+    >>> p.legend
+    [<bokeh.models.annotations.Legend at 0x106fa2278>]
 
 This method also returns a splattable list, so that you can set an attribute
 on the list, as if it was a single object, and the attribute is changed
@@ -574,7 +605,7 @@ The default location is ``"top_right"``.
 Label Text
 ~~~~~~~~~~
 
-The visual appearance of the legend labels is controlled by  a collection of
+The visual appearance of the legend labels is controlled by a collection of
 `Text Properties`_, prefixed with ``label_``. For instance, to set the font
 style of the labels, use ``label_text_font_style``.
 
@@ -584,7 +615,7 @@ style of the labels, use ``label_text_font_style``.
 Border
 ~~~~~~
 
-The visual appearance of the legend border is controlled by  a collection of
+The visual appearance of the legend border is controlled by a collection of
 `Line Properties`_, prefixed with ``border_``. For instance, to set the color
 of the border, use ``border_line_color``. To make the border invisible, set
 the border line color to ``None``.
@@ -592,19 +623,30 @@ the border line color to ``None``.
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_border.py
     :source-position: above
 
+Background
+~~~~~~~~~~
+
+The visual appearance of the legend background is controlled by a collection
+of `Fill Properties`_, prefixed with ``background_``. For instance, to set the
+color of the background, use ``background_fill_color``. To make the background
+transparent, set the ``background_fill_alpha`` to ``0``.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_background.py
+    :source-position: above
+
 Dimensions
 ~~~~~~~~~~
 
 There are several properties that can be used to control the layout,
-spacing, etc. of the legend compononents:
+spacing, etc. of the legend components:
 
-.. bokeh-prop:: bokeh.models.renderers.Legend.label_standoff
-.. bokeh-prop:: bokeh.models.renderers.Legend.label_width
-.. bokeh-prop:: bokeh.models.renderers.Legend.label_height
-.. bokeh-prop:: bokeh.models.renderers.Legend.glyph_width
-.. bokeh-prop:: bokeh.models.renderers.Legend.glyph_height
-.. bokeh-prop:: bokeh.models.renderers.Legend.legend_padding
-.. bokeh-prop:: bokeh.models.renderers.Legend.legend_spacing
+.. bokeh-prop:: bokeh.models.annotations.Legend.label_standoff
+.. bokeh-prop:: bokeh.models.annotations.Legend.label_width
+.. bokeh-prop:: bokeh.models.annotations.Legend.label_height
+.. bokeh-prop:: bokeh.models.annotations.Legend.glyph_width
+.. bokeh-prop:: bokeh.models.annotations.Legend.glyph_height
+.. bokeh-prop:: bokeh.models.annotations.Legend.legend_padding
+.. bokeh-prop:: bokeh.models.annotations.Legend.legend_spacing
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_dimensions.py
     :source-position: above

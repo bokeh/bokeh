@@ -24,8 +24,6 @@ Bokeh server.
 * :doc:`server_gallery/sliders_server`.
 * :doc:`server_gallery/crossfilter_server`.
 * :doc:`server_gallery/stocks_server`.
-* :doc:`server_gallery/line_animate`.
-* :doc:`server_gallery/aw_animate`.
 
 .. _gallery_static_examples:
 

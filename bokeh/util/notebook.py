@@ -54,7 +54,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
 
     warnings = ["Warning: " + msg['text'] for msg in resources.messages if msg['type'] == 'warn']
 
-    if _notebook_loaded:
+    if _notebook_loaded and verbose:
         warnings.append('Warning: BokehJS previously loaded')
 
     _notebook_loaded = resources
