@@ -38,7 +38,7 @@ class AjaxDataSource extends RemoteDataSource.RemoteDataSource
         @set('data', data)
       else
         logger.error("unsupported mode: " + mode)
-      logger.debug(data)
+      logger.trace(data)
       return null
     ).error(() ->
       logger.error(arguments)
