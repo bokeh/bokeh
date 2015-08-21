@@ -4,11 +4,10 @@
         <meta charset="utf-8">
         <title>{{ title if title else "Bokeh Plot" }}</title>
         {{ bokeh_css }}
+        {{ bokeh_js }}
     </head>
     <body>
         {{ plot_div|indent(8) }}
-
-        {{ bokeh_js }}
         {{ plot_script|indent(8) }}
     </body>
 </html>
