@@ -29,11 +29,11 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     global _notebook_loaded
 
     from .. import __version__
-    from ..resources import INLINE
+    from ..resources import CDN
     from ..templates import NOTEBOOK_LOAD, RESOURCES
 
     if resources is None:
-        resources = INLINE
+        resources = CDN
 
     plot_resources = RESOURCES.render(
         js_raw = resources.js_raw,
