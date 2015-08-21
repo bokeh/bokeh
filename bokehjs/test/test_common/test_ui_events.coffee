@@ -26,9 +26,17 @@ describe "ui_events", ->
     @stopPropagation = sinon.spy(e, "stopPropagation")
     @e = e
 
+    active_scroll = {
+      scroll: {
+        active: true
+      }
+    }
+
     @ui_event = new ui_events({
-      hit_area: $('canvas')
-      tool_manager: gestures: scroll: active: true
+      hit_area: $('canvas'),
+      tool_manager: {
+        gestures: active_scroll
+      }
     })
 
   describe "_trigger_scroll", ->
@@ -41,9 +49,14 @@ describe "ui_events", ->
 
     it "should not stopPropagation & preventDefault of event if scroll gesture is not active", ->
 
+      inactive_scroll = {
+        scroll: {}
+      }
       ui_event = new ui_events({
-        hit_area: $('canvas')
-        tool_manager: gestures: scroll: {}
+        hit_area: $('canvas'),
+        tool_manager: {
+          gestures: inactive_scroll
+        }
       })
 
       ui_event._trigger_event 'scroll', undefined, @e
