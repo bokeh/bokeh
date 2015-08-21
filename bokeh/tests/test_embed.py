@@ -114,35 +114,39 @@ class TestFileHTML(unittest.TestCase):
                             {"test_var": "test"})
         self.assertTrue(isinstance(r, str))
 
-    def test_file_html_handles_js_only_resources(self):
-        js_resources = JSResources()
-        template = Template("<head>{{ bokeh_js }}</head><body></body>")
-        output = embed.file_html(_embed_test_plot, js_resources, "title", template=template)
-        rendered_js = JS_RESOURCES.render(js_raw = js_resources.js_raw)
-        self.assertEqual("<head>%s</head><body></body>" % rendered_js, output)
 
-    @mock.patch('bokeh.embed.warn')
-    def test_file_html_provides_warning_if_no_css(self, mock_warn):
-        js_resources = JSResources()
-        embed.file_html(_embed_test_plot, js_resources, "title")
-        mock_warn.assert_called_once_with(
-            'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
-        )
+def test_file_html_handles_js_only_resources():
+    js_resources = JSResources()
+    template = Template("<head>{{ bokeh_js }}</head><body></body>")
+    output = embed.file_html(_embed_test_plot, js_resources, "title", template=template)
+    rendered_js = JS_RESOURCES.render(js_raw=js_resources.js_raw)
+    assert output == "<head>%s</head><body></body>" % rendered_js
 
-    def test_file_html_handles_css_only_resources(self):
-        css_resources = CSSResources()
-        template = Template("<head>{{ bokeh_css }}</head><body></body>")
-        output = embed.file_html(_embed_test_plot, css_resources, "title", template=template)
-        rendered_css = CSS_RESOURCES.render(css_raw = css_resources.css_raw)
-        self.assertEqual("<head>%s</head><body></body>" % rendered_css, output)
 
-    @mock.patch('bokeh.embed.warn')
-    def test_file_html_provides_warning_if_no_js(self, mock_warn):
-        css_resources = CSSResources()
-        embed.file_html(_embed_test_plot, css_resources, "title")
-        mock_warn.assert_called_once_with(
-            'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
-        )
+@mock.patch('bokeh.embed.warn')
+def test_file_html_provides_warning_if_no_css(mock_warn):
+    js_resources = JSResources()
+    embed.file_html(_embed_test_plot, js_resources, "title")
+    mock_warn.assert_called_once_with(
+        'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
+    )
+
+
+def test_file_html_handles_css_only_resources():
+    css_resources = CSSResources()
+    template = Template("<head>{{ bokeh_css }}</head><body></body>")
+    output = embed.file_html(_embed_test_plot, css_resources, "title", template=template)
+    rendered_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw)
+    assert output == "<head>%s</head><body></body>" % rendered_css
+
+
+@mock.patch('bokeh.embed.warn')
+def test_file_html_provides_warning_if_no_js(mock_warn):
+    css_resources = CSSResources()
+    embed.file_html(_embed_test_plot, css_resources, "title")
+    mock_warn.assert_called_once_with(
+        'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
+    )
 
 
 class TestAutoloadStatic(unittest.TestCase):
