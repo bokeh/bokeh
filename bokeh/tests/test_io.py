@@ -125,7 +125,7 @@ class Test_GetSaveArgs(DefaultStateTester):
         filename, resources, title = io._get_save_args(io._state, "filename", None, "title")
         self.assertEqual(resources, CDN)
         self.assertTrue(mock_warn.called)
-        self.assertEqual(mock_warn.call_args[0], ("save() called but no resources was supplied and output_file(...) "
+        self.assertEqual(mock_warn.call_args[0], ("save() called but no resources were supplied and output_file(...) "
                                                   "was never called, defaulting to resources.CDN",))
         self.assertEqual(mock_warn.call_args[1], {})
 

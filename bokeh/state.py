@@ -116,7 +116,7 @@ class State(object):
         self._notebook = False
         self._session = None
 
-    def output_file(self, filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
+    def output_file(self, filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
         """ Output to a static HTML file.
 
         Args:
@@ -130,7 +130,7 @@ class State(object):
                 command). If False, then the file is only saved upon calling
                 :func:`show` or :func:`save`.
 
-            mode (str, optional) : how to include BokehJS (default: ``'inline'``)
+            mode (str, optional) : how to include BokehJS (default: ``'cdn'``)
                 One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
                 ``'absolute(-dev)'``. See :class:`bokeh.resources.Resources` for more details.
 
