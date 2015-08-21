@@ -200,25 +200,19 @@ def file_html(plot_object, resources, title, template=FILE, template_variables=N
     bokeh_js = ""
     bokeh_css = ""
 
-    try:
-        bokeh_js = JS_RESOURCES.render(
-            js_raw=resources.js_raw,
-            js_files=resources.js_files,
-        )
-    except AttributeError:
-        warn(
-            'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
-        )
+    js_raw = getattr(resources, "js_raw", "")
+    js_files = getattr(resources, "js_files", "")
+    if js_raw or js_files:
+        bokeh_js = JS_RESOURCES.render(js_raw=js_raw, js_files=js_files)
+    else:
+        warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
 
-    try:
-        bokeh_css = CSS_RESOURCES.render(
-            css_raw=resources.css_raw,
-            css_files=resources.css_files,
-        )
-    except AttributeError:
-        warn(
-            'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
-        )
+    css_raw = getattr(resources, "css_raw", "")
+    css_files = getattr(resources, "css_files", "")
+    if css_raw or css_files:
+        bokeh_css = CSS_RESOURCES.render(css_raw=css_raw, css_files=css_files)
+    else:
+        warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
 
     script, div = components(plot_object)
     template_variables_full = \
