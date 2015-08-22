@@ -72,6 +72,10 @@ class AttrSpec(HasProps):
             iter_map[item] = next(iterable)
         return iter_map
 
+    def setup(self):
+        if self.columns is not None and self.data is not None:
+            self._attr_map = self._create_attr_map(self.data.to_df(), self.columns)
+
     def __getitem__(self, item):
         """Lookup the attribute to use for the given unique group label."""
 
@@ -80,7 +84,7 @@ class AttrSpec(HasProps):
         elif self._ensure_tuple(item) not in self._attr_map.keys():
 
             # make sure we have attr map
-            self._attr_map = self._create_attr_map(self.data.to_df(), self.columns)
+            self.setup()
 
         return self._attr_map[self._ensure_tuple(item)]
 

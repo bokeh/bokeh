@@ -197,6 +197,7 @@ class Builder(HasProps):
         source = ColumnDataSource(data.df)
         for name, attr in attributes.iteritems():
             attr.data = source
+            attr.setup()
 
         # Store updated attributes
         self.attributes = attributes
