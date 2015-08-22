@@ -118,10 +118,10 @@ def groupby(df, *specs):
                     else:
                         label = name
                 else:
-                    label = spec._default
+                    label = None
 
                 # get attribute value for this spec, given the unique column values associated with it
-                attrs[spec.attribute] = spec[label]
+                attrs[spec.name] = spec[label]
 
             yield DataGroup(label=name, data=data, attr_specs=attrs)
 
@@ -129,7 +129,7 @@ def groupby(df, *specs):
     else:
         attrs = {}
         for spec in specs:
-            attrs[spec.attribute] = spec._default
+            attrs[spec.name] = spec[None]
 
         yield DataGroup(label='all', data=df, attr_specs=attrs)
 

@@ -3,7 +3,10 @@ from __future__ import absolute_import
 from itertools import cycle
 from copy import copy
 
-from bokeh.properties import HasProps, String, List, Dict, Any
+from bokeh.properties import HasProps, String, List, Instance
+from bokeh.models.sources import ColumnDataSource
+from bokeh.charts import DEFAULT_PALETTE
+from bokeh.charts.utils import marker_types
 
 
 class AttrSpec(HasProps):
@@ -16,27 +19,28 @@ class AttrSpec(HasProps):
     be a one dimensional tuple of values, representing the unique group in the data.
     """
 
-    attribute = String(help='Name of the attribute the spec provides.')
+    data = Instance(ColumnDataSource)
+    name = String(help='Name of the attribute the spec provides.')
     columns = List(String)
-    attr_map = Any()
 
-    def __init__(self, df, columns, attribute, iterable, default=None):
+    def __init__(self, columns=None, df=None, iterable=None, default=None, **properties):
 
         columns = self._ensure_list(columns)
+
+        if df is not None:
+            self.data = ColumnDataSource(df)
 
         if not default and iterable:
             default_iter = copy(iterable)
             default = next(iter(default_iter))
 
-        iterable = cycle(iterable)
         self._default = default
-        if not columns:
-            attr_map = {}
-        else:
-            attr_map = self._create_attr_map(df, iterable, columns)
+        self._attr_map = {}
+        self._iterable = iterable
 
-        properties = dict(attribute=attribute, columns=columns, attr_map=attr_map)
+        properties['columns'] = columns
         super(AttrSpec, self).__init__(**properties)
+
 
     @staticmethod
     def _ensure_list(attr):
@@ -54,8 +58,10 @@ class AttrSpec(HasProps):
         else:
             return attr
 
-    def _create_attr_map(self, df, iterable, columns):
+    def _create_attr_map(self, df, columns):
         """Creates map between unique values and available attributes."""
+        iterable = cycle(copy(self._iterable))
+
         df = df.sort(columns=columns)
         items = df[columns].drop_duplicates()
         items = [tuple(x) for x in items.to_records(index=False)]
@@ -68,30 +74,53 @@ class AttrSpec(HasProps):
 
     def __getitem__(self, item):
         """Lookup the attribute to use for the given unique group label."""
-        if not self.attr_map:
+
+        if not self.columns or not self.data or item is None:
             return self._default
-        else:
-            return self.attr_map[self._ensure_tuple(item)]
+        elif self._ensure_tuple(item) not in self._attr_map.keys():
+
+            # make sure we have attr map
+            self._attr_map = self._create_attr_map(self.data.to_df(), self.columns)
+
+        return self._attr_map[self._ensure_tuple(item)]
 
 
-""" Attribute Spec Generators
+class ColorAttr(AttrSpec):
+    name = 'color'
 
-Flexible and reusable functions for generating Attribute Specs from many input
-options.
+    def __init__(self, **kwargs):
+        kwargs['iterable'] = kwargs.pop('palette', DEFAULT_PALETTE)
+        super(ColorAttr, self).__init__(**kwargs)
 
-Since an attribute spec requires the source dataframe, the attribute spec
-generator function pattern is to return a function that takes a single input
-of a Pandas DataFrame, and returns an AttrSpec object.
+
+class MarkerAttr(AttrSpec):
+    name = 'marker'
+
+    def __init__(self, **kwargs):
+        kwargs['iterable'] = kwargs.pop('markers', marker_types.keys())
+        super(MarkerAttr, self).__init__(**kwargs)
+
+""" Attribute Spec Functions
+
+Convenient functions for producing attribute specifications. These would be
+the interface used by end users when providing attribute specs as inputs
+to the Chart.
 """
 
 
-def color_spec(df, cols, palette):
-    return AttrSpec(df, columns=cols, attribute='color', iterable=palette)
+def color(columns=None, palette=None, **kwargs):
+    """Produces a ColorAttr specification for coloring groups of data based on columns."""
+    if palette is not None:
+        kwargs['palette'] = palette
+
+    kwargs['columns'] = columns
+    return ColorAttr(**kwargs)
 
 
-def color(cols, palette):
-    """Generates a callable that produces a color attribute spec."""
-    def color_spec_gen(df):
-        color_spec(df, cols=cols, palette=palette)
+def marker(columns=None, markers=None, **kwargs):
 
-    return color_spec_gen
+    if markers is not None:
+        kwargs['markers'] = markers
+
+    kwargs['columns'] = columns
+    return MarkerAttr(**kwargs)

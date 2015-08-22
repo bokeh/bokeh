@@ -18,14 +18,18 @@ types on top of it.
 
 from __future__ import absolute_import
 
+from copy import copy
+
+from bokeh.charts import DEFAULT_PALETTE
 from ._chart import Chart
 from ._data_source import ChartDataSource
+from ..models.sources import ColumnDataSource
 from ..models.ranges import Range, Range1d, FactorRange
 from ..properties import (Color, HasProps, Instance, Seq, List, String, Property,
                           Either, Dict)
 from ._properties import Dimension
+from ._attributes import AttrSpec, ColorAttr, MarkerAttr
 
-DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -37,10 +41,18 @@ def create_and_build(builder_class, *data, **kws):
     if isinstance(builder_class.dimensions, Property):
         raise NotImplementedError('Each builder must specify its dimensions.')
 
+    if isinstance(builder_class.attributes, Property):
+        raise NotImplementedError('Each builder must specify its dimensions.')
+
     builder_props = set(builder_class.properties())
 
+    # append dimensions to the builder props
     for dim in builder_class.dimensions:
         builder_props.add(dim)
+
+    # append attributes to the builder props
+    for attr_name in builder_class.attributes.keys():
+        builder_props.add(attr_name)
 
     # create the new builder
     builder_kws = { k:v for k,v in kws.items() if k in builder_props}
@@ -95,6 +107,8 @@ class Builder(HasProps):
         labels that must exist to produce the glyphs. This specifies what are the valid configurations
         for the chart, with the option of specifying the type of the columns.""")
 
+    attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
+
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
     def __init__(self, *args, **kws):
@@ -144,11 +158,50 @@ class Builder(HasProps):
             for dim in self.dimensions:
                 getattr(getattr(self, dim), 'set_data')(data)
 
-        super(Builder, self).__init__(**kws)
+            # handle input attrs and ensure attrs have access to data
+            self._setup_attrs(data, kws)
 
+        super(Builder, self).__init__(**kws)
 
         self._data = data
         self._legends = []
+
+    def _setup_attrs(self, data, kws):
+        """Handle overridden attributes, initialize with data.
+
+        Makes sure that all attributes have access to the data
+        source, which is used for mapping attributes to groups
+        of data.
+        """
+        attr_names = self.attributes.keys()
+        attributes = {}
+        for attr_name in attr_names:
+            attr = kws.pop(attr_name, None)
+
+            # if given an attribute use it
+            if isinstance(attr, AttrSpec):
+                attributes[attr_name] = attr
+
+            # if we are given columns, use those
+            elif isinstance(attr, str) or isinstance(attr, list):
+                # ToDo: make sure they are columns
+                attr_columns = attr
+                attr = self.attributes[attr_name]
+                attr.columns = attr._ensure_list(attr_columns)
+                attributes[attr_name] = attr
+
+            # otherwise, use the default specified
+            else:
+                attributes[attr_name] = self.attributes[attr_name]
+
+        source = ColumnDataSource(data.df)
+        for name, attr in attributes.iteritems():
+            attr.data = source
+
+        # Store updated attributes
+        self.attributes = attributes
+
+
 
     def _process_data(self):
         """Make any global data manipulations before grouping.
@@ -199,10 +252,14 @@ class XYBuilder(Builder):
 
     x = Dimension('x')
     y = Dimension('y')
+
     dimensions = ['x', 'y']
     req_dimensions = [['x'],
                       ['y'],
                       ['x', 'y']]
+
+    attributes = {'color': ColorAttr(),
+                  'marker': MarkerAttr()}
 
     def _set_ranges(self):
         """Calculate and set the x and y ranges."""

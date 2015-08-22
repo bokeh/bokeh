@@ -18,11 +18,9 @@ functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from ..utils import marker_types
-from .._builder import create_and_build, XYBuilder
-from ...properties import String
-from ...models import GlyphRenderer
-from .._attributes import AttrSpec, color_spec
+from bokeh.models import GlyphRenderer
+from bokeh.charts._builder import create_and_build, XYBuilder
+from bokeh.charts.utils import marker_types
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -77,12 +75,6 @@ class ScatterBuilder(XYBuilder):
 
     """
 
-    marker = String(help="""
-    The marker type to use (default: ``circle``).
-    """)
-
-    color = String()
-
     def _process_data(self):
         """Take the scatter.values data to calculate the chart properties
         accordingly. Then build a dict containing references to all the
@@ -97,9 +89,8 @@ class ScatterBuilder(XYBuilder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
 
-        color = color_spec(self._data.df, cols=self.color, palette=self.palette)
-        marker = AttrSpec(self._data.df, columns=self.marker, default='circle',
-                               attribute='marker', iterable=marker_types.keys())
+        color = self.attributes['color']
+        marker = self.attributes['marker']
 
         for group in self._data.groupby(color, marker):
 
