@@ -7,19 +7,19 @@ scatter0 = Scatter(
 
 scatter1 = Scatter(
     df, x='mpg', y='hp', title="x='mpg', y='hp'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower")
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
 scatter2 = Scatter(
     df, x='mpg', y='hp', color='cyl', title="x='mpg', y='hp', color='cyl'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower")
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
 scatter3 = Scatter(
     df, x='mpg', y='hp', color='origin', title="x='mpg', y='hp', color='origin'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower")
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
 scatter4 = Scatter(
     df, x='mpg', y='hp', color='cyl', marker='origin', title="x='mpg', y='hp', color='cyl', marker='origin'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower")
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
 output_file("scatter.html")
 

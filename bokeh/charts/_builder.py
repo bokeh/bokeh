@@ -201,8 +201,6 @@ class Builder(HasProps):
         # Store updated attributes
         self.attributes = attributes
 
-
-
     def _process_data(self):
         """Make any global data manipulations before grouping.
 
@@ -241,8 +239,7 @@ class Builder(HasProps):
         chart.add_ranges('y', self.y_range)
 
         # always contribute legends, let Chart sort it out
-        #legends = self.legends
-        #chart.add_legend(legends)
+        chart.add_legend(self._legends)
 
         return chart
 
