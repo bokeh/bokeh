@@ -97,7 +97,7 @@ class UIEvents extends Backbone.Model
     base_event_type = event_type.split(":")[0]
     gestures = tm.get('gestures')
     active = gestures[base_event_type].active
-    @_trigger_event event_type, active, e
+    @_trigger_event(event_type, active, e)
 
   _trigger_event: (event_type, active, e)->
     if active?

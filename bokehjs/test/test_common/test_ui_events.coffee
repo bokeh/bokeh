@@ -43,7 +43,7 @@ describe "ui_events", ->
 
     it "should stopPropagation & preventDefault of event if scroll gesture is active", ->
 
-      @ui_event._trigger_event 'scroll', true, @e
+      @ui_event._trigger_event('scroll', true, @e)
       expect(@stopPropagation.callCount).to.equal 1
       expect(@preventDefault.callCount).to.equal 1
 
@@ -59,7 +59,7 @@ describe "ui_events", ->
         }
       })
 
-      ui_event._trigger_event 'scroll', undefined, @e
+      ui_event._trigger_event('scroll', undefined, @e)
       expect(@stopPropagation.callCount).to.equal 0
       expect(@preventDefault.callCount).to.equal 0
 
@@ -71,6 +71,6 @@ describe "ui_events", ->
       sinon.stub(@ui_event, "_bokify_jq")  # Stub out _bokify_jq as not testing it
       sinon.stub(@ui_event, "_trigger")  # Stub out _trigger as not testing it
 
-      @ui_event._mouse_wheel @e, {}
+      @ui_event._mouse_wheel(@e, {})
       expect(@stopPropagation.callCount).to.equal 0
       expect(@preventDefault.callCount).to.equal 0
