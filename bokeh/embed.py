@@ -73,7 +73,7 @@ def components(plot_objects, resources=None):
         warn('Because the ``resources`` argument is no longer needed, '
              'it is deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
-    all_models = []
+    all_models = dict()
     plots = []
     if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
         divs = []
@@ -85,7 +85,7 @@ def components(plot_objects, resources=None):
             divs = divs[0]
         else:
             divs = tuple(divs)
-        return _component_pair(all_models, plots, divs)
+        return _component_pair(list(all_models.values()), plots, divs)
     elif isinstance(plot_objects, dict) and \
          all(isinstance(x, string_types) for x in plot_objects.keys()) and \
          all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
@@ -94,7 +94,7 @@ def components(plot_objects, resources=None):
             elementid = str(uuid.uuid4())
             _append_plot(all_models, plots, plot_objects[key], elementid)
             divs = _append_div(elementid, divs, key)
-        return _component_pair(all_models, plots, divs)
+        return _component_pair(list(all_models.values()), plots, divs)
     else:
         raise ValueError('Input must be a PlotObject, a Sequence of PlotObjects, or a mapping of string to PlotObjects')
 
@@ -110,7 +110,8 @@ def _component_pair(all_models, plots, divs):
 
 def _append_plot(all_models, plots, plot_object, elementid):
     ref = plot_object.ref
-    all_models.extend(plot_object.dump())
+    for item in plot_object.dump():
+        all_models[item['id']] = item
     plots.append({
         'modelid': ref["id"],
         'elementid': '#' + elementid,
