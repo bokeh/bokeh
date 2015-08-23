@@ -117,7 +117,7 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 def _get_components(plot_objects, resources=None):
     plot_objects = _check_components_input(plot_objects, resources)
 
-    all_models = []
+    all_models = dict()
     plots = []
 
     if isinstance(plot_objects, Sequence):
