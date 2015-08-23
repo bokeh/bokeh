@@ -10,6 +10,7 @@ sourcemaps = require "gulp-sourcemaps"
 source = require 'vinyl-source-stream'
 buffer = require 'vinyl-buffer'
 paths = require "../paths"
+change = require "gulp-change"
 
 gulp.task "scripts:build", ->
   opts =
@@ -25,6 +26,12 @@ gulp.task "scripts:build", ->
     .pipe buffer()
     .pipe sourcemaps.init
       loadMaps: true
+
+    # This solves a conflict when requirejs is loaded on the page. Backbone
+    # looks for `define` before looking for `module.exports`, which eats up
+    # our backbone.
+    .pipe change (content) ->
+      "(function() { var define = undefined; #{content} })()"
     .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.js
 

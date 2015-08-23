@@ -141,7 +141,7 @@ def _get_components(plot_objects, resources=None):
             plot_info[key] = _append_plot(all_models, plots, plot_objects[key], elementid)
             divs = _append_div(elementid, divs, key)
 
-    return all_models, plots, plot_info, divs
+    return list(all_models.values()), plots, plot_info, divs
 
 
 def _check_components_input(plot_objects, resources=None):
@@ -190,7 +190,8 @@ def _get_script(all_models, plots):
 
 def _append_plot(all_models, plots, plot_object, elementid):
     ref = plot_object.ref
-    all_models.extend(plot_object.dump())
+    for item in plot_object.dump():
+        all_models[item['id']] = item
     plot_info = {
         'modelid': ref["id"],
         'elementid': elementid,

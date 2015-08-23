@@ -21,7 +21,7 @@ roughly equal groups.
 .. raw:: html
 
     <iframe
-        src="http://104.236.246.80:5006/bokeh/crossfilter/#"
+        src="http://demo.bokehplots.com:5006/bokeh/crossfilter/#"
         frameborder="0"
         style="overflow:hidden;height:1000;width:120%;margin-left:-10%"
         height="1200"

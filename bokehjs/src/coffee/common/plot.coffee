@@ -270,7 +270,7 @@ class PlotView extends ContinuumView
       @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
-    @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if title
@@ -295,12 +295,14 @@ class PlotView extends ContinuumView
     indices = {}
     for renderer, i in @mget("renderers")
       indices[renderer.id] = i
-    sortKey = (renderer) -> indices[renderer.id]
+
+    sortKey = (renderer_view) -> indices[renderer_view.model.id]
 
     for level in levels
-      renderers = _.sortBy(_.values(@levels[level]), sortKey)
-      for renderer in renderers
-        renderer.render()
+      renderer_views = _.sortBy(_.values(@levels[level]), sortKey)
+
+      for renderer_view in renderer_views
+        renderer_view.render()
 
     ctx.restore()
 

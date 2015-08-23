@@ -384,7 +384,7 @@ LOD behavior:
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
-.. |HoverTool| replace:: :func:`~bokeh.models.tools.HoverTool`
+.. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
 
 .. |hover_basic| image:: /_images/hover_basic.png
 

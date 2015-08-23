@@ -20,6 +20,7 @@ a serialized version of the model looks like.
    :maxdepth: 2
 
    models/actions
+   models/annotations
    models/axes
    models/formatters
    models/glyphs
