@@ -9,8 +9,8 @@
 1002 : *EMPTY_LAYOUT*
     A layout model has no children (will result in a blank layout).
 
-1003 : *COLON_IN_CATEGORY_LABEL*
-    Category label contains colons (will result in a blank layout).
+1003 : *MALFORMED_CATEGORY_LABEL*
+    Category labels are malformed (will result in a blank layout).
 
 9999 : *EXT*
     Indicates that a custom warning check has failed.
