@@ -37,10 +37,10 @@ class AttrSpec(HasProps):
         self._default = default
         self._attr_map = {}
         self._iterable = iterable
+        self._items = []
 
         properties['columns'] = columns
         super(AttrSpec, self).__init__(**properties)
-
 
     @staticmethod
     def _ensure_list(attr):
@@ -58,16 +58,24 @@ class AttrSpec(HasProps):
         else:
             return attr
 
-    def _create_attr_map(self, df, columns):
-        """Creates map between unique values and available attributes."""
-        iterable = cycle(copy(self._iterable))
+    def _setup_iterable(self):
+        """Default behavior is to copy and cycle the provided iterable."""
+        return cycle(copy(self._iterable))
 
+    def _generate_items(self, df, columns):
+        """Produce list of unique tuples that identify each item."""
         df = df.sort(columns=columns)
         items = df[columns].drop_duplicates()
-        items = [tuple(x) for x in items.to_records(index=False)]
+        self._items = [tuple(x) for x in items.to_records(index=False)]
+
+    def _create_attr_map(self, df, columns):
+        """Creates map between unique values and available attributes."""
+
+        self._generate_items(df, columns)
+        iterable = self._setup_iterable()
 
         iter_map = {}
-        for item in items:
+        for item in self._items:
             item = self._ensure_tuple(item)
             iter_map[item] = next(iterable)
         return iter_map
@@ -103,6 +111,18 @@ class MarkerAttr(AttrSpec):
     def __init__(self, **kwargs):
         kwargs['iterable'] = kwargs.pop('markers', marker_types.keys())
         super(MarkerAttr, self).__init__(**kwargs)
+
+
+class NestedAttr(AttrSpec):
+    name = 'nest'
+
+    def __init__(self, **kwargs):
+        kwargs['iterable'] = []
+        super(NestedAttr, self).__init__(**kwargs)
+
+    def _setup_iterable(self):
+        return iter([str(item) for item in self._items])
+
 
 """ Attribute Spec Functions
 
