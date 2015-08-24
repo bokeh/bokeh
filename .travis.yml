@@ -36,6 +36,8 @@ before_install:
     - echo $TRAVIS_BUILD_ID > __travis_build_id__.txt
     - nvm install stable
     - nvm use stable
+    # Use xvfb to run tests that require firefox
+    # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-%28e.g.-a-Web-browser%29
     - "export DISPLAY=:99.0"
     - "sh -e /etc/init.d/xvfb start"
 
