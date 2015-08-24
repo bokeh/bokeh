@@ -11,6 +11,10 @@ source = require 'vinyl-source-stream'
 buffer = require 'vinyl-buffer'
 paths = require "../paths"
 change = require "gulp-change"
+disc = require "disc"
+fs = require "fs"
+path = require "path"
+open = require "opener"
 
 gulp.task "scripts:build", ->
   opts =
@@ -34,6 +38,23 @@ gulp.task "scripts:build", ->
       "(function() { var define = undefined; #{content} })()"
     .pipe sourcemaps.write './'
     .pipe gulp.dest paths.buildDir.js
+
+gulp.task 'scripts:analyze', ->
+  input = path.normalize __dirname + '/../../src/coffee/main.coffee'
+  output = path.normalize __dirname + '/../../' + paths.buildDir.js + '/disc.html'
+
+  opts =
+    extensions: [".coffee", ".eco"]
+    fullPaths: true
+
+  browserify input, opts
+    .transform "browserify-eco"
+    .transform "coffeeify"
+    .bundle()
+    .pipe disc()
+    .pipe fs.createWriteStream output
+    .once 'close', ->
+      open output
 
 gulp.task "scripts:minify", ->
   gulp.src paths.coffee.destination.fullWithPath
