@@ -21,7 +21,7 @@
     "browserify": "^6.2.0",
     "browserify-eco": "^0.2.4",
     "browserify-shim": "^3.8.0",
-    "Canteen": "platfora/Canteen",
+    "Canteen": "git+https://github.com/platfora/Canteen.git#f1182e3396e76e0acb32849823ac4b4f404d6a72",
     "chai": "^2.2.0",
     "coffee-script": "^1.9.1",
     "coffeeify": "^0.7.0",
