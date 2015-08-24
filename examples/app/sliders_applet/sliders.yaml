@@ -7,7 +7,7 @@ datasets:
     tags: ['source']
 
 ui:
-  plot: !figure
+  sliders_plot: !figure
     figure:
       width: 400
       height: 400
@@ -65,4 +65,4 @@ layout:
 
   app: !AppHBox
     name: app
-    children: ['inputs', 'plot']
+    children: ['inputs', 'sliders_plot']

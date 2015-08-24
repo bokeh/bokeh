@@ -2,6 +2,7 @@ import importlib
 import yaml
 from yaml import SafeLoader, Loader, BaseLoader
 import pandas as pd
+from six import string_types
 
 from .models.widgets import (HBox, VBox, VBoxForm, PreText, DataTable,
                                   AppVBox, AppHBox, CheckboxGroup, Dialog,
@@ -235,9 +236,14 @@ def create_app(name, route, yaml_path, constructor=None):
     app.route(route)
 
 class YamlApp(object):
-    def __init__(self, yaml_path, route=None):
+    def __init__(self, yaml_path, route=None, theme=None):
         self.yaml_path = yaml_path
         self.yapp = load_from_yaml(yaml_path)
+
+        if isinstance(theme, string_types):
+            self.theme = load_from_yaml(theme)
+        else:
+            self.theme = theme or None
 
         self.datasets = {}
         self.sources = {}
@@ -249,16 +255,17 @@ class YamlApp(object):
 
         self.init_objects()
 
+
         @simpleapp(*self.yapp['widgets'].values())
         def napp(*args):
             objects = dict(self.yapp['ui'])
 
             return self.app_objects(objects, *args)
 
-
         @napp.layout
         def create_layout(app):
             return self.create_layout(app)
+
 
         # TODO: We should validate and raise an error if no route is specified
         napp.route(route or self.yapp.get('route', '/'))
@@ -267,9 +274,26 @@ class YamlApp(object):
         self.init_app()
         self.add_events()
 
+        self.apply_theme()
 
         SimpleApp.datasets = self.datasets
         SimpleApp.env = self.env
+
+    def apply_theme(self):
+        if self.theme:
+            for name, obj in self.yapp['ui'].items():
+
+                if name in self.theme:
+                    rules = self.theme[name]
+                    for attr, value in rules.items():
+                        setattr(obj, attr, value)
+
+                classname = obj.__class__.__name__
+                if classname in self.theme:
+                    rules = self.theme[classname]
+                    for attr, value in rules.items():
+                        setattr(obj, attr, value)
+
 
 
     def init_app(self):
@@ -371,8 +395,8 @@ class YamlApp(object):
         return layout['app']
 
 
-def bokeh_app(yaml_file, route='/', handler=None):
-    app = YamlApp(yaml_file, route=route)
+def bokeh_app(yaml_file, route='/', handler=None, theme=None):
+    app = YamlApp(yaml_file, route=route, theme=theme)
 
     if callable(handler):
 

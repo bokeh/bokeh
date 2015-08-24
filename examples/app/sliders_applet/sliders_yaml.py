@@ -29,7 +29,7 @@ def update_data(app):
     w = app.objects['phase'].value
     k = app.objects['freq'].value
     title = app.objects['title'].value
-    plot = app.objects['plot']
+    plot = app.objects['sliders_plot']
     source = app.select_one({'tags': 'source'})
 
     # Generate the sine wave
@@ -39,7 +39,10 @@ def update_data(app):
     source.data = dict(x=x, y=y)
     plot.title = title
 
-    return {'plot': plot}
+    return {'sliders_plot': plot}
 
-sliders_app = bokeh_app(os.path.join(here, 'sliders.yaml'), route='/sliders', handler=update_data)
+sliders_app = bokeh_app(os.path.join(here, 'sliders.yaml'), route='/sliders', handler=update_data,
+                        theme=os.path.join(here, 'style.yaml'))
 sliders_app.sources['source'].data = {'x': x, 'y': 1.*np.sin(1.*x)}
+
+print ("Access the demo at: http://127.0.0.1:5006/sliders")
