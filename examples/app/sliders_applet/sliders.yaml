@@ -1,0 +1,68 @@
+name: sliders
+title: Sliders App
+
+
+datasets:
+  source: !ColumnDataSource
+    tags: ['source']
+
+ui:
+  plot: !figure
+    figure:
+      width: 400
+      height: 400
+      tools: "crosshair,pan,reset,resize,save,wheel_zoom"
+      title_text_font_size: 12pt
+      title: my sine wave
+      x_range: [0, 12.566]
+      y_range: [-2.5, 2.5]
+
+    glyphs:
+      line:
+        x: x
+        y: y
+        line_color: red
+        source: source
+
+  title: !TextInput
+    title: title
+    name: title
+    value: my sine wave
+
+  offset: !Slider
+    title: offset
+    value: 0.0
+    start: -5.0
+    end: 5.0
+    step: 0.1
+    name: offset
+
+  amplitude: !Slider
+    title: amplitude
+    value: 1.0
+    start: -5.0
+    end: 5.0
+    name: amplitude
+
+  phase: !Slider
+    title: phase
+    value: 0.0
+    start: 0.0
+    end: 3.14159
+    name: phase
+
+  freq: !Slider
+    title: freq
+    value: 1.0
+    start: 0.1
+    end: 5.1
+    name: freq
+
+layout:
+  inputs: !AppVBox
+    name: top
+    children: ['title', 'offset', 'amplitude', 'phase', 'freq']
+
+  app: !AppHBox
+    name: app
+    children: ['inputs', 'plot']
