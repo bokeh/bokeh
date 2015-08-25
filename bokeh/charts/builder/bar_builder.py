@@ -28,7 +28,7 @@ from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect
-from ...properties import Any, Bool, Either, List, String, Float, HasProps, Instance
+from ...properties import Any, Bool, Either, List, String, Float, HasProps, Instance, ColorSpec
 from .._properties import Dimension, Column
 from .._attributes import ColorAttr, NestedAttr
 
@@ -110,6 +110,8 @@ class BarGlyph(HasProps):
     values = Either(Column(Float), Column(String))
     agg = String('sum')
     width = Float(default=0.8)
+    color = ColorSpec(default='gray')
+
     source = Instance(ColumnDataSource)
 
     def __init__(self, label, values, agg, **kwargs):
@@ -129,12 +131,13 @@ class BarGlyph(HasProps):
         height = [getattr(self.values, self.agg)()]
         x = [self.label]
         y = [height[0]/2]
+        color = [self.color]
 
-        return ColumnDataSource(dict(x=x, y=y, width=width, height=height))
+        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color))
 
     @property
     def renderers(self):
-        glyph = Rect(x='x', y='y', width='width', height='height')
+        glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color')
         return GlyphRenderer(data_source=self.source, glyph=glyph)
 
 
@@ -237,14 +240,15 @@ class BarBuilder(Builder):
 
         color = self.attributes['color']
         stack = self.attributes['stack']
-        group = self.attributes['group']
+        group_attr = self.attributes['group']
 
-        for group in self._data.groupby(color, stack, group):
+        for group in self._data.groupby(color, stack, group_attr):
 
             renderer = BarGlyph(label=group.label,
                                 values=group.data[self.values.selection].values,
                                 agg=self.agg,
-                                width=self.bar_width).renderers
+                                width=self.bar_width,
+                                color=group['color']).renderers
 
             # a higher level function of bar chart is to keep track of max height of all bars
             self.max_height = max(max(renderer.data_source._data['height']), self.max_height)

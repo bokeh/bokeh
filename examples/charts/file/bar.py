@@ -10,7 +10,9 @@ bar_plot = Bar(df, label='cyl', title="label='cyl'")
 bar_plot2 = Bar(df, label='cyl', bar_width=0.4, title="label='cyl' bar_width=0.4")
 
 bar_plot3 = Bar(df, label='cyl', values='mpg', agg='mean',
-                title="label='cyl' values='mpg', agg='mean'")
+                title="label='cyl' values='mpg' agg='mean'")
+
+bar_plot4 = Bar(df, label='cyl', title="label='cyl' color='DimGray", color='DimGray')
 
 # np_negative_grouped = Bar(
 #     random * -1, cat=categories, title="All negative input | Grouped",
@@ -34,6 +36,6 @@ output_file("bar.html")
 show(
     vplot(
         hplot(bar_plot, bar_plot2),
-        hplot(bar_plot3)
+        hplot(bar_plot3, bar_plot4)
     )
 )

@@ -59,6 +59,9 @@ class AttrSpec(HasProps):
         else:
             return attr
 
+    def _setup_default(self):
+        self._default = next(self._setup_iterable())
+
     def _setup_iterable(self):
         """Default behavior is to copy and cycle the provided iterable."""
         return cycle(copy(self._iterable))
@@ -82,10 +85,22 @@ class AttrSpec(HasProps):
         return iter_map
 
     def set_columns(self, columns):
-        self.columns = self._ensure_list(columns)
-        self.setup()
+        columns = self._ensure_list(columns)
+        if all([col in self.data.column_names for col in columns]):
+            self.columns = columns
+        else:
+            # we have input values other than columns
+            # assume this is now the iterable at this point
+            self._iterable = columns
+            self._setup_default()
 
-    def setup(self):
+    def setup(self, data=None, columns=None):
+        if data is not None:
+            self.data = data
+
+            if columns is not None:
+                self.set_columns(columns)
+
         if self.columns is not None and self.data is not None:
             self._attr_map = self._create_attr_map(self.data.to_df(), self.columns)
 

@@ -176,34 +176,22 @@ class Builder(HasProps):
         source, which is used for mapping attributes to groups
         of data.
         """
+        source = ColumnDataSource(data.df)
         attr_names = self.attributes.keys()
-        attributes = {}
         for attr_name in attr_names:
             attr = kws.pop(attr_name, None)
 
             # if given an attribute use it
             if isinstance(attr, AttrSpec):
-                attributes[attr_name] = attr
+                self.attributes[attr_name] = attr
 
             # if we are given columns, use those
             elif isinstance(attr, str) or isinstance(attr, list):
-                # ToDo: make sure they are columns
-                attr_columns = attr
-                attr = self.attributes[attr_name]
-                attr.columns = attr._ensure_list(attr_columns)
-                attributes[attr_name] = attr
+                self.attributes[attr_name].setup(data=source, columns=attr)
 
-            # otherwise, use the default specified
-            else:
-                attributes[attr_name] = self.attributes[attr_name]
-
-        source = ColumnDataSource(data.df)
-        for name, attr in attributes.iteritems():
-            attr.data = source
-            attr.setup()
-
-        # Store updated attributes
-        self.attributes = attributes
+        # make sure all have access to data source
+        for attr_name in attr_names:
+            self.attributes[attr_name].data = source
 
     def _setup(self):
         """Perform any initial pre-processing, attribute config."""
