@@ -1202,7 +1202,7 @@ class ColorSpec(DataSpec):
         well-formed hexadecimal color value.
         """
         return isinstance(arg, string_types) and \
-               ((len(arg) == 7 and arg[0] == "#") or arg in enums.NamedColor._values)
+               ((len(arg) == 7 and arg[0] == "#") or arg in enums.NamedColor)
 
     @classmethod
     def is_color_tuple(cls, val):

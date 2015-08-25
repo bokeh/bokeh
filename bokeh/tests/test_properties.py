@@ -210,6 +210,19 @@ class TestColorSpec(unittest.TestCase):
         self.assertEqual(f.col, "forestgreen")
         self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
 
+    def test_case_insensitive_named_value(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+
+        f.col = "RED"
+        self.assertEqual(f.col, "RED")
+        self.assertDictEqual(desc.to_dict(f), {"value": "RED"})
+        f.col = "ForestGreen"
+        self.assertEqual(f.col, "ForestGreen")
+        self.assertDictEqual(desc.to_dict(f), {"value": "ForestGreen"})
+
     def test_named_value_set_none(self):
         class Foo(HasProps):
             col = ColorSpec("colorfield")
