@@ -122,8 +122,10 @@ class Chart(Plot):
         if self._options.tools:
             # reset tools so a categorical builder can add only the
             # supported tools
-            self.tools = []
-            self.create_tools(self._options.tools)
+            # ToDo: review why this doubles the amount of tools per chart
+            #self.tools = []
+            #self.create_tools(self._options.tools)
+            pass
 
     def add_ranges(self, dim, range):
         self._ranges[dim].append(range)
