@@ -84,7 +84,7 @@ def figure_constructor(loader, node):
     p = figure(**figure_data['figure'])
 
     # Add glyphs to the figure using the ``glyphs`` key
-    glyphs = figure_data.pop('glyphs', [])
+    glyphs = figure_data.pop('glyphs', {})
 
     # TODO: This is definitely an ugly hack. Need better engineered way
     #       way of saving glyphs declaration for lazy loading sources
@@ -134,7 +134,6 @@ class UILoader(SafeLoader):
                     data[k] = clean
 
             widget = widget_class(**data)
-            # import pdb; pdb.set_trace()
             loader._objects[data['name']] = widget
 
             return widget
@@ -149,7 +148,7 @@ UILoader.add_constructor("!io", io_constructor)
 UILoader.add_constructor("!ColumnDataSource", cds_constructor)
 
 widgets = [TextInput, PreText, Dialog, Panel, Tabs, Paragraph, AppVBox, AppHBox,
-           Button, CheckboxGroup, Slider]
+           Button, CheckboxGroup, Slider, Select]
 
 for klass in widgets:
     UILoader.add_widget_constructor(klass)
@@ -323,6 +322,7 @@ class YamlApp(object):
         for obj in self.yapp['ui'].values():
             if hasattr(obj, '_glyphs'):
                 glyphs = obj._glyphs
+                import pdb; pdb.set_trace()
                 for glyph_name, glyph_values in glyphs.items():
                     tmp = glyph_values
                     if 'source' in tmp:
