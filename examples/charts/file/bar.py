@@ -1,16 +1,16 @@
 from bokeh.charts import Bar, output_file, show, vplot, hplot
-from bokeh.models import Range1d
 from bokeh.sampledata.autompg import autompg as df
 
-width = 700
-height = 500
+width = 500
+height = 400
 legend_position = "top_right"
 
-bar_plot = Bar(
-    df, label='cyl', values='mpg', stack='cyl', agg='mean',
-    title="label='cyl' values='mpg', agg='mean'",
-    ylabel="Mean(mpg)", xlabel="Cylinder", width=width, height=height
-)
+bar_plot = Bar(df, label='cyl', title="label='cyl'")
+
+bar_plot2 = Bar(df, label='cyl', bar_width=0.4, title="label='cyl' bar_width=0.4")
+
+bar_plot3 = Bar(df, label='cyl', values='mpg', agg='mean',
+                title="label='cyl' values='mpg', agg='mean'")
 
 # np_negative_grouped = Bar(
 #     random * -1, cat=categories, title="All negative input | Grouped",
@@ -31,4 +31,9 @@ bar_plot = Bar(
 # collect and display
 output_file("bar.html")
 
-show(bar_plot)
+show(
+    vplot(
+        hplot(bar_plot, bar_plot2),
+        hplot(bar_plot3)
+    )
+)

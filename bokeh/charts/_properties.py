@@ -14,6 +14,32 @@ from bokeh.properties import (HasProps, Either, String, Int, List, Dict,
                               Bool, PrimitiveProperty, bokeh_integer_types, Array)
 
 
+class Column(Array):
+
+    def _is_seq(self, value):
+        is_array = super(Column, self)._is_seq(value)
+        if not is_array:
+            return isinstance(value, pd.Series)
+        else:
+            return is_array
+
+    def _new_instance(self, value):
+        return pd.Series(value)
+
+    def transform(self, value):
+        if isinstance(value, pd.Series):
+            arr = value.values
+        else:
+            arr = value
+
+        trans_array = super(Column, self).transform(arr)
+        try:
+            return pd.Series(trans_array)
+        except ValueError:
+
+            raise ValueError("Could not transform %r" % value)
+
+
 class Logical(Bool):
     """A boolean like data type."""
     def validate(self, value):
@@ -32,7 +58,7 @@ class Logical(Bool):
                 raise ValueError('expected a Bool or array with 2 unique values, got %s' % value)
 
 
-class Column(Either):
+class ColumnLabel(Either):
     """Specify a column by name or index."""
 
     def __init__(self, columns=None, default=None, help=None):
@@ -40,11 +66,11 @@ class Column(Either):
         types = (String,
                  Int)
         self.columns = columns
-        super(Column, self).__init__(*types, default=default, help=help)
+        super(ColumnLabel, self).__init__(*types, default=default, help=help)
 
     def validate(self, value):
         """If we are given a column list, make sure that the column provided is valid."""
-        super(Column, self).validate(value)
+        super(ColumnLabel, self).validate(value)
 
         if self.columns:
             if type(value) in bokeh_integer_types:
@@ -75,17 +101,18 @@ class Dimension(HasProps):
 
     name = String()
     alt_names = Either(String, List(String), default=None)
-    columns = Either(Column, List(Column), default=None)
+    columns = Either(ColumnLabel, List(ColumnLabel), default=None)
 
     valid = Either(PrimitiveProperty, List(PrimitiveProperty), default=None)
     invalid = Either(PrimitiveProperty, List(PrimitiveProperty), default=None)
 
-    selection = Either(Column, List(Column), default=None)
+    selection = Either(ColumnLabel, List(ColumnLabel), default=None)
 
     def __init__(self, name, **properties):
         properties['name'] = name
         super(Dimension, self).__init__(**properties)
         self._data = pd.DataFrame()
+        self._chart_source = None
 
     def get_valid_types(self, col_data):
         """Returns all property types that are matched."""
@@ -123,7 +150,10 @@ class Dimension(HasProps):
     def set_data(self, data):
         """Builder must provide data so that builder has access to configuration metadata."""
         self.selection = data[self.name]
+        self._chart_source = data
         self._data = data.df
+        if self.columns is None:
+            self.columns = list(self._data.columns.values)
 
     @property
     def min(self):
@@ -140,3 +170,10 @@ class Dimension(HasProps):
             return self.data.max()
         else:
             return self.data.max(axis=1).max()
+
+    @property
+    def computed(self):
+        if self._chart_source is None:
+            return False
+        else:
+            return self._chart_source.is_computed(self.selection)

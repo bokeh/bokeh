@@ -100,6 +100,9 @@ class Builder(HasProps):
     x_range = Instance(Range)
     y_range = Instance(Range)
 
+    xlabel = String()
+    ylabel = String()
+
     # Dimensional Modeling
     dimensions = List(String, help="""The dimension
         labels that drive the position of the glyphs.""")
@@ -202,6 +205,10 @@ class Builder(HasProps):
         # Store updated attributes
         self.attributes = attributes
 
+    def _setup(self):
+        """Perform any initial pre-processing, attribute config."""
+        pass
+
     def _process_data(self):
         """Make any global data manipulations before grouping.
 
@@ -228,6 +235,7 @@ class Builder(HasProps):
         raise NotImplementedError('Subclasses of %s must implement _yield_renderers.' % self.__class__.__name__)
 
     def create(self, chart=None):
+        self._setup()
         self._process_data()
 
         renderers = self._yield_renderers()
@@ -241,6 +249,9 @@ class Builder(HasProps):
 
         # always contribute legends, let Chart sort it out
         chart.add_legend(self._legends)
+
+        chart.add_labels('x', self.xlabel)
+        chart.add_labels('y', self.ylabel)
 
         return chart
 

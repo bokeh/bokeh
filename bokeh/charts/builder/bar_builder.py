@@ -28,8 +28,8 @@ from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect
-from ...properties import Any, Bool, Either, List, String, Array, Float, HasProps, Instance
-from .._properties import Dimension
+from ...properties import Any, Bool, Either, List, String, Float, HasProps, Instance
+from .._properties import Dimension, Column
 from .._attributes import ColorAttr, NestedAttr
 
 #-----------------------------------------------------------------------------
@@ -103,24 +103,13 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     return create_and_build(BarBuilder, data, **kw)
 
 
-class GlyphTransform(object):
-
-    def stack(self, *glyphs):
-        pass
-
-    def dodge(self, *glyphs):
-        pass
-
-    def jitter(self, *glyphs):
-        pass
-
-
 class BarGlyph(HasProps):
     """Represents a single bar within a bar chart."""
 
     label = String('All')
-    values = Either(Array(Float), Array(String))
+    values = Either(Column(Float), Column(String))
     agg = String('sum')
+    width = Float(default=0.8)
     source = Instance(ColumnDataSource)
 
     def __init__(self, label, values, agg, **kwargs):
@@ -136,8 +125,8 @@ class BarGlyph(HasProps):
         self.source = self.aggregate()
 
     def aggregate(self):
-        width = [0.5]
-        height = [getattr(np, self.agg)(self.values)]
+        width = [self.width]
+        height = [getattr(self.values, self.agg)()]
         x = [self.label]
         y = [height[0]/2]
 
@@ -147,7 +136,6 @@ class BarGlyph(HasProps):
     def renderers(self):
         glyph = Rect(x='x', y='y', width='width', height='height')
         return GlyphRenderer(data_source=self.source, glyph=glyph)
-
 
 
 class BarBuilder(Builder):
@@ -181,11 +169,39 @@ class BarBuilder(Builder):
                       ['label', 'values']]
 
     attributes = {'color': ColorAttr(),
-                  'stack': NestedAttr()}
+                  'stack': NestedAttr(),
+                  'group': NestedAttr()}
 
-    group = Bool(False)
     agg = String('sum')
+
     max_height = Float(1.0)
+    bar_width = Float(default=0.8)
+
+    def _setup(self):
+
+        stack = self.attributes['stack']
+        group = self.attributes['group']
+
+        # label is equivalent to group
+        if stack.columns is None and group.columns is None:
+            self.attributes['group'].set_columns(self.label.selection)
+
+        # ToDo: perform aggregation validation
+        # Not given values kw, so using only categorical data
+        if self.values.computed:
+            # agg must be count
+            self.agg = 'count'
+        else:
+            pass
+
+        if self.xlabel is None:
+            self.xlabel = str(self.label.selection).title()
+
+        if self.ylabel is None:
+            if not self.values.computed:
+                self.ylabel = '%s( %s )' % (self.agg.title(), str(self.values.selection).title())
+            else:
+                self.ylabel = '%s( %s )' % (self.agg.title(), str(self.label.selection).title())
 
     def _process_data(self):
         """Take the Bar data from the input **value.
@@ -200,8 +216,10 @@ class BarBuilder(Builder):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        x_items = self.attributes['stack']._items
+        x_items = self.attributes['group']._items
         x_labels = []
+
+        # Items are identified by tuples. If the tuple has a single value, we unpack it
         for item in x_items:
             if len(item) == 1:
                 item = item[0]
@@ -219,12 +237,14 @@ class BarBuilder(Builder):
 
         color = self.attributes['color']
         stack = self.attributes['stack']
+        group = self.attributes['group']
 
-        for group in self._data.groupby(color, stack):
+        for group in self._data.groupby(color, stack, group):
 
             renderer = BarGlyph(label=group.label,
                                 values=group.data[self.values.selection].values,
-                                agg=self.agg).renderers
+                                agg=self.agg,
+                                width=self.bar_width).renderers
 
             # a higher level function of bar chart is to keep track of max height of all bars
             self.max_height = max(max(renderer.data_source._data['height']), self.max_height)

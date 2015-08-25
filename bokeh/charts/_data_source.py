@@ -31,6 +31,7 @@ except ImportError:
     blaze = None
 
 DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
+COMPUTED_COLUMN_NAMES = ['_charts_ones']
 ARRAY_TYPES = [tuple, list, np.ndarray, pd.Series]
 TABLE_TYPES = [dict, pd.DataFrame]
 
@@ -363,4 +364,11 @@ class ChartDataSource(object):
     @property
     def values(self):
         return self._data.values
+
+    @staticmethod
+    def is_computed(column):
+        if column in COMPUTED_COLUMN_NAMES:
+            return True
+        else:
+            return False
 

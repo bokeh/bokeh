@@ -3,9 +3,10 @@ from __future__ import absolute_import
 from itertools import cycle
 from copy import copy
 
-from bokeh.properties import HasProps, String, List, Instance
+from bokeh.properties import HasProps, String, List, Instance, Either
 from bokeh.models.sources import ColumnDataSource
 from bokeh.charts import DEFAULT_PALETTE
+from bokeh.charts._properties import ColumnLabel
 from bokeh.charts.utils import marker_types
 
 
@@ -21,7 +22,7 @@ class AttrSpec(HasProps):
 
     data = Instance(ColumnDataSource)
     name = String(help='Name of the attribute the spec provides.')
-    columns = List(String)
+    columns = Either(ColumnLabel, List(ColumnLabel))
 
     def __init__(self, columns=None, df=None, iterable=None, default=None, **properties):
 
@@ -79,6 +80,10 @@ class AttrSpec(HasProps):
             item = self._ensure_tuple(item)
             iter_map[item] = next(iterable)
         return iter_map
+
+    def set_columns(self, columns):
+        self.columns = self._ensure_list(columns)
+        self.setup()
 
     def setup(self):
         if self.columns is not None and self.data is not None:
