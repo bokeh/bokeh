@@ -41,6 +41,7 @@ class Property extends HasProperties
       @validate(@fixed_value, @attr)
 
   value: () ->
+    # XXX: this `?' needs to be investigated for 0.10
     result = if @fixed_value? then @fixed_value else NaN
     return @transform([result])[0]
 
