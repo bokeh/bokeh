@@ -8,7 +8,7 @@ from . import colors, icons, palettes
 
 class Enumeration(object):
 
-    __slots__ = []
+    __slots__ = ()
 
     def __contains__(self, value):
         if not self._case_sensitive:
