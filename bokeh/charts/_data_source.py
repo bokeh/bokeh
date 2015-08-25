@@ -18,7 +18,7 @@ from __future__ import absolute_import
 from six.moves import zip
 from itertools import chain
 from operator import itemgetter
-from itertools import islice, product, izip
+from itertools import islice, product
 import numpy as np
 import pandas as pd
 
@@ -171,7 +171,7 @@ class ChartDataSource(object):
         if len(select_map.keys()) == 0:
             if selections is None:
                 # if no selections are provided, we assume they were provided in order
-                select_map = {dim: sel for dim, sel in izip(self._dims, self._data.columns)}
+                select_map = {dim: sel for dim, sel in zip(self._dims, self._data.columns)}
             elif isinstance(selections, dict):
                 if len(selections.keys()) != 0:
                     # selections were specified in inputs
