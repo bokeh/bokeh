@@ -57,7 +57,7 @@ JavaScript library. In the future, it will be possible for users to wrap and use
 other widget libararies, or their own custom widgets. By themselves, most widgets
 are not useful. There are two ways to use widgets to drive interactions:
 
-* Use the ``Callback`` action (see below). This will work in static HTML documents.
+* Use the ``CustomJS`` callback (see below). This will work in static HTML documents.
 * Use the ``bokeh-server`` and set up event handlers with ``.on_change``.
 
 The current value of interactive widgets is available from the ``.value``
@@ -177,10 +177,10 @@ The toggle button holds an on/off state:
 
 .. _userguide_interaction_actions:
 
-Defining Actions
+Defining Callbacks
 ----------------
 
-Bokeh exposes an increasing number of supported actions that can be specified
+Bokeh exposes an increasing number of callbacks that can be specified
 from the ``Python`` layer that results in an action on the ``javascript`` level without
 the need of ``bokeh-server``.
 
@@ -191,7 +191,7 @@ OpenURL
 
 Opening an URL when users click on a glyph (for instance a circle marker) is
 a very popular feature. Bokeh lets users enable this feature by exposing an
-OpenURL action object that can be passed to a Tap tool in order to have that
+OpenURL callback object that can be passed to a Tap tool in order to have that
 action called whenever the users clicks on the glyph.
 
 The following code shows how to use the OpenURL action combined with a TapTool
@@ -204,18 +204,18 @@ Now you have learned how to open an URL when the user clicks on a glyph.
 
 .. _userguide_interaction_actions_widget_callbacks:
 
-Callbacks for Widgets
+CutomJS for Widgets
 ~~~~~~~~~~~~~~~~~~~~~
 
-Bokeh lets you express even more advanced actions that must be called on
+Bokeh lets you express even more advanced callbacks that must be called on
 the Javascript side in order to add custom logic and interactivity when a
 widget is used. For instance, we may want to change the data of a plot when
 a user clicks on a button or changes a slider Widget.
 
-Custom actions like these can be set using a Callback object and passing it
+Custom callbacks like these can be set using a CustomJS object and passing it
 as the ``callback`` argument to a Widget object.
 
-The code below shows an example of Callback set on a slider Widget that
+The code below shows an example of CustomJS set on a slider Widget that
 changes the source of a plot when the slider is used.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_widgets.py
@@ -223,7 +223,7 @@ changes the source of a plot when the slider is used.
 
 .. _userguide_interaction_actions_tool_callbacks:
 
-Callbacks for Tools
+CustomJS for Tools
 ~~~~~~~~~~~~~~~~~~~
 
 Bokeh allows for some tool events to trigger custom Javascript callbacks that
@@ -237,7 +237,7 @@ add a Rect glyph to the plot with identical dimensions.
 
 .. _userguide_interaction_actions_selection_callbacks:
 
-Callbacks for Selections
+CustomJS for Selections
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh also provides the means to specify the same kind of callback to be
@@ -258,7 +258,7 @@ a line through that value.
 
 .. _userguide_interaction_actions_hover_callbacks:
 
-Callbacks for Hover
+CustomJS for Hover
 ~~~~~~~~~~~~~~~~~~~
 
 The HoverTool has a callback which comes with two pieces of built-in data: the
@@ -277,7 +277,7 @@ hover tool is over.
 
 .. _userguide_interaction_actions_range_update_callbacks:
 
-Callbacks for Range Update
+CustomJS for Range Update
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 With Bokeh, ranges have a callback attribute that accept a Callback instance

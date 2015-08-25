@@ -1,8 +1,7 @@
 
 from bokeh.io import vform
 from bokeh.plotting import figure, hplot, output_file, show, ColumnDataSource
-from bokeh.models.actions import Callback
-from bokeh.models.widgets import Slider
+from bokeh.models import CustomJS, Slider
 
 import numpy as np
 
@@ -15,7 +14,7 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-callback = Callback(args=dict(source=source), code="""
+callback = CustomJS(args=dict(source=source), code="""
     var data = source.get('data');
     var A = amp.get('value')
     var k = freq.get('value')

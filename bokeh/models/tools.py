@@ -27,7 +27,8 @@ from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, 
 from ..enums import Dimension
 
 from .renderers import Renderer
-from .actions import Action, Callback
+from .callbacks import Callback
+
 
 
 class ToolEvents(PlotObject):
@@ -174,7 +175,7 @@ class TapTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    action = Instance(Action, help="""
+    callback = Instance(Callback, help="""
     A client-side action specification, like opening a URL, showing
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
     """)

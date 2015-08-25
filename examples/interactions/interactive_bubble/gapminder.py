@@ -6,10 +6,8 @@ from bokeh.browserlib import view
 from bokeh.models import (
     ColumnDataSource, Plot, Circle, Range1d,
     LinearAxis, HoverTool, Text,
-    SingleIntervalTicker,
+    SingleIntervalTicker, CustomJS, Slider
 )
-from bokeh.models.actions import Callback
-from bokeh.models.widgets import Slider
 from bokeh.palettes import Spectral6
 from bokeh.plotting import vplot
 from bokeh.resources import Resources
@@ -110,7 +108,7 @@ code = """
     text_source.trigger('change');
 """ % js_source_array
 
-callback = Callback(args=sources, code=code)
+callback = CustomJS(args=sources, code=code)
 slider = Slider(start=years[0], end=years[-1], value=1, step=1, title="Year", callback=callback, name='testy')
 callback.args["slider"] = slider
 callback.args["renderer_source"] = renderer_source
