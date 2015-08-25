@@ -37,12 +37,18 @@ class BoxZoomToolView extends GestureTool.View
 
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
     @_update(vxlim, vylim)
-    @mget('overlay').set('data', {})
 
+    @mget('overlay').set('data', {})
     @_baseboint = null
     return null
 
   _update: (vxlim, vylim) ->
+    # If the viewing window is too small, no-op: it is likely that the user did
+    # not intend to make this box zoom and instead was trying to cancel out of the
+    # zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
+    if Math.abs(vxlim[1] - vxlim[0]) <= 5 or Math.abs(vylim[1] - vylim[0]) <= 5
+      return
+
     xrs = {}
     for name, mapper of @plot_view.frame.get('x_mappers')
       [start, end] = mapper.v_map_from_target(vxlim, true)
