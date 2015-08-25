@@ -130,7 +130,7 @@ class Coord extends Property
 class Color extends Property
 
   validate: (value, attr) ->
-    if not svg_colors[value]? and value.substring(0, 1) != "#" and not @valid_rgb(value)
+    if not svg_colors[value.toLowerCase()]? and value.substring(0, 1) != "#" and not @valid_rgb(value)
       throw new Error("color property '#{attr}' given invalid value: #{value}")
     return true
 

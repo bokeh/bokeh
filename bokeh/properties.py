@@ -861,7 +861,7 @@ class Either(ParameterizedProperty):
     def __or__(self, other):
         return self.__class__(*(self.type_params + [other]), default=self._default, help=self.help)
 
-class Enum(Property):
+class Enum(String):
     """ An Enum with a list of allowed values. The first value in the list is
     the default value, unless a default is provided with the "default" keyword
     argument.
@@ -870,16 +870,21 @@ class Enum(Property):
         if not (not values and isinstance(enum, enums.Enumeration)):
             enum = enums.enumeration(enum, *values)
 
-        self.allowed_values = enum._values
+        self._enum = enum
 
         default = kwargs.get("default", enum._default)
         help = kwargs.get("help")
+
         super(Enum, self).__init__(default=default, help=help)
+
+    @property
+    def allowed_values(self):
+        return self._enum._values
 
     def validate(self, value):
         super(Enum, self).validate(value)
 
-        if not (value is None or value in self.allowed_values):
+        if not (value is None or value in self._enum):
             raise ValueError("invalid value for %s: %r; allowed values are %s" % (self.name, value, nice_join(self.allowed_values)))
 
     def __str__(self):
@@ -1197,7 +1202,7 @@ class ColorSpec(DataSpec):
         well-formed hexadecimal color value.
         """
         return isinstance(arg, string_types) and \
-               ((len(arg) == 7 and arg[0] == "#") or arg in enums.NamedColor._values)
+               ((len(arg) == 7 and arg[0] == "#") or arg in enums.NamedColor)
 
     @classmethod
     def is_color_tuple(cls, val):
