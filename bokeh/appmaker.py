@@ -322,7 +322,7 @@ class YamlApp(object):
         for obj in self.yapp['ui'].values():
             if hasattr(obj, '_glyphs'):
                 glyphs = obj._glyphs
-                import pdb; pdb.set_trace()
+
                 for glyph_name, glyph_values in glyphs.items():
                     tmp = glyph_values
                     if 'source' in tmp:
@@ -401,7 +401,7 @@ def bokeh_app(yaml_file, route='/', handler=None, theme=None):
     if callable(handler):
 
 
-        value_widgets = (TextInput, PreText, CheckboxGroup, Slider)
+        value_widgets = (TextInput, PreText, CheckboxGroup, Slider, Select)
         click_widgets = (Button)
         for object_name, obj in app.yapp['ui'].items():
             if isinstance(obj, value_widgets):
