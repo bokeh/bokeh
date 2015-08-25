@@ -1,9 +1,8 @@
-from bokeh.charts import Bar, output_file, show, vplot, hplot
+from bokeh.charts import Bar, output_file, show, vplot, hplot, defaults
 from bokeh.sampledata.autompg import autompg as df
 
-width = 500
-height = 400
-legend_position = "top_right"
+defaults.width = 400
+defaults.height = 250
 
 bar_plot = Bar(df, label='cyl', title="label='cyl'")
 

@@ -85,5 +85,7 @@ class ChartOptions(HasProps):
     Whether to add default tools the the chart.
     """)
 
+default_options = ChartOptions()
+
 
 

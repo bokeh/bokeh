@@ -2,6 +2,9 @@ from __future__ import absolute_import
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
+from ._chart_options import ChartOptions
+from ._chart_options import default_options as defaults
+
 from .builder.area_builder import Area
 from .builder.donut_builder import Donut
 from .builder.dot_builder import Dot

@@ -23,7 +23,7 @@ from __future__ import absolute_import
 import numpy as np
 from collections import defaultdict
 
-from ._chart_options import ChartOptions
+from bokeh.charts import ChartOptions, defaults
 from ..browserlib import view
 from ..document import Document
 from ..embed import file_html
@@ -78,15 +78,20 @@ class Chart(Plot):
     __subtype__ = "Chart"
 
     def __init__(self):
-        """
 
-        """
-        super(Chart, self).__init__(
-            title=self._options.title,
-            plot_height=self._options.height,
-            plot_width=self._options.width,
-            id=self._options.id or make_id()
-        )
+        # Initializes then gets default properties
+        super(Chart, self).__init__(id=self._options.id or make_id())
+        option_props = ChartOptions.properties_with_values(defaults)
+        option_props.pop('id')
+
+        # sets overridden defaults
+        # ToDo: allow Chart/Plot properties as well as ChartOptions
+        for option, value in option_props.iteritems():
+            setattr(self._options, option, value)
+
+        self.title = self._options.title
+        self.plot_height = self._options.height
+        self.plot_width = self._options.width
 
         self._glyphs = []
         self._built = False
