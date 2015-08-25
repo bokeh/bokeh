@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ...properties import Bool, Int, String, Instance, List
 from ..widget import Widget
-from ..actions import Callback
+from ..callbacks import Callback
 
 class Panel(Widget):
     """ A single-widget container with title bar and controls.
