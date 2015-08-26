@@ -73,6 +73,20 @@ def cds_constructor(loader, node):
 
     return source
 
+
+def get_lazy_evals(data):
+    lazy_evals = {}
+    for k, v in data.items():
+        if isinstance(v, string_types) and \
+                (v.startswith('{{') and v.endswith('}}')):
+            stripped = v[2:-2].strip()
+            lazy_evals[k] = stripped
+
+    for k in lazy_evals:
+        data.pop(k)
+
+    return lazy_evals
+
 def figure_constructor(loader, node):
     """
     A YAML constructor for the bokeh.plotting module
@@ -80,8 +94,13 @@ def figure_constructor(loader, node):
     """
     figure_data = loader.construct_mapping(node, deep=True)
 
+    lazy_evals = get_lazy_evals(figure_data['figure'])
+    data = figure_data['figure']
+
     # Create the figure, using the ``figure`` key
-    p = figure(**figure_data['figure'])
+    p = figure(**data)
+    # loader._lazy_evals[id(p)] = lazy_evals
+    p._lazy_evals = lazy_evals
 
     # Add glyphs to the figure using the ``glyphs`` key
     glyphs = figure_data.pop('glyphs', {})
@@ -95,16 +114,10 @@ def figure_constructor(loader, node):
 
     return p
 
-def widget_factory(widget_class):
-    def _(loader, node):
-        data = loader.construct_mapping(node, deep=True)
-        return widget_classt(**data)
-    return _
-
-
 class UILoader(SafeLoader):
     def __init__(self, *args, **kws):
         self._objects = {}
+        self._lazy_evals = {}
         super(UILoader, self).__init__(*args, **kws)
 
     @classmethod
@@ -207,7 +220,7 @@ def create_app(name, route, yaml_path, constructor=None):
         objects = dict(yapp['ui'])
 
         if callable(constructor):
-            return construct(objects)
+            return constructor(objects)
 
     @app.layout
     def create_layout(app):
@@ -236,6 +249,8 @@ def create_app(name, route, yaml_path, constructor=None):
 
 class YamlApp(object):
     def __init__(self, yaml_path, route=None, theme=None):
+        import pdb; pdb.set_trace()
+
         self.yaml_path = yaml_path
         self.yapp = load_from_yaml(yaml_path)
 
@@ -247,19 +262,20 @@ class YamlApp(object):
         self.datasets = {}
         self.sources = {}
         self.env = {}
+        self.objects = {}
+        self._lazy_evals = {}
+        self._event_handlers = {}
 
         self.init_datasets()
         self.post_process_datasets()
         self.create_sources()
 
         self.init_objects()
-
+        self.lazy_eval(self.objects, self.yapp['ui'])
 
         @simpleapp(*self.yapp['widgets'].values())
         def napp(*args):
-            objects = dict(self.yapp['ui'])
-
-            return self.app_objects(objects, *args)
+            return self.app_objects(self.objects, *args)
 
         @napp.layout
         def create_layout(app):
@@ -275,12 +291,14 @@ class YamlApp(object):
 
         self.apply_theme()
 
+        # TODO: Hacks!
         SimpleApp.datasets = self.datasets
         SimpleApp.env = self.env
+        SimpleApp._app = self
 
     def apply_theme(self):
         if self.theme:
-            for name, obj in self.yapp['ui'].items():
+            for name, obj in self.objects.items():
 
                 if name in self.theme:
                     rules = self.theme[name]
@@ -319,7 +337,9 @@ class YamlApp(object):
 
 
     def init_objects(self):
-        for obj in self.yapp['ui'].values():
+        # lazy_evals = {}
+        # print ("SOOOOO", self.yapp['ui'].keys())
+        for k, obj in self.yapp['ui'].items():
             if hasattr(obj, '_glyphs'):
                 glyphs = obj._glyphs
 
@@ -331,6 +351,26 @@ class YamlApp(object):
                         tmp['source'] = self.sources[tmp['source']]
 
                     getattr(obj, glyph_name)(**tmp)
+
+            print ("LAZY????", obj, hasattr(obj, '_lazy_evals'), hasattr(obj, '_glyphs'))
+            if hasattr(obj, '_lazy_evals'):
+                self._lazy_evals[k] = obj._lazy_evals
+
+            self.objects[k] = obj
+
+
+    def lazy_eval(self, objects, env):
+        for k, evals in self._lazy_evals.items():
+            for attr, v in evals.items():
+                new_var = eval(v, dict(env))
+                print ("AAAW", k, attr, new_var)
+                # import pdb; pdb.set_trace()
+                setattr(objects[k], attr, new_var)
+
+        # print ("SAAAAAA", self.yapp['ui'].keys())
+                print ("BBBBBBAAAAAA", self.objects.keys())
+                # import pdb; pdb.set_trace()
+        return objects
 
     @property
     def name(self):
@@ -366,7 +406,10 @@ class YamlApp(object):
             object_name = evt_handler[key]
 
             foo = load_foo(evt_handler['handler'])
-            foo = self.app.update([({key:  object_name}, [evt_handler['property']])])(foo)
+            if foo.__name__ not in self._event_handlers:
+                print ("ADDIND", foo, {key:  object_name})
+                self._event_handlers[foo.__name__] = foo = \
+                    self.app.update([({key:  object_name}, [evt_handler['property']])])(foo)
 
 
     def app_objects(self, objects):
@@ -399,11 +442,9 @@ def bokeh_app(yaml_file, route='/', handler=None, theme=None):
     app = YamlApp(yaml_file, route=route, theme=theme)
 
     if callable(handler):
-
-
         value_widgets = (TextInput, PreText, CheckboxGroup, Slider, Select)
         click_widgets = (Button)
-        for object_name, obj in app.yapp['ui'].items():
+        for object_name, obj in app.objects.items():
             if isinstance(obj, value_widgets):
                 property = 'value'
                 handler = app.app.update([({'name':  object_name}, [property])])(handler)
@@ -411,6 +452,7 @@ def bokeh_app(yaml_file, route='/', handler=None, theme=None):
             if isinstance(obj, click_widgets):
                 property = 'clicks'
                 handler = app.app.update([({'name':  object_name}, [property])])(handler)
+
 
 
     return app
