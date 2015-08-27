@@ -3,6 +3,7 @@
 """
 from __future__ import absolute_import
 
+from ...properties import abstract
 from ...properties import Int, String
 from ..widget import Widget
 

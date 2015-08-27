@@ -3,6 +3,7 @@
 """
 from __future__ import absolute_import
 
+from ...properties import abstract
 from ...properties import Bool, Int, String, Instance, List
 from ..widget import Widget
 from ..callbacks import Callback

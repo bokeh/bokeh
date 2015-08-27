@@ -8,10 +8,12 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Direction, Anchor
+from ..properties import abstract
 from ..properties import AngleSpec, Bool, DistanceSpec, Enum, Include, Instance, NumberSpec, StringSpec
 
 from .mappers import LinearColorMapper
 
+@abstract
 class Glyph(PlotObject):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
 

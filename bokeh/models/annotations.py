@@ -6,11 +6,13 @@ from __future__ import absolute_import
 
 from ..enums import Orientation, SpatialUnits, RenderLevel
 from ..mixins import LineProps, FillProps, TextProps
+from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
                           Include, NumberSpec, Either, Auto)
 
 from .renderers import Renderer, GlyphRenderer
 
+@abstract
 class Annotation(Renderer):
     """ Base class for annotation models.
 
