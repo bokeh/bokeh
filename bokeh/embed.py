@@ -238,7 +238,7 @@ def notebook_div(plot_object):
 
     plots = [{
         'modelid': ref["id"],
-        'elementid': '#' + elementid,
+        'elementid': elementid,
         'modeltype': ref["type"]
     }]
 
