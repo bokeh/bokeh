@@ -27,6 +27,7 @@ def click_glyph_at_position(selenium, element, x, y):
     actions.perform()
 
 
+@pytest.mark.xfail(reason='Canteen is currently disabled')
 def test_select_rectangle_glyph(output_file_url, selenium):
 
     save(make_plot('tap'))
@@ -42,7 +43,7 @@ def test_select_rectangle_glyph(output_file_url, selenium):
     # Click right
     click_glyph_at_position(selenium, canvas, 750, 400)
     wait.until(value_to_be_present_in_datahash(canvas, '36d1329732f484e483d48eac88434828'))
-    # CLick off glyph to reset plot 
+    # CLick off glyph to reset plot
     # TODO: why isn't this the same as first hash?
     click_glyph_at_position(selenium, canvas, 0, 0)
     wait.until(value_to_be_present_in_datahash(canvas, '1ea37ccb5cfbc9146bf50764a423bcc9'))
