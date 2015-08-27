@@ -3,7 +3,7 @@
 """
 from __future__ import absolute_import
 
-from ..properties import HasProps
+from ..properties import HasProps, abstract
 from ..properties import Enum, Float, Instance, Int, JSON
 from ..enums import MapType
 from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
@@ -12,8 +12,9 @@ from .. import validation
 
 from .plots import Plot
 
-class GMapOptions(HasProps):
-    """ Options for GMapPlot objects.
+@abstract
+class MapOptions(HasProps):
+    """ Abstract base class for map options' models.
 
     """
 
@@ -26,8 +27,23 @@ class GMapOptions(HasProps):
     """)
 
     zoom = Int(12, help="""
-    The initial zoom level to use when displaying the GMapPlot.
+    The initial zoom level to use when displaying the map.
     """)
+
+@abstract
+class MapPlot(Plot):
+    """ Abstract base class for map plot models.
+
+    """
+
+    map_options = Instance(MapOptions, help="""
+    Options for displaying the plot.
+    """)
+
+class GMapOptions(MapOptions):
+    """ Options for GMapPlot objects.
+
+    """
 
     map_type = Enum(MapType, help="""
     The `map type`_ to use for the GMapPlot.
@@ -45,7 +61,7 @@ class GMapOptions(HasProps):
 
     """)
 
-class GMapPlot(Plot):
+class GMapPlot(MapPlot):
     """ A Bokeh Plot with a `Google Map`_ displayed underneath.
 
     .. _Google Map: https://www.google.com/maps/
@@ -67,24 +83,12 @@ class GMapPlot(Plot):
     Options for displaying the plot.
     """)
 
-class GeoJSOptions(HasProps):
+class GeoJSOptions(MapOptions):
     """ Options for GeoJSPlot objects.
 
     """
 
-    lat = Float(help="""
-    The latitude where the map should be centered.
-    """)
-
-    lng = Float(help="""
-    The longitude where the map should be centered.
-    """)
-
-    zoom = Int(12, help="""
-    The initial zoom level to use when displaying the GeoJSPlot.
-    """)
-
-class GeoJSPlot(Plot):
+class GeoJSPlot(MapPlot):
     """ A Bokeh Plot with a `GeoJS Map`_ displayed underneath.
 
     .. warning::
