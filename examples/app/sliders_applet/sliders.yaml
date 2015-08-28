@@ -1,11 +1,9 @@
 name: sliders
 title: Sliders App
 
-
 datasets:
   source: !ColumnDataSource
     tags: ['source']
-
 
 ui:
   sliders_plot: !figure
