@@ -110,12 +110,19 @@ class DataTableView extends ContinuumView
     selected = @mget("source").get("selected")
     indices = selected['1d'].indices
     @grid.setSelectedRows(indices)
-    # Scroll datatable to start at the row before the first selected row,
-    # to immediately bring selections into view.
-    # TODO: should this be default behavior / configurable?
-    min_index = Math.max(0, Math.min.apply(null, indices) - 1)
-    # console.log("DataTableView::updateSelection", min_index, indices)
-    @grid.scrollRowToTop(min_index)
+    # If the selection is not in the current slickgrid viewport, scroll the
+    # datatable to start at the row before the first selected row, so that
+    # the selection is immediately brought into view. We don't scroll when
+    # the selection is already in the viewport so that selecting from the
+    # datatable itself does not re-scroll.
+    # console.log("DataTableView::updateSelection",
+    #             @grid.getViewport(), @grid.getRenderedRange())
+    cur_grid_range = @grid.getViewport()
+    if @mget("scroll_to_selection") and not _.any(_.map(indices, (index) ->
+        cur_grid_range["top"] <= index and index <= cur_grid_range["bottom"]))
+      # console.log("DataTableView::updateSelection", min_index, indices)
+      min_index = Math.max(0, Math.min.apply(null, indices) - 1)
+      @grid.scrollRowToTop(min_index)
 
   newIndexColumn: () ->
     return {
@@ -192,6 +199,7 @@ class DataTable extends HasProperties
       editable: false
       selectable: true
       row_headers: true
+      scroll_to_selection: true
     }
 
 module.exports =
