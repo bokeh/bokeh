@@ -99,7 +99,6 @@ def figure_constructor(loader, node):
 
     # Create the figure, using the ``figure`` key
     p = figure(**data)
-    # loader._lazy_evals[id(p)] = lazy_evals
     p._lazy_evals = lazy_evals
 
     # Add glyphs to the figure using the ``glyphs`` key
@@ -337,8 +336,6 @@ class YamlApp(object):
 
 
     def init_objects(self):
-        # lazy_evals = {}
-        # print ("SOOOOO", self.yapp['ui'].keys())
         for k, obj in self.yapp['ui'].items():
             if hasattr(obj, '_glyphs'):
                 glyphs = obj._glyphs
@@ -352,7 +349,7 @@ class YamlApp(object):
 
                     getattr(obj, glyph_name)(**tmp)
 
-            print ("LAZY????", obj, hasattr(obj, '_lazy_evals'), hasattr(obj, '_glyphs'))
+
             if hasattr(obj, '_lazy_evals'):
                 self._lazy_evals[k] = obj._lazy_evals
 
@@ -365,13 +362,8 @@ class YamlApp(object):
         for k, evals in self._lazy_evals.items():
             for attr, v in evals.items():
                 new_var = eval(v, dict(env))
-                print ("AAAW", k, attr, new_var)
-                # import pdb; pdb.set_trace()
                 setattr(objects[k], attr, new_var)
 
-        # print ("SAAAAAA", self.yapp['ui'].keys())
-                print ("BBBBBBAAAAAA", self.objects.keys())
-                # import pdb; pdb.set_trace()
         return objects
 
     @property
@@ -408,10 +400,10 @@ class YamlApp(object):
             object_name = evt_handler[key]
 
             foo = load_foo(evt_handler['handler'])
-            if foo.__name__ not in self._event_handlers:
-                print ("ADDIND", foo, {key:  object_name})
-                self._event_handlers[foo.__name__] = foo = \
-                    self.app.update([({key:  object_name}, [evt_handler['property']])])(foo)
+            fname = foo.__name__
+            if fname not in self._event_handlers:
+                self._event_handlers[fname] = foo = self.app.update(
+                    [({key:  object_name}, [evt_handler['property']])])(foo)
 
 
     def app_objects(self, objects):
