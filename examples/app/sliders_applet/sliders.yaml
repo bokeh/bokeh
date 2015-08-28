@@ -6,6 +6,7 @@ datasets:
   source: !ColumnDataSource
     tags: ['source']
 
+
 ui:
   sliders_plot: !figure
     figure:
@@ -13,7 +14,7 @@ ui:
       height: 400
       tools: "crosshair,pan,reset,resize,save,wheel_zoom"
       title_text_font_size: 12pt
-      title: my sine wave
+      title: "{{ title.value }}"
       x_range: [0, 12.566]
       y_range: [-2.5, 2.5]
 

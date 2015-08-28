@@ -16,33 +16,21 @@ N = 200
 x = np.linspace(0, 4*np.pi, N)
 here = os.path.dirname(os.path.abspath(__file__))
 
+def compute_y(amplitude=1, offset=0, phase=1, freq=0, **kws):
+    return amplitude * np.sin(freq*x + phase) + offset
+
 def update_data(app):
     """Called each time that any watched property changes.
 
-    This updates the sin wave data with the most recent values of the
-    sliders. This is stored as two numpy arrays in a dict into the app's
-    data source property.
+    This updates the sin wave data using the sliders updated values.
     """
-    # Get the current slider values
-    a = app.objects['amplitude'].value
-    b = app.objects['offset'].value
-    w = app.objects['phase'].value
-    k = app.objects['freq'].value
-    title = app.objects['title'].value
-    plot = app.objects['sliders_plot']
+    # Get the source and update its data
     source = app.select_one({'tags': 'source'})
+    source.data = {'x': x, 'y': compute_y(**app._values)}
 
-    # Generate the sine wave
-    y = a*np.sin(k*x + w) + b
-
-    logging.debug("PARAMS: offset: %s amplitude: %s", b, a)
-    source.data = dict(x=x, y=y)
-    plot.title = title
-
-    return {'sliders_plot': plot}
 
 sliders_app = bokeh_app(os.path.join(here, 'sliders.yaml'), route='/sliders', handler=update_data,
                         theme=os.path.join(here, 'style.yaml'))
-sliders_app.sources['source'].data = {'x': x, 'y': 1.*np.sin(1.*x)}
+sliders_app.sources['source'].data = {'x': x, 'y': compute_y(**sliders_app._values)}
 
 print ("Access the demo at: http://127.0.0.1:5006/sliders")

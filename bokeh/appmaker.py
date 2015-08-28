@@ -249,7 +249,6 @@ def create_app(name, route, yaml_path, constructor=None):
 
 class YamlApp(object):
     def __init__(self, yaml_path, route=None, theme=None):
-        import pdb; pdb.set_trace()
 
         self.yaml_path = yaml_path
         self.yapp = load_from_yaml(yaml_path)
@@ -263,6 +262,7 @@ class YamlApp(object):
         self.sources = {}
         self.env = {}
         self.objects = {}
+        self._values = {}
         self._lazy_evals = {}
         self._event_handlers = {}
 
@@ -357,6 +357,8 @@ class YamlApp(object):
                 self._lazy_evals[k] = obj._lazy_evals
 
             self.objects[k] = obj
+            if hasattr(obj, 'value'):
+                self._values[k] = obj.value
 
 
     def lazy_eval(self, objects, env):
@@ -437,11 +439,19 @@ class YamlApp(object):
 
         return layout['app']
 
+def attach_lazy_eval(foo):
+    def _(app, *args, **kws):
+        objs = app._app.lazy_eval(app.objects, app.objects)
+        app._values = {k: obj.value for k, obj in objs.items() if hasattr(obj, 'value')}
+        return foo(app, *args, **kws)
+    return _
+
 
 def bokeh_app(yaml_file, route='/', handler=None, theme=None):
     app = YamlApp(yaml_file, route=route, theme=theme)
 
     if callable(handler):
+        handler = attach_lazy_eval(handler)
         value_widgets = (TextInput, PreText, CheckboxGroup, Slider, Select)
         click_widgets = (Button)
         for object_name, obj in app.objects.items():
