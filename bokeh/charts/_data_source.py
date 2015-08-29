@@ -92,11 +92,11 @@ class DataGroup(object):
         return len(self.data.index)
 
 
-def groupby(df, *specs):
+def groupby(df, **specs):
     """Convenience iterator around pandas groupby and attribute specs."""
 
-    selected_specs = [spec for spec in specs if spec.columns]
-    spec_cols = ordered_set(list(chain.from_iterable([spec.columns for spec in selected_specs])))
+    selected_specs = {spec_name: spec for spec_name, spec in specs.iteritems() if spec.columns}
+    spec_cols = ordered_set(list(chain.from_iterable([spec.columns for spec in selected_specs.values()])))
 
     # if there was any input for chart attributes, which require grouping
     if spec_cols:
@@ -105,8 +105,8 @@ def groupby(df, *specs):
         for name, data in df.groupby(spec_cols):
 
             attrs = {}
-            for spec in specs:
-                if spec.columns:
+            for spec_name, spec in specs.iteritems():
+                if spec.columns is not None:
                     # get index of the unique column values grouped on for this spec
                     name_idx = tuple([spec_cols.index(col) for col in spec.columns])
 
@@ -122,15 +122,15 @@ def groupby(df, *specs):
                     label = None
 
                 # get attribute value for this spec, given the unique column values associated with it
-                attrs[spec.name] = spec[label]
+                attrs[spec_name] = spec[label]
 
             yield DataGroup(label=name, data=data, attr_specs=attrs)
 
     # collect up the defaults from the attribute specs
     else:
         attrs = {}
-        for spec in specs:
-            attrs[spec.name] = spec[None]
+        for spec_name, spec in specs.iteritems():
+            attrs[spec_name] = spec[None]
 
         yield DataGroup(label='all', data=df, attr_specs=attrs)
 
@@ -198,7 +198,7 @@ class ChartDataSource(object):
         else:
             return '_charts_ones'
 
-    def groupby(self, *specs):
+    def groupby(self, **specs):
         """Iterable of chart attribute specifications, associated with columns.
 
         Iterates over DataGroup, which represent the lowest level of data that is assigned
@@ -207,7 +207,7 @@ class ChartDataSource(object):
         if len(specs) == 0:
             raise ValueError('You must provide one or more Attribute Specs to support iteration.')
 
-        return groupby(self._data, *specs)
+        return groupby(self._data, **specs)
 
     @classmethod
     def from_data(cls, *args, **kwargs):

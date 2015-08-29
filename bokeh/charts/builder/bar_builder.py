@@ -17,6 +17,7 @@ It also add a new chained stacked method.
 # Imports
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
+from collections import defaultdict
 
 try:
     import numpy as np
@@ -30,7 +31,8 @@ from ...models.glyphs import Rect
 from ...properties import Either, String, Float, HasProps, Instance, ColorSpec
 from .._properties import Dimension, Column
 from .._attributes import ColorAttr, NestedAttr
-from .._glyphs import CompositeGlyph
+from .._models import CompositeGlyph
+from ..operations import Stack
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -124,8 +126,33 @@ class BarGlyph(CompositeGlyph):
         x = [self.label]
         y = [height[0]/2]
         color = [self.color]
-
         return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color))
+
+    def __stack__(self, glyphs):
+        bars = [glyph for glyph in glyphs if isinstance(glyph, BarGlyph)]
+        groups = defaultdict(list)
+        [groups[str(bar.source._data['x'])].append(bar) for bar in bars]
+
+        for index, group in groups.iteritems():
+            group = sorted(group, key=lambda x: x.source._data['y'][0])
+            shift = []
+            for i, bar in enumerate(group):
+                # save off the top of each rect's height
+                shift.append(group[i].source._data['y'][0] * 2)
+                if i > 0:
+                    bar.source._data['y'] = group[i].source._data['y'] + sum(shift[0:i])
+
+    @property
+    def xmax(self):
+        return self.source._data['x'][0] + self.width
+
+    @property
+    def ymax(self):
+        return self.source._data['y'][0] + (self.height/2.0)
+
+    @property
+    def height(self):
+        return self.source._data['height'][0]
 
     def build(self):
         glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color')
@@ -154,17 +181,16 @@ class BarBuilder(Builder):
 
     """
 
-    label = Dimension('label')
+    # ToDo: add label back as a discrete dimension
     values = Dimension('values')
 
-    dimensions = ['label', 'values']
-    req_dimensions = [['label'],
-                      ['values'],
-                      ['label', 'values']]
+    dimensions = ['values']
+    #req_dimensions = [['values']]
 
-    attributes = {'color': ColorAttr(),
-                  'stack': NestedAttr(),
-                  'group': NestedAttr()}
+    default_attributes = {'label': NestedAttr(),
+                          'color': ColorAttr(),
+                          'stack': NestedAttr(),
+                          'group': NestedAttr()}
 
     agg = String('sum')
 
@@ -178,7 +204,7 @@ class BarBuilder(Builder):
 
         # label is equivalent to group
         if stack.columns is None and group.columns is None:
-            self.attributes['group'].set_columns(self.label.selection)
+            self.attributes['group'].set_columns(self.attributes['label'].columns)
 
         # ToDo: perform aggregation validation
         # Not given values kw, so using only categorical data
@@ -189,13 +215,13 @@ class BarBuilder(Builder):
             pass
 
         if self.xlabel is None:
-            self.xlabel = str(self.label.selection).title()
+            self.xlabel = str(', '.join(self.attributes['label'].columns).title()).title()
 
         if self.ylabel is None:
             if not self.values.computed:
                 self.ylabel = '%s( %s )' % (self.agg.title(), str(self.values.selection).title())
             else:
-                self.ylabel = '%s( %s )' % (self.agg.title(), str(self.label.selection).title())
+                self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
 
     def _process_data(self):
         """Take the Bar data from the input **value.
@@ -210,18 +236,22 @@ class BarBuilder(Builder):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        x_items = self.attributes['group']._items
+        x_items = self.attributes['label']._items
         x_labels = []
 
         # Items are identified by tuples. If the tuple has a single value, we unpack it
         for item in x_items:
-            if len(item) == 1:
-                item = item[0]
+            item = self._get_label(item)
 
             x_labels.append(str(item))
 
         self.x_range = FactorRange(factors=x_labels)
         self.y_range = Range1d(start=0, end=1.1 * self.max_height)
+
+    def _get_label(self, item):
+        if len(item) == 1:
+            item = item[0]
+        return item
 
     def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
@@ -229,20 +259,21 @@ class BarBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
 
-        color = self.attributes['color']
-        stack = self.attributes['stack']
-        group_attr = self.attributes['group']
+        stacker = Stack()
+        for group in self._data.groupby(**self.attributes):
 
-        for group in self._data.groupby(color, stack, group_attr):
+            stacker.add_renderer(BarGlyph(label=self._get_label(group['label']),
+                                 values=group.data[self.values.selection].values,
+                                 agg=self.agg,
+                                 width=self.bar_width,
+                                 color=group['color']))
 
-            renderer = BarGlyph(label=group.label,
-                                values=group.data[self.values.selection].values,
-                                agg=self.agg,
-                                width=self.bar_width,
-                                color=group['color']).renderers[0]
+        renderers = stacker.apply()
 
-            # a higher level function of bar chart is to keep track of max height of all bars
-            self.max_height = max(max(renderer.data_source._data['height']), self.max_height)
+        # a higher level function of bar chart is to keep track of max height of all bars
+        self.max_height = max([renderer.ymax for renderer in renderers])
 
-            self._legends.append((str(group.label), [renderer]))
-            yield renderer
+        #self._legends.append((str(group.label), [renderer]))
+
+        for renderer in renderers:
+            yield renderer.renderers[0]

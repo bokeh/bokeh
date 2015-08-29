@@ -1,7 +1,8 @@
 from __future__ import absolute_import
 
-from bokeh.properties import HasProps, String, Either, Float, ColorSpec, Instance, List, Enum
-from bokeh.charts import Column, Operation
+from bokeh.properties import HasProps, String, Either, Float, Color, Instance, List, Enum, Any
+from bokeh.charts import ColumnLabel
+from bokeh.charts._properties import Column
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.enums import Aggregation
@@ -37,11 +38,11 @@ class CompositeGlyph(HasProps):
 
     label = String('All', help='Identifies the subset of data.')
     values = Either(Column(Float), Column(String), help='Array-like values.')
-    color = ColorSpec(default='gray')
+    color = Color(default='gray')
     agg = Enum(Aggregation, default=None)
 
     source = Instance(ColumnDataSource)
-    operations = List(Instance(Operation))
+    operations = List(Any)
     renderers = List(Instance(GlyphRenderer))
 
     def __init__(self, **kwargs):
@@ -78,3 +79,25 @@ class CompositeGlyph(HasProps):
 
     def build(self):
         raise NotImplementedError('Minimum requirement for CompositeGlyph is to produce renderers.')
+
+
+class Operation(HasProps):
+    renderers = List(Instance(CompositeGlyph))
+    name = String()
+    method_name = String()
+    columns = Either(ColumnLabel, List(ColumnLabel))
+
+    def add_renderer(self, renderer):
+        self.renderers.append(renderer)
+
+    def apply(self, renderers=None):
+        if len(self.renderers) == 0:
+            self.renderers = renderers
+
+        if len(self.renderers) > 0:
+            # the first renderer's operation method is applied to the rest
+            getattr(self.renderers[0], self.method_name)(self.renderers)
+        else:
+            raise AttributeError('%s must be applied to available renderers, none found.' %
+                                 self.__class__.__name__)
+        return self.renderers

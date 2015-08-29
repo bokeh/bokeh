@@ -11,10 +11,13 @@ bar_plot2 = Bar(df, label='cyl', bar_width=0.4, title="label='cyl' bar_width=0.4
 bar_plot3 = Bar(df, label='cyl', values='mpg', agg='mean',
                 title="label='cyl' values='mpg' agg='mean'")
 
-bar_plot4 = Bar(df, label='cyl', title="label='cyl' color='DimGray", color='DimGray')
+bar_plot4 = Bar(df, label='cyl', title="label='cyl' color='DimGray", color='dimgray')
 
 # multiple columns
 bar_plot5 = Bar(df, label=['cyl', 'origin'], values='mpg', agg='mean',
+                title="label='cyl' values='mpg' agg='mean'")
+
+bar_plot6 = Bar(df, label='origin', values='mpg', agg='mean', stack='cyl', color='cyl',
                 title="label='cyl' values='mpg' agg='mean'")
 
 # np_negative_grouped = Bar(
@@ -40,6 +43,6 @@ show(
     vplot(
         hplot(bar_plot, bar_plot2),
         hplot(bar_plot3, bar_plot4),
-        hplot(bar_plot5)
+        hplot(bar_plot5, bar_plot6)
     )
 )

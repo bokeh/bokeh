@@ -3,12 +3,12 @@ from __future__ import absolute_import
 from itertools import cycle
 from copy import copy
 
-from bokeh.properties import HasProps, String, List, Instance, Either
+from bokeh.properties import HasProps, String, List, Instance, Either, Any, Dict, Color
 from bokeh.models.sources import ColumnDataSource
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.charts._properties import ColumnLabel
 from bokeh.charts.utils import marker_types
-
+from ..util.serialization import make_id
 
 class AttrSpec(HasProps):
     """A container for assigning attributes to values and retrieving them as needed.
@@ -20,27 +20,32 @@ class AttrSpec(HasProps):
     be a one dimensional tuple of values, representing the unique group in the data.
     """
 
+    id = Any()
     data = Instance(ColumnDataSource)
     name = String(help='Name of the attribute the spec provides.')
     columns = Either(ColumnLabel, List(ColumnLabel))
 
+    default = Any(default=None)
+    attr_map = Dict(Any, Any)
+    iterable = List(Any, default=None)
+    items = List(Any)
+
     def __init__(self, columns=None, df=None, iterable=None, default=None, **properties):
 
-        columns = self._ensure_list(columns)
+        properties['columns'] = self._ensure_list(columns)
 
         if df is not None:
-            self.data = ColumnDataSource(df)
+            properties['data'] = ColumnDataSource(df)
 
-        if not default and iterable:
+        if default is None and iterable is not None:
             default_iter = copy(iterable)
-            default = next(iter(default_iter))
+            properties['default'] = next(iter(default_iter))
+        elif default is not None:
+            properties['default'] = default
 
-        self._default = default
-        self._attr_map = {}
-        self._iterable = iterable
-        self._items = []
+        if iterable is not None:
+            properties['iterable'] = iterable
 
-        properties['columns'] = columns
         super(AttrSpec, self).__init__(**properties)
 
     @staticmethod
@@ -60,17 +65,17 @@ class AttrSpec(HasProps):
             return attr
 
     def _setup_default(self):
-        self._default = next(self._setup_iterable())
+        self.default = next(self._setup_iterable())
 
     def _setup_iterable(self):
         """Default behavior is to copy and cycle the provided iterable."""
-        return cycle(copy(self._iterable))
+        return cycle(copy(self.iterable))
 
     def _generate_items(self, df, columns):
         """Produce list of unique tuples that identify each item."""
         df = df.sort(columns=columns)
         items = df[columns].drop_duplicates()
-        self._items = [tuple(x) for x in items.to_records(index=False)]
+        self.items = [tuple(x) for x in items.to_records(index=False)]
 
     def _create_attr_map(self, df, columns):
         """Creates map between unique values and available attributes."""
@@ -79,7 +84,7 @@ class AttrSpec(HasProps):
         iterable = self._setup_iterable()
 
         iter_map = {}
-        for item in self._items:
+        for item in self.items:
             item = self._ensure_tuple(item)
             iter_map[item] = next(iterable)
         return iter_map
@@ -91,7 +96,7 @@ class AttrSpec(HasProps):
         else:
             # we have input values other than columns
             # assume this is now the iterable at this point
-            self._iterable = columns
+            self.iterable = columns
             self._setup_default()
 
     def setup(self, data=None, columns=None):
@@ -102,34 +107,40 @@ class AttrSpec(HasProps):
                 self.set_columns(columns)
 
         if self.columns is not None and self.data is not None:
-            self._attr_map = self._create_attr_map(self.data.to_df(), self.columns)
+            self.attr_map = self._create_attr_map(self.data.to_df(), self.columns)
 
     def __getitem__(self, item):
         """Lookup the attribute to use for the given unique group label."""
 
         if not self.columns or not self.data or item is None:
-            return self._default
-        elif self._ensure_tuple(item) not in self._attr_map.keys():
+            return self.default
+        elif self._ensure_tuple(item) not in self.attr_map.keys():
 
             # make sure we have attr map
             self.setup()
 
-        return self._attr_map[self._ensure_tuple(item)]
+        return self.attr_map[self._ensure_tuple(item)]
 
 
 class ColorAttr(AttrSpec):
     name = 'color'
+    iterable = List(Color, default=DEFAULT_PALETTE)
 
     def __init__(self, **kwargs):
-        kwargs['iterable'] = kwargs.pop('palette', DEFAULT_PALETTE)
+        iterable = kwargs.pop('palette', None)
+        if iterable is not None:
+            kwargs['iterable'] = iterable
         super(ColorAttr, self).__init__(**kwargs)
 
 
 class MarkerAttr(AttrSpec):
     name = 'marker'
+    iterable = List(String, default=marker_types.keys())
 
     def __init__(self, **kwargs):
-        kwargs['iterable'] = kwargs.pop('markers', marker_types.keys())
+        iterable = kwargs.pop('markers', None)
+        if iterable is not None:
+            kwargs['iterable'] = iterable
         super(MarkerAttr, self).__init__(**kwargs)
 
 
@@ -137,11 +148,10 @@ class NestedAttr(AttrSpec):
     name = 'nest'
 
     def __init__(self, **kwargs):
-        kwargs['iterable'] = []
         super(NestedAttr, self).__init__(**kwargs)
 
     def _setup_iterable(self):
-        return iter([str(item) for item in self._items])
+        return iter(self.items)
 
 
 """ Attribute Spec Functions

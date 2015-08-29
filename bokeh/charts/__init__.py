@@ -8,7 +8,7 @@ from ._properties import ColumnLabel, Column
 from ._attributes import AttrSpec, color
 from ._chart import Chart
 from ._data_source import ChartDataSource
-from .operations import Operation
+from ._models import Operation
 
 
 from .builder.area_builder import Area

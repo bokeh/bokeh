@@ -18,7 +18,7 @@ types on top of it.
 
 from __future__ import absolute_import
 
-from copy import copy
+from copy import deepcopy
 
 from bokeh.charts import DEFAULT_PALETTE
 from ._chart import Chart
@@ -41,7 +41,7 @@ def create_and_build(builder_class, *data, **kws):
     if isinstance(builder_class.dimensions, Property):
         raise NotImplementedError('Each builder must specify its dimensions.')
 
-    if isinstance(builder_class.attributes, Property):
+    if isinstance(builder_class.default_attributes, Property):
         raise NotImplementedError('Each builder must specify its dimensions.')
 
     builder_props = set(builder_class.properties())
@@ -51,7 +51,7 @@ def create_and_build(builder_class, *data, **kws):
         builder_props.add(dim)
 
     # append attributes to the builder props
-    for attr_name in builder_class.attributes.keys():
+    for attr_name in builder_class.default_attributes.keys():
         builder_props.add(attr_name)
 
     # create the new builder
@@ -111,6 +111,7 @@ class Builder(HasProps):
         for the chart, with the option of specifying the type of the columns.""")
 
     attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
+    default_attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
@@ -176,9 +177,11 @@ class Builder(HasProps):
         source, which is used for mapping attributes to groups
         of data.
         """
+
         source = ColumnDataSource(data.df)
-        attr_names = self.attributes.keys()
+        attr_names = self.default_attributes.keys()
         for attr_name in attr_names:
+
             attr = kws.pop(attr_name, None)
 
             # if given an attribute use it
@@ -187,7 +190,11 @@ class Builder(HasProps):
 
             # if we are given columns, use those
             elif isinstance(attr, str) or isinstance(attr, list):
+                self.attributes[attr_name] = self.default_attributes[attr_name].clone()
                 self.attributes[attr_name].setup(data=source, columns=attr)
+
+            else:
+                self.attributes[attr_name] = self.default_attributes[attr_name].clone()
 
         # make sure all have access to data source
         for attr_name in attr_names:
