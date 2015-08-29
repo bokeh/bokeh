@@ -57,3 +57,4 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
                               "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
 RenderLevel = enumeration("image", "underlay", "glyph", "overlay",
                           "annotation", "tool")
+Aggregation = enumeration("sum", "mean", "count", "nunique", "median")

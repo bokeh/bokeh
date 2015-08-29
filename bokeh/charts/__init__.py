@@ -4,6 +4,12 @@ DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33f
 
 from ._chart_options import ChartOptions
 from ._chart_options import default_options as defaults
+from ._properties import ColumnLabel, Column
+from ._attributes import AttrSpec, color
+from ._chart import Chart
+from ._data_source import ChartDataSource
+from .operations import Operation
+
 
 from .builder.area_builder import Area
 from .builder.donut_builder import Donut
@@ -17,10 +23,6 @@ from .builder.boxplot_builder import BoxPlot
 from .builder.timeseries_builder import TimeSeries
 from .builder.heatmap_builder import HeatMap
 from .builder.horizon_builder import Horizon
-
-from ._chart import Chart
-from ._data_source import ChartDataSource
-from ._attributes import AttrSpec, color
 
 from ..deprecate import deprecated
 from ..models import ColumnDataSource

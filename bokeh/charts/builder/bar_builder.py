@@ -24,13 +24,13 @@ try:
 except ImportError:
     raise RuntimeError("bokeh.charts Bar chart requires NumPy.")
 
-from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect
-from ...properties import Any, Bool, Either, List, String, Float, HasProps, Instance, ColorSpec
+from ...properties import Either, String, Float, HasProps, Instance, ColorSpec
 from .._properties import Dimension, Column
 from .._attributes import ColorAttr, NestedAttr
+from .._glyphs import CompositeGlyph
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -103,18 +103,12 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     return create_and_build(BarBuilder, data, **kw)
 
 
-class BarGlyph(HasProps):
+class BarGlyph(CompositeGlyph):
     """Represents a single bar within a bar chart."""
 
-    label = String('All')
-    values = Either(Column(Float), Column(String))
-    agg = String('sum')
     width = Float(default=0.8)
-    color = ColorSpec(default='gray')
 
-    source = Instance(ColumnDataSource)
-
-    def __init__(self, label, values, agg, **kwargs):
+    def __init__(self, label, values, agg='sum', **kwargs):
         if not isinstance(label, str):
             label = str(label)
 
@@ -123,8 +117,6 @@ class BarGlyph(HasProps):
         kwargs['agg'] = agg
 
         super(BarGlyph, self).__init__(**kwargs)
-
-        self.source = self.aggregate()
 
     def aggregate(self):
         width = [self.width]
@@ -135,10 +127,9 @@ class BarGlyph(HasProps):
 
         return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color))
 
-    @property
-    def renderers(self):
+    def build(self):
         glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color')
-        return GlyphRenderer(data_source=self.source, glyph=glyph)
+        self.renderers = [GlyphRenderer(data_source=self.source, glyph=glyph)]
 
 
 class BarBuilder(Builder):
@@ -248,7 +239,7 @@ class BarBuilder(Builder):
                                 values=group.data[self.values.selection].values,
                                 agg=self.agg,
                                 width=self.bar_width,
-                                color=group['color']).renderers
+                                color=group['color']).renderers[0]
 
             # a higher level function of bar chart is to keep track of max height of all bars
             self.max_height = max(max(renderer.data_source._data['height']), self.max_height)
