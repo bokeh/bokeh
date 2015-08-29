@@ -81,13 +81,15 @@ class Chart(Plot):
 
         # Initializes then gets default properties
         super(Chart, self).__init__(id=self._options.id or make_id())
+        default_props = ChartOptions().properties_with_values()
         option_props = ChartOptions.properties_with_values(defaults)
         option_props.pop('id')
 
         # sets overridden defaults
         # ToDo: allow Chart/Plot properties as well as ChartOptions
         for option, value in option_props.iteritems():
-            setattr(self._options, option, value)
+            if value != default_props[option]:
+                setattr(self._options, option, value)
 
         self.title = self._options.title
         self.plot_height = self._options.height

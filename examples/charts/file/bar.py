@@ -1,8 +1,8 @@
 from bokeh.charts import Bar, output_file, show, vplot, hplot, defaults
 from bokeh.sampledata.autompg import autompg as df
 
-defaults.width = 400
-defaults.height = 250
+defaults.width = 450
+defaults.height = 350
 
 bar_plot = Bar(df, label='cyl', title="label='cyl'")
 
@@ -15,10 +15,10 @@ bar_plot4 = Bar(df, label='cyl', title="label='cyl' color='DimGray", color='dimg
 
 # multiple columns
 bar_plot5 = Bar(df, label=['cyl', 'origin'], values='mpg', agg='mean',
-                title="label='cyl' values='mpg' agg='mean'")
+                title="label=['cyl', 'origin'] values='mpg' agg='mean'")
 
 bar_plot6 = Bar(df, label='origin', values='mpg', agg='mean', stack='cyl', color='cyl',
-                title="label='cyl' values='mpg' agg='mean'")
+                title="label='origin' values='mpg' agg='mean' stack='cyl'", legend='top_right')
 
 # np_negative_grouped = Bar(
 #     random * -1, cat=categories, title="All negative input | Grouped",

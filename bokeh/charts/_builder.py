@@ -18,8 +18,6 @@ types on top of it.
 
 from __future__ import absolute_import
 
-from copy import deepcopy
-
 from bokeh.charts import DEFAULT_PALETTE
 from ._chart import Chart
 from ._data_source import ChartDataSource
@@ -262,8 +260,8 @@ class XYBuilder(Builder):
                       ['y'],
                       ['x', 'y']]
 
-    attributes = {'color': ColorAttr(),
-                  'marker': MarkerAttr()}
+    default_attributes = {'color': ColorAttr(),
+                          'marker': MarkerAttr()}
 
     def _set_ranges(self):
         """Calculate and set the x and y ranges."""

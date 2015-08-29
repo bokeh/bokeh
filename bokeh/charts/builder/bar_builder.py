@@ -260,20 +260,27 @@ class BarBuilder(Builder):
         """
 
         stacker = Stack()
+        labels = []
         for group in self._data.groupby(**self.attributes):
 
-            stacker.add_renderer(BarGlyph(label=self._get_label(group['label']),
+            bg = BarGlyph(label=self._get_label(group['label']),
                                  values=group.data[self.values.selection].values,
                                  agg=self.agg,
                                  width=self.bar_width,
-                                 color=group['color']))
+                                 color=group['color'])
+
+            if self.attributes['stack'].columns is not None:
+                label = str(group['stack'])
+                if label not in labels:
+                    self._legends.append((str(self._get_label(group['stack'])), bg.renderers))
+                    labels.append(label)
+
+            stacker.add_renderer(bg)
 
         renderers = stacker.apply()
 
         # a higher level function of bar chart is to keep track of max height of all bars
         self.max_height = max([renderer.ymax for renderer in renderers])
-
-        #self._legends.append((str(group.label), [renderer]))
 
         for renderer in renderers:
             yield renderer.renderers[0]
