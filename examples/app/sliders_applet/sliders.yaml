@@ -24,8 +24,7 @@ ui:
         source: source
 
   title: !TextInput
-    title: title
-    name: title
+    title: Plot Title
     value: my sine wave
 
   offset: !Slider
@@ -34,28 +33,24 @@ ui:
     start: -5.0
     end: 5.0
     step: 0.1
-    name: offset
 
   amplitude: !Slider
     title: amplitude
     value: 1.0
     start: -5.0
     end: 5.0
-    name: amplitude
 
   phase: !Slider
     title: phase
     value: 0.0
     start: 0.0
-    end: 3.14159
-    name: phase
+    end: 3.14
 
   freq: !Slider
     title: freq
     value: 1.0
     start: 0.1
     end: 5.1
-    name: freq
 
 layout:
   inputs: !AppVBox

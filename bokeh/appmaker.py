@@ -1,6 +1,6 @@
 import importlib
 import yaml
-from yaml import SafeLoader, Loader, BaseLoader
+from yaml import SafeLoader, Loader, BaseLoader, ScalarNode
 import pandas as pd
 from six import string_types
 
@@ -119,17 +119,31 @@ class UILoader(SafeLoader):
         self._lazy_evals = {}
         super(UILoader, self).__init__(*args, **kws)
 
+    def construct_object(self, node, deep=False):
+        # TODO: Hack!
+        if isinstance(node, ScalarNode):
+            self._prev_obj = node
+        return super(UILoader, self).construct_object(node, deep=deep)
+
     @classmethod
     def add_widget_constructor(cls, widget_class):
         tag = "!%s" % widget_class.__name__
 
         def constructor(loader, node):
+            prev_obj = loader._prev_obj
             data = loader.construct_mapping(node, deep=True)
+
+            if 'name' in data:
+                name = data['name']
+            else:
+                name = data['name'] = prev_obj.value
+
             for k, v in data.items():
                 if isinstance(v, string_types) and \
                         (v.startswith('{{') and v.endswith('}}')):
                     stripped = v[2:-2].strip().split(" ")
                     if len(stripped) >= 2:
+                        import pdb; pdb.set_trace()
                         box, items = stripped[0], stripped[1:]
                         if box.lower() == 'hbox':
                             box = HBox
@@ -146,7 +160,7 @@ class UILoader(SafeLoader):
                     data[k] = clean
 
             widget = widget_class(**data)
-            loader._objects[data['name']] = widget
+            loader._objects[name] = widget
 
             return widget
 
@@ -248,7 +262,6 @@ def create_app(name, route, yaml_path, constructor=None):
 
 class YamlApp(object):
     def __init__(self, yaml_path, route=None, theme=None):
-
         self.yaml_path = yaml_path
         self.yapp = load_from_yaml(yaml_path)
 
@@ -288,17 +301,16 @@ class YamlApp(object):
         self.init_app()
         self.add_events()
 
-        self.apply_theme()
+        self.apply_theme(self.objects)
 
         # TODO: Hacks!
         SimpleApp.datasets = self.datasets
         SimpleApp.env = self.env
         SimpleApp._app = self
 
-    def apply_theme(self):
+    def apply_theme(self, objects):
         if self.theme:
-            for name, obj in self.objects.items():
-
+            for name, obj in objects.items():
                 if name in self.theme:
                     rules = self.theme[name]
                     for attr, value in rules.items():
@@ -310,7 +322,10 @@ class YamlApp(object):
                     for attr, value in rules.items():
                         setattr(obj, attr, value)
 
-
+    def add_objects(self, objects):
+        self.apply_theme(objects)
+        self.objects.update(objects)
+        return objects
 
     def init_app(self):
         """ Init hook that can be used to customize application initialization
@@ -337,6 +352,10 @@ class YamlApp(object):
 
     def init_objects(self):
         for k, obj in self.yapp['ui'].items():
+            if not hasattr(obj, 'name'):
+                # autocreate a name for the widget in case it wasn't specified
+                obj.name = k
+
             if hasattr(obj, '_glyphs'):
                 glyphs = obj._glyphs
 
@@ -400,6 +419,7 @@ class YamlApp(object):
             object_name = evt_handler[key]
 
             foo = load_foo(evt_handler['handler'])
+            foo = attach_lazy_eval(foo)
             fname = foo.__name__
             if fname not in self._event_handlers:
                 self._event_handlers[fname] = foo = self.app.update(
@@ -433,9 +453,14 @@ class YamlApp(object):
 
 def attach_lazy_eval(foo):
     def _(app, *args, **kws):
-        objs = app._app.lazy_eval(app.objects, app.objects)
+        app._app.objects = objs = app._app.lazy_eval(app.objects, app.objects)
         app._values = {k: obj.value for k, obj in objs.items() if hasattr(obj, 'value')}
-        return foo(app, *args, **kws)
+        objs = foo(app, *args, **kws)
+
+        if objs is not None:
+            app._app.apply_theme(objs)
+
+        return objs
     return _
 
 

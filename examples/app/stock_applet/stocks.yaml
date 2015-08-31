@@ -58,18 +58,18 @@ ui:
         source: main_source
 
   statstext: !PreText
-    name: statstext
+#    name: statstext
     width: 500
 
   ticker1: !Select
     value: AAPL
     options: ['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
-    name: ticker1
+#    name: ticker1
 
   ticker2: !Select
     value: GOOG
     options: ['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
-    name: ticker2
+#    name: ticker2
 
 #  hist1: !figure
 #    figure:
@@ -89,30 +89,30 @@ ui:
 
 
 layout:
-  widgets: !AppVBox
-    name: widgets
+    widgets: !AppVBox
+  #    name: widgets
     children: ['ticker1', 'ticker2']
 
   row1: !AppHBox
-    name: row1
+#    name: row1
     children: ['scatterplot', 'statstext']
 
   row2: !AppHBox
-    name: row2
+#    name: row2
     children: ['hist1', 'hist2']
 
   all_plots: !AppVBox
-    name: all_plots
+#    name: all_plots
     children: ['row1', 'row2', 'line1', 'line2']
 
   app: !AppHBox
-    name: app
+#    name: app
     children: ['widgets', 'all_plots']
 
 event_handlers:
   module: stocks_utils
 
-  s_update_selection: !Event
+  update_selection: !Event
     tags: main_source
     property: selected
     handler: update_selection

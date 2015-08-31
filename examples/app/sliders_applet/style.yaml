@@ -1,6 +1,6 @@
 Figure:
   title_text_font_size: 18pt
-  background_fill: beige
+  background_fill: yellow
 
 sliders_plot:
   border_fill: whitesmoke
