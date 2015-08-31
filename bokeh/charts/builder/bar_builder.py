@@ -236,15 +236,6 @@ class BarBuilder(Builder):
             else:
                 self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
 
-    def _process_data(self):
-        """Take the Bar data from the input **value.
-
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the calculated points to be used by
-        the rect glyph inside the ``_yield_renderers`` method.
-        """
-        pass
-
     def _set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
