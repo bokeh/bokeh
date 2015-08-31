@@ -18,19 +18,18 @@ types on top of it.
 
 from __future__ import absolute_import
 
-from itertools import chain
+from ..models.sources import ColumnDataSource
+from ..models.ranges import Range, Range1d, FactorRange
+from ..properties import (Color, HasProps, Instance, Seq, List, String, Property,
+                          Either, Dict)
 
 from bokeh.charts import DEFAULT_PALETTE
 from .utils import collect_attribute_columns
 from ._chart import Chart
 from ._data_source import ChartDataSource
-from ..models.sources import ColumnDataSource
-from ..models.ranges import Range, Range1d, FactorRange
-from ..properties import (Color, HasProps, Instance, Seq, List, String, Property,
-                          Either, Dict)
 from ._properties import Dimension, ColumnLabel
 from ._attributes import AttrSpec, ColorAttr, MarkerAttr
-
+from ._models import CompositeGlyph
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -117,6 +116,9 @@ class Builder(HasProps):
     attribute_columns = List(ColumnLabel)
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
+
+    renderers = List(Instance(CompositeGlyph))
+    labels = List(String, help="""Represents the unique labels to be used for legends.""")
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.

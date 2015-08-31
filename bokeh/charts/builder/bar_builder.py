@@ -134,7 +134,7 @@ class BarGlyph(CompositeGlyph):
 
     def __stack__(self, glyphs):
         if self.stack_label is not None:
-            bars = [glyph for glyph in glyphs if isinstance(glyph, BarGlyph)]
+            bars = [glyph for glyph in glyphs if isinstance(glyph, self.__class__)]
             groups = defaultdict(list)
             [groups[str(bar.source._data['x'])].append(bar) for bar in bars]
 
@@ -149,7 +149,7 @@ class BarGlyph(CompositeGlyph):
 
     def __dodge__(self, glyphs):
         if self.group_label is not None:
-            bars = [glyph for glyph in glyphs if isinstance(glyph, BarGlyph)]
+            bars = [glyph for glyph in glyphs if isinstance(glyph, self.__class__)]
             groups = defaultdict(list)
             [groups[bar.group_label].append(bar) for bar in bars]
 
@@ -219,14 +219,6 @@ class BarBuilder(Builder):
 
     def _setup(self):
 
-        stack = self.attributes['stack']
-        group = self.attributes['group']
-
-        # label is equivalent to group
-        # ToDo: is label and group needed?
-        # if stack.columns is None and group.columns is None:
-        #     self.attributes['group'].set_columns(self.attributes['label'].columns)
-
         # ToDo: perform aggregation validation
         # Not given values kw, so using only categorical data
         if self.values.computed:
@@ -269,7 +261,25 @@ class BarBuilder(Builder):
         self.x_range = FactorRange(factors=x_labels)
         self.y_range = Range1d(start=0, end=1.1 * self.max_height)
 
-    def _get_label(self, item):
+    def add_renderer(self, group, renderer):
+
+        self.renderers.append(renderer)
+
+        # ToDo: support grouping and stacking at the same time
+        if self.attributes['stack'].columns is not None:
+            label = self._get_label(group['stack'])
+        elif self.attributes['group'].columns is not None:
+            label = self._get_label(group['group'])
+        else:
+            label = None
+
+        # add to legend if new and unique label
+        if str(label) not in self.labels and label is not None:
+            self._legends.append((label, renderer.renderers))
+            self.labels.append(label)
+
+    @staticmethod
+    def _get_label(item):
         if item is None:
             return item
         elif len(item) == 1:
@@ -282,10 +292,6 @@ class BarBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
 
-        stacker, grouper = Stack(), Dodge()
-        labels = []
-        renderers = []
-
         for group in self._data.groupby(**self.attributes):
 
             bg = BarGlyph(label=self._get_label(group['label']),
@@ -296,25 +302,13 @@ class BarBuilder(Builder):
                           stack_label=self._get_label(group['stack']),
                           group_label=self._get_label(group['group']))
 
-            renderers.append(bg)
+            self.add_renderer(group, bg)
 
-            # ToDo: support grouping and stacking at the same time
-            if self.attributes['stack'].columns is not None:
-                label = str(self._get_label(group['stack']))
-            elif self.attributes['group'].columns is not None:
-                label = str(self._get_label(group['group']))
-            else:
-                label = None
-
-            if label not in labels and label is not None:
-                self._legends.append((label, bg.renderers))
-                labels.append(label)
-
-        stacker.apply(renderers)
-        grouper.apply(renderers)
+        Stack().apply(self.renderers)
+        Dodge().apply(self.renderers)
 
         # a higher level function of bar chart is to keep track of max height of all bars
-        self.max_height = max([renderer.ymax for renderer in renderers])
+        self.max_height = max([renderer.ymax for renderer in self.renderers])
 
-        for renderer in renderers:
+        for renderer in self.renderers:
             yield renderer.renderers[0]
