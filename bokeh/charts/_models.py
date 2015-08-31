@@ -100,4 +100,3 @@ class Operation(HasProps):
         else:
             raise AttributeError('%s must be applied to available renderers, none found.' %
                                  self.__class__.__name__)
-        return self.renderers

@@ -153,6 +153,14 @@ class NestedAttr(AttrSpec):
     def _setup_iterable(self):
         return iter(self.items)
 
+    def get_levels(self, columns):
+        """Provides a list of levels the attribute represents."""
+        if self.columns is not None:
+            levels = [columns.index(col) for col in self.columns]
+            return levels
+        else:
+            return []
+
 
 """ Attribute Spec Functions
 

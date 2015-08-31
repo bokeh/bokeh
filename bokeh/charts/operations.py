@@ -8,6 +8,11 @@ class Stack(Operation):
     method_name = '__stack__'
 
 
+class Dodge(Operation):
+    name = 'dodge'
+    method_name = '__dodge__'
+
+
 def stack(renderers=None, columns=None):
     if renderers is not None:
         stacker = Stack(renderers=renderers)

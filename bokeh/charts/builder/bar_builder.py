@@ -28,11 +28,11 @@ except ImportError:
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect
-from ...properties import Either, String, Float, HasProps, Instance, ColorSpec
-from .._properties import Dimension, Column
+from ...properties import String, Float, Int, List
+from .._properties import Dimension
 from .._attributes import ColorAttr, NestedAttr
 from .._models import CompositeGlyph
-from ..operations import Stack
+from ..operations import Stack, Dodge
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -109,6 +109,8 @@ class BarGlyph(CompositeGlyph):
     """Represents a single bar within a bar chart."""
 
     width = Float(default=0.8)
+    stack_levels = List(Int)
+    group_levels = List(Int)
 
     def __init__(self, label, values, agg='sum', **kwargs):
         if not isinstance(label, str):
@@ -141,6 +143,21 @@ class BarGlyph(CompositeGlyph):
                 shift.append(group[i].source._data['y'][0] * 2)
                 if i > 0:
                     bar.source._data['y'] = group[i].source._data['y'] + sum(shift[0:i])
+
+    def __dodge__(self, glyphs):
+        bars = [glyph for glyph in glyphs if isinstance(glyph, BarGlyph)]
+        groups = defaultdict(list)
+        [groups[str(bar.source._data['x'])].append(bar) for bar in bars]
+
+        for index, group in groups.iteritems():
+            group = sorted(group, key=lambda x: x.source._data['y'][0])
+            shift = []
+            for i, bar in enumerate(group):
+                # save off the top of each rect's height
+                shift.append(group[i].source._data['y'][0] * 2)
+                if i > 0:
+                    # bar.source._data['y'] = group[i].source._data['y'] + sum(shift[0:i])
+                    pass
 
     @property
     def xmax(self):
@@ -259,25 +276,34 @@ class BarBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
 
-        stacker = Stack()
+        stacker, grouper = Stack(), Dodge()
+        stack_levels = self.attributes['stack'].get_levels(self.attribute_columns)
+        group_levels = self.attributes['group'].get_levels(self.attribute_columns)
         labels = []
+        renderers = []
+
         for group in self._data.groupby(**self.attributes):
 
             bg = BarGlyph(label=self._get_label(group['label']),
-                                 values=group.data[self.values.selection].values,
-                                 agg=self.agg,
-                                 width=self.bar_width,
-                                 color=group['color'])
+                          values=group.data[self.values.selection].values,
+                          agg=self.agg,
+                          width=self.bar_width,
+                          color=group['color'],
+                          stack_levels=stack_levels,
+                          group_levels=group_levels)
 
-            if self.attributes['stack'].columns is not None:
-                label = str(group['stack'])
-                if label not in labels:
-                    self._legends.append((str(self._get_label(group['stack'])), bg.renderers))
-                    labels.append(label)
+            renderers.append(bg)
 
-            stacker.add_renderer(bg)
+            # if self.attributes['stack'].columns is not None:
+            #     label = str(group['stack'])
+            #     if label not in labels:
+            #         self._legends.append((str(self._get_label(group['stack'])), bg.renderers))
+            #         labels.append(label)
+            #
+            #     stacker.add_renderer(bg)
 
-        renderers = stacker.apply()
+        stacker.apply(renderers)
+        grouper.apply(renderers)
 
         # a higher level function of bar chart is to keep track of max height of all bars
         self.max_height = max([renderer.ymax for renderer in renderers])

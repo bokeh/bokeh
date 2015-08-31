@@ -16,7 +16,6 @@ methods.
 from __future__ import absolute_import
 
 from six.moves import zip
-from itertools import chain
 from operator import itemgetter
 from itertools import islice, product
 import numpy as np
@@ -24,6 +23,7 @@ import pandas as pd
 
 from ..properties import bokeh_integer_types, Datetime
 from ..models.sources import ColumnDataSource
+from .utils import collect_attribute_columns
 
 try:
     import blaze
@@ -56,20 +56,6 @@ def gen_column_names(n):
         return col_names
 
 
-def ordered_set(iterable):
-    """Creates an ordered list from strings, tuples or other hashable items."""
-
-    mmap = {}
-    ord_set = []
-
-    for item in iterable:
-        # Save unique items in input order
-        if item not in mmap:
-            mmap[item] = 1
-            ord_set.append(item)
-    return ord_set
-
-
 class DataGroup(object):
     """Contains subset of data and metadata about it."""
 
@@ -95,8 +81,7 @@ class DataGroup(object):
 def groupby(df, **specs):
     """Convenience iterator around pandas groupby and attribute specs."""
 
-    selected_specs = {spec_name: spec for spec_name, spec in specs.iteritems() if spec.columns}
-    spec_cols = ordered_set(list(chain.from_iterable([spec.columns for spec in selected_specs.values()])))
+    spec_cols = collect_attribute_columns(**specs)
 
     # if there was any input for chart attributes, which require grouping
     if spec_cols:

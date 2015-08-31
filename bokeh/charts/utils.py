@@ -224,3 +224,23 @@ def show(obj, title='test', filename=False, server=False, notebook=False, **kws)
         from bokeh.embed import notebook_div
         for plot in obj._plots:
             publish_display_data({'text/html': notebook_div(plot)})
+
+
+def ordered_set(iterable):
+    """Creates an ordered list from strings, tuples or other hashable items."""
+
+    mmap = {}
+    ord_set = []
+
+    for item in iterable:
+        # Save unique items in input order
+        if item not in mmap:
+            mmap[item] = 1
+            ord_set.append(item)
+    return ord_set
+
+
+def collect_attribute_columns(**specs):
+    """Collect list of unique and ordered columns across attribute specifications."""
+    selected_specs = {spec_name: spec for spec_name, spec in specs.iteritems() if spec.columns}
+    return ordered_set(list(itertools.chain.from_iterable([spec.columns for spec in selected_specs.values()])))

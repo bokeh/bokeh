@@ -18,14 +18,17 @@ types on top of it.
 
 from __future__ import absolute_import
 
+from itertools import chain
+
 from bokeh.charts import DEFAULT_PALETTE
+from .utils import collect_attribute_columns
 from ._chart import Chart
 from ._data_source import ChartDataSource
 from ..models.sources import ColumnDataSource
 from ..models.ranges import Range, Range1d, FactorRange
 from ..properties import (Color, HasProps, Instance, Seq, List, String, Property,
                           Either, Dict)
-from ._properties import Dimension
+from ._properties import Dimension, ColumnLabel
 from ._attributes import AttrSpec, ColorAttr, MarkerAttr
 
 
@@ -111,6 +114,8 @@ class Builder(HasProps):
     attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
     default_attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
 
+    attribute_columns = List(ColumnLabel)
+
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
     def __init__(self, *args, **kws):
@@ -164,6 +169,9 @@ class Builder(HasProps):
             self._setup_attrs(data, kws)
 
         super(Builder, self).__init__(**kws)
+
+        # collect unique columns used for attributes
+        self.attribute_columns = collect_attribute_columns(**self.attributes)
 
         self._data = data
         self._legends = []

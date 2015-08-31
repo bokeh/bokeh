@@ -85,6 +85,8 @@ class ChartOptions(HasProps):
     Whether to add default tools the the chart.
     """)
 
+    title_text_font_size = String('12pt')
+
 default_options = ChartOptions()
 
 
