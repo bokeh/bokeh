@@ -33,6 +33,7 @@ from .._properties import Dimension
 from .._attributes import ColorAttr, NestedAttr
 from .._models import CompositeGlyph
 from ..operations import Stack, Dodge
+from ..utils import ordered_set
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -109,8 +110,8 @@ class BarGlyph(CompositeGlyph):
     """Represents a single bar within a bar chart."""
 
     width = Float(default=0.8)
-    stack_levels = List(Int)
-    group_levels = List(Int)
+    stack_label = String()
+    group_label = String()
 
     def __init__(self, label, values, agg='sum', **kwargs):
         if not isinstance(label, str):
@@ -128,36 +129,38 @@ class BarGlyph(CompositeGlyph):
         x = [self.label]
         y = [height[0]/2]
         color = [self.color]
-        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color))
+        fill_alpha = [self.fill_alpha]
+        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color, fill_alpha=fill_alpha))
 
     def __stack__(self, glyphs):
-        bars = [glyph for glyph in glyphs if isinstance(glyph, BarGlyph)]
-        groups = defaultdict(list)
-        [groups[str(bar.source._data['x'])].append(bar) for bar in bars]
+        if self.stack_label is not None:
+            bars = [glyph for glyph in glyphs if isinstance(glyph, BarGlyph)]
+            groups = defaultdict(list)
+            [groups[str(bar.source._data['x'])].append(bar) for bar in bars]
 
-        for index, group in groups.iteritems():
-            group = sorted(group, key=lambda x: x.source._data['y'][0])
-            shift = []
-            for i, bar in enumerate(group):
-                # save off the top of each rect's height
-                shift.append(group[i].source._data['y'][0] * 2)
-                if i > 0:
-                    bar.source._data['y'] = group[i].source._data['y'] + sum(shift[0:i])
+            for index, group in groups.iteritems():
+                group = sorted(group, key=lambda x: x.stack_label)
+                shift = []
+                for i, bar in enumerate(group):
+                    # save off the top of each rect's height
+                    shift.append(group[i].source._data['y'][0] * 2)
+                    if i > 0:
+                        bar.source._data['y'] = group[i].source._data['y'] + sum(shift[0:i])
 
     def __dodge__(self, glyphs):
-        bars = [glyph for glyph in glyphs if isinstance(glyph, BarGlyph)]
-        groups = defaultdict(list)
-        [groups[str(bar.source._data['x'])].append(bar) for bar in bars]
+        if self.group_label is not None:
+            bars = [glyph for glyph in glyphs if isinstance(glyph, BarGlyph)]
+            groups = defaultdict(list)
+            [groups[bar.group_label].append(bar) for bar in bars]
 
-        for index, group in groups.iteritems():
-            group = sorted(group, key=lambda x: x.source._data['y'][0])
-            shift = []
-            for i, bar in enumerate(group):
-                # save off the top of each rect's height
-                shift.append(group[i].source._data['y'][0] * 2)
-                if i > 0:
-                    # bar.source._data['y'] = group[i].source._data['y'] + sum(shift[0:i])
-                    pass
+            step = np.linspace(0, 1.0, len(groups.keys()) + 1, endpoint=False)
+
+            width = min(0.2, (1. / len(groups.keys())) ** 1.1)
+
+            for i, (index, group) in enumerate(groups.iteritems()):
+                for bar in group:
+                    bar.source._data['x'][0] = bar.source._data['x'][0] + ':' + str(step[i + 1])
+                    bar.source._data['width'][0] = width
 
     @property
     def xmax(self):
@@ -172,7 +175,7 @@ class BarGlyph(CompositeGlyph):
         return self.source._data['height'][0]
 
     def build(self):
-        glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color')
+        glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color', fill_alpha='fill_alpha')
         self.renderers = [GlyphRenderer(data_source=self.source, glyph=glyph)]
 
 
@@ -220,8 +223,9 @@ class BarBuilder(Builder):
         group = self.attributes['group']
 
         # label is equivalent to group
-        if stack.columns is None and group.columns is None:
-            self.attributes['group'].set_columns(self.attributes['label'].columns)
+        # ToDo: is label and group needed?
+        # if stack.columns is None and group.columns is None:
+        #     self.attributes['group'].set_columns(self.attributes['label'].columns)
 
         # ToDo: perform aggregation validation
         # Not given values kw, so using only categorical data
@@ -266,9 +270,11 @@ class BarBuilder(Builder):
         self.y_range = Range1d(start=0, end=1.1 * self.max_height)
 
     def _get_label(self, item):
-        if len(item) == 1:
+        if item is None:
+            return item
+        elif len(item) == 1:
             item = item[0]
-        return item
+        return str(item)
 
     def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
@@ -277,8 +283,6 @@ class BarBuilder(Builder):
         """
 
         stacker, grouper = Stack(), Dodge()
-        stack_levels = self.attributes['stack'].get_levels(self.attribute_columns)
-        group_levels = self.attributes['group'].get_levels(self.attribute_columns)
         labels = []
         renderers = []
 
@@ -289,18 +293,22 @@ class BarBuilder(Builder):
                           agg=self.agg,
                           width=self.bar_width,
                           color=group['color'],
-                          stack_levels=stack_levels,
-                          group_levels=group_levels)
+                          stack_label=self._get_label(group['stack']),
+                          group_label=self._get_label(group['group']))
 
             renderers.append(bg)
 
-            # if self.attributes['stack'].columns is not None:
-            #     label = str(group['stack'])
-            #     if label not in labels:
-            #         self._legends.append((str(self._get_label(group['stack'])), bg.renderers))
-            #         labels.append(label)
-            #
-            #     stacker.add_renderer(bg)
+            # ToDo: support grouping and stacking at the same time
+            if self.attributes['stack'].columns is not None:
+                label = str(self._get_label(group['stack']))
+            elif self.attributes['group'].columns is not None:
+                label = str(self._get_label(group['group']))
+            else:
+                label = None
+
+            if label not in labels and label is not None:
+                self._legends.append((label, bg.renderers))
+                labels.append(label)
 
         stacker.apply(renderers)
         grouper.apply(renderers)

@@ -20,8 +20,8 @@ bar_plot5 = Bar(df, label=['cyl', 'origin'], values='mpg', agg='mean',
 bar_plot6 = Bar(df, label='origin', values='mpg', agg='mean', stack='cyl', color='cyl',
                 title="label='origin' values='mpg' agg='mean' stack='cyl'", legend='top_right')
 
-bar_plot7 = Bar(df, label='origin', values='displ', agg='mean', group='cyl', color='cyl',
-                title="label='origin' values='mpg' agg='mean' stack='cyl'", legend='top_right')
+bar_plot7 = Bar(df, label='cyl', values='displ', agg='mean', group='origin', color='origin',
+                title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
 
 # np_negative_grouped = Bar(
 #     random * -1, cat=categories, title="All negative input | Grouped",

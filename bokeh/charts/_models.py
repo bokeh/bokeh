@@ -39,6 +39,7 @@ class CompositeGlyph(HasProps):
     label = String('All', help='Identifies the subset of data.')
     values = Either(Column(Float), Column(String), help='Array-like values.')
     color = Color(default='gray')
+    fill_alpha = Float(default=0.8)
     agg = Enum(Aggregation, default=None)
 
     source = Instance(ColumnDataSource)
