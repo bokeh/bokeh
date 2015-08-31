@@ -1,6 +1,8 @@
 from bokeh.charts import Bar, output_file, show, vplot, hplot, defaults
 from bokeh.sampledata.autompg import autompg as df
 
+df['neg_displ'] = 0 - df['displ']
+
 defaults.width = 450
 defaults.height = 350
 
@@ -17,11 +19,15 @@ bar_plot4 = Bar(df, label='cyl', title="label='cyl' color='DimGray'", color='dim
 bar_plot5 = Bar(df, label=['cyl', 'origin'], values='mpg', agg='mean',
                 title="label=['cyl', 'origin'] values='mpg' agg='mean'")
 
-bar_plot6 = Bar(df, label='origin', values='mpg', agg='mean', stack='cyl', color='cyl',
+bar_plot6 = Bar(df, label='origin', values='mpg', agg='mean', stack='cyl',
                 title="label='origin' values='mpg' agg='mean' stack='cyl'", legend='top_right')
 
-bar_plot7 = Bar(df, label='cyl', values='displ', agg='mean', group='origin', color='origin',
+bar_plot7 = Bar(df, label='cyl', values='displ', agg='mean', group='origin',
                 title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
+
+# ToDo: negative values
+# bar_plot8 = Bar(df, label='cyl', values='neg_displ', agg='mean', group='origin', color='origin',
+#                 title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
 
 
 # collect and display
