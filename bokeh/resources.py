@@ -142,7 +142,7 @@ class Resources(object):
     _default_root_dir = "."
     _default_root_url = "http://127.0.0.1:5006/"
 
-    logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
+    logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None):
@@ -223,6 +223,7 @@ class Resources(object):
         if six.callable(self._js_raw):
             self._js_raw = self._js_raw()
         return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
+
 
     @property
     def css_raw(self):

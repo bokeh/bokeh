@@ -6,8 +6,10 @@ from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, E
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
-from .actions import Callback
+
+from .actions import Action, Callback
 from bokeh.deprecate import deprecated
+
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -43,7 +45,7 @@ class DataSource(PlotObject):
                 hit/selected
     """)
 
-    callback = Instance(Callback, help="""
+    callback = Instance(Action, help="""
     A callback to run in the browser whenever the selection is changed.
     """)
 

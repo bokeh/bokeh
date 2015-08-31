@@ -1,23 +1,31 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
 log = logging.getLogger(__name__)
 
+from bokeh import protocol
+from bokeh.models import ServerCallback
 from flask import request, jsonify
 
-from bokeh import protocol
-
-from .bbauth import (
-    handle_auth_error
-)
+from .bbauth import handle_auth_error
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
+from ..models import docs
 from ..serverbb import get_temporary_docid, BokehServerTransaction
 from ..views import make_json
-from ..models import docs
 
 def init_bokeh(clientdoc):
-    request.bokeh_server_document = clientdoc
+    # there's no request if we're pushing a new doc from
+    # inside the server itself
+    if request:
+        request.bokeh_server_document = clientdoc
     clientdoc.autostore = False
     clientdoc.autoadd = False
 
@@ -35,6 +43,46 @@ def gc(docid):
     t.save()
     return jsonify(status='success')
 
+def push_data(client, docid, temporary_docid, data):
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    t = BokehServerTransaction(
+        bokehuser, doc, 'rw', temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
+    if client == 'python':
+        clientdoc.load(*data, events='none', dirty=True)
+    else:
+        clientdoc.load(*data, events='existing', dirty=True)
+    t.save()
+    msg = ws_update(clientdoc, t.write_docid, t.changed)
+    return msg
+
+def push_clientdoc(docid, doc, dirty_only=True):
+    """Push changes to the document to the client"""
+
+    doc._add_all()
+    models = doc._models.values()
+
+    if dirty_only:
+        models = [x for x in models if getattr(x, '_dirty', False)]
+
+    if len(models) < 1:
+        return
+
+    # TODO clearly serializing to json here is absurd
+    # but it's difficult to eliminate because we rely
+    # on the JSONEncoder to convert data types, but it
+    # goes straight to a string, so hard to avoid the string
+    json = protocol.serialize_json(doc.dump(*models))
+    data = protocol.deserialize_json(json.decode('utf-8'))
+
+    for model in models:
+        model._dirty = False
+
+    push_data(client='python', docid=docid, temporary_docid=None, data=data)
+
 # bulk upsert
 @bokeh_app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 @handle_auth_error
@@ -48,24 +96,10 @@ def bulk_upsert(docid):
     :status 401: when user is not authorized
 
     '''
-    # endpoint is only used by python, therefore we don't process
-    # callbacks here
     client = request.headers.get('client', 'python')
-    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)
-    t = BokehServerTransaction(
-        bokehuser, doc, 'rw', temporary_docid=temporary_docid
-    )
-    t.load()
-    clientdoc = t.clientdoc
     data = protocol.deserialize_json(request.data.decode('utf-8'))
-    if client == 'python':
-        clientdoc.load(*data, events='none', dirty=True)
-    else:
-        clientdoc.load(*data, events='existing', dirty=True)
-    t.save()
-    msg = ws_update(clientdoc, t.write_docid, t.changed)
+    msg = push_data(client, docid, temporary_docid, data)
     return make_json(msg)
 
 def ws_update(clientdoc, docid, models):
@@ -300,3 +334,20 @@ def delete(docid, typename, id):
     t.save()
     ws_delete(clientdoc, t.write_docid, [model])
     return make_json(protocol.serialize_json(clientdoc.dump(model)[0]['attributes']))
+
+@bokeh_app.route("/bokeh/bb/execute/<docid>/<typename>/<id>", methods=['POST'])
+def execute_model(docid, typename, id):
+    ''' Execute a model (presumably a callback)
+    '''
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'r', temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
+    m = clientdoc._models[id]
+    m.execute_with(clientdoc)
+    push_clientdoc(docid, clientdoc)
+    return make_json("{}")

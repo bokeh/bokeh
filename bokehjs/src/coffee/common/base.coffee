@@ -29,6 +29,7 @@ locations =
 
   Callback:                 require '../action/callback'
   OpenURL:                  require '../action/open_url'
+  ServerCallback:           require '../action/servercallback'
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
@@ -169,6 +170,10 @@ locations =
   AppHBox:                  require '../widget/layouts/apphbox'
   AppVBox:                  require '../widget/layouts/appvbox'
   AppVBoxForm:              require '../widget/layouts/appvboxform'
+
+  Reloading:                require '../develop/reloading'
+  ErrorPanel:               require '../develop/errorpanel'
+  DevelopShell:             require '../develop/developshell'
 
   ar_transforms:            [require '../ar/transforms']
 

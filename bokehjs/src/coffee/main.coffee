@@ -129,6 +129,10 @@ Bokeh.VBox           = require("./widget/vbox")
 Bokeh.TextInput      = require("./widget/text_input")
 #Bokeh.CrossFilter    = require("./widget/crossfilter")
 
+# develop mode
+Bokeh.Reloading       = require("./develop/reloading")
+Bokeh.ErrorPanel      = require("./develop/errorpanel")
+
 # Add the jquery plugin
 require("./api/plugin")
 

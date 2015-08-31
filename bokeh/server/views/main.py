@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 import logging
@@ -6,16 +13,15 @@ log = logging.getLogger(__name__)
 import os
 import uuid
 
+from bokeh import protocol
+from bokeh.exceptions import DataIntegrityException
+from bokeh.resources import Resources
+from bokeh.templates import AUTOLOAD
 from flask import (
     render_template, request, send_from_directory,
     abort, jsonify, Response, redirect, url_for
 )
 from six import string_types
-
-from bokeh import protocol
-from bokeh.exceptions import DataIntegrityException
-from bokeh.resources import Resources
-from bokeh.templates import AUTOLOAD
 
 from .bbauth import handle_auth_error
 from ..app import bokeh_app
@@ -68,7 +74,6 @@ def index(*unused_all, **kwargs):
     if not bokehuser:
         return redirect(url_for('.login_get'))
     return render('bokeh.html',
-                  splitjs=server_settings.splitjs,
                   username=bokehuser.username,
                   title="Bokeh Documents for %s" % bokehuser.username
     )
@@ -189,16 +194,9 @@ def show_doc_by_title(title):
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
-    return render('show.html', title=title, docid=docid, splitjs=server_settings.splitjs)
+    return render('show.html', title=title, docid=docid)
 
-@bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
-@crossdomain(origin="*", headers=None)
-@login_required
-def doc_by_title():
-    if request.json:
-        title = request.json['title']
-    else:
-        title = request.values['title']
+def find_or_create_docid_by_title(title):
     bokehuser = bokeh_app.current_user()
     docs = [doc for doc in bokehuser.docs if doc['title'] == title]
     if len(docs) == 0:
@@ -212,8 +210,22 @@ def doc_by_title():
     else:
         doc = docs[0]
         docid = doc['docid']
-    return get_bokeh_info(docid)
+    return docid
 
+@bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=None)
+@login_required
+def doc_by_title():
+    if request.json:
+        title = request.json['title']
+    else:
+        title = request.values['title']
+
+    try:
+        docid = find_or_create_docid_by_title(title)
+        return get_bokeh_info(docid)
+    except DataIntegrityException as e:
+        return abort(409, e.message)
 
 @bokeh_app.route('/bokeh/sampleerror')
 def sampleerror():
@@ -282,7 +294,6 @@ def show_obj(docid, objid):
                   objid=objid,
                   public=public,
                   hide_navbar=True,
-                  splitjs=server_settings.splitjs,
                   loglevel=resources.log_level)
 
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET', 'OPTIONS'])

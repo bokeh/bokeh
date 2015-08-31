@@ -21,6 +21,18 @@ plot_template = require "./plot_template"
 properties = require "./properties"
 
 
+# Notes on WebGL support:
+# Glyps can be rendered into the original 2D canvas, or in a (hidden)
+# webgl canvas that we create below. In this way, the rest of bokehjs
+# can keep working as it is, and we can incrementally update glyphs to
+# make them use GL.
+#
+# When the author or user wants to, we try to create a webgl canvas,
+# which is saved on the ctx object that gets passed around during drawing.
+# The presence (and not-being-false) of the ctx.glcanvas attribute is the
+# marker that we use throughout that determines whether we have gl support. 
+
+
 class PlotView extends ContinuumView
   className: "bk-plot"
   template: plot_template
@@ -68,6 +80,11 @@ class PlotView extends ContinuumView
 
     @canvas_view.render()
 
+    # If requested, try enabling webgl
+    if @mget('webgl') or window.location.search.indexOf('webgl=1') > 0
+      if window.location.search.indexOf('webgl=0') == -1
+        @init_webgl()
+
     @throttled_render = plot_utils.throttle_animation(@render, 15)
 
     @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
@@ -108,6 +125,23 @@ class PlotView extends ContinuumView
     logger.debug("PlotView initialized")
 
     return this
+  
+  init_webgl: () ->
+
+    # Get visible and invisible canvas 
+    # (doing it like this makes it easy to swap them during debugging)    
+    glcanvas = document.createElement('canvas')
+    
+    # Create GL context to draw to
+    # If WebGL is available, we store a reference to the gl canvas on
+    # the ctx object, because that's what gets passed everywhere.
+    opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
+    gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
+    if gl?
+      glcanvas.gl = gl
+      @canvas_view.ctx.glcanvas = glcanvas
+    else
+      @canvas_view.ctx.glcanvas = false  # disable webgl
 
   update_dataranges: () ->
     # Update any DataRange1ds here
@@ -265,6 +299,24 @@ class PlotView extends ContinuumView
 
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
+
+    if ctx.glcanvas
+      # Sync canvas size
+      ctx.glcanvas.width = @canvas_view.canvas[0].width
+      ctx.glcanvas.height = @canvas_view.canvas[0].height
+      # Prepare GL for drawing
+      gl = ctx.glcanvas.gl
+      gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
+      # Clipping
+      gl.enable(gl.SCISSOR_TEST)
+      flipped_top = ctx.glcanvas.height - (frame_box[1] + frame_box[3])
+      gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
+      # Setup blending
+      gl.enable(gl.BLEND)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
+      #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
 
     if @outline_props.do_stroke
       @outline_props.set_value(ctx)
@@ -459,6 +511,7 @@ class Plot extends HasParent
       lod_interval: 300
       lod_threshold: 2000
       lod_timeout: 500
+      webgl: false
     }
 
   display_defaults: ->

@@ -33,8 +33,10 @@
     "gulp-less": "^3.0.2",
     "gulp-mocha": "^2.0.0",
     "gulp-rename": "^1.2.0",
+    "gulp-savefile": "^0.1.1",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-task-listing": "^1.0.0",
+    "gulp-through": "0.3.0",
     "gulp-uglify": "^1.2.0",
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
@@ -43,6 +45,7 @@
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
     "through": "^2.3.6",
+    "typescript": "1.5.3",
     "underscore": "^1.5.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
@@ -69,7 +72,9 @@
     "jquery_event_drag": "./src/vendor/jquery-event-2.2/jquery.event.drag.js",
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
-    "kiwi": "./src/vendor/kiwi/kiwi.js"
+    "kiwi": "./src/vendor/kiwi/kiwi.js",
+    "gloo2": "./src/vendor/gloo/gloo2.js",
+    "phosphor": "./src/vendor/phosphor-0.4.0/phosphor.js"
   },
   "browserify-shim": {},
   "dependencies": {

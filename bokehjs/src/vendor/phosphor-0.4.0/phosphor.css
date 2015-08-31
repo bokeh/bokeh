@@ -1,0 +1,361 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2014-2015, S. Chris Colbert
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+body.p-mod-cursor-override * {
+  cursor: inherit !important;
+}
+.p-Widget {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  overflow: hidden;
+  cursor: default;
+  top: 0px;
+  left: 0px;
+  width: 0px;
+  height: 0px;
+}
+.p-Widget.p-mod-hidden {
+  display: none;
+}
+.p-DockPanel-overlay {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  -webkit-transition: all 150ms ease;
+  -moz-transition: all 150ms ease;
+  -o-transition: all 150ms ease;
+  -ms-transition: all 150ms ease;
+  transition: all 150ms ease;
+}
+.p-Tab.p-mod-floating {
+  position: absolute;
+}
+.p-Menu {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 3px 0px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  z-index: 100000;
+  cursor: default;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.p-Menu-content {
+  margin: 0;
+  padding: 0;
+  display: table;
+  list-style: none;
+  border-spacing: 0;
+}
+.p-Menu-item {
+  display: table-row;
+}
+.p-Menu-item.p-mod-hidden,
+.p-Menu-item.p-mod-force-hidden {
+  display: none;
+}
+.p-Menu-item > span {
+  display: table-cell;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.p-Menu-item-icon {
+  width: 21px;
+  padding-left: 2px;
+  padding-right: 2px;
+  text-align: center;
+}
+.p-Menu-item-text {
+  padding-left: 2px;
+  padding-right: 35px;
+}
+.p-Menu-item-shortcut {
+  text-align: right;
+}
+.p-Menu-item-submenu-icon {
+  width: 16px;
+  text-align: center;
+}
+.p-Menu-item.p-mod-separator-type > span {
+  padding: 0;
+  height: 9px;
+  line-height: 0;
+  text-indent: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.p-Menu-item.p-mod-separator-type > span::after {
+  content: '';
+  display: block;
+  position: relative;
+  top: 4px;
+}
+.p-MenuBar-content {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: box;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -o-box-orient: horizontal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.p-MenuBar-item {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.p-MenuBar-item.p-mod-hidden,
+.p-MenuBar-item.p-mod-force-hidden {
+  display: none;
+}
+.p-MenuBar-item.p-mod-separator-type {
+  margin: 2px;
+  padding: 0;
+  border: none;
+}
+.p-ScrollBar-slider {
+  position: absolute;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.p-SplitPanel > .p-Widget {
+  z-index: 0;
+}
+.p-SplitHandle {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  z-index: 1;
+}
+.p-SplitHandle.p-mod-hidden {
+  display: none;
+}
+.p-SplitHandle.p-mod-horizontal {
+  cursor: ew-resize;
+}
+.p-SplitHandle.p-mod-horizontal > .p-SplitHandle-overlay {
+  min-width: 7px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -moz-transform: translateX(-50%);
+  -o-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+.p-SplitHandle.p-mod-vertical {
+  cursor: ns-resize;
+}
+.p-SplitHandle.p-mod-vertical > .p-SplitHandle-overlay {
+  min-height: 7px;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+.p-SplitHandle-overlay {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.p-TabBar-header {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}
+.p-TabBar-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+}
+.p-TabBar-content > .p-Tab {
+  position: absolute;
+  bottom: 0px;
+}
+.p-TabBar-content > .p-Tab.p-mod-inserting {
+  -webkit-animation: p-kf-insert-tab 150ms ease;
+  -moz-animation: p-kf-insert-tab 150ms ease;
+  -o-animation: p-kf-insert-tab 150ms ease;
+  -ms-animation: p-kf-insert-tab 150ms ease;
+  animation: p-kf-insert-tab 150ms ease;
+}
+.p-TabBar-content > .p-Tab.p-mod-removing {
+  -webkit-animation: p-kf-remove-tab 150ms ease;
+  -moz-animation: p-kf-remove-tab 150ms ease;
+  -o-animation: p-kf-remove-tab 150ms ease;
+  -ms-animation: p-kf-remove-tab 150ms ease;
+  animation: p-kf-remove-tab 150ms ease;
+}
+.p-TabBar-content.p-mod-transition > .p-Tab {
+  -webkit-transition-property: left, width;
+  -moz-transition-property: left, width;
+  -o-transition-property: left, width;
+  -ms-transition-property: left, width;
+  transition-property: left, width;
+  -webkit-transition-duration: 150ms;
+  -moz-transition-duration: 150ms;
+  -o-transition-duration: 150ms;
+  -ms-transition-duration: 150ms;
+  transition-duration: 150ms;
+}
+.p-TabBar-footer {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+.p-Tab {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: box;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -o-box-orient: horizontal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  overflow: hidden;
+  list-style-type: none;
+}
+.p-Tab-icon,
+.p-Tab-close-icon {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -o-box-flex: 1;
+  box-flex: 1;
+  -webkit-flex: 0 0 auto;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+.p-Tab-text {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -o-box-flex: 1;
+  box-flex: 1;
+  -webkit-flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+}
+@-moz-keyframes p-kf-insert-tab {
+  from {
+    bottom: -100%;
+  }
+  to {
+    bottom: 0;
+  }
+}
+@-webkit-keyframes p-kf-insert-tab {
+  from {
+    bottom: -100%;
+  }
+  to {
+    bottom: 0;
+  }
+}
+@-o-keyframes p-kf-insert-tab {
+  from {
+    bottom: -100%;
+  }
+  to {
+    bottom: 0;
+  }
+}
+@keyframes p-kf-insert-tab {
+  from {
+    bottom: -100%;
+  }
+  to {
+    bottom: 0;
+  }
+}
+@-moz-keyframes p-kf-remove-tab {
+  from {
+    bottom: 0;
+  }
+  to {
+    bottom: -100%;
+  }
+}
+@-webkit-keyframes p-kf-remove-tab {
+  from {
+    bottom: 0;
+  }
+  to {
+    bottom: -100%;
+  }
+}
+@-o-keyframes p-kf-remove-tab {
+  from {
+    bottom: 0;
+  }
+  to {
+    bottom: -100%;
+  }
+}
+@keyframes p-kf-remove-tab {
+  from {
+    bottom: 0;
+  }
+  to {
+    bottom: -100%;
+  }
+}

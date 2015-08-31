@@ -21,6 +21,7 @@ from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .widget import Widget
+from .develop import DevelopShell
 
 def _select_helper(args, kwargs):
     """
@@ -67,6 +68,15 @@ class PlotContext(PlotObject):
     children = List(Instance(PlotObject), help="""
     A list of top level objects in this ``PlotContext`` container.
     """)
+
+    develop_shell = Instance(DevelopShell, help="""
+    The UI for develop mode (may be null).
+    """)
+
+    def __init__(self, **kwargs):
+        if "develop_shell" not in kwargs:
+            kwargs["develop_shell"] = DevelopShell()
+        super(PlotContext, self).__init__(**kwargs)
 
 # TODO (bev) : is this used anywhere?
 class PlotList(PlotContext):
@@ -460,6 +470,12 @@ class Plot(Widget):
     ``lod_timeout`` ms. If no interactive tool events have happened,
     level-of-detail mode is disabled.
     """)
+    
+    webgl = Bool(False, help="""
+    Whether WebGL is enabled for this plot. If True, the glyphs that
+    support this will render via WebGL instead of the 2D canvas.
+    """)
+
 
 class GridPlot(Plot):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.
