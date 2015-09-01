@@ -210,6 +210,19 @@ class TestColorSpec(unittest.TestCase):
         self.assertEqual(f.col, "forestgreen")
         self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
 
+    def test_case_insensitive_named_value(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+
+        f.col = "RED"
+        self.assertEqual(f.col, "RED")
+        self.assertDictEqual(desc.to_dict(f), {"value": "RED"})
+        f.col = "ForestGreen"
+        self.assertEqual(f.col, "ForestGreen")
+        self.assertDictEqual(desc.to_dict(f), {"value": "ForestGreen"})
+
     def test_named_value_set_none(self):
         class Foo(HasProps):
             col = ColorSpec("colorfield")
@@ -710,6 +723,13 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(" round"))
         self.assertFalse(prop.is_valid(" bevel"))
 
+        from bokeh.enums import NamedColor
+        prop = Enum(NamedColor)
+
+        self.assertTrue(prop.is_valid("red"))
+        self.assertTrue(prop.is_valid("Red"))
+        self.assertTrue(prop.is_valid("RED"))
+
     def test_Color(self):
         prop = Color()
 
@@ -744,7 +764,7 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid("#00AaFff"))
 
         self.assertTrue(prop.is_valid("blue"))
-        self.assertFalse(prop.is_valid("BLUE"))
+        self.assertTrue(prop.is_valid("BLUE"))
         self.assertFalse(prop.is_valid("foobar"))
 
     def test_Align(self):

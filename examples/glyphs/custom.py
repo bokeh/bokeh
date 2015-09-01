@@ -4,12 +4,12 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.properties import String
-from bokeh.models.actions import Action
+from bokeh.models.callbacks import Callback
 from bokeh.models.glyphs import Circle
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
 from bokeh.resources import INLINE
 
-class Popup(Action):
+class Popup(Callback):
 
     __implementation__ = """
 _ = require "underscore/underscore"
@@ -58,7 +58,7 @@ circle_renderer = plot.add_glyph(source, circle)
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
-tap = TapTool(renderers=[circle_renderer], action=Popup(message="Selected color: @color"))
+tap = TapTool(renderers=[circle_renderer], callback=Popup(message="Selected color: @color"))
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
 
 doc = Document()

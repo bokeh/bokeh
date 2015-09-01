@@ -53,17 +53,34 @@ if __name__ == '__main__':
     npm_check()
 
     #Dictionary maps module names to package names
-    pkg_info_dict =  {'bs4'           : 'beautiful-soup',
-                      'websocket'         : 'websocket-client',
-                      'sphinx_bootstrap_theme'   : 'sphinx-bootstrap-theme',
-                      'sphinxcontrib.httpdomain' : 'sphinxcontrib-httpdomain',
-                      'pdiffer'                    : 'pdiff'
-                     }
+    pkg_info_dict =  {
+        'bs4': 'beautiful-soup',
+        'websocket': 'websocket-client',
+        'sphinx_bootstrap_theme': 'sphinx-bootstrap-theme',
+        'sphinxcontrib.httpdomain': 'sphinxcontrib-httpdomain',
+        'pdiffer': 'pdiff',
+        'pytest_selenium': 'pytest-selenium',
+        'pytest_cov': 'pytest-cov',
+    }
 
-    dev_deps = ['bs4', 'colorama', 'pdiffer', 'boto', 'pytest', 'mock', 'coverage',
-                'websocket']
+    dev_deps = [
+        'bs4',
+        'colorama',
+        'pdiffer',
+        'boto',
+        'pytest',
+        'pytest_cov',
+        'pytest_selenium',
+        'mock',
+        'websocket'
+    ]
     depend_check('Dev', *dev_deps)
 
-    docs_deps = ['graphviz', 'sphinx', 'pygments', 'sphinx_bootstrap_theme',
-                 'sphinxcontrib.httpdomain']
+    docs_deps = [
+        'graphviz',
+        'sphinx',
+        'pygments',
+        'sphinx_bootstrap_theme',
+        'sphinxcontrib.httpdomain'
+    ]
     depend_check('Docs', *docs_deps)

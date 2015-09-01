@@ -141,7 +141,7 @@ token=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 # get unique url id
 id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 -d'{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'$username'","apiKey":"'$key'"}}}' \
--H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["serviceCatalog"][-1]["endpoints"][0]["tenantId"])'`
+-H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["serviceCatalog"][0]["endpoints"][0]["tenantId"])'`
 
 # push the js and css files
 curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \

@@ -11,12 +11,13 @@ from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..query import find
 from ..util.string import nice_join
-from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS, EMPTY_LAYOUT
+from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+    EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..validation.errors import REQUIRED_RANGE
 from .. import validation
 
 from .glyphs import Glyph
-from .ranges import Range, Range1d
+from .ranges import Range, Range1d, FactorRange
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
@@ -261,6 +262,28 @@ class Plot(Widget):
     def _check_no_glyph_renderers(self):
         if len(self.select(GlyphRenderer)) == 0:
             return str(self)
+
+    @validation.warning(MALFORMED_CATEGORY_LABEL)
+    def _check_colon_in_category_label(self):
+        if not self.x_range: return
+        if not self.y_range: return
+
+        broken = []
+
+        for range_name in ['x_range', 'y_range']:
+            category_range = getattr(self, range_name)
+            if not isinstance(category_range, FactorRange): continue
+
+            for value in category_range.factors:
+                if not isinstance(value, string_types): break
+                if ':' in value:
+                    broken.append((range_name, value))
+                    break
+
+        if broken:
+            field_msg = ' '.join('[range:%s] [first_value: %s]' % (field, value)
+                                 for field, value in broken)
+            return '%s [renderer: %s]' % (field_msg, self)
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.

@@ -7,6 +7,9 @@ LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 Solver = require "./solver"
 
+# TODO - This should only be on in testing
+#require 'Canteen'
+
 class CanvasView extends ContinuumView
   className: "bk-canvas-wrapper"
   template: canvas_template

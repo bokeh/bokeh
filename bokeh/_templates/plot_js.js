@@ -15,7 +15,7 @@ for (idx in plots) {
 	Bokeh.logger.info(' - elementid: ' + plot.elementid);
 	var view = new model.default_view({
 		model: model,
-		el: plot.elementid
+		el: '#' + plot.elementid
 	});
 	Bokeh.index[plot.modelid] = view;
 }
