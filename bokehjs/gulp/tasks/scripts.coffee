@@ -11,6 +11,42 @@ source = require 'vinyl-source-stream'
 buffer = require 'vinyl-buffer'
 paths = require "../paths"
 change = require "gulp-change"
+through = require "through2"
+fs = require "fs"
+path = require "path"
+shasum = require "shasum"
+
+customLabeler = (b, fn) ->
+  labels = {}
+
+  namer = through.obj (row, enc, next) ->
+    labels[row.id] = fn(row)
+    @push(row)
+    next()
+
+  labeler = through.obj (row, enc, next) ->
+    row.id = labels[row.id]
+
+    for own key, dep of row.deps
+      row.deps[key] = labels[dep]
+
+    @push(row)
+    next()
+
+  b.pipeline.get('deps').push(namer)
+  b.pipeline.get('label').splice(0, 1, labeler)
+
+  labels
+
+hashedLabeler = (b) -> customLabeler b, (row) ->
+  shasum(row.source)
+
+namedLabeler = (b) -> customLabeler b, (row) ->
+  cwd = process.cwd()
+  name = path.relative(cwd, row.id)
+      .replace(/\.(coffee|js|eco)$/, "")
+      .split(path.sep).join("/")
+      .replace(/^(src\/(coffee|vendor)|node_modules)\//, "")
 
 gulp.task "scripts:build", ->
   preludePath = path.resolve(process.cwd(), "./src/js/prelude.js")
@@ -23,15 +59,16 @@ gulp.task "scripts:build", ->
     preludePath: preludePath
     prelude: preludeText
 
-  browserify opts
-    .transform "browserify-eco"
+  b = browserify opts
+  namedLabeler(b)
+
+  b .transform "browserify-eco"
     .transform "coffeeify"
     .bundle()
     .pipe source paths.coffee.destination.full
     .pipe buffer()
     .pipe sourcemaps.init
       loadMaps: true
-
     # This solves a conflict when requirejs is loaded on the page. Backbone
     # looks for `define` before looking for `module.exports`, which eats up
     # our backbone.
