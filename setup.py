@@ -437,10 +437,7 @@ package_path(join(SERVER, 'static'))
 package_path(join(SERVER, 'templates'))
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
-package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
-package_path(join(SERVER, 'tests', 'config'))
-package_path(join(SERVER, 'tests', 'data'))
-scripts = ['bokeh-server', 'websocket_worker.py']
+#scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
     site_packages = site.USER_SITE
@@ -549,10 +546,13 @@ setup(
         'bokeh.crossfilter',
         'bokeh.sampledata',
         'bokeh.server',
-        'bokeh.server.models',
-        'bokeh.server.views',
-        'bokeh.server.blaze',
-        'bokeh.server.utils',
+        'bokeh.server.core',
+        'bokeh.server.core.tests',
+        'bokeh.server.protocol',
+        'bokeh.server.protocol.messages',
+        'bokeh.server.protocol.messages.tests',
+        'bokeh.server.protocol.tests',
+        'bokeh.server.storage',
         'bokeh.server.tests',
         'bokeh.sphinxext',
         'bokeh.tests',
