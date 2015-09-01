@@ -2,6 +2,7 @@
 
 browserify = require "browserify"
 gulp = require "gulp"
+util = require "gulp-util"
 rename = require "gulp-rename"
 transform = require "vinyl-transform"
 uglify = require "gulp-uglify"
@@ -15,6 +16,7 @@ through = require "through2"
 fs = require "fs"
 path = require "path"
 shasum = require "shasum"
+argv = require("yargs").argv
 
 customLabeler = (b, fn) ->
   labels = {}
@@ -47,6 +49,11 @@ namedLabeler = (b) -> customLabeler b, (row) ->
       .replace(/\.(coffee|js|eco)$/, "")
       .split(path.sep).join("/")
       .replace(/^(src\/(coffee|vendor)|node_modules)\//, "")
+
+  if argv.verbose
+    util.log("Processing #{name}")
+
+  name
 
 gulp.task "scripts:build", ->
   preludePath = path.resolve(process.cwd(), "./src/js/prelude.js")
