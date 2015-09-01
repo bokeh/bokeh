@@ -13,24 +13,6 @@ import bokeh.util.serialization as bkserial
 
 from ..exceptions import MessageError
 
-def _add_buffer(self, buf_header, buf_payload):
-    raise ProtocolError("")
-
-def _write_buffers(self, conn):
-    return 0
-
-def _is_complete(self):
-    return True
-
-def nobuffers(cls):
-    '''
-
-    '''
-    cls.add_buffer = _add_buffer
-    cls.write_buffers = _write_buffers
-    cls.is_complete = _is_complete
-    return cls
-
 class Message(object):
     ''' The Message base class encapsulates creating, assembling, and
     validating the integrity of Bokeh Server messages. Additionally, it

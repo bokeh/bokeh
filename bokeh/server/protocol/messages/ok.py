@@ -7,8 +7,9 @@ import logging
 log = logging.getLogger(__name__)
 
 from ...exceptions import ProtocolError
-from ..message import Message, nobuffers
-from . import register
+from ..message import Message
+from . import nobuffers, register
+
 
 @register
 @nobuffers
@@ -29,7 +30,6 @@ class ok_1(Message):
         content = {
             'reqid': reqid,
         }
-
         return cls(header, metadata, content)
 
     def _handle_server(self, server):

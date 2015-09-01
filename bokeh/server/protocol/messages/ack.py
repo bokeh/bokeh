@@ -7,8 +7,8 @@ import logging
 log = logging.getLogger(__name__)
 
 from ...exceptions import ProtocolError
-from ..message import Message, nobuffers
-from . import register
+from ..message import Message
+from . import nobuffers, register
 
 @register
 @nobuffers

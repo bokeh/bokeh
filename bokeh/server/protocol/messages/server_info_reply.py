@@ -6,8 +6,8 @@ from __future__ import absolute_import
 from bokeh import __version__
 
 from ...exceptions import ProtocolError
-from ..message import Message, nobuffers
-from . import register
+from ..message import Message
+from . import nobuffers, register
 
 _VERSION_INFO = {
     'bokeh'  : __version__,

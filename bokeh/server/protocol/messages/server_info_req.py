@@ -4,8 +4,8 @@
 from __future__ import absolute_import
 
 from ...exceptions import ProtocolError
-from ..message import Message, nobuffers
-from . import register
+from ..message import Message
+from . import nobuffers, register
 
 @register
 @nobuffers
