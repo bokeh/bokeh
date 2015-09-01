@@ -3,8 +3,8 @@ from bokeh.sampledata.autompg import autompg as df
 
 df['neg_displ'] = 0 - df['displ']
 
-defaults.width = 450
-defaults.height = 350
+defaults.width = 350
+defaults.height = 250
 
 bar_plot = Bar(df, label='cyl', title="label='cyl'")
 

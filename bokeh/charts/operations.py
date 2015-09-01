@@ -4,11 +4,19 @@ from bokeh.charts import Operation
 
 
 class Stack(Operation):
+    """Cumulates elements in the order of grouped values.
+
+    Useful for area or bar glyphs.
+    """
     name = 'stack'
     method_name = '__stack__'
 
 
 class Dodge(Operation):
+    """Non-cumulative, moves glyphs around so they don't overlap.
+
+    Useful for bar, box, or dot glyphs.
+    """
     name = 'dodge'
     method_name = '__dodge__'
 

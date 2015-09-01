@@ -144,11 +144,11 @@ class MarkerAttr(AttrSpec):
         super(MarkerAttr, self).__init__(**kwargs)
 
 
-class NestedAttr(AttrSpec):
+class GroupAttr(AttrSpec):
     name = 'nest'
 
     def __init__(self, **kwargs):
-        super(NestedAttr, self).__init__(**kwargs)
+        super(GroupAttr, self).__init__(**kwargs)
 
     def _setup_iterable(self):
         return iter(self.items)

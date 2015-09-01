@@ -40,7 +40,6 @@ class CompositeGlyph(HasProps):
     values = Either(Column(Float), Column(String), help='Array-like values.')
     color = Color(default='gray')
     fill_alpha = Float(default=0.8)
-    agg = Enum(Aggregation, default=None)
 
     source = Instance(ColumnDataSource)
     operations = List(Any)
@@ -56,12 +55,23 @@ class CompositeGlyph(HasProps):
 
         super(CompositeGlyph, self).__init__(**kwargs)
 
-        if self.agg is not None:
-            self.source = self.aggregate()
-        self.build()
+        self.renderers = self.build_renderers()
+        self.refresh()
 
-    def aggregate(self):
-        pass
+    def refresh(self):
+        self.source = self.build_source()
+        self._set_sources()
+
+    def build_renderers(self):
+        raise NotImplementedError('You must return list of renderers.')
+
+    def build_source(self):
+        raise NotImplementedError('You must return ColumnDataSource.')
+
+    def _set_sources(self):
+        """Store reference to source in each glyph renderer."""
+        for renderer in self.renderers:
+            renderer.data_source = self.source
 
     def __stack__(self, glyphs):
         pass
@@ -77,9 +87,6 @@ class CompositeGlyph(HasProps):
 
     def apply_operations(self):
         pass
-
-    def build(self):
-        raise NotImplementedError('Minimum requirement for CompositeGlyph is to produce renderers.')
 
 
 class Operation(HasProps):

@@ -28,7 +28,7 @@ from .utils import collect_attribute_columns
 from ._chart import Chart
 from ._data_source import ChartDataSource
 from ._properties import Dimension, ColumnLabel
-from ._attributes import AttrSpec, ColorAttr, MarkerAttr
+from ._attributes import AttrSpec, ColorAttr, MarkerAttr, GroupAttr
 from ._models import CompositeGlyph
 
 #-----------------------------------------------------------------------------
@@ -293,3 +293,11 @@ class XYBuilder(Builder):
             return FactorRange(factors=['None'])
 
         return Range1d(start=start - 0.1 * diff, end=end + 0.1 * diff)
+
+
+class AggregateBuilder(Builder):
+
+    values = Dimension('values')
+
+    default_attributes = {'label': GroupAttr(),
+                          'color': ColorAttr()}

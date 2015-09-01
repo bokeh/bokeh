@@ -27,10 +27,10 @@ except ImportError:
 
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
-from ...models.glyphs import Rect
+from ..glyphs import BarGlyph
 from ...properties import String, Float, Int, List
 from .._properties import Dimension
-from .._attributes import ColorAttr, NestedAttr
+from .._attributes import ColorAttr, GroupAttr
 from .._models import CompositeGlyph
 from ..operations import Stack, Dodge
 from ..utils import ordered_set
@@ -106,79 +106,6 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     return create_and_build(BarBuilder, data, **kw)
 
 
-class BarGlyph(CompositeGlyph):
-    """Represents a single bar within a bar chart."""
-
-    width = Float(default=0.8)
-    stack_label = String()
-    group_label = String()
-
-    def __init__(self, label, values, agg='sum', **kwargs):
-        if not isinstance(label, str):
-            label = str(label)
-
-        kwargs['label'] = label
-        kwargs['values'] = values
-        kwargs['agg'] = agg
-
-        super(BarGlyph, self).__init__(**kwargs)
-
-    def aggregate(self):
-        width = [self.width]
-        height = [getattr(self.values, self.agg)()]
-        x = [self.label]
-        y = [height[0]/2]
-        color = [self.color]
-        fill_alpha = [self.fill_alpha]
-        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color, fill_alpha=fill_alpha))
-
-    def __stack__(self, glyphs):
-        if self.stack_label is not None:
-            bars = [glyph for glyph in glyphs if isinstance(glyph, self.__class__)]
-            groups = defaultdict(list)
-            [groups[str(bar.source._data['x'])].append(bar) for bar in bars]
-
-            for index, group in groups.iteritems():
-                group = sorted(group, key=lambda x: x.stack_label)
-                shift = []
-                for i, bar in enumerate(group):
-                    # save off the top of each rect's height
-                    shift.append(group[i].source._data['y'][0] * 2)
-                    if i > 0:
-                        bar.source._data['y'] = group[i].source._data['y'] + sum(shift[0:i])
-
-    def __dodge__(self, glyphs):
-        if self.group_label is not None:
-            bars = [glyph for glyph in glyphs if isinstance(glyph, self.__class__)]
-            groups = defaultdict(list)
-            [groups[bar.group_label].append(bar) for bar in bars]
-
-            step = np.linspace(0, 1.0, len(groups.keys()) + 1, endpoint=False)
-
-            width = min(0.2, (1. / len(groups.keys())) ** 1.1)
-
-            for i, (index, group) in enumerate(groups.iteritems()):
-                for bar in group:
-                    bar.source._data['x'][0] = bar.source._data['x'][0] + ':' + str(step[i + 1])
-                    bar.source._data['width'][0] = width
-
-    @property
-    def xmax(self):
-        return self.source._data['x'][0] + self.width
-
-    @property
-    def ymax(self):
-        return self.source._data['y'][0] + (self.height/2.0)
-
-    @property
-    def height(self):
-        return self.source._data['height'][0]
-
-    def build(self):
-        glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color', fill_alpha='fill_alpha')
-        self.renderers = [GlyphRenderer(data_source=self.source, glyph=glyph)]
-
-
 class BarBuilder(Builder):
     """This is the Bar class and it is in charge of plotting
     Bar chart (grouped and stacked) in an easy and intuitive way.
@@ -207,10 +134,10 @@ class BarBuilder(Builder):
     dimensions = ['values']
     #req_dimensions = [['values']]
 
-    default_attributes = {'label': NestedAttr(),
+    default_attributes = {'label': GroupAttr(),
                           'color': ColorAttr(),
-                          'stack': NestedAttr(),
-                          'group': NestedAttr()}
+                          'stack': GroupAttr(),
+                          'group': GroupAttr()}
 
     agg = String('sum')
 
@@ -297,7 +224,7 @@ class BarBuilder(Builder):
                           width=self.bar_width,
                           color=group['color'],
                           stack_label=self._get_label(group['stack']),
-                          group_label=self._get_label(group['group']))
+                          dodge_label=self._get_label(group['group']))
 
             self.add_renderer(group, bg)
 
@@ -305,7 +232,7 @@ class BarBuilder(Builder):
         Dodge().apply(self.renderers)
 
         # a higher level function of bar chart is to keep track of max height of all bars
-        self.max_height = max([renderer.ymax for renderer in self.renderers])
+        self.max_height = max([renderer.y_extent for renderer in self.renderers])
 
         for renderer in self.renderers:
             yield renderer.renderers[0]
