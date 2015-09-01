@@ -14,6 +14,8 @@ these different cases.
 from __future__ import absolute_import
 
 from warnings import warn
+
+import re
 import uuid
 
 from .protocol import serialize_json
@@ -73,33 +75,35 @@ def components(plot_objects, resources=None):
         warn('Because the ``resources`` argument is no longer needed, '
              'it is deprecated and will be removed in'
              'a future version.', DeprecationWarning, stacklevel=2)
+    custom_models = {}
     all_models = []
     plots = []
     if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
         divs = []
         for idx, plot_object in enumerate(plot_objects):
             elementid = str(uuid.uuid4())
-            _append_plot(all_models, plots, plot_object, elementid)
+            _append_plot(custom_models, all_models, plots, plot_object, elementid)
             divs = _append_div(elementid, divs)
         if len(divs) == 1:
             divs = divs[0]
         else:
             divs = tuple(divs)
-        return _component_pair(all_models, plots, divs)
     elif isinstance(plot_objects, dict) and \
          all(isinstance(x, string_types) for x in plot_objects.keys()) and \
          all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
         divs = {}
         for key in plot_objects.keys():
             elementid = str(uuid.uuid4())
-            _append_plot(all_models, plots, plot_objects[key], elementid)
+            _append_plot(custom_models, all_models, plots, plot_objects[key], elementid)
             divs = _append_div(elementid, divs, key)
-        return _component_pair(all_models, plots, divs)
     else:
         raise ValueError('Input must be a PlotObject, a Sequence of PlotObjects, or a mapping of string to PlotObjects')
 
-def _component_pair(all_models, plots, divs):
+    return _component_pair(custom_models, all_models, plots, divs)
+
+def _component_pair(custom_models, all_models, plots, divs):
     js = PLOT_JS.render(
+        custom_models = custom_models,
         all_models = serialize_json(all_models),
         plots = plots
     )
@@ -108,9 +112,45 @@ def _component_pair(all_models, plots, divs):
     )
     return encode_utf8(script), divs
 
-def _append_plot(all_models, plots, plot_object, elementid):
+def _escape_code(code):
+    """ Escape JS/CS source code, so that it can be embbeded in a JS string.
+
+    This is based on https://github.com/joliss/js-string-escape.
+    """
+    def escape(match):
+        ch = match.group(0)
+
+        if ch == '"' or ch == "'" or ch == '\\':
+            return '\\' + ch
+        elif ch == '\n':
+            return '\\n'
+        elif ch == '\r':
+            return '\\r'
+        elif ch == '\u2028':
+            return '\\u2028'
+        elif ch == '\u2029':
+            return '\\u2029'
+
+    return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
+
+def _append_plot(custom_models, all_models, plots, plot_object, elementid):
     ref = plot_object.ref
+
+    from .document import Document
+    if isinstance(plot_object, Document):
+        objs = plot_object.context.references()
+    elif isinstance(plot_object, PlotObject):
+        objs = plot_object.references()
+
+    for obj in objs:
+        impl = getattr(obj, "__implementation__", None)
+
+        if impl is not None:
+            impl = "['%s', {}]" % _escape_code(impl)
+            custom_models[obj.__class__.__name__] = impl
+
     all_models.extend(plot_object.dump())
+
     plots.append({
         'modelid': ref["id"],
         'elementid': '#' + elementid,

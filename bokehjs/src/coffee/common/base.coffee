@@ -2,6 +2,8 @@ _ = require "underscore"
 Collection = require "./collection"
 window = {location: {href: "local"}} unless window?
 
+coffee = require "coffee-script"
+
 # add some useful functions to underscore
 require("./custom").monkey_patch()
 
@@ -174,7 +176,6 @@ locations =
 
 collection_overrides = {}
 
-
 make_collection = (model) ->
   class C extends Collection
     model: model
@@ -204,6 +205,9 @@ Collections = (typename) ->
 
   mod = _mod_cache[typename]
 
+  if not mod?
+    throw Error("module `#{typename}' does not exists")
+
   if not mod.Collection?
     mod.Collection = make_collection(mod.Model)
 
@@ -211,6 +215,36 @@ Collections = (typename) ->
 
 Collections.register = (name, collection) ->
   collection_overrides[name] = collection
+
+modules = arguments[4] # XXX: this refers to the 4th argument a the outer function
+                       # of this module, which is provided by browserify during
+                       # compilation. Only first three arguments are named, i.e
+                       # require, module and exports, so the next one we have to
+                       # retrieve like this. This is the set of all modules known
+                       # to bokehjs upon compilation and extended with module
+                       # registration mechanism.
+
+Collections.register_model = (name, mod) ->
+  compile = (code) ->
+    options = {
+      bare: true
+      shiftLine: true
+    }
+
+    body = coffee.compile(code, options)
+    new Function("require", "module", "exports", body)
+
+  if not _mod_cache?
+    mod_name = "custom/#{name.toLowerCase()}"
+    [impl, deps] = mod
+    modules[mod_name] = [compile(impl), deps]
+    locations[name] = require(mod_name)
+  else
+    throw new Error("can't register new models after collections were initialized") # XXX: temporary limitation
+
+Collections.register_models = (specs) ->
+  for own name, impl of specs
+    Collections.register_model(name, impl)
 
 index = {}
 
