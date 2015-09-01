@@ -7,10 +7,11 @@ import logging
 log = logging.getLogger(__name__)
 
 from ...exceptions import ProtocolError
-from ..message import Message
+from ..message import Message, nobuffers
 from . import register
 
 @register
+@nobuffers
 class ack_1(Message):
     '''
 
@@ -26,26 +27,7 @@ class ack_1(Message):
         '''
         header = cls.create_header(session_id)
         content = {}
-
         return cls(header, metadata, content)
-
-    def add_buffer(self, buf_header, buf_payload):
-        '''
-
-        '''
-        raise ProtocolError("")
-
-    def write_buffers(self, conn):
-        '''
-
-        '''
-        return 0
-
-    def is_complete(self):
-        '''
-
-        '''
-        return True
 
     def _handle_server(self, server):
         raise ProtocolError("")
