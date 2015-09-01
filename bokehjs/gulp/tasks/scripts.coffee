@@ -13,10 +13,15 @@ paths = require "../paths"
 change = require "gulp-change"
 
 gulp.task "scripts:build", ->
+  preludePath = path.resolve(process.cwd(), "./src/js/prelude.js")
+  preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
+
   opts =
     entries: ['./src/coffee/main.coffee']
     extensions: [".coffee", ".eco"]
     debug: true
+    preludePath: preludePath
+    prelude: preludeText
 
   browserify opts
     .transform "browserify-eco"
