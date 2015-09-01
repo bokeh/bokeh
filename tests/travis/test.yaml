@@ -6,7 +6,7 @@
 - path: "charts"
 - path: "plotting/file"
   type: file
-  skip: ["image.py", "image_rgba.py", "ajax_source.py", "choropleth.py"]
+  skip: ["image.py", "image_rgba.py", "image_rgba_bis.py", "ajax_source.py", "choropleth.py"]
 - path: "plotting/server"
   type: server
   skip: ["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py", "embedding_example.py", "abstractrender.py", "census.py"]
