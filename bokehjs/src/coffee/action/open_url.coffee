@@ -19,6 +19,7 @@ class OpenURL extends HasProperties
     for i in indices
       url = Util.replace_placeholders(@get("url"), data_source, i)
       window.open(url)
+    null
 
   defaults: ->
     return _.extend {}, super(), {
