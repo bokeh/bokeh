@@ -65,6 +65,7 @@ class LocalServer(Subcommand):
         nodes = ast.parse(source, src_path)
         code = compile(nodes, filename=src_path, mode='exec')
         self.app_module = ModuleType(self.appname)
+        self.app_module.__dict__['__file__'] = src_path
         exec(code, self.app_module.__dict__)
 
     def refresh(self, open_browser):

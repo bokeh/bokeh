@@ -147,7 +147,7 @@ class SimpleApp(Widget):
         ## and only if some properties in the graph have changed
         ## so we set should_update to be True in setup_events, and
         ## set it to be false as soon as the callback is done
-        if not self.name:
+        if not self.name or not self.name in self.create_registry:
             return
         to_delete = []
         for k in self.__dict__.keys():
@@ -156,6 +156,7 @@ class SimpleApp(Widget):
         for k in to_delete:
             self.__dict__.pop(k)
         counter = 0
+
         if not self.update_registry.get(self.name):
             name = '_func%d'  % counter
             func = self.create_registry[self.name]

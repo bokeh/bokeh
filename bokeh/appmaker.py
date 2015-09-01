@@ -9,7 +9,7 @@ from .models.widgets import (HBox, VBox, VBoxForm, PreText, DataTable,
                                   AutocompleteInput, Button, TextInput,
                                   Paragraph, Select, Panel, Tabs, Slider, Dialog)
 from .models.sources import ColumnDataSource
-from .plotting import figure, show
+from .plotting import figure, show, curdoc
 from .simpleapp import simpleapp, SimpleApp
 
 
@@ -194,7 +194,7 @@ def add_app_box(yaml_box, app, yaml_layout):
     yaml_box.app = app
 
     for i, v in enumerate(yaml_box.children):
-        if isinstance(v, string_types) and not v in app.objects:
+        if isinstance(v, string_types) and v not in app.objects:
             yaml_box.children[i] = yaml_layout[v]
 
 
@@ -253,6 +253,7 @@ def create_app(name, route, yaml_path, constructor=None):
         for k, v in layout.items():
             if k != 'app' and isinstance(v, Dialog):
                 v.content = ui.get_obj(v.content, app, layout)
+
 
         add_app_box(layout['app'], app, layout)
 
@@ -450,6 +451,61 @@ class YamlApp(object):
         add_app_box(layout['app'], app, layout)
 
         return layout['app']
+
+
+    def get_obj(self, v):
+        if v in self.objects:
+            return self.objects[v]
+
+        elif isinstance(v, string_types) and v not in self.objects:
+            return self.yapp['layout'][v]
+
+        return v
+
+    def _replace_app_box(self, v):
+        if isinstance(v, (AppHBox, AppVBox)):
+            children = v.children
+            if isinstance(v, AppHBox):
+                v = HBox(children=[])
+            else:
+                v = VBox(children=[])
+
+            for c in children:
+                v.children.append(self.get_obj(c))
+        return v
+
+    def create_appless_layout(self):
+        layout = self.yapp['layout']
+
+        for k, v in layout.items():
+            if k != 'app':
+                layout[k] = v = self._replace_app_box(v)
+                # add_app_box(v, app, layout, v.children)
+
+        for k, v in layout.items():
+            if k != 'app' and isinstance(v, Panel):
+                v.child = get_obj(v.child, self, layout)
+
+        for k, v in layout.items():
+            if k != 'app' and isinstance(v, Tabs):
+                v.tabs = [get_obj(x, self, layout, True) for x in v.tabs]
+
+        for k, v in layout.items():
+            if k != 'app' and isinstance(v, Dialog):
+                v.content = get_obj(v.content, self, layout)
+
+        v = v = self._replace_app_box(layout['app'])
+        # v = layout['app']
+        # children = v.children
+        # if isinstance(v, AppHBox):
+        #     v = HBox(children=[])
+        # else:
+        #     v = VBox(children=[])
+        #
+        # for c in children:
+        #     v.children.append(self.get_obj(c))
+
+        return v
 
 def attach_lazy_eval(foo):
     def _(app, *args, **kws):
