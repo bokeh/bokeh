@@ -14,19 +14,19 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-callback = CustomJS(args=dict(source=source), code="""
-    var data = source.get('data');
-    var A = amp.get('value')
-    var k = freq.get('value')
-    var phi = phase.get('value')
-    var B = offset.get('value')
-    x = data['x']
-    y = data['y']
-    for (i = 0; i < x.length; i++) {
-        y[i] = B + A*Math.sin(k*x[i]+phi);
-    }
-    source.trigger('change');
-""")
+
+@CustomJS
+def callback(source=source):
+    data = source.get('data')
+    A = amp.get('value')
+    k = freq.get('value')
+    phi = phase.get('value')
+    B = offset.get('value')
+    x, y = data['x'], data['y']
+    for i in range(len(x)):
+        y[i] = B + A*Math.sin(k*x[i]+phi)
+    source.trigger('change') 
+
 
 amp_slider = Slider(start=0.1, end=10, value=1, step=.1, title="Amplitude", callback=callback)
 callback.args["amp"] = amp_slider
