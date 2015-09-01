@@ -22,7 +22,7 @@
     "browserify-eco": "^0.2.4",
     "browserify-shim": "^3.8.0",
     "chai": "^2.2.0",
-    "coffee-script": "^1.9.1",
+    "coffee-script": "^1.9.3",
     "coffeeify": "^0.7.0",
     "del": "^1.1.1",
     "eco": "^1.1.0-rc-3",
@@ -47,7 +47,10 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "vinyl-transform": "^1.0.0",
-    "yargs": "^3.11.0"
+    "yargs": "^3.11.0",
+    "through2": "^2.0.0",
+    "shasum": "^1.0.1"
+
   },
   "browserify": {
     "extensions": [
