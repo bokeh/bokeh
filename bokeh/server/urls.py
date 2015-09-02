@@ -3,7 +3,7 @@
 '''
 from __future__ import absolute_import
 
-from .ws_handler import WSHandler
+from .views.ws import WSHandler
 
 patterns = [
     (r'/ws', WSHandler),

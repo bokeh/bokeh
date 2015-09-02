@@ -9,10 +9,10 @@ log = logging.getLogger(__name__)
 from tornado import gen
 from tornado.websocket import WebSocketHandler
 
-from .exceptions import MessageError, ProtocolError, ValidationError
-from .core.server_session import ServerSession
-from .protocol import Protocol
-from .protocol.receiver import Receiver
+from ..exceptions import MessageError, ProtocolError, ValidationError
+from ..core.server_session import ServerSession
+from ..protocol import Protocol
+from ..protocol.receiver import Receiver
 
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
