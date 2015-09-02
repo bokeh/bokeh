@@ -116,8 +116,35 @@ class BaseGLGlyph
 class LineGLGlyph extends BaseGLGlyph
     
     GLYPH: 'line'
-    VERT: 'xxx'
-    FRAG: 'xxx'
+    
+    VERT: """
+      precision mediump float;
+      
+      attribute vec2 a_position;
+            
+      uniform vec2 u_canvas_size;
+      uniform vec2 u_offset;
+      uniform vec2 u_scale;
+      
+      void main () {
+        
+        // Calculate position - the -0.5 is to correct for canvas origin
+        vec2 posn = a_position * u_scale + u_offset - vec2(0.5, 0.5); // in pixels
+        posn /= u_canvas_size;  // in 0..1
+        gl_Position = vec4(posn*2.0-1.0, 0.0, 1.0);
+        //gl_Position = vec4(a_posx, a_posy, 0.0, 1.0);
+        gl_Position.y *= -1.0;
+      }
+    """
+    
+    FRAG: """
+      precision mediump float;
+      
+      void main () {
+        gl_FragColor = vec4(0.0, 0.5, 0.0, 1.0);
+      }
+    
+    """
     
     init: () ->
       gl = @gl
@@ -126,29 +153,49 @@ class LineGLGlyph extends BaseGLGlyph
       @prog = new gloo2.Program(gl)
       @prog.set_shaders(@VERT, @FRAG)
       # Buffers
-      @vbo_pos = new gloo2.VertexBuffer(gl)
-    
+      @vbo_position = new gloo2.VertexBuffer(gl)
+      @prog.set_attribute('a_position', 'vec2', [@vbo_position, 0, 0])
+ 
     draw: (indices, mainGlyph, trans) ->
       
-      if @data_changed
-        @data_changed = false
-        @_set_data(@nvertices)
+      # Actual number of vertices us 4x that of the number of line nodes.
+      nvertices = mainGlyph.glglyph.nvertices * 4
       
+      if @data_changed
+        @_set_data(nvertices)
+        @data_changed = false
+      
+      # Select buffers from main glyph 
+      # (which may be this glyph but maybe not if this is a (non)selection glyph)
+      @prog.set_attribute('a_position', 'vec2', [mainGlyph.glglyph.vbo_position, 0, 0])
     
+      # Handle transformation to device coordinates
+      @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
+      @prog.set_uniform('u_offset', 'vec2', [trans.dx[0], trans.dy[0]])
+      @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
+      
+      @prog.draw(@gl.LINE_STRIP, [0, nvertices])
+
     _set_data: (nvertices) ->
-    
-    
+      @_bake()
+      
+      n = @V_position.length * 4
+      @vbo_position.set_size(n)
+      @vbo_position.set_data(0, @V_position)
+
     _bake: () ->
          #     self.vtype = np.dtype( [('a_position', 'f4', 2),
          #                       ('a_segment',  'f4', 2),
          #                       ('a_angles',   'f4', 2),
          #                       ('a_tangents', 'f4', 4),
          #                       ('a_texcoord', 'f4', 2) ])
-                                
+      
+      # This is what you get if you port 50 lines of numpy code to JS.
+                              
       # Init array of implicit shape nx2
       n = @nvertices
-      _x = new Float32Array(@x)
-      _y = new Float32Array(@y)
+      _x = new Float32Array(@glyph.x)
+      _y = new Float32Array(@glyph.y)
       
       # Init vertex data
       V_position = Vp = new Float32Array(n*2)
@@ -159,7 +206,7 @@ class LineGLGlyph extends BaseGLGlyph
       
       # todo: what if I split the tangents up in two arrays, I think it would simplify the code ...
       
-      # Positipn
+      # Position
       for i in [0...n]
           V_position[i*2+0] = _x[i]
           V_position[i*2+1] = _y[i]
@@ -188,7 +235,7 @@ class LineGLGlyph extends BaseGLGlyph
       V_tangents[(n-1)+3] = T[(n-2)+1]
       
       # Angles
-      A = new float32Array(n)
+      A = new Float32Array(n)
       for i in [0...n]
         A[i] = Math.atan2(Vt[i*4+0]*Vt[i*4+3] - Vt[i*4+1]*Vt[i*4+2],
                           Vt[i*4+0]*Vt[i*4+2] - Vt[i*4+1]*Vt[i*4+3])
@@ -214,9 +261,9 @@ class LineGLGlyph extends BaseGLGlyph
       @V_texcoord = V_texcoord2 = new Float32Array(m*2)
       #
       # Arg, we really need an ndarray thing in JS :/
-      for i in [0...n]
-         for j in [0...4]
-            for k in [0...2]
+      for i in [0...n]  # all nodes on the line
+         for j in [0...4]  # the four quad vertices
+            for k in [0...2]  # xy
               V_position2[4*i*2+j*2+k] = V_position[i*2+k]
               V_segment2[4*i*2+j*2+k] = V_segment[i*2+k]
               V_angles2[4*i*2+j*2+k] = V_angles[i*2+k]
@@ -381,8 +428,8 @@ class MarkerGLGlyph extends BaseGLGlyph
     # The program
     @prog = new gloo2.Program(gl)
     @prog.set_shaders(@VERT, frag)
-    @vbo_x = new gloo2.VertexBuffer(gl)
     # Real attributes
+    @vbo_x = new gloo2.VertexBuffer(gl)
     @prog.set_attribute('a_x', 'float', [@vbo_x, 0, 0])
     @vbo_y = new gloo2.VertexBuffer(gl)
     @prog.set_attribute('a_y', 'float', [@vbo_y, 0, 0])
@@ -526,3 +573,4 @@ class SquareGLGlyph extends MarkerGLGlyph
 module.exports =
   CircleGLGlyph: CircleGLGlyph
   SquareGLGlyph: SquareGLGlyph
+  LineGLGlyph: LineGLGlyph
