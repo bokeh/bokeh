@@ -187,8 +187,7 @@ popd
 pushd bokehjs
 
 if [[ -z "$travis_build_id" ]]; then
-    npm publish --tag $complete_version
-    npm tag bokehjs@$complete_version latest
+    npm publish
     echo "I'm done publishing to npmjs.org"
 fi
 
