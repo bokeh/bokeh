@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
+from bokeh.server.exceptions import ProtocolError, ValidationError
 from bokeh.server.protocol import receiver, Protocol
 
 _proto = Protocol("1.0")

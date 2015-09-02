@@ -61,17 +61,17 @@ class Message(object):
 
         try:
             header = json_decode(header_json)
-        except ValueError as e:
+        except ValueError:
             raise MessageError("header could not be decoded")
 
         try:
             metadata = json_decode(metadata_json)
-        except ValueError as e:
+        except ValueError:
             raise MessageError("metadata could not be decoded")
 
         try:
             content = json_decode(content_json)
-        except ValueError as e:
+        except ValueError:
             raise MessageError("content could not be decoded")
 
         msg = cls(header, metadata, content)

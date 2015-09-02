@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-import pytest
-
 import bokeh.server.protocol.message as message
 
 def test_create_header(monkeypatch):
