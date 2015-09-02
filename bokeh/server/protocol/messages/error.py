@@ -21,14 +21,18 @@ class error_1(Message):
     revision = 1
 
     @classmethod
-    def create(cls, session_id, reqid, **metadata):
+    def create(cls, session_id, reqid, errname, errval, traceback=None, **metadata):
         '''
 
         '''
         header = cls.create_header(session_id)
         content = {
             'reqid': reqid,
+             'errname' : errname,
+            'errval'  : errval,
         }
+        if traceback:
+            content['traceback'] = traceback.split()
         return cls(header, metadata, content)
 
     def _handle_server(self, server):
