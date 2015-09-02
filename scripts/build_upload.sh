@@ -164,7 +164,7 @@ pushd sphinx
 # being explicit to pass the correct version
 # Note: we need to override the version here to avoid being bitten by the
 # __version__ used from the first build (by travis_install)
-BOKEH_LOCAL_DOCS_CDN=$complete_version BOKEH_DOCS_VERSION=$complete_version make clean all
+BOKEH_DOCS_CDN=$complete_version BOKEH_DOCS_VERSION=$complete_version make clean all
 
 # to the correct location
 if [[ -z "$travis_build_id" ]]; then
