@@ -27,8 +27,8 @@ class error_1(Message):
         '''
         header = cls.create_header(session_id)
         content = {
-            'reqid': reqid,
-             'errname' : errname,
+            'reqid'   : reqid,
+            'errname' : errname,
             'errval'  : errval,
         }
         if traceback:

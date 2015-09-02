@@ -32,7 +32,7 @@ class Protocol(object):
     def __repr__(self):
         return "Protocol(%r)" % self.version
 
-    def create(self, msgtype, session_id, *args, **metadata):
+    def create(self, msgtype, session_id, *args, **kwargs):
         ''' Create a new Message instance for the given type and session id.
 
         Args:
@@ -42,7 +42,7 @@ class Protocol(object):
         '''
         if msgtype not in self._messages:
             raise ProtocolError("Unknown message type %r for protocol version %s" % (msgtype, self._version))
-        return self._messages[msgtype].create(session_id, *args, **metadata)
+        return self._messages[msgtype].create(session_id, *args, **kwargs)
 
     def assemble(self, header_json, metadata_json, content_json):
         ''' Create a Message instance assembled from json fragments.
