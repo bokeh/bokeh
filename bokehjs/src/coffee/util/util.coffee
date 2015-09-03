@@ -1,6 +1,6 @@
 _  = require "underscore"
 SPrintf = require "sprintf"
-Numeral = require "../../vendor/numeral.js-1.5.3/numeral.js"
+Numeral = require "numeral"
 
 _format_number = (number) ->
   if _.isNumber(number)
