@@ -4,17 +4,9 @@ message objects that can be processed.
 '''
 from __future__ import absolute_import
 
-from six import b
 from tornado.concurrent import return_future
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
-
-HMAC           = 0
-HEADER         = 1
-METADATA       = 2
-CONTENT        = 3
-BUFFER_HEADER  = 4
-BUFFER_PAYLOAD = 5
 
 class Receiver(object):
     '''
@@ -39,80 +31,77 @@ class Receiver(object):
 
     def __init__(self, protocol):
         self._protocol = protocol
-        self._expecting = HMAC
+        self._current_consumer = self._HMAC
         self._message = None
         self._buf_header = None
         self._failures = 0
+
+    @property
+    def failures(self):
+        return self._failures
 
     @return_future
     def consume(self, fragment, callback=None):
         '''
 
         '''
-
-        if self._expecting == HMAC:
-            if len(fragment) != 64:
-                self._failures += 1
-                raise ProtocolError("Invalid HMAC signature length")
-
-            self._message = None
-            self._partial = None
-            self._fragments = [fragment]
-            self._expecting = HEADER
-
-        elif self._expecting == HEADER:
-            self._fragments.append(fragment)
-            self._expecting = METADATA
-
-        elif self._expecting == METADATA:
-            self._fragments.append(fragment)
-            self._expecting = CONTENT
-
-        elif self._expecting == CONTENT:
-            self._fragments.append(fragment)
-
-            hmac, header_json, metadata_json, content_json = self._fragments
-
-            self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
-
-            if b(hmac) != self._partial.hmac:
-                self._expecting = HMAC
-                self._failures += 1
-                raise ValidationError("HMAC signatures do not match")
-
-            if self._partial.complete:
-                self._message = self._partial
-                self._expecting = HMAC
-            else:
-                self._expecting = BUFFER_HEADER
-
-        elif self._expecting == BUFFER_HEADER:
-            self._buf_header = fragment
-            self._expecting = BUFFER_PAYLOAD
-
-        elif self._expecting == BUFFER_PAYLOAD:
-            try:
-                self._partial.add_buffer(self._buf_header, fragment)
-            except MessageError:
-                self._expecting = HMAC
-                self._failures += 1
-                raise
-
-            if self._partial.complete:
-                self._message = self._partial
-                self._expecting = HMAC
-            else:
-                self._expecting = BUFFER_HEADER
-
+        self._current_consumer(fragment)
         callback(self._message)
 
-    @property
-    def expecting(self):
-        return self._expecting
+    def _HMAC(self, fragment):
+        if len(fragment) != 64:
+            self._failures += 1
+            raise ProtocolError("Invalid HMAC signature length")
 
-    @property
-    def failures(self):
-        return self._failures
+        self._message = None
+        self._partial = None
+        self._fragments = [fragment]
 
+        self._current_consumer = self._HEADER
 
+    def _HEADER(self, fragment):
+        self._fragments.append(fragment)
+        self._current_consumer = self._METADATA
+
+    def _METADATA(self, fragment):
+        self._fragments.append(fragment)
+        self._current_consumer = self._CONTENT
+
+    def _CONTENT(self, fragment):
+        self._fragments.append(fragment)
+
+        hmac, header_json, metadata_json, content_json = self._fragments
+
+        self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
+
+        from six import b
+        if b(hmac) != self._partial.hmac:
+            self._fail()
+            raise ValidationError("HMAC signatures do not match")
+
+        self._check_complete()
+
+    def _BUFFER_HEADER(self, fragment):
+        self._buf_header = fragment
+        self._current_consumer = self._BUFFER_PAYLOAD
+
+    def _BUFFER_PAYLOAD(self, fragment):
+        try:
+            self._partial.add_buffer(self._buf_header, fragment)
+        except MessageError as e:
+            self._fail()
+            raise e
+
+        self._check_complete()
+
+    def _check_complete(self):
+        if self._partial.complete:
+            self._message = self._partial
+            self._current_consumer = self._HMAC
+        else:
+            self._current_consumer = self._BUFFER_HEADER
+
+    def _fail(self):
+        self._current_consumer = self._HMAC
+        self._failures += 1
 

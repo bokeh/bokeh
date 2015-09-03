@@ -1,6 +1,5 @@
 
 from tornado.httpserver import HTTPServer
-from tornado.ioloop import IOLoop
 
 from bokeh.server.app import BokehServer
 

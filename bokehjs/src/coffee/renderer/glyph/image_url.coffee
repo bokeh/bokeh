@@ -4,46 +4,41 @@ Glyph = require "./glyph"
 class ImageURLView extends Glyph.View
 
   _index_data: () ->
-    @_xy_index()
 
   _set_data: () ->
-    @image = (null for img in @url)
-    @need_load = (true for img in @url)
-    @loaded = (false for img in @url)
-    @_xy_index()
+    if not @image? or @image.length != @url.length
+      @image = (null for img in @url)
+
+    for i in [0...@url.length]
+      img = new Image()
+      img.onload = do (img, i) =>
+        return () =>
+          @image[i] = img
+          @renderer.request_render()
+      img.src = @url[i]
 
   _map_data: () ->
     @sw = @sdist(@renderer.xmapper, @x, @w, 'edge', @mget('dilate'))
     @sh = @sdist(@renderer.ymapper, @y, @h, 'edge', @mget('dilate'))
 
-  _render: (ctx, indices, {url, image, need_load, sx, sy, sw, sh, angle}) ->
+  _render: (ctx, indices, {url, image, sx, sy, sw, sh, angle}) ->
+
+    # TODO (bev): take actual border width into account when clipping
+    frame = @renderer.plot_view.frame
+    ctx.rect(
+      frame.get('left')+1, frame.get('bottom')+1,
+      frame.get('width')-2, frame.get('height')-2,
+    )
+    ctx.clip()
+
     for i in indices
       if isNaN(sx[i]+sy[i]+angle[i])
         continue
 
-      if need_load[i]
-        img = new Image()
-        img.onload = do (img, i) =>
-          return () =>
-            @loaded[i] = true
-            image[i] = img
-            ctx.save()
-            ctx.beginPath()
-            # TODO should take the real axis rule width into account, for now shrink region by 1 px
-            frame = @renderer.plot_view.frame
-            # use bottom here because frame is view coords
-            ctx.rect(
-              frame.get('left')+1, frame.get('bottom')+1,
-              frame.get('width')-2, frame.get('height')-2,
-            )
-            ctx.clip()
-            @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
-            ctx.restore()
+      if not image[i]?
+        continue
 
-        img.src = url[i]
-        need_load[i] = false
-      else if @loaded[i]
-        @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
+      @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
@@ -84,10 +79,6 @@ class ImageURL extends Glyph.Model
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
     }
 
 module.exports =
