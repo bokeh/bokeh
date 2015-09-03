@@ -8,7 +8,7 @@ from .models.widgets import (HBox, VBox, VBoxForm, PreText, DataTable,
                                   AppVBox, AppHBox, CheckboxGroup, Dialog,
                                   AutocompleteInput, Button, TextInput,
                                   Paragraph, Select, Panel, Tabs, Slider, Dialog)
-from .models.sources import ColumnDataSource
+from .models.sources import ColumnDataSource, AjaxDataSource
 from .plotting import figure, show, curdoc
 from .simpleapp import simpleapp, SimpleApp
 
@@ -70,6 +70,13 @@ def cds_constructor(loader, node):
 
     cds_data = data.pop('data', {})
     source = ColumnDataSource(data=cds_data, **data)
+
+    return source
+
+def ads_constructor(loader, node):
+    data = loader.construct_mapping(node, deep=True)
+
+    source = AjaxDataSource(**data)
 
     return source
 
@@ -172,6 +179,7 @@ UILoader.add_constructor("!figure", figure_constructor)
 UILoader.add_constructor("!Event", app_event_handler)
 UILoader.add_constructor("!io", io_constructor)
 UILoader.add_constructor("!ColumnDataSource", cds_constructor)
+UILoader.add_constructor("!AjaxDataSource", ads_constructor)
 
 widgets = [TextInput, PreText, Dialog, Panel, Tabs, Paragraph, AppVBox, AppHBox,
            Button, CheckboxGroup, Slider, Select]
@@ -310,18 +318,30 @@ class YamlApp(object):
         SimpleApp._app = self
 
     def apply_theme(self, objects):
+        def set_obj_attr(obj, attr, v):
+            if "." in attr:
+                attrs = attr.split('.')
+                attr, rest = attrs[0], '.'.join(attrs[1:])
+
+                return set_obj_attr(getattr(obj, attr), rest, v)
+            else:
+                return setattr(obj, attr, v)
+
         if self.theme:
             for name, obj in objects.items():
-                if name in self.theme:
-                    rules = self.theme[name]
-                    for attr, value in rules.items():
-                        setattr(obj, attr, value)
-
                 classname = obj.__class__.__name__
                 if classname in self.theme:
                     rules = self.theme[classname]
                     for attr, value in rules.items():
-                        setattr(obj, attr, value)
+                        # setattr(obj, attr, value)
+                        set_obj_attr(obj, attr, value)
+
+                if name in self.theme:
+                    rules = self.theme[name]
+                    for attr, value in rules.items():
+                        # setattr(obj, attr, value)
+                        set_obj_attr(obj, attr, value)
+
 
     def add_objects(self, objects):
         self.apply_theme(objects)
@@ -345,7 +365,7 @@ class YamlApp(object):
         for dsname, ds in self.datasets.items():
             if isinstance(ds, pd.DataFrame):
                 self.sources[dsname] = ColumnDataSource(ds.to_dict(orient='list'), tags=[dsname])
-            elif isinstance(ds, ColumnDataSource):
+            elif isinstance(ds, (ColumnDataSource, AjaxDataSource)):
                 self.sources[dsname] = ds
             else:
                 self.sources[dsname] = ColumnDataSource(ds)
