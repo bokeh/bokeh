@@ -72,11 +72,6 @@ class WSHandler(WebSocketHandler):
         if message is None:
             raise gen.Return(None)
 
-        # make sure the session ID from the client message matches
-        if message.header['sessid'] != self.session.id:
-            log.error("Session ID mismatch")
-            raise gen.Return(None)
-
         log.debug("Received %r", message)
 
         try:
