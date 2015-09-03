@@ -8,7 +8,8 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Direction, Anchor
-from ..properties import AngleSpec, Bool, DistanceSpec, Enum, Include, Instance, NumberSpec, StringSpec
+from ..properties import (AngleSpec, Bool, DistanceSpec, Enum, Include,
+                          Instance, Int, NumberSpec, StringSpec)
 
 from .mappers import LinearColorMapper
 
@@ -475,6 +476,14 @@ class ImageURL(Glyph):
     anchor = Enum(Anchor, help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
+    """)
+
+    retry_attempts = Int(0, help="""
+    Number of attempts to retry fetching the image after raising an error
+    """)
+
+    retry_timeout = Int(0, help="""
+    Timeout between retry attempts
     """)
 
 class Line(Glyph):

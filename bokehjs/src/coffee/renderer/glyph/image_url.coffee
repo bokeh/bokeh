@@ -11,6 +11,7 @@ class ImageURLView extends Glyph.View
     @need_load = (true for img in @url)
     @loaded = (false for img in @url)
     @_xy_index()
+    @attempts = (@mget('retry_attempts') for img in @url)
 
   _map_data: () ->
     @sw = @sdist(@renderer.xmapper, @x, @w, 'edge', @mget('dilate'))
@@ -23,16 +24,27 @@ class ImageURLView extends Glyph.View
 
       if need_load[i]
         img = new Image()
+
+        img.onerror = do (i) =>
+          return () =>
+            console.log(@mget('retry_timeout'))
+            @attempts[i] -= 1
+            if @attempts[i] > 0
+              @_delay(@mget('retry_timeout'), @renderer.request_render())
+
         img.onload = do (img, i) =>
           return () =>
             @loaded[i] = true
             image[i] = img
+            need_load[i] = false
             @renderer.request_render()
 
         img.src = url[i]
-        need_load[i] = false
       else if @loaded[i]
         @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
+
+  _delay: (ms, func) ->
+    setTimeout(func, ms)
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
@@ -75,6 +87,8 @@ class ImageURL extends Glyph.Model
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
+      retry_attempts: 0
+      retry_timeout: 0
     }
 
   display_defaults: ->
