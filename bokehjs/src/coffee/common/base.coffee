@@ -226,12 +226,7 @@ modules = arguments[4] # XXX: this refers to the 4th argument a the outer functi
 
 Collections.register_model = (name, mod) ->
   compile = (code) ->
-    options = {
-      bare: true
-      shiftLine: true
-    }
-
-    body = coffee.compile(code, options)
+    body = coffee.compile(code, {bare: true, shiftLine: true})
     new Function("require", "module", "exports", body)
 
   if not _mod_cache?
