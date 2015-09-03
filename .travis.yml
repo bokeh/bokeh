@@ -27,9 +27,9 @@ matrix:
 branches:
   only:
     - master
-    - /^\d.\d.\ddev-.+$/
-    - /^\d.\d.\drc-.+$/
-    - /^\d.\d.\d$/
+    - /^\d+.\d+.\d+dev-.+$/
+    - /^\d+.\d+.\d+rc-.+$/
+    - /^\d+.\d+.\d+$/
 
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
