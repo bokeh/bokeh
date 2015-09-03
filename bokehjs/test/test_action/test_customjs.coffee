@@ -4,7 +4,7 @@ utils = require "../utils"
 base = utils.require "common/base"
 {Collections} = base
 
-describe "callback module", ->
+describe "customjs module", ->
 
   describe "default creation", ->
     r = Collections('CustomJS').create()
