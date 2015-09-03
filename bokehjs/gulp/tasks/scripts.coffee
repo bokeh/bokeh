@@ -17,6 +17,7 @@ fs = require "fs"
 path = require "path"
 shasum = require "shasum"
 argv = require("yargs").argv
+pkg = require("root-require")("./package.json")
 
 customLabeler = (b, fn) ->
   labels = {}
@@ -45,10 +46,17 @@ hashedLabeler = (b) -> customLabeler b, (row) ->
 
 namedLabeler = (b) -> customLabeler b, (row) ->
   cwd = process.cwd()
-  name = path.relative(cwd, row.id)
-      .replace(/\.(coffee|js|eco)$/, "")
-      .split(path.sep).join("/")
-      .replace(/^(src\/(coffee|vendor)|node_modules)\//, "")
+  rev_mod_map = {}
+
+  for own key, val of pkg.browser
+    rev_mod_map[path.resolve(val)] = key
+
+  name  = rev_mod_map[row.id]
+  name ?= path
+    .relative(cwd, row.id)
+    .replace(/\.(coffee|js|eco)$/, "")
+    .split(path.sep).join("/")
+    .replace(/^(src\/(coffee|vendor)|node_modules)\//, "")
 
   if argv.verbose
     util.log("Processing #{name}")
