@@ -9,9 +9,8 @@ class ImageURLView extends Glyph.View
   _set_data: () ->
     @image = (null for img in @url)
     @need_load = (true for img in @url)
-    @loaded = (false for img in @url)
     @_xy_index()
-    @attempts = (@mget('retry_attempts') for img in @url)
+    @retry_attempts = (@mget('retry_attempts') for img in @url)
 
   _map_data: () ->
     @sw = @sdist(@renderer.xmapper, @x, @w, 'edge', @mget('dilate'))
@@ -24,23 +23,25 @@ class ImageURLView extends Glyph.View
 
       if need_load[i]
         img = new Image()
-
-        img.onerror = do (i) =>
+        model = @model
+        img.onerror = do (img, i, model) =>
           return () =>
-            console.log(@mget('retry_timeout'))
-            @attempts[i] -= 1
-            if @attempts[i] > 0
-              @_delay(@mget('retry_timeout'), @renderer.request_render())
+            if @retry_attempts[i] > 0
+              debugger;
+              model._delay(@mget('retry_timeout'), model.renderer.request_render)
+            @retry_attempts[i] -= 1
+
+              # @_delay(@mget('retry_timeout'), @renderer.request_render)
+              # setTimeout(@renderer.request_render, @mget('retry_timeout'))
 
         img.onload = do (img, i) =>
           return () =>
-            @loaded[i] = true
             image[i] = img
             need_load[i] = false
             @renderer.request_render()
 
         img.src = url[i]
-      else if @loaded[i]
+      else
         @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
 
   _delay: (ms, func) ->
