@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 from warnings import warn
+from types import FunctionType
 
 from ..plot_object import PlotObject
 from ..properties import Dict, Instance, String
@@ -24,6 +25,21 @@ class OpenURL(Callback):
 
 class CustomJS(Callback):
     """ Execute a JavaScript function. """
+    
+    def __init__(self, func=None, **kwargs):
+        if func is not None:
+            if not isinstance(func, FunctionType):
+                raise ValueError('CustomJS needs function object, or "args" and "code" properties.')
+            from flexx.pyscript import py2js
+            # Collect default values
+            default_values = func.__defaults__  # Python 2.6+
+            default_names = func.__code__.co_varnames[:len(default_values)]
+            kwargs['args'] = dict(zip(default_names, default_values))
+            # Get JS code, we could rip out the function def, or just
+            # call the function. We do the latter.
+            kwargs['code'] = py2js(func, 'cb') + 'cb(%s);\n' % ', '.join(default_names)
+
+        Callback.__init__(self, **kwargs)
 
     args = Dict(String, Instance(PlotObject), help="""
     A mapping of names to Bokeh plot obejcts. These objects are made
