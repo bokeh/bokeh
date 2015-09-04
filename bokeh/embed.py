@@ -14,6 +14,7 @@ these different cases.
 from __future__ import absolute_import
 
 import uuid
+from warnings import warn
 
 from .protocol import serialize_json
 from .resources import Resources
