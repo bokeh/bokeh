@@ -67,6 +67,9 @@ class ImageURLView extends Glyph.View
     [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
 
     ctx.save()
+
+    ctx.globalAlpha = @mget("global_alpha")
+
     if angle[i]
       ctx.translate(sx, sy)
       ctx.rotate(angle[i])
@@ -90,6 +93,7 @@ class ImageURL extends Glyph.Model
       angle: 0
       retry_attempts: 0
       retry_timeout: 0
+      global_alpha: 1.0
     }
 
   display_defaults: ->
