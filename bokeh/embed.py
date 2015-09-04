@@ -13,8 +13,8 @@ these different cases.
 
 from __future__ import absolute_import
 
-from warnings import warn
 import uuid
+from warnings import warn
 
 from .protocol import serialize_json
 from .resources import Resources
@@ -30,7 +30,7 @@ from six import string_types
 
 
 def _wrap_in_function(code):
-    # Indent and wrap Bokeh function def around
+    # indent and wrap Bokeh function def around
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
@@ -42,63 +42,58 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     An example can be found in examples/embed/embed_multiple.py
 
-
     .. note:: The returned components assume that BokehJS resources
               are **already loaded**.
 
-    Args
-    ----
-    plot_objects : PlotObject|list|dict|tuple
-        A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
+    Args:
+        plot_objects : PlotObject|list|dict|tuple
+            A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
 
-    resources :
-        Deprecated argument
+        resources :
+            Deprecated argument
 
-    wrap_script : boolean, optional
-        If True, the returned javascript is wrapped in a script tag. (default: True)
+        wrap_script : boolean, optional
+            If True, the returned javascript is wrapped in a script tag. (default: True)
 
-    wrap_plot_info : boolean, optional
-        If True, then a set of divs are returned.
-        If set to False, then dictionaries are returned that can be used to manually
-        build your own divs. (default: True)
+        wrap_plot_info : boolean, optional
+            If True, then a set of divs are returned.
+            If set to False, then dictionaries are returned that can be used to manually
+            build your own divs. (default: True)
 
-        If False, the returned dictionary contains the following information::
+            If False, the returned dictionary contains the following information::
 
-            {
-                'modelid':  'The plots id, which can be used in the Bokeh.index',
-                'elementid': 'The css identifier the BokehJS will look for to target the plot',
-                'modeltype': 'The Bokeh model name e.g. Plot, Slider',
-            }
+                {
+                    'modelid':  'The plots id, which can be used in the Bokeh.index',
+                    'elementid': 'The css identifier the BokehJS will look for to target the plot',
+                    'modeltype': 'The Bokeh model name e.g. Plot, Slider',
+                }
 
+    Returns:
+        (script, div[s]) :  UTF-8 encoded
 
+            The output depends on the input as follows::
 
-    Returns
-    -------
-    (script, div[s]) :  UTF-8 encoded
+                components(plot)
+                # => (script, plot_div)
 
-        The output depends on the input as follows::
+                components((plot1, plot2))
+                # => (script, (plot1_div, plot2_div))
 
-            components(plot)
-            # => (script, plot_div)
+                components({"Plot 1": plot1, "Plot 2": plot2})
+                # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
 
-            components((plot1, plot2))
-            # => (script, (plot1_div, plot2_div))
+        (raw_script, plot_info[s]) : UTF-8 encoded
 
-            components({"Plot 1": plot1, "Plot 2": plot2})
-            # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
+            The output depends on the input as follows::
 
-    (raw_script, plot_info[s]) : UTF-8 encoded
+                components(plot, wrap_script=False, wrap_plot_info=False)
+                # => (javascript, plot_dict)
 
-        The output depends on the input as follows::
+                components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
+                # => (javascript, (plot1_dict, plot2_dict))
 
-            components(plot, wrap_script=False, wrap_plot_info=False)
-            # => (javascript, plot_dict)
-
-            components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
-            # => (javascript, (plot1_dict, plot2_dict))
-
-            components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
-            # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
+                components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
+                # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
     '''
     all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
 

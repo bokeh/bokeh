@@ -1,16 +1,25 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function
 
-import argparse, os, sys
+import argparse
 import logging
-
-import werkzeug.serving
+import os
+import sys
 
 from bokeh import __version__; __version__
 from bokeh.server.utils.reload import robust_reloader; robust_reloader
 from bokeh.server.app import bokeh_app; bokeh_app
 from bokeh.settings import settings; settings
+import werkzeug.serving
 
 DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'memory')
+
 if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
     print("Unrecognized default backend: '%s'. Accepted values are: 'redis', 'shelve', 'memory'" % DEFAULT_BACKEND)
     sys.exit(1)
@@ -50,11 +59,6 @@ def build_parser():
 
     # advanced configuration
     advanced = parser.add_argument_group('Advanced Options')
-    advanced.add_argument("-D", "--blaze-config",
-                          help="blaze_config_File",
-                          type=str,
-                          default=None
-                          )
     advanced.add_argument("-m", "--multi-user",
                           help="start in multi-user configuration (default: False)",
                           action="store_true",
@@ -99,7 +103,6 @@ def build_parser():
     # dev, debugging, etc.
     class DevAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
-            #namespace.splitjs = True
             namespace.debugjs = True
             namespace.backend = 'memory'
 
@@ -117,16 +120,11 @@ def build_parser():
     dev.add_argument("--filter-logs",
                      action="store_true",
                      default=False,
-                     help="don't show 'GET /static/... 200 OK', useful with --splitjs")
+                     help="don't show 'GET /static/... 200 OK'")
     dev.add_argument("-j", "--debugjs",
                      action="store_true",
                      default=False,
                      help="serve BokehJS files from the bokehjs build directory in the source tree"
-                     )
-    dev.add_argument("-s", "--splitjs",
-                     action="store_true",
-                     default=False,
-                     help="serve individual JS files instead of compiled bokeh.js, requires --debugjs"
                      )
     dev.add_argument("--robust-reload",
                      help="protect debug server reloading from syntax errors",
@@ -163,7 +161,7 @@ def run():
         name.replace('_', '-') + ":" + onoff[vars(args).get(name)] for name in ['debug', 'verbose', 'filter_logs', 'multi_user']
     )
     js_options = ", ".join(
-        name + ":" + onoff[vars(args).get(name)]for name in ['splitjs', 'debugjs']
+        name + ":" + onoff[vars(args).get(name)]for name in ['debugjs']
     )
 
     if not args.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':

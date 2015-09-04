@@ -1,0 +1,26 @@
+{% extends "_base.html" %}
+
+{% block head %}
+  <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
+  {% block extra_scripts %}
+  {% endblock %}
+  <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"></script>
+  <script type="text/javascript">
+    {{ self.script() }}
+  </script>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    {% if not hide_navbar %}
+      {% from "_navbar.html" import navbar %}
+      {% call navbar(title) %}
+        <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
+      {% endcall %}
+    {% endif %}
+    <div class="row">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}

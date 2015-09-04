@@ -4,7 +4,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 from . import _glyph_functions as gf
-from .deprecate import deprecated
 from .models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
 from .plotting_helpers import (
     _list_attr_splat, _get_range, _get_axis_class, _get_num_minor_ticks, _process_tools_arg
@@ -21,22 +20,7 @@ from .io import (
 # Names that we want in this namespace (fool pyflakes)
 (GridPlot, Document, ColumnDataSource, Session, cursession, gridplot,
 show, save, reset_output, push, output_file, output_notebook,
-output_server)
-
-
-@deprecated("Bokeh 0.8.2", "bokeh.plotting.vplot function")
-def VBox(*args, **kwargs):
-    ''' Generate a layout that arranges several subplots vertically.
-    '''
-
-    return vplot(*args, **kwargs)
-
-@deprecated("Bokeh 0.8.2", "bokeh.plotting.hplot function")
-def HBox(*args, **kwargs):
-    ''' Generate a layout that arranges several subplots horizontally.
-    '''
-
-    return hplot(*args, **kwargs)
+output_server, vplot, hplot)
 
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
