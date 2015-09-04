@@ -15,7 +15,7 @@ class PlotWidget extends ContinuumView
 
   bind_bokeh_events: () ->
 
-  request_render: () ->
+  request_render: () =>
     @plot_view.request_render()
 
   module.exports = PlotWidget

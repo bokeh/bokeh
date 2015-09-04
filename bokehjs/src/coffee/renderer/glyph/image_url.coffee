@@ -3,6 +3,10 @@ Glyph = require "./glyph"
 
 class ImageURLView extends Glyph.View
 
+  initialize: (options) ->
+    super(options)
+    @listenTo(@model, 'change:global_alpha', @renderer.request_render)
+
   _index_data: () ->
     @_xy_index()
 
@@ -23,16 +27,11 @@ class ImageURLView extends Glyph.View
 
       if need_load[i]
         img = new Image()
-        model = @model
-        img.onerror = do (img, i, model) =>
+        img.onerror = do (i) =>
           return () =>
             if @retry_attempts[i] > 0
-              debugger;
-              model._delay(@mget('retry_timeout'), model.renderer.request_render)
+              setTimeout(@renderer.request_render, @mget('retry_timeout'))
             @retry_attempts[i] -= 1
-
-              # @_delay(@mget('retry_timeout'), @renderer.request_render)
-              # setTimeout(@renderer.request_render, @mget('retry_timeout'))
 
         img.onload = do (img, i) =>
           return () =>
@@ -43,9 +42,6 @@ class ImageURLView extends Glyph.View
         img.src = url[i]
       else
         @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
-
-  _delay: (ms, func) ->
-    setTimeout(func, ms)
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
