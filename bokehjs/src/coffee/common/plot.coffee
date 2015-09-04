@@ -352,6 +352,10 @@ class PlotView extends ContinuumView
     if not @initial_range_info?
       @set_initial_range()
 
+    # TODO - This should only be on in testing
+    # @$el.find('canvas').attr('data-hash', ctx.hash());
+    
+
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
 

@@ -7,6 +7,6 @@ p = figure()
 url = ["http://bokeh.pydata.org/en/latest/_static/bokeh-transparent.png"]*10
 x = list(range(0, 100, 10))
 y = list(range(0, 100, 10))
-p.image_url(x=x, y=y, url=url)
+p.image_url(x=x, y=y, url=url, global_alpha=0.2)
 
 show(p)

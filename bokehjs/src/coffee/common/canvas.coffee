@@ -7,6 +7,8 @@ LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 Solver = require "./solver"
 
+# TODO - This should only be on in testing
+#require 'Canteen'
 
 class CanvasView extends ContinuumView
   className: "bk-canvas-wrapper"
@@ -28,18 +30,18 @@ class CanvasView extends ContinuumView
     @canvas_events = @$('div.bk-canvas-events')
     @canvas_overlay = @$('div.bk-canvas-overlays')
     @map_div = @$('div.bk-canvas-map') ? null
-    
+
     # Create context. This is the object that gets passed arount while drawing
     @ctx = @canvas[0].getContext('2d')
     @ctx.glcanvas = null  # init without webgl support (can be overriden in plot.coffee)
-    
+
     logger.debug("CanvasView initialized")
 
   render: (force=false) ->
     # normally we only want to render the canvas when the canvas itself
     # should be configured with new bounds.
     if not @model.new_bounds and not force
-      return    
+      return
 
     if @mget('use_hidpi')
       devicePixelRatio = window.devicePixelRatio || 1
