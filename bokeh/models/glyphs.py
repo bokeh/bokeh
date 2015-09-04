@@ -482,11 +482,13 @@ class ImageURL(Glyph):
     """)
 
     retry_attempts = Int(0, help="""
-    Number of attempts to retry fetching the image after raising an error
+    Number of attempts to retry loading the images from the specified URL.
+    Default is zero.
     """)
 
     retry_timeout = Int(0, help="""
-    Timeout between retry attempts
+    Timeout (in ms) between retry attempts to load the image from the
+    specified URL. Default is zero ms.
     """)
 
 class Line(Glyph):
