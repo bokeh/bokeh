@@ -22,8 +22,9 @@ class ScatterGlyph(CompositeGlyph):
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
     line_color = String(default=DEFAULT_PALETTE[0])
     fill_color = String(default=DEFAULT_PALETTE[1])
+    fill_alpha = Float(default=0.8)
     marker = String(default='circle')
-    size = Float(default=5)
+    size = Float(default=7)
 
     def __init__(self, x=None, y=None, line_color=DEFAULT_PALETTE[0], fill_color=DEFAULT_PALETTE[0],
                  marker='circle', size=5, **kwargs):
@@ -38,7 +39,7 @@ class ScatterGlyph(CompositeGlyph):
 
     def build_renderers(self):
         yield GlyphRenderer(glyph=marker_types[self.marker](x='x_values', y='y_values', line_color=self.line_color,
-                            fill_color=self.fill_color, size=self.size))
+                            fill_color=self.fill_color, size=self.size, fill_alpha=self.fill_alpha))
 
     def build_source(self):
         if self.x is None:

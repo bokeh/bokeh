@@ -187,7 +187,12 @@ class BarBuilder(Builder):
 
         self.x_range = FactorRange(factors=x_labels)
         y_shift = 0.1 * ((self.max_height + self.max_height) / 2)
-        self.y_range = Range1d(start=self.min_height - y_shift, end=self.max_height + y_shift)
+        if self.glyph == BarGlyph:
+            start = 0.0
+        else:
+            start = self.min_height - y_shift
+
+        self.y_range = Range1d(start=start, end=self.max_height + y_shift)
 
     def add_renderer(self, group, renderer):
 
