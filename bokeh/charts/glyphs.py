@@ -129,12 +129,20 @@ class Interval(AggregateGlyph):
         return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color, fill_alpha=fill_alpha))
 
     @property
-    def x_extent(self):
+    def x_max(self):
         return self.dodge_shift + (self.width / 2.0)
 
     @property
-    def y_extent(self):
-        return self.stack_shift + self.span
+    def x_min(self):
+        return self.dodge_shift - (self.width / 2.0)
+
+    @property
+    def y_max(self):
+        return self.stack_shift + self.span + self.start
+
+    @property
+    def y_min(self):
+        return self.stack_shift
 
     def build_renderers(self):
         glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color', fill_alpha='fill_alpha')
@@ -189,13 +197,24 @@ class BoxGlyph(AggregateGlyph):
     def _set_sources(self):
         pass
 
-    @property
-    def x_extent(self):
-        return max([renderer.x_extent for renderer in [self.quartile2, self.quartile3]])
+    def get_extent(self, func, prop_name):
+        return func([getattr(renderer, prop_name) for renderer in [self.quartile2, self.quartile3]])
 
     @property
-    def y_extent(self):
-        return max([renderer.y_extent for renderer in [self.quartile2, self.quartile3]])
+    def x_max(self):
+        return self.get_extent(max, 'x_max')
+
+    @property
+    def x_min(self):
+        return self.get_extent(min, 'x_min')
+
+    @property
+    def y_max(self):
+        return self.get_extent(max, 'y_max')
+
+    @property
+    def y_min(self):
+        return self.get_extent(min, 'y_min')
 
 
 class Histogram(AggregateGlyph):

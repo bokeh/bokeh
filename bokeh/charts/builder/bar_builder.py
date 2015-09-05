@@ -186,7 +186,7 @@ class BarBuilder(Builder):
             x_labels.append(str(item))
 
         self.x_range = FactorRange(factors=x_labels)
-        self.y_range = Range1d(start=1.1 * self.min_height, end=1.1 * self.max_height)
+        self.y_range = Range1d(start=0.9 * self.min_height, end=1.1 * self.max_height)
 
     def add_renderer(self, group, renderer):
 
@@ -226,12 +226,12 @@ class BarBuilder(Builder):
         for group in self._data.groupby(**self.attributes):
 
             bg = self.glyph(label=self._get_label(group['label']),
-                          values=group.data[self.values.selection].values,
-                          agg=stats[self.agg](),
-                          width=self.bar_width,
-                          color=group['color'],
-                          stack_label=self._get_label(group['stack']),
-                          dodge_label=self._get_label(group['group']))
+                            values=group.data[self.values.selection].values,
+                            agg=stats[self.agg](),
+                            width=self.bar_width,
+                            color=group['color'],
+                            stack_label=self._get_label(group['stack']),
+                            dodge_label=self._get_label(group['group']))
 
             self.add_renderer(group, bg)
 
@@ -239,8 +239,8 @@ class BarBuilder(Builder):
         Dodge().apply(self.renderers)
 
         # a higher level function of bar chart is to keep track of max height of all bars
-        self.max_height = max([renderer.y_extent for renderer in self.renderers])
-        self.min_height = min([renderer.y_extent for renderer in self.renderers])
+        self.max_height = max([renderer.y_max for renderer in self.renderers])
+        self.min_height = min([renderer.y_min for renderer in self.renderers])
 
         for renderer in self.renderers:
             for sub_renderer in renderer.renderers:
