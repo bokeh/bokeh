@@ -3,12 +3,6 @@ from __future__ import absolute_import
 from warnings import warn
 from . import callbacks
 
-warn(
-    '`bokeh.models.actions` is deprecated in favor of `bokeh.models.callbacks` '
-    'and will be removed in v0.10.',
-    FutureWarning, stacklevel=2
-)
-
 
 def Action(*args, **kwargs):
     warn(
