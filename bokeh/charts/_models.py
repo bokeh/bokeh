@@ -55,7 +55,7 @@ class CompositeGlyph(HasProps):
 
         super(CompositeGlyph, self).__init__(**kwargs)
 
-        self.renderers = self.build_renderers()
+        self.renderers = [renderer for renderer in self.build_renderers()]
         self.refresh()
 
     def refresh(self):

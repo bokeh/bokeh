@@ -3,34 +3,41 @@ from collections import OrderedDict
 import pandas as pd
 
 from bokeh.charts import BoxPlot, output_file, show
-from bokeh.sampledata.olympics2014 import data
+from bokeh.sampledata.autompg import autompg as df
+from bokeh.charts import defaults, vplot, hplot
 
-# create a DataFrame with the sample data
-df = pd.io.json.json_normalize(data['data'])
+defaults.width = 350
+defaults.height = 250
 
-# filter by countries with at least one medal and sort
-df = df[df['medals.total'] > 0]
-df = df.sort("medals.total", ascending=False)
+bar_plot = BoxPlot(df, label='cyl', values='mpg', title="label='cyl'")
 
-# get the countries and group the data by medal type
-countries = df.abbr.values.tolist()
-gold = df['medals.gold'].astype(float).values
-silver = df['medals.silver'].astype(float).values
-bronze = df['medals.bronze'].astype(float).values
+# bar_plot2 = BoxPlot(df, label='cyl', bar_width=0.4, title="label='cyl' bar_width=0.4")
+#
+# bar_plot3 = BoxPlot(df, label='cyl', values='mpg', agg='mean',
+#                 title="label='cyl' values='mpg' agg='mean'")
+#
+# bar_plot4 = BoxPlot(df, label='cyl', title="label='cyl' color='DimGray'", color='dimgray')
+#
+# # multiple columns
+# bar_plot5 = BoxPlot(df, label=['cyl', 'origin'], values='mpg', agg='mean',
+#                 title="label=['cyl', 'origin'] values='mpg' agg='mean'")
+#
+# bar_plot6 = BoxPlot(df, label='origin', values='mpg', agg='mean', stack='cyl',
+#                 title="label='origin' values='mpg' agg='mean' stack='cyl'", legend='top_right')
+#
+# bar_plot7 = BoxPlot(df, label='cyl', values='displ', agg='mean', group='origin',
+#                 title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
 
-# build a dict containing the grouped data
-medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+# ToDo: negative values
+# bar_plot8 = Bar(df, label='cyl', values='neg_displ', agg='mean', group='origin', color='origin',
+#                 title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
 
-# any of the following commented are valid BoxPlot inputs
-#medals = pd.DataFrame(medals)
-#medals = list(medals.values())
-#medals = tuple(medals.values())
-#medals = np.array(list(medals.values()))
 
-output_file("boxplot.html")
+# collect and display
+output_file("bar.html")
 
-boxplot = BoxPlot(
-    medals, marker='circle', outliers=True, title="boxplot test",
-    xlabel="medal type", ylabel="medal count", width=800, height=600)
-
-show(boxplot)
+show(
+    vplot(
+        hplot(bar_plot)
+    )
+)

@@ -177,3 +177,17 @@ class Dimension(HasProps):
             return False
         else:
             return self._chart_source.is_computed(self.selection)
+
+
+class EitherColumn(Either):
+    """Allow providing option of column types."""
+
+    # ToDo: incorporate fix into Either
+    def matches(self, new, old):
+        comparison = super(EitherColumn, self).matches(new, old)
+        if isinstance(comparison, bool):
+            return comparison
+        elif isinstance(comparison, pd.Series):
+            return comparison.all()
+        else:
+            raise ValueError('Failed when comparing Columns')

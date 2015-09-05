@@ -26,14 +26,14 @@ except ImportError:
     raise RuntimeError("bokeh.charts Bar chart requires NumPy.")
 
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph
-from ...properties import String, Float, Int, List
+from ...properties import Float, Enum
 from .._properties import Dimension
 from .._attributes import ColorAttr, GroupAttr
-from .._models import CompositeGlyph
 from ..operations import Stack, Dodge
-from ..utils import ordered_set
+from ...enums import Aggregation
+from ..stats import stats
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -139,10 +139,13 @@ class BarBuilder(Builder):
                           'stack': GroupAttr(),
                           'group': GroupAttr()}
 
-    agg = String('sum')
+    agg = Enum(Aggregation, default='sum')
 
     max_height = Float(1.0)
+    min_height = Float(0.0)
     bar_width = Float(default=0.8)
+
+    glyph = BarGlyph
 
     def _setup(self):
 
@@ -183,11 +186,15 @@ class BarBuilder(Builder):
             x_labels.append(str(item))
 
         self.x_range = FactorRange(factors=x_labels)
-        self.y_range = Range1d(start=0, end=1.1 * self.max_height)
+        self.y_range = Range1d(start=1.1 * self.min_height, end=1.1 * self.max_height)
 
     def add_renderer(self, group, renderer):
 
-        self.renderers.append(renderer)
+        if isinstance(renderer, list):
+            for sub_renderer in renderer:
+                self.renderers.append(sub_renderer)
+        else:
+            self.renderers.append(renderer)
 
         # ToDo: support grouping and stacking at the same time
         if self.attributes['stack'].columns is not None:
@@ -218,9 +225,9 @@ class BarBuilder(Builder):
 
         for group in self._data.groupby(**self.attributes):
 
-            bg = BarGlyph(label=self._get_label(group['label']),
+            bg = self.glyph(label=self._get_label(group['label']),
                           values=group.data[self.values.selection].values,
-                          agg=self.agg,
+                          agg=stats[self.agg](),
                           width=self.bar_width,
                           color=group['color'],
                           stack_label=self._get_label(group['stack']),
@@ -233,6 +240,8 @@ class BarBuilder(Builder):
 
         # a higher level function of bar chart is to keep track of max height of all bars
         self.max_height = max([renderer.y_extent for renderer in self.renderers])
+        self.min_height = min([renderer.y_extent for renderer in self.renderers])
 
         for renderer in self.renderers:
-            yield renderer.renderers[0]
+            for sub_renderer in renderer.renderers:
+                yield sub_renderer
