@@ -23,6 +23,8 @@ from bokeh.charts._builder import create_and_build, XYBuilder
 from bokeh.charts.utils import marker_types
 from bokeh.charts import DEFAULT_PALETTE
 
+from bokeh.charts.glyphs import ScatterGlyph
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -59,12 +61,6 @@ def Scatter(*args, **kws):
     return create_and_build(ScatterBuilder, *args, **kws)
 
 
-def scatter_glyph(x, y, line_color=DEFAULT_PALETTE[0], fill_color=DEFAULT_PALETTE[0], marker='circle', size=5):
-    """Produces a glyph that represents one distinct group of data."""
-
-    return marker_types[marker](x=x, y=y, line_color=line_color, fill_color=fill_color, size=size)
-
-
 class ScatterBuilder(XYBuilder):
     """This is the Scatter class and it is in charge of plotting
     Scatter charts in an easy and intuitive way.
@@ -92,11 +88,11 @@ class ScatterBuilder(XYBuilder):
 
         for group in self._data.groupby(**self.attributes):
 
-            glyph = scatter_glyph(self._data['x'], self._data['y'],
-                                  line_color=group['color'], fill_color=group['color'],
-                                  marker=group['marker'])
+            glyph = ScatterGlyph(group.data[self.x.selection], group.data[self.y.selection],
+                                 line_color=group['color'], fill_color=group['color'],
+                                 marker=group['marker'])
 
-            renderer = GlyphRenderer(data_source=group.source, glyph=glyph)
+            renderer = glyph.renderers[0]
             self._legends.append((str(group.label), [renderer]))
 
             yield renderer

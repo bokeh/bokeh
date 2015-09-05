@@ -3,14 +3,45 @@ from __future__ import absolute_import
 from collections import defaultdict
 import numpy as np
 
-from bokeh.properties import Float, String, Enum, Instance
+from bokeh.properties import Float, String, Datetime, Bool, Instance
 from bokeh.enums import Aggregation
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.glyphs import Rect, Segment
 
 from ._models import CompositeGlyph
+from ._properties import Column, EitherColumn
+from bokeh.charts import DEFAULT_PALETTE
+from .utils import marker_types
 from .stats import Stat, Quantile, Sum, Min, Max
+
+
+class ScatterGlyph(CompositeGlyph):
+
+    x = EitherColumn(Column(Float), Column(String), Column(Datetime), Column(Bool))
+    y = EitherColumn(Column(Float), Column(String), Column(Datetime), Column(Bool))
+    line_color = String(default=DEFAULT_PALETTE[0])
+    fill_color = String(default=DEFAULT_PALETTE[1])
+    marker = String(default='circle')
+    size = Float(default=5)
+
+    def __init__(self, x, y, line_color=DEFAULT_PALETTE[0], fill_color=DEFAULT_PALETTE[0], marker='circle', size=5,
+                 **kwargs):
+        """Produces a glyph that represents one distinct group of data."""
+        kwargs['x'] = x
+        kwargs['y'] = y
+        kwargs['line_color'] = line_color
+        kwargs['fill_color'] = fill_color
+        kwargs['marker'] = marker
+        kwargs['size'] = size
+        super(ScatterGlyph, self).__init__(**kwargs)
+
+    def build_renderers(self):
+        yield GlyphRenderer(glyph=marker_types[self.marker](x='x', y='y', line_color=self.line_color,
+                            fill_color=self.fill_color, size=self.size))
+
+    def build_source(self):
+        return ColumnDataSource(dict(x=self.x, y=self.y))
 
 
 class AggregateGlyph(CompositeGlyph):
