@@ -27,6 +27,9 @@ class Column(Array):
         return pd.Series(value)
 
     def transform(self, value):
+        if value is None:
+            return None
+
         if isinstance(value, pd.Series):
             arr = value.values
         else:

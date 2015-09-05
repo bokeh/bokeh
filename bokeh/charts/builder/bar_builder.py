@@ -186,7 +186,8 @@ class BarBuilder(Builder):
             x_labels.append(str(item))
 
         self.x_range = FactorRange(factors=x_labels)
-        self.y_range = Range1d(start=0.9 * self.min_height, end=1.1 * self.max_height)
+        y_shift = 0.1 * ((self.max_height + self.max_height) / 2)
+        self.y_range = Range1d(start=self.min_height - y_shift, end=self.max_height + y_shift)
 
     def add_renderer(self, group, renderer):
 

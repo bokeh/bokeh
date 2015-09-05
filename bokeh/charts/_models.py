@@ -45,6 +45,11 @@ class CompositeGlyph(HasProps):
     operations = List(Any)
     renderers = List(Instance(GlyphRenderer))
 
+    left_buffer = Float(default=0.0)
+    right_buffer = Float(default=0.0)
+    top_buffer = Float(default=0.0)
+    bottom_buffer = Float(default=0.0)
+
     def __init__(self, **kwargs):
         label = kwargs.pop('label', None)
 
