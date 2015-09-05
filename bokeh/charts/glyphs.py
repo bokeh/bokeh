@@ -7,7 +7,7 @@ from bokeh.properties import Float, String, Enum, Instance
 from bokeh.enums import Aggregation
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.models.glyphs import Rect
+from bokeh.models.glyphs import Rect, Segment
 
 from ._models import CompositeGlyph
 from .stats import Stat, Quantile, Sum, Min, Max
@@ -20,7 +20,7 @@ class AggregateGlyph(CompositeGlyph):
     stack_shift = Float(default=0.0)
 
     dodge_label = String()
-    dodge_shift = Float(default=0.0)
+    dodge_shift = Float(default=0.5)
 
     agg = Instance(Stat, default=Sum())
 
@@ -29,8 +29,8 @@ class AggregateGlyph(CompositeGlyph):
     def __init__(self, **kwargs):
         super(AggregateGlyph, self).__init__(**kwargs)
 
-    def get_dodge_label(self):
-        return self.label + ':' + str(self.dodge_shift)
+    def get_dodge_label(self, shift=0.0):
+        return self.label + ':' + str(self.dodge_shift + shift)
 
     def filter_glyphs(self, glyphs):
         return [glyph for glyph in glyphs if isinstance(glyph, self.__class__)]
@@ -175,30 +175,78 @@ class QuartileGlyph(Interval):
 class BoxGlyph(AggregateGlyph):
     """Summarizes the distribution with a collection of glyphs."""
 
-    quartile2 = Instance(QuartileGlyph)
-    quartile3 = Instance(QuartileGlyph)
+    q1 = Float()
+    q2 = Float()
+    q3 = Float()
+    iqr = Float()
+
+    w0 = Float(help='Lower whisker')
+    w1 = Float(help='Upper whisker')
+
+    q2_glyph = Instance(QuartileGlyph)
+    q3_glyph = Instance(QuartileGlyph)
+
+    w0_span_glyph = Instance(GlyphRenderer)
+    w0_whisker_glyph = Instance(GlyphRenderer)
+    w1_span_glyph = Instance(GlyphRenderer)
+    w1_whisker_glyph = Instance(GlyphRenderer)
+
+    whisker_width = Float(default=0.3)
 
     def __init__(self, label, values, outliers=False, **kwargs):
         width = kwargs.pop('width', None)
 
-        kwargs['quartile2'] = QuartileGlyph(label=label, values=values, interval1=0.25, interval2=0.5, width=width)
-        kwargs['quartile3'] = QuartileGlyph(label=label, values=values, interval1=0.5, interval2=0.75, width=width)
+        kwargs['label'] = label
+        kwargs['q2_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.25, interval2=0.5, width=width)
+        kwargs['q3_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.5, interval2=0.75, width=width)
+        kwargs['w0_span_glyph'] = GlyphRenderer(glyph=Segment(x0="x_label", y0='w0_span_y0', x1="x_label",
+                                                y1='w0_span_y1', line_color="black", line_width=2))
+        kwargs['w0_whisker_glyph'] = GlyphRenderer(glyph=Segment(x0="w_x0", y0='w0_y', x1="w_x1",
+                                                   y1='w0_y', line_color="black", line_width=2))
+        kwargs['w1_span_glyph'] = GlyphRenderer(glyph=Segment(x0="x_label", y0='w1_span_y0', x1="x_label",
+                                                y1='w1_span_y1', line_color="black", line_width=2))
+        kwargs['w1_whisker_glyph'] = GlyphRenderer(glyph=Segment(x0="w_x0", y0='w1_y', x1="w_x1",
+                                                   y1='w1_y', line_color="black", line_width=2))
         super(BoxGlyph, self).__init__(**kwargs)
 
     def build_renderers(self):
-
-        for comp_glyph in [self.quartile2, self.quartile3]:
+        for comp_glyph in [self.q2_glyph, self.q3_glyph]:
             for renderer in comp_glyph.renderers:
                 yield renderer
 
+        for renderer in self.segments:
+            yield renderer
+
     def build_source(self):
-        return None
+        self.q1 = self.q2_glyph.start
+        self.q2 = self.q2_glyph.end
+        self.q3 = self.q3_glyph.end
+        self.w0 = self.q1 - (1.5 * self.iqr)
+        self.w1 = self.q3 + (1.5 * self.iqr)
+
+        w_x0 = [self.get_dodge_label(shift=(self.whisker_width / 2.0))]
+        w_x1 = [self.get_dodge_label(shift=-(self.whisker_width / 2.0))]
+        x_label = [self.get_dodge_label()]
+        w0_y = [self.w0]
+        w1_y = [self.w1]
+
+        return ColumnDataSource(dict(w_x0=w_x0, w_x1=w_x1, x_label=x_label, w0_y=w0_y, w1_y=w1_y,
+                              w0_span_y0=[self.w0], w0_span_y1=[self.q1], w1_span_y0=[self.q3], w1_span_y1=[self.w1]))
 
     def _set_sources(self):
-        pass
+        for renderer in self.segments:
+            renderer.data_source = self.source
 
     def get_extent(self, func, prop_name):
-        return func([getattr(renderer, prop_name) for renderer in [self.quartile2, self.quartile3]])
+        return func([getattr(renderer, prop_name) for renderer in [self.q2_glyph, self.q3_glyph]])
+
+    @property
+    def segments(self):
+        return [self.w0_span_glyph, self.w0_whisker_glyph, self.w1_span_glyph, self.w1_whisker_glyph]
+
+    @property
+    def iqr(self):
+        return abs(self.q3 - self.q1)
 
     @property
     def x_max(self):
@@ -210,11 +258,11 @@ class BoxGlyph(AggregateGlyph):
 
     @property
     def y_max(self):
-        return self.get_extent(max, 'y_max')
+        return self.w1
 
     @property
     def y_min(self):
-        return self.get_extent(min, 'y_min')
+        return self.w0
 
 
 class Histogram(AggregateGlyph):
