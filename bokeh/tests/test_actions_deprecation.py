@@ -36,6 +36,10 @@ class ActionsDeprecationTests(unittest.TestCase):
         callback = Callback()
         self.assertIsInstance(callback, callbacks.CustomJS)
 
+    def test_actions_callback_with_arguments_returns_callbacks_customjs(self):
+        callback = Callback(args={}, code='test')
+        self.assertIsInstance(callback, callbacks.CustomJS)
+
     def test_actions_openurl_returns_callbacks_openurl(self):
         openurl = OpenURL()
         self.assertIsInstance(openurl, callbacks.OpenURL)
@@ -47,3 +51,10 @@ class ActionsDeprecationTests(unittest.TestCase):
     def test_models_action_returns_callbacks_callback(self):
         models_action = modelsAction()
         self.assertIsInstance(models_action, callbacks.Callback)
+
+    # Test import from models
+
+    def test_from_models_actions_callback_with_arguments_returns_callbacks_customjs(self):
+        from bokeh.models import Callback
+        callback = Callback(args={}, code='test')
+        self.assertIsInstance(callback, callbacks.CustomJS)

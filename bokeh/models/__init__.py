@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 from .annotations import *
 from .axes import *
-from .callbacks import *
+from .callbacks import CustomJS, OpenURL
 from .formatters import *
 from .glyphs import *
 from .grids import *
@@ -19,3 +19,6 @@ from .tickers import *
 from .tools import *
 from .widget import *
 from .widgets import *
+
+# This needs to go at the end (otherwise other imports of Callback are picked up)
+from .actions import Action, Callback
