@@ -83,6 +83,7 @@
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "numeral": "./src/vendor/numeral.js-1.5.3/numeral.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js",
+    "gloo2": "./src/vendor/gloo/gloo2.js",
     "Canteen": "./node_modules/Canteen/build/canteen.js"
   },
   "browserify-shim": {},

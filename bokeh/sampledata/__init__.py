@@ -59,6 +59,7 @@ def download(progress=True):
     files = [
         (s3, 'CGM.csv'),
         (s3, 'US_Counties.zip'),
+        (s3, 'us_cities.json'),
         (s3, 'unemployment09.csv'),
         (s3, 'AAPL.csv'),
         (s3, 'FB.csv'),

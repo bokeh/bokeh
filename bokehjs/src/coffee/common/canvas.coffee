@@ -31,6 +31,10 @@ class CanvasView extends ContinuumView
     @canvas_overlay = @$('div.bk-canvas-overlays')
     @map_div = @$('div.bk-canvas-map') ? null
 
+    # Create context. This is the object that gets passed arount while drawing
+    @ctx = @canvas[0].getContext('2d')
+    @ctx.glcanvas = null  # init without webgl support (can be overriden in plot.coffee)
+
     logger.debug("CanvasView initialized")
 
   render: (force=false) ->
@@ -38,7 +42,6 @@ class CanvasView extends ContinuumView
     # should be configured with new bounds.
     if not @model.new_bounds and not force
       return
-    @ctx = @canvas[0].getContext('2d')
 
     if @mget('use_hidpi')
       devicePixelRatio = window.devicePixelRatio || 1
@@ -66,6 +69,7 @@ class CanvasView extends ContinuumView
     @ctx.translate(0.5, 0.5)
 
     # work around canvas incompatibilities
+    # todo: this is done ON EACH DRAW, is that intended?
     @_fixup_line_dash(@ctx)
     @_fixup_line_dash_offset(@ctx)
     @_fixup_image_smoothing(@ctx)

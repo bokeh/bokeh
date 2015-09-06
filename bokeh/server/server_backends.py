@@ -1,110 +1,24 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function
 
 import logging
 logger = logging.getLogger(__name__)
 
-import json
-import shelve
 import uuid
 
+from bokeh.exceptions import UnauthorizedException
 from flask import (
     request, session, flash, redirect, url_for, render_template, jsonify
 )
 
-from bokeh.exceptions import DataIntegrityException
-from bokeh.util.string import encode_utf8, decode_utf8
-
 from .app import bokeh_app
 from .models import user, docs, convenience
-from .models import UnauthorizedException
-
-class AbstractServerModelStorage(object):
-    """Storage class for server side models (non backbone, that would be
-    document and user classes)
-    """
-    def get(self, key):
-        """given a key returns json objects"""
-        raise NotImplementedError
-
-    def set(self, key, val):
-        """given a key and a json object, saves it"""
-        raise NotImplementedError
-
-    def create(self, key, val):
-        """given a key and a json object, saves it
-        differs from set because this method should check
-        to make sure the object doesn't already exist
-        """
-        raise NotImplementedError
-
-class RedisServerModelStorage(object):
-    def __init__(self, redisconn):
-        self.redisconn = redisconn
-
-    def get(self, key):
-        data = self.redisconn.get(key)
-        if data is None:
-            return None
-        attrs = json.loads(data.decode('utf-8'))
-        return attrs
-
-    def set(self, key, val):
-        self.redisconn.set(key, json.dumps(val))
-
-    def create(self, key, val):
-        with self.redisconn.pipeline() as pipe:
-            pipe.watch(key)
-            pipe.multi()
-            if self.redisconn.exists(key):
-                raise DataIntegrityException("%s already exists" % key)
-            else:
-                pipe.set(key, json.dumps(val))
-            pipe.execute()
-
-class InMemoryServerModelStorage(object):
-    def __init__(self):
-        self._data = {}
-
-    def get(self, key):
-        data = self._data.get(key, None)
-        if data is None:
-            return None
-        attrs = json.loads(decode_utf8(data))
-        return attrs
-
-    def set(self, key, val):
-        self._data[key] = json.dumps(val)
-
-    def create(self, key, val):
-        if key in self._data:
-            raise DataIntegrityException("%s already exists" % key)
-        self._data[key] = json.dumps(val)
-
-class ShelveServerModelStorage(object):
-
-    def get(self, key):
-        _data = shelve.open('bokeh.server')
-        key = encode_utf8(key)
-        data = _data.get(key, None)
-        if data is None:
-            return None
-        attrs = json.loads(decode_utf8(data))
-        _data.close()
-        return attrs
-
-    def set(self, key, val):
-        _data = shelve.open('bokeh.server')
-        key = encode_utf8(key)
-        _data[key] = json.dumps(val)
-        _data.close()
-
-    def create(self, key, val):
-        key = str(key)
-        _data = shelve.open('bokeh.server')
-        if key in _data:
-            raise DataIntegrityException("%s already exists" % key)
-        _data[key] = json.dumps(val)
-        _data.close()
 
 class AbstractAuthentication(object):
     def current_user_name(self):

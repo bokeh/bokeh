@@ -27,18 +27,7 @@ class ImageURLView extends Glyph.View
           return () =>
             @loaded[i] = true
             image[i] = img
-            ctx.save()
-            ctx.beginPath()
-            # TODO should take the real axis rule width into account, for now shrink region by 1 px
-            frame = @renderer.plot_view.frame
-            # use bottom here because frame is view coords
-            ctx.rect(
-              frame.get('left')+1, frame.get('bottom')+1,
-              frame.get('width')-2, frame.get('height')-2,
-            )
-            ctx.clip()
-            @_render_image(ctx, i, image[i], sx, sy, sw, sh, angle)
-            ctx.restore()
+            @renderer.request_render()
 
         img.src = url[i]
         need_load[i] = false
@@ -64,6 +53,10 @@ class ImageURLView extends Glyph.View
     anchor = @mget('anchor') or "top_left"
     [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
 
+    ctx.save()
+
+    ctx.globalAlpha = @mget("global_alpha")
+
     if angle[i]
       ctx.translate(sx, sy)
       ctx.rotate(angle[i])
@@ -72,6 +65,7 @@ class ImageURLView extends Glyph.View
       ctx.translate(-sx, -sy)
     else
       ctx.drawImage(image, sx, sy, sw[i], sh[i])
+    ctx.restore()
 
 class ImageURL extends Glyph.Model
   default_view: ImageURLView
@@ -84,6 +78,7 @@ class ImageURL extends Glyph.Model
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
+      global_alpha: 1.0
     }
 
   display_defaults: ->
