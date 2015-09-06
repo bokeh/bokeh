@@ -279,20 +279,26 @@ class XYBuilder(Builder):
 
         endx = self.x.max
         startx = self.x.min
-        self.x_range = self._get_range(startx, endx)
+        self.x_range = self._get_range(self.x.data[self.x.selection], startx, endx)
 
         endy = self.y.max
         starty = self.y.min
-        self.y_range = self._get_range(starty, endy)
+        self.y_range = self._get_range(self.y.data[self.y.selection], starty, endy)
 
     @staticmethod
-    def _get_range(start, end):
+    def _get_range(values, start, end):
 
-        diff = end - start
-        if diff == 0:
-            return FactorRange(factors=['None'])
-
-        return Range1d(start=start - 0.1 * diff, end=end + 0.1 * diff)
+        dtype = values.dtype.name
+        if dtype == 'object':
+            factors = values.drop_duplicates()
+            factors.sort(inplace=True)
+            return FactorRange(factors=factors.tolist())
+        else:
+            diff = end - start
+            if diff == 0:
+                return FactorRange(factors=['None'])
+            else:
+                return Range1d(start=start - 0.1 * diff, end=end + 0.1 * diff)
 
 
 class AggregateBuilder(Builder):

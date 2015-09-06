@@ -22,19 +22,19 @@ class ScatterGlyph(CompositeGlyph):
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
     line_color = String(default=DEFAULT_PALETTE[0])
     fill_color = String(default=DEFAULT_PALETTE[1])
-    fill_alpha = Float(default=0.8)
+    fill_alpha = Float(default=0.7)
     marker = String(default='circle')
-    size = Float(default=7)
+    size = Float(default=8)
 
-    def __init__(self, x=None, y=None, line_color=DEFAULT_PALETTE[0], fill_color=DEFAULT_PALETTE[0],
-                 marker='circle', size=5, **kwargs):
+    def __init__(self, x=None, y=None, line_color=None, fill_color=None,
+                 marker=None, size=None, **kwargs):
         """Produces a glyph that represents one distinct group of data."""
         kwargs['x'] = x
         kwargs['y'] = y
-        kwargs['line_color'] = line_color
-        kwargs['fill_color'] = fill_color
-        kwargs['marker'] = marker
-        kwargs['size'] = size
+        kwargs['line_color'] = line_color or self.line_color
+        kwargs['fill_color'] = fill_color or self.fill_color
+        kwargs['marker'] = marker or self.marker
+        kwargs['size'] = size or self.size
         super(ScatterGlyph, self).__init__(**kwargs)
 
     def build_renderers(self):
