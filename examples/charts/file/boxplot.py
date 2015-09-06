@@ -6,8 +6,8 @@ from bokeh.charts import BoxPlot, output_file, show
 from bokeh.sampledata.autompg import autompg as df
 from bokeh.charts import defaults, vplot, hplot
 
-defaults.width = 350
-defaults.height = 250
+defaults.width = 450
+defaults.height = 350
 
 bar_plot = BoxPlot(df, label='cyl', values='mpg', title="label='cyl', values='mpg'")
 

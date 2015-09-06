@@ -251,6 +251,10 @@ class BoxGlyph(AggregateGlyph):
     whisker_span_line_width = Float(default=2)
     whisker_color = String(default='black')
 
+    outlier_fill_color = String(default='red')
+    outlier_line_color = String(default='red')
+    outlier_size = Float(default=5)
+
     def __init__(self, label, values, outliers=False, **kwargs):
         width = kwargs.pop('width', None)
 
@@ -269,7 +273,9 @@ class BoxGlyph(AggregateGlyph):
                                            line_width=self.whisker_line_width, line_color=self.whisker_color))
 
         if len(outlier_values) > 0:
-            self.outliers = ScatterGlyph(y=outlier_values, label=self.get_dodge_label())
+            self.outliers = ScatterGlyph(y=outlier_values, label=self.get_dodge_label(),
+                                         line_color=self.outlier_line_color, fill_color=self.outlier_fill_color,
+                                         size=self.outlier_size)
 
         for comp_glyph in self.composite_glyphs:
             for renderer in comp_glyph.renderers:
