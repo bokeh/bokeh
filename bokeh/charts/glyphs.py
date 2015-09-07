@@ -286,6 +286,7 @@ class BoxGlyph(AggregateGlyph):
         self.q1 = self.q2_glyph.start
         self.q2 = self.q2_glyph.end
         self.q3 = self.q3_glyph.end
+        self.iqr = self.q3 - self.q1
         self.w0 = self.q1 - (1.5 * self.iqr)
         self.w1 = self.q3 + (1.5 * self.iqr)
 
@@ -317,10 +318,6 @@ class BoxGlyph(AggregateGlyph):
         return comp_glyphs
 
     @property
-    def iqr(self):
-        return abs(self.q3 - self.q1)
-
-    @property
     def x_max(self):
         return self.get_extent(max, 'x_max') + self.right_buffer
 
@@ -344,5 +341,30 @@ class Histogram(AggregateGlyph):
 
 
     """
-    def __init__(self, **kwargs):
+
+    q1 = Instance(Quantile)
+    q3 = Instance(Quantile)
+    iqr = Float()
+
+    bin_size = Float()
+
+    def __init__(self, values, label=None, **kwargs):
+        if label is not None:
+            kwargs['label'] = label
+            kwargs['values'] = values
+            kwargs['q1'] = Quantile(interval=.25)
+            kwargs['q2'] = Quantile(interval=.75)
         super(Histogram, self).__init__(**kwargs)
+
+    def calc_stats(self):
+        q1 = self.q1.calculate(self.values)
+        q3 = self.q3.calculate(self.values)
+        self.iqr = q3 - q1
+
+    def build_source(self):
+        self.calc_stats()
+
+        # Build ColumnDataSource with bar for each bin
+
+    def build_renderers(self):
+        pass
