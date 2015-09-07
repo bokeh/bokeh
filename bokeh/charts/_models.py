@@ -59,13 +59,17 @@ class CompositeGlyph(HasProps):
             kwargs['label'] = label
 
         super(CompositeGlyph, self).__init__(**kwargs)
+        self.setup()
 
+    def setup(self):
         self.renderers = [renderer for renderer in self.build_renderers()]
-        self.refresh()
+        if self.renderers is not None:
+            self.refresh()
 
     def refresh(self):
-        self.source = self.build_source()
-        self._set_sources()
+        if self.renderers is not None:
+            self.source = self.build_source()
+            self._set_sources()
 
     def build_renderers(self):
         raise NotImplementedError('You must return list of renderers.')

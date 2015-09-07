@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import pandas as pd
+import numpy as np
 
 from bokeh.properties import HasProps, Float, Either, String, Date, Datetime, Int, Bool, List, Instance
 from bokeh.models.sources import ColumnDataSource
@@ -132,7 +133,9 @@ class Bin(Stat):
 
     @staticmethod
     def binstr_to_list(bins):
-        bin_values = [float(filter(str.isdigit, val)) for val in bins.split(',')]
+        value_chunks = bins.split(',')
+        value_chunks = [val.replace('[', '').replace(']', '').replace('(', '').replace(')', '') for val in value_chunks]
+        bin_values = [float(value) for value in value_chunks]
         return bin_values[0], bin_values[1]
 
     def update(self):
@@ -143,7 +146,12 @@ class Bin(Stat):
 
 
 class Bins(Stat):
-    num_bins = Either(Int, Column(Float))
+    """A set of many individual Bin stats.
+
+    Bin counts using: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
+    """
+    num_bins = Either(Int, Float)
+    bin_width = Float(default=None, help='Use Freedman-Diaconis rule if None.')
     bins = List(Instance(Bin))
     q1 = Quantile(interval=0.25)
     q3 = Quantile(interval=0.75)
@@ -172,8 +180,8 @@ class Bins(Stat):
 
     def calc_num_bins(self, values):
         iqr = self.q3.value - self.q1.value
-        self.num_bins = int(round(2 * iqr * (len(values) ** -(1. / 3.)), 0))
-        return self.num_bins
+        self.bin_width = 2 * iqr * (len(values) ** -(1. / 3.))
+        self.num_bins = np.ceil((self.values.max() - self.values.min())/self.bin_width)
 
 
 def bin(values, num_bins=5, bins=None, labels=None):

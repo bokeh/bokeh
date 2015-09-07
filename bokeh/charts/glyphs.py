@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from collections import defaultdict
 import numpy as np
 
-from bokeh.properties import Float, String, Datetime, Bool, Instance
+from bokeh.properties import Float, String, Datetime, Bool, Instance, List, Either
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.glyphs import Rect, Segment
@@ -12,7 +12,28 @@ from ._models import CompositeGlyph
 from ._properties import Column, EitherColumn
 from bokeh.charts import DEFAULT_PALETTE
 from .utils import marker_types
-from .stats import Stat, Quantile, Sum, Min, Max
+from .stats import Stat, Quantile, Sum, Min, Max, Bins
+
+
+class NestedCompositeGlyph(CompositeGlyph):
+
+    children = List(Instance(CompositeGlyph))
+
+    @property
+    def y_max(self):
+        return max([renderer.y_max for renderer in self.children])
+
+    @property
+    def y_min(self):
+        return min([renderer.y_min for renderer in self.children])
+
+    @property
+    def x_min(self):
+        return min([renderer.x_min for renderer in self.children])
+
+    @property
+    def x_max(self):
+        return max([renderer.x_max for renderer in self.children])
 
 
 class ScatterGlyph(CompositeGlyph):
@@ -68,21 +89,18 @@ class ScatterGlyph(CompositeGlyph):
         return min(self.source._data['y_values'])
 
 
-class AggregateGlyph(CompositeGlyph):
+class AggregateGlyph(NestedCompositeGlyph):
     """A base composite glyph for aggregating an array."""
 
     stack_label = String()
     stack_shift = Float(default=0.0)
 
     dodge_label = String()
-    dodge_shift = Float(default=0.5)
+    dodge_shift = Float(default=None)
 
     agg = Instance(Stat, default=Sum())
 
     span = Float()
-
-    def __init__(self, **kwargs):
-        super(AggregateGlyph, self).__init__(**kwargs)
 
     def get_dodge_label(self, shift=0.0):
         return self.label + ':' + str(self.dodge_shift + shift)
@@ -148,20 +166,28 @@ class Interval(AggregateGlyph):
     start = Float(default=0.0)
     end = Float()
 
+    label_value = Either(String, Float, Datetime, Bool, default=None)
+
     def __init__(self, label, values, **kwargs):
         if not isinstance(label, str):
+            label_value = label
             label = str(label)
+        else:
+            label_value = None
 
         kwargs['label'] = label
+        kwargs['label_value'] = label_value
         kwargs['values'] = values
 
         super(Interval, self).__init__(**kwargs)
 
     def get_start(self):
-        return self.start_agg.calculate(self.values)
+        self.start_agg.set_data(self.values)
+        return self.start_agg.value
 
     def get_end(self):
-        return self.end_agg.calculate(self.values)
+        self.end_agg.set_data(self.values)
+        return self.end_agg.value
 
     def get_span(self):
         return self.end - self.start
@@ -173,10 +199,10 @@ class Interval(AggregateGlyph):
         self.span = self.get_span()
 
         width = [self.width]
-        if self.dodge_shift > 0:
+        if self.dodge_shift is not None:
             x = [self.get_dodge_label()]
         else:
-            x = [self.label]
+            x = [self.label_value or self.label]
         height = [self.span]
         y = [self.stack_shift + (self.span / 2.0) + self.start]
         color = [self.color]
@@ -185,11 +211,11 @@ class Interval(AggregateGlyph):
 
     @property
     def x_max(self):
-        return self.dodge_shift + (self.width / 2.0)
+        return (self.dodge_shift or self.label_value) + (self.width / 2.0)
 
     @property
     def x_min(self):
-        return self.dodge_shift - (self.width / 2.0)
+        return (self.dodge_shift or self.label_value) - (self.width / 2.0)
 
     @property
     def y_max(self):
@@ -334,37 +360,53 @@ class BoxGlyph(AggregateGlyph):
         return min(self.w0, self.get_extent(min, 'y_min')) - self.bottom_buffer
 
 
-class Histogram(AggregateGlyph):
+class HistogramGlyph(AggregateGlyph):
     """Estimates the distribution with rectangles through binning.
-
-    Bins estimated with: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
-
 
     """
 
-    q1 = Instance(Quantile)
-    q3 = Instance(Quantile)
-    iqr = Float()
+    bins = Instance(Bins)
+    bin_count = Float()
 
-    bin_size = Float()
+    bars = List(Instance(BarGlyph))
 
-    def __init__(self, values, label=None, **kwargs):
+    centers = List(Float)
+
+    bin_width = Float()
+
+    def __init__(self, values, label=None, bin_count=None, **kwargs):
         if label is not None:
             kwargs['label'] = label
-            kwargs['values'] = values
-            kwargs['q1'] = Quantile(interval=.25)
-            kwargs['q2'] = Quantile(interval=.75)
-        super(Histogram, self).__init__(**kwargs)
+        kwargs['values'] = values
+        kwargs['bin_count'] = bin_count
 
-    def calc_stats(self):
-        q1 = self.q1.calculate(self.values)
-        q3 = self.q3.calculate(self.values)
-        self.iqr = q3 - q1
+        # remove width
+        kwargs.pop('width', None)
+
+        super(HistogramGlyph, self).__init__(**kwargs)
+
+    def _set_sources(self):
+        pass
 
     def build_source(self):
-        self.calc_stats()
-
-        # Build ColumnDataSource with bar for each bin
+        pass
 
     def build_renderers(self):
-        pass
+        self.bins = Bins(values=self.values)
+        self.centers = [bin.center for bin in self.bins.bins]
+        self.bin_width = self.centers[1] - self.centers[0]
+
+        bars = []
+        for bin in self.bins.bins:
+            bars.append(BarGlyph(label=bin.center, values=bin.values, agg=bin.stat, width=self.bin_width))
+
+        self.bars = bars
+        self.children = self.bars
+
+        for comp_glyph in self.bars:
+            for renderer in comp_glyph.renderers:
+                yield renderer
+
+    @property
+    def y_min(self):
+        return 0.0

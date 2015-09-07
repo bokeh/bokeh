@@ -1,6 +1,3 @@
-from collections import OrderedDict
-
-import pandas as pd
 
 from bokeh.charts import BoxPlot, output_file, show
 from bokeh.sampledata.autompg import autompg as df
