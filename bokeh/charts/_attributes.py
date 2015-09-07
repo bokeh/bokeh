@@ -8,7 +8,7 @@ from bokeh.models.sources import ColumnDataSource
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.charts._properties import ColumnLabel
 from bokeh.charts.utils import marker_types
-from ..util.serialization import make_id
+
 
 class AttrSpec(HasProps):
     """A container for assigning attributes to values and retrieving them as needed.
@@ -135,7 +135,7 @@ class ColorAttr(AttrSpec):
 
 class MarkerAttr(AttrSpec):
     name = 'marker'
-    iterable = List(String, default=marker_types.keys())
+    iterable = List(String, default=list(marker_types.keys()))
 
     def __init__(self, **kwargs):
         iterable = kwargs.pop('markers', None)

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from six import iteritems
 from collections import defaultdict
 import numpy as np
 
@@ -119,7 +120,7 @@ class AggregateGlyph(NestedCompositeGlyph):
             filtered_glyphs = self.filter_glyphs(glyphs)
             grouped = self.groupby(filtered_glyphs, 'label')
 
-            for index, group in grouped.iteritems():
+            for index, group in iteritems(grouped):
                 group = sorted(group, key=lambda x: x.stack_label)
                 shift = []
                 for i, glyph in enumerate(group):
@@ -139,7 +140,7 @@ class AggregateGlyph(NestedCompositeGlyph):
             width = min(0.2, (1. / len(grouped.keys())) ** 1.1)
 
             # set bar attributes and re-aggregate
-            for i, (index, group) in enumerate(grouped.iteritems()):
+            for i, (index, group) in enumerate(iteritems(grouped)):
                 for glyph in group:
                     glyph.dodge_shift = step[i + 1]
                     glyph.width = width

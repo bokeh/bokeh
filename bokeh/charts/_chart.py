@@ -20,6 +20,7 @@ the generation of several outputs (file, server, notebook).
 
 from __future__ import absolute_import
 
+from six import iteritems
 import numpy as np
 from collections import defaultdict
 
@@ -87,7 +88,7 @@ class Chart(Plot):
 
         # sets overridden defaults
         # ToDo: allow Chart/Plot properties as well as ChartOptions
-        for option, value in option_props.iteritems():
+        for option, value in iteritems(option_props):
             if value != default_props[option]:
                 setattr(self._options, option, value)
 

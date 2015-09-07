@@ -15,6 +15,7 @@ methods.
 
 from __future__ import absolute_import
 
+from six import iteritems
 from six.moves import zip
 from operator import itemgetter
 from itertools import islice, product
@@ -90,7 +91,7 @@ def groupby(df, **specs):
         for name, data in df.groupby(spec_cols):
 
             attrs = {}
-            for spec_name, spec in specs.iteritems():
+            for spec_name, spec in iteritems(specs):
                 if spec.columns is not None:
                     # get index of the unique column values grouped on for this spec
                     name_idx = tuple([spec_cols.index(col) for col in spec.columns])
@@ -114,7 +115,7 @@ def groupby(df, **specs):
     # collect up the defaults from the attribute specs
     else:
         attrs = {}
-        for spec_name, spec in specs.iteritems():
+        for spec_name, spec in iteritems(specs):
             attrs[spec_name] = spec[None]
 
         yield DataGroup(label='all', data=df, attr_specs=attrs)
@@ -302,7 +303,7 @@ class ChartDataSource(object):
 
         required_dims = self._required_dims
         selections = self._selections
-        dims = [dim for dim, sel in selections.iteritems() if sel is not None]
+        dims = [dim for dim, sel in iteritems(selections) if sel is not None]
 
         # look for a match for selections to dimensional requirements
         if len(required_dims) > 0:
@@ -323,7 +324,7 @@ class ChartDataSource(object):
                         '\n\nAvailable columns are: %s'
             req_str = [' and '.join(['%s = <Any Column>' % dim for dim in required_dim])
                        for required_dim in required_dims]
-            selection_str = ['%s = %s' % (str(dim), str(sel)) for dim, sel in selections.iteritems() if sel is not None]
+            selection_str = ['%s = %s' % (str(dim), str(sel)) for dim, sel in iteritems(selections) if sel is not None]
 
             raise ValueError(error_str % (' or '.join(req_str), ', '.join(selection_str), ', '.join(self.columns)))
         else:
