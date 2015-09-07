@@ -14,10 +14,10 @@ useful for charts ecosystem.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function
 
-from collections import OrderedDict, defaultdict
+from six import iteritems
+from collections import OrderedDict
 import itertools
 from math import cos, sin
-import pandas as pd
 from pandas.io.json import json_normalize
 
 from ..browserlib import view
@@ -244,7 +244,7 @@ def ordered_set(iterable):
 
 def collect_attribute_columns(**specs):
     """Collect list of unique and ordered columns across attribute specifications."""
-    selected_specs = {spec_name: spec for spec_name, spec in specs.iteritems() if spec.columns}
+    selected_specs = {spec_name: spec for spec_name, spec in iteritems(specs) if spec.columns}
     return ordered_set(list(itertools.chain.from_iterable([spec.columns for spec in selected_specs.values()])))
 
 
@@ -254,13 +254,13 @@ def df_from_json(data, **kwargs):
     if isinstance(data, list):
         return json_normalize(data, kwargs)
     elif isinstance(data, dict):
-        for k, v in data.iteritems():
+        for k, v in iteritems(data):
             if isinstance(v, list):
                 return json_normalize(v)
 
 
 def nested_dict_iter(nested):
-    for key, value in nested.iteritems():
+    for key, value in iteritems(nested):
         if isinstance(value, dict):
             for inner_key, inner_value in nested_dict_iter(value):
                 yield inner_key, inner_value
