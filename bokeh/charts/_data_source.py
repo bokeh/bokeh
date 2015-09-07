@@ -150,7 +150,8 @@ class ChartDataSource(object):
         # extract selections from kwargs using dimension list
         for dim in self._dims:
             dim_select = kwargs.pop(dim, None)
-            select_map[dim] = dim_select
+            if dim_select is not None:
+                select_map[dim] = dim_select
 
         # handle case where dimension kwargs were not provided
         if len(select_map.keys()) == 0:
@@ -206,8 +207,19 @@ class ChartDataSource(object):
 
         # handle array-like
         if len(arrays) > 0:
-            columns = kwargs.pop('columns', gen_column_names(len(arrays)))
-            return cls.from_arrays(arrays, column_names=columns, **kwargs)
+            if 'columns' not in kwargs.keys():
+                column_names = gen_column_names(len(arrays))
+
+                # try to replace auto names with Series names
+                for i, array in enumerate(arrays):
+                    if isinstance(array, pd.Series):
+                        name = array.name
+                        if name not in column_names:
+                            column_names[i] = name
+            else:
+                column_names = kwargs['columns']
+
+            return cls.from_arrays(arrays, column_names=column_names, **kwargs)
 
         # handle table-like
         elif len(tables) > 0:

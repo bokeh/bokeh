@@ -38,7 +38,7 @@ from ..glyphs import HistogramGlyph
 #-----------------------------------------------------------------------------
 
 
-def Histogram(data, label=None, values=None, color=None, agg="count",
+def Histogram(data, values=None, label=None, color=None, agg="count",
             yscale="linear",
             xgrid=False, ygrid=True, continuous_range=None, **kw):
 
