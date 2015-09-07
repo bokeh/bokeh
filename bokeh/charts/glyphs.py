@@ -4,7 +4,6 @@ from collections import defaultdict
 import numpy as np
 
 from bokeh.properties import Float, String, Datetime, Bool, Instance
-from bokeh.enums import Aggregation
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.glyphs import Rect, Segment
