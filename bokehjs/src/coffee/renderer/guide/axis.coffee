@@ -585,16 +585,16 @@ class Axis extends HasParent
       level: 'overlay'
       visible: true
 
-      axis_line_color: 'black'
-      axis_line_width: 1
-      axis_line_alpha: 1.0
+      axis_line_color: null
+      axis_line_width: 0
+      axis_line_alpha: 0.0
       axis_line_join: 'miter'
       axis_line_cap: 'butt'
       axis_line_dash: []
       axis_line_dash_offset: 0
 
-      major_tick_in: 2
-      major_tick_out: 6
+      major_tick_in: 0
+      major_tick_out: 0
       major_tick_line_color: 'black'
       major_tick_line_width: 1
       major_tick_line_alpha: 1.0
@@ -604,7 +604,7 @@ class Axis extends HasParent
       major_tick_line_dash_offset: 0
 
       minor_tick_in: 0
-      minor_tick_out: 4
+      minor_tick_out: 0
       minor_tick_line_color: 'black'
       minor_tick_line_width: 1
       minor_tick_line_alpha: 1.0
@@ -618,7 +618,7 @@ class Axis extends HasParent
       major_label_text_font: "helvetica"
       major_label_text_font_size: "10pt"
       major_label_text_font_style: "normal"
-      major_label_text_color: "#444444"
+      major_label_text_color: "#c6c5c5"
       major_label_text_alpha: 1.0
       major_label_text_align: "center"
       major_label_text_baseline: "alphabetic"
@@ -628,7 +628,7 @@ class Axis extends HasParent
       axis_label_text_font: "helvetica"
       axis_label_text_font_size: "16pt"
       axis_label_text_font_style: "normal"
-      axis_label_text_color: "#444444"
+      axis_label_text_color: "#c6c5c5"
       axis_label_text_alpha: 1.0
       axis_label_text_align: "center"
       axis_label_text_baseline: "alphabetic"

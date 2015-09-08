@@ -385,11 +385,11 @@ class Plot(Widget):
 
     """)
 
-    background_fill = Color("white", help="""
+    background_fill = Color("#2b2b2b", help="""
 
     """)
 
-    border_fill = Color("white", help="""
+    border_fill = Color("#4c4c4c", help="""
 
     """)
 

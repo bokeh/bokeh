@@ -23,7 +23,8 @@ from ._data_adapter import DataAdapter
 from ..models.ranges import Range
 from ..properties import Color, HasProps, Instance, Seq
 
-DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+DEFAULT_PALETTE = [ "#b9bf3d", "#2cbdb9", "#8e4d9e" ]
+#"#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
 #-----------------------------------------------------------------------------
 # Classes and functions

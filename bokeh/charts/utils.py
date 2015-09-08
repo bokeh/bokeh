@@ -34,8 +34,11 @@ from ..util.notebook import publish_display_data
 #-----------------------------------------------------------------------------
 
 # TODO: (bev) this should go in a plotting utils one level up
+# TODO: is this used vs. the DEFAULT_PALETTE in _builder.py ?
 _default_cycle_palette = [
-    "#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"
+    "#b9bf3d", "#2cbdb9", "#8e4d9e",
+    # TODO replace the below with more from Sara
+    #"#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"
 ]
 def cycle_colors(chunk, palette=_default_cycle_palette):
     """ Build a color list just cycling through a given palette.
@@ -58,7 +61,7 @@ def cycle_colors(chunk, palette=_default_cycle_palette):
 
 # TODO: (bev) this should go in a plotting utils one level up
 def make_scatter(source, x, y, markertype, color, line_color=None,
-                 size=10, fill_alpha=0.2, line_alpha=1.0):
+                 size=10, fill_alpha=1.0, line_alpha=1.0):
     """Create a marker glyph and appends it to the renderers list.
 
     Args:

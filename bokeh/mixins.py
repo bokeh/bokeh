@@ -43,7 +43,7 @@ class LineProps(HasProps):
 
     """
 
-    line_color = ColorSpec(default="black", help="""
+    line_color = ColorSpec(default="#4c4c4c", help="""
     A color to use to stroke paths with.
 
     Acceptable values are:

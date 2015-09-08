@@ -517,22 +517,22 @@ class Plot extends HasParent
   display_defaults: ->
     return _.extend {}, super(), {
       hidpi: true,
-      background_fill: "#fff",
-      border_fill: "#fff",
+      background_fill: "#2b2b2b",
+      border_fill: "#4c4c4c",
       min_border: 40,
 
       title_standoff: 8,
       title_text_font: "helvetica",
       title_text_font_size: "20pt",
       title_text_font_style: "normal",
-      title_text_color: "#444444",
+      title_text_color: "#c6c5c5",
       title_text_alpha: 1.0,
       title_text_align: "center",
       title_text_baseline: "alphabetic"
 
-      outline_line_color: '#aaaaaa'
-      outline_line_width: 1
-      outline_line_alpha: 1.0
+      outline_line_color: null
+      outline_line_width: 0
+      outline_line_alpha: 0.0
       outline_line_join: 'miter'
       outline_line_cap: 'butt'
       outline_line_dash: []
