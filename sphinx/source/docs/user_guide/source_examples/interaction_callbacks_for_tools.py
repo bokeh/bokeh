@@ -1,11 +1,11 @@
-from bokeh.models import Callback, ColumnDataSource, BoxSelectTool, Range1d, Rect
+from bokeh.models import CustomJS, ColumnDataSource, BoxSelectTool, Range1d, Rect
 from bokeh.plotting import figure, output_file, show
 
 output_file("boxselecttool_callback.html")
 
 source = ColumnDataSource(data=dict(x=[], y=[], width=[], height=[]))
 
-callback = Callback(args=dict(source=source), code="""
+callback = CustomJS(args=dict(source=source), code="""
         // get data source from Callback args
         var data = source.get('data');
 

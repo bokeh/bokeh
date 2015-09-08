@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Server-side model of a document.
 
 We also use the same object the clients use to represent docs,
@@ -15,7 +22,7 @@ import uuid
 
 from bokeh.models import PlotContext
 
-from .. import models
+from .server_model import ServerModel
 
 def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
             apikey=None, readonlyapikey=None):
@@ -30,7 +37,7 @@ def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
     doc.save(flaskapp.servermodel_storage)
     return doc
 
-class Doc(models.ServerModel):
+class Doc(ServerModel):
     typename = 'doc'
     idfield = 'docid'
 

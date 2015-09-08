@@ -54,6 +54,42 @@ class TestComponents(unittest.TestCase):
         self.assertEqual(div.attrs['class'], ['plotdiv'])
         self.assertEqual(div.text, "")
 
+    def test_script_is_utf8_encoded(self):
+        script, div = embed.components(_embed_test_plot)
+        self.assertTrue(isinstance(script, str))
+
+    @mock.patch('bokeh.embed.uuid')
+    def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_uuid):
+        mock_uuid.uuid4 = mock.Mock()
+        mock_uuid.uuid4.return_value = 'uuid'
+
+        script, div = embed.components(_embed_test_plot)
+        html = bs4.BeautifulSoup(script)
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        script_content = scripts[0].getText()
+
+        rawscript, div = embed.components(_embed_test_plot, wrap_script=False)
+        self.maxDiff = None
+        self.assertEqual(rawscript.strip(), script_content.strip())
+
+    @mock.patch('bokeh.embed.uuid')
+    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_uuid):
+        mock_uuid.uuid4 = mock.Mock()
+        mock_uuid.uuid4.return_value = 'uuid'
+
+        plot = _embed_test_plot
+        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "uuid", "modeltype": "Plot"}
+        script, plotdict = embed.components(_embed_test_plot, wrap_plot_info=False)
+        self.assertEqual(plotdict, expected_plotdict)
+
+        script, plotids = embed.components((_embed_test_plot, _embed_test_plot), wrap_plot_info=False)
+        self.assertEqual(plotids, (expected_plotdict, expected_plotdict))
+
+        script, plotiddict = embed.components({'p1': _embed_test_plot, 'p2': _embed_test_plot}, wrap_plot_info=False)
+        self.assertEqual(plotiddict, {'p1': expected_plotdict, 'p2': expected_plotdict})
+
+
 class TestNotebookDiv(unittest.TestCase):
 
     def test_return_type(self):

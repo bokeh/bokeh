@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ...properties import Bool, Int, String, Enum, Instance, List, Tuple
 from ...enums import ButtonType
-from ..actions import Callback
+from ..callbacks import Callback
 from ..widget import Widget
 from .icons import AbstractIcon
 

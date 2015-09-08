@@ -1,5 +1,5 @@
 from bokeh.io import vform
-from bokeh.models import Callback, ColumnDataSource, Slider
+from bokeh.models import CustomJS, ColumnDataSource, Slider
 from bokeh.plotting import figure, output_file, show
 
 output_file("callback.html")
@@ -12,7 +12,7 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 plot = figure(plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-callback = Callback(args=dict(source=source), code="""
+callback = CustomJS(args=dict(source=source), code="""
         var data = source.get('data');
         var f = cb_obj.get('value')
         x = data['x']

@@ -1,35 +1,39 @@
-""" Client-side interactivity. """
-
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
-from ..properties import Dict, Instance, String
+from warnings import warn
+from . import callbacks
 
-class Action(PlotObject):
-    """ Base class for interactive actions. """
+warn(
+    '`bokeh.models.actions` is deprecated in favor of `bokeh.models.callbacks` '
+    'and will be removed in v0.10.',
+    FutureWarning, stacklevel=2
+)
 
-class OpenURL(Action):
-    """ Open a URL in a new tab or window (browser dependent). """
 
-    url = String("http://", help="""
-    The URL to direct the web browser to. This can be a template string,
-    which will be formatted with data from the data source.
-    """)
+def Action(*args, **kwargs):
+    warn(
+        '`bokeh.models.actions.Action` is now `bokeh.models.callbacks.Callback`. '
+        '`bokeh.models.actions.Action` will be removed in v0.10.',
+        FutureWarning, stacklevel=2
+    )
+    return callbacks.Callback(*args, **kwargs)
 
-class Callback(Action):
-    """ Execute a JavaScript function. """
 
-    args = Dict(String, Instance(PlotObject), help="""
-    A mapping of names to Bokeh plot obejcts. These objects are made
-    available to the callback code snippet as the values of named
-    parameters to the callback.
-    """)
+def Callback(*args, **kwargs):
+    warn(
+        '`bokeh.models.actions.Callback` is now `bokeh.models.callbacks.CustomJS`. '
+        'You can use `from bokeh.models import CustomJS`, and use `CustomJS` just '
+        'as you did before. `bokeh.models.actions.Callback` will be removed in v0.10.',
+        FutureWarning, stacklevel=2
+    )
+    return callbacks.CustomJS(*args, **kwargs)
 
-    code = String(help="""
-    A snippet of JavaScript code to execute in the browser. The code is
-    made into the body of a function, and all of of the named objects in
-    ``args`` are available as parameters that the code can use. Additionally,
-    a ``cb_obj`` parameter contains the object that triggered the callback
-    and an optional ``cb_data`` parameter that contains any tool-specific data
-    (i.e. mouse coordinates and hovered glyph indices for the HoverTool).
-    """)
+
+def OpenURL(*args, **kwargs):
+    warn(
+        '`bokeh.models.actions.OpenURL` is now `bokeh.models.callbacks.OpenURL`.'
+        'You can use `from bokeh.models import OpenURL`, and use `OpenURL` just '
+        'as you did before. `bokeh.models.actions.OpenURL` will be removed in v0.10.',
+        FutureWarning, stacklevel=2
+    )
+    return callbacks.OpenURL(*args, **kwargs)

@@ -51,6 +51,9 @@ topic:
     Embed static or server-based Bokeh plots and widgets into HTML documents
     in a variety of ways.
 
+:ref:`userguide_webgl`
+    Improve performance for large datasets by using WebGL.
+
 :ref:`userguide_info`
     See where to go next for more information and examples.
 

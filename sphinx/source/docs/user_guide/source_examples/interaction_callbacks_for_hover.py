@@ -2,7 +2,7 @@ from bokeh.sampledata.glucose import data
 (x, y) = (data.ix['2010-10-06'].index.to_series(), data.ix['2010-10-06']['glucose'])
 
 from bokeh.plotting import figure, output_file, show
-from bokeh.models import ColumnDataSource, Circle, HoverTool, Callback
+from bokeh.models import ColumnDataSource, Circle, HoverTool, CustomJS
 
 output_file("hover_callback.html")
 
@@ -18,7 +18,7 @@ cr = p.add_glyph(source, invisible_circle, selection_glyph=visible_circle, nonse
 
 # Add a hover tool, that selects the circle
 code = "source.set('selected', cb_data['index']);"
-callback = Callback(args={'source': source}, code=code)
+callback = CustomJS(args={'source': source}, code=code)
 p.add_tools(HoverTool(tooltips=None, callback=callback, renderers=[cr], mode='hline'))
 
 show(p)
