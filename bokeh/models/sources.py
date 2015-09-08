@@ -7,7 +7,6 @@ from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
-from bokeh.deprecate import deprecated
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -136,23 +135,6 @@ class ColumnDataSource(DataSource):
         else:
             new_data["index"] = index.tolist()
         return new_data
-
-    @classmethod
-    @deprecated("Bokeh 0.9.3", "ColumnDataSource initializer")
-    def from_df(cls, data):
-        """ Create a ``dict`` of columns from a Pandas DataFrame,
-        suitable for creating a ColumnDataSource.
-
-        Args:
-            data (DataFrame) : data to convert
-
-        Returns:
-            dict(str, list)
-
-        """
-        import warnings
-        warnings.warn("Method deprecated in Bokeh 0.9.3")
-        return cls._data_from_df(data)
 
     def to_df(self):
         """ Convert this data source to pandas dataframe.
