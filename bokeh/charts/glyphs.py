@@ -17,6 +17,7 @@ from .stats import Stat, Quantile, Sum, Min, Max, Bins
 
 
 class NestedCompositeGlyph(CompositeGlyph):
+    """A composite glyph that consists of other composite glyphs."""
 
     children = List(Instance(CompositeGlyph))
 
@@ -38,6 +39,7 @@ class NestedCompositeGlyph(CompositeGlyph):
 
 
 class ScatterGlyph(CompositeGlyph):
+    """A set of glyphs placed in x,y coordinates with the same attributes."""
 
     x = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
@@ -91,7 +93,11 @@ class ScatterGlyph(CompositeGlyph):
 
 
 class AggregateGlyph(NestedCompositeGlyph):
-    """A base composite glyph for aggregating an array."""
+    """A base composite glyph for aggregating an array.
+
+    Implements default stacking and dodging behavior that other composite
+    glyphs can inherit.
+    """
 
     stack_label = String()
     stack_shift = Float(default=0.0)
@@ -104,7 +110,13 @@ class AggregateGlyph(NestedCompositeGlyph):
     span = Float()
 
     def get_dodge_label(self, shift=0.0):
-        return self.label + ':' + str(self.dodge_shift + shift)
+        if self.dodge_shift is None:
+            shift_str = ':' + str(0.5 + shift)
+        elif self.dodge_shift is not None:
+            shift_str = ':' + str(self.dodge_shift + shift)
+        else:
+            shift_str = ''
+        return str(self.label) + shift_str
 
     def filter_glyphs(self, glyphs):
         return [glyph for glyph in glyphs if isinstance(glyph, self.__class__)]
@@ -246,6 +258,7 @@ class BarGlyph(Interval):
 
 
 class QuartileGlyph(Interval):
+    """An interval that has start and end aggregations of quartiles."""
     def __init__(self, label, values, interval1, interval2, **kwargs):
         kwargs['label'] = label
         kwargs['values'] = values
@@ -255,7 +268,13 @@ class QuartileGlyph(Interval):
 
 
 class BoxGlyph(AggregateGlyph):
-    """Summarizes the distribution with a collection of glyphs."""
+    """Summarizes the distribution with a collection of glyphs.
+
+    A box glyph produces one "box" for a given array of vales. The box
+    is made up of multiple other child composite glyphs (intervals,
+    scatter) and directly produces glyph renderers for the whiskers,
+    as well.
+    """
 
     q1 = Float()
     q2 = Float()
@@ -362,8 +381,10 @@ class BoxGlyph(AggregateGlyph):
 
 
 class HistogramGlyph(AggregateGlyph):
-    """Estimates the distribution with rectangles through binning.
+    """Depicts the distribution of values using rectangles created by binning.
 
+    The histogram represents a distribution, so will likely include other
+    options for displaying it, such as KDE and cumulative density.
     """
 
     bins = Instance(Bins)
