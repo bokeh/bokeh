@@ -31,9 +31,3 @@ class ok_1(Message):
             'reqid': reqid,
         }
         return cls(header, metadata, content)
-
-    def _handle_server(self, server):
-        raise ProtocolError("")
-
-    def _handle_client(self, client):
-        log.debug("received OK")

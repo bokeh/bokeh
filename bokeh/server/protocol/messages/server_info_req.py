@@ -25,11 +25,3 @@ class server_info_req_1(Message):
         header = cls.create_header(session_id)
         content = {}
         return cls(header, metadata, content)
-
-    def _handle_server(self, server):
-        response = server.session.protocol.create('SERVER-INFO-REPLY', server.session.id)
-        server.send_message(response)
-
-    def _handle_client(self, client):
-        raise ProtocolError("")
-

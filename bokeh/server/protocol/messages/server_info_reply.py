@@ -34,9 +34,3 @@ class server_info_reply_1(Message):
             'version_info': _VERSION_INFO,
         }
         return cls(header, metadata, content)
-
-    def _handle_server(self, server):
-        raise ProtocolError("")
-
-    def _handle_client(self, client):
-        pass

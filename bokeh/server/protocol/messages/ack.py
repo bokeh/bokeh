@@ -28,9 +28,3 @@ class ack_1(Message):
         header = cls.create_header(session_id)
         content = {}
         return cls(header, metadata, content)
-
-    def _handle_server(self, server):
-        raise ProtocolError("")
-
-    def _handle_client(self, client):
-        log.debug("received ACK")

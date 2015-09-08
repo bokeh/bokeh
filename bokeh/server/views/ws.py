@@ -12,7 +12,9 @@ from tornado.websocket import WebSocketHandler
 from ..exceptions import MessageError, ProtocolError, ValidationError
 from ..core.server_session import ServerSession
 from ..protocol import Protocol
+from ..protocol.message import Message
 from ..protocol.receiver import Receiver
+from ..protocol.server_handler import ServerHandler
 
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
@@ -40,6 +42,9 @@ class WSHandler(WebSocketHandler):
             protocol = Protocol(proto_version)
             self.receiver = Receiver(protocol)
             log.debug("Receiver created created for %r", protocol)
+
+            self.handler = ServerHandler(protocol)
+            log.debug("ServerHandler created created for %r", protocol)
 
             self.session = ServerSession(protocol)
             log.info("ServerSession created (id: %s)", self.session.id)
@@ -75,14 +80,17 @@ class WSHandler(WebSocketHandler):
         log.debug("Received %r", message)
 
         try:
-            work = yield message.handle_server(self)
-        except MessageError: # TODO (bev) different exception?
+            work = yield self.handler.handle(message, self.session)
+        except ProtocolError as e:
             log.error(e)
             raise gen.Return(None)
 
         if work:
-            item, docid = work
-            self.session[docid].workon(item)
+            if isinstance(work, Message):
+                self.send_message(work)
+            else:
+                item, docid = work
+                self.session[docid].workon(item)
 
         raise gen.Return(None)
 

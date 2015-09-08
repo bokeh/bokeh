@@ -34,9 +34,3 @@ class error_1(Message):
         if traceback:
             content['traceback'] = traceback.split()
         return cls(header, metadata, content)
-
-    def _handle_server(self, server):
-        raise ProtocolError("")
-
-    def _handle_client(self, client):
-        log.debug("received ERROR")
