@@ -5,7 +5,6 @@ from __future__ import absolute_import
 
 from bokeh import __version__
 
-from ...exceptions import ProtocolError
 from ..message import Message
 from . import nobuffers, register
 

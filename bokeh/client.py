@@ -52,9 +52,6 @@ class ClientSession(object):
 
             if message:
                 log.debug("Received %r", message)
-                # log.debug(" - header: %r", message.header)
-                # log.debug(" - metadata: %r", message.metadata)
-                # log.debug(" - content: %r", message.content)
                 if message.msgtype is 'ACK':
                     self._session_id = message.header['sessid']
                     self._start_callbacks()
@@ -75,11 +72,13 @@ class ClientSession(object):
             IOLoop.instance().add_callback(self._callback_wrapper(self._callback))
 
 def foo(session_id):
-    return Protocol("1.0").create('SERVER-INFO-REQ', session_id)
+    #return Protocol("1.0").create('SERVER-INFO-REQ', session_id)
+    #return Protocol("1.0").create('PUSH-DOC', session_id, None)
+    return Protocol("1.0").create('PULL-DOC-REQ', session_id, "some_doc")
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    session = ClientSession(callback=foo, callback_interval=200)
+    session = ClientSession(callback=foo, callback_interval=1000)
     session.connect()
 
 

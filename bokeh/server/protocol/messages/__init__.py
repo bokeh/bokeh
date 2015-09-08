@@ -38,6 +38,9 @@ def nobuffers(cls):
 
 from .ack import *
 from .ok import *
+from .pull_doc_req import *
+from .pull_doc_reply import *
+from .push_doc import *
 from .error import *
 from .server_info_reply import *
 from .server_info_req import *
