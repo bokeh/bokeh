@@ -103,6 +103,9 @@ class Builder(HasProps):
     xlabel = String()
     ylabel = String()
 
+    xscale = String()
+    yscale = String()
+
     # Dimensional Modeling
     dimensions = List(String, help="""The dimension
         labels that drive the position of the glyphs.""")
@@ -256,6 +259,9 @@ class Builder(HasProps):
         chart.add_labels('x', self.xlabel)
         chart.add_labels('y', self.ylabel)
 
+        chart.add_scales('x', self.xscale)
+        chart.add_scales('y', self.yscale)
+
         return chart
 
 
@@ -270,8 +276,7 @@ class XYBuilder(Builder):
                       ['y'],
                       ['x', 'y']]
 
-    default_attributes = {'color': ColorAttr(),
-                          'marker': MarkerAttr()}
+    default_attributes = {'color': ColorAttr()}
 
     def _set_ranges(self):
         """Calculate and set the x and y ranges."""
@@ -279,25 +284,32 @@ class XYBuilder(Builder):
 
         endx = self.x.max
         startx = self.x.min
-        self.x_range = self._get_range(self.x.data[self.x.selection], startx, endx)
+        self.x_range = self._get_range('x', startx, endx)
 
         endy = self.y.max
         starty = self.y.min
-        self.y_range = self._get_range(self.y.data[self.y.selection], starty, endy)
+        self.y_range = self._get_range('y', starty, endy)
 
-    @staticmethod
-    def _get_range(values, start, end):
+    def _get_range(self, dim, start, end):
 
+        values = getattr(self, dim).data
         dtype = values.dtype.name
         if dtype == 'object':
             factors = values.drop_duplicates()
             factors.sort(inplace=True)
+            setattr(self, dim + 'scale', 'categorical')
             return FactorRange(factors=factors.tolist())
+        elif 'datetime' in dtype:
+            setattr(self, dim + 'scale', 'datetime')
+            return Range1d(start=start, end=end)
         else:
+
             diff = end - start
             if diff == 0:
+                setattr(self, dim + 'scale', 'categorical')
                 return FactorRange(factors=['None'])
             else:
+                setattr(self, dim + 'scale', 'linear')
                 return Range1d(start=start - 0.1 * diff, end=end + 0.1 * diff)
 
 

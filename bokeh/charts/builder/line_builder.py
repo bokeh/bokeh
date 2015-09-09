@@ -17,21 +17,17 @@ passing the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from six import string_types
-import numpy as np
-
-from ..utils import cycle_colors
-from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-from ...models.glyphs import Line as LineGlyph
-from ...properties import Any
+from .._builder import XYBuilder, create_and_build
+from ..glyphs import LineGlyph
+from .._attributes import DashAttr, ColorAttr
+from ...models.sources import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def Line(values, index=None, **kws):
+def Line(data, x=None, y=None, **kws):
     """ Create a line chart using :class:`LineBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
     render the geometry from values and index.
 
@@ -68,10 +64,17 @@ def Line(values, index=None, **kws):
         show(line)
 
     """
-    return create_and_build(LineBuilder, values, index=index, **kws)
+    if x is None and y is not None:
+        x = 'index'
+    elif x is not None and y is None:
+        y = 'index'
+
+    kws['x'] = x
+    kws['y'] = y
+    return create_and_build(LineBuilder, data, **kws)
 
 
-class LineBuilder(Builder):
+class LineBuilder(XYBuilder):
     """This is the Line class and it is in charge of plotting
     Line charts in an easy and intuitive way.
     Essentially, we provide a way to ingest the data, make the proper
@@ -80,60 +83,38 @@ class LineBuilder(Builder):
     And finally add the needed lines taking the references from the source.
     """
 
-    index = Any(help="""
-    An index to be used for all data series as follows:
+    default_attributes = {'color': ColorAttr(),
+                          'dash': DashAttr()}
 
-    - A 1d iterable of any sort that will be used as
-        series common index
+    def _setup(self):
 
-    - As a string that corresponds to the key of the
-        mapping to be used as index (and not as data
-        series) if area.values is a mapping (like a dict,
-        an OrderedDict or a pandas DataFrame)
+        # if we were given no colors and a list of measurements, stack them
+        if self.attributes['color'].columns is None:
+            if isinstance(self.y.selection, list):
+                self._stack_measures(dim='y', ids=self.x.selection)
+            elif isinstance(self.x.selection, list):
+                self._stack_measures(dim='x', ids=self.y.selection)
 
-    """)
+    def _stack_measures(self, dim, ids):
+        dim_prop = getattr(self, dim)
 
-    def _process_data(self):
-        """Calculate the chart properties accordingly from line.values.
-        Then build a dict containing references to all the points to be
-        used by the line glyph inside the ``_yield_renderers`` method.
-        """
-        self._data = dict()
-        # list to save all the attributes we are going to create
-        self._attr = []
-        xs = self._values_index
-        self.set_and_get("x", "", np.array(xs))
-        for col, values in self._values.items():
-            if isinstance(self.index, string_types) and col == self.index:
-                continue
+        # transform our data by stacking the measurements into one column
+        self._data.stack_measures(measures=dim_prop.selection, ids=ids)
 
-            # save every new group we find
-            self._groups.append(col)
-            self.set_and_get("y_", col, values)
+        # update our dimension with the updated data
+        dim_prop.set_data(self._data)
 
-    def _set_ranges(self):
-        """
-        Push the Line data into the ColumnDataSource and calculate the
-        proper ranges.
-        """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d()
-
-        y_names = self._attr[1:]
-        endy = max(max(self._data[i]) for i in y_names)
-        starty = min(min(self._data[i]) for i in y_names)
-        self.y_range = Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
-        )
+        # color by the name of each variable
+        self.attributes['color'] = ColorAttr(columns='variable',
+                                             data=ColumnDataSource(self._data.df))
 
     def _yield_renderers(self):
-        """Use the line glyphs to connect the xy points in the Line.
-        Takes reference points from the data loaded at the ColumnDataSource.
-        """
-        colors = cycle_colors(self._attr, self.palette)
-        for i, duplet in enumerate(self._attr[1:], start=1):
-            glyph = LineGlyph(x='x', y=duplet, line_color=colors[i - 1])
-            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self.legends.append((self._groups[i-1], [renderer]))
+        for group in self._data.groupby(**self.attributes):
+            glyph = LineGlyph(x=group.get_values(self.x.selection),
+                              y=group.get_values(self.y.selection),
+                              line_color=group['color'],
+                              dash=group['dash'])
+            renderer = glyph.renderers[0]
+            self._legends.append((str(group.label), [renderer]))
+
             yield renderer

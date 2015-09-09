@@ -12,6 +12,7 @@ import pandas as pd
 
 from bokeh.properties import (HasProps, Either, String, Int, List, Dict,
                               Bool, PrimitiveProperty, bokeh_integer_types, Array)
+from bokeh.charts._data_source import special_columns
 
 
 class Column(Array):
@@ -141,19 +142,18 @@ class Dimension(HasProps):
         if self._data.empty or self.selection is None:
             return pd.Series(1)
         else:
-            if not isinstance(self.selection, list):
-                select = [self.selection]
-            else:
-                select = self.selection
-            return self._data[select]
+            # return special column type if available
+            if self.selection in list(special_columns.keys()):
+                return special_columns[self.selection](self._data)
+
+            return self._data[self.selection]
 
     def set_data(self, data):
         """Builder must provide data so that builder has access to configuration metadata."""
         self.selection = data[self.name]
         self._chart_source = data
         self._data = data.df
-        if self.columns is None:
-            self.columns = list(self._data.columns.values)
+        self.columns = list(self._data.columns.values)
 
     @property
     def min(self):

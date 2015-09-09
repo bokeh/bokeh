@@ -105,6 +105,7 @@ class Chart(Plot):
         self._renderer_map = []
         self._ranges = defaultdict(list)
         self._labels = defaultdict(list)
+        self._scales = defaultdict(list)
 
         # Add to document and session if server output is asked
         _doc = None
@@ -143,6 +144,9 @@ class Chart(Plot):
     def add_labels(self, dim, label):
         self._labels[dim].append(label)
 
+    def add_scales(self, dim, scale):
+        self._scales[dim].append(scale)
+
     def _get_labels(self, dim):
         if not getattr(self._options, dim + 'label') and len(self._labels[dim]) > 0:
             return self._labels[dim][0]
@@ -150,8 +154,8 @@ class Chart(Plot):
             return getattr(self._options, dim + 'label')
 
     def create_axes(self):
-        self._xaxis = self.make_axis('x', "below", self._options.xscale, self._get_labels('x'))
-        self._yaxis = self.make_axis('y', "left", self._options.yscale, self._get_labels('y'))
+        self._xaxis = self.make_axis('x', "below", self._scales['x'][0], self._get_labels('x'))
+        self._yaxis = self.make_axis('y', "left", self._scales['y'][0], self._get_labels('y'))
 
     def create_grids(self, xgrid=True, ygrid=True):
         if xgrid:

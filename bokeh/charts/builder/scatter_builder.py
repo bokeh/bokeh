@@ -18,19 +18,16 @@ functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.models import GlyphRenderer
 from bokeh.charts._builder import create_and_build, XYBuilder
-from bokeh.charts.utils import marker_types
-from bokeh.charts import DEFAULT_PALETTE
-
-from bokeh.charts.glyphs import ScatterGlyph
+from bokeh.charts.glyphs import PointGlyph
+from bokeh.charts._attributes import MarkerAttr, ColorAttr
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def Scatter(*args, **kws):
+def Scatter(data, x=None, y=None, **kws):
     """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builder.scatter_builder.ScatterBuilder>`
     to render the geometry from values.
 
@@ -58,7 +55,14 @@ def Scatter(*args, **kws):
         show(scatter)
 
     """
-    return create_and_build(ScatterBuilder, *args, **kws)
+    if x is None and y is not None:
+        x = 'unity'
+    elif x is not None and y is None:
+        y = 'unity'
+
+    kws['x'] = x
+    kws['y'] = y
+    return create_and_build(ScatterBuilder, data, **kws)
 
 
 class ScatterBuilder(XYBuilder):
@@ -72,13 +76,8 @@ class ScatterBuilder(XYBuilder):
 
     """
 
-    def _process_data(self):
-        """Take the scatter.values data to calculate the chart properties
-        accordingly. Then build a dict containing references to all the
-        calculated points to be used by the marker glyph inside the
-        ``_yield_renderers`` method.
-        """
-        self._attr = []
+    default_attributes = {'color': ColorAttr(),
+                          'marker': MarkerAttr()}
 
     def _yield_renderers(self):
         """Use the marker glyphs to display the points.
@@ -88,9 +87,9 @@ class ScatterBuilder(XYBuilder):
 
         for group in self._data.groupby(**self.attributes):
 
-            glyph = ScatterGlyph(group.data[self.x.selection], group.data[self.y.selection],
-                                 line_color=group['color'], fill_color=group['color'],
-                                 marker=group['marker'])
+            glyph = PointGlyph(x=group.get_values(self.x.selection), y=group.get_values(self.y.selection),
+                               line_color=group['color'], fill_color=group['color'],
+                               marker=group['marker'])
 
             renderer = glyph.renderers[0]
             self._legends.append((str(group.label), [renderer]))

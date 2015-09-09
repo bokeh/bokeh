@@ -3,11 +3,12 @@ from __future__ import absolute_import
 from itertools import cycle
 from copy import copy
 
-from bokeh.properties import HasProps, String, List, Instance, Either, Any, Dict, Color
+from bokeh.properties import HasProps, String, List, Instance, Either, Any, Dict, Color, Enum
 from bokeh.models.sources import ColumnDataSource
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.charts._properties import ColumnLabel
 from bokeh.charts.utils import marker_types
+from bokeh.enums import DashPattern
 
 
 class AttrSpec(HasProps):
@@ -142,6 +143,20 @@ class MarkerAttr(AttrSpec):
         if iterable is not None:
             kwargs['iterable'] = iterable
         super(MarkerAttr, self).__init__(**kwargs)
+
+
+dashes = DashPattern._values
+
+
+class DashAttr(AttrSpec):
+    name = 'dash'
+    iterable = List(String, default=dashes)
+
+    def __init__(self, **kwargs):
+        iterable = kwargs.pop('dash', None)
+        if iterable is not None:
+            kwargs['iterable'] = iterable
+        super(DashAttr, self).__init__(**kwargs)
 
 
 class GroupAttr(AttrSpec):

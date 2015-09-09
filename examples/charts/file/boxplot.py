@@ -6,9 +6,9 @@ from bokeh.charts import defaults, vplot, hplot
 defaults.width = 450
 defaults.height = 350
 
-bar_plot = BoxPlot(df, label='cyl', values='mpg', title="label='cyl', values='mpg'")
+box_plot = BoxPlot(df, label='cyl', values='mpg', title="label='cyl', values='mpg'")
 
-bar_plot2 = BoxPlot(df, label=['cyl', 'origin'], values='mpg', title="label=['cyl', 'origin'], values='mpg'")
+box_plot2 = BoxPlot(df, label=['cyl', 'origin'], values='mpg', title="label=['cyl', 'origin'], values='mpg'")
 
 # bar_plot2 = BoxPlot(df, label='cyl', bar_width=0.4, title="label='cyl' bar_width=0.4")
 #
@@ -37,6 +37,6 @@ output_file("bar.html")
 
 show(
     vplot(
-        hplot(bar_plot, bar_plot2)
+        hplot(box_plot, box_plot2)
     )
 )

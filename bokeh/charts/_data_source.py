@@ -57,13 +57,35 @@ def gen_column_names(n):
         return col_names
 
 
+def get_index(data):
+    return pd.Series(data.index.values)
+
+
+def get_unity(data, value=1):
+    data_copy = data.copy()
+    data_copy['_charts_ones'] = value
+    return data_copy['_charts_ones']
+
+special_columns = {'index': get_index,
+                   'unity': get_unity}
+
+
 class DataGroup(object):
     """Contains subset of data and metadata about it."""
 
     def __init__(self, label, data, attr_specs):
         self.label = label
-        self.data = data
+        self.data = data.reset_index()
         self.attr_specs = attr_specs
+
+    def get_values(self, selection):
+        if selection in list(special_columns.keys()):
+            return special_columns[selection](self.data)
+        elif isinstance(selection, str) or \
+                isinstance(selection, list):
+            return self.data[selection]
+        else:
+            return None
 
     @property
     def source(self):
@@ -86,7 +108,7 @@ def groupby(df, **specs):
 
     # if there was any input for chart attributes, which require grouping
     if spec_cols:
-        df = df.sort(columns=spec_cols)
+        #df = df.sort(columns=spec_cols)
 
         for name, data in df.groupby(spec_cols):
 
@@ -138,11 +160,6 @@ class ChartDataSource(object):
         self._selections = self.get_selections(selections, **kwargs)
         self.meta = self.collect_metadata(df)
         self._validate_selections()
-        self._add_chart_columns()
-
-    def _add_chart_columns(self):
-        # ToDo: reconsider how to get these values into each group
-        self._data['_charts_ones'] = 1
 
     def get_selections(self, selections, **kwargs):
         """Maps chart dimensions to selections and checks that required dim requirements are met."""
@@ -180,10 +197,17 @@ class ChartDataSource(object):
 
         e.g. dim='x'
         """
-        if self._selections[dim] is not None:
+        if dim in self._selections.keys():
             return self._selections[dim]
         else:
-            return '_charts_ones'
+            return None
+
+    def stack_measures(self, measures, ids=None):
+        for dim in self._dims:
+            # find the dimension the measures are associated with
+            if measures == self._selections[dim]:
+                self._selections[dim] = 'value'
+                self._data = pd.melt(self._data, id_vars=ids, value_vars=measures)
 
     def groupby(self, **specs):
         """Iterable of chart attribute specifications, associated with columns.

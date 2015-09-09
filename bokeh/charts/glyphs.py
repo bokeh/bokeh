@@ -4,10 +4,12 @@ from six import iteritems
 from collections import defaultdict
 import numpy as np
 
-from bokeh.properties import Float, String, Datetime, Bool, Instance, List, Either
+from bokeh.properties import (Float, String, Datetime, Bool, Instance,
+                              List, Either, Int, Enum)
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.models.glyphs import Rect, Segment
+from bokeh.models.glyphs import Rect, Segment, Line
+from bokeh.enums import DashPattern
 
 from ._models import CompositeGlyph
 from ._properties import Column, EitherColumn
@@ -38,31 +40,12 @@ class NestedCompositeGlyph(CompositeGlyph):
         return max([renderer.x_max for renderer in self.children])
 
 
-class ScatterGlyph(CompositeGlyph):
-    """A set of glyphs placed in x,y coordinates with the same attributes."""
-
+class XyGlyph(CompositeGlyph):
+    """Composite glyph that plots in cartesian coordinates."""
     x = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
     line_color = String(default=DEFAULT_PALETTE[0])
-    fill_color = String(default=DEFAULT_PALETTE[1])
-    fill_alpha = Float(default=0.7)
-    marker = String(default='circle')
-    size = Float(default=8)
-
-    def __init__(self, x=None, y=None, line_color=None, fill_color=None,
-                 marker=None, size=None, **kwargs):
-        """Produces a glyph that represents one distinct group of data."""
-        kwargs['x'] = x
-        kwargs['y'] = y
-        kwargs['line_color'] = line_color or self.line_color
-        kwargs['fill_color'] = fill_color or self.fill_color
-        kwargs['marker'] = marker or self.marker
-        kwargs['size'] = size or self.size
-        super(ScatterGlyph, self).__init__(**kwargs)
-
-    def build_renderers(self):
-        yield GlyphRenderer(glyph=marker_types[self.marker](x='x_values', y='y_values', line_color=self.line_color,
-                            fill_color=self.fill_color, size=self.size, fill_alpha=self.fill_alpha))
+    line_alpha = Float(default=1.0)
 
     def build_source(self):
         if self.x is None:
@@ -90,6 +73,73 @@ class ScatterGlyph(CompositeGlyph):
     @property
     def y_min(self):
         return min(self.source._data['y_values'])
+
+
+class PointGlyph(XyGlyph):
+    """A set of glyphs placed in x,y coordinates with the same attributes."""
+
+    fill_color = String(default=DEFAULT_PALETTE[1])
+    fill_alpha = Float(default=0.7)
+    marker = String(default='circle')
+    size = Float(default=8)
+
+    def __init__(self, x=None, y=None, line_color=None, fill_color=None,
+                 marker=None, size=None, **kwargs):
+        kwargs['x'] = x
+        kwargs['y'] = y
+        kwargs['line_color'] = line_color or self.line_color
+        kwargs['fill_color'] = fill_color or self.fill_color
+        kwargs['marker'] = marker or self.marker
+        kwargs['size'] = size or self.size
+        super(PointGlyph, self).__init__(**kwargs)
+
+    def get_glyph(self):
+        return marker_types[self.marker]
+
+    def build_renderers(self):
+        glyph_type = self.get_glyph()
+        glyph = glyph_type(x='x_values', y='y_values',
+                           line_color=self.line_color,
+                           fill_color=self.fill_color,
+                           size=self.size,
+                           fill_alpha=self.fill_alpha,
+                           line_alpha=self.line_alpha)
+        yield GlyphRenderer(glyph=glyph)
+
+
+class LineGlyph(XyGlyph):
+    """Represents a group of data as a line."""
+
+    width = Int(default=2)
+    dash = Enum(DashPattern, default='solid')
+
+    def __init__(self, x=None, y=None, line_color=None,
+                 width=None, dash=None, **kwargs):
+        kwargs['x'] = x
+        kwargs['y'] = y
+        kwargs['line_color'] = line_color or self.line_color
+        kwargs['width'] = width or self.width
+        kwargs['dash'] = dash or self.dash
+        super(LineGlyph, self).__init__(**kwargs)
+
+    def build_source(self):
+        if self.x is None:
+            x = self.y.index
+            data = dict(x_values=x, y_values=self.y)
+        elif self.y is None:
+            y = self.x.index
+            data = dict(x_values=self.x, y_values=y)
+        else:
+            data = dict(x_values=self.x, y_values=self.y)
+        return ColumnDataSource(data)
+
+    def build_renderers(self):
+        glyph = Line(x='x_values', y='y_values',
+                     line_color=self.line_color,
+                     line_alpha=self.line_alpha,
+                     line_width=self.width,
+                     line_dash=self.dash)
+        yield GlyphRenderer(glyph=glyph)
 
 
 class AggregateGlyph(NestedCompositeGlyph):
@@ -289,7 +339,7 @@ class BoxGlyph(AggregateGlyph):
 
     whisker_glyph = Instance(GlyphRenderer)
 
-    outliers = Instance(ScatterGlyph)
+    outliers = Instance(PointGlyph)
 
     whisker_width = Float(default=0.3)
     whisker_line_width = Float(default=2)
@@ -318,7 +368,7 @@ class BoxGlyph(AggregateGlyph):
                                            line_width=self.whisker_line_width, line_color=self.whisker_color))
 
         if len(outlier_values) > 0:
-            self.outliers = ScatterGlyph(y=outlier_values, label=self.get_dodge_label(),
+            self.outliers = PointGlyph(y=outlier_values, label=self.get_dodge_label(),
                                          line_color=self.outlier_line_color, fill_color=self.outlier_fill_color,
                                          size=self.outlier_size)
 
