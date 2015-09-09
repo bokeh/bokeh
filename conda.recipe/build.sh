@@ -10,17 +10,17 @@ pushd $SRC_DIR
 
 version=`$PYTHON scripts/get_bump_version.py`
 
-if [ -e "__travis_job_id__.txt" ]; then
-    travis_job_id=$(cat __travis_job_id__.txt)
-    if [[ "$travis_job_id" == "release" || "$travis_job_id" == "devel" ]]; then
+if [ -e "__travis_build_number__.txt" ]; then
+    travis_build_number=$(cat __travis_build_number__.txt)
+    if [[ "$travis_build_number" == "release" || "$travis_build_number" == "devel" ]]; then
         # for releases and devel builds we just need the tag
         echo $version > __conda_version__.txt
     else
-        # for the testing machinery we also need the travis_job__id
-        echo $version.$travis_job_id > __conda_version__.txt
+        # for the testing machinery we also need the travis_build_number
+        echo $version.$travis_build_number > __conda_version__.txt
     fi
 else
-    # for local building we don't have the travis_job__id
+    # for local building we don't have the travis_build_number
     echo $version > __conda_version__.txt
 fi
 

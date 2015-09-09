@@ -63,22 +63,22 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
-# create an empty __travis_job_id__.txt file if you are building locally
+# create an empty __travis_build_number__.txt file if you are building locally
 if [ $local == true ]; then
-    echo "" > __travis_job_id__.txt
+    echo "" > __travis_build_number__.txt
 fi
 
-# get travis_job_id
-travis_job_id=$(cat __travis_job_id__.txt)
+# get travis_build_number
+travis_build_number=$(cat __travis_build_number__.txt)
 
 # specify some varibles specific of the release or devel build process
-if [[ "$travis_job_id" == "release" ]]; then
+if [[ "$travis_build_number" == "release" ]]; then
     #release
     channel=main              #anaconda.org channel
     register=register         #register to pypi
     upload=upload             #upload to pypi
     subdir=release            #CDN subdir where to upload the js and css
-elif [[ "$travis_job_id" == "devel" ]]; then
+elif [[ "$travis_build_number" == "devel" ]]; then
     #devel build
     channel=dev               #anaconda.org channel
     register=""               #register to pypi
@@ -167,11 +167,11 @@ pushd sphinx
 BOKEH_DOCS_CDN=$complete_version BOKEH_DOCS_VERSION=$complete_version make clean all
 
 # to the correct location
-if [[ "$travis_job_id" == "release" ]]; then
+if [[ "$travis_build_number" == "release" ]]; then
     fab deploy:$complete_version
     fab latest:$complete_version
     echo "I'm done uploading the release docs"
-elif [[ "$travis_job_id" == "devel" ]]; then
+elif [[ "$travis_build_number" == "devel" ]]; then
     fab deploy:dev
     echo "I'm done uploading the devel docs"
 fi
@@ -184,7 +184,7 @@ popd
 
 pushd bokehjs
 
-if [[ "$travis_job_id" == "release" ]]; then
+if [[ "$travis_build_number" == "release" ]]; then
     npm publish
     echo "I'm done publishing to npmjs.org"
 fi
