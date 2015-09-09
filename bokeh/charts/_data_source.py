@@ -179,6 +179,11 @@ class ChartDataSource(object):
                 # selection input type isn't valid
                 raise ValueError('selections input must be provided as: dict(dimension: column) or None')
 
+        # make sure each dimension is represented in the selection map
+        for dim in self._dims:
+            if not select_map.has_key(dim):
+                select_map[dim] = None
+
         # # make sure we have enough dimensions as required either way
         # unmatched = list(set(self._required_dims) - set(select_map.keys()))
         # if len(unmatched) > 0:
@@ -202,7 +207,10 @@ class ChartDataSource(object):
             # find the dimension the measures are associated with
             if measures == self._selections[dim]:
                 self._selections[dim] = 'value'
-                self._data = pd.melt(self._data, id_vars=ids, value_vars=measures)
+                if ids is not None:
+                    self._data = pd.melt(self._data, id_vars=ids, value_vars=measures)
+                else:
+                    self._data = pd.melt(self._data, value_vars=measures)
 
     def groupby(self, **specs):
         """Iterable of chart attribute specifications, associated with columns.

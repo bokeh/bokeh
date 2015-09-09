@@ -17,6 +17,8 @@ passing the arguments to the Chart class and calling the proper functions.
 # -----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+from six import iteritems
+from itertools import chain
 from .._builder import XYBuilder, create_and_build
 from ..glyphs import LineGlyph
 from .._attributes import DashAttr, ColorAttr
@@ -65,10 +67,6 @@ def Line(data, x=None, y=None, **kws):
         show(line)
 
     """
-    if x is None and y is not None:
-        x = 'index'
-    elif x is not None and y is None:
-        y = 'index'
 
     kws['x'] = x
     kws['y'] = y
@@ -87,48 +85,80 @@ class LineBuilder(XYBuilder):
     default_attributes = {'color': ColorAttr(),
                           'dash': DashAttr()}
 
-    def _setup(self):
-
-        # handle special case of inputs as measures
-        if self.measure_input:
-
-            stack_color = False
-            stack_dash = False
-
-            color_columns = self.attributes['color'].columns
-            dash_columns = self.attributes['dash'].columns
-
-            # Check if we stack measurements and by which attributes
-            if (color_columns is not None and (color_columns == self.y.selection or
-                                                       color_columns == self.x.selection)):
-                stack_color = True
-            if (dash_columns is not None and (dash_columns == self.y.selection or
-                                                      dash_columns == self.x.selection)):
-                stack_dash = True
-
-            # if we have measures input, we need to stack by something, set default
-            if all(attr == False for attr in [stack_color, stack_dash]):
-                stack_color = True
-
-            if isinstance(self.y.selection, list):
-                self._stack_measures(dim='y', ids=self.x.selection)
-            elif isinstance(self.x.selection, list):
-                self._stack_measures(dim='x', ids=self.y.selection)
-
-            if stack_color:
-                # color by the name of each variable
-                self.attributes['color'] = ColorAttr(columns='variable',
-                                                     data=ColumnDataSource(self._data.df))
-            if stack_dash:
-                # color by the name of each variable
-                self.attributes['dash'] = DashAttr(columns='variable',
-                                                   data=ColumnDataSource(self._data.df))
+    @property
+    def measures(self):
+        if isinstance(self.y.selection, list):
+            return self.y.selection
+        elif isinstance(self.x.selection, list):
+            return self.x.selection
+        else:
+            return None
 
     @property
     def measure_input(self):
         return isinstance(self.y.selection, list) or isinstance(self.x.selection, list)
 
-    def _stack_measures(self, dim, ids):
+    def _setup(self):
+        """Handle input options that require transforming data and/or user selections."""
+
+        # handle special case of inputs as measures
+        if self.measure_input:
+
+            # Check if we stack measurements and by which attributes
+            stack_flags = {'color': self.attr_measurement('color'),
+                           'dash': self.attr_measurement('dash')}
+
+            # collect the other columns used as identifiers, that aren't a measurement name
+            id_cols = [self.attributes[attr].columns
+                       for attr, stack in iteritems(stack_flags) if not stack and
+                       self.attributes[attr].columns != self.measures and
+                       self.attributes[attr].columns is not None]
+            id_cols = list(chain.from_iterable(id_cols))
+
+            # if we have measures input, we need to stack by something, set default
+            if all(attr is False for attr in list(stack_flags.values())):
+                stack_flags['color'] = True
+
+            # stack the measurement dimension while keeping id columns
+            self._stack_measures(ids=id_cols)
+
+            # set the attributes to key off of the name of the stacked measurement, if stacked
+            if stack_flags['color']:
+                # color by the name of each variable
+                self.attributes['color'] = ColorAttr(columns='variable',
+                                                     data=ColumnDataSource(self._data.df))
+
+            if stack_flags['dash']:
+                # dash by the name of each variable
+                self.attributes['dash'] = DashAttr(columns='variable',
+                                                   data=ColumnDataSource(self._data.df))
+
+        # Handle when to use special column names
+        if self.x.selection is None and self.y.selection is not None:
+            self.x.selection = 'index'
+        elif self.x.selection is not None and self.y.selection is None:
+            self.y.selection = 'index'
+
+    def attr_measurement(self, attr_name):
+        """Detect if the attribute has been given measurement columns."""
+        cols = self.attributes[attr_name].columns
+        return (cols is not None and (cols == self.y.selection or
+                                      cols == self.x.selection))
+
+    def _stack_measures(self, ids):
+        """Transform data so that id columns are kept and measures are stacked in single column."""
+        if isinstance(self.y.selection, list):
+            dim = 'y'
+            if self.x.selection is not None:
+                ids.append(self.x.selection)
+        else:
+            dim = 'x'
+            if self.y.selection is not None:
+                ids.append(self.y.selection)
+
+        if len(ids) == 0:
+            ids = None
+
         dim_prop = getattr(self, dim)
 
         # transform our data by stacking the measurements into one column
