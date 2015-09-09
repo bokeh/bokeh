@@ -48,6 +48,7 @@ locations =
   AnnularWedge:             require '../renderer/glyph/annular_wedge'
   Annulus:                  require '../renderer/glyph/annulus'
   Arc:                      require '../renderer/glyph/arc'
+  Basemap:                  require '../renderer/glyph/basemap'
   Bezier:                   require '../renderer/glyph/bezier'
   Circle:                   require '../renderer/glyph/circle'
   Gear:                     require '../renderer/glyph/gear'
