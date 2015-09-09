@@ -15,8 +15,11 @@ if [ -e "__travis_job_id__.txt" ]; then
     if [[ -z "$travis_job_id" ]]; then
         # for releases we just need the tag
         echo $version > __conda_version__.txt
+    elif [[ "$travis_job_id" == "devel" ]]; then
+        # for devel build we just need the tag
+        echo $version > __conda_version__.txt
     else
-        # for devel builds we also need the travis_job__id
+        # for the testing machinery we also need the travis_job__id
         echo $version.$travis_job_id > __conda_version__.txt
     fi
 else

@@ -72,6 +72,8 @@ after_success:
         #signal the correct build
         if [[ "$TRAVIS_TAG" == *"dev"* ]] || [[ "$TRAVIS_TAG" == *"rc"* ]]; then
           echo "Building a dev or rc package."
+          #we signal the devel build with the "devel" string into the __travis_job_id__.txt file
+          echo "devel" > __travis_job_id__.txt
         else
           echo "Building a release package."
           #we signal the release with an empty __travis_job_id__.txt file
