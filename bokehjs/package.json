@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -76,6 +76,7 @@
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js",
+    "gloo2": "./src/vendor/gloo/gloo2.js",
     "Canteen": "./node_modules/Canteen/build/canteen.js"
   },
   "browserify-shim": {},

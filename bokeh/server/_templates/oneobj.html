@@ -1,0 +1,32 @@
+{% extends "_page_base.html" %}
+
+{% block title %}
+  Bokeh Plot Server &mdash; {{ title }}
+{% endblock %}
+
+{% block extra_scripts %}
+  {% for modulename, classname, parentname in extra_generated_classes %}
+  <script
+    src="{{ url_for('bokeh.server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"
+  ></script>
+  {% endfor %}
+{% endblock %}
+
+{% block script %}
+  window.Bokeh = Bokeh;
+  {% for modulename, classname, parentname in extra_generated_classes %}
+  window.{{modulename}}.main();
+  {% endfor %}
+  Bokeh.$(document).ready(function() {
+    container = Bokeh.$("#PlotPane");
+    Bokeh.set_log_level("{{ loglevel }}")
+    Bokeh.embed.add_plot_server(container, "{{ docid }}", "{{ objid }}", {{ public }});
+  });
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+  <a href="{{ request.url }}">link to this </a>
+  <div id="PlotPane"></div>
+</div>
+{% endblock %}

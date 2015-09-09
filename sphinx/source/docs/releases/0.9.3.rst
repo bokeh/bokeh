@@ -1,0 +1,17 @@
+0.9.3 (Aug 2015)
+================
+
+This release was focused into provide several usability enhancements, better
+docs, new examples, a lot of bug fixes and an improved testing machinery (using
+pytest and selenium-based test).
+
+* Support horizontal or vertical spans
+* Provide raw_components version of bokeh.embed.components
+* Prevent Bokeh from eating scroll events if wheel tool is not active
+* bokeh.models.actions are now called bokeh.models.callbacks and Callback is now CustomJS
+* Additional validation warnings
+* Cleaned up gulp source mapping
+* Fixes in our build machinery
+* Cleaned up models section of the reference guide
+* Use pytest instead of nose
+* Beginning to add selenium tests

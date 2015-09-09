@@ -1,0 +1,14 @@
+{% macro navbar(title) %}
+<div class="row">
+  <div class="navbar navbar-default">
+    <div class="navbar-header">
+      <a class="navbar-brand">{{ title }}</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+        {{ caller() }}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endmacro %}

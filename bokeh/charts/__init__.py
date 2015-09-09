@@ -16,7 +16,6 @@ from .builder.horizon_builder import Horizon; Horizon
 from ._chart import Chart; Chart
 from ._data_adapter import DataAdapter; DataAdapter
 
-from ..deprecate import deprecated
 from ..models import ColumnDataSource; ColumnDataSource
 from ..io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
@@ -25,17 +24,3 @@ from ..io import (
 # Silence pyflakes
 (curdoc, cursession, output_file, output_notebook, output_server, push,
  reset_output, save, show, gridplot, vplot, hplot)
-
-@deprecated("Bokeh 0.8.2", "bokeh.charts.vplot function")
-def VBox(*args, **kwargs):
-    ''' Generate a layout that arranges several subplots vertically.
-    '''
-
-    return vplot(*args, **kwargs)
-
-@deprecated("Bokeh 0.8.2", "bokeh.charts.hplot function")
-def HBox(*args, **kwargs):
-    ''' Generate a layout that arranges several subplots horizontally.
-    '''
-
-    return hplot(*args, **kwargs)
