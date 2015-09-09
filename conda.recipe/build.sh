@@ -12,11 +12,8 @@ version=`$PYTHON scripts/get_bump_version.py`
 
 if [ -e "__travis_job_id__.txt" ]; then
     travis_job_id=$(cat __travis_job_id__.txt)
-    if [[ -z "$travis_job_id" ]]; then
-        # for releases we just need the tag
-        echo $version > __conda_version__.txt
-    elif [[ "$travis_job_id" == "devel" ]]; then
-        # for devel build we just need the tag
+    if [[ "$travis_job_id" == "release" || "$travis_job_id" == "devel" ]]; then
+        # for releases and devel builds we just need the tag
         echo $version > __conda_version__.txt
     else
         # for the testing machinery we also need the travis_job__id

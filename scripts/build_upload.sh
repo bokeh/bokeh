@@ -72,13 +72,13 @@ fi
 travis_job_id=$(cat __travis_job_id__.txt)
 
 # specify some varibles specific of the release or devel build process
-if [[ -z "$travis_job_id" ]]; then
+if [[ "$travis_job_id" == "release" ]]; then
     #release
     channel=main              #anaconda.org channel
     register=register         #register to pypi
     upload=upload             #upload to pypi
     subdir=release            #CDN subdir where to upload the js and css
-else
+elif [[ "$travis_job_id" == "devel" ]]; then
     #devel build
     channel=dev               #anaconda.org channel
     register=""               #register to pypi
@@ -103,7 +103,7 @@ do
 done
 
 # convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*$travis_job_id*.tar.bz2 --quiet
+conda convert -p all -f $BUILD_PATH/bokeh*.tar.bz2 --quiet
 echo "pkgs converted"
 
 # upload conda pkgs to anaconda.org
@@ -111,7 +111,7 @@ platforms=(osx-64 linux-64 win-64 linux-32 win-32)
 for plat in "${platforms[@]}"
 do
     echo Uploading: $plat
-    anaconda -t $bintoken upload -u bokeh $plat/bokeh*$travis_job_id*.tar.bz2 -c $channel --force --no-progress
+    anaconda -t $bintoken upload -u bokeh $plat/bokeh*.tar.bz2 -c $channel --force --no-progress
 done
 
 # create, register and upload pypi pkgs to pypi and anaconda.org
@@ -122,7 +122,7 @@ if [[ ! -z "$upload" ]]; then
     echo "I'm done uploading to pypi"
 fi
 
-anaconda -t $bintoken upload -u bokeh dist/bokeh*$travis_job_id*.tar.gz --package-type pypi -c $channel --force --no-progress
+anaconda -t $bintoken upload -u bokeh dist/bokeh*.tar.gz --package-type pypi -c $channel --force --no-progress
 echo "I'm done uploading to anaconda.org"
 
 ###########################
@@ -167,11 +167,11 @@ pushd sphinx
 BOKEH_DOCS_CDN=$complete_version BOKEH_DOCS_VERSION=$complete_version make clean all
 
 # to the correct location
-if [[ -z "$travis_job_id" ]]; then
+if [[ "$travis_job_id" == "release" ]]; then
     fab deploy:$complete_version
     fab latest:$complete_version
     echo "I'm done uploading the release docs"
-else
+elif [[ "$travis_job_id" == "devel" ]]; then
     fab deploy:dev
     echo "I'm done uploading the devel docs"
 fi
@@ -184,7 +184,7 @@ popd
 
 pushd bokehjs
 
-if [[ -z "$travis_job_id" ]]; then
+if [[ "$travis_job_id" == "release" ]]; then
     npm publish
     echo "I'm done publishing to npmjs.org"
 fi
