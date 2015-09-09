@@ -26,11 +26,6 @@ from ..properties import bokeh_integer_types, Datetime
 from ..models.sources import ColumnDataSource
 from .utils import collect_attribute_columns
 
-try:
-    import blaze
-except ImportError:
-    blaze = None
-
 DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
 ARRAY_TYPES = [tuple, list, np.ndarray, pd.Series]

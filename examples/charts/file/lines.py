@@ -22,4 +22,18 @@ line0 = Line(df, y=['python', 'pypy', 'jython'],
 line1 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              title="Interpreters (x='date', y=['python', 'pypy', 'jython'])", ylabel='Duration', legend=True)
 
-show(hplot(line0, line1))
+line2 = Line(df, x='date', y=['python', 'pypy', 'jython'],
+             dash=['python', 'pypy', 'jython'],
+             title="Interpreters (x='date', y, dash=['python', 'pypy', 'jython'])", ylabel='Duration', legend=True)
+
+line3 = Line(df, x='date', y=['python', 'pypy', 'jython'],
+             dash=['python', 'pypy', 'jython'],
+             color=['python', 'pypy', 'jython'],
+             title="Interpreters (x='date', y, dash, color=['python', 'pypy', 'jython'])", ylabel='Duration', legend=True)
+
+show(
+    vplot(
+        hplot(line0, line1),
+        hplot(line2, line3)
+    )
+)

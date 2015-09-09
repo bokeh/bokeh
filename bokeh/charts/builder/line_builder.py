@@ -4,17 +4,17 @@ complex plot is a simple way.
 This is the Line class which lets you build your Line charts just
 passing the arguments to the Chart class and calling the proper functions.
 """
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 from .._builder import XYBuilder, create_and_build
@@ -22,9 +22,10 @@ from ..glyphs import LineGlyph
 from .._attributes import DashAttr, ColorAttr
 from ...models.sources import ColumnDataSource
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Classes and functions
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 def Line(data, x=None, y=None, **kws):
@@ -88,12 +89,44 @@ class LineBuilder(XYBuilder):
 
     def _setup(self):
 
-        # if we were given no colors and a list of measurements, stack them
-        if self.attributes['color'].columns is None:
+        # handle special case of inputs as measures
+        if self.measure_input:
+
+            stack_color = False
+            stack_dash = False
+
+            color_columns = self.attributes['color'].columns
+            dash_columns = self.attributes['dash'].columns
+
+            # Check if we stack measurements and by which attributes
+            if (color_columns is not None and (color_columns == self.y.selection or
+                                                       color_columns == self.x.selection)):
+                stack_color = True
+            if (dash_columns is not None and (dash_columns == self.y.selection or
+                                                      dash_columns == self.x.selection)):
+                stack_dash = True
+
+            # if we have measures input, we need to stack by something, set default
+            if all(attr == False for attr in [stack_color, stack_dash]):
+                stack_color = True
+
             if isinstance(self.y.selection, list):
                 self._stack_measures(dim='y', ids=self.x.selection)
             elif isinstance(self.x.selection, list):
                 self._stack_measures(dim='x', ids=self.y.selection)
+
+            if stack_color:
+                # color by the name of each variable
+                self.attributes['color'] = ColorAttr(columns='variable',
+                                                     data=ColumnDataSource(self._data.df))
+            if stack_dash:
+                # color by the name of each variable
+                self.attributes['dash'] = DashAttr(columns='variable',
+                                                   data=ColumnDataSource(self._data.df))
+
+    @property
+    def measure_input(self):
+        return isinstance(self.y.selection, list) or isinstance(self.x.selection, list)
 
     def _stack_measures(self, dim, ids):
         dim_prop = getattr(self, dim)
@@ -103,10 +136,6 @@ class LineBuilder(XYBuilder):
 
         # update our dimension with the updated data
         dim_prop.set_data(self._data)
-
-        # color by the name of each variable
-        self.attributes['color'] = ColorAttr(columns='variable',
-                                             data=ColumnDataSource(self._data.df))
 
     def _yield_renderers(self):
         for group in self._data.groupby(**self.attributes):
