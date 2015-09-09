@@ -6,11 +6,12 @@ with data columns from data sources.
 from __future__ import absolute_import
 
 from ..enums import Direction, Anchor
-from .mappers import LinearColorMapper
 from ..mixins import FillProps, LineProps, TextProps
 from ..plot_object import PlotObject
-from ..properties import abstract
-from ..properties import AngleSpec, Bool, DistanceSpec, Enum, Include, Instance, NumberSpec, StringSpec
+from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum,
+                          Include, Instance, NumberSpec, StringSpec)
+
+from .mappers import LinearColorMapper
 
 @abstract
 class Glyph(PlotObject):
