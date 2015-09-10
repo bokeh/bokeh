@@ -59,7 +59,7 @@ class WSHandler(WebSocketHandler):
         ''' Process an individual wire protocol fragment.
 
         Args:
-            fragment (UTF-8 or bytes) : wire fragment to process
+            fragment (unicode or bytes) : wire fragment to process
 
         '''
         try:

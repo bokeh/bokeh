@@ -74,8 +74,7 @@ class Receiver(object):
 
         self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
 
-        from six import b
-        if b(hmac) != self._partial.hmac:
+        if hmac != self._partial.hmac:
             self._fail()
             raise ValidationError("HMAC signatures do not match")
 
