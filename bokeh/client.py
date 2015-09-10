@@ -95,9 +95,9 @@ def bar(cli):
     cli.send_message(msg)
 
 def quux(cli):
-    log.warn("Deliberately wrong session ID")
-    msg = Protocol("1.0").create('SERVER-INFO-REQ', 'wrongsessid')
-    cli.send_message(msg)
+    log.info("Sending deliberately bogus message")
+    cli._client.write_message(b"xx", binary=True)
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
