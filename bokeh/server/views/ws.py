@@ -19,11 +19,9 @@ class WSHandler(WebSocketHandler):
 
     '''
 
-    clients = set()
-
-    def __init__(self, *args, **kw):
-        super(WSHandler, self).__init__(*args, **kw)
-        self.session = None
+    def __init__(self, server, *args, **kw):
+        self._server = server
+        super(WSHandler, self).__init__(server, *args, **kw)
 
     def open(self):
         ''' Initialize a connection to a client.
@@ -49,7 +47,7 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise
 
-        self.clients.add(self)
+        self._server.client_connected(self.session)
 
         msg = self.session.protocol.create('ACK', self.session.id)
         self.send_message(msg)
@@ -65,24 +63,25 @@ class WSHandler(WebSocketHandler):
         try:
             message = yield self.receiver.consume(fragment)
         except (MessageError, ProtocolError, ValidationError) as e:
-            log.error(e)
+            self._protocol_error(str(e))
             # TODO (bev) : if self.receiver.failures > MAX FAILUES
             raise gen.Return(None)
 
         if message is None:
+            # Partial message
             raise gen.Return(None)
 
         # make sure the session ID from the client message matches
         if message.header['sessid'] != self.session.id:
-            log.error("Session ID mismatch")
+            self._protocol_error("Session ID mismatch")
             raise gen.Return(None)
 
         log.debug("Received %r", message)
 
         try:
             work = yield message.handle_server(self)
-        except MessageError: # TODO (bev) different exception?
-            log.error(e)
+        except MessageError as e: # TODO (bev) different exception?
+            self._protocol_error(str(e))
             raise gen.Return(None)
 
         if work:
@@ -90,6 +89,12 @@ class WSHandler(WebSocketHandler):
             self.session[docid].workon(item)
 
         raise gen.Return(None)
+
+    def _protocol_error(self, message):
+        log.error("Protocol error: %s", message)
+        # According to RFC 6455, "1002 indicates that an endpoint is
+        # terminating the connection due to a protocol error".
+        self.close(1002, message)
 
     def send_message(self, message):
         ''' Send a Bokeh Server protocol message to the connected client.
@@ -105,7 +110,7 @@ class WSHandler(WebSocketHandler):
         ''' Clean up when the connection is closed.
 
         '''
-        log.info('WebSocket connection closed')
-        if self in self.clients:
-            self.clients.remove(self)
+        log.info('WebSocket connection closed: code=%s, reason=%r',
+                 self.close_code, self.close_reason)
+        self._server.client_lost(self.session)
 

@@ -3,11 +3,15 @@
 '''
 from __future__ import absolute_import, print_function
 
+import logging
+log = logging.getLogger(__name__)
+
 import atexit
+import os
 import signal
 
 from tornado import gen
-from tornado.ioloop import IOLoop
+from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import Application
 
 from .settings import settings
@@ -24,6 +28,7 @@ class BokehServer(Application):
     '''
 
     def __init__(self, extra_patterns=None):
+        self._clients = set()
         extra_patterns = extra_patterns or []
         super(BokehServer, self).__init__(patterns+extra_patterns, **settings)
 
@@ -42,6 +47,8 @@ class BokehServer(Application):
         '''
         loop = IOLoop.current()
         loop.add_callback(self._start_async, argv)
+        self._stats_job = PeriodicCallback(self.log_stats, 5.0 * 1000)
+        self._stats_job.start()
         try:
             loop.start()
         except KeyboardInterrupt:
@@ -57,6 +64,15 @@ class BokehServer(Application):
         if not self.io_loop:
             return
         self.io_loop.add_callback(self.io_loop.stop)
+
+    def client_connected(self, session):
+        self._clients.add(session)
+
+    def client_lost(self, session):
+        self._clients.discard(session)
+
+    def log_stats(self):
+        log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
 
     @gen.coroutine
     def _start_async(self, argv=None):
@@ -77,6 +93,7 @@ class BokehServer(Application):
             return
         self._atexit_ran = True
 
+        self._stats_job.stop()
         IOLoop.clear_current()
         loop = IOLoop()
         loop.make_current()
@@ -84,10 +101,11 @@ class BokehServer(Application):
 
     def _sigterm(self, signum, frame):
         print("Received SIGTERM, shutting down")
-        self.io_loop.stop()
+        self.stop()
         self._atexit()
 
     @gen.coroutine
     def _cleanup(self):
         print("...done")
+        self._clients.clear()
 

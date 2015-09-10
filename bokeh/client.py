@@ -24,25 +24,37 @@ class ClientSession(object):
         self._session_id = None
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)
+        self._client = None
 
     def connect(self):
-        IOLoop.instance().add_callback(self._connect_async)
-        IOLoop.instance().start()
+        loop = IOLoop.instance()
+        loop.add_callback(self._run)
+        try:
+            loop.start()
+        except KeyboardInterrupt:
+            if self._client is not None:
+                self._client.close(1000, "user interruption")
 
     def send_message(self, message):
         sent = message.send(self._client)
         log.debug("Sent %r [%d bytes]", message, sent)
 
     @gen.coroutine
+    def _run(self):
+        yield self._connect_async()
+        yield self._worker()
+
+    @gen.coroutine
     def _connect_async(self):
         self._client = yield websocket_connect(self._request)
-        IOLoop.instance().add_callback(self._worker)
 
     @gen.coroutine
     def _worker(self):
         while True:
             fragment = yield self._client.read_message()
             if fragment is None:
+                # XXX Tornado doesn't give us the code and reason
+                log.info("Connection closed by server")
                 break
             try:
                 message = yield self._receiver.consume(fragment)
