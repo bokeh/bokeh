@@ -4,10 +4,13 @@
 from __future__ import absolute_import, print_function
 
 import logging
+import random
+import time
+
 log = logging.getLogger(__name__)
 
 from tornado import gen
-from tornado.websocket import WebSocketHandler
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
 from ..core.server_session import ServerSession
@@ -78,6 +81,21 @@ class WSHandler(WebSocketHandler):
 
         log.debug("Received %r", message)
 
+        # Example blocking background stuff
+        msgid = message.header['msgid']
+        def do_background_stuff():
+            delay = random.random() * 2.0
+            log.info("start working for %.2f s. on %s", delay, msgid)
+            time.sleep(delay)
+            log.info("work finished on %s", msgid)
+            return "done"
+
+        # This will wait for the background stuff to finish
+        # but let other coroutines run in parallel (including
+        # responses to other messages on this connection)
+        res = yield self._server.run_in_background(do_background_stuff)
+        assert res == "done"   # Got the return value
+
         try:
             work = yield message.handle_server(self)
         except MessageError as e: # TODO (bev) different exception?
@@ -103,8 +121,14 @@ class WSHandler(WebSocketHandler):
             message (Message) : a message to send
 
         '''
-        sent = message.send(self)
-        log.debug("Sent %r [%d bytes]", message, sent)
+        try:
+            sent = message.send(self)
+        except WebSocketClosedError:
+            # on_close() is / will be called anyway
+            log.warn("Failed sending message as connection was closed")
+            pass
+        else:
+            log.debug("Sent %r [%d bytes]", message, sent)
 
     def on_close(self):
         ''' Clean up when the connection is closed.

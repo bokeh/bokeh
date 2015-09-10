@@ -4,6 +4,8 @@
 from __future__ import absolute_import, print_function
 
 import logging
+import random
+
 log = logging.getLogger(__name__)
 
 from tornado import gen
@@ -17,10 +19,9 @@ from bokeh.server.protocol import Protocol
 
 class ClientSession(object):
 
-    def __init__(self, url="ws://localhost:8888/ws", callback=None, callback_interval=None):
+    def __init__(self, url="ws://localhost:8888/ws", callbacks=None):
         self._request = HTTPRequest(url, headers={"bokeh-protocol-version": "1.0"})
-        self._callback = callback
-        self._callback_interval = callback_interval
+        self._callbacks = callbacks
         self._session_id = None
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)
@@ -74,25 +75,32 @@ class ClientSession(object):
         IOLoop.instance().stop()
 
     def _callback_wrapper(self, func):
-        sessid = self._session_id
-        def wrapper(*args, **kw):
-            msg = func(sessid)
-            self.send_message(msg)
+        def wrapper():
+            func(self)
         return wrapper
 
     def _start_callbacks(self):
-        if self._callback and self._callback_interval:
-            PeriodicCallback(self._callback_wrapper(self._callback), self._callback_interval).start()
-        elif self._callback:
-            IOLoop.instance().add_callback(self._callback_wrapper(self._callback))
+        for cb, period in self._callbacks:
+            if period:
+                PeriodicCallback(self._callback_wrapper(cb),
+                                 period  * 1000,  # ms
+                                 ).start()
+            else:
+                IOLoop.instance().add_callback(self._callback_wrapper(cb))
 
-def foo(session_id):
-    return Protocol("1.0").create('SERVER-INFO-REQ', session_id)
+
+def foo(cli):
+    msg = Protocol("1.0").create('SERVER-INFO-REQ', cli._session_id)
+    cli.send_message(msg)
+
+def bar(cli):
+    # The wrong session id will trigger the server to close the connection
+    msg = Protocol("1.0").create('SERVER-INFO-REQ', 'wrongsessid')
+    cli.send_message(msg)
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    session = ClientSession(callback=foo, callback_interval=200)
+    session = ClientSession(callbacks=[(foo, 0.8), (bar, 30.0)])
     session.connect()
-
-
 

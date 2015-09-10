@@ -7,6 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import atexit
+from concurrent.futures import ThreadPoolExecutor
 import os
 import signal
 
@@ -16,6 +17,8 @@ from tornado.web import Application
 
 from .settings import settings
 from .urls import patterns
+
+
 
 class BokehServer(Application):
     ''' A Tornado Application for the Bokeh Server.
@@ -29,6 +32,12 @@ class BokehServer(Application):
 
     def __init__(self, extra_patterns=None):
         self._clients = set()
+        # NOTE: raise the number of workers if you need more concurrency
+        # (e.g. if your background tasks are doing a lot of I/O).
+        # If a lot of pure Python code is run by the background tasks and
+        # you want to take advantage of multiple cores, consider using
+        # ProcessPoolExecutor instead.
+        self._executor = ThreadPoolExecutor(max_workers=4)
         extra_patterns = extra_patterns or []
         super(BokehServer, self).__init__(patterns+extra_patterns, **settings)
 
@@ -75,6 +84,15 @@ class BokehServer(Application):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
 
     @gen.coroutine
+    def run_in_background(self, _func, *args, **kwargs):
+        """
+        Run a synchronous function in the background without disrupting
+        the main thread. Useful for long-running jobs.
+        """
+        res = yield self._executor.submit(_func, *args, **kwargs)
+        raise gen.Return(res)
+
+    @gen.coroutine
     def _start_async(self, argv=None):
         try:
             yield self._start_helper()
@@ -106,6 +124,7 @@ class BokehServer(Application):
 
     @gen.coroutine
     def _cleanup(self):
-        print("...done")
+        log.warn("Shutdown: cleaning up")
+        self._executor.shutdown(wait=False)
         self._clients.clear()
 
