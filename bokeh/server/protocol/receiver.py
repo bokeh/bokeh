@@ -4,6 +4,7 @@ message objects that can be processed.
 '''
 from __future__ import absolute_import
 
+import six
 from tornado.concurrent import return_future
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
@@ -13,6 +14,9 @@ class Receiver(object):
 
     On MessageError or ValidationError, the receiver will reset its state
     and attempt to consume a new message.
+
+    NOTE: the *fragment* received can be either bytes or unicode, depending
+    on the transport's semantics (WebSocket allows both).
 
     [
         # these are required
@@ -49,6 +53,7 @@ class Receiver(object):
         callback(self._message)
 
     def _HMAC(self, fragment):
+        self._assume_text(fragment)
         if len(fragment) != 64:
             self._failures += 1
             raise ProtocolError("Invalid HMAC signature length")
@@ -60,14 +65,17 @@ class Receiver(object):
         self._current_consumer = self._HEADER
 
     def _HEADER(self, fragment):
+        self._assume_text(fragment)
         self._fragments.append(fragment)
         self._current_consumer = self._METADATA
 
     def _METADATA(self, fragment):
+        self._assume_text(fragment)
         self._fragments.append(fragment)
         self._current_consumer = self._CONTENT
 
     def _CONTENT(self, fragment):
+        self._assume_text(fragment)
         self._fragments.append(fragment)
 
         hmac, header_json, metadata_json, content_json = self._fragments
@@ -81,10 +89,12 @@ class Receiver(object):
         self._check_complete()
 
     def _BUFFER_HEADER(self, fragment):
+        self._assume_text(fragment)
         self._buf_header = fragment
         self._current_consumer = self._BUFFER_PAYLOAD
 
     def _BUFFER_PAYLOAD(self, fragment):
+        self._assume_binary(fragment)
         try:
             self._partial.add_buffer(self._buf_header, fragment)
         except MessageError as e:
@@ -99,6 +109,16 @@ class Receiver(object):
             self._current_consumer = self._HMAC
         else:
             self._current_consumer = self._BUFFER_HEADER
+
+    def _assume_text(self, fragment):
+        if not isinstance(fragment, six.text_type):
+            self._fail()
+            raise ValidationError("expected text fragment but received binary fragment")
+
+    def _assume_binary(self, fragment):
+        if not isinstance(fragment, six.binary_type):
+            self._fail()
+            raise ValidationError("expected binary fragment but received text fragment")
 
     def _fail(self):
         self._current_consumer = self._HMAC
