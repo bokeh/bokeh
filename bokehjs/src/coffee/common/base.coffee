@@ -38,17 +38,18 @@ locations =
   FactorRange:              require '../range/factor_range'
   Range1d:                  require '../range/range1d'
 
-  BoxAnnotation:             require '../renderer/annotation/box_annotation'
+  BoxAnnotation:            require '../renderer/annotation/box_annotation'
   Legend:                   require '../renderer/annotation/legend'
   Span:                     require '../renderer/annotation/span'
   Tooltip:                  require '../renderer/annotation/tooltip'
+
+  TileLayer:                require '../renderer/geo/tile_layer'
 
   GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 
   AnnularWedge:             require '../renderer/glyph/annular_wedge'
   Annulus:                  require '../renderer/glyph/annulus'
   Arc:                      require '../renderer/glyph/arc'
-  Basemap:                  require '../renderer/glyph/basemap'
   Bezier:                   require '../renderer/glyph/bezier'
   Circle:                   require '../renderer/glyph/circle'
   Gear:                     require '../renderer/glyph/gear'
