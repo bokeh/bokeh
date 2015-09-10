@@ -144,8 +144,10 @@ class BarBuilder(Builder):
     max_height = Float(1.0)
     min_height = Float(0.0)
     bar_width = Float(default=0.8)
+    fill_alpha = Float(default=0.8)
 
     glyph = BarGlyph
+    label_attributes = ['stack', 'group']
 
     def _setup(self):
 
@@ -208,24 +210,36 @@ class BarBuilder(Builder):
         else:
             self.renderers.append(renderer)
 
-        # ToDo: support grouping and stacking at the same time
-        if self.attributes['stack'].columns is not None:
-            label = self._get_label(group['stack'])
-        elif self.attributes['group'].columns is not None:
-            label = self._get_label(group['group'])
-        else:
-            label = None
+        label = None
+        for attr in self.label_attributes:
+            if self.attributes[attr].columns is not None:
+                label = self._get_label(self.get_group_label(group))
 
         # add to legend if new and unique label
         if str(label) not in self.labels and label is not None:
             self._legends.append((label, renderer.renderers))
             self.labels.append(label)
 
+    def get_group_label(self, group):
+
+        # ToDo: support grouping and stacking at the same time
+        if self.attributes['stack'].columns is not None:
+            item = group['stack']
+        elif self.attributes['group'].columns is not None:
+            item = group['group']
+        else:
+            item = None
+
+        return item
+
+    def get_extra_args(self):
+        return {}
+
     @staticmethod
     def _get_label(item):
         if item is None:
             return item
-        elif len(item) == 1:
+        elif (isinstance(item, tuple) or isinstance(item, list)) and len(item) == 1:
             item = item[0]
         return str(item)
 
@@ -234,6 +248,7 @@ class BarBuilder(Builder):
 
         Takes reference points from data loaded at the ColumnDataSource.
         """
+        kwargs = self.get_extra_args()
 
         for group in self._data.groupby(**self.attributes):
 
@@ -242,8 +257,10 @@ class BarBuilder(Builder):
                             agg=stats[self.agg](),
                             width=self.bar_width,
                             color=group['color'],
+                            fill_alpha=self.fill_alpha,
                             stack_label=self._get_label(group['stack']),
-                            dodge_label=self._get_label(group['group']))
+                            dodge_label=self._get_label(group['group']),
+                            **kwargs)
 
             self.add_renderer(group, bg)
 

@@ -446,13 +446,14 @@ class HistogramGlyph(AggregateGlyph):
 
     bin_width = Float()
 
-    def __init__(self, values, label=None, bin_count=None, **kwargs):
+    def __init__(self, values, label=None, color=None, bin_count=None, **kwargs):
         if label is not None:
             kwargs['label'] = label
         kwargs['values'] = values
         kwargs['bin_count'] = bin_count
+        kwargs['color'] = color or self.color
 
-        # remove width
+        # remove width, since this is handled automatically
         kwargs.pop('width', None)
 
         super(HistogramGlyph, self).__init__(**kwargs)
@@ -464,13 +465,14 @@ class HistogramGlyph(AggregateGlyph):
         pass
 
     def build_renderers(self):
-        self.bins = Bins(values=self.values)
+        self.bins = Bins(values=self.values, bin_count=self.bin_count)
         self.centers = [bin.center for bin in self.bins.bins]
         self.bin_width = self.centers[1] - self.centers[0]
 
         bars = []
         for bin in self.bins.bins:
-            bars.append(BarGlyph(label=bin.center, values=bin.values, agg=bin.stat, width=self.bin_width))
+            bars.append(BarGlyph(label=bin.center, values=bin.values, color=self.color,
+                                 fill_alpha=self.fill_alpha, agg=bin.stat, width=self.bin_width))
 
         self.bars = bars
         self.children = self.bars

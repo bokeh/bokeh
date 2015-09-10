@@ -150,7 +150,7 @@ class Bins(Stat):
 
     Bin counts using: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
     """
-    num_bins = Either(Int, Float)
+    bin_count = Either(Int, Float)
     bin_width = Float(default=None, help='Use Freedman-Diaconis rule if None.')
     bins = List(Instance(Bin))
     q1 = Quantile(interval=0.25)
@@ -167,10 +167,11 @@ class Bins(Stat):
         values = self.get_data()
         self.q1.set_data(values)
         self.q3.set_data(values)
-        self.calc_num_bins(values)
+        if self.bin_count is None:
+            self.calc_num_bins(values)
 
     def calculate(self):
-        binned, bin_edges = pd.cut(self.get_data(), self.num_bins, retbins=True, precision=0)
+        binned, bin_edges = pd.cut(self.get_data(), self.bin_count, retbins=True, precision=0)
 
         df = pd.DataFrame(dict(values=self.get_data(), bins=binned))
         bins = []
@@ -181,7 +182,7 @@ class Bins(Stat):
     def calc_num_bins(self, values):
         iqr = self.q3.value - self.q1.value
         self.bin_width = 2 * iqr * (len(values) ** -(1. / 3.))
-        self.num_bins = np.ceil((self.values.max() - self.values.min())/self.bin_width)
+        self.bin_count = np.ceil((self.values.max() - self.values.min())/self.bin_width)
 
 
 def bin(values, num_bins=5, bins=None, labels=None):

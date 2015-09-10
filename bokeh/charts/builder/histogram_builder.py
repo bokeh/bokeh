@@ -24,7 +24,7 @@ except ImportError as e:
     _is_scipy = False
 
 from ...models import Range1d
-from ...properties import Bool, Int
+from ...properties import Bool, Int, Float
 
 from .._builder import create_and_build
 from .bar_builder import BarBuilder
@@ -36,7 +36,7 @@ from ..glyphs import HistogramGlyph
 
 
 def Histogram(data, values=None, label=None, color=None, agg="count",
-              yscale="linear", xgrid=False, ygrid=True,
+              bins=None, yscale="linear", xgrid=False, ygrid=True,
               continuous_range=None, **kw):
 
 
@@ -55,6 +55,7 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
     kw['xgrid'] = xgrid
     kw['ygrid'] = ygrid
     kw['y_range'] = y_range
+    kw['bins'] = bins
 
     return create_and_build(HistogramBuilder, data, **kw)
 
@@ -84,6 +85,19 @@ class HistogramBuilder(BarBuilder):
     """)
 
     glyph = HistogramGlyph
+    label_attributes = ['color']
+
+    def _setup(self):
+        super(HistogramBuilder, self)._setup()
+
+        if self.attributes['color'].columns is not None:
+            self.fill_alpha = 0.6
+
+    def get_group_label(self, group):
+        return group.label
+
+    def get_extra_args(self):
+        return dict(bin_count=self.bins)
 
     def _set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
