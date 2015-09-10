@@ -65,9 +65,6 @@ class ClientSession(object):
 
             if message:
                 log.debug("Received %r", message)
-                # log.debug(" - header: %r", message.header)
-                # log.debug(" - metadata: %r", message.metadata)
-                # log.debug(" - content: %r", message.content)
                 if message.msgtype is 'ACK':
                     self._session_id = message.header['sessid']
                     self._start_callbacks()
@@ -94,13 +91,16 @@ def foo(cli):
     cli.send_message(msg)
 
 def bar(cli):
-    # The wrong session id will trigger the server to close the connection
+    msg = Protocol("1.0").create('PULL-DOC-REQ', cli._session_id, "some_doc")
+    cli.send_message(msg)
+
+def quux(cli):
+    log.warn("Deliberately wrong session ID")
     msg = Protocol("1.0").create('SERVER-INFO-REQ', 'wrongsessid')
     cli.send_message(msg)
 
-
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    session = ClientSession(callbacks=[(foo, 0.8), (bar, 30.0)])
+    session = ClientSession(callbacks=[(foo, 0.8), (bar, 3.0), (quux, 30.0)])
     session.connect()
 

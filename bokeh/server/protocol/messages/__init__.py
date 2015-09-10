@@ -8,6 +8,9 @@ from ...exceptions import ProtocolError
 index = {}
 
 def register(cls):
+    ''' Decorator to add a Message (and its revision) to the Protocol index.
+
+    '''
     key = (cls.msgtype, cls.revision)
     if key in index:
         raise ProtocolError("Duplicate message specification encountered: %r" % key)
@@ -24,7 +27,8 @@ def _is_complete(self):
     return True
 
 def nobuffers(cls):
-    '''
+    ''' Convenience decorator for defining Message types that do not have any
+    buffers associated with them.
 
     '''
     cls.add_buffer = _add_buffer
@@ -34,6 +38,9 @@ def nobuffers(cls):
 
 from .ack import *
 from .ok import *
+from .pull_doc_req import *
+from .pull_doc_reply import *
+from .push_doc import *
 from .error import *
 from .server_info_reply import *
 from .server_info_req import *

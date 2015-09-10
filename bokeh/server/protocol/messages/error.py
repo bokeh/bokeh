@@ -6,7 +6,9 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
-from ...exceptions import ProtocolError
+import sys
+from traceback import format_exception
+
 from ..message import Message
 from . import nobuffers, register
 
@@ -20,23 +22,26 @@ class error_1(Message):
     msgtype  = 'ERROR'
     revision = 1
 
+    def __repr__(self):
+        msg = super(error_1, self).__repr__()
+        msg += " --- "
+        msg += self.content['text']
+        if "traceback" in self.content:
+            msg += "\n"
+            msg += "".join(self.content['traceback'])
+        return msg
+
     @classmethod
-    def create(cls, session_id, reqid, errname, errval, traceback=None, **metadata):
+    def create(cls, session_id, reqid, text, **metadata):
         '''
 
         '''
         header = cls.create_header(session_id)
         content = {
-            'reqid'   : reqid,
-            'errname' : errname,
-            'errval'  : errval,
+            'reqid' : reqid,
+            'text'  : text,
         }
-        if traceback:
-            content['traceback'] = traceback.split()
+        ex_type, ex, tb = sys.exc_info()
+        if ex_type:
+            content['traceback'] = format_exception(ex_type, ex, tb)
         return cls(header, metadata, content)
-
-    def _handle_server(self, server):
-        raise ProtocolError("")
-
-    def _handle_client(self, client):
-        log.debug("received ERROR")

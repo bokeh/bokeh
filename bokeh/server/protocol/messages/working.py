@@ -6,7 +6,6 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
-from ...exceptions import ProtocolError
 from ..message import Message
 from . import nobuffers, register
 
@@ -30,9 +29,3 @@ class working_1(Message):
             'reqid' : reqid,
         }
         return cls(header, metadata, content)
-
-    def _handle_server(self, server):
-        raise ProtocolError("")
-
-    def _handle_client(self, client):
-        log.debug("received WORKING")
