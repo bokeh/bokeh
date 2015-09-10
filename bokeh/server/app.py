@@ -7,6 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import atexit
+# NOTE: needs PyPI backport on Python 2 (https://pypi.python.org/pypi/futures)
 from concurrent.futures import ThreadPoolExecutor
 import os
 import signal
