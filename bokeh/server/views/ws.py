@@ -19,10 +19,12 @@ from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..protocol.server_handler import ServerHandler
 
+
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
     '''
+    MAX_FAILURES = 3
 
     def __init__(self, server, *args, **kw):
         self._server = server
@@ -72,7 +74,6 @@ class WSHandler(WebSocketHandler):
             message = yield self.receiver.consume(fragment)
         except (MessageError, ProtocolError, ValidationError) as e:
             self._protocol_error(str(e))
-            # TODO (bev) : if self.receiver.failures > MAX FAILUES
             raise gen.Return(None)
 
         if message is None:
@@ -113,9 +114,11 @@ class WSHandler(WebSocketHandler):
 
     def _protocol_error(self, message):
         log.error("Protocol error: %s", message)
-        # According to RFC 6455, "1002 indicates that an endpoint is
-        # terminating the connection due to a protocol error".
-        self.close(1002, message)
+        if self.receiver.failures > self.MAX_FAILURES:
+            # According to RFC 6455, "1002 indicates that an endpoint is
+            # terminating the connection due to a protocol error".
+            log.error("Too many failures, closing connection")
+            self.close(1002, message)
 
     def send_message(self, message):
         ''' Send a Bokeh Server protocol message to the connected client.

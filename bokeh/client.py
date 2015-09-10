@@ -95,12 +95,13 @@ def bar(cli):
     cli.send_message(msg)
 
 def quux(cli):
+    # After a number of errors, the server will close the connection
     log.info("Sending deliberately bogus message")
     cli._client.write_message(b"xx", binary=True)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    session = ClientSession(callbacks=[(foo, 0.8), (bar, 3.0), (quux, 30.0)])
+    session = ClientSession(callbacks=[(foo, 0.8), (bar, 3.0), (quux, 15.0)])
     session.connect()
 
