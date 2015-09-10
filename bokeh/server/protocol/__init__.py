@@ -4,7 +4,6 @@ Servers and clients.
 '''
 from __future__ import absolute_import
 
-from six import b
 from tornado.escape import json_decode
 
 from ..exceptions import ProtocolError
@@ -58,7 +57,7 @@ class Protocol(object):
         '''
         header = json_decode(header_json)
         return self._messages[header['msgtype']].assemble(
-            b(header_json), b(metadata_json), b(content_json)
+            header_json, metadata_json, content_json
         )
 
     @property

@@ -4,10 +4,13 @@
 from __future__ import absolute_import, print_function
 
 import logging
+import random
+import time
+
 log = logging.getLogger(__name__)
 
 from tornado import gen
-from tornado.websocket import WebSocketHandler
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
 from ..core.server_session import ServerSession
@@ -16,16 +19,16 @@ from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..protocol.server_handler import ServerHandler
 
+
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
     '''
+    MAX_FAILURES = 3
 
-    clients = set()
-
-    def __init__(self, *args, **kw):
-        super(WSHandler, self).__init__(*args, **kw)
-        self.session = None
+    def __init__(self, server, *args, **kw):
+        self._server = server
+        super(WSHandler, self).__init__(server, *args, **kw)
 
     def open(self):
         ''' Initialize a connection to a client.
@@ -54,7 +57,7 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise
 
-        self.clients.add(self)
+        self._server.client_connected(self.session)
 
         msg = self.session.protocol.create('ACK', self.session.id)
         self.send_message(msg)
@@ -64,25 +67,40 @@ class WSHandler(WebSocketHandler):
         ''' Process an individual wire protocol fragment.
 
         Args:
-            fragment (UTF-8 or bytes) : wire fragment to process
+            fragment (unicode or bytes) : wire fragment to process
 
         '''
         try:
             message = yield self.receiver.consume(fragment)
         except (MessageError, ProtocolError, ValidationError) as e:
-            log.error(e)
-            # TODO (bev) : if self.receiver.failures > MAX FAILUES
+            self._protocol_error(str(e))
             raise gen.Return(None)
 
         if message is None:
+            # Partial message
             raise gen.Return(None)
 
         log.debug("Received %r", message)
 
+        # Example blocking background stuff
+        msgid = message.header['msgid']
+        def do_background_stuff():
+            delay = random.random() * 2.0
+            log.info("start working for %.2f s. on %s", delay, msgid)
+            time.sleep(delay)
+            log.info("work finished on %s", msgid)
+            return "done"
+
+        # This will wait for the background stuff to finish
+        # but let other coroutines run in parallel (including
+        # responses to other messages on this connection)
+        res = yield self._server.run_in_background(do_background_stuff)
+        assert res == "done"   # Got the return value
+
         try:
             work = yield self.handler.handle(message, self.session)
         except ProtocolError as e:
-            log.error(e)
+            self._protocol_error(str(e))
             raise gen.Return(None)
 
         if work:
@@ -94,6 +112,14 @@ class WSHandler(WebSocketHandler):
 
         raise gen.Return(None)
 
+    def _protocol_error(self, message):
+        log.error("Protocol error: %s", message)
+        if self.receiver.failures > self.MAX_FAILURES:
+            # According to RFC 6455, "1002 indicates that an endpoint is
+            # terminating the connection due to a protocol error".
+            log.error("Too many failures, closing connection")
+            self.close(1002, message)
+
     def send_message(self, message):
         ''' Send a Bokeh Server protocol message to the connected client.
 
@@ -101,14 +127,20 @@ class WSHandler(WebSocketHandler):
             message (Message) : a message to send
 
         '''
-        sent = message.send(self)
-        log.debug("Sent %r [%d bytes]", message, sent)
+        try:
+            sent = message.send(self)
+        except WebSocketClosedError:
+            # on_close() is / will be called anyway
+            log.warn("Failed sending message as connection was closed")
+            pass
+        else:
+            log.debug("Sent %r [%d bytes]", message, sent)
 
     def on_close(self):
         ''' Clean up when the connection is closed.
 
         '''
-        log.info('WebSocket connection closed')
-        if self in self.clients:
-            self.clients.remove(self)
+        log.info('WebSocket connection closed: code=%s, reason=%r',
+                 self.close_code, self.close_reason)
+        self._server.client_lost(self.session)
 

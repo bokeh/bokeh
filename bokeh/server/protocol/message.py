@@ -7,11 +7,11 @@ import hashlib
 from hmac import HMAC
 from tornado.concurrent import return_future
 from tornado.escape import json_decode, json_encode
-from six import b
 
 import bokeh.util.serialization as bkserial
 
 from ..exceptions import MessageError
+
 
 class Message(object):
     ''' The Message base class encapsulates creating, assembling, and
@@ -191,14 +191,20 @@ class Message(object):
 
     # HMAC fragment properties
 
+    def _as_binary(self, s):
+        """
+        Make a unicode string binary, for hashing / signing / etc. purposes.
+        """
+        return s.encode('utf-8')
+
     @property
     def hmac(self):
         if not self._hmac:
             d = self.digester.copy()
-            d.update(self.header_json)
-            d.update(self.metadata_json)
-            d.update(self.content_json)
-            self._hmac = b(d.hexdigest())
+            d.update(self._as_binary(self.header_json))
+            d.update(self._as_binary(self.metadata_json))
+            d.update(self._as_binary(self.content_json))
+            self._hmac = d.hexdigest()
         return self._hmac
 
     # header fragment properties
@@ -215,7 +221,7 @@ class Message(object):
     @property
     def header_json(self):
         if not self._header_json:
-            self._header_json = b(json_encode(self.header))
+            self._header_json = json_encode(self.header)
         return self._header_json
 
     # content fragment properties
@@ -232,7 +238,7 @@ class Message(object):
     @property
     def content_json(self):
         if not self._content_json:
-            self._content_json = b(json_encode(self.content))
+            self._content_json = json_encode(self.content)
         return self._content_json
 
     # metadata fragment properties
@@ -249,13 +255,5 @@ class Message(object):
     @property
     def metadata_json(self):
         if not self._metadata_json:
-            self._metadata_json = b(json_encode(self.metadata))
+            self._metadata_json = json_encode(self.metadata)
         return self._metadata_json
-
-
-
-
-
-
-
-
