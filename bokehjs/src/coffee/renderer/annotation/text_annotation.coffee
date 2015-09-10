@@ -7,7 +7,7 @@ class TextAnnotationView extends PlotWidget
   initialize: (options) ->
     super(options)
     @text_props = new properties.Text({obj: @model, prefix: ''})
-    @angle_props = new properties.Angle({obj: @model, prefix: ''})
+    # @angle_props = new properties.Angle({obj: @model, prefix: ''})
 
   render: () ->
     @frame = @plot_model.get('frame')
@@ -20,14 +20,15 @@ class TextAnnotationView extends PlotWidget
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
-    @angle_props.set_value(ctx)
-    ctx.rotate(@mget('angle'))
+    # @angle_props.set_value(ctx)
+    # ctx.rotate(@mget('angle'))
     @text_props.set_value(ctx)
     ctx.translate(@mget('x_offset'), @mget('y_offset'))
     ctx.fillText(@mget('text'), sx, sy)
     ctx.restore()
 
   _calc_dim: (dim, mapper) ->
+    debugger;
     if @mget(dim+'_units') == 'data'
       vdim = mapper.map_to_target(@mget(dim))
     else

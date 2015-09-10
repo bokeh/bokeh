@@ -154,6 +154,10 @@ class TextAnnotation(Renderer):
     The Plot to which this Legend is attached.
     """)
 
+    text = StringSpec("text", help="""
+    The text values to render.
+    """)
+
     x = NumberSpec("x", help="""
     The x-coordinates to locate the text anchors.
     """)
@@ -170,10 +174,6 @@ class TextAnnotation(Renderer):
     y_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as "data space" units
     by default.
-    """)
-
-    text = StringSpec("text", help="""
-    The text values to render.
     """)
 
     angle = AngleSpec(default=0, help="""
