@@ -220,21 +220,14 @@ instance, to set the color of the outline, use ``outline_line_color``:
 Glyphs
 ------
 
-As seen in :ref:`userguide_styling_selecting`, the |select| method can be
-used to retrieve ``GlyphRenderer`` objects from a plot:
-
-.. code-block:: python
-
-    >>> p.select(name="mycircle")
-    [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
-
 To style the fill, line, or text properties of a glyph, it is first
-necessary to obtain a specific ``GlyphRenderer`` from the returned
-list:
+necessary to obtain a specific ``GlyphRenderer``. When using the
+|bokeh.plotting| interface, the glyph functions return the renderer:
 
 .. code-block:: python
 
-    >>> p.select(name="mycircle")[0]
+    >>> r = p.circle([1,2,3,4,5], [2,5,8,2,7])
+    >>> r
     <bokeh.models.renderers.GlyphRenderer at 0x106a4c810>
 
 Then, the glyph itself is obtained from the ``.glyph`` attribute of a
@@ -242,7 +235,7 @@ Then, the glyph itself is obtained from the ``.glyph`` attribute of a
 
 .. code-block:: python
 
-    >>> p.select(name="mycircle")[0].glyph
+    >>> r.glyph
     <bokeh.models.markers.Circle at 0x10799ba10>
 
 This is the object to set fill, line, or text property values for:
@@ -270,12 +263,12 @@ of the |GlyphRenderer| either manually or by passing them to |add_glyph|.
 Click/Tap to select circles on the plot above to see the effect on the nonselected glyphs.
 
 Click in the plot, but not on a circle, to see their original state (this
-is set by the original call ``p.circle()``).  
+is set by the original call ``p.circle()``).
 
 The same could be achieved with the models interface as follows:
 
 .. code-block:: python
-    
+
     p = Plot()
     source = ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3]))
 
