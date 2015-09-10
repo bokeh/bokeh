@@ -80,17 +80,17 @@ class Dropdown(AbstractButton):
 
     """
 
-    action = String(help="""
+    value = String(help="""
     A private property used to trigger ``on_click`` event handler.
     """)
 
-    default_action = String(help="""
-    The default action, otherwise the first item in ``menu`` will be used.
+    default_value = String(help="""
+    The default value, otherwise the first item in ``menu`` will be used.
     """)
 
     menu = List(Tuple(String, String), help="""
     Button's dropdown menu consisting of entries containing item's text and
-    action name. Use ``None`` as a menu separator.
+    value name. Use ``None`` as a menu separator.
     """)
 
     def on_click(self, handler):
@@ -103,7 +103,7 @@ class Dropdown(AbstractButton):
             None
 
         """
-        self.on_change('action', lambda obj, attr, old, new: handler(new))
+        self.on_change('value', lambda obj, attr, old, new: handler(new))
 
 
 
