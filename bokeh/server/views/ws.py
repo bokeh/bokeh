@@ -99,7 +99,7 @@ class WSHandler(WebSocketHandler):
 
         try:
             work = yield self.handler.handle(message, self.session)
-        except ProtocolError as e:
+        except ProtocolError as e: # TODO (other exceptions?)
             self._protocol_error(str(e))
             raise gen.Return(None)
 
@@ -113,12 +113,10 @@ class WSHandler(WebSocketHandler):
         raise gen.Return(None)
 
     def _protocol_error(self, message):
-        log.error("Protocol error: %s", message)
-        if self.receiver.failures > self.MAX_FAILURES:
-            # According to RFC 6455, "1002 indicates that an endpoint is
-            # terminating the connection due to a protocol error".
-            log.error("Too many failures, closing connection")
-            self.close(1002, message)
+        log.error("Protocol error: %s, closing connection", message)
+        # According to RFC 6455, "1002 indicates that an endpoint is
+        # terminating the connection due to a protocol error".
+        self.close(1002, message)
 
     def send_message(self, message):
         ''' Send a Bokeh Server protocol message to the connected client.

@@ -86,22 +86,22 @@ class ClientSession(object):
                 IOLoop.instance().add_callback(self._callback_wrapper(cb))
 
 
-def foo(cli):
-    msg = Protocol("1.0").create('SERVER-INFO-REQ', cli._session_id)
-    cli.send_message(msg)
+def foo(client):
+    msg = Protocol("1.0").create('SERVER-INFO-REQ', client._session_id)
+    client.send_message(msg)
 
-def bar(cli):
-    msg = Protocol("1.0").create('PULL-DOC-REQ', cli._session_id, "some_doc")
-    cli.send_message(msg)
+def bar(client):
+    msg = Protocol("1.0").create('PULL-DOC-REQ', client._session_id, "some_doc")
+    client.send_message(msg)
 
-def quux(cli):
+def quux(client):
     # After a number of errors, the server will close the connection
     log.info("Sending deliberately bogus message")
-    cli._client.write_message(b"xx", binary=True)
+    client._client.write_message(b"xx", binary=True)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    session = ClientSession(callbacks=[(foo, 0.8), (bar, 3.0), (quux, 15.0)])
+    session = ClientSession(callbacks=[(foo, 0.8), (bar, 3.0), (quux, 10.0)])
     session.connect()
 

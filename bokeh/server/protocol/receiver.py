@@ -38,11 +38,6 @@ class Receiver(object):
         self._current_consumer = self._HMAC
         self._message = None
         self._buf_header = None
-        self._failures = 0
-
-    @property
-    def failures(self):
-        return self._failures
 
     @return_future
     def consume(self, fragment, callback=None):
@@ -55,7 +50,6 @@ class Receiver(object):
     def _HMAC(self, fragment):
         self._assume_text(fragment)
         if len(fragment) != 64:
-            self._failures += 1
             raise ProtocolError("Invalid HMAC signature length")
 
         self._message = None
@@ -83,7 +77,6 @@ class Receiver(object):
         self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
 
         if hmac != self._partial.hmac:
-            self._fail()
             raise ValidationError("HMAC signatures do not match")
 
         self._check_complete()
@@ -95,11 +88,7 @@ class Receiver(object):
 
     def _BUFFER_PAYLOAD(self, fragment):
         self._assume_binary(fragment)
-        try:
-            self._partial.add_buffer(self._buf_header, fragment)
-        except MessageError as e:
-            self._fail()
-            raise e
+        self._partial.add_buffer(self._buf_header, fragment)
 
         self._check_complete()
 
@@ -112,15 +101,8 @@ class Receiver(object):
 
     def _assume_text(self, fragment):
         if not isinstance(fragment, six.text_type):
-            self._fail()
             raise ValidationError("expected text fragment but received binary fragment")
 
     def _assume_binary(self, fragment):
         if not isinstance(fragment, six.binary_type):
-            self._fail()
             raise ValidationError("expected binary fragment but received text fragment")
-
-    def _fail(self):
-        self._current_consumer = self._HMAC
-        self._failures += 1
-
