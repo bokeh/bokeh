@@ -161,7 +161,6 @@ class DonutBuilder(Builder):
             end = angles.tolist() + [end_angle]
             start = [start_angle] + end[:-1]
             base_color = colors[i]
-            #fill = [ base_color.lighten(i*0.05) for i in range(len(details) + 1) ]
             fill = [base_color for i in start]
             text = [rowlabel for rowlabel in details.index]
             x, y = polar_to_cartesian(1.25, start, end)
