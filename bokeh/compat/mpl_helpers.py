@@ -16,7 +16,6 @@ from __future__ import absolute_import
 import numpy as np
 
 from itertools import cycle, islice
-from scipy import interpolate, signal
 
 from ..models import GlyphRenderer
 
@@ -117,6 +116,12 @@ def xkcd_line(x, y, xlim=None, ylim=None, mag=1.0, f1=30, f2=0.001, f3=5):
     x, y : ndarrays
         The modified lines
     """
+    try:
+        from scipy import interpolate, signal
+    except ImportError:
+        print("\nThe SciPy package is required to use the xkcd_line function.\n")
+        raise
+
     x = np.asarray(x)
     y = np.asarray(y)
 
