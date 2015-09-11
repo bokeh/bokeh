@@ -6,55 +6,26 @@ import shutil
 import subprocess
 import textwrap
 
-OPTIONS = {
-    "dry-run"  :  False,
-}
-
-def call_wrapper(cmd_str, *args, **kw):
-    """A wrapper for subprocess.call to support 'dry-run' option"""
-
-    if OPTIONS["dry-run"]:
-        print(cmd_str)
-        return 0
-    else:
-        return subprocess.call(cmd_str, *args, **kw)
-
 
 def get_parser():
     """Create the parser that will be used to add arguments to the script.
     """
 
     parser = argparse.ArgumentParser(description=textwrap.dedent("""
-                    Creates and runs tests on conda environments for a given
-                    version of bokeh installed using pip and
+                    Creates conda environments for a given
+                    version of bokeh, installed using pip and
                     conda and including python 2.7 and python 3.4.
 
-                    The --previous ('-p') option takes an earlier version of
-                    bokeh to test against, and for use
-                    in creating environments where bokeh will be updated.
+                    The --version ('-v') option takes an earlier version of
+                    bokeh, for use in creating environments where bokeh will be
+                    updated.
 
-                    The --version (-v) option takes the latest version of bokeh
-                    to test against in enviornments
-                    in which bokeh is updated.
 
-                    By default, all envs created will be deleted when the
-                    script finishes.  You can elect to keep these environments
-                    with the --keep option.
-
-                    Ex: ' python test_matrix.py -v 0.7.1 -p 0.7.0'
+                    Ex: ' python test_matrix.py -v 0.7.0'
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('-p', '--previous', action='store', default=False,
-                        help='Previous version of bokeh', required=True)
     parser.add_argument('-v', '--version', action='store', default=False,
-                        help='Version of bokeh to test', required=True)
-    parser.add_argument('--keep', action='store_true', default=False,
-                        help="Don't delete conda envs created by this script")
-    parser.add_argument('--dry-run', action='store_true', default=False,
-                        help="""Display commands that will be run in each environment
-                        without executing them.""")
-    parser.add_argument('--skip-tests', action='store_true',
-                        help="""Skip running tests.""")
+                        help='Version of bokeh', required=True)
     # parser.add_argument('')
 
     return parser
@@ -71,220 +42,126 @@ def cleaner(env_path):
 def conda_creator(env_name, pkgs):
     """Create a conda environment of a given name containing a given string of pkgs.
     """
-    call_wrapper("conda create --yes -n %s %s %s" % (env_name, pkgs, OPTIONS["channel"]), shell=True)
+
+    subprocess.call("conda create --yes -n %s %s" % (env_name, pkgs), shell=True)
 
 
 def bokeh_installer(env_name, install_string):
     """Activate an environment and run its install string to either install or update bokeh using
     conda or pip.
     """
+
     if os.name == 'nt':
         command_string = 'activate %s & %s' % (env_name, install_string)
     else:
         command_string = 'source activate %s; %s' % (env_name, install_string)
 
-    result = call_wrapper(command_string, shell=True)
+    result = subprocess.call(command_string, shell=True, executable="/bin/bash")
 
     return result == 0
-
-
-def version_check(env_name, expected_ver):
-    """Check a given environment's version of bokeh.
-    """
-    if os.name == 'nt':
-        command_string = 'activate %s & python -c "import sys, bokeh; sys.exit(0 if bokeh.__version__ == %r else 1)"' % (env_name, expected_ver)
-    else:
-        command_string = 'source activate %s; python -c "import sys, bokeh; sys.exit(0 if bokeh.__version__ == %r else 1)"' % (env_name, expected_ver)
-
-    result = call_wrapper(command_string, shell=True)
-
-    return result == 0
-
-
-def run_tests(env_name):
-    """Run py.test in a given environment.  Writes results to a tmpfile that will be returned as a string
-    in the event of a failure.
-    """
-
-    test_failure = ''
-    file_name  = "tmpfile.txt"
-    tmpfile = open(file_name, "w+")
-
-    if os.name == 'nt':
-        command_string = 'activate %s & py.test -s --cov=bokeh"' % env_name
-    else:
-        command_string = 'source activate %s; py.test -s --cov=bokeh"' % env_name
-
-    result = call_wrapper(command_string, shell=True, stderr=tmpfile)
-
-    tmpfile.close()
-
-    if result != 0:
-        with open(file_name, "r") as tmpfile:
-            test_failure = (tmpfile.read())
-
-    os.remove(file_name)
-
-    return result == 0, test_failure
-
-
-def server_check(env_name):
-    pass
-    # Open subprocess, run bokeh server
-    # Check return code, if 0, True, if 1, False
-    # Kill subprocess
-
-
-def logger(failure_list, logfile='logfile.txt'):
-    """Log items in a list of errors to a logfile.
-    """
-
-    while os.path.exists(logfile):
-        logfile = logfile.split('-')
-        if len(logfile) == 1:
-            logfile.append('2')
-        else:
-            logfile[1] = str(int(logfile[1]) + 1)
-        logfile = '-'.join(logfile)
-
-    with open(logfile, 'w') as log:
-        for failure in failure_list:
-            log.write(failure)
 
 
 if __name__ == '__main__':
 
     parser = get_parser()
     ops = parser.parse_args()
-    OPTIONS["dry-run"] = ops.dry_run
 
-    preversion = ops.previous
-    current_version = ops.version
+    ver = ops.version
 
     envs = {
         "py27_conda_clean"    : {
-            "init"    : "python=2.7 pytest pytest-cov mock",
+            "init"    : "python=2.7 pytest mock",
             "install" : '; '.join([
                     # install latest version from dev channel
                     "conda install --yes -c bokeh/channel/dev bokeh",
                     # install dependencies needed for testing
+                    "conda install --yes  -c jrderuiter pytest-cov",
                     "conda install --yes  -c auto websocket-client",
-                    "conda install --yes  -c bokeh pytest pytest-cov mock blaze abstract-rendering beautiful-soup "
-                    "ipython scipy websocket multiuserblazeserver pillow",
+                    "conda install --yes  -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy websocket multiuserblazeserver pillow",
                 ])
             },
         "py27_conda_update"   : {
-            "init"    : "python=2.7 pytest pytest-cov mock bokeh=%s" % preversion,
+            "init"    : "python=2.7 nose mock bokeh=%s" % ver,
             "install" : '; '.join([
                     "conda update --yes -c bokeh/channel/dev bokeh",
                     # install dependencies needed for testing
                     "conda install --yes -c auto websocket-client",
-                    "conda install --yes -c bokeh pytest pytest-cov mock blaze abstract-rendering beautiful-soup "
-                    "ipython scipy websocket multiuserblazeserver pillow",
+                    "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy websocket multiuserblazeserver pillow",
                 ])
             },
         "py27_pip_clean"      : {
-            "init"    : "python=2.7 pytest pytest-cov mock pip",
+            "init"    : "python=2.7 pytest mock pip",
             "install" : '; '.join([
-                "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple"
-                " bokeh --extra-index-url https://pypi.python.org/simple/",
+                # Latest version of pip not included in anaconda 2.3.0
+                "pip install --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install pytest pytest-cov mock blaze abstract-rendering beautifulsoup4"
-                " ipython scipy websocket-client multiuserblazeserver",
+                "conda install --yes  -c jrderuiter pytest-cov",
+                "conda install --yes -c auto websocket-client",
+                "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy websocket-client multiuserblazeserver",
                 ])
             },
         "py27_pip_update"     : {
-            "init"    : "python=2.7 pip pytest pytest-cov mock bokeh=%s" % preversion,
+            "init"    : "python=2.7 pip nose mock bokeh=%s" % ver,
             "install" :  '; '.join([
-                "pip install --upgrade --pre -i "
-                "https://pypi.binstar.org/bokeh/channel/dev/simple "
-                "bokeh --extra-index-url https://pypi.python.org/simple/",
+                # Latest version of pip not included in anaconda 2.3.0
+                "pip install --upgrade --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install pytest pytest-cov mock blaze abstract-rendering beautifulsoup4"
-                " ipython scipy websocket-client multiuserblazeserver",
-                ])
-            },
-        "py34_conda_clean"    : {
-            "init"    : "python=3.4 pytest pytest-cov mock",
-            "install" : '; '.join([
-                    # install latest version from dev channel
-                    "conda install --yes -c bokeh/channel/dev bokeh",
-                    # install dependencies needed for testing
-                    "conda install --yes  -c bokeh pytest pytest-cov mock blaze abstract-rendering beautiful-soup "
-                    "ipython scipy multiuserblazeserver pillow",
-                ])
-            },
-        "py34_conda_update"   : {
-            "init"    : "python=3.4 pytest pytest-cov mock bokeh=%s" % preversion,
-            "install" : '; '.join([
-                    "conda update --yes -c bokeh/channel/dev bokeh",
-                    # install dependencies needed for testing
-                    "conda install --yes -c bokeh pytest pytest-cov mock blaze abstract-rendering beautiful-soup "
-                    "ipython scipy multiuserblazeserver pillow",
+                "conda install --yes -c auto websocket-client",
+                "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy multiuserblazeserver",
                 ])
             },
         "py34_pip_clean"      : {
-            "init"    : "python=3.4 pytest pytest-cov mock pip",
+            "init"    : "python=3.4 pytest mock pip",
             "install" : '; '.join([
-                "pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple"
-                " bokeh --extra-index-url https://pypi.python.org/simple/",
+                # Latest version of pip not included in anaconda 2.3.0
+                "pip install --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install pytest pytest-cov mock blaze abstract-rendering beautifulsoup4"
-                " ipython scipy websocket-client multiuserblazeserver",
+                "conda install --yes  -c jrderuiter pytest-cov",
+                "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy multiuserblazeserver",
                 ])
             },
         "py34_pip_update"     : {
-            "init"    : "python=3.4 pip pytest pytest-cov mock bokeh=%s" % preversion,
+            "init"    : "python=3.4 pip nose mock bokeh=%s" % ver,
             "install" :  '; '.join([
-                "pip install --upgrade --pre -i "
-                "https://pypi.binstar.org/bokeh/channel/dev/simple "
-                "bokeh --extra-index-url https://pypi.python.org/simple/",
+                # Latest version of pip not included in anaconda 2.3.0
+                "pip install --upgrade --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/",
                 # install dependencies needed for testing
-                "pip install pytest pytest-cov mock blaze abstract-rendering beautifulsoup4"
-                " ipython scipy websocket-client multiuserblazeserver",
+                "conda install --yes -c bokeh nose mock blaze abstract-rendering beautiful-soup ipython scipy multiuserblazeserver",
                 ])
             },
     }
 
-    results = {}
-    test_failures = []
 
     # Use this method rather than os.path.expanduser('~/anaconda') to provide
     # miniconda support
     root = subprocess.check_output(['conda', 'info', '--root']).rstrip()
 
+    # Python3 will return a byte string on the above line, so it must be
+    # decoded to utf-8 before we can pass it to os.path.join
+    root = root.decode()
+
     for environment in envs:
-        print
-        print ("CREATING NEW ENV", environment)
-        results[environment] = {}
+        successful_install = True
+        fails = []
         cleaner(os.path.join(root, "envs", environment))
+        print()
+        print("CREATING NEW ENV", environment)
         conda_creator(environment, envs[environment]["init"])
 
-        results[environment]['install'] = bokeh_installer(environment, envs[environment]["install"])
+        install = bokeh_installer(environment, envs[environment]["install"])
+        if not install:
+            fails.append(environment)
+            successful_install = False
 
-        results[environment]['version'] = version_check(environment, current_version)
-
-        if not ops.skip_tests:
-            results[environment]['test'], failure = run_tests(environment)
-
-            if not ops.keep:
-                cleaner(os.path.join(root, "envs", environment))
-            if failure:
-                test_failures.append(failure)
-
-    print ("*********************")
-    print ("RESULTS")
-    print(results)
-    print ()
-    print ("*********************")
-
-    if ops.skip_tests:
-        print ("TESTS SKIPPED")
-    elif not not ops.dry_run:
-
-        if test_failures:
-            logfile = 'logfile.txt'
-            print()
-            print()
-            print("SOME TESTS FAILED, CHECK %s FOR MORE DETAILS" % logfile)
-            logger(test_failures, logfile=logfile)
+    print()
+    print("*********************")
+    if successful_install:
+        print("All environments have been installed!  See below for their names.\n")
+        for environment in envs:
+            print(environment)
+        print("\nNOTE: All of these environments will be deleted and replaced if you rerun test_matrix.py")
+    else:
+        print("The following environments have failed to install:\n")
+        for install_fail in fails:
+            print(install_fail)
+    print("*********************")

@@ -7,9 +7,20 @@ from six import string_types
 from . import colors, icons, palettes
 
 class Enumeration(object):
-    pass
 
-def enumeration(*values):
+    __slots__ = ()
+
+    def __contains__(self, value):
+        if not self._case_sensitive:
+            value = value.lower()
+        return value in self._values
+
+    def __str__(self):
+        return "Enumeration(%s)" % ", ".join(self._values)
+
+    __repr__ = __str__
+
+def enumeration(*values, **kwargs):
     if not (values and all(isinstance(value, string_types) and value for value in values)):
         raise ValueError("expected a non-empty sequence of strings, got %s" % values)
 
@@ -18,9 +29,9 @@ def enumeration(*values):
 
     attrs = dict([ (value, value) for value in values ])
     attrs.update({
-        "__slots__": [],
         "_values": list(values),
         "_default": values[0],
+        "_case_sensitive": kwargs.get("case_sensitive", True),
     })
 
     return type("Enumeration", (Enumeration,), attrs)()
@@ -44,7 +55,7 @@ Location = enumeration("above", "below", "left", "right")
 Orientation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
-NamedColor = enumeration(*colors.__colors__)
+NamedColor = enumeration(*colors.__colors__, case_sensitive=False)
 NamedIcon = enumeration(*icons.__icons__)
 Palette = enumeration(*palettes.__palettes__)
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
@@ -55,5 +66,5 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
                               "en-gb", "es-ES", "es", "et", "fi", "fr-CA", "fr-ch",
                               "fr", "hu", "it", "ja", "nl-nl", "pl", "pt-br",
                               "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
-RenderLevel = enumeration("image", "underlay", "glyph", "overlay",
-                          "annotation", "tool")
+RenderLevel = enumeration("image", "underlay", "glyph", "annotation",
+                          "overlay", "tool")

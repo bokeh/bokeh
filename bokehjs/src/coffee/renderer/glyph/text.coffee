@@ -1,7 +1,11 @@
 _ = require "underscore"
 Glyph = require "./glyph"
+properties = require "../../common/properties"
 
 class TextView extends Glyph.View
+  initialize: (options) ->
+    super(options)
+    @text_props = new properties.Text({obj:@model, prefix: ''})
 
   _index_data: () ->
     @_xy_index()
@@ -21,18 +25,13 @@ class TextView extends Glyph.View
 
   draw_legend: (ctx, x1, x2, y1, y2) ->
     ctx.save()
-    reference_point = @get_reference_point()
-    if reference_point?
-      glyph_settings = reference_point
-    else
-      glyph_settings = @props
-    text_props = @visuals.text
-    text_props.set(ctx, glyph_settings)
+    @text_props.set_value(ctx)
     # override some features so we fit inside the legend
-    ctx.font = text_props.font(12)
+    ctx.font = @text_props.font_value()
+    ctx.font = ctx.font.replace(/\b[\d\.]+[\w]+\b/, '10pt')
     ctx.textAlign = "right"
     ctx.textBaseline = "middle"
-    ctx.fillText("txt", x2, (y1+y2)/2)
+    ctx.fillText("text", x2, (y1+y2)/2)
     ctx.restore()
 
 class Text extends Glyph.Model

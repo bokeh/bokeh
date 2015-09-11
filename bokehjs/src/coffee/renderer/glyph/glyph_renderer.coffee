@@ -10,24 +10,23 @@ class GlyphRendererView extends PlotWidget
   initialize: (options) ->
     super(options)
 
-    # XXX: this will be slow (see later in this file), perhaps reuse @glyph.
-    @glyph = @build_glyph(@mget("glyph"))
+    @glyph = @build_glyph_view(@mget("glyph"))
 
     selection_glyph = @mget("selection_glyph")
     if not selection_glyph?
       selection_glyph = @mget("glyph").clone()
       selection_glyph.set(@model.selection_defaults, {silent: true})
-    @selection_glyph = @build_glyph(selection_glyph)
+    @selection_glyph = @build_glyph_view(selection_glyph)
 
     nonselection_glyph = @mget("nonselection_glyph")
     if not nonselection_glyph?
       nonselection_glyph = @mget("glyph").clone()
       nonselection_glyph.set(@model.nonselection_defaults, {silent: true})
-    @nonselection_glyph = @build_glyph(nonselection_glyph)
+    @nonselection_glyph = @build_glyph_view(nonselection_glyph)
 
     decimated_glyph = @mget("glyph").clone()
     decimated_glyph.set(@model.decimated_defaults, {silent: true})
-    @decimated_glyph = @build_glyph(decimated_glyph)
+    @decimated_glyph = @build_glyph_view(decimated_glyph)
 
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
     @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
@@ -37,13 +36,23 @@ class GlyphRendererView extends PlotWidget
     if @mget('data_source') instanceof RemoteDataSource.RemoteDataSource
       @mget('data_source').setup(@plot_view, @glyph)
 
-  build_glyph: (model) ->
+  build_glyph_view: (model) ->
     new model.default_view({model: model, renderer: this})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
+
+    # TODO (bev) This is a quick change that  allows the plot to be
+    # update/re-rendered when properties change on the JS side. It would
+    # be better to make this more fine grained in terms of setting visuals
+    # and also could potentiall be improved by making proper models out
+    # of "Spec" properties. See https://github.com/bokeh/bokeh/pull/2684
+    @listenTo(@mget('glyph'), 'propchange', () ->
+        @glyph.set_visuals(@mget('data_source'))
+        @request_render()
+    )
 
   have_selection_glyphs: () -> true
 
@@ -83,13 +92,18 @@ class GlyphRendererView extends PlotWidget
 
   render: () ->
     t0 = Date.now()
-
+    
+    glsupport = @glyph.glglyph
+    
     tmap = Date.now()
     @glyph.map_data()
     dtmap = Date.now() - t0
 
     tmask = Date.now()
-    indices = @glyph._mask_data(@all_indices)
+    if glsupport
+      indices = @all_indices  # WebGL can do the clipping much more efficiently
+    else
+      indices = @glyph._mask_data(@all_indices)
     dtmask = Date.now() - tmask
 
     ctx = @plot_view.canvas_view.ctx
@@ -109,7 +123,8 @@ class GlyphRendererView extends PlotWidget
         selected = []
 
     lod_threshold = @plot_model.get('lod_threshold')
-    if @plot_view.interactive and lod_threshold? and @all_indices.length > lod_threshold
+    if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
+      # Render decimated during interaction if too many elements and not using GL
       indices = @decimated
       glyph = @decimated_glyph
       nonselection_glyph = @decimated_glyph

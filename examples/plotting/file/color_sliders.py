@@ -1,9 +1,8 @@
 from bokeh.plotting import figure, hplot, output_file, show
-from bokeh.models import  ColumnDataSource, LinearColorMapper, HoverTool
-from bokeh.models.actions import Callback
-from bokeh.models.widgets import Slider
+from bokeh.models import  ColumnDataSource, HoverTool, CustomJS, Slider
 from bokeh.io import vform
 import colorsys
+
 
 # for plot 2: create colour spectrum of resolution N and brightness I, return as list of decimal RGB value tuples
 def generate_color_range(N, I):
@@ -51,7 +50,7 @@ hex_code_text = p1.text('x', 'y', text='color', text_color='text_color', alpha=0
 # the callback function to update the color of the block and associated label text
 # NOTE: the JS functions for converting RGB to hex are taken from the excellent answer
 # by Tim Down at http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-callback = Callback(args=dict(source=source), code="""
+callback = CustomJS(args=dict(source=source), code="""
     function componentToHex(c) {
         var hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;

@@ -108,7 +108,7 @@ appropriate version replacing ``x.y.z``:
     <link
         href="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css"
         rel="stylesheet" type="text/css">
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js">
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
 
 For example, to use version ``0.8.2``:
 
@@ -117,7 +117,7 @@ For example, to use version ``0.8.2``:
     <link
         href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css"
         rel="stylesheet" type="text/css">
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js">
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js"></script>
 
 The |components| function takes either a single PlotObject, a list/tuple of
 PlotObjects, or a dictionary of keys and PlotObjects. Each returns
@@ -388,4 +388,3 @@ on the server at `"some/path"`, from the document that has the plot embedded.
 .. |components|      replace:: :func:`~bokeh.embed.components`
 .. |file_html|       replace:: :func:`~bokeh.embed.file_html`
 .. |notebook_div|    replace:: :func:`~bokeh.embed.notebook_div`
-

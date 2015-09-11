@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 from ...properties import Bool, Int, String, Instance, List
 from ..widget import Widget
+from ..callbacks import Callback
 
 class Panel(Widget):
     """ A single-widget container with title bar and controls.
@@ -38,3 +39,6 @@ class Tabs(Widget):
     The index of the active tab.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the button is activated.
+    """)

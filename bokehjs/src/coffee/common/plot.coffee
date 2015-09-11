@@ -21,6 +21,20 @@ plot_template = require "./plot_template"
 properties = require "./properties"
 
 
+# Notes on WebGL support:
+# Glyps can be rendered into the original 2D canvas, or in a (hidden)
+# webgl canvas that we create below. In this way, the rest of bokehjs
+# can keep working as it is, and we can incrementally update glyphs to
+# make them use GL.
+#
+# When the author or user wants to, we try to create a webgl canvas,
+# which is saved on the ctx object that gets passed around during drawing.
+# The presence (and not-being-false) of the ctx.glcanvas attribute is the
+# marker that we use throughout that determines whether we have gl support.
+
+global_gl_canvas = null
+
+
 class PlotView extends ContinuumView
   className: "bk-plot"
   template: plot_template
@@ -68,6 +82,11 @@ class PlotView extends ContinuumView
 
     @canvas_view.render()
 
+    # If requested, try enabling webgl
+    if @mget('webgl') or window.location.search.indexOf('webgl=1') > 0
+      if window.location.search.indexOf('webgl=0') == -1
+        @init_webgl()
+
     @throttled_render = plot_utils.throttle_animation(@render, 15)
 
     @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
@@ -108,6 +127,24 @@ class PlotView extends ContinuumView
     logger.debug("PlotView initialized")
 
     return this
+
+  init_webgl: () ->
+
+    # We use a global invisible canvas and gl context. By having a global context,
+    # we avoid the limitation of max 16 contexts that most browsers have.
+    glcanvas = global_gl_canvas
+    if not glcanvas?
+      global_gl_canvas = glcanvas = document.createElement('canvas')
+      opts = {'premultipliedAlpha': true}  # premultipliedAlpha is true by default
+      glcanvas.gl = glcanvas.getContext("webgl", opts) || glcanvas.getContext("experimental-webgl", opts)
+
+    # If WebGL is available, we store a reference to the gl canvas on
+    # the ctx object, because that's what gets passed everywhere.
+    if glcanvas.gl?
+      @canvas_view.ctx.glcanvas = glcanvas
+    else
+      logger.warn('WebGL is not supported, falling back to 2D canvas.')
+      # Do not set @canvas_view.ctx.glcanvas
 
   update_dataranges: () ->
     # Update any DataRange1ds here
@@ -266,11 +303,43 @@ class PlotView extends ContinuumView
     @_map_hook(ctx, frame_box)
     @_paint_empty(ctx, frame_box)
 
+    if ctx.glcanvas
+      # Sync canvas size
+      ctx.glcanvas.width = @canvas_view.canvas[0].width
+      ctx.glcanvas.height = @canvas_view.canvas[0].height
+      # Prepare GL for drawing
+      gl = ctx.glcanvas.gl
+      gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
+      # Clipping
+      gl.enable(gl.SCISSOR_TEST)
+      flipped_top = ctx.glcanvas.height - (frame_box[1] + frame_box[3])
+      gl.scissor(frame_box[0], flipped_top, frame_box[2], frame_box[3])
+      # Setup blending
+      gl.enable(gl.BLEND)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
+      #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
+
     if @outline_props.do_stroke
       @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
-    @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
+
+    if ctx.glcanvas
+      # Blit gl canvas into the 2D canvas. We need to turn off interpolation, otherwise
+      # all gl-rendered content is blurry. The 0.1 offset is to force the samples
+      # to be *inside* the pixels, otherwise round-off errors can sometimes cause
+      # missing/double scanlines (seen in Chrome).
+      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
+         ctx[prefix + 'SmoothingEnabled'] = false
+      #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
+      ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
+      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
+         ctx[prefix + 'SmoothingEnabled'] = true
+      logger.debug('drawing with WebGL')
+
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if title
@@ -282,6 +351,10 @@ class PlotView extends ContinuumView
 
     if not @initial_range_info?
       @set_initial_range()
+
+    # TODO - This should only be on in testing
+    # @$el.find('canvas').attr('data-hash', ctx.hash());
+    
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -295,12 +368,14 @@ class PlotView extends ContinuumView
     indices = {}
     for renderer, i in @mget("renderers")
       indices[renderer.id] = i
-    sortKey = (renderer) -> indices[renderer.id]
+
+    sortKey = (renderer_view) -> indices[renderer_view.model.id]
 
     for level in levels
-      renderers = _.sortBy(_.values(@levels[level]), sortKey)
-      for renderer in renderers
-        renderer.render()
+      renderer_views = _.sortBy(_.values(@levels[level]), sortKey)
+
+      for renderer_view in renderer_views
+        renderer_view.render()
 
     ctx.restore()
 
@@ -457,6 +532,7 @@ class Plot extends HasParent
       lod_interval: 300
       lod_threshold: 2000
       lod_timeout: 500
+      webgl: false
     }
 
   display_defaults: ->

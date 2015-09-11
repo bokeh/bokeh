@@ -27,8 +27,8 @@ locations =
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
 
-  Callback:                 require '../action/callback'
-  OpenURL:                  require '../action/open_url'
+  CustomJS:                 require '../callback/customjs'
+  OpenURL:                  require '../callback/open_url'
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
@@ -38,6 +38,7 @@ locations =
   FactorRange:              require '../range/factor_range'
   Range1d:                  require '../range/range1d'
 
+  BoxAnnotation:             require '../renderer/annotation/box_annotation'
   Legend:                   require '../renderer/annotation/legend'
   Span:                     require '../renderer/annotation/span'
   Tooltip:                  require '../renderer/annotation/tooltip'

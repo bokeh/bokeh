@@ -1,1 +1,2 @@
-require "./test_callback"
+require "./test_customjs"
+require "./test_openurl"

@@ -13,7 +13,7 @@ updates to the visualization.
 .. raw:: html
 
     <iframe
-        src="http://104.236.246.80:5006/bokeh/sliders/#"
+        src="http://demo.bokehplots.com:5006/bokeh/sliders/#"
         frameborder="0"
         style="overflow:hidden;height:1000;width:100%;margin-left:-8.7%"
         height="1000"

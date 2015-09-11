@@ -59,6 +59,10 @@ class ImageURLView extends Glyph.View
     anchor = @mget('anchor') or "top_left"
     [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
 
+    ctx.save()
+
+    ctx.globalAlpha = @mget("global_alpha")
+
     if angle[i]
       ctx.translate(sx, sy)
       ctx.rotate(angle[i])
@@ -67,6 +71,7 @@ class ImageURLView extends Glyph.View
       ctx.translate(-sx, -sy)
     else
       ctx.drawImage(image, sx, sy, sw[i], sh[i])
+    ctx.restore()
 
 class ImageURL extends Glyph.Model
   default_view: ImageURLView
@@ -79,6 +84,7 @@ class ImageURL extends Glyph.Model
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
+      global_alpha: 1.0
     }
 
 module.exports =

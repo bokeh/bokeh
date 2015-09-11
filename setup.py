@@ -332,7 +332,16 @@ Please build BokehJS by running setup.py with the `--build_js` option.
 
 def clean():
     print("Removing prior-built items...", end=" ")
-    dir_util.remove_tree('build/lib/bokeh')
+
+    build_dir = 'build/lib/bokeh'
+    if os.path.exists(build_dir):
+        dir_util.remove_tree(build_dir)
+
+    for root, dirs, files in os.walk('.'):
+        for item in files:
+            if item.endswith('.pyc'):
+                os.remove(os.path.join(root, item))
+
     print("Done")
 
 
@@ -434,10 +443,8 @@ if jsinstall:
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
-package_path(join(SERVER, 'templates'))
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
-#scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
     site_packages = site.USER_SITE
