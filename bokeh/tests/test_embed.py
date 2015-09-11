@@ -154,7 +154,7 @@ class TestFileHTML(unittest.TestCase):
 def test_file_html_handles_js_only_resources():
     js_resources = JSResources()
     template = Template("<head>{{ bokeh_js }}</head><body></body>")
-    output = embed.file_html(_embed_test_plot, js_resources, "title", template=template)
+    output = embed.file_html(_embed_test_plot, None, "title", template=template, js_resources=js_resources)
     rendered_js = JS_RESOURCES.render(js_raw=js_resources.js_raw)
     assert output == "<head>%s</head><body></body>" % rendered_js
 
@@ -162,16 +162,34 @@ def test_file_html_handles_js_only_resources():
 @mock.patch('bokeh.embed.warn')
 def test_file_html_provides_warning_if_no_css(mock_warn):
     js_resources = JSResources()
-    embed.file_html(_embed_test_plot, js_resources, "title")
+    embed.file_html(_embed_test_plot, None, "title", js_resources=js_resources)
     mock_warn.assert_called_once_with(
         'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
+    )
+
+
+@mock.patch('bokeh.embed.warn')
+def test_file_html_provides_warning_if_both_resources_and_js_provided(mock_warn):
+    js_resources = JSResources()
+    embed.file_html(_embed_test_plot, CDN, "title", js_resources=js_resources)
+    mock_warn.assert_called_once_with(
+        'Both resources and js_resources provided. resources will override js_resources.'
+    )
+
+
+@mock.patch('bokeh.embed.warn')
+def test_file_html_provides_warning_if_both_resources_and_css_provided(mock_warn):
+    css_resources = CSSResources()
+    embed.file_html(_embed_test_plot, CDN, "title", css_resources=css_resources)
+    mock_warn.assert_called_once_with(
+        'Both resources and css_resources provided. resources will override css_resources.'
     )
 
 
 def test_file_html_handles_css_only_resources():
     css_resources = CSSResources()
     template = Template("<head>{{ bokeh_css }}</head><body></body>")
-    output = embed.file_html(_embed_test_plot, css_resources, "title", template=template)
+    output = embed.file_html(_embed_test_plot, None, "title", template=template, css_resources=css_resources)
     rendered_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw)
     assert output == "<head>%s</head><body></body>" % rendered_css
 
@@ -179,7 +197,7 @@ def test_file_html_handles_css_only_resources():
 @mock.patch('bokeh.embed.warn')
 def test_file_html_provides_warning_if_no_js(mock_warn):
     css_resources = CSSResources()
-    embed.file_html(_embed_test_plot, css_resources, "title")
+    embed.file_html(_embed_test_plot, None, "title", css_resources=css_resources)
     mock_warn.assert_called_once_with(
         'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
     )
