@@ -178,7 +178,7 @@ The toggle button holds an on/off state:
 .. _userguide_interaction_actions:
 
 Defining Callbacks
-----------------
+------------------
 
 Bokeh exposes an increasing number of callbacks that can be specified
 from the ``Python`` layer that results in an action on the ``javascript`` level without
