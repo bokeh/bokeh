@@ -123,9 +123,9 @@ with open('gapminder_template.jinja', 'r') as f:
     template = Template(f.read())
 
 # Use inline resources, render the html and open
-resources = JSResources(mode='inline')
+js_resources = JSResources(mode='inline')
 title = "Bokeh - Gapminder Bubble Plot"
-html = file_html(layout, resources, title, template=template)
+html = file_html(layout, None, title, template=template, js_resources=js_resources)
 
 output_file = 'gapminder.html'
 with open(output_file, 'w') as f:
