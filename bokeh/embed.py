@@ -252,7 +252,7 @@ def notebook_div(plot_object):
     return encode_utf8(html)
 
 
-def file_html(plot_object, resources, title, template=FILE, template_variables=None):
+def file_html(plot_object, resources, title, js_resources=None, css_resources=None, template=FILE, template_variables=None):
     ''' Return an HTML document that embeds a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -277,17 +277,26 @@ def file_html(plot_object, resources, title, template=FILE, template_variables=N
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 
-    js_raw = getattr(resources, "js_raw", "")
-    js_files = getattr(resources, "js_files", "")
-    bokeh_js = JS_RESOURCES.render(js_raw=js_raw, js_files=js_files)
-    if not js_raw and not js_files:
-        warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+    if resources:
+        if js_resources:
+            warn('Both resources and js_resources provided. resources will override js_resources.')
+        if css_resources:
+            warn('Both resources and css_resources provided. resources will override css_resources.')
 
-    css_raw = getattr(resources, "css_raw", "")
-    css_files = getattr(resources, "css_files", "")
-    bokeh_css = CSS_RESOURCES.render(css_raw=css_raw, css_files=css_files)
-    if not css_raw and not css_files:
-        warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+        js_resources = resources
+        css_resources = resources
+
+    bokeh_js = ''
+    if js_resources:
+        if not css_resources:
+            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+        bokeh_js = JS_RESOURCES.render(js_raw=js_resources.js_raw, js_files=js_resources.js_files)
+
+    bokeh_css = ''
+    if css_resources:
+        if not js_resources:
+            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+        bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
 
     script, div = components(plot_object)
     template_variables_full = \
