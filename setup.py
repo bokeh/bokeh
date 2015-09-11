@@ -443,11 +443,8 @@ if jsinstall:
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
-package_path(join(SERVER, '_templates'))
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
-package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
-scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
     site_packages = site.USER_SITE
@@ -556,13 +553,17 @@ setup(
         'bokeh.crossfilter',
         'bokeh.sampledata',
         'bokeh.server',
-        'bokeh.server.models',
+        'bokeh.server.core',
+        'bokeh.server.core.tests',
+        'bokeh.server.protocol',
+        'bokeh.server.protocol.messages',
+        'bokeh.server.protocol.messages.tests',
+        'bokeh.server.protocol.tests',
         'bokeh.server.storage',
+        'bokeh.server.storage.tests',
         'bokeh.server.tests',
-        'bokeh.server.utils',
         'bokeh.server.views',
-        'bokeh.server.websocket',
-        'bokeh.server.zmq',
+        'bokeh.server.views.tests',
         'bokeh.sphinxext',
         'bokeh.tests',
         'bokeh.transforms',
@@ -576,7 +577,7 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=scripts,
+    #scripts=scripts,
     zip_safe=False,
     install_requires=REQUIRES
 )
