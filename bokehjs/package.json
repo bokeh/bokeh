@@ -67,7 +67,6 @@
     "transform": []
   },
   "browser": {
-    "jquery": "./node_modules/jquery/dist/jquery.js",
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
     "bootstrap/dropdown": "./src/vendor/bootstrap-3.1.1/js/dropdown.js",
     "bootstrap/modal": "./src/vendor/bootstrap-3.1.1/js/modal.js",

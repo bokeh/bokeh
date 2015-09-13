@@ -17,7 +17,8 @@ fs = require "fs"
 path = require "path"
 shasum = require "shasum"
 argv = require("yargs").argv
-pkg = require("root-require")("./package.json")
+rootRequire = require("root-require")
+pkg = rootRequire("./package.json")
 
 customLabeler = (b, fn) ->
   labels = {}
@@ -46,22 +47,36 @@ hashedLabeler = (b) -> customLabeler b, (row) ->
 
 namedLabeler = (b) -> customLabeler b, (row) ->
   cwd = process.cwd()
-  rev_mod_map = {}
+  revModMap = {}
+  depModMap = {}
 
   for own key, val of pkg.browser
-    rev_mod_map[path.resolve(val)] = key
+    revModMap[path.resolve(val)] = key
 
-  name  = rev_mod_map[row.id]
-  name ?= path
-    .relative(cwd, row.id)
+  for own dep, ver of pkg.dependencies
+    depPkg = rootRequire(path.join("node_modules", dep, "package.json"))
+    if depPkg.main?
+      depPath = path.resolve(path.join("node_modules", dep, depPkg.main))
+      if not fs.existsSync(depPath)
+        depPath = "#{depPath}.js"
+      depModMap[depPath] = dep
+
+  debugger
+
+  modPath = row.id
+
+  modName  = revModMap[modPath]
+  modName ?= depModMap[modPath]
+  modName ?= path
+    .relative(cwd, modPath)
     .replace(/\.(coffee|js|eco)$/, "")
     .split(path.sep).join("/")
     .replace(/^(src\/(coffee|vendor)|node_modules)\//, "")
 
   if argv.verbose
-    util.log("Processing #{name}")
+    util.log("Processing #{modName}")
 
-  name
+  modName
 
 gulp.task "scripts:build", ->
   preludePath = path.resolve(process.cwd(), "./src/js/prelude.js")
