@@ -18,6 +18,7 @@ from six import iteritems
 from collections import OrderedDict
 import itertools
 from math import cos, sin
+import json
 from pandas.io.json import json_normalize
 
 from ..browserlib import view
@@ -250,6 +251,10 @@ def collect_attribute_columns(**specs):
 
 def df_from_json(data, **kwargs):
     """Attempt to produce row oriented data from hierarchical json/dict-like data."""
+
+    if isinstance(data, str):
+        with open(data) as data_file:
+            data = json.load(data_file)
 
     if isinstance(data, list):
         return json_normalize(data, kwargs)
