@@ -18,7 +18,8 @@ DataFrame.
 """
 
 from __future__ import absolute_import
-from os.path import isfile
+
+import os
 from six.moves.urllib.request import URLopener
 from bokeh.charts.utils import df_from_json
 
@@ -29,18 +30,25 @@ except ImportError as e:
 
 
 DATA_URL = "https://raw.githubusercontent.com/localytics/data-viz-challenge/master/data.json"
+DOWNLOAD_NAME = 'project_funding.json'
+CSV_NAME = 'project_funding.csv'
+
+# Get absolute path relative to script
+data_dir = os.path.dirname(os.path.realpath(__file__))
+json_file_path = os.path.join(data_dir, DOWNLOAD_NAME)
+csv_file_path = os.path.join(data_dir, CSV_NAME)
 
 
 def download_project_funding():
-    if not isfile('./project_funding.json'):
+    if not os.path.isfile(json_file_path):
         print('Downloading project funding source data.')
         json_data = URLopener()
-        json_data.retrieve(DATA_URL, "./project_funding.json")
+        json_data.retrieve(DATA_URL, json_file_path)
         print('Download complete!')
 
 
 def load_project_funding():
-    project_funding = df_from_json('./project_funding.json')
+    project_funding = df_from_json(json_file_path)
 
     # cleanup column names
     cols = project_funding.columns
@@ -52,5 +60,15 @@ def load_project_funding():
     return project_funding
 
 
+def load_cached_funding():
+    if not os.path.isfile(csv_file_path):
+        project_funding = load_project_funding()
+        project_funding.to_csv(csv_file_path)
+    else:
+        project_funding = pd.read_csv(csv_file_path, parse_dates=['client_time'])
+
+    return project_funding
+
+
 download_project_funding()
-project_funding = load_project_funding()
+project_funding = load_cached_funding()
