@@ -1,6 +1,7 @@
 
 from bokeh.sampledata.autompg import autompg as df
 from bokeh.sampledata.olympics2014 import data
+from bokeh.sampledata.iris import flowers
 from bokeh.sampledata.project_funding import project_funding as pf
 
 from bokeh.charts import Scatter, output_file, show, vplot, hplot
@@ -40,6 +41,9 @@ scatter5 = Scatter(
 scatter6 = Scatter(pf, x='age', y='amount', color='gender', legend='top_right')
 
 scatter7 = Scatter(pf, x='client_time', y='amount', color='gender', legend='top_right')
+
+# Iris data examples
+scatter8 = Scatter(flowers, )
 
 output_file("scatter.html")
 

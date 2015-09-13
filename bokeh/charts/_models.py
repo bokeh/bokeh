@@ -98,7 +98,7 @@ class CompositeGlyph(HasProps):
         pass
 
 
-class Operation(HasProps):
+class CollisionModifier(HasProps):
     renderers = List(Instance(CompositeGlyph))
     name = String()
     method_name = String()
@@ -117,3 +117,11 @@ class Operation(HasProps):
         else:
             raise AttributeError('%s must be applied to available renderers, none found.' %
                                  self.__class__.__name__)
+
+
+class DataOperator(HasProps):
+    columns = List(ColumnLabel(), default=None, help="""List of columns to perform operation on.""")
+    data = ColumnDataSource()
+
+    def transform(self, data):
+        raise NotImplementedError('Each data operator must implement the transform method.')
