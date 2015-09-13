@@ -28,12 +28,14 @@ except ImportError as e:
     raise RuntimeError("mtb data requires pandas (http://pandas.pydata.org) to be installed")
 
 
+DATA_URL = "https://raw.githubusercontent.com/localytics/data-viz-challenge/master/data.json"
+
+
 def download_project_funding():
     if not isfile('./project_funding.json'):
         print('Downloading project funding source data.')
         json_data = URLopener()
-        json_data.retrieve("https://raw.githubusercontent.com/localytics/data-viz-challenge/master/data.json",
-                           "./project_funding.json")
+        json_data.retrieve(DATA_URL, "./project_funding.json")
         print('Download complete!')
 
 
