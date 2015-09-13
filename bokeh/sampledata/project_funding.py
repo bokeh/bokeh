@@ -63,7 +63,7 @@ def load_project_funding():
 def load_cached_funding():
     if not os.path.isfile(csv_file_path):
         project_funding = load_project_funding()
-        project_funding.to_csv(csv_file_path)
+        project_funding.to_csv(csv_file_path, index=False)
     else:
         project_funding = pd.read_csv(csv_file_path, parse_dates=['client_time'])
 

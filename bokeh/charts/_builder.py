@@ -162,11 +162,12 @@ class Builder(HasProps):
                 if dim in kws.keys():
                     data_args[dim] = kws.pop(dim)
 
+            # build chart data source from inputs, given the dimension configuration
             data_args['dims'] = tuple(self.dimensions)
             data_args['required_dims'] = tuple(self.req_dimensions)
             data = ChartDataSource.from_data(*args, **data_args)
 
-            # make sure that the column options have access to the data
+            # make sure that the builder dimensions have access to the chart data source
             for dim in self.dimensions:
                 getattr(getattr(self, dim), 'set_data')(data)
 
@@ -182,7 +183,7 @@ class Builder(HasProps):
         self._legends = []
 
     def _setup_attrs(self, data, kws):
-        """Handle overridden attributes, initialize with data.
+        """Handle overridden attributes and initialize them with data.
 
         Makes sure that all attributes have access to the data
         source, which is used for mapping attributes to groups

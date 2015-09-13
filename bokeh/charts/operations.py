@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 from copy import copy
 
+from bokeh.properties import String
+
 from bokeh.charts._models import CollisionModifier, DataOperator
 
 
@@ -24,6 +26,38 @@ class Dodge(CollisionModifier):
 
 
 class Blend(DataOperator):
+    """Creates combined variables, increasing the number of distinct items.
+
+    The primary action that blend is taking is combining and collapsing
+    multiple columns together, using set algebra. You can think of this
+    like taking two columns with similar or different data and stacking
+    them on top of each other. The new categories are the union of the two sets.
+
+    Note: The variables not being blended must be duplicated (consider a
+    sample time). For example, two variables, 'sensor_a' and
+    'sensor_b' only contain two values, either 'on' or 'off', with one
+    more column of 'datetime'. Blending 'sensor_a' and 'sensor_b' results
+    in two columns, 'datetime' and 'sensors_state'.
+
+    Example cases are shown below:
+        - cat1 + cat2 = [cat1, cat2]
+        - cat1 + num1 = [cat1, cat(num1)]
+        - num1 + num2 = [num1, num2]
+
+    Can be used to stack column oriented measures, so they can be colored. In
+    this case, a new categorical column will be created that identifies each
+    measure by name of the previous column.
+
+    Can be used to combine categorical columns.
+
+    ToDo: address booleans. Consider two columns, 'was_successful', 'was_effective'.
+        It seems like blending of booleans would be performing an *or*.
+    """
+
+    blended_name = String(default='value', help="""The name of the column to
+                          contain the values of the blended columns.""")
+    variables_name = String(default='variable', help="""The name of the column
+                            to contain the names of the columns that were blended.""")
 
     def __init__(self, *cols, **properties):
         properties['columns'] = list(cols)
