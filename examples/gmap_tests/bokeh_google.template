@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?1.29.1"></script>
+    {{ plot_resources }}
+    <style type="text/css">
+        html, body, #map {
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          display: inline-block;
+          width: 600px;
+          height: 600px;
+          margin: 0;
+          padding: 0;
+        }
+
+        .stations, .stations svg {
+          position: absolute;
+        }
+
+        .stations svg {
+          width: 60px;
+          height: 20px;
+          padding-right: 100px;
+          font: 10px sans-serif;
+        }
+
+        .stations circle {
+          fill: red;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+    {{ plot_div }}
+    </div>
+    <div class="container">
+      <div id="map"></div>
+    </div>
+
+    <h2>If google map (on right) isn't showing dots, run server in directory (python -m http.server 8001)</h2>
+
+    <script type="text/javascript">
+        // Create the Google Map…
+        var map = new google.maps.Map(d3.select("#map").node(), {
+          zoom: 8,
+          center: new google.maps.LatLng(37.76487, -122.41948),
+        });
+
+        // Load the station data. When the data comes back, create an overlay.
+        d3.json("stations.json", function(data) {
+          var overlay = new google.maps.OverlayView();
+
+          // Add the container when the overlay is added to the map.
+          overlay.onAdd = function() {
+            var layer = d3.select(this.getPanes().overlayLayer).append("div")
+                .attr("class", "stations");
+
+            // Draw each marker as a separate SVG element.
+            // We could use a single SVG, but what size would it have?
+            overlay.draw = function() {
+              var projection = this.getProjection(),
+                  padding = 10;
+
+              var marker = layer.selectAll("svg")
+                .data(d3.entries(data))
+                .each(transform)
+                .enter().append("svg:svg")
+                .each(transform)
+                .attr("class", "marker");
+
+              // Add a circle.
+              marker.append("svg:circle")
+                  .attr("r", 5)
+                  .attr("cx", padding)
+                  .attr("cy", padding);
+
+              function transform(d) {
+                d = new google.maps.LatLng(d.value[1], d.value[0]);
+                d = projection.fromLatLngToDivPixel(d);
+                return d3.select(this)
+                    .style("left", (d.x - padding) + "px")
+                    .style("top", (d.y - padding) + "px");
+              }
+            };
+          };
+
+          // Bind our overlay to the map…
+          overlay.setMap(map);
+        });
+    </script>
+    {{ plot_script }}
+  </body>
+</html>
+
