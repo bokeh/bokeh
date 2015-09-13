@@ -6,7 +6,7 @@ class GMapPlotView extends Plot.View
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
-    @zoom_count = null
+    @zoom_count = 0
 
   getBokehBounds: (map) ->
     bounds = map.getBounds()
@@ -28,15 +28,24 @@ class GMapPlotView extends Plot.View
     map.panTo(center)
 
   update_range: (range_info) ->
-    super(range_info)
 
     # PAN ----------------------------
     if range_info.sdx? or range_info.sdy?
       @map.panBy(range_info.sdx, range_info.sdy)
+      super(range_info)
     # END PAN ------------------------
 
     # ZOOM ---------------------------
     if range_info.factor?
+
+      # The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
+      if @zoom_count != 10
+        @zoom_count += 1
+        return
+      @zoom_count = 0
+
+      super(range_info)
+
       if range_info.factor < 0 
         zoom_change = -1 
       else
