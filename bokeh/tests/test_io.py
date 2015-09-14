@@ -126,7 +126,7 @@ class Test_GetSaveArgs(DefaultStateTester):
         self.assertEqual(resources, CDN)
         self.assertTrue(mock_warn.called)
         self.assertEqual(mock_warn.call_args[0], ("save() called but no resources were supplied and output_file(...) "
-                                                  "was never called, defaulting to resources.INLINE",))
+                                                  "was never called, defaulting to resources.CDN",))
         self.assertEqual(mock_warn.call_args[1], {})
 
     def test_explicit_title(self):
