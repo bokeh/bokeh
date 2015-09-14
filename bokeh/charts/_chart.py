@@ -122,6 +122,8 @@ class Chart(Plot):
             else:
                 self._session = Session()
 
+        self.create_tools(self._options.tools)
+
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
         self._renderer_map.extend({ r._id : builder for r in renderers })
@@ -129,15 +131,6 @@ class Chart(Plot):
     def add_builder(self, builder):
         self._builders.append(builder)
         builder.create(self)
-
-        # Add tools if supposed to
-        if self._options.tools:
-            # reset tools so a categorical builder can add only the
-            # supported tools
-            # ToDo: review why this doubles the amount of tools per chart
-            #self.tools = []
-            #self.create_tools(self._options.tools)
-            pass
 
     def add_ranges(self, dim, range):
         self._ranges[dim].append(range)
@@ -165,15 +158,21 @@ class Chart(Plot):
             self.make_grid(1, self._yaxis.ticker)
 
     def create_tools(self, tools):
-        # if no tools customization let's create the default tools
-        if isinstance(tools, bool) and tools:
-            tools = DEFAULT_TOOLS
-        elif isinstance(tools, bool):
-            # in case tools == False just exit
-            return
+        """Create tools if given tools=True input.
 
-        tool_objs = _process_tools_arg(self, tools)
-        self.add_tools(*tool_objs)
+        Only adds tools if given boolean and does not already have
+        tools added to self.
+        """
+        if len(self.tools) == 0:
+            # if no tools customization let's create the default tools
+            if isinstance(tools, bool) and tools:
+                tools = DEFAULT_TOOLS
+            elif isinstance(tools, bool):
+                # in case tools == False just exit
+                return
+
+            tool_objs = _process_tools_arg(self, tools)
+            self.add_tools(*tool_objs)
 
     def start_plot(self):
         """Add the axis, grids and tools

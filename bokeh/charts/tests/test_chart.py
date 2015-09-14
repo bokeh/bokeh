@@ -111,9 +111,7 @@ class TestChart(unittest.TestCase):
             self.assertIsInstance(self.chart.tools[i], type_)
 
     def test_ranges(self):
-        """
-        Test ranges are not created buy the chart
-        """
+        """Test ranges are not created buy the chart."""
         self.assertEqual(self.chart.x_range, None)
         self.assertEqual(self.chart.y_range, None)
 
