@@ -96,7 +96,7 @@ echo "Removing first bokeh build at $first_build_loc"
 #########################
 
 # build for each python version
-for py in 27 33 34;
+for py in 27 34;
 do
     echo "Building py$py pkg"
     CONDA_PY=$py conda build conda.recipe --quiet
