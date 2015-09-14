@@ -61,8 +61,6 @@ namedLabeler = (b) -> customLabeler b, (row) ->
         depPath = "#{depPath}.js"
       depModMap[depPath] = dep
 
-  debugger
-
   modPath = row.id
 
   modName  = revModMap[modPath]
