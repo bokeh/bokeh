@@ -78,37 +78,75 @@ namedLabeler = (b) -> customLabeler b, (row) ->
 
   modName
 
-gulp.task "scripts:build", ->
-  preludePath = path.resolve(process.cwd(), "./src/js/prelude.js")
+gulp.task "scripts:build", (cb) ->
+  preludePath = path.resolve("./src/js/prelude.js")
   preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
-  opts =
-    entries: ['./src/coffee/main.coffee']
+  bokehjsOpts = {
+    entries: [path.resolve('./src/coffee/main.coffee')]
     extensions: [".coffee", ".eco"]
     debug: true
     preludePath: preludePath
     prelude: preludeText
+  }
 
-  b = browserify opts
-  namedLabeler(b)
+  widgetsOpts = {
+    entries: [path.resolve('./src/coffee/widget/main.coffee')]
+    extensions: [".coffee", ".eco"]
+    debug: true
+  }
 
-  b .transform "browserify-eco"
-    .transform "coffeeify"
-    .bundle()
-    .pipe source paths.coffee.destination.full
-    .pipe buffer()
-    .pipe sourcemaps.init
-      loadMaps: true
-    # This solves a conflict when requirejs is loaded on the page. Backbone
-    # looks for `define` before looking for `module.exports`, which eats up
-    # our backbone.
-    .pipe change (content) ->
-      "(function() { var define = undefined; #{content} })()"
-    .pipe sourcemaps.write './'
-    .pipe gulp.dest paths.buildDir.js
+  bokehjs = browserify(bokehjsOpts)
+  widgets = browserify(widgetsOpts)
+
+  labels = {}
+
+  buildBokehjs = (next) ->
+    util.log("Building bokehjs")
+    labels = namedLabeler(bokehjs)
+    bokehjs
+      .transform("browserify-eco")
+      .transform("coffeeify")
+      .bundle()
+      .pipe(source(paths.bokehjs.coffee.destination.full))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({loadMaps: true}))
+      # This solves a conflict when requirejs is loaded on the page. Backbone
+      # looks for `define` before looking for `module.exports`, which eats up
+      # our backbone.
+      .pipe change (content) ->
+        "(function() { var define = undefined; #{content} })()"
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest(paths.buildDir.js))
+      .on 'end', () -> next()
+
+  buildWidgets = (next) ->
+    util.log("Building widgets")
+    namedLabeler(widgets)
+    # XXX: widgets.external(bokehjs) should work as well, but doesn't
+    for own file, name of labels
+      widgets.external(file)
+    widgets
+      .transform("browserify-eco")
+      .transform("coffeeify")
+      .bundle()
+      .pipe(source(paths.widgets.coffee.destination.full))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({loadMaps: true}))
+      # This solves a conflict when requirejs is loaded on the page. Backbone
+      # looks for `define` before looking for `module.exports`, which eats up
+      # our backbone.
+      .pipe change (content) ->
+        "(function() { var define = undefined; #{content} })()"
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest(paths.buildDir.js))
+      .on 'end', () -> next()
+
+  buildBokehjs () -> buildWidgets(cb)
+  null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:minify", ->
-  gulp.src paths.coffee.destination.fullWithPath
+  gulp.src paths.bokehjs.coffee.destination.fullWithPath
     .pipe rename (path) -> path.basename += '.min'
     .pipe sourcemaps.init
       loadMaps: true

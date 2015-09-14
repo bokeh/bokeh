@@ -137,41 +137,6 @@ locations =
   HoverTool:                require '../tool/inspectors/hover_tool'
   InspectTool:              require '../tool/inspectors/inspect_tool'
 
-  editors:                  [require('../widget/cell_editors'), "Editor"]
-  formatters:               [require('../widget/cell_formatters'), "Formatter"]
-
-  TableColumn:              require '../widget/table_column'
-  DataTable:                require '../widget/data_table'
-  Paragraph:                require '../widget/paragraph'
-  HBox:                     require '../widget/hbox'
-  VBox:                     require '../widget/vbox'
-  VBoxForm:                 require '../widget/vboxform'
-  TextInput:                require '../widget/text_input'
-  AutocompleteInput:        require '../widget/autocomplete_input'
-  PreText:                  require '../widget/pretext'
-  Select:                   require '../widget/selectbox'
-  Slider:                   require '../widget/slider'
-  CrossFilter:              require '../widget/crossfilter'
-  MultiSelect:              require '../widget/multiselect'
-  DateRangeSlider:          require '../widget/date_range_slider'
-  DatePicker:               require '../widget/date_picker'
-  Panel:                    require '../widget/panel'
-  Tabs:                     require '../widget/tabs'
-  Dialog:                   require '../widget/dialog'
-  Icon:                     require '../widget/icon'
-  Button:                   require '../widget/button'
-  Toggle:                   require '../widget/toggle'
-  Dropdown:                 require '../widget/dropdown'
-  CheckboxGroup:            require '../widget/checkbox_group'
-  RadioGroup:               require '../widget/radio_group'
-  CheckboxButtonGroup:      require '../widget/checkbox_button_group'
-  RadioButtonGroup:         require '../widget/radio_button_group'
-  SimpleApp:                require '../widget/simpleapp'
-
-  AppHBox:                  require '../widget/layouts/apphbox'
-  AppVBox:                  require '../widget/layouts/appvbox'
-  AppVBoxForm:              require '../widget/layouts/appvboxform'
-
   ar_transforms:            [require '../ar/transforms']
 
 collection_overrides = {}
@@ -223,6 +188,15 @@ modules = arguments[4] # XXX: this refers to the 4th argument a the outer functi
                        # retrieve like this. This is the set of all modules known
                        # to bokehjs upon compilation and extended with module
                        # registration mechanism.
+
+Collections.register_plugin = (name, locations) ->
+  cache = make_cache(locations)
+
+  for own name, module of cache
+    if not _mod_cache.hasOwnProperty(name)
+      _mod_cache[name] = module
+    else
+      throw new Error("#{name} was already registered")
 
 Collections.register_model = (name, mod) ->
   compile = (code) ->
