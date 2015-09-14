@@ -316,7 +316,7 @@ def _get_save_args(state, filename, resources, title):
         raise RuntimeError("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
 
     if resources is None:
-        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE")
+        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.CDN")
         from .resources import CDN
         resources = CDN
 
