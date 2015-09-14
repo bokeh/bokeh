@@ -223,6 +223,9 @@ class Chart(Plot):
 
         # ToDo: revisit how to handle multiple ranges
         # set the last range to the chart's range
+        if len(self._ranges[dim]) == 0:
+            raise ValueError('Ranges must be added to derive axis type.')
+
         data_range = self._ranges[dim][-1]
         setattr(self, dim + '_range', data_range)
 
