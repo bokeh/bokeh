@@ -2,8 +2,6 @@
 
 from __future__ import absolute_import
 
-from warnings import warn
-
 from ..plot_object import PlotObject
 from ..properties import Dict, Instance, String, Enum
 from ..enums import ScriptingLanguage
@@ -47,15 +45,3 @@ class CustomJS(Callback):
     be compiled at runtime (in a web browser), so you don't need to have
     node.js/io.js, etc. installed.
     """)
-
-# Deprecated Action
-# In the unlikely event, someone has done from bokeh.models import Action,
-# this deprecation function handles it gracefully.
-
-def Action(*args, **kwargs):
-    warn(
-        '`bokeh.models.Action` is now `bokeh.models.Callback`. '
-        '`bokeh.models.Action` will be removed in v0.10.',
-        FutureWarning, stacklevel=2
-    )
-    return Callback(*args, **kwargs)

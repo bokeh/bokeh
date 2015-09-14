@@ -48,7 +48,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
 
         plot.renderers.append(glyph_renderer)
         plot._dirty = True
-        return plot
+        return glyph_renderer
 
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring

@@ -6,7 +6,7 @@ if [ "$1" == "-h" ]; then
 
     where:
         -h     show this help text
-        -d     devel build tag in the form X.X.Xdev[rc]
+        -d     devel build tag in the form X.X.X[dev]/[rc]number, ie: 0.10.0dev1
         -p     previous tag in the form X.X.X (for releases)
         -r     proposed new tag in the form X.X.X (for releases)
     "
@@ -62,16 +62,20 @@ if [[ -z "$dtag" && ! -z "$ptag" && ! -z "$rtag" ]]; then
 elif [[ ! -z "$dtag" && -z "$ptag" && -z "$rtag" ]]; then
     echo "You have triggered the devel build process"
 
-    # get the HEAD commit hash
-    commit=`git rev-parse --short HEAD`
-    completetag=$dtag-$commit
-    echo "The complete devel[rc] tag will be" $completetag
+    # check the tag
+    taglist=`git tag --list --sort=version:refname`
+    tagarray=($taglist)
+    lasttag=${tagarray[-1]}
+    if [[ "$lasttag" == "$dtag" ]]; then
+        echo "The latest tag detected is $lasttag and you are trying to use the same tag, please bump your dev/rc tag."
+        exit 1
+    fi
 
-    # and tag it locally
-    git tag -a $completetag -m "New devel[rc] build $completetag."
+    # tag it locally
+    git tag -a $dtag -m "New devel[rc] build $dtag."
 
     # and push the tag
-    git push origin $completetag
+    git push origin $dtag
     echo "The new devel build was triggered."
 
 else
