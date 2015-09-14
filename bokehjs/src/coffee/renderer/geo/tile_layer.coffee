@@ -1,105 +1,131 @@
 _ = require "underscore"
 Glyph = require "../glyph/glyph"
 
-class TileUtils
-  '''
-  Mostly direct port of awesome article by Joe Schwartz
-  http://msdn.microsoft.com/en-us/library/bb259689.aspx
-  '''
+class ProjectionUtils
 
   constructor: () ->
+    @origin_shift = 2 * Math.PI * 6378137 / 2.0
 
-    @earth_radius = 6378137
-    @min_lat = -85.05112878
-    @max_lat = 85.05112878
-    @min_lng = -180
-    @max_lng = 180
+  geographic_to_meters: (xLon, yLat) ->
+    mx = xLon * @origin_shift / 180.0
+    my = Math.log( Math.tan((90 + yLat) * Math.PI / 360.0 )) / (Math.PI / 180.0)
+    my = my * @origin_shift / 180.0
+    return [mx, my]
 
-  clip_value: (value, minValue, maxValue) ->
-    '''
-    Makes sure that value is within a specific range.
-    If not, then the lower or upper bounds is returned
-    '''
-    return Math.min(Math.max(value, minValue), maxValue)
+  meters_to_geographic: (mx, my) ->
+    lon = (mx / @origin_shift) * 180.0
+    lat = (my / @origin_shift) * 180.0
+    lat = 180 / Math.PI * (2 * Math.atan( Math.exp( lat * Math.PI / 180.0)) - Math.PI / 2.0)
+    return [lon, lat]
 
-  get_map_dimensions_by_zoom_level: (zoomLevel) ->
-    '''
-    Returns the width/height in pixels of the entire map
-    based on the zoom level.
-    '''
-    return 256 << zoomLevel
+  geographic_extent_to_meters: (extent) ->
+    [xmin, ymin, xmax, ymax] = extent
+    [xmin, ymin] = @geographic_to_meters(xmin, ymin)
+    [xmax, ymax] = @geographic_to_meters(xmax, ymax)
+    return [xmin, ymin, xmax, ymax]
 
-  get_ground_resolution: (latitude, level) ->
-    '''
-    returns the ground resolution for latitude and zoom level.
-    '''
-    lat = @clip_value(latitude, @min_lat, @max_lat)
-    mapSize = @get_map_dimensions_by_zoom_level(level)
-    return Math.cos(lat * Math.PI / 180) * 2 * Math.PI * @earth_radius / mapSize
+  meters_extent_to_geographic: (extent) ->
+    [xmin, ymin, xmax, ymax] = extent
+    [xmin, ymin] = @meters_to_geographic(xmin, ymin)
+    [xmax, ymax] = @meters_to_geographic(xmax, ymax)
+    return [xmin, ymin, xmax, ymax]
 
-  get_map_scale: (latitude, level, dpi=96) ->
-    '''
-    returns the map scale on the dpi of the screen
-    '''
-    dpm = dpi / 0.0254 #convert to dots per meter
-    return @get_ground_resolution(latitude, level) * dpm
+class MercatorTileProvider
 
-  convert_latlng_to_pixelxy: (latitude, longitude, level) ->
-    '''
-    returns the x,y values of the pixel corresponding to a lat,long.
-    '''
-    mapSize = @get_map_dimensions_by_zoom_level(level)
+  constructor: (@url, @tile_size=256) ->
+    @origin_shift = 2 * Math.PI * 6378137 / 2.0
+    @initial_resolution = 2 * Math.PI * 6378137 / @tile_size
 
-    lat = @clip_value(latitude, @min_lat, @max_lat)
-    lng = @clip_value(longitude, @min_lng, @max_lng)
+  get_image_url: () ->
+    throw Error "Unimplemented Method"
 
-    x = (lng + 180) / 360
-    sinlat = Math.sin(lat * Math.PI / 180)
-    y = 0.5 - Math.log((1 + sinlat) / (1 - sinlat)) / (4 * Math.PI)
+  get_resolution: (level) ->
+    return @initial_resolution / (2 ** level)
 
-    pixelX = Math.floor(@clip_value(x * mapSize + 0.5, 0, mapSize - 1))
-    pixelY = Math.floor(@clip_value(y * mapSize + 0.5, 0, mapSize - 1))
-    return [pixelX, pixelY]
+  geographic_to_meters: (xLon, yLat) ->
+    mx = xLon * @origin_shift / 180.0
+    my = Math.log( Math.tan((90 + yLat) * Math.PI / 360.0 )) / (Math.PI / 180.0)
+    my = my * @origin_shift / 180.0
+    return [mx, my]
 
-  convert_pixelxy_to_latlng: (pixelX, pixelY, level) ->
-    '''
-    converts a pixel x, y to a latitude and longitude.
-    '''
-    mapSize = @get_map_dimensions_by_zoom_level(level)
+  meters_to_geographic: (mx, my) ->
+    lon = (mx / @origin_shift) * 180.0
+    lat = (my / @origin_shift) * 180.0
+    lat = 180 / Math.PI * (2 * Math.atan( Math.exp( my * Math.PI / 180.0)) - Math.PI / 2.0)
+    return [lon, lat]
 
-    x = (@clip_value(pixelX, 0, mapSize - 1) / mapSize) - 0.5
-    y = 0.5 - (@clip_value(pixelY, 0, mapSize - 1) / mapSize)
+  pixels_to_meters: (px, py, level) ->
+    res = @get_resolution(level)
+    mx = px * res - @origin_shift
+    my = py * res - @origin_shift
+    return [mx, my]
 
-    lat = 90 - 360 * Math.atan(Math.exp(-y * 2 * Math.PI)) / Math.PI
-    lng = 360 * x
-    return [lng, lat]
+  meters_to_pixels: (mx, my, level) ->
+    res = @get_resolution(level)
+    px = (mx + @origin_shift) / res
+    py = (my + @origin_shift) / res
+    return [px, py]
 
-  convert_pixelxy_to_tilexy: (pixelX, pixelY) ->
-    '''
-    Converts pixel XY coords into tile XY coordinates of the tile containing
-    '''
-    return [Math.floor(pixelX / 256), Math.floor(pixelY / 256)]
+  pixels_to_tile: (px, py) ->
+    tx = Math.floor( Math.ceil( px / @tile_size ) - 1 )
+    ty = Math.floor( Math.ceil( py / @tile_size ) - 1 )
+    return [tx, ty]
 
-  convert_tilexy_to_pixelxy: (tileX, tileY) ->
-    '''
-    Converts tile XY coords into pixel XY coordinates of the upper-left pixel
-    '''
-    return [tileX * 256, tileY * 256]
+  pixels_to_raster: (px, py, level) ->
+    mapSize = @tile_size << level
+    return [px, mapSize - py]
 
-  tile_xyz_to_quadkey: (x, y, z) ->
-    '''
-    Computes quadkey value based on tile x, y and z values.
-    '''
-    quadKey = ''
-    for i in [z...0] by -1
-      digit = 0
-      mask = 1 << (i - 1)
-      if(x & mask) != 0
-        digit += 1
-      if(y & mask) != 0
-        digit += 2
-      quadKey += digit.toString()
-    return quadKey
+  meters_to_tile: (mx, my, level) ->
+    [px, py]= @meters_to_pixels(mx, my, level)
+    return @pixels_to_tile(px, py)
+
+  get_tile_meter_bounds: (tx, ty, level) ->
+    [minx, miny] = @pixelxy_to_meters(tx * @tile_size, ty * @tile_size, level)
+    [maxx, maxy]= @pixels_to_me((tx + 1) * @tile_size, (ty + 1) * @tile_size, level)
+    return [minx, miny, maxx, maxy]
+
+  get_tile_geographic_bounds: (tx, ty, level) ->
+    bounds = @get_tile_meter_bounds(tx, ty, level)
+    [minLon, minLat] = @meters_to_geographic(bounds[0], bounds[1])
+    [maxLon, maxLat] = @meters_to_geographic(bounds[2], bounds[3])
+    return [minLon, minLat, maxLon, maxLat]
+
+  get_tiles_by_extent: (xmin, ymin, xmax, ymax, level) ->
+    [txmin, tymin] = @meters_to_tile(xmin, ymin)
+    [txmax, tymax] = @meters_to_tile(xmax, ymax)
+    tiles = []
+    for ty in [tymin..tymax + 1] by 1
+      for tx in [txmin..txmax + 1] by 1
+        tiles.push(@get_image_url(tx, ty, level))
+    return tiles
+
+
+class TMSTileProvider extends MercatorTileProvider
+
+  constructor: (url) ->
+    super(url, 'TMS')
+
+  get_image_url: (x, y, z) ->
+    return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+
+
+class GoogleTileProvider extends MercatorTileProvider
+
+  constructor: (url) ->
+    super(url, 'Google')
+
+  tilexyz_to_googlexyz: (x, y, z) ->
+    return [tx, (2 ** z - 1) - ty, z]
+
+  get_image_url: (x, y, z) ->
+    [x, y, z] = @tilexyz_to_googlexyz(x, y, z)
+    return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+
+
+class QUADKEYTileProvider extends MercatorTileProvider
+
+  constructor: (url) ->
+    super(url, 'QUADKEY')
 
   quadkey_to_tile_xyz: (quadKey) ->
     '''
@@ -131,17 +157,77 @@ class TileUtils
 
     return [tileX, tileY, tileZ]
 
-  convert_latlng_to_tilexy: (lng, lat, level) ->
-    [pixelX, pixelY] = @convert_latlng_to_pixelxy(lat, lng, level)
-    return @convert_pixelxy_to_tilexy(pixelX, pixelY)
+  tile_xyz_to_quadkey: (x, y, z) ->
+    '''
+    Computes quadkey value based on tile x, y and z values.
+    '''
+    quadKey = ''
+    for i in [z...0] by -1
+      digit = 0
+      mask = 1 << (i - 1)
+      if(x & mask) != 0
+        digit += 1
+      if(y & mask) != 0
+        digit += 2
+      quadKey += digit.toString()
+    return quadKey
 
-  get_tile_origin: (tileX, tileY, level) ->
-    '''
-    Returns the upper-left hand corner lat/lng for a tile
-    '''
-    [pixelX, pixelY] = @convert_tilexy_to_pixelxy(tileX, tileY)
-    [lng, lat] = @convert_pixelxy_to_latlng(pixelX, pixelY, level)
-    return [lat, lng]
+  get_image_url: (x, y, z) ->
+    quadKey = @tile_xyz_to_quadkey(x, y, z)
+    return @url.replace("{QUADKEY}", quadKey)
+
+
+class GeographicTileProvider
+
+  constructor: (@url, @tile_size=256) ->
+
+  get_image_url: () ->
+    throw Error "Unimplemented Method"
+
+  geographic_to_pixels: (xLon, yLat, level) ->
+    res = 180 / @tile_size / 2 ** level
+    px = (180 + yLat) / res
+    py = (90 + xLon) / res
+    return [px, py]
+
+  pixels_to_tile: (px, py) ->
+    tx = Math.floor(Math.ceil(px / @tile_size) - 1)
+    ty = Math.floor(Math.ceil(py / @tile_size) - 1)
+    return [tx, ty]
+
+  geographic_to_tile: (xLon, yLat, level) ->
+    [px, py]= @geographic_to_pixels(xLon, yLat, level)
+    return @pixels_to_tile(px, py)
+
+  get_resolution: (level) ->
+    return 180 / @tile_size / 2 ** level
+
+  get_tile_bounds: (tx, ty, level) ->
+    res = @get_resolution(level)
+    xmin = tx * @tile_size * res - 180
+    ymin = ty * @tile_size * res - 90
+    xmax = (tx+1) * @tile_size * res - 180
+    ymax = (ty+1) * @tile_size * res - 90
+    return [xmin, ymin, xmax, ymax]
+
+  get_tiles_by_extent: (xmin, ymin, xmax, ymax, level) ->
+    [txmin, tymin] = @geographic_to_tile(xmin, ymin)
+    [txmax, tymax] = @geographic_to_tile(xmax, ymax)
+    tiles = []
+    for ty in [tymin..tymax + 1] by 1
+      for tx in [txmin..txmax + 1] by 1
+        tiles.push(@get_image_url(tx, ty, level))
+    return tiles
+
+
+class GeographicTMSTileProvider extends GeographicTileProvider
+
+  constructor: (url, tile_size=256) ->
+    super(url, 'TMS', tile_size)
+
+  get_image_url: (x, y, z) ->
+    return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+
 
 class TileLayerView extends Glyph.View
 
@@ -149,17 +235,18 @@ class TileLayerView extends Glyph.View
     @_xy_index()
 
   _set_data: () ->
-    @image = (null for img in @url)
     @need_load = (true for img in @url)
     @loaded = (false for img in @url)
+
     @_xy_index()
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @x, 256, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @y, 256, 'edge', @mget('dilate'))
+    @sw = @sdist(@renderer.xmapper, @x, @tile_size, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @y, @tile_size, 'edge', @mget('dilate'))
 
   _render: (ctx, indices, {url, image, need_load, sx, sy, sw, sh, angle}) ->
     for i in indices
+
       if isNaN(sx[i]+sy[i]+angle[i])
         continue
 
@@ -168,13 +255,12 @@ class TileLayerView extends Glyph.View
         img.onload = do (img, i) =>
           return () =>
             @loaded[i] = true
-            image[i] = img
             @renderer.request_render()
 
         img.src = url[i]
         need_load[i] = false
       else if @loaded[i]
-        @_render_image(ctx, i, image[i], sx, sy, 256, 256, angle)
+        @_render_image(ctx, i, image[i], sx, sy, @tile_size, @tile_size, angle)
 
   _final_sx_sy: (anchor, sx, sy, sw, sh) ->
     switch anchor
@@ -230,4 +316,10 @@ class TileLayer extends Glyph.Model
 module.exports =
   Model: TileLayer
   View: TileLayerView
-  Utils: TileUtils
+  ProjectionUtils: ProjectionUtils
+  MercatorTileProvider: MercatorTileProvider
+  GeographicTileProvider: GeographicTileProvider
+  TMSTileProvider: TMSTileProvider
+  GoogleTileProvider: GoogleTileProvider
+  QUADKEYTileProvider: QUADKEYTileProvider
+  GeographicTMSTileProvider: GeographicTMSTileProvider
