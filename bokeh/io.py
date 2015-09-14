@@ -49,7 +49,7 @@ _state = State()
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
+def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     ''' Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
@@ -317,8 +317,8 @@ def _get_save_args(state, filename, resources, title):
 
     if resources is None:
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE")
-        from .resources import INLINE
-        resources = INLINE
+        from .resources import cdn
+        resources = cdn
 
     if title is None:
         warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
