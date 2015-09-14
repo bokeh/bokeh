@@ -12,7 +12,8 @@ import pandas as pd
 
 from bokeh.properties import (HasProps, Either, String, Int, List, Dict,
                               Bool, PrimitiveProperty, bokeh_integer_types, Array)
-from bokeh.charts._data_source import special_columns
+
+from .utils import special_columns
 
 
 class Column(Array):

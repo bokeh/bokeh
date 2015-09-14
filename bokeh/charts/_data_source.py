@@ -22,9 +22,12 @@ from itertools import islice, product
 import numpy as np
 import pandas as pd
 
-from ..properties import bokeh_integer_types, Datetime
+from ..properties import bokeh_integer_types, Datetime, List, HasProps
 from ..models.sources import ColumnDataSource
-from .utils import collect_attribute_columns
+
+from ._properties import ColumnLabel
+from .utils import collect_attribute_columns, special_columns
+
 
 DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -52,17 +55,17 @@ def gen_column_names(n):
         return col_names
 
 
-def get_index(data):
-    return pd.Series(data.index.values)
+class DataOperator(HasProps):
+    columns = List(ColumnLabel(), default=None,
+                   help="""List of columns to perform operation on.""")
 
+    def apply(self, data):
+        raise NotImplementedError('Each data operator must implement the apply method.')
 
-def get_unity(data, value=1):
-    data_copy = data.copy()
-    data_copy['_charts_ones'] = value
-    return data_copy['_charts_ones']
+    def __repr__(self):
+        col_str = ', '.join(self.columns)
+        return '%s(%s)' % (self.__class__.__name__, col_str)
 
-special_columns = {'index': get_index,
-                   'unity': get_unity}
 
 
 class DataGroup(object):
@@ -153,6 +156,7 @@ class ChartDataSource(object):
         self._dims = dims
         self._required_dims = required_dims
         self._selections = self.get_selections(selections, **kwargs)
+        self.apply_operations()
         self.meta = self.collect_metadata(df)
         self._validate_selections()
 
@@ -192,6 +196,12 @@ class ChartDataSource(object):
         # else:
         return select_map
 
+    def apply_operations(self):
+        # ToDo: Handle order of operation application, see GoG pg. 71
+        for dim, select in iteritems(self._selections):
+            if isinstance(select, DataOperator):
+                self._data = select.apply(self)
+
     def __getitem__(self, dim):
         """Get the columns selected for the given dimension name.
 
@@ -202,15 +212,25 @@ class ChartDataSource(object):
         else:
             return None
 
-    def stack_measures(self, measures, ids=None):
+    def stack_measures(self, measures, ids=None, var_name='variable', value_name='value'):
         for dim in self._dims:
             # find the dimension the measures are associated with
-            if measures == self._selections[dim]:
-                self._selections[dim] = 'value'
+
+            selection = self._selections[dim]
+            if isinstance(selection, DataOperator):
+                dim_cols = selection.columns
+            else:
+                dim_cols = selection
+
+            if measures == dim_cols:
+                self._selections[dim] = value_name
                 if ids is not None:
-                    self._data = pd.melt(self._data, id_vars=ids, value_vars=measures)
+                    self._data = pd.melt(self._data, id_vars=ids, value_vars=measures,
+                                         var_name=var_name, value_name=value_name)
                 else:
-                    self._data = pd.melt(self._data, value_vars=measures)
+                    ids = list(set(self._data.columns) - set(measures))
+                    self._data = pd.melt(self._data, id_vars=ids, value_vars=measures,
+                                         var_name=var_name, value_name=value_name)
 
     def groupby(self, **specs):
         """Iterable of chart attribute specifications, associated with columns.

@@ -24,7 +24,8 @@ from six import iteritems
 import numpy as np
 from collections import defaultdict
 
-from bokeh.charts import ChartOptions, defaults
+from ._chart_options import ChartOptions
+from . import defaults
 from ..browserlib import view
 from ..document import Document
 from ..embed import file_html

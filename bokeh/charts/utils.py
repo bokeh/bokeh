@@ -19,6 +19,7 @@ from collections import OrderedDict
 import itertools
 from math import cos, sin
 import json
+import pandas as pd
 from pandas.io.json import json_normalize
 
 from ..browserlib import view
@@ -37,10 +38,10 @@ from ..util.notebook import publish_display_data
 #-----------------------------------------------------------------------------
 
 # TODO: (bev) this should go in a plotting utils one level up
-_default_cycle_palette = [
-    "#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"
-]
-def cycle_colors(chunk, palette=_default_cycle_palette):
+DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+
+
+def cycle_colors(chunk, palette=DEFAULT_PALETTE):
     """ Build a color list just cycling through a given palette.
 
     Args:
@@ -77,6 +78,7 @@ marker_types = OrderedDict(
     ]
 )
 
+
 # TODO: (bev) this should go in a plotting utils one level up
 def make_scatter(source, x, y, markertype, color, line_color=None,
                  size=10, fill_alpha=0.2, line_alpha=1.0):
@@ -111,6 +113,7 @@ def make_scatter(source, x, y, markertype, color, line_color=None,
 
     return GlyphRenderer(data_source=source, glyph=glyph)
 
+
 def chunk(l, n):
     """Yield successive n-sized chunks from l.
 
@@ -120,6 +123,7 @@ def chunk(l, n):
     """
     for i in range(0, len(l), n):
         yield l[i:i + n]
+
 
 def polar_to_cartesian(r, start_angles, end_angles):
     """Translate polar coordinates to cartesian.
@@ -275,3 +279,17 @@ def nested_dict_iter(nested):
                     yield k, v
         else:
             yield key, value
+
+
+def get_index(data):
+    return pd.Series(data.index.values)
+
+
+def get_unity(data, value=1):
+    data_copy = data.copy()
+    data_copy['_charts_ones'] = value
+    return data_copy['_charts_ones']
+
+
+special_columns = {'index': get_index,
+                   'unity': get_unity}

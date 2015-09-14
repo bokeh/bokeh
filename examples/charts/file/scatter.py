@@ -5,6 +5,7 @@ from bokeh.sampledata.iris import flowers
 from bokeh.sampledata.project_funding import project_funding as pf
 
 from bokeh.charts import Scatter, output_file, show, vplot, hplot
+from bokeh.charts.operations import blend
 from bokeh.charts.utils import df_from_json
 import pandas as pd
 
@@ -37,13 +38,19 @@ scatter5 = Scatter(
     df2, x='value', y='name', color='variable', title="x='value', y='name', color='variable'",
     xlabel="Medals", ylabel="Top 10 Countries", legend='bottom_right')
 
+
+scatter6 = Scatter(flowers, x=blend('petal_length', 'sepal_length', name='length'),
+                   y=blend('petal_width', 'sepal_width', name='width'), color='species',
+                   title='x=petal_length+sepal_length, y=petal_width+sepal_width, color=species',
+                   legend='top_right')
+
 # Project funding data examples
-scatter6 = Scatter(pf, x='age', y='amount', color='gender', legend='top_right')
+# scatter7 = Scatter(pf, x='client_time', y='longitude', color='gender',
+#                    title='x=client_time, y=amount, color=gender', legend='top_right')
+#
+# scatter8 = Scatter(pf, x='client_time', y='amount', color=['gender', 'marital_status'],
+#                    title='x=client_time, y=amount, color=gender', legend='top_right')
 
-scatter7 = Scatter(pf, x='client_time', y='amount', color='gender', legend='top_right')
-
-# Iris data examples
-scatter8 = Scatter(flowers, )
 
 output_file("scatter.html")
 
@@ -51,5 +58,5 @@ show(vplot(
     hplot(scatter0, scatter1),
     hplot(scatter2, scatter3),
     hplot(scatter4, scatter5),
-    hplot(scatter6, scatter7)
+    hplot(scatter6)
 ))

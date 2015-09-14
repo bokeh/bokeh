@@ -4,7 +4,8 @@ from copy import copy
 
 from bokeh.properties import String
 
-from bokeh.charts._models import CollisionModifier, DataOperator
+from ._models import CollisionModifier
+from ._data_source import DataOperator
 
 
 class Stack(CollisionModifier):
@@ -31,7 +32,9 @@ class Blend(DataOperator):
     The primary action that blend is taking is combining and collapsing
     multiple columns together, using set algebra. You can think of this
     like taking two columns with similar or different data and stacking
-    them on top of each other. The new categories are the union of the two sets.
+    them on top of each other. The new categories are the union of the two sets. The
+    operation is like an OR because a category in either variable is included
+    in the blended variable
 
     Note: The variables not being blended must be duplicated (consider a
     sample time). For example, two variables, 'sensor_a' and
@@ -52,21 +55,26 @@ class Blend(DataOperator):
 
     ToDo: address booleans. Consider two columns, 'was_successful', 'was_effective'.
         It seems like blending of booleans would be performing an *or*.
+
+    See Grammar of Graphics pgs. 67, 320
     """
 
-    blended_name = String(default='value', help="""The name of the column to
+    name = String(default='value', help="""The name of the column to
                           contain the values of the blended columns.""")
-    variables_name = String(default='variable', help="""The name of the column
+    labels_name = String(default='variable', help="""The name of the column
                             to contain the names of the columns that were blended.""")
 
     def __init__(self, *cols, **properties):
         properties['columns'] = list(cols)
         super(Blend, self).__init__(**properties)
 
-    def transform(self, data):
+    def apply(self, data):
         data_copy = copy(data)
-        data_copy.stack_measures(measures=self.columns)
-        return data_copy
+
+        labels_name = self.labels_name + '_' + '_'.join(self.columns)
+        data_copy.stack_measures(measures=self.columns, value_name=self.name,
+                                 var_name=labels_name)
+        return data_copy._data
 
 
 def stack(renderers=None, columns=None):

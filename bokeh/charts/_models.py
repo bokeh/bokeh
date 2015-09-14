@@ -1,11 +1,9 @@
 from __future__ import absolute_import
 
 from bokeh.properties import HasProps, String, Either, Float, Color, Instance, List, Enum, Any
-from bokeh.charts import ColumnLabel
-from bokeh.charts._properties import Column
+from ._properties import ColumnLabel, Column
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.enums import Aggregation
 
 
 class CompositeGlyph(HasProps):
@@ -117,11 +115,3 @@ class CollisionModifier(HasProps):
         else:
             raise AttributeError('%s must be applied to available renderers, none found.' %
                                  self.__class__.__name__)
-
-
-class DataOperator(HasProps):
-    columns = List(ColumnLabel(), default=None, help="""List of columns to perform operation on.""")
-    data = ColumnDataSource()
-
-    def transform(self, data):
-        raise NotImplementedError('Each data operator must implement the transform method.')

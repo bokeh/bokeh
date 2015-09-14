@@ -291,6 +291,18 @@ class XYBuilder(Builder):
         starty = self.y.min
         self.y_range = self._get_range('y', starty, endy)
 
+        if self.xlabel is None:
+            select = self.x.selection
+            if not isinstance(select, list):
+                select = [select]
+            self.xlabel = ', '.join(select)
+
+        if self.ylabel is None:
+            select = self.y.selection
+            if not isinstance(select, list):
+                select = [select]
+            self.ylabel = ', '.join(select)
+
     def _get_range(self, dim, start, end):
 
         values = getattr(self, dim).data

@@ -15,6 +15,21 @@ This script will download the json data, only the first time imported
 from, then will load the data and clean it up in a pandas
 DataFrame.
 
+Resulting dataframe reports the following dtypes:
+    age                       object
+    amount                   float64
+    category                  object
+    client_time       datetime64[ns]
+    device                    object
+    event_name                object
+    gender                    object
+    city                      object
+    latitude                 float64
+    longitude                float64
+    state                     object
+    zip_code                   int64
+    marital_status            object
+    session_id                object
 """
 
 from __future__ import absolute_import
