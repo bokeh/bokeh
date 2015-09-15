@@ -76,7 +76,7 @@ def test_groupby(test_data):
 def test_derived_selections(test_data):
     ds = ChartDataSource.from_data(*test_data.array_data)
     try:
-        selections = [ds[dim] for dim in ds._required_dims]
+        selections = [[ds[dim] for dim in req_dims] for req_dims in ds._required_dims]
     except KeyError:
         pytest.fail('Required dimension not correctly set by ChartDataSource.')
 

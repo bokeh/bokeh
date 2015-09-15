@@ -76,7 +76,7 @@ class DataGroup(object):
         self.attr_specs = attr_specs
 
     def get_values(self, selection):
-        if selection in list(special_columns.keys()):
+        if selection in special_columns:
             return special_columns[selection](self.data)
         elif isinstance(selection, str):
             return self.data[selection]
@@ -219,7 +219,7 @@ class ChartDataSource(object):
 
         e.g. dim='x'
         """
-        if dim in self._selections.keys():
+        if dim in self._selections:
             return self._selections[dim]
         else:
             return None
@@ -295,6 +295,10 @@ class ChartDataSource(object):
                                 # add col to all cols and
                                 dim_cols.append(col_name)
 
+                    # if only single column selected, pull it out of list
+                    if len(dim_cols) == 1:
+                        dim_cols = dim_cols[0]
+
                     new_kwargs[dim] = dim_cols
 
                 # setup kwargs to process as if we received arrays as args
@@ -306,7 +310,7 @@ class ChartDataSource(object):
 
         # handle array-like
         if len(arrays) > 0:
-            if 'columns' not in kwargs.keys():
+            if 'columns' not in kwargs:
                 column_names = gen_column_names(len(arrays))
 
                 # try to replace auto names with Series names
