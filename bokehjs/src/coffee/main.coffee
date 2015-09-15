@@ -1,6 +1,6 @@
 Bokeh = {}
 Bokeh.require = require
-Bokeh.version = '0.9.2'
+Bokeh.version = '0.9.3'
 
 # binding the libs that bokeh uses so others can reference them
 Bokeh._                 = require("underscore")
@@ -60,6 +60,7 @@ Bokeh.LinearColorMapper = require("./mapper/linear_color_mapper")
 Bokeh.Palettes = require("./palettes/palettes")
 
 # annotations
+Bokeh.BoxAnnotation = require("./renderer/annotation/box_annotation")
 Bokeh.Legend  = require("./renderer/annotation/legend")
 Bokeh.Span    = require("./renderer/annotation/span")
 Bokeh.Tooltip = require("./renderer/annotation/tooltip")

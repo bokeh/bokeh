@@ -1,22 +1,28 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function
+
 import logging
 log = logging.getLogger(__name__)
+
 import os
 import sys
 
+from bokeh import plotting; plotting  # imports custom objects for plugin
+from bokeh import models; models      # import objects so that we can resolve them
+from bokeh import protocol; protocol  # import objects so that we can resolve them
 from tornado.httpserver import HTTPServer
 from tornado import ioloop
 
-from .settings import settings as server_settings
-
-from bokeh import plotting # imports custom objects for plugin
-from bokeh import models, protocol # import objects so that we can resolve them
-
-# this just shuts up pyflakes
-models, plotting, protocol
 from . import services
 from .app import bokeh_app, app
 from .configure import configure_flask, make_tornado_app, register_blueprint
+from .settings import settings as server_settings
 
 def doc_prepare():
     server_settings.model_backend = {'type' : 'memory'}

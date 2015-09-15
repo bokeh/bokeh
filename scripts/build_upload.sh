@@ -6,12 +6,12 @@
 
 # CLI user interface
 if [ "$1" == "-h" ]; then
-    usage="$(basename "$0") [-h] -- program to build and upload bokeh pkgs to binstar
+    usage="$(basename "$0") [-h] -- program to build and upload bokeh pkgs to anaconda.org
 
     where:
         -h     show this help text
 
-        -b     Binstar token
+        -b     Anaconda.org token
         -u     RackSpace username
         -k     RackSpace APIkey
         -c     whether to clean the built packages, defaults to true
@@ -37,7 +37,7 @@ do
     esac 
 done
 
-# get binstar token from env variable if it is not provided with args
+# get anaconda.org token from env variable if it is not provided with args
 if [ "$bintoken" == "" ]; then
     bintoken=$BOKEH_DEVEL_TOKEN
     echo "$bintoken"
@@ -63,24 +63,24 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
-# create an empty __travis_build_id__.txt file if you are building locally
+# create an empty __travis_build_number__.txt file if you are building locally
 if [ $local == true ]; then
-    echo "" > __travis_build_id__.txt
+    echo "" > __travis_build_number__.txt
 fi
 
-# get travis_build_id
-travis_build_id=$(cat __travis_build_id__.txt)
+# get travis_build_number
+travis_build_number=$(cat __travis_build_number__.txt)
 
 # specify some varibles specific of the release or devel build process
-if [[ -z "$travis_build_id" ]]; then
+if [[ "$travis_build_number" == "release" ]]; then
     #release
-    channel=main              #binstar channel
+    channel=main              #anaconda.org channel
     register=register         #register to pypi
     upload=upload             #upload to pypi
     subdir=release            #CDN subdir where to upload the js and css
-else
+elif [[ "$travis_build_number" == "devel" ]]; then
     #devel build
-    channel=dev               #binstar channel
+    channel=dev               #anaconda.org channel
     register=""               #register to pypi
     upload=""                 #upload to pypi
     subdir=dev                #CDN subdir where to upload the js and css
@@ -96,34 +96,34 @@ echo "Removing first bokeh build at $first_build_loc"
 #########################
 
 # build for each python version
-for py in 27 33 34;
+for py in 27 34;
 do
     echo "Building py$py pkg"
     CONDA_PY=$py conda build conda.recipe --quiet
 done
 
 # convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*$travis_build_id*.tar.bz2 --quiet
+conda convert -p all -f $BUILD_PATH/bokeh*.tar.bz2 --quiet
 echo "pkgs converted"
 
-# upload conda pkgs to binstar
+# upload conda pkgs to anaconda.org
 platforms=(osx-64 linux-64 win-64 linux-32 win-32)
 for plat in "${platforms[@]}"
 do
     echo Uploading: $plat
-    binstar -t $bintoken upload -u bokeh $plat/bokeh*$travis_build_id*.tar.bz2 -c $channel --force --no-progress
+    anaconda -t $bintoken upload -u bokeh $plat/bokeh*.tar.bz2 -c $channel --force --no-progress
 done
 
-# create, register and upload pypi pkgs to pypi and binstar
-# zip is currently not working on binstar
+# create, register and upload pypi pkgs to pypi and anaconda.org
+# zip is currently not working on anaconda.org
 python setup.py $register sdist --formats=gztar,zip $upload
 echo "sdist pkg built"
 if [[ ! -z "$upload" ]]; then
     echo "I'm done uploading to pypi"
 fi
 
-binstar -t $bintoken upload -u bokeh dist/bokeh*$travis_build_id*.tar.gz --package-type pypi -c $channel --force --no-progress
-echo "I'm done uploading to binstar"
+anaconda -t $bintoken upload -u bokeh dist/bokeh*.tar.gz --package-type pypi -c $channel --force --no-progress
+echo "I'm done uploading to anaconda.org"
 
 ###########################
 # JS and CSS into the CDN #
@@ -141,7 +141,7 @@ token=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 # get unique url id
 id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 -d'{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'$username'","apiKey":"'$key'"}}}' \
--H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["serviceCatalog"][-1]["endpoints"][0]["tenantId"])'`
+-H"Content-type:application/json" | python -c 'import sys,json; data=json.loads(sys.stdin.read()); print([i["endpoints"][0]["tenantId"] for i in data["access"]["serviceCatalog"] if i["name"] == "cloudFiles"][0])'`
 
 # push the js and css files
 curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
@@ -164,20 +164,19 @@ pushd sphinx
 # being explicit to pass the correct version
 # Note: we need to override the version here to avoid being bitten by the
 # __version__ used from the first build (by travis_install)
-BOKEH_LOCAL_DOCS_CDN=$complete_version BOKEH_DOCS_VERSION=$complete_version make clean all
+BOKEH_DOCS_CDN=$complete_version BOKEH_DOCS_VERSION=$complete_version make clean all
 
 # to the correct location
-if [[ -z "$travis_build_id" ]]; then
-    fab deploy
+if [[ "$travis_build_number" == "release" ]]; then
+    fab deploy:$complete_version
+    fab latest:$complete_version
     echo "I'm done uploading the release docs"
-else
-    fab update:dev
+elif [[ "$travis_build_number" == "devel" ]]; then
+    fab deploy:dev
     echo "I'm done uploading the devel docs"
 fi
 
 popd
-
-
 
 ######################
 # Publish to npm.org #
@@ -185,9 +184,8 @@ popd
 
 pushd bokehjs
 
-if [[ -z "$travis_build_id" ]]; then
-    npm publish --tag $complete_version
-    npm tag bokehjs@$complete_version latest
+if [[ "$travis_build_number" == "release" ]]; then
+    npm publish
     echo "I'm done publishing to npmjs.org"
 fi
 

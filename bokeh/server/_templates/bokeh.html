@@ -1,0 +1,21 @@
+{% extends "_page_base.html" %}
+
+{% block title %}
+Bokeh Plot Server
+{% endblock %}
+
+{# Needed for index page UI behaviors (so divs aren't stuck collapsed). #}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+{% endblock %}
+
+{% block script %}
+Bokeh.embed.server_page();
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+  <div id="PlotPane"></div>
+</div>
+{% endblock %}

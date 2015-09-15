@@ -161,8 +161,7 @@ class DonutBuilder(Builder):
             end = angles.tolist() + [end_angle]
             start = [start_angle] + end[:-1]
             base_color = colors[i]
-            #fill = [ base_color.lighten(i*0.05) for i in range(len(details) + 1) ]
-            fill = [base_color for i in range(len(details) + 1)]
+            fill = [base_color for i in start]
             text = [rowlabel for rowlabel in details.index]
             x, y = polar_to_cartesian(1.25, start, end)
 
@@ -186,8 +185,13 @@ class DonutBuilder(Builder):
                 text_angle.insert(0, text_angle[0] - offset)
                 start.insert(0, start[0] - offset)
                 end.insert(0, end[0] - offset)
+                fill.insert(0, base_color)
                 x, y = polar_to_cartesian(1.25, start, end)
                 first = False
+
+            for i in range(len(text_angle)-len(text)):
+                text.append('')
+
             data = dict(text=text, x=x, y=y, angle=text_angle)
             text_source = ColumnDataSource(data)
             glyph = Text(

@@ -12,9 +12,11 @@ class UIEvents extends Backbone.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
+    @_hammer_element()
 
+
+  _hammer_element: ->
     hit_area = @get('hit_area')
-
     @hammer = new Hammer(hit_area[0])
 
     # This is to be able to distinguish double taps from single taps
@@ -47,6 +49,7 @@ class UIEvents extends Backbone.Model
     hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
     $(document).keydown((e) => @_key_down(e))
     $(document).keyup((e) => @_key_up(e))
+
 
   register_tool: (tool_view) ->
     et = tool_view.mget('event_type')
@@ -94,7 +97,13 @@ class UIEvents extends Backbone.Model
     base_event_type = event_type.split(":")[0]
     gestures = tm.get('gestures')
     active = gestures[base_event_type].active
+    @_trigger_event(event_type, active, e)
+
+  _trigger_event: (event_type, active, e)->
     if active?
+      if event_type == 'scroll'
+        e.preventDefault()
+        e.stopPropagation()
       @trigger("#{event_type}:#{active.id}", e)
 
   _bokify_hammer: (e) ->
@@ -192,8 +201,6 @@ class UIEvents extends Backbone.Model
     @_bokify_jq(e)
     e.bokeh.delta = delta
     @_trigger('scroll', e)
-    e.preventDefault()
-    e.stopPropagation()
 
   _key_down: (e) ->
     # NOTE: keydown event triggered unconditionally

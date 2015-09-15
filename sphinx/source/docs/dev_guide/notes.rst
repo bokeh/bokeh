@@ -17,10 +17,11 @@ There are several environment variables that can be useful for developers:
     Valid values are any of the browser names understood by the python
     standard library webbrowser_ module.
 
-* ``BOKEH_LOCAL_DOCS_CDN`` --- What version of BokehJS to use when building  sphinx docs locally.
+* ``BOKEH_DOCS_CDN`` --- What version of BokehJS to use when building sphinx
+    docs locally.
 
-* ``BOKEH_RELEASED_DOCS`` --- Whether to use the x.x.x version for re-deployment of the docs.
-    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+* ``BOKEH_DOCS_VERSION`` --- What version of Bokeh to show when building sphinx
+    docs locally. Useful for re-deployment purposes.
 
 * ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use
     Valid values are, in order of increasing severity:

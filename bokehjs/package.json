@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -21,12 +21,15 @@
     "browserify": "^6.2.0",
     "browserify-eco": "^0.2.4",
     "browserify-shim": "^3.8.0",
+    "Canteen": "git+https://github.com/platfora/Canteen.git#f1182e3396e76e0acb32849823ac4b4f404d6a72",
     "chai": "^2.2.0",
+    "cheerio": "^0.19.0",
     "coffee-script": "^1.9.1",
     "coffeeify": "^0.7.0",
     "del": "^1.1.1",
     "eco": "^1.1.0-rc-3",
     "gulp": "^3.8.10",
+    "gulp-change": "^1.0.0",
     "gulp-coffeeify": "^0.1.2",
     "gulp-eco-template": "^0.1.0",
     "gulp-less": "^3.0.2",
@@ -38,9 +41,13 @@
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
     "hammerjs": "^2.0.4",
+    "mocha": "^2.2.5",
+    "mocha-jsdom": "^1.0.0",
     "phantomjs": "^1.9.7",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
+    "sinon": "^1.15.4",
+    "sinon-chai": "^2.8.0",
     "through": "^2.3.6",
     "underscore": "^1.5.2",
     "vinyl-buffer": "^1.0.0",
@@ -68,7 +75,9 @@
     "jquery_event_drag": "./src/vendor/jquery-event-2.2/jquery.event.drag.js",
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
-    "kiwi": "./src/vendor/kiwi/kiwi.js"
+    "kiwi": "./src/vendor/kiwi/kiwi.js",
+    "gloo2": "./src/vendor/gloo/gloo2.js",
+    "Canteen": "./node_modules/Canteen/build/canteen.js"
   },
   "browserify-shim": {},
   "dependencies": {

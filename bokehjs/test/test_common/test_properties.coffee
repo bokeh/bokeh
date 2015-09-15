@@ -20,9 +20,10 @@ describe "properties module", ->
   generate_source = () ->
     Collections('ColumnDataSource').create({data: {foo: [10, 20]}})
 
-  fixed = {a: 1}
-  spec_field = {a: {field: 'foo'}, b: 30}
-  spec_value = {a: {value: 2}}
+  fixed           = {a: 1}
+  spec_field      = {a: {field: 'foo'}, b: 30}
+  spec_value      = {a: {value: 2}}
+  spec_value_null = {a: {value: null}}
 
   describe "Property", ->
 
@@ -36,7 +37,6 @@ describe "properties module", ->
         new Properties.Property({obj: generate_obj({a: {field: 10}}), attr: 'a'})
       expect(fn).to.throw Error
 
-
     describe "value", ->
       it "should return a fixed value if there is one on the object", ->
         prop = new Properties.Property({obj: generate_obj(fixed), attr: 'a'})
@@ -45,6 +45,11 @@ describe "properties module", ->
       it "should return a fixed value if there is a value spec", ->
         prop = new Properties.Property({obj: generate_obj(spec_value), attr: 'a'})
         expect(prop.value()).to.be.equal 2
+
+      it "should allow a fixed null value", ->
+        prop = new Properties.Property({obj: generate_obj(spec_value_null), attr: 'a'})
+        # XXX: expect(prop.value()).to.be.equal null
+        expect(prop.value()).to.be.NaN
 
       it "should return NaN otherwise", ->
         prop = new Properties.Property({obj: generate_obj(fixed), attr: 'b'})
