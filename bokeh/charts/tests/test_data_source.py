@@ -15,86 +15,73 @@
 
 from __future__ import absolute_import
 
-import unittest
-
-import numpy as np
-import pandas as pd
+import pytest
 
 from bokeh.charts._data_source import ChartDataSource
-from bokeh.charts._attributes import AttrSpec
-from bokeh.sampledata.autompg import autompg
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-class TestChartDataSource(unittest.TestCase):
-    def setUp(self):
-        self._list_data = [[1, 2, 3, 4], [2, 3, 4, 5]]
-        self._array_data = [np.array(item) for item in self._list_data]
-        self._dict_data = {'col1': self._list_data[0],
-                           'col2': self._list_data[1]}
-        self._pd_data = pd.DataFrame(self._dict_data)
-        self._records_data = self._pd_data.to_dict(orient='records')
+def test_list(test_data):
+    """Test creating chart data source from array-like list data."""
+    ds = ChartDataSource.from_data(*test_data.list_data)
+    assert len(ds.columns) == 2
+    assert len(ds.index) == 4
 
-        self._auto_data = autompg
-        self._single_col_spec = {'test': AttrSpec(df=self._auto_data, columns='cyl',
-                                 name='test', iterable=['a', 'b'])}
-        self._multi_col_spec = {'test': AttrSpec(df=self._auto_data,
-                                                 columns=('cyl', 'origin'),
-                                                 name='test', iterable=['a', 'b'])}
 
-    def test_list(self):
-        """Test creating chart data source from array-like list data."""
-        ds = ChartDataSource.from_data(*self._list_data)
-        assert len(ds.columns) == 2
-        assert len(ds.index) == 4
+def test_array(test_data):
+    """Test creating chart data source from array-like numpy data."""
+    ds = ChartDataSource.from_data(*test_data.array_data)
+    assert len(ds.columns) == 2
+    assert len(ds.index) == 4
 
-    def test_array(self):
-        """Test creating chart data source from array-like numpy data."""
-        ds = ChartDataSource.from_data(*self._array_data)
-        assert len(ds.columns) == 2
-        assert len(ds.index) == 4
 
-    def test_pandas(self):
-        """Test creating chart data source from existing dataframe."""
-        ds = ChartDataSource.from_data(self._pd_data)
-        assert len(ds.columns) == 2
-        assert len(ds.index) == 4
+def test_pandas(test_data):
+    """Test creating chart data source from existing dataframe."""
+    ds = ChartDataSource.from_data(test_data.pd_data)
+    assert len(ds.columns) == 2
+    assert len(ds.index) == 4
 
-        ds = ChartDataSource(self._pd_data)
-        assert len(ds.columns) == 2
-        assert len(ds.index) == 4
+    ds = ChartDataSource(test_data.pd_data)
+    assert len(ds.columns) == 2
+    assert len(ds.index) == 4
 
-    def test_dict(self):
-        """Test creating chart data source from dict of arrays."""
-        ds = ChartDataSource.from_data(self._dict_data)
-        assert len(ds.columns) == 2
-        assert len(ds.index) == 4
 
-    def test_records(self):
-        """Test creating chart data source from array of dicts."""
-        ds = ChartDataSource.from_data(self._records_data)
-        assert len(ds.columns) == 2
-        assert len(ds.index) == 4
+def test_dict(test_data):
+    """Test creating chart data source from dict of arrays."""
+    ds = ChartDataSource.from_data(test_data.dict_data)
+    assert len(ds.columns) == 2
+    assert len(ds.index) == 4
 
-    def test_groupby(self):
-        ds = ChartDataSource(df=self._auto_data)
-        groups = list(ds.groupby(**self._single_col_spec))
-        assert len(groups) == 5
 
-        ds = ChartDataSource(df=self._auto_data)
-        groups = list(ds.groupby(**self._multi_col_spec))
-        assert len(groups) == 9
+def test_records(test_data):
+    """Test creating chart data source from array of dicts."""
+    ds = ChartDataSource.from_data(test_data.records_data)
+    assert len(ds.columns) == 2
+    assert len(ds.index) == 4
 
-    def test_derived_selections(self):
-        ds = ChartDataSource.from_data(*self._array_data)
-        try:
-            selections = [ds[dim] for dim in ds._required_dims]
-        except KeyError:
-            self.fail('Required dimension not correctly set by ChartDataSource.')
 
-    def test_blaze_data_no_fields(self):
-        #import blaze
-        pass
+def test_groupby(test_data):
+    ds = ChartDataSource(df=test_data.auto_data)
+    groups = list(ds.groupby(**test_data.single_col_spec))
+    assert len(groups) == 5
+
+    ds = ChartDataSource(df=test_data.auto_data)
+    groups = list(ds.groupby(**test_data.multi_col_spec))
+    assert len(groups) == 9
+
+
+def test_derived_selections(test_data):
+    ds = ChartDataSource.from_data(*test_data.array_data)
+    try:
+        selections = [ds[dim] for dim in ds._required_dims]
+    except KeyError:
+        pytest.fail('Required dimension not correctly set by ChartDataSource.')
+
+
+# ToDo: add tests for blaze support
+# def test_blaze_data_no_fields(test_data):
+#     #import blaze
+#     pass
