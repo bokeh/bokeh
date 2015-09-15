@@ -1,6 +1,7 @@
 _ = require "underscore"
 Solver = require "./solver"
 Plot = require "./plot"
+proj4 = require "proj4"
 
 class GMapPlotView extends Plot.View
 
