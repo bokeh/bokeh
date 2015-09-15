@@ -197,7 +197,7 @@ class ChartDataSource(object):
 
         # make sure each dimension is represented in the selection map
         for dim in self._dims:
-            if not select_map.has_key(dim):
+            if dim not in select_map:
                 select_map[dim] = None
 
         # # make sure we have enough dimensions as required either way
