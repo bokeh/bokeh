@@ -6,41 +6,64 @@ class GMapPlotView extends Plot.View
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
-    @zoom_count = null
+    @zoom_count = 0
+
+  getBokehBounds: (map) ->
+    bounds = map.getBounds()
+    top_right = bounds.getNorthEast()
+    bottom_left = bounds.getSouthWest()
+
+    xstart = bottom_left.lng()
+    xend = top_right.lng()
+    ystart = bottom_left.lat()
+    yend = top_right.lat()
+    return [xstart, xend, ystart, yend]
+
+  recenter: (map) ->
+    # Set the range and ensure map is positioned at center of range
+    [xstart, xend, ystart, yend] = @getBokehBounds(map)
+    @x_range.set({start: xstart, end: xend, silent:true})
+    @y_range.set({start: ystart, end: yend, silent:true})
+    center = new google.maps.LatLng( ( ystart + yend ) / 2, ( xstart + xend ) / 2)
+    map.panTo(center)
 
   update_range: (range_info) ->
-    if not range_info?
-      range_info = @initial_range_info
-    @pause()
-    if range_info.sdx?
+
+    # PAN ----------------------------
+    if range_info.sdx? or range_info.sdy?
       @map.panBy(range_info.sdx, range_info.sdy)
-    else
-      xr = range_info.xrs.default
-      yr = range_info.yrs.default
-      sw_lng = Math.min(xr.start, xr.end)
-      ne_lng = Math.max(xr.start, xr.end)
-      sw_lat = Math.min(yr.start, yr.end)
-      ne_lat = Math.max(yr.start, yr.end)
+      super(range_info)
+    # END PAN ------------------------
 
-      center = new google.maps.LatLng((ne_lat+sw_lat)/2, (ne_lng+sw_lng)/2)
+    # ZOOM ---------------------------
+    if range_info.factor?
 
-      if not range_info.factor?
-        @map.setCenter(center)
-        @map.setZoom(@initial_zoom)
-      else if range_info.factor > 0
+      # The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
+      if @zoom_count != 10
         @zoom_count += 1
-        if @zoom_count == 10
-          @map.setZoom(@map.getZoom()+1)
-          @zoom_count = 0
-      else
-        @zoom_count -= 1
-        if @zoom_count == -10
-          @map.setCenter(center)
-          @map.setZoom(@map.getZoom()-1)
-          @map.setCenter(center)
-          @zoom_count = 0
+        return
+      @zoom_count = 0
 
-    @unpause()
+      super(range_info)
+
+      if range_info.factor < 0 
+        zoom_change = -1 
+      else
+        zoom_change = 1
+
+      original_map_zoom = @map.getZoom()
+      new_map_zoom = original_map_zoom + zoom_change
+
+      @map.setZoom(new_map_zoom)
+      
+      # Check we haven't gone out of bounds, and if we have undo the zoom
+      [xstart, xend, ystart, yend] = @getBokehBounds(@map)
+      if ( xend - xstart ) < 0
+        @map.setZoom(original_map_zoom)
+
+      # Finally re-center
+      @recenter(@map)
+    # END ZOOM ---------------------
 
   bind_bokeh_events: () ->
     super()
@@ -50,8 +73,7 @@ class GMapPlotView extends Plot.View
     left = @canvas.vx_to_sx(@frame.get('left'))
     top = @canvas.vy_to_sy(@frame.get('top'))
 
-    @canvas_view.map_div.attr("style",
-      "top: #{top}px; left: #{left}px; position: absolute")
+    @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
     @canvas_view.map_div.attr('style', "width:#{width}px;")
     @canvas_view.map_div.attr('style', "height:#{height}px;")
     @canvas_view.map_div.width("#{width}px").height("#{height}px")
@@ -78,7 +100,7 @@ class GMapPlotView extends Plot.View
 
       # Create the map with above options in div
       @map = new maps.Map(@canvas_view.map_div[0], map_options)
-      maps.event.addListener(@map, 'bounds_changed', @bounds_change)
+      maps.event.addListenerOnce(@map, 'idle', @idle)
 
     if not window._bokeh_gmap_loads?
       window._bokeh_gmap_loads = []
@@ -95,22 +117,11 @@ class GMapPlotView extends Plot.View
         _.each(window._bokeh_gmap_loads, _.defer)
       script = document.createElement('script')
       script.type = 'text/javascript'
-      script.src = "https://maps.googleapis.com/maps/api/js?v=3&
-                    sensor=false&callback=_bokeh_gmap_callback"
+      script.src = "https://maps.googleapis.com/maps/api/js?v=3&callback=_bokeh_gmap_callback"
       document.body.appendChild(script)
 
-  bounds_change: () =>
-    bds = @map.getBounds()
-    ne = bds.getNorthEast()
-    sw = bds.getSouthWest()
-    @x_range.set({start: sw.lng(), end: ne.lng(), silent:true})
-    @y_range.set({start: sw.lat(), end: ne.lat(), silent:true})
-    if not @initial_range_info?
-      @initial_range_info = {
-        xr: { start: @x_range.get('start'), end: @x_range.get('end') }
-        yr: { start: @y_range.get('start'), end: @y_range.get('end') }
-      }
-    @render()
+  idle: () =>
+    @recenter(@map)
 
   _map_hook: (ctx, frame_box) ->
     [left, top, width, height] = frame_box

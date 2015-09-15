@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?1.29.1"></script>
+    
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/dev/bokeh-0.10.0dev1.min.css" type="text/css" />
+<script type="text/javascript" src="http://cdn.pydata.org/bokeh/dev/bokeh-0.10.0dev1.min.js"></script>
+<script type="text/javascript">
+    Bokeh.set_log_level("info");
+</script>
+    <style type="text/css">
+        html, body, #map {
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          display: inline-block;
+          width: 600px;
+          height: 600px;
+          margin: 0;
+          padding: 0;
+        }
+
+        .stations, .stations svg {
+          position: absolute;
+        }
+
+        .stations svg {
+          width: 60px;
+          height: 20px;
+          padding-right: 100px;
+          font: 10px sans-serif;
+        }
+
+        .stations circle {
+          fill: red;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+    <div class="plotdiv" id="8053c4a4-16f2-42b9-8f7a-f60be5099326"></div>
+    </div>
+    <div class="container">
+      <div id="map"></div>
+    </div>
+
+    <h2>If google map (on right) isn't showing dots, run server in directory (python -m http.server 8001)</h2>
+
+    <script type="text/javascript">
+        // Create the Google Map…
+        var map = new google.maps.Map(d3.select("#map").node(), {
+          zoom: 8,
+          center: new google.maps.LatLng(37.76487, -122.41948),
+        });
+
+        // Load the station data. When the data comes back, create an overlay.
+        d3.json("stations.json", function(data) {
+          var overlay = new google.maps.OverlayView();
+
+          // Add the container when the overlay is added to the map.
+          overlay.onAdd = function() {
+            var layer = d3.select(this.getPanes().overlayLayer).append("div")
+                .attr("class", "stations");
+
+            // Draw each marker as a separate SVG element.
+            // We could use a single SVG, but what size would it have?
+            overlay.draw = function() {
+              var projection = this.getProjection(),
+                  padding = 10;
+
+              var marker = layer.selectAll("svg")
+                .data(d3.entries(data))
+                .each(transform)
+                .enter().append("svg:svg")
+                .each(transform)
+                .attr("class", "marker");
+
+              // Add a circle.
+              marker.append("svg:circle")
+                  .attr("r", 5)
+                  .attr("cx", padding)
+                  .attr("cy", padding);
+
+              function transform(d) {
+                d = new google.maps.LatLng(d.value[1], d.value[0]);
+                d = projection.fromLatLngToDivPixel(d);
+                return d3.select(this)
+                    .style("left", (d.x - padding) + "px")
+                    .style("top", (d.y - padding) + "px");
+              }
+            };
+          };
+
+          // Bind our overlay to the map…
+          overlay.setMap(map);
+        });
+    </script>
+    <script type="text/javascript">
+    Bokeh.$(function() {
+    var all_models = [{"attributes": {"tags": [], "names": [], "renderers": [], "id": "d296d110-1da4-4c35-94f9-c70f3eabeb57", "doc": null, "callback": null}, "type": "DataRange1d", "id": "d296d110-1da4-4c35-94f9-c70f3eabeb57"}, {"attributes": {"tags": [], "geometries": [], "id": "28f77a47-3260-4041-bc47-86639111d233", "doc": null}, "type": "ToolEvents", "id": "28f77a47-3260-4041-bc47-86639111d233"}, {"attributes": {"tags": [], "plot": {"type": "GMapPlot", "id": "967e34d3-9594-4441-880f-8629ec904e03"}, "dimensions": ["width", "height"], "id": "f1b24fe2-6ef5-4647-9628-aaff53397048", "doc": null}, "type": "WheelZoomTool", "id": "f1b24fe2-6ef5-4647-9628-aaff53397048"}, {"attributes": {"tags": [], "plot": {"type": "GMapPlot", "id": "967e34d3-9594-4441-880f-8629ec904e03"}, "dimensions": ["width", "height"], "id": "0b7632f6-994e-42b8-bcae-d67a712f3e91", "doc": null}, "type": "PanTool", "id": "0b7632f6-994e-42b8-bcae-d67a712f3e91"}, {"attributes": {"tags": [], "selection_glyph": null, "nonselection_glyph": null, "id": "08cdfef7-5c0f-4315-944d-fa7f9abfc0f5", "doc": null, "data_source": {"type": "ColumnDataSource", "id": "6f8a2e32-3d1f-4663-91ab-92e92bd68718"}, "glyph": {"type": "Circle", "id": "bc1a9072-fcba-4735-8ed9-26aa7b4b94fa"}}, "type": "GlyphRenderer", "id": "08cdfef7-5c0f-4315-944d-fa7f9abfc0f5"}, {"attributes": {"data": {"longitude": [38.2, 38.0, 37.67, 37.7, 36.98, 37.28, 37.37, 38.55, 37.62, 36.58, 37.43, 37.72, 37.47, 37.33, 38.5, 37.9, 37.62, 37.37, 38.7, 36.67, 37.52, 38.5, 38.27, 38.38, 36.93], "data": [[23, 2, 1, 6, 3, 3, 8, 18, 11, 13, 4, 3, 5], [24, 3, 2, 1, 1, 5, 17, 12, 9, 9, 7, 6, 4], [20, 2, 7, 2, 2, 6, 3, 3, 6, 23, 18, 6, 2], [32, 2, 7, 3, 1, 1, 2, 7, 9, 17, 16, 2, 1], [26, 1, 2, 5, 6, 3, 2, 1, 2, 7, 29, 12, 3], [29, 1, 1, 3, 7, 5, 2, 1, 3, 6, 12, 26, 5], [34, 1, 1, 1, 4, 5, 2, 1, 1, 4, 17, 22, 7], [21, 1, 1, 2, 8, 15, 12, 12, 7, 4, 5, 7, 3], [27, 1, 1, 2, 10, 5, 1, 1, 1, 3, 17, 24, 8], [26, 1, 2, 9, 5, 3, 4, 9, 13, 14, 9, 4, 1], [35, 3, 1, 1, 4, 7, 2, 1, 2, 5, 6, 17, 15], [16, 3, 3, 2, 4, 6, 3, 4, 9, 23, 20, 6, 2], [31, 3, 1, 1, 2, 5, 1, 1, 1, 4, 10, 25, 14], [35, 0, 0, 1, 4, 4, 2, 1, 1, 10, 28, 11, 1], [32, 1, 0, 1, 3, 11, 12, 16, 5, 2, 4, 9, 3], [21, 2, 2, 3, 6, 8, 2, 1, 4, 15, 19, 12, 4], [13, 3, 3, 2, 3, 4, 4, 4, 7, 31, 20, 2, 3], [28, 1, 1, 1, 6, 10, 5, 3, 2, 4, 14, 21, 7], [19, 2, 1, 2, 4, 21, 18, 8, 3, 2, 5, 12, 4], [21, 1, 1, 6, 12, 3, 1, 2, 9, 21, 17, 5, 1], [18, 3, 2, 2, 3, 4, 3, 2, 5, 17, 16, 12, 12], [46, 1, 0, 1, 5, 13, 10, 4, 3, 3, 4, 6, 3], [13, 7, 4, 3, 3, 6, 4, 13, 33, 4, 1, 2, 7], [36, 2, 1, 1, 2, 6, 10, 18, 10, 2, 2, 5, 6], [44, 1, 2, 3, 4, 5, 7, 9, 8, 4, 6, 5, 2]], "index": ["KAPC", "KCCR", "KHWD", "KLVK", "KMAE", "KMCE", "KMER", "KMHR", "KMOD", "KMRY", "KNUQ", "KOAK", "KPAO", "KRHV", "KSAC", "KSCK", "KSFO", "KSJC", "KSMF", "KSNS", "KSQL", "KSTS", "KSUU", "KVCB", "KWVI"], "name": ["NAPA COUNTY AIRPORT", "CONCORD BUCHANAN FIELD", "HAYWARD AIR TERMINAL", "LIVERMORE MUNICIPAL AIRPORT ", "MADERA MUNICIPAL AIRPORT", "MERCED MUNICIPAL AIRPORT", "Merced / Castle Air Force Base", "Sacramento, Sacramento Mather Airport", "MODESTO CITY CO SHAM FLD", "MONTEREY PENINSULA AIRPORT", "MOFFETT FIELD", "METRO OAKLAND INTERNATIONAL  AIRPORT ", "Palo Alto Airport", "San Jose / Reid / Hillv", "SACRAMENTO EXECUTIVE AIRPORT ", "STOCKTON METROPOLITAN AIRPORT ", "SAN FRANCISCO INTERNATIONAL  AIRPORT ", "SAN JOSE INTERNATIONAL  AIRPORT", "SACRAMENTO INTERNATIONAL  AIRPORT", "SALINAS MUNICIPAL AIRPORT", "San Carlos Airport", "SANTA ROSA SONOMA COUNTY", "Fairfield / Travis Air Force Base", "VACAVILLE NUT TREE AIRPORT", "WATSONVILLE MUNICIPAL AIRPORT "], "latitude": [-122.28, -122.05, -122.12, -121.82, -120.12, -120.5, -120.57, -121.3, -120.95, -121.85, -122.05, -122.23, -122.12, -121.82, -121.5, -121.23, -122.37, -121.92, -121.6, -121.6, -122.25, -122.82, -121.95, -121.95, -121.78]}, "tags": [], "column_names": ["longitude", "data", "index", "name", "latitude"], "id": "6f8a2e32-3d1f-4663-91ab-92e92bd68718", "doc": null, "callback": null, "selected": {"0d": {"indices": [], "flag": false}, "1d": {"indices": []}, "2d": {"indices": []}}}, "type": "ColumnDataSource", "id": "6f8a2e32-3d1f-4663-91ab-92e92bd68718"}, {"attributes": {"tags": [], "above": [], "left": [], "map_options": {"lng": -122.41948, "zoom": 8, "map_type": "roadmap", "lat": 37.76487}, "min_border": 0, "y_range": {"type": "DataRange1d", "id": "d296d110-1da4-4c35-94f9-c70f3eabeb57"}, "id": "967e34d3-9594-4441-880f-8629ec904e03", "toolbar_location": null, "below": [], "right": [], "tool_events": {"type": "ToolEvents", "id": "28f77a47-3260-4041-bc47-86639111d233"}, "extra_y_ranges": {}, "tools": [{"type": "PanTool", "id": "0b7632f6-994e-42b8-bcae-d67a712f3e91"}, {"type": "WheelZoomTool", "id": "f1b24fe2-6ef5-4647-9628-aaff53397048"}], "renderers": [{"type": "GlyphRenderer", "id": "08cdfef7-5c0f-4315-944d-fa7f9abfc0f5"}], "doc": null, "extra_x_ranges": {}, "x_range": {"type": "DataRange1d", "id": "b090f396-da94-4d78-a69a-d49fee24966e"}, "title": null}, "type": "GMapPlot", "id": "967e34d3-9594-4441-880f-8629ec904e03"}, {"attributes": {"tags": [], "size": {"value": 10, "units": "screen"}, "line_color": null, "y": {"field": "longitude"}, "doc": null, "id": "bc1a9072-fcba-4735-8ed9-26aa7b4b94fa", "fill_color": {"value": "red"}, "x": {"field": "latitude"}}, "type": "Circle", "id": "bc1a9072-fcba-4735-8ed9-26aa7b4b94fa"}, {"attributes": {"tags": [], "names": [], "renderers": [], "id": "b090f396-da94-4d78-a69a-d49fee24966e", "doc": null, "callback": null}, "type": "DataRange1d", "id": "b090f396-da94-4d78-a69a-d49fee24966e"}];
+    Bokeh.load_models(all_models);
+    var plots = [{'modeltype': 'GMapPlot', 'modelid': '967e34d3-9594-4441-880f-8629ec904e03', 'elementid': '8053c4a4-16f2-42b9-8f7a-f60be5099326'}];
+    for (idx in plots) {
+    	var plot = plots[idx];
+    	var model = Bokeh.Collections(plot.modeltype).get(plot.modelid);
+    	Bokeh.logger.info('Realizing plot:')
+    	Bokeh.logger.info(' - modeltype: ' + plot.modeltype);
+    	Bokeh.logger.info(' - modelid: ' + plot.modelid);
+    	Bokeh.logger.info(' - elementid: ' + plot.elementid);
+    	var view = new model.default_view({
+    		model: model,
+    		el: '#' + plot.elementid
+    	});
+    	Bokeh.index[plot.modelid] = view;
+    }
+});
+</script>
+  </body>
+</html>
