@@ -45,14 +45,17 @@ module.exports = {
   css:
     sources: [
       path.join(CSS_BUILD_DIR, "bokeh.css")
+      path.join(CSS_BUILD_DIR, "bokeh-widgets.css")
     ]
     watchSources: [
       path.join(CSS_BUILD_DIR, "bokeh.css")
+      path.join(CSS_BUILD_DIR, "bokeh-widgets.css")
     ]
 
   less:
     sources: [
       "./src/less/bokeh.less",
+      "./src/less/bokeh-widgets.less",
     ]
     watchSources: [
       "./src/less/**/**",
