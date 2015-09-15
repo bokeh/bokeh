@@ -100,7 +100,7 @@ gulp.task "scripts:build", (cb) ->
   labels = {}
 
   buildBokehjs = (next) ->
-    util.log("Building bokehjs")
+    if argv.verbose then util.log("Building bokehjs")
     labels = namedLabeler(bokehjs)
     bokehjs
       .transform("browserify-eco")
@@ -119,7 +119,7 @@ gulp.task "scripts:build", (cb) ->
       .on 'end', () -> next()
 
   buildWidgets = (next) ->
-    util.log("Building widgets")
+    if argv.verbose then util.log("Building widgets")
     namedLabeler(widgets)
     # XXX: widgets.external(bokehjs) should work as well, but doesn't
     for own file, name of labels
