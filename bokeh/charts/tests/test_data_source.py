@@ -15,14 +15,13 @@
 
 from __future__ import absolute_import
 
-from collections import OrderedDict
 import unittest
 
 import numpy as np
-from numpy.testing import assert_array_equal
 import pandas as pd
 
-from bokeh.charts import ChartDataSource, AttrSpec
+from bokeh.charts._data_source import ChartDataSource
+from bokeh.charts._attributes import AttrSpec
 from bokeh.sampledata.autompg import autompg
 
 #-----------------------------------------------------------------------------
@@ -40,22 +39,26 @@ class TestChartDataSource(unittest.TestCase):
         self._records_data = self._pd_data.to_dict(orient='records')
 
         self._auto_data = autompg
-        self._single_col_spec = [AttrSpec(self._auto_data, columns='cyl',
-                                 attribute='test', iterable=['a', 'b'])]
-        self._multi_col_spec = [AttrSpec(self._auto_data, columns=('cyl', 'origin'),
-                                         attribute='test', iterable=['a', 'b'])]
+        self._single_col_spec = {'test': AttrSpec(df=self._auto_data, columns='cyl',
+                                 name='test', iterable=['a', 'b'])}
+        self._multi_col_spec = {'test': AttrSpec(df=self._auto_data,
+                                                 columns=('cyl', 'origin'),
+                                                 name='test', iterable=['a', 'b'])}
 
     def test_list(self):
+        """Test creating chart data source from array-like list data."""
         ds = ChartDataSource.from_data(*self._list_data)
         assert len(ds.columns) == 2
         assert len(ds.index) == 4
 
     def test_array(self):
+        """Test creating chart data source from array-like numpy data."""
         ds = ChartDataSource.from_data(*self._array_data)
         assert len(ds.columns) == 2
         assert len(ds.index) == 4
 
     def test_pandas(self):
+        """Test creating chart data source from existing dataframe."""
         ds = ChartDataSource.from_data(self._pd_data)
         assert len(ds.columns) == 2
         assert len(ds.index) == 4
@@ -65,25 +68,27 @@ class TestChartDataSource(unittest.TestCase):
         assert len(ds.index) == 4
 
     def test_dict(self):
+        """Test creating chart data source from dict of arrays."""
         ds = ChartDataSource.from_data(self._dict_data)
         assert len(ds.columns) == 2
         assert len(ds.index) == 4
 
     def test_records(self):
+        """Test creating chart data source from array of dicts."""
         ds = ChartDataSource.from_data(self._records_data)
         assert len(ds.columns) == 2
         assert len(ds.index) == 4
 
     def test_groupby(self):
         ds = ChartDataSource(df=self._auto_data)
-        groups = list(ds.groupby(*self._single_col_spec))
+        groups = list(ds.groupby(**self._single_col_spec))
         assert len(groups) == 5
 
         ds = ChartDataSource(df=self._auto_data)
-        groups = list(ds.groupby(*self._multi_col_spec))
+        groups = list(ds.groupby(**self._multi_col_spec))
         assert len(groups) == 9
 
-    def test_selections(self):
+    def test_derived_selections(self):
         ds = ChartDataSource.from_data(*self._array_data)
         try:
             selections = [ds[dim] for dim in ds._required_dims]

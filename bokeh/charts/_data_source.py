@@ -151,7 +151,14 @@ class ChartDataSource(object):
     Converts inputs that could be treated as table-like data to pandas
     DataFrame, which is used for assigning attributes to data groups.
     """
-    def __init__(self, df, dims=('x', 'y'), required_dims=('x',), selections=None, **kwargs):
+    def __init__(self, df, dims=None, required_dims=None, selections=None, **kwargs):
+
+        if dims is None:
+            dims = ['x', 'y']
+
+        if required_dims is None:
+            required_dims = [['x'], ['y'], ['x', 'y']]
+
         self._data = df
         self._dims = dims
         self._required_dims = required_dims

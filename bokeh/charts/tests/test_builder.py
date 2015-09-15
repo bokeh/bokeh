@@ -15,7 +15,7 @@
 
 from __future__ import absolute_import
 
-import unittest
+import pytest
 
 from bokeh.charts._builder import Builder
 
@@ -23,9 +23,12 @@ from bokeh.charts._builder import Builder
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-class TestBuilder(unittest.TestCase):
-    def setUp(self):
-        self.builder = Builder([], palette=['red', 'green'])
+@pytest.fixture
+def builder():
+    from bokeh.charts._builder import Builder
+    return Builder()
 
-    def test_instantiate(self):
-        self.builder.palette = ['red', 'green']
+
+def test_empty_builder(builder):
+    assert builder.xlabel == None
+
