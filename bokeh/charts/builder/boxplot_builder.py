@@ -19,16 +19,12 @@ It also add a new chained stacked method.
 
 from __future__ import absolute_import
 
-import numpy as np
-import pandas as pd
-
-from ..utils import make_scatter, cycle_colors
-from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
-from ...models.glyphs import Rect, Segment
+from .._builder import create_and_build
+from ...models import Range1d
 from ...properties import Bool, String
 from .bar_builder import BarBuilder
 from ..glyphs import BoxGlyph
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------

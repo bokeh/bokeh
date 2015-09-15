@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
-from bokeh.properties import HasProps, String, Either, Float, Color, Instance, List, Enum, Any
+from bokeh.properties import (HasProps, String, Either, Float, Color, Instance, List,
+                              Any)
 from ._properties import ColumnLabel, Column
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.renderers import GlyphRenderer

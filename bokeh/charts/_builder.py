@@ -28,7 +28,7 @@ from .utils import collect_attribute_columns
 from ._chart import Chart
 from ._data_source import ChartDataSource
 from ._properties import Dimension, ColumnLabel
-from ._attributes import AttrSpec, ColorAttr, MarkerAttr, GroupAttr
+from ._attributes import AttrSpec, ColorAttr, GroupAttr
 from ._models import CompositeGlyph
 
 #-----------------------------------------------------------------------------

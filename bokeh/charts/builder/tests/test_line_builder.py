@@ -14,15 +14,13 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-import numpy as np
-from numpy.testing import assert_array_equal
-import pandas as pd
-
 from bokeh.charts import Line
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+
 def test_array_input(test_data):
     line0 = Line(y=test_data.list_data)
+    assert len(line0.renderers) > 0

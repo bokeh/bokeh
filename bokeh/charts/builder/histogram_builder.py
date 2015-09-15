@@ -17,14 +17,8 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-try:
-    import scipy.special
-    _is_scipy = True
-except ImportError as e:
-    _is_scipy = False
-
 from ...models import Range1d
-from ...properties import Bool, Int, Float
+from ...properties import Bool, Int
 
 from .._builder import create_and_build
 from .bar_builder import BarBuilder

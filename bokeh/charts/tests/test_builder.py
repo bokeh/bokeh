@@ -23,12 +23,12 @@ from bokeh.charts._builder import Builder
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+
 @pytest.fixture
 def builder():
-    from bokeh.charts._builder import Builder
     return Builder()
 
 
 def test_empty_builder(builder):
-    assert builder.xlabel == None
+    assert builder.xlabel is None
 

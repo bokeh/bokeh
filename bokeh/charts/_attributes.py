@@ -3,7 +3,8 @@ from __future__ import absolute_import
 from itertools import cycle
 from copy import copy
 
-from bokeh.properties import HasProps, String, List, Instance, Either, Any, Dict, Color, Enum
+from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
+                              Color)
 from bokeh.models.sources import ColumnDataSource
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.charts._properties import ColumnLabel

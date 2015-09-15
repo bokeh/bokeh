@@ -18,11 +18,6 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
-try:
-    import numpy as np
-except ImportError:
-    raise RuntimeError("bokeh.charts Bar chart requires NumPy.")
-
 from .._builder import Builder, create_and_build
 from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph

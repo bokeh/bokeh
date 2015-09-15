@@ -15,8 +15,6 @@
 from __future__ import absolute_import
 
 from bokeh.charts import Bar
-from bokeh.charts.builder.tests._utils import create_chart
-from bokeh.models import Range1d, FactorRange
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -25,4 +23,5 @@ from bokeh.models import Range1d, FactorRange
 
 def test_array_input(test_data):
     bar_plot = Bar(test_data.cat_list, title="label='cyl'")
+    assert len(bar_plot.renderers) > 0
 

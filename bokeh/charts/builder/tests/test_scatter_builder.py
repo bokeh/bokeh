@@ -14,15 +14,13 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-import numpy as np
-from numpy.testing import assert_array_equal
-import pandas as pd
-
 from bokeh.charts import Scatter
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+
 def test_list_input(test_data):
     scatter0 = Scatter(x=test_data.list_data[0])
+    assert len(scatter0.renderers) > 0
