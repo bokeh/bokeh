@@ -305,8 +305,9 @@ class XYBuilder(Builder):
 
     def _get_range(self, dim, start, end):
 
-        values = getattr(self, dim).data
-        dtype = values.dtype.name
+        dim_ref = getattr(self, dim)
+        values = dim_ref.data
+        dtype = dim_ref.dtype.name
         if dtype == 'object':
             factors = values.drop_duplicates()
             factors.sort(inplace=True)

@@ -5,13 +5,13 @@ This is the ChartObject class, a minimal prototype class to build more chart
 types on top of it. It provides the mechanisms to support the shared chained
 methods.
 """
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 from __future__ import absolute_import
 
@@ -27,7 +27,6 @@ from ..models.sources import ColumnDataSource
 
 from ._properties import ColumnLabel
 from .utils import collect_attribute_columns, special_columns
-
 
 DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -50,7 +49,8 @@ def gen_column_names(n):
     # a-z and aa-zz (500+ columns)
     else:
         n_left = n - len(col_names)
-        labels = [''.join(item) for item in take(n_left, product(DEFAULT_COLUMN_NAMES, DEFAULT_COLUMN_NAMES))]
+        labels = [''.join(item) for item in
+                  take(n_left, product(DEFAULT_COLUMN_NAMES, DEFAULT_COLUMN_NAMES))]
         col_names.extend(labels)
         return col_names
 
@@ -67,7 +67,6 @@ class DataOperator(HasProps):
         return '%s(%s)' % (self.__class__.__name__, col_str)
 
 
-
 class DataGroup(object):
     """Contains subset of data and metadata about it."""
 
@@ -79,8 +78,11 @@ class DataGroup(object):
     def get_values(self, selection):
         if selection in list(special_columns.keys()):
             return special_columns[selection](self.data)
-        elif isinstance(selection, str) or \
-                isinstance(selection, list):
+        elif isinstance(selection, str):
+            return self.data[selection]
+        elif isinstance(selection, list) and len(selection) == 1:
+            return self.data[selection[0]]
+        elif isinstance(selection, list) and len(selection) > 1:
             return self.data[selection]
         else:
             return None
@@ -106,7 +108,7 @@ def groupby(df, **specs):
 
     # if there was any input for chart attributes, which require grouping
     if spec_cols:
-        #df = df.sort(columns=spec_cols)
+        # df = df.sort(columns=spec_cols)
 
         for name, data in df.groupby(spec_cols):
 
@@ -151,6 +153,7 @@ class ChartDataSource(object):
     Converts inputs that could be treated as table-like data to pandas
     DataFrame, which is used for assigning attributes to data groups.
     """
+
     def __init__(self, df, dims=None, required_dims=None, selections=None, **kwargs):
 
         if dims is None:
@@ -181,14 +184,16 @@ class ChartDataSource(object):
         if len(select_map.keys()) == 0:
             if selections is None:
                 # if no selections are provided, we assume they were provided in order
-                select_map = {dim: sel for dim, sel in zip(self._dims, self._data.columns)}
+                select_map = {dim: sel for dim, sel in
+                              zip(self._dims, self._data.columns)}
             elif isinstance(selections, dict):
                 if len(selections.keys()) != 0:
                     # selections were specified in inputs
                     select_map = selections
             else:
                 # selection input type isn't valid
-                raise ValueError('selections input must be provided as: dict(dimension: column) or None')
+                raise ValueError(
+                    'selections input must be provided as: dict(dimension: column) or None')
 
         # make sure each dimension is represented in the selection map
         for dim in self._dims:
@@ -246,7 +251,8 @@ class ChartDataSource(object):
         to the attributes for plotting.
         """
         if len(specs) == 0:
-            raise ValueError('You must provide one or more Attribute Specs to support iteration.')
+            raise ValueError(
+                'You must provide one or more Attribute Specs to support iteration.')
 
         return groupby(self._data, **specs)
 
@@ -264,10 +270,13 @@ class ChartDataSource(object):
         if len(arrays) == 0 and len(tables) == 0:
 
             # handle list of lists
-            list_dims = [k for k, v in iteritems(kwargs) if cls.is_list_lists(v)]
+            list_dims = [k for k, v in iteritems(kwargs) if (cls.is_list_arrays(v) or
+                                                             cls.is_array(v)) and
+                         k is not 'dims' and k is not 'required_dims']
             if len(list_dims) > 0:
                 arrays = [kwargs[dim] for dim in list_dims]
-                arrays = list(chain.from_iterable(arrays))
+                if cls.is_list_arrays(arrays):
+                    arrays = list(chain.from_iterable(arrays))
                 col_names = gen_column_names(len(arrays))
 
                 # reassign kwargs to new columns
@@ -275,12 +284,14 @@ class ChartDataSource(object):
                 for dim in list_dims:
                     dim_cols = []
                     dim_inputs = kwargs[dim]
+                    if not cls.is_list_arrays(dim_inputs) and not all([cls.is_array(
+                            dim_input) for dim_input in dim_inputs]):
+                        dim_inputs = [dim_inputs]
 
                     # if we passed one to many literal array/list, match to cols
                     for dim_input in dim_inputs:
                         for array, col_name in zip(arrays, col_names):
                             if pd.Series.all(pd.Series(array) == pd.Series(dim_input)):
-
                                 # add col to all cols and
                                 dim_cols.append(col_name)
 
@@ -289,6 +300,9 @@ class ChartDataSource(object):
                 # setup kwargs to process as if we received arrays as args
                 kwargs = new_kwargs
                 kwargs['columns'] = col_names
+            else:
+                raise ValueError(
+                    'No data found for inputs %s' % ', '.join(kwargs['dims']))
 
         # handle array-like
         if len(arrays) > 0:
@@ -336,13 +350,25 @@ class ChartDataSource(object):
 
             # unrecognized input type
             else:
-                raise TypeError('Unable to recognize inputs for conversion to dataframe for %s'
-                                % type(table))
+                raise TypeError(
+                    'Unable to recognize inputs for conversion to dataframe for %s'
+                    % type(table))
 
     @staticmethod
-    def is_list_lists(data):
+    def is_list_arrays(data):
         valid = False
-        if isinstance(data, list):
+
+        # ToDo: handle groups of arrays types, list of lists of arrays
+        # avoid case where we have a list with one list of values in it
+        if (isinstance(data, list) and len(data) == 1 and isinstance(data[0], list) and
+                not isinstance(data[0][0], list) and not ChartDataSource.is_array(data[0][0])):
+            return valid
+
+        # really want to check for nested lists, where each list might have lists
+        if isinstance(data, list) and \
+                any([len(sub_data) > 1 for sub_data in data if
+                     isinstance(sub_data, list)]):
+
             if all([ChartDataSource.is_array(col) for col in data]):
                 valid = True
 
@@ -373,7 +399,9 @@ class ChartDataSource(object):
 
     @staticmethod
     def is_table(data):
-        return ChartDataSource._is_valid(data, TABLE_TYPES) or ChartDataSource.is_list_dicts(data)
+        return ChartDataSource._is_valid(data,
+                                         TABLE_TYPES) or ChartDataSource.is_list_dicts(
+            data)
 
     @staticmethod
     def is_list_dicts(data):
@@ -417,23 +445,25 @@ class ChartDataSource(object):
                         '\n\nAvailable columns are: %s'
             req_str = [' and '.join(['%s = <Any Column>' % dim for dim in required_dim])
                        for required_dim in required_dims]
-            selection_str = ['%s = %s' % (str(dim), str(sel)) for dim, sel in iteritems(selections) if sel is not None]
+            selection_str = ['%s = %s' % (str(dim), str(sel)) for dim, sel in
+                             iteritems(selections) if sel is not None]
 
-            raise ValueError(error_str % (' or '.join(req_str), ', '.join(selection_str), ', '.join(self.columns)))
+            raise ValueError(error_str % (
+            ' or '.join(req_str), ', '.join(selection_str), ', '.join(self.columns)))
         else:
             # if we have no dimensional requirements, they all pass
             return
 
     @staticmethod
     def is_number(value):
-        numbers = (float, ) + bokeh_integer_types
+        numbers = (float,) + bokeh_integer_types
         return isinstance(value, numbers)
 
     @staticmethod
     def is_datetime(value):
         try:
             dt = Datetime(value)
-            dt # shut up pyflakes
+            dt  # shut up pyflakes
             return True
 
         except ValueError:
@@ -462,4 +492,3 @@ class ChartDataSource(object):
             return True
         else:
             return False
-

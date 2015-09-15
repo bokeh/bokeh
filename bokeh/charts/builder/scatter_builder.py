@@ -27,7 +27,7 @@ from bokeh.charts._attributes import MarkerAttr, ColorAttr
 #-----------------------------------------------------------------------------
 
 
-def Scatter(data, x=None, y=None, **kws):
+def Scatter(data=None, x=None, y=None, **kws):
     """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builder.scatter_builder.ScatterBuilder>`
     to render the geometry from values.
 

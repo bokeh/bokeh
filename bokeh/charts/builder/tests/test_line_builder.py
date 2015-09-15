@@ -19,7 +19,6 @@ from numpy.testing import assert_array_equal
 import pandas as pd
 
 from bokeh.charts import Line
-from bokeh.charts import show, output_file
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -27,4 +26,3 @@ from bokeh.charts import show, output_file
 
 def test_array_input(test_data):
     line0 = Line(y=test_data.list_data)
-    test = 5

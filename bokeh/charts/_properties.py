@@ -174,7 +174,10 @@ class Dimension(HasProps):
 
     @property
     def dtype(self):
-        return self.data.dtype
+        if isinstance(self.data, pd.DataFrame):
+            return self.data.dtypes[self.selection[0]]
+        else:
+            return self.data.dtype
 
     @property
     def computed(self):
