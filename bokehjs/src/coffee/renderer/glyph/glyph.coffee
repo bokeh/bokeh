@@ -6,7 +6,7 @@ HasParent = require "../../common/has_parent"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
-proj4 = require 'proj4'
+proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
 
 class GlyphView extends ContinuumView
@@ -72,7 +72,7 @@ class GlyphView extends ContinuumView
 
     @_map_data()
 
-  project: (x, y) ->
+  project_xy: (x, y) ->
     merc_x_s = []
     merc_y_s = []
     for i in [0...x.length]
@@ -81,12 +81,25 @@ class GlyphView extends ContinuumView
       merc_y_s[i] = merc_y
     return [merc_x_s, merc_y_s]
 
+  project_xsys: (xs, ys) ->
+    merc_xs_s = []
+    merc_ys_s = []
+    for i in [0...xs.length]
+      [merc_x_s, merc_y_s] = @project_xy(xs[i], ys[i])
+      merc_xs_s[i] = merc_x_s
+      merc_ys_s[i] = merc_y_s
+    return [merc_xs_s, merc_ys_s]
+
   set_data: (source) ->
     # set all the coordinate fields
     for name, prop of @coords
       @[name] = prop.array(source)
 
-    [@proj_x, @proj_y] = @project(@x, @y)
+    if @renderer.plot_model.use_map
+      if @x?
+        [@x, @y] = @project_xy(@x, @y)
+      if @xs?
+        [@xs, @ys] = @project_xsys(@xs, @ys)
 
     # set any angles (will be in radian units at this point)
     for name, prop of @angles

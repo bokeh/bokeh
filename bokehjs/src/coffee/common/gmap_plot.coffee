@@ -2,6 +2,7 @@ _ = require "underscore"
 Solver = require "./solver"
 Plot = require "./plot"
 proj4 = require "proj4"
+toProjection = proj4.defs('GOOGLE')
 
 class GMapPlotView extends Plot.View
 
@@ -9,7 +10,7 @@ class GMapPlotView extends Plot.View
     super(_.defaults(options, @default_options))
     @zoom_count = 0
 
-  getBokehBounds: () =>
+  getLatLngBounds: () =>
     bounds = @map.getBounds()
     top_right = bounds.getNorthEast()
     bottom_left = bounds.getSouthWest()
@@ -20,16 +21,18 @@ class GMapPlotView extends Plot.View
     yend = top_right.lat()
     return [xstart, xend, ystart, yend]
 
-  recenter: () =>
-    # Set the range and ensure map is positioned at center of range
-    [xstart, xend, ystart, yend] = @getBokehBounds()
-    @x_range.set({start: xstart, end: xend, silent:true})
-    @y_range.set({start: ystart, end: yend, silent:true})
-    center = new google.maps.LatLng( ( ystart + yend ) / 2, ( xstart + xend ) / 2)
-    @map.panTo(center)
+  getProjectedBounds: () =>
+    [xstart, xend, ystart, yend] = @getLatLngBounds()
+    [proj_xstart, proj_ystart] = proj4(toProjection, [xstart, ystart])
+    [proj_xend, proj_yend] = proj4(toProjection, [xend, yend])
+    return [proj_xstart, proj_xend, proj_ystart, proj_yend]
+
+  setRanges: () =>
+    [proj_xstart, proj_xend, proj_ystart, proj_yend] = @getProjectedBounds()
+    @x_range.set({start: proj_xstart, end: proj_xend, silent:true})
+    @y_range.set({start: proj_ystart, end: proj_yend, silent:true})
 
   update_range: (range_info) ->
-
     # PAN ----------------------------
     if range_info.sdx? or range_info.sdy?
       @map.panBy(range_info.sdx, range_info.sdy)
@@ -55,15 +58,17 @@ class GMapPlotView extends Plot.View
       original_map_zoom = @map.getZoom()
       new_map_zoom = original_map_zoom + zoom_change
 
-      @map.setZoom(new_map_zoom)
-      
-      # Check we haven't gone out of bounds, and if we have undo the zoom
-      [xstart, xend, ystart, yend] = @getBokehBounds()
-      if ( xend - xstart ) < 0
-        @map.setZoom(original_map_zoom)
+      # Zooming out too far causes problems
+      if new_map_zoom >=2
+        @map.setZoom(new_map_zoom)
+        
+        # Check we haven't gone out of bounds, and if we have undo the zoom
+        [proj_xstart, proj_xend, proj_ystart, proj_yend] = @getProjectedBounds()
+        if ( proj_xend - proj_xstart ) < 0
+          @map.setZoom(original_map_zoom)
 
       # Finally re-center
-      @recenter()
+      @setRanges()
     # END ZOOM ---------------------
 
   bind_bokeh_events: () ->
@@ -101,7 +106,7 @@ class GMapPlotView extends Plot.View
 
       # Create the map with above options in div
       @map = new maps.Map(@canvas_view.map_div[0], map_options)
-      maps.event.addListenerOnce(@map, 'idle', @recenter)
+      maps.event.addListenerOnce(@map, 'idle', @setRanges)
 
     if not window._bokeh_gmap_loads?
       window._bokeh_gmap_loads = []
