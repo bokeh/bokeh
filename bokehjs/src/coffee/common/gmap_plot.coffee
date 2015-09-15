@@ -33,6 +33,7 @@ class GMapPlotView extends Plot.View
     @y_range.set({start: proj_ystart, end: proj_yend, silent:true})
 
   update_range: (range_info) ->
+    @pause()
     # PAN ----------------------------
     if range_info.sdx? or range_info.sdy?
       @map.panBy(range_info.sdx, range_info.sdy)
@@ -70,6 +71,7 @@ class GMapPlotView extends Plot.View
       # Finally re-center
       @setRanges()
     # END ZOOM ---------------------
+    @unpause()
 
   bind_bokeh_events: () ->
     super()
