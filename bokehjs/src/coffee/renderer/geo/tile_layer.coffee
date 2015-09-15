@@ -15,7 +15,7 @@ class ProjectionUtils
   meters_to_geographic: (mx, my) ->
     lon = (mx / @origin_shift) * 180.0
     lat = (my / @origin_shift) * 180.0
-    lat = 180 / Math.PI * (2 * Math.atan( Math.exp( lat * Math.PI / 180.0)) - Math.PI / 2.0)
+    lat = 180 / Math.PI * (2 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0)
     return [lon, lat]
 
   geographic_extent_to_meters: (extent) ->
@@ -33,6 +33,7 @@ class ProjectionUtils
 class MercatorTileProvider
 
   constructor: (@url, @tile_size=256) ->
+    @utils = new ProjectionUtils()
     @origin_shift = 2 * Math.PI * 6378137 / 2.0
     @initial_resolution = 2 * Math.PI * 6378137 / @tile_size
 
@@ -40,19 +41,11 @@ class MercatorTileProvider
     throw Error "Unimplemented Method"
 
   get_resolution: (level) ->
-    return @initial_resolution / (2 ** level)
+    return @initial_resolution / Math.pow(2, level)
 
-  geographic_to_meters: (xLon, yLat) ->
-    mx = xLon * @origin_shift / 180.0
-    my = Math.log( Math.tan((90 + yLat) * Math.PI / 360.0 )) / (Math.PI / 180.0)
-    my = my * @origin_shift / 180.0
-    return [mx, my]
-
-  meters_to_geographic: (mx, my) ->
-    lon = (mx / @origin_shift) * 180.0
-    lat = (my / @origin_shift) * 180.0
-    lat = 180 / Math.PI * (2 * Math.atan( Math.exp( my * Math.PI / 180.0)) - Math.PI / 2.0)
-    return [lon, lat]
+  tms_to_wmts: (x, y, z) ->
+    '''Note this works both ways'''
+    return [x, 2 ** z - 1 - y, z]
 
   pixels_to_meters: (px, py, level) ->
     res = @get_resolution(level)
@@ -67,8 +60,8 @@ class MercatorTileProvider
     return [px, py]
 
   pixels_to_tile: (px, py) ->
-    tx = Math.floor( Math.ceil( px / @tile_size ) - 1 )
-    ty = Math.floor( Math.ceil( py / @tile_size ) - 1 )
+    tx = Math.max(Math.ceil(px / parseFloat(@tile_size)) - 1, 0)
+    ty = Math.max(Math.ceil(py / parseFloat(@tile_size)) - 1, 0)
     return [tx, ty]
 
   pixels_to_raster: (px, py, level) ->
@@ -80,52 +73,43 @@ class MercatorTileProvider
     return @pixels_to_tile(px, py)
 
   get_tile_meter_bounds: (tx, ty, level) ->
-    [minx, miny] = @pixelxy_to_meters(tx * @tile_size, ty * @tile_size, level)
-    [maxx, maxy]= @pixels_to_me((tx + 1) * @tile_size, (ty + 1) * @tile_size, level)
-    return [minx, miny, maxx, maxy]
+    [xmin, ymin] = @pixels_to_meters(tx * @tile_size, ty * @tile_size, level)
+    [xmax, ymax] = @pixels_to_meters((tx + 1) * @tile_size, (ty + 1) * @tile_size, level)
+    return [xmin, ymin, xmax, ymax]
 
   get_tile_geographic_bounds: (tx, ty, level) ->
     bounds = @get_tile_meter_bounds(tx, ty, level)
-    [minLon, minLat] = @meters_to_geographic(bounds[0], bounds[1])
-    [maxLon, maxLat] = @meters_to_geographic(bounds[2], bounds[3])
+    [minLon, minLat, maxLon, maxLat] = @utils.meters_extent_to_geographic(bounds)
     return [minLon, minLat, maxLon, maxLat]
 
-  get_tiles_by_extent: (xmin, ymin, xmax, ymax, level) ->
-    [txmin, tymin] = @meters_to_tile(xmin, ymin)
-    [txmax, tymax] = @meters_to_tile(xmax, ymax)
-    tiles = []
-    for ty in [tymin..tymax + 1] by 1
-      for tx in [txmin..txmax + 1] by 1
-        tiles.push(@get_image_url(tx, ty, level))
-    return tiles
+  get_tiles_by_extent: (extent, level) ->
+    [xmin, ymin, xmax, ymax] = extent
+    [txmin, tymin] = @meters_to_tile(xmin, ymin, level)
+    [txmax, tymax] = @meters_to_tile(xmax, ymax, level)
 
+    tiles = []
+    for ty in [tymin..tymax] by 1
+      for tx in [txmin..txmax] by 1
+        tiles.push(@get_image_url(tx, ty, level))
+
+    return tiles
 
 class TMSTileProvider extends MercatorTileProvider
 
-  constructor: (url) ->
-    super(url, 'TMS')
-
   get_image_url: (x, y, z) ->
     return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
+class WMTSTileProvider extends MercatorTileProvider
 
-class GoogleTileProvider extends MercatorTileProvider
-
-  constructor: (url) ->
-    super(url, 'Google')
-
-  tilexyz_to_googlexyz: (x, y, z) ->
-    return [tx, (2 ** z - 1) - ty, z]
+  get_tile_meter_bounds: (x, y, z) ->
+    [x, y, z] = @tms_to_wmts(x, y, z)
+    return super(x, y, z)
 
   get_image_url: (x, y, z) ->
-    [x, y, z] = @tilexyz_to_googlexyz(x, y, z)
+    [x, y, z] = @tms_to_wmts(x, y, z)
     return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
-
 
 class QUADKEYTileProvider extends MercatorTileProvider
-
-  constructor: (url) ->
-    super(url, 'QUADKEY')
 
   quadkey_to_tile_xyz: (quadKey) ->
     '''
@@ -173,60 +157,9 @@ class QUADKEYTileProvider extends MercatorTileProvider
     return quadKey
 
   get_image_url: (x, y, z) ->
+    [x, y, z] = @tms_to_wmts(x, y, z)
     quadKey = @tile_xyz_to_quadkey(x, y, z)
     return @url.replace("{QUADKEY}", quadKey)
-
-
-class GeographicTileProvider
-
-  constructor: (@url, @tile_size=256) ->
-
-  get_image_url: () ->
-    throw Error "Unimplemented Method"
-
-  geographic_to_pixels: (xLon, yLat, level) ->
-    res = 180 / @tile_size / 2 ** level
-    px = (180 + yLat) / res
-    py = (90 + xLon) / res
-    return [px, py]
-
-  pixels_to_tile: (px, py) ->
-    tx = Math.floor(Math.ceil(px / @tile_size) - 1)
-    ty = Math.floor(Math.ceil(py / @tile_size) - 1)
-    return [tx, ty]
-
-  geographic_to_tile: (xLon, yLat, level) ->
-    [px, py]= @geographic_to_pixels(xLon, yLat, level)
-    return @pixels_to_tile(px, py)
-
-  get_resolution: (level) ->
-    return 180 / @tile_size / 2 ** level
-
-  get_tile_bounds: (tx, ty, level) ->
-    res = @get_resolution(level)
-    xmin = tx * @tile_size * res - 180
-    ymin = ty * @tile_size * res - 90
-    xmax = (tx+1) * @tile_size * res - 180
-    ymax = (ty+1) * @tile_size * res - 90
-    return [xmin, ymin, xmax, ymax]
-
-  get_tiles_by_extent: (xmin, ymin, xmax, ymax, level) ->
-    [txmin, tymin] = @geographic_to_tile(xmin, ymin)
-    [txmax, tymax] = @geographic_to_tile(xmax, ymax)
-    tiles = []
-    for ty in [tymin..tymax + 1] by 1
-      for tx in [txmin..txmax + 1] by 1
-        tiles.push(@get_image_url(tx, ty, level))
-    return tiles
-
-
-class GeographicTMSTileProvider extends GeographicTileProvider
-
-  constructor: (url, tile_size=256) ->
-    super(url, 'TMS', tile_size)
-
-  get_image_url: (x, y, z) ->
-    return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
 
 class TileLayerView extends Glyph.View
@@ -318,8 +251,6 @@ module.exports =
   View: TileLayerView
   ProjectionUtils: ProjectionUtils
   MercatorTileProvider: MercatorTileProvider
-  GeographicTileProvider: GeographicTileProvider
   TMSTileProvider: TMSTileProvider
-  GoogleTileProvider: GoogleTileProvider
+  WMTSTileProvider: WMTSTileProvider
   QUADKEYTileProvider: QUADKEYTileProvider
-  GeographicTMSTileProvider: GeographicTMSTileProvider
