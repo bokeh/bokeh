@@ -17,7 +17,6 @@
     "url": "git://github.com/bokeh/bokeh.git"
   },
   "devDependencies": {
-    "backbone": "^1.1.0",
     "browserify": "^6.2.0",
     "browserify-eco": "^0.2.4",
     "browserify-shim": "^3.8.0",
@@ -88,6 +87,8 @@
   },
   "browserify-shim": {},
   "dependencies": {
+    "underscore": "^1.5.2",
+    "backbone": "^1.1.0",
     "jquery": "^2.1.1",
     "jquery-mousewheel": "^3.1.12",
     "jquery-ui": "^1.10.5",

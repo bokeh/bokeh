@@ -13,10 +13,13 @@
                 return newRequire(id ? id : x);
             }, m, m.exports, outer, modules, cache, entry);
         }
+
         return cache[name].exports;
     }
 
-    for(var i = 0; i < entry.length; i++) {
+    for (var i = 0; i < entry.length; i++) {
         newRequire(entry[i]);
     }
+
+    return newRequire;
 })

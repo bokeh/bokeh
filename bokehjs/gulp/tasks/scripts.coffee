@@ -89,10 +89,15 @@ gulp.task "scripts:build", (cb) ->
     prelude: preludeText
   }
 
+  preludePath = path.resolve("./src/js/plugin-prelude.js")
+  preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
+
   widgetsOpts = {
     entries: [path.resolve('./src/coffee/widget/main.coffee')]
     extensions: [".coffee", ".eco"]
     debug: true
+    preludePath: preludePath
+    prelude: preludeText
   }
 
   bokehjs = browserify(bokehjsOpts)
@@ -114,7 +119,9 @@ gulp.task "scripts:build", (cb) ->
       # looks for `define` before looking for `module.exports`, which eats up
       # our backbone.
       .pipe change (content) ->
-        "(function() { var define = undefined; #{content} })()"
+        "(function() { var define = undefined; return #{content} })()"
+      .pipe change (content) ->
+        "require = #{content}"
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
@@ -136,7 +143,7 @@ gulp.task "scripts:build", (cb) ->
       # looks for `define` before looking for `module.exports`, which eats up
       # our backbone.
       .pipe change (content) ->
-        "(function() { var define = undefined; #{content} })()"
+        "(function() { var define = undefined; return #{content} })()"
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()

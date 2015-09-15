@@ -12,7 +12,7 @@ from bokeh.resources import INLINE
 class Popup(Callback):
 
     __implementation__ = """
-_ = require "underscore/underscore"
+_ = require "underscore"
 Util = require "util/util"
 HasProperties = require "common/has_properties"
 
