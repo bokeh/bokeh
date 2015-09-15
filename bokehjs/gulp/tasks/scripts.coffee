@@ -13,6 +13,7 @@ buffer = require 'vinyl-buffer'
 paths = require "../paths"
 change = require "gulp-change"
 through = require "through2"
+es = require "event-stream"
 fs = require "fs"
 path = require "path"
 shasum = require "shasum"
@@ -144,13 +145,14 @@ gulp.task "scripts:build", (cb) ->
   null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:minify", ->
-  gulp.src paths.bokehjs.coffee.destination.fullWithPath
-    .pipe rename (path) -> path.basename += '.min'
-    .pipe sourcemaps.init
-      loadMaps: true
-    .pipe uglify()
-    .pipe sourcemaps.write './'
-    .pipe gulp.dest paths.buildDir.js
+  tasks = [paths.bokehjs, paths.widgets].map (entry) ->
+    gulp.src(entry.coffee.destination.fullWithPath)
+      .pipe(rename((path) -> path.basename += '.min'))
+      .pipe(sourcemaps.init({loadMaps: true}))
+      .pipe(uglify())
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest(paths.buildDir.js))
+  es.merge.apply(null, tasks)
 
 gulp.task "scripts", (cb) ->
   runSequence("scripts:build", "scripts:minify", cb)
