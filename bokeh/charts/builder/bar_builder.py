@@ -17,11 +17,9 @@ It also add a new chained stacked method.
 # Imports
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
-from collections import defaultdict
 
 try:
     import numpy as np
-
 except ImportError:
     raise RuntimeError("bokeh.charts Bar chart requires NumPy.")
 
@@ -159,7 +157,7 @@ class BarBuilder(Builder):
 
         # ToDo: perform aggregation validation
         # Not given values kw, so using only categorical data
-        if self.values.computed:
+        if self.values.dtype.name == 'object' and len(self.attribute_columns) == 0:
             # agg must be count
             self.agg = 'count'
         else:

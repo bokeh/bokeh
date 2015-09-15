@@ -55,7 +55,7 @@ def create_and_build(builder_class, *data, **kws):
         builder_props.add(attr_name)
 
     # create the new builder
-    builder_kws = { k:v for k,v in kws.items() if k in builder_props}
+    builder_kws = {k: v for k, v in kws.items() if k in builder_props}
     builder = builder_class(*data, **builder_kws)
 
     # create a chart to return, since there isn't one already

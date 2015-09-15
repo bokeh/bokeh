@@ -30,7 +30,7 @@ from ...models.sources import ColumnDataSource
 # -----------------------------------------------------------------------------
 
 
-def Line(data, x=None, y=None, **kws):
+def Line(data=None, x=None, y=None, **kws):
     """ Create a line chart using :class:`LineBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
     render the geometry from values and index.
 

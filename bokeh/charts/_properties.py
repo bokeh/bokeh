@@ -173,6 +173,10 @@ class Dimension(HasProps):
             return self.data.max(axis=1).max()
 
     @property
+    def dtype(self):
+        return self.data.dtype
+
+    @property
     def computed(self):
         if self._chart_source is None:
             return False

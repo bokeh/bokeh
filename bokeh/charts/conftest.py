@@ -11,11 +11,12 @@ from bokeh.charts._attributes import AttrSpec
 
 
 class TestData(object):
-    def __init__(self, rows=50):
+    def __init__(self):
+        self.cat_list = ['a', 'c', 'a', 'b']
         self.list_data = [[1, 2, 3, 4], [2, 3, 4, 5]]
         self.array_data = [np.array(item) for item in self.list_data]
         self.dict_data = {'col1': self.list_data[0],
-                           'col2': self.list_data[1]}
+                          'col2': self.list_data[1]}
         self.pd_data = pd.DataFrame(self.dict_data)
         self.records_data = self.pd_data.to_dict(orient='records')
 

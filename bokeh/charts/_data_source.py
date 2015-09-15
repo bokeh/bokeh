@@ -18,7 +18,7 @@ from __future__ import absolute_import
 from six import iteritems
 from six.moves import zip
 from operator import itemgetter
-from itertools import islice, product
+from itertools import islice, product, chain
 import numpy as np
 import pandas as pd
 
@@ -260,6 +260,36 @@ class ChartDataSource(object):
         if len(arrays) > 0 and len(tables) > 0:
             raise TypeError('Only input either array or table data.')
 
+        # kwarg data
+        if len(arrays) == 0 and len(tables) == 0:
+
+            # handle list of lists
+            list_dims = [k for k, v in iteritems(kwargs) if cls.is_list_lists(v)]
+            if len(list_dims) > 0:
+                arrays = [kwargs[dim] for dim in list_dims]
+                arrays = list(chain.from_iterable(arrays))
+                col_names = gen_column_names(len(arrays))
+
+                # reassign kwargs to new columns
+                new_kwargs = kwargs.copy()
+                for dim in list_dims:
+                    dim_cols = []
+                    dim_inputs = kwargs[dim]
+
+                    # if we passed one to many literal array/list, match to cols
+                    for dim_input in dim_inputs:
+                        for array, col_name in zip(arrays, col_names):
+                            if pd.Series.all(pd.Series(array) == pd.Series(dim_input)):
+
+                                # add col to all cols and
+                                dim_cols.append(col_name)
+
+                    new_kwargs[dim] = dim_cols
+
+                # setup kwargs to process as if we received arrays as args
+                kwargs = new_kwargs
+                kwargs['columns'] = col_names
+
         # handle array-like
         if len(arrays) > 0:
             if 'columns' not in kwargs.keys():
@@ -308,6 +338,15 @@ class ChartDataSource(object):
             else:
                 raise TypeError('Unable to recognize inputs for conversion to dataframe for %s'
                                 % type(table))
+
+    @staticmethod
+    def is_list_lists(data):
+        valid = False
+        if isinstance(data, list):
+            if all([ChartDataSource.is_array(col) for col in data]):
+                valid = True
+
+        return valid
 
     @property
     def df(self):
