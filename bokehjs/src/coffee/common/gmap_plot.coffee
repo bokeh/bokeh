@@ -7,7 +7,64 @@ class GMapPlotView extends Plot.View
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
-    @zoom_count = null
+    @zoom_count = 0
+
+  getBokehBounds: () =>
+    bounds = @map.getBounds()
+    top_right = bounds.getNorthEast()
+    bottom_left = bounds.getSouthWest()
+
+    xstart = bottom_left.lng()
+    xend = top_right.lng()
+    ystart = bottom_left.lat()
+    yend = top_right.lat()
+    return [xstart, xend, ystart, yend]
+
+  recenter: () =>
+    # Set the range and ensure map is positioned at center of range
+    [xstart, xend, ystart, yend] = @getBokehBounds()
+    @x_range.set({start: xstart, end: xend, silent:true})
+    @y_range.set({start: ystart, end: yend, silent:true})
+    center = new google.maps.LatLng( ( ystart + yend ) / 2, ( xstart + xend ) / 2)
+    @map.panTo(center)
+
+  update_range: (range_info) ->
+
+    # PAN ----------------------------
+    if range_info.sdx? or range_info.sdy?
+      @map.panBy(range_info.sdx, range_info.sdy)
+      super(range_info)
+    # END PAN ------------------------
+
+    # ZOOM ---------------------------
+    if range_info.factor?
+
+      # The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
+      if @zoom_count != 10
+        @zoom_count += 1
+        return
+      @zoom_count = 0
+
+      super(range_info)
+
+      if range_info.factor < 0 
+        zoom_change = -1
+      else
+        zoom_change = 1
+
+      original_map_zoom = @map.getZoom()
+      new_map_zoom = original_map_zoom + zoom_change
+
+      @map.setZoom(new_map_zoom)
+      
+      # Check we haven't gone out of bounds, and if we have undo the zoom
+      [xstart, xend, ystart, yend] = @getBokehBounds()
+      if ( xend - xstart ) < 0
+        @map.setZoom(original_map_zoom)
+
+      # Finally re-center
+      @recenter()
+    # END ZOOM ---------------------
 
   bind_bokeh_events: () ->
     super()
@@ -44,6 +101,7 @@ class GMapPlotView extends Plot.View
 
       # Create the map with above options in div
       @map = new maps.Map(@canvas_view.map_div[0], map_options)
+      maps.event.addListenerOnce(@map, 'idle', @recenter)
 
     if not window._bokeh_gmap_loads?
       window._bokeh_gmap_loads = []
