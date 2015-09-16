@@ -12,8 +12,8 @@ import tempfile
 from bokeh.session import TestSession
 
 from . import test_utils
-from ..app import bokeh_app, app
-from ..models import user
+from bokeh.app import bokeh_app, app
+from bokeh.models import user
 
 class TestMultiUserAuth(test_utils.FlaskClientTestCase):
     options = {'multi_user' : True}

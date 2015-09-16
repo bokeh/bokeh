@@ -13,12 +13,12 @@ from bokeh.session import TestSession
 from werkzeug.exceptions import Unauthorized
 
 from . import test_utils
-from ..app import app, bokeh_app
-from ..models.user import User, new_user
-from ..models.docs import Doc
-from ..serverbb import BokehServerTransaction
-from ..views.bbauth import handle_auth_error
-from ..views.main import _makedoc
+from bokeh.app import app, bokeh_app
+from bokeh.models.user import User, new_user
+from bokeh.models.docs import Doc
+from bokeh.serverbb import BokehServerTransaction
+from bokeh.views.bbauth import handle_auth_error
+from bokeh.views.main import _makedoc
 
 class AuthTestCase(test_utils.FlaskClientTestCase):
     options = {'multi_user' : True}

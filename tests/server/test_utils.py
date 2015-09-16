@@ -16,10 +16,10 @@ import unittest
 import requests
 from requests.exceptions import ConnectionError
 
-from .. import start, configure
-from ..app import bokeh_app, app
-from ..models import user
-from ..settings import settings as server_settings
+from bokeh.server import start, configure
+from bokeh.app import bokeh_app, app
+from bokeh.models import user
+from bokeh.settings import settings as server_settings
 
 def wait_flask():
     def helper():

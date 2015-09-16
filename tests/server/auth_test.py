@@ -12,9 +12,9 @@ from contextlib import contextmanager
 from werkzeug.exceptions import Unauthorized
 import pytest
 
-from ..app import bokeh_app
-from ..models.user import User
-from ..views.decorators import login_required
+from bokeh.app import bokeh_app
+from bokeh.models.user import User
+from bokeh.views.decorators import login_required
 
 @contextmanager
 def patch_current_user(func):
