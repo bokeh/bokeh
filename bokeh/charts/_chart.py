@@ -20,14 +20,18 @@ the generation of several outputs (file, server, notebook).
 
 from __future__ import absolute_import
 
+from six import iteritems
 import numpy as np
+from collections import defaultdict
 
 from ._chart_options import ChartOptions
+from . import defaults
 from ..browserlib import view
 from ..document import Document
 from ..embed import file_html
 from ..models import (
     CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
+from ..models.ranges import FactorRange
 from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
 from ..resources import INLINE
@@ -76,21 +80,33 @@ class Chart(Plot):
     __subtype__ = "Chart"
 
     def __init__(self):
-        """
 
-        """
-        super(Chart, self).__init__(
-            title=self._options.title,
-            plot_height=self._options.height,
-            plot_width=self._options.width,
-            id=self._options.id or make_id()
-        )
+        # Initializes then gets default properties
+        super(Chart, self).__init__(id=self._options.id or make_id())
+        default_props = ChartOptions().properties_with_values()
+        option_props = ChartOptions.properties_with_values(defaults)
+        option_props.pop('id')
+
+        # sets overridden defaults
+        # ToDo: allow Chart/Plot properties as well as ChartOptions
+        for option, value in iteritems(option_props):
+            if value != default_props[option]:
+                setattr(self._options, option, value)
+
+        self.title = self._options.title
+        self.plot_height = self._options.height
+        self.plot_width = self._options.width
+        self.title_text_font_size = self._options.title_text_font_size
+        self.title_text_font_style = 'bold'
 
         self._glyphs = []
         self._built = False
 
         self._builders = []
         self._renderer_map = []
+        self._ranges = defaultdict(list)
+        self._labels = defaultdict(list)
+        self._scales = defaultdict(list)
 
         # Add to document and session if server output is asked
         _doc = None
@@ -106,8 +122,7 @@ class Chart(Plot):
             else:
                 self._session = Session()
 
-        # create chart axis, grids and tools
-        self.start_plot()
+        self.create_tools(self._options.tools)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -117,16 +132,24 @@ class Chart(Plot):
         self._builders.append(builder)
         builder.create(self)
 
-        # Add tools if supposed to
-        if self._options.tools:
-            # reset tools so a categorical builder can add only the
-            # supported tools
-            self.tools = []
-            self.create_tools(self._options.tools)
+    def add_ranges(self, dim, range):
+        self._ranges[dim].append(range)
+
+    def add_labels(self, dim, label):
+        self._labels[dim].append(label)
+
+    def add_scales(self, dim, scale):
+        self._scales[dim].append(scale)
+
+    def _get_labels(self, dim):
+        if not getattr(self._options, dim + 'label') and len(self._labels[dim]) > 0:
+            return self._labels[dim][0]
+        else:
+            return getattr(self._options, dim + 'label')
 
     def create_axes(self):
-        self._xaxis = self.make_axis("below", self._options.xscale, self._options.xlabel)
-        self._yaxis = self.make_axis("left", self._options.yscale, self._options.ylabel)
+        self._xaxis = self.make_axis('x', "below", self._scales['x'][0], self._get_labels('x'))
+        self._yaxis = self.make_axis('y', "left", self._scales['y'][0], self._get_labels('y'))
 
     def create_grids(self, xgrid=True, ygrid=True):
         if xgrid:
@@ -135,15 +158,21 @@ class Chart(Plot):
             self.make_grid(1, self._yaxis.ticker)
 
     def create_tools(self, tools):
-        # if no tools customization let's create the default tools
-        if isinstance(tools, bool) and tools:
-            tools = DEFAULT_TOOLS
-        elif isinstance(tools, bool):
-            # in case tools == False just exit
-            return
+        """Create tools if given tools=True input.
 
-        tool_objs = _process_tools_arg(self, tools)
-        self.add_tools(*tool_objs)
+        Only adds tools if given boolean and does not already have
+        tools added to self.
+        """
+        if len(self.tools) == 0:
+            # if no tools customization let's create the default tools
+            if isinstance(tools, bool) and tools:
+                tools = DEFAULT_TOOLS
+            elif isinstance(tools, bool):
+                # in case tools == False just exit
+                return
+
+            tool_objs = _process_tools_arg(self, tools)
+            self.add_tools(*tool_objs)
 
     def start_plot(self):
         """Add the axis, grids and tools
@@ -176,7 +205,7 @@ class Chart(Plot):
             legend = Legend(orientation=orientation, legends=legends)
             self.add_layout(legend)
 
-    def make_axis(self, location, scale, label):
+    def make_axis(self, dim, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
         scale and with the proper labels.
 
@@ -191,7 +220,21 @@ class Chart(Plot):
             axis: Axis instance
         """
 
-        if scale == "linear" or scale == "auto":
+        # ToDo: revisit how to handle multiple ranges
+        # set the last range to the chart's range
+        if len(self._ranges[dim]) == 0:
+            raise ValueError('Ranges must be added to derive axis type.')
+
+        data_range = self._ranges[dim][-1]
+        setattr(self, dim + '_range', data_range)
+
+        if scale == "auto":
+            if isinstance(data_range, FactorRange):
+                scale = 'categorical'
+            else:
+                scale = 'linear'
+
+        if scale == "linear":
             axis = LinearAxis(axis_label=label)
         elif scale == "datetime":
             axis = DatetimeAxis(axis_label=label)
@@ -199,6 +242,8 @@ class Chart(Plot):
             axis = CategoricalAxis(
                 major_label_orientation=np.pi / 4, axis_label=label
             )
+        else:
+            axis = LinearAxis(axis_label=label)
 
         self.add_layout(axis, location)
         return axis
