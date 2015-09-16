@@ -99,7 +99,7 @@ for i, region in enumerate(regions):
 
 # Add the slider
 code = """
-    var year = cb_obj.get('value'),
+    var year = slider.get('value'),
         sources = %s,
         new_source_data = sources[year].get('data');
     renderer_source.set('data', new_source_data);
@@ -109,6 +109,7 @@ code = """
 callback = CustomJS(args=sources, code=code)
 slider = Slider(start=years[0], end=years[-1], value=1, step=1, title="Year", callback=callback, name='testy')
 callback.args["renderer_source"] = renderer_source
+callback.args["slider"] = slider
 callback.args["text_source"] = text_source
 
 
