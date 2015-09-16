@@ -12,8 +12,8 @@ from contextlib import contextmanager
 from werkzeug.exceptions import Unauthorized
 import pytest
 
-from bokeh.app import bokeh_app
-from bokeh.models.user import User
+from bokeh.server.app import bokeh_app
+from bokeh.server.models.user import User
 from bokeh.views.decorators import login_required
 
 @contextmanager

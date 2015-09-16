@@ -10,8 +10,8 @@ from __future__ import absolute_import
 from bokeh.exceptions import UnauthorizedException
 
 from . import test_utils
-from bokeh.app import bokeh_app
-from bokeh.models import user
+from bokeh.server.app import bokeh_app
+from bokeh.server.models import user
 
 class TestUser(test_utils.BokehServerTestCase):
     def setUp(self):
