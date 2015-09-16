@@ -21,6 +21,7 @@
     "browserify": "^6.2.0",
     "browserify-eco": "^0.2.4",
     "browserify-shim": "^3.8.0",
+    "browserify-css": "*",
     "Canteen": "git+https://github.com/platfora/Canteen.git#f1182e3396e76e0acb32849823ac4b4f404d6a72",
     "chai": "^2.2.0",
     "cheerio": "^0.19.0",
@@ -53,7 +54,11 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "vinyl-transform": "^1.0.0",
-    "yargs": "^3.11.0"
+    "yargs": "^3.11.0",
+    "phosphor-widget": "*",
+    "phosphor-messaging": "*",
+    "phosphor-boxpanel": "*",
+    "phosphor-gridpanel": "*"
   },
   "browserify": {
     "extensions": [

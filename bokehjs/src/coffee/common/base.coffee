@@ -18,6 +18,7 @@ locations =
   GMapPlot:                 require './gmap_plot'
   GeoJSPlot:                require './geojs_plot'
   GridPlot:                 require './grid_plot'
+  PGrid:                    require './pgrid'
   PlotContext:              require './plot_context'
   PlotList:                 require './plot_context'
   Canvas:                   require './canvas'
