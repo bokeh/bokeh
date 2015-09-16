@@ -1,4 +1,4 @@
-Bokeh = {}
+window.Bokeh = {}
 Bokeh.require = require
 Bokeh.version = '0.9.3'
 
@@ -6,10 +6,8 @@ Bokeh.version = '0.9.3'
 Bokeh._                 = require("underscore")
 Bokeh.$                 = require("jquery")
 
-require "jquery-ui"
 Bokeh.Backbone          = require("backbone")
 Bokeh.Backbone.$        = Bokeh.$
-Bokeh.Backbone.$.ui     = Bokeh.$.ui
 
 # set up logger
 logging = require("./common/logging")
@@ -134,5 +132,4 @@ require("./api/plugin")
 
 # Here for backwards capability?
 Bokeh.Bokeh = Bokeh
-window.Bokeh = Bokeh
 module.exports = Bokeh

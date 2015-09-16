@@ -4,6 +4,10 @@ HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
 slidertemplate = require "./slidertemplate"
 
+# jquery isn't available if testing
+if Bokeh? or $?
+  require 'jquery-ui/slider'
+
 class SliderView extends ContinuumView
   tagName: "div"
   template: slidertemplate
