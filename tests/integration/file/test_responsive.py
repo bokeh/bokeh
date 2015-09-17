@@ -54,7 +54,7 @@ def test_autoresize_tool_resizes_plot_while_maintaining_aspect_ratio(output_file
 
 def test_autoresize_tool_maintains_a_minimum_width(output_file_url, selenium):
     # The aspect ratio is portrait but should not allow a width less than 100
-    plot = figure(plot_width=200, plot_height=400, responsive=True)
+    plot = figure(plot_width=600, plot_height=1200, responsive=True)
     plot.scatter([1, 2, 3], [3, 2, 3])
     save(plot)
 
@@ -63,12 +63,14 @@ def test_autoresize_tool_maintains_a_minimum_width(output_file_url, selenium):
     selenium.set_window_size(width=100, height=600)
 
     canvas = selenium.find_element_by_tag_name('canvas')
+    # Plot should have been shrunk somewhat
+    assert canvas.size['width'] < 600
     assert canvas.size['width'] >= 100
 
 
 def test_autoresize_tool_maintains_a_minimum_height(output_file_url, selenium):
     # The aspect ratio is landscape but should not allow a height less than 100
-    plot = figure(plot_width=200, plot_height=100, responsive=True)
+    plot = figure(plot_width=1200, plot_height=600, responsive=True)
     plot.scatter([1, 2, 3], [3, 2, 3])
     save(plot)
 
@@ -77,4 +79,6 @@ def test_autoresize_tool_maintains_a_minimum_height(output_file_url, selenium):
     selenium.set_window_size(width=100, height=600)
 
     canvas = selenium.find_element_by_tag_name('canvas')
+    # Plot should have been shrunk somewhat
+    assert canvas.size['height'] < 600
     assert canvas.size['height'] >= 100
