@@ -104,13 +104,8 @@ def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
 
 
 def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
-    values = dict(
-        apples=[2, 3, 7, 5, 26, 221, 44, 233, 254, 25, 2, 67, 10, 11],
-        oranges=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
-    )
-
-    plot = figure(responsive=True)
-    plot.line(values)
+    plot = figure(responsive=True, title="Test Me")
+    plot.scatter([1, 2, 3], [3, 2, 3])
 
     save(plot)
     selenium.set_window_size(width=1000, height=600)
