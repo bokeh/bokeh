@@ -183,7 +183,7 @@ class BarBuilder(Builder):
 
         # Items are identified by tuples. If the tuple has a single value, we unpack it
         for item in x_items:
-            item = self._get_label(item)
+            item = self.get_label(item)
 
             x_labels.append(str(item))
 
@@ -196,46 +196,8 @@ class BarBuilder(Builder):
 
         self.y_range = Range1d(start=start, end=self.max_height + y_shift)
 
-    def add_renderer(self, group, renderer):
-
-        if isinstance(renderer, list):
-            for sub_renderer in renderer:
-                self.renderers.append(sub_renderer)
-        else:
-            self.renderers.append(renderer)
-
-        label = None
-        for attr in self.label_attributes:
-            if self.attributes[attr].columns is not None:
-                label = self._get_label(self.get_group_label(group))
-
-        # add to legend if new and unique label
-        if str(label) not in self.labels and label is not None:
-            self._legends.append((label, renderer.renderers))
-            self.labels.append(label)
-
-    def get_group_label(self, group):
-
-        # ToDo: support grouping and stacking at the same time
-        if self.attributes['stack'].columns is not None:
-            item = group['stack']
-        elif self.attributes['group'].columns is not None:
-            item = group['group']
-        else:
-            item = None
-
-        return item
-
     def get_extra_args(self):
         return {}
-
-    @staticmethod
-    def _get_label(item):
-        if item is None:
-            return item
-        elif (isinstance(item, tuple) or isinstance(item, list)) and len(item) == 1:
-            item = item[0]
-        return str(item)
 
     def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
@@ -246,25 +208,25 @@ class BarBuilder(Builder):
 
         for group in self._data.groupby(**self.attributes):
 
-            bg = self.glyph(label=self._get_label(group['label']),
+            bg = self.glyph(label=self.get_label(group['label']),
                             values=group.data[self.values.selection].values,
                             agg=stats[self.agg](),
                             width=self.bar_width,
                             color=group['color'],
                             fill_alpha=self.fill_alpha,
-                            stack_label=self._get_label(group['stack']),
-                            dodge_label=self._get_label(group['group']),
+                            stack_label=self.get_label(group['stack']),
+                            dodge_label=self.get_label(group['group']),
                             **kwargs)
 
-            self.add_renderer(group, bg)
+            self.add_glyph(group, bg)
 
-        Stack().apply(self.renderers)
-        Dodge().apply(self.renderers)
+        Stack().apply(self.comp_glyphs)
+        Dodge().apply(self.comp_glyphs)
 
         # a higher level function of bar chart is to keep track of max height of all bars
-        self.max_height = max([renderer.y_max for renderer in self.renderers])
-        self.min_height = min([renderer.y_min for renderer in self.renderers])
+        self.max_height = max([renderer.y_max for renderer in self.comp_glyphs])
+        self.min_height = min([renderer.y_min for renderer in self.comp_glyphs])
 
-        for renderer in self.renderers:
+        for renderer in self.comp_glyphs:
             for sub_renderer in renderer.renderers:
                 yield sub_renderer

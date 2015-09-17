@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.charts import Bar
+from bokeh.charts.builder.bar_builder import BarBuilder
 from bokeh.charts.stats import CountDistinct
 
 #-----------------------------------------------------------------------------
@@ -24,6 +24,7 @@ from bokeh.charts.stats import CountDistinct
 
 def test_cat_list_input(test_data):
     num_items = CountDistinct(values=test_data.cat_list).value
-    bar_plot = Bar(test_data.cat_list)
-    assert len(bar_plot.renderers) == num_items
+    bar_plot = BarBuilder(test_data.cat_list)
+    bar_plot.create()
+    assert len(bar_plot.comp_glyphs) == num_items
 

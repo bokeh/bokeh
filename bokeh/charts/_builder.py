@@ -120,8 +120,9 @@ class Builder(HasProps):
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
-    renderers = List(Instance(CompositeGlyph))
+    comp_glyphs = List(Instance(CompositeGlyph))
     labels = List(String, help="""Represents the unique labels to be used for legends.""")
+    label_attributes = List(String, help="""List of attributes to use for legends.""")
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -241,11 +242,64 @@ class Builder(HasProps):
         """
         raise NotImplementedError('Subclasses of %s must implement _yield_renderers.' % self.__class__.__name__)
 
+    def _get_dim_extents(self):
+        return {'x_max': max([renderer.x_max for renderer in self.comp_glyphs]),
+                'y_max': max([renderer.y_max for renderer in self.comp_glyphs]),
+                'x_min': min([renderer.x_min for renderer in self.comp_glyphs]),
+                'y_min': min([renderer.y_min for renderer in self.comp_glyphs])
+                }
+
+    def add_glyph(self, group, glyph):
+        """Add a composite glyph"""
+        if isinstance(glyph, list):
+            for sub_glyph in glyph:
+                self.comp_glyphs.append(sub_glyph)
+        else:
+            self.comp_glyphs.append(glyph)
+
+        label = None
+        if len(self.label_attributes) > 0:
+            for attr in self.label_attributes:
+                # this will get the last attribute group label for now
+                if self.attributes[attr].columns is not None:
+                    label = self.get_group_label(group, attr=attr)
+
+        if label is None:
+            label = self.get_group_label(group, attr='label')
+
+        # add to legend if new and unique label
+        if str(label) not in self.labels and label is not None:
+            self._legends.append((label, glyph.renderers))
+            self.labels.append(label)
+
+    def get_group_label(self, group, attr='label'):
+        if attr is 'label':
+            label = group.label
+        else:
+            label = group[attr]
+
+        return self.get_label(label)
+
+    @staticmethod
+    def get_label(raw_label):
+
+        # don't convert None type to string so we can test for it later
+        if raw_label is None:
+            return None
+
+        if (isinstance(raw_label, tuple) or isinstance(raw_label, list)) and \
+                        len(raw_label) == 1:
+            raw_label = raw_label[0]
+
+        return str(raw_label)
+
     def create(self, chart=None):
         self._setup()
         self._process_data()
 
         renderers = self._yield_renderers()
+        if chart is None:
+            chart = Chart()
         chart.add_renderers(self, renderers)
 
         # handle ranges after renders, since ranges depend on aggregations
@@ -283,12 +337,14 @@ class XYBuilder(Builder):
         """Calculate and set the x and y ranges."""
         # ToDo: handle when only single dimension is provided
 
-        endx = self.x.max
-        startx = self.x.min
+        extents = self._get_dim_extents()
+
+        endx = extents['x_max']
+        startx = extents['x_min']
         self.x_range = self._get_range('x', startx, endx)
 
-        endy = self.y.max
-        starty = self.y.min
+        endy = extents['y_max']
+        starty = extents['y_min']
         self.y_range = self._get_range('y', starty, endy)
 
         if self.xlabel is None:

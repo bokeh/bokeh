@@ -13,10 +13,14 @@ xyvalues = pd.melt(xyvalues, id_vars=['Year'],
 
 TOOLS='box_zoom,box_select,hover,crosshair,resize,reset'
 output_file("lines.html", title="line.py example")
-vline = Line(xyvalues, title="Lines VLine", ylabel='measures', tools=TOOLS)
-hline = Line(xyvalues, title="Lines HLine", ylabel='measures', tools=TOOLS)
-int_vline = Line(xyvalues, title="Lines VLine Interp", ylabel='measures', tools=TOOLS)
-int_hline = Line(xyvalues, title="Lines HLine Interp", ylabel='measures', tools=TOOLS)
+vline = Line(xyvalues, y='Count', color='Degree', title="Lines VLine", ylabel='measures',
+             tools=TOOLS)
+hline = Line(xyvalues, y='Count', color='Degree', title="Lines HLine",
+             ylabel='measures', tools=TOOLS)
+int_vline = Line(xyvalues, y='Count', color='Degree', title="Lines VLine Interp",
+                 ylabel='measures', tools=TOOLS)
+int_hline = Line(xyvalues, y='Count', color='Degree', title="Lines HLine Interp",
+                 ylabel='measures', tools=TOOLS)
 
 scatter_point = Scatter(xyvalues, x='Year', y='Degree', title="Scatter mouse",
                         ylabel='measures', legend=True, tools=TOOLS)

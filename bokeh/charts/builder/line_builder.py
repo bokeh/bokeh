@@ -173,7 +173,10 @@ class LineBuilder(XYBuilder):
                               y=group.get_values(self.y.selection),
                               line_color=group['color'],
                               dash=group['dash'])
-            renderer = glyph.renderers[0]
-            self._legends.append((str(group.label), [renderer]))
 
-            yield renderer
+            # save reference to composite glyph
+            self.add_glyph(group, glyph)
+
+            # yield each renderer produced by composite glyph
+            for renderer in glyph.renderers:
+                yield renderer
