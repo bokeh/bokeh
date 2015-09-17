@@ -87,9 +87,6 @@ class HistogramBuilder(BarBuilder):
         if self.attributes['color'].columns is not None:
             self.fill_alpha = 0.6
 
-    def get_group_label(self, group):
-        return group.label
-
     def get_extra_args(self):
         return dict(bin_count=self.bins)
 
@@ -98,10 +95,10 @@ class HistogramBuilder(BarBuilder):
         the proper ranges.
         """
 
-        x_max = max([comp_glyph.x_max for comp_glyph in self.renderers])
-        x_min = min([comp_glyph.x_min for comp_glyph in self.renderers])
-        y_max = max([comp_glyph.y_max for comp_glyph in self.renderers])
-        y_min = min([comp_glyph.y_min for comp_glyph in self.renderers])
+        x_max = max([comp_glyph.x_max for comp_glyph in self.comp_glyphs])
+        x_min = min([comp_glyph.x_min for comp_glyph in self.comp_glyphs])
+        y_max = max([comp_glyph.y_max for comp_glyph in self.comp_glyphs])
+        y_min = min([comp_glyph.y_min for comp_glyph in self.comp_glyphs])
 
         x_buffer = ((x_max + x_min)/2.0)*0.1
 

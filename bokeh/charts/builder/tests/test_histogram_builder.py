@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.charts import Histogram
+from bokeh.charts.builder.histogram_builder import HistogramBuilder
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -22,7 +22,7 @@ from bokeh.charts import Histogram
 
 
 def test_supported_input(test_data):
-    hist_plot = Histogram(test_data.auto_data.mpg.values,
-                          title="label='cyl', values='mpg'")
-    assert len(hist_plot.renderers) > 0
+    hist_builder = HistogramBuilder(test_data.auto_data.mpg.values)
+    hist_builder.create()
+    assert len(hist_builder.comp_glyphs) > 0
 

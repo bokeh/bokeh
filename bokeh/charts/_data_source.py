@@ -17,6 +17,7 @@ from __future__ import absolute_import
 
 from six import iteritems
 from six.moves import zip
+from copy import copy
 from operator import itemgetter
 from itertools import islice, product, chain
 import numpy as np
@@ -143,6 +144,10 @@ def groupby(df, **specs):
         yield DataGroup(label='all', data=df, attr_specs=attrs)
 
 
+DEFAULT_DIMS = ['x', 'y']
+DEFAULT_REQ_DIMS = [['x'], ['y'], ['x', 'y']]
+
+
 class ChartDataSource(object):
     """Validates, normalizes, groups, and assigns Chart attributes to groups.
 
@@ -157,10 +162,10 @@ class ChartDataSource(object):
     def __init__(self, df, dims=None, required_dims=None, selections=None, **kwargs):
 
         if dims is None:
-            dims = ['x', 'y']
+            dims = DEFAULT_DIMS
 
         if required_dims is None:
-            required_dims = [['x'], ['y'], ['x', 'y']]
+            required_dims = DEFAULT_REQ_DIMS
 
         self._data = df
         self._dims = dims
@@ -310,19 +315,7 @@ class ChartDataSource(object):
 
         # handle array-like
         if len(arrays) > 0:
-            if 'columns' not in kwargs:
-                column_names = gen_column_names(len(arrays))
-
-                # try to replace auto names with Series names
-                for i, array in enumerate(arrays):
-                    if isinstance(array, pd.Series):
-                        name = array.name
-                        if name not in column_names:
-                            column_names[i] = name
-            else:
-                column_names = kwargs['columns']
-
-            return cls.from_arrays(arrays, column_names=column_names, **kwargs)
+            return cls.from_arrays(arrays, **kwargs)
 
         # handle table-like
         elif len(tables) > 0:
@@ -369,10 +362,7 @@ class ChartDataSource(object):
             return valid
 
         # really want to check for nested lists, where each list might have lists
-        if isinstance(data, list) and \
-                any([len(sub_data) > 1 for sub_data in data if
-                     isinstance(sub_data, list)]):
-
+        if isinstance(data, list):
             if all([ChartDataSource.is_array(col) for col in data]):
                 valid = True
 
@@ -392,8 +382,29 @@ class ChartDataSource(object):
 
     @classmethod
     def from_arrays(cls, arrays, column_names=None, **kwargs):
-        if not column_names:
-            column_names = gen_column_names(len(arrays))
+
+        # handle list of arrays
+        if any(cls.is_list_arrays(array) for array in arrays):
+            list_of_arrays = copy(arrays)
+            arrays = list(chain.from_iterable(arrays))
+            column_names = column_names or gen_column_names(len(arrays))
+            cols = copy(column_names)
+            dims = kwargs.get('dims', None) or DEFAULT_DIMS
+
+            # derive column selections
+            for dim, list_of_array in zip(dims, list_of_arrays):
+                sel = [cols.pop(0) for _ in list_of_array]
+                kwargs[dim] = sel
+        else:
+            column_names = column_names or gen_column_names(len(arrays))
+
+        # try to replace auto names with Series names
+        for i, array in enumerate(arrays):
+            if isinstance(array, pd.Series):
+                name = array.name
+                if name not in column_names:
+                    column_names[i] = name
+
         table = {column_name: array for column_name, array in zip(column_names, arrays)}
         return cls(df=pd.DataFrame.from_dict(data=table), **kwargs)
 

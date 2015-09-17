@@ -8,9 +8,22 @@
 
 from __future__ import absolute_import
 
-from bokeh.charts import Line
+import pytest
+from bokeh.charts.builder.line_builder import LineBuilder
 
 
-def test_array_input(test_data):
-    line0 = Line(y=test_data.list_data)
-    assert len(line0.renderers) > 0
+@pytest.fixture
+def line_builder_array(test_data):
+    line_builder = LineBuilder(test_data.list_data)
+    line_builder.create()
+    return line_builder
+
+
+def test_array_input(line_builder_array):
+    """A list of two lists of values in should result in 2 composite glyphs."""
+    assert len(line_builder_array.comp_glyphs) == 2
+
+
+def test_array_input_assignment(line_builder_array):
+    """Make sure array input is derived to a measurement name, value data source."""
+    assert line_builder_array.y.selection == 'value'
