@@ -23,8 +23,8 @@ import pandas as pd
 
 from bokeh.charts import HeatMap
 from bokeh.models import FactorRange
+from bokeh.util.testing import create_chart
 
-from bokeh.charts.builder.tests._utils import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions
