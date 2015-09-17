@@ -12,7 +12,7 @@ xyvalues = pd.melt(xyvalues, id_vars=['Year'],
                    value_name='Count', var_name='Degree')
 
 TOOLS='box_zoom,box_select,hover,crosshair,resize,reset'
-output_file("lines.html", title="line.py example")
+output_file("hover_span.html", title="line.py example")
 
 vline = Line(xyvalues, y='Count', color='Degree', title="Lines VLine", ylabel='measures',
              tools=TOOLS)
