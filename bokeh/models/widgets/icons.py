@@ -3,10 +3,12 @@
 """
 from __future__ import absolute_import
 
+from ...properties import abstract
 from ...properties import Bool, Float, Enum
 from ...enums import NamedIcon
 from ..widget import Widget
 
+@abstract
 class AbstractIcon(Widget):
     """ An abstract base class for icon widgets. ``AbstractIcon``
     is not generally useful to instantiate on its own.

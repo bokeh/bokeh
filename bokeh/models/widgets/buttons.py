@@ -3,12 +3,14 @@
 """
 from __future__ import absolute_import
 
+from ...properties import abstract
 from ...properties import Bool, Int, String, Enum, Instance, List, Tuple
 from ...enums import ButtonType
 from ..callbacks import Callback
 from ..widget import Widget
 from .icons import AbstractIcon
 
+@abstract
 class AbstractButton(Widget):
     """ A base class that defines common properties for all
     button types. ``AbstractButton`` is not generally useful to
