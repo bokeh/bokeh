@@ -2,8 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 
-from bokeh.models.renderers import GlyphRenderer
-from bokeh.plotting import ColumnDataSource, figure
+from bokeh.plotting import figure
 from bokeh.models.ranges import DataRange1d
 
 
