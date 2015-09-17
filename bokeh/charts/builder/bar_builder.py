@@ -155,6 +155,7 @@ class BarBuilder(Builder):
         if self.values.dtype.name == 'object' and len(self.attribute_columns) == 0:
             # agg must be count
             self.agg = 'count'
+            self.attributes['label'].set_columns(self.values.selection)
         else:
             pass
 

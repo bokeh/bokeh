@@ -15,13 +15,15 @@
 from __future__ import absolute_import
 
 from bokeh.charts import Bar
+from bokeh.charts.stats import CountDistinct
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def test_array_input(test_data):
-    bar_plot = Bar(test_data.cat_list, title="label='cyl'")
-    assert len(bar_plot.renderers) > 0
+def test_cat_list_input(test_data):
+    num_items = CountDistinct(values=test_data.cat_list).value
+    bar_plot = Bar(test_data.cat_list)
+    assert len(bar_plot.renderers) == num_items
 
