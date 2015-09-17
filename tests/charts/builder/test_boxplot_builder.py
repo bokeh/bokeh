@@ -22,7 +22,7 @@ import pandas as pd
 import blaze
 from bokeh.charts import BoxPlot
 
-from bokeh.charts.builder.tests._utils import create_chart
+from ._utils import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions
