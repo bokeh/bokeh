@@ -159,16 +159,20 @@ make_cache = (locations) ->
       result[name] = spec
   return result
 
-_mod_cache = null
+_mod_cache = null # XXX: do NOT access directly outside _get_mod_cache()
 
-Collections = (typename) ->
+_get_mod_cache = () ->
   if not _mod_cache?
     _mod_cache = make_cache(locations)
+  _mod_cache
+
+Collections = (typename) ->
+  mod_cache = _get_mod_cache()
 
   if collection_overrides[typename]
     return collection_overrides[typename]
 
-  mod = _mod_cache[typename]
+  mod = mod_cache[typename]
 
   if not mod?
     throw Error("module `#{typename}' does not exists")
@@ -190,11 +194,12 @@ modules = arguments[4] # XXX: this refers to the 4th argument a the outer functi
                        # registration mechanism.
 
 Collections.register_plugin = (name, locations) ->
-  cache = make_cache(locations)
+  mod_cache = _get_mod_cache()
+  plugin_cache = make_cache(locations)
 
-  for own name, module of cache
-    if not _mod_cache.hasOwnProperty(name)
-      _mod_cache[name] = module
+  for own name, module of plugin_cache
+    if not mod_cache.hasOwnProperty(name)
+      mod_cache[name] = module
     else
       throw new Error("#{name} was already registered")
 
@@ -203,13 +208,14 @@ Collections.register_model = (name, mod) ->
     body = coffee.compile(code, {bare: true, shiftLine: true})
     new Function("require", "module", "exports", body)
 
-  if not _mod_cache?
-    mod_name = "custom/#{name.toLowerCase()}"
-    [impl, deps] = mod
-    modules[mod_name] = [compile(impl), deps]
-    locations[name] = require(mod_name)
-  else
-    throw new Error("can't register new models after collections were initialized") # XXX: temporary limitation
+  mod_cache = _get_mod_cache()
+
+  mod_name = "custom/#{name.toLowerCase()}"
+  [impl, deps] = mod
+  modules[mod_name] = [compile(impl), deps]
+  _locations = {}
+  _locations[name] = require(mod_name)
+  Collections.register_plugin("custom", _locations)
 
 Collections.register_models = (specs) ->
   for own name, impl of specs
