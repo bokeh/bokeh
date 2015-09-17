@@ -17,8 +17,9 @@ gulp.task "scripts:build", ->
     entries: ['./src/coffee/main.coffee']
     extensions: [".coffee", ".eco"]
     debug: true
-
+  
   browserify opts
+    .transform("browserify-css", {'global': true, 'minify':true})
     .transform "browserify-eco"
     .transform "coffeeify"
     .bundle()
