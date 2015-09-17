@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.charts import BoxPlot
+from bokeh.charts.builder.boxplot_builder import BoxPlotBuilder
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -22,7 +22,7 @@ from bokeh.charts import BoxPlot
 
 
 def test_array_input(test_data):
-    box_plot = BoxPlot(test_data.auto_data.mpg.values,
-                       title="label='cyl', values='mpg'")
-    assert len(box_plot.renderers) > 0
+    box_builder = BoxPlotBuilder(test_data.auto_data.mpg.values)
+    box_builder.create()
+    assert len(box_builder.comp_glyphs) == 1
 

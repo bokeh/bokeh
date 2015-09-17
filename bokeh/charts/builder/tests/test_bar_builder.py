@@ -24,7 +24,7 @@ from bokeh.charts.stats import CountDistinct
 
 def test_cat_list_input(test_data):
     num_items = CountDistinct(values=test_data.cat_list).value
-    bar_plot = BarBuilder(test_data.cat_list)
-    bar_plot.create()
-    assert len(bar_plot.comp_glyphs) == num_items
+    bar_builder = BarBuilder(test_data.cat_list)
+    bar_builder.create()
+    assert len(bar_builder.comp_glyphs) == num_items
 
