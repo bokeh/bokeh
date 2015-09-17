@@ -1,9 +1,9 @@
-from __future__ import absolute_import, print_function
+from __future__ import print_function
 import os
 import pytest
 
 from bokeh.io import output_file
-from .webserver import SimpleWebServer
+from webserver import SimpleWebServer
 
 
 @pytest.fixture(scope='session', autouse=True)

@@ -22,8 +22,7 @@ from numpy.testing import assert_array_equal
 import pandas as pd
 
 from bokeh.charts import Step
-
-from bokeh.charts.builder.tests._utils import create_chart
+from bokeh.util.testing import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions
