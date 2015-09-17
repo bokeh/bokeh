@@ -19,7 +19,7 @@ gulp.task "scripts:build", ->
     debug: true
   
   browserify opts
-    .transform("browserify-css", {'global': true, 'minify':true})
+    .transform("browserify-css", {'minify':true})
     .transform "browserify-eco"
     .transform "coffeeify"
     .bundle()

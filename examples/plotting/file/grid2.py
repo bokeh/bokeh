@@ -7,7 +7,7 @@ N = 50
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_file("grid.html", title="grid.py example")
+output_file("grid2.html", title="grid2.py (Phosphor grid) example")
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,crosshair"
 

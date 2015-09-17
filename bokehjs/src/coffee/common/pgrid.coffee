@@ -15,7 +15,6 @@ class PGridView extends ContinuumView
 
   initialize: (options) ->
     super(options)
-    window.box = this
     @views = {}
     
     @panel = new gridpanel.GridPanel()
@@ -24,6 +23,7 @@ class PGridView extends ContinuumView
     @panel.node.style.position = 'absolute'
     @el.appendChild(@panel.node)
     # simulate widget.attachWidget(@panel, @el), but allow @el to be unbound to DOM
+    # TODO: this not good style, need to call when really attached, render() does not get called enough though. 
     messaging.sendMessage(@panel, widget.MSG_AFTER_ATTACH)
     
     @build_children()
@@ -47,7 +47,7 @@ class PGridView extends ContinuumView
         child_models.push(child)
     build_views(@views, child_models, {})
     # Populate grid
-    @panel.clearChildren()
+    
     irow = -1
     ww = []  # Phosphor-widgets
     for row in @mget('children')
