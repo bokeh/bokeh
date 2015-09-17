@@ -33,7 +33,6 @@ branches:
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
-    - echo `nvm ls-remote`
     - nvm install 0.12.7
     - nvm use 0.12.7
     # Use xvfb to run tests that require firefox
