@@ -2,7 +2,6 @@
 from bokeh.sampledata.autompg import autompg as df
 from bokeh.sampledata.olympics2014 import data
 from bokeh.sampledata.iris import flowers
-from bokeh.sampledata.project_funding import project_funding as pf
 
 from bokeh.charts import Scatter, output_file, show, vplot, hplot
 from bokeh.charts.operations import blend
@@ -43,14 +42,6 @@ scatter6 = Scatter(flowers, x=blend('petal_length', 'sepal_length', name='length
                    y=blend('petal_width', 'sepal_width', name='width'), color='species',
                    title='x=petal_length+sepal_length, y=petal_width+sepal_width, color=species',
                    legend='top_right')
-
-# Project funding data examples
-# scatter7 = Scatter(pf, x='client_time', y='longitude', color='gender',
-#                    title='x=client_time, y=amount, color=gender', legend='top_right')
-#
-# scatter8 = Scatter(pf, x='client_time', y='amount', color=['gender', 'marital_status'],
-#                    title='x=client_time, y=amount, color=gender', legend='top_right')
-
 
 output_file("scatter.html")
 

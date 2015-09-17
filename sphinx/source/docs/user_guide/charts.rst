@@ -7,110 +7,72 @@ Using High-level Charts
     :local:
     :depth: 2
 
-.. _userguide_charts_generic_arguments:
 
-Generic Arguments
------------------
+.. _userguide_charts_histogram:
 
-All charts support a set of common arguments:
+Histograms
+----------
 
+The `Histogram` high-level chart can be used to quickly display the
+distribution of values in a set of data. It can be used by simply
+passing it a literal sequence of values (e.g a python list, NumPy
+or Pandas DataFrame column):
 
-``title`` *(str)* : the title of your chart.
-
-``xlabel`` *(str)* : the x-axis label of your chart.
-
-``ylabel`` *(str)* : the y-axis label of your chart.
-
-``legend`` *(str, bool)* : the legend of your chart.
-
-``xscale`` *(str)* : the x-axis type scale of your chart.
-
-``yscale`` *(str)* : the y-axis type scale of your chart.
-
-``xgrid`` *(bool)* : whether to draw an x-grid.
-
-``ygrid`` *(bool)* : whether to draw an y-grid.
-
-``width`` *(int)* : the width of your plot in pixels.
-
-``height`` *(int)* : the height of your plot in pixels.
-
-``tools`` *(str or bool)* : to enable or disable the tools in your chart.
-
-``palette`` *(list)* : a list containing the colormap as hex values.
-
-``filename`` *(str or bool)* : the name of the file where your chart will be written.
-
-``server`` *(str or bool)* : the name of your chart in the server.
-
-``notebook`` *(bool)* : whether to output inline in the IPython notebook.
-
-Creating Charts
----------------
-
-With the next examples, we'll learn the basics of using `bokeh.charts` to create
-rich charts commonly used without having to access lower level components.
-
-Area, Line and Step Charts
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. bokeh-plot:: source/docs/user_guide/source_examples/chart_area_line_step.py
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_literal.py
     :source-position: above
 
-With this small example, we have learned the basics of creating a Line chart with Bokeh. Try
-running the code and changing the Line function with Area or Step to create other chart types.
+It can also be used by passing in a Pandas Dataframe as the first
+argument, and specifying the name of the column to use for the data.
+The column name can be provided as the second positional argument:
 
-
-Bar and Dot Charts
-~~~~~~~~~~~~~~~~~~
-
-Although the nature of Bar and Dot charts differs somewhat from those in the previous paragraph,
-they can be created in exactly the same way.  Below is the code to create a Bar chart with the
-same data as the previous example. Worth mentioning is that the only changes are the chart function and
-the definition of the category names.
-
-.. bokeh-plot:: source/docs/user_guide/source_examples/chart_bar_dot.py
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_field_arg.py
     :source-position: above
 
-With this small example, we have learned the basics of creating a Bar chart with Bokeh. Try
-running the code and changing the Bar function with Dot to create other chart types.
+Or explicitly as the `values` keyword argument:
 
-BoxPlot
-~~~~~~~
-
-.. bokeh-plot:: source/docs/user_guide/source_examples/chart_box.py
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_field_kwarg.py
     :source-position: above
 
-With this small example, we have learned the basics of creating a BoxPlot chart with Bokeh.
+.. _userguide_charts_histogram_bins:
 
-HeatMap
-~~~~~~~
+Number of Bins
+~~~~~~~~~~~~~~
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/chart_heatmap.py
+The `bins` argument can be used to specify the number of bins to use when
+computing the histogram:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_bins.py
     :source-position: above
 
-With this small example, we have learned the basics of creating a HeatMap chart with Bokeh.
+.. _userguide_charts_histogram_bar_color:
 
 
-Donut
-~~~~~
+Bar Color
+~~~~~~~~~
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/chart_donut.py
+It is also possible to control the color of the histogram bins by setting
+the `color` parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_color.py
     :source-position: above
 
-With this small example, we have learned the basics of creating a Donut chart with Bokeh.
 
+.. _userguide_charts_histogram_color_groups:
 
-TimeSeries
-~~~~~~~~~~
+Color Groups
+~~~~~~~~~~~~
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/chart_timeseries.py
+However, the `color` parameter can also be used to group the data. If the
+value of the `color` parameter is one of the DataFrame column names, the data
+is first grouped by this column, and a histogram is generated for each group.
+Each histogram is automatically colored differently, and a legend displayed:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_color_groups.py
     :source-position: above
 
-You can also easily plot multiple timeseries together, and add a legend by
-passing ``legend=True`` to the chart function:
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/chart_timeseries_with_legend.py
-    :source-position: above
 
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+.. _userguide_charts_defaults:
+
+Chart Defaults
+--------------
