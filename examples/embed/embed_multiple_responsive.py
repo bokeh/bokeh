@@ -12,9 +12,12 @@ import random
 PLOT_OPTIONS = dict(plot_width=800, plot_height=300)
 SCATTER_OPTIONS = dict(size=12, alpha=0.5)
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
-p1 = figure(responsive=True, tools='pan', **PLOT_OPTIONS).scatter(data(), data(), color="red", **SCATTER_OPTIONS)
-p2 = figure(responsive=True, tools='pan', **PLOT_OPTIONS).scatter(data(), data(), color="blue", **SCATTER_OPTIONS)
-p3 = figure(responsive=True, tools='pan,resize', **PLOT_OPTIONS).scatter(data(), data(), color="green", **SCATTER_OPTIONS)
+p1 = figure(responsive=True, tools='pan', **PLOT_OPTIONS)
+p1.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
+p2 = figure(responsive=True, tools='pan', **PLOT_OPTIONS)
+p2.scatter(data(), data(), color="blue", **SCATTER_OPTIONS)
+p3 = figure(responsive=True, tools='pan,resize', **PLOT_OPTIONS)
+p3.scatter(data(), data(), color="green", **SCATTER_OPTIONS)
 
 ########## RENDER PLOTS ################
 

@@ -25,8 +25,8 @@ def test_autoresize_tool_resizes_plot_while_maintaining_aspect_ratio(output_file
     window_ratio = initial_window_width / final_window_width
 
     # Make the plot with autoresize
-    PLOT_OPTIONS = dict(plot_width=plot_width, plot_height=plot_height, responsive=True)
-    plot = figure(**PLOT_OPTIONS).scatter([1, 2, 3], [3, 2, 3])
+    plot = figure(plot_width=plot_width, plot_height=plot_height, responsive=True)
+    plot.scatter([1, 2, 3], [3, 2, 3])
     save(plot)
 
     # Open the browser with the plot and resize the window to get an initial measure
@@ -54,8 +54,8 @@ def test_autoresize_tool_resizes_plot_while_maintaining_aspect_ratio(output_file
 
 def test_autoresize_tool_maintains_a_minimum_width(output_file_url, selenium):
     # The aspect ratio is portrait but should not allow a width less than 100
-    PLOT_OPTIONS = dict(plot_width=200, plot_height=400, responsive=True)
-    plot = figure(**PLOT_OPTIONS).scatter([1, 2, 3], [3, 2, 3])
+    plot = figure(plot_width=200, plot_height=400, responsive=True)
+    plot.scatter([1, 2, 3], [3, 2, 3])
     save(plot)
 
     # Open the browser with the plot and resize the window small
@@ -68,8 +68,8 @@ def test_autoresize_tool_maintains_a_minimum_width(output_file_url, selenium):
 
 def test_autoresize_tool_maintains_a_minimum_height(output_file_url, selenium):
     # The aspect ratio is landscape but should not allow a height less than 100
-    PLOT_OPTIONS = dict(plot_width=200, plot_height=100, responsive=True)
-    plot = figure(**PLOT_OPTIONS).scatter([1, 2, 3], [3, 2, 3])
+    plot = figure(plot_width=200, plot_height=100, responsive=True)
+    plot.scatter([1, 2, 3], [3, 2, 3])
     save(plot)
 
     # Open the browser with the plot and resize the window small
