@@ -346,6 +346,13 @@ def accumulate_from_subclasses(cls, propname):
             s.update(getattr(c, propname))
     return s
 
+def abstract(cls):
+    """ A phony decorator to mark abstract base classes. """
+    if not issubclass(cls, HasProps):
+        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
+
+    return cls
+
 @add_metaclass(MetaHasProps)
 class HasProps(object):
 

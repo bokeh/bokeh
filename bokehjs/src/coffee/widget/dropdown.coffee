@@ -14,7 +14,7 @@ class DropdownView extends ContinuumView
   render: () ->
     @$el.empty()
 
-    split = @mget("default_action")?
+    split = @mget("default_value")?
 
     $button = $('<button></button>')
     $button.addClass("bk-bs-btn")
@@ -29,7 +29,7 @@ class DropdownView extends ContinuumView
       $button.append($caret)
       $toggle = $('')
     else
-      $button.click(() => @change_input(@mget("default_action")))
+      $button.click(() => @change_input(@mget("default_value")))
       $toggle = $('<button></button>')
       $toggle.addClass("bk-bs-btn")
       $toggle.addClass("bk-bs-btn-" + @mget("type"))
@@ -55,8 +55,8 @@ class DropdownView extends ContinuumView
     @$el.append([$button, $toggle, $menu])
     return @
 
-  change_input: (action) ->
-    @mset('action', action)
+  change_input: (value) ->
+    @mset('value', value)
     @model.save()
     @mget('callback')?.execute(@model)
 
@@ -66,8 +66,8 @@ class Dropdown extends HasParent
 
   defaults: () ->
     return _.extend {}, super(), {
-      action: null
-      default_action: null
+      value: null
+      default_value: null
       label: "Dropdown"
       icon: null
       type: "default"

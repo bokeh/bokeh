@@ -7,9 +7,11 @@ these widgets.
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
+from ..properties import abstract
 from ..properties import Bool
 from ..embed import notebook_div
 
+@abstract
 class Widget(PlotObject):
     """ A base class for all interact widget types. ``Widget``
     is not generally useful to instantiate on its own.

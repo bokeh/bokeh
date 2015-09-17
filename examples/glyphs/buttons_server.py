@@ -23,12 +23,12 @@ def toggle_handler(active):
     print("toggle_handler: %s" % active)
     session.store_document(document)
 
-def dropdown_handler(action):
-    print("dropdown_handler: %s" % action)
+def dropdown_handler(value):
+    print("dropdown_handler: %s" % value)
     session.store_document(document)
 
-def split_handler(action):
-    print("split_handler: %s" % action)
+def split_handler(value):
+    print("split_handler: %s" % value)
     session.store_document(document)
 
 def checkbox_group_handler(active):
@@ -58,7 +58,7 @@ dropdown = Dropdown(label="Dropdown button", type="warning", menu=menu)
 dropdown.on_click(dropdown_handler)
 
 menu = [("Item 1", "foo"), ("Item 2", "bar"), None, ("Item 3", "baz")]
-split = Dropdown(label="Split button", type="danger", menu=menu, default_action="baz")
+split = Dropdown(label="Split button", type="danger", menu=menu, default_value="baz")
 split.on_click(split_handler)
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])

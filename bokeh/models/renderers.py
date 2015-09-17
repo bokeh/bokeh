@@ -6,21 +6,20 @@ from __future__ import absolute_import
 
 import logging
 
-from six import string_types
-
 from ..plot_object import PlotObject
+from ..properties import abstract
 from ..properties import String, Enum, Instance
 from ..enums import Units, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
-from ..validation.warnings import MALFORMED_CATEGORY_LABEL
 from .. import validation
 
-from .sources import DataSource
+from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
 
 logger = logging.getLogger(__name__)
 
 
+@abstract
 class Renderer(PlotObject):
     """ A base class for renderer types. ``Renderer`` is not
     generally useful to instantiate on its own.
@@ -44,6 +43,7 @@ class GlyphRenderer(Renderer):
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
+        if isinstance(self.data_source, RemoteSource): return
         missing = set()
         for name, item in self.glyph.vm_serialize().items():
             if not isinstance(item, dict): continue
@@ -51,34 +51,6 @@ class GlyphRenderer(Renderer):
                 missing.add(item['field'])
         if missing:
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
-
-    @validation.warning(MALFORMED_CATEGORY_LABEL)
-    def _check_colon_in_category_label(self):
-        if not self.glyph: return
-        if not self.data_source: return
-        vm = self.glyph.vm_serialize()
-        labels = (label for label in ['x', 'y']
-                  if label in vm and 'field' in vm[label])
-
-        broken = []
-
-        for label in labels:
-            try:
-                for value in self.data_source.data[vm[label]['field']]:
-                    if not isinstance(value, string_types): break
-                    if ':' in value:
-                        broken.append((vm[label]['field'], value))
-                        break
-            except KeyError:
-                logging.info(
-                    'Can\'t check category labels for %s data source',
-                    self.data_source
-                )
-
-        if broken:
-            field_msg = ' '.join('[field:%s] [first_value: %s]' % (field, value)
-                                 for field, value in broken)
-            return '%s [renderer: %s]' % (field_msg, self)
 
     data_source = Instance(DataSource, help="""
     Local data source to use when rendering glyphs on the plot.
@@ -118,6 +90,7 @@ class GlyphRenderer(Renderer):
     Specifies the level in which to render the glyph.
     """)
 
+@abstract
 class GuideRenderer(Renderer):
     """ A base class for all guide renderer types. ``GuideRenderer`` is
     not generally useful to instantiate on its own.
