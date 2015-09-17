@@ -16,7 +16,6 @@ class PGridView extends ContinuumView
   initialize: (options) ->
     super(options)
     @views = {}
-    
     @panel = new gridpanel.GridPanel()
     @panel.node.style.width = '100%'
     @panel.node.style.height = '100%'
@@ -35,7 +34,8 @@ class PGridView extends ContinuumView
     @listenTo(@model, 'change:children', @build_children)
     @listenTo(@model, 'change', @render)
     @listenTo(@model, 'destroy', @remove)
-    window.addEventListener('resize', () -> box.panel.update())
+    that = this
+    window.addEventListener('resize', () -> that.panel.update())
 
   build_children: () ->
     # Get views
@@ -58,12 +58,16 @@ class PGridView extends ContinuumView
         if not child?
           continue
         w = new widget.Widget()
-        w.node.style['margin'] = 'auto'
-        w.node.appendChild(@views[child.id].$el[0])
+        el = @views[child.id].$el[0]
+        w.node.appendChild(el)
         ww.push(w)
         gridpanel.GridPanel.setRow(w, irow)
         gridpanel.GridPanel.setColumn(w, icol)
         # note: there's also setRowSpan, setColumnSpan
+        # Tweak CSS to horizontally center-align plots
+        if child.type == 'Plot'
+          el.style.width = child.get('plot_width') + 'px'
+          el.style.margin = 'auto' 
     @panel.children = ww
     
     # Specs
