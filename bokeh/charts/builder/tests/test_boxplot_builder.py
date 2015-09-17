@@ -21,8 +21,8 @@ import numpy as np
 import pandas as pd
 import blaze
 from bokeh.charts import BoxPlot
+from bokeh.util.testing import create_chart
 
-from _utils import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions

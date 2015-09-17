@@ -23,8 +23,8 @@ import pandas as pd
 
 from bokeh.charts import Area
 from bokeh.models import DataRange1d, Range1d
+from bokeh.util.testing import create_chart
 
-from _utils import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions
