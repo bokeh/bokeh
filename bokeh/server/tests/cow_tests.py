@@ -12,15 +12,16 @@ from bokeh.models.plots import Plot
 from bokeh.session import TestSession
 from werkzeug.exceptions import Unauthorized
 
-from . import test_utils
-from ..app import app, bokeh_app
-from ..models.user import User, new_user
-from ..models.docs import Doc
-from ..serverbb import BokehServerTransaction
-from ..views.bbauth import handle_auth_error
-from ..views.main import _makedoc
+from bokeh.server.app import app, bokeh_app
+from bokeh.server.models.user import User, new_user
+from bokeh.server.models.docs import Doc
+from bokeh.server.serverbb import BokehServerTransaction
+from bokeh.server.views.bbauth import handle_auth_error
+from bokeh.server.views.main import _makedoc
 
-class AuthTestCase(test_utils.FlaskClientTestCase):
+from utils import FlaskClientTestCase
+
+class AuthTestCase(FlaskClientTestCase):
     options = {'multi_user' : True}
     def test_handle_auth_error_decorator(self):
         @handle_auth_error
@@ -71,7 +72,7 @@ class AuthTestCase(test_utils.FlaskClientTestCase):
             self.assertRaises(AuthenticationException, BokehServerTransaction,
                               user, doc, 'rw', temporary_docid="foobar")
 
-class TransactionManagerTestCase(test_utils.FlaskClientTestCase):
+class TransactionManagerTestCase(FlaskClientTestCase):
     options = {'multi_user' : True}
     def setUp(self):
         super(TransactionManagerTestCase, self).setUp()
@@ -152,7 +153,7 @@ class TransactionManagerTestCase(test_utils.FlaskClientTestCase):
             t = self.transaction(None, mode='r')
             self.assertRaises(AuthenticationException, t.load, gc=True)
 
-class PublishTestCase(test_utils.FlaskClientTestCase):
+class PublishTestCase(FlaskClientTestCase):
     options = {'multi_user' : True}
     def test_publish(self):
         sess = TestSession(client=app.test_client())

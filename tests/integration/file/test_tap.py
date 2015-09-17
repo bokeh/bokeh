@@ -6,7 +6,7 @@ from bokeh.models import TapTool, CustomJS
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
-from ..utils import value_to_be_present_in_datahash
+from integration.utils import value_to_be_present_in_datahash
 
 import pytest
 pytestmark = pytest.mark.integration

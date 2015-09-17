@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function
 
-import unittest
 import types
+import pytest
 
 import abstract_rendering.numeric as numeric
 import abstract_rendering.categories as categories
@@ -12,14 +12,15 @@ import abstract_rendering.core as ar
 import abstract_rendering.numpyglyphs as npg
 import abstract_rendering.infos as infos
 
-from ..server.tests import test_utils
-from ..server.app import app
-from ..session import TestSession
-from ..plotting import (reset_output, output_server, curdoc, figure)
-from ..transforms import ar_downsample as ar_downsample
-from ..models.sources import ServerDataSource
-from ..models.renderers import GlyphRenderer
-from ..models.ranges import Range1d
+from bokeh.server.app import app
+from bokeh.session import TestSession
+from bokeh.plotting import (reset_output, output_server, curdoc, figure)
+from bokeh.transforms import ar_downsample as ar_downsample
+from bokeh.models.sources import ServerDataSource
+from bokeh.models.renderers import GlyphRenderer
+from bokeh.models.ranges import Range1d
+
+from utils import FlaskClientTestCase
 
 def sort_init_first(_, a, b):
     if "_init_" in a:
@@ -33,7 +34,6 @@ def sort_init_first(_, a, b):
     else:
         return 0
 
-unittest.TestLoader.sortTestMethodsUsing = sort_init_first
 
 class _SourceShim(object):
     defVal = 'value'
@@ -51,11 +51,8 @@ class _FailsProxyReify(object):
         raise NotImplementedError
 
 
-
-from unittest import skip
-
-@skip
-class Test_AR(test_utils.FlaskClientTestCase):
+@pytest.skip
+class Test_AR(FlaskClientTestCase):
     #TODO - separate server from non-server tests
     def test_replot_remove(self):
         ar_downsample._loadAR()

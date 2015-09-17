@@ -10,12 +10,13 @@ from __future__ import absolute_import
 from bokeh import protocol
 from bokeh import session
 
-from . import test_utils
-from ..app import bokeh_app
+from bokeh.server.app import bokeh_app
+
+from utils import BokehServerTestCase
 
 ws_address = "ws://localhost:5006/bokeh/sub"
 
-class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
+class TestSubscribeWebSocket(BokehServerTestCase):
     def test_basic_subscribe(self):
         self.sess1 = session.Session()
         self.sess1.use_doc('first')

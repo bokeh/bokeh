@@ -9,11 +9,13 @@ from __future__ import absolute_import
 
 from bokeh.exceptions import UnauthorizedException
 
-from . import test_utils
-from ..app import bokeh_app
-from ..models import user
+from bokeh.server.app import bokeh_app
+from bokeh.server.models import user
 
-class TestUser(test_utils.BokehServerTestCase):
+from utils import BokehServerTestCase
+
+
+class TestUser(BokehServerTestCase):
     def setUp(self):
         super(TestUser, self).setUp()
         self.client = bokeh_app.servermodel_storage

@@ -11,11 +11,12 @@ import tempfile
 
 from bokeh.session import TestSession
 
-from . import test_utils
-from ..app import bokeh_app, app
-from ..models import user
+from bokeh.server.app import bokeh_app, app
+from bokeh.server.models import user
 
-class TestMultiUserAuth(test_utils.FlaskClientTestCase):
+from utils import FlaskClientTestCase
+
+class TestMultiUserAuth(FlaskClientTestCase):
     options = {'multi_user' : True}
     def test_register(self):
         sess = TestSession(client=app.test_client())
