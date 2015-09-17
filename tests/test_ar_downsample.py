@@ -12,7 +12,6 @@ import abstract_rendering.core as ar
 import abstract_rendering.numpyglyphs as npg
 import abstract_rendering.infos as infos
 
-from bokeh.server.tests import test_utils
 from bokeh.server.app import app
 from bokeh.session import TestSession
 from bokeh.plotting import (reset_output, output_server, curdoc, figure)
@@ -20,6 +19,8 @@ from bokeh.transforms import ar_downsample as ar_downsample
 from bokeh.models.sources import ServerDataSource
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.ranges import Range1d
+
+from .server import test_utils
 
 def sort_init_first(_, a, b):
     if "_init_" in a:

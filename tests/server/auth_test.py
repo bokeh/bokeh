@@ -14,7 +14,7 @@ import pytest
 
 from bokeh.server.app import bokeh_app
 from bokeh.server.models.user import User
-from bokeh.views.decorators import login_required
+from bokeh.server.views.decorators import login_required
 
 @contextmanager
 def patch_current_user(func):

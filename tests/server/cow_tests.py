@@ -8,7 +8,7 @@
 from __future__ import absolute_import
 
 from bokeh.exceptions import AuthenticationException
-from bokeh.server.models.plots import Plot
+from bokeh.models.plots import Plot
 from bokeh.session import TestSession
 from werkzeug.exceptions import Unauthorized
 
@@ -16,9 +16,9 @@ from . import test_utils
 from bokeh.server.app import app, bokeh_app
 from bokeh.server.models.user import User, new_user
 from bokeh.server.models.docs import Doc
-from bokeh.serverbb import BokehServerTransaction
-from bokeh.views.bbauth import handle_auth_error
-from bokeh.views.main import _makedoc
+from bokeh.server.serverbb import BokehServerTransaction
+from bokeh.server.views.bbauth import handle_auth_error
+from bokeh.server.views.main import _makedoc
 
 class AuthTestCase(test_utils.FlaskClientTestCase):
     options = {'multi_user' : True}
