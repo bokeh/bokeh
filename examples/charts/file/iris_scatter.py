@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from bokeh.charts import Scatter, output_file, show
+from bokeh._legacy_charts import Scatter, output_file, show
 from bokeh.sampledata.iris import flowers
 
 # fill a data frame with the data of interest and create a groupby object

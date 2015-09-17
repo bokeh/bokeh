@@ -10,33 +10,17 @@ box_plot = BoxPlot(df, label='cyl', values='mpg', title="label='cyl', values='mp
 
 box_plot2 = BoxPlot(df, label=['cyl', 'origin'], values='mpg', title="label=['cyl', 'origin'], values='mpg'")
 
-# bar_plot2 = BoxPlot(df, label='cyl', bar_width=0.4, title="label='cyl' bar_width=0.4")
-#
-# bar_plot3 = BoxPlot(df, label='cyl', values='mpg', agg='mean',
-#                 title="label='cyl' values='mpg' agg='mean'")
-#
-# bar_plot4 = BoxPlot(df, label='cyl', title="label='cyl' color='DimGray'", color='dimgray')
-#
-# # multiple columns
-# bar_plot5 = BoxPlot(df, label=['cyl', 'origin'], values='mpg', agg='mean',
-#                 title="label=['cyl', 'origin'] values='mpg' agg='mean'")
-#
-# bar_plot6 = BoxPlot(df, label='origin', values='mpg', agg='mean', stack='cyl',
-#                 title="label='origin' values='mpg' agg='mean' stack='cyl'", legend='top_right')
-#
-# bar_plot7 = BoxPlot(df, label='cyl', values='displ', agg='mean', group='origin',
-#                 title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
+box_plot3 = BoxPlot(df, label='cyl', values='mpg', agg='mean',
+                title="label='cyl' values='mpg' agg='mean'")
 
-# ToDo: negative values
-# bar_plot8 = Bar(df, label='cyl', values='neg_displ', agg='mean', group='origin', color='origin',
-#                 title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
-
+box_plot4 = BoxPlot(df, label='cyl', title="label='cyl' color='DimGray'", color='dimgray')
 
 # collect and display
 output_file("bar.html")
 
 show(
     vplot(
-        hplot(box_plot, box_plot2)
+        hplot(box_plot, box_plot2),
+        hplot(box_plot3, box_plot4),
     )
 )

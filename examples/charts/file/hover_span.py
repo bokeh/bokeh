@@ -1,5 +1,5 @@
 from bokeh.models import HoverTool
-from bokeh.charts import Line, Scatter, vplot, hplot, show, output_file
+from bokeh._legacy_charts import Line, Scatter, vplot, hplot, show, output_file
 from bokeh.sampledata.degrees import xyvalues
 
 index = xyvalues.pop("Year")
