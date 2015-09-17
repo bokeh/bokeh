@@ -19,7 +19,7 @@ from requests.exceptions import ConnectionError
 from bokeh.server import start, configure
 from bokeh.server.app import bokeh_app, app
 from bokeh.server.models import user
-from bokeh.settings import settings as server_settings
+from bokeh.server.settings import settings as server_settings
 
 def wait_flask():
     def helper():
