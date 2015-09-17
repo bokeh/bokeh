@@ -42,7 +42,6 @@ before_install:
 
 install:
     - scripts/travis_install
-    - pip install pytest-selenium==1.0b1
 
 script:
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
