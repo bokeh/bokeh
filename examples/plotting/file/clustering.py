@@ -17,9 +17,8 @@ from sklearn.preprocessing import StandardScaler
 
 from bokeh.plotting import figure, show, output_file
 from bokeh.models import HBox, VBox
-from bokeh.models.widgets import Slider
 
-N = 500
+N = 50000
 PLOT_SIZE = 400
 
 # Generate datasets. 
@@ -61,10 +60,7 @@ for i_dataset, dataset in enumerate([noisy_circles, noisy_moons, blobs1, blobs2]
     p.scatter(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), alpha=0.1,)
     plots.append(p)
 
-slider = Slider(start=1, end=20, value=4, step=1, title="Order:")
-
 # Genearate and show the plot
-box = HBox(plots[0], slider, plots[1])
-# box = VBox(HBox(plots[0], slider, plots[1]), HBox(plots[2], plots[3]))
+box = VBox(HBox(plots[0], plots[1]), HBox(plots[2], plots[3]))
 output_file("clustering.html", title="clustering with sklearn")
 show(box)
