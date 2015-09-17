@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from bokeh.charts import Area
 from bokeh.io import save
 from bokeh.plotting import figure
 
@@ -7,7 +8,7 @@ import pytest
 pytestmark = pytest.mark.integration
 
 
-def test_autoresize_tool_resizes_plot_while_maintaining_aspect_ratio(output_file_url, selenium):
+def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url, selenium):
 
     # We want the aspect ratio of the initial plot to be maintained, but we
     # can't measure it perfectly so we test against bounds.
@@ -52,7 +53,7 @@ def test_autoresize_tool_resizes_plot_while_maintaining_aspect_ratio(output_file
     assert final_height <= initial_height / window_ratio
 
 
-def test_autoresize_tool_maintains_a_minimum_width(output_file_url, selenium):
+def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
     # The aspect ratio is portrait but should not allow a width less than 100
     plot = figure(plot_width=600, plot_height=1200, responsive=True)
     plot.scatter([1, 2, 3], [3, 2, 3])
@@ -68,7 +69,7 @@ def test_autoresize_tool_maintains_a_minimum_width(output_file_url, selenium):
     assert canvas.size['width'] >= 100
 
 
-def test_autoresize_tool_maintains_a_minimum_height(output_file_url, selenium):
+def test_responsive_maintains_a_minimum_height(output_file_url, selenium):
     # The aspect ratio is landscape but should not allow a height less than 100
     plot = figure(plot_width=1200, plot_height=600, responsive=True)
     plot.scatter([1, 2, 3], [3, 2, 3])
@@ -82,3 +83,40 @@ def test_autoresize_tool_maintains_a_minimum_height(output_file_url, selenium):
     # Plot should have been shrunk somewhat
     assert canvas.size['height'] < 600
     assert canvas.size['height'] >= 100
+
+
+def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
+    values = dict(
+        apples=[2, 3, 7, 5, 26, 221, 44, 233, 254, 25, 2, 67, 10, 11],
+        oranges=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
+    )
+
+    area = Area(values, title="Area Chart", responsive=True)
+
+    save(area)
+    selenium.set_window_size(width=1000, height=600)
+    selenium.get(output_file_url)
+
+    # Canvas width should be just under 1000
+    canvas = selenium.find_element_by_tag_name('canvas')
+    assert canvas.size['width'] > 900
+    assert canvas.size['width'] < 1000
+
+
+def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
+    values = dict(
+        apples=[2, 3, 7, 5, 26, 221, 44, 233, 254, 25, 2, 67, 10, 11],
+        oranges=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
+    )
+
+    plot = figure(responsive=True)
+    plot.line(values)
+
+    save(plot)
+    selenium.set_window_size(width=1000, height=600)
+    selenium.get(output_file_url)
+
+    # Canvas width should be just under 1000
+    canvas = selenium.find_element_by_tag_name('canvas')
+    assert canvas.size['width'] > 900
+    assert canvas.size['width'] < 1000

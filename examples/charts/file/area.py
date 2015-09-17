@@ -16,6 +16,6 @@ area = Area(
     xlabel='time', ylabel='memory',
     stacked=True, legend="top_left",
     responsive=True
-).legend("top_left")
+)
 
 show(area)
