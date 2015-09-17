@@ -15,12 +15,7 @@
 from __future__ import absolute_import
 
 from bokeh.charts import Scatter
-from bokeh.util.testing import create_chart
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 3b2b7e24b107c4bcedaf612cd5f3921e2742fe77
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
