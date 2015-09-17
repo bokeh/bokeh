@@ -8,8 +8,6 @@
   type: file
 - path: "charts/notebook"
   type: notebook
-- path: "charts/server"
-  type: server
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py", "ajax_source.py", "choropleth.py", "iris_blend.py", "scatter10k.py", "clustering.py"]
