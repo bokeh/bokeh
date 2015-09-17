@@ -33,8 +33,8 @@ branches:
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
-    - nvm install 0.12
-    - nvm use 0.12
+    - nvm install 0.12.7
+    - nvm use 0.12.7
     # Use xvfb to run tests that require firefox
     # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-%28e.g.-a-Web-browser%29
     - "export DISPLAY=:99.0"
