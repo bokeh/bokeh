@@ -24,7 +24,7 @@ import pandas as pd
 
 from bokeh.charts import TimeSeries
 
-from bokeh.charts.builder.tests._utils import create_chart
+from _utils import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions
