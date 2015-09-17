@@ -14,7 +14,7 @@ requirements:
     - python
     - distribute
     - setuptools
-    - nodejs >=0.12.7
+    - nodejs >=4.1
 
   run:
     # bokeh
