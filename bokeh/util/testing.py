@@ -67,8 +67,8 @@ def runtests(args=None):
         # We can live without in python 2.7
         pass
 
-    # change to the bokeh python source directory, for test collection
-    rootdir = os.path.join(os.path.dirname(__file__), os.pardir)
+    # change to the bokeh tests directory, for test collection
+    rootdir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'tests')
     os.chdir(rootdir)
 
     return pytest.main(args=args)

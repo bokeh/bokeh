@@ -11,7 +11,8 @@ import subprocess
 class TestBokehJS(unittest.TestCase):
 
     def test_bokehjs(self):
-        os.chdir('bokehjs')
+        bokehjs_dir = os.path.join(os.path.dirname(__file__), os.pardir, 'bokehjs')
+        os.chdir(bokehjs_dir)
         proc = subprocess.Popen([join('node_modules', '.bin', 'gulp'), "test"],
                                 stdout=subprocess.PIPE)
         result = proc.wait()

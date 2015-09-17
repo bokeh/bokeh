@@ -21,8 +21,9 @@ import numpy as np
 import pandas as pd
 
 from bokeh.charts import Bar
-from bokeh.charts.builder.tests._utils import create_chart
 from bokeh.models import Range1d, FactorRange
+
+from ._utils import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions
