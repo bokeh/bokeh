@@ -3,12 +3,10 @@
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
 from ...properties import Bool, Int, String, Enum, List
 from ...enums import ButtonType
 from ..widget import Widget
 
-@abstract
 class AbstractGroup(Widget):
     """ Abstract base class for all kinds of groups. ``AbstractGroup``
     is not generally useful to instantiate on its own.
@@ -32,7 +30,6 @@ class AbstractGroup(Widget):
         """
         self.on_change('active', lambda obj, attr, old, new: handler(new))
 
-@abstract
 class ButtonGroup(AbstractGroup):
     """ Abstract base class for groups with items rendered as buttons.
     ``ButtonGroup`` is not generally useful to instantiate on its own.
@@ -43,7 +40,6 @@ class ButtonGroup(AbstractGroup):
     A style for the button, signifying it's role.
     """)
 
-@abstract
 class Group(AbstractGroup):
     """ Abstract base class for groups with items rendered as check/radio
     boxes.

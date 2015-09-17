@@ -3,20 +3,17 @@
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
 from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
 from ...plot_object import PlotObject
 from ...enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
 from ..widget import Widget
 
-@abstract
 class CellFormatter(PlotObject):
     """ Abstract base class for data table's cell formatters.
 
     """
 
-@abstract
 class CellEditor(PlotObject):
     """ Abstract base class for data table's cell editors.
 
@@ -292,7 +289,6 @@ class TableColumn(PlotObject):
     The default sorting order. By default ``ascending`` order is used.
     """)
 
-@abstract
 class TableWidget(Widget):
     """ Abstract base class for data table (data grid) widgets.
 

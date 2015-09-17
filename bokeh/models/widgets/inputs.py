@@ -5,12 +5,10 @@ from __future__ import absolute_import
 
 import six
 
-from ...properties import abstract
 from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
 from ..callbacks import Callback
 from ..widget import Widget
 
-@abstract
 class InputWidget(Widget):
     """ Abstract base class for input widgets. `InputWidget`` is not
     generally useful to instantiate on its own.

@@ -3,15 +3,10 @@
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
 from ...properties import Int, String
 from ..widget import Widget
 
-@abstract
-class Markup(Widget):
-    """ Base class for HTML markup widget models. """
-
-class Paragraph(Markup):
+class Paragraph(Widget):
     """ A block (paragraph) of text.
 
     """

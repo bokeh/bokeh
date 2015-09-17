@@ -3,10 +3,9 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import abstract
 from ..properties import Dict, Instance, String
 
-@abstract
+
 class Callback(PlotObject):
     """ Base class for interactive callback. ``Callback`` is generally
     not useful to instantiate on its own."""

@@ -3,7 +3,7 @@
 """
 from __future__ import absolute_import
 
-from ..properties import HasProps, abstract
+from ..properties import HasProps
 from ..properties import Enum, Float, Instance, Int, JSON
 from ..enums import MapType
 from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
@@ -12,9 +12,8 @@ from .. import validation
 
 from .plots import Plot
 
-@abstract
-class MapOptions(HasProps):
-    """ Abstract base class for map options' models.
+class GMapOptions(HasProps):
+    """ Options for GMapPlot objects.
 
     """
 
@@ -27,23 +26,8 @@ class MapOptions(HasProps):
     """)
 
     zoom = Int(12, help="""
-    The initial zoom level to use when displaying the map.
+    The initial zoom level to use when displaying the GMapPlot.
     """)
-
-@abstract
-class MapPlot(Plot):
-    """ Abstract base class for map plot models.
-
-    """
-
-    map_options = Instance(MapOptions, help="""
-    Options for displaying the plot.
-    """)
-
-class GMapOptions(MapOptions):
-    """ Options for GMapPlot objects.
-
-    """
 
     map_type = Enum(MapType, help="""
     The `map type`_ to use for the GMapPlot.
@@ -61,12 +45,8 @@ class GMapOptions(MapOptions):
 
     """)
 
-class GMapPlot(MapPlot):
+class GMapPlot(Plot):
     """ A Bokeh Plot with a `Google Map`_ displayed underneath.
-
-    Data placed on this plot should be specified in decimal lat long coordinates e.g. 37.123, -122.404.
-    It will be automatically converted into the web mercator projection to display properly over
-    google maps tiles.
 
     .. _Google Map: https://www.google.com/maps/
 
@@ -87,12 +67,24 @@ class GMapPlot(MapPlot):
     Options for displaying the plot.
     """)
 
-class GeoJSOptions(MapOptions):
+class GeoJSOptions(HasProps):
     """ Options for GeoJSPlot objects.
 
     """
 
-class GeoJSPlot(MapPlot):
+    lat = Float(help="""
+    The latitude where the map should be centered.
+    """)
+
+    lng = Float(help="""
+    The longitude where the map should be centered.
+    """)
+
+    zoom = Int(12, help="""
+    The initial zoom level to use when displaying the GeoJSPlot.
+    """)
+
+class GeoJSPlot(Plot):
     """ A Bokeh Plot with a `GeoJS Map`_ displayed underneath.
 
     .. warning::

@@ -1,36 +1,62 @@
 from __future__ import print_function
 
+import os
+import json
+
+import numpy as np
+
 from bokeh.browserlib import view
+from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    GMapPlot, Range1d, ColumnDataSource,
-    PanTool, WheelZoomTool, GMapOptions)
+    GMapPlot, Range1d, ColumnDataSource, LinearAxis,
+    PanTool, WheelZoomTool, BoxSelectTool,
+    BoxSelectionOverlay, GMapOptions,
+    NumeralTickFormatter, PrintfTickFormatter)
 from bokeh.resources import INLINE
-from bokeh.sampledata.world_cities import data
+from bokeh.sampledata.us_cities import data
 
-x_range = Range1d(-160, 160)
-y_range = Range1d(-80, 80)
+x_range = Range1d()
+y_range = Range1d()
 
-map_options = GMapOptions(lat=15, lng=0, zoom=2)
+map_options = GMapOptions(lat=35, lng=-100, zoom=4)
 
 plot = GMapPlot(
-    x_range=x_range,
-    y_range=y_range,
-    plot_width=1000,
-    plot_height=500,
+    x_range=x_range, y_range=y_range,
     map_options=map_options,
-    title="Cities of the world with a population over 5,000 people.",
+    title = "US Cities",
     webgl=True,
 )
+plot.map_options.map_type="hybrid"
 
-circle = Circle(x="lng", y="lat", size=5, line_color=None, fill_color='firebrick', fill_alpha=0.2)
-plot.add_glyph(ColumnDataSource(data), circle)
-plot.add_tools(PanTool(), WheelZoomTool())
+source = ColumnDataSource(data=data)
+
+circle = Circle(x="lon", y="lat", size=10, line_color=None, fill_color='cyan', fill_alpha=0.1)
+plot.add_glyph(source, circle)
+
+pan = PanTool()
+wheel_zoom = WheelZoomTool()
+box_select = BoxSelectTool()
+
+plot.add_tools(pan, wheel_zoom, box_select)
+
+xaxis = LinearAxis(axis_label="lon", major_tick_in=0, formatter=NumeralTickFormatter(format="0.000"))
+plot.add_layout(xaxis, 'below')
+
+yaxis = LinearAxis(axis_label="lat", major_tick_in=0, formatter=PrintfTickFormatter(format="%.3f"))
+plot.add_layout(yaxis, 'left')
+
+overlay = BoxSelectionOverlay(tool=box_select)
+plot.add_layout(overlay)
+
+doc = Document()
+doc.add(plot)
+
 
 if __name__ == "__main__":
     filename = "maps_cities.html"
     with open(filename, "w") as f:
-        f.write(file_html(plot, INLINE, "Google Maps - World cities Example"))
+        f.write(file_html(doc, INLINE, "Google Maps All US cities Example"))
     print("Wrote %s" % filename)
     view(filename)

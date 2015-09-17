@@ -9,7 +9,6 @@ import logging
 from six import string_types
 
 from ..plot_object import PlotObject
-from ..properties import abstract
 from ..properties import String, Enum, Instance
 from ..enums import Units, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
@@ -22,7 +21,6 @@ from .glyphs import Glyph
 logger = logging.getLogger(__name__)
 
 
-@abstract
 class Renderer(PlotObject):
     """ A base class for renderer types. ``Renderer`` is not
     generally useful to instantiate on its own.
@@ -120,7 +118,6 @@ class GlyphRenderer(Renderer):
     Specifies the level in which to render the glyph.
     """)
 
-@abstract
 class GuideRenderer(Renderer):
     """ A base class for all guide renderer types. ``GuideRenderer`` is
     not generally useful to instantiate on its own.

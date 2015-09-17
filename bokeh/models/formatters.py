@@ -6,11 +6,9 @@ from __future__ import absolute_import
 
 from .tickers import Ticker
 from ..plot_object import PlotObject
-from ..properties import abstract
 from ..properties import Bool, Int, String, Enum, Auto, List, Dict, Either, Instance
 from ..enums import DatetimeUnits, RoundingFunction, NumeralLanguage
 
-@abstract
 class TickFormatter(PlotObject):
     """ A base class for all tick formatter types. ``TickFormatter`` is
     not generally useful to instantiate on its own.

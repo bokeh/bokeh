@@ -4,7 +4,6 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..properties import abstract
 from ..properties import Int, Float, String, Enum, Bool, Datetime, Auto, Instance, Tuple, Either, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Location
@@ -14,7 +13,6 @@ from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, Datetime
 from .formatters import (TickFormatter, BasicTickFormatter, LogTickFormatter,
                          CategoricalTickFormatter, DatetimeTickFormatter)
 
-@abstract
 class Axis(GuideRenderer):
     """ A base class that defines common properties for all axis types.
     ``Axis`` is not generally useful to instantiate on its own.
@@ -119,7 +117,6 @@ class Axis(GuideRenderer):
     main plot area.
     """)
 
-@abstract
 class ContinuousAxis(Axis):
     """ A base class for all numeric, non-categorica axes types.
     ``ContinuousAxis`` is not generally useful to instantiate on its own.
