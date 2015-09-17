@@ -85,6 +85,8 @@ class LineBuilder(XYBuilder):
     default_attributes = {'color': ColorAttr(),
                           'dash': DashAttr()}
 
+    dimensions = ['y', 'x']
+
     @property
     def measures(self):
         if isinstance(self.y.selection, list):
