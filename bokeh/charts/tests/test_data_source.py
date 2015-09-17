@@ -81,9 +81,15 @@ def test_derived_selections(test_data):
         pytest.fail('Required dimension not correctly set by ChartDataSource.')
 
 
-def test_derived_cols_from_lists(test_data):
+def test_derived_cols_from_lists_kw(test_data):
     """List of lists for dimension results in column derivation."""
     ds = ChartDataSource.from_data(y=test_data.array_data)
+    assert ds['y'] == ['a', 'b']
+
+
+def test_derived_cols_from_lists(test_data):
+    """List of lists for dimension results in column derivation."""
+    ds = ChartDataSource.from_data(test_data.array_data, dims=('y', 'x'))
     assert ds['y'] == ['a', 'b']
 
 
