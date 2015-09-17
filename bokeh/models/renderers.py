@@ -6,14 +6,11 @@ from __future__ import absolute_import
 
 import logging
 
-from six import string_types
-
 from ..plot_object import PlotObject
 from ..properties import abstract
 from ..properties import String, Enum, Instance
 from ..enums import Units, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
-from ..validation.warnings import MALFORMED_CATEGORY_LABEL
 from .. import validation
 
 from .sources import DataSource
