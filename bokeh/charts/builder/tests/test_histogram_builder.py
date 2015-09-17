@@ -23,8 +23,8 @@ from numpy.testing import assert_array_equal, assert_array_almost_equal
 import pandas as pd
 
 from bokeh.charts import Histogram
+from bokeh.util.testing import create_chart
 
-from bokeh.charts.builder.tests._utils import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions

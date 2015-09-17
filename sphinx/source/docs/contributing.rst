@@ -49,6 +49,33 @@ The Bokeh core team comprises:
 
 A full list of contributors may be viewed on the `GitHub Contributors Page <https://github.com/bokeh/bokeh/graphs/contributors>`_.
 
+Citation
+========
 
+If you find Bokeh useful in your work, a citation is always appreciated.
 
+To cite Bokeh in publications, use:
 
+.. code-block:: none
+
+    Bokeh Development Team (2014). Bokeh: Python library for interactive visualization
+    URL http://www.bokeh.pydata.org.
+
+A BibTeX entry for LaTeX users is:
+
+.. code-block:: sh
+
+    @Manual{,
+    title = {Bokeh: Python library for interactive visualization},
+    author = {{Bokeh Development Team}},
+    year = {2014},
+    url = {http://www.bokeh.pydata.org},
+    }
+
+Bokeh is BSD licensed, so you are free to use it whatever you like, be it
+academic, commercial, creating forks or derivatives, as long as you copy the BSD
+statement if you redistribute it (see the :ref:`license` for details). That said,
+although not required by the Bokeh license, if it is convenient for you,
+please cite Bokeh when using it in your work and also consider contributing
+all your changes back, so that we can incorporate it and all of us will
+benefit in the end.
