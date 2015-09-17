@@ -18,8 +18,8 @@ from bokeh.server.models.docs import Doc
 from bokeh.server.serverbb import BokehServerTransaction
 from bokeh.server.views.bbauth import handle_auth_error
 from bokeh.server.views.main import _makedoc
+from bokeh.util.testing import FlaskClientTestCase
 
-from utils import FlaskClientTestCase
 
 class AuthTestCase(FlaskClientTestCase):
     options = {'multi_user' : True}

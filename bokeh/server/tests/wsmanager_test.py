@@ -11,8 +11,7 @@ from bokeh import protocol
 from bokeh import session
 
 from bokeh.server.app import bokeh_app
-
-from utils import BokehServerTestCase
+from bokeh.util.testing import BokehServerTestCase
 
 ws_address = "ws://localhost:5006/bokeh/sub"
 

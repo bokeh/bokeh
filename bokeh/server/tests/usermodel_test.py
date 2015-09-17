@@ -11,8 +11,7 @@ from bokeh.exceptions import UnauthorizedException
 
 from bokeh.server.app import bokeh_app
 from bokeh.server.models import user
-
-from utils import BokehServerTestCase
+from bokeh.util.testing import BokehServerTestCase
 
 
 class TestUser(BokehServerTestCase):

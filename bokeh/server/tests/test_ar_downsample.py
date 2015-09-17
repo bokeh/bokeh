@@ -19,8 +19,8 @@ from bokeh.transforms import ar_downsample as ar_downsample
 from bokeh.models.sources import ServerDataSource
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.ranges import Range1d
+from bokeh.util.testing import FlaskClientTestCase
 
-from utils import FlaskClientTestCase
 
 def sort_init_first(_, a, b):
     if "_init_" in a:

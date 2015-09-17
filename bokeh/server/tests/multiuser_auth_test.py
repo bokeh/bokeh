@@ -13,8 +13,8 @@ from bokeh.session import TestSession as Session
 
 from bokeh.server.app import bokeh_app, app
 from bokeh.server.models import user
+from bokeh.util.testing import FlaskClientTestCase
 
-from utils import FlaskClientTestCase
 
 class TestMultiUserAuth(FlaskClientTestCase):
     options = {'multi_user' : True}
