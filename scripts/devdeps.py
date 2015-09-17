@@ -59,7 +59,6 @@ if __name__ == '__main__':
         'sphinx_bootstrap_theme': 'sphinx-bootstrap-theme',
         'sphinxcontrib.httpdomain': 'sphinxcontrib-httpdomain',
         'pdiffer': 'pdiff',
-        'pytest_selenium': 'pytest-selenium',
         'pytest_cov': 'pytest-cov',
     }
 
