@@ -362,10 +362,7 @@ class ChartDataSource(object):
             return valid
 
         # really want to check for nested lists, where each list might have lists
-        if isinstance(data, list) and \
-                any([len(sub_data) > 1 for sub_data in data if
-                     isinstance(sub_data, list)]):
-
+        if isinstance(data, list):
             if all([ChartDataSource.is_array(col) for col in data]):
                 valid = True
 
@@ -386,11 +383,10 @@ class ChartDataSource(object):
     @classmethod
     def from_arrays(cls, arrays, column_names=None, **kwargs):
 
-        list_of_arrays = [array for array in arrays if cls.is_list_arrays(array)]
-
         # handle list of arrays
-        if len(list_of_arrays) > 0:
-            arrays = list(chain.from_iterable(list_of_arrays))
+        if any(cls.is_list_arrays(array) for array in arrays):
+            list_of_arrays = copy(arrays)
+            arrays = list(chain.from_iterable(arrays))
             column_names = column_names or gen_column_names(len(arrays))
             cols = copy(column_names)
             dims = kwargs.get('dims', None) or DEFAULT_DIMS
