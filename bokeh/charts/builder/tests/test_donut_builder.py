@@ -21,8 +21,8 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from bokeh.charts import Donut
+from bokeh.util.testing import create_chart
 
-from bokeh.charts.builder.tests._utils import create_chart
 
 #-----------------------------------------------------------------------------
 # Classes and functions

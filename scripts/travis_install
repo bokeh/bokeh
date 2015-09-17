@@ -28,7 +28,12 @@ conda config --add channels bokeh
 conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet conda.recipe
-conda install --use-local --yes bokeh
+
+BK_PKG_NAME=`conda build conda.recipe --output`
+VERSION=$(cat __conda_version__.txt)
+BK_PKG_NAME=${BK_PKG_NAME/nightly/$VERSION}
+
+conda install --yes $BK_PKG_NAME
 
 DEPS_TEST=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
