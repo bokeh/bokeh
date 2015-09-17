@@ -175,7 +175,10 @@ Collections = (typename) ->
   mod = mod_cache[typename]
 
   if not mod?
-    throw Error("module `#{typename}' does not exists")
+    throw new Error("Module `#{typename}' does not exists. The problem may be two fold. Either
+                     a model was requested that's available in an extra bundle, e.g. a widget,
+                     or a custom model was requested, but it wasn't registered before first
+                     usage.")
 
   if not mod.Collection?
     mod.Collection = make_collection(mod.Model)
