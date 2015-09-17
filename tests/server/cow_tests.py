@@ -9,7 +9,7 @@ from __future__ import absolute_import
 
 from bokeh.exceptions import AuthenticationException
 from bokeh.models.plots import Plot
-from bokeh.session import TestSession
+from bokeh.session import TestSession as Session
 from werkzeug.exceptions import Unauthorized
 
 from . import test_utils
@@ -155,7 +155,7 @@ class TransactionManagerTestCase(test_utils.FlaskClientTestCase):
 class PublishTestCase(test_utils.FlaskClientTestCase):
     options = {'multi_user' : True}
     def test_publish(self):
-        sess = TestSession(client=app.test_client())
+        sess = Session(client=app.test_client())
         sess.register('testuser', 'testpassword')
         sess.use_doc('test_cow')
         sess.publish()
@@ -164,10 +164,10 @@ class PublishTestCase(test_utils.FlaskClientTestCase):
         assert doc.published == True
 
     def test_publish_fails_for_invalid_auth(self):
-        sess = TestSession(client=app.test_client())
+        sess = Session(client=app.test_client())
         sess.register('testuser', 'testpassword')
         sess.use_doc('test_cow')
-        sess2 = TestSession(client=app.test_client())
+        sess2 = Session(client=app.test_client())
         sess2.register('testuser2', 'testpassword')
         sess2.docid = sess.docid
         self.assertRaises(Exception, sess2.publish)
