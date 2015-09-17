@@ -126,7 +126,7 @@ class PlotView extends ContinuumView
     if @mget('responsive')
       throttled_resize = _.throttle(@resize, 100)
       $(window).on("resize", throttled_resize)
-      @resize()
+      $(@resize)
 
     @unpause()
 
