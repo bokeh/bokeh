@@ -13,6 +13,14 @@ Chart Functions
 
 .. automodule:: bokeh.charts
 
+    .. autofunction:: Bar
+    .. autofunction:: BoxPlot
+    .. autofunction:: Histogram
+    .. autofunction:: Line
+    .. autofunction:: Scatter
+
+.. automodule:: bokeh._legacy_charts
+
     .. autofunction:: Area
     .. autofunction:: Bar
     .. autofunction:: BoxPlot
