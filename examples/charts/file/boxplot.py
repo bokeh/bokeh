@@ -33,7 +33,7 @@ box_plot2 = BoxPlot(df, label=['cyl', 'origin'], values='mpg', title="label=['cy
 
 
 # collect and display
-output_file("bar.html")
+output_file("boxplot.html")
 
 show(
     vplot(
