@@ -16,7 +16,7 @@ from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GL
 from ..validation.warnings import MALFORMED_CATEGORY_LABEL
 from .. import validation
 
-from .sources import DataSource
+from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
 
 logger = logging.getLogger(__name__)
@@ -46,6 +46,7 @@ class GlyphRenderer(Renderer):
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
+        if isinstance(self.data_source, RemoteSource): return
         missing = set()
         for name, item in self.glyph.vm_serialize().items():
             if not isinstance(item, dict): continue
