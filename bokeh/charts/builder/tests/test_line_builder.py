@@ -1,6 +1,3 @@
-""" This is the Bokeh charts testing interface.
-
-"""
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
 #
@@ -9,17 +6,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
 from bokeh.charts import Line
-from bokeh.util.testing import create_chart
-
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
 
 
 def test_array_input(test_data):

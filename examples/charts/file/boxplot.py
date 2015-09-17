@@ -16,7 +16,7 @@ box_plot3 = BoxPlot(df, label='cyl', values='mpg', agg='mean',
 box_plot4 = BoxPlot(df, label='cyl', title="label='cyl' color='DimGray'", color='dimgray')
 
 # collect and display
-output_file("bar.html")
+output_file("boxplot.html")
 
 show(
     vplot(
