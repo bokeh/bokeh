@@ -54,34 +54,6 @@ class GlyphRenderer(Renderer):
         if missing:
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
-    @validation.warning(MALFORMED_CATEGORY_LABEL)
-    def _check_colon_in_category_label(self):
-        if not self.glyph: return
-        if not self.data_source: return
-        vm = self.glyph.vm_serialize()
-        labels = (label for label in ['x', 'y']
-                  if label in vm and 'field' in vm[label])
-
-        broken = []
-
-        for label in labels:
-            try:
-                for value in self.data_source.data[vm[label]['field']]:
-                    if not isinstance(value, string_types): break
-                    if ':' in value:
-                        broken.append((vm[label]['field'], value))
-                        break
-            except KeyError:
-                logging.info(
-                    'Can\'t check category labels for %s data source',
-                    self.data_source
-                )
-
-        if broken:
-            field_msg = ' '.join('[field:%s] [first_value: %s]' % (field, value)
-                                 for field, value in broken)
-            return '%s [renderer: %s]' % (field_msg, self)
-
     data_source = Instance(DataSource, help="""
     Local data source to use when rendering glyphs on the plot.
     """)
