@@ -18,10 +18,11 @@ fs = require "fs"
 path = require "path"
 shasum = require "shasum"
 argv = require("yargs").argv
+resolve = require "resolve"
 rootRequire = require("root-require")
 pkg = rootRequire("./package.json")
 
-customLabeler = (b, fn) ->
+customLabeler = (bundle, parentLabels, fn) ->
   labels = {}
 
   namer = through.obj (row, enc, next) ->
@@ -32,21 +33,34 @@ customLabeler = (b, fn) ->
   labeler = through.obj (row, enc, next) ->
     row.id = labels[row.id]
 
-    for own key, dep of row.deps
-      row.deps[key] = labels[dep]
+    for own name, dep of row.deps
+      opts = {
+        basedir: path.dirname(row.file)
+        extensions: ['.js', '.coffee', '.eco']
+      }
+
+      if not dep?
+        dep = pkg.browser[name]
+
+        if dep?
+          dep = path.resolve(dep)
+        else
+          dep = resolve.sync(name, opts)
+
+      row.deps[name] = labels[dep] or parentLabels?[dep]
 
     @push(row)
     next()
 
-  b.pipeline.get('deps').push(namer)
-  b.pipeline.get('label').splice(0, 1, labeler)
+  bundle.pipeline.get('deps').push(namer)
+  bundle.pipeline.get('label').splice(0, 1, labeler)
 
   labels
 
-hashedLabeler = (b) -> customLabeler b, (row) ->
+hashedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (row) ->
   shasum(row.source)
 
-namedLabeler = (b) -> customLabeler b, (row) ->
+namedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (row) ->
   cwd = process.cwd()
   revModMap = {}
   depModMap = {}
@@ -107,7 +121,7 @@ gulp.task "scripts:build", (cb) ->
 
   buildBokehjs = (next) ->
     if argv.verbose then util.log("Building bokehjs")
-    labels = namedLabeler(bokehjs)
+    labels = namedLabeler(bokehjs, {})
     bokehjs
       .transform("browserify-eco")
       .transform("coffeeify")
@@ -128,8 +142,7 @@ gulp.task "scripts:build", (cb) ->
 
   buildWidgets = (next) ->
     if argv.verbose then util.log("Building widgets")
-    namedLabeler(widgets)
-    # XXX: widgets.external(bokehjs) should work as well, but doesn't
+    namedLabeler(widgets, labels)
     for own file, name of labels
       widgets.external(file)
     widgets
