@@ -18,24 +18,22 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
-try:
-    import numpy as np
-
-except ImportError:
-    raise RuntimeError("bokeh.charts Bar chart requires NumPy.")
-
-from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
-from ...models.glyphs import Rect
-from ...properties import Any, Bool, Either, List
+from ...models import FactorRange, Range1d
+from ..glyphs import BarGlyph
+from ...properties import Float, Enum
+from .._properties import Dimension
+from .._attributes import ColorAttr, GroupAttr
+from ..operations import Stack, Dodge
+from ...enums import Aggregation
+from ..stats import stats
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
+def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="sum", xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, continuous_range=None, **kw):
     """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builder.bar_builder.BarBuilder>`
     render the geometry from values, cat and stacked.
@@ -86,12 +84,19 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
 
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
+    kw['label'] = label
+    kw['values'] = values
+    kw['color'] = color
+    kw['stack'] = stack
+    kw['group'] = group
+    kw['agg'] = agg
+    kw['xscale'] = xscale
+    kw['yscale'] = yscale
+    kw['xgrid'] = xgrid
+    kw['ygrid'] = ygrid
+    kw['y_range'] = y_range
 
-    return create_and_build(
-        BarBuilder, values, cat=cat, stacked=stacked,
-        xscale=xscale, yscale=yscale,
-        xgrid=xgrid, ygrid=ygrid, y_range=y_range, **kw
-    )
+    return create_and_build(BarBuilder, data, **kw)
 
 
 class BarBuilder(Builder):
@@ -116,106 +121,149 @@ class BarBuilder(Builder):
 
     """
 
-    cat = Either(Bool, List(Any), help="""
-    List of string representing the categories. (Defaults to None.)
-    """)
+    # ToDo: add label back as a discrete dimension
+    values = Dimension('values')
 
-    stacked = Bool(False, help="""
-    Whether to stack the bars. (Defaults to False)
+    dimensions = ['values']
+    #req_dimensions = [['values']]
 
-    If True, bars are draw as a stack, to show the relationship of
-    parts to a whole. Otherwise, bars are grouped on the same chart.
+    default_attributes = {'label': GroupAttr(),
+                          'color': ColorAttr(),
+                          'stack': GroupAttr(),
+                          'group': GroupAttr()}
 
-    """)
+    agg = Enum(Aggregation, default='sum')
 
-    def _process_data(self):
-        """Take the Bar data from the input **value.
+    max_height = Float(1.0)
+    min_height = Float(0.0)
+    bar_width = Float(default=0.8)
+    fill_alpha = Float(default=0.8)
 
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the calculated points to be used by
-        the rect glyph inside the ``_yield_renderers`` method.
-        """
-        if not self.cat:
-            self.cat = [str(x) for x in self._values.index]
+    glyph = BarGlyph
+    label_attributes = ['stack', 'group']
 
-        width = [0.8] * len(self.cat)
-        # width should decrease proportionally to the value length.
-        # 1./len(value) doesn't work well as the width needs to decrease a
-        # little bit faster
-        width_cat = [min(0.2, (1. / len(self._values)) ** 1.1)] * len(self.cat)
-        zero = np.zeros(len(self.cat))
-        self._data = dict(
-            cat=self.cat, width=width, width_cat=width_cat, zero=zero
-        )
-        # list to save all the groups available in the incomming input grouping
-        step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
-        self._groups.extend(self._values.keys())
+    def _setup(self):
 
-        for i, (val, values) in enumerate(self._values.items()):
-            self.set_and_get("", val, list(values))
-            mid = np.array(values) / 2
-            self.set_and_get("mid", val, mid)
-            self.set_and_get("stacked", val, zero + mid)
-            # Grouped
-            grouped = [c + ":" + str(step[i + 1]) for c in self.cat]
-            self.set_and_get("cat", val, grouped)
-            # Stacked
-            zero += values
+        if self.attributes['color'].columns is None:
+            if self.attributes['stack'].columns is not None:
+                self.attributes['color'].set_columns(self.attributes['stack'].columns)
+            if self.attributes['group'].columns is not None:
+                self.attributes['color'].set_columns(self.attributes['group'].columns)
 
-    def _set_sources(self):
+        # ToDo: perform aggregation validation
+        # Not given values kw, so using only categorical data
+        if self.values.dtype.name == 'object' and len(self.attribute_columns) == 0:
+            # agg must be count
+            self.agg = 'count'
+        else:
+            pass
+
+        if self.xlabel is None:
+            if self.attributes['label'].columns is not None:
+                self.xlabel = str(', '.join(self.attributes['label'].columns).title()).title()
+            elif self.values.selection is not None:
+                selected_value_cols = self.values.selection
+                if not isinstance(selected_value_cols, list):
+                    selected_value_cols = [selected_value_cols]
+                self.xlabel = str(', '.join(selected_value_cols).title()).title()
+
+        if self.ylabel is None:
+            if not self.values.computed:
+                self.ylabel = '%s( %s )' % (self.agg.title(), str(self.values.selection).title())
+            else:
+                self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
+
+    def _set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = FactorRange(factors=self._source.data["cat"])
+        x_items = self.attributes['label']._items
+        x_labels = []
 
-        if not self.y_range:
-            if self.stacked:
-                data = np.array(self._data['zero'])
-            else:
-                cats = [i for i in self._attr if not i.startswith(("mid", "stacked", "cat"))]
-                data = np.array([self._data[cat] for cat in cats])
+        # Items are identified by tuples. If the tuple has a single value, we unpack it
+        for item in x_items:
+            item = self._get_label(item)
 
-            all_positive = True if np.all(data > 0) else False
-            all_negative = True if np.all(data < 0) else False
-            # Set the start value
-            if all_positive:
-                start = 0
-            else:
-                start = 1.1 * data.min()  # Will always be negative
+            x_labels.append(str(item))
 
-            # Set the end value
-            if all_negative:
-                end = 0
-            else:
-                end = 1.1 * data.max()
+        self.x_range = FactorRange(factors=x_labels)
+        y_shift = 0.1 * ((self.max_height + self.max_height) / 2)
+        if self.glyph == BarGlyph:
+            start = 0.0
+        else:
+            start = self.min_height - y_shift
 
-            self.y_range = Range1d(start=start, end=end)
+        self.y_range = Range1d(start=start, end=self.max_height + y_shift)
+
+    def add_renderer(self, group, renderer):
+
+        if isinstance(renderer, list):
+            for sub_renderer in renderer:
+                self.renderers.append(sub_renderer)
+        else:
+            self.renderers.append(renderer)
+
+        label = None
+        for attr in self.label_attributes:
+            if self.attributes[attr].columns is not None:
+                label = self._get_label(self.get_group_label(group))
+
+        # add to legend if new and unique label
+        if str(label) not in self.labels and label is not None:
+            self._legends.append((label, renderer.renderers))
+            self.labels.append(label)
+
+    def get_group_label(self, group):
+
+        # ToDo: support grouping and stacking at the same time
+        if self.attributes['stack'].columns is not None:
+            item = group['stack']
+        elif self.attributes['group'].columns is not None:
+            item = group['group']
+        else:
+            item = None
+
+        return item
+
+    def get_extra_args(self):
+        return {}
+
+    @staticmethod
+    def _get_label(item):
+        if item is None:
+            return item
+        elif (isinstance(item, tuple) or isinstance(item, list)) and len(item) == 1:
+            item = item[0]
+        return str(item)
 
     def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the ColumnDataSource.
         """
-        quartets = list(chunk(self._attr, 4))
-        colors = cycle_colors(quartets, self.palette)
+        kwargs = self.get_extra_args()
 
-        # quartet elements are: [data, mid, stacked, cat]
-        for i, quartet in enumerate(quartets):
-            if self.stacked:
-                glyph = Rect(
-                    x="cat", y=quartet[2],
-                    width="width", height=quartet[0],
-                    fill_color=colors[i], fill_alpha=0.7,
-                    line_color="white"
-                )
-            else:  # Grouped
-                glyph = Rect(
-                    x=quartet[3], y=quartet[1],
-                    width="width_cat", height=quartet[0],
-                    fill_color=colors[i], fill_alpha=0.7,
-                    line_color="white"
-                )
-            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i], [renderer]))
-            yield renderer
+        for group in self._data.groupby(**self.attributes):
+
+            bg = self.glyph(label=self._get_label(group['label']),
+                            values=group.data[self.values.selection].values,
+                            agg=stats[self.agg](),
+                            width=self.bar_width,
+                            color=group['color'],
+                            fill_alpha=self.fill_alpha,
+                            stack_label=self._get_label(group['stack']),
+                            dodge_label=self._get_label(group['group']),
+                            **kwargs)
+
+            self.add_renderer(group, bg)
+
+        Stack().apply(self.renderers)
+        Dodge().apply(self.renderers)
+
+        # a higher level function of bar chart is to keep track of max height of all bars
+        self.max_height = max([renderer.y_max for renderer in self.renderers])
+        self.min_height = min([renderer.y_min for renderer in self.renderers])
+
+        for renderer in self.renderers:
+            for sub_renderer in renderer.renderers:
+                yield sub_renderer

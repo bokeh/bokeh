@@ -125,7 +125,7 @@ class DotBuilder(Builder):
             # segment top y value
             self.set_and_get("seg_top_", val, values)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Dot data into the ColumnDataSource and calculate
         the proper ranges.
         """
@@ -160,5 +160,5 @@ class DotBuilder(Builder):
                 self._source, quartet[1], quartet[0], 'circle',
                 colors[i - 1], line_color='black', size=15, fill_alpha=1.,
             )
-            self._legends.append((self._groups[i], [renderer]))
+            self.legends.append((self._groups[i], [renderer]))
             yield renderer

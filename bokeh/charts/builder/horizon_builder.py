@@ -281,7 +281,7 @@ class HorizonBuilder(Builder):
         self.set_and_get(
             'y_', 'all', [self._data[f_name] for f_name in self._fold_names])
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Horizon data into the ColumnDataSource and
         calculate the proper ranges.
         """

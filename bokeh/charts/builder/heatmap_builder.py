@@ -18,7 +18,7 @@ the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import, print_function, division
 
 from .._builder import Builder, create_and_build
-from .._data_adapter import DataAdapter
+from .._data_source import ChartDataSource
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, HoverTool
 from ...models.glyphs import Rect
 
@@ -118,7 +118,7 @@ class HeatMapBuilder(Builder):
         self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
                          width=width, height=height)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
@@ -144,6 +144,6 @@ class HeatMapBuilder(Builder):
     def _adapt_values(self):
         """Prepare the input data.
 
-        Converts data input (self._values) to a DataAdapter
+        Converts data input (self._values) to a DataGrouper
         """
-        self._values = DataAdapter(self._values, force_alias=True)
+        self._values = ChartDataSource(self._values, force_alias=True)
