@@ -56,6 +56,7 @@ test:
     - jinja2
     - pytest
     - pytest-cov ==1.8.1
+    - pytest-selenium ==1.0b1
     - mock
     - coverage
     - websocket-client
