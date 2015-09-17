@@ -43,7 +43,8 @@ class TestChart(unittest.TestCase):
             title="title", xlabel="xlabel", ylabel="ylabel",
             legend="top_left", xscale="linear", yscale="linear",
             width=800, height=600, tools=True,
-            filename=False, server=False, notebook=False,
+            filename=False, server=False,
+            notebook=False, responsive=True,
             xgrid=True, ygrid=False
         )
 
@@ -80,6 +81,9 @@ class TestChart(unittest.TestCase):
     def test_height(self):
         self.chart.height(400)
         self.assertEqual(self.chart._options.height, 400)
+
+    def test_responsive(self):
+        self.assertEqual(self.chart._options.responsive, True)
 
     def test_filename(self):
         self.chart.filename("bar.html")

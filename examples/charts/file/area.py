@@ -14,7 +14,8 @@ output_file(filename="area.html")
 area = Area(
     xyvalues, title="Area Chart",
     xlabel='time', ylabel='memory',
-    stacked=True, legend="top_left"
+    stacked=True, legend="top_left",
+    responsive=True
 ).legend("top_left")
 
 show(area)
