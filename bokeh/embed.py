@@ -279,6 +279,7 @@ def notebook_div(plot_object):
     }]
 
     js = PLOT_JS.render(
+        custom_models = _extract_custom_models(plot_object),
         all_models = serialize_json(plot_object.dump()),
         plots = plots
     )
