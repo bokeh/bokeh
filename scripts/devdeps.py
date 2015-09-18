@@ -58,7 +58,6 @@ if __name__ == '__main__':
         'websocket': 'websocket-client',
         'sphinx_bootstrap_theme': 'sphinx-bootstrap-theme',
         'sphinxcontrib.httpdomain': 'sphinxcontrib-httpdomain',
-        'pdiffer': 'pdiff',
         'pytest_selenium': 'pytest-selenium',
         'pytest_cov': 'pytest-cov',
     }
@@ -66,8 +65,6 @@ if __name__ == '__main__':
     dev_deps = [
         'bs4',
         'colorama',
-        'pdiffer',
-        'boto',
         'pytest',
         'pytest_cov',
         'pytest_selenium',
