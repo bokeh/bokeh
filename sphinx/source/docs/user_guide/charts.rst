@@ -8,10 +8,20 @@ Using High-level Charts
     :depth: 2
 
 
+.. _userguide_charts_defaults:
+
+Chart Defaults
+--------------
+
 .. _userguide_charts_bar:
 
 Bar Charts
 ----------
+
+The ``Bar`` high-level chart can produce bar charts in various styles.
+``Bar`` charts are configured with a DataFrame data object, and a column
+to group. This column will label the x-axis range. Each group is
+aggregated over the ``values`` column and bars are show for the totals:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar.py
     :source-position: above
@@ -87,7 +97,7 @@ Groups in the data may be visually stacked using the ``stack`` parameter:
 Box Plots
 ---------
 
-The `BoxPlot` can be used to summarize the statistical properties
+The ``BoxPlot`` can be used to summarize the statistical properties
 of different groups of data. The `label` specifies a column in the data
 to group by, and a box plot is generated for each group:
 
@@ -106,7 +116,7 @@ is grouped by all the groups in the list:
 Histograms
 ----------
 
-The `Histogram` high-level chart can be used to quickly display the
+The ``Histogram`` high-level chart can be used to quickly display the
 distribution of values in a set of data. It can be used by simply
 passing it a literal sequence of values (e.g a python list, NumPy
 or Pandas DataFrame column):
@@ -121,7 +131,7 @@ The column name can be provided as the second positional argument:
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_field_arg.py
     :source-position: above
 
-Or explicitly as the `values` keyword argument:
+Or explicitly as the ``values`` keyword argument:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_field_kwarg.py
     :source-position: above
@@ -132,7 +142,7 @@ Or explicitly as the `values` keyword argument:
 Number of Bins
 ~~~~~~~~~~~~~~
 
-The `bins` argument can be used to specify the number of bins to use when
+The ``bins`` argument can be used to specify the number of bins to use when
 computing the histogram:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_bins.py
@@ -145,7 +155,7 @@ Bar Color
 ~~~~~~~~~
 
 It is also possible to control the color of the histogram bins by setting
-the `color` parameter:
+the ``color`` parameter:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_color.py
     :source-position: above
@@ -156,8 +166,8 @@ the `color` parameter:
 Color Groups
 ~~~~~~~~~~~~
 
-However, the `color` parameter can also be used to group the data. If the
-value of the `color` parameter is one of the DataFrame column names, the data
+However, the ``color`` parameter can also be used to group the data. If the
+value of the ``color`` parameter is one of the DataFrame column names, the data
 is first grouped by this column, and a histogram is generated for each group.
 Each histogram is automatically colored differently, and a legend displayed:
 
@@ -166,7 +176,73 @@ Each histogram is automatically colored differently, and a legend displayed:
 
 
 
-.. _userguide_charts_defaults:
+.. _userguide_charts_scatter:
 
-Chart Defaults
---------------
+Scatter Plots
+-------------
+
+The ``Scatter`` high-level chart can be used to generate 1D or (more commonly)
+2D scatter plots. It is used by passing in DataFrame-like object as the first
+argument then specifying the columns to use for ``x`` and ``y`` coordinates:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter.py
+    :source-position: above
+
+
+.. _userguide_charts_scatter_color:
+
+Color
+~~~~~
+
+The ``color`` parameter can be used to control the color of the scatter
+markers:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color.py
+    :source-position: above
+
+
+.. _userguide_charts_scatter_color_groups:
+
+Color Groups
+~~~~~~~~~~~~
+
+if ``color`` is supplied with the name of a data column then the data is first
+grouped by the values of that column, and then a different color is used for
+every group:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color_group.py
+    :source-position: above
+
+
+.. _userguide_charts_scatter_legend:
+
+Legends
+~~~~~~~
+
+When grouping, a legend is usually useful, and it's location can be specified
+by the ``legend`` parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_legend.py
+    :source-position: above
+
+.. _userguide_charts_scatter_marker:
+
+Markers
+~~~~~~~
+
+The ``marker`` parameter can be used to control the shape of the scatter marker:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_marker.py
+    :source-position: above
+
+As with ``color``, the ``marker`` parameter can be given a column name to group
+by the values of that column, using a different marker shape for each group:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_marker_group.py
+    :source-position: above
+
+Often it is most useful to group both the color and marker shape together:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color_marker.py
+    :source-position: above
+
