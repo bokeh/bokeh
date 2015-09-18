@@ -51,11 +51,11 @@ def _get_cdn_urls(version=None, minified=True):
 
     def mk_url(comp, tp):
         _comp = '-' + comp if comp else ''
-        return '%s/%s/bokeh%s-%s%s.%s' % (base_url, container, _comp, version, _min, tp)
+        return '%s/%s/%s-%s%s.%s' % (base_url, container, _comp, version, _min, tp)
 
     result = {
-        'js_files'  : [ mk_url(comp, 'js')  for comp in ['', 'widgets'] ],
-        'css_files' : [ mk_url(comp, 'css') for comp in ['', 'widgets'] ],
+        'js_files'  : [ mk_url(comp, 'js')  for comp in ['bokeh', 'bokeh-widgets'] ],
+        'css_files' : [ mk_url(comp, 'css') for comp in ['bokeh', 'bokeh-widgets'] ],
         'messages'  : [],
     }
 
@@ -73,11 +73,11 @@ def _get_server_urls(root_url, minified=True):
 
     def mk_url(comp, tp):
         _comp = '-' + comp if comp else ''
-        return '%sbokehjs/static/%s/bokeh%s%s.%s' % (root_url, tp, _comp, _min, tp)
+        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, tp, _comp, _min, tp)
 
     return {
-        'js_files'  : [ mk_url(comp, 'js')  for comp in ['', 'widgets'] ],
-        'css_files' : [ mk_url(comp, 'css') for comp in ['', 'widgets'] ],
+        'js_files'  : [ mk_url(comp, 'js')  for comp in ['bokeh', 'bokeh-widgets'] ],
+        'css_files' : [ mk_url(comp, 'css') for comp in ['bokeh', 'bokeh-widgets'] ],
         'messages'  : [],
     }
 
