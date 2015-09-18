@@ -110,14 +110,18 @@ appropriate version replacing ``x.y.z``:
         rel="stylesheet" type="text/css">
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
 
-For example, to use version ``0.8.2``:
+For example, to use version ``0.10.0``:
 
 .. code-block:: html
 
     <link
-        href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css"
+        href="http://cdn.pydata.org/bokeh/release/bokeh-0.10.0.min.css"
         rel="stylesheet" type="text/css">
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.10.0.min.js"></script>
+
+.. note::
+    You must provide the closing `</script>` tag. This is required by all
+    browsers and the page will typically not render without it.
 
 The |components| function takes either a single PlotObject, a list/tuple of
 PlotObjects, or a dictionary of keys and PlotObjects. Each returns
