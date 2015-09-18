@@ -207,21 +207,23 @@ def _escape_code(code):
 
     return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
 
-def _append_plot(custom_models, all_models, plots, plot_object, elementid):
-    ref = plot_object.ref
+def _extract_custom_models(plot_object):
+    custom_models = {}
 
-    from .document import Document
-    if isinstance(plot_object, Document):
-        objs = plot_object.context.references()
-    elif isinstance(plot_object, PlotObject):
-        objs = plot_object.references()
-
-    for obj in objs:
+    for obj in plot_object.references():
         impl = getattr(obj, "__implementation__", None)
 
         if impl is not None:
+            name = obj.__class__.__name__
             impl = "['%s', {}]" % _escape_code(impl)
-            custom_models[obj.__class__.__name__] = impl
+            custom_models[name] = impl
+
+    return custom_models
+
+def _append_plot(custom_models, all_models, plots, plot_object, elementid):
+    ref = plot_object.ref
+
+    custom_models.update(_extract_custom_models(plot_object))
 
     for item in plot_object.dump():
         all_models[item['id']] = item
