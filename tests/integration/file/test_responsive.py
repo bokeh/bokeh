@@ -5,12 +5,25 @@ from bokeh.io import save
 from bokeh.plotting import figure
 
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 import pytest
 
 from ..utils import element_to_start_resizing, element_to_finish_resizing
 
 pytestmark = pytest.mark.integration
+
+
+def wait_for_canvas_resize(canvas, test_driver):
+    try:
+        wait = WebDriverWait(test_driver, 5)
+        wait.until(element_to_start_resizing(canvas))
+        wait.until(element_to_finish_resizing(canvas))
+    except TimeoutException:
+        # Resize may or may not happen instantaneously,
+        # Put the waits in to give some time, but allow test to
+        # try and process.
+        pass
 
 
 def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url, selenium):
@@ -36,10 +49,11 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
     save(plot)
 
     # Open the browser with the plot and resize the window to get an initial measure
-    selenium.get(output_file_url)
     selenium.set_window_size(width=initial_window_width, height=600)
 
+    selenium.get(output_file_url)
     canvas = selenium.find_element_by_tag_name('canvas')
+
     initial_height = canvas.size['height']
     initial_width = canvas.size['width']
     initial_aspect_ratio = initial_width / initial_height
@@ -48,11 +62,7 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
 
     # Now resize to a smaller window size and check again
     selenium.set_window_size(width=final_window_width, height=600)
-    canvas = selenium.find_element_by_tag_name('canvas')
-    wait = WebDriverWait(selenium, 2)
-    wait.until(element_to_start_resizing(canvas))
-    wait.until(element_to_finish_resizing(canvas))
-
+    wait_for_canvas_resize(canvas, selenium)
     final_height = canvas.size['height']
     final_width = canvas.size['width']
     final_aspect_ratio = final_width / final_height
@@ -69,10 +79,11 @@ def test_responsive_maintains_a_minimum_width(output_file_url, selenium):
     save(plot)
 
     # Open the browser with the plot and resize the window small
-    selenium.get(output_file_url)
     selenium.set_window_size(width=100, height=600)
-
+    selenium.get(output_file_url)
     canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
+
     # Plot should have been shrunk somewhat
     assert canvas.size['width'] < 600
     assert canvas.size['width'] >= 100
@@ -85,10 +96,11 @@ def test_responsive_maintains_a_minimum_height(output_file_url, selenium):
     save(plot)
 
     # Open the browser with the plot and resize the window small
-    selenium.get(output_file_url)
     selenium.set_window_size(width=100, height=600)
-
+    selenium.get(output_file_url)
     canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
+
     # Plot should have been shrunk somewhat
     assert canvas.size['height'] < 600
     assert canvas.size['height'] >= 100
@@ -101,13 +113,15 @@ def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
     )
 
     area = Area(values, title="Area Chart", responsive=True)
-
     save(area)
+
     selenium.set_window_size(width=1000, height=600)
     selenium.get(output_file_url)
 
-    # Canvas width should be just under 1000
     canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
+
+    # Canvas width should be just under 1000
     assert canvas.size['width'] > 900
     assert canvas.size['width'] < 1000
 
@@ -115,12 +129,14 @@ def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
 def test_responsive_plot_starts_at_correct_size(output_file_url, selenium):
     plot = figure(responsive=True, title="Test Me")
     plot.scatter([1, 2, 3], [3, 2, 3])
-
     save(plot)
+
     selenium.set_window_size(width=1000, height=600)
     selenium.get(output_file_url)
 
-    # Canvas width should be just under 1000
     canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
+
+    # Canvas width should be just under 1000
     assert canvas.size['width'] > 900
     assert canvas.size['width'] < 1000
