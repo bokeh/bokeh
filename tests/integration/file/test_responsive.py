@@ -4,7 +4,12 @@ from bokeh.charts import Area
 from bokeh.io import save
 from bokeh.plotting import figure
 
+from selenium.webdriver.support.ui import WebDriverWait
+
 import pytest
+
+from ..utils import element_to_start_resizing, element_to_finish_resizing
+
 pytestmark = pytest.mark.integration
 
 
@@ -44,6 +49,10 @@ def test_responsive_resizes_plot_while_maintaining_aspect_ratio(output_file_url,
     # Now resize to a smaller window size and check again
     selenium.set_window_size(width=final_window_width, height=600)
     canvas = selenium.find_element_by_tag_name('canvas')
+    wait = WebDriverWait(selenium, 2)
+    wait.until(element_to_start_resizing(canvas))
+    wait.until(element_to_finish_resizing(canvas))
+
     final_height = canvas.size['height']
     final_width = canvas.size['width']
     final_aspect_ratio = final_width / final_height
