@@ -196,15 +196,19 @@ modules = arguments[4] # XXX: this refers to the 4th argument a the outer functi
                        # to bokehjs upon compilation and extended with module
                        # registration mechanism.
 
-Collections.register_plugin = (name, locations) ->
-  mod_cache = _get_mod_cache()
-  plugin_cache = make_cache(locations)
+Collections.register_plugin = (plugin, locations) ->
+  Collections.register_locations locations, (name) ->
+    throw new Error("#{name} was already registered, attempted to re-register in #{plugin}")
 
-  for own name, module of plugin_cache
+Collections.register_locations = (locations, errorFn) ->
+  mod_cache = _get_mod_cache()
+  cache = make_cache(locations)
+
+  for own name, module of cache
     if not mod_cache.hasOwnProperty(name)
       mod_cache[name] = module
     else
-      throw new Error("#{name} was already registered")
+      errorFn?(name)
 
 Collections.register_model = (name, mod) ->
   compile = (code) ->
@@ -218,7 +222,7 @@ Collections.register_model = (name, mod) ->
   modules[mod_name] = [compile(impl), deps]
   _locations = {}
   _locations[name] = require(mod_name)
-  Collections.register_plugin("custom", _locations)
+  Collections.register_locations(_locations)
 
 Collections.register_models = (specs) ->
   for own name, impl of specs
