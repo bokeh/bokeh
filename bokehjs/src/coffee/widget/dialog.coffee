@@ -1,9 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $1 = require "bootstrap/modal"
+$1 = require "bootstrap/modal"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 dialog_template = require "./dialog_template"

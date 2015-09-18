@@ -1,11 +1,8 @@
 _ = require "underscore"
 Backbone = require "backbone"
-if global._bokehTest?
-  kiwi = {}  # TODO Make work
-else
-  kiwi = require "kiwi"
-  {Expression, Constraint, Operator} = kiwi
-  {Eq, Le, Ge} = Operator
+kiwi = require "kiwi"
+{Expression, Constraint, Operator} = kiwi
+{Eq, Le, Ge} = Operator
 build_views = require "./build_views"
 Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
@@ -354,7 +351,7 @@ class PlotView extends ContinuumView
 
     # TODO - This should only be on in testing
     # @$el.find('canvas').attr('data-hash', ctx.hash());
-    
+
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()

@@ -1,8 +1,5 @@
 _ = require "underscore"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $2 = require "jquery-ui/slider"
+$2 = require "jquery-ui/slider"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
