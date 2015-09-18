@@ -92,7 +92,7 @@ class LegendView extends PlotWidget
     # defaulting to opaque white
     @background_props.set_value(ctx)
     ctx.fill()
-    if @border_props.do_stroke:
+    if @border_props.do_stroke
       @border_props.set_value(ctx)
       ctx.stroke()
     legend_spacing = @mget('legend_spacing')
