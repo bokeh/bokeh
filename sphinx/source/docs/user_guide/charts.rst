@@ -8,6 +8,99 @@ Using High-level Charts
     :depth: 2
 
 
+.. _userguide_charts_bar:
+
+Bar Charts
+----------
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar.py
+    :source-position: above
+
+
+.. _userguide_charts_bar_agg:
+
+Aggregations
+~~~~~~~~~~~~
+
+The ``agg`` parameter may be used to specify how each group should be
+aggregated:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_agg.py
+    :source-position: above
+
+Available aggregations are:
+
+* ``'sum'``
+* ``'mean'``
+* ``'count'``
+* ``'nunique'``
+* ``'median'``
+* ``'min'``
+* ``'max'``
+
+.. _userguide_charts_bar_width:
+
+Bar Width
+~~~~~~~~~
+
+The ``bar_width`` parameter can be used to specify the width of the bars, as
+percentage of category width:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_width.py
+    :source-position: above
+
+.. _userguide_charts_bar_color:
+
+Bar Color
+~~~~~~~~~
+
+The ``color`` parameter can be used to specify the color of the bars:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_color.py
+    :source-position: above
+
+
+.. _userguide_charts_bar_group:
+
+Grouping
+~~~~~~~~
+
+Groups in the data may be visually grouped using the ``group`` parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_group.py
+    :source-position: above
+
+
+.. _userguide_charts_bar_stack:
+
+Stacking
+~~~~~~~~
+
+Groups in the data may be visually stacked using the ``stack`` parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_bar_stack.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot:
+
+Box Plots
+---------
+
+The `BoxPlot` can be used to summarize the statistical properties
+of different groups of data. The `label` specifies a column in the data
+to group by, and a box plot is generated for each group:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot.py
+    :source-position: above
+
+The label can also accept a list of column names, in which case the data
+is grouped by all the groups in the list:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_nested_label.py
+    :source-position: above
+
+
 .. _userguide_charts_histogram:
 
 Histograms
@@ -33,6 +126,7 @@ Or explicitly as the `values` keyword argument:
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_values_field_kwarg.py
     :source-position: above
 
+
 .. _userguide_charts_histogram_bins:
 
 Number of Bins
@@ -44,8 +138,8 @@ computing the histogram:
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_histogram_bins.py
     :source-position: above
 
-.. _userguide_charts_histogram_bar_color:
 
+.. _userguide_charts_histogram_bar_color:
 
 Bar Color
 ~~~~~~~~~
