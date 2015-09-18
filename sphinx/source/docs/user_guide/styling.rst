@@ -158,6 +158,11 @@ as a convenience:
     :source-position: above
 
 
+.. _userguide_styling_plot_responsive_dimensions:
+
+Responsive Dimensions
+~~~~~~~~~~~~~~~~~~~~~
+
 In addition, you can use the ``responsive`` attribute. The responsive attribute
 causes the plot to fill the container it's sitting in, and to respond to
 changes in browser size. Responsive web elements are common-place in web
@@ -169,8 +174,13 @@ those parameters will be used to calculate the initial aspect ratio for your
 plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_dimensions_responsive.py
-    :source-position: above
+.. warning::
+    This feature is known not to work when combined with HBox.
+    This is a new feature and may have other issues when used in different circumstances.
+    Please report these issues on the  `Bokeh GitHub repository`_ or the `Bokeh mailing list`_.
+
+.. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
+.. _Bokeh mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
 
 .. _userguide_styling_plot_title:
 
