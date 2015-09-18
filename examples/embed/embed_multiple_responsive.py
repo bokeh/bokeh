@@ -1,7 +1,7 @@
 from bokeh.browserlib import view
 from bokeh.plotting import figure
 from bokeh.embed import components
-from bokeh.resources import Resources
+from bokeh.resources import INLINE
 from bokeh.templates import RESOURCES
 
 from jinja2 import Template
@@ -43,7 +43,7 @@ template = Template('''<!DOCTYPE html>
 </html>
 ''')
 
-resources = Resources(mode='relative-dev')
+resources = INLINE
 plot_resources = RESOURCES.render(
     js_raw=resources.js_raw,
     css_raw=resources.css_raw,
