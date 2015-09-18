@@ -51,7 +51,7 @@ def _get_cdn_urls(version=None, minified=True):
 
     def mk_url(comp, tp):
         _comp = '-' + comp if comp else ''
-        return '%s/%s/bokeh-%s%s.%s' % (base_url, container, _comp, version, _min, tp)
+        return '%s/%s/bokeh%s-%s%s.%s' % (base_url, container, _comp, version, _min, tp)
 
     result = {
         'js_files'  : [ mk_url(comp, 'js')  for comp in ['', 'widgets'] ],
