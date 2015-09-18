@@ -21,7 +21,7 @@ from .ranges import Range, Range1d, FactorRange
 from .renderers import Renderer, GlyphRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
-from .widget import Widget
+from .component import Component
 
 def _select_helper(args, kwargs):
     """
@@ -75,7 +75,7 @@ class PlotList(PlotContext):
     # everywhere, so plotlist is the generic one
     pass
 
-class Plot(Widget):
+class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
     """
@@ -483,7 +483,7 @@ class Plot(Widget):
     ``lod_timeout`` ms. If no interactive tool events have happened,
     level-of-detail mode is disabled.
     """)
-    
+
     webgl = Bool(False, help="""
     Whether WebGL is enabled for this plot. If True, the glyphs that
     support this will render via WebGL instead of the 2D canvas.
