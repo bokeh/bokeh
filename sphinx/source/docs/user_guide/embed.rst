@@ -289,7 +289,7 @@ with a default session:
 
 .. code-block:: python
 
-    from bokeh.plotting import figure
+    from bokeh.plotting import figure, push
     from bokeh.embed import autoload_server
     from bokeh.session import Session
     from bokeh.document import Document
@@ -302,6 +302,9 @@ with a default session:
 
     plot = figure()
     plot.circle([1,2], [3,4])
+
+    document.add(push)
+    push(session, document)
 
     script = autoload_server(plot, session)
 
