@@ -19,6 +19,10 @@ module.constructor.prototype.require = (modulePath) ->
 
   return load(modulePath)
 
+jsdom = require('jsdom').jsdom
+global.document = document = jsdom()
+global.window = window = document.defaultView
+
 require "./test_action"
 require "./test_common"
 require "./test_mapper"
