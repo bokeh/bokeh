@@ -7,10 +7,11 @@ if [ "$1" == "-h" ]; then
     where:
         -h     show this help text
 
-        -e     environment were you want to install the dependencies, defaults to bokeh
+        -e     ENVIRONMENT were you want to install the dependencies, defaults to bokeh
         -b     install BUILD dependencies, defauls to true
         -r     install RUN dependencies, defauls to true
         -t     install TEST (and examples) dependencies, defauls to true
+        -a     install ADDITIONAL image diff-related packages, defaults to false
     "
     echo "$usage"
     exit 0
@@ -21,15 +22,17 @@ env=bokeh
 build=true
 run=true
 test=true
+add=false
 
 # handling of arguments
-while getopts e:b:r:t: option
+while getopts e:b:r:t:a option
 do
     case "${option}" in
         e) env=${OPTARG};;
         b) build=${OPTARG};;
         r) run=${OPTARG};;
         t) test=${OPTARG};;
+        a) add=true;;
     esac 
 done
 
@@ -66,4 +69,10 @@ EOF
 if [ "$test" == "true" ]; then
     conda install -n $env -c bokeh --yes $DEPS_TEST
     echo "TEST (and exmaples) dependecies installed."
+fi
+
+if [[ "$add" == "true" ]]; then
+    conda install -n $env -c bokeh --yes pdiff
+    conda install -n $env -c bokeh --yes boto
+    echo "Image diff-related dependecies installed."
 fi
