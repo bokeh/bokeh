@@ -26,11 +26,6 @@ output_server, vplot, hplot)
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
 
 class Figure(Plot):
-    ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
-    creation with default axes, grids, tools, etc.
-
-    '''
-
     __subtype__ = "Figure"
     __view_model__ = "Plot"
 
@@ -100,29 +95,37 @@ class Figure(Plot):
 
     @property
     def xaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
+        """ Get the current `x` axis object(s)
 
+        Returns:
+            splattable list of x-axis objects on this Plot
         """
         return self._axis("above", "below")
 
     @property
     def yaxis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
+        """ Get the current `y` axis object(s)
 
+        Returns:
+            splattable list of y-axis objects on this Plot
         """
         return self._axis("left", "right")
 
     @property
     def axis(self):
-        """ Splattable list of :class:`~bokeh.models.axes.Axis` objects.
+        """ Get all the current axis objects
 
+        Returns:
+            splattable list of axis objects on this Plot
         """
         return _list_attr_splat(self.xaxis + self.yaxis)
 
     @property
     def legend(self):
-        """Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+        """ Get the current :class:`legend <bokeh.models.Legend>` object(s)
 
+        Returns:
+            splattable list of legend objects on this Plot
         """
         legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
         return _list_attr_splat(legends)
@@ -133,22 +136,28 @@ class Figure(Plot):
 
     @property
     def xgrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+        """ Get the current `x` :class:`grid <bokeh.models.Grid>` object(s)
 
+        Returns:
+            splattable list of legend objects on this Plot
         """
         return self._grid(0)
 
     @property
     def ygrid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+        """ Get the current `y` :class:`grid <bokeh.models.Grid>` object(s)
 
+        Returns:
+            splattable list of y-grid objects on this Plot
         """
         return self._grid(1)
 
     @property
     def grid(self):
-        """ Splattable list of :class:`~bokeh.models.grids.Grid` objects.
+        """ Get the current :class:`grid <bokeh.models.Grid>` object(s)
 
+        Returns:
+            splattable list of grid objects on this Plot
         """
         return _list_attr_splat(self.xgrid + self.ygrid)
 
@@ -189,14 +198,18 @@ class Figure(Plot):
         """ Creates a scatter plot of the given x and y items.
 
         Args:
-            x (str or seq[float]) : values or field names of center x coordinates
-            y (str or seq[float]) : values or field names of center y coordinates
-            size (str or list[float]) : values or field names of sizes in screen units
+            *args : The data to plot.  Can be of several forms:
+
+                (X, Y)
+                    Two 1D arrays or iterables
+                (XNAME, YNAME)
+                    Two bokeh DataSource/ColumnsRef
+
             marker (str, optional): a valid marker_type, defaults to "circle"
             color (color value, optional): shorthand to set both fill and line color
-            source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
-                If none is supplied, one is created for the user automatically.
-            **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
+
+        All the :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties` are
+        also accepted as keyword parameters.
 
         Examples:
 
@@ -224,11 +237,14 @@ class Figure(Plot):
 
 
 def figure(**kwargs):
-    ''' Create a new :class:`~bokeh.plotting.Figure` for plotting, and add it to
-    the current document.
+    ''' Activate a new figure for plotting.
+
+    All subsequent plotting operations will affect the new figure.
+
+    This function accepts all plot style keyword parameters.
 
     Returns:
-       Figure
+       figure : a new :class:`Plot <bokeh.models.plots.Plot>`
 
     '''
     if 'plot_width' in kwargs and 'width' in kwargs:
