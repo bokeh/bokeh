@@ -204,8 +204,8 @@ Now you have learned how to open an URL when the user clicks on a glyph.
 
 .. _userguide_interaction_actions_widget_callbacks:
 
-CutomJS for Widgets
-~~~~~~~~~~~~~~~~~~~~~
+CustomJS for Widgets
+~~~~~~~~~~~~~~~~~~~~
 
 Bokeh lets you express even more advanced callbacks that must be called on
 the Javascript side in order to add custom logic and interactivity when a
@@ -224,7 +224,7 @@ changes the source of a plot when the slider is used.
 .. _userguide_interaction_actions_tool_callbacks:
 
 CustomJS for Tools
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 Bokeh allows for some tool events to trigger custom Javascript callbacks that
 have access to the tool's attributes. Below, a callback on the BoxSelectTool
@@ -238,7 +238,7 @@ add a Rect glyph to the plot with identical dimensions.
 .. _userguide_interaction_actions_selection_callbacks:
 
 CustomJS for Selections
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh also provides the means to specify the same kind of callback to be
 executed whenever a selection changes. As a simple demonstration, the example
@@ -259,7 +259,7 @@ a line through that value.
 .. _userguide_interaction_actions_hover_callbacks:
 
 CustomJS for Hover
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 The HoverTool has a callback which comes with two pieces of built-in data: the
 `index`, and the `geometry`. The `index` is the indices of any points that the
@@ -278,7 +278,7 @@ hover tool is over.
 .. _userguide_interaction_actions_range_update_callbacks:
 
 CustomJS for Range Update
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 With Bokeh, ranges have a callback attribute that accept a Callback instance
 and execute javascript code on range updates that are triggered by tool
