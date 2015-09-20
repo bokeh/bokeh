@@ -10,7 +10,7 @@
     A layout model has no children (will result in a blank layout).
 
 1003 : *MALFORMED_CATEGORY_LABEL*
-    Category labels are malformed (will result in a blank layout).
+    Category labels cannot contain colons (will result in a blank layout).
 
 9999 : *EXT*
     Indicates that a custom warning check has failed.
@@ -21,7 +21,7 @@ codes = {
     1000: ("MISSING_RENDERERS",         "Plot has no renderers"),
     1001: ("NO_GLYPH_RENDERERS",        "Plot has no glyph renderers"),
     1002: ("EMPTY_LAYOUT",              "Layout has no children"),
-    1003: ("MALFORMED_CATEGORY_LABEL",  "Category labels are malformed"),
+    1003: ("MALFORMED_CATEGORY_LABEL",  "Category labels cannot contain colons"),
     9999: ("EXT",                       "Custom extension reports warning"),
 }
 
