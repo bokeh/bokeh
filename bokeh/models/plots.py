@@ -496,7 +496,7 @@ class Plot(Widget):
     act only to set the initial aspect ratio.
     .. warning::
 
-       The responsive settings is known not to work with HBox layout and may not work
+       The responsive setting is known not to work with HBox layout and may not work
        in combination with other widgets or layouts.
     """)
 
