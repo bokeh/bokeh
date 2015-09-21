@@ -50,8 +50,7 @@ def _get_cdn_urls(version=None, minified=True):
         logger.debug("Getting CDN URL for local dev version will not produce usable URL")
 
     def mk_url(comp, tp):
-        _comp = '-' + comp if comp else ''
-        return '%s/%s/%s-%s%s.%s' % (base_url, container, _comp, version, _min, tp)
+        return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, tp)
 
     result = {
         'js_files'  : [ mk_url(comp, 'js')  for comp in ['bokeh', 'bokeh-widgets'] ],
