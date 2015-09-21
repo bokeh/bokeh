@@ -646,6 +646,7 @@ class Array(Seq):
         return isinstance(value, np.ndarray)
 
     def _new_instance(self, value):
+        import numpy as np
         return np.array(value)
 
 
