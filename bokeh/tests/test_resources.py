@@ -45,9 +45,9 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "inline")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(len(r.js_raw), 2)
+        self.assertEqual(len(r.js_raw), 3)
         self.assertEqual(r.js_raw[-1], DEFAULT_JOG_JS_RAW)
-        self.assertEqual(len(r.css_raw), 1)
+        self.assertEqual(len(r.css_raw), 2)
         self.assertEqual(r.messages, [])
 
     def test_get_cdn_urls(self):
