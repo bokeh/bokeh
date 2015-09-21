@@ -28,8 +28,7 @@ build_views = (view_storage, view_models, options, view_types=[]) ->
     else
       view_storage[model.id] = new model.default_view(view_specific_option)
 
-    view_storage[model.id].$el.find("*[class*='ui-']").each (idx, el) ->
-      el.className = jQueryUIPrefixer(el)
+    traverse_views(view_storage[model.id].$el)
     created_views.push(view_storage[model.id])
 
   to_remove = _.difference(_.keys(view_storage), _.pluck(view_models, 'id'))
@@ -40,9 +39,16 @@ build_views = (view_storage, view_models, options, view_types=[]) ->
 
   return created_views
 
-jQueryUIPrefixer = (el) ->
-  return unless el.className?
-  classList = el.className.split " "
+traverse_views = ($el, $) ->
+  # 'cheerio' can be passed in as $ to simulate a jquery environment. Used
+  # for testing
+  $ ||= Bokeh.$
+  $el.find("*[class*='ui-']").each ->
+    $(this).attr('class', jQueryUIPrefixer $(this).attr('class'))
+
+jQueryUIPrefixer = (classList) ->
+  return unless classList?
+  classList = classList.split " "
   prefixedClassList = _.map classList, (a) ->
     a = a.trim()
     return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
@@ -50,6 +56,8 @@ jQueryUIPrefixer = (el) ->
 
 # FIXME Hack to expose jQueryUIPrefixer
 build_views.jQueryUIPrefixer = jQueryUIPrefixer
+
+build_views.traverse_views = traverse_views
 
 # FIXME This export is the same as module.exports = build_views
 module.exports =
