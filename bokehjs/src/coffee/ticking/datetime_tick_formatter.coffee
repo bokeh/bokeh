@@ -5,12 +5,12 @@ HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 
 _us = (t) ->
-  return SPrintf.sprintf("%3dus", Math.floor((t % 1) * 1000))
-
-_ms_dot_us = (t) ->
-  ms = Math.floor(((t / 1000) % 1) * 1000)
-  us = Math.floor((t % 1) * 1000)
-  return SPrintf.sprintf("%3d.%3dms", ms, us)
+  # From double-precision unix (millisecond) timestamp get
+  # microsecond since last second. Precision seems to run
+  # out around the hundreds of nanoseconds scale, so rounding
+  # to the nearest microsecond should round to a nice
+  # microsecond / millisecond tick.
+  return Math.round(((t / 1000) % 1) * 1000000)
 
 _two_digit_year = (t) ->
   # Round to the nearest Jan 1, roughly.
@@ -35,6 +35,19 @@ _strftime = (t, format) ->
   if _.isFunction(format)
     return format(t)
   else
+    # Python's datetime library augments the microsecond directive %f, which is not
+    # supported by the javascript library timezone: http://bigeasy.github.io/timezone/.
+    # Use a regular expression to replace %f directive with microseconds.
+    # TODO: what should we do for negative microsecond strings?
+    microsecond_replacement_string = SPrintf.sprintf("$1%06d", _us(t))
+    format = format.replace(/((^|[^%])(%%)*)%f/, microsecond_replacement_string)
+
+    if format.indexOf("%") == -1
+      # timezone seems to ignore any strings without any formatting directives,
+      # and just return the time argument back instead of the string argument.
+      # But we want the string argument, in case a user supplies a format string
+      # which doesn't contain a formatting directive or is only using %f.
+      return format
     return tz(t, format)
 
 class DatetimeTickFormatter extends HasProperties
@@ -46,8 +59,10 @@ class DatetimeTickFormatter extends HasProperties
   ]
 
   # This table of formats is convert into the 'formats' dict.
+  # TODO: please add to documentation, especially as to why
+  # there are multiple formatters per time scale.
   _formats: {
-    'microseconds': [_us, _ms_dot_us]
+    'microseconds': ['%fus']
     'milliseconds': ['%3Nms', '%S.%3Ns']
     'seconds':      ['%Ss']
     'minsec':       [':%M:%S']
@@ -56,6 +71,9 @@ class DatetimeTickFormatter extends HasProperties
     'hours':        ['%Hh', '%H:%M']
     'days':         ['%m/%d', '%a%d']
     'months':       ['%m/%Y', '%b%y']
+    # TODO: the functions here currently aren't serializable
+    # and so can't be set from the python client. Although,
+    # I'm not at all sure what purpose these functions have.
     'years':        ['%Y', _two_digit_year, _four_digit_year]
   }
 
@@ -196,10 +214,15 @@ class DatetimeTickFormatter extends HasProperties
         next_format = @formats[@format_order[next_ndx]][1][0]
         s = _strftime(t, next_format)
 
+      # TODO: should expose this in api. %H, %d, etc use leading zeros and
+      # users might prefer to see them lined up correctly.
       if @strip_leading_zeros
         ss = s.replace(/^0+/g, "")
-        if ss != s and (ss == '' or not isFinite(ss[0]))
+        if ss != s and isNaN(parseInt(ss))
+          # If the string can now be parsed as starting with an integer, then
+          # leave all zeros stripped, otherwise start with a zero. Hence:
           # A label such as '000ms' should leave one zero.
+          # A label such as '001ms' or '0-1ms' should not leave a leading zero.
           ss = '0' + ss
         labels.push(ss)
       else
