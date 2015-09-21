@@ -96,6 +96,7 @@ class Chart(Plot):
         self.title = self._options.title
         self.plot_height = self._options.height
         self.plot_width = self._options.width
+        self.responsive = self._options.responsive
         self.title_text_font_size = self._options.title_text_font_size
         self.title_text_font_style = 'bold'
 

@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from bokeh.charts import Histogram
+from bokeh._legacy_charts import Area
 from bokeh.io import save
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg as df
@@ -108,13 +109,28 @@ def test_responsive_maintains_a_minimum_height(output_file_url, selenium):
 
 
 def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
+    hist = Histogram(df['mpg'], title="MPG Distribution", responsive=True)
+    save(hist)
+
+    selenium.set_window_size(width=1000, height=600)
+    selenium.get(output_file_url)
+
+    canvas = selenium.find_element_by_tag_name('canvas')
+    wait_for_canvas_resize(canvas, selenium)
+
+    # Canvas width should be just under 1000
+    assert canvas.size['width'] > 900
+    assert canvas.size['width'] < 1000
+
+
+def test_responsive_legacy_chart_starts_at_correct_size(output_file_url, selenium):
     values = dict(
         apples=[2, 3, 7, 5, 26, 221, 44, 233, 254, 25, 2, 67, 10, 11],
         oranges=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
     )
 
-    hist = Histogram(df['mpg'], title="MPG Distribution")
-    save(hist)
+    area = Area(values, title="Area Chart", responsive=True)
+    save(area)
 
     selenium.set_window_size(width=1000, height=600)
     selenium.get(output_file_url)
