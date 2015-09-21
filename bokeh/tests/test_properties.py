@@ -402,6 +402,30 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
 
+        try:
+            import numpy as np
+            self.assertTrue(prop.is_valid(np.bool8(False)))
+            self.assertTrue(prop.is_valid(np.bool8(True)))
+            self.assertFalse(prop.is_valid(np.int8(0)))
+            self.assertFalse(prop.is_valid(np.int8(1)))
+            self.assertFalse(prop.is_valid(np.int16(0)))
+            self.assertFalse(prop.is_valid(np.int16(1)))
+            self.assertFalse(prop.is_valid(np.int32(0)))
+            self.assertFalse(prop.is_valid(np.int32(1)))
+            self.assertFalse(prop.is_valid(np.int64(0)))
+            self.assertFalse(prop.is_valid(np.int64(1)))
+            self.assertFalse(prop.is_valid(np.float16(0)))
+            self.assertFalse(prop.is_valid(np.float16(1)))
+            self.assertFalse(prop.is_valid(np.float32(0)))
+            self.assertFalse(prop.is_valid(np.float32(1)))
+            self.assertFalse(prop.is_valid(np.float64(0)))
+            self.assertFalse(prop.is_valid(np.float64(1)))
+            self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
+            self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+            self.assertFalse(prop.is_valid(np.complex256(1.0+1.0j)))
+        except ImportError:
+            pass
+
     def test_Int(self):
         prop = Int()
 
