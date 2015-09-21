@@ -55,12 +55,7 @@ import logging
 import numbers
 logger = logging.getLogger(__name__)
 
-from six import integer_types, string_types, add_metaclass, iteritems
-
-try:
-    import numpy as np
-except ImportError:
-    np = None
+from six import string_types, add_metaclass, iteritems
 
 from . import enums
 from .util.string import nice_join
@@ -110,12 +105,13 @@ def value(val):
     return dict(value=val)
 
 bokeh_bool_types = (bool,)
-if np:
+try:
+    import numpy as np
     bokeh_bool_types += (np.bool8,)
+except ImportError:
+    np = None
 
-bokeh_integer_types = integer_types
-if np:
-    bokeh_bool_types += (np.int8, np.int16, np.int32, np.int64)
+bokeh_integer_types = (numbers.Integral,)
 
 # used to indicate properties that are not set (vs null, None, etc)
 class _NotSet(object):
