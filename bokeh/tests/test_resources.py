@@ -34,7 +34,7 @@ def test_js_resources_inline_has_no_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.js_raw) == 2
+    assert len(r.js_raw) == 3
     assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
     assert hasattr(r, 'css_raw') is False
     assert r.messages == []
@@ -52,7 +52,7 @@ def test_inline_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.css_raw) == 1
+    assert len(r.css_raw) == 2
     assert hasattr(r, 'js_raw') is False
     assert r.messages == []
 
