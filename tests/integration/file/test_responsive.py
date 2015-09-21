@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 
-from bokeh.charts import Area
+from bokeh.charts import Histogram
 from bokeh.io import save
 from bokeh.plotting import figure
+from bokeh.sampledata.autompg import autompg as df
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
@@ -112,8 +113,8 @@ def test_responsive_chart_starts_at_correct_size(output_file_url, selenium):
         oranges=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
     )
 
-    area = Area(values, title="Area Chart", responsive=True)
-    save(area)
+    hist = Histogram(df['mpg'], title="MPG Distribution")
+    save(hist)
 
     selenium.set_window_size(width=1000, height=600)
     selenium.get(output_file_url)
