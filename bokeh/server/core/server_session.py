@@ -29,13 +29,17 @@ class ServerSession(object):
     def __contains__(self, docid):
         return docid in self._documents
 
-    def add_document(self, docid):
-        self._documents[docid] = ServerDocument(docid)
-        IOLoop.current().add_callback(self._documents[docid].worker)
+    def add_document(self, doc):
+        self._documents[doc.id] = doc
 
     def remove_document(self, docid):
-        self._documents[docid].stop_worker()
         del self._documents[docid]
+
+    def ok(self, message):
+        return self.protocol.create('OK', self.id, message.header['msgid'])
+
+    def error(self, message, text):
+        return self.protocol.create('ERROR', self.id, message.header['msgid'], text)
 
     @property
     def id(self):

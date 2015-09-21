@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 import atexit
 # NOTE: needs PyPI backport on Python 2 (https://pypi.python.org/pypi/futures)
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import os
 import signal
 
@@ -32,15 +32,11 @@ class BokehServer(Application):
     '''
 
     def __init__(self, extra_patterns=None):
-        self._clients = set()
-        # NOTE: raise the number of workers if you need more concurrency
-        # (e.g. if your background tasks are doing a lot of I/O).
-        # If a lot of pure Python code is run by the background tasks and
-        # you want to take advantage of multiple cores, consider using
-        # ProcessPoolExecutor instead.
-        self._executor = ThreadPoolExecutor(max_workers=4)
         extra_patterns = extra_patterns or []
         super(BokehServer, self).__init__(patterns+extra_patterns, **settings)
+
+        self._clients = set()
+        self._executor = ProcessPoolExecutor(max_workers=4)
 
     def start(self, argv=None):
         ''' Start the Bokeh Server application
@@ -75,6 +71,10 @@ class BokehServer(Application):
             return
         self.io_loop.add_callback(self.io_loop.stop)
 
+    @property
+    def executor(self):
+        return self._executor
+
     def client_connected(self, session):
         self._clients.add(session)
 
@@ -96,15 +96,11 @@ class BokehServer(Application):
     @gen.coroutine
     def _start_async(self, argv=None):
         try:
-            yield self._start_helper()
+            self.io_loop = IOLoop.current()
+            atexit.register(self._atexit)
+            signal.signal(signal.SIGTERM, self._sigterm)
         except Exception:
             self.exit(1)
-
-    @gen.coroutine
-    def _start_helper(self):
-        self.io_loop = IOLoop.current()
-        atexit.register(self._atexit)
-        signal.signal(signal.SIGTERM, self._sigterm)
 
     _atexit_ran = False
     def _atexit(self):

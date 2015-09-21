@@ -19,7 +19,7 @@ from bokeh.server.protocol import Protocol
 
 class ClientSession(object):
 
-    def __init__(self, url="ws://localhost:8888/ws", callbacks=None):
+    def __init__(self, url="ws://localhost:8888/ws?token=grizzleblizzle", callbacks=None):
         self._request = HTTPRequest(url, headers={"bokeh-protocol-version": "1.0"})
         self._callbacks = callbacks
         self._session_id = None

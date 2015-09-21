@@ -3,30 +3,47 @@
 '''
 from __future__ import absolute_import
 
-from tornado import gen
-from tornado.queues import Queue
+import logging
+log = logging.getLogger(__name__)
+
+from tornado import gen, locks
 
 class ServerDocument(object):
 
-    def __init__(self, docid):
+    def __init__(self, doc):
         self._docid = docid
-        self._queue = Queue
-        self._stopped = False
-
-    def stop_worker(self):
-        self._stopped = True
+        self._lock = locks.Lock()
 
     @gen.coroutine
-    def workon(self, item):
-        yield self._queue.put(item)
+    def workon(self, executor, task, *args, **kw):
+        with (yield self._lock.acquire()):
+            res = yield executor.submit(task, *args, **kw)
+        raise gen.Return(res)
 
-    @gen.coroutine
-    def worker(self):
-        # TODO (bev) stopping logic
-        while True:
-            item = yield self._queue.get()
-            try:
-                yield item()
-            finally:
-                self._queue.task_done()
+    @classmethod
+    def pull(cls, message, session):
+        try:
+            docid = message.content['docid']
+            log.debug("Pulling Document %r", docid)
+            doc = cls(docid)
+            session.add_document(doc)
+            return session.ok(message)
+        except Exception as e:
+            text = "Error pulling Document"
+            log.error(text)
+            return session.error(message, text)
 
+    @classmethod
+    def push(cls, message, session):
+        try:
+            log.debug("Pushing Document")
+            session.storage.push_doc(message)
+            return session.ok(message)
+        except Exception as e:
+            text = "Error pushing Document"
+            log.error(text)
+            return session.error(message, text)
+
+    @property
+    def id(self):
+        return self._docid

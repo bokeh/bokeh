@@ -83,6 +83,7 @@ class PlotObject(HasProps):
         self._callbacks = {}
         self._callback_queue = []
         self._block_callbacks = False
+        self._document = None
 
         block_events = kwargs.pop('_block_events', False)
 
@@ -92,6 +93,28 @@ class PlotObject(HasProps):
         else:
             self._block_callbacks = True
             super(PlotObject, self).__init__(**kwargs)
+
+    def attach_document(self, doc):
+        # we want an ERROR if you attach to a different doc,
+        # but we want to call notify_attach multiple times
+        # if you attach multiple times to the same doc, because
+        # we are reference counted (in case we're in the graph
+        # more than once)
+        if self._document is not None and self._document is not doc:
+            raise RuntimeError("PlotObjects must be owned by only a single document")
+        self._document = doc
+        if self._document is not None:
+            self._document.notify_attach(self)
+            # TODO recursively attach_document all references
+            # after we notify that we're attached ourselves
+            # (modify collect_plot_objects to take a visitor function)
+
+    def detach_document(self):
+        # TODO recursively detach_document all references before
+        # we notify_detach ourselves
+        if self._document is not None:
+            if not self._document.notify_detach(self):
+                self._document = None
 
     @property
     def ref(self):
@@ -311,6 +334,8 @@ class PlotObject(HasProps):
     def _trigger(self, attrname, old, new):
         """attrname of self changed.  So call all callbacks
         """
+        if self._document:
+            self._document.notify_change(self, attrname, old, new)
         callbacks = self._callbacks.get(attrname)
         if callbacks:
             for callback in callbacks:

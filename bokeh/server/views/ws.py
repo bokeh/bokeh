@@ -4,28 +4,34 @@
 from __future__ import absolute_import, print_function
 
 import logging
+log = logging.getLogger(__name__)
+
 import random
 import time
 
-log = logging.getLogger(__name__)
 
 from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
 from ..core.server_session import ServerSession
+from ..core.server_task import ServerTask
 from ..protocol import Protocol
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..protocol.server_handler import ServerHandler
 
+def do_background_stuff(msgid):
+    delay = random.random() * 2.0
+    log.info("start working for %.2f s. on %s", delay, msgid)
+    time.sleep(delay)
+    log.info("work finished on %s", msgid)
+    return "done"
 
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
     '''
-    MAX_FAILURES = 3
-
     def __init__(self, server, *args, **kw):
         self._server = server
         super(WSHandler, self).__init__(server, *args, **kw)
@@ -70,53 +76,18 @@ class WSHandler(WebSocketHandler):
             fragment (unicode or bytes) : wire fragment to process
 
         '''
-        try:
-            message = yield self.receiver.consume(fragment)
-        except (MessageError, ProtocolError, ValidationError) as e:
-            self._protocol_error(str(e))
-            raise gen.Return(None)
 
-        if message is None:
-            # Partial message
-            raise gen.Return(None)
+        message = yield self._receive(fragment)
 
-        log.debug("Received %r", message)
+        if message:
 
-        # Example blocking background stuff
-        msgid = message.header['msgid']
-        def do_background_stuff():
-            delay = random.random() * 2.0
-            log.info("start working for %.2f s. on %s", delay, msgid)
-            time.sleep(delay)
-            log.info("work finished on %s", msgid)
-            return "done"
+            log.debug("Received message: %r", message)
+            work = yield self._handle(message)
 
-        # This will wait for the background stuff to finish
-        # but let other coroutines run in parallel (including
-        # responses to other messages on this connection)
-        res = yield self._server.run_in_background(do_background_stuff)
-        assert res == "done"   # Got the return value
-
-        try:
-            work = yield self.handler.handle(message, self.session)
-        except ProtocolError as e: # TODO (other exceptions?)
-            self._protocol_error(str(e))
-            raise gen.Return(None)
-
-        if work:
-            if isinstance(work, Message):
-                self.send_message(work)
-            else:
-                item, docid = work
-                self.session[docid].workon(item)
+            if work:
+                yield self._schedule(work)
 
         raise gen.Return(None)
-
-    def _protocol_error(self, message):
-        log.error("Protocol error: %s, closing connection", message)
-        # According to RFC 6455, "1002 indicates that an endpoint is
-        # terminating the connection due to a protocol error".
-        self.close(1002, message)
 
     def send_message(self, message):
         ''' Send a Bokeh Server protocol message to the connected client.
@@ -141,4 +112,47 @@ class WSHandler(WebSocketHandler):
         log.info('WebSocket connection closed: code=%s, reason=%r',
                  self.close_code, self.close_reason)
         self._server.client_lost(self.session)
+
+    @gen.coroutine
+    def _receive(self, fragment):
+        # Receive fragments until a complete message is assembled
+        try:
+            message = yield self.receiver.consume(fragment)
+            raise gen.Return(message)
+        except (MessageError, ProtocolError, ValidationError) as e:
+            self._protocol_error(str(e))
+            raise gen.Return(None)
+
+    @gen.coroutine
+    def _handle(self, message):
+        # Handle the message, possibly resulting in work to do
+        try:
+            work = yield self.handler.handle(message, self.session)
+            raise gen.Return(work)
+        except (MessageError, ProtocolError, ValidationError) as e: # TODO (other exceptions?)
+            self._internal_error(str(e))
+            raise gen.Return(None)
+
+    @gen.coroutine
+    def _schedule(self, work):
+        if isinstance(work, Message):
+            self.send_message(work)
+
+        elif isinstance(work, ServerTask):
+            work = yield work(self._server.executor)
+
+        else:
+            self._internal_error("expected a Message or Task")
+            raise gen.Return(None)
+
+        raise gen.Return(None)
+
+
+    def _internal_error(self, message):
+        log.error("Bokeh Server internal error: %s, closing connection", message)
+        self.close(10000, message)
+
+    def _protocol_error(self, message):
+        log.error("Bokeh Server protocol error: %s, closing connection", message)
+        self.close(10001, message)
 
