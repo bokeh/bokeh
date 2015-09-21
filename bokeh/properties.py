@@ -52,6 +52,7 @@ from copy import copy
 from warnings import warn
 import inspect
 import logging
+import numbers
 logger = logging.getLogger(__name__)
 
 from six import integer_types, string_types, add_metaclass, iteritems
