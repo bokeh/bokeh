@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import Horizon, output_file, show
+from bokeh._legacy_charts import Horizon, output_file, show
 
 # read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(

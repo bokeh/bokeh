@@ -85,9 +85,15 @@ class ChartOptions(HasProps):
     Whether to add default tools the the chart.
     """)
 
+    title_text_font_size = String('12pt', help="""
+    Font size to use for title label.
+    """)
+
     responsive = Bool(False, help="""
     If True, the chart will automatically resize based on the size of its container. The
     aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height`` will
     act only to set the initial aspect ratio.
     """)
 
+
+default_options = ChartOptions()

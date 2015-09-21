@@ -4,7 +4,10 @@
 - path: "compat/ggplot"
 - path: "compat/seaborn"
 - path: "compat/pandas"
-- path: "charts"
+- path: "charts/file"
+  type: file
+- path: "charts/notebook"
+  type: notebook
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py", "ajax_source.py", "choropleth.py", "iris_blend.py", "scatter10k.py", "clustering.py"]

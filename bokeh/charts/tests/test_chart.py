@@ -17,10 +17,11 @@ from __future__ import absolute_import
 
 import unittest
 from mock import patch
+import pytest
 
 import numpy as np
 
-from bokeh.charts import Chart
+from bokeh.charts._chart import Chart
 from bokeh.models import (
     ColumnDataSource, Grid, GlyphRenderer, LinearAxis, Range1d, Ticker)
 from bokeh.models.ranges import FactorRange
@@ -114,29 +115,37 @@ class TestChart(unittest.TestCase):
             self.assertIsInstance(self.chart.tools[i], type_)
 
     def test_ranges(self):
-        """
-        Test ranges are not created buy the chart
-        """
+        """Test ranges are not created buy the chart."""
         self.assertEqual(self.chart.x_range, None)
         self.assertEqual(self.chart.y_range, None)
 
+    def test_axis_requires_range(self):
+
+        # the axis creation depends on ranges
+        with pytest.raises(ValueError):
+            self.chart.make_axis("x", "left", "datetime", "foo")
+
     def test_make_axis(self):
-        axis = self.chart.make_axis("left", "datetime", "foo")
+
+        self.chart.add_ranges('x', Range1d())
+
+        axis = self.chart.make_axis("x", "left", "datetime", "foo")
         self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.scale, "time")
         self.assertEqual(axis.axis_label, "foo")
 
-        axis = self.chart.make_axis("left", "categorical", "bar")
+        axis = self.chart.make_axis("x", "left", "categorical", "bar")
         self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "bar")
         self.assertEqual(axis.major_label_orientation, np.pi/4)
 
-        axis = self.chart.make_axis("left", "linear", "foobar")
+        axis = self.chart.make_axis("x", "left", "linear", "foobar")
         self.assertEqual(axis.location, "auto")
         self.assertEqual(axis.axis_label, "foobar")
 
     def test_make_grid(self):
-        axis = self.chart.make_axis("left", "datetime", "foo")
+        self.chart.add_ranges('x', Range1d())
+        axis = self.chart.make_axis("x", "left", "datetime", "foo")
         grid = self.chart.make_grid(0, axis.ticker)
         self.assertEqual(grid.dimension, 0)
         self.assertIsInstance(grid.ticker, Ticker)
