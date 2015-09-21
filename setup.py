@@ -496,43 +496,17 @@ elif '--help' in sys.argv:
 print()
 
 REQUIRES = [
-        'Flask>=0.10.1',
-        'Jinja2>=2.7',
-        'MarkupSafe>=0.18',
-        'Werkzeug>=0.9.1',
-        'greenlet>=0.4.1',
-        'itsdangerous>=0.21',
-        'python-dateutil>=2.1',
-        'requests>=1.2.3',
         'six>=1.5.2',
-        'pygments>=1.6',
-        'pystache>=0.5.3',
-        'markdown>=2.3.1',
+        'requests>=1.2.3',
         'PyYAML>=3.10',
+        'python-dateutil>=2.1',
+        'Jinja2>=2.7',
+        'numpy>=1.7.1',
+        'pandas>=0.11.0',
+        'Flask>=0.10.1',
         'pyzmq>=14.3.1',
         'tornado>=4.0.1',
-        # cli
-        # 'click>=3.3',
-        # tests
-        # 'pytest'
-        # 'mock>=1.0.1',
-        'colorama>=0.2.7'
     ]
-
-if sys.version_info[:2] == (2, 6):
-    REQUIRES.append('argparse>=1.1')
-
-# if sys.platform != "win32":
-#     REQUIRES.append('redis>=2.7.6')
-
-if platform.python_implementation() != "PyPy":
-    # You need to install PyPy's fork of NumPy to make it work:
-    # pip install git+https://bitbucket.org/pypy/numpy.git
-    # Also pandas is not yet working with PyPy .
-    REQUIRES.extend([
-        'numpy>=1.7.1',
-        'pandas>=0.11.0'
-    ])
 
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
