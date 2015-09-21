@@ -56,7 +56,11 @@ import numbers
 logger = logging.getLogger(__name__)
 
 from six import integer_types, string_types, add_metaclass, iteritems
-import numpy as np
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 from . import enums
 from .util.string import nice_join
