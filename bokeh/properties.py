@@ -516,7 +516,7 @@ class Int(PrimitiveProperty):
 
 class Float(PrimitiveProperty):
     """ Floating point type property. """
-    _underlying_type = (float, ) + bokeh_integer_types
+    _underlying_type = (numbers.Real,)
 
 class Complex(PrimitiveProperty):
     """ Complex floating point type property. """
