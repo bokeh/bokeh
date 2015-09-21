@@ -104,7 +104,7 @@ class PlotObject(HasProps):
             raise RuntimeError("PlotObjects must be owned by only a single document")
         self._document = doc
         if self._document is not None:
-            self._document.notify_attach(self)
+            self._document._notify_attach(self)
             # TODO recursively attach_document all references
             # after we notify that we're attached ourselves
             # (modify collect_plot_objects to take a visitor function)
@@ -113,7 +113,7 @@ class PlotObject(HasProps):
         # TODO recursively detach_document all references before
         # we notify_detach ourselves
         if self._document is not None:
-            if not self._document.notify_detach(self):
+            if not self._document._notify_detach(self):
                 self._document = None
 
     @property
@@ -329,13 +329,13 @@ class PlotObject(HasProps):
         callback = dict(obj=obj, callbackname=callbackname)
         if callback not in callbacks:
             callbacks.append(callback)
-        self._callbacks_dirty = True
+        self._callbacks_dirty =
 
     def _trigger(self, attrname, old, new):
         """attrname of self changed.  So call all callbacks
         """
         if self._document:
-            self._document.notify_change(self, attrname, old, new)
+            self._document._notify_change(self, attrname, old, new)
         callbacks = self._callbacks.get(attrname)
         if callbacks:
             for callback in callbacks:
