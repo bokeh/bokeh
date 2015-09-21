@@ -219,11 +219,8 @@ class Property(object):
             return
         setattr(obj, self._name, value)
         obj._dirty = True
-        if hasattr(obj, '_trigger'):
-            if hasattr(obj, '_block_callbacks') and obj._block_callbacks:
-                obj._callback_queue.append((self.name, old, value))
-            else:
-                obj._trigger(self.name, old, value)
+        if hasattr(obj, 'trigger'):
+            obj.trigger(self.name, old, value)
 
     def __delete__(self, obj):
         if hasattr(obj, self._name):

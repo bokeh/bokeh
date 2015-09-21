@@ -8,6 +8,7 @@ from six import add_metaclass, iteritems
 from .properties import Any, HasProps, List, MetaHasProps, Instance, String
 from .query import find
 from .exceptions import DataIntegrityException
+from .util.callback_manager import CallbackManager
 from .util.serialization import dump, make_id
 from .validation import check_integrity
 
@@ -63,7 +64,7 @@ class Viewable(MetaHasProps):
             raise KeyError("View model name '%s' not found" % view_model_name)
 
 @add_metaclass(Viewable)
-class PlotObject(HasProps):
+class PlotObject(HasProps, CallbackManager):
     """ Base class for all plot-related objects """
 
     session = Instance(".session.Session")
@@ -71,28 +72,9 @@ class PlotObject(HasProps):
     tags = List(Any)
 
     def __init__(self, **kwargs):
-        # Eventually should use our own memo instead of storing
-        # an attribute on the class
-        if "id" in kwargs:
-            self._id = kwargs.pop("id")
-        else:
-            self._id = make_id()
-
-        self._dirty = True
-        self._callbacks_dirty = False
-        self._callbacks = {}
-        self._callback_queue = []
-        self._block_callbacks = False
+        super(PlotObject, self).__init__(**kwargs)
+        self._id = kwargs.pop("id", make_id())
         self._document = None
-
-        block_events = kwargs.pop('_block_events', False)
-
-        if not block_events:
-            super(PlotObject, self).__init__(**kwargs)
-            self.setup_events()
-        else:
-            self._block_callbacks = True
-            super(PlotObject, self).__init__(**kwargs)
 
     def attach_document(self, doc):
         # we want an ERROR if you attach to a different doc,
@@ -130,9 +112,6 @@ class PlotObject(HasProps):
                 'type': self.__view_model__,
                 'id': self._id,
             }
-
-    def setup_events(self):
-        pass
 
     def select(self, selector):
         ''' Query this object and all of its references for objects that
@@ -320,26 +299,3 @@ class PlotObject(HasProps):
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
-
-    def on_change(self, attrname, obj, callbackname=None):
-        """when attrname of self changes, call callbackname
-        on obj
-        """
-        callbacks = self._callbacks.setdefault(attrname, [])
-        callback = dict(obj=obj, callbackname=callbackname)
-        if callback not in callbacks:
-            callbacks.append(callback)
-        self._callbacks_dirty =
-
-    def _trigger(self, attrname, old, new):
-        """attrname of self changed.  So call all callbacks
-        """
-        if self._document:
-            self._document._notify_change(self, attrname, old, new)
-        callbacks = self._callbacks.get(attrname)
-        if callbacks:
-            for callback in callbacks:
-                obj = callback.get('obj')
-                callbackname = callback.get('callbackname')
-                fn = obj if callbackname is None else getattr(obj, callbackname)
-                fn(self, attrname, old, new)
