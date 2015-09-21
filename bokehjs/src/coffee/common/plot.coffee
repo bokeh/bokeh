@@ -1,4 +1,5 @@
 _ = require "underscore"
+$ = require "jquery"
 Backbone = require "backbone"
 kiwi = require "kiwi"
 {Expression, Constraint, Operator} = kiwi
@@ -118,6 +119,11 @@ class PlotView extends ContinuumView
       })
 
     @update_dataranges()
+
+    if @mget('responsive')
+      throttled_resize = _.throttle(@resize, 100)
+      $(window).on("resize", throttled_resize)
+      $(@resize)
 
     @unpause()
 
@@ -352,6 +358,26 @@ class PlotView extends ContinuumView
     # TODO - This should only be on in testing
     # @$el.find('canvas').attr('data-hash', ctx.hash());
 
+  resize: () =>
+    canvas_height = @canvas.get('height')
+    canvas_width = @canvas.get('width')
+    # Calculating this each time means that we play nicely with resize tool
+    aspect_ratio = canvas_width / canvas_height
+
+    # kiwi.js falls over if we try and resize too small.
+    # min_size is currently set in defaults to 100, we can make this
+    # user-configurable in the future, as it may not be the right number
+    # if people set a large border on their plots, for example.
+    min_size = @mget('min_size')
+    new_width = Math.max(@.el.clientWidth, min_size)
+    new_height = parseInt(new_width / aspect_ratio)
+
+    if new_height < min_size
+      new_height = 100
+      new_width = new_height * aspect_ratio  # Preserves the aspect ratio
+
+    @canvas._set_dims([new_width, new_height])
+    return null
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -530,6 +556,8 @@ class Plot extends HasParent
       lod_threshold: 2000
       lod_timeout: 500
       webgl: false
+      responsive: false
+      min_size: 100
     }
 
   display_defaults: ->
