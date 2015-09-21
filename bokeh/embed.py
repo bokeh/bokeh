@@ -211,7 +211,7 @@ def _extract_custom_models(plot_object):
     custom_models = {}
 
     for obj in plot_object.references():
-        impl = getattr(obj, "__implementation__", None)
+        impl = getattr(obj.__class__, "__implementation__", None)
 
         if impl is not None:
             name = obj.__class__.__name__

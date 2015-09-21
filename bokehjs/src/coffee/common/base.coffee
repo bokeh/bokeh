@@ -188,24 +188,27 @@ Collections = (typename) ->
 Collections.register = (name, collection) ->
   collection_overrides[name] = collection
 
-modules = arguments[4] # XXX: this refers to the 4th argument a the outer function
-                       # of this module, which is provided by browserify during
-                       # compilation. Only first three arguments are named, i.e
-                       # require, module and exports, so the next one we have to
-                       # retrieve like this. This is the set of all modules known
-                       # to bokehjs upon compilation and extended with module
-                       # registration mechanism.
+# XXX: this refers to the 4th and 5th arguments of the outer function of this module,
+# which is provided by browserify during # compilation. Only first three arguments
+# are named, i.e require, module and exports, so the next ones we have to retrieve
+# like this. `modules` is the set of all modules known to bokehjs upon compilation
+# and # extended with module registration mechanism. `cache` is an internal thing of
+# browserify, but we have to manage it here as well, to all module re-registration.
+browserify = {
+  modules: arguments[4]
+  cache: arguments[5]
+}
 
 Collections.register_plugin = (plugin, locations) ->
-  Collections.register_locations locations, (name) ->
+  Collections.register_locations locations, errorFn = (name) ->
     throw new Error("#{name} was already registered, attempted to re-register in #{plugin}")
 
-Collections.register_locations = (locations, errorFn) ->
+Collections.register_locations = (locations, force=false, errorFn=null) ->
   mod_cache = _get_mod_cache()
   cache = make_cache(locations)
 
   for own name, module of cache
-    if not mod_cache.hasOwnProperty(name)
+    if force or not mod_cache.hasOwnProperty(name)
       mod_cache[name] = module
     else
       errorFn?(name)
@@ -219,10 +222,11 @@ Collections.register_model = (name, mod) ->
 
   mod_name = "custom/#{name.toLowerCase()}"
   [impl, deps] = mod
-  modules[mod_name] = [compile(impl), deps]
+  delete browserify.cache[mod_name]
+  browserify.modules[mod_name] = [compile(impl), deps]
   _locations = {}
   _locations[name] = require(mod_name)
-  Collections.register_locations(_locations)
+  Collections.register_locations(_locations, force=true)
 
 Collections.register_models = (specs) ->
   for own name, impl of specs
