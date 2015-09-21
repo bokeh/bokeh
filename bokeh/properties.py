@@ -113,7 +113,9 @@ bokeh_bool_types = (bool,)
 if np:
     bokeh_bool_types += (np.bool8,)
 
-bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
+bokeh_integer_types = integer_types
+if np:
+    bokeh_bool_types += (np.int8, np.int16, np.int32, np.int64)
 
 # used to indicate properties that are not set (vs null, None, etc)
 class _NotSet(object):
