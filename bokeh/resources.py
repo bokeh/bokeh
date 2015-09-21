@@ -71,8 +71,7 @@ def _get_server_urls(root_url, minified=True):
     _min = ".min" if minified else ""
 
     def mk_url(comp, tp):
-        _comp = '-' + comp if comp else ''
-        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, tp, _comp, _min, tp)
+        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, tp, comp, _min, tp)
 
     return {
         'js_files'  : [ mk_url(comp, 'js')  for comp in ['bokeh', 'bokeh-widgets'] ],
