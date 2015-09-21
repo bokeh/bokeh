@@ -4,6 +4,8 @@ window = {location: {href: "local"}} unless window?
 
 coffee = require "coffee-script"
 
+{logger} = require "./logging"
+
 # add some useful functions to underscore
 require("./custom").monkey_patch()
 
@@ -200,6 +202,7 @@ browserify = {
 }
 
 Collections.register_plugin = (plugin, locations) ->
+  logger.info("Registering plugin: #{plugin}")
   Collections.register_locations locations, errorFn = (name) ->
     throw new Error("#{name} was already registered, attempted to re-register in #{plugin}")
 
@@ -214,6 +217,8 @@ Collections.register_locations = (locations, force=false, errorFn=null) ->
       errorFn?(name)
 
 Collections.register_model = (name, mod) ->
+  logger.info("Registering model: #{name}")
+
   compile = (code) ->
     body = coffee.compile(code, {bare: true, shiftLine: true})
     new Function("require", "module", "exports", body)
