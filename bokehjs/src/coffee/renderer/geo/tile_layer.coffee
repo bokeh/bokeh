@@ -1,6 +1,24 @@
 _ = require "underscore"
 Glyph = require "../glyph/glyph"
 
+class ImagePool
+
+  constructor: () ->
+    @images = []
+
+  pop: () ->
+    img = @images.pop()
+    if img?
+      return img
+    else
+      return new Image()
+
+  push: (img) ->
+    if img.constructor == Array
+      Array::push.apply(@images, img)
+    else
+      @images.push(img)
+
 class ProjectionUtils
 
   constructor: () ->
@@ -30,18 +48,53 @@ class ProjectionUtils
     [xmax, ymax] = @meters_to_geographic(xmax, ymax)
     return [xmin, ymin, xmax, ymax]
 
-class MercatorTileProvider
+class GridLayer
+
+  tile_xyz_to_key: (x, y, z) ->
+    return x.toString() + ":" + y.toString() + ":" + z.toString()
+
+  key_to_tile_xyz: (key) ->
+    return (parseInt(c) for c in key.split(':'))
+
+class MercatorTileProvider extends GridLayer
+
+
 
   constructor: (@url, @tile_size=256) ->
     @utils = new ProjectionUtils()
+    @pool = new ImagePool()
     @origin_shift = 2 * Math.PI * 6378137 / 2.0
     @initial_resolution = 2 * Math.PI * 6378137 / @tile_size
+    @resolutions = (@get_resolution(z) for z in [0..30])
+    @tiles = {}
 
   get_image_url: () ->
     throw Error "Unimplemented Method"
 
   get_resolution: (level) ->
     return @initial_resolution / Math.pow(2, level)
+
+  get_level_by_extent: (extent, height, width) ->
+    x_rs = (extent[2] - extent[0]) / width
+    y_rs = (extent[3] - extent[1]) / height
+    res = Math.max(x_rs, y_rs)
+
+    closest = @resolutions.reduce (previous, current) ->
+      return current if (Math.abs(current - res) < Math.abs(previous - res))
+      return previous
+
+    return @resolutions.indexOf(closest)
+
+  snap_to_zoom: (extent, height, width, level) ->
+    desired_res = @resolutions[level]
+    desired_x_delta = width * desired_res
+    desired_y_delta = height * desired_res
+
+    [xmin, ymin, xmax, ymax] = extent
+    x_adjust = (desired_x_delta - (xmax - xmin)) / 2
+    y_adjust = (desired_y_delta - (ymax - ymin)) / 2
+
+    return [xmin - x_adjust, ymin - y_adjust, xmax + x_adjust, ymax + y_adjust]
 
   tms_to_wmts: (x, y, z) ->
     '''Note this works both ways'''
@@ -83,14 +136,25 @@ class MercatorTileProvider
     return [minLon, minLat, maxLon, maxLat]
 
   get_tiles_by_extent: (extent, level) ->
+
     [xmin, ymin, xmax, ymax] = extent
     [txmin, tymin] = @meters_to_tile(xmin, ymin, level)
     [txmax, tymax] = @meters_to_tile(xmax, ymax, level)
 
+    center_tile_x = (txmax - txmin) // 2
+    center_tile_y = (tymax - tymin) // 2
+
     tiles = []
-    for ty in [tymin..tymax] by 1
+    for ty in [tymax..tymin] by -1
       for tx in [txmin..txmax] by 1
-        tiles.push(@get_image_url(tx, ty, level))
+        tx = tx %% 2 ** level
+        tiles.push([tx, ty, level, @get_tile_meter_bounds(tx, ty, level)])
+
+    #TOOD: sort tiles by distance from center doesn't seem to be working
+    tiles.sort (a, b) ->
+      a_distance = Math.sqrt(Math.pow(center_tile_x - a[0], 2) + Math.pow(center_tile_y - a[1], 2))
+      b_distance = Math.sqrt(Math.pow(center_tile_x - b[0], 2) + Math.pow(center_tile_y - b[1], 2))
+      return a_distance - b_distance
 
     return tiles
 
@@ -100,10 +164,6 @@ class TMSTileProvider extends MercatorTileProvider
     return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
 class WMTSTileProvider extends MercatorTileProvider
-
-  get_tile_meter_bounds: (x, y, z) ->
-    [x, y, z] = @tms_to_wmts(x, y, z)
-    return super(x, y, z)
 
   get_image_url: (x, y, z) ->
     [x, y, z] = @tms_to_wmts(x, y, z)
@@ -129,7 +189,7 @@ class QUADKEYTileProvider extends MercatorTileProvider
       else if value == '1'
         tileX |= mask
 
-      else if value == '2'
+      else if value == '2 '
         tileY |= mask
 
       else if value == '3'
@@ -161,89 +221,166 @@ class QUADKEYTileProvider extends MercatorTileProvider
     quadKey = @tile_xyz_to_quadkey(x, y, z)
     return @url.replace("{QUADKEY}", quadKey)
 
-
 class TileLayerView extends Glyph.View
 
+  trace: (msg) ->
+    console.warn "TileLayerView :: " + msg.toString()
+
+  _create_tile_provider: (provider_type, service_url, tile_size) ->
+    return new QUADKEYTileProvider(service_url, tile_size) if(provider_type.toLowerCase() == 'quadkeytileprovider')
+    return new TMSTileProvider(service_url, tile_size) if(provider_type.toLowerCase() == 'tmstileprovider')
+    return new WMTSTileProvider(service_url, tile_size)
+
   _index_data: () ->
+    @trace("._index_data()")
     @_xy_index()
+
+  get_extent: () ->
+    return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
+
+  _on_dblclick: (e) =>
+    extent = @get_extent()
+    [xmin, xmax, ymin, ymax] = extent
+    zoom_level = @tile_provider.get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+
+    rect = @map_canvas.canvas.getBoundingClientRect()
+    x = e.clientX - rect.left
+    #TODO: y-dim is not perfect.  zooming doesn't seem completely correct
+    y = e.clientY - rect.top - (@map_frame.get('top') - @map_frame.get('height'))
+    y = @map_frame.get("height") - y
+
+    x_meters = @x_mapper.map_from_target(x)
+    y_meters = @y_mapper.map_from_target(y)
+
+    x_offset = Math.abs((@x_range.get('end') - @x_range.get('start')) / 2)
+    y_offset = Math.abs((@y_range.get('end') - @y_range.get('start')) / 2)
+
+    updated_extent =  [x_meters - x_offset, y_meters - y_offset, x_meters + x_offset, y_meters + y_offset]
+
+    if e.shiftKey
+      zoom_level = zoom_level - 1
+    else
+      zoom_level = zoom_level + 1
+
+    new_extent = @tile_provider.snap_to_zoom(updated_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+    @x_range.set('start', new_extent[0])
+    @y_range.set('start', new_extent[1])
+    @x_range.set('end', new_extent[2])
+    @y_range.set('end', new_extent[3])
 
   _set_data: () ->
-    @need_load = (true for img in @url)
-    @loaded = (false for img in @url)
+    @trace("._set_data()")
+    @tile_provider = @_create_tile_provider(@provider_type[0], @url[0], @tile_size[0])
+    @pool = new ImagePool()
+    @initial_extent = [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
+    @map_plot = @renderer.plot_view.model
+    @map_canvas = @renderer.plot_view.canvas_view.ctx
+    @map_frame = @renderer.plot_view.frame
 
-    @_xy_index()
+    @x_range = @map_plot.get('x_range')
+    @x_mapper = this.map_frame.get('x_mappers')['default']
+
+    @y_range = @map_plot.get('y_range')
+    @y_mapper = this.map_frame.get('y_mappers')['default']
+
+    @x_range.set('start', @initial_extent[0])
+    @y_range.set('start', @initial_extent[1])
+    @x_range.set('end', @initial_extent[2])
+    @y_range.set('end', @initial_extent[3])
+
+    @renderer.plot_view.$el.dblclick(@_on_dblclick)
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @x, @tile_size, 'edge', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @y, @tile_size, 'edge', @mget('dilate'))
+    @trace("._map_data()")
+    @sw = @sdist(@renderer.xmapper, @x, @mget('tile_size'), 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @y, @mget('tile_size'), 'edge', @mget('dilate'))
+
+  _on_tile_load: (e) =>
+    @tile_provider.tiles[e.target.cache_key] = {img: e.target, tile_coords: e.target.tile_coords, bounds: e.target.bounds, current: true}
+    @_render_tile(e.target.cache_key)
+
+  _on_tile_error: (e) =>
+    @trace("._on_tile_error()")
+    return ''
+
+  _is_valid_tile: (x, y, z) ->
+
+    #is tile currently on screen?
+    return true
+
+  _create_tile: (x, y, z, bounds) ->
+    tile = @pool.pop()
+    tile.onload = @_on_tile_load
+    tile.onerror = @_on_tile_error
+    tile.alt = ''
+    tile.src = @tile_provider.get_image_url(x, y, z)
+    tile.tile_coords = [x, y, z]
+    tile.bounds = bounds
+    tile.x_coord = bounds[0]
+    tile.y_coord = bounds[3]
+    tile.cache_key = @tile_provider.tile_xyz_to_key(x, y, z)
+    return tile
 
   _render: (ctx, indices, {url, image, need_load, sx, sy, sw, sh, angle}) ->
-    for i in indices
+    @_update()
 
-      if isNaN(sx[i]+sy[i]+angle[i])
-        continue
+  _render_tile: (tile_key) ->
+    tile_obj = @tile_provider.tiles[tile_key]
+    if tile_obj?
+      @map_canvas.save()
+      [sx, sy] = @renderer.plot_view.frame.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]], @renderer.plot_view.canvas)
+      @map_canvas.rect(
+        @map_frame.get('left')+1, @map_frame.get('bottom')+2,
+        @map_frame.get('width')-2, @map_frame.get('height'),
+      )
+      @map_canvas.clip()
+      @map_canvas.drawImage(tile_obj.img, sx[0], sy[0], 256, 256)
+      @map_canvas.restore()
 
-      if need_load[i]
-        img = new Image()
-        img.onload = do (img, i) =>
-          return () =>
-            @loaded[i] = true
-            @renderer.request_render()
+  _update: () =>
+    if window.stop?
+      window.stop()
+    else if document.execCommand?
+      document.execCommand("Stop", false)
 
-        img.src = url[i]
-        need_load[i] = false
-      else if @loaded[i]
-        @_render_image(ctx, i, image[i], sx, sy, @tile_size, @tile_size, angle)
+    @trace("._render()")
+    extent = @get_extent()
+    zoom_level = @tile_provider.get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+    new_extent = @tile_provider.snap_to_zoom(extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
 
-  _final_sx_sy: (anchor, sx, sy, sw, sh) ->
-    switch anchor
-      when "top_left"      then [sx       , sy       ]
-      when "top_center"    then [sx - sw/2, sy       ]
-      when "top_right"     then [sx - sw  , sy       ]
-      when "right_center"  then [sx - sw  , sy - sh/2]
-      when "bottom_right"  then [sx - sw  , sy - sh  ]
-      when "bottom_center" then [sx - sw/2, sy - sh  ]
-      when "bottom_left"   then [sx       , sy - sh  ]
-      when "left_center"   then [sx       , sy - sh/2]
-      when "center"        then [sx - sw/2, sy - sh/2]
+    @x_range.set('start', new_extent[0])
+    @y_range.set('start', new_extent[1])
+    @x_range.set('end', new_extent[2])
+    @y_range.set('end', new_extent[3])
+    tiles = @tile_provider.get_tiles_by_extent(new_extent, zoom_level)
 
-  _render_image: (ctx, i, image, sx, sy, sw, sh, angle) ->
-
-    anchor = @mget('anchor') or "top_left"
-    [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], 256, 256)
-
-    ctx.save()
-
-    ctx.globalAlpha = @mget("global_alpha")
-
-    if angle[i]
-      ctx.translate(sx, sy)
-      ctx.rotate(angle[i])
-      ctx.drawImage(image, 0, 0, 256, 256)
-      ctx.rotate(-angle[i])
-      ctx.translate(-sx, -sy)
-    else
-      ctx.drawImage(image, sx, sy, 256, 256)
-    ctx.restore()
+    for t in tiles
+      [x, y, z, bounds] = t
+      if @_is_valid_tile(x, y, z)
+        key = @tile_provider.tile_xyz_to_key(x, y, z)
+        if key of @tile_provider.tiles
+          @_render_tile(key)
+        else
+          @_create_tile(x, y, z, bounds)
 
 class TileLayer extends Glyph.Model
   default_view: TileLayerView
   type: 'TileLayer'
-  tile_width: 256
-  tile_height: 256
   visuals: []
   distances: ['w', 'h']
   angles: ['angle']
-  fields: ['url:string']
+  fields: ['url:string', 'provider_type:string', 'tile_size']
 
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
+      tile_size: 256
       global_alpha: 1.0
     }
 
   display_defaults: ->
     return _.extend {}, super(), {
+      level: 'glyph'
     }
 
 module.exports =
