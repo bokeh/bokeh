@@ -2,14 +2,20 @@
 enable embedding Bokeh plots in various ways.
 
 Attributes:
-    RESOURCES: This template is for loading BokehJS code and css
+    JS_RESOURCES: This template is for loading BokehJS code and css
+        according to the configuration in a Resources object.
+
+Args:
+    js_files (list[str]) : a list of URIs for JS files to include
+    js_raw (list[str]) : a list of raw JS snippets to put between `<style>` tags
+
+Attributes:
+    CSS_RESOURCES: This template is for loading Bokeh css
         according to the configuration in a Resources object.
 
 Args:
     css_files (list[str]) : a list of URIs for CSS files to include
-    js_files (list[str]) : a list of URIs for JS files to include
     css_raw (list[str]) : a list of raw CSS snippets to put between `<style>` tags
-    js_raw (list[str]) : a list of raw JS snippets to put between `<style>` tags
 
 Attributes:
     PLOT_DIV: This template is for creating a basic plot div (to be
@@ -115,8 +121,12 @@ import jinja2
 
 _templates_path = join(abspath(split(__file__)[0]), "_templates")
 
-RESOURCES = jinja2.Template(
-    open(join(_templates_path, "resources.html")).read()
+JS_RESOURCES = jinja2.Template(
+    open(join(_templates_path, "js_resources.html")).read()
+)
+
+CSS_RESOURCES = jinja2.Template(
+    open(join(_templates_path, "css_resources.html")).read()
 )
 
 

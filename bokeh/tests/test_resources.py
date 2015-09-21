@@ -19,7 +19,43 @@ Bokeh.set_log_level("info");
 
 LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 
-DEFAULT_JOG_JS_RAW = 'Bokeh.set_log_level("info");'
+DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
+
+
+## Test JSResources
+
+def test_js_resources_default_mode_is_inline():
+    r = resources.JSResources()
+    assert r.mode == "inline"
+
+
+def test_js_resources_inline_has_no_css_resources():
+    r = resources.JSResources(mode="inline")
+    assert r.mode == "inline"
+    assert r.dev is False
+
+    assert len(r.js_raw) == 2
+    assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
+    assert hasattr(r, 'css_raw') is False
+    assert r.messages == []
+
+
+## Test CSSResources
+
+def test_css_resources_default_mode_is_inline():
+    r = resources.CSSResources()
+    assert r.mode == "inline"
+
+
+def test_inline_css_resources():
+    r = resources.CSSResources(mode="inline")
+    assert r.mode == "inline"
+    assert r.dev is False
+
+    assert len(r.css_raw) == 1
+    assert hasattr(r, 'js_raw') is False
+    assert r.messages == []
+
 
 class TestResources(unittest.TestCase):
 
@@ -46,7 +82,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.dev, False)
 
         self.assertEqual(len(r.js_raw), 3)
-        self.assertEqual(r.js_raw[-1], DEFAULT_JOG_JS_RAW)
+        self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW)
         self.assertEqual(len(r.css_raw), 2)
         self.assertEqual(r.messages, [])
 
@@ -62,7 +98,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "cdn")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -78,13 +114,13 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "server")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
         r = resources.Resources(mode="server", root_url="http://foo/")
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -99,7 +135,7 @@ class TestResources(unittest.TestCase):
 
         r = resources.Resources(mode="server-dev", root_url="http://foo/")
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -108,7 +144,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "relative")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -117,7 +153,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "relative")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -126,7 +162,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "absolute")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -135,7 +171,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "absolute")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 

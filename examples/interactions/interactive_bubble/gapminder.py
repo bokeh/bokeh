@@ -10,7 +10,7 @@ from bokeh.models import (
 )
 from bokeh.palettes import Spectral6
 from bokeh.plotting import vplot
-from bokeh.resources import Resources
+from bokeh.resources import JSResources
 from bokeh.embed import file_html
 
 from data import process_data
@@ -121,12 +121,9 @@ with open('gapminder_template.jinja', 'r') as f:
     template = Template(f.read())
 
 # Use inline resources, render the html and open
-resources = Resources(mode='inline')
-template_variables = {
-    'bokeh_min_js': resources.js_raw[0]
-}
+js_resources = JSResources(mode='inline')
 title = "Bokeh - Gapminder Bubble Plot"
-html = file_html(layout, resources, title, template=template, template_variables=template_variables)
+html = file_html(layout, None, title, template=template, js_resources=js_resources)
 
 output_file = 'gapminder.html'
 with open(output_file, 'w') as f:
