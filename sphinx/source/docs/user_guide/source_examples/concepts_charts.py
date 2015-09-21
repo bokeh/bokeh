@@ -1,15 +1,17 @@
 from bokeh.charts import Scatter, output_file, show
 
 # prepare some data, a Pandas GroupBy object in this case
-from bokeh.sampledata.iris import flowers
-grouped = flowers[["petal_length", "petal_width", "species"]].groupby("species")
+from bokeh.sampledata.autompg import autompg as df
 
 # create a scatter chart
-p = Scatter(grouped, title="iris data", width=400, height=400,
-            xlabel="petal length", ylabel="petal width", legend='top_left')
+p = Scatter(df, x='mpg', y='hp', color='cyl',
+            title="MPG vs HP (colored by CYL)",
+            legend='top_right',
+            xlabel="Miles Per Gallon",
+            ylabel="Horsepower")
 
 # specify how to output the plot(s)
-output_file("foo.html")
+output_file("chart.html")
 
 # display the figure
 show(p)

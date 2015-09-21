@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import Bar, output_file, show
+from bokeh._legacy_charts import Bar, output_file, show
 from bokeh.sampledata.olympics2014 import data
 
 df = pd.io.json.json_normalize(data['data'])

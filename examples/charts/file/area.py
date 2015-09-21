@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from bokeh.charts import Area, show, output_file
+from bokeh._legacy_charts import Area, show, output_file
 
 # create some example data
 xyvalues = OrderedDict(

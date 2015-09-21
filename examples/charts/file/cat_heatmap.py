@@ -1,4 +1,4 @@
-from bokeh.charts import HeatMap, output_file, show
+from bokeh._legacy_charts import HeatMap, output_file, show
 from bokeh.palettes import YlOrRd9 as palette
 from bokeh.sampledata.unemployment1948 import data
 
