@@ -20,8 +20,16 @@ module.constructor.prototype.require = (modulePath) ->
   return load(modulePath)
 
 jsdom = require('jsdom').jsdom
-global.document = document = jsdom()
-global.window = window = document.defaultView
+
+global.document = jsdom()
+global.window = document.defaultView
+
+blacklist = Object.keys(global)
+blacklist.push('constructor')
+
+for own key, val of global.window
+  if blacklist.indexOf(key) == -1
+    global[key] = val
 
 require "./test_action"
 require "./test_common"
