@@ -1047,7 +1047,14 @@ class Datetime(Property):
     def validate(self, value):
         super(Datetime, self).validate(value)
 
-        if (isinstance(value, (datetime.datetime, datetime.date, np.datetime64))):
+        datetime_types = (datetime.datetime, datetime.date)
+        try:
+            import numpy as np
+            datetime_types += (np.datetime64,)
+        except ImportError:
+            pass
+
+        if (isinstance(value, datetime_types)):
             return
         try:
             import pandas
