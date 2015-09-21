@@ -110,11 +110,8 @@ def value(val):
     return dict(value=val)
 
 bokeh_bool_types = (bool,)
-try:
-    import numpy as np
+if np:
     bokeh_bool_types += (np.bool8,)
-except ImportError:
-    np = None
 
 bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
 
