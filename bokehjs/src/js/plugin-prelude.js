@@ -1,6 +1,6 @@
 (function outer(modules, cache, entry) {
     // Save the require from previous bundle to this closure if any
-    var previousRequire = typeof require == "function" && require;
+    var previousRequire = typeof bokehRequire == "function" && bokehRequire;
 
     function newRequire(name, jumped) {
         if (!cache[name]) {
@@ -8,7 +8,7 @@
                 // if we cannot find the the module within our internal map or
                 // cache jump to the current global require ie. the last bundle
                 // that was added to the page.
-                var currentRequire = typeof require == "function" && require;
+                var currentRequire = typeof bokehRequire == "function" && bokehRequire;
                 if (!jumped && currentRequire) return currentRequire(name, true);
 
                 // If there are other bundles on this page the require from the
