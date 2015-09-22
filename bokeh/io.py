@@ -169,6 +169,26 @@ def output_server(docname, session=None, url="default", name=None, clear=True):
         docname, session=session, url=url, name=name, clear=clear
     )
 
+def output_document(doc):
+    ''' Configure the default output state to modify the given document. This
+    means curdoc() will return the provided document.
+
+    Args:
+        doc (Document) : Document we will modify.
+
+    Returns:
+        None
+
+    .. note::
+        Generally, this should be called at the beginning of an interactive
+        session or the top of a script.
+
+    .. warning::
+        Calling this function will replace any existing output configuration.
+
+    '''
+    _state.output_document(doc)
+
 def curdoc():
     ''' Return the document for the current default state.
 
