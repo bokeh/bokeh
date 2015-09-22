@@ -44,6 +44,7 @@
     "mocha": "^2.2.5",
     "mocha-jsdom": "^1.0.0",
     "phantomjs": "^1.9.7",
+    "proj4": "^2.3.10",
     "run-sequence": "^1.0.0",
     "sandboxed-module": "^2.0.0",
     "sinon": "^1.15.4",
@@ -76,6 +77,7 @@
     "jquery_event_drop": "./src/vendor/jquery-event-2.2/jquery.event.drop.js",
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "kiwi": "./src/vendor/kiwi/kiwi.js",
+    "gloo2": "./src/vendor/gloo/gloo2.js",
     "Canteen": "./node_modules/Canteen/build/canteen.js"
   },
   "browserify-shim": {},

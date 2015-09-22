@@ -5,13 +5,15 @@ with data columns from data sources.
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
-from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Direction, Anchor
-from ..properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, Include,
-                          Instance, Int, NumberSpec, StringSpec)
+from ..mixins import FillProps, LineProps, TextProps
+from ..plot_object import PlotObject
+from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
+                          Include, Instance, Int, NumberSpec, StringSpec)
+
 from .mappers import LinearColorMapper
 
+@abstract
 class Glyph(PlotObject):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
 

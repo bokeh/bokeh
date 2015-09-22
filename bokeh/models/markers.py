@@ -7,8 +7,10 @@ from __future__ import absolute_import
 from .glyphs import Glyph
 from ..enums import enumeration
 from ..mixins import FillProps, LineProps
+from ..properties import abstract
 from ..properties import DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
 
+@abstract
 class Marker(Glyph):
     """ Base class for glyphs that are simple markers with line and
     fill properties, located at an (x, y) location with a specified

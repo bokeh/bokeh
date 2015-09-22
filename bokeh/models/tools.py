@@ -23,12 +23,12 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
+from ..properties import abstract
 from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
 from ..enums import Dimension
 
 from .renderers import Renderer
 from .callbacks import Callback
-
 
 
 class ToolEvents(PlotObject):
@@ -39,6 +39,7 @@ class ToolEvents(PlotObject):
     geometries = List(Dict(String, Any))
 
 
+@abstract
 class Tool(PlotObject):
     """ A base class for all interactive tool types. ``Tool`` is
     not generally useful to instantiate on its own.

@@ -13,14 +13,14 @@ these different cases.
 
 from __future__ import absolute_import
 
-from warnings import warn
 import uuid
+from warnings import warn
 
 from .protocol import serialize_json
 from .resources import Resources
 from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
+    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, JS_RESOURCES, CSS_RESOURCES
 )
 from .util.string import encode_utf8
 
@@ -30,7 +30,7 @@ from six import string_types
 
 
 def _wrap_in_function(code):
-    # Indent and wrap Bokeh function def around
+    # indent and wrap Bokeh function def around
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
@@ -42,63 +42,58 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     An example can be found in examples/embed/embed_multiple.py
 
-
     .. note:: The returned components assume that BokehJS resources
               are **already loaded**.
 
-    Args
-    ----
-    plot_objects : PlotObject|list|dict|tuple
-        A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
+    Args:
+        plot_objects : PlotObject|list|dict|tuple
+            A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
 
-    resources :
-        Deprecated argument
+        resources :
+            Deprecated argument
 
-    wrap_script : boolean, optional
-        If True, the returned javascript is wrapped in a script tag. (default: True)
+        wrap_script : boolean, optional
+            If True, the returned javascript is wrapped in a script tag. (default: True)
 
-    wrap_plot_info : boolean, optional
-        If True, then a set of divs are returned.
-        If set to False, then dictionaries are returned that can be used to manually
-        build your own divs. (default: True)
+        wrap_plot_info : boolean, optional
+            If True, then a set of divs are returned.
+            If set to False, then dictionaries are returned that can be used to manually
+            build your own divs. (default: True)
 
-        If False, the returned dictionary contains the following information::
+            If False, the returned dictionary contains the following information::
 
-            {
-                'modelid':  'The plots id, which can be used in the Bokeh.index',
-                'elementid': 'The css identifier the BokehJS will look for to target the plot',
-                'modeltype': 'The Bokeh model name e.g. Plot, Slider',
-            }
+                {
+                    'modelid':  'The plots id, which can be used in the Bokeh.index',
+                    'elementid': 'The css identifier the BokehJS will look for to target the plot',
+                    'modeltype': 'The Bokeh model name e.g. Plot, Slider',
+                }
 
+    Returns:
+        (script, div[s]) :  UTF-8 encoded
 
+            The output depends on the input as follows::
 
-    Returns
-    -------
-    (script, div[s]) :  UTF-8 encoded
+                components(plot)
+                # => (script, plot_div)
 
-        The output depends on the input as follows::
+                components((plot1, plot2))
+                # => (script, (plot1_div, plot2_div))
 
-            components(plot)
-            # => (script, plot_div)
+                components({"Plot 1": plot1, "Plot 2": plot2})
+                # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
 
-            components((plot1, plot2))
-            # => (script, (plot1_div, plot2_div))
+        (raw_script, plot_info[s]) : UTF-8 encoded
 
-            components({"Plot 1": plot1, "Plot 2": plot2})
-            # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
+            The output depends on the input as follows::
 
-    (raw_script, plot_info[s]) : UTF-8 encoded
+                components(plot, wrap_script=False, wrap_plot_info=False)
+                # => (javascript, plot_dict)
 
-        The output depends on the input as follows::
+                components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
+                # => (javascript, (plot1_dict, plot2_dict))
 
-            components(plot, wrap_script=False, wrap_plot_info=False)
-            # => (javascript, plot_dict)
-
-            components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
-            # => (javascript, (plot1_dict, plot2_dict))
-
-            components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
-            # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
+                components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
+                # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
     '''
     all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
 
@@ -257,7 +252,7 @@ def notebook_div(plot_object):
     return encode_utf8(html)
 
 
-def file_html(plot_object, resources, title, template=FILE, template_variables=None):
+def file_html(plot_object, resources, title, js_resources=None, css_resources=None, template=FILE, template_variables=None):
     ''' Return an HTML document that embeds a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -272,7 +267,7 @@ def file_html(plot_object, resources, title, template=FILE, template_variables=N
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
-            title, plot_resources, plot_script, plot_div
+            title, js_resources, css_resources, plot_script, plot_div
 
     Returns:
         html : standalone HTML document with embedded plot
@@ -282,19 +277,35 @@ def file_html(plot_object, resources, title, template=FILE, template_variables=N
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 
-    plot_resources = RESOURCES.render(
-        js_raw = resources.js_raw,
-        css_raw = resources.css_raw,
-        js_files = resources.js_files,
-        css_files = resources.css_files,
-    )
+    if resources:
+        if js_resources:
+            warn('Both resources and js_resources provided. resources will override js_resources.')
+        if css_resources:
+            warn('Both resources and css_resources provided. resources will override css_resources.')
+
+        js_resources = resources
+        css_resources = resources
+
+    bokeh_js = ''
+    if js_resources:
+        if not css_resources:
+            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+        bokeh_js = JS_RESOURCES.render(js_raw=js_resources.js_raw, js_files=js_resources.js_files)
+
+    bokeh_css = ''
+    if css_resources:
+        if not js_resources:
+            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+        bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
+
     script, div = components(plot_object)
     template_variables_full = \
         template_variables.copy() if template_variables is not None else {}
     template_variables_full.update(
         {
             'title': title,
-            'plot_resources': plot_resources,
+            'bokeh_js': bokeh_js,
+            'bokeh_css': bokeh_css,
             'plot_script': script,
             'plot_div': div,
         }

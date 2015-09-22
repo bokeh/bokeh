@@ -7,6 +7,7 @@ from six import string_types
 import logging
 import copy
 
+from ...properties import abstract
 from ...properties import Int, Instance, List, String, Dict, Either
 from ...util.functions import cached_property, arg_filter
 from ...validation.warnings import EMPTY_LAYOUT
@@ -16,6 +17,7 @@ from ..widget import Widget
 
 logger= logging.getLogger(__name__)
 
+@abstract
 class Layout(Widget):
     """ An abstract base class for layout widgets. ``Layout`` is not
     generally useful to instantiate on its own.
@@ -30,7 +32,7 @@ class Layout(Widget):
     An optional height for the widget (in pixels).
     """)
 
-
+@abstract
 class BaseBox(Layout):
     """ Abstract base class for HBox and VBox. Do not use directly.
     """

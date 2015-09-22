@@ -14,58 +14,54 @@ requirements:
     - python
     - distribute
     - setuptools
+    - nodejs >=4.1
 
   run:
     # bokeh
     - python
-    - numpy
-    - pandas
     - six
     - requests
-    - dateutil
     - pyyaml
-    - pyzmq
-    - tornado >=4.0
+    - python-dateutil
+    - jinja2
+    - numpy
+    - pandas
 
     # server
     - flask
-    - werkzeug
-    - greenlet
-    # - redis                [linux or osx]
-    # - redis-py             [linux or osx]
-    # - abstract-rendering   [py2k]
-
-    # CLI
-    # - click
+    - pyzmq
+    - tornado >=4.0
 
 test:
   requires:
     # docs
     - graphviz
-    - sphinx >=1.3.1
     - pygments
+    - sphinx >=1.3.1
     - sphinx-bootstrap-theme
     - sphinxcontrib-httpdomain
 
     # tests
-    - beautiful-soup
+    # pyyaml installed by bokeh
+    # jinja2 installed by bokeh
     - colorama
-    - pyyaml
-    - pdiff
-    - boto                 [py2k]
-    - jinja2
+    - coverage
+    - flake8
+    - mock
     - pytest
     - pytest-cov ==1.8.1
-    - pytest-selenium
-    - mock
-    - coverage
+    - pytest-selenium ==1.0b1
+    - abstract-rendering        [not win]
+    - beautiful-soup
     - websocket-client
-    - ipython
-    - ipython-notebook
-    - flake8
+    - blaze
+    - multiuserblazeserver
+    - scipy
+    - pillow
 
     # examples
-    - scipy
+    - ipython
+    - ipython-notebook
     - matplotlib
     - sympy
     - ggplot
