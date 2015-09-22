@@ -1,7 +1,7 @@
 
 import pandas as pd
 
-from bokeh.charts import HeatMap, output_file, show, vplot
+from bokeh._legacy_charts import HeatMap, output_file, show, vplot
 from bokeh.palettes import Blues9 as palette
 from bokeh.sampledata.unemployment1948 import data
 

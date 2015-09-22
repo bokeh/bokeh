@@ -1,13 +1,14 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import HasProps
+from ..properties import HasProps, abstract
 from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
 
+@abstract
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
     not generally useful to instantiate on its own.
@@ -235,6 +236,7 @@ class ColumnDataSource(DataSource):
         if len(lengths) > 1:
             return str(self)
 
+@abstract
 class RemoteSource(DataSource):
     data_url = String(help="""
     The URL to the endpoint for the data.

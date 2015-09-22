@@ -39,11 +39,11 @@ Contents
    docs/gallery.rst
    docs/user_guide.rst
    docs/tutorials.rst
-   docs/dev_guide.rst
    docs/contributing.rst
    docs/faq.rst
    docs/release_notes.rst
    docs/reference.rst
+   docs/dev_guide.rst
 
 
 .. _technicalvision:
@@ -200,7 +200,3 @@ Indices and tables
 .. _Vine: https://vine.co/bokehplots
 .. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw
 .. _XDATA: http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx
-
-
-
-
