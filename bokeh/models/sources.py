@@ -105,7 +105,7 @@ class ColumnDataSource(DataSource):
         if not isinstance(raw_data, dict):
             import pandas as pd
             if isinstance(raw_data, pd.DataFrame):
-                raw_data = self._data_from_df(raw_data)
+                raw_data = self.parse_df(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         for name, data in raw_data.items():
@@ -113,7 +113,7 @@ class ColumnDataSource(DataSource):
         super(ColumnDataSource, self).__init__(**kw)
 
     @staticmethod
-    def _data_from_df(df):
+    def parse_df(df):
         """ Create a ``dict`` of columns from a Pandas DataFrame,
         suitable for creating a ColumnDataSource.
 
