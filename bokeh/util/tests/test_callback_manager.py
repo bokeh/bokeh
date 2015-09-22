@@ -5,8 +5,16 @@ import pytest
 import bokeh.util.callback_manager as cbm
 
 class _Good(object):
-    def __call__(self, x, y, z): pass
-    def method(self, x, y, z): pass
+    def __init__(self):
+        self.last_name = None
+        self.last_old = None
+        self.last_new = None
+    def __call__(self, name, old, new):
+        self.method(obj, name, old, new)
+    def method(self, name, old, new):
+        self.last_name = name
+        self.last_old = old
+        self.last_new = new
 
 class _Bad(object):
     def __call__(self, x, y): pass
@@ -119,3 +127,24 @@ def test_on_change_different_attrs():
     assert m1._callbacks['bar'] == [good2]
 
 def test_trigger():
+    m = cbm.CallbackManager()
+    good = _Good()
+    m.on_change('foo', good.method)
+    m.trigger('foo', 42, 43)
+    assert good.last_name == 'foo'
+    assert good.last_old == 42
+    assert good.last_new == 43
+
+def test_trigger_with_two_callbacks():
+    m = cbm.CallbackManager()
+    good1 = _Good()
+    good2 = _Good()
+    m.on_change('foo', good1.method)
+    m.on_change('foo', good2.method)
+    m.trigger('foo', 42, 43)
+    assert good1.last_name == 'foo'
+    assert good1.last_old == 42
+    assert good1.last_new == 43
+    assert good2.last_name == 'foo'
+    assert good2.last_old == 42
+    assert good2.last_new == 43

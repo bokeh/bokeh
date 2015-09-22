@@ -4,7 +4,7 @@ callback interface to classes.
 '''
 from __future__ import absolute_import
 
-from inspect import formatargspec, getargspec
+from inspect import formatargspec, getargspec, isfunction
 from types import FunctionType
 
 class CallbackManager(object):
@@ -36,7 +36,13 @@ class CallbackManager(object):
             if not callable(callback):
                 raise ValueError("Callbacks must be callables")
 
-            argspec = getargspec(callback)
+            if isfunction(callback):
+                argspec = getargspec(callback)
+            elif hasattr(callback, 'im_func'):
+                # in this case the argspec will have 'self' in the args
+                argspec = getargspec(callback)
+            else:
+                argspec = getargspec(callback.__call__)
             formatted_args = formatargspec(*argspec)
             fargs = ('attr', 'old', 'new')
             margs = ('self',) + fargs
@@ -63,9 +69,9 @@ class CallbackManager(object):
             None
 
         '''
-        if self._document:
+        if hasattr(self, '_document') and self._document is not None:
             self._document.notify_change(self, attr, old, new)
         callbacks = self._callbacks.get(attr)
         if callbacks:
             for callback in callbacks:
-                callback(self, attr, old, new)
+                callback(attr, old, new)
