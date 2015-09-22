@@ -64,6 +64,10 @@ class GMapOptions(MapOptions):
 class GMapPlot(MapPlot):
     """ A Bokeh Plot with a `Google Map`_ displayed underneath.
 
+    Data placed on this plot should be specified in decimal lat long coordinates e.g. 37.123, -122.404.
+    It will be automatically converted into the web mercator projection to display properly over
+    google maps tiles.
+
     .. _Google Map: https://www.google.com/maps/
 
     """

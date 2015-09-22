@@ -3,11 +3,11 @@
     <head>
         <meta charset="utf-8">
         <title>{{ title if title else "Bokeh Plot" }}</title>
-        {{ plot_resources|indent(8) }}
-
-        {{ plot_script|indent(8) }}
+        {{ bokeh_css }}
+        {{ bokeh_js }}
     </head>
     <body>
         {{ plot_div|indent(8) }}
+        {{ plot_script|indent(8) }}
     </body>
 </html>

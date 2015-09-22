@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import Donut, show, output_file
+from bokeh._legacy_charts import Donut, show, output_file
 from bokeh.sampledata.olympics2014 import data
 
 # throw the data into a pandas data frame

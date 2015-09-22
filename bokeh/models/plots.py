@@ -457,6 +457,7 @@ class Plot(Widget):
     be made equal (the left or right padding amount, whichever is larger).
     """)
 
+
     v_symmetry = Bool(False, help="""
     Whether the total vertical padding on both sides of the plot will
     be made equal (the top or bottom padding amount, whichever is larger).
@@ -483,10 +484,20 @@ class Plot(Widget):
     ``lod_timeout`` ms. If no interactive tool events have happened,
     level-of-detail mode is disabled.
     """)
-    
+
     webgl = Bool(False, help="""
     Whether WebGL is enabled for this plot. If True, the glyphs that
     support this will render via WebGL instead of the 2D canvas.
+    """)
+
+    responsive = Bool(False, help="""
+    If True, the plot will automatically resize based on the size of its container. The
+    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height`` will
+    act only to set the initial aspect ratio.
+    .. warning::
+
+       The responsive setting is known not to work with HBox layout and may not work
+       in combination with other widgets or layouts.
     """)
 
 

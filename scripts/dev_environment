@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# CLI user interface
+if [ "$1" == "-h" ]; then
+    usage="$(basename "$0") [-h] -- program to install all the bokeh dependencies
+
+    where:
+        -h     show this help text
+
+        -e     ENVIRONMENT were you want to install the dependencies, defaults to bokeh
+        -b     install BUILD dependencies, defauls to true
+        -r     install RUN dependencies, defauls to true
+        -t     install TEST (and examples) dependencies, defauls to true
+        -a     install ADDITIONAL image diff-related packages, defaults to false
+    "
+    echo "$usage"
+    exit 0
+fi
+
+# defauls
+env=bokeh
+build=true
+run=true
+test=true
+add=false
+
+# handling of arguments
+while getopts e:b:r:t:a option
+do
+    case "${option}" in
+        e) env=${OPTARG};;
+        b) build=${OPTARG};;
+        r) run=${OPTARG};;
+        t) test=${OPTARG};;
+        a) add=true;;
+    esac 
+done
+
+#TODO: check in env exist
+
+DEPS_BUILD=$(cat <<EOF | python -
+from conda_build.metadata import MetaData
+print(" ".join([s.replace(" ", "") for s in MetaData("../conda.recipe").get_value("requirements/build")]))
+EOF
+)
+
+if [ "$build" == "true" ]; then
+    conda install -n $env --yes $DEPS_BUILD
+    echo "BUILD dependecies installed."
+fi
+
+DEPS_RUN=$(cat <<EOF | python -
+from conda_build.metadata import MetaData
+print(" ".join([s.replace(" ", "") for s in MetaData("../conda.recipe").get_value("requirements/run")]))
+EOF
+)
+
+if [ "$run" == "true" ]; then
+    conda install -n $env --yes $DEPS_RUN
+    echo "RUN dependecies installed."
+fi
+
+DEPS_TEST=$(cat <<EOF | python -
+from conda_build.metadata import MetaData
+print(" ".join([s.replace(" ", "") for s in MetaData("../conda.recipe").get_value("test/requires")]))
+EOF
+)
+
+if [ "$test" == "true" ]; then
+    conda install -n $env -c bokeh --yes $DEPS_TEST
+    echo "TEST (and exmaples) dependecies installed."
+fi
+
+if [[ "$add" == "true" ]]; then
+    conda install -n $env -c bokeh --yes pdiff
+    conda install -n $env -c bokeh --yes boto
+    echo "Image diff-related dependecies installed."
+fi
