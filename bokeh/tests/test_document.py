@@ -3,84 +3,103 @@ from __future__ import absolute_import
 import unittest
 
 import bokeh.document as document
-from bokeh.exceptions import DataIntegrityException
-from bokeh.models import PlotContext
-from bokeh.plotting import figure
-import bokeh.protocol as protocol
+from bokeh.plot_object import PlotObject
+from bokeh.properties import Int, Instance
 
-json_objs = [
-    {'attributes': { u'doc': u'foo', u'children': [], u'id': u'bar' }, 'type': u'PlotContext'}
-]
+class AnotherModel(PlotObject):
+    bar = Int(1)
 
-json_objs2 = [
-    {'attributes': { u'doc': u'foo', u'children': [], u'id': u'bar' }, 'type': u'PlotContext'},
-    {'attributes': { u'doc': u'foo2', u'children': [], u'id': u'bar2' }, 'type': u'PlotContext'}
-]
+class SomeModel(PlotObject):
+    foo = Int(2)
+    child = Instance(PlotObject)
 
 class TestDocument(unittest.TestCase):
 
-    def test_basic(self):
+    def test_empty(self):
         d = document.Document()
-        self.assertEqual(d.autostore, True)
-        self.assertEqual(d.autoadd, True)
-        self.assertEqual(d.ref, d.context.ref)
+        assert not d.roots
 
-    def test_basic_with_json_objs(self):
-        d = document.Document(json_objs)
-        self.assertEqual(d.autostore, True)
-        self.assertEqual(d.autoadd, True)
-        self.assertEqual(d.context._id, u'bar')
-        self.assertEqual(d.ref, d.context.ref)
-        self.assertRaises(DataIntegrityException, document.Document, json_objs2)
-
-    def test_context(self):
+    def test_add_roots(self):
         d = document.Document()
-        p = PlotContext()
-        d.context = p
-        self.assertEqual(d.context, p)
-        d._models['foo'] = PlotContext()
-        self.assertRaises(TypeError, setattr, d, "context", "foo")
-        self.assertRaises(DataIntegrityException, setattr, d, "context", p)
+        assert not d.roots
+        d.add_root(AnotherModel())
+        assert len(d.roots) == 1
 
-    def test_autoadd(self):
+    def test_all_models(self):
         d = document.Document()
-        d.autoadd = True
-        self.assertEqual(d.autoadd, True)
-        d.autoadd = False
-        self.assertEqual(d.autoadd, False)
-        self.assertRaises(TypeError, setattr, d, "autoadd", "foo")
+        assert not d.roots
+        assert len(d._all_models) == 0
+        m = SomeModel()
+        m2 = AnotherModel()
+        m.child = m2
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert len(d._all_models) == 2
+        m.child = None
+        assert len(d._all_models) == 1
+        m.child = m2
+        assert len(d._all_models) == 2
 
-    def test_autostore(self):
+    def test_all_models_with_multiple_references(self):
         d = document.Document()
-        d.autostore = True
-        self.assertEqual(d.autostore, True)
-        d.autostore = False
-        self.assertEqual(d.autostore, False)
-        self.assertRaises(TypeError, setattr, d, "autostore", "foo")
+        assert not d.roots
+        assert len(d._all_models) == 0
+        root1 = SomeModel()
+        root2 = SomeModel()
+        child1 = AnotherModel()
+        root1.child = child1
+        root2.child = child1
+        d.add_root(root1)
+        d.add_root(root2)
+        assert len(d.roots) == 2
+        assert len(d._all_models) == 3
+        root1.child = None
+        assert len(d._all_models) == 3
+        root2.child = None
+        assert len(d._all_models) == 2
+        root1.child = child1
+        assert len(d._all_models) == 3
 
-    def test_add(self):
+    def test_all_models_with_cycles(self):
         d = document.Document()
-        p = figure()
-        p.circle([1], [2])
-        d.add(p)
-        self.assertListEqual(d.context.children, [p])
-        self.assertEqual(len(d._models), len(p.references())+1)
-        self.assertTrue(d.context._dirty)
+        assert not d.roots
+        assert len(d._all_models) == 0
+        root1 = SomeModel()
+        root2 = SomeModel()
+        child1 = SomeModel()
+        root1.child = child1
+        root2.child = child1
+        child1.child = root1
+        d.add_root(root1)
+        d.add_root(root2)
+        assert len(d.roots) == 2
+        assert len(d._all_models) == 3
+        root1.child = None
+        assert len(d._all_models) == 3
+        root2.child = None
+        assert len(d._all_models) == 2
+        root1.child = child1
+        assert len(d._all_models) == 3
 
-    def test_merge(self):
-        d1 = document.Document()
-        d2 = document.Document()
-        p1 = figure()
-        p1.circle([1], [2])
-        d1.add(p1)
-        p2 = figure()
-        p2.circle([1], [2])
-        d2.add(p2)
-        json_objs = d1.dump()
-        json_objs = protocol.deserialize_json(protocol.serialize_json(json_objs))
-        d2.merge(json_objs)
-        assert d2.context._id == d1.context._id
-        assert len(d2.context.children) == 2
-        assert d2.context is d2._models[d2.context._id]
-        pcs = [x for x in d2._models.values() if x.__view_model__ == "PlotContext"]
-        assert len(pcs) == 1
+    def test_change_notification(self):
+        d = document.Document()
+        assert not d.roots
+        m = AnotherModel()
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert m.bar == 1
+        result = { 'doc': None, 'model': None, 'attr': None, 'old': None, 'new': None }
+        def listener(doc, model, attr, old, new):
+            result['doc'] = doc
+            result['model'] = model
+            result['attr'] = attr
+            result['old'] = old
+            result['new'] = new
+        d.on_change(listener)
+        m.bar = 42
+        assert result['doc'] == d
+        assert result['model'] == m
+        assert result['attr'] == 'bar'
+        assert result['old'] == 1
+        assert result['new'] == 42
+

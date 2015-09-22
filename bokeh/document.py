@@ -11,6 +11,7 @@ logger = logging.getLogger(__file__)
 from collections import defaultdict
 from inspect import formatargspec, getargspec
 from types import FunctionType
+from bokeh.util.callback_manager import _check_callback
 
 class Document(object):
 
@@ -21,6 +22,7 @@ class Document(object):
 
         self._all_model_counts = defaultdict(int)
         self._all_models = dict()
+        self._callbacks = []
 
     @property
     def roots(self):
@@ -36,7 +38,7 @@ class Document(object):
         '''
         if model in self._roots:
             return
-        self._roots.insert(model)
+        self._roots.add(model)
         model.attach_document(self)
 
     def remove_root(self, model):
@@ -59,22 +61,9 @@ class Document(object):
 
             if callback in self._callbacks: continue
 
-            if not callable(callback):
-                raise ValueError("Callbacks must be callables")
+            _check_callback(callback, ('doc', 'model', 'attr', 'old', 'new'))
 
-            argspec = getargspec(callback)
-            formatted_args = formatargspec(*argspec)
-            fargs = ('doc', 'model', 'attr', 'old', 'new')
-            margs = ('self',) + fargs
-            if isinstance(callback, FunctionType):
-                if len(argspec.args) != len(fargs):
-                    raise ValueError("Callbacks functions must have signature func(%s), got func%s" % (", ".join(fargs), formatted_args))
-
-            # testing against MethodType misses callable objects, assume everything
-            # else is a normal method, or __call__ here
-            elif len(argspec.args) != len(margs):
-                raise ValueError("Callbacks methods must have signature method(%s), got method%s" % (", ".join(margs), formatted_args))
-
+            self._callbacks.append(callback)
 
     def _notify_change(self, model, attr, old, new):
         ''' Called by PlotObject when it changes
@@ -84,19 +73,19 @@ class Document(object):
             cb(self, model, attr, old, new)
 
     def _notify_attach(self, model):
-        self._all_model_counts[model.id] += 1
-        self._all_models[model.id] = model
+        self._all_model_counts[model._id] += 1
+        self._all_models[model._id] = model
 
     def _notify_detach(self, model):
         ''' Called by PlotObject once for each time the PlotObject is
         removed from the object graph. Returns the attach_count
 
         '''
-        self._all_model_counts[model.id] -= 1
-        attach_count = self._all_model_counts[model.id]
+        self._all_model_counts[model._id] -= 1
+        attach_count = self._all_model_counts[model._id]
         if attach_count == 0:
-            del self._all_models[model.id]
-            del self._all_model_counts[model.id]
+            del self._all_models[model._id]
+            del self._all_model_counts[model._id]
         return attach_count
 
 
