@@ -27,13 +27,13 @@ class ImageURLView extends Glyph.View
 
       if need_load[i]
         img = new Image()
-        img.onerror = do (i) =>
+        img.onerror = do (i, img, url) =>
           return () =>
             if @retry_attempts[i] > 0
-              setTimeout(@renderer.request_render, @mget('retry_timeout'))
+              setTimeout((-> img.src = url[i]), @mget('retry_timeout'))
             @retry_attempts[i] -= 1
 
-        img.onload = do (img, i) =>
+        img.onload = do (i, img) =>
           return () =>
             image[i] = img
             need_load[i] = false
