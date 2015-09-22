@@ -9,8 +9,6 @@ import logging
 logger = logging.getLogger(__file__)
 
 from collections import defaultdict
-from inspect import formatargspec, getargspec
-from types import FunctionType
 from bokeh.util.callback_manager import _check_callback
 
 class Document(object):
