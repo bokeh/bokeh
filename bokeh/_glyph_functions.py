@@ -862,6 +862,20 @@ Returns:
 """
 )
 
+tile_layer = _glyph_function(glyphs.TileLayer, ("url", "tile_provider", "tile_size"), (),
+""" Layer which consumes a tile service
+
+Args:
+    url (str or list[float]) : values or field names of text `url` coordinates
+    tile_provider (list[str]) : values or field names of text `y` coordinates
+    tile_size (list[int]): values or field names of texts
+
+Returns:
+    plot
+
+"""
+)
+
 triangle = _glyph_function(markers.Triangle, ("x", "y"), (),
 """ The `triangle` glyph is a marker that renders triangles at `x`, `y` with size `size`.
 

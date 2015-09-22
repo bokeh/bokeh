@@ -921,6 +921,20 @@ class Text(Glyph):
     The %s values for the text.
     """)
 
+class TileLayer(Glyph):
+
+    url = StringSpec("url", help="""
+    tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
+    """)
+
+    tile_provider = StringSpec(default="WMTSTileProvider", help="""
+    associated tile provider type.  Examples include: WMTSTileProvider, QuadKeyTileProvider, TMSTileProvider
+    """)
+
+    tile_size = NumberSpec(default=256, help="""
+    tile size in pixels (e.g. 256)
+    """)
+
 class Wedge(Glyph):
     """ Render wedges.
 

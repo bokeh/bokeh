@@ -434,6 +434,17 @@ def test_Text():
         "y_offset"
     ], TEXT)
 
+def test_TileLayer():
+    glyph = TileLayer()
+    assert glyph.url == "url"
+    assert glyph.tile_size == "tile_size"
+    assert glyph.tile_provider == "tile_provider"
+    yield (check_props, glyph, [
+        "url",
+        "tile_size",
+        "tile_provider",
+    ])
+
 def test_Wedge():
     glyph = Wedge()
     assert glyph.x == "x"

@@ -190,6 +190,7 @@ class Figure(Plot):
     square_cross      = gf.square_cross
     square_x          = gf.square_x
     text              = gf.text
+    tile_layer        = gf.tile_layer
     triangle          = gf.triangle
     wedge             = gf.wedge
     x                 = gf.x

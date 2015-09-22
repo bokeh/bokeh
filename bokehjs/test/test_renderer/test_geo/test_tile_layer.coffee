@@ -119,6 +119,20 @@ describe "Tile Providers", ->
       expect(provider.get_resolution(1)).to.be.closeTo(78271.517, tol)
       expect(provider.get_resolution(12)).to.be.closeTo(38.2185, tol)
 
+    it "should convert tile x,y,z into cache key", ->
+      expect(provider.tile_xyz_to_key(1, 1, 1)).to.be.equal "1:1:1"
+
+    it "should return tiles in ascending distance from center tile", ->
+      max = 64
+      min = 1
+      range = Math.random() * (max - min) + min
+
+    it "should convert cache key into tile x,y,z", ->
+      expect(provider.key_to_tile_xyz("1:1:1")).to.be.eql [1,1,1]
+
+    it "should get best zoom level based on extent and height/width", ->
+      expect(provider.get_level_by_extent(T.MERCATOR_BOUNDS, 600, 600)).to.be.equal 0
+
     it "should convert pixel x/y to tile x/y", ->
       expect(provider.pixels_to_tile(1, 1)).to.be.eql [0,0]
       expect(provider.pixels_to_tile(0, 0)).to.be.eql [0,0]
