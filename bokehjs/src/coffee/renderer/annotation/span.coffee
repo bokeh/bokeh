@@ -2,11 +2,13 @@ _ = require "underscore"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 {logger} = require "../../common/logging"
+properties = require "../../common/properties"
 
 class SpanView extends PlotWidget
 
   initialize: (options) ->
     super(options)
+    @line_props = new properties.Line({obj: @model, prefix: ''})
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
     @$el.css({position: 'absolute'})
     @$el.hide()
@@ -24,27 +26,53 @@ class SpanView extends PlotWidget
 
     frame = @plot_model.get('frame')
     canvas = @plot_model.get('canvas')
+    xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
+    ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
 
     if @mget('dimension') == 'width'
-      top = canvas.vy_to_sy(@mget('location'))
-      left = canvas.vx_to_sx(frame.get('left'))
-      width = "#{frame.get('width')}px"
-      height = "1px"
+      stop = canvas.vy_to_sy(@_calc_dim(@mget('location'), ymapper))
+      sleft = canvas.vx_to_sx(frame.get('left'))
+      width = frame.get('width')
+      height = @mget('line_width')
     else
-      top = canvas.vy_to_sy(frame.get('top'))
-      left = canvas.vx_to_sx(@mget('location'))
-      width = "1px"
-      height = "#{frame.get('height')}px"
+      stop = canvas.vy_to_sy(frame.get('top'))
+      sleft = canvas.vx_to_sx(@_calc_dim(@mget('location'), xmapper))
+      width = @mget('line_width')
+      height = frame.get('height')
 
-    @$el.css({
-      'top': top,
-      'left': left,
-      'width': width,
-      'height': height
-      'z-index': 1000
-      'background-color': @mget('color')
-      })
-    @$el.show()
+    if @mget("draw_style") == "css"
+      @$el.css({
+        'top': stop,
+        'left': sleft,
+        'width': "#{width}px",
+        'height': "#{height}px"
+        'z-index': 1000
+        'background-color': @mget('line_color')
+        'opacity': @mget('line_alpha')
+        })
+      @$el.show()
+
+    else if @mget("draw_style") == "canvas"
+      ctx = @plot_view.canvas_view.ctx
+      ctx.save()
+
+      ctx.beginPath()
+      @line_props.set_value(ctx)
+      ctx.moveTo(sleft, stop)
+      if @mget('dimension') == "width"
+        ctx.lineTo(sleft + width, stop)
+      else
+        ctx.lineTo(sleft, stop + height)
+      ctx.stroke()
+
+      ctx.restore()
+
+  _calc_dim: (location, mapper) ->
+      if @mget('location_units') == 'data'
+        vdim = mapper.map_to_target(location)
+      else
+        vdim = location
+      return vdim
 
 class Span extends HasParent
   default_view: SpanView
@@ -52,10 +80,20 @@ class Span extends HasParent
 
   defaults: ->
     return _.extend {}, super(), {
-      level: "overlay"
-      dimension: "width"
-      units: "screen"
-      color: "black"
+      draw_style: "canvas"
+      location_units: "data"
+      x_range_name: "default"
+      y_range_name: "default"
+    }
+
+  display_defaults: ->
+    return _.extend {}, super(), {
+      level: 'annotation'
+      line_color: 'black'
+      line_width: 1
+      line_alpha: 1.0
+      line_dash: []
+      line_dash_offset: 0
     }
 
 module.exports =

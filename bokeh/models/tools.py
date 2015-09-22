@@ -1,4 +1,4 @@
-""" Bokeh comes with a number of interactive tools.
+""" Bokeh comes with a Float of interactive tools.
 
 There are five types of tool interactions:
 
@@ -23,8 +23,9 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import abstract
-from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
+from ..properties import abstract, Float, Color
+from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
+                          Dict, Tuple)
 from ..enums import Dimension
 
 from .renderers import Renderer
@@ -106,7 +107,7 @@ class PreviewSaveTool(Tool):
     The preview/save tool is an action. When activated in the toolbar, the
     tool presents a modal dialog with an image reproduction of the Plot, which
     may be saved as a png image by right clicking on the image.
-
+Float
     .. note::
         Work is ongoing to support headless (svg, png) image creation without
         requireing user interaction. See  :bokeh-issue:`538` to track progress
@@ -210,6 +211,31 @@ class CrosshairTool(Tool):
     only a vertical line will be drawn.
     """)
 
+    line_color = Color(default="black", help="""
+    A color to use to stroke paths with.
+
+    Acceptable values are:
+
+    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
+    - a 3-tuple of integers (r,g,b) between 0 and 255
+    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
+
+    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
+
+    """)
+
+    line_width = Float(default=1, help="""
+    Stroke width in units of pixels.
+    """)
+
+    line_alpha = Float(default=1.0, help="""
+    An alpha value to use to stroke paths with.
+
+    Acceptable values are floating point numbers between 0 (transparent)
+    and 1 (opaque).
+
+    """)
 
 class BoxZoomTool(Tool):
     """ *toolbar icon*: |box_zoom_icon|
