@@ -84,7 +84,158 @@ def _inline(paths):
     return strings
 
 
-class Resources(object):
+class BaseResources(object):
+    _default_root_dir = "."
+    _default_root_url = "http://127.0.0.1:5006/"
+
+    logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
+
+    def __init__(self, mode='inline', version=None, root_dir=None,
+                 minified=True, log_level="info", root_url=None):
+        self.mode = settings.resources(mode)
+        self.root_dir = settings.rootdir(root_dir)
+        self.version = settings.version(version)
+        self.minified = settings.minified(minified)
+        self.log_level = settings.log_level(log_level)
+        if root_url and not root_url.endswith("/"):
+            logger.warning("root_url should end with a /, adding one")
+            root_url = root_url + "/"
+        self._root_url = root_url
+        if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
+            raise ValueError("wrong value for 'mode' parameter, expected "
+                             "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
+
+        if self.root_dir and not mode.startswith("relative"):
+            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
+
+        if self.version and not mode.startswith('cdn'):
+            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
+
+        if root_url and not mode.startswith('server'):
+            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
+
+        self.dev = self.mode.endswith('-dev')
+        if self.dev:
+            self.mode = self.mode[:-4]
+
+        base_url = join(bokehjsdir(self.dev), "js")
+
+        self.messages = []
+
+        if self.mode == "relative":
+            root_dir = self.root_dir or self._default_root_dir
+            base_url = relpath(base_url, root_dir)
+        elif self.mode == "cdn":
+            cdn = _get_cdn_urls(self.version, self.minified)
+            self.messages.extend(cdn['messages'])
+        elif self.mode == "server":
+            server = _get_server_urls(self.root_url, self.minified)
+            self.messages.extend(server['messages'])
+
+    @property
+    def log_level(self):
+        return self._log_level
+
+    @log_level.setter
+    def log_level(self, level):
+        valid_levels = [
+            "trace", "debug", "info", "warn", "error", "fatal"
+        ]
+        if level not in valid_levels:
+            raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
+        self._log_level = level
+
+    @property
+    def root_url(self):
+        if self._root_url:
+            return self._root_url
+        else:
+            return self._default_root_url
+
+    def _file_paths(self, files, minified):
+        if minified:
+            files = [root + ".min" + ext for (root, ext) in map(splitext, files)]
+        return [join(bokehjsdir(self.dev), f) for f in files]
+
+
+class JSResources(BaseResources):
+    _default_js_files = ["js/bokeh.js"]
+    _default_js_files_dev = ['js/bokeh.js']
+
+    def __init__(self, mode='inline', version=None, root_dir=None,
+                 minified=True, log_level="info", root_url=None):
+        super(JSResources, self).__init__(mode, version, root_dir, minified, log_level, root_url)
+        js_paths = self._js_paths(dev=self.dev, minified=self.minified)
+
+        self._js_raw = []
+        self.js_files = []
+
+        if self.mode == "inline":
+            self._js_raw = lambda: _inline(js_paths)
+        elif self.mode == "relative":
+            root_dir = self.root_dir or self._default_root_dir
+            self.js_files = [relpath(p, root_dir) for p in js_paths]
+        elif self.mode == "absolute":
+            self.js_files = list(js_paths)
+        elif self.mode == "cdn":
+            cdn = _get_cdn_urls(self.version, self.minified)
+            self.js_files = list(cdn['js_files'])
+        elif self.mode == "server":
+            server = _get_server_urls(self.root_url, self.minified)
+            self.js_files = list(server['js_files'])
+
+    def _autoload_path(self, elementid):
+        return self.root_url + "bokeh/autoload.js/%s" % elementid
+
+    @property
+    def js_raw(self):
+        if six.callable(self._js_raw):
+            self._js_raw = self._js_raw()
+        return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
+
+    def _js_paths(self, minified=True, dev=False):
+        files = self._default_js_files_dev if self.dev else self._default_js_files
+        return self._file_paths(files, False if dev else minified)
+
+
+class CSSResources(BaseResources):
+    _default_css_files = ["css/bokeh.css"]
+    _default_css_files_dev = ['css/bokeh.css']
+
+    def __init__(self, mode='inline', version=None, root_dir=None,
+                 minified=True, log_level="info", root_url=None):
+        super(CSSResources, self).__init__(mode, version, root_dir, minified, log_level, root_url)
+        css_paths = self._css_paths(dev=self.dev, minified=self.minified)
+
+        self._css_raw = []
+        self.css_files = []
+
+        if self.mode == "inline":
+            self._css_raw = lambda: _inline(css_paths)
+        elif self.mode == "relative":
+            root_dir = self.root_dir or self._default_root_dir
+            self.css_files = [relpath(p, root_dir) for p in css_paths]
+        elif self.mode == "absolute":
+            self.css_files = list(css_paths)
+        elif self.mode == "cdn":
+            cdn = _get_cdn_urls(self.version, self.minified)
+            self.css_files = list(cdn['css_files'])
+        elif self.mode == "server":
+            server = _get_server_urls(self.root_url, self.minified)
+            self.css_files = list(server['css_files'])
+
+    @property
+    def css_raw(self):
+        if six.callable(self._css_raw):
+            self._css_raw = self._css_raw()
+        return self._css_raw
+
+    def _css_paths(self, minified=True, dev=False):
+        files = self._default_css_files_dev if self.dev else self._default_css_files
+        return self._file_paths(files, False if dev else minified)
+
+
+class Resources(JSResources, CSSResources):
     ''' The Resources class encapsulates information relating to loading or
     embedding BokehJS code and CSS.
 
@@ -132,127 +283,7 @@ class Resources(object):
     Bokeh plots.
 
     '''
-
-    _default_js_files = ["js/bokeh.js"]
-    _default_css_files = ["css/bokeh.css"]
-
-    _default_js_files_dev = ['js/bokeh.js']
-    _default_css_files_dev = ['css/bokeh.css']
-
-    _default_root_dir = "."
-    _default_root_url = "http://127.0.0.1:5006/"
-
-    logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
-
-    def __init__(self, mode='inline', version=None, root_dir=None,
-                 minified=True, log_level="info", root_url=None):
-        self.mode = settings.resources(mode)
-        self.root_dir = settings.rootdir(root_dir)
-        self.version = settings.version(version)
-        self.minified = settings.minified(minified)
-        self.log_level = settings.log_level(log_level)
-        if root_url and not root_url.endswith("/"):
-            logger.warning("root_url should end with a /, adding one")
-            root_url = root_url + "/"
-        self._root_url = root_url
-        if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
-            raise ValueError("wrong value for 'mode' parameter, expected "
-                             "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
-
-        if self.root_dir and not mode.startswith("relative"):
-            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
-
-        if self.version and not mode.startswith('cdn'):
-            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
-
-        if root_url and not mode.startswith('server'):
-            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
-
-        self.dev = self.mode.endswith('-dev')
-        if self.dev:
-            self.mode = self.mode[:-4]
-
-        js_paths = self._js_paths(dev=self.dev, minified=self.minified)
-        css_paths = self._css_paths(dev=self.dev, minified=self.minified)
-        base_url = join(bokehjsdir(self.dev), "js")
-
-        self._js_raw = []
-        self._css_raw = []
-        self.js_files = []
-        self.css_files = []
-        self.messages = []
-
-        if self.mode == "inline":
-            self._js_raw = lambda: _inline(js_paths)
-            self._css_raw = lambda: _inline(css_paths)
-        elif self.mode == "relative":
-            root_dir = self.root_dir or self._default_root_dir
-            self.js_files = [ relpath(p, root_dir) for p in js_paths ]
-            self.css_files = [ relpath(p, root_dir) for p in css_paths ]
-            base_url = relpath(base_url, root_dir)
-        elif self.mode == "absolute":
-            self.js_files = list(js_paths)
-            self.css_files = list(css_paths)
-        elif self.mode == "cdn":
-            cdn = _get_cdn_urls(self.version, self.minified)
-            self.js_files = list(cdn['js_files'])
-            self.css_files = list(cdn['css_files'])
-            self.messages.extend(cdn['messages'])
-        elif self.mode == "server":
-            server = _get_server_urls(self.root_url, self.minified)
-            self.js_files = list(server['js_files'])
-            self.css_files = list(server['css_files'])
-            self.messages.extend(server['messages'])
-
-    @property
-    def log_level(self):
-        return self._log_level
-
-    @log_level.setter
-    def log_level(self, level):
-        valid_levels = [
-            "trace", "debug", "info", "warn", "error", "fatal"
-        ]
-        if level not in valid_levels:
-            raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
-        self._log_level = level
-
-
-    @property
-    def js_raw(self):
-        if six.callable(self._js_raw):
-            self._js_raw = self._js_raw()
-        return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
-
-
-    @property
-    def css_raw(self):
-        if six.callable(self._css_raw):
-            self._css_raw = self._css_raw()
-        return self._css_raw
-
-    @property
-    def root_url(self):
-        if self._root_url:
-            return self._root_url
-        else:
-            return self._default_root_url
-
-    def _file_paths(self, files, minified):
-        if minified:
-            files = [ root + ".min" + ext for (root, ext) in map(splitext, files) ]
-        return [ join(bokehjsdir(self.dev), file) for file in files ]
-
-    def _js_paths(self, minified=True, dev=False):
-        files = self._default_js_files_dev if self.dev else self._default_js_files
-        return self._file_paths(files, False if dev else minified)
-
-    def _css_paths(self, minified=True, dev=False):
-        files = self._default_css_files_dev if self.dev else self._default_css_files
-        return self._file_paths(files, False if dev else minified)
-
-    def _autoload_path(self, elementid):
-        return self.root_url + "bokeh/autoload.js/%s" % elementid
+    pass
 
 CDN = Resources(mode="cdn")
 

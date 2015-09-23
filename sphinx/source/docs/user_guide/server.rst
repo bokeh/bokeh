@@ -180,7 +180,7 @@ Publishing to the Server
 
 As mentioned earlier, when running in multi user mode, a plot must be
 published so that different logged users can access it. This can be done,
-again, using the session object as the following snipped shows:
+again, using the session object as the following snippet shows:
 
 .. code-block:: python
 

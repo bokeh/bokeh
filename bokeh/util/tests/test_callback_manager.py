@@ -119,3 +119,4 @@ def test_on_change_different_attrs():
     assert m1._callbacks['bar'] == [good2]
 
 def test_trigger():
+    pass

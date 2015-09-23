@@ -1,26 +1,30 @@
 from __future__ import absolute_import
 
-from .builder.area_builder import Area; Area
-from .builder.donut_builder import Donut; Donut
-from .builder.dot_builder import Dot; Dot
-from .builder.line_builder import Line; Line
-from .builder.step_builder import Step; Step
-from .builder.histogram_builder import Histogram; Histogram
-from .builder.bar_builder import Bar; Bar
-from .builder.scatter_builder import Scatter; Scatter
-from .builder.boxplot_builder import BoxPlot; BoxPlot
-from .builder.timeseries_builder import TimeSeries; TimeSeries
-from .builder.heatmap_builder import HeatMap; HeatMap
-from .builder.horizon_builder import Horizon; Horizon
+# defaults and constants
+from .utils import DEFAULT_PALETTE
+from ._chart_options import default_options as defaults
 
-from ._chart import Chart; Chart
-from ._data_adapter import DataAdapter; DataAdapter
+# main components
+from ._chart import Chart
 
-from ..models import ColumnDataSource; ColumnDataSource
+# operations and attributes for users to input into Charts
+from ._attributes import color
+from .operations import stack, blend
+
+# builders
+from .builder.line_builder import Line
+from .builder.histogram_builder import Histogram
+from .builder.bar_builder import Bar
+from .builder.scatter_builder import Scatter
+from .builder.boxplot_builder import BoxPlot
+
+# easy access to required bokeh components
+from ..models import ColumnDataSource
 from ..io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, vplot, hplot)
 
 # Silence pyflakes
 (curdoc, cursession, output_file, output_notebook, output_server, push,
- reset_output, save, show, gridplot, vplot, hplot)
+ reset_output, save, show, gridplot, vplot, hplot, ColumnDataSource)
+

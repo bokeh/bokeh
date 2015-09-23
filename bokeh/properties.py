@@ -343,6 +343,13 @@ def accumulate_from_subclasses(cls, propname):
             s.update(getattr(c, propname))
     return s
 
+def abstract(cls):
+    """ A phony decorator to mark abstract base classes. """
+    if not issubclass(cls, HasProps):
+        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
+
+    return cls
+
 @add_metaclass(MetaHasProps)
 class HasProps(object):
 
@@ -490,7 +497,7 @@ class PrimitiveProperty(Property):
 
 class Bool(PrimitiveProperty):
     """ Boolean type property. """
-    _underlying_type = (bool,)
+    _underlying_type = (bool, np.bool_)
 
 class Int(PrimitiveProperty):
     """ Signed integer type property. """
@@ -637,6 +644,7 @@ class Array(Seq):
 
     def _new_instance(self, value):
         return np.array(value)
+
 
 class Dict(ContainerProperty):
     """ Python dict type property.

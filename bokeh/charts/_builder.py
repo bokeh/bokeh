@@ -18,28 +18,51 @@ types on top of it.
 
 from __future__ import absolute_import
 
-from ._chart import Chart
-from ._data_adapter import DataAdapter
-from ..models.ranges import Range
-from ..properties import Color, HasProps, Instance, Seq
+from ..models.sources import ColumnDataSource
+from ..models.ranges import Range, Range1d, FactorRange
+from ..properties import (Color, HasProps, Instance, Seq, List, String, Property,
+                          Either, Dict)
 
-DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+from bokeh.charts import DEFAULT_PALETTE
+from .utils import collect_attribute_columns
+from ._chart import Chart
+from ._data_source import ChartDataSource
+from ._properties import Dimension, ColumnLabel
+from ._attributes import AttrSpec, ColorAttr, GroupAttr
+from ._models import CompositeGlyph
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def create_and_build(builder_class, values, **kws):
+
+def create_and_build(builder_class, *data, **kws):
+
+    if isinstance(builder_class.dimensions, Property):
+        raise NotImplementedError('Each builder must specify its dimensions.')
+
+    if isinstance(builder_class.default_attributes, Property):
+        raise NotImplementedError('Each builder must specify its dimensions.')
+
     builder_props = set(builder_class.properties())
 
+    # append dimensions to the builder props
+    for dim in builder_class.dimensions:
+        builder_props.add(dim)
+
+    # append attributes to the builder props
+    for attr_name in builder_class.default_attributes.keys():
+        builder_props.add(attr_name)
+
     # create the new builder
-    builder_kws = { k:v for k,v in kws.items() if k in builder_props}
-    builder = builder_class(values, **builder_kws)
+    builder_kws = {k: v for k, v in kws.items() if k in builder_props}
+    builder = builder_class(*data, **builder_kws)
 
     # create a chart to return, since there isn't one already
     chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
     chart = Chart(**chart_kws)
     chart.add_builder(builder)
+    chart.start_plot()
 
     return chart
 
@@ -77,13 +100,35 @@ class Builder(HasProps):
     x_range = Instance(Range)
     y_range = Instance(Range)
 
+    xlabel = String()
+    ylabel = String()
+
+    xscale = String()
+    yscale = String()
+
+    # Dimensional Modeling
+    dimensions = List(String, help="""The dimension
+        labels that drive the position of the glyphs.""")
+    req_dimensions = Either(List(String), List(List(String)), List(Dict(String, String)), help="""The dimension
+        labels that must exist to produce the glyphs. This specifies what are the valid configurations
+        for the chart, with the option of specifying the type of the columns.""")
+
+    attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
+    default_attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
+
+    attribute_columns = List(ColumnLabel)
+
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
-    def __init__(self, values=None, **kws):
+    comp_glyphs = List(Instance(CompositeGlyph))
+    labels = List(String, help="""Represents the unique labels to be used for legends.""")
+    label_attributes = List(String, help="""List of attributes to use for legends.""")
+
+    def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
-            values (iterable): iterable 2d representing the data series
+            data (iterable): iterable 2d representing the data series
                 values matrix.
             legend (str, bool): the legend of your plot. The legend content is
                 inferred from incoming input.It can be ``top_left``,
@@ -104,38 +149,76 @@ class Builder(HasProps):
             data (dict): to be filled with the incoming data and be passed
                 to the ColumnDataSource in each chart inherited class.
                 Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
+            attr (list(AttrSpec)): to be filled with the new attributes created after
                 loading the data dict.
-                Needed for _set_And_get method.
         """
-        super(Builder, self).__init__(**kws)
-        if values is None:
-            values = []
 
-        self._values = values
-        # TODO: No real reason why legends should be *private*, should be
-        # legends
-        self._legends = []
-        self._data = {}
-        self._groups = []
-        self._attr = []
-
-    def _adapt_values(self):
-        """Prepare the input data.
-
-        Converts data input (self._values) to a DataAdapter and creates
-        instance index if needed
-        """
-        if hasattr(self, 'index'):
-            self._values_index, self._values = DataAdapter.get_index_and_data(
-                self._values, self.index
-            )
+        if len(args) == 0:
+            data = None
         else:
-            if not isinstance(self._values, DataAdapter):
-                self._values = DataAdapter(self._values, force_alias=False)
+
+            # pop the dimension inputs from kwargs
+            data_args = {}
+            for dim in self.dimensions:
+                if dim in kws.keys():
+                    data_args[dim] = kws.pop(dim)
+
+            # build chart data source from inputs, given the dimension configuration
+            data_args['dims'] = tuple(self.dimensions)
+            data_args['required_dims'] = tuple(self.req_dimensions)
+            data = ChartDataSource.from_data(*args, **data_args)
+
+            # make sure that the builder dimensions have access to the chart data source
+            for dim in self.dimensions:
+                getattr(getattr(self, dim), 'set_data')(data)
+
+            # handle input attrs and ensure attrs have access to data
+            self._setup_attrs(data, kws)
+
+        super(Builder, self).__init__(**kws)
+
+        # collect unique columns used for attributes
+        self.attribute_columns = collect_attribute_columns(**self.attributes)
+
+        self._data = data
+        self._legends = []
+
+    def _setup_attrs(self, data, kws):
+        """Handle overridden attributes and initialize them with data.
+
+        Makes sure that all attributes have access to the data
+        source, which is used for mapping attributes to groups
+        of data.
+        """
+
+        source = ColumnDataSource(data.df)
+        attr_names = self.default_attributes.keys()
+        for attr_name in attr_names:
+
+            attr = kws.pop(attr_name, None)
+
+            # if given an attribute use it
+            if isinstance(attr, AttrSpec):
+                self.attributes[attr_name] = attr
+
+            # if we are given columns, use those
+            elif isinstance(attr, str) or isinstance(attr, list):
+                self.attributes[attr_name] = self.default_attributes[attr_name].clone()
+                self.attributes[attr_name].setup(data=source, columns=attr)
+
+            else:
+                self.attributes[attr_name] = self.default_attributes[attr_name].clone()
+
+        # make sure all have access to data source
+        for attr_name in attr_names:
+            self.attributes[attr_name].data = source
+
+    def _setup(self):
+        """Perform any initial pre-processing, attribute config."""
+        pass
 
     def _process_data(self):
-        """Get the input data.
+        """Make any global data manipulations before grouping.
 
         It has to be implemented by any of the inherited class
         representing each different chart type. It is the place
@@ -143,14 +226,13 @@ class Builder(HasProps):
         """
         pass
 
-    def _set_sources(self):
-        """Push data into the ColumnDataSource and build the
-        proper ranges.
+    def _set_ranges(self):
+        """Calculate and set the x and y ranges.
 
-        It has to be implemented by any of the inherited class
+        It has to be implemented by any of the subclasses of builder
         representing each different chart type.
         """
-        pass
+        raise NotImplementedError('Subclasses of %s must implement _set_ranges.' % self.__class__.__name__)
 
     def _yield_renderers(self):
         """ Generator that yields the glyphs to be draw on the plot
@@ -158,54 +240,152 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        pass
+        raise NotImplementedError('Subclasses of %s must implement _yield_renderers.' % self.__class__.__name__)
+
+    def _get_dim_extents(self):
+        return {'x_max': max([renderer.x_max for renderer in self.comp_glyphs]),
+                'y_max': max([renderer.y_max for renderer in self.comp_glyphs]),
+                'x_min': min([renderer.x_min for renderer in self.comp_glyphs]),
+                'y_min': min([renderer.y_min for renderer in self.comp_glyphs])
+                }
+
+    def add_glyph(self, group, glyph):
+        """Add a composite glyph"""
+        if isinstance(glyph, list):
+            for sub_glyph in glyph:
+                self.comp_glyphs.append(sub_glyph)
+        else:
+            self.comp_glyphs.append(glyph)
+
+        label = None
+        if len(self.label_attributes) > 0:
+            for attr in self.label_attributes:
+                # this will get the last attribute group label for now
+                if self.attributes[attr].columns is not None:
+                    label = self.get_group_label(group, attr=attr)
+
+        if label is None:
+            label = self.get_group_label(group, attr='label')
+
+        # add to legend if new and unique label
+        if str(label) not in self.labels and label is not None:
+            self._legends.append((label, glyph.renderers))
+            self.labels.append(label)
+
+    def get_group_label(self, group, attr='label'):
+        if attr is 'label':
+            label = group.label
+        else:
+            label = group[attr]
+
+        return self.get_label(label)
+
+    @staticmethod
+    def get_label(raw_label):
+
+        # don't convert None type to string so we can test for it later
+        if raw_label is None:
+            return None
+
+        if (isinstance(raw_label, tuple) or isinstance(raw_label, list)) and \
+                        len(raw_label) == 1:
+            raw_label = raw_label[0]
+
+        return str(raw_label)
 
     def create(self, chart=None):
-        self._adapt_values()
+        self._setup()
         self._process_data()
-        self._set_sources()
-        renderers = self._yield_renderers()
 
+        renderers = self._yield_renderers()
+        if chart is None:
+            chart = Chart()
         chart.add_renderers(self, renderers)
 
-        # create chart ranges..
-        if not chart.x_range:
-            chart.x_range = self.x_range
-        if not chart.y_range:
-            chart.y_range = self.y_range
+        # handle ranges after renders, since ranges depend on aggregations
+        # ToDo: should reconsider where this occurs
+        self._set_ranges()
+        chart.add_ranges('x', self.x_range)
+        chart.add_ranges('y', self.y_range)
 
         # always contribute legends, let Chart sort it out
-        legends = self._legends
-        chart.add_legend(legends)
+        chart.add_legend(self._legends)
+
+        chart.add_labels('x', self.xlabel)
+        chart.add_labels('y', self.ylabel)
+
+        chart.add_scales('x', self.xscale)
+        chart.add_scales('y', self.yscale)
 
         return chart
 
-    #***************************
-    # Some helper methods
-    #***************************
 
-    def _set_and_get(self, data, prefix, attr, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
+class XYBuilder(Builder):
+    """Implements common functionality for XY Builders."""
 
-        Keep track of the attributes created.
+    x = Dimension('x')
+    y = Dimension('y')
 
-        Args:
-            data (dict): where to store the new attribute content
-            attr (list): where to store the new attribute names
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        data["%s%s" % (prefix, val)] = content
-        attr.append("%s%s" % (prefix, val))
+    dimensions = ['x', 'y']
+    req_dimensions = [['x'],
+                      ['y'],
+                      ['x', 'y']]
 
-    def set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
+    default_attributes = {'color': ColorAttr()}
 
-        Keep track of the attributes created.
+    def _set_ranges(self):
+        """Calculate and set the x and y ranges."""
+        # ToDo: handle when only single dimension is provided
 
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        self._set_and_get(self._data, prefix, self._attr, val, content)
+        extents = self._get_dim_extents()
+
+        endx = extents['x_max']
+        startx = extents['x_min']
+        self.x_range = self._get_range('x', startx, endx)
+
+        endy = extents['y_max']
+        starty = extents['y_min']
+        self.y_range = self._get_range('y', starty, endy)
+
+        if self.xlabel is None:
+            select = self.x.selection
+            if not isinstance(select, list):
+                select = [select]
+            self.xlabel = ', '.join(select)
+
+        if self.ylabel is None:
+            select = self.y.selection
+            if not isinstance(select, list):
+                select = [select]
+            self.ylabel = ', '.join(select)
+
+    def _get_range(self, dim, start, end):
+
+        dim_ref = getattr(self, dim)
+        values = dim_ref.data
+        dtype = dim_ref.dtype.name
+        if dtype == 'object':
+            factors = values.drop_duplicates()
+            factors.sort(inplace=True)
+            setattr(self, dim + 'scale', 'categorical')
+            return FactorRange(factors=factors.tolist())
+        elif 'datetime' in dtype:
+            setattr(self, dim + 'scale', 'datetime')
+            return Range1d(start=start, end=end)
+        else:
+
+            diff = end - start
+            if diff == 0:
+                setattr(self, dim + 'scale', 'categorical')
+                return FactorRange(factors=['None'])
+            else:
+                setattr(self, dim + 'scale', 'linear')
+                return Range1d(start=start - 0.1 * diff, end=end + 0.1 * diff)
+
+
+class AggregateBuilder(Builder):
+
+    values = Dimension('values')
+
+    default_attributes = {'label': GroupAttr(),
+                          'color': ColorAttr()}
