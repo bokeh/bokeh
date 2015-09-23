@@ -183,8 +183,9 @@ class Span(Annotation):
     Specifies whether the span is rendered as a canvas element or as an
     css element overlaid on the canvas. The default mode is "canvas".
 
-    Warning: the line_dash and line_dash_offset attributes aren't supported if
-    the render_mode is set to "css"
+    .. warning::
+        The line_dash and line_dash_offset attributes aren't supported if
+        the render_mode is set to "css"
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
