@@ -40,7 +40,8 @@ class SpanView extends PlotWidget
       width = @mget('line_width')
       height = frame.get('height')
 
-    if @mget("draw_style") == "css"
+    debugger;
+    if @mget("render_mode") == "css"
       @$el.css({
         'top': stop,
         'left': sleft,
@@ -52,7 +53,7 @@ class SpanView extends PlotWidget
         })
       @$el.show()
 
-    else if @mget("draw_style") == "canvas"
+    else if @mget("render_mode") == "canvas"
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
@@ -80,10 +81,10 @@ class Span extends HasParent
 
   defaults: ->
     return _.extend {}, super(), {
-      draw_style: "canvas"
-      location_units: "data"
       x_range_name: "default"
       y_range_name: "default"
+      render_mode: "canvas"
+      location_units: "data"
     }
 
   display_defaults: ->

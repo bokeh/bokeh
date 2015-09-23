@@ -1,6 +1,6 @@
 from __future__ import  absolute_import
 
-from bokeh.models.annotations import Legend, BoxAnnotation, LineAnnotation
+from bokeh.models.annotations import Legend, BoxAnnotation, Span
 from bokeh.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -119,8 +119,8 @@ def test_BoxAnnotation():
         "level",
     ], LINE, FILL)
 
-def test_LineAnnotation():
-    line = LineAnnotation()
+def test_Span():
+    line = Span()
     assert line.plot is None
     assert line.location is None
     assert line.location_units == 'data'

@@ -391,15 +391,15 @@ left or top) default will extend the annotation to the edge of the plot area.
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
     :source-position: above
 
-.. _userguide_plotting_line_annotations:
+.. _userguide_plotting_spans:
 
-Line annotations
-~~~~~~~~~~~~~~~~
+Spans
+~~~~~
 
-Line annotations have a single dimension (width or height) and extend to the
-edge of the plot area.
+Spans (line-type annotations) have a single dimension (width or height) and
+extend to the edge of the plot area.
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_line_annotation.py
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_span.py
     :source-position: above
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`

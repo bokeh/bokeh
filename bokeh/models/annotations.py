@@ -4,7 +4,8 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..enums import Orientation, SpatialUnits, RenderLevel, Dimension
+from ..enums import (Orientation, SpatialUnits, RenderLevel, Dimension,
+                     RenderMode)
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
@@ -147,12 +148,12 @@ class BoxAnnotation(Annotation):
     The %s values for the shades.
     """)
 
-class LineAnnotation(Annotation):
-    """ Render a horizontal or vertical line annotation
+class Span(Annotation):
+    """ Render a horizontal or vertical line span.
 
     """
     location = Float(help="""
-    The location of the line annotation.
+    The location of the span.
     """)
 
     location_units = Enum(SpatialUnits, default='data', help="""
@@ -161,7 +162,7 @@ class LineAnnotation(Annotation):
     """)
 
     dimension = Enum(Dimension, default='width', help="""
-    The direction of the line annotation
+    The direction of the span.
     """)
 
     x_range_name = String('default', help="""
@@ -175,9 +176,17 @@ class LineAnnotation(Annotation):
     """)
 
     level = Enum(RenderLevel, default="annotation", help="""
-    Specifies the level in which to render the box annotation.
+    Specifies the level in which to render the span.
+    """)
+
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the span is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas".
+
+    Warning: the line_dash and line_dash_offset attributes aren't supported if
+    the render_mode is set to "css"
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the line annotation.
+    The %s values for the span.
     """)
