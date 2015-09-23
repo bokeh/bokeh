@@ -43,7 +43,7 @@ class TileExpects
     @GEOGRAPHIC_BOUNDS = [-180, -90, 180, 90]
 
   expect_mercator_tile_counts: (provider) ->
-    for zoom_level in [0..5] by 1
+    for zoom_level in [1..5] by 1
       tiles = provider.get_tiles_by_extent(@MERCATOR_BOUNDS, zoom_level)
       expect(tiles.length).to.be.equal(4 ** zoom_level)
 
@@ -51,13 +51,48 @@ class TileExpects
     #assumes 512 tile size
     for zoom_level in [0..5] by 1
       tiles = provider.get_tiles_by_extent(@GEOGRAPHIC_BOUNDS, zoom_level)
-      console.warn tiles
       expect(tiles.length).to.be.equal(4 ** zoom_level * 2)
 
 describe "Tile Providers", ->
 
   T = new TileExpects()
   tol = 0.01
+
+  describe "Grid Layer", ->
+    url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
+    provider = new Geo.GridLayer(url, 256)
+
+    it "should remove tile and add back to image pool ", ->
+      expect(provider.pool.images.length).to.be.equal(0)
+      tile_obj = {img: {}}
+      provider.tiles['test'] = tile_obj
+      provider.removeTile('test')
+      expect(provider.pool.images.length).to.be.equal(1)
+
+    it "should convert tile xyz into a tile key", ->
+      k = provider.tile_xyz_to_key(1,1,1)
+      expect(k).to.be.equal "1:1:1"
+
+    it "should convert tile key to tile xyz", ->
+      xyz = provider.key_to_tile_xyz('1:1:1')
+      expect(xyz).to.be.eql [1,1,1]
+
+    it "should prune tiles", ->
+
+    it "should return tiles in ascending distance from center tile", ->
+
+      tiles = []
+      for x in [1..6] by 1
+        for y in [1..6] by 1
+          tiles.push([x, y])
+
+      tiles = _.shuffle(tiles)
+      sorted_tiles = provider.sort_tiles_from_center(tiles, [1, 1, 6, 6])
+
+      for i in [0..3] by 1
+        t = sorted_tiles[i]
+        expect(t[0]).to.be.within(3, 4)
+        expect(t[1]).to.be.within(3, 4)
 
   describe "TMS tile provider", ->
     url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
@@ -78,14 +113,16 @@ describe "Tile Providers", ->
       T.expect_mercator_tile_counts(provider)
 
     it "should get tile bounds in meters", ->
-      bounds = provider.get_tile_meter_bounds(511, 845, 11)
+      [x, y, z] = provider.wmts_to_tms(511, 845, 11)
+      bounds = provider.get_tile_meter_bounds(x, y, z)
       expect(bounds[0]).to.be.closeTo(-10038322.050635627, tol)
       expect(bounds[1]).to.be.closeTo(3483082.504898913, tol)
       expect(bounds[2]).to.be.closeTo(-10018754.171394622, tol)
       expect(bounds[3]).to.be.closeTo(3502650.384139918, tol)
 
     it "should get tile bounds in lat/lng", ->
-      bounds = provider.get_tile_geographic_bounds(511, 845, 11)
+      [x, y, z] = provider.wmts_to_tms(511, 845, 11)
+      bounds = provider.get_tile_geographic_bounds(x, y, z)
       expect(bounds[0]).to.be.closeTo(-90.17578125, tol)
       expect(bounds[1]).to.be.closeTo(29.840643899834436, tol)
       expect(bounds[2]).to.be.closeTo(-90, tol)
@@ -122,16 +159,13 @@ describe "Tile Providers", ->
     it "should convert tile x,y,z into cache key", ->
       expect(provider.tile_xyz_to_key(1, 1, 1)).to.be.equal "1:1:1"
 
-    it "should return tiles in ascending distance from center tile", ->
-      max = 64
-      min = 1
-      range = Math.random() * (max - min) + min
-
     it "should convert cache key into tile x,y,z", ->
       expect(provider.key_to_tile_xyz("1:1:1")).to.be.eql [1,1,1]
 
     it "should get best zoom level based on extent and height/width", ->
-      expect(provider.get_level_by_extent(T.MERCATOR_BOUNDS, 600, 600)).to.be.equal 0
+      expect(provider.get_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal 0
+      expect(provider.get_level_by_extent(T.MERCATOR_BOUNDS, 512, 512)).to.be.equal 1
+      expect(provider.get_level_by_extent(T.MERCATOR_BOUNDS, 1024, 1024)).to.be.equal 2
 
     it "should convert pixel x/y to tile x/y", ->
       expect(provider.pixels_to_tile(1, 1)).to.be.eql [0,0]

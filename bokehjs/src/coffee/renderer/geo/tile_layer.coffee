@@ -50,23 +50,40 @@ class ProjectionUtils
 
 class GridLayer
 
+  constructor: (@url, @tile_size=256) ->
+    @utils = new ProjectionUtils()
+    @pool = new ImagePool()
+    @tiles = {}
+
+  removeTile: (key) ->
+    tile = @tiles[key]
+    if tile?
+      @pool.push(tile.img)
+      delete @tiles[key]
+
   tile_xyz_to_key: (x, y, z) ->
     return x.toString() + ":" + y.toString() + ":" + z.toString()
 
   key_to_tile_xyz: (key) ->
     return (parseInt(c) for c in key.split(':'))
 
+  sort_tiles_from_center: (tiles, tile_extent) ->
+    [txmin, tymin, txmax, tymax] = tile_extent
+    center_x = (txmax - txmin) / 2 + txmin
+    center_y = (tymax - tymin) / 2 + tymin
+    tiles.sort (a, b) ->
+      a_distance = Math.sqrt(Math.pow(center_x - a[0], 2) + Math.pow(center_y - a[1], 2))
+      b_distance = Math.sqrt(Math.pow(center_x - b[0], 2) + Math.pow(center_y - b[1], 2))
+      return a_distance - b_distance
+    return tiles
+
 class MercatorTileProvider extends GridLayer
 
-
-
-  constructor: (@url, @tile_size=256) ->
-    @utils = new ProjectionUtils()
-    @pool = new ImagePool()
+  constructor: ->
+    super
     @origin_shift = 2 * Math.PI * 6378137 / 2.0
     @initial_resolution = 2 * Math.PI * 6378137 / @tile_size
     @resolutions = (@get_resolution(z) for z in [0..30])
-    @tiles = {}
 
   get_image_url: () ->
     throw Error "Unimplemented Method"
@@ -100,6 +117,10 @@ class MercatorTileProvider extends GridLayer
     '''Note this works both ways'''
     return [x, 2 ** z - 1 - y, z]
 
+  wmts_to_tms: (x, y, z) ->
+    '''Note this works both ways'''
+    return [x, 2 ** z - 1 - y, z]
+
   pixels_to_meters: (px, py, level) ->
     res = @get_resolution(level)
     mx = px * res - @origin_shift
@@ -126,6 +147,7 @@ class MercatorTileProvider extends GridLayer
     return @pixels_to_tile(px, py)
 
   get_tile_meter_bounds: (tx, ty, level) ->
+    # expects tms styles coordinates (bottom-left origin)
     [xmin, ymin] = @pixels_to_meters(tx * @tile_size, ty * @tile_size, level)
     [xmax, ymax] = @pixels_to_meters((tx + 1) * @tile_size, (ty + 1) * @tile_size, level)
     return [xmin, ymin, xmax, ymax]
@@ -135,30 +157,31 @@ class MercatorTileProvider extends GridLayer
     [minLon, minLat, maxLon, maxLat] = @utils.meters_extent_to_geographic(bounds)
     return [minLon, minLat, maxLon, maxLat]
 
-  get_tiles_by_extent: (extent, level) ->
+  get_tiles_by_extent: (extent, level, tile_border=0) ->
 
+    # unpack extent and convert to tile coordinates
     [xmin, ymin, xmax, ymax] = extent
     [txmin, tymin] = @meters_to_tile(xmin, ymin, level)
     [txmax, tymax] = @meters_to_tile(xmax, ymax, level)
 
-    center_tile_x = (txmax - txmin) // 2
-    center_tile_y = (tymax - tymin) // 2
+    # add tiles which border
+    txmin -= tile_border
+    tymin -= tile_border
+    txmax += tile_border
+    tymax += tile_border
 
     tiles = []
     for ty in [tymax..tymin] by -1
       for tx in [txmin..txmax] by 1
-        tx = tx %% 2 ** level
         tiles.push([tx, ty, level, @get_tile_meter_bounds(tx, ty, level)])
 
-    #TOOD: sort tiles by distance from center doesn't seem to be working
-    tiles.sort (a, b) ->
-      a_distance = Math.sqrt(Math.pow(center_tile_x - a[0], 2) + Math.pow(center_tile_y - a[1], 2))
-      b_distance = Math.sqrt(Math.pow(center_tile_x - b[0], 2) + Math.pow(center_tile_y - b[1], 2))
-      return a_distance - b_distance
-
+    tiles = @sort_tiles_from_center(tiles, [txmin, tymin, txmax, tymax])
     return tiles
 
 class TMSTileProvider extends MercatorTileProvider
+
+  constructor: ->
+    super
 
   get_image_url: (x, y, z) ->
     return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
@@ -189,7 +212,7 @@ class QUADKEYTileProvider extends MercatorTileProvider
       else if value == '1'
         tileX |= mask
 
-      else if value == '2 '
+      else if value == '2'
         tileY |= mask
 
       else if value == '3'
@@ -220,6 +243,8 @@ class QUADKEYTileProvider extends MercatorTileProvider
     [x, y, z] = @tms_to_wmts(x, y, z)
     quadKey = @tile_xyz_to_quadkey(x, y, z)
     return @url.replace("{QUADKEY}", quadKey)
+
+
 
 class TileLayerView extends Glyph.View
 
@@ -386,6 +411,7 @@ class TileLayer extends Glyph.Model
 module.exports =
   Model: TileLayer
   View: TileLayerView
+  GridLayer: GridLayer
   ProjectionUtils: ProjectionUtils
   MercatorTileProvider: MercatorTileProvider
   TMSTileProvider: TMSTileProvider
