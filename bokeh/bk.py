@@ -1,14 +1,15 @@
 
 from tornado.httpserver import HTTPServer
 
-from bokeh.server.app import BokehServer
+from bokeh.application import Application
+from bokeh.server.server import Server
 
 def main():
-    application = BokehServer()
-    server = HTTPServer(application)
-    server.bind(8888)
-    server.start(1)
-    application.start()
+    application = Application()
+    # TODO we need to fill in Application with handlers,
+    # using command line options or config files
+    server = Server(application)
+    server.start()
 
 if __name__ == "__main__":
     import logging

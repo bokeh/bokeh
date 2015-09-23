@@ -14,27 +14,33 @@ import signal
 
 from tornado import gen
 from tornado.ioloop import IOLoop, PeriodicCallback
-from tornado.web import Application
+from tornado.web import Application as TornadoApplication
 
 from .settings import settings
 from .urls import patterns
 
 
 
-class BokehServer(Application):
-    ''' A Tornado Application for the Bokeh Server.
+class BokehTornado(TornadoApplication):
+    ''' A Tornado Application used to implement the Bokeh Server.
+
+        The Server class is the main public interface, this class has
+        Tornado implementation details.
 
     Args:
+        application (bokeh.application.Application) : an Application instance
+            The application is used to create documents for each session.
         extra_patterns (seq[tuple]) : tuples of (str, http or websocket handler)
             Use this argmument to add additional endpoints to custom deployments
             of the Bokeh Server.
 
     '''
 
-    def __init__(self, extra_patterns=None):
+    def __init__(self, application, extra_patterns=None):
         extra_patterns = extra_patterns or []
-        super(BokehServer, self).__init__(patterns+extra_patterns, **settings)
+        super(BokehTornado, self).__init__(patterns+extra_patterns, **settings)
 
+        self._application = application
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
 
@@ -77,6 +83,8 @@ class BokehServer(Application):
 
     def client_connected(self, session):
         self._clients.add(session)
+        doc = self._application.create_document()
+        session.add_document(doc)
 
     def client_lost(self, session):
         self._clients.discard(session)

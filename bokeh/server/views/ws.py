@@ -32,9 +32,9 @@ class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
     '''
-    def __init__(self, server, *args, **kw):
-        self._server = server
-        super(WSHandler, self).__init__(server, *args, **kw)
+    def __init__(self, tornado_app, *args, **kw):
+        self._tornado_app = tornado_app
+        super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
     def open(self):
         ''' Initialize a connection to a client.
@@ -63,7 +63,7 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise
 
-        self._server.client_connected(self.session)
+        self._tornado_app.client_connected(self.session)
 
         msg = self.session.protocol.create('ACK', self.session.id)
         self.send_message(msg)
@@ -111,7 +111,7 @@ class WSHandler(WebSocketHandler):
         '''
         log.info('WebSocket connection closed: code=%s, reason=%r',
                  self.close_code, self.close_reason)
-        self._server.client_lost(self.session)
+        self._tornado_app.client_lost(self.session)
 
     @gen.coroutine
     def _receive(self, fragment):
@@ -139,7 +139,7 @@ class WSHandler(WebSocketHandler):
             self.send_message(work)
 
         elif isinstance(work, ServerTask):
-            work = yield work(self._server.executor)
+            work = yield work(self._tornado_app.executor)
 
         else:
             self._internal_error("expected a Message or Task")
