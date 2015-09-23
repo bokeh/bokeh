@@ -61,7 +61,7 @@ Bokeh.Palettes = require("./palettes/palettes")
 
 # annotations
 Bokeh.BoxAnnotation = require("./renderer/annotation/box_annotation")
-Bokeh.TextAnnotation = require("./renderer/annotation/text_annotation")
+Bokeh.Label = require("./renderer/annotation/label")
 Bokeh.Legend  = require("./renderer/annotation/legend")
 Bokeh.Span    = require("./renderer/annotation/span")
 Bokeh.Tooltip = require("./renderer/annotation/tooltip")

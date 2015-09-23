@@ -6,9 +6,10 @@ properties = require "../../common/properties"
 class LabelView extends PlotWidget
   initialize: (options) ->
     super(options)
-    @text_props = new properties.Text({obj: @model, prefix: ''})
+    @text_props = new properties.Text({obj: @model, prefix: 'label_'})
 
   render: () ->
+    debugger;
     @frame = @plot_model.get('frame')
     @canvas = @plot_model.get('canvas')
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
@@ -27,7 +28,6 @@ class LabelView extends PlotWidget
     ctx.restore()
 
   _calc_dim: (dim, mapper) ->
-    debugger;
     if @mget(dim+'_units') == 'data'
       vdim = mapper.map_to_target(@mget(dim))
     else
@@ -53,14 +53,13 @@ class Label extends HasParent
   display_defaults: ->
     return _.extend {}, super(), {
       level: 'overlay'
-      # label_standoff: 15
-      text_font: "helvetica"
-      text_font_size: "10pt"
-      text_font_style: "normal"
-      text_color: "#444444"
-      text_alpha: 1.0
-      text_align: "left"
-      text_baseline: "middle"
+      label_text_font: "helvetica"
+      label_text_font_size: "10pt"
+      label_text_font_style: "normal"
+      label_text_color: "#444444"
+      label_text_alpha: 1.0
+      label_text_align: "left"
+      label_text_baseline: "middle"
     }
 
 module.exports =
