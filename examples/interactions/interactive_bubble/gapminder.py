@@ -6,13 +6,11 @@ from bokeh.browserlib import view
 from bokeh.models import (
     ColumnDataSource, Plot, Circle, Range1d,
     LinearAxis, HoverTool, Text,
-    SingleIntervalTicker,
+    SingleIntervalTicker, CustomJS, Slider
 )
-from bokeh.models.actions import Callback
-from bokeh.models.widgets import Slider
 from bokeh.palettes import Spectral6
 from bokeh.plotting import vplot
-from bokeh.resources import Resources
+from bokeh.resources import JSResources
 from bokeh.embed import file_html
 
 from data import process_data
@@ -105,15 +103,13 @@ code = """
         sources = %s,
         new_source_data = sources[year].get('data');
     renderer_source.set('data', new_source_data);
-    renderer_source.trigger('change');
     text_source.set('data', {'year': [String(year)]});
-    text_source.trigger('change');
 """ % js_source_array
 
-callback = Callback(args=sources, code=code)
+callback = CustomJS(args=sources, code=code)
 slider = Slider(start=years[0], end=years[-1], value=1, step=1, title="Year", callback=callback, name='testy')
-callback.args["slider"] = slider
 callback.args["renderer_source"] = renderer_source
+callback.args["slider"] = slider
 callback.args["text_source"] = text_source
 
 
@@ -125,12 +121,9 @@ with open('gapminder_template.jinja', 'r') as f:
     template = Template(f.read())
 
 # Use inline resources, render the html and open
-resources = Resources(mode='inline')
-template_variables = {
-    'bokeh_min_js': resources.js_raw[0]
-}
+js_resources = JSResources(mode='inline')
 title = "Bokeh - Gapminder Bubble Plot"
-html = file_html(layout, resources, title, template=template, template_variables=template_variables)
+html = file_html(layout, None, title, template=template, js_resources=js_resources)
 
 output_file = 'gapminder.html'
 with open(output_file, 'w') as f:

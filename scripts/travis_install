@@ -15,7 +15,8 @@ rm -rf $MINICONDA.sh
 python -V
 
 PINNED_PKGS=$(cat <<EOF
-
+ipython ==3.2.1
+ipython-notebook ==3.2.1
 EOF
 )
 echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
@@ -24,10 +25,14 @@ DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
 conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
-conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet conda.recipe
-conda install --use-local --yes bokeh
+
+BK_PKG_NAME=`conda build conda.recipe --output`
+VERSION=$(cat __conda_version__.txt)
+BK_PKG_NAME=${BK_PKG_NAME/nightly/$VERSION}
+
+conda install --yes $BK_PKG_NAME
 
 DEPS_TEST=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
@@ -36,10 +41,15 @@ EOF
 )
 
 conda install --yes $DEPS_TEST
-conda install --yes abstract-rendering
-conda install --yes multiuserblazeserver pillow
-##hack - we need latest blaze right now
-conda install --yes -c blaze blaze
+
+conda install --yes nodejs
+echo "node version $(node -v)"
+echo "npm version $(npm -v)"
+
+if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
+    conda install --yes pdiff
+    conda install --yes boto
+fi
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC

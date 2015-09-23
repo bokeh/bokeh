@@ -1,5 +1,5 @@
 from random import random
-from bokeh.models import Callback, ColumnDataSource
+from bokeh.models import CustomJS, ColumnDataSource
 from bokeh.plotting import figure, output_file, show
 
 output_file("callback.html")
@@ -15,7 +15,7 @@ p.circle('x', 'y', color='color', size=8, source=s, alpha=0.4)
 s2 = ColumnDataSource(data=dict(ym=[0.5, 0.5]))
 p.line(x=[0, 1], y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
 
-s.callback = Callback(args=dict(s2=s2), code="""
+s.callback = CustomJS(args=dict(s2=s2), code="""
         var inds = cb_obj.get('selected')['1d'].indices;
         var d = cb_obj.get('data');
         var ym = 0

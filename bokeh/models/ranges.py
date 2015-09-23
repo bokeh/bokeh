@@ -6,10 +6,12 @@ and with options for "auto sizing".
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
+from ..properties import abstract
 from ..properties import Int, Float, String, Datetime, Instance, List, Either
-from .actions import Callback
+from .callbacks import Callback
 from .renderers import Renderer
 
+@abstract
 class Range(PlotObject):
     """ A base class for all range types. ``Range`` is not generally
     useful to instantiate on its own.
@@ -50,7 +52,7 @@ class Range1d(Range):
             kwargs['end'] = args[1]
         super(Range1d, self).__init__(**kwargs)
 
-
+@abstract
 class DataRange(Range):
     """ A base class for all data range types. ``DataRange`` is not
     generally useful to instantiate on its own.

@@ -5,13 +5,15 @@ with data columns from data sources.
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
-from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Direction, Anchor
-from ..properties import AngleSpec, Bool, DistanceSpec, Enum, Include, Instance, NumberSpec, StringSpec
+from ..mixins import FillProps, LineProps, TextProps
+from ..plot_object import PlotObject
+from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
+                          Include, Instance, NumberSpec, StringSpec)
 
 from .mappers import LinearColorMapper
 
+@abstract
 class Glyph(PlotObject):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
 
@@ -229,11 +231,11 @@ class Gear(Glyph):
     The y-coordinates of the center of the gears.
     """)
 
-    angle = NumberSpec(default=0, help="""
+    angle = AngleSpec(default=0, help="""
     The angle the gears are rotated from horizontal. [rad]
     """)
 
-    module = AngleSpec("module", help="""
+    module = NumberSpec("module", help="""
     A scaling factor, given by::
 
         m = p / pi
@@ -462,6 +464,10 @@ class ImageURL(Glyph):
     angle = AngleSpec(default=0, help="""
     The angles to rotate the images, in radians as measured from the
     horizontal.
+    """)
+
+    global_alpha = Float(1.0, help="""
+    The opacity that each image is rendered with.
     """)
 
     dilate = Bool(False, help="""

@@ -332,7 +332,16 @@ Please build BokehJS by running setup.py with the `--build_js` option.
 
 def clean():
     print("Removing prior-built items...", end=" ")
-    dir_util.remove_tree('build/lib/bokeh')
+
+    build_dir = 'build/lib/bokeh'
+    if os.path.exists(build_dir):
+        dir_util.remove_tree(build_dir)
+
+    for root, dirs, files in os.walk('.'):
+        for item in files:
+            if item.endswith('.pyc'):
+                os.remove(os.path.join(root, item))
+
     print("Done")
 
 
@@ -434,12 +443,10 @@ if jsinstall:
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
-package_path(join(SERVER, 'templates'))
+package_path(join(SERVER, '_templates'))
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
 package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
-package_path(join(SERVER, 'tests', 'config'))
-package_path(join(SERVER, 'tests', 'data'))
 scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
@@ -489,43 +496,17 @@ elif '--help' in sys.argv:
 print()
 
 REQUIRES = [
-        'Flask>=0.10.1',
-        'Jinja2>=2.7',
-        'MarkupSafe>=0.18',
-        'Werkzeug>=0.9.1',
-        'greenlet>=0.4.1',
-        'itsdangerous>=0.21',
-        'python-dateutil>=2.1',
-        'requests>=1.2.3',
         'six>=1.5.2',
-        'pygments>=1.6',
-        'pystache>=0.5.3',
-        'markdown>=2.3.1',
+        'requests>=1.2.3',
         'PyYAML>=3.10',
+        'python-dateutil>=2.1',
+        'Jinja2>=2.7',
+        'numpy>=1.7.1',
+        'pandas>=0.11.0',
+        'Flask>=0.10.1',
         'pyzmq>=14.3.1',
         'tornado>=4.0.1',
-        # cli
-        # 'click>=3.3',
-        # tests
-        # 'pytest'
-        # 'mock>=1.0.1',
-        'colorama>=0.2.7'
     ]
-
-if sys.version_info[:2] == (2, 6):
-    REQUIRES.append('argparse>=1.1')
-
-# if sys.platform != "win32":
-#     REQUIRES.append('redis>=2.7.6')
-
-if platform.python_implementation() != "PyPy":
-    # You need to install PyPy's fork of NumPy to make it work:
-    # pip install git+https://bitbucket.org/pypy/numpy.git
-    # Also pandas is not yet working with PyPy .
-    REQUIRES.extend([
-        'numpy>=1.7.1',
-        'pandas>=0.11.0'
-    ])
 
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
@@ -543,6 +524,10 @@ setup(
         'bokeh.charts.builder',
         'bokeh.charts.builder.tests',
         'bokeh.charts.tests',
+        'bokeh._legacy_charts',
+        'bokeh._legacy_charts.builder',
+        'bokeh._legacy_charts.builder.tests',
+        'bokeh._legacy_charts.tests',
         'bokeh.compat',
         'bokeh.compat.mplexporter',
         'bokeh.compat.mplexporter.renderers',
@@ -550,10 +535,12 @@ setup(
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.models',
-        'bokeh.server.views',
-        'bokeh.server.blaze',
-        'bokeh.server.utils',
+        'bokeh.server.storage',
         'bokeh.server.tests',
+        'bokeh.server.utils',
+        'bokeh.server.views',
+        'bokeh.server.websocket',
+        'bokeh.server.zmq',
         'bokeh.sphinxext',
         'bokeh.tests',
         'bokeh.transforms',

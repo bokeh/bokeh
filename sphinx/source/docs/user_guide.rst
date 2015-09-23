@@ -51,6 +51,9 @@ topic:
     Embed static or server-based Bokeh plots and widgets into HTML documents
     in a variety of ways.
 
+:ref:`userguide_webgl`
+    Improve performance for large datasets by using WebGL.
+
 :ref:`userguide_info`
     See where to go next for more information and examples.
 
@@ -77,6 +80,7 @@ perfectly well with almost any array or table-like data structure.
     user_guide/interaction
     user_guide/server
     user_guide/embed
+    user_guide/webgl
     user_guide/info
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`

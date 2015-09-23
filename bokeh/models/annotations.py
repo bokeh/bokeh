@@ -6,20 +6,27 @@ from __future__ import absolute_import
 
 from ..enums import Orientation, SpatialUnits, RenderLevel
 from ..mixins import LineProps, FillProps, TextProps
+from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
                           Include, NumberSpec, Either, Auto, StringSpec,
                           AngleSpec)
 
 from .renderers import Renderer, GlyphRenderer
 
-class Legend(Renderer):
-    """ Render informational legends for a plot.
+@abstract
+class Annotation(Renderer):
+    """ Base class for annotation models.
 
     """
 
     plot = Instance(".models.plots.Plot", help="""
-    The Plot to which this Legend is attached.
+    The plot to which this annotation is attached.
     """)
+
+class Legend(Annotation):
+    """ Render informational legends for a plot.
+
+    """
 
     orientation = Enum(Orientation, help="""
     The location where the legend should draw itself.
@@ -78,14 +85,10 @@ class Legend(Renderer):
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
 
-class BoxAnnotation(Renderer):
-    """ Render an annotation box onto the plot
+class BoxAnnotation(Annotation):
+    """ Render an annotation box "shade" thing
 
     """
-
-    plot = Instance(".models.plots.Plot", help="""
-    The Plot to which this Legend is attached.
-    """)
 
     left = Either(Auto, NumberSpec("left"), help="""
     The x-coordinates of the left edge of the box annotation.

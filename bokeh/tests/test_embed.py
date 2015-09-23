@@ -1,13 +1,16 @@
 from __future__ import absolute_import
 
+import mock
 import unittest
 
 import bs4
 
 import bokeh.embed as embed
-from bokeh.resources import CDN, INLINE, Resources
+from bokeh.resources import CDN, INLINE, Resources, JSResources, CSSResources
+from bokeh.templates import JS_RESOURCES, CSS_RESOURCES
 from bokeh.plotting import figure
 from bokeh.session import Session
+from jinja2 import Template
 from six import string_types
 
 _embed_test_plot = None
@@ -51,6 +54,42 @@ class TestComponents(unittest.TestCase):
         self.assertEqual(div.attrs['class'], ['plotdiv'])
         self.assertEqual(div.text, "")
 
+    def test_script_is_utf8_encoded(self):
+        script, div = embed.components(_embed_test_plot)
+        self.assertTrue(isinstance(script, str))
+
+    @mock.patch('bokeh.embed.uuid')
+    def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_uuid):
+        mock_uuid.uuid4 = mock.Mock()
+        mock_uuid.uuid4.return_value = 'uuid'
+
+        script, div = embed.components(_embed_test_plot)
+        html = bs4.BeautifulSoup(script)
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        script_content = scripts[0].getText()
+
+        rawscript, div = embed.components(_embed_test_plot, wrap_script=False)
+        self.maxDiff = None
+        self.assertEqual(rawscript.strip(), script_content.strip())
+
+    @mock.patch('bokeh.embed.uuid')
+    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_uuid):
+        mock_uuid.uuid4 = mock.Mock()
+        mock_uuid.uuid4.return_value = 'uuid'
+
+        plot = _embed_test_plot
+        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "uuid", "modeltype": "Plot"}
+        script, plotdict = embed.components(_embed_test_plot, wrap_plot_info=False)
+        self.assertEqual(plotdict, expected_plotdict)
+
+        script, plotids = embed.components((_embed_test_plot, _embed_test_plot), wrap_plot_info=False)
+        self.assertEqual(plotids, (expected_plotdict, expected_plotdict))
+
+        script, plotiddict = embed.components({'p1': _embed_test_plot, 'p2': _embed_test_plot}, wrap_plot_info=False)
+        self.assertEqual(plotiddict, {'p1': expected_plotdict, 'p2': expected_plotdict})
+
+
 class TestNotebookDiv(unittest.TestCase):
 
     def test_return_type(self):
@@ -84,7 +123,8 @@ class TestFileHTML(unittest.TestCase):
                 self.tester = tester
                 self.template_variables = {
                     "title",
-                    "plot_resources",
+                    "bokeh_js",
+                    "bokeh_css",
                     "plot_script",
                     "plot_div"
                 }
@@ -109,6 +149,59 @@ class TestFileHTML(unittest.TestCase):
                             fake_template(self, {"test_var"}),
                             {"test_var": "test"})
         self.assertTrue(isinstance(r, str))
+
+
+def test_file_html_handles_js_only_resources():
+    js_resources = JSResources()
+    template = Template("<head>{{ bokeh_js }}</head><body></body>")
+    output = embed.file_html(_embed_test_plot, None, "title", template=template, js_resources=js_resources)
+    rendered_js = JS_RESOURCES.render(js_raw=js_resources.js_raw)
+    assert output == "<head>%s</head><body></body>" % rendered_js
+
+
+@mock.patch('bokeh.embed.warn')
+def test_file_html_provides_warning_if_no_css(mock_warn):
+    js_resources = JSResources()
+    embed.file_html(_embed_test_plot, None, "title", js_resources=js_resources)
+    mock_warn.assert_called_once_with(
+        'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
+    )
+
+
+@mock.patch('bokeh.embed.warn')
+def test_file_html_provides_warning_if_both_resources_and_js_provided(mock_warn):
+    js_resources = JSResources()
+    embed.file_html(_embed_test_plot, CDN, "title", js_resources=js_resources)
+    mock_warn.assert_called_once_with(
+        'Both resources and js_resources provided. resources will override js_resources.'
+    )
+
+
+@mock.patch('bokeh.embed.warn')
+def test_file_html_provides_warning_if_both_resources_and_css_provided(mock_warn):
+    css_resources = CSSResources()
+    embed.file_html(_embed_test_plot, CDN, "title", css_resources=css_resources)
+    mock_warn.assert_called_once_with(
+        'Both resources and css_resources provided. resources will override css_resources.'
+    )
+
+
+def test_file_html_handles_css_only_resources():
+    css_resources = CSSResources()
+    template = Template("<head>{{ bokeh_css }}</head><body></body>")
+    output = embed.file_html(_embed_test_plot, None, "title", template=template, css_resources=css_resources)
+    rendered_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw)
+    assert output == "<head>%s</head><body></body>" % rendered_css
+
+
+@mock.patch('bokeh.embed.warn')
+def test_file_html_provides_warning_if_no_js(mock_warn):
+    css_resources = CSSResources()
+    embed.file_html(_embed_test_plot, None, "title", css_resources=css_resources)
+    mock_warn.assert_called_once_with(
+        'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
+    )
+
 
 class TestAutoloadStatic(unittest.TestCase):
 

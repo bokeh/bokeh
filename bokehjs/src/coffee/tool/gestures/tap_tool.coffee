@@ -17,13 +17,13 @@ class TapToolView extends SelectTool.View
       vy: vy
     }
 
-    action = @mget("action")
+    callback = @mget("callback")
 
     for r in @mget('renderers')
       ds = r.get('data_source')
       sm = ds.get('selection_manager')
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
-      if action? then action.execute(ds)
+      if callback? then callback.execute(ds)
 
     @_save_geometry(geometry, final, append)
     return null

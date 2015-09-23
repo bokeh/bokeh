@@ -15,7 +15,7 @@ show only the distribution of the selected points.
 .. raw:: html
 
     <iframe
-        src="http://104.236.246.80:5006/bokeh/stocks#"
+        src="http://demo.bokehplots.com:5006/bokeh/stocks#"
         frameborder="0"
         style="overflow:hidden;height:1200;width:110%;margin-left:-5%"
         height="1200"

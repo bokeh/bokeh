@@ -4,15 +4,22 @@ types that Bokeh supports.
 """
 from __future__ import absolute_import
 
+import logging
+
 from ..plot_object import PlotObject
+from ..properties import abstract
 from ..properties import String, Enum, Instance
 from ..enums import Units, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from .. import validation
 
-from .sources import DataSource
+from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
 
+logger = logging.getLogger(__name__)
+
+
+@abstract
 class Renderer(PlotObject):
     """ A base class for renderer types. ``Renderer`` is not
     generally useful to instantiate on its own.
@@ -36,6 +43,7 @@ class GlyphRenderer(Renderer):
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
+        if isinstance(self.data_source, RemoteSource): return
         missing = set()
         for name, item in self.glyph.vm_serialize().items():
             if not isinstance(item, dict): continue
@@ -82,6 +90,7 @@ class GlyphRenderer(Renderer):
     Specifies the level in which to render the glyph.
     """)
 
+@abstract
 class GuideRenderer(Renderer):
     """ A base class for all guide renderer types. ``GuideRenderer`` is
     not generally useful to instantiate on its own.

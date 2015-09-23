@@ -193,8 +193,8 @@ def test_Gear():
         "x",
         "y",
         "angle",
+        "angle_units",
         "module",
-        "module_units",
         "teeth",
         "pressure_angle",
         "shaft_size",
@@ -254,6 +254,7 @@ def test_ImageURL():
     assert glyph.angle == 0
     assert glyph.dilate == False
     assert glyph.anchor == Anchor.top_left
+    assert glyph.global_alpha == 1.0
     yield (check_props, glyph, [
         "url",
         "x",
@@ -266,6 +267,7 @@ def test_ImageURL():
         "angle_units",
         "dilate",
         "anchor",
+        "global_alpha",
     ])
 
 def test_Line():

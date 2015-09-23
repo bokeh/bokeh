@@ -118,8 +118,8 @@ class GearView extends Glyph.View
 class Gear extends Glyph.Model
   default_view: GearView
   type: 'Gear'
-  angles: ['module']
-  fields: ['angle', 'internal:bool', 'pressure_angle', 'shaft_size', 'teeth']
+  angles: ['angle']
+  fields: ['module', 'internal:bool', 'pressure_angle', 'shaft_size', 'teeth']
 
   defaults: ->
     return _.extend {}, super(), {

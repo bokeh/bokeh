@@ -24,7 +24,7 @@ class Property extends HasProperties
     if _.isObject(attr_value) and not _.isArray(attr_value)
       # use whichever the spec provides if there is a spec
       @spec = attr_value
-      if @spec.value?
+      if not _.isUndefined(@spec.value)
         @fixed_value = @spec.value
       else if @spec.field?
         @field = @spec.field
@@ -41,6 +41,7 @@ class Property extends HasProperties
       @validate(@fixed_value, @attr)
 
   value: () ->
+    # XXX: this `?' needs to be investigated for 0.10
     result = if @fixed_value? then @fixed_value else NaN
     return @transform([result])[0]
 
@@ -130,7 +131,7 @@ class Coord extends Property
 class Color extends Property
 
   validate: (value, attr) ->
-    if not svg_colors[value]? and value.substring(0, 1) != "#" and not @valid_rgb(value)
+    if not svg_colors[value.toLowerCase()]? and value.substring(0, 1) != "#" and not @valid_rgb(value)
       throw new Error("color property '#{attr}' given invalid value: #{value}")
     return true
 

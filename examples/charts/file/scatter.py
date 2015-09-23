@@ -1,43 +1,53 @@
 
-from collections import OrderedDict
-
-import pandas as pd
-
-from bokeh.charts import Scatter, output_file, show, vplot
+from bokeh.sampledata.autompg import autompg as df
+from bokeh.sampledata.olympics2014 import data
 from bokeh.sampledata.iris import flowers
 
-setosa = flowers[(flowers.species == "setosa")][["petal_length", "petal_width"]]
-versicolor = flowers[(flowers.species == "versicolor")][["petal_length", "petal_width"]]
-virginica = flowers[(flowers.species == "virginica")][["petal_length", "petal_width"]]
+from bokeh.charts import Scatter, output_file, show, vplot, hplot
+from bokeh.charts.operations import blend
+from bokeh.charts.utils import df_from_json
+import pandas as pd
 
-xyvalues = OrderedDict([("setosa", setosa.values), ("versicolor", versicolor.values), ("virginica", virginica.values)])
+scatter0 = Scatter(
+    df, x='mpg', title="x='mpg'", xlabel="Miles Per Gallon")
 
-scatter1 = Scatter(xyvalues, title="iris dataset, dict_input", xlabel="petal_length",
-                  ylabel="petal_width", legend='top_left', marker="triangle")
+scatter1 = Scatter(
+    df, x='mpg', y='hp', title="x='mpg', y='hp'",
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
+scatter2 = Scatter(
+    df, x='mpg', y='hp', color='cyl', title="x='mpg', y='hp', color='cyl'",
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
-groupped_df = flowers[["petal_length", "petal_width", "species"]].groupby("species")
-scatter2 = Scatter(groupped_df, title="iris dataset, dict_input", xlabel="petal_length",
-                  ylabel="petal_width", legend='top_left')
-
-pdict = OrderedDict()
-for i in groupped_df.groups.keys():
-    labels = groupped_df.get_group(i).columns
-    xname = labels[0]
-    yname = labels[1]
-    x = getattr(groupped_df.get_group(i), xname)
-    y = getattr(groupped_df.get_group(i), yname)
-    pdict[i] = list(zip(x, y))
-
-df = pd.DataFrame(pdict)
 scatter3 = Scatter(
-    df, title="iris dataset, dict_input",
-    xlabel="petal_length", ylabel="petal_width", legend='top_left')
+    df, x='mpg', y='hp', color='origin', title="x='mpg', y='hp', color='origin'",
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
 scatter4 = Scatter(
-    list(xyvalues.values()), title="iris dataset, dict_input",
-    xlabel="petal_length", ylabel="petal_width", legend='top_left')
+    df, x='mpg', y='hp', color='cyl', marker='origin', title="x='mpg', y='hp', color='cyl', marker='origin'",
+    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
+
+# Example with nested json/dict like data, which has been pre-aggregated and pivoted
+df2 = df_from_json(data)
+df2 = df2.sort('medals.total', ascending=False)
+df2 = df2.head(10)
+df2 = pd.melt(df2, id_vars=['abbr', 'name'])
+
+scatter5 = Scatter(
+    df2, x='value', y='name', color='variable', title="x='value', y='name', color='variable'",
+    xlabel="Medals", ylabel="Top 10 Countries", legend='bottom_right')
+
+
+scatter6 = Scatter(flowers, x=blend('petal_length', 'sepal_length', name='length'),
+                   y=blend('petal_width', 'sepal_width', name='width'), color='species',
+                   title='x=petal_length+sepal_length, y=petal_width+sepal_width, color=species',
+                   legend='top_right')
 
 output_file("scatter.html")
 
-show(vplot(scatter1, scatter2, scatter3, scatter4))
+show(vplot(
+    hplot(scatter0, scatter1),
+    hplot(scatter2, scatter3),
+    hplot(scatter4, scatter5),
+    hplot(scatter6)
+))
