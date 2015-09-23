@@ -195,22 +195,8 @@ def curdoc():
     Returns:
         doc : the current default document object.
 
-    .. note::
-        When using this API form within the server (e.g. in a Bokeh app), the
-        appropriate document from the request context is returned, rather than
-        the standard default global state. Doing so allows the same code using
-        curdoc() to function correctly whether it is being run inside a server
-        or not.
-
     '''
-    try:
-        from flask import request
-        doc = request.bokeh_server_document
-        logger.debug("curdoc() returning Document from flask request context")
-        return doc
-
-    except (ImportError, RuntimeError, AttributeError):
-        return _state.document
+    return _state.document
 
 def cursession():
     ''' Return the session for the current default state, if there is one.
