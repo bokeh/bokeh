@@ -157,7 +157,7 @@ class MercatorTileProvider extends GridLayer
     [minLon, minLat, maxLon, maxLat] = @utils.meters_extent_to_geographic(bounds)
     return [minLon, minLat, maxLon, maxLat]
 
-  get_tiles_by_extent: (extent, level, tile_border=0) ->
+  get_tiles_by_extent: (extent, level, tile_border=2) ->
 
     # unpack extent and convert to tile coordinates
     [xmin, ymin, xmax, ymax] = extent
@@ -179,9 +179,6 @@ class MercatorTileProvider extends GridLayer
     return tiles
 
 class TMSTileProvider extends MercatorTileProvider
-
-  constructor: ->
-    super
 
   get_image_url: (x, y, z) ->
     return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)

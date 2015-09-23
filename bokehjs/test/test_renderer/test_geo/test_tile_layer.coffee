@@ -44,13 +44,13 @@ class TileExpects
 
   expect_mercator_tile_counts: (provider) ->
     for zoom_level in [1..5] by 1
-      tiles = provider.get_tiles_by_extent(@MERCATOR_BOUNDS, zoom_level)
+      tiles = provider.get_tiles_by_extent(@MERCATOR_BOUNDS, zoom_level, 0)
       expect(tiles.length).to.be.equal(4 ** zoom_level)
 
   expect_geographic_tile_counts: (provider) ->
     #assumes 512 tile size
     for zoom_level in [0..5] by 1
-      tiles = provider.get_tiles_by_extent(@GEOGRAPHIC_BOUNDS, zoom_level)
+      tiles = provider.get_tiles_by_extent(@GEOGRAPHIC_BOUNDS, zoom_level, 0)
       expect(tiles.length).to.be.equal(4 ** zoom_level * 2)
 
 describe "Tile Providers", ->
