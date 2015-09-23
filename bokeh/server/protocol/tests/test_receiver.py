@@ -4,42 +4,41 @@ import pytest
 
 from bokeh.server.exceptions import ProtocolError, ValidationError
 from bokeh.server.protocol import receiver, Protocol
+from bokeh.util.string import decode_utf8, encode_utf8
 
 _proto = Protocol("1.0")
 
 def test_creation():
     r = receiver.Receiver(None)
-    assert r.failures == 0
 
 def test_invalid_hmac_length():
     with pytest.raises(ProtocolError):
         r = receiver.Receiver(None)
-        r.consume(b"junk")
-    assert r.failures == 1
+        r.consume(encode_utf8("junk"))
 
 def test_hmac_mismatch():
     with pytest.raises(ValidationError):
         msg = _proto.create('ACK', 10)
         r = receiver.Receiver(_proto)
-        r.consume("junk" * 16)
-        r.consume(msg.header_json.decode('utf-8'))
-        r.consume(msg.metadata_json.decode('utf-8'))
-        r.consume(msg.content_json.decode('utf-8'))
+        r.consume(encode_utf8("junk") * 16)
+        r.consume(decode_utf8(msg.header_json))
+        r.consume(decode_utf8(msg.metadata_json))
+        r.consume(decode_utf8(msg.content_json))
 
 def test_validation_success():
     msg = _proto.create('ACK', 10)
     r = receiver.Receiver(_proto)
 
-    partial = r.consume(msg.hmac.decode('utf-8')).result()
+    partial = r.consume(decode_utf8(msg.hmac)).result()
     assert partial is None
 
-    partial = r.consume(msg.header_json.decode('utf-8')).result()
+    partial = r.consume(decode_utf8(msg.header_json)).result()
     assert partial is None
 
-    partial = r.consume(msg.metadata_json.decode('utf-8')).result()
+    partial = r.consume(decode_utf8(msg.metadata_json)).result()
     assert partial is None
 
-    partial = r.consume(msg.content_json.decode('utf-8')).result()
+    partial = r.consume(decode_utf8(msg.content_json)).result()
     assert partial is not None
     assert partial.msgtype == msg.msgtype
     assert partial.hmac == msg.hmac
