@@ -3,11 +3,10 @@ HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 
-class TextAnnotationView extends PlotWidget
+class LabelView extends PlotWidget
   initialize: (options) ->
     super(options)
     @text_props = new properties.Text({obj: @model, prefix: ''})
-    # @angle_props = new properties.Angle({obj: @model, prefix: ''})
 
   render: () ->
     @frame = @plot_model.get('frame')
@@ -35,9 +34,9 @@ class TextAnnotationView extends PlotWidget
       vdim = @mget(dim)
     return vdim
 
-class TextAnnotation extends HasParent
-  default_view: TextAnnotationView
-  type: 'TextAnnotation'
+class Label extends HasParent
+  default_view: LabelView
+  type: 'Label'
 
   defaults: ->
     return _.extend {}, super(), {
@@ -65,5 +64,5 @@ class TextAnnotation extends HasParent
     }
 
 module.exports =
-  Model: TextAnnotation
-  View: TextAnnotationView
+  Model: Label
+  View: LabelView

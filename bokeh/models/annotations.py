@@ -148,21 +148,17 @@ class BoxAnnotation(Annotation):
     The %s values for the shades.
     """)
 
-class TextAnnotation(Renderer):
-    """ Render a text annotation onto the plot
+class Label(Annotation):
+    """ Render a label onto the plot
 
     """
-
-    plot = Instance(".models.plots.Plot", help="""
-    The Plot to which this Legend is attached.
-    """)
 
     text = StringSpec("text", help="""
     The text values to render.
     """)
 
     x = NumberSpec("x", help="""
-    The x-coordinates to locate the text anchors.
+    The x-coordinates to locate the label anchors.
     """)
 
     x_units = Enum(SpatialUnits, default='data', help="""
@@ -171,7 +167,7 @@ class TextAnnotation(Renderer):
     """)
 
     y = NumberSpec("y", help="""
-    The y-coordinates to locate the text anchors.
+    The y-coordinates to locate the label anchors.
     """)
 
     y_units = Enum(SpatialUnits, default='data', help="""
@@ -180,23 +176,23 @@ class TextAnnotation(Renderer):
     """)
 
     angle = AngleSpec(default=0, help="""
-    The angles to rotate the text, in radians, as measured from the horizontal.
+    The angles to rotate the label, in radians, as measured from the horizontal.
     """)
 
     x_range_name = String('default', help="""
     A particular (named) x-range to use for computing screen locations when
-    rendering text annotations on the plot. If unset, use the default x-range.
+    rendering labels on the plot. If unset, use the default x-range.
     """)
 
     y_range_name = String('default', help="""
     A particular (named) y-range to use for computing screen locations when
-    rendering text annotations on the plot. If unset, use the default y-range.
+    rendering labels on the plot. If unset, use the default y-range.
     """)
 
     level = Enum(RenderLevel, default="overlay", help="""
-    Specifies the level in which to render the text annotation.
+    Specifies the level in which to render the label.
     """)
 
-    text_props = Include(TextProps, use_prefix=False, help="""
-    The %s values for the text.
+    label_props = Include(TextProps, help="""
+    The %s values for the label.
     """)
