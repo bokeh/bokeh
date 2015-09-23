@@ -79,24 +79,40 @@ class PlotObject(HasProps, CallbackManager):
     def attach_document(self, doc):
         # we want an ERROR if you attach to a different doc,
         # but we want to call notify_attach multiple times
-        # if you attach multiple times to the same doc, because
-        # we are reference counted (in case we're in the graph
-        # more than once)
+        # if a plot object is mentioned as the value for
+        # multiple fields. There's a refcount which is supposed
+        # to track the number of fields in the doc we are the value
+        # of. This means we don't recurse on the second attach though.
         if self._document is not None and self._document is not doc:
             raise RuntimeError("PlotObjects must be owned by only a single document")
+        first_attach = self._document is None
         self._document = doc
         if self._document is not None:
             self._document._notify_attach(self)
-            # TODO recursively attach_document all references
-            # after we notify that we're attached ourselves
-            # (modify collect_plot_objects to take a visitor function)
+            if first_attach:
+                doc = self._document
+                def attach(obj):
+                    obj.attach_document(doc)
+                self._visit_immediate_references(self, attach)
 
     def detach_document(self):
-        # TODO recursively detach_document all references before
-        # we notify_detach ourselves
         if self._document is not None:
             if not self._document._notify_detach(self):
                 self._document = None
+                # we only detach children when we are detached the
+                # last time.
+                def detach(obj):
+                    obj.detach_document()
+                self._visit_immediate_references(self, detach)
+
+    def trigger(self, attr, old, new):
+        # attach first, then detach, so we keep refcount >0 if it will end up that way
+        if isinstance(new, PlotObject) and self._document is not None:
+            new.attach_document(self._document)
+        if isinstance(old, PlotObject):
+            old.detach_document()
+        # chain up to invoke callbacks
+        super(PlotObject, self).trigger(attr, old, new)
 
     @property
     def ref(self):
@@ -199,6 +215,30 @@ class PlotObject(HasProps, CallbackManager):
         return attrs
 
     @classmethod
+    def _visit_immediate_references(cls, obj, visitor):
+        ''' Visit all references to another PlotObject without recursing into any of the child PlotObject; may visit the same PlotObject more than once if it's referenced more than once. '''
+        def visit_prop_value(obj):
+            if isinstance(obj, PlotObject):
+                # we visit this PlotObject but do NOT recurse
+                visitor(obj)
+            elif isinstance(obj, HasProps):
+                # this isn't a PlotObject, so recurse into it
+                visit_props(obj)
+            elif isinstance(obj, (list, tuple)):
+                for item in obj:
+                    visit_prop_value(item)
+            elif isinstance(obj, dict):
+                for key, value in iteritems(obj):
+                    visit_prop_value(key)
+                    visit_prop_value(value)
+
+        def visit_props(obj):
+            for attr in obj.properties_with_refs():
+                visit_prop_value(getattr(obj, attr))
+
+        visit_props(obj)
+
+    @classmethod
     def collect_plot_objects(cls, *input_objs):
         """ Iterate over ``input_objs`` and descend through their structure
         collecting all nested ``PlotObjects`` on the go. The resulting list
@@ -207,26 +247,13 @@ class PlotObject(HasProps, CallbackManager):
         ids = set([])
         objs = []
 
-        def descend_props(obj):
-            for attr in obj.properties_with_refs():
-                descend(getattr(obj, attr))
+        def collect_one(obj):
+            if obj._id not in ids:
+                ids.add(obj._id)
+                obj._visit_immediate_references(collect_one)
+                objs.append(obj)
 
-        def descend(obj):
-            if isinstance(obj, PlotObject):
-                if obj._id not in ids:
-                    ids.add(obj._id)
-                    descend_props(obj)
-                    objs.append(obj)
-            elif isinstance(obj, HasProps):
-                descend_props(obj)
-            elif isinstance(obj, (list, tuple)):
-                for item in obj:
-                    descend(item)
-            elif isinstance(obj, dict):
-                for key, value in iteritems(obj):
-                    descend(key); descend(value)
-
-        descend(input_objs)
+        collect_one(input_objs)
         return objs
 
     def references(self):

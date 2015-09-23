@@ -101,6 +101,12 @@ class State(object):
     def session(self):
         return self._session
 
+    def _reset_with_doc(self, doc):
+        self._document = doc
+        self._file = None
+        self._notebook = False
+        self._session = None
+
     def reset(self):
         ''' Deactivate all currently active output modes.
 
@@ -111,10 +117,15 @@ class State(object):
             None
 
         '''
-        self._document = Document()
-        self._file = None
-        self._notebook = False
-        self._session = None
+        self._reset_with_doc(Document())
+
+    def output_document(self, doc):
+        """ Output to a document.
+
+        Args:
+            doc (Document) : the document curdoc() will return
+        """
+        self._reset_with_doc(doc)
 
     def output_file(self, filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
         """ Output to a static HTML file.

@@ -1,0 +1,30 @@
+from __future__ import absolute_import, print_function
+
+class SpellingHandler(object):
+    """Subtypes of SpellingHandler describe a way to modify a Document."""
+
+    def __init__(self, *args, **kwargs):
+        self._failed = False
+        self._error = None
+        self._error_detail = None
+
+    def modify_document(self, doc):
+        pass
+
+    @property
+    def failed(self):
+        """True if the handler failed to modify the doc"""
+        return self._failed
+
+    @property
+    def error(self):
+        """Error message if the handler failed"""
+        return self._error
+
+    @property
+    def error_detail(self):
+        """Traceback or other details if the handler failed"""
+        return self._error_detail
+
+    # TODO (havocp) add a way for handlers to notify when a reload
+    # is required (due to file change or whatever)

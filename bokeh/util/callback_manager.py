@@ -4,8 +4,35 @@ callback interface to classes.
 '''
 from __future__ import absolute_import
 
-from inspect import formatargspec, getargspec
+from inspect import formatargspec, getargspec, isfunction
 from types import FunctionType
+
+def _callback_argspec(callback):
+    '''Bokeh-internal function to get argspec for a callable'''
+    if not callable(callback):
+        raise ValueError("Callbacks must be callables")
+
+    if isfunction(callback):
+        return getargspec(callback)
+    elif hasattr(callback, 'im_func'):
+        # in this case the argspec will have 'self' in the args
+        return getargspec(callback)
+    else:
+        return getargspec(callback.__call__)
+
+def _check_callback(callback, fargs):
+    '''Bokeh-internal function to check callback signature'''
+    argspec = _callback_argspec(callback)
+    formatted_args = formatargspec(*argspec)
+    margs = ('self',) + fargs
+    if isinstance(callback, FunctionType):
+        if len(argspec.args) != len(fargs):
+            raise ValueError("Callbacks functions must have signature func(%s), got func%s" % (", ".join(fargs), formatted_args))
+
+    # testing against MethodType misses callable objects, assume everything
+    # else is a normal method, or __call__ here
+    elif len(argspec.args) != len(margs):
+        raise ValueError("Callbacks methods must have signature method(%s), got method%s" % (", ".join(margs), formatted_args))
 
 class CallbackManager(object):
     ''' A mixin class to provide an interface for registering and
@@ -33,21 +60,7 @@ class CallbackManager(object):
 
             if callback in _callbacks: continue
 
-            if not callable(callback):
-                raise ValueError("Callbacks must be callables")
-
-            argspec = getargspec(callback)
-            formatted_args = formatargspec(*argspec)
-            fargs = ('attr', 'old', 'new')
-            margs = ('self',) + fargs
-            if isinstance(callback, FunctionType):
-                if len(argspec.args) != len(fargs):
-                    raise ValueError("Callbacks functions must have signature func(%s), got func%s" % (", ".join(fargs), formatted_args))
-
-            # testing against MethodType misses callable objects, assume everything
-            # else is a normal method, or __call__ here
-            elif len(argspec.args) != len(margs):
-                raise ValueError("Callbacks methods must have signature method(%s), got method%s" % (", ".join(margs), formatted_args))
+            _check_callback(callback, ('attr', 'old', 'new'))
 
             _callbacks.append(callback)
 
@@ -63,9 +76,9 @@ class CallbackManager(object):
             None
 
         '''
-        if self._document:
-            self._document.notify_change(self, attr, old, new)
+        if hasattr(self, '_document') and self._document is not None:
+            self._document._notify_change(self, attr, old, new)
         callbacks = self._callbacks.get(attr)
         if callbacks:
             for callback in callbacks:
-                callback(self, attr, old, new)
+                callback(attr, old, new)
