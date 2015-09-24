@@ -15,7 +15,7 @@ from .models import ColumnDataSource
 from .session import Session
 from .io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
-    reset_output, save, show, gridplot, hplot, vplot)
+    reset_output, save, show, gridplot, hplot, vplot, pgrid)
 
 # Names that we want in this namespace (fool pyflakes)
 (GridPlot, Document, ColumnDataSource, Session, cursession, gridplot,

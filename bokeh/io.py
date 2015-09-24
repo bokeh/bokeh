@@ -28,7 +28,7 @@ from .document import Document
 from .embed import notebook_div, file_html, autoload_server
 from .models import Widget
 from .models.plots import GridPlot
-from .models.widgets.layouts import HBox, VBox, VBoxForm
+from .models.widgets.layouts import HBox, VBox, VBoxForm, PGrid
 from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
@@ -411,6 +411,25 @@ def gridplot(plot_arrangement, **kwargs):
     grid = GridPlot(children=plot_arrangement, **kwargs)
     subplots = itertools.chain.from_iterable(plot_arrangement)
     _deduplicate_plots(grid, subplots)
+    _push_or_save(grid)
+    return grid
+
+def pgrid(widget_arrangement, **kwargs):
+    ''' Generate a layout that arranges several widgets into a grid.
+
+    Args:
+        widget_arrangement (nested list of Widgets) : widgets to arrange in a grid
+        **kwargs: additional attributes to pass in to GridPlot() constructor
+
+    .. note:: ``widget_arrangement`` can be nested, e.g [[p1, p2], [p3, p4]]
+
+    Returns:
+        grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
+
+    '''
+    grid = PGrid(children=widget_arrangement, **kwargs)
+    widgets = itertools.chain.from_iterable(widget_arrangement)
+    _deduplicate_plots(grid, widgets)
     _push_or_save(grid)
     return grid
 

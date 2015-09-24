@@ -32,6 +32,27 @@ class Layout(Widget):
     An optional height for the widget (in pixels).
     """)
 
+
+class PGrid(Widget):
+    """ Grid widget based on Phosphor. Note how this does *not* inherit
+    from Layout, as most phosphor panels cannot have a size; the size is determined
+    by the parent layout panel.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        if args and "children" in kwargs:
+            raise ValueError("'children' keyword cannot be used with positional arguments")
+        if args:
+            kwargs["children"] = list(args)
+        super(PGrid, self).__init__(**kwargs)
+    
+    children = List(List(Instance(Widget)), help="""
+    An array of plots to display in a grid, given as a list of lists of
+    Plot objects. To leave a position in the grid empty, pass None for
+    that position in the ``children`` list.
+    """)
+
+
 @abstract
 class BaseBox(Layout):
     """ Abstract base class for HBox and VBox. Do not use directly.
