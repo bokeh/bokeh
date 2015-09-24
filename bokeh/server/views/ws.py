@@ -72,6 +72,11 @@ class WSHandler(WebSocketHandler):
     def on_message(self, fragment):
         ''' Process an individual wire protocol fragment.
 
+            The websocket RFC specifies opcodes for distinguishing
+            text frames from binary frames. Tornado passes us either
+            a text or binary string depending on that opcode, we have
+            to look at the type of the fragment to see what we got.
+
         Args:
             fragment (unicode or bytes) : wire fragment to process
 
