@@ -283,7 +283,7 @@ def issue_line(issue):
 def generate_changelog(issues, after, heading, rtag=False):
     """Prints out changelog."""
     relevent = relevant_issues(issues, after)
-    relevent = sorted(relevent, key=ISSUES_SORT_KEY)
+    relevent = sorted(relevent, key=ISSUES_BY_SECTION)
 
     def write(func, endofline="", append=""):
         func(heading + '\n' + '-' * 20 + endofline)
