@@ -33,7 +33,10 @@ class ServerHandler(object):
 
             # TODO (havocp) creation of the session shouldn't happen here,
             # it should probably be via some explicit protocol request.
-            session = connection.get_or_create_session(sessionid, '/')
+            connection.create_session_if_needed(sessionid, '/')
+            session = connection.get_session(sessionid)
+            # keep this session alive and get notifications from it
+            connection.subscribe_session(session)
             return handler(message, connection, session)
         return handler_without_session
 

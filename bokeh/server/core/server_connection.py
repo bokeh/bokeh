@@ -10,6 +10,21 @@ class ServerConnection(object):
     def __init__(self, protocol, tornado_app):
         self._protocol = protocol
         self._tornado_app = tornado_app
+        self._subscribed_sessions = set()
+
+    @property
+    def subscribed_sessions(self):
+        return self._subscribed_sessions
+
+    def subscribe_session(self, session):
+        """Keep alive the given session and get document change notifications from it"""
+        self._subscribed_sessions.add(session)
+        session.subscribe(self)
+
+    def unsubscribe_session(self, session):
+        """Allow the session to be discarded and don't get change notifications from it anymore"""
+        self._subscribed_sessions.discard(session)
+        session.unsubscribe(self)
 
     def ok(self, message):
         return self.protocol.create('OK', message.header['msgid'])
@@ -17,8 +32,11 @@ class ServerConnection(object):
     def error(self, message, text):
         return self.protocol.create('ERROR', message.header['msgid'], text)
 
-    def get_or_create_session(self, sessionid, application_name):
-        return self._tornado_app.get_or_create_session(sessionid, application_name)
+    def create_session_if_needed(self, sessionid, application_name):
+        return self._tornado_app.create_session_if_needed(sessionid, application_name)
+
+    def get_session(self, sessionid):
+        return self._tornado_app.get_session(sessionid)
 
     @property
     def protocol(self):

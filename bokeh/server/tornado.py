@@ -91,7 +91,13 @@ class BokehTornado(TornadoApplication):
     def client_lost(self, connection):
         self._clients.discard(connection)
 
-    def get_or_create_session(self, sessionid, application_name):
+        # clean up sessions when they have no connections anymore
+        for session in connection.subscribed_sessions:
+            connection.unsubscribe_session(session)
+            if session.connection_count == 0:
+                self.discard_session(session)
+
+    def create_session_if_needed(self, sessionid, application_name):
         # this is because empty sessionids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(sessionid) == 0:
@@ -100,19 +106,23 @@ class BokehTornado(TornadoApplication):
         if application_name not in self._applications:
             raise ProtocolError("Unknown application " + application_name)
 
-        if sessionid in self._sessions:
-            return self._sessions[sessionid]
-        else:
+        if sessionid not in self._sessions:
             doc = self._applications[application_name].create_document()
             session = ServerSession(sessionid, doc)
             self._sessions[sessionid] = session
-            return session
 
     def get_session(self, sessionid):
         if sessionid in self._sessions:
-            return self._sessions[sessionid]
+            session = self._sessions[sessionid]
+            return session
         else:
             raise ProtocolError("No such session " + sessionid)
+
+    def discard_session(self, session):
+        if session.connection_count > 0:
+            raise RuntimeError("Should not be discarding a session with open connections")
+        log.debug("Discarding session %r", session.id)
+        del self._sessions[session.id]
 
     def log_stats(self):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))

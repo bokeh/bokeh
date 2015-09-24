@@ -20,6 +20,7 @@ class ServerSession(object):
             raise ValueError("Sessions must have a document")
         self._id = sessionid
         self._document = document
+        self._subscribed_connections = set()
         self._lock = locks.Lock()
 
     @property
@@ -29,6 +30,18 @@ class ServerSession(object):
     @property
     def id(self):
         return self._id
+
+    def subscribe(self, connection):
+        """This should only be called by ServerConnection.subscribe_session or our book-keeping will be broken"""
+        self._subscribed_connections.add(connection)
+
+    def unsubscribe(self, connection):
+        """This should only be called by ServerConnection.unsubscribe_session or our book-keeping will be broken"""
+        self._subscribed_connections.discard(connection)
+
+    @property
+    def connection_count(self):
+        return len(self._subscribed_connections)
 
     # TODO just copied from document, not used
     @gen.coroutine
