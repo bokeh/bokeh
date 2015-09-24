@@ -1,0 +1,23 @@
+0.10.0 (Sep 2015)
+=================
+
+
+Migration Guide
+---------------
+
+This release introduced a new, often requsted style of chart interface that
+is centered around Pandas DataFrames.  All of "old style" charts in the
+``bokeh.charts`` interface have been moved to ``bokeh._legacy_charts``,
+which  will eventually be removed, when all charts have been updated.
+To continue to use the old charts, replace``bokeh.charts`` with
+``bokeh._legacy_charts``, e.g.:
+
+.. code-block:: python
+
+    from bokeh.charts import Area
+
+becomes
+
+.. code-block:: python
+
+    from bokeh._legacy_charts import Area
