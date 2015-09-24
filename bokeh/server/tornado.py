@@ -20,17 +20,7 @@ from .settings import settings
 from .urls import patterns
 from .core.server_session import ServerSession
 from .core.server_connection import ServerConnection
-
-
-class SessionDict(dict):
-    def __init__(self, document_factory):
-        self._document_factory = document_factory
-
-    def __missing__(self, sessionid):
-        doc = self._document_factory()
-        session = ServerSession(sessionid, doc)
-        self[sessionid] = session
-        return session
+from .exceptions import ProtocolError
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -39,7 +29,7 @@ class BokehTornado(TornadoApplication):
         Tornado implementation details.
 
     Args:
-        application (bokeh.application.Application) : an Application instance
+        applications (dict of str : bokeh.application.Application) : map from paths to Application instances
             The application is used to create documents for each session.
         extra_patterns (seq[tuple]) : tuples of (str, http or websocket handler)
             Use this argmument to add additional endpoints to custom deployments
@@ -47,12 +37,13 @@ class BokehTornado(TornadoApplication):
 
     '''
 
-    def __init__(self, application, io_loop=None, extra_patterns=None):
+    def __init__(self, applications, io_loop=None, extra_patterns=None):
+        # TODO (havocp) we should add a route for each application
         extra_patterns = extra_patterns or []
         super(BokehTornado, self).__init__(patterns+extra_patterns, **settings)
 
-        self._application = application
-        self._sessions = SessionDict(self._application.create_document)
+        self._applications = applications
+        self._sessions = dict()
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
         if io_loop is None:
@@ -100,13 +91,28 @@ class BokehTornado(TornadoApplication):
     def client_lost(self, connection):
         self._clients.discard(connection)
 
-    def get_or_create_session(self, sessionid):
+    def get_or_create_session(self, sessionid, application_name):
         # this is because empty sessionids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(sessionid) == 0:
-            raise ValueError("Session ID must not be empty")
+            raise ProtocolError("Session ID must not be empty")
 
-        return self._sessions[sessionid]
+        if application_name not in self._applications:
+            raise ProtocolError("Unknown application " + application_name)
+
+        if sessionid in self._sessions:
+            return self._sessions[sessionid]
+        else:
+            doc = self._applications[application_name].create_document()
+            session = ServerSession(sessionid, doc)
+            self._sessions[sessionid] = session
+            return session
+
+    def get_session(self, sessionid):
+        if sessionid in self._sessions:
+            return self._sessions[sessionid]
+        else:
+            raise ProtocolError("No such session " + sessionid)
 
     def log_stats(self):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))

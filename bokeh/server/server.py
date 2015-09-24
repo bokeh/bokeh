@@ -10,18 +10,23 @@ from tornado.httpserver import HTTPServer
 
 from .tornado import BokehTornado
 
+from bokeh.application import Application
+
 class Server(object):
     ''' A Server which creates a new Session for each connection, using an Application to initialize each Session.
 
     Args:
-        application (bokeh.application.Application) : an Application instance
+        applications (dict of str: bokeh.application.Application) or bokeh.application.Application: mapping from URL paths to Application instances, or a single Application to put at the root URL
             The Application is a factory for Document, with a new Document initialized for each Session.
-
+            Each application should be identified by a path meant to go in a URL, like "/" or "/foo"
     '''
 
-    def __init__(self, application):
-        self._application = application
-        self._tornado = BokehTornado(self._application)
+    def __init__(self, applications):
+        if isinstance(applications, Application):
+            self._applications = { '/' : applications }
+        else:
+            self._applications = applications
+        self._tornado = BokehTornado(self._applications)
         self._http = HTTPServer(self._tornado)
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)

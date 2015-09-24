@@ -30,7 +30,10 @@ class ServerHandler(object):
             sessionid = message.header['sessid']
             if len(sessionid) == 0:
                 raise ProtocolError("%s empty sessid header" % message)
-            session = connection.get_or_create_session(sessionid)
+
+            # TODO (havocp) creation of the session shouldn't happen here,
+            # it should probably be via some explicit protocol request.
+            session = connection.get_or_create_session(sessionid, '/')
             return handler(message, connection, session)
         return handler_without_session
 

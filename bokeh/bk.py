@@ -5,10 +5,12 @@ from bokeh.application import Application
 from bokeh.server.server import Server
 
 def main():
-    application = Application()
     # TODO we need to fill in Application with handlers,
     # using command line options or config files
-    server = Server(application)
+    application = Application()
+    # TODO allow specifiying multiple applications with routes to each
+    applications = { '/' : application }
+    server = Server(applications)
     server.start()
 
 if __name__ == "__main__":

@@ -17,8 +17,8 @@ class ServerConnection(object):
     def error(self, message, text):
         return self.protocol.create('ERROR', message.header['msgid'], text)
 
-    def get_or_create_session(self, sessionid):
-        return self._tornado_app.get_or_create_session(sessionid)
+    def get_or_create_session(self, sessionid, application_name):
+        return self._tornado_app.get_or_create_session(sessionid, application_name)
 
     @property
     def protocol(self):
