@@ -14,16 +14,20 @@ def test_creation():
 def test_invalid_hmac_length():
     with pytest.raises(ProtocolError):
         r = receiver.Receiver(None)
-        r.consume(encode_utf8("junk"))
+        r.consume(decode_utf8("junk"))
 
 def test_hmac_mismatch():
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as excinfo:
         msg = _proto.create('ACK', 10)
         r = receiver.Receiver(_proto)
-        r.consume(encode_utf8("junk") * 16)
+        # bad HMAC
+        r.consume(decode_utf8("junk") * 16)
+        # we need these lines because we check the HMAC
+        # only after getting all the chunks
         r.consume(decode_utf8(msg.header_json))
         r.consume(decode_utf8(msg.metadata_json))
         r.consume(decode_utf8(msg.content_json))
+    assert 'HMAC signatures do not match' in str(excinfo.value)
 
 def test_validation_success():
     msg = _proto.create('ACK', 10)
