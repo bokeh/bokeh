@@ -24,7 +24,7 @@ class working_1(Message):
         '''
 
         '''
-        header = cls.create_header(session_id)
+        header = cls.create_header_with_session(session_id)
         content = {
             'reqid' : reqid,
         }

@@ -18,7 +18,7 @@ def test_invalid_hmac_length():
 
 def test_hmac_mismatch():
     with pytest.raises(ValidationError) as excinfo:
-        msg = _proto.create('ACK', 10)
+        msg = _proto.create('ACK')
         r = receiver.Receiver(_proto)
         # bad HMAC
         r.consume(decode_utf8("junk") * 16)
@@ -30,7 +30,7 @@ def test_hmac_mismatch():
     assert 'HMAC signatures do not match' in str(excinfo.value)
 
 def test_validation_success():
-    msg = _proto.create('ACK', 10)
+    msg = _proto.create('ACK')
     r = receiver.Receiver(_proto)
 
     partial = r.consume(decode_utf8(msg.hmac)).result()

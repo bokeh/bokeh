@@ -93,6 +93,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
         root_dir=root_dir
     )
 
+# TODO update output_notebook to match output_server
 def output_notebook(url=None, docname=None, session=None, name=None,
                     resources=None, verbose=False, hide_banner=False):
     ''' Configure the default output state to generate output in
@@ -133,22 +134,16 @@ def output_notebook(url=None, docname=None, session=None, name=None,
         url=url, docname=docname, session=session, name=name
     )
 
-def output_server(docname, session=None, url="default", name=None, clear=True):
-    ''' Configure the default output state to generate output that gets
-    pushed to a bokeh-server when :func:`show` or :func:`push` is called.
+def output_server(self, sessionid=None, url="default", clear=True):
+    """ Configure the default output state to sync curdoc() to a Bokeh server.
 
     Args:
-        docname (str) : Name of document to push on Bokeh server
-            Any existing documents with the same name will be overwritten.
-
-        session (Session, optional) : An explicit session to use (default: None)
-            If None, a new default session is created.
+        sessionid (str) : Name of session to push on Bokeh server
+            Any existing session with the same name will be overwritten.
+            Use None to generate a random session ID.
 
         url (str, optional) : URL of the Bokeh server (default: "default")
-            If "default", then ``session.DEFAULT_SERVER_URL`` is used.
-
-        name (str, optional) : A name for the session (default: None)
-            If None, the server URL is used as the name
+            If "default" use the default localhost URL.
 
         clear (bool, optional) : Whether to clear the document (default: True)
             If True, an existing server document will be cleared of any
@@ -162,11 +157,11 @@ def output_server(docname, session=None, url="default", name=None, clear=True):
         session or the top of a script.
 
     .. warning::
-        Calling this function will replace any existing default session.
+        Calling this function will replace any existing document in the named session.
 
-    '''
+    """
     _state.output_server(
-        docname, session=session, url=url, name=name, clear=clear
+        sessionid=sessionid, url=url, clear=clear
     )
 
 def output_document(doc):

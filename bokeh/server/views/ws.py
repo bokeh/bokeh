@@ -14,7 +14,6 @@ from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
-from ..core.server_session import ServerSession
 from ..core.server_task import ServerTask
 from ..protocol import Protocol
 from ..protocol.message import Message
@@ -34,6 +33,9 @@ class WSHandler(WebSocketHandler):
     '''
     def __init__(self, tornado_app, *args, **kw):
         self._tornado_app = tornado_app
+        self.receiver = None
+        self.handler = None
+        self.connection = None
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
     def open(self):
@@ -55,17 +57,15 @@ class WSHandler(WebSocketHandler):
             self.handler = ServerHandler(protocol)
             log.debug("ServerHandler created created for %r", protocol)
 
-            self.session = ServerSession(protocol)
-            log.info("ServerSession created (id: %s)", self.session.id)
+            self.connection = self._tornado_app.new_connection(protocol)
+            log.info("ServerConnection created")
 
         except ProtocolError as e:
             log.error("Could not create new server session, reason: %s", e)
             self.close()
-            raise
+            raise e
 
-        self._tornado_app.client_connected(self.session)
-
-        msg = self.session.protocol.create('ACK', self.session.id)
+        msg = self.connection.protocol.create('ACK')
         self.send_message(msg)
 
     @gen.coroutine
@@ -116,7 +116,8 @@ class WSHandler(WebSocketHandler):
         '''
         log.info('WebSocket connection closed: code=%s, reason=%r',
                  self.close_code, self.close_reason)
-        self._tornado_app.client_lost(self.session)
+        if self.connection is not None:
+            self._tornado_app.client_lost(self.connection)
 
     @gen.coroutine
     def _receive(self, fragment):
@@ -132,7 +133,7 @@ class WSHandler(WebSocketHandler):
     def _handle(self, message):
         # Handle the message, possibly resulting in work to do
         try:
-            work = yield self.handler.handle(message, self.session)
+            work = yield self.handler.handle(message, self.connection)
             raise gen.Return(work)
         except (MessageError, ProtocolError, ValidationError) as e: # TODO (other exceptions?)
             self._internal_error(str(e))
@@ -151,7 +152,6 @@ class WSHandler(WebSocketHandler):
             raise gen.Return(None)
 
         raise gen.Return(None)
-
 
     def _internal_error(self, message):
         log.error("Bokeh Server internal error: %s, closing connection", message)

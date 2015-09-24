@@ -3,55 +3,60 @@
 '''
 from __future__ import absolute_import
 
-from tornado.ioloop import IOLoop
+import logging
+log = logging.getLogger(__name__)
 
-from bokeh.util.serialization import make_id
-
-from .server_document import ServerDocument
+from tornado import gen, locks
 
 class ServerSession(object):
-    ''' Provide a local cache of Bokeh Documents for an open browser
-    tab.
+    ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
 
     '''
 
-    def __init__(self, protocol):
-        self._id = make_id()
-        self._protocol = protocol
-        self._documents = dict()
+    def __init__(self, sessionid, document):
+        if sessionid is None:
+            raise ValueError("Sessions must have an id")
+        if document is None:
+            raise ValueError("Sessions must have a document")
+        self._id = sessionid
+        self._document = document
+        self._lock = locks.Lock()
 
-    def __getitem__(self, docid):
-        return self._documents[docid]
-
-    def __delitem__(self, docid):
-        self.remove_document(docid)
-
-    def __contains__(self, docid):
-        return docid in self._documents
-
-    def add_document(self, doc):
-        self._documents[doc.id] = doc
-
-    def remove_document(self, docid):
-        del self._documents[docid]
-
-    def ok(self, message):
-        return self.protocol.create('OK', self.id, message.header['msgid'])
-
-    def error(self, message, text):
-        return self.protocol.create('ERROR', self.id, message.header['msgid'], text)
+    @property
+    def document(self):
+        return self._document
 
     @property
     def id(self):
         return self._id
 
-    @property
-    def protocol(self):
-        return self._protocol
+    # TODO just copied from document, not used
+    @gen.coroutine
+    def workon(self, executor, task, *args, **kw):
+        with (yield self._lock.acquire()):
+            res = yield executor.submit(task, *args, **kw)
+        raise gen.Return(res)
 
+    @classmethod
+    def pull(cls, message, connection, session):
+        # TODO hold the lock
+        try:
+            log.debug("Pulling Document for session %r", session.id)
+            # TODO implement sending the document
+            return connection.ok(message)
+        except Exception as e:
+            text = "Error pulling Document"
+            log.error(text)
+            return connection.error(message, text)
 
-
-
-
-
-
+    @classmethod
+    def push(cls, message, connection, session):
+        # TODO hold the lock
+        try:
+            log.debug("Pushing Document")
+            # TODO implement replacing everything in the session doc
+            return connection.ok(message)
+        except Exception as e:
+            text = "Error pushing Document"
+            log.error(text)
+            return connection.error(message, text)

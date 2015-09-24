@@ -141,7 +141,22 @@ class Message(object):
         raise NotImplementedError("")
 
     @classmethod
-    def create_header(cls, session_id):
+    def create_header(cls):
+        ''' Return a message header fragment dict.
+
+        Args:
+
+        Returns:
+            dict : a message header
+
+        '''
+        return {
+            'msgid'   : bkserial.make_id(),
+            'msgtype' : cls.msgtype
+        }
+
+    @classmethod
+    def create_header_with_session(cls, session_id):
         ''' Return a message header fragment dict for a given session ID.
 
         Args:
@@ -154,7 +169,7 @@ class Message(object):
         return {
             'msgid'   : bkserial.make_id(),
             'sessid'  : session_id,
-            'msgtype' : cls.msgtype,
+            'msgtype' : cls.msgtype
         }
 
     def send(self, conn):

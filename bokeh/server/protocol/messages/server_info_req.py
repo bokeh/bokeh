@@ -17,10 +17,10 @@ class server_info_req_1(Message):
     revision = 1
 
     @classmethod
-    def create(cls, session_id, **metadata):
+    def create(cls, **metadata):
         '''
 
         '''
-        header = cls.create_header(session_id)
+        header = cls.create_header()
         content = {}
         return cls(header, metadata, content)

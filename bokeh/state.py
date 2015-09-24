@@ -46,7 +46,7 @@ import os, time
 # Bokeh imports
 from .document import Document
 from .resources import Resources
-from .session import DEFAULT_SERVER_URL, Session
+from .client import DEFAULT_SERVER_URL, DEFAULT_SESSION_ID, ClientSession, ClientConnection
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -98,13 +98,16 @@ class State(object):
         return self._notebook
 
     @property
-    def session(self):
-        return self._session
+    def client(self):
+        return self._client
 
     def _reset_with_doc(self, doc):
         self._document = doc
         self._file = None
         self._notebook = False
+        if self._client is not None:
+            self._client.close()
+        self._client = None
         self._session = None
 
     def reset(self):
@@ -165,6 +168,7 @@ class State(object):
         if os.path.isfile(filename):
             logger.info("Session output file '%s' already exists, will be overwritten." % filename)
 
+    # TODO update output_notebook to match output_server
     def output_notebook(self, url=None, docname=None, session=None, name=None):
         """ Generate output in Jupyter/IPython notebook cells.
 
@@ -192,21 +196,16 @@ class State(object):
                 docname = "IPython Session at %s" % time.ctime()
             self.output_server(docname, url=url, session=session, name=name)
 
-    def output_server(self, docname, session=None, url="default", name=None, clear=True):
-        """ Store Bokeh plots and objects on a Bokeh server.
+    def output_server(self, sessionid=DEFAULT_SESSION_ID, url="default", clear=True):
+        """ Sync curdoc() to a Bokeh server.
 
         Args:
-            docname (str) : Name of document to push on Bokeh server
-                Any existing documents with the same name will be overwritten.
-
-            session (Session, optional) : An explicit session to use (default: None)
-                If None, a new default session is created.
+            sessionid (str) : Name of session to push on Bokeh server
+                Any existing session with the same name will be overwritten.
+                Use None to generate a random session ID.
 
             url (str, optional) : URL of the Bokeh server (default: "default")
-                If "default", then ``session.DEFAULT_SERVER_URL`` is used.
-
-            name (str, optional) : A name for the session
-                If None, the server URL is used as the name
+                If "default" use the default localhost URL.
 
             clear (bool, optional) : Whether to clear the document (default: True)
                 If True, an existing server document will be cleared of any
@@ -216,22 +215,15 @@ class State(object):
             None
 
         .. warning::
-            Calling this function will replace any existing default session.
+            Calling this function will replace any existing document in the named session.
 
         """
         if url == "default":
             url = DEFAULT_SERVER_URL
 
-        if name is None:
-            name = url
-
-        if not session:
-            self._session = Session(name=name, root_url=url)
-        else:
-            self._session = session
-
-        self._session.use_doc(docname)
-        self._session.load_document(self._document)
+        self._client = ClientConnection(url=url)
+        self._session = ClientSession(self._client, sessionid)
+        self._document = self._session.document
 
         if clear:
             self._document.clear()

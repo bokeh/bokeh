@@ -18,8 +18,19 @@ from tornado.web import Application as TornadoApplication
 
 from .settings import settings
 from .urls import patterns
+from .core.server_session import ServerSession
+from .core.server_connection import ServerConnection
 
 
+class SessionDict(dict):
+    def __init__(self, document_factory):
+        self._document_factory = document_factory
+
+    def __missing__(self, sessionid):
+        doc = self._document_factory()
+        session = ServerSession(sessionid, doc)
+        self[sessionid] = session
+        return session
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -36,19 +47,25 @@ class BokehTornado(TornadoApplication):
 
     '''
 
-    def __init__(self, application, extra_patterns=None):
+    def __init__(self, application, io_loop=None, extra_patterns=None):
         extra_patterns = extra_patterns or []
         super(BokehTornado, self).__init__(patterns+extra_patterns, **settings)
 
         self._application = application
+        self._sessions = SessionDict(self._application.create_document)
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
+        if io_loop is None:
+            io_loop = IOLoop.current()
+        self._loop = io_loop
+        self._loop.add_callback(self._start_async)
+        self._stats_job = PeriodicCallback(self.log_stats, 5.0 * 1000, io_loop=self._loop)
+        self._stats_job.start()
 
-    def start(self, argv=None):
-        ''' Start the Bokeh Server application
+    def start(self):
+        ''' Start the Bokeh Server application main loop.
 
         Args:
-            argv (seq[str], optionals) : values to pass as argv (default: None)
 
         Returns:
             None
@@ -57,12 +74,8 @@ class BokehTornado(TornadoApplication):
             Keyboard interrupts or sigterm will cause the server to shut down.
 
         '''
-        loop = IOLoop.current()
-        loop.add_callback(self._start_async, argv)
-        self._stats_job = PeriodicCallback(self.log_stats, 5.0 * 1000)
-        self._stats_job.start()
         try:
-            loop.start()
+            self._loop.start()
         except KeyboardInterrupt:
             print("\nInterrupted, shutting down")
 
@@ -73,21 +86,27 @@ class BokehTornado(TornadoApplication):
             None
 
         '''
-        if not self.io_loop:
-            return
-        self.io_loop.add_callback(self.io_loop.stop)
+        self._loop.add_callback(self._loop.stop)
 
     @property
     def executor(self):
         return self._executor
 
-    def client_connected(self, session):
-        self._clients.add(session)
-        doc = self._application.create_document()
-        session.add_document(doc)
+    def new_connection(self, protocol):
+        connection = ServerConnection(protocol, self)
+        self._clients.add(connection)
+        return connection
 
-    def client_lost(self, session):
-        self._clients.discard(session)
+    def client_lost(self, connection):
+        self._clients.discard(connection)
+
+    def get_or_create_session(self, sessionid):
+        # this is because empty sessionids would be "falsey" and
+        # potentially open up a way for clients to confuse us
+        if len(sessionid) == 0:
+            raise ValueError("Session ID must not be empty")
+
+        return self._sessions[sessionid]
 
     def log_stats(self):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
@@ -102,9 +121,8 @@ class BokehTornado(TornadoApplication):
         raise gen.Return(res)
 
     @gen.coroutine
-    def _start_async(self, argv=None):
+    def _start_async(self):
         try:
-            self.io_loop = IOLoop.current()
             atexit.register(self._atexit)
             signal.signal(signal.SIGTERM, self._sigterm)
         except Exception:

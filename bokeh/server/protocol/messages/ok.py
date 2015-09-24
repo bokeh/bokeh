@@ -21,11 +21,11 @@ class ok_1(Message):
     revision = 1
 
     @classmethod
-    def create(cls, session_id, reqid, **metadata):
+    def create(cls, reqid, **metadata):
         '''
 
         '''
-        header = cls.create_header(session_id)
+        header = cls.create_header()
         content = {
             'reqid': reqid,
         }

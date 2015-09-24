@@ -17,12 +17,9 @@ class pull_doc_req_1(Message):
     revision = 1
 
     @classmethod
-    def create(cls, session_id, docid, **metadata):
+    def create(cls, session_id, **metadata):
         '''
 
         '''
-        header = cls.create_header(session_id)
-        content = {
-            'docid' : docid,
-        }
-        return cls(header, metadata, content)
+        header = cls.create_header_with_session(session_id)
+        return cls(header, metadata, {})

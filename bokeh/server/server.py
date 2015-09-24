@@ -23,6 +23,10 @@ class Server(object):
         self._application = application
         self._tornado = BokehTornado(self._application)
         self._http = HTTPServer(self._tornado)
+        # these queue a callback on the ioloop rather than
+        # doing the operation immediately (I think - havocp)
+        self._http.bind(8888)
+        self._http.start(1)
 
     def start(self):
         ''' Start the Bokeh Server and listen for connections
@@ -34,8 +38,6 @@ class Server(object):
             Keyboard interrupts or sigterm will cause the server to shut down.
 
         '''
-        self._http.bind(8888)
-        self._http.start(1)
         self._tornado.start()
 
     def stop(self):

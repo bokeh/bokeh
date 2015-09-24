@@ -32,11 +32,11 @@ class error_1(Message):
         return msg
 
     @classmethod
-    def create(cls, session_id, reqid, text, **metadata):
+    def create(cls, reqid, text, **metadata):
         '''
 
         '''
-        header = cls.create_header(session_id)
+        header = cls.create_header()
         content = {
             'reqid' : reqid,
             'text'  : text,
