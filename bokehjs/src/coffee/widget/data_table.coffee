@@ -27,26 +27,28 @@ class DataProvider
 
   getLength: () -> @source.get_length()
 
-  getItem: (index) ->
-    item = {index: index}
+  getItem: (offset) ->
+    item = {}
     for field in @fields
-      item[field] = @data[field][index]
+      item[field] = @data[field][offset]
     return item
 
-  _setItem: (index, item) ->
+  _setItem: (offset, item) ->
     for field, value of item
-      @data[field][index] = value
+      @data[field][offset] = value
     return
 
-  setItem: (index, item) ->
-    @_setItem(index, item)
+  setItem: (offset, item) ->
+    @_setItem(offset, item)
     @updateSource()
 
   getField: (index, field) ->
-    return @data[field][index]
+    offset = @data["index"].indexOf(index)
+    return @data[field][offset]
 
   _setField: (index, field, value) ->
-    @data[field][index] = value
+    offset = @data["index"].indexOf(index)
+    @data[field][offset] = value
     return
 
   setField: (index, field, value) ->
