@@ -341,6 +341,7 @@ class BoxGlyph(AggregateGlyph):
 
     outliers = Instance(PointGlyph)
 
+    marker = String(default='circle')
     whisker_width = Float(default=0.3)
     whisker_line_width = Float(default=2)
     whisker_span_line_width = Float(default=2)
@@ -378,7 +379,7 @@ class BoxGlyph(AggregateGlyph):
             self.outliers = PointGlyph(y=outlier_values, label=self.get_dodge_label(),
                                        line_color=self.outlier_line_color,
                                        fill_color=self.outlier_fill_color,
-                                       size=self.outlier_size)
+                                       size=self.outlier_size, marker=self.marker)
 
         for comp_glyph in self.composite_glyphs:
             for renderer in comp_glyph.renderers:

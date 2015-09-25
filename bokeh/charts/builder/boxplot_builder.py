@@ -25,13 +25,14 @@ from ...properties import Bool, String
 from .bar_builder import BarBuilder
 from ..glyphs import BoxGlyph
 from ..utils import title_from_columns
+from .._attributes import ColorAttr, GroupAttr
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def BoxPlot(data, label=None, values=None, color='DimGrey', group=None,
+def BoxPlot(data, label=None, values=None, color=None, group=None,
             xscale="categorical", yscale="linear", xgrid=False,
             ygrid=True, continuous_range=None, **kw):
     """Generate a box plot from table-like and column-like inputs."""
@@ -63,6 +64,14 @@ class BoxPlotBuilder(BarBuilder):
     which are used to describe the distribution of a variable.
 
     """
+
+    # ToDo: Support easier adding of one attr without reimplementation
+    default_attributes = {'label': GroupAttr(),
+                          'color': ColorAttr(default='DimGrey'),
+                          'outlier_fill_color': ColorAttr(default='red'),
+                          'whisker_color': ColorAttr(default='black'),
+                          'stack': GroupAttr(),
+                          'group': GroupAttr()}
 
     # TODO: (bev) should be an enumeration
     marker = String(help="""

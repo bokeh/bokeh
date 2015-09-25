@@ -194,12 +194,13 @@ class BarBuilder(Builder):
         self.y_range = Range1d(start=start, end=self.max_height + y_shift)
 
     def get_extra_args(self):
-        return {}
+        attrs = self.class_properties(withbases=False)
+        return {attr: getattr(self, attr) for attr in attrs}
 
     def collect_glyph_kwargs(self, group):
-        attrs = self.class_properties(withbases=False)
+        attrs = set(self.default_attributes.keys()) - set(
+            BarBuilder.default_attributes.keys())
         return {attr: group[attr] for attr in attrs}
-
 
     def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
@@ -209,9 +210,9 @@ class BarBuilder(Builder):
         kwargs = self.get_extra_args()
 
         for group in self._data.groupby(**self.attributes):
-            # glyph_kwargs = self.collect_glyph_kwargs(group)
-            # group_kwargs = kwargs.copy()
-            # group_kwargs.update(glyph_kwargs)
+            glyph_kwargs = self.collect_glyph_kwargs(group)
+            group_kwargs = kwargs.copy()
+            group_kwargs.update(glyph_kwargs)
 
             bg = self.glyph(label=self.get_label(group['label']),
                             values=group.data[self.values.selection].values,
@@ -221,7 +222,7 @@ class BarBuilder(Builder):
                             fill_alpha=self.fill_alpha,
                             stack_label=self.get_label(group['stack']),
                             dodge_label=self.get_label(group['group']),
-                            **kwargs)
+                            **group_kwargs)
 
             self.add_glyph(group, bg)
 
