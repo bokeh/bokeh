@@ -20,7 +20,7 @@ from .protocol import serialize_json
 from .resources import Resources
 from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
+    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, JS_RESOURCES, CSS_RESOURCES
 )
 from .util.string import encode_utf8
 
@@ -252,7 +252,7 @@ def notebook_div(plot_object):
     return encode_utf8(html)
 
 
-def file_html(plot_object, resources, title, template=FILE, template_variables=None):
+def file_html(plot_object, resources, title, js_resources=None, css_resources=None, template=FILE, template_variables=None):
     ''' Return an HTML document that embeds a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -267,7 +267,7 @@ def file_html(plot_object, resources, title, template=FILE, template_variables=N
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
-            title, plot_resources, plot_script, plot_div
+            title, js_resources, css_resources, plot_script, plot_div
 
     Returns:
         html : standalone HTML document with embedded plot
@@ -277,19 +277,35 @@ def file_html(plot_object, resources, title, template=FILE, template_variables=N
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 
-    plot_resources = RESOURCES.render(
-        js_raw = resources.js_raw,
-        css_raw = resources.css_raw,
-        js_files = resources.js_files,
-        css_files = resources.css_files,
-    )
+    if resources:
+        if js_resources:
+            warn('Both resources and js_resources provided. resources will override js_resources.')
+        if css_resources:
+            warn('Both resources and css_resources provided. resources will override css_resources.')
+
+        js_resources = resources
+        css_resources = resources
+
+    bokeh_js = ''
+    if js_resources:
+        if not css_resources:
+            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+        bokeh_js = JS_RESOURCES.render(js_raw=js_resources.js_raw, js_files=js_resources.js_files)
+
+    bokeh_css = ''
+    if css_resources:
+        if not js_resources:
+            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+        bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
+
     script, div = components(plot_object)
     template_variables_full = \
         template_variables.copy() if template_variables is not None else {}
     template_variables_full.update(
         {
             'title': title,
-            'plot_resources': plot_resources,
+            'bokeh_js': bokeh_js,
+            'bokeh_css': bokeh_css,
             'plot_script': script,
             'plot_div': div,
         }

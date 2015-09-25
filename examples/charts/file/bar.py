@@ -1,73 +1,42 @@
-from collections import OrderedDict
+from bokeh.charts import Bar, output_file, show, vplot, hplot, defaults
+from bokeh.sampledata.autompg import autompg as df
 
-import numpy as np
-import pandas as pd
+df['neg_displ'] = 0 - df['displ']
 
-from bokeh.charts import Bar, output_file, show, vplot, hplot
-from bokeh.models import Range1d
-from bokeh.sampledata.olympics2014 import data as original_data
+defaults.width = 350
+defaults.height = 250
 
-width = 700
-height = 500
-legend_position = "top_right"
+bar_plot = Bar(df, label='cyl', title="label='cyl'")
 
-data = {d['abbr']: d['medals'] for d in original_data['data'] if d['medals']['total'] > 0}
+bar_plot2 = Bar(df, label='cyl', bar_width=0.4, title="label='cyl' bar_width=0.4")
 
-countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
+bar_plot3 = Bar(df, label='cyl', values='mpg', agg='mean',
+                title="label='cyl' values='mpg' agg='mean'")
 
-gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
+bar_plot4 = Bar(df, label='cyl', title="label='cyl' color='DimGray'", color='dimgray')
 
-# dict input
-medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+# multiple columns
+bar_plot5 = Bar(df, label=['cyl', 'origin'], values='mpg', agg='mean',
+                title="label=['cyl', 'origin'] values='mpg' agg='mean'")
 
-dict_stacked = Bar(
-    medals, countries, title="OrderedDict input | Stacked", legend=legend_position,
-    xlabel="countries", ylabel="medals", width=width, height=height,
-    stacked=True
-)
+bar_plot6 = Bar(df, label='origin', values='mpg', agg='mean', stack='cyl',
+                title="label='origin' values='mpg' agg='mean' stack='cyl'", legend='top_right')
 
-# data frame input
-df = pd.DataFrame(medals, index=countries)
+bar_plot7 = Bar(df, label='cyl', values='displ', agg='mean', group='origin',
+                title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
 
-df_grouped = Bar(
-    df, title="Data Frame input | Grouped", legend=legend_position,
-    xlabel="countries", ylabel="medals", width=width, height=height
-)
+# ToDo: negative values
+# bar_plot8 = Bar(df, label='cyl', values='neg_displ', agg='mean', group='origin', color='origin',
+#                 title="label='cyl' values='displ' agg='mean' group='origin'", legend='top_right')
 
-# Numpy array input with different data to affect the ranges
-random = np.random.rand(3, 8)
-mixed = random - np.random.rand(3, 8)
-categories = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-
-np_stacked = Bar(
-    random, cat=categories, title="Numpy Array input | Stacked",
-    ylabel="Random Number", xlabel="", width=width, height=height,
-    stacked=True
-)
-
-np_negative_grouped = Bar(
-    random * -1, cat=categories, title="All negative input | Grouped",
-    ylabel="Random Number", width=width, height=height
-)
-
-np_custom = Bar(
-    mixed, cat=categories, title="Custom range (start=-3, end=0.4)",
-    ylabel="Random Number", width=width, height=height,
-    continuous_range=Range1d(start=-3, end=0.4)
-)
-
-np_mixed_grouped = Bar(
-    mixed, cat=categories, title="Mixed-sign input | Grouped",
-    ylabel="Random Number", width=width, height=height
-)
 
 # collect and display
 output_file("bar.html")
 
-show(vplot(
-    hplot(dict_stacked, df_grouped),
-    hplot(np_stacked, np_negative_grouped),
-    hplot(np_mixed_grouped, np_custom),
-))
+show(
+    vplot(
+        hplot(bar_plot, bar_plot2, bar_plot3),
+        hplot(bar_plot4, bar_plot5, bar_plot6),
+        hplot(bar_plot7)
+    )
+)

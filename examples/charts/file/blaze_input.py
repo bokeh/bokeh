@@ -1,7 +1,7 @@
 from os.path import dirname, join
 from blaze import Data
 from bokeh.sampledata import iris
-from bokeh.charts import Line, show, output_file
+from bokeh._legacy_charts import Line, show, output_file
 
 bbvalues = Data(join(dirname(iris.__file__), 'iris.csv'))
 columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']

@@ -14,9 +14,14 @@ useful for charts ecosystem.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function
 
+from six import iteritems
+from copy import copy
 from collections import OrderedDict
 import itertools
 from math import cos, sin
+import json
+import pandas as pd
+from pandas.io.json import json_normalize
 
 from ..browserlib import view
 from ..document import Document
@@ -34,10 +39,10 @@ from ..util.notebook import publish_display_data
 #-----------------------------------------------------------------------------
 
 # TODO: (bev) this should go in a plotting utils one level up
-_default_cycle_palette = [
-    "#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"
-]
-def cycle_colors(chunk, palette=_default_cycle_palette):
+DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+
+
+def cycle_colors(chunk, palette=DEFAULT_PALETTE):
     """ Build a color list just cycling through a given palette.
 
     Args:
@@ -55,6 +60,25 @@ def cycle_colors(chunk, palette=_default_cycle_palette):
         colors.append(next(g))
 
     return colors
+
+marker_types = OrderedDict(
+    [
+        ("circle", Circle),
+        ("square", Square),
+        ("triangle", Triangle),
+        ("diamond", Diamond),
+        ("inverted_triangle", InvertedTriangle),
+        ("asterisk", Asterisk),
+        ("cross", Cross),
+        ("x", X),
+        ("circle_cross", CircleCross),
+        ("circle_x", CircleX),
+        ("square_x", SquareX),
+        ("square_cross", SquareCross),
+        ("diamond_cross", DiamondCross),
+    ]
+)
+
 
 # TODO: (bev) this should go in a plotting utils one level up
 def make_scatter(source, x, y, markertype, color, line_color=None,
@@ -77,36 +101,19 @@ def make_scatter(source, x, y, markertype, color, line_color=None,
     if line_color is None:
         line_color = color
 
-    _marker_types = OrderedDict(
-        [
-            ("circle", Circle),
-            ("square", Square),
-            ("triangle", Triangle),
-            ("diamond", Diamond),
-            ("inverted_triangle", InvertedTriangle),
-            ("asterisk", Asterisk),
-            ("cross", Cross),
-            ("x", X),
-            ("circle_cross", CircleCross),
-            ("circle_x", CircleX),
-            ("square_x", SquareX),
-            ("square_cross", SquareCross),
-            ("diamond_cross", DiamondCross),
-        ]
-    )
-
-    g = itertools.cycle(_marker_types.keys())
+    g = itertools.cycle(marker_types.keys())
     if isinstance(markertype, int):
         for i in range(markertype):
             shape = next(g)
     else:
         shape = markertype
-    glyph = _marker_types[shape](
+    glyph = marker_types[shape](
         x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
         line_color=line_color, line_alpha=line_alpha
     )
 
     return GlyphRenderer(data_source=source, glyph=glyph)
+
 
 def chunk(l, n):
     """Yield successive n-sized chunks from l.
@@ -117,6 +124,7 @@ def chunk(l, n):
     """
     for i in range(0, len(l), n):
         yield l[i:i + n]
+
 
 def polar_to_cartesian(r, start_angles, end_angles):
     """Translate polar coordinates to cartesian.
@@ -224,3 +232,79 @@ def show(obj, title='test', filename=False, server=False, notebook=False, **kws)
         from bokeh.embed import notebook_div
         for plot in obj._plots:
             publish_display_data({'text/html': notebook_div(plot)})
+
+
+def ordered_set(iterable):
+    """Creates an ordered list from strings, tuples or other hashable items."""
+
+    mmap = {}
+    ord_set = []
+
+    for item in iterable:
+        # Save unique items in input order
+        if item not in mmap:
+            mmap[item] = 1
+            ord_set.append(item)
+    return ord_set
+
+
+def collect_attribute_columns(**specs):
+    """Collect list of unique and ordered columns across attribute specifications."""
+    selected_specs = {spec_name: spec for spec_name, spec in iteritems(specs) if spec.columns}
+    return ordered_set(list(itertools.chain.from_iterable([spec.columns for spec in selected_specs.values()])))
+
+
+def df_from_json(data, **kwargs):
+    """Attempt to produce row oriented data from hierarchical json/dict-like data."""
+
+    if isinstance(data, str):
+        with open(data) as data_file:
+            data = json.load(data_file)
+
+    if isinstance(data, list):
+        return json_normalize(data, kwargs)
+    elif isinstance(data, dict):
+        for k, v in iteritems(data):
+            if isinstance(v, list):
+                return json_normalize(v)
+
+
+def nested_dict_iter(nested):
+    for key, value in iteritems(nested):
+        if isinstance(value, dict):
+            for inner_key, inner_value in nested_dict_iter(value):
+                yield inner_key, inner_value
+        elif isinstance(value, list):
+            for item in value:
+                for k, v in nested_dict_iter(item):
+                    yield k, v
+        else:
+            yield key, value
+
+
+def get_index(data):
+    return pd.Series(data.index.values)
+
+
+def get_unity(data, value=1):
+    data_copy = data.copy()
+    data_copy['_charts_ones'] = value
+    return data_copy['_charts_ones']
+
+
+special_columns = {'index': get_index,
+                   'unity': get_unity}
+
+
+def title_from_columns(cols):
+    """Creates standard string representation of columns.
+
+    If cols is None, then None is returned.
+    """
+    if cols is not None:
+        cols_title = copy(cols)
+        if not isinstance(cols_title, list):
+            cols_title = [cols_title]
+        return str(', '.join(cols_title).title()).title()
+    else:
+        return None

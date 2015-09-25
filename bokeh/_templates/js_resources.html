@@ -1,0 +1,9 @@
+{%- for file in js_files %}
+<script type="text/javascript" src="{{ file }}"></script>
+{%- endfor %}
+
+{%- for js in js_raw %}
+<script type="text/javascript">
+    {{ js|indent(8) }}
+</script>
+{%- endfor %}

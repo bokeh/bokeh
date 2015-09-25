@@ -16,3 +16,36 @@ class value_to_be_present_in_datahash(object):
         else:
             print(data_hash)
             return False
+
+
+class element_to_start_resizing(object):
+    """
+    An expectation for checking if an element has started resizing
+    """
+    def __init__(self, element):
+        self.element = element
+        self.previous_width = self.element.size['width']
+
+    def __call__(self, driver):
+        current_width = self.element.size['width']
+        if self.previous_width != current_width:
+            return True
+        else:
+            self.previous_width = current_width
+            return False
+
+class element_to_finish_resizing(object):
+    """
+    An expectation for checking if an element has finished resizing
+    """
+    def __init__(self, element):
+        self.element = element
+        self.previous_width = self.element.size['width']
+
+    def __call__(self, driver):
+        current_width = self.element.size['width']
+        if self.previous_width == current_width:
+            return True
+        else:
+            self.previous_width = current_width
+            return False

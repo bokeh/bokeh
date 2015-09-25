@@ -1,36 +1,49 @@
-from collections import OrderedDict
-
-import pandas as pd
 
 from bokeh.charts import BoxPlot, output_file, show
-from bokeh.sampledata.olympics2014 import data
+from bokeh.sampledata.autompg import autompg as df
+from bokeh.charts import defaults, vplot, hplot
 
-# create a DataFrame with the sample data
-df = pd.io.json.json_normalize(data['data'])
+defaults.width = 450
+defaults.height = 350
 
-# filter by countries with at least one medal and sort
-df = df[df['medals.total'] > 0]
-df = df.sort("medals.total", ascending=False)
+box_plot = BoxPlot(df, label='cyl', values='mpg',
+                   title="label='cyl', values='mpg'")
 
-# get the countries and group the data by medal type
-countries = df.abbr.values.tolist()
-gold = df['medals.gold'].astype(float).values
-silver = df['medals.silver'].astype(float).values
-bronze = df['medals.bronze'].astype(float).values
+box_plot2 = BoxPlot(df, label=['cyl', 'origin'], values='mpg',
+                    title="label=['cyl', 'origin'], values='mpg'")
 
-# build a dict containing the grouped data
-medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+box_plot3 = BoxPlot(df, label='cyl', values='mpg', color='cyl',
+                    title="label='cyl' values='mpg'")
 
-# any of the following commented are valid BoxPlot inputs
-#medals = pd.DataFrame(medals)
-#medals = list(medals.values())
-#medals = tuple(medals.values())
-#medals = np.array(list(medals.values()))
+# use constant fill color
+box_plot4 = BoxPlot(df, label='cyl', values='displ',
+                    title="label='cyl' color='blue'",
+                    color='blue')
 
+# color by one dimension and label by two dimensions
+box_plot5 = BoxPlot(df, label=['cyl', 'origin'], values='mpg',
+                    title="label=['cyl', 'origin'] color='cyl'",
+                    color='cyl')
+
+# specify custom marker for outliers
+box_plot6 = BoxPlot(df, label='cyl', values='mpg', marker='cross',
+                    title="label='cyl', values='mpg', marker='cross'")
+
+# color whisker by cylinder
+box_plot7 = BoxPlot(df, label='cyl', values='mpg', whisker_color='cyl',
+                    title="label='cyl', values='mpg', whisker_color='cyl'")
+
+# remove outliers
+box_plot8 = BoxPlot(df, label='cyl', values='mpg', outliers=False,
+                    title="label='cyl', values='mpg', outliers=False")
+
+# collect and display
 output_file("boxplot.html")
 
-boxplot = BoxPlot(
-    medals, marker='circle', outliers=True, title="boxplot test",
-    xlabel="medal type", ylabel="medal count", width=800, height=600)
-
-show(boxplot)
+show(
+    vplot(
+        hplot(box_plot, box_plot2, box_plot3),
+        hplot(box_plot4, box_plot5, box_plot6),
+        hplot(box_plot7, box_plot8)
+    )
+)
