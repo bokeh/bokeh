@@ -83,6 +83,7 @@ class State(object):
     """
 
     def __init__(self):
+        self._connection = None # reset checks whether it's None
         self.reset()
 
     @property
@@ -98,16 +99,16 @@ class State(object):
         return self._notebook
 
     @property
-    def client(self):
-        return self._client
+    def connection(self):
+        return self._connection
 
     def _reset_with_doc(self, doc):
         self._document = doc
         self._file = None
         self._notebook = False
-        if self._client is not None:
-            self._client.close()
-        self._client = None
+        if self._connection is not None:
+            self._connection.close()
+        self._connection = None
         self._session = None
 
     def reset(self):
@@ -221,8 +222,8 @@ class State(object):
         if url == "default":
             url = DEFAULT_SERVER_URL
 
-        self._client = ClientConnection(url=url)
-        self._session = ClientSession(self._client, sessionid)
+        self._connection = ClientConnection(url=url)
+        self._session = ClientSession(self._connection, sessionid)
         self._document = self._session.document
 
         if clear:
