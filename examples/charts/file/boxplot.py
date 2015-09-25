@@ -6,21 +6,40 @@ from bokeh.charts import defaults, vplot, hplot
 defaults.width = 450
 defaults.height = 350
 
-box_plot = BoxPlot(df, label='cyl', values='mpg', title="label='cyl', values='mpg'")
+box_plot = BoxPlot(df, label='cyl', values='mpg',
+                   title="label='cyl', values='mpg'")
 
-box_plot2 = BoxPlot(df, label=['cyl', 'origin'], values='mpg', title="label=['cyl', 'origin'], values='mpg'")
+box_plot2 = BoxPlot(df, label=['cyl', 'origin'], values='mpg',
+                    title="label=['cyl', 'origin'], values='mpg'")
 
-box_plot3 = BoxPlot(df, label='cyl', values='mpg', agg='mean',
-                title="label='cyl' values='mpg' agg='mean'")
+box_plot3 = BoxPlot(df, label='cyl', values='mpg', color='cyl',
+                    title="label='cyl' values='mpg'")
 
-box_plot4 = BoxPlot(df, label='cyl', title="label='cyl' color='DimGray'", color='dimgray')
+# use constant fill color
+box_plot4 = BoxPlot(df, label='cyl', values='displ',
+                    title="label='cyl' color='blue'",
+                    color='blue')
+
+# color by one dimension and label by two dimensions
+box_plot5 = BoxPlot(df, label=['cyl', 'origin'], values='mpg',
+                    title="label=['cyl', 'origin'] color='cyl'",
+                    color='cyl')
+
+# specify custom marker for outliers
+box_plot6 = BoxPlot(df, label='cyl', values='mpg', marker='cross',
+                    title="label='cyl', values='mpg', marker='cross'")
+
+# color whisker by cylinder
+box_plot7 = BoxPlot(df, label='cyl', values='mpg', whisker_color='cyl',
+                    title="label='cyl', values='mpg', whisker_color='cyl'")
 
 # collect and display
 output_file("boxplot.html")
 
 show(
     vplot(
-        hplot(box_plot, box_plot2),
-        hplot(box_plot3, box_plot4),
+        hplot(box_plot, box_plot2, box_plot3),
+        hplot(box_plot4, box_plot5, box_plot6),
+        hplot(box_plot7)
     )
 )
