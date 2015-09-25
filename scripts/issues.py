@@ -289,7 +289,7 @@ def generate_changelog(issues, after, heading, rtag=False):
         func(heading + '\n' + '-' * 20 + endofline)
         for section, issue_group in groupby(relevent, key=ISSUES_BY_SECTION):
             func('  * {}:'.format(section) + endofline)
-            for issue in issue_group:
+            for issue in reversed(list(issue_group)):
                 func('    - {}'.format(issue_line(issue)) + endofline)
         func(endofline + append)
 
