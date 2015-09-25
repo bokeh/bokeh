@@ -59,8 +59,15 @@ class ClientConnection(object):
         self._loop = io_loop
         self._until_predicate = None
 
+    @property
+    def connected(self):
+        """True if we've connected the websocket and exchanged initial handshake messages."""
+        return isinstance(self._state, self.CONNECTED_AFTER_ACK)
+
     def connect(self):
         def connected_or_closed():
+            # we should be looking at the same state here as the 'connected' property above, so connected
+            # means both connected and that we did our initial message exchange
             return isinstance(self._state, self.CONNECTED_AFTER_ACK) or isinstance(self._state, self.DISCONNECTED)
         self._loop_until(connected_or_closed)
 

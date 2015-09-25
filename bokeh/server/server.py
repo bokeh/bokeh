@@ -34,7 +34,7 @@ class Server(object):
         self._http.start(1)
 
     def start(self):
-        ''' Start the Bokeh Server and listen for connections
+        ''' Start the Bokeh Server's IO loop.
 
         Returns:
             None
@@ -46,7 +46,7 @@ class Server(object):
         self._tornado.start()
 
     def stop(self):
-        ''' Stop the Bokeh Server.
+        ''' Stop the Bokeh Server's IO loop.
 
         Returns:
             None
@@ -54,3 +54,10 @@ class Server(object):
         '''
         self._tornado.stop()
 
+    def unlisten(self):
+        '''Stop listening on ports (Server will no longer be usable after calling this)
+
+        Returns:
+            None
+        '''
+        self._http.stop()

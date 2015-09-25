@@ -77,7 +77,7 @@ class BokehTornado(TornadoApplication):
             None
 
         '''
-        self._loop.add_callback(self._loop.stop)
+        self._loop.stop()
 
     @property
     def executor(self):
