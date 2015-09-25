@@ -175,3 +175,65 @@ class TestDocument(unittest.TestCase):
 
         some_root = next(iter(copy.roots))
         assert some_root.child.foo == 44
+
+    def test_patch_integer_property(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        root1 = SomeModel(foo=42)
+        root2 = SomeModel(foo=43)
+        child1 = SomeModel(foo=44)
+        root1.child = child1
+        root2.child = child1
+        d.add_root(root1)
+        d.add_root(root2)
+        assert len(d.roots) == 2
+
+        patch1 = d.create_json_patch_string(root1, 'foo', 57)
+        d.apply_json_patch_string(patch1)
+
+        assert root1.foo == 57
+
+        patch2 = d.create_json_patch_string(child1, 'foo', 67)
+        d.apply_json_patch_string(patch2)
+
+        assert child1.foo == 67
+
+    def test_patch_reference_property(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        root1 = SomeModel(foo=42)
+        root2 = SomeModel(foo=43)
+        child1 = SomeModel(foo=44)
+        child2 = SomeModel(foo=45)
+        child3 = SomeModel(foo=46, child=child2)
+        root1.child = child1
+        root2.child = child1
+        d.add_root(root1)
+        d.add_root(root2)
+        assert len(d.roots) == 2
+
+        assert child1._id in d._all_models
+        assert child2._id not in d._all_models
+        assert child3._id not in d._all_models
+
+        patch1 = d.create_json_patch_string(root1, 'child', child3)
+        d.apply_json_patch_string(patch1)
+
+        assert root1.child._id == child3._id
+        assert root1.child.child._id == child2._id
+        assert child1._id in d._all_models
+        assert child2._id in d._all_models
+        assert child3._id in d._all_models
+
+        # put it back how it was before
+        patch2 = d.create_json_patch_string(root1, 'child', child1)
+        d.apply_json_patch_string(patch2)
+
+        assert root1.child._id == child1._id
+        assert root1.child.child is None
+
+        assert child1._id in d._all_models
+        assert child2._id not in d._all_models
+        assert child3._id not in d._all_models

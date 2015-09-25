@@ -12,6 +12,7 @@ from collections import defaultdict
 from bokeh.util.callback_manager import _check_callback
 from bokeh.protocol import serialize_json
 from .plot_object import PlotObject
+from json import loads
 
 class Document(object):
 
@@ -94,20 +95,11 @@ class Document(object):
             del self._all_model_counts[model._id]
         return attach_count
 
-    # TODO (havocp) there are other overlapping old serialization
-    # functions in the codebase, we don't need all of these probably.
-    def to_json_string(self):
-        ''' Convert the document to JSON. '''
-
-        root_ids = []
-        for r in self._roots:
-            root_ids.append(r._id)
-
-        root_references = set()
-        for r in self._roots:
-            root_references = root_references.union(r.references())
+    @classmethod
+    def _references_json(cls, references):
+        '''Given a list of all models in a graph, return JSON representing them and their properties.'''
         references_json = []
-        for r in root_references:
+        for r in references:
             ref = r.ref
             ref['attributes'] = r.vm_serialize(changed_only=False)
             # 'id' is in 'ref' already
@@ -117,23 +109,11 @@ class Document(object):
             del ref['attributes']['id']
             references_json.append(ref)
 
-        json = {
-            'roots' : {
-                'root_ids' : root_ids,
-                'references' : references_json
-            }
-        }
-
-        return serialize_json(json)
+        return references_json
 
     @classmethod
-    def from_json_string(cls, json):
-        ''' Load a document from JSON. '''
-        from json import loads
-        json_parsed = loads(json)
-        roots_json = json_parsed['roots']
-        root_ids = roots_json['root_ids']
-        references_json = roots_json['references']
+    def _instantiate_references_json(cls, references_json):
+        '''Given a JSON representation of all the models in a graph, return a dict of new model objects.'''
 
         # Create all instances, but without setting their props
         references = {}
@@ -146,6 +126,12 @@ class Document(object):
             if instance is None:
                 raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
             references[instance._id] = instance
+
+        return references
+
+    @classmethod
+    def _initialize_references_json(cls, references_json, references):
+        '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
 
         # Now set all props
         for obj in references_json:
@@ -164,8 +150,91 @@ class Document(object):
             # set all properties on the instance
             instance.update(**obj_attrs)
 
+    # TODO (havocp) there are other overlapping old serialization
+    # functions in the codebase, we don't need all of these probably.
+    def to_json_string(self):
+        ''' Convert the document to JSON. '''
+
+        root_ids = []
+        for r in self._roots:
+            root_ids.append(r._id)
+
+        root_references = self._all_models.values()
+
+        json = {
+            'roots' : {
+                'root_ids' : root_ids,
+                'references' : self._references_json(root_references)
+            }
+        }
+
+        return serialize_json(json)
+
+    @classmethod
+    def from_json_string(cls, json):
+        ''' Load a document from JSON. '''
+        json_parsed = loads(json)
+        roots_json = json_parsed['roots']
+        root_ids = roots_json['root_ids']
+        references_json = roots_json['references']
+
+        references = cls._instantiate_references_json(references_json)
+        cls._initialize_references_json(references_json, references)
+
         doc = Document()
         for r in root_ids:
             doc.add_root(references[r])
 
         return doc
+
+    def create_json_patch_string(self, obj, attr, value):
+        ''' Create a JSON object describing a patch to be applied with apply_json_patch_string() '''
+        references = set()
+        if isinstance(value, PlotObject):
+            # the new value is an object that may have
+            # not-yet-in-the-remote-doc references, and may also
+            # itself not be in the remote doc yet.  the remote may
+            # already have some of the references, but
+            # unfortunately we don't have an easy way to know
+            # unless we were to check BEFORE the attr gets changed
+            # (we need the old _all_models before setting the
+            # property). So we have to send all the references the
+            # remote could need, even though it could be inefficient.
+            # If it turns out we need to fix this we could probably
+            # do it by adding some complexity.
+            references = value.references()
+            # we know we don't want a whole new copy of the obj we're patching
+            references.discard(obj)
+
+        json = obj.ref
+        json['attr'] = attr
+        json['value'] = value
+        json['references'] = self._references_json(references)
+
+        return serialize_json(json)
+
+    def apply_json_patch_string(self, patch):
+        ''' Apply a JSON patch string created by create_json_patch_string() '''
+        json_parsed = loads(patch)
+        patched_id = json_parsed['id']
+        if patched_id not in self._all_models:
+            raise ProtocolError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
+        patched_obj = self._all_models[patched_id]
+
+        attr = json_parsed['attr']
+        value = json_parsed['value']
+        references_json = json_parsed['references']
+        references = self._instantiate_references_json(references_json)
+
+        # Use our existing model instances whenever we have them, and add the obj we're patching
+        references[patched_obj._id] = patched_obj
+        for obj in references.values():
+            if obj._id in self._all_models:
+                references[obj._id] = self._all_models[obj._id]
+
+        self._initialize_references_json(references_json, references)
+
+        if attr in patched_obj.properties_with_refs():
+            value = references[value['id']]
+
+        patched_obj.update(** { attr : value })
