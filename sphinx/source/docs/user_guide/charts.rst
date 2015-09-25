@@ -98,7 +98,7 @@ Box Plots
 ---------
 
 The ``BoxPlot`` can be used to summarize the statistical properties
-of different groups of data. The `label` specifies a column in the data
+of different groups of data. The ``label`` specifies a column in the data
 to group by, and a box plot is generated for each group:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot.py
@@ -108,6 +108,66 @@ The label can also accept a list of column names, in which case the data
 is grouped by all the groups in the list:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_nested_label.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot_color:
+
+Box Color
+~~~~~~~~~
+
+The color of the box in a ``BoxPlot`` can be set to a fixed color using the
+``color`` parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_box_color.py
+    :source-position: above
+
+As with ``Bar`` charts, the color can also be given a column name, in which
+case the boxes are shaded automatically according to the group:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_box_color_groups.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot_whisker_color:
+
+Whisker Color
+~~~~~~~~~~~~~
+
+The color of the whiskers can be similary controlled using the ``whisker_color``
+paramter. For a single color:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_whisker_color.py
+    :source-position: above
+
+Or shaded automatically according to a column grouping:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_whisker_color_groups.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot_outliers:
+
+Outliers
+~~~~~~~~
+
+By default, ``BoxPlot`` charts show outliers above and below the whiskers.
+However, the display of outliers can be turned on or off with the ``outliers``
+parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_outliers.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot_markers:
+
+Markers
+~~~~~~~
+
+The marker used for displaying outliers is controlled by the ``marker``
+parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_marker.py
     :source-position: above
 
 
