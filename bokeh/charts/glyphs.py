@@ -339,7 +339,7 @@ class BoxGlyph(AggregateGlyph):
 
     whisker_glyph = Instance(GlyphRenderer)
 
-    outliers = Instance(PointGlyph)
+    outliers = Either(Bool, Instance(PointGlyph))
 
     marker = String(default='circle')
     whisker_width = Float(default=0.3)
@@ -353,11 +353,12 @@ class BoxGlyph(AggregateGlyph):
 
     bar_color = String(default='DimGrey')
 
-    def __init__(self, label, values, outliers=False, **kwargs):
+    def __init__(self, label, values, outliers=True, **kwargs):
         width = kwargs.pop('width', None)
 
         bar_color = kwargs.pop('color', None) or self.bar_color
 
+        kwargs['outliers'] = kwargs.pop('outliers', None) or outliers
         kwargs['label'] = label
         kwargs['values'] = values
         kwargs['q2_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.25,
@@ -375,7 +376,7 @@ class BoxGlyph(AggregateGlyph):
                                            line_width=self.whisker_line_width,
                                            line_color=self.whisker_color))
 
-        if len(outlier_values) > 0:
+        if len(outlier_values) > 0 and self.outliers:
             self.outliers = PointGlyph(y=outlier_values, label=self.get_dodge_label(),
                                        line_color=self.outlier_line_color,
                                        fill_color=self.outlier_fill_color,
@@ -418,7 +419,7 @@ class BoxGlyph(AggregateGlyph):
     @property
     def composite_glyphs(self):
         comp_glyphs = [self.q2_glyph, self.q3_glyph]
-        if self.outliers is not None:
+        if isinstance(self.outliers, PointGlyph):
             comp_glyphs.append(self.outliers)
         return comp_glyphs
 

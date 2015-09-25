@@ -33,6 +33,10 @@ box_plot6 = BoxPlot(df, label='cyl', values='mpg', marker='cross',
 box_plot7 = BoxPlot(df, label='cyl', values='mpg', whisker_color='cyl',
                     title="label='cyl', values='mpg', whisker_color='cyl'")
 
+# remove outliers
+box_plot8 = BoxPlot(df, label='cyl', values='mpg', outliers=False,
+                    title="label='cyl', values='mpg', outliers=False")
+
 # collect and display
 output_file("boxplot.html")
 
@@ -40,6 +44,6 @@ show(
     vplot(
         hplot(box_plot, box_plot2, box_plot3),
         hplot(box_plot4, box_plot5, box_plot6),
-        hplot(box_plot7)
+        hplot(box_plot7, box_plot8)
     )
 )

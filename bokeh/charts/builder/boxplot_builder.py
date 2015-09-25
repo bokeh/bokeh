@@ -78,8 +78,7 @@ class BoxPlotBuilder(BarBuilder):
     The marker type to use (e.g., ``circle``) if outliers=True.
     """)
 
-    # ToDo: implement outliers toggle
-    outliers = Bool(help="""
+    outliers = Bool(default=True, help="""
     Whether to display markers for any outliers.
     """)
 
