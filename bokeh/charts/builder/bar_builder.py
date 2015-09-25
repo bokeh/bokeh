@@ -162,11 +162,8 @@ class BarBuilder(Builder):
         if self.xlabel is None:
             if self.attributes['label'].columns is not None:
                 self.xlabel = str(', '.join(self.attributes['label'].columns).title()).title()
-            elif self.values.selection is not None:
-                selected_value_cols = self.values.selection
-                if not isinstance(selected_value_cols, list):
-                    selected_value_cols = [selected_value_cols]
-                self.xlabel = str(', '.join(selected_value_cols).title()).title()
+            else:
+                self.xlabel = self.values.selection
 
         if self.ylabel is None:
             if not self.values.computed:

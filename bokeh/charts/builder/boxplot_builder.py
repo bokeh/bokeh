@@ -24,6 +24,7 @@ from ...models import Range1d
 from ...properties import Bool, String
 from .bar_builder import BarBuilder
 from ..glyphs import BoxGlyph
+from ..utils import title_from_columns
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -71,8 +72,16 @@ class BoxPlotBuilder(BarBuilder):
     The marker type to use (e.g., ``circle``) if outliers=True.
     """)
 
+    # ToDo: implement outliers toggle
     outliers = Bool(help="""
     Whether to display markers for any outliers.
     """)
 
     glyph = BoxGlyph
+
+    def _setup(self):
+        if self.ylabel is None:
+            self.ylabel = self.values.selected_title
+
+        if self.xlabel is None:
+            self.xlabel = title_from_columns(self.attributes['label'].columns)
