@@ -7,11 +7,19 @@ Using High-level Charts
     :local:
     :depth: 2
 
+The high level ``bokeh.charts`` interface provides a fast, convenient way
+to create common statistical charts with a minimum of code. Wherever possible,
+the interface is geared to be extremely simple to use in conjunction with
+Pandas, by accepting a ``DataFrame`` and names of columns directly to specify
+data.
 
-.. _userguide_charts_defaults:
-
-Chart Defaults
---------------
+.. warning::
+    This guide describes a new charts API introduced in release `0.10`.
+    Some older chart types have not yet been converted. However this new
+    API is such an important and dramatic improvement that it was decided
+    not to wait any longer to release it. All of the older charts are still
+    available in a ``bokeh._legacy_charts`` modules that will be removed
+    later, once all chart types are converted to the new API.
 
 .. _userguide_charts_bar:
 
@@ -98,7 +106,7 @@ Box Plots
 ---------
 
 The ``BoxPlot`` can be used to summarize the statistical properties
-of different groups of data. The `label` specifies a column in the data
+of different groups of data. The ``label`` specifies a column in the data
 to group by, and a box plot is generated for each group:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot.py
@@ -108,6 +116,66 @@ The label can also accept a list of column names, in which case the data
 is grouped by all the groups in the list:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_nested_label.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot_color:
+
+Box Color
+~~~~~~~~~
+
+The color of the box in a ``BoxPlot`` can be set to a fixed color using the
+``color`` parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_box_color.py
+    :source-position: above
+
+As with ``Bar`` charts, the color can also be given a column name, in which
+case the boxes are shaded automatically according to the group:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_box_color_groups.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot_whisker_color:
+
+Whisker Color
+~~~~~~~~~~~~~
+
+The color of the whiskers can be similary controlled using the ``whisker_color``
+paramter. For a single color:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_whisker_color.py
+    :source-position: above
+
+Or shaded automatically according to a column grouping:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_whisker_color_groups.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot_outliers:
+
+Outliers
+~~~~~~~~
+
+By default, ``BoxPlot`` charts show outliers above and below the whiskers.
+However, the display of outliers can be turned on or off with the ``outliers``
+parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_outliers.py
+    :source-position: above
+
+
+.. _userguide_charts_boxplot_markers:
+
+Markers
+~~~~~~~
+
+The marker used for displaying outliers is controlled by the ``marker``
+parameter:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_marker.py
     :source-position: above
 
 
@@ -245,4 +313,27 @@ Often it is most useful to group both the color and marker shape together:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color_marker.py
     :source-position: above
+
+
+.. _userguide_charts_defaults:
+
+Chart Defaults
+--------------
+
+The ``bokeh.charts`` modules contains a ``defaults`` attribute. Setting
+attributes on this object is an easy way to control default properties
+on all charts created, in one place. For instance:
+
+.. code-block:: python
+
+    from bokeh.charts import defaults
+
+    defaults.width = 450
+    defaults.height = 350
+
+will set the default width and height for any chart. The full list of
+attributes that can be set is below:
+
+.. bokeh-model:: bokeh.charts._chart_options.ChartOptions
+
 
