@@ -196,6 +196,11 @@ class BarBuilder(Builder):
     def get_extra_args(self):
         return {}
 
+    def collect_glyph_kwargs(self, group):
+        attrs = self.class_properties(withbases=False)
+        return {attr: group[attr] for attr in attrs}
+
+
     def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
@@ -204,6 +209,9 @@ class BarBuilder(Builder):
         kwargs = self.get_extra_args()
 
         for group in self._data.groupby(**self.attributes):
+            # glyph_kwargs = self.collect_glyph_kwargs(group)
+            # group_kwargs = kwargs.copy()
+            # group_kwargs.update(glyph_kwargs)
 
             bg = self.glyph(label=self.get_label(group['label']),
                             values=group.data[self.values.selection].values,

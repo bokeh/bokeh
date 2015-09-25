@@ -350,13 +350,19 @@ class BoxGlyph(AggregateGlyph):
     outlier_line_color = String(default='red')
     outlier_size = Float(default=5)
 
+    bar_color = String(default='DimGrey')
+
     def __init__(self, label, values, outliers=False, **kwargs):
         width = kwargs.pop('width', None)
 
+        bar_color = kwargs.pop('color', None) or self.bar_color
+
         kwargs['label'] = label
         kwargs['values'] = values
-        kwargs['q2_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.25, interval2=0.5, width=width)
-        kwargs['q3_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.5, interval2=0.75, width=width)
+        kwargs['q2_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.25,
+                                           interval2=0.5, width=width, color=bar_color)
+        kwargs['q3_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.5,
+                                           interval2=0.75, width=width, color=bar_color)
         super(BoxGlyph, self).__init__(**kwargs)
 
     def build_renderers(self):
@@ -365,12 +371,14 @@ class BoxGlyph(AggregateGlyph):
         outlier_values = self.values[((self.values < self.w0) | (self.values > self.w1))]
 
         self.whisker_glyph = GlyphRenderer(glyph=Segment(x0='x0s', y0='y0s', x1='x1s', y1='y1s',
-                                           line_width=self.whisker_line_width, line_color=self.whisker_color))
+                                           line_width=self.whisker_line_width,
+                                           line_color=self.whisker_color))
 
         if len(outlier_values) > 0:
             self.outliers = PointGlyph(y=outlier_values, label=self.get_dodge_label(),
-                                         line_color=self.outlier_line_color, fill_color=self.outlier_fill_color,
-                                         size=self.outlier_size)
+                                       line_color=self.outlier_line_color,
+                                       fill_color=self.outlier_fill_color,
+                                       size=self.outlier_size)
 
         for comp_glyph in self.composite_glyphs:
             for renderer in comp_glyph.renderers:

@@ -31,7 +31,7 @@ from ..utils import title_from_columns
 #-----------------------------------------------------------------------------
 
 
-def BoxPlot(data, label=None, values=None, color=None, group=None,
+def BoxPlot(data, label=None, values=None, color='DimGrey', group=None,
             xscale="categorical", yscale="linear", xgrid=False,
             ygrid=True, continuous_range=None, **kw):
     """Generate a box plot from table-like and column-like inputs."""
