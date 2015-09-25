@@ -12,7 +12,7 @@ xyvalues = OrderedDict(
 output_file(filename="area.html")
 
 area = Area(
-    xyvalues, title="Area Chart",
+    xyvalues, title="Responsive Area Chart",
     xlabel='time', ylabel='memory',
     stacked=True, legend="top_left",
     responsive=True
