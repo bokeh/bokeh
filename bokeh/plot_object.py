@@ -72,9 +72,12 @@ class PlotObject(HasProps, CallbackManager):
     tags = List(Any)
 
     def __init__(self, **kwargs):
-        super(PlotObject, self).__init__(**kwargs)
         self._id = kwargs.pop("id", make_id())
         self._document = None
+        # kwargs may assign to properties, so we need
+        # to chain up here after we already initialize
+        # some of our fields.
+        super(PlotObject, self).__init__(**kwargs)
 
     def attach_document(self, doc):
         # we want an ERROR if you attach to a different doc,
@@ -250,10 +253,11 @@ class PlotObject(HasProps, CallbackManager):
         def collect_one(obj):
             if obj._id not in ids:
                 ids.add(obj._id)
-                obj._visit_immediate_references(collect_one)
+                obj._visit_immediate_references(obj, collect_one)
                 objs.append(obj)
 
-        collect_one(input_objs)
+        for obj in input_objs:
+            collect_one(obj)
         return objs
 
     def references(self):

@@ -89,6 +89,8 @@ class WSHandler(WebSocketHandler):
             log.debug("Received message: %r", message)
             work = yield self._handle(message)
 
+            log.debug("work from message %r was %r", message, work)
+
             if work:
                 yield self._schedule(work)
 

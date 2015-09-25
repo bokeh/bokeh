@@ -128,3 +128,50 @@ class TestDocument(unittest.TestCase):
         assert result['old'] == 1
         assert result['new'] == 42
 
+    def test_clear(self):
+        d = document.Document()
+        assert not d.roots
+        d.add_root(AnotherModel())
+        d.add_root(AnotherModel())
+        assert len(d.roots) == 2
+        d.clear()
+        assert not d.roots
+        assert not d._all_models
+
+    def test_serialization_one_model(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        root1 = SomeModel()
+        d.add_root(root1)
+
+        json = d.to_json_string()
+        copy = document.Document.from_json_string(json)
+
+        assert len(copy.roots) == 1
+
+    def test_serialization_more_models(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        root1 = SomeModel(foo=42)
+        root2 = SomeModel(foo=43)
+        child1 = SomeModel(foo=44)
+        root1.child = child1
+        root2.child = child1
+        d.add_root(root1)
+        d.add_root(root2)
+        assert len(d.roots) == 2
+
+        json = d.to_json_string()
+        copy = document.Document.from_json_string(json)
+
+        assert len(copy.roots) == 2
+        foos = []
+        for r in copy.roots:
+            foos.append(r.foo)
+        foos.sort()
+        assert [42,43] == foos
+
+        some_root = next(iter(copy.roots))
+        assert some_root.child.foo == 44

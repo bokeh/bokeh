@@ -24,6 +24,7 @@ class ServerHandler(object):
         self._handlers['SERVER-INFO-REQ'] = self._server_info_req
 
     def _session_handler(self, handler):
+        @gen.coroutine
         def handler_without_session(message, connection):
             if 'sessid' not in message.header:
                 raise ProtocolError("%s missing sessid header" % message)
@@ -37,7 +38,8 @@ class ServerHandler(object):
             session = connection.get_session(sessionid)
             # keep this session alive and get notifications from it
             connection.subscribe_session(session)
-            return handler(message, connection, session)
+            work = yield handler(message, connection, session)
+            raise gen.Return(work)
         return handler_without_session
 
     @gen.coroutine
@@ -50,10 +52,10 @@ class ServerHandler(object):
         if handler is None:
             raise ProtocolError("%s not expected on server" % message)
 
-        work = handler(message, connection)
-
+        work = yield handler(message, connection)
         raise gen.Return(work)
 
+    @gen.coroutine
     def _server_info_req(self, message, connection):
-        return connection.protocol.create('SERVER-INFO-REPLY')
+        raise gen.Return(connection.protocol.create('SERVER-INFO-REPLY'))
 

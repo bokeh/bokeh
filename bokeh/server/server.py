@@ -61,3 +61,9 @@ class Server(object):
             None
         '''
         self._http.stop()
+
+    def get_session(self, sessionid):
+        '''Gets a session by name (session must already exist)'''
+
+        return self._tornado.get_session(sessionid)
+

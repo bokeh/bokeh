@@ -43,33 +43,22 @@ class ServerSession(object):
     def connection_count(self):
         return len(self._subscribed_connections)
 
-    # TODO just copied from document, not used
+    @classmethod
     @gen.coroutine
-    def workon(self, executor, task, *args, **kw):
-        with (yield self._lock.acquire()):
-            res = yield executor.submit(task, *args, **kw)
-        raise gen.Return(res)
-
-    @classmethod
     def pull(cls, message, connection, session):
-        # TODO hold the lock
-        try:
-            log.debug("Pulling Document for session %r", session.id)
-            # TODO implement sending the document
-            return connection.ok(message)
-        except Exception as e:
-            text = "Error pulling Document"
-            log.error(text)
-            return connection.error(message, text)
+        # TODO implement me
+        raise gen.Return(connection.error(message, "pull not implemented"))
 
     @classmethod
+    @gen.coroutine
     def push(cls, message, connection, session):
-        # TODO hold the lock
-        try:
-            log.debug("Pushing Document")
-            # TODO implement replacing everything in the session doc
-            return connection.ok(message)
-        except Exception as e:
-            text = "Error pushing Document"
-            log.error(text)
-            return connection.error(message, text)
+        with (yield session._lock.acquire()):
+            try:
+                log.debug("pushing message to session document")
+                message.push_to_document(session.document)
+            except Exception as e:
+                text = "Error pushing document"
+                log.error("error pushing document %r", e)
+                raise gen.Return(connection.error(message, text))
+
+            raise gen.Return(connection.ok(message))

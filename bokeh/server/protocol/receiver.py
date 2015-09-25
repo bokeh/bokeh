@@ -72,7 +72,7 @@ class Receiver(object):
         self._assume_text(fragment)
         self._fragments.append(fragment)
 
-        hmac, header_json, metadata_json, content_json = self._fragments
+        hmac, header_json, metadata_json, content_json = self._fragments[:4]
 
         self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
 

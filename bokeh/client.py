@@ -45,6 +45,26 @@ class ClientConnection(object):
         def run(self, connection):
             raise gen.Return(None)
 
+    class WAITING_FOR_REPLY(object):
+        def __init__(self, reqid):
+            self._reqid = reqid
+            self._reply = None
+
+        @property
+        def reply(self):
+            return self._reply
+
+        @gen.coroutine
+        def run(self, connection):
+            message = yield connection._pop_message()
+            if message is None:
+                yield connection._transition(connection.DISCONNECTED())
+            elif 'reqid' in message.content and message.content['reqid'] == self._reqid:
+                self._reply = message
+                yield connection._transition(connection.CONNECTED_AFTER_ACK())
+            else:
+                yield connection._next()
+
     def __init__(self, io_loop=None, url=DEFAULT_SERVER_URL):
         '''
           Opens a websocket connection to the server.
@@ -58,6 +78,7 @@ class ClientConnection(object):
             io_loop = IOLoop.current()
         self._loop = io_loop
         self._until_predicate = None
+        self._protocol = Protocol("1.0")
 
     @property
     def connected(self):
@@ -74,7 +95,6 @@ class ClientConnection(object):
     def close(self, why="closed"):
         if self._socket is not None:
             self._socket.close(1000, why)
-        self.loop_until_closed()
 
     def loop_until_closed(self):
         if isinstance(self._state, self.NOT_YET_CONNECTED):
@@ -88,6 +108,41 @@ class ClientConnection(object):
         sent = message.send(self._socket)
         log.debug("Sent %r [%d bytes]", message, sent)
 
+    def _send_message_wait_for_reply(self, message):
+        waiter = self.WAITING_FOR_REPLY(message.header['msgid'])
+        self._state = waiter
+        self.send_message(message)
+        def have_reply_or_disconnected():
+            return self._state != waiter or waiter.reply is not None
+        self._loop_until(have_reply_or_disconnected)
+        return waiter.reply
+
+    def push_session(self, doc, sessionid=DEFAULT_SESSION_ID):
+        ''' Create a session by pushing the given document to the server, overwriting any existing server-side doc
+
+        Args:
+            doc : bokeh.document.Document
+                The Document to initialize the session with.
+
+            sessionid : string, optional
+                The name of the session (None to use a random unique name)
+
+        Returns:
+            session :  a ClientSession with the given document and ID
+        '''
+        session = ClientSession(self, doc, sessionid)
+        msg = self._protocol.create('PUSH-DOC', session.id, session.document)
+        reply = self._send_message_wait_for_reply(msg)
+        if reply is None:
+            raise RuntimeError("Connection to server was lost")
+        elif reply.header['msgtype'] == 'ERROR':
+            raise RuntimeError("Failed to push document: " + reply.content['text'])
+        else:
+            return session
+
+    def pull_session(self, sessionid=DEFAULT_SESSION_ID):
+        ''' Create a session by pulling the document from the given session on the server '''
+        raise NotImplementedError("todo")
 
     def _loop_until(self, predicate):
         self._until_predicate = predicate
@@ -164,13 +219,13 @@ class ClientConnection(object):
 
 class ClientSession(object):
 
-    def __init__(self, connection, sessionid):
+    def __init__(self, connection, doc, sessionid=DEFAULT_SESSION_ID):
         '''
           Attaches to a particular named session on the server.
         '''
         self._connection = connection
+        self._document = doc
         self._id = self._ensure_session_id(sessionid)
-        self._document = Document()
 
     @classmethod
     def _ensure_session_id(cls, sessionid=DEFAULT_SESSION_ID):
@@ -185,25 +240,3 @@ class ClientSession(object):
     @property
     def id(self):
         return self._id
-
-def test_main():
-    from bokeh.application import Application
-    from bokeh.server.server import Server
-
-    logging.basicConfig(level=logging.DEBUG)
-
-    application = Application()
-    server = Server(application)
-    # we don't have to start the server because it
-    # uses the same main loop as the client, below
-
-    connection = ClientConnection()
-    connection.connect()
-    msg = Protocol("1.0").create('SERVER-INFO-REQ')
-    connection.send_message(msg)
-    msg = Protocol("1.0").create('PULL-DOC-REQ', 'fakesessionid')
-    connection.send_message(msg)
-    log.info("Sending deliberately bogus message")
-    connection._socket.write_message(b"xx", binary=True)
-
-    connection.loop_until_closed()
