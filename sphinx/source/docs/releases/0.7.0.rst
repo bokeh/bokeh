@@ -16,12 +16,14 @@ An accompanying blog announement with more details can be seen at:
 
 http://continuum.io/blog/bokeh-0.7
 
-Deprecations
-------------
+Migration Guide
+---------------
 
 Additionally, note that the "implicit" plotting interface of plotting.py
 has been deprecated, and will be removed in Bokeh 0.8. In a nutshell,
-code such as::
+code such as:
+
+.. code-block:: python
 
     figure()
     hold()
@@ -29,7 +31,9 @@ code such as::
     circle()
     show()
 
-Should be replaced with the more explicit code::
+Should be replaced with the more explicit code:
+
+.. code-block:: python
 
     p = figure()
     p.line()

@@ -511,6 +511,18 @@ REQUIRES = [
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
 
+# Horrible hack: workaround to allow creation of bdist_whell on pip installation
+# Why, for God's sake, is pip forcing the generation of wheels when installing a package?
+
+try:
+    from wheel.bdist_wheel import bdist_wheel
+except ImportError as e:
+    # pip is not claiming for bdist_wheel when wheel is not installed
+    bdist_wheel = None
+
+if bdist_wheel is not None:
+    _cmdclass["bdist_wheel"] = bdist_wheel
+
 setup(
     name='bokeh',
     version=_version,

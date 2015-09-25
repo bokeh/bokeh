@@ -1,3 +1,77 @@
+2015-09-25   0.10.0:
+--------------------
+  * Initial webgl support (check our new examples: maps city, iris blend, scatter 10K, clustering.py)
+  * New charts interface supporting aggregation (see our new Bars, BoxPlot, Histogram and Scatter examples)
+  * Responsive plots
+  * Lower-level jsresources & cssresources (allow more subtle uses of resources)
+  * Several test machinery fixes
+  * Several build machinery enhancements
+  * More pytest-related fixes and enhancements
+  * More docs fixes and enhancements
+  * Now the glyph methods return the glyph renderer (not the plot)
+  * Gmap points moves consistently
+  * Added alpha control for imageurl objects
+  * Removed python33 testing and packaging
+  * Removed multiuserblazeserver
+  * bugfixes:
+    - #1335 [geo] Gmap points don't move consistently
+    - #2172 [docs] Incorrect image sizes in bokeh documentation
+    - #2332 [bokehjs] Sub-second timezone strftime support
+    - #2444 Legend does not accept none as a border_line_color
+    - #2550 [docs] Scrolling on info page of user guide is broken
+    - #2619 [docs] Doc: broken plot in user guide
+    - #2785 [bokehjs] Imageurl glyph initial render is incorrect
+    - #2787 Regression in bokeh-server (client side?)
+    - #2801 [bokehjs] Bug in linear_color_mapper palette generation
+    - #2816 [charts] [examples] Charts donut nb example raise a long set of warning 
+    - #2818 [charts] Categorical charts use `:` to set categories
+    - #2835 [docs] Embed docs missing required closing script tag
+    - #2846 Be more selective when you look for the id
+    - #2848 Workaround to local installation
+    - #2853 [docs] Fix typo. snipped -> snippet
+    - #2855 Fix gapminder notebook & clean-up unecessary triggers
+    - #2868 Clean-up tests, pytest fixture overrides, add the new sensitive-url parameter
+    - #2872 Skip remotedatasource column warnings
+    - #2878 [tests] Nvm install failing on travisci
+    - #2887 Wrap testing import so testing libraries aren't required
+    - #2894 [bokehjs] Line join property broken
+  * features:
+    - #1128 [docs] Documentation checklist
+    - #2375 Allow more subtle uses of resources - provide lower-level jsresource & cssresource
+    - #2678 Make plots responsive
+    - #2782 Create example of using hover tool to display custom images
+    - #2802 Add alpha control for imageurl objects
+    - #2823 Hardcode some dark colors for theme idea "1b"
+    - #2829 Have glyph methods return the glyph renderer, not the plot
+    - #2834 Changes to tornado pr
+  * tasks:
+    - #1143 [docs] Widget docs, examples and deprecation status
+    - #1514 [docs] Add docs for ipython notebook interactors
+    - #2563 [docs] Autoload_server docs issues
+    - #2662 [docs] [examples] Bokeh needs migration guide
+    - #2705 [docs] Faq - add note `make sure to close all script tags` message
+    - #2743 Remove 3.3 
+    - #2751 [build] [tests] Remove 3.3 from testing and building
+    - #2768 [docs] Scientific citation 
+    - #2769 Annotations should get an abstract base class
+    - #2783 Remove 0.10 references
+    - #2795 Pin ipython and ipython notebook to 3.2.1
+    - #2797 Pin ipython and ipython notebook to 3.2.1
+    - #2798 Remove hard dependency on scipy in mpl_helpers
+    - #2806 Task/build fixes
+    - #2809 Fix regex to take 0.10.0 versions
+    - #2811 Merge dev 0.10 branch back to master
+    - #2815 Do we want to deprecate callbacks in 0.10 or push out further?
+    - #2827 Better names for the devel builds
+    - #2831 [docs] Customjs for widgets on bokeh webpage
+    - #2832 [docs] Circle_x method example is broken in reference guide
+    - #2843 Fix regex again
+    - #2844 Pytest-selenium 1.0b1 does not use the --destructive argument
+    - #2858 Update example - cities gmap
+    - #2880 [build] Replace nvm for a conda package
+    - #2889 Add .gitignore files to examples directories that didn't have it
+    - #2902 [build] [examples] Collect hotfixes and examples fixes for 0.10.0 release
+
 2015-08-28    0.9.3:
 --------------------
   * Support horizontal or vertical spans
