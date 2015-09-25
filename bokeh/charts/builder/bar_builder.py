@@ -194,8 +194,11 @@ class BarBuilder(Builder):
         self.y_range = Range1d(start=start, end=self.max_height + y_shift)
 
     def get_extra_args(self):
-        attrs = self.class_properties(withbases=False)
-        return {attr: getattr(self, attr) for attr in attrs}
+        if self.__class__ is not BarBuilder:
+            attrs = self.class_properties(withbases=False)
+            return {attr: getattr(self, attr) for attr in attrs}
+        else:
+            return {}
 
     def collect_glyph_kwargs(self, group):
         attrs = set(self.default_attributes.keys()) - set(
