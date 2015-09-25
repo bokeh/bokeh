@@ -34,6 +34,7 @@ from ..utils import title_from_columns
 def BoxPlot(data, label=None, values=None, color=None, group=None,
             xscale="categorical", yscale="linear", xgrid=False,
             ygrid=True, continuous_range=None, **kw):
+    """Generate a box plot from table-like and column-like inputs."""
 
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(
@@ -56,14 +57,10 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
 
 
 class BoxPlotBuilder(BarBuilder):
-    """This is the BoxPlot class and it is in charge of plotting
-    scatter plots in an easy and intuitive way.
+    """Produces Box Glyphs for groups of data.
 
-    Essentially, we provide a way to ingest the data, make the proper
-    calculations and push the references into a source object.
-    We additionally make calculations for the ranges.
-    And finally add the needed glyphs (rects, lines and markers)
-    taking the references from the source.
+    Handles box plot options to produce one to many boxes,
+    which are used to describe the distribution of a variable.
 
     """
 
