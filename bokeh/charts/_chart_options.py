@@ -14,7 +14,8 @@
 #-----------------------------------------------------------------------------
 
 from ..enums import enumeration, Orientation
-from ..properties import Auto, Bool, Either, Enum, HasProps, Int, String
+from ..plot_object import PlotObject
+from ..properties import Auto, Bool, Either, Enum, Int, String
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -22,7 +23,7 @@ from ..properties import Auto, Bool, Either, Enum, HasProps, Int, String
 
 Scale = enumeration('linear', 'categorical', 'datetime')
 
-class ChartOptions(HasProps):
+class ChartOptions(PlotObject):
 
     id = String(None, help="""
     Id of the chart.

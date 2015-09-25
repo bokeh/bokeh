@@ -7,11 +7,19 @@ Using High-level Charts
     :local:
     :depth: 2
 
+The high level ``bokeh.charts`` interface provides a fast, convenient way
+to create common statistical charts with a minimum of code. Wherever possible,
+the interface is geared to be extremely simple to use in conjunction with
+Pandas, by accepting a ``DataFrame`` and names of columns directly to specify
+data.
 
-.. _userguide_charts_defaults:
-
-Chart Defaults
---------------
+.. warning::
+    This guide describes a new charts API introduced in release `0.10`.
+    Some older chart types have not yet been converted. However this new
+    API is such an important and dramatic improvement that it was decided
+    not to wait any longer to release it. All of the older charts are still
+    available in a ``bokeh._legacy_charts`` modules that will be removed
+    later, once all chart types are converted to the new API.
 
 .. _userguide_charts_bar:
 
@@ -305,4 +313,27 @@ Often it is most useful to group both the color and marker shape together:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_scatter_color_marker.py
     :source-position: above
+
+
+.. _userguide_charts_defaults:
+
+Chart Defaults
+--------------
+
+The ``bokeh.charts`` modules contains a ``defaults`` attribute. Setting
+attributes on this object is an easy way to control default properties
+on all charts created, in one place. For instance:
+
+.. code-block:: python
+
+    from bokeh.charts import defaults
+
+    defaults.width = 450
+    defaults.height = 350
+
+will set the default width and height for any chart. The full list of
+attributes that can be set is below:
+
+.. bokeh-model:: bokeh.charts._chart_options.ChartOptions
+
 
