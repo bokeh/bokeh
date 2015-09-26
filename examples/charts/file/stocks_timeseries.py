@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh._legacy_charts import TimeSeries, show, output_file
+from bokeh.charts import Line, show, output_file
 
 # read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -22,24 +22,12 @@ xyvalues = OrderedDict(
     IBM=IBM['Adj Close'],
 )
 
-# any of the following commented are valid Bar inputs
-#xyvalues = pd.DataFrame(xyvalues)
-#lindex = xyvalues.pop('Date')
-#lxyvalues = list(xyvalues.values())
-#lxyvalues = np.array(xyvalues.values())
-
 TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 
 output_file("stocks_timeseries.html")
 
-ts = TimeSeries(
-    xyvalues, index='Date', legend=True,
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices')
-
-# usage with iterable index
-#ts = TimeSeries(
-#    lxyvalues, index=lindex,
-#    title="timeseries, pd_input", ylabel='Stock Prices')
+ts = Line(
+    xyvalues, x='Date', y=['AAPL', 'MSFT', 'IBM'], legend=True,
+    title="Timeseries", tools=TOOLS, ylabel='Stock Prices', responsive=True)
 
 show(ts)
-
