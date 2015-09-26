@@ -36,6 +36,10 @@ class AnnularWedge(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction')
+
     x = NumberSpec("x", help="""
     The x-coordinates of the center of the annular wedges.
     """)
@@ -53,13 +57,11 @@ class AnnularWedge(Glyph):
     """)
 
     start_angle = AngleSpec("start_angle", help="""
-    The angles to start the annular wedges, in radians, as measured from
-    the horizontal.
+    The angles to start the annular wedges, as measured from the horizontal.
     """)
 
     end_angle = AngleSpec("end_angle", help="""
-    The angles to end the annular wedges, in radians, as measured from
-    the horizontal.
+    The angles to end the annular wedges, as measured from the horizontal.
     """)
 
     direction = Enum(Direction, help="""
@@ -86,6 +88,10 @@ class Annulus(Glyph):
     *source:* `tests/glyphs/Annulus.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Annulus.py>`_
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'inner_radius', 'outer_radius')
 
     x = NumberSpec("x", help="""
     The x-coordinates of the center of the annuli.
@@ -124,6 +130,10 @@ class Arc(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
+
     x = NumberSpec("x", help="""
     The x-coordinates of the center of the arcs.
     """)
@@ -137,16 +147,17 @@ class Arc(Glyph):
     """)
 
     start_angle = AngleSpec("start_angle", help="""
-    The angles to start the arcs, in radians, as measured from the horizontal.
+    The angles to start the arcs, as measured from the horizontal.
     """)
 
     end_angle = AngleSpec("end_angle", help="""
-    The angles to end the arcs, in radians, as measured from the horizontal.
+    The angles to end the arcs, as measured from the horizontal.
     """)
 
     direction = Enum(Direction, help="""
     Which direction to stroke between the start and end angles.
     """)
+
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arcs.
     """)
@@ -167,6 +178,10 @@ class Bezier(Glyph):
     *source:* `tests/glyphs/Bezier.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Bezier.py>`_
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x0', 'y0', 'x1', 'y1', 'cx0', 'cy0', 'cx1', 'cy1')
 
     x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
@@ -222,6 +237,10 @@ class Gear(Glyph):
     *source:* `tests/glyphs/Gear.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Gear.py>`_
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal')
 
     x = NumberSpec("x", help="""
     The x-coordinates of the center of the gears.
@@ -300,6 +319,10 @@ class Image(Glyph):
 
         super(Image, self).__init__(**kwargs)
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
+
     image = NumberSpec("image", help="""
     The arrays of scalar data for the images to be colormapped.
     """)
@@ -355,6 +378,10 @@ class ImageRGBA(Glyph):
     """ Render images given as RGBA data.
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
     image = NumberSpec("image", help="""
     The arrays of RGBA data for the images.
@@ -418,6 +445,10 @@ class ImageURL(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'global_alpha', 'dilate')
+
     url = NumberSpec("url", help="""
     The URLs to retrieve images from.
 
@@ -462,12 +493,12 @@ class ImageURL(Glyph):
     """)
 
     angle = AngleSpec(default=0, help="""
-    The angles to rotate the images, in radians as measured from the
-    horizontal.
+    The angles to rotate the images, as measured from the horizontal.
     """)
 
     global_alpha = Float(1.0, help="""
-    The opacity that each image is rendered with.
+    An overall opacity that each image is rendered with (in addition
+    to any inherent alpha values in the image itself).
     """)
 
     dilate = Bool(False, help="""
@@ -499,6 +530,9 @@ class Line(Glyph):
     *source:* `tests/glyphs/Line.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Line.py>`_
 
     """
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y')
 
     x = NumberSpec("x", help="""
     The x-coordinates for the points of the line.
@@ -529,6 +563,11 @@ class MultiLine(Glyph):
     *source:* `tests/glyphs/MultiLine.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/MultiLine.py>`_
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('xs', 'ys')
+
     xs = NumberSpec("xs", help="""
     The x-coordinates for all the lines, given as a "list of lists".
     """)
@@ -557,6 +596,10 @@ class Oval(Glyph):
     *source:* `tests/glyphs/Oval.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Oval.py>`_
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'width', 'height', 'angle')
 
     x = NumberSpec("x", help="""
     The x-coordinates of the centers of the ovals.
@@ -602,6 +645,10 @@ class Patch(Glyph):
     *source:* `tests/glyphs/Patch.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Patch.py>`_
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y')
 
     x = NumberSpec("x", help="""
     The x-coordinates for the points of the patch.
@@ -649,6 +696,10 @@ class Patches(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('xs', 'ys')
+
     xs = NumberSpec("xs", help="""
     The x-coordinates for all the patches, given as a "list of lists".
 
@@ -690,6 +741,10 @@ class Quad(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('left', 'right', 'top', 'bottom')
+
     left = NumberSpec("left", help="""
     The x-coordinates of the left edges.
     """)
@@ -726,6 +781,10 @@ class Quadratic(Glyph):
     *source:* `tests/glyphs/Quadratic.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Quadratic.py>`_
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x0', 'y0', 'x1', 'y1', 'cx', 'cy')
 
     x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
@@ -768,6 +827,10 @@ class Ray(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'angle', 'length')
+
     x = NumberSpec("x", help="""
     The x-coordinates to start the rays.
     """)
@@ -777,8 +840,7 @@ class Ray(Glyph):
     """)
 
     angle = AngleSpec("angle", help="""
-    The angles in radians to extend the rays, as measured from the
-    horizontal.
+    The angles in radians to extend the rays, as measured from the horizontal.
     """)
 
     length = DistanceSpec("length", help="""
@@ -803,6 +865,10 @@ class Rect(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'width', 'height', 'angle', 'dilate')
+
     x = NumberSpec("x", help="""
     The x-coordinates of the centers of the rectangles.
     """)
@@ -820,8 +886,7 @@ class Rect(Glyph):
     """)
 
     angle = AngleSpec("angle", help="""
-    The angles to rotate the rectangles, in radians, as measured from
-    the horizontal.
+    The angles to rotate the rectangles, as measured from the horizontal.
     """)
 
     dilate = Bool(False, help="""
@@ -853,6 +918,10 @@ class Segment(Glyph):
     *source:* `tests/glyphs/Segment.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Segment.py>`_
 
     """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x0', 'y0', 'x1', 'y1')
 
     x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
@@ -887,6 +956,10 @@ class Text(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'text', 'angle', 'x_offset', 'y_offset')
+
     x = NumberSpec("x", help="""
     The x-coordinates to locate the text anchors.
     """)
@@ -900,7 +973,7 @@ class Text(Glyph):
     """)
 
     angle = AngleSpec(default=0, help="""
-    The angles to rotate the text, in radians,, as measured from the horizontal.
+    The angles to rotate the text, as measured from the horizontal.
     """)
 
     x_offset = NumberSpec(default=0, help="""
@@ -934,6 +1007,10 @@ class Wedge(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
+
     x = NumberSpec("x", help="""
     The x-coordinates of the points of the wedges.
     """)
@@ -947,11 +1024,11 @@ class Wedge(Glyph):
     """)
 
     start_angle = AngleSpec("start_angle", help="""
-    The angles to start the wedges, in radians, as measured from the horizontal.
+    The angles to start the wedges, as measured from the horizontal.
     """)
 
     end_angle = AngleSpec("end_angle", help="""
-    The angles to end the wedges, in radians as measured from the horizontal.
+    The angles to end the wedges, as measured from the horizontal.
     """)
 
     direction = Enum(Direction, help="""
