@@ -37,8 +37,7 @@ class Marker(Glyph):
     """)
 
     size = ScreenDistanceSpec(default=4, help="""
-    The size (diameter) values for the markers. Interpreted as
-    "screen space" units by default.
+    The size (diameter) values for the markers in screen space units.
     """)
 
     angle = NumberSpec("angle", help="""
@@ -84,8 +83,7 @@ class Circle(Marker):
     _args = ('x', 'y')
 
     radius = DistanceSpec("radius", help="""
-    The radius values for circle markers. Interpreted in
-    "data space" units by default.
+    The radius values for circle markers (in "data space" units, by default).
 
     .. note::
         Circle markers are slightly unusual in that they support specifying
