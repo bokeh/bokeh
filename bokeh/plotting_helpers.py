@@ -395,7 +395,7 @@ class _list_attr_splat(list):
         else:
             return dir(self)
 
-_arg_template = "    %s (%s) : \n        %s (default %r)"
+_arg_template = "    %s (%s) : %s (default %r)"
 _doc_template = """ Configure and add %s glyphs to this Figure.
 
 Args:
@@ -403,6 +403,19 @@ Args:
 
 Keyword Args:
 %s
+
+Other Parameters:
+    alpha (float) : an alias to set all alpha keyword args at once
+    color (Color) : an alias to set all color keyword args at once
+    data_source (ColumnDataSource) : a user supplied data source
+    legend (str) : a legend tag for this glyph
+    x_range_name (str) : name an extra range to use for mapping x-coordinates
+    y_range_name (str) : name an extra range to use for mapping y-coordinates
+    level (Enum) : control the render level order for this glyph
+
+It is also possible to set the color and alpha parameters of a "nonselection"
+glyph. To do so, prefix any visual parameter with ``'nonselection_'``.
+For example, pass ``nonselection_alpha`` or ``nonselection_fill_alpha``.
 
 Returns:
     GlyphRenderer
