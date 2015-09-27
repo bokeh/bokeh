@@ -829,7 +829,7 @@ class Ray(Glyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('x', 'y', 'angle', 'length')
+    _args = ('x', 'y', 'length', 'angle')
 
     x = NumberSpec("x", help="""
     The x-coordinates to start the rays.
