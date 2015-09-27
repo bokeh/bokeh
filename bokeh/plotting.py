@@ -237,7 +237,7 @@ Examples:
 
         plot = figure(width=300, height=300)
         plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                     color="#DD1C77", fill_alpha-0.2)
+                     color="#DD1C77", fill_alpha=0.2)
 
         show(plot)
 
