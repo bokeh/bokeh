@@ -58,7 +58,7 @@ class ClientConnection(object):
         def run(self, connection):
             message = yield connection._pop_message()
             if message is None:
-                yield connection._transition(connection.DISCONNECTED())
+                yield connection._transition_to_disconnected()
             elif 'reqid' in message.content and message.content['reqid'] == self._reqid:
                 self._reply = message
                 yield connection._transition(connection.CONNECTED_AFTER_ACK())
@@ -70,6 +70,7 @@ class ClientConnection(object):
           Opens a websocket connection to the server.
         '''
         self._url = url
+        self._sessions = set()
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)
         self._socket = None
@@ -98,6 +99,9 @@ class ClientConnection(object):
 
     def loop_until_closed(self):
         if isinstance(self._state, self.NOT_YET_CONNECTED):
+            # we don't use self._transition_to_disconnected here
+            # because _transition is a coroutine
+            self._tell_sessions_about_disconnect()
             self._state = self.DISCONNECTED()
         else:
             def closed():
@@ -107,6 +111,10 @@ class ClientConnection(object):
     def send_message(self, message):
         sent = message.send(self._socket)
         log.debug("Sent %r [%d bytes]", message, sent)
+
+    def _send_patch_document(self, sessionid, document, obj, updates):
+        msg = self._protocol.create('PATCH-DOC', sessionid, document, obj, updates)
+        self.send_message(msg)
 
     def _send_message_wait_for_reply(self, message):
         waiter = self.WAITING_FOR_REPLY(message.header['msgid'])
@@ -173,6 +181,11 @@ class ClientConnection(object):
         yield self._next()
 
     @gen.coroutine
+    def _transition_to_disconnected(self):
+        self._tell_sessions_about_disconnect()
+        yield self._transition(self.DISCONNECTED())
+
+    @gen.coroutine
     def _connect_async(self):
         request = HTTPRequest(self._url, headers={"bokeh-protocol-version": "1.0" })
         self._socket = yield websocket_connect(request)
@@ -185,7 +198,7 @@ class ClientConnection(object):
             log.debug("Received %r", message)
             yield self._transition(self.CONNECTED_AFTER_ACK())
         elif message is None:
-            yield self._transition(self.DISCONNECTED())
+            yield self._transition_to_disconnected()
         else:
             raise ProtocolError("Received %r instead of ACK" % message)
 
@@ -193,7 +206,7 @@ class ClientConnection(object):
     def _handle_messages(self):
         message = yield self._pop_message()
         if message is None:
-            yield self._transition(self.DISCONNECTED())
+            yield self._transition_to_disconnected()
         else:
             # TODO do something with these messages :-)
             yield self._next()
@@ -217,6 +230,14 @@ class ClientConnection(object):
                 log.error("%r", e)
                 raise e
 
+    def _register_session(self, session):
+        self._sessions.add(session)
+
+    def _tell_sessions_about_disconnect(self):
+        for session in self._sessions:
+            session._notify_disconnected()
+        self._sessions.clear()
+
 class ClientSession(object):
 
     def __init__(self, connection, doc, sessionid=DEFAULT_SESSION_ID):
@@ -226,6 +247,9 @@ class ClientSession(object):
         self._connection = connection
         self._document = doc
         self._id = self._ensure_session_id(sessionid)
+        self._document.on_change(self._document_changed)
+        # registering may remove the on_change above as side effect
+        self._connection._register_session(self)
 
     @classmethod
     def _ensure_session_id(cls, sessionid=DEFAULT_SESSION_ID):
@@ -240,3 +264,14 @@ class ClientSession(object):
     @property
     def id(self):
         return self._id
+
+    def _notify_disconnected(self):
+        '''Called by the ClientConnection we are using to notify us of disconnect'''
+        self._document.remove_on_change(self._document_changed)
+
+    def _document_changed(self, doc, model, attr, old, new):
+        # TODO (havocp): our "change sync" protocol is flawed
+        # because if both sides change the same attribute at the
+        # same time, they will each end up with the state of the
+        # other and their final states will differ.
+        self._connection._send_patch_document(self._id, doc, model, { attr : new })

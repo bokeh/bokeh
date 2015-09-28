@@ -22,6 +22,7 @@ class ServerSession(object):
         self._document = document
         self._subscribed_connections = set()
         self._lock = locks.Lock()
+        self._document.on_change(self._document_changed)
 
     @property
     def document(self):
@@ -43,6 +44,14 @@ class ServerSession(object):
     def connection_count(self):
         return len(self._subscribed_connections)
 
+    def _document_changed(self, doc, model, attr, old, new):
+        # TODO (havocp): our "change sync" protocol is flawed
+        # because if both sides change the same attribute at the
+        # same time, they will each end up with the state of the
+        # other and their final states will differ.
+        for connection in self._subscribed_connections:
+            connection.send_patch_document(self._id, self._document, model, { attr : new })
+
     @classmethod
     @gen.coroutine
     def pull(cls, message, connection, session):
@@ -54,11 +63,25 @@ class ServerSession(object):
     def push(cls, message, connection, session):
         with (yield session._lock.acquire()):
             try:
-                log.debug("pushing message to session document")
+                log.debug("pushing doc to session %r", session.id)
                 message.push_to_document(session.document)
             except Exception as e:
                 text = "Error pushing document"
                 log.error("error pushing document %r", e)
+                raise gen.Return(connection.error(message, text))
+
+            raise gen.Return(connection.ok(message))
+
+    @classmethod
+    @gen.coroutine
+    def patch(cls, message, connection, session):
+        with (yield session._lock.acquire()):
+            try:
+                log.debug("patching session %r with %r", session.id, message.content)
+                message.apply_to_document(session.document)
+            except Exception as e:
+                text = "Error patching document"
+                log.error("error patching document %r", e)
                 raise gen.Return(connection.error(message, text))
 
             raise gen.Return(connection.ok(message))

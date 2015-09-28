@@ -9,6 +9,9 @@ from tornado.concurrent import return_future
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
 
+import logging
+log = logging.getLogger(__name__)
+
 class Receiver(object):
     '''
 
@@ -50,7 +53,7 @@ class Receiver(object):
     def _HMAC(self, fragment):
         self._assume_text(fragment)
         if len(fragment) != 64:
-            raise ProtocolError("Invalid HMAC signature length")
+            raise ProtocolError("Invalid HMAC signature length %d fragment '%s'" % (len(fragment), fragment))
 
         self._message = None
         self._partial = None

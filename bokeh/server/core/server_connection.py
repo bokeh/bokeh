@@ -7,9 +7,10 @@ class ServerConnection(object):
     ''' Wraps a websocket connection to a client.
     '''
 
-    def __init__(self, protocol, tornado_app):
+    def __init__(self, protocol, tornado_app, socket):
         self._protocol = protocol
         self._tornado_app = tornado_app
+        self._socket = socket
         self._subscribed_sessions = set()
 
     @property
@@ -31,6 +32,10 @@ class ServerConnection(object):
 
     def error(self, message, text):
         return self.protocol.create('ERROR', message.header['msgid'], text)
+
+    def send_patch_document(self, sessionid, document, obj, updates):
+        msg = self.protocol.create('PATCH-DOC', sessionid, document, obj, updates)
+        self._socket.send_message(msg)
 
     def create_session_if_needed(self, sessionid, application_name):
         return self._tornado_app.create_session_if_needed(sessionid, application_name)

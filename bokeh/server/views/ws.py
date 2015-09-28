@@ -57,7 +57,7 @@ class WSHandler(WebSocketHandler):
             self.handler = ServerHandler(protocol)
             log.debug("ServerHandler created created for %r", protocol)
 
-            self.connection = self._tornado_app.new_connection(protocol)
+            self.connection = self._tornado_app.new_connection(protocol, self)
             log.info("ServerConnection created")
 
         except ProtocolError as e:

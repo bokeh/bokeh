@@ -83,8 +83,8 @@ class BokehTornado(TornadoApplication):
     def executor(self):
         return self._executor
 
-    def new_connection(self, protocol):
-        connection = ServerConnection(protocol, self)
+    def new_connection(self, protocol, socket):
+        connection = ServerConnection(protocol, self, socket)
         self._clients.add(connection)
         return connection
 

@@ -236,13 +236,17 @@ class Document(object):
     def apply_json_patch_string(self, patch):
         ''' Apply a JSON patch string created by create_json_patch_string() '''
         json_parsed = loads(patch)
-        patched_id = json_parsed['id']
+        self.apply_json_patch(json_parsed)
+
+    def apply_json_patch(self, patch):
+        ''' Apply a JSON patch object created by parsing the result of create_json_patch_string() '''
+        patched_id = patch['id']
         if patched_id not in self._all_models:
-            raise ProtocolError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
+            raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
         patched_obj = self._all_models[patched_id]
 
-        updates = json_parsed['updates']
-        references_json = json_parsed['references']
+        updates = patch['updates']
+        references_json = patch['references']
         references = self._instantiate_references_json(references_json)
 
         # Use our existing model instances whenever we have them, and add the obj we're patching

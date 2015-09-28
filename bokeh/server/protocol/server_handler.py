@@ -21,6 +21,7 @@ class ServerHandler(object):
 
         self._handlers['PULL-DOC-REQ'] = self._session_handler(ServerSession.pull)
         self._handlers['PUSH-DOC'] = self._session_handler(ServerSession.push)
+        self._handlers['PATCH-DOC'] = self._session_handler(ServerSession.patch)
         self._handlers['SERVER-INFO-REQ'] = self._server_info_req
 
     def _session_handler(self, handler):

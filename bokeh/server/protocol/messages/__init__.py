@@ -18,7 +18,7 @@ def register(cls):
     return cls
 
 def _add_buffer(self, buf_header, buf_payload):
-    raise ProtocolError("")
+    raise ProtocolError("Message type has unexpected buffers")
 
 def _write_buffers(self, conn):
     return 0
@@ -38,6 +38,7 @@ def nobuffers(cls):
 
 from .ack import *
 from .ok import *
+from .patch_doc import *
 from .pull_doc_req import *
 from .pull_doc_reply import *
 from .push_doc import *

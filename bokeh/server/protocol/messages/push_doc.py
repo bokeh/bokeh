@@ -1,7 +1,7 @@
 '''
 
 '''
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 from bokeh.plot_object import PlotObject
 from bokeh.document import Document
@@ -18,9 +18,12 @@ class push_doc_1(Message):
     msgtype  = 'PUSH-DOC'
     revision = 1
 
-    def __init__(self, header, metadata, content, buffers=[]):
+    def __init__(self, header, metadata, content, buffers=None):
         super(push_doc_1, self).__init__(header, metadata, content)
-        self._buffers = buffers
+        if buffers is None:
+            self._buffers = []
+        else:
+            self._buffers = buffers
 
     @classmethod
     def create(cls, session_id, document, **metadata):

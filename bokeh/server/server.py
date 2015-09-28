@@ -21,17 +21,24 @@ class Server(object):
             Each application should be identified by a path meant to go in a URL, like "/" or "/foo"
     '''
 
-    def __init__(self, applications):
+    def __init__(self, applications, **kwargs):
         if isinstance(applications, Application):
             self._applications = { '/' : applications }
         else:
             self._applications = applications
         self._tornado = BokehTornado(self._applications)
         self._http = HTTPServer(self._tornado)
+        self._port = 8888
+        if 'port' in kwargs:
+            self._port = kwargs['port']
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
-        self._http.bind(8888)
+        self._http.bind(self._port)
         self._http.start(1)
+
+    @property
+    def ws_url(self):
+        return "ws://localhost:" + str(self._port) + "/ws?token=grizzleblizzle"
 
     def start(self):
         ''' Start the Bokeh Server's IO loop.
