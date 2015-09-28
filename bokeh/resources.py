@@ -49,9 +49,12 @@ def _get_cdn_urls(version=None, minified=True):
     if version.endswith(('dev', 'rc')):
         logger.debug("Getting CDN URL for local dev version will not produce usable URL")
 
+    def mk_url(comp, tp):
+        return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, tp)
+
     result = {
-        'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
-        'css_files' : ['%s/%s/bokeh-%s%s.css' % (base_url, container, version, _min)],
+        'js_files'  : [ mk_url(comp, 'js')  for comp in ['bokeh', 'bokeh-widgets'] ],
+        'css_files' : [ mk_url(comp, 'css') for comp in ['bokeh', 'bokeh-widgets'] ],
         'messages'  : [],
     }
 
@@ -66,12 +69,15 @@ def _get_cdn_urls(version=None, minified=True):
 
 def _get_server_urls(root_url, minified=True):
     _min = ".min" if minified else ""
-    result = {
-        'js_files'  : ['%sbokehjs/static/js/bokeh%s.js' % (root_url, _min)],
-        'css_files' : ['%sbokehjs/static/css/bokeh%s.css' % (root_url, _min)],
+
+    def mk_url(comp, tp):
+        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, tp, comp, _min, tp)
+
+    return {
+        'js_files'  : [ mk_url(comp, 'js')  for comp in ['bokeh', 'bokeh-widgets'] ],
+        'css_files' : [ mk_url(comp, 'css') for comp in ['bokeh', 'bokeh-widgets'] ],
         'messages'  : [],
     }
-    return result
 
 
 def _inline(paths):
@@ -159,8 +165,8 @@ class BaseResources(object):
 
 
 class JSResources(BaseResources):
-    _default_js_files = ["js/bokeh.js"]
-    _default_js_files_dev = ['js/bokeh.js']
+    _default_js_files = ["js/bokeh.js", "js/bokeh-widgets.js"]
+    _default_js_files_dev = ['js/bokeh.js', "js/bokeh-widgets.js"]
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None):
@@ -199,8 +205,8 @@ class JSResources(BaseResources):
 
 
 class CSSResources(BaseResources):
-    _default_css_files = ["css/bokeh.css"]
-    _default_css_files_dev = ['css/bokeh.css']
+    _default_css_files = ["css/bokeh.css", "css/bokeh-widgets.css"]
+    _default_css_files_dev = ['css/bokeh.css', "css/bokeh-widgets.css"]
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None):

@@ -6,10 +6,8 @@ Bokeh.version = '0.10.0'
 Bokeh._                 = require("underscore")
 Bokeh.$                 = require("jquery")
 
-require "jquery-ui"
 Bokeh.Backbone          = require("backbone")
 Bokeh.Backbone.$        = Bokeh.$
-Bokeh.Backbone.$.ui     = Bokeh.$.ui
 
 # set up logger
 logging = require("./common/logging")
@@ -122,12 +120,6 @@ Bokeh.WheelZoomTool          = require("./tool/gestures/wheel_zoom_tool")
 Bokeh.InspectTool            = require("./tool/inspectors/inspect_tool")
 Bokeh.HoverTool              = require("./tool/inspectors/hover_tool")
 Bokeh.CrosshairTool          = require("./tool/inspectors/crosshair_tool")
-
-# widgets
-Bokeh.HBox           = require("./widget/hbox")
-Bokeh.VBox           = require("./widget/vbox")
-Bokeh.TextInput      = require("./widget/text_input")
-#Bokeh.CrossFilter    = require("./widget/crossfilter")
 
 # Add the jquery plugin
 require("./api/plugin")

@@ -1,9 +1,3 @@
-""" Bokeh can present many kinds of UI widgets alongside plots.
-When used in conjunction with the Bokeh server, it is possible to
-trigger events, updates, etc. based on a user's interaction with
-these widgets.
-
-"""
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
@@ -12,11 +6,8 @@ from ..properties import Bool
 from ..embed import notebook_div
 
 @abstract
-class Widget(PlotObject):
-    """ A base class for all interact widget types. ``Widget``
-    is not generally useful to instantiate on its own.
-
-    """
+class Component(PlotObject):
+    """ A base class for all embeddable models, i.e. plots and wigets. """
 
     disabled = Bool(False, help="""
     Whether the widget will be disabled when rendered. If ``True``,
