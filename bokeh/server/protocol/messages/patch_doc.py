@@ -8,10 +8,9 @@ from bokeh.document import Document
 from json import loads
 from ...exceptions import ProtocolError
 from ..message import Message
-from . import register, nobuffers
+from . import register
 
 @register
-@nobuffers
 class patch_doc_1(Message):
     '''
 

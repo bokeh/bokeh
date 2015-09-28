@@ -7,10 +7,9 @@ import logging
 log = logging.getLogger(__name__)
 
 from ..message import Message
-from . import nobuffers, register
+from . import register
 
 @register
-@nobuffers
 class working_1(Message):
     '''
 

@@ -91,7 +91,7 @@ class Receiver(object):
 
     def _BUFFER_PAYLOAD(self, fragment):
         self._assume_binary(fragment)
-        self._partial.add_buffer(self._buf_header, fragment)
+        self._partial.assemble_buffer(self._buf_header, fragment)
 
         self._check_complete()
 

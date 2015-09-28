@@ -38,6 +38,7 @@ class Message(object):
         self.metadata = metadata
         self.content = content
         self._hmac = None
+        self._buffers = []
 
     def __repr__(self):
         return "Message %r (revision %d)" % (self.msgtype, self.revision)
@@ -96,7 +97,34 @@ class Message(object):
             MessageError
 
         '''
-        raise NotImplementedError("")
+        if 'num_buffers' in self._header:
+            self._header['num_buffers'] += 1
+        else:
+            self._header['num_buffers'] = 1
+
+        self._header_json = None
+
+        self._buffers.add((buf_header, buf_payload))
+
+    def assemble_buffer(self, buf_header, buf_payload):
+        ''' Add a buffer header and payload that we read from the socket.
+
+        This differs from add_buffer() because we're validating vs.
+        the header's num_buffers, instead of filling in the header.
+
+        Args:
+            buf_header (JSON) : a buffer header
+            buf_payload (JSON or bytes) : a buffer payload
+
+        Returns:
+            None
+
+        Raises:
+            ProtocolError
+        '''
+        if self.header['num_buffers'] <= len(self._buffers):
+            raise ProtocolError("too many buffers received expecting " + str(self.header['num_buffers']))
+        self._buffers.append((buf_header, buf_payload))
 
     @return_future
     def handle_server(self, server, callback=None):
@@ -129,16 +157,12 @@ class Message(object):
             int : number of bytes sent
 
         '''
-        raise NotImplementedError("")
-
-    def is_complete(self):
-        ''' Returns whether all required parts of a message are present.
-
-        Returns:
-            bool : True if the message is complete, False otherwise
-
-        '''
-        raise NotImplementedError("")
+        sent = 0
+        for header, payload in self._buffers:
+            conn.write_message(header)
+            conn.write_message(payload, binary=True)
+            sent += (len(header) + len(payload))
+        return sent
 
     @classmethod
     def create_header(cls):
@@ -202,7 +226,16 @@ class Message(object):
 
     @property
     def complete(self):
-        return self.is_complete()
+        ''' Returns whether all required parts of a message are present.
+
+        Returns:
+            bool : True if the message is complete, False otherwise
+
+        '''
+        return self.header is not None and \
+            self.metadata is not None and \
+            self.content is not None and \
+            self.header.get('num_buffers', 0) == len(self._buffers)
 
     # HMAC fragment properties
 
@@ -272,3 +305,11 @@ class Message(object):
         if not self._metadata_json:
             self._metadata_json = json_encode(self.metadata)
         return self._metadata_json
+
+    @property
+    def buffers(self):
+        return self._buffers
+
+    @buffers.setter
+    def buffers(self, value):
+        self._buffers = list(value)

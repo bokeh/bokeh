@@ -7,10 +7,9 @@ import logging
 log = logging.getLogger(__name__)
 
 from ..message import Message
-from . import nobuffers, register
+from . import register
 
 @register
-@nobuffers
 class ack_1(Message):
     '''
 

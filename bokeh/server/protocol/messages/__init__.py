@@ -17,25 +17,6 @@ def register(cls):
     index[key] = cls
     return cls
 
-def _add_buffer(self, buf_header, buf_payload):
-    raise ProtocolError("Message type has unexpected buffers")
-
-def _write_buffers(self, conn):
-    return 0
-
-def _is_complete(self):
-    return True
-
-def nobuffers(cls):
-    ''' Convenience decorator for defining Message types that do not have any
-    buffers associated with them.
-
-    '''
-    cls.add_buffer = _add_buffer
-    cls.write_buffers = _write_buffers
-    cls.is_complete = _is_complete
-    return cls
-
 from .ack import *
 from .ok import *
 from .patch_doc import *

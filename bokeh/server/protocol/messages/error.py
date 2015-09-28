@@ -10,10 +10,9 @@ import sys
 from traceback import format_exception
 
 from ..message import Message
-from . import nobuffers, register
+from . import register
 
 @register
-@nobuffers
 class error_1(Message):
     '''
 

@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from bokeh import __version__
 
 from ..message import Message
-from . import nobuffers, register
+from . import register
 
 _VERSION_INFO = {
     'bokeh'  : __version__,
@@ -14,7 +14,6 @@ _VERSION_INFO = {
 }
 
 @register
-@nobuffers
 class server_info_reply_1(Message):
     '''
 

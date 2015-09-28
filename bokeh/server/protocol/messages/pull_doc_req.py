@@ -4,10 +4,9 @@
 from __future__ import absolute_import
 
 from ..message import Message
-from . import nobuffers, register
+from . import register
 
 @register
-@nobuffers
 class pull_doc_req_1(Message):
     '''
 

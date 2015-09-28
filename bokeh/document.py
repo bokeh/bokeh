@@ -183,7 +183,12 @@ class Document(object):
     def from_json_string(cls, json):
         ''' Load a document from JSON. '''
         json_parsed = loads(json)
-        roots_json = json_parsed['roots']
+        return cls.from_json(json_parsed)
+
+    @classmethod
+    def from_json(cls, json):
+        ''' Load a document from JSON. '''
+        roots_json = json['roots']
         root_ids = roots_json['root_ids']
         references_json = roots_json['references']
 
