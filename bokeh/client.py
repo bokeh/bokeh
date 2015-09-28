@@ -166,7 +166,8 @@ class ClientConnection(object):
     @gen.coroutine
     def _next(self):
         if self._until_predicate is not None and self._until_predicate():
-            log.debug("Stopping client loop in state " + self._state.__class__.__name__)
+            log.debug("Stopping client loop in state %s due to True from %s",
+                      self._state.__class__.__name__, self._until_predicate.__name__)
             self._until_predicate = None
             self._loop.stop()
             raise gen.Return(None)
@@ -194,7 +195,7 @@ class ClientConnection(object):
     @gen.coroutine
     def _wait_for_ack(self):
         message = yield self._pop_message()
-        if message and message.msgtype is 'ACK':
+        if message and message.msgtype == 'ACK':
             log.debug("Received %r", message)
             yield self._transition(self.CONNECTED_AFTER_ACK())
         elif message is None:
@@ -208,7 +209,13 @@ class ClientConnection(object):
         if message is None:
             yield self._transition_to_disconnected()
         else:
-            # TODO do something with these messages :-)
+            if message.msgtype == 'PATCH-DOC':
+                log.debug("Got PATCH-DOC, applying to %d sessions", len(self._sessions))
+                for session in self._sessions:
+                    message.apply_to_document(session.document)
+            else:
+                log.debug("Ignoring %r", message)
+            # we don't know about whatever message we got, ignore it.
             yield self._next()
 
     @gen.coroutine
