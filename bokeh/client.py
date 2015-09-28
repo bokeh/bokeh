@@ -287,6 +287,7 @@ class ClientSession(object):
         self._document.on_change(self._document_changed)
         # registering may remove the on_change above as side effect
         self._connection._register_session(self)
+        self._current_patch = None
 
     @classmethod
     def _ensure_session_id(cls, sessionid=DEFAULT_SESSION_ID):
@@ -307,6 +308,10 @@ class ClientSession(object):
         self._document.remove_on_change(self._document_changed)
 
     def _document_changed(self, doc, model, attr, old, new):
+        if self._current_patch is not None and self._current_patch.should_suppress_on_change(model, attr, new):
+            log.debug("Not sending notification back to server for a change it requested")
+            return
+
         # TODO (havocp): our "change sync" protocol is flawed
         # because if both sides change the same attribute at the
         # same time, they will each end up with the state of the
@@ -314,4 +319,8 @@ class ClientSession(object):
         self._connection._send_patch_document(self._id, doc, model, { attr : new })
 
     def _handle_patch(self, message):
-        message.apply_to_document(self.document)
+        self._current_patch = message
+        try:
+            message.apply_to_document(self.document)
+        finally:
+            self._current_patch = None

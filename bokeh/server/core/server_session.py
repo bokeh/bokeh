@@ -22,6 +22,8 @@ class ServerSession(object):
         self._document = document
         self._subscribed_connections = set()
         self._lock = locks.Lock()
+        self._current_patch = None
+        self._current_patch_connection = None
         self._document.on_change(self._document_changed)
 
     @property
@@ -45,12 +47,18 @@ class ServerSession(object):
         return len(self._subscribed_connections)
 
     def _document_changed(self, doc, model, attr, old, new):
+        may_suppress = self._current_patch is not None and \
+                       self._current_patch.should_suppress_on_change(model, attr, new)
+
         # TODO (havocp): our "change sync" protocol is flawed
         # because if both sides change the same attribute at the
         # same time, they will each end up with the state of the
         # other and their final states will differ.
         for connection in self._subscribed_connections:
-            connection.send_patch_document(self._id, self._document, model, { attr : new })
+            if may_suppress and connection is self._current_patch_connection:
+                log.debug("Not sending notification back to client %r for a change it requested", connection)
+            else:
+                connection.send_patch_document(self._id, self._document, model, { attr : new })
 
     @classmethod
     @gen.coroutine
@@ -79,7 +87,13 @@ class ServerSession(object):
         with (yield self._lock.acquire()):
             try:
                 log.debug("patching session %r with %r", self.id, message.content)
-                message.apply_to_document(self.document)
+                self._current_patch = message
+                self._current_patch_connection = connection
+                try:
+                    message.apply_to_document(self.document)
+                finally:
+                    self._current_patch = None
+                    self._current_patch_connection = None
             except Exception as e:
                 text = "Error patching document"
                 log.error("error patching document %r", e)
@@ -90,4 +104,5 @@ class ServerSession(object):
     @classmethod
     @gen.coroutine
     def patch(cls, message, connection, session):
-        yield session._handle_patch(message, connection)
+        work = yield session._handle_patch(message, connection)
+        raise gen.Return(work)

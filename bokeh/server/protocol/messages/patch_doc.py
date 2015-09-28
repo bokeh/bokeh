@@ -39,5 +39,16 @@ class patch_doc_1(Message):
 
         return msg
 
+    def should_suppress_on_change(self, model, attr, new):
+        '''Checks whether the patch caused an on_change for the given model, attr, value'''
+        if self.content['id'] == model._id and \
+           attr in self.content['updates']:
+            patch_new = self.content['updates'][attr]
+            if isinstance(new, PlotObject):
+                return patch_new is not None and 'id' in patch_new and patch_new['id'] == new._id
+            else:
+                return patch_new == new
+        return False
+
     def apply_to_document(self, doc):
         doc.apply_json_patch(self.content)

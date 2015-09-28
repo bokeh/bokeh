@@ -48,3 +48,43 @@ class TestPatchDocument(unittest.TestCase):
         foos.sort()
         assert foos == [ 2, 42 ]
 
+    def test_should_suppress(self):
+        sample = self._sample_doc()
+        root = None
+        other_root = None
+        for r in sample.roots:
+            if r.child is not None:
+                root = r
+            else:
+                other_root = r
+        assert root is not None
+        assert other_root is not None
+        new_child = AnotherModel(bar=56)
+
+        # integer property changed
+        msg = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, root, { 'foo' : 42 })
+        assert msg.should_suppress_on_change(root, 'foo', 42)
+        assert not msg.should_suppress_on_change(root, 'foo', 43)
+        assert not msg.should_suppress_on_change(root, 'bar', 42)
+        assert not msg.should_suppress_on_change(other_root, 'foo', 42)
+
+        # PlotObject property changed
+        msg2 = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, root, { 'child' : new_child })
+        assert msg2.should_suppress_on_change(root, 'child', new_child)
+        assert not msg2.should_suppress_on_change(root, 'child', other_root)
+        assert not msg2.should_suppress_on_change(root, 'blah', new_child)
+        assert not msg2.should_suppress_on_change(other_root, 'child', new_child)
+
+        # PlotObject property changed to None
+        msg3 = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, root, { 'child' : None })
+        assert msg3.should_suppress_on_change(root, 'child', None)
+        assert not msg3.should_suppress_on_change(root, 'child', other_root)
+        assert not msg3.should_suppress_on_change(root, 'blah', new_child)
+        assert not msg3.should_suppress_on_change(other_root, 'child', new_child)
+
+        # PlotObject property changed from None
+        msg4 = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, other_root, { 'child' : None })
+        assert msg4.should_suppress_on_change(other_root, 'child', None)
+        assert not msg4.should_suppress_on_change(other_root, 'child', root)
+        assert not msg4.should_suppress_on_change(other_root, 'blah', None)
+        assert not msg4.should_suppress_on_change(root, 'child', None)
