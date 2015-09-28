@@ -66,7 +66,7 @@ describe "Tile Providers", ->
       expect(provider.pool.images.length).to.be.equal(0)
       tile_obj = {img: {}}
       provider.tiles['test'] = tile_obj
-      provider.removeTile('test')
+      provider.remove_tile('test')
       expect(provider.pool.images.length).to.be.equal(1)
 
     it "should convert tile xyz into a tile key", ->
