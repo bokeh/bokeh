@@ -94,6 +94,25 @@ class TestClientServer(unittest.TestCase):
             assert not connection.connected
             server.unlisten() # clean up so next test can run
 
+    def test_request_server_info(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            connection = ClientConnection(url=server.ws_url)
+            connection.connect()
+            assert connection.connected
+
+            info = connection.request_server_info()
+
+            from bokeh import __version__
+
+            assert info['version_info']['bokeh'] == __version__
+            assert info['version_info']['server'] == __version__
+
+            connection.close()
+            connection.loop_until_closed()
+            assert not connection.connected
+            server.unlisten() # clean up so next test can run
+
     def test_client_changes_go_to_server(self):
         application = Application()
         with ManagedServerLoop(application) as server:

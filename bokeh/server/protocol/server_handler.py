@@ -58,5 +58,5 @@ class ServerHandler(object):
 
     @gen.coroutine
     def _server_info_req(self, message, connection):
-        raise gen.Return(connection.protocol.create('SERVER-INFO-REPLY'))
+        raise gen.Return(connection.protocol.create('SERVER-INFO-REPLY', message.header['msgid']))
 

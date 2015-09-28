@@ -80,6 +80,7 @@ class ClientConnection(object):
         self._loop = io_loop
         self._until_predicate = None
         self._protocol = Protocol("1.0")
+        self._server_info = None
 
     @property
     def connected(self):
@@ -151,6 +152,35 @@ class ClientConnection(object):
     def pull_session(self, sessionid=DEFAULT_SESSION_ID):
         ''' Create a session by pulling the document from the given session on the server '''
         raise NotImplementedError("todo")
+
+    def _send_request_server_info(self):
+        msg = self._protocol.create('SERVER-INFO-REQ')
+        reply = self._send_message_wait_for_reply(msg)
+        if reply is None:
+            raise RuntimeError("Did not get a reply to server info request before disconnect")
+        return reply.content
+
+    def request_server_info(self):
+        '''
+        Ask for information about the server.
+
+        Returns:
+            A dictionary of server attributes.
+        '''
+        if self._server_info is None:
+            self._server_info = self._send_request_server_info()
+        return self._server_info
+
+    def force_roundtrip(self):
+        '''
+        Force a round-trip request/reply to the server, sometimes needed to avoid race conditions.
+
+        Outside of test suites, this method probably hurts performance and shouldn't be needed.
+
+        Returns:
+           None
+        '''
+        self._send_request_server_info()
 
     def _loop_until(self, predicate):
         self._until_predicate = predicate
