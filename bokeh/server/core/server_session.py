@@ -72,16 +72,22 @@ class ServerSession(object):
 
             raise gen.Return(connection.ok(message))
 
-    @classmethod
+    # this method is split out of the patch() class method so we
+    # can monkeypatch it in the tests
     @gen.coroutine
-    def patch(cls, message, connection, session):
-        with (yield session._lock.acquire()):
+    def _handle_patch(self, message, connection):
+        with (yield self._lock.acquire()):
             try:
-                log.debug("patching session %r with %r", session.id, message.content)
-                message.apply_to_document(session.document)
+                log.debug("patching session %r with %r", self.id, message.content)
+                message.apply_to_document(self.document)
             except Exception as e:
                 text = "Error patching document"
                 log.error("error patching document %r", e)
                 raise gen.Return(connection.error(message, text))
 
             raise gen.Return(connection.ok(message))
+
+    @classmethod
+    @gen.coroutine
+    def patch(cls, message, connection, session):
+        yield session._handle_patch(message, connection)

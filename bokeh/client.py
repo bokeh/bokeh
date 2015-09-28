@@ -242,7 +242,7 @@ class ClientConnection(object):
             if message.msgtype == 'PATCH-DOC':
                 log.debug("Got PATCH-DOC, applying to %d sessions", len(self._sessions))
                 for session in self._sessions:
-                    message.apply_to_document(session.document)
+                    session._handle_patch(message)
             else:
                 log.debug("Ignoring %r", message)
             # we don't know about whatever message we got, ignore it.
@@ -312,3 +312,6 @@ class ClientSession(object):
         # same time, they will each end up with the state of the
         # other and their final states will differ.
         self._connection._send_patch_document(self._id, doc, model, { attr : new })
+
+    def _handle_patch(self, message):
+        message.apply_to_document(self.document)
