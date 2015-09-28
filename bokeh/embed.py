@@ -1,5 +1,5 @@
-''' This module provides functions for embedding Bokeh plots in various
-different ways.
+''' Provide functions to embed Bokeh models (e.g., plots, widget, layouts)
+in various different ways.
 
 There are a number of different combinations of options when embedding
 Bokeh plots. The data for the plot can be contained in the document,
@@ -42,25 +42,28 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     An example can be found in examples/embed/embed_multiple.py
 
-    .. note:: The returned components assume that BokehJS resources
-              are **already loaded**.
+    .. note::
+        The returned components assume that BokehJS resources are
+        **already loaded**.
 
     Args:
-        plot_objects : PlotObject|list|dict|tuple
+        plot_objects (PlotObject|list|dict|tuple) :
             A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
 
         resources :
             Deprecated argument
 
-        wrap_script : boolean, optional
-            If True, the returned javascript is wrapped in a script tag. (default: True)
+        wrap_script (boolean, optional) :
+            If True, the returned javascript is wrapped in a script tag.
+            (default: True)
 
-        wrap_plot_info : boolean, optional
-            If True, then a set of divs are returned.
-            If set to False, then dictionaries are returned that can be used to manually
-            build your own divs. (default: True)
+        wrap_plot_info (boolean, optional) : If True, returns ``<div>`` strings.
+            Otherwise, return dicts that can be used to build your own divs.
+            (default: True)
 
-            If False, the returned dictionary contains the following information::
+            If False, the returned dictionary contains the following information:
+
+            .. code-block:: python
 
                 {
                     'modelid':  'The plots id, which can be used in the Bokeh.index',
@@ -69,31 +72,38 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
                 }
 
     Returns:
-        (script, div[s]) :  UTF-8 encoded
+        UTF-8 encoded *(script, div[s])* or *(raw_script, plot_info[s])*
 
-            The output depends on the input as follows::
+    Examples:
 
-                components(plot)
-                # => (script, plot_div)
+        With default wrapping parameter values:
 
-                components((plot1, plot2))
-                # => (script, (plot1_div, plot2_div))
+        .. code-block:: python
 
-                components({"Plot 1": plot1, "Plot 2": plot2})
-                # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
+            components(plot)
+            # => (script, plot_div)
 
-        (raw_script, plot_info[s]) : UTF-8 encoded
+            components((plot1, plot2))
+            # => (script, (plot1_div, plot2_div))
 
-            The output depends on the input as follows::
+            components({"Plot 1": plot1, "Plot 2": plot2})
+            # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
 
-                components(plot, wrap_script=False, wrap_plot_info=False)
-                # => (javascript, plot_dict)
+    Examples:
 
-                components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
-                # => (javascript, (plot1_dict, plot2_dict))
+        With wrapping parameters set to ``False``:
 
-                components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
-                # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
+        .. code-block:: python
+
+            components(plot, wrap_script=False, wrap_plot_info=False)
+            # => (javascript, plot_dict)
+
+            components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
+            # => (javascript, (plot1_dict, plot2_dict))
+
+            components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
+            # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
+
     '''
     all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
 
@@ -218,14 +228,13 @@ def notebook_div(plot_object):
 
     Args:
         plot_object (PlotObject) : Bokeh object to render
-            typically a Plot or PlotContext
 
     Returns:
-        div : UTF-8 encoded HTML text
+        UTF-8 encoded HTML text for a ``<div>``
 
     .. note::
-        Assumes ``bokeh.load_notebook()`` or the equivalent has already
-        been executed.
+        Assumes :func:`~bokeh.util.notebook.load_notebook` or the equivalent
+        has already been executed.
 
     '''
     ref = plot_object.ref
@@ -252,7 +261,13 @@ def notebook_div(plot_object):
     return encode_utf8(html)
 
 
-def file_html(plot_object, resources, title, js_resources=None, css_resources=None, template=FILE, template_variables=None):
+def file_html(plot_object,
+              resources,
+              title,
+              js_resources=None,
+              css_resources=None,
+              template=FILE,
+              template_variables=None):
     ''' Return an HTML document that embeds a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -270,7 +285,7 @@ def file_html(plot_object, resources, title, js_resources=None, css_resources=No
             title, js_resources, css_resources, plot_script, plot_div
 
     Returns:
-        html : standalone HTML document with embedded plot
+        UTF-8 encoded HTML
 
     '''
     from .document import Document

@@ -1,3 +1,29 @@
+{#
+Renders HTML for loading BokehJS JavaScript code and CSS into a Jupyter
+Notebook according to a Resources object.
+
+:param plot_resources: typically the output of RESOURCES
+:type plot_resources: str
+
+:param logo_url: URL to Bokeh logo to dispay
+:type logo_url: str
+
+:param verbose: whether to display verbose info about BokehJS configuration, etc
+:type verbose: bool
+
+:param bokeh_version: the current version of Bokeh
+:type bokeh_version: str
+
+:param js_info: information about the location, version, etc. of BokehJS code
+:type js_info: str
+
+:param css_info: information about the location, version, etc. of BokehJS css
+:type css_info: str
+
+:param warnings: a list of warnings to display to user
+:type warnings: list[str]
+
+#}
     {{ bokeh_js }}
     {{ bokeh_css }}
 
