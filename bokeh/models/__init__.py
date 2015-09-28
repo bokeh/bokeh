@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from .annotations import *
 from .axes import *
 from .callbacks import *
+from .component import *
 from .formatters import *
 from .glyphs import *
 from .grids import *
@@ -17,5 +18,4 @@ from .renderers import *
 from .sources import *
 from .tickers import *
 from .tools import *
-from .widget import *
 from .widgets import *

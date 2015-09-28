@@ -16,28 +16,46 @@ module.exports = {
     js: path.join(SERVER_DIR, "js")
     css: path.join(SERVER_DIR, "css")
 
-  coffee:
-    destination:
-      full: "bokeh.js"
-      fullWithPath: path.join(JS_BUILD_DIR, "bokeh.js")
-    sources: [
-      "./src/coffee/main.coffee"
-    ]
-    watchSources: [
-      "./src/coffee/**/**",
-    ]
+  bokehjs:
+    coffee:
+      destination:
+        full: "bokeh.js"
+        fullWithPath: path.join(JS_BUILD_DIR, "bokeh.js")
+        minified: "bokeh.min.js"
+      sources: [
+        "./src/coffee/main.coffee"
+      ]
+      watchSources: [
+        "./src/coffee/**/**",
+      ]
+
+  widgets:
+    coffee:
+      destination:
+        full: "bokeh-widgets.js"
+        fullWithPath: path.join(JS_BUILD_DIR, "bokeh-widgets.js")
+        minified: "bokeh-widgets.min.js"
+      sources: [
+        "./src/coffee/widget/main.coffee"
+      ]
+      watchSources: [
+        "./src/coffee/**/**",
+      ]
 
   css:
     sources: [
       path.join(CSS_BUILD_DIR, "bokeh.css")
+      path.join(CSS_BUILD_DIR, "bokeh-widgets.css")
     ]
     watchSources: [
       path.join(CSS_BUILD_DIR, "bokeh.css")
+      path.join(CSS_BUILD_DIR, "bokeh-widgets.css")
     ]
 
   less:
     sources: [
       "./src/less/bokeh.less",
+      "./src/less/bokeh-widgets.less",
     ]
     watchSources: [
       "./src/less/**/**",

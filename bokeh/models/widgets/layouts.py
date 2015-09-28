@@ -13,7 +13,8 @@ from ...util.functions import cached_property, arg_filter
 from ...validation.warnings import EMPTY_LAYOUT
 from ... import validation
 
-from ..widget import Widget
+from ..component import Component
+from .widget import Widget
 
 logger= logging.getLogger(__name__)
 
@@ -41,8 +42,8 @@ class BaseBox(Layout):
         if len(args) > 0 and "children" in kwargs:
             raise ValueError("'children' keyword cannot be used with positional arguments")
         if (len(args) == 1 and hasattr(args[0], '__iter__') and
-            not isinstance(args[0], Widget)):
-            # Note: check that not Widget, in case Widget/Layout ever gets __iter__
+            not isinstance(args[0], Component)):
+            # Note: check that not Component, in case Widget/Layout ever gets __iter__
             kwargs["children"] = list(args[0])
         elif len(args) > 0:
             kwargs["children"] = list(args)
@@ -54,7 +55,7 @@ class BaseBox(Layout):
         if not list(chain(self.children)):
             return str(self)
 
-    children = List(Instance(Widget), help="""
+    children = List(Instance(Component), help="""
     The list of children, which can be other widgets (including layouts)
     and plots.
     """)
@@ -89,9 +90,9 @@ class SimpleApp(Widget):
     layout_registry = {}
 
     name = String()
-    objects = Dict(String, Either(String, Instance(Widget)))
+    objects = Dict(String, Either(String, Instance(Component)))
     widget_list = List(String, help="list of widgets, for ordering")
-    layout = Instance(Widget)
+    layout = Instance(Component)
 
     @classmethod
     def create(cls, name, widgets):
@@ -118,7 +119,7 @@ class SimpleApp(Widget):
         delattr(self, "_debounce_called")
 
     def process_user_result(self, result):
-        if isinstance(result, Widget):
+        if isinstance(result, Component):
             result = {'output' : result}
         if isinstance(result, dict):
             # hack - so we can detect a change
@@ -226,7 +227,7 @@ class AppVBox(VBox, AppLayout):
     strings (which are then evaluated in an app namespace for
     de-referencing
     """
-    children = List(Either(Instance(Widget), String), help="""
+    children = List(Either(Instance(Component), String), help="""
     The list of children, which can be other widgets (including layouts)
     and plots - or strings. If strings, there must be a corresponding app
     which contains the widget/plot matching that string
@@ -238,7 +239,7 @@ class AppHBox(HBox, AppLayout):
     strings (which are then evaluated in an app namespace for
     de-referencing
     """
-    children = List(Either(Instance(Widget), String), help="""
+    children = List(Either(Instance(Component), String), help="""
     The list of children, which can be other widgets (including layouts)
     and plots - or strings. If strings, there must be a corresponding app
     which contains the widget/plot matching that string
@@ -249,7 +250,7 @@ class AppVBoxForm(VBox, AppLayout):
     strings (which are then evaluated in an app namespace for
     de-referencing
     """
-    children = List(Either(Instance(Widget), String), help="""
+    children = List(Either(Instance(Component), String), help="""
     The list of children, which can be other widgets (including layouts)
     and plots - or strings. If strings, there must be a corresponding app
     which contains the widget/plot matching that string

@@ -35,13 +35,13 @@ describe "customjs module", ->
 
     it "should have code property as function body", ->
       r = Collections('CustomJS').create({code: "return 10"})
-      f = new Function("cb_obj", "cb_data", "return 10")
+      f = new Function("cb_obj", "cb_data", "require", "return 10")
       expect(r.get('func').toString()).to.be.equal f.toString()
 
     it "should have values as function args", ->
       rng = Collections('Range1d').create()
       r = Collections('CustomJS').create({args: {foo: rng.ref()}, code: "return 10"})
-      f = new Function("foo", "cb_obj", "cb_data", "return 10")
+      f = new Function("foo", "cb_obj", "cb_data", "require", "return 10")
       expect(r.get('func').toString()).to.be.equal f.toString()
 
   describe "execute method", ->
@@ -60,7 +60,7 @@ describe "customjs module", ->
 
     it "should return cb_data with value of null if cb_data kwarg is unset", ->
       r = Collections('CustomJS').create({code: "return cb_data"})
-      expect(r.execute('foo')).to.be.equal undefined 
+      expect(r.execute('foo')).to.be.equal undefined
 
     it "should return cb_data with value of kwarg parameter to execute", ->
       r = Collections('CustomJS').create({code: "return cb_data"})

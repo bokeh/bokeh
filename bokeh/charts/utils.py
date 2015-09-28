@@ -205,7 +205,7 @@ def show(obj, title='test', filename=False, server=False, notebook=False, **kws)
     it in an output cell (IPython notebook).
 
     Args:
-        obj (Widget/Plot object, optional): it accepts a plot object and just shows it.
+        obj (Component object, optional): it accepts a plot object and just shows it.
 
     """
     if filename:

@@ -13,6 +13,7 @@ these different cases.
 
 from __future__ import absolute_import
 
+import re
 import uuid
 from warnings import warn
 
@@ -95,12 +96,12 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
                 components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
                 # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
     '''
-    all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
+    custom_models, all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
 
     if wrap_script:
-        script = _get_script(all_models, plots)
+        script = _get_script(custom_models, all_models, plots)
     else:
-        script = _get_js(all_models, plots)
+        script = _get_js(custom_models, all_models, plots)
     script = encode_utf8(script)
 
     if wrap_plot_info:
@@ -112,6 +113,7 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 def _get_components(plot_objects, resources=None):
     plot_objects = _check_components_input(plot_objects, resources)
 
+    custom_models = {}
     all_models = dict()
     plots = []
 
@@ -119,7 +121,7 @@ def _get_components(plot_objects, resources=None):
         divs = []
         for idx, plot_object in enumerate(plot_objects):
             elementid = str(uuid.uuid4())
-            _append_plot(all_models, plots, plot_object, elementid)
+            _append_plot(custom_models, all_models, plots, plot_object, elementid)
             divs = _append_div(elementid, divs)
         if len(divs) == 1:
             divs = divs[0]
@@ -133,10 +135,10 @@ def _get_components(plot_objects, resources=None):
         plot_info = {}
         for key in plot_objects.keys():
             elementid = str(uuid.uuid4())
-            plot_info[key] = _append_plot(all_models, plots, plot_objects[key], elementid)
+            plot_info[key] = _append_plot(custom_models, all_models, plots, plot_objects[key], elementid)
             divs = _append_div(elementid, divs, key)
 
-    return list(all_models.values()), plots, plot_info, divs
+    return custom_models, list(all_models.values()), plots, plot_info, divs
 
 
 def _check_components_input(plot_objects, resources=None):
@@ -167,26 +169,65 @@ def _check_components_input(plot_objects, resources=None):
     return plot_objects
 
 
-def _get_js(all_models, plots):
+def _get_js(custom_models, all_models, plots):
     js = PLOT_JS.render(
+        custom_models=custom_models,
         all_models=serialize_json(all_models),
         plots=plots
     )
     return _wrap_in_function(js)
 
 
-def _get_script(all_models, plots):
-    js = _get_js(all_models, plots)
+def _get_script(custom_models, all_models, plots):
+    js = _get_js(custom_models, all_models, plots)
     script = PLOT_SCRIPT.render(
         plot_js=js,
     )
     return script
 
 
-def _append_plot(all_models, plots, plot_object, elementid):
+def _escape_code(code):
+    """ Escape JS/CS source code, so that it can be embbeded in a JS string.
+
+    This is based on https://github.com/joliss/js-string-escape.
+    """
+    def escape(match):
+        ch = match.group(0)
+
+        if ch == '"' or ch == "'" or ch == '\\':
+            return '\\' + ch
+        elif ch == '\n':
+            return '\\n'
+        elif ch == '\r':
+            return '\\r'
+        elif ch == '\u2028':
+            return '\\u2028'
+        elif ch == '\u2029':
+            return '\\u2029'
+
+    return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
+
+def _extract_custom_models(plot_object):
+    custom_models = {}
+
+    for obj in plot_object.references():
+        impl = getattr(obj.__class__, "__implementation__", None)
+
+        if impl is not None:
+            name = obj.__class__.__name__
+            impl = "['%s', {}]" % _escape_code(impl)
+            custom_models[name] = impl
+
+    return custom_models
+
+def _append_plot(custom_models, all_models, plots, plot_object, elementid):
     ref = plot_object.ref
+
+    custom_models.update(_extract_custom_models(plot_object))
+
     for item in plot_object.dump():
         all_models[item['id']] = item
+
     plot_info = {
         'modelid': ref["id"],
         'elementid': elementid,
@@ -238,6 +279,7 @@ def notebook_div(plot_object):
     }]
 
     js = PLOT_JS.render(
+        custom_models = _extract_custom_models(plot_object),
         all_models = serialize_json(plot_object.dump()),
         plots = plots
     )

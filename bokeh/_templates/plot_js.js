@@ -1,3 +1,8 @@
+Bokeh.Collections.register_models({
+  {% for name, impl in custom_models.items() -%}
+    "{{ name }}": {{ impl }},
+  {%- endfor %}
+});
 var all_models = {{ all_models }};
 Bokeh.load_models(all_models);
 var plots = {{ plots }};

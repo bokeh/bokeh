@@ -1,5 +1,5 @@
 _ = require "underscore"
-kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
+kiwi = require "kiwi"
 HasParent = require "../../common/has_parent"
 LayoutBox = require "../../common/layout_box"
 {logger} = require "../../common/logging"
