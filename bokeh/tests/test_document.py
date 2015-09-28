@@ -189,12 +189,12 @@ class TestDocument(unittest.TestCase):
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        patch1 = d.create_json_patch_string(root1, 'foo', 57)
+        patch1 = d.create_json_patch_string(root1, { 'foo' : 57 })
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57
 
-        patch2 = d.create_json_patch_string(child1, 'foo', 67)
+        patch2 = d.create_json_patch_string(child1, { 'foo' : 67 })
         d.apply_json_patch_string(patch2)
 
         assert child1.foo == 67
@@ -218,7 +218,7 @@ class TestDocument(unittest.TestCase):
         assert child2._id not in d._all_models
         assert child3._id not in d._all_models
 
-        patch1 = d.create_json_patch_string(root1, 'child', child3)
+        patch1 = d.create_json_patch_string(root1, { 'child' : child3 })
         d.apply_json_patch_string(patch1)
 
         assert root1.child._id == child3._id
@@ -228,7 +228,7 @@ class TestDocument(unittest.TestCase):
         assert child3._id in d._all_models
 
         # put it back how it was before
-        patch2 = d.create_json_patch_string(root1, 'child', child1)
+        patch2 = d.create_json_patch_string(root1, { 'child': child1 })
         d.apply_json_patch_string(patch2)
 
         assert root1.child._id == child1._id
@@ -237,3 +237,24 @@ class TestDocument(unittest.TestCase):
         assert child1._id in d._all_models
         assert child2._id not in d._all_models
         assert child3._id not in d._all_models
+
+    def test_patch_two_properties_at_once(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        root1 = SomeModel(foo=42)
+        child1 = SomeModel(foo=43)
+        root1.child = child1
+        d.add_root(root1)
+        assert len(d.roots) == 1
+        assert root1.child == child1
+        assert root1.foo == 42
+        assert root1.child.foo == 43
+
+        child2 = SomeModel(foo=44)
+
+        patch1 = d.create_json_patch_string(root1, { 'foo' : 57, 'child' : child2 })
+        d.apply_json_patch_string(patch1)
+
+        assert root1.foo == 57
+        assert root1.child.foo == 44

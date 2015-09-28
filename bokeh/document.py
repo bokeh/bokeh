@@ -187,28 +187,39 @@ class Document(object):
 
         return doc
 
-    def create_json_patch_string(self, obj, attr, value):
-        ''' Create a JSON object describing a patch to be applied with apply_json_patch_string() '''
+    def create_json_patch_string(self, obj, updates):
+        ''' Create a JSON string describing a patch to be applied with apply_json_patch_string()
+
+            Args:
+              obj : a PlotObject in the document
+                  Object in the document to be patched
+
+              updates : dict of attribute names to values
+                  Properties to be set in the patched object
+
+            Returns:
+              str :  JSON string which can be applied to make the given updates to obj
+        '''
         references = set()
-        if isinstance(value, PlotObject):
-            # the new value is an object that may have
-            # not-yet-in-the-remote-doc references, and may also
-            # itself not be in the remote doc yet.  the remote may
-            # already have some of the references, but
-            # unfortunately we don't have an easy way to know
-            # unless we were to check BEFORE the attr gets changed
-            # (we need the old _all_models before setting the
-            # property). So we have to send all the references the
-            # remote could need, even though it could be inefficient.
-            # If it turns out we need to fix this we could probably
-            # do it by adding some complexity.
-            references = value.references()
-            # we know we don't want a whole new copy of the obj we're patching
-            references.discard(obj)
+        for attr, value in updates.items():
+            if isinstance(value, PlotObject):
+                # the new value is an object that may have
+                # not-yet-in-the-remote-doc references, and may also
+                # itself not be in the remote doc yet.  the remote may
+                # already have some of the references, but
+                # unfortunately we don't have an easy way to know
+                # unless we were to check BEFORE the attr gets changed
+                # (we need the old _all_models before setting the
+                # property). So we have to send all the references the
+                # remote could need, even though it could be inefficient.
+                # If it turns out we need to fix this we could probably
+                # do it by adding some complexity.
+                references = references.union(value.references())
+        # we know we don't want a whole new copy of the obj we're patching
+        references.discard(obj)
 
         json = obj.ref
-        json['attr'] = attr
-        json['value'] = value
+        json['updates'] = updates
         json['references'] = self._references_json(references)
 
         return serialize_json(json)
@@ -221,8 +232,7 @@ class Document(object):
             raise ProtocolError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
         patched_obj = self._all_models[patched_id]
 
-        attr = json_parsed['attr']
-        value = json_parsed['value']
+        updates = json_parsed['updates']
         references_json = json_parsed['references']
         references = self._instantiate_references_json(references_json)
 
@@ -234,7 +244,11 @@ class Document(object):
 
         self._initialize_references_json(references_json, references)
 
-        if attr in patched_obj.properties_with_refs():
-            value = references[value['id']]
+        modified_updates = {}
+        for attr, value in updates.items():
+            if attr in patched_obj.properties_with_refs():
+                modified_updates[attr] = references[value['id']]
+            else:
+                modified_updates[attr] = value
 
-        patched_obj.update(** { attr : value })
+        patched_obj.update(** modified_updates)
