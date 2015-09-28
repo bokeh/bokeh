@@ -4,7 +4,7 @@ callback interface to classes.
 '''
 from __future__ import absolute_import
 
-from inspect import formatargspec, getargspec, isfunction
+from inspect import formatargspec, getargspec, isfunction, ismethod
 from types import FunctionType
 
 def _callback_argspec(callback):
@@ -14,7 +14,7 @@ def _callback_argspec(callback):
 
     if isfunction(callback):
         return getargspec(callback)
-    elif hasattr(callback, 'im_func'):
+    elif ismethod(callback):
         # in this case the argspec will have 'self' in the args
         return getargspec(callback)
     else:
