@@ -60,7 +60,6 @@ class TestClientServer(unittest.TestCase):
             # and the client loop should end
             connection.loop_until_closed()
             assert not connection.connected
-            server.unlisten()
 
     def test_push_document(self):
         application = Application()
@@ -92,7 +91,6 @@ class TestClientServer(unittest.TestCase):
             connection.close()
             connection.loop_until_closed()
             assert not connection.connected
-            server.unlisten() # clean up so next test can run
 
     def test_request_server_info(self):
         application = Application()
@@ -111,7 +109,6 @@ class TestClientServer(unittest.TestCase):
             connection.close()
             connection.loop_until_closed()
             assert not connection.connected
-            server.unlisten() # clean up so next test can run
 
     def test_client_changes_go_to_server(self):
         application = Application()
@@ -148,7 +145,6 @@ class TestClientServer(unittest.TestCase):
             connection.close()
             connection.loop_until_closed()
             assert not connection.connected
-            server.unlisten() # clean up so next test can run
 
     def test_server_changes_go_to_client(self):
         application = Application()
@@ -161,7 +157,7 @@ class TestClientServer(unittest.TestCase):
             client_root = SomeModel(foo=42)
             doc.add_root(client_root)
 
-            client_session = connection.push_session(doc, 'test_client_changes_go_to_server')
+            client_session = connection.push_session(doc, 'test_server_changes_go_to_client')
             server_session = server.get_session(client_session.id)
 
             assert len(server_session.document.roots) == 1
@@ -185,4 +181,3 @@ class TestClientServer(unittest.TestCase):
             connection.close()
             connection.loop_until_closed()
             assert not connection.connected
-            server.unlisten() # clean up so next test can run
