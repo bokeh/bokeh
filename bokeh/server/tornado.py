@@ -92,7 +92,8 @@ class BokehTornado(TornadoApplication):
         self._clients.discard(connection)
 
         # clean up sessions when they have no connections anymore
-        for session in connection.subscribed_sessions:
+        while connection.subscribed_sessions:
+            session = next(iter(connection.subscribed_sessions))
             connection.unsubscribe_session(session)
             if session.connection_count == 0:
                 self.discard_session(session)
