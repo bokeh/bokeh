@@ -72,6 +72,15 @@ class Document(object):
 
             self._callbacks.append(callback)
 
+    def remove_on_change(self, *callbacks):
+        ''' Remove a callback added earlier with on_change()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        for callback in callbacks:
+            self._callbacks.remove(callback)
+
     def _notify_change(self, model, attr, old, new):
         ''' Called by PlotObject when it changes
 

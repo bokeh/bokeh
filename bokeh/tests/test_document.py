@@ -128,6 +128,23 @@ class TestDocument(unittest.TestCase):
         assert result['old'] == 1
         assert result['new'] == 42
 
+    def test_change_notification_removal(self):
+        d = document.Document()
+        assert not d.roots
+        m = AnotherModel()
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert m.bar == 1
+        result = { 'new' : None }
+        def listener(doc, model, attr, old, new):
+            result['new'] = new
+        d.on_change(listener)
+        m.bar = 42
+        assert result['new'] == 42
+        d.remove_on_change(listener)
+        m.bar = 43
+        assert result['new'] == 42
+
     def test_clear(self):
         d = document.Document()
         assert not d.roots
