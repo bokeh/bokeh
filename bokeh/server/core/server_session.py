@@ -70,13 +70,8 @@ class ServerSession(object):
     @gen.coroutine
     def push(cls, message, connection, session):
         with (yield session._lock.acquire()):
-            try:
-                log.debug("pushing doc to session %r", session.id)
-                message.push_to_document(session.document)
-            except Exception as e:
-                text = "Error pushing document"
-                log.error("error pushing document %r", e)
-                raise gen.Return(connection.error(message, text))
+            log.debug("pushing doc to session %r", session.id)
+            message.push_to_document(session.document)
 
             raise gen.Return(connection.ok(message))
 
@@ -85,19 +80,14 @@ class ServerSession(object):
     @gen.coroutine
     def _handle_patch(self, message, connection):
         with (yield self._lock.acquire()):
+            log.debug("patching session %r with %r", self.id, message.content)
+            self._current_patch = message
+            self._current_patch_connection = connection
             try:
-                log.debug("patching session %r with %r", self.id, message.content)
-                self._current_patch = message
-                self._current_patch_connection = connection
-                try:
-                    message.apply_to_document(self.document)
-                finally:
-                    self._current_patch = None
-                    self._current_patch_connection = None
-            except Exception as e:
-                text = "Error patching document"
-                log.error("error patching document %r", e)
-                raise gen.Return(connection.error(message, text))
+                message.apply_to_document(self.document)
+            finally:
+                self._current_patch = None
+                self._current_patch_connection = None
 
             raise gen.Return(connection.ok(message))
 

@@ -53,7 +53,11 @@ class ServerHandler(object):
         if handler is None:
             raise ProtocolError("%s not expected on server" % message)
 
-        work = yield handler(message, connection)
+        try:
+            work = yield handler(message, connection)
+        except Exception as e:
+            log.error("error handling message %r: %r", message, e)
+            work = connection.error(message, repr(e))
         raise gen.Return(work)
 
     @gen.coroutine
