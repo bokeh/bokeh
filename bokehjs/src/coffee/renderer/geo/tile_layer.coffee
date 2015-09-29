@@ -459,7 +459,7 @@ class TileLayerView extends Glyph.View
 
   _render: (ctx, indices, {url, image, need_load, sx, sy, sw, sh, angle}) ->
 
-    @_update_current()
+    @_update(abridged=true)
 
     if @render_timer?
       clearTimeout(@render_timer)
@@ -467,7 +467,7 @@ class TileLayerView extends Glyph.View
     if @prefetch_timer?
       clearTimeout(@prefetch_timer)
 
-    @render_timer = setTimeout(@_update, 100)
+    @render_timer = setTimeout(@_update, 65)
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
 
   _draw_tile: (tile_key) ->
@@ -495,7 +495,6 @@ class TileLayerView extends Glyph.View
     @_draw_tile(tile_key)
     @map_canvas.restore()
 
-
   _render_tiles: (tile_keys) ->
     @map_canvas.save()
     @map_canvas.rect(
@@ -506,13 +505,6 @@ class TileLayerView extends Glyph.View
     for tile_key in tile_keys
       @_draw_tile(tile_key)
     @map_canvas.restore()
-
-  _update_current: () ->
-    current_tiles = []
-    for key, tile_obj of @tile_provider.tiles
-      if tile_obj.current? and tile_obj.current
-        current_tiles.push(key)
-    @_render_tiles(current_tiles)
 
   _prefetch_tiles: () =>
     extent = @get_extent()
@@ -528,7 +520,7 @@ class TileLayerView extends Glyph.View
         else
           @_create_tile(cx, cy, cz, cbounds, true)
 
-  _update: () =>
+  _update: (abridged=false) =>
 
     if window.stop?
       window.stop()
@@ -541,7 +533,7 @@ class TileLayerView extends Glyph.View
     tiles = @tile_provider.get_tiles_by_extent(extent, zoom_level)
 
     parents = []
-    create_us = []
+    need_load = []
     cached = []
 
     for t in tiles
@@ -555,15 +547,16 @@ class TileLayerView extends Glyph.View
           parent_key = @tile_provider.tile_xyz_to_key(px, py, pz)
           if parent_key of @tile_provider.tiles
             parents.push(parent_key)
-          create_us.push(t)
+          need_load.push(t)
 
     # first draw stand-in parents =====================================
     @_render_tiles(parents)
 
     # load missing tiles ==============================================
-    for t in create_us
-      [x, y, z, bounds] = t
-      @_create_tile(x, y, z, bounds)
+    if not abridged
+      for t in need_load
+        [x, y, z, bounds] = t
+        @_create_tile(x, y, z, bounds)
 
     # draw cached tiles ===============================================
     @_render_tiles(cached)
