@@ -27,7 +27,7 @@ class patch_doc_1(Message):
         '''
 
         '''
-        header = cls.create_header_with_session(session_id)
+        header = cls.create_header(session_id=session_id)
 
         patch_json = document.create_json_patch_string(obj, updates)
         # this is a total hack, the need for it is because we have magic

@@ -10,6 +10,9 @@ from ...exceptions import ProtocolError
 from ..message import Message
 from . import register
 
+import logging
+log = logging.getLogger(__name__)
+
 @register
 class push_doc_1(Message):
     '''
@@ -27,7 +30,7 @@ class push_doc_1(Message):
         '''
 
         '''
-        header = cls.create_header_with_session(session_id)
+        header = cls.create_header(session_id=session_id)
 
         doc_json = document.to_json_string()
         # this is a total hack, the need for it is because we have magic

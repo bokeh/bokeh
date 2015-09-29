@@ -31,13 +31,12 @@ class error_1(Message):
         return msg
 
     @classmethod
-    def create(cls, reqid, text, **metadata):
+    def create(cls, request_id, text, **metadata):
         '''
 
         '''
-        header = cls.create_header()
+        header = cls.create_header(request_id=request_id)
         content = {
-            'reqid' : reqid,
             'text'  : text,
         }
         ex_type, ex, tb = sys.exc_info()

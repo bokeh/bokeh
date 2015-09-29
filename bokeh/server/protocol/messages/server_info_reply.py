@@ -23,13 +23,12 @@ class server_info_reply_1(Message):
     revision = 1
 
     @classmethod
-    def create(cls, reqid, **metadata):
+    def create(cls, request_id, **metadata):
         '''
 
         '''
-        header = cls.create_header()
+        header = cls.create_header(request_id=request_id)
         content = {
-            'reqid' : reqid,
             'version_info': _VERSION_INFO,
         }
         return cls(header, metadata, content)

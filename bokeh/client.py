@@ -59,7 +59,7 @@ class ClientConnection(object):
             message = yield connection._pop_message()
             if message is None:
                 yield connection._transition_to_disconnected()
-            elif 'reqid' in message.content and message.content['reqid'] == self._reqid:
+            elif 'reqid' in message.header and message.header['reqid'] == self._reqid:
                 self._reply = message
                 yield connection._transition(connection.CONNECTED_AFTER_ACK())
             else:

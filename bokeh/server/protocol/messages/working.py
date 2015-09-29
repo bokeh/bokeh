@@ -19,12 +19,10 @@ class working_1(Message):
     revision = 1
 
     @classmethod
-    def create(cls, session_id, reqid, **metadata):
+    def create(cls, session_id, request_id, **metadata):
         '''
 
         '''
-        header = cls.create_header_with_session(session_id)
-        content = {
-            'reqid' : reqid,
-        }
+        header = cls.create_header(session_id=session_id, request_id=request_id)
+        content = {}
         return cls(header, metadata, content)

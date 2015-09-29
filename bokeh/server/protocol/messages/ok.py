@@ -20,12 +20,9 @@ class ok_1(Message):
     revision = 1
 
     @classmethod
-    def create(cls, reqid, **metadata):
+    def create(cls, request_id, **metadata):
         '''
 
         '''
-        header = cls.create_header()
-        content = {
-            'reqid': reqid,
-        }
-        return cls(header, metadata, content)
+        header = cls.create_header(request_id=request_id)
+        return cls(header, metadata, {})

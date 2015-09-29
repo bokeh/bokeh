@@ -165,36 +165,26 @@ class Message(object):
         return sent
 
     @classmethod
-    def create_header(cls):
+    def create_header(cls, session_id=None, request_id=None):
         ''' Return a message header fragment dict.
 
         Args:
+            session_id (str or None) : session ID the message relates to
+            request_id (str or None) : message ID of the message this message replies to
 
         Returns:
             dict : a message header
 
         '''
-        return {
+        header = {
             'msgid'   : bkserial.make_id(),
             'msgtype' : cls.msgtype
         }
-
-    @classmethod
-    def create_header_with_session(cls, session_id):
-        ''' Return a message header fragment dict for a given session ID.
-
-        Args:
-            session_id : a unique ID for a Bokeh server session.
-
-        Returns:
-            dict : a message header
-
-        '''
-        return {
-            'msgid'   : bkserial.make_id(),
-            'sessid'  : session_id,
-            'msgtype' : cls.msgtype
-        }
+        if session_id is not None:
+            header['sessid'] = session_id
+        if request_id is not None:
+            header['reqid'] = request_id
+        return header
 
     def send(self, conn):
         ''' Send the message on the given connection.

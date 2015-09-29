@@ -20,5 +20,5 @@ class pull_doc_req_1(Message):
         '''
 
         '''
-        header = cls.create_header_with_session(session_id)
+        header = cls.create_header(session_id=session_id)
         return cls(header, metadata, {})
