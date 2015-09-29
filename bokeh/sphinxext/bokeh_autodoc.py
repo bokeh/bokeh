@@ -7,9 +7,8 @@ when appropriate.
 """
 from __future__ import absolute_import, print_function
 
-import jinja2
 from six import class_types
-from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter, DataDocumenter
+from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter
 
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Property
