@@ -25,6 +25,9 @@ class Document(object):
         self._all_models = dict()
         self._callbacks = []
 
+    def references(self):
+        return self.context.references()
+
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) '''
         while len(self._roots) > 0:

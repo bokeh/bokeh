@@ -288,15 +288,18 @@ def build_js():
     print()
     print("Build artifact sizes:")
     try:
-        blddir = join("bokehjs", "build")
-        bkjs_size = os.stat(join(blddir, "js", "bokeh.js")).st_size / 2**10
-        bkjs_min_size = os.stat(join(blddir, "js", "bokeh.min.js")).st_size / 2**10
-        bkcss_size = os.stat(join(blddir, "css", "bokeh.css")).st_size / 2**10
-        bkcss_min_size = os.stat(join(blddir, "css", "bokeh.min.css")).st_size / 2**10
-        print("  - bokeh.js      : %6.1f KB" % bkjs_size)
-        print("  - bokeh.css     : %6.1f KB" % bkcss_size)
-        print("  - bokeh.min.js  : %6.1f KB" % bkjs_min_size)
-        print("  - bokeh.min.css : %6.1f KB" % bkcss_min_size)
+        def size(*path):
+            return os.stat(join("bokehjs", "build", *path)).st_size / 2**10
+
+        print("  - bokeh.js              : %6.1f KB" % size("js", "bokeh.js"))
+        print("  - bokeh.css             : %6.1f KB" % size("css", "bokeh.css"))
+        print("  - bokeh.min.js          : %6.1f KB" % size("js", "bokeh.min.js"))
+        print("  - bokeh.min.css         : %6.1f KB" % size("css", "bokeh.min.css"))
+
+        print("  - bokeh-widgets.js      : %6.1f KB" % size("js", "bokeh-widgets.js"))
+        print("  - bokeh-widgets.css     : %6.1f KB" % size("css", "bokeh-widgets.css"))
+        print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
+        print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
 
@@ -507,6 +510,18 @@ REQUIRES = [
 
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
+
+# Horrible hack: workaround to allow creation of bdist_whell on pip installation
+# Why, for God's sake, is pip forcing the generation of wheels when installing a package?
+
+try:
+    from wheel.bdist_wheel import bdist_wheel
+except ImportError as e:
+    # pip is not claiming for bdist_wheel when wheel is not installed
+    bdist_wheel = None
+
+if bdist_wheel is not None:
+    _cmdclass["bdist_wheel"] = bdist_wheel
 
 setup(
     name='bokeh',

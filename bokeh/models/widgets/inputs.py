@@ -8,7 +8,7 @@ import six
 from ...properties import abstract
 from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
 from ..callbacks import Callback
-from ..widget import Widget
+from .widget import Widget
 
 @abstract
 class InputWidget(Widget):

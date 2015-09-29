@@ -1,10 +1,6 @@
 _ = require "underscore"
-if global._bokehTest?
-  draggable = undefined  # TODO Make work
-  droppable = undefined
-else
-  draggable = require "jquery-ui/draggable"
-  droppable = require "jquery-ui/droppable"
+draggable = require "jquery-ui/draggable"
+droppable = require "jquery-ui/droppable"
 build_views = require "../common/build_views"
 CloseWrapper = require "../common/close_wrapper"
 Collection = require "../common/collection"

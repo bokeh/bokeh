@@ -1,7 +1,4 @@
-if global._bokehTest?
-  gloo2 = undefined  # TODO Make work?
-else
-  gloo2 = require "gloo2"
+gloo2 = require "gloo2"
 color = require "../../common/color"
 color2rgba = color.color2rgba
 

@@ -26,7 +26,7 @@ import io, itertools, os, warnings
 from . import browserlib
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .models import Widget
+from .models import Component
 from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .state import State
@@ -214,7 +214,7 @@ def show(obj, browser=None, new="tab"):
     load the plot from that server session.
 
     Args:
-        obj (Widget/Plot object) : a plot object to display
+        obj (Component object) : a plot object to display
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows
@@ -274,7 +274,7 @@ def save(obj, filename=None, resources=None, title=None, state=None):
     are not provided.
 
     Args:
-        obj (Document or Widget/Plot object) : a plot object to save
+        obj (Document or Component object) : a plot object to save
 
         filename (str, optional) : filename to save document under (default: None)
             If None, use the default state configuration, otherwise raise a
@@ -328,15 +328,11 @@ def _get_save_args(state, filename, resources, title):
     return filename, resources, title
 
 def _save_helper(obj, filename, resources, title):
-
-    # TODO: (bev) Widget seems awkward as a base class to check here
-    if isinstance(obj, Widget):
+    if isinstance(obj, Component):
         doc = Document()
         doc.add(obj)
-
     elif isinstance(obj, Document):
         doc = obj
-
     else:
         raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 

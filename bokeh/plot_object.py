@@ -37,7 +37,7 @@ class Viewable(MetaHasProps):
         newcls = super(Viewable,cls).__new__(cls, class_name, bases, class_dict)
         entry = class_dict.get("__subtype__", class_dict["__view_model__"])
         # Add it to the reverse map, but check for duplicates first
-        if entry in Viewable.model_class_reverse_map:
+        if entry in Viewable.model_class_reverse_map and not hasattr(newcls, "__implementation__"):
             raise Warning("Duplicate __view_model__ or __subtype__ declaration of '%s' for " \
                           "class %s.  Previous definition: %s" % \
                           (entry, class_name,

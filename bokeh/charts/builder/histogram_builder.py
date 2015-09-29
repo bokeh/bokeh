@@ -33,7 +33,6 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
               bins=None, yscale="linear", xgrid=False, ygrid=True,
               continuous_range=None, **kw):
 
-
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(
             "continuous_range must be an instance of bokeh.models.ranges.Range1d"
@@ -79,7 +78,6 @@ class HistogramBuilder(BarBuilder):
     """)
 
     glyph = HistogramGlyph
-    label_attributes = ['color']
 
     def _setup(self):
         super(HistogramBuilder, self)._setup()

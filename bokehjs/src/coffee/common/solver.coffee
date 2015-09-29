@@ -1,6 +1,6 @@
 _ = require "underscore"
 Backbone = require "backbone"
-kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
+kiwi = require "kiwi"
 
 class Solver
 

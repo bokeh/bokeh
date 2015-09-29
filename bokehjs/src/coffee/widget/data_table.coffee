@@ -1,15 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-  SlickGrid = undefined
-  RowSelectionModel = undefined
-  CheckboxSelectColumn = undefined
-else
-  $1 = require "jquery-ui/sortable"
-  SlickGrid = require "slick_grid/slick.grid"
-  RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
-  CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
+$1 = require "jquery-ui/sortable"
+SlickGrid = require "slick_grid/slick.grid"
+RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
+CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
 ContinuumView = require "../common/continuum_view"
 HasProperties= require "../common/has_properties"
 DOMUtil = require "../util/dom_util"
