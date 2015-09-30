@@ -13,7 +13,7 @@ import pandas as pd
 from bokeh.properties import (HasProps, Either, String, Int, List, Bool,
                               PrimitiveProperty, bokeh_integer_types, Array)
 
-from .utils import special_columns
+from .utils import special_columns, title_from_columns
 
 
 class Column(Array):
@@ -185,6 +185,11 @@ class Dimension(HasProps):
             return False
         else:
             return self._chart_source.is_computed(self.selection)
+
+    @property
+    def selected_title(self):
+        """A title formatted representation of selected columns."""
+        return title_from_columns(self.selection)
 
 
 class EitherColumn(Either):

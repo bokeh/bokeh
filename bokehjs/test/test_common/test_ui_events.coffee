@@ -1,17 +1,13 @@
 {expect} = require "chai"
 utils = require "../utils"
-jsdom = require 'mocha-jsdom'
 cheerio = require 'cheerio'
 sinon = require 'sinon'
 
 ui_events = utils.require "common/ui_events"
 # Stub out _hammer_element as not used in testing
-sinon.stub(ui_events.prototype, "_hammer_element") 
-
+sinon.stub(ui_events.prototype, "_hammer_element")
 
 describe "ui_events", ->
-  jsdom()
-
   html = '<body><canvas></canvas></body>'
   $ = cheerio.load html
 

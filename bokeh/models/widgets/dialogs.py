@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 
 from ...properties import Bool, String, List, Instance, Either
-from ..widget import Widget
+from .widget import Widget
 from .layouts import BaseBox, HBox
 from .buttons import Button
 

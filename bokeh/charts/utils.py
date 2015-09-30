@@ -15,6 +15,7 @@ useful for charts ecosystem.
 from __future__ import absolute_import, division, print_function
 
 from six import iteritems
+from copy import copy
 from collections import OrderedDict
 import itertools
 from math import cos, sin
@@ -204,7 +205,7 @@ def show(obj, title='test', filename=False, server=False, notebook=False, **kws)
     it in an output cell (IPython notebook).
 
     Args:
-        obj (Widget/Plot object, optional): it accepts a plot object and just shows it.
+        obj (Component object, optional): it accepts a plot object and just shows it.
 
     """
     if filename:
@@ -293,3 +294,17 @@ def get_unity(data, value=1):
 
 special_columns = {'index': get_index,
                    'unity': get_unity}
+
+
+def title_from_columns(cols):
+    """Creates standard string representation of columns.
+
+    If cols is None, then None is returned.
+    """
+    if cols is not None:
+        cols_title = copy(cols)
+        if not isinstance(cols_title, list):
+            cols_title = [cols_title]
+        return str(', '.join(cols_title).title()).title()
+    else:
+        return None

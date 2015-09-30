@@ -1,0 +1,41 @@
+0.10.0 (Sep 2015)
+=================
+
+This release was focused into provide several new features such as webgl support,
+a new refactored and more powerful chart interface and responsive plots. But we
+are also shipping a lot of bugfixes and enhancements in our documentation,
+testing and build machineries and examples.
+
+* Initial webgl support (check our new examples: maps city, iris blend, scatter 10K, clustering.py)
+* New charts interface supporting aggregation (see our new Bars, BoxPlot, Histogram and Scatter examples)
+* Responsive plots
+* Lower-level jsresources & cssresources (allow more subtle uses of resources)
+* Several test machinery fixes
+* Several build machinery enhancements
+* More pytest-related fixes and enhancements
+* More docs fixes and enhancements
+* Now the glyph methods return the glyph renderer (not the plot)
+* Gmap points moves consistently
+* Added alpha control for imageurl objects
+* Removed python33 testing and packaging
+* Removed multiuserblazeserver
+
+Migration Guide
+---------------
+
+This release introduced a new, often requested style of chart interface that
+is centered around Pandas DataFrames.  All of "old style" charts in the
+``bokeh.charts`` interface have been moved to ``bokeh._legacy_charts``,
+which  will eventually be removed, when all charts have been updated.
+To continue to use the old charts, replace``bokeh.charts`` with
+``bokeh._legacy_charts``, e.g.:
+
+.. code-block:: python
+
+    from bokeh.charts import Area
+
+becomes
+
+.. code-block:: python
+
+    from bokeh._legacy_charts import Area

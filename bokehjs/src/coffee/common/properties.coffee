@@ -253,7 +253,7 @@ class Line extends ContextProperties
     ctx.strokeStyle = @color.value()
     ctx.globalAlpha = @alpha.value()
     ctx.lineWidth   = @width.value()
-    ctx.lineCap     = @join.value()
+    ctx.lineJoin    = @join.value()
     ctx.lineCap     = @cap.value()
     ctx.setLineDash(@dash.value())
     ctx.setLineDashOffset(@dash_offset.value())

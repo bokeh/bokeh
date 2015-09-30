@@ -70,3 +70,4 @@ RenderLevel = enumeration("image", "underlay", "glyph", "annotation",
                           "overlay", "tool")
 RenderMode = enumeration("canvas", "css")
 Aggregation = enumeration("sum", "mean", "count", "nunique", "median", "min", "max")
+ScriptingLanguage = enumeration("javascript", "coffeescript")
