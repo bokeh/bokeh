@@ -48,25 +48,18 @@ class ServerSession(object):
         return len(self._subscribed_connections)
 
     def _document_changed(self, event):
-        if isinstance(event, ModelChangedEvent):
-            may_suppress = self._current_patch is not None and \
-                           self._current_patch.should_suppress_on_change(event.model, event.attr, event.new)
+        may_suppress = self._current_patch is not None and \
+                       self._current_patch.should_suppress_on_change(event)
 
-            # TODO (havocp): our "change sync" protocol is flawed
-            # because if both sides change the same attribute at the
-            # same time, they will each end up with the state of the
-            # other and their final states will differ.
-            for connection in self._subscribed_connections:
-                if may_suppress and connection is self._current_patch_connection:
-                    log.debug("Not sending notification back to client %r for a change it requested", connection)
-                else:
-                    connection.send_patch_document(self._id, self._document, event.model, { event.attr : event.new })
-        elif isinstance(event, RootAddedEvent):
-            pass # TODO (havocp) we need a message to use for this
-        elif isinstance(event, RootRemovedEvent):
-            pass # TODO (havocp) we need a message to use for this
-        else:
-            raise RuntimeError("Unhandled document change event " + repr(event))
+        # TODO (havocp): our "change sync" protocol is flawed
+        # because if both sides change the same attribute at the
+        # same time, they will each end up with the state of the
+        # other and their final states will differ.
+        for connection in self._subscribed_connections:
+            if may_suppress and connection is self._current_patch_connection:
+                log.debug("Not sending notification back to client %r for a change it requested", connection)
+            else:
+                connection.send_patch_document(self._id, event)
 
     @classmethod
     @gen.coroutine

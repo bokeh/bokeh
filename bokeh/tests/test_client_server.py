@@ -121,10 +121,14 @@ class TestClientServer(unittest.TestCase):
 
             doc = document.Document()
             client_root = SomeModel(foo=42)
-            doc.add_root(client_root)
 
             client_session = connection.push_session(doc, 'test_client_changes_go_to_server')
             server_session = server.get_session(client_session.id)
+
+            assert len(server_session.document.roots) == 0
+
+            doc.add_root(client_root)
+            connection.force_roundtrip() # be sure events have been handled on server
 
             assert len(server_session.document.roots) == 1
             server_root = next(iter(server_session.document.roots))
@@ -144,6 +148,10 @@ class TestClientServer(unittest.TestCase):
             connection._loop_until(server_change_made)
             assert server_root.foo == 57
 
+            doc.remove_root(client_root)
+            connection.force_roundtrip() # be sure events have been handled on server
+            assert len(server_session.document.roots) == 0
+
             connection.close()
             connection.loop_until_closed()
             assert not connection.connected
@@ -156,14 +164,17 @@ class TestClientServer(unittest.TestCase):
             assert connection.connected
 
             doc = document.Document()
-            client_root = SomeModel(foo=42)
-            doc.add_root(client_root)
 
             client_session = connection.push_session(doc, 'test_server_changes_go_to_client')
             server_session = server.get_session(client_session.id)
 
-            assert len(server_session.document.roots) == 1
-            server_root = next(iter(server_session.document.roots))
+            assert len(client_session.document.roots) == 0
+            server_root = SomeModel(foo=42)
+            server_session.document.add_root(server_root)
+            def client_has_root():
+                return len(doc.roots) > 0
+            connection._loop_until(client_has_root)
+            client_root = next(iter(client_session.document.roots))
 
             assert client_root.foo == 42
             assert server_root.foo == 42
@@ -179,6 +190,12 @@ class TestClientServer(unittest.TestCase):
                 return client_root.foo == 57
             connection._loop_until(client_change_made)
             assert client_root.foo == 57
+
+            server_session.document.remove_root(server_root)
+            def client_lacks_root():
+                return len(doc.roots) == 0
+            connection._loop_until(client_lacks_root)
+            assert len(client_session.document.roots) == 0
 
             connection.close()
             connection.loop_until_closed()

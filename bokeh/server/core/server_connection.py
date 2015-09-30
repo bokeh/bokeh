@@ -33,8 +33,8 @@ class ServerConnection(object):
     def error(self, message, text):
         return self.protocol.create('ERROR', message.header['msgid'], text)
 
-    def send_patch_document(self, sessionid, document, obj, updates):
-        msg = self.protocol.create('PATCH-DOC', sessionid, document, obj, updates)
+    def send_patch_document(self, sessionid, event):
+        msg = self.protocol.create('PATCH-DOC', sessionid, [event])
         self._socket.send_message(msg)
 
     def create_session_if_needed(self, sessionid, application_name):

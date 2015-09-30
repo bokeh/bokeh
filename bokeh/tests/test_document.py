@@ -159,25 +159,25 @@ class TestDocument(unittest.TestCase):
         assert len(d.roots) == 1
         assert len(events) == 1
         assert isinstance(events[0], document.RootAddedEvent)
-        assert events[0].root == m
+        assert events[0].model == m
         m2 = AnotherModel(bar=2)
         d.add_root(m2)
         assert len(d.roots) == 2
         assert len(events) == 2
         assert isinstance(events[1], document.RootAddedEvent)
-        assert events[1].root == m2
+        assert events[1].model == m2
 
         d.remove_root(m)
         assert len(d.roots) == 1
         assert len(events) == 3
         assert isinstance(events[2], document.RootRemovedEvent)
-        assert events[2].root == m
+        assert events[2].model == m
 
         d.remove_root(m2)
         assert len(d.roots) == 0
         assert len(events) == 4
         assert isinstance(events[3], document.RootRemovedEvent)
-        assert events[3].root == m2
+        assert events[3].model == m2
 
     def test_clear(self):
         d = document.Document()
@@ -240,12 +240,14 @@ class TestDocument(unittest.TestCase):
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        patch1 = d.create_json_patch_string(root1, { 'foo' : 57 })
+        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
+        patch1 = d.create_json_patch_string([event1])
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57
 
-        patch2 = d.create_json_patch_string(child1, { 'foo' : 67 })
+        event2 = document.ModelChangedEvent(d, child1, 'foo', child1.foo, 67)
+        patch2 = d.create_json_patch_string([event2])
         d.apply_json_patch_string(patch2)
 
         assert child1.foo == 67
@@ -269,7 +271,8 @@ class TestDocument(unittest.TestCase):
         assert child2._id not in d._all_models
         assert child3._id not in d._all_models
 
-        patch1 = d.create_json_patch_string(root1, { 'child' : child3 })
+        event1 = document.ModelChangedEvent(d, root1, 'child', root1.child, child3)
+        patch1 = d.create_json_patch_string([event1])
         d.apply_json_patch_string(patch1)
 
         assert root1.child._id == child3._id
@@ -279,7 +282,8 @@ class TestDocument(unittest.TestCase):
         assert child3._id in d._all_models
 
         # put it back how it was before
-        patch2 = d.create_json_patch_string(root1, { 'child': child1 })
+        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child1)
+        patch2 = d.create_json_patch_string([event2])
         d.apply_json_patch_string(patch2)
 
         assert root1.child._id == child1._id
@@ -304,7 +308,9 @@ class TestDocument(unittest.TestCase):
 
         child2 = SomeModel(foo=44)
 
-        patch1 = d.create_json_patch_string(root1, { 'foo' : 57, 'child' : child2 })
+        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
+        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child2)
+        patch1 = d.create_json_patch_string([event1, event2])
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57

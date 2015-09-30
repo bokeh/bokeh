@@ -113,8 +113,8 @@ class ClientConnection(object):
         sent = message.send(self._socket)
         log.debug("Sent %r [%d bytes]", message, sent)
 
-    def _send_patch_document(self, sessionid, document, obj, updates):
-        msg = self._protocol.create('PATCH-DOC', sessionid, document, obj, updates)
+    def _send_patch_document(self, sessionid, event):
+        msg = self._protocol.create('PATCH-DOC', sessionid, [event])
         self.send_message(msg)
 
     def _send_message_wait_for_reply(self, message):
@@ -308,22 +308,15 @@ class ClientSession(object):
         self._document.remove_on_change(self._document_changed)
 
     def _document_changed(self, event):
-        if isinstance(event, ModelChangedEvent):
-            if self._current_patch is not None and self._current_patch.should_suppress_on_change(event.model, event.attr, event.new):
-                log.debug("Not sending notification back to server for a change it requested")
-                return
+        if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):
+            log.debug("Not sending notification back to server for a change it requested")
+            return
 
-            # TODO (havocp): our "change sync" protocol is flawed
-            # because if both sides change the same attribute at the
-            # same time, they will each end up with the state of the
-            # other and their final states will differ.
-            self._connection._send_patch_document(self._id, event.document, event.model, { event.attr : event.new })
-        elif isinstance(event, RootAddedEvent):
-            pass # TODO (havocp) we need a message to use for this
-        elif isinstance(event, RootRemovedEvent):
-            pass # TODO (havocp) we need a message to use for this
-        else:
-            raise RuntimeError("Unhandled document change event " + repr(event))
+        # TODO (havocp): our "change sync" protocol is flawed
+        # because if both sides change the same attribute at the
+        # same time, they will each end up with the state of the
+        # other and their final states will differ.
+        self._connection._send_patch_document(self._id, event)
 
     def _handle_patch(self, message):
         self._current_patch = message

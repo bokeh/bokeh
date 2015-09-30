@@ -23,11 +23,13 @@ class TestPatchDocument(unittest.TestCase):
         doc.add_root(SomeModel())
         return doc
 
-    def test_create(self):
+    def test_create_model_changed(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, next(iter(sample.roots)), { 'foo' : 42 })
+        obj = next(iter(sample.roots))
+        event = document.ModelChangedEvent(sample, obj, 'foo', obj.foo, 42)
+        msg = Protocol("1.0").create("PATCH-DOC", 'fakesession', [event])
 
-    def test_create_then_apply(self):
+    def test_create_then_apply_model_changed(self):
         sample = self._sample_doc()
 
         foos = []
@@ -37,7 +39,8 @@ class TestPatchDocument(unittest.TestCase):
 
         obj = next(iter(sample.roots))
         assert obj.foo == 2
-        msg = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, obj, { 'foo' : 42 })
+        event = document.ModelChangedEvent(sample, obj, 'foo', obj.foo, 42)
+        msg = Protocol("1.0").create("PATCH-DOC", 'fakesession', [event])
 
         copy = document.Document.from_json_string(sample.to_json_string())
         msg.apply_to_document(copy)
@@ -48,7 +51,7 @@ class TestPatchDocument(unittest.TestCase):
         foos.sort()
         assert foos == [ 2, 42 ]
 
-    def test_should_suppress(self):
+    def test_should_suppress_model_changed(self):
         sample = self._sample_doc()
         root = None
         other_root = None
@@ -62,29 +65,47 @@ class TestPatchDocument(unittest.TestCase):
         new_child = AnotherModel(bar=56)
 
         # integer property changed
-        msg = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, root, { 'foo' : 42 })
-        assert msg.should_suppress_on_change(root, 'foo', 42)
-        assert not msg.should_suppress_on_change(root, 'foo', 43)
-        assert not msg.should_suppress_on_change(root, 'bar', 42)
-        assert not msg.should_suppress_on_change(other_root, 'foo', 42)
+        event1 = document.ModelChangedEvent(sample, root, 'foo', root.foo, 42)
+        msg = Protocol("1.0").create("PATCH-DOC", 'fakesession', [event1])
+        assert msg.should_suppress_on_change(event1)
+        assert not msg.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'foo', root.foo, 43))
+        assert not msg.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'bar', root.foo, 43))
+        assert not msg.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'foo', root.foo, 43))
 
         # PlotObject property changed
-        msg2 = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, root, { 'child' : new_child })
-        assert msg2.should_suppress_on_change(root, 'child', new_child)
-        assert not msg2.should_suppress_on_change(root, 'child', other_root)
-        assert not msg2.should_suppress_on_change(root, 'blah', new_child)
-        assert not msg2.should_suppress_on_change(other_root, 'child', new_child)
+        event2 = document.ModelChangedEvent(sample, root, 'child', root.child, new_child)
+        msg2 = Protocol("1.0").create("PATCH-DOC", 'fakesession', [event2])
+        assert msg2.should_suppress_on_change(event2)
+        assert not msg2.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'child', root.child, other_root))
+        assert not msg2.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'blah', root.child, new_child))
+        assert not msg2.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'child', other_root.child, new_child))
 
         # PlotObject property changed to None
-        msg3 = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, root, { 'child' : None })
-        assert msg3.should_suppress_on_change(root, 'child', None)
-        assert not msg3.should_suppress_on_change(root, 'child', other_root)
-        assert not msg3.should_suppress_on_change(root, 'blah', new_child)
-        assert not msg3.should_suppress_on_change(other_root, 'child', new_child)
+        event3 = document.ModelChangedEvent(sample, root, 'child', root.child, None)
+        msg3 = Protocol("1.0").create("PATCH-DOC", 'fakesession', [event3])
+        assert msg3.should_suppress_on_change(event3)
+        assert not msg3.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'child', root.child, other_root))
+        assert not msg3.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'blah', root.child, None))
+        assert not msg3.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'child', other_root.child, None))
 
         # PlotObject property changed from None
-        msg4 = Protocol("1.0").create("PATCH-DOC", 'fakesession', sample, other_root, { 'child' : None })
-        assert msg4.should_suppress_on_change(other_root, 'child', None)
-        assert not msg4.should_suppress_on_change(other_root, 'child', root)
-        assert not msg4.should_suppress_on_change(other_root, 'blah', None)
-        assert not msg4.should_suppress_on_change(root, 'child', None)
+        event4 = document.ModelChangedEvent(sample, other_root, 'child', other_root.child, None)
+        msg4 = Protocol("1.0").create("PATCH-DOC", 'fakesession', [event4])
+        assert msg4.should_suppress_on_change(event4)
+        assert not msg4.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'child', other_root.child, root))
+        assert not msg4.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'blah', other_root.child, None))
+        assert not msg4.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'child', other_root.child, None))
+
+        # RootAdded
+        event5 = document.RootAddedEvent(sample, root)
+        msg5 = Protocol("1.0").create("PATCH-DOC", 'fakesession', [event5])
+        assert msg5.should_suppress_on_change(event5)
+        assert not msg5.should_suppress_on_change(document.RootAddedEvent(sample, other_root))
+        assert not msg5.should_suppress_on_change(document.RootRemovedEvent(sample, root))
+
+        # RootRemoved
+        event6 = document.RootRemovedEvent(sample, root)
+        msg6 = Protocol("1.0").create("PATCH-DOC", 'fakesession', [event6])
+        assert msg6.should_suppress_on_change(event6)
+        assert not msg6.should_suppress_on_change(document.RootRemovedEvent(sample, other_root))
+        assert not msg6.should_suppress_on_change(document.RootAddedEvent(sample, root))

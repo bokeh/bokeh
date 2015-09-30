@@ -27,14 +27,14 @@ class ModelChangedEvent(DocumentChangedEvent):
         self.new = new
 
 class RootAddedEvent(DocumentChangedEvent):
-    def __init__(self, document, root):
+    def __init__(self, document, model):
         super(RootAddedEvent, self).__init__(document)
-        self.root = root
+        self.model = model
 
 class RootRemovedEvent(DocumentChangedEvent):
-    def __init__(self, document, root):
+    def __init__(self, document, model):
         super(RootRemovedEvent, self).__init__(document)
-        self.root = root
+        self.model = model
 
 class Document(object):
 
@@ -230,40 +230,56 @@ class Document(object):
 
         return doc
 
-    def create_json_patch_string(self, obj, updates):
+    def create_json_patch_string(self, events):
         ''' Create a JSON string describing a patch to be applied with apply_json_patch_string()
 
             Args:
-              obj : a PlotObject in the document
-                  Object in the document to be patched
-
-              updates : dict of attribute names to values
-                  Properties to be set in the patched object
+              events : list of events to be translated into patches
 
             Returns:
               str :  JSON string which can be applied to make the given updates to obj
         '''
         references = set()
-        for attr, value in updates.items():
-            if isinstance(value, PlotObject):
-                # the new value is an object that may have
-                # not-yet-in-the-remote-doc references, and may also
-                # itself not be in the remote doc yet.  the remote may
-                # already have some of the references, but
-                # unfortunately we don't have an easy way to know
-                # unless we were to check BEFORE the attr gets changed
-                # (we need the old _all_models before setting the
-                # property). So we have to send all the references the
-                # remote could need, even though it could be inefficient.
-                # If it turns out we need to fix this we could probably
-                # do it by adding some complexity.
-                references = references.union(value.references())
-        # we know we don't want a whole new copy of the obj we're patching
-        references.discard(obj)
+        json_events = []
+        for event in events:
+            if event.document is not self:
+                raise ValueError("Cannot create a patch using events from a different document " + repr(event))
 
-        json = obj.ref
-        json['updates'] = updates
-        json['references'] = self._references_json(references)
+            if isinstance(event, ModelChangedEvent):
+                value = event.new
+                if isinstance(value, PlotObject):
+                    # the new value is an object that may have
+                    # not-yet-in-the-remote-doc references, and may also
+                    # itself not be in the remote doc yet.  the remote may
+                    # already have some of the references, but
+                    # unfortunately we don't have an easy way to know
+                    # unless we were to check BEFORE the attr gets changed
+                    # (we need the old _all_models before setting the
+                    # property). So we have to send all the references the
+                    # remote could need, even though it could be inefficient.
+                    # If it turns out we need to fix this we could probably
+                    # do it by adding some complexity.
+                    value_refs = value.references()
+                    # we know we don't want a whole new copy of the obj we're patching
+                    value_refs.discard(event.model)
+                    references = references.union(value_refs)
+
+                json_events.append({ 'kind' : 'ModelChanged',
+                                     'model' : event.model.ref,
+                                     'attr' : event.attr,
+                                     'new' : value })
+            elif isinstance(event, RootAddedEvent):
+                references = references.union(event.model.references())
+                json_events.append({ 'kind' : 'RootAdded',
+                                     'model' : event.model.ref })
+            elif isinstance(event, RootRemovedEvent):
+                json_events.append({ 'kind' : 'RootRemoved',
+                                     'model' : event.model.ref })
+
+        json = {
+            'events' : json_events,
+            'references' : self._references_json(references)
+            }
 
         return serialize_json(json)
 
@@ -274,28 +290,42 @@ class Document(object):
 
     def apply_json_patch(self, patch):
         ''' Apply a JSON patch object created by parsing the result of create_json_patch_string() '''
-        patched_id = patch['id']
-        if patched_id not in self._all_models:
-            raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
-        patched_obj = self._all_models[patched_id]
-
-        updates = patch['updates']
         references_json = patch['references']
+        events_json = patch['events']
         references = self._instantiate_references_json(references_json)
 
-        # Use our existing model instances whenever we have them, and add the obj we're patching
-        references[patched_obj._id] = patched_obj
+        # Use our existing model instances whenever we have them
         for obj in references.values():
             if obj._id in self._all_models:
                 references[obj._id] = self._all_models[obj._id]
 
+        # The model being changed isn't always in references so add it in
+        for event_json in events_json:
+            if 'model' in event_json:
+                model_id = event_json['model']['id']
+                if model_id in self._all_models:
+                    references[model_id] = self._all_models[model_id]
+
         self._initialize_references_json(references_json, references)
 
-        modified_updates = {}
-        for attr, value in updates.items():
-            if attr in patched_obj.properties_with_refs():
-                modified_updates[attr] = references[value['id']]
+        for event_json in events_json:
+            if event_json['kind'] == 'ModelChanged':
+                patched_id = event_json['model']['id']
+                if patched_id not in self._all_models:
+                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
+                patched_obj = self._all_models[patched_id]
+                attr = event_json['attr']
+                value = event_json['new']
+                if attr in patched_obj.properties_with_refs():
+                    value = references[value['id']]
+                patched_obj.update(** { attr : value })
+            elif event_json['kind'] == 'RootAdded':
+                root_id = event_json['model']['id']
+                root_obj = references[root_id]
+                self.add_root(root_obj)
+            elif event_json['kind'] == 'RootRemoved':
+                root_id = event_json['model']['id']
+                root_obj = references[root_id]
+                self.remove_root(root_obj)
             else:
-                modified_updates[attr] = value
-
-        patched_obj.update(** modified_updates)
+                raise RuntimeError("Unknown patch event " + repr(event))
