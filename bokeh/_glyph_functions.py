@@ -866,9 +866,9 @@ tile_layer = _glyph_function(glyphs.TileLayer, ("url", "tile_provider", "tile_si
 """ Layer which consumes a tile service
 
 Args:
-    url (str or list[float]) : values or field names of text `url` coordinates
-    tile_provider (list[str]) : values or field names of text `y` coordinates
-    tile_size (list[int]): values or field names of texts
+    url (str) : values or field names of text `url` coordinates
+    tile_provider (str) : values or field names of text `y` coordinates
+    tile_size (int): values or field names of texts
 
 Returns:
     plot

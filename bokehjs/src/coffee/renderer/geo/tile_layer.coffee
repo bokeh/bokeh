@@ -391,10 +391,8 @@ class TileLayerView extends Glyph.View
     @y_range.set('end', new_extent[3])
 
   _set_data: () ->
-    @tile_provider = @_create_tile_provider(@provider_type[0], @url[0], @tile_size[0])
+    @tile_provider = @_create_tile_provider(@mget('tile_provider'), @mget('url'), @mget('tile_size'))
     @pool = new ImagePool()
-    #for i in [0..250] by 1
-      #@pool.push(new Image())
     @map_plot = @renderer.plot_view.model
     @map_canvas = @renderer.plot_view.canvas_view.ctx
     @map_frame = @renderer.plot_view.frame
@@ -403,6 +401,7 @@ class TileLayerView extends Glyph.View
     @y_range = @map_plot.get('y_range')
     @y_mapper = this.map_frame.get('y_mappers')['default']
     @renderer.plot_view.$el.dblclick(@_on_dblclick)
+
 
     @initial_extent = [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
     zoom_level = @tile_provider.get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
@@ -569,18 +568,20 @@ class TileLayer extends Glyph.Model
   visuals: []
   distances: ['w', 'h']
   angles: ['angle']
-  fields: ['url:string', 'provider_type:string', 'tile_size']
 
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
-      tile_size: 256
       global_alpha: 1.0
     }
 
   display_defaults: ->
     return _.extend {}, super(), {
       level: 'glyph'
+      tile_provider: "WMTSTileProvider"
+      url: "http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png"
+      tile_size: 256
+      initial_extent: [-180, -90, 180, 90]
     }
 
 module.exports =

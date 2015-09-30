@@ -9,7 +9,7 @@ from ..enums import Direction, Anchor
 from ..mixins import FillProps, LineProps, TextProps
 from ..plot_object import PlotObject
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
-                          Include, Instance, NumberSpec, StringSpec)
+                          Include, Instance, NumberSpec, StringSpec, String, Int)
 
 from .mappers import LinearColorMapper
 
@@ -923,17 +923,18 @@ class Text(Glyph):
 
 class TileLayer(Glyph):
 
-    url = StringSpec("url", help="""
+    url = String("url", help="""
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
     """)
 
-    tile_provider = StringSpec(default="WMTSTileProvider", help="""
+    tile_provider = String(default="WMTSTileProvider", help="""
     associated tile provider type.  Examples include: WMTSTileProvider, QuadKeyTileProvider, TMSTileProvider
     """)
 
-    tile_size = NumberSpec(default=256, help="""
+    tile_size = Int(default=256, help="""
     tile size in pixels (e.g. 256)
     """)
+
 
 class Wedge(Glyph):
     """ Render wedges.
