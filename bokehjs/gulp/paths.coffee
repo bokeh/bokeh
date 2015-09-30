@@ -39,7 +39,7 @@ module.exports = {
         "./src/coffee/widget/main.coffee"
       ]
       watchSources: [
-        "./src/coffee/**/**",
+        "./src/coffee/widget/**",
       ]
 
   css:
