@@ -3,8 +3,6 @@
 '''
 from __future__ import absolute_import, print_function
 
-import hashlib
-from hmac import HMAC
 from tornado.concurrent import return_future
 from tornado.escape import json_decode, json_encode
 
@@ -20,9 +18,6 @@ class Message(object):
 
     '''
 
-    # TODO (bev) key from settings
-    digester = HMAC(key=b"foobarbazquux", digestmod=hashlib.sha256)
-
     def __init__(self, header, metadata, content):
         ''' Initialize a new message from header, metadata, and content
         dictionaries.
@@ -37,7 +32,6 @@ class Message(object):
         self.header = header
         self.metadata = metadata
         self.content = content
-        self._hmac = None
         self._buffers = []
 
     def __repr__(self):
@@ -198,9 +192,6 @@ class Message(object):
         '''
         sent = 0
 
-        conn.write_message(self.hmac)
-        sent += len(self.hmac)
-
         conn.write_message(self.header_json)
         sent += len(self.header_json)
 
@@ -226,24 +217,6 @@ class Message(object):
             self.metadata is not None and \
             self.content is not None and \
             self.header.get('num_buffers', 0) == len(self._buffers)
-
-    # HMAC fragment properties
-
-    def _as_binary(self, s):
-        """
-        Make a unicode string binary, for hashing / signing / etc. purposes.
-        """
-        return s.encode('utf-8')
-
-    @property
-    def hmac(self):
-        if not self._hmac:
-            d = self.digester.copy()
-            d.update(self._as_binary(self.header_json))
-            d.update(self._as_binary(self.metadata_json))
-            d.update(self._as_binary(self.content_json))
-            self._hmac = d.hexdigest()
-        return self._hmac
 
     # header fragment properties
 

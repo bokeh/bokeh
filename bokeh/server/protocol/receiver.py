@@ -23,12 +23,11 @@ class Receiver(object):
 
     [
         # these are required
-        b'foobarbaz',       # HMAC signature
         b'{header}',        # serialized header dict
         b'{metadata}',      # serialized metadata dict
         b'{content},        # serialized content dict
 
-        # these are optional, and come in pairs
+        # these are optional, and come in pairs; header contains num_buffers
         b'{buf_header}',    # serialized buffer header dict
         b'array'            # raw buffer payload data
         ...
@@ -38,7 +37,7 @@ class Receiver(object):
 
     def __init__(self, protocol):
         self._protocol = protocol
-        self._current_consumer = self._HMAC
+        self._current_consumer = self._HEADER
         self._message = None
         self._buf_header = None
 
@@ -50,20 +49,11 @@ class Receiver(object):
         self._current_consumer(fragment)
         callback(self._message)
 
-    def _HMAC(self, fragment):
+    def _HEADER(self, fragment):
         self._assume_text(fragment)
-        if len(fragment) != 64:
-            raise ProtocolError("Invalid HMAC signature length %d fragment '%s'" % (len(fragment), fragment))
-
         self._message = None
         self._partial = None
         self._fragments = [fragment]
-
-        self._current_consumer = self._HEADER
-
-    def _HEADER(self, fragment):
-        self._assume_text(fragment)
-        self._fragments.append(fragment)
         self._current_consumer = self._METADATA
 
     def _METADATA(self, fragment):
@@ -75,12 +65,9 @@ class Receiver(object):
         self._assume_text(fragment)
         self._fragments.append(fragment)
 
-        hmac, header_json, metadata_json, content_json = self._fragments[:4]
+        header_json, metadata_json, content_json = self._fragments[:3]
 
         self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
-
-        if hmac != self._partial.hmac:
-            raise ValidationError("HMAC signatures do not match")
 
         self._check_complete()
 
@@ -98,7 +85,7 @@ class Receiver(object):
     def _check_complete(self):
         if self._partial.complete:
             self._message = self._partial
-            self._current_consumer = self._HMAC
+            self._current_consumer = self._HEADER
         else:
             self._current_consumer = self._BUFFER_HEADER
 
