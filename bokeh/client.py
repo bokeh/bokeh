@@ -20,7 +20,7 @@ import uuid
 
 from .document import Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
 
-DEFAULT_SERVER_URL = "ws://localhost:8888/ws?token=grizzleblizzle"
+DEFAULT_SERVER_URL = "ws://localhost:8888/ws"
 DEFAULT_SESSION_ID = "default"
 
 class ClientConnection(object):
