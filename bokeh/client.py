@@ -18,7 +18,7 @@ from bokeh.server.protocol.receiver import Receiver
 from bokeh.server.protocol import Protocol
 import uuid
 
-from .document import Document
+from .document import Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
 
 DEFAULT_SERVER_URL = "ws://localhost:8888/ws?token=grizzleblizzle"
 DEFAULT_SESSION_ID = "default"
@@ -307,16 +307,23 @@ class ClientSession(object):
         '''Called by the ClientConnection we are using to notify us of disconnect'''
         self._document.remove_on_change(self._document_changed)
 
-    def _document_changed(self, doc, model, attr, old, new):
-        if self._current_patch is not None and self._current_patch.should_suppress_on_change(model, attr, new):
-            log.debug("Not sending notification back to server for a change it requested")
-            return
+    def _document_changed(self, event):
+        if isinstance(event, ModelChangedEvent):
+            if self._current_patch is not None and self._current_patch.should_suppress_on_change(event.model, event.attr, event.new):
+                log.debug("Not sending notification back to server for a change it requested")
+                return
 
-        # TODO (havocp): our "change sync" protocol is flawed
-        # because if both sides change the same attribute at the
-        # same time, they will each end up with the state of the
-        # other and their final states will differ.
-        self._connection._send_patch_document(self._id, doc, model, { attr : new })
+            # TODO (havocp): our "change sync" protocol is flawed
+            # because if both sides change the same attribute at the
+            # same time, they will each end up with the state of the
+            # other and their final states will differ.
+            self._connection._send_patch_document(self._id, event.document, event.model, { event.attr : event.new })
+        elif isinstance(event, RootAddedEvent):
+            pass # TODO (havocp) we need a message to use for this
+        elif isinstance(event, RootRemovedEvent):
+            pass # TODO (havocp) we need a message to use for this
+        else:
+            raise RuntimeError("Unhandled document change event " + repr(event))
 
     def _handle_patch(self, message):
         self._current_patch = message

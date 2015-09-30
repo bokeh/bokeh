@@ -14,6 +14,28 @@ from bokeh.protocol import serialize_json
 from .plot_object import PlotObject
 from json import loads
 
+class DocumentChangedEvent(object):
+    def __init__(self, document):
+        self.document = document
+
+class ModelChangedEvent(DocumentChangedEvent):
+    def __init__(self, document, model, attr, old, new):
+        super(ModelChangedEvent, self).__init__(document)
+        self.model = model
+        self.attr = attr
+        self.old = old
+        self.new = new
+
+class RootAddedEvent(DocumentChangedEvent):
+    def __init__(self, document, root):
+        super(RootAddedEvent, self).__init__(document)
+        self.root = root
+
+class RootRemovedEvent(DocumentChangedEvent):
+    def __init__(self, document, root):
+        super(RootRemovedEvent, self).__init__(document)
+        self.root = root
+
 class Document(object):
 
     def __init__(self):
@@ -50,6 +72,7 @@ class Document(object):
             return
         self._roots.add(model)
         model.attach_document(self)
+        self._trigger_on_change(RootAddedEvent(self, model))
 
     def remove_root(self, model):
         ''' Remove a model as root model from this Document.
@@ -62,16 +85,17 @@ class Document(object):
             return # TODO (bev) ValueError?
         self._roots.remove(model)
         model.detach_document()
+        self._trigger_on_change(RootRemovedEvent(self, model))
 
     def on_change(self, *callbacks):
-        ''' Invoke callback if any PlotObject in the document changes
+        ''' Invoke callback if the document or any PlotObject reachable from its roots changes.
 
         '''
         for callback in callbacks:
 
             if callback in self._callbacks: continue
 
-            _check_callback(callback, ('doc', 'model', 'attr', 'old', 'new'))
+            _check_callback(callback, ('event',))
 
             self._callbacks.append(callback)
 
@@ -84,12 +108,14 @@ class Document(object):
         for callback in callbacks:
             self._callbacks.remove(callback)
 
+    def _trigger_on_change(self, event):
+        for cb in self._callbacks:
+            cb(event)
+
     def _notify_change(self, model, attr, old, new):
         ''' Called by PlotObject when it changes
-
         '''
-        for cb in self._callbacks:
-            cb(self, model, attr, old, new)
+        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new))
 
     def _notify_attach(self, model):
         self._all_model_counts[model._id] += 1

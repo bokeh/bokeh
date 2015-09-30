@@ -113,20 +113,19 @@ class TestDocument(unittest.TestCase):
         d.add_root(m)
         assert len(d.roots) == 1
         assert m.bar == 1
-        result = { 'doc': None, 'model': None, 'attr': None, 'old': None, 'new': None }
-        def listener(doc, model, attr, old, new):
-            result['doc'] = doc
-            result['model'] = model
-            result['attr'] = attr
-            result['old'] = old
-            result['new'] = new
+        events = []
+        def listener(event):
+            events.append(event)
         d.on_change(listener)
         m.bar = 42
-        assert result['doc'] == d
-        assert result['model'] == m
-        assert result['attr'] == 'bar'
-        assert result['old'] == 1
-        assert result['new'] == 42
+        assert events
+        event = events[0]
+        assert isinstance(event, document.ModelChangedEvent)
+        assert event.document == d
+        assert event.model == m
+        assert event.attr == 'bar'
+        assert event.old == 1
+        assert event.new == 42
 
     def test_change_notification_removal(self):
         d = document.Document()
@@ -135,15 +134,50 @@ class TestDocument(unittest.TestCase):
         d.add_root(m)
         assert len(d.roots) == 1
         assert m.bar == 1
-        result = { 'new' : None }
-        def listener(doc, model, attr, old, new):
-            result['new'] = new
+        events = []
+        def listener(event):
+            events.append(event)
         d.on_change(listener)
         m.bar = 42
-        assert result['new'] == 42
+        assert len(events) == 1
+        assert events[0].new == 42
         d.remove_on_change(listener)
         m.bar = 43
-        assert result['new'] == 42
+        assert len(events) == 1
+
+    def test_notification_of_roots(self):
+        d = document.Document()
+        assert not d.roots
+
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        m = AnotherModel(bar=1)
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert len(events) == 1
+        assert isinstance(events[0], document.RootAddedEvent)
+        assert events[0].root == m
+        m2 = AnotherModel(bar=2)
+        d.add_root(m2)
+        assert len(d.roots) == 2
+        assert len(events) == 2
+        assert isinstance(events[1], document.RootAddedEvent)
+        assert events[1].root == m2
+
+        d.remove_root(m)
+        assert len(d.roots) == 1
+        assert len(events) == 3
+        assert isinstance(events[2], document.RootRemovedEvent)
+        assert events[2].root == m
+
+        d.remove_root(m2)
+        assert len(d.roots) == 0
+        assert len(events) == 4
+        assert isinstance(events[3], document.RootRemovedEvent)
+        assert events[3].root == m2
 
     def test_clear(self):
         d = document.Document()
