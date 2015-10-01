@@ -403,23 +403,19 @@ class TileLayerView extends Glyph.View
     @renderer.plot_view.$el.dblclick(@_on_dblclick)
 
 
-    @initial_extent = [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
-    zoom_level = @tile_provider.get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
-    new_extent = @tile_provider.snap_to_zoom(@initial_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
-    # @x_range.set('start', new_extent[0])
-    # @y_range.set('start', new_extent[1])
-    # @x_range.set('end', new_extent[2])
-    # @y_range.set('end', new_extent[3])
-
-    @x_range.set('start', @initial_extent[0])
-    @y_range.set('start', @initial_extent[1])
-    @x_range.set('end', @initial_extent[2])
-    @y_range.set('end', @initial_extent[3])
-    @renderer.plot_view.$el.dblclick(@_on_dblclick)
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, [0], [@tile_provider.tile_size], 'edge', [true])[0]
-    @sh = @sdist(@renderer.ymapper, [0], [@tile_provider.tile_size], 'edge', [true])[0]
+    # @sw = @sdist(@renderer.xmapper, [0], [@tile_provider.tile_size], 'edge', [true])[0]
+    # @sh = @sdist(@renderer.ymapper, [0], [@tile_provider.tile_size], 'edge', [true])[0]
+    if not @map_initialized?
+      @initial_extent = [-20037508.34, -20037508.34, 20037508.34, 20037508.34 ]
+      zoom_level = @tile_provider.get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
+      new_extent = @tile_provider.snap_to_zoom(@initial_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+      @x_range.set('start', new_extent[0])
+      @y_range.set('start', new_extent[1])
+      @x_range.set('end', new_extent[2])
+      @y_range.set('end', new_extent[3])
+      @map_initialized = true
 
   _on_tile_load: (e) =>
     @tile_provider.tiles[e.target.cache_key] = {img: e.target, tile_coords: e.target.tile_coords, bounds: e.target.bounds, current:true}
@@ -482,16 +478,6 @@ class TileLayerView extends Glyph.View
       sh = symax - symin
       sx = sxmin
       sy = symin
-      console.warn "SXMIN:#{sxmin}"
-      console.warn "SYMIN:#{symin}"
-      console.warn "SXMAX:#{sxmax}"
-      console.warn "SYMAX:#{symax}"
-
-      console.warn "SW:#{sw}"
-      console.warn "SH:#{sh}"
-      console.warn "SX:#{sx}"
-      console.warn "SY:#{sy}"
-
       @map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
 
   _render_tile: (tile_key) ->
