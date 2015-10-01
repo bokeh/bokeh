@@ -472,8 +472,8 @@ class TileLayerView extends Glyph.View
   _draw_tile: (tile_key) ->
     tile_obj = @tile_provider.tiles[tile_key]
     if tile_obj?
-      [sxmin, symin] = @renderer.plot_view.frame.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[1]], @renderer.plot_view.canvas)
-      [sxmax, symax] = @renderer.plot_view.frame.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[3]], @renderer.plot_view.canvas)
+      [sxmin, symin] = @renderer.plot_view.frame.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]], @renderer.plot_view.canvas)
+      [sxmax, symax] = @renderer.plot_view.frame.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]], @renderer.plot_view.canvas)
       sxmin = sxmin[0]
       symin = symin[0]
       sxmax = sxmax[0]
@@ -482,6 +482,16 @@ class TileLayerView extends Glyph.View
       sh = symax - symin
       sx = sxmin
       sy = symin
+      console.warn "SXMIN:#{sxmin}"
+      console.warn "SYMIN:#{symin}"
+      console.warn "SXMAX:#{sxmax}"
+      console.warn "SYMAX:#{symax}"
+
+      console.warn "SW:#{sw}"
+      console.warn "SH:#{sh}"
+      console.warn "SX:#{sx}"
+      console.warn "SY:#{sy}"
+
       @map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
 
   _render_tile: (tile_key) ->
