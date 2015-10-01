@@ -25,9 +25,7 @@ env:
       - GROUP=js_tests
       - GROUP=python_tests
       - GROUP=integration_tests
-      - GROUP=examples_tests
-      - GROUP=flake
-      - GROUP=docs
+      - GROUP=examples_flake_docs
 
 matrix:
     include:
@@ -56,16 +54,15 @@ install:
 
 script:
     - msg=`git show -s --format=%B`; if [[ $msg == *"[ci enable examples]"* ]]; then EXAMPLES=enabled; fi
-    - echo $EXAMPLES
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
     # Eventually, we need to get rid of the generated stuff before packaging
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == js_tests ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == python_tests ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration_tests ]]; then py.test -m integration -rs; fi  # Run the integration tests
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_tests ]]; then py.test -s -m examples -rs; fi  # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && "$EXAMPLES" == enabled ]]; then py.test -s -m examples -rs; fi  # Run the examples
     # Flake/style testing (only needed on one machine)
-    - if [[ $TRAVIS_PYTHON_VERSION == '3.4' && "$GROUP" == flake ]]; then flake8 bokeh; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == docs ]]; then ( cd sphinx; make all ) ; fi #Run docs
+    - if [[ $TRAVIS_PYTHON_VERSION == '3.4' && "$GROUP" == examples_flake_docs ]]; then flake8 bokeh; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs ]]; then ( cd sphinx; make all ) ; fi #Run docs
 
 after_success:
     |
