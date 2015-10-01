@@ -15,6 +15,12 @@ env:
         - secure: "AMKPTVrc2g8j5T40hQhdEGoiod+KCkbiseVSQRDPeeX1TvQoVjbrZenrWHyHEHKc1x3LavDuCBJ3sW9cLy+QF9sdudK/cc9+aG2Hax5dyapI0iaHlzvqYDO3aguQsZcu+pVEIVatoOSv25/282aPNtNXn403jmJvd0Qt8ch1jOw="
         - secure: "v9VkMz6cjFBZhlf6iiXSr0o2Eo/HKMMOseAxE6H+sr1vbPg19edGU+7+aAQrn09lE4oKU5JwZSzQ2KalJgrNTGrRrGyEtWGAcuS6oP17zg9LsutLGptNwyHBnCvB5aUPW7JSNs+kor7CmvZ8sVnUh810YSREjt2ZsjEG3ysZjVc="
         - secure: "OI9ErePcqSewA8ZheZq5YtNyeLA8UM1UGskcMEAmPMf9AisYasJaPoY8NeqLGDyMcg7TcXbFQBZv7jPEngZ3RZMsDajfC3p63WOBDS7PfurKTVWTXZ28Z6vzwa3riFIca3D0eVP6bt8KZrYMo7HvWQG3vzmTSxRjx4e2wHxciKo="
+    matrix:
+      - GROUP=js_tests
+      - GROUP=python_tests
+      - GROUP=integration_tests
+      - GROUP=examples_tests
+      - GROUP=flake
 
 matrix:
     include:
@@ -44,13 +50,13 @@ install:
 script:
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
     # Eventually, we need to get rid of the generated stuff before packaging
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m integration -rs; fi  # Run the integration tests
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m examples -rs; fi  # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && GROUP == js_tests ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
+    - if [[ -z "$TRAVIS_TAG" && GROUP == python_tests ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
+    - if [[ -z "$TRAVIS_TAG" && GROUP == integration_tests ]]; then py.test -m integration -rs; fi  # Run the integration tests
+    - if [[ -z "$TRAVIS_TAG" && GROUP == examples_tests ]]; then py.test -s -m examples -rs; fi  # Run the examples
     - ( cd sphinx; make all )
     # Flake/style testing (only needed on one machine)
-    - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == '3.4' && GROUP == flake ]]; then flake8 bokeh; fi
 
 after_success:
     |
