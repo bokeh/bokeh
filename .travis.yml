@@ -52,6 +52,7 @@ script:
     - msg=`git log HEAD~2..HEAD~1`; if [[ $msg == *"[ci enable examples]"* ]]; then EXAMPLES=enabled; else EXAMPLES=disabled; fi
     - echo $msg
     - echo $EXAMPLES
+    - echo $TRAVIS_COMMIT
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
     # Eventually, we need to get rid of the generated stuff before packaging
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == js_tests ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
