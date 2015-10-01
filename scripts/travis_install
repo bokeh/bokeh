@@ -17,7 +17,7 @@ EOF
 if [ ! "$(ls -A $HOME/miniconda)" ]; then
 
     wget $MINICONDA_URL
-    bash $MINICONDA.sh -b -p -f $HOME/miniconda
+    bash $MINICONDA.sh -b -f -p $HOME/miniconda
     rm -rf $MINICONDA.sh
 
     python -V
