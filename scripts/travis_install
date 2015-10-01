@@ -39,13 +39,13 @@ BK_PKG_NAME=${BK_PKG_NAME/nightly/$VERSION}
 
 conda install --force --yes $BK_PKG_NAME
 
-if [ ! "$(ls -A $HOME/miniconda)" ]; then
+DEPS_TEST=$(cat <<EOF | python -
+from conda_build.metadata import MetaData
+print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
+EOF
+)
 
-    DEPS_TEST=$(cat <<EOF | python -
-    from conda_build.metadata import MetaData
-    print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
-    EOF
-    )
+if [ ! "$(ls -A $HOME/miniconda)" ]; then
 
     conda install --yes $DEPS_TEST
 
