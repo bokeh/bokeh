@@ -16,6 +16,7 @@ env:
     global:
         - MINICONDA_VERSION="latest"
         - BOKEH_DEFAULT_TIMEOUT=30
+        - BOKEH_DEFAULT_DIFF=FETCH_HEAD
         - secure: "nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI="
         - secure: "oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY="
         - secure: "AMKPTVrc2g8j5T40hQhdEGoiod+KCkbiseVSQRDPeeX1TvQoVjbrZenrWHyHEHKc1x3LavDuCBJ3sW9cLy+QF9sdudK/cc9+aG2Hax5dyapI0iaHlzvqYDO3aguQsZcu+pVEIVatoOSv25/282aPNtNXn403jmJvd0Qt8ch1jOw="
@@ -26,11 +27,6 @@ env:
       - GROUP=python_tests
       - GROUP=integration_tests
       - GROUP=examples_flake_docs
-
-matrix:
-    include:
-        - python: 2.7
-          env: BOKEH_DEFAULT_DIFF=FETCH_HEAD
 
 branches:
   only:
