@@ -27,9 +27,9 @@ if [ ! "$(ls -A $HOME/miniconda)" ]; then
     DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
     conda install --yes $DEPS_TRAVIS
 
-    conda config --add channels bokeh
-
 fi
+
+conda config --add channels bokeh
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet conda.recipe
 

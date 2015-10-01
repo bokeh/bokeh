@@ -5,7 +5,6 @@ language: python
 cache:
     directories:
         - $HOME/miniconda
-        - $HOME/.condarc
         - $HOME/.bokeh
 
 python:
