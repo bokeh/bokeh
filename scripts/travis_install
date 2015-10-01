@@ -8,23 +8,27 @@ git fetch origin master
 MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
-wget $MINICONDA_URL
-bash $MINICONDA.sh -b -p $HOME/miniconda
-rm -rf $MINICONDA.sh
+if [ ! -d "$HOME/miniconda" ]; then
 
-python -V
+    wget $MINICONDA_URL
+    bash $MINICONDA.sh -b -p $HOME/miniconda
+    rm -rf $MINICONDA.sh
 
-PINNED_PKGS=$(cat <<EOF
-ipython ==3.2.1
-ipython-notebook ==3.2.1
-EOF
-)
-echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
+    python -V
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
-conda install --yes $DEPS_TRAVIS
+    PINNED_PKGS=$(cat <<EOF
+    ipython ==3.2.1
+    ipython-notebook ==3.2.1
+    EOF
+    )
+    echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 
-conda config --add channels bokeh
+    DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
+    conda install --yes $DEPS_TRAVIS
+
+    conda config --add channels bokeh
+
+fi
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet conda.recipe
 
@@ -32,26 +36,34 @@ BK_PKG_NAME=`conda build conda.recipe --output`
 VERSION=$(cat __conda_version__.txt)
 BK_PKG_NAME=${BK_PKG_NAME/nightly/$VERSION}
 
-conda install --yes $BK_PKG_NAME
+conda install --force --yes $BK_PKG_NAME
 
-DEPS_TEST=$(cat <<EOF | python -
-from conda_build.metadata import MetaData
-print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
-EOF
-)
+if [ ! -d "$HOME/miniconda" ]; then
 
-conda install --yes $DEPS_TEST
+    DEPS_TEST=$(cat <<EOF | python -
+    from conda_build.metadata import MetaData
+    print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
+    EOF
+    )
 
-conda install --yes nodejs
-echo "node version $(node -v)"
-echo "npm version $(npm -v)"
+    conda install --yes $DEPS_TEST
 
-if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
-    conda install --yes pdiff
-    conda install --yes boto
+    conda install --yes nodejs
+    echo "node version $(node -v)"
+    echo "npm version $(npm -v)"
+
+    if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
+        conda install --yes pdiff
+        conda install --yes boto
+    fi
+
 fi
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
 
-python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+if [ ! -d "$HOME/.bokeh" ]; then
+
+    python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+
+fi

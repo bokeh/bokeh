@@ -2,6 +2,12 @@ sudo: false
 
 language: python
 
+cache:
+    directories:
+        - $HOME/miniconda
+        - $HOME/.condarc
+        - $HOME/.bokeh
+
 python:
     - 2.7
     - 3.4
