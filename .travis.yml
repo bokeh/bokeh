@@ -49,7 +49,9 @@ install:
 script:
     # To actually run the examples you need to include the [ci enable examples] at the begining of your commit
     # This allow you to quicly iterate on minimal changes and actually trigger the examples on demand
-    - msg=`git show -s --format=%B`; if [[ $msg == *"[ci enable examples]"* ]]; then EXAMPLES=enabled; fi
+    - msg=`git show -s --format=%B`; if [[ $msg == *"[ci enable examples]"* ]]; then EXAMPLES=enabled; else EXAMPLES=disabled; fi
+    - echo $msg
+    - echo $EXAMPLES
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
     # Eventually, we need to get rid of the generated stuff before packaging
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == js_tests ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
