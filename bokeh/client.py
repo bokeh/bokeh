@@ -134,7 +134,7 @@ class ClientConnection(object):
                 The Document to initialize the session with.
 
             sessionid : string, optional
-                The name of the session (None to use 'default')
+                The name of the session (omit to use 'default', None to use random unique id)
 
         Returns:
             session :  a ClientSession with the given document and ID
@@ -153,7 +153,7 @@ class ClientConnection(object):
         ''' Create a session by pulling the document from the given session on the server.
         Args:
             sessionid : string, optional
-                The name of the session (None to use 'default')
+                The name of the session (omit to use 'default', None to use random unique id)
 
         Returns:
             session :  a ClientSession with the given ID
