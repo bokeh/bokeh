@@ -45,7 +45,9 @@ print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("
 EOF
 )
 
-if [ ! "$(ls -A $HOME/miniconda)" ]; then
+DEPS_FLAG=`conda list pytest --json | python -c 'import sys,json; data=json.loads(sys.stdin.read()); print(data[0])'`
+
+if [ ! $DEPS_FLAG == *"pytest"* ]; then
 
     conda install --yes $DEPS_TEST
 
