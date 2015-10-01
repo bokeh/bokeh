@@ -36,6 +36,8 @@ class HasProperties extends Backbone.Model
     return data
 
   constructor : (attributes, options) ->
+    @document = null
+
     ## straight from backbone.js
     attrs = attributes || {}
     if not options
@@ -137,7 +139,12 @@ class HasProperties extends Backbone.Model
       for key in toremove
         delete attrs[key]
     if not _.isEmpty(attrs)
+      old = {}
+      for key, value of attrs
+        old[key] = @get(key)
       super(attrs, options)
+      for key, value of attrs
+        @_tell_document_about_change(key, old[key], @get(key))
 
   convert_to_ref: (value) =>
     # converts value into a refrence if necessary
@@ -334,5 +341,80 @@ class HasProperties extends Backbone.Model
         withCredentials: true
     )
     return resp
+
+  # Convert attributes to "shallow" JSON (values which are themselves models
+  # are included as just references)
+  # TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
+  # backbone will have implemented a toJSON already that we may need to override
+  attributes_as_json: () ->
+    json = {}
+    for key of @attributes
+      value = @attributes[key]
+      if value instanceof HasProperties
+        json[key] = value.ref()
+      else
+        json[key] = value
+    json
+
+  # Get models that are immediately referenced by our properties
+  # (do not recurse)
+  _immediate_references: () ->
+    result = {}
+    for key of @attributes
+      value = @attributes[key]
+      if value is null
+        ;
+      else if value instanceof HasProperties
+        result[value.id] = value
+      else if Array.isArray(value)
+        for elem in value
+          if elem instanceof HasProperties
+            result[elem.id] = elem
+      else if typeof value == "object"
+        for k, elem of value
+          if elem instanceof HasProperties
+            result[elem.id] = elem
+    for id, obj of result
+      obj
+
+  # Get all models that this model has references to, recursively,
+  # including the model itself
+  references: () ->
+    visited = {}
+    collect: (obj) ->
+      if not obj.id in visited
+        visited[obj.id] = obj
+        children = obj._immediate_references()
+        for c in children
+          collect(c)
+    collect(@)
+    for id, obj of visited
+      obj
+
+  attach_document: (doc) ->
+    if @document != null and @document != doc
+      throw new Error("Models must be owned by only a single document")
+    first_attach = @document == null
+    @document = doc
+    if doc != null
+      doc._notify_attach(@)
+      if first_attach
+        for c in @_immediate_references()
+          c.attach_document(doc)
+
+  detach_document: () ->
+    if @document != null
+      if @document._notify_detach(@) == 0
+        @document = null
+        for c in @_immediate_references()
+          c.detach_document()
+
+  _tell_document_about_change: (attr, old, new_) ->
+    if new_ instanceof HasProperties and @document != null
+      new_.attach_document(@document)
+    if old instanceof HasProperties
+      old.detach_document()
+    if @document != null
+      @document._notify_change(@, attr, old, new_)
 
 module.exports = HasProperties
