@@ -134,7 +134,7 @@ class ClientConnection(object):
                 The Document to initialize the session with.
 
             sessionid : string, optional
-                The name of the session (None to use a random unique name)
+                The name of the session (None to use 'default')
 
         Returns:
             session :  a ClientSession with the given document and ID
@@ -150,8 +150,26 @@ class ClientConnection(object):
             return session
 
     def pull_session(self, sessionid=DEFAULT_SESSION_ID):
-        ''' Create a session by pulling the document from the given session on the server '''
-        raise NotImplementedError("todo")
+        ''' Create a session by pulling the document from the given session on the server.
+        Args:
+            sessionid : string, optional
+                The name of the session (None to use 'default')
+
+        Returns:
+            session :  a ClientSession with the given ID
+        '''
+        sessionid = ClientSession._ensure_session_id(sessionid)
+        msg = self._protocol.create('PULL-DOC-REQ', sessionid)
+        reply = self._send_message_wait_for_reply(msg)
+        if reply is None:
+            raise RuntimeError("Connection to server was lost")
+        elif reply.header['msgtype'] == 'ERROR':
+            raise RuntimeError("Failed to pull document: " + reply.content['text'])
+        else:
+            doc = Document()
+            reply.push_to_document(doc)
+            session = ClientSession(self, doc, sessionid)
+            return session
 
     def _send_request_server_info(self):
         msg = self._protocol.create('SERVER-INFO-REQ')

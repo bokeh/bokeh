@@ -55,6 +55,7 @@ spec = {
         ('SERVER-INFO-REQ', 1),
         ("WORKING", 1),
         ('PULL-DOC-REQ', 1),
+        ('PULL-DOC-REPLY', 1),
         ('PUSH-DOC', 1),
         ('PATCH-DOC', 1)
     ),

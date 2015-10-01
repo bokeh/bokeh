@@ -64,8 +64,10 @@ class ServerSession(object):
     @classmethod
     @gen.coroutine
     def pull(cls, message, connection, session):
-        # TODO implement me
-        raise gen.Return(connection.error(message, "pull not implemented"))
+        with (yield session._lock.acquire()):
+            log.debug("Sending pull-doc-reply from session %r", session.id)
+            reply = connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], session.id, session.document)
+            raise gen.Return(reply)
 
     @classmethod
     @gen.coroutine
@@ -73,7 +75,6 @@ class ServerSession(object):
         with (yield session._lock.acquire()):
             log.debug("pushing doc to session %r", session.id)
             message.push_to_document(session.document)
-
             raise gen.Return(connection.ok(message))
 
     # this method is split out of the patch() class method so we

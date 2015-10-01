@@ -53,6 +53,15 @@ class Document(object):
             r = next(iter(self._roots))
             self.remove_root(r)
 
+    def _destructively_move(self, dest_doc):
+        '''Move all fields in this doc to the dest_doc, leaving this doc empty'''
+        dest_doc.clear()
+        while self.roots:
+            r = next(iter(self.roots))
+            self.remove_root(r)
+            dest_doc.add_root(r)
+        # TODO other fields of doc
+
     @property
     def roots(self):
         return set(self._roots)
@@ -188,7 +197,7 @@ class Document(object):
     # TODO (havocp) there are other overlapping old serialization
     # functions in the codebase, we don't need all of these probably.
     def to_json_string(self):
-        ''' Convert the document to JSON. '''
+        ''' Convert the document to a JSON string. '''
 
         root_ids = []
         for r in self._roots:
@@ -204,6 +213,15 @@ class Document(object):
         }
 
         return serialize_json(json)
+
+    def to_json(self):
+        ''' Convert the document to a JSON object. '''
+
+        # this is a total hack to go via a string, needed because
+        # our BokehJSONEncoder goes straight to a string.
+        doc_json = self.to_json_string()
+
+        return loads(doc_json)
 
     @classmethod
     def from_json_string(cls, json):
@@ -226,6 +244,11 @@ class Document(object):
             doc.add_root(references[r])
 
         return doc
+
+    def replace_with_json(self, json):
+        ''' Overwrite everything in this document with the JSON-encoded document '''
+        replacement = self.from_json(json)
+        replacement._destructively_move(self)
 
     def create_json_patch_string(self, events):
         ''' Create a JSON string describing a patch to be applied with apply_json_patch_string()

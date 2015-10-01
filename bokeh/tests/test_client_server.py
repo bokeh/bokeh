@@ -5,6 +5,7 @@ import unittest
 import logging
 import bokeh.document as document
 from bokeh.application import Application
+from bokeh.spellings import FunctionHandler
 from bokeh.client import ClientConnection
 from bokeh.server.server import Server
 from bokeh.plot_object import PlotObject
@@ -81,6 +82,38 @@ class TestClientServer(unittest.TestCase):
             server_session = server.get_session(client_session.id)
 
             assert len(server_session.document.roots) == 2
+            results = {}
+            for r in server_session.document.roots:
+                if hasattr(r, 'foo'):
+                    results['foo'] = r.foo
+                if hasattr(r, 'bar'):
+                    results['bar'] = r.bar
+            assert results['foo'] == 42
+            assert results['bar'] == 43
+
+            connection.close()
+            connection.loop_until_closed()
+            assert not connection.connected
+
+    def test_pull_document(self):
+        application = Application()
+        def add_roots(doc):
+            doc.add_root(AnotherModel(bar=43))
+            doc.add_root(SomeModel(foo=42))
+        handler = FunctionHandler(add_roots)
+        application.add(handler)
+
+        with ManagedServerLoop(application) as server:
+            connection = ClientConnection(url=server.ws_url)
+            connection.connect()
+            assert connection.connected
+
+            client_session = connection.pull_session('test_pull_document')
+            assert len(client_session.document.roots) == 2
+
+            server_session = server.get_session(client_session.id)
+            assert len(server_session.document.roots) == 2
+
             results = {}
             for r in server_session.document.roots:
                 if hasattr(r, 'foo'):
