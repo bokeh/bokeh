@@ -21,8 +21,6 @@ try:
 except ImportError:
     is_dateutil = False
 
-from .settings import settings
-
 log = logging.getLogger(__name__)
 
 class BokehJSONEncoder(json.JSONEncoder):
@@ -81,21 +79,4 @@ class BokehJSONEncoder(json.JSONEncoder):
             return self.transform_python_types(obj)
 
 def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
-    if settings.pretty(False):
-        kwargs["indent"] = 4
     return json.dumps(obj, cls=encoder, allow_nan=False, **kwargs)
-
-deserialize_json = json.loads
-
-serialize_web = serialize_json
-
-deserialize_web = deserialize_json
-
-def status_obj(status):
-    return {'msgtype': 'status',
-            'status': status}
-
-def error_obj(error_msg):
-    return {
-        'msgtype': 'error',
-        'error_msg': error_msg}

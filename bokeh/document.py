@@ -10,7 +10,7 @@ logger = logging.getLogger(__file__)
 
 from collections import defaultdict
 from bokeh.util.callback_manager import _check_callback
-from bokeh.protocol import serialize_json
+from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
 from json import loads
 
