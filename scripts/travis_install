@@ -31,7 +31,7 @@ fi
 
 conda config --add channels bokeh
 
-CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet conda.recipe
+CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
 BK_PKG_NAME=`conda build conda.recipe --output`
 VERSION=$(cat __conda_version__.txt)
