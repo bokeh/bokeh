@@ -38,6 +38,7 @@ branches:
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
+    - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
     # Use xvfb to run tests that require firefox
     # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-%28e.g.-a-Web-browser%29
     - "export DISPLAY=:99.0"
@@ -52,7 +53,7 @@ script:
     - msg=`git log HEAD~2..HEAD~1`; if [[ $msg == *"[ci enable examples]"* ]]; then EXAMPLES=enabled; else EXAMPLES=disabled; fi
     - echo $msg
     - echo $EXAMPLES
-    - echo $TRAVIS_COMMIT
+    - echo $TRAVIS_COMMIT_MSG
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
     # Eventually, we need to get rid of the generated stuff before packaging
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == js_tests ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
