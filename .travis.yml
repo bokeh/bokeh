@@ -54,7 +54,7 @@ script:
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == js_tests ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == python_tests ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration_tests ]]; then py.test -m integration -rs; fi  # Run the integration tests
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then "export BOKEH_DEFAULT_DIFF=FETCH_HEAD"; fi # Add env variable for pdiff machinery
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; fi # Add env variable for pdiff machinery
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && $TRAVIS_COMMIT_MSG == *"[ci enable examples]"* ]]; then py.test -s -m examples -rs; fi  # Run the examples
     # Flake/style testing (only needed on one machine)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
