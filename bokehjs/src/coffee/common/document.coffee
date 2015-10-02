@@ -98,6 +98,8 @@ class Document
     for r in references
       ref = r.ref()
       ref['attributes'] = r.attributes_as_json()
+      # server doesn't want id in here since it's already in ref above
+      delete ref['attributes']['id']
       references_json.push(ref)
 
     references_json
@@ -182,6 +184,9 @@ class Document
     replacement._destructively_move(@)
 
   create_json_patch_string : (events) ->
+    JSON.stringify(@create_json_patch(events))
+
+  create_json_patch : (events) ->
     references = {}
     json_events = []
     for event in events
@@ -224,10 +229,10 @@ class Document
       for k,v of references
         v
 
-    JSON.stringify({
+    {
       'events' : json_events,
       'references' : Document._references_json(references_list)
-    })
+    }
 
   apply_json_patch_string: (patch) ->
     @apply_json_patch(JSON.parse(patch))
@@ -258,7 +263,7 @@ class Document
     for event_json in events_json
       if event_json['kind'] == 'ModelChanged'
         patched_id = event_json['model']['id']
-        if not patched_id of @_all_models
+        if patched_id not of @_all_models
           throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
         patched_obj = @_all_models[patched_id]
         attr = event_json['attr']

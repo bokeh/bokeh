@@ -381,15 +381,16 @@ class HasProperties extends Backbone.Model
   # including the model itself
   references: () ->
     visited = {}
-    collect: (obj) ->
-      if not obj.id in visited
+    collect = (obj) ->
+      if obj.id not of visited
         visited[obj.id] = obj
         children = obj._immediate_references()
         for c in children
           collect(c)
     collect(@)
-    for id, obj of visited
+    refs = for id, obj of visited
       obj
+    refs
 
   attach_document: (doc) ->
     if @document != null and @document != doc
