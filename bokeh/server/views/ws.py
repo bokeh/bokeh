@@ -44,7 +44,7 @@ class WSHandler(WebSocketHandler):
         '''
         log.info('WebSocket connection opened')
 
-        proto_version = self.request.headers.get("bokeh-protocol-version", None)
+        proto_version = self.get_argument("bokeh-protocol-version", default=None)
         if not proto_version:
             self.close()
             raise ProtocolError("No protocol version specified")

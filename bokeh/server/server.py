@@ -40,6 +40,10 @@ class Server(object):
     def ws_url(self):
         return "ws://localhost:" + str(self._port) + "/ws"
 
+    @property
+    def port(self):
+        return self._port
+
     def start(self):
         ''' Start the Bokeh Server's IO loop.
 

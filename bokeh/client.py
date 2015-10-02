@@ -236,7 +236,8 @@ class ClientConnection(object):
 
     @gen.coroutine
     def _connect_async(self):
-        request = HTTPRequest(self._url, headers={"bokeh-protocol-version": "1.0" })
+        versioned_url = "%s?bokeh-protocol-version=1.0" % self._url
+        request = HTTPRequest(versioned_url)
         self._socket = yield websocket_connect(request)
         yield self._transition(self.CONNECTED_BEFORE_ACK())
 
