@@ -38,6 +38,8 @@ branches:
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
+    # To actually run the examples you need to include the [ci enable examples] in your commit
+    # This allow you to quickly iterate on minimal changes and actually trigger the examples, on demand, when you need it
     - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
     # Use xvfb to run tests that require firefox
     # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-%28e.g.-a-Web-browser%29
@@ -48,18 +50,12 @@ install:
     - scripts/travis_install
 
 script:
-    # To actually run the examples you need to include the [ci enable examples] at the begining of your commit
-    # This allow you to quicly iterate on minimal changes and actually trigger the examples on demand
-    - msg=`git log HEAD~2..HEAD~1`; if [[ $msg == *"[ci enable examples]"* ]]; then EXAMPLES=enabled; else EXAMPLES=disabled; fi
-    - echo $msg
-    - echo $EXAMPLES
-    - echo $TRAVIS_COMMIT_MSG
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
     # Eventually, we need to get rid of the generated stuff before packaging
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == js_tests ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == python_tests ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration_tests ]]; then py.test -m integration -rs; fi  # Run the integration tests
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && "$EXAMPLES" == enabled ]]; then py.test -s -m examples -rs; fi  # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && $TRAVIS_COMMIT_MSG == *"[ci enable examples]"* ]]; then py.test -s -m examples -rs; fi  # Run the examples
     # Flake/style testing (only needed on one machine)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs ]]; then ( cd sphinx; make all ) ; fi #Run docs
