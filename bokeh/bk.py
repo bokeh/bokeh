@@ -1,8 +1,10 @@
-
 from tornado.httpserver import HTTPServer
 
 from bokeh.application import Application
 from bokeh.server.server import Server
+
+import logging
+log = logging.getLogger(__name__)
 
 def main():
     # TODO we need to fill in Application with handlers,
@@ -11,9 +13,9 @@ def main():
     # TODO allow specifiying multiple applications with routes to each
     applications = { '/' : application }
     server = Server(applications)
+    log.info("Starting Bokeh server on port %d", server.port)
     server.start()
 
 if __name__ == "__main__":
-    import logging
     logging.basicConfig(level=logging.DEBUG)
     main()
