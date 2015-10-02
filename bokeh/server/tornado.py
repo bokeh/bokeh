@@ -164,7 +164,7 @@ class BokehTornado(TornadoApplication):
 
     @gen.coroutine
     def _cleanup(self):
-        log.warn("Shutdown: cleaning up")
+        log.debug("Shutdown: cleaning up")
         self._executor.shutdown(wait=False)
         self._clients.clear()
 
