@@ -169,7 +169,8 @@ class ChartDataSource(object):
     DataFrame, which is used for assigning attributes to data groups.
     """
 
-    def __init__(self, df, dims=None, required_dims=None, selections=None, **kwargs):
+    def __init__(self, df, dims=None, required_dims=None, selections=None,
+                 **kwargs):
 
         if dims is None:
             dims = DEFAULT_DIMS
@@ -177,6 +178,7 @@ class ChartDataSource(object):
         if required_dims is None:
             required_dims = DEFAULT_REQ_DIMS
 
+        self.input_type = kwargs.pop('input_type', None)
         self._data = df
         self._dims = dims
         self._required_dims = required_dims
@@ -325,6 +327,7 @@ class ChartDataSource(object):
 
         # handle array-like
         if len(arrays) > 0:
+            kwargs['input_type'] = 'iter_array'
             return cls.from_arrays(arrays, **kwargs)
 
         # handle table-like
@@ -339,12 +342,14 @@ class ChartDataSource(object):
             # dict of arrays
             if isinstance(table, dict):
                 if all([cls.is_array(col) for col in table.values()]):
+                    kwargs['input_type'] = 'dict_array'
                     return cls(df=pd.DataFrame.from_dict(data=table), **kwargs)
                 else:
                     raise TypeError('Input of table-like dict must be column-oriented.')
 
             # list of dicts
             elif cls.is_list_dicts(table):
+                kwargs['input_type'] = 'list_dicts'
                 return cls(df=pd.DataFrame.from_records(data=table), **kwargs)
 
             # blaze data source
@@ -353,6 +358,7 @@ class ChartDataSource(object):
 
             # pandas dataframe
             elif isinstance(table, pd.DataFrame):
+                kwargs['input_type'] = 'DataFrame'
                 return cls(df=table, **kwargs)
 
             # unrecognized input type

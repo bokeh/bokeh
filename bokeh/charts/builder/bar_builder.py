@@ -21,7 +21,7 @@ from __future__ import absolute_import, print_function, division
 from .._builder import Builder, create_and_build
 from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph
-from ...properties import Float, Enum
+from ...properties import Float, Enum, Bool
 from .._properties import Dimension
 from .._attributes import ColorAttr, GroupAttr
 from ..operations import Stack, Dodge
@@ -85,6 +85,11 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
             "continuous_range must be an instance of bokeh.models.ranges.Range1d"
         )
 
+    if label is not None and values is None:
+        kw['label_only'] = True
+        if (agg == 'sum') or (agg == 'mean'):
+            agg = 'count'
+
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
     kw['label'] = label
@@ -116,11 +121,7 @@ class BarBuilder(Builder):
     or from the indexes of the passed values if no cat is supplied.  The
     y_range can be supplied as the parameter continuous_range,
     or will be calculated as a linear range (Range1d) based on the supplied
-    values using the following rules:
-
-     * with all positive data: start = 0, end = 1.1 * max
-     * with all negative data: start = 1.1 * min, end = 0
-     * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
+    values.
 
     """
 
@@ -144,6 +145,8 @@ class BarBuilder(Builder):
 
     glyph = BarGlyph
     label_attributes = ['stack', 'group']
+
+    label_only = Bool(False)
 
     def _setup(self):
 
@@ -169,7 +172,7 @@ class BarBuilder(Builder):
                 self.xlabel = self.values.selection
 
         if self.ylabel is None:
-            if not self.values.computed:
+            if not self.label_only:
                 self.ylabel = '%s( %s )' % (self.agg.title(), str(self.values.selection).title())
             else:
                 self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
