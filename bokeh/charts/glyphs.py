@@ -184,13 +184,16 @@ class AggregateGlyph(NestedCompositeGlyph):
 
             for index, group in iteritems(grouped):
                 group = sorted(group, key=lambda x: x.stack_label)
-                shift = []
-                for i, glyph in enumerate(group):
-                    # save off the top of each rect's height
-                    shift.append(glyph.span)
-                    if i > 0:
-                        glyph.stack_shift = sum(shift[0:i])
-                        glyph.refresh()
+                neg_group = [glyph for glyph in group if glyph.span < 0]
+                pos_group = [glyph for glyph in group if glyph.span >= 0]
+                for group in [neg_group, pos_group]:
+                    shift = []
+                    for i, glyph in enumerate(group):
+                        # save off the top of each rect's height
+                        shift.append(glyph.span)
+                        if i > 0:
+                            glyph.stack_shift = sum(shift[0:i])
+                            glyph.refresh()
 
     def __dodge__(self, glyphs):
         if self.dodge_label is not None:
@@ -282,11 +285,23 @@ class Interval(AggregateGlyph):
 
     @property
     def y_max(self):
-        return self.stack_shift + self.span + self.start
+        """Maximum extent of all `Glyph`s.
+
+        How much we are stacking + the height of the interval + the base of the interval
+        """
+        return max(self.bottom, self.top)
 
     @property
     def y_min(self):
+        return min(self.bottom, self.top)
+
+    @property
+    def bottom(self):
         return self.stack_shift + self.start
+
+    @property
+    def top(self):
+        return self.stack_shift + self.span + self.start
 
     def build_renderers(self):
         glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color', fill_alpha='fill_alpha')

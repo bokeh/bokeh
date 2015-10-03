@@ -39,12 +39,17 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     render the geometry from values, cat and stacked.
 
     Args:
-        values (iterable): iterable 2d representing the data series
+        data (:class:`DataFrame <pandas.DataFrame>` or dict(name, column)): the data
+            source for the chart.
+        values (str, optional): iterable 2d representing the data series
             values matrix.
-        cat (list or bool, optional): list of string representing the categories.
+        label (list(str) or str, optional): list of string representing the categories.
             (Defaults to None)
-        stacked (bool, optional): to see the bars stacked or grouped.
+        stack (list(str) or str, optional): columns to use for stacking.
             (Defaults to False, so grouping is assumed)
+        group (list(str) or str, optional): columns to use for grouping.
+        agg (str): how to aggregate the `values`. (Defaults to 'sum', or only label is
+            provided, then performs a `count`)
         continuous_range(Range1d, optional): Custom continuous_range to be
             used. (Defaults to None)
 
@@ -59,19 +64,17 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
         .. bokeh-plot::
             :source-position: above
 
-            from collections import OrderedDict
             from bokeh.charts import Bar, output_file, show
 
             # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
-            xyvalues = OrderedDict()
-            xyvalues['python']=[-2, 5]
-            xyvalues['pypy']=[12, 40]
-            xyvalues['jython']=[22, 30]
+            data = {
+                'sample': ['1st', '2nd', '1st', '2nd', '1st', '2nd'],
+                'interpreter': ['python', 'python', 'pypy', 'pypy', 'jython', 'jython'],
+                'latency': [-2, 5, 12, 40, 22, 30]
+            }
 
-            cat = ['1st', '2nd']
-
-            bar = Bar(xyvalues, cat, title="Stacked bars",
-                    xlabel="category", ylabel="language")
+            bar = Bar(data, values='latency', label='interpreter', stack='sample', agg='mean',
+                      title="Python Interpreters", legend=True)
 
             output_file("stacked_bar.html")
             show(bar)
@@ -185,13 +188,19 @@ class BarBuilder(Builder):
             x_labels.append(str(item))
 
         self.x_range = FactorRange(factors=x_labels)
-        y_shift = 0.1 * ((self.max_height + self.max_height) / 2)
-        if self.glyph == BarGlyph:
-            start = 0.0
-        else:
-            start = self.min_height - y_shift
+        y_shift = abs(0.1 * ((self.min_height + self.max_height) / 2))
 
-        self.y_range = Range1d(start=start, end=self.max_height + y_shift)
+        if self.min_height < 0:
+            start = self.min_height - y_shift
+        else:
+            start = 0.0
+
+        if self.max_height > 0:
+            end = self.max_height + y_shift
+        else:
+            end = 0.0
+
+        self.y_range = Range1d(start=start, end=end)
 
     def get_extra_args(self):
         if self.__class__ is not BarBuilder:

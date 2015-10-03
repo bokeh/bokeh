@@ -103,7 +103,17 @@ class DataGroup(object):
 
 
 def groupby(df, **specs):
-    """Convenience iterator around pandas groupby and attribute specs."""
+    """Convenience iterator around pandas groupby and attribute specs.
+
+    Args:
+        df (:class:`~pandas.DataFrame`):
+            The entire data source being used for the Chart.
+        **specs:
+
+    Yields:
+        `DataGroup`: each unique group of data to be used to produce glyphs
+
+    """
 
     spec_cols = collect_attribute_columns(**specs)
 

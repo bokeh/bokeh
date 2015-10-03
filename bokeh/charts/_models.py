@@ -25,14 +25,14 @@ class CompositeGlyph(HasProps):
 
     Another way to explain the concept is that the Builder
     operates as the groupby, as in pandas, while the
-    CompositeGlyph operates as the apply.
+    CompositeGlyph operates as the function used in the apply.
 
     What is the responsibility of the Composite Glyph?
         - Produce GlyphRenderers
         - Apply any aggregations
         - Tag the GlyphRenderers with the group label
         - Apply transforms due to chart operations
-            - Operations require implementation of special methods
+            - Note: Operations require implementation of special methods
     """
 
     label = String('All', help='Identifies the subset of data.')
@@ -66,6 +66,10 @@ class CompositeGlyph(HasProps):
             self.refresh()
 
     def refresh(self):
+        """Update the GlyphRenderers.
+
+        Note: this method would be called after data is added.
+        """
         if self.renderers is not None:
             self.source = self.build_source()
             self._set_sources()
@@ -77,7 +81,11 @@ class CompositeGlyph(HasProps):
         raise NotImplementedError('You must return ColumnDataSource.')
 
     def _set_sources(self):
-        """Store reference to source in each glyph renderer."""
+        """Store reference to source in each GlyphRenderer.
+
+        Note: if the glyphs that are part of the composite glyph differ,
+        you may have to override this method and handle the sources manually.
+        """
         for renderer in self.renderers:
             renderer.data_source = self.source
 
@@ -98,21 +106,22 @@ class CompositeGlyph(HasProps):
 
 
 class CollisionModifier(HasProps):
-    renderers = List(Instance(CompositeGlyph))
+    """Models an special type of operation that affects glyphs as they intersect."""
+    comp_glyphs = List(Instance(CompositeGlyph))
     name = String()
     method_name = String()
     columns = Either(ColumnLabel, List(ColumnLabel))
 
-    def add_renderer(self, renderer):
-        self.renderers.append(renderer)
+    def add_glyph(self, comp_glyph):
+        self.comp_glyphs.append(comp_glyph)
 
     def apply(self, renderers=None):
-        if len(self.renderers) == 0:
-            self.renderers = renderers
+        if len(self.comp_glyphs) == 0:
+            self.comp_glyphs = renderers
 
-        if len(self.renderers) > 0:
+        if len(self.comp_glyphs) > 0:
             # the first renderer's operation method is applied to the rest
-            getattr(self.renderers[0], self.method_name)(self.renderers)
+            getattr(self.comp_glyphs[0], self.method_name)(self.comp_glyphs)
         else:
             raise AttributeError('%s must be applied to available renderers, none found.' %
                                  self.__class__.__name__)
