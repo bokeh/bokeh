@@ -158,7 +158,7 @@ class Figure(Plot):
     annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
     annulus = _glyph_function(glyphs.Annulus, """
-    Examples:
+Examples:
 
         .. bokeh-plot::
             :source-position: above
