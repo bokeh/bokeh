@@ -64,20 +64,25 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
         .. bokeh-plot::
             :source-position: above
 
-            from bokeh.charts import Bar, output_file, show
+            from bokeh.charts import Bar, output_file, show, hplot
 
-            # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+            # best support is with data in a format that is table-like
             data = {
                 'sample': ['1st', '2nd', '1st', '2nd', '1st', '2nd'],
                 'interpreter': ['python', 'python', 'pypy', 'pypy', 'jython', 'jython'],
-                'latency': [-2, 5, 12, 40, 22, 30]
+                'timing': [-2, 5, 12, 40, 22, 30]
             }
 
-            bar = Bar(data, values='latency', label='interpreter', stack='sample', agg='mean',
-                      title="Python Interpreters", legend=True)
+            # x-axis labels pulled from the interpreter column, stacking labels from sample column
+            bar = Bar(data, values='timing', label='interpreter', stack='sample', agg='mean',
+                      title="Python Interpreter Sampling", legend='top_right', width=350)
+
+            # table-like data results in reconfiguration of the chart with no data manipulation
+            bar2 = Bar(data, values='timing', label=['interpreter', 'sample'],
+                       agg='mean', title="Python Interpreters", width=350)
 
             output_file("stacked_bar.html")
-            show(bar)
+            show(hplot(bar, bar2))
 
     """
     if continuous_range and not isinstance(continuous_range, Range1d):
