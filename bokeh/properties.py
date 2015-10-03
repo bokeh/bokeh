@@ -109,7 +109,7 @@ try:
     import numpy as np
     bokeh_bool_types += (np.bool8,)
 except ImportError:
-    np = None
+    pass
 
 bokeh_integer_types = (numbers.Integral,)
 
