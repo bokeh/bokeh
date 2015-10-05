@@ -166,13 +166,13 @@ def bulkget_with_typename(docid, typename):
     return _bulkget(docid, typename)
 
 @crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
-def _handle_specific_model(docid, typename, id, method):
+def _handle_specific_model(docid, typename, id, method, format='json'):
     if method == 'PUT':
         return update(docid, typename, id)
     elif method == 'PATCH':
         return update(docid, typename, id)
     elif method == 'GET':
-        return getbyid(docid, typename, id)
+        return getbyid(docid, typename, id, format)
     elif method == 'DELETE':
         return delete(docid, typename, id)
 
@@ -192,6 +192,22 @@ def _handle_specific_model_get(docid, typename, id):
 
     '''
     return _handle_specific_model(docid, typename, id, request.method)
+
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/<format>", methods=['GET'])
+def _handle_specific_model_get_format(docid, typename, id, format):
+    ''' Retrieve a specific model with a given id and typename for a
+    given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+    :param typename: the type of objects to find and return
+    :param id: unique id of the object to retrieve
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    return _handle_specific_model(docid, typename, id, request.method, format)
 
 @bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['PUT'])
 def _handle_specific_model_put(docid, typename, id):
@@ -244,7 +260,7 @@ def _handle_specific_model_delete(docid, typename, id):
 
 # individual model methods
 @handle_auth_error
-def getbyid(docid, typename, id):
+def getbyid(docid, typename, id, format='json'):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)
@@ -253,8 +269,13 @@ def getbyid(docid, typename, id):
     )
     t.load()
     clientdoc = t.clientdoc
-    attr = clientdoc.dump(clientdoc._models[id])[0]['attributes']
-    return make_json(protocol.serialize_json(attr))
+    model = clientdoc._models[id]
+    
+    if format=='csv' and typename=='ColumnDataSource':
+        return model.to_df().to_csv()
+    else:
+        attr = clientdoc.dump(model)[0]['attributes']
+        return make_json(protocol.serialize_json(attr))
 
 @handle_auth_error
 def update(docid, typename, id):
