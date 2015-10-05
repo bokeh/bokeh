@@ -88,6 +88,8 @@ message_handlers = {
 class ClientConnection
 
   constructor : (url) ->
+    if not url?
+      url = DEFAULT_SERVER_URL
     @url = url
     @socket = null
     @closed_permanently = false
