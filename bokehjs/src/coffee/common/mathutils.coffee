@@ -1,3 +1,21 @@
+arrayMin = (arr) ->
+  len = arr.length
+  min = Infinity
+  while len--
+    val = arr[len]
+    if val < min
+      min = val
+  min
+
+arrayMax = (arr) ->
+  len = arr.length
+  max = -Infinity
+  while len--
+    val = arr[len]
+    if val > max
+      max = val
+  max
+
 angle_norm = (angle) ->
   while (angle < 0)
     angle += 2*Math.PI
@@ -17,6 +35,8 @@ angle_between = (mid, lhs, rhs, direction) ->
     return not (angle_dist(lhs, mid) <= d and angle_dist(mid, rhs) <= d)
 
 module.exports =
-  angle_norm: angle_norm,
-  angle_dist: angle_dist,
+  arrayMin: arrayMin
+  arrayMax: arrayMax
+  angle_norm: angle_norm
+  angle_dist: angle_dist
   angle_between: angle_between
