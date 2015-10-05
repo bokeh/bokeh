@@ -106,7 +106,7 @@ class Document
 
   # given a JSON representation of all models in a graph, return a
   # dict of new model objects
-  @_instantiate_references_json: (references_json) ->
+  @_instantiate_references_json: (references_json, existing_models) ->
       # Create all instances, but without setting their props
       references = {}
       for obj in references_json
@@ -115,32 +115,46 @@ class Document
           if 'subtype' in obj
             obj_type = obj['subtype']
 
-          instance = new HasProperties({ id: obj_id }) # TODO instantiate actual model type
+          if obj_id of existing_models
+            instance = existing_models[obj_id]
+          else
+            instance = new HasProperties({ id: obj_id }) # TODO instantiate actual model type
           references[instance.id] = instance
 
       references
 
-  # given a JSOn representation of all models in a graph and new
+  # given a JSON representation of all models in a graph and new
   # model instances, set the properties on the models from the
   # JSON
-  @_initialize_references_json: (references_json, references) ->
+  @_initialize_references_json: (references_json, old_references, new_references) ->
     for obj in references_json
       obj_id = obj['id']
       obj_attrs = obj['attributes']
 
-      instance = references[obj_id]
+      was_new = false
+      instance =
+        if obj_id of old_references
+          old_references[obj_id]
+        else
+          was_new = true
+          new_references[obj_id]
 
       # replace references with actual instances in obj_attrs
       changes = {}
       for k, v in obj_attrs
-        if 'id' of v and v['id'] of references
-          changes[k] = references[v['id']]
+        if 'id' of v
+          if v['id'] of old_references
+            changes[k] = old_references[v['id']]
+          else if v['id'] of new_references
+            changes[k] = new_references[v['id']]
 
       for k, v in changes
         obj_attrs[k] = v
 
       # set all properties on the instance
       instance.set(obj_attrs)
+      if was_new
+        instance.initialize(obj_attrs)
 
   to_json_string : () ->
     JSON.stringify(@to_json())
@@ -170,8 +184,8 @@ class Document
     root_ids = roots_json['root_ids']
     references_json = roots_json['references']
 
-    references = Document._instantiate_references_json(references_json)
-    Document._initialize_references_json(references_json, references)
+    references = Document._instantiate_references_json(references_json, {})
+    Document._initialize_references_json(references_json, {}, references)
 
     doc = new Document()
     for r in root_ids
@@ -240,25 +254,25 @@ class Document
   apply_json_patch: (patch) ->
     references_json = patch['references']
     events_json = patch['events']
-    references = Document._instantiate_references_json(references_json)
-
-    # Use our existing model instances whenever we have them
-    existing = []
-    for id, obj of references
-      if id of @_all_models
-        existing.push(@_all_models[id])
+    references = Document._instantiate_references_json(references_json, @_all_models)
 
     # The model being changed isn't always in references so add it in
     for event_json in events_json
       if 'model' of event_json
         model_id = event_json['model']['id']
         if model_id of @_all_models
-          existing.push(@_all_models[model_id])
+          references[model_id] = @_all_models[model_id]
 
-    for e in existing
-      references[e.id] = e
+    # split references into old and new so we know whether to initialize or update
+    old_references = {}
+    new_references = {}
+    for id, value of references
+      if id not of @_all_models
+        old_references[id] = value
+      else
+        new_references[id] = value
 
-    Document._initialize_references_json(references_json, references)
+    Document._initialize_references_json(references_json, old_references, new_references)
 
     for event_json in events_json
       if event_json['kind'] == 'ModelChanged'
