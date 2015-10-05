@@ -1,5 +1,7 @@
+_ = require "underscore"
 {logger} = require "./logging"
 HasProperties = require "./has_properties"
+{Collections} = require("./base")
 
 class DocumentChangedEvent
   constructor : (@document) ->
@@ -104,6 +106,23 @@ class Document
 
     references_json
 
+  @_instantiate_object: (obj_id, obj_type, obj_attrs) ->
+    # we simulate what backbone's Collection.add does
+    # but we don't want our instances to actually be
+    # in a global cache - we only want to share instances
+    # within a Document, not across all documents.
+    # So our dependency on Backbone.Collection here is
+    # just to steal the .model field, which means later
+    # we can clean up base.coffee to avoid any
+    # Collection stuff.
+    full_attrs = _.extend({}, obj_attrs, { id: obj_id })
+    coll = Collections(obj_type)
+    if not coll?
+      # this isn't supposed to be reached because Collections() already throws in this case
+      throw new Error("unknown model type #{ obj_type } for #{ obj_id }")
+
+    new coll.model(full_attrs, {'silent' : true, 'defer_initialization' : true})
+
   # given a JSON representation of all models in a graph, return a
   # dict of new model objects
   @_instantiate_references_json: (references_json, existing_models) ->
@@ -114,11 +133,12 @@ class Document
           obj_type = obj['type']
           if 'subtype' in obj
             obj_type = obj['subtype']
+          obj_attrs = obj['attributes']
 
           if obj_id of existing_models
             instance = existing_models[obj_id]
           else
-            instance = new HasProperties({ id: obj_id }) # TODO instantiate actual model type
+            instance = Document._instantiate_object(obj_id, obj_type, obj_attrs)
           references[instance.id] = instance
 
       references

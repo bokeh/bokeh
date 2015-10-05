@@ -4,6 +4,17 @@ utils = require "../utils"
 
 HasProperties = utils.require "common/has_properties"
 {Document, ModelChangedEvent} = utils.require "common/document"
+base = utils.require "common/base"
+Collection = utils.require "common/collection"
+
+make_collection = (model) ->
+  class C extends Collection
+    model: model
+  return new C()
+
+register_test_collection = (name, model) ->
+  C = make_collection(model)
+  base.collection_overrides[name] = C
 
 class AnotherModel extends HasProperties
   type: 'AnotherModel'
@@ -12,6 +23,8 @@ class AnotherModel extends HasProperties
       bar: 1
     }
 
+register_test_collection('AnotherModel', AnotherModel)
+
 class SomeModel extends HasProperties
   type: 'SomeModel'
   defaults: () ->
@@ -19,6 +32,8 @@ class SomeModel extends HasProperties
       foo: 2
       child: null
     }
+
+register_test_collection('SomeModel', SomeModel)
 
 describe "Document", ->
 
@@ -72,6 +87,7 @@ describe "Document", ->
     copy = Document.from_json_string(json)
 
     expect(copy.roots().length).to.equal 1
+    expect(copy.roots()[0]).to.be.an.instanceof(SomeModel)
 
   # TODO copy the following tests from test_document.py here
   # TODO(havocp) test_serialization_more_models
