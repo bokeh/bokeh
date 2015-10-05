@@ -42,6 +42,20 @@ class TestDocument(unittest.TestCase):
         d.remove_root(m)
         assert len(d._all_models) == 0
 
+    def test_get_model_by_id(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        m = SomeModel()
+        m2 = AnotherModel()
+        m.child = m2
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert len(d._all_models) == 2
+        assert d.get_model_by_id(m._id) == m
+        assert d.get_model_by_id(m2._id) == m2
+        assert d.get_model_by_id("not a valid ID") is None
+
     def test_all_models_with_multiple_references(self):
         d = document.Document()
         assert not d.roots

@@ -67,6 +67,16 @@ describe "Document", ->
     expect(d.roots().length).to.equal 0
     expect(Object.keys(d._all_models).length).to.equal 0
 
+  it "lets us get_model_by_id", ->
+    d = new Document()
+    m = new SomeModel()
+    m2 = new AnotherModel()
+    m.set({ child: m2 })
+    d.add_root(m)
+    expect(d.get_model_by_id(m.id)).to.equal(m)
+    expect(d.get_model_by_id(m2.id)).to.equal(m2)
+    expect(d.get_model_by_id("invalidid")).to.equal(null)
+
   # TODO copy the following tests from test_document.py here
   # TODO(havocp) test_all_models_with_multiple_references
   # TODO(havocp) test_all_models_with_cycles

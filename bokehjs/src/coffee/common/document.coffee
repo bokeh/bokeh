@@ -60,6 +60,12 @@ class Document
     model.detach_document()
     @_trigger_on_change(new RootRemovedEvent(@, model))
 
+  get_model_by_id : (model_id) ->
+    if model_id of @_all_models
+      @_all_models[model_id]
+    else
+      null
+
   on_change : (callback) ->
     if callback in @_callbacks
       return

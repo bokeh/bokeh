@@ -93,6 +93,10 @@ class Document(object):
         model.detach_document()
         self._trigger_on_change(RootRemovedEvent(self, model))
 
+    def get_model_by_id(self, model_id):
+        ''' Get the model object for the given ID or None if not found'''
+        return self._all_models.get(model_id, None)
+
     def on_change(self, *callbacks):
         ''' Invoke callback if the document or any PlotObject reachable from its roots changes.
 
