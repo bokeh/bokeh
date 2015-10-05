@@ -1,4 +1,4 @@
-""" Bokeh comes with a Float of interactive tools.
+""" Bokeh comes with a number of interactive tools.
 
 There are five types of tool interactions:
 
