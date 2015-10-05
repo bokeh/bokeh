@@ -107,7 +107,7 @@ class PreviewSaveTool(Tool):
     The preview/save tool is an action. When activated in the toolbar, the
     tool presents a modal dialog with an image reproduction of the Plot, which
     may be saved as a png image by right clicking on the image.
-Float
+
     .. note::
         Work is ongoing to support headless (svg, png) image creation without
         requireing user interaction. See  :bokeh-issue:`538` to track progress
