@@ -22,6 +22,7 @@ import six
 from . import __version__
 from .settings import settings
 from .util.paths import bokehjsdir
+from .templates import JS_RESOURCES, CSS_RESOURCES
 
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
@@ -203,6 +204,8 @@ class JSResources(BaseResources):
         files = self._default_js_files_dev if self.dev else self._default_js_files
         return self._file_paths(files, False if dev else minified)
 
+    def render_js(self):
+        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
 
 class CSSResources(BaseResources):
     _default_css_files = ["css/bokeh.css", "css/bokeh-widgets.css"]
@@ -240,6 +243,8 @@ class CSSResources(BaseResources):
         files = self._default_css_files_dev if self.dev else self._default_css_files
         return self._file_paths(files, False if dev else minified)
 
+    def render_css(self):
+        return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
 
 class Resources(JSResources, CSSResources):
     ''' The Resources class encapsulates information relating to loading or
@@ -289,7 +294,9 @@ class Resources(JSResources, CSSResources):
     Bokeh plots.
 
     '''
-    pass
+
+    def render(self):
+        return "%s\n%s" % (self.render_css(), self.render_js())
 
 CDN = Resources(mode="cdn")
 
