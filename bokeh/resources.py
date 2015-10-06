@@ -26,11 +26,10 @@ from .templates import JS_RESOURCES, CSS_RESOURCES
 
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
-
 def _cdn_base_url():
     return "http://cdn.pydata.org"
 
-def _get_cdn_urls(version=None, minified=True):
+def _get_cdn_urls(components, version=None, minified=True):
     if version is None:
         if settings.docs_cdn():
             version = settings.docs_cdn()
@@ -50,13 +49,12 @@ def _get_cdn_urls(version=None, minified=True):
     if version.endswith(('dev', 'rc')):
         logger.debug("Getting CDN URL for local dev version will not produce usable URL")
 
-    def mk_url(comp, tp):
-        return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, tp)
+    def mk_url(comp, kind):
+        return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
 
     result = {
-        'js_files'  : [ mk_url(comp, 'js')  for comp in ['bokeh', 'bokeh-widgets'] ],
-        'css_files' : [ mk_url(comp, 'css') for comp in ['bokeh', 'bokeh-widgets'] ],
-        'messages'  : [],
+        'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
+        'messages' : [],
     }
 
     if len(__version__.split('-')) > 1:
@@ -68,16 +66,15 @@ def _get_cdn_urls(version=None, minified=True):
 
     return result
 
-def _get_server_urls(root_url, minified=True):
+def _get_server_urls(components, root_url, minified=True):
     _min = ".min" if minified else ""
 
-    def mk_url(comp, tp):
-        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, tp, comp, _min, tp)
+    def mk_url(comp, kind):
+        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, kind, comp, _min, kind)
 
     return {
-        'js_files'  : [ mk_url(comp, 'js')  for comp in ['bokeh', 'bokeh-widgets'] ],
-        'css_files' : [ mk_url(comp, 'css') for comp in ['bokeh', 'bokeh-widgets'] ],
-        'messages'  : [],
+        'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
+        'messages' : [],
     }
 
 
@@ -94,6 +91,12 @@ def _inline(paths):
 class BaseResources(object):
     _default_root_dir = "."
     _default_root_url = "http://127.0.0.1:5006/"
+
+    _default_components = ["bokeh", "bokeh-widgets"]
+
+    @property
+    def components(self):
+        return self._default_components
 
     logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
@@ -133,10 +136,10 @@ class BaseResources(object):
             root_dir = self.root_dir or self._default_root_dir
             base_url = relpath(base_url, root_dir)
         elif self.mode == "cdn":
-            cdn = _get_cdn_urls(self.version, self.minified)
+            cdn = self._cdn_urls()
             self.messages.extend(cdn['messages'])
         elif self.mode == "server":
-            server = _get_server_urls(self.root_url, self.minified)
+            server = self._server_urls()
             self.messages.extend(server['messages'])
 
     @property
@@ -159,20 +162,24 @@ class BaseResources(object):
         else:
             return self._default_root_url
 
-    def _file_paths(self, files, minified):
-        if minified:
-            files = [root + ".min" + ext for (root, ext) in map(splitext, files)]
-        return [join(bokehjsdir(self.dev), f) for f in files]
+    def _file_paths(self, kind):
+        bokehjs_dir = bokehjsdir(self.dev)
+        minified = ".min" if not self.dev and self.minified else ""
+        files = [ "%s%s.%s" % (component, minified, kind) for component in self.components ]
+        paths = [ join(bokehjs_dir, kind, file) for file in files ]
+        return paths
 
+    def _cdn_urls(self):
+        return _get_cdn_urls(self.components, self.version, self.minified)
+
+    def _server_urls(self):
+        return _get_server_urls(self.components, self.root_url, self.minified)
 
 class JSResources(BaseResources):
-    _default_js_files = ["js/bokeh.js", "js/bokeh-widgets.js"]
-    _default_js_files_dev = ['js/bokeh.js', "js/bokeh-widgets.js"]
 
-    def __init__(self, mode='inline', version=None, root_dir=None,
-                 minified=True, log_level="info", root_url=None):
+    def __init__(self, mode='inline', version=None, root_dir=None, minified=True, log_level="info", root_url=None):
         super(JSResources, self).__init__(mode, version, root_dir, minified, log_level, root_url)
-        js_paths = self._js_paths(dev=self.dev, minified=self.minified)
+        js_paths = self._file_paths('js')
 
         self._js_raw = []
         self._js_files = []
@@ -185,11 +192,11 @@ class JSResources(BaseResources):
         elif self.mode == "absolute":
             self._js_files = list(js_paths)
         elif self.mode == "cdn":
-            cdn = _get_cdn_urls(self.version, self.minified)
-            self._js_files = list(cdn['js_files'])
+            cdn = self._cdn_urls()
+            self._js_files = list(cdn['urls']('js'))
         elif self.mode == "server":
-            server = _get_server_urls(self.root_url, self.minified)
-            self._js_files = list(server['js_files'])
+            server = self._server_urls()
+            self._js_files = list(server['urls']('js'))
 
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
@@ -204,21 +211,14 @@ class JSResources(BaseResources):
     def js_files(self):
         return self._js_files
 
-    def _js_paths(self, minified=True, dev=False):
-        files = self._default_js_files_dev if self.dev else self._default_js_files
-        return self._file_paths(files, False if dev else minified)
-
     def render_js(self):
         return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
 
 class CSSResources(BaseResources):
-    _default_css_files = ["css/bokeh.css", "css/bokeh-widgets.css"]
-    _default_css_files_dev = ['css/bokeh.css', "css/bokeh-widgets.css"]
 
-    def __init__(self, mode='inline', version=None, root_dir=None,
-                 minified=True, log_level="info", root_url=None):
+    def __init__(self, mode='inline', version=None, root_dir=None, minified=True, log_level="info", root_url=None):
         super(CSSResources, self).__init__(mode, version, root_dir, minified, log_level, root_url)
-        css_paths = self._css_paths(dev=self.dev, minified=self.minified)
+        css_paths = self._file_paths('css')
 
         self._css_raw = []
         self._css_files = []
@@ -231,11 +231,11 @@ class CSSResources(BaseResources):
         elif self.mode == "absolute":
             self._css_files = list(css_paths)
         elif self.mode == "cdn":
-            cdn = _get_cdn_urls(self.version, self.minified)
-            self._css_files = list(cdn['css_files'])
+            cdn = self._cdn_urls()
+            self._css_files = list(cdn['urls']('css'))
         elif self.mode == "server":
-            server = _get_server_urls(self.root_url, self.minified)
-            self._css_files = list(server['css_files'])
+            server = self._server_urls()
+            self._css_files = list(server['urls']('css'))
 
     @property
     def css_raw(self):
@@ -246,10 +246,6 @@ class CSSResources(BaseResources):
     @property
     def css_files(self):
         return self._css_files
-
-    def _css_paths(self, minified=True, dev=False):
-        files = self._default_css_files_dev if self.dev else self._default_css_files
-        return self._file_paths(files, False if dev else minified)
 
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
