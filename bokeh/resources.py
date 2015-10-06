@@ -175,21 +175,21 @@ class JSResources(BaseResources):
         js_paths = self._js_paths(dev=self.dev, minified=self.minified)
 
         self._js_raw = []
-        self.js_files = []
+        self._js_files = []
 
         if self.mode == "inline":
             self._js_raw = lambda: _inline(js_paths)
         elif self.mode == "relative":
             root_dir = self.root_dir or self._default_root_dir
-            self.js_files = [relpath(p, root_dir) for p in js_paths]
+            self._js_files = [relpath(p, root_dir) for p in js_paths]
         elif self.mode == "absolute":
-            self.js_files = list(js_paths)
+            self._js_files = list(js_paths)
         elif self.mode == "cdn":
             cdn = _get_cdn_urls(self.version, self.minified)
-            self.js_files = list(cdn['js_files'])
+            self._js_files = list(cdn['js_files'])
         elif self.mode == "server":
             server = _get_server_urls(self.root_url, self.minified)
-            self.js_files = list(server['js_files'])
+            self._js_files = list(server['js_files'])
 
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
@@ -199,6 +199,10 @@ class JSResources(BaseResources):
         if six.callable(self._js_raw):
             self._js_raw = self._js_raw()
         return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
+
+    @property
+    def js_files(self):
+        return self._js_files
 
     def _js_paths(self, minified=True, dev=False):
         files = self._default_js_files_dev if self.dev else self._default_js_files
@@ -217,27 +221,31 @@ class CSSResources(BaseResources):
         css_paths = self._css_paths(dev=self.dev, minified=self.minified)
 
         self._css_raw = []
-        self.css_files = []
+        self._css_files = []
 
         if self.mode == "inline":
             self._css_raw = lambda: _inline(css_paths)
         elif self.mode == "relative":
             root_dir = self.root_dir or self._default_root_dir
-            self.css_files = [relpath(p, root_dir) for p in css_paths]
+            self._css_files = [relpath(p, root_dir) for p in css_paths]
         elif self.mode == "absolute":
-            self.css_files = list(css_paths)
+            self._css_files = list(css_paths)
         elif self.mode == "cdn":
             cdn = _get_cdn_urls(self.version, self.minified)
-            self.css_files = list(cdn['css_files'])
+            self._css_files = list(cdn['css_files'])
         elif self.mode == "server":
             server = _get_server_urls(self.root_url, self.minified)
-            self.css_files = list(server['css_files'])
+            self._css_files = list(server['css_files'])
 
     @property
     def css_raw(self):
         if six.callable(self._css_raw):
             self._css_raw = self._css_raw()
         return self._css_raw
+
+    @property
+    def css_files(self):
+        return self._css_files
 
     def _css_paths(self, minified=True, dev=False):
         files = self._default_css_files_dev if self.dev else self._default_css_files
