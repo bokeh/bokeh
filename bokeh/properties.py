@@ -252,6 +252,18 @@ class Include(object):
         self.help = help
         self.use_prefix = use_prefix
 
+_EXAMPLE_TEMPLATE = """
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../%s
+        :source-position: none
+
+    *source:* `%s <https://github.com/bokeh/bokeh/tree/master/%s>`_
+
+"""
+
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
         names = set()
@@ -337,6 +349,11 @@ class MetaHasProps(type):
         class_dict["__container_props__"] = container_names
         if dataspecs:
             class_dict["_dataspecs"] = dataspecs
+
+        if "__example__" in class_dict:
+            a = class_dict["__example__"]
+            class_dict["__doc__"] += _EXAMPLE_TEMPLATE % (a, a, a)
+
         return type.__new__(cls, class_name, bases, class_dict)
 
 def accumulate_from_subclasses(cls, propname):
