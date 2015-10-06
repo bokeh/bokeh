@@ -128,14 +128,9 @@ class BaseResources(object):
         if self.dev:
             self.mode = self.mode[:-4]
 
-        base_url = join(bokehjsdir(self.dev), "js")
-
         self.messages = []
 
-        if self.mode == "relative":
-            root_dir = self.root_dir or self._default_root_dir
-            base_url = relpath(base_url, root_dir)
-        elif self.mode == "cdn":
+        if self.mode == "cdn":
             cdn = self._cdn_urls()
             self.messages.extend(cdn['messages'])
         elif self.mode == "server":
