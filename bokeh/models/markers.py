@@ -24,6 +24,10 @@ class Marker(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'size', 'angle')
+
     x = NumberSpec("x", help="""
     The x-axis coordinates for the center of the markers.
     """)
@@ -33,8 +37,7 @@ class Marker(Glyph):
     """)
 
     size = ScreenDistanceSpec(default=4, help="""
-    The size (diameter) values for the markers. Interpreted as
-    "screen space" units by default.
+    The size (diameter) values for the markers in screen space units.
     """)
 
     angle = NumberSpec("angle", help="""
@@ -60,9 +63,12 @@ class Circle(Marker):
 
     __example__ = "tests/glyphs/Circle.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y')
+
     radius = DistanceSpec("radius", help="""
-    The radius values for circle markers. Interpreted in
-    "data space" units by default.
+    The radius values for circle markers (in "data space" units, by default).
 
     .. note::
         Circle markers are slightly unusual in that they support specifying
@@ -72,11 +78,11 @@ class Circle(Marker):
     .. warning::
         Note that ``Circle`` glyphs are always drawn as circles on the screen,
         even in cases where the data space aspect ratio is not 1-1. In all
-        cases where radius or size units are specified as "data", the
-        "distance" for the radius is measured along the horizontal axis.
-        If the aspect ratio is very large or small, the drawn circles may
-        appear much larger or smaller than expected. See :bokeh-issue:`626`
-        for more information.
+        cases where radius values are specified, the "distance" for the radius
+        is measured along the dimension specified by ``radius_dimension``. If
+        the aspect ratio is very large or small, the drawn circles may appear
+        much larger or smaller than expected. See :bokeh-issue:`626` for more
+        information.
 
     """)
 

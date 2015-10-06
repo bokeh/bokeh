@@ -26,6 +26,10 @@ class AnnularWedge(Glyph):
 
     __example__ = "tests/glyphs/AnnularWedge.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction')
+
     x = NumberSpec("x", help="""
     The x-coordinates of the center of the annular wedges.
     """)
@@ -43,13 +47,11 @@ class AnnularWedge(Glyph):
     """)
 
     start_angle = AngleSpec("start_angle", help="""
-    The angles to start the annular wedges, in radians, as measured from
-    the horizontal.
+    The angles to start the annular wedges, as measured from the horizontal.
     """)
 
     end_angle = AngleSpec("end_angle", help="""
-    The angles to end the annular wedges, in radians, as measured from
-    the horizontal.
+    The angles to end the annular wedges, as measured from the horizontal.
     """)
 
     direction = Enum(Direction, help="""
@@ -68,6 +70,10 @@ class Annulus(Glyph):
     """ Render annuli. """
 
     __example__ = "tests/glyphs/Annulus.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'inner_radius', 'outer_radius')
 
     x = NumberSpec("x", help="""
     The x-coordinates of the center of the annuli.
@@ -98,6 +104,10 @@ class Arc(Glyph):
 
     __example__ = "tests/glyphs/Arc.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
+
     x = NumberSpec("x", help="""
     The x-coordinates of the center of the arcs.
     """)
@@ -111,16 +121,17 @@ class Arc(Glyph):
     """)
 
     start_angle = AngleSpec("start_angle", help="""
-    The angles to start the arcs, in radians, as measured from the horizontal.
+    The angles to start the arcs, as measured from the horizontal.
     """)
 
     end_angle = AngleSpec("end_angle", help="""
-    The angles to end the arcs, in radians, as measured from the horizontal.
+    The angles to end the arcs, as measured from the horizontal.
     """)
 
     direction = Enum(Direction, help="""
     Which direction to stroke between the start and end angles.
     """)
+
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arcs.
     """)
@@ -134,6 +145,10 @@ class Bezier(Glyph):
     """
 
     __example__ = "tests/glyphs/Bezier.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x0', 'y0', 'x1', 'y1', 'cx0', 'cy0', 'cx1', 'cy1')
 
     x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
@@ -182,6 +197,10 @@ class Gear(Glyph):
     """
 
     __example__ = "tests/glyphs/Gear.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal')
 
     x = NumberSpec("x", help="""
     The x-coordinates of the center of the gears.
@@ -257,6 +276,10 @@ class Image(Glyph):
 
         super(Image, self).__init__(**kwargs)
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
+
     image = NumberSpec("image", help="""
     The arrays of scalar data for the images to be colormapped.
     """)
@@ -306,6 +329,10 @@ class Image(Glyph):
 
 class ImageRGBA(Glyph):
     """ Render images given as RGBA data. """
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
     image = NumberSpec("image", help="""
     The arrays of RGBA data for the images.
@@ -359,6 +386,10 @@ class ImageURL(Glyph):
 
     __example__ = "tests/glyphs/ImageURL.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'global_alpha', 'dilate')
+
     url = NumberSpec("url", help="""
     The URLs to retrieve images from.
 
@@ -400,12 +431,12 @@ class ImageURL(Glyph):
     """)
 
     angle = AngleSpec(default=0, help="""
-    The angles to rotate the images, in radians as measured from the
-    horizontal.
+    The angles to rotate the images, as measured from the horizontal.
     """)
 
     global_alpha = Float(1.0, help="""
-    The opacity that each image is rendered with.
+    An overall opacity that each image is rendered with (in addition
+    to any inherent alpha values in the image itself).
     """)
 
     dilate = Bool(False, help="""
@@ -428,6 +459,9 @@ class Line(Glyph):
         The ``Line`` glyph is different from most other glyphs in that
         the vector of values only produces one glyph on the Plot.
     """
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y')
 
     __example__ = "tests/glyphs/Line.py"
 
@@ -454,6 +488,10 @@ class MultiLine(Glyph):
 
     __example__ = "tests/glyphs/MultiLine.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('xs', 'ys')
+
     xs = NumberSpec("xs", help="""
     The x-coordinates for all the lines, given as a "list of lists".
     """)
@@ -475,6 +513,10 @@ class Oval(Glyph):
     """
 
     __example__ = "tests/glyphs/Oval.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'width', 'height', 'angle')
 
     x = NumberSpec("x", help="""
     The x-coordinates of the centers of the ovals.
@@ -514,6 +556,10 @@ class Patch(Glyph):
 
     __example__ = "tests/glyphs/Patch.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y')
+
     x = NumberSpec("x", help="""
     The x-coordinates for the points of the patch.
 
@@ -551,6 +597,10 @@ class Patches(Glyph):
 
     __example__ = "tests/glyphs/Patches.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('xs', 'ys')
+
     xs = NumberSpec("xs", help="""
     The x-coordinates for all the patches, given as a "list of lists".
 
@@ -582,6 +632,10 @@ class Quad(Glyph):
 
     __example__ = "tests/glyphs/Quad.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('left', 'right', 'top', 'bottom')
+
     left = NumberSpec("left", help="""
     The x-coordinates of the left edges.
     """)
@@ -610,6 +664,10 @@ class Quadratic(Glyph):
     """ Render parabolas. """
 
     __example__ = "tests/glyphs/Quadratic.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x0', 'y0', 'x1', 'y1', 'cx', 'cy')
 
     x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
@@ -644,6 +702,10 @@ class Ray(Glyph):
 
     __example__ = "tests/glyphs/Ray.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'length', 'angle')
+
     x = NumberSpec("x", help="""
     The x-coordinates to start the rays.
     """)
@@ -653,8 +715,7 @@ class Ray(Glyph):
     """)
 
     angle = AngleSpec("angle", help="""
-    The angles in radians to extend the rays, as measured from the
-    horizontal.
+    The angles in radians to extend the rays, as measured from the horizontal.
     """)
 
     length = DistanceSpec("length", help="""
@@ -670,6 +731,10 @@ class Rect(Glyph):
     """ Render rectangles. """
 
     __example__ = "tests/glyphs/Rect.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'width', 'height', 'angle', 'dilate')
 
     x = NumberSpec("x", help="""
     The x-coordinates of the centers of the rectangles.
@@ -688,8 +753,7 @@ class Rect(Glyph):
     """)
 
     angle = AngleSpec("angle", help="""
-    The angles to rotate the rectangles, in radians, as measured from
-    the horizontal.
+    The angles to rotate the rectangles, as measured from the horizontal.
     """)
 
     dilate = Bool(False, help="""
@@ -713,6 +777,10 @@ class Segment(Glyph):
     """ Render segments. """
 
     __example__ = "tests/glyphs/Segment.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x0', 'y0', 'x1', 'y1')
 
     x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
@@ -739,6 +807,10 @@ class Text(Glyph):
 
     __example__ = "tests/glyphs/Text.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'text', 'angle', 'x_offset', 'y_offset')
+
     x = NumberSpec("x", help="""
     The x-coordinates to locate the text anchors.
     """)
@@ -752,7 +824,7 @@ class Text(Glyph):
     """)
 
     angle = AngleSpec(default=0, help="""
-    The angles to rotate the text, in radians,, as measured from the horizontal.
+    The angles to rotate the text, as measured from the horizontal.
     """)
 
     x_offset = NumberSpec(default=0, help="""
@@ -779,6 +851,10 @@ class Wedge(Glyph):
 
     __example__ = "tests/glyphs/Wedge.py"
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
+
     x = NumberSpec("x", help="""
     The x-coordinates of the points of the wedges.
     """)
@@ -792,11 +868,11 @@ class Wedge(Glyph):
     """)
 
     start_angle = AngleSpec("start_angle", help="""
-    The angles to start the wedges, in radians, as measured from the horizontal.
+    The angles to start the wedges, as measured from the horizontal.
     """)
 
     end_angle = AngleSpec("end_angle", help="""
-    The angles to end the wedges, in radians as measured from the horizontal.
+    The angles to end the wedges, as measured from the horizontal.
     """)
 
     direction = Enum(Direction, help="""
