@@ -17,7 +17,7 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import Application as TornadoApplication
 
 from .settings import settings
-from .urls import patterns
+from .urls import per_app_patterns, toplevel_patterns
 from .core.server_session import ServerSession
 from .core.server_connection import ServerConnection
 from .exceptions import ProtocolError
@@ -38,9 +38,16 @@ class BokehTornado(TornadoApplication):
     '''
 
     def __init__(self, applications, io_loop=None, extra_patterns=None):
-        # TODO (havocp) we should add a route for each application
         extra_patterns = extra_patterns or []
-        super(BokehTornado, self).__init__(patterns+extra_patterns, **settings)
+        relative_patterns = []
+        for key in applications:
+            for p in per_app_patterns:
+                if key == "/":
+                    route = p[0]
+                else:
+                    route = key + p[0]
+                relative_patterns.append((route, p[1], { "bokeh_application" : applications[key] }))
+        super(BokehTornado, self).__init__(extra_patterns + relative_patterns + toplevel_patterns, **settings)
 
         self._applications = applications
         self._sessions = dict()
@@ -83,8 +90,8 @@ class BokehTornado(TornadoApplication):
     def executor(self):
         return self._executor
 
-    def new_connection(self, protocol, socket):
-        connection = ServerConnection(protocol, self, socket)
+    def new_connection(self, protocol, socket, application):
+        connection = ServerConnection(protocol, self, socket, application)
         self._clients.add(connection)
         return connection
 
@@ -98,17 +105,14 @@ class BokehTornado(TornadoApplication):
             if session.connection_count == 0:
                 self.discard_session(session)
 
-    def create_session_if_needed(self, sessionid, application_name):
+    def create_session_if_needed(self, connection, sessionid):
         # this is because empty sessionids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(sessionid) == 0:
             raise ProtocolError("Session ID must not be empty")
 
-        if application_name not in self._applications:
-            raise ProtocolError("Unknown application " + application_name)
-
         if sessionid not in self._sessions:
-            doc = self._applications[application_name].create_document()
+            doc = connection.application.create_document()
             session = ServerSession(sessionid, doc)
             self._sessions[sessionid] = session
 

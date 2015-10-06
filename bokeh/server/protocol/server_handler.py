@@ -33,9 +33,7 @@ class ServerHandler(object):
             if len(sessionid) == 0:
                 raise ProtocolError("%s empty sessid header" % message)
 
-            # TODO (havocp) creation of the session shouldn't happen here,
-            # it should probably be via some explicit protocol request.
-            connection.create_session_if_needed(sessionid, '/')
+            connection.create_session_if_needed(sessionid)
             session = connection.get_session(sessionid)
             # keep this session alive and get notifications from it
             connection.subscribe_session(session)

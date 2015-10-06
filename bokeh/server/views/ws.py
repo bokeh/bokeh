@@ -32,11 +32,15 @@ class WSHandler(WebSocketHandler):
 
     '''
     def __init__(self, tornado_app, *args, **kw):
-        self._tornado_app = tornado_app
         self.receiver = None
         self.handler = None
         self.connection = None
+        self.bokeh_application = kw['bokeh_application']
+        # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
+
+    def initialize(self, bokeh_application):
+        pass
 
     def open(self):
         ''' Initialize a connection to a client.
@@ -57,7 +61,7 @@ class WSHandler(WebSocketHandler):
             self.handler = ServerHandler(protocol)
             log.debug("ServerHandler created created for %r", protocol)
 
-            self.connection = self._tornado_app.new_connection(protocol, self)
+            self.connection = self.application.new_connection(protocol, self, self.bokeh_application)
             log.info("ServerConnection created")
 
         except ProtocolError as e:
@@ -119,7 +123,7 @@ class WSHandler(WebSocketHandler):
         log.info('WebSocket connection closed: code=%s, reason=%r',
                  self.close_code, self.close_reason)
         if self.connection is not None:
-            self._tornado_app.client_lost(self.connection)
+            self.application.client_lost(self.connection)
 
     @gen.coroutine
     def _receive(self, fragment):
@@ -147,7 +151,7 @@ class WSHandler(WebSocketHandler):
             self.send_message(work)
 
         elif isinstance(work, ServerTask):
-            work = yield work(self._tornado_app.executor)
+            work = yield work(self.application.executor)
 
         else:
             self._internal_error("expected a Message or Task")
