@@ -161,7 +161,7 @@ class BaseResources(object):
         files, raw = [], []
 
         if self.mode == "inline":
-            raw = lambda: self._inline(paths)
+            raw = [ self._inline(path) for path in paths ]
         elif self.mode == "relative":
             root_dir = self.root_dir or self._default_root_dir
             files = [ relpath(path, root_dir) for path in paths ]
@@ -176,14 +176,11 @@ class BaseResources(object):
 
         return (files, raw)
 
-    def _inline(paths):
-        strings = []
-        for path in paths:
-            begin = "/* BEGIN %s */" % path
-            middle = open(path, 'rb').read().decode("utf-8")
-            end = "/* END %s */" % path
-            strings.append(begin + '\n' + middle + '\n' + end)
-        return strings
+    def _inline(self, path):
+        begin = "/* BEGIN %s */" % path
+        middle = open(path, 'rb').read().decode("utf-8")
+        end = "/* END %s */" % path
+        return "%s\n%s\n%s" % (begin, middle, end)
 
     @property
     def components(self):
@@ -213,41 +210,33 @@ class BaseResources(object):
 
 class JSResources(BaseResources):
 
-    def __init__(self, mode='inline', version=None, root_dir=None, minified=True, log_level="info", root_url=None):
-        super(JSResources, self).__init__(mode, version, root_dir, minified, log_level, root_url)
-        self._js_files, self._js_raw = self._resolve('js')
-
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
 
     @property
-    def js_raw(self):
-        if six.callable(self._js_raw):
-            self._js_raw = self._js_raw()
-        return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
+    def js_files(self):
+        files, _ = self._resolve('js')
+        return files
 
     @property
-    def js_files(self):
-        return self._js_files
+    def js_raw(self):
+        _, raw = self._resolve('js')
+        return raw + ['Bokeh.set_log_level("%s");' % self.log_level]
 
     def render_js(self):
         return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
 
 class CSSResources(BaseResources):
 
-    def __init__(self, mode='inline', version=None, root_dir=None, minified=True, log_level="info", root_url=None):
-        super(CSSResources, self).__init__(mode, version, root_dir, minified, log_level, root_url)
-        self._css_files, self._css_raw = self._resolve('css')
+    @property
+    def css_files(self):
+        files, _ = self._resolve('css')
+        return files
 
     @property
     def css_raw(self):
-        if six.callable(self._css_raw):
-            self._css_raw = self._css_raw()
-        return self._css_raw
-
-    @property
-    def css_files(self):
-        return self._css_files
+        _, raw = self._resolve('css')
+        return raw
 
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
