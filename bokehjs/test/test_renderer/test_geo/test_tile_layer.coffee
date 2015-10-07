@@ -58,7 +58,7 @@ describe "Tile Providers", ->
   T = new TileExpects()
   tol = 0.01
 
-  describe "Grid Layer", ->
+  describe "Tile Provider (Base Class)", ->
     url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
     provider = new Geo.TileProvider(url, 256)
 
@@ -71,11 +71,11 @@ describe "Tile Providers", ->
 
     it "should convert tile xyz into a tile key", ->
       k = provider.tile_xyz_to_key(1,1,1)
-      expect(k).to.be.equal "1:1:1"
+      expect(k).to.be.equal("1:1:1")
 
     it "should convert tile key to tile xyz", ->
       xyz = provider.key_to_tile_xyz('1:1:1')
-      expect(xyz).to.be.eql [1,1,1]
+      expect(xyz).to.be.eql([1,1,1])
 
     it "should prune tiles", ->
 
@@ -142,10 +142,10 @@ describe "Tile Providers", ->
       expect(provider.tile_xyz_to_quadkey(20, 30, 10)).to.be.equal('0000032320')
 
     it "should convert quadkey to tile xyz", ->
-      expect(provider.quadkey_to_tile_xyz('')).to.be.eql [0, 0, 0]
-      expect(provider.quadkey_to_tile_xyz('0')).to.be.eql [0, 0, 1]
-      expect(provider.quadkey_to_tile_xyz('00')).to.be.eql [0, 0, 2]
-      expect(provider.quadkey_to_tile_xyz('0000032320')).to.be.eql [20, 30, 10]
+      expect(provider.quadkey_to_tile_xyz('')).to.be.eql([0, 0, 0])
+      expect(provider.quadkey_to_tile_xyz('0')).to.be.eql([0, 0, 1])
+      expect(provider.quadkey_to_tile_xyz('00')).to.be.eql([0, 0, 2])
+      expect(provider.quadkey_to_tile_xyz('0000032320')).to.be.eql([20, 30, 10])
 
   describe "MERCATOR tile provider", ->
 
@@ -168,16 +168,16 @@ describe "Tile Providers", ->
       expect(provider.get_level_by_extent(T.MERCATOR_BOUNDS, 1024, 1024)).to.be.equal(2)
 
     it "should get closest zoom level based on extent and height/width", ->
-      expect(provider.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal 0
-      expect(provider.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 513, 512)).to.be.equal 1
-      expect(provider.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 1024, 1024)).to.be.equal 2
+      expect(provider.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(0)
+      expect(provider.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 513, 512)).to.be.equal(1)
+      expect(provider.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 1024, 1024)).to.be.equal(2)
 
     it "should convert pixel x/y to tile x/y", ->
-      expect(provider.pixels_to_tile(1, 1)).to.be.eql [0,0]
-      expect(provider.pixels_to_tile(0, 0)).to.be.eql [0,0]
+      expect(provider.pixels_to_tile(1, 1)).to.be.eql([0,0])
+      expect(provider.pixels_to_tile(0, 0)).to.be.eql([0,0])
 
     it "should convert pixel x/y to meters x/y", ->
-      expect(provider.pixels_to_meters(0, 0, 0)).to.be.eql [-20037508.342789244, -20037508.342789244]
+      expect(provider.pixels_to_meters(0, 0, 0)).to.be.eql([-20037508.342789244, -20037508.342789244])
 
     it "should get tile bounds in meters", ->
       bounds = provider.get_tile_meter_bounds(511, 1202, 11)
@@ -209,4 +209,4 @@ describe "Tile Providers", ->
 
       urls = provider.get_tiles_by_extent(xmin, ymin, xmax, ymax, level)
       for url in expected_tiles
-        expect(expected_tiles.indexOf(url)).to.be.above -1
+        expect(expected_tiles.indexOf(url)).to.be.above(-1)
