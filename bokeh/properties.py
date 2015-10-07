@@ -257,10 +257,10 @@ _EXAMPLE_TEMPLATE = """
     Example
     -------
 
-    .. bokeh-plot:: ../%s
+    .. bokeh-plot:: ../%(path)s
         :source-position: none
 
-    *source:* `%s <https://github.com/bokeh/bokeh/tree/master/%s>`_
+    *source:* `%(path)s <https://github.com/bokeh/bokeh/tree/master/%(path)s>`_
 
 """
 
@@ -351,8 +351,8 @@ class MetaHasProps(type):
             class_dict["_dataspecs"] = dataspecs
 
         if "__example__" in class_dict:
-            a = class_dict["__example__"]
-            class_dict["__doc__"] += _EXAMPLE_TEMPLATE % (a, a, a)
+            path = class_dict["__example__"]
+            class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
 
         return type.__new__(cls, class_name, bases, class_dict)
 
