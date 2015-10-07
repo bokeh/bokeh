@@ -85,6 +85,72 @@ attach_color = (prog, vbo, att_name, n, visual) ->
     return a
  
 
+class DashAtlas
+  
+  constructor: (gl) ->
+    @_atlas = {}
+    @_index = 0
+    @_width = 256
+    @_height = 256
+    # Init texture
+    @tex = new gloo2.Texture2D(gl)
+    @tex.set_wrapping(gl.REPEAT, gl.REPEAT)
+    @tex.set_interpolation(gl.NEAREST, gl.NEAREST)
+    @tex.set_size([@_height, @_width], gl.RGBA)
+    # Init with solid line (index 0 is reserved for this)
+    @get_atlas_data([1])
+  
+  get_atlas_data: (pattern) ->
+    key = pattern.join('-')
+    findex_period = @_atlas[key]
+    if findex_period is undefined
+      [data, period] = @make_pattern(pattern)
+      #console.log(period, key, data)
+      @tex.set_data([@_index, 0], [1, @_width], new Uint8Array(x+10 for x in data))
+      @_atlas[key] = [@_index / @_height, period]
+      @_index += 1
+    return @_atlas[key]
+
+  make_pattern: (pattern) ->
+    # A pattern is defined as on/off sequence of segments
+    # It must be a multiple of 2
+    if pattern.length > 1 and pattern.length % 2
+      pattern = pattern.concat(pattern)
+    # Period is sum of elements
+    period = 0
+    for v in pattern
+       period += v
+    # Find all start and end of on-segment only
+    C = []; c = 0
+    for i in [0...pattern.length+2] by 2
+        a = Math.max(0.0001, pattern[i % pattern.length])
+        b = Math.max(0.0001, pattern[(i+1) % pattern.length])
+        C.push.apply(C, [c, c + a])  # == extend
+        c += a + b
+    # Build pattern
+    n = @_width
+    Z = new Float32Array(n * 4)
+    for i in [0...n]
+        x = period * i / (n-1)
+        # get index at min - index = np.argmin(abs(C-(x)))
+        index = 0; val_at_index = 1e16
+        for j in [0...C.length]
+          val = Math.abs(C[j]-x)
+          if val < val_at_index
+             index = j; val_at_index = val
+        if index % 2 == 0
+          dash_type = if (x <= C[index]) then +1 else 0
+          dash_start = C[index]; dash_end = C[index+1]
+        else
+          dash_type = if (x > C[index]) then -1 else 0
+          dash_start = C[index-1]; dash_end = C[index]
+        Z[i*4+0] = C[index]
+        Z[i*4+1] = dash_type
+        Z[i*4+2] = dash_start
+        Z[i*4+3] = dash_end
+    return [Z, period]
+
+
 class BaseGLGlyph
   
   GLYPH: ''  # name of the glyph that this gl-glyph applies to
@@ -117,13 +183,14 @@ class LineGLGlyph extends BaseGLGlyph
     
     GLYPH: 'line'
     
-    JOIN:
+    JOINS:
       'miter': 0, 'round': 1, 'bevel': 2
 
     CAPS:
       '': 0, 'none': 0, '.': 0,
       'round': 1, ')': 1, '(': 1, 'o': 1,
-      'triangle in': 2, '<': 2, 'triangle out': 3, '>': 3,
+      'triangle in': 2, '<': 2, 
+      'triangle out': 3, '>': 3,
       'square': 4, '[': 4, ']': 4, '=': 4,
       'butt': 5, '|': 5
        
@@ -133,15 +200,17 @@ class LineGLGlyph extends BaseGLGlyph
       const float PI = 3.14159265358979323846264;
       const float THETA = 15.0 * 3.14159265358979323846264/180.0;
       
-      uniform vec2 u_canvas_size, u_offset, u_scale;
+      uniform vec2 u_canvas_size, u_offset;
+      uniform vec2 u_scale_aspect;
+      uniform float u_scale_length;
             
       uniform vec4 u_color;
-      uniform float u_linewidth;
       uniform float u_antialias;
+      uniform float u_length;
+      uniform float u_linewidth;
       uniform vec2 u_linecaps;
       uniform float u_linejoin;
-      uniform float u_miter_limit;
-      uniform float u_length;
+      uniform float u_miter_limit;      
       uniform float u_dash_phase;
       uniform float u_dash_period;
       uniform float u_dash_index;
@@ -207,13 +276,20 @@ class LineGLGlyph extends BaseGLGlyph
           bool closed = (v_closed > 0.0);
           
           // Scale to map to pixel coordinates. The original algorithm from the paper
-          // assumed anisotropic scale. We obviously do not have this.
-          vec2 scale = abs(u_scale);
-          
+          // assumed isotropic scale. We obviously do not have this.
+          vec2 abs_scale_aspect = abs(u_scale_aspect);
+          vec2 abs_scale = u_scale_length *abs_scale_aspect;
+                    
           // Attributes to varyings
-          v_angles  = a_angles;
-          v_segment = a_segment * scale;
-          v_length  = v_length * length(scale); // TODO: store length as vec2 and scale it anisotropically!
+          v_segment = a_segment * u_scale_length;
+          v_length  = u_length * u_scale_length;
+          
+          // Correct angles for aspect ratio
+          vec2 av;
+          av = vec2(1.0, tan(a_angles.x)) * abs_scale_aspect;
+          v_angles.x = atan(av.y, av.x);
+          av = vec2(1.0, tan(a_angles.y)) * abs_scale_aspect;
+          v_angles.y = atan(av.y, av.x);
           
           // Thickness below 1 pixel are represented using a 1 pixel thickness
           // and a modified alpha
@@ -230,20 +306,19 @@ class LineGLGlyph extends BaseGLGlyph
           // This is the actual half width of the line
           float w = ceil(1.25*v_antialias+v_linewidth)/2.0;
           
-          vec2 position = a_position * scale;
+          vec2 position = a_position * abs_scale;
           
-          vec2 t1 = normalize(a_tangents.xy * scale);  // note the scaling for aspect ratio here
-          vec2 t2 = normalize(a_tangents.zw * scale);
+          vec2 t1 = normalize(a_tangents.xy * abs_scale_aspect);  // note the scaling for aspect ratio here
+          vec2 t2 = normalize(a_tangents.zw * abs_scale_aspect);
           float u = a_texcoord.x;
           float v = a_texcoord.y;
           vec2 o1 = vec2( +t1.y, -t1.x);
           vec2 o2 = vec2( +t2.y, -t2.x);
-      
-      
+                             
           // This is a join
           // ----------------------------------------------------------------
           if( t1 != t2 ) {
-              float angle  = atan (t1.x*t2.y-t1.y*t2.x, t1.x*t2.x+t1.y*t2.y);  // TODO: do we even need the angles then?
+              float angle = v_angles.x; //atan (t1.x*t2.y-t1.y*t2.x, t1.x*t2.x+t1.y*t2.y);  // TODO: do we even need the angles then?
               vec2 t  = normalize(t1+t2);
               vec2 o  = vec2( + t.y, - t.x);
       
@@ -328,22 +403,22 @@ class LineGLGlyph extends BaseGLGlyph
           // Miter distance
           // ------------------------------------------------------------------------
           vec2 t;
-          vec2 curr = a_position*scale;
+          vec2 curr = a_position * abs_scale;
           if( a_texcoord.x < 0.0 ) {
               vec2 next = curr + t2*(v_segment.y-v_segment.x);
       
-              rotate( t1, +a_angles.x/2.0, t);
+              rotate( t1, +v_angles.x/2.0, t);
               v_miter.x = signed_distance(curr, curr+t, position);
       
-              rotate( t2, +a_angles.y/2.0, t);
+              rotate( t2, +v_angles.y/2.0, t);
               v_miter.y = signed_distance(next, next+t, position);
           } else {
               vec2 prev = curr - t1*(v_segment.y-v_segment.x);
       
-              rotate( t1, -a_angles.x/2.0,t);
+              rotate( t1, -v_angles.x/2.0,t);
               v_miter.x = signed_distance(prev, prev+t, position);
       
-              rotate( t2, -a_angles.y/2.0,t);
+              rotate( t2, -v_angles.y/2.0,t);
               v_miter.y = signed_distance(curr, curr+t, position);
           }
       
@@ -358,8 +433,8 @@ class LineGLGlyph extends BaseGLGlyph
           v_texcoord = vec2( u, v*w );
           
           // Calculate position in device coordinates. Note that we 
-          // already scaled with abs(u_scale) above.
-          vec2 normpos = position * sign(u_scale) + (u_offset - vec2(0.5, 0.5));
+          // already scaled with abs scale above.
+          vec2 normpos = position * sign(u_scale_aspect) + (u_offset - vec2(0.5, 0.5));
           normpos /= u_canvas_size;  // in 0..1     
           gl_Position = vec4(normpos*2.0-1.0, 0.0, 1.0);
           gl_Position.y *= -1.0;
@@ -367,27 +442,7 @@ class LineGLGlyph extends BaseGLGlyph
 
     """
     
-    VERT_: """
-      precision mediump float;
-      
-      attribute vec2 a_position;
-            
-      uniform vec2 u_canvas_size;
-      uniform vec2 u_offset;
-      uniform vec2 u_scale;
-      
-      void main () {
-        
-        // Calculate position - the -0.5 is to correct for canvas origin
-        vec2 posn = a_position * u_scale + u_offset - vec2(0.5, 0.5); // in pixels
-        posn /= u_canvas_size;  // in 0..1
-        gl_Position = vec4(posn*2.0-1.0, 0.0, 1.0);
-        gl_Position.y *= -1.0;
-      }
-    """
-    
-    
-    FRAG: """
+    FRAG_: """
       precision mediump float;
       
       void main () {
@@ -396,8 +451,309 @@ class LineGLGlyph extends BaseGLGlyph
     
     """
     
+    FRAG: """
+      precision mediump float;
+    
+      const float PI = 3.14159265358979323846264;
+      const float THETA = 15.0 * 3.14159265358979323846264/180.0;
+      
+      uniform sampler2D u_dash_atlas;
+      
+      varying vec4  v_color;
+      varying vec2  v_segment;
+      varying vec2  v_angles;
+      varying vec2  v_linecaps;  // todo: can prob be u_linecaps instead
+      varying vec2  v_texcoord;
+      varying vec2  v_miter;
+      varying float v_miter_limit;  // todo: can prob be u_miter_limit instead
+      varying float v_length;
+      varying float v_linejoin;  // todo: can prob be u_linejoin instead
+      varying float v_linewidth;
+      varying float v_antialias;  // todo: can prob be u_antialias instead
+      varying float v_dash_phase;  // todo: can prob be u_dash_phase instead
+      varying float v_dash_period;  // todo: can prob be u_dash_period instead
+      varying float v_dash_index;  // todo: can prob be u_dash_index instead
+      varying vec2  v_dash_caps;  // todo: can prob be u_dash_caps instead
+      varying float v_closed;  // todo: can prob be u_closed instead
+      
+      // Compute distance to cap ----------------------------------------------------
+      float cap( int type, float dx, float dy, float t )
+      {
+          float d = 0.0;
+          dx = abs(dx);
+          dy = abs(dy);
+          
+          if      (type == 0)  discard;  // None
+          else if (type == 1)  d = sqrt(dx*dx+dy*dy);  // Round
+          else if (type == 3)  d = (dx+abs(dy));  // Triangle in
+          else if (type == 2)  d = max(abs(dy),(t+dx-abs(dy)));  // Triangle out
+          else if (type == 4)  d = max(dx,dy);  // Square
+          else if (type == 5)  d = max(dx+t,dy);  // Butt
+          return d;
+      }
+          
+      // Compute distance to join -------------------------------------------------
+      float join( in int type, in float d, in vec2 segment, in vec2 texcoord, in vec2 miter,
+            in float miter_limit, in float linewidth )
+      {
+          float dx = texcoord.x;
+          // Round join
+          if( type == 1 ) {
+              if (dx < segment.x) {
+                  d = max(d,length( texcoord - vec2(segment.x,0.0)));
+                  //d = length( texcoord - vec2(segment.x,0.0));
+              } else if (dx > segment.y) {
+                  d = max(d,length( texcoord - vec2(segment.y,0.0)));
+                  //d = length( texcoord - vec2(segment.y,0.0));
+              }
+          }        
+          // Bevel join
+          else if ( type == 2 ) {
+              if( (dx < segment.x) ||  (dx > segment.y) )
+                  d = max(d, min(abs(miter.x),abs(miter.y)));
+          }        
+          // Miter limit
+          if( (dx < segment.x) ||  (dx > segment.y) ) {
+              d = max(d, min(abs(miter.x),abs(miter.y)) - miter_limit*linewidth/2.0 );
+          }        
+          return d;
+      }
+      
+      void main() 
+      {
+          // If color is fully transparent we just discard the fragment
+          if( v_color.a <= 0.0 ) {
+              discard;
+          }
+      
+          // Test if dash pattern is the solid one (0)
+          bool solid =  (v_dash_index == 0.0);
+      
+          // Test if path is closed
+          bool closed = (v_closed > 0.0);
+          
+          vec4 color = v_color;
+          float dx = v_texcoord.x;
+          float dy = v_texcoord.y;
+          float t = v_linewidth/2.0-v_antialias;
+          float width = 1.0;  //v_linewidth; original code had dashes scale with line width, we do not
+          float d = 0.0;
+         
+          vec2 linecaps = v_linecaps;
+          vec2 dash_caps = v_dash_caps;
+          float line_start = 0.0;
+          float line_stop  = v_length;
+  
+          // Solid line --------------------------------------------------------------
+          if( solid ) {
+              d = abs(dy);
+              if( (!closed) && (dx < line_start) ) {
+                  d = cap( int(v_linecaps.x), abs(dx), abs(dy), t );
+              }
+              else if( (!closed) &&  (dx > line_stop) ) {
+                  d = cap( int(v_linecaps.y), abs(dx)-line_stop, abs(dy), t );
+              }
+              else {
+                  d = join( int(v_linejoin), abs(dy), v_segment, v_texcoord, v_miter, v_miter_limit, v_linewidth );
+              }
+  
+          // Dash line --------------------------------------------------------------
+          } else {
+              float segment_start = v_segment.x;
+              float segment_stop  = v_segment.y;
+              float segment_center= (segment_start+segment_stop)/2.0;
+              float freq          = v_dash_period*width;
+              float u = mod( dx + v_dash_phase*width, freq);
+              vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, v_dash_index)) * 255.0 -10.0;  // conversion to int-like
+              float dash_center= tex.x * width;
+              float dash_type  = tex.y;
+              float _start = tex.z * width;
+              float _stop  = tex.a * width;
+              float dash_start = dx - u + _start;
+              float dash_stop  = dx - u + _stop;
+              
+              // Compute extents of the first dash (the one relative to v_segment.x)
+              // Note: this could be computed in the vertex shader
+              if( (dash_stop < segment_start) && (dash_caps.x != 5.0) ) {
+                  float u = mod(segment_start + v_dash_phase*width, freq);
+                  vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, v_dash_index)) * 255.0 -10.0;  // conversion to int-like
+                  dash_center= tex.x * width;
+                  //dash_type  = tex.y;
+                  float _start = tex.z * width;
+                  float _stop  = tex.a * width;
+                  dash_start = segment_start - u + _start;
+                  dash_stop = segment_start - u + _stop;
+              }
+      
+              // Compute extents of the last dash (the one relatives to v_segment.y)
+              // Note: This could be computed in the vertex shader
+              else if( (dash_start > segment_stop)  && (dash_caps.y != 5.0) ) {
+                  float u = mod(segment_stop + v_dash_phase*width, freq);
+                  vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, v_dash_index)) * 255.0 -10.0;  // conversion to int-like
+                  dash_center= tex.x * width;
+                  //dash_type  = tex.y;
+                  float _start = tex.z * width;
+                  float _stop  = tex.a * width;
+                  dash_start = segment_stop - u + _start;
+                  dash_stop  = segment_stop - u + _stop;            
+              }
+      
+              // This test if the we are dealing with a discontinuous angle
+              bool discontinuous = ((dx <  segment_center) && abs(v_angles.x) > THETA) ||
+                                   ((dx >= segment_center) && abs(v_angles.y) > THETA);
+              //if( dx < line_start) discontinuous = false;
+              //if( dx > line_stop)  discontinuous = false;
+      
+              float d_join = join( int(v_linejoin), abs(dy),
+                                  v_segment, v_texcoord, v_miter, v_miter_limit, v_linewidth );
+      
+              // When path is closed, we do not have room for linecaps, so we make room
+              // by shortening the total length
+              if (closed) {
+                   line_start += v_linewidth/2.0;
+                   line_stop  -= v_linewidth/2.0;
+              }
+      
+              // We also need to take antialias area into account
+              //line_start += v_antialias;
+              //line_stop  -= v_antialias;
+      
+              // Check is dash stop is before line start
+              if( dash_stop <= line_start ) {
+                  discard;
+              }
+              // Check is dash start is beyond line stop
+              if( dash_start >= line_stop ) {
+                  discard;
+              }
+      
+              // Check if current dash start is beyond segment stop
+              if( discontinuous ) {
+                  // Dash start is beyond segment, we discard
+                  if( (dash_start > segment_stop) ) {
+                      discard;
+                      //gl_FragColor = vec4(1.0,0.0,0.0,.25); return;
+                  }
+                      
+                  // Dash stop is before segment, we discard
+                  if( (dash_stop < segment_start) ) {
+                      discard;  //gl_FragColor = vec4(0.0,1.0,0.0,.25); return;
+                  }
+                      
+                  // Special case for round caps (nicer with this)
+                  if( dash_caps.x == 1.0 ) {
+                      if( (u > _stop) && (dash_stop > segment_stop )  && (abs(v_angles.y) < PI/2.0)) {
+                          discard;
+                      }
+                  }
+      
+                  // Special case for round caps  (nicer with this)
+                  if( dash_caps.y == 1.0 ) {
+                      if( (u < _start) && (dash_start < segment_start )  && (abs(v_angles.x) < PI/2.0)) {
+                          discard;
+                      }
+                  }
+      
+                  // Special case for triangle caps (in & out) and square
+                  // We make sure the cap stop at crossing frontier
+                  if( (dash_caps.x != 1.0) && (dash_caps.x != 5.0) ) {
+                      if( (dash_start < segment_start )  && (abs(v_angles.x) < PI/2.0) ) {
+                          float a = v_angles.x/2.0;
+                          float x = (segment_start-dx)*cos(a) - dy*sin(a);
+                          float y = (segment_start-dx)*sin(a) + dy*cos(a);
+                          if( x > 0.0 ) discard;
+                          // We transform the cap into square to avoid holes
+                          dash_caps.x = 4.0;
+                      }
+                  }
+      
+                  // Special case for triangle caps (in & out) and square
+                  // We make sure the cap stop at crossing frontier
+                  if( (dash_caps.y != 1.0) && (dash_caps.y != 5.0) ) {
+                      if( (dash_stop > segment_stop )  && (abs(v_angles.y) < PI/2.0) ) {
+                          float a = v_angles.y/2.0;
+                          float x = (dx-segment_stop)*cos(a) - dy*sin(a);
+                          float y = (dx-segment_stop)*sin(a) + dy*cos(a);
+                          if( x > 0.0 ) discard;
+                          // We transform the caps into square to avoid holes
+                          dash_caps.y = 4.0;
+                      }
+                  }
+              }
+      
+              // Line cap at start
+              if( (dx < line_start) && (dash_start < line_start) && (dash_stop > line_start) ) {
+                  d = cap( int(linecaps.x), dx-line_start, dy, t);
+              }
+              // Line cap at stop
+              else if( (dx > line_stop) && (dash_stop > line_stop) && (dash_start < line_stop) ) {
+                  d = cap( int(linecaps.y), dx-line_stop, dy, t);
+              }
+              // Dash cap left
+              else if( dash_type < 0.0 ) {
+                  d = cap( int(dash_caps.y), abs(u-dash_center), dy, t);
+                  if( (dx > line_start) && (dx < line_stop) )
+                      d = max(d,d_join);
+              }
+              // Dash cap right
+              else if( dash_type > 0.0 ) {
+                  d = cap( int(dash_caps.x), abs(dash_center-u), dy, t);
+                  if( (dx > line_start) && (dx < line_stop) )
+                      d = max(d,d_join);
+              }
+              // Dash body (plain)
+              else if( dash_type == 0.0 ) {
+                  d = abs(dy);
+              }
+      
+              // Line join
+              if( (dx > line_start) && (dx < line_stop)) {
+                  if( (dx <= segment_start) && (dash_start <= segment_start)
+                      && (dash_stop >= segment_start) ) {
+                      d = d_join;
+                      // Antialias at outer border
+                      float angle = PI/2.+v_angles.x;
+                      float f = abs( (segment_start - dx)*cos(angle) - dy*sin(angle));
+                      d = max(f,d);
+                  }
+                  else if( (dx > segment_stop) && (dash_start <= segment_stop)
+                           && (dash_stop >= segment_stop) ) {
+                      d = d_join;
+                      // Antialias at outer border
+                      float angle = PI/2.+v_angles.y;
+                      float f = abs((dx - segment_stop)*cos(angle) - dy*sin(angle));
+                      d = max(f,d);
+                  }
+                  else if( dx < (segment_start - v_linewidth/2.)) {
+                      discard;
+                  }
+                  else if( dx > (segment_stop + v_linewidth/2.)) {
+                      discard;
+                  }
+              }
+              else if( dx < (segment_start - v_linewidth/2.)) {
+                  discard;
+              }
+              else if( dx > (segment_stop + v_linewidth/2.)) {
+                  discard;
+              }
+          }
+              
+          // Distance to border ------------------------------------------------------
+          d = d - t;
+          if( d < 0.0 ) {
+              gl_FragColor = color;
+          }
+          else {
+              d /= v_antialias;
+              gl_FragColor = vec4(color.xyz, exp(-d*d)*color.a);
+          }
+      }
+    """
+    
     init: () ->
       gl = @gl
+      @_scale_aspect = 0  # keep track, so we know when we need to update segment data
       
       # The program
       @prog = new gloo2.Program(gl)
@@ -409,6 +765,8 @@ class LineGLGlyph extends BaseGLGlyph
       @vbo_segment = new gloo2.VertexBuffer(gl)
       @vbo_angles = new gloo2.VertexBuffer(gl)
       @vbo_texcoord = new gloo2.VertexBuffer(gl)
+      # Dash atlas
+      @dash_atlas = new DashAtlas(gl)
  
     draw: (indices, mainGlyph, trans) ->
       
@@ -418,7 +776,18 @@ class LineGLGlyph extends BaseGLGlyph
       if @visuals_changed
         @_set_visuals()
         @visuals_changed = false
-            
+      
+      # Decompose x-y scale into scalar scale and aspect-vector.
+      sx = trans.sx; sy = trans.sy;
+      scale_length = Math.sqrt(sx * sx + sy * sy)
+      sx /= scale_length; sy /= scale_length
+      
+      # Do we need to re-calculate segment data and cumsum?
+      if Math.abs(@_scale_aspect - (sy / sx)) > (1e-3 * @_scale_aspect)
+        console.log('recalculating line segments')
+        @_update_scale(sx, sy)
+        @_scale_aspect = sy / sx
+      
       # Select buffers from main glyph 
       # (which may be this glyph but maybe not if this is a (non)selection glyph)
       @prog.set_attribute('a_position', 'vec2', [mainGlyph.glglyph.vbo_position, 0, 0])
@@ -428,17 +797,21 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_attribute('a_texcoord', 'vec2', [mainGlyph.glglyph.vbo_texcoord, 0, 0])
       #
       @prog.set_uniform('u_length', 'float', [mainGlyph.glglyph.cumsum])
+      @prog.set_texture('u_dash_atlas', @dash_atlas.tex)
       
       # Handle transformation to device coordinates
       @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
       @prog.set_uniform('u_offset', 'vec2', [trans.dx[0], trans.dy[0]])
-      @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
+      @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
+      @prog.set_uniform('u_scale_length', 'float', [scale_length])
       
-      #@prog.draw(@gl.TRIANGLES, [0, nvertices])
+      # todo: if I is larger than 65k, we need to draw in parts
       @index_buffer.set_size(@I_triangles.length*2)
       @index_buffer.set_data(0, new Uint16Array(@I_triangles))
-      @prog.draw(@gl.LINE_STRIP, @index_buffer)
-      window.Y = @I_triangles
+      if @FRAG.length < 500
+        @prog.draw(@gl.LINE_STRIP, @index_buffer)
+      else
+        @prog.draw(@gl.TRIANGLES, @index_buffer)
     
     _set_data: () ->
       @_bake()
@@ -448,9 +821,6 @@ class LineGLGlyph extends BaseGLGlyph
       
       @vbo_tangents.set_size(@V_tangents.length*4)
       @vbo_tangents.set_data(0, @V_tangents)
-      
-      @vbo_segment.set_size(@V_segment.length*4)
-      @vbo_segment.set_data(0, @V_segment)
       
       @vbo_angles.set_size(@V_angles.length*4)
       @vbo_angles.set_data(0, @V_angles)
@@ -463,23 +833,27 @@ class LineGLGlyph extends BaseGLGlyph
       
       color = color2rgba(@glyph.visuals.line.color.value(), @glyph.visuals.line.alpha.value())
       cap = @CAPS[@glyph.visuals.line.cap.value()]
+      join = @JOINS[@glyph.visuals.line.join.value()]
       
       @prog.set_uniform('u_color', 'vec4', color)
-      @prog.set_uniform('u_linewidth', 'float', [16.0])#[@glyph.visuals.line.width.value()])
+      @prog.set_uniform('u_linewidth', 'float', [@glyph.visuals.line.width.value()])
       @prog.set_uniform('u_antialias', 'float', [0.9])  # Smaller aa-region to obtain crisper images
       
       @prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
-      @prog.set_uniform('u_linejoin', 'float', [@JOIN[@glyph.visuals.line.join.value()]])
+      @prog.set_uniform('u_linejoin', 'float', [join])
       @prog.set_uniform('u_miter_limit', 'float', [10.0])  # Should be a good value
-      @prog.set_uniform('u_dash_phase', 'float', [@glyph.visuals.line.dash_offset.value()])
       
-      #@prog.set_uniform('u_dash_period', 'float', [@glyph.visuals.line.xxx.value()])
-      #@prog.set_uniform('u_dash_index', 'float', [@glyph.visuals.line.xxx.value()])
+      dash_pattern = @glyph.visuals.line.dash.value()
+      dash_index = 0; dash_period = 1
+      if dash_pattern.length
+        [dash_index, dash_period] = @dash_atlas.get_atlas_data(dash_pattern)
+      @prog.set_uniform('u_dash_index', 'float', [dash_index])  # 0 means solid line
+      @prog.set_uniform('u_dash_phase', 'float', [@glyph.visuals.line.dash_offset.value()])
+      @prog.set_uniform('u_dash_period', 'float', [dash_period])
       @prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])  # TODO: Check what canvas does
       @prog.set_uniform('u_closed', 'float', [0])  # TODO: we dont do closed lines; rip this out
     
     _bake: () ->
-      console.log('BAAAAAAKING!!')
       # self.vtype = np.dtype( [('a_position', 'f4', 2),
       #                         ('a_segment',  'f4', 2),
       #                         ('a_angles',   'f4', 2),
@@ -487,7 +861,9 @@ class LineGLGlyph extends BaseGLGlyph
       #                         ('a_texcoord', 'f4', 2) ])
       
       # This is what you get if you port 50 lines of numpy code to JS.
-                              
+      # V_segment is not handled here, because it depends on the aspect ratio of
+      # the scale (The original paper/code assumed isotropic scaling).
+                  
       # Init array of implicit shape nx2
       n = @nvertices
       _x = new Float32Array(@glyph.x)
@@ -495,7 +871,7 @@ class LineGLGlyph extends BaseGLGlyph
       
       # Init vertex data
       V_position = Vp = new Float32Array(n*2)
-      V_segment = new Float32Array(n*2)
+      #V_segment = new Float32Array(n*2)  # Done later
       V_angles = new Float32Array(n*2)
       V_tangents = Vt = new Float32Array(n*4)  # mind the 4!
       V_texcoord = new Float32Array(n*2)
@@ -505,16 +881,13 @@ class LineGLGlyph extends BaseGLGlyph
           V_position[i*2+0] = _x[i]
           V_position[i*2+1] = _y[i]
             
-      # Tangents & norms
-      T = new Float32Array(n*2-2)
-      N = new Float32Array(n-1)
+      # Tangents & norms (need tangents to calculate segments based on scale)
+      @tangents = T = new Float32Array(n*2-2)
       for i in [0...n-1]
         T[i*2+0] = Vp[(i+1)*2+0] - Vp[i*2+0]
         T[i*2+1] = Vp[(i+1)*2+1] - Vp[i*2+1]
       
       for i in [0...n-1]
-        N[i] = Math.sqrt(Math.pow(T[i*2+0], 2) + Math.pow(T[i*2+1], 2))
-        
         # V['a_tangents'][+1:, :2] = T
         V_tangents[(i+1)*4+0] = T[i*2+0]
         V_tangents[(i+1)*4+1] = T[i*2+1]        
@@ -537,20 +910,12 @@ class LineGLGlyph extends BaseGLGlyph
       for i in [0...n-1]
         V_angles[i*2+0] = A[i]
         V_angles[i*2+1] = A[i+1]
-         
-      # Segment
-      cumsum = 0
-      for i in [0...n-1]
-        cumsum += N[i]
-        V_segment[(i+1)*2+0] = cumsum
-        V_segment[i*2+1] = cumsum
             
       # Step 1: A -- B -- C  =>  A -- B, B' -- C
       
       # Repeat our array 4 times
       m = 4 * n - 4
       @V_position = V_position2 = new Float32Array(m*2)
-      @V_segment = V_segment2 = new Float32Array(m*2)
       @V_angles = V_angles2 = new Float32Array(m*2)
       @V_tangents = V_tangents2 = new Float32Array(m*4)  # mind the 4!
       @V_texcoord = V_texcoord2 = new Float32Array(m*2)
@@ -561,9 +926,7 @@ class LineGLGlyph extends BaseGLGlyph
          for j in [0...4]  # the four quad vertices
             for k in [0...2]  # xy
               V_position2[(i*4+j-o)*2+k] = V_position[i*2+k]
-              V_segment2[(i*4+j)*2+k] = V_segment[i*2+k]  # no offset
               V_angles2[(i*4+j)*2+k] = V_angles[i*2+k]  # no offset
-              #V_texcoord2[4*i*2+j*2+k] = V_texcoord[i*2+k]
             for k in [0...4]
               V_tangents2[(i*4+j-o)*4+k] = V_tangents[i*4+k]
       
@@ -583,23 +946,44 @@ class LineGLGlyph extends BaseGLGlyph
       #I += np.repeat( 4*np.arange(n-1), 6)
       ni = (n-1) * 6
       @I_triangles = I = new Uint32Array(ni)
+      # Order of indices is such that drawing as line_strip reveals the line skeleton
+      # Might have implications on culling, if we ever turn that on. 
+      # Order in paper was: 0 1 2 1 2 3
       for i in [0...n]
         I[i*6+0] = 0 + 4*i
         I[i*6+1] = 1 + 4*i
-        I[i*6+2] = 2 + 4*i
-        I[i*6+3] = 1 + 4*i
-        I[i*6+4] = 2 + 4*i
-        I[i*6+5] = 3 + 4*i
-      if 1
-        for i in [0...n]
-          I[i*6+0] = 0 + 4*i
-          I[i*6+1] = 1 + 4*i
-          I[i*6+2] = 3 + 4*i
-          I[i*6+3] = 2 + 4*i
-          I[i*6+4] = 0 + 4*i
-          I[i*6+5] = 3 + 4*i     
-      # todo: if I is larger than 65k, we need to draw in parts
+        I[i*6+2] = 3 + 4*i
+        I[i*6+3] = 2 + 4*i
+        I[i*6+4] = 0 + 4*i
+        I[i*6+5] = 3 + 4*i     
+
+    _update_scale: (sx, sy) ->
+      n = @nvertices
+      m = 4 * n - 4
+      # Prepare arrays
+      T = @tangents
+      N = new Float32Array(n-1)
+      V_segment = new Float32Array(n*2)  # Elements are initialized with 0
+      @V_segment = V_segment2 = new Float32Array(m*2)
+      # Calculate vector lengths - with scale aspect ratio taken into account
+      for i in [0...n-1]
+        N[i] = Math.sqrt(Math.pow(T[i*2+0] * sx, 2) + Math.pow(T[i*2+1] * sy, 2))
+      # Calculate Segments
+      cumsum = 0
+      for i in [0...n-1]
+        cumsum += N[i]
+        V_segment[(i+1)*2+0] = cumsum
+        V_segment[i*2+1] = cumsum
+      # Upscale (same loop as in _bake())
+      for i in [0...n]
+         for j in [0...4]
+            for k in [0...2]
+              V_segment2[(i*4+j)*2+k] = V_segment[i*2+k]
+      # Update
       @cumsum = cumsum  # L[-1] in Nico's code
+      @vbo_segment.set_size(@V_segment.length*4)
+      @vbo_segment.set_data(0, @V_segment)
+
 
 class MarkerGLGlyph extends BaseGLGlyph
   # Base class for markers. All markers share the same GLSL, except for one
