@@ -10,7 +10,7 @@ from six import string_types
 
 from .models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
-    TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
+    TapTool, DoubleTapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
@@ -218,6 +218,7 @@ _known_tools = {
     "resize": lambda: ResizeTool(),
     "click": "tap",
     "tap": lambda: TapTool(always_active=True),
+    "doubletap": lambda: DoubleTapTool(always_active=True),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),
     "poly_select": lambda: PolySelectTool(),

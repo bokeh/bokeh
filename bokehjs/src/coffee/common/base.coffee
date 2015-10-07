@@ -124,6 +124,7 @@ locations =
 
   BoxSelectTool:            require '../tool/gestures/box_select_tool'
   BoxZoomTool:              require '../tool/gestures/box_zoom_tool'
+  DoubleTapTool:            require '../tool/gestures/double_tap_tool'
   GestureTool:              require '../tool/gestures/gesture_tool'
   LassoSelectTool:          require '../tool/gestures/lasso_select_tool'
   PanTool:                  require '../tool/gestures/pan_tool'

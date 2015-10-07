@@ -185,6 +185,44 @@ class TapTool(Tool):
     Whether the hover tool must be explicitly activated.
     """)
 
+class DoubleTapTool(Tool):
+    """ *toolbar icon*: |tap_select_icon|
+
+    The tap selection tool allows the user to select at single points by
+    left-clicking a mouse, or tapping with a finger.
+
+    See :ref:`userguide_styling_selected_unselected_glyphs` for information
+    on styling selected and unselected glyphs.
+
+    .. |tap_select_icon| image:: /_images/icons/TapSelect.png
+        :height: 18pt
+
+    .. note::
+        Selections can be comprised of multiple regions, even those
+        made by different selection tools. Hold down the <<shift>> key
+        while making a selection to append the new selection to any
+        previous seletion that might exist.
+    """
+
+    names = List(String, help="""
+    A list of names to query for. If set, only renderers that
+    have a matching value for their ``name`` attribute will be used.
+    """)
+
+    renderers = List(Instance(Renderer), help="""
+    An explicit list of renderers to hit test again. If unset,
+    defaults to all renderers on a plot.
+    """)
+
+    callback = Instance(Callback, help="""
+    A client-side action specification, like opening a URL, showing
+    a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
+    """)
+
+    always_active = Bool(True, help="""
+    Whether the hover tool must be explicitly activated.
+    """)
+
 
 class CrosshairTool(Tool):
     """ *toolbar icon*: |inspector_icon|

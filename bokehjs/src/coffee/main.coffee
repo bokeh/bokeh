@@ -111,6 +111,7 @@ Bokeh.HelpTool               = require("./tool/actions/help_tool")
 
 Bokeh.BoxSelectTool          = require("./tool/gestures/box_select_tool")
 Bokeh.BoxZoomTool            = require("./tool/gestures/box_zoom_tool")
+Bokeh.DoubleTapTool          = require("./tool/gestures/double_tap_tool")
 Bokeh.LassoSelectTool        = require("./tool/gestures/lasso_select_tool")
 Bokeh.PanTool                = require("./tool/gestures/pan_tool")
 Bokeh.PolySelectTool         = require("./tool/gestures/poly_select_tool")
