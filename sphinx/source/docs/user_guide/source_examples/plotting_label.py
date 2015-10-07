@@ -8,7 +8,7 @@ flowers['color'] = flowers['species'].map(lambda x: colormap[x])
 
 output_file("label.html", title="label.py example")
 
-p = figure(title = "Iris Morphology", tools=[])
+p = figure(title = "Iris Morphology")
 p.xaxis.axis_label = 'Petal Length'
 p.yaxis.axis_label = 'Petal Width'
 
