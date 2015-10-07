@@ -8,8 +8,8 @@ from ..enums import Orientation, SpatialUnits, RenderLevel
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, NumberSpec, Either, Auto, StringSpec,
-                          AngleSpec)
+                          Include, Float, Either, Auto, String, AngleSpec,
+                          NumberSpec)
 
 from .renderers import Renderer, GlyphRenderer
 
@@ -86,7 +86,7 @@ class Legend(Annotation):
     )
 
 class BoxAnnotation(Annotation):
-    """ Render an annotation box "shade" thing
+    """ Render an annotation box onto the plot
 
     """
 
@@ -153,11 +153,11 @@ class Label(Annotation):
 
     """
 
-    text = StringSpec("text", help="""
+    text = String(help="""
     The text values to render.
     """)
 
-    x = NumberSpec("x", help="""
+    x = Float(help="""
     The x-coordinates to locate the label anchors.
     """)
 
@@ -166,7 +166,7 @@ class Label(Annotation):
     by default.
     """)
 
-    y = NumberSpec("y", help="""
+    y = Float(help="""
     The y-coordinates to locate the label anchors.
     """)
 

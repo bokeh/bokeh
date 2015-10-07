@@ -7,9 +7,9 @@ class LabelView extends PlotWidget
   initialize: (options) ->
     super(options)
     @text_props = new properties.Text({obj: @model, prefix: 'label_'})
+    @angle_props = new properties.Angle({obj: @model, attr: 'angle'})
 
   render: () ->
-    debugger;
     @frame = @plot_model.get('frame')
     @canvas = @plot_model.get('canvas')
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
@@ -20,11 +20,11 @@ class LabelView extends PlotWidget
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
-    # @angle_props.set_value(ctx)
-    # ctx.rotate(@mget('angle'))
+
+    ctx.rotate(@angle_props.transform(@angle_props.value()))
     @text_props.set_value(ctx)
-    ctx.translate(@mget('x_offset'), @mget('y_offset'))
-    ctx.fillText(@mget('text'), sx, sy)
+    ctx.translate(sx + @mget('x_offset'), sy + @mget('y_offset'))
+    ctx.fillText(@mget('text'), 0, 0)
     ctx.restore()
 
   _calc_dim: (dim, mapper) ->
