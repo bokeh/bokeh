@@ -126,7 +126,7 @@ gulp.task "scripts:build", (cb) ->
       .transform("browserify-eco")
       .transform("coffeeify")
       .bundle()
-      .pipe(source(paths.bokehjs.coffee.destination.full))
+      .pipe(source(paths.coffee.bokehjs.destination.full))
       .pipe(buffer())
       .pipe(sourcemaps.init({loadMaps: true}))
       # This solves a conflict when requirejs is loaded on the page. Backbone
@@ -149,7 +149,7 @@ gulp.task "scripts:build", (cb) ->
       .transform("browserify-eco")
       .transform("coffeeify")
       .bundle()
-      .pipe(source(paths.widgets.coffee.destination.full))
+      .pipe(source(paths.coffee.widgets.destination.full))
       .pipe(buffer())
       .pipe(sourcemaps.init({loadMaps: true}))
       # This solves a conflict when requirejs is loaded on the page. Backbone
@@ -165,8 +165,8 @@ gulp.task "scripts:build", (cb) ->
   null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:minify", ->
-  tasks = [paths.bokehjs, paths.widgets].map (entry) ->
-    gulp.src(entry.coffee.destination.fullWithPath)
+  tasks = [paths.coffee.bokehjs, paths.coffee.widgets].map (entry) ->
+    gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(sourcemaps.init({loadMaps: true}))
       .pipe(uglify())
