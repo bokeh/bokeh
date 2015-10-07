@@ -16,6 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 from os.path import join, relpath, splitext
 import re
+import copy
 
 import six
 
@@ -81,11 +82,7 @@ class BaseResources(object):
     _default_root_dir = "."
     _default_root_url = "http://127.0.0.1:5006/"
 
-    _default_components = ["bokeh", "bokeh-widgets"]
-
-    @property
-    def components(self):
-        return self._default_components
+    _components = ["bokeh", "bokeh-widgets"]
 
     logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
@@ -187,6 +184,32 @@ class BaseResources(object):
             end = "/* END %s */" % path
             strings.append(begin + '\n' + middle + '\n' + end)
         return strings
+
+    @property
+    def components(self):
+        return self._components
+
+    def _use_component(self, component, use):
+        obj = copy.deepcopy(self)
+
+        if use:
+            if component not in obj._components:
+                try:
+                    i = obj._components.index("bokeh")
+                except ValueError:
+                    i = 0
+
+                obj._components.insert(i, component)
+        else:
+            try:
+                obj._components.remove(component)
+            except ValueError:
+                pass
+
+        return obj
+
+    def use_widgets(self, use):
+        return self._use_component("bokeh-widgets", use)
 
 class JSResources(BaseResources):
 

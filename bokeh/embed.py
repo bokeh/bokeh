@@ -334,6 +334,9 @@ def file_html(plot_object,
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 
+    from .models.widgets import Widget
+    use_widgets = any(isinstance(obj, Widget) for obj in plot_object.references())
+
     if resources:
         if js_resources:
             warn('Both resources and js_resources provided. resources will override js_resources.')
@@ -347,12 +350,14 @@ def file_html(plot_object,
     if js_resources:
         if not css_resources:
             warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+        js_resources = js_resources.use_widgets(use_widgets)
         bokeh_js = js_resources.render_js()
 
     bokeh_css = ''
     if css_resources:
         if not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+        css_resources = css_resources.use_widgets(use_widgets)
         bokeh_css = css_resources.render_css()
 
     script, div = components(plot_object)
