@@ -46,8 +46,8 @@ class GlyphView extends ContinuumView
     wx = wy = 1  # Weights to scale our vectors
     [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
     # Try again, but with weighs so we're looking at ~100 in screen coordinates
-    wx = 100 / Math.max(Math.abs(dx[1] - dx[0]), 1e-12)
-    wy = 100 / Math.max(Math.abs(dy[1] - dy[0]), 1e-12)
+    wx = 100 / Math.min(Math.max(Math.abs(dx[1] - dx[0]), 1e-12), 1e12)
+    wy = 100 / Math.min(Math.max(Math.abs(dy[1] - dy[0]), 1e-12), 1e12)
     [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
     # Test how linear it is
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
