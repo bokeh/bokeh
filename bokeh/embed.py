@@ -309,7 +309,7 @@ def file_html(plot_object,
               js_resources=None,
               css_resources=None,
               template=FILE,
-              template_variables=None):
+              template_variables={}):
     ''' Return an HTML document that embeds a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -356,17 +356,16 @@ def file_html(plot_object,
         bokeh_css = css_resources.render_css()
 
     script, div = components(plot_object)
-    template_variables_full = \
-        template_variables.copy() if template_variables is not None else {}
-    template_variables_full.update(
-        {
-            'title': title,
-            'bokeh_js': bokeh_js,
-            'bokeh_css': bokeh_css,
-            'plot_script': script,
-            'plot_div': div,
-        }
-    )
+
+    template_variables_full = template_variables.copy()
+    template_variables_full.update(dict(
+        title       = title,
+        bokeh_js    = bokeh_js,
+        bokeh_css   = bokeh_css,
+        plot_script = script,
+        plot_div    = div,
+    ))
+
     html = template.render(template_variables_full)
     return encode_utf8(html)
 
