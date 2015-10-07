@@ -77,17 +77,6 @@ def _get_server_urls(components, root_url, minified=True):
         'messages' : [],
     }
 
-
-def _inline(paths):
-    strings = []
-    for path in paths:
-        begin = "/* BEGIN %s */" % path
-        middle = open(path, 'rb').read().decode("utf-8")
-        end = "/* END %s */" % path
-        strings.append(begin + '\n' + middle + '\n' + end)
-    return strings
-
-
 class BaseResources(object):
     _default_root_dir = "."
     _default_root_url = "http://127.0.0.1:5006/"
@@ -170,28 +159,40 @@ class BaseResources(object):
     def _server_urls(self):
         return _get_server_urls(self.components, self.root_url, self.minified)
 
+    def _resolve(self, kind):
+        paths = self._file_paths(kind)
+        files, raw = [], []
+
+        if self.mode == "inline":
+            raw = lambda: self._inline(paths)
+        elif self.mode == "relative":
+            root_dir = self.root_dir or self._default_root_dir
+            files = [ relpath(path, root_dir) for path in paths ]
+        elif self.mode == "absolute":
+            files = list(paths)
+        elif self.mode == "cdn":
+            cdn = self._cdn_urls()
+            files = list(cdn['urls'](kind))
+        elif self.mode == "server":
+            server = self._server_urls()
+            files = list(server['urls'](kind))
+
+        return (files, raw)
+
+    def _inline(paths):
+        strings = []
+        for path in paths:
+            begin = "/* BEGIN %s */" % path
+            middle = open(path, 'rb').read().decode("utf-8")
+            end = "/* END %s */" % path
+            strings.append(begin + '\n' + middle + '\n' + end)
+        return strings
+
 class JSResources(BaseResources):
 
     def __init__(self, mode='inline', version=None, root_dir=None, minified=True, log_level="info", root_url=None):
         super(JSResources, self).__init__(mode, version, root_dir, minified, log_level, root_url)
-        js_paths = self._file_paths('js')
-
-        self._js_raw = []
-        self._js_files = []
-
-        if self.mode == "inline":
-            self._js_raw = lambda: _inline(js_paths)
-        elif self.mode == "relative":
-            root_dir = self.root_dir or self._default_root_dir
-            self._js_files = [relpath(p, root_dir) for p in js_paths]
-        elif self.mode == "absolute":
-            self._js_files = list(js_paths)
-        elif self.mode == "cdn":
-            cdn = self._cdn_urls()
-            self._js_files = list(cdn['urls']('js'))
-        elif self.mode == "server":
-            server = self._server_urls()
-            self._js_files = list(server['urls']('js'))
+        self._js_files, self._js_raw = self._resolve('js')
 
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
@@ -213,24 +214,7 @@ class CSSResources(BaseResources):
 
     def __init__(self, mode='inline', version=None, root_dir=None, minified=True, log_level="info", root_url=None):
         super(CSSResources, self).__init__(mode, version, root_dir, minified, log_level, root_url)
-        css_paths = self._file_paths('css')
-
-        self._css_raw = []
-        self._css_files = []
-
-        if self.mode == "inline":
-            self._css_raw = lambda: _inline(css_paths)
-        elif self.mode == "relative":
-            root_dir = self.root_dir or self._default_root_dir
-            self._css_files = [relpath(p, root_dir) for p in css_paths]
-        elif self.mode == "absolute":
-            self._css_files = list(css_paths)
-        elif self.mode == "cdn":
-            cdn = self._cdn_urls()
-            self._css_files = list(cdn['urls']('css'))
-        elif self.mode == "server":
-            server = self._server_urls()
-            self._css_files = list(server['urls']('css'))
+        self._css_files, self._css_raw = self._resolve('css')
 
     @property
     def css_raw(self):
