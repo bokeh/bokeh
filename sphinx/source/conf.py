@@ -32,7 +32,6 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.napoleon',
-    'sphinxcontrib.autohttp.flask',
     'bokeh.sphinxext.bokeh_autodoc',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
