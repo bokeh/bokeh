@@ -347,13 +347,13 @@ def file_html(plot_object,
     if js_resources:
         if not css_resources:
             warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_js = resources.render_js()
+        bokeh_js = js_resources.render_js()
 
     bokeh_css = ''
     if css_resources:
         if not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_css = resources.render_css()
+        bokeh_css = css_resources.render_css()
 
     script, div = components(plot_object)
     template_variables_full = \
