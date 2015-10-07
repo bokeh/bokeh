@@ -90,6 +90,9 @@ class Document(object):
     def ref(self):
         return self._context.ref
 
+    def references(self):
+        return self.context.references()
+
     def clear(self):
         """ Remove all plots from this `Document`
 

@@ -162,11 +162,8 @@ class BarBuilder(Builder):
         if self.xlabel is None:
             if self.attributes['label'].columns is not None:
                 self.xlabel = str(', '.join(self.attributes['label'].columns).title()).title()
-            elif self.values.selection is not None:
-                selected_value_cols = self.values.selection
-                if not isinstance(selected_value_cols, list):
-                    selected_value_cols = [selected_value_cols]
-                self.xlabel = str(', '.join(selected_value_cols).title()).title()
+            else:
+                self.xlabel = self.values.selection
 
         if self.ylabel is None:
             if not self.values.computed:
@@ -197,7 +194,16 @@ class BarBuilder(Builder):
         self.y_range = Range1d(start=start, end=self.max_height + y_shift)
 
     def get_extra_args(self):
-        return {}
+        if self.__class__ is not BarBuilder:
+            attrs = self.class_properties(withbases=False)
+            return {attr: getattr(self, attr) for attr in attrs}
+        else:
+            return {}
+
+    def collect_glyph_kwargs(self, group):
+        attrs = set(self.default_attributes.keys()) - set(
+            BarBuilder.default_attributes.keys())
+        return {attr: group[attr] for attr in attrs}
 
     def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
@@ -207,6 +213,9 @@ class BarBuilder(Builder):
         kwargs = self.get_extra_args()
 
         for group in self._data.groupby(**self.attributes):
+            glyph_kwargs = self.collect_glyph_kwargs(group)
+            group_kwargs = kwargs.copy()
+            group_kwargs.update(glyph_kwargs)
 
             bg = self.glyph(label=self.get_label(group['label']),
                             values=group.data[self.values.selection].values,
@@ -216,7 +225,7 @@ class BarBuilder(Builder):
                             fill_alpha=self.fill_alpha,
                             stack_label=self.get_label(group['stack']),
                             dodge_label=self.get_label(group['group']),
-                            **kwargs)
+                            **group_kwargs)
 
             self.add_glyph(group, bg)
 

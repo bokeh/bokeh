@@ -2,6 +2,7 @@ _ = require "underscore"
 rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
+{arrayMax} = require "../../common/mathutils"
 HasParent = require "../../common/has_parent"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
@@ -108,7 +109,7 @@ class GlyphView extends ContinuumView
     # set any distances as well as their max
     for name, prop of @distances
       @[name] = prop.array(source)
-      @["max_#{name}"] = Math.max.apply(null, @[name])
+      @["max_#{name}"] = arrayMax(@[name])
 
     # set any misc fields
     for name, prop of @fields

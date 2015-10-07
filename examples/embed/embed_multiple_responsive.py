@@ -2,7 +2,7 @@ from bokeh.browserlib import view
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.resources import INLINE
-from bokeh.templates import RESOURCES
+from bokeh.templates import JS_RESOURCES, CSS_RESOURCES
 
 from jinja2 import Template
 import random
@@ -27,7 +27,8 @@ template = Template('''<!DOCTYPE html>
     <head>
         <meta charset="utf-8">
         <title>Responsive plots</title>
-        {{ plot_resources }}
+        {{ js_resources }}
+        {{ css_resources }}
     </head>
     <body>
     <h2>Resize the window to see some plots resizing</h2>
@@ -44,15 +45,26 @@ template = Template('''<!DOCTYPE html>
 ''')
 
 resources = INLINE
-plot_resources = RESOURCES.render(
+
+js_resources = JS_RESOURCES.render(
     js_raw=resources.js_raw,
-    css_raw=resources.css_raw,
-    js_files=resources.js_files,
-    css_files=resources.css_files,
+    js_files=resources.js_files
 )
+
+css_resources = CSS_RESOURCES.render(
+    css_raw=resources.css_raw,
+    css_files=resources.css_files
+)
+
 script, div = components({'red': red, 'blue': blue, 'green': green})
-html = template.render(plot_resources=plot_resources, plot_script=script, plot_div=div)
+
+html = template.render(js_resources=js_resources,
+                       css_resources=css_resources,
+                       plot_script=script,
+                       plot_div=div)
+
 html_file = 'embed_multiple_responsive.html'
+
 with open(html_file, 'w') as f:
     f.write(html)
 

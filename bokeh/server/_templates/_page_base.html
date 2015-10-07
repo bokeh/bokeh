@@ -2,9 +2,11 @@
 
 {% block head %}
   <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
+  <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh-widgets.css') }}" rel="stylesheet">
   {% block extra_scripts %}
   {% endblock %}
   <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"></script>
+  <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh-widgets.js') }}"></script>
   <script type="text/javascript">
     {{ self.script() }}
   </script>

@@ -1,3 +1,22 @@
+{#
+Renders JavaScript code snippet that renders a Bokeh model into a
+corresponding PLOT_DIV.
+
+:param modelid: The Bokeh model id for the object to render
+:type modelid: str
+
+:param modeltype: the type of the model to render
+:type modeltype: str
+
+:param elementid: the id of the ``<div>`` to render into
+:type elementid: str
+
+#}
+Bokeh.Collections.register_models({
+  {% for name, impl in custom_models.items() -%}
+    "{{ name }}": {{ impl }},
+  {%- endfor %}
+});
 var all_models = {{ all_models }};
 Bokeh.load_models(all_models);
 var plots = {{ plots }};
