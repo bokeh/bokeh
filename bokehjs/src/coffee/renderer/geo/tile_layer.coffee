@@ -161,18 +161,24 @@ class MercatorTileProvider extends TileProvider
   get_level_by_extent: (extent, height, width) ->
     x_rs = (extent[2] - extent[0]) / width
     y_rs = (extent[3] - extent[1]) / height
-    res = Math.max(x_rs, y_rs)
+    resolution = Math.max(x_rs, y_rs)
     i = 0
     for r in @resolutions
-      if res > r
-        return i
+      if resolution > r
+        return 0 if i == 0
+        return i - 1 if i > 0
       i += 1
 
-    # closest = @resolutions.reduce (previous, current) ->
-    #   return current if (Math.abs(current - res) < Math.abs(previous - res))
-    #   return previous
-    #
-    # return @resolutions.indexOf(closest)
+  get_closest_level_by_extent:(extent, height, width) ->
+    x_rs = (extent[2] - extent[0]) / width
+    y_rs = (extent[3] - extent[1]) / height
+    resolution = Math.max(x_rs, y_rs)
+
+    closest = @resolutions.reduce (previous, current) ->
+      return current if (Math.abs(current - resolution) < Math.abs(previous - resolution))
+      return previous
+
+    return @resolutions.indexOf(closest)
 
   snap_to_zoom: (extent, height, width, level) ->
     desired_res = @resolutions[level]
@@ -240,7 +246,6 @@ class MercatorTileProvider extends TileProvider
     [txmin, tymin] = @meters_to_tile(xmin, ymin, level)
     [txmax, tymax] = @meters_to_tile(xmax, ymax, level)
 
-
     # add tiles which border
     txmin -= tile_border
     tymin -= tile_border
@@ -251,9 +256,7 @@ class MercatorTileProvider extends TileProvider
     for ty in [tymax..tymin] by -1
       for tx in [txmin..txmax] by 1
         tiles.push([tx, ty, level, @get_tile_meter_bounds(tx, ty, level)])
-
         tiles = @sort_tiles_from_center(tiles, [txmin, tymin, txmax, tymax])
-
     return tiles
 
   quadkey_to_tile_xyz: (quadKey) ->
@@ -349,6 +352,36 @@ class TileLayerView extends Glyph.View
   trace: (msg) ->
     console.warn "TileLayerView :: " + msg.toString()
 
+  get_extent: () ->
+    return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
+
+  _doubletap: (e) =>
+    extent = @get_extent()
+    [xmin, ymin, xmax, ymax] = extent
+
+    x_percent = (e.bokeh.plot_x - xmin) / (xmax - xmin)
+    y_percent = (e.bokeh.plot_y - ymin) / (ymax - ymin)
+
+    zoom_level = @tile_provider.get_closest_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+
+    if e.srcEvent.shiftKey
+      zoom_level = zoom_level - 1
+    else
+      zoom_level = zoom_level + 1
+
+    new_resolution = @tile_provider.resolutions[zoom_level]
+    new_xrange = new_resolution * @map_frame.get('width')
+    new_yrange = new_resolution * @map_frame.get('height')
+    nxmin = e.bokeh.plot_x - (x_percent * new_xrange)
+    nymin = e.bokeh.plot_y - (y_percent * new_yrange)
+    nxmax = xmin + new_xrange
+    nymax = ymin + new_yrange
+    new_extent = @tile_provider.snap_to_zoom([nxmin, nymin, nxmax, nymax], @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+    @x_range.set('start', new_extent[0])
+    @y_range.set('start', new_extent[1])
+    @x_range.set('end', new_extent[2])
+    @y_range.set('end', new_extent[3])
+
   _create_tile_provider: (provider_type, service_url, tile_size) ->
     return new QUADKEYTileProvider(service_url, tile_size) if(provider_type.toLowerCase() == 'quadkeytileprovider')
     return new TMSTileProvider(service_url, tile_size) if(provider_type.toLowerCase() == 'tmstileprovider')
@@ -357,38 +390,6 @@ class TileLayerView extends Glyph.View
   _index_data: () ->
     @_xy_index()
 
-  get_extent: () ->
-    return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
-
-  _on_dblclick: (e) =>
-    extent = @get_extent()
-    [xmin, xmax, ymin, ymax] = extent
-    zoom_level = @tile_provider.get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
-
-    rect = @map_canvas.canvas.getBoundingClientRect()
-    x = e.clientX + rect.left
-    #TODO: y-dim is not perfect.  zooming doesn't seem completely correct
-    y = e.clientY - rect.top - (@map_frame.get('top') - @map_frame.get('height'))
-    y = @map_frame.get("height") - y
-
-    x_meters = @x_mapper.map_from_target(e.clientX)
-    y_meters = @y_mapper.map_from_target(e.clientY)
-
-    x_offset = Math.abs((@x_range.get('end') - @x_range.get('start')) / 2)
-    y_offset = Math.abs((@y_range.get('end') - @y_range.get('start')) / 2)
-
-    updated_extent =  [x_meters - x_offset, y_meters - y_offset, x_meters + x_offset, y_meters + y_offset]
-
-    if e.shiftKey
-      zoom_level = zoom_level - 1
-    else
-      zoom_level = zoom_level + 1
-
-    new_extent = @tile_provider.snap_to_zoom(updated_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
-    @x_range.set('start', new_extent[0])
-    @y_range.set('start', new_extent[1])
-    @x_range.set('end', new_extent[2])
-    @y_range.set('end', new_extent[3])
 
   _set_data: () ->
     @tile_provider = @_create_tile_provider(@mget('tile_provider'), @mget('url'), @mget('tile_size'))
@@ -400,13 +401,9 @@ class TileLayerView extends Glyph.View
     @x_mapper = this.map_frame.get('x_mappers')['default']
     @y_range = @map_plot.get('y_range')
     @y_mapper = this.map_frame.get('y_mappers')['default']
-    @renderer.plot_view.$el.dblclick(@_on_dblclick)
-
-
+    @renderer.listenTo(@renderer, 'doubletap', @_doubletap)
 
   _map_data: () ->
-    # @sw = @sdist(@renderer.xmapper, [0], [@tile_provider.tile_size], 'edge', [true])[0]
-    # @sh = @sdist(@renderer.ymapper, [0], [@tile_provider.tile_size], 'edge', [true])[0]
     if not @map_initialized?
       @initial_extent = [-20037508.34, -20037508.34, 20037508.34, 20037508.34 ]
       zoom_level = @tile_provider.get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
@@ -453,6 +450,8 @@ class TileLayerView extends Glyph.View
     return tile
 
   _render: (ctx, indices, {url, image, need_load, sx, sy, sw, sh, angle}) ->
+
+    console.warn("RENDER: " + this.tile_provider.url)
 
     @_update(abridged=true)
 
@@ -516,11 +515,12 @@ class TileLayerView extends Glyph.View
           @_create_tile(cx, cy, cz, cbounds, true)
 
   _update: (abridged=false) =>
+    console.warn("RENDER: " + this.tile_provider.url)
 
-    if window.stop?
-      window.stop()
-    else if document.execCommand?
-      document.execCommand("Stop", false)
+    # if window.stop?
+    #   window.stop()
+    # else if document.execCommand?
+    #   document.execCommand("Stop", false)
 
     @tile_provider.update()
     extent = @get_extent()
@@ -573,7 +573,6 @@ class TileLayer extends Glyph.Model
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'glyph'
       tile_provider: "WMTSTileProvider"
       url: "http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png"
       tile_size: 256
