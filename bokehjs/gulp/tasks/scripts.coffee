@@ -169,7 +169,7 @@ gulp.task "scripts:minify", ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(sourcemaps.init({loadMaps: true}))
-      .pipe(uglify())
+      .pipe(uglify({preserveComments: "license"}))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
   es.merge.apply(null, tasks)
