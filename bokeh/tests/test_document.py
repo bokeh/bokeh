@@ -24,6 +24,7 @@ class TestDocument(unittest.TestCase):
         assert not d.roots
         d.add_root(AnotherModel())
         assert len(d.roots) == 1
+        assert next(iter(d.roots)).document == d
 
     def test_all_models(self):
         d = document.Document()

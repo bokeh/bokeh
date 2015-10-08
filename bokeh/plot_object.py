@@ -108,6 +108,10 @@ class PlotObject(HasProps, CallbackManager):
                     obj.detach_document()
                 self._visit_immediate_references(self, detach)
 
+    @property
+    def document(self):
+        return self._document
+
     def trigger(self, attr, old, new):
         # attach first, then detach, so we keep refcount >0 if it will end up that way
         if isinstance(new, PlotObject) and self._document is not None:
