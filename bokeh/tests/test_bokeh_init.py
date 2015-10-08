@@ -20,7 +20,7 @@ class TestContents(unittest.TestCase):
 
     def test_license(self):
         import bokeh
-        self.assertTrue(exists(join(bokeh.__path__[0], 'LICENSE.txt')))
+        bokeh.license()
 
 if __name__ == "__main__":
     unittest.main()
