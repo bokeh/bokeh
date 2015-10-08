@@ -101,4 +101,5 @@ win-64
 /record.txt
 /__conda_version__.txt
 /bokeh/__conda_version__.py
+/bokeh/LICENSE.txt
 /examples/refs

@@ -17,6 +17,7 @@ from __future__ import print_function
 # Stdlib imports
 import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
+from shutil import copy
 
 try:
     import colorama
@@ -523,6 +524,8 @@ except ImportError as e:
 
 if bdist_wheel is not None:
     _cmdclass["bdist_wheel"] = bdist_wheel
+
+copy("LICENSE.txt", "bokeh/")
 
 setup(
     name='bokeh',
