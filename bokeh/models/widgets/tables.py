@@ -8,7 +8,7 @@ from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto,
 from ...plot_object import PlotObject
 from ...enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
-from ..widget import Widget
+from .widget import Widget
 
 @abstract
 class CellFormatter(PlotObject):

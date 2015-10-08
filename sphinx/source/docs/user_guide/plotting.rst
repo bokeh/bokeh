@@ -385,9 +385,21 @@ Box Annotations
 ~~~~~~~~~~~~~~~
 
 Box annotations can be linked to either data or screen coordinates in order to
-emphasize desired plot regions.
+emphasize desired plot regions. By default, box annotation dimensions (e.g.
+left or top) default will extend the annotation to the edge of the plot area.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_box_annotation.py
+    :source-position: above
+
+.. _userguide_plotting_spans:
+
+Spans
+~~~~~
+
+Spans (line-type annotations) have a single dimension (width or height) and
+extend to the edge of the plot area.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/plotting_span.py
     :source-position: above
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`

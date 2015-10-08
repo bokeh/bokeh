@@ -34,7 +34,7 @@ a serialized version of the model looks like.
    models/sources
    models/tickers
    models/tools
-   models/widget
+   models/widgets.widget
    models/widgets.buttons
    models/widgets.dialogs
    models/widgets.groups

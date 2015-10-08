@@ -1,9 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $1 = require "jquery-ui/datepicker"
+$1 = require "jquery-ui/datepicker"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 

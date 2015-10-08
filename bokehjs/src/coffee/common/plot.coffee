@@ -1,12 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
 Backbone = require "backbone"
-if global._bokehTest?
-  kiwi = {}  # TODO Make work
-else
-  kiwi = require "kiwi"
-  {Expression, Constraint, Operator} = kiwi
-  {Eq, Le, Ge} = Operator
+kiwi = require "kiwi"
+{Expression, Constraint, Operator} = kiwi
+{Eq, Le, Ge} = Operator
 build_views = require "./build_views"
 Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
@@ -360,16 +357,16 @@ class PlotView extends ContinuumView
 
     # TODO - This should only be on in testing
     # @$el.find('canvas').attr('data-hash', ctx.hash());
-    
+
   resize: () =>
     canvas_height = @canvas.get('height')
     canvas_width = @canvas.get('width')
     # Calculating this each time means that we play nicely with resize tool
     aspect_ratio = canvas_width / canvas_height
 
-    # kiwi.js falls over if we try and resize too small. 
+    # kiwi.js falls over if we try and resize too small.
     # min_size is currently set in defaults to 100, we can make this
-    # user-configurable in the future, as it may not be the right number 
+    # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
     min_size = @mget('min_size')
     new_width = Math.max(@.el.clientWidth, min_size)

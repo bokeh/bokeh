@@ -16,7 +16,7 @@ import flask
 from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
-from bokeh.templates import RESOURCES
+from bokeh.templates import JS_RESOURCES, CSS_RESOURCES
 from bokeh.util.string import encode_utf8
 
 app = flask.Flask(__name__)
@@ -55,12 +55,15 @@ def polynomial():
 
     # Configure resources to include BokehJS inline in the document.
     # For more details see:
-    #   http://bokeh.pydata.org/en/latest/docs/reference/resources_embedding.html#module-bokeh.resources
-    plot_resources = RESOURCES.render(
+    #   http://bokeh.pydata.org/en/latest/docs/reference/resources_embedding.html#bokeh-embed
+    js_resources = JS_RESOURCES.render(
         js_raw=INLINE.js_raw,
+        js_files=INLINE.js_files
+    )
+
+    css_resources = CSS_RESOURCES.render(
         css_raw=INLINE.css_raw,
-        js_files=INLINE.js_files,
-        css_files=INLINE.css_files,
+        css_files=INLINE.css_files
     )
 
     # For more details see:
@@ -68,8 +71,13 @@ def polynomial():
     script, div = components(fig, INLINE)
     html = flask.render_template(
         'embed.html',
-        plot_script=script, plot_div=div, plot_resources=plot_resources,
-        color=color, _from=_from, to=to
+        plot_script=script,
+        plot_div=div,
+        js_resources=js_resources,
+        css_resources=css_resources,
+        color=color,
+        _from=_from,
+        to=to
     )
     return encode_utf8(html)
 

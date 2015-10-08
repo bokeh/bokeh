@@ -1,11 +1,7 @@
 $ = require "jquery"
 Backbone = require "backbone"
-if global._bokehTest?
-  # TODO Make sure these are set properly
-  {Hammer, mousewhweel} = global._bokehTest
-else
-  Hammer = require "hammerjs"
-  mousewheel = require("jquery-mousewheel")($)
+Hammer = require "hammerjs"
+mousewheel = require("jquery-mousewheel")($)
 {logger} = require "./logging"
 
 class UIEvents extends Backbone.Model
