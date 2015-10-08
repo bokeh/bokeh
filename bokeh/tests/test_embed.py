@@ -9,7 +9,6 @@ import bokeh.embed as embed
 from bokeh.resources import CDN, INLINE, Resources, JSResources, CSSResources
 from bokeh.templates import JS_RESOURCES, CSS_RESOURCES
 from bokeh.plotting import figure
-from bokeh.session import Session
 from jinja2 import Template
 from six import string_types
 
@@ -235,44 +234,44 @@ class TestAutoloadStatic(unittest.TestCase):
         self.assertEqual(attrs['src'], 'some/path')
 
 
-class TestAutoloadServer(unittest.TestCase):
+# class TestAutoloadServer(unittest.TestCase):
 
-    def setUp(self):
-        self.sess = Session(load_from_config=False)
-        self.sess.docid = 'docid10'
-        self.sess.apikey = 'apikey123'
-        self.sess.root_url = "http://foo"
+#     def setUp(self):
+#         self.sess = Session(load_from_config=False)
+#         self.sess.docid = 'docid10'
+#         self.sess.apikey = 'apikey123'
+#         self.sess.root_url = "http://foo"
 
-    def test_return_type(self):
-        r = embed.autoload_server(_embed_test_plot, self.sess)
-        self.assertTrue(isinstance(r, str))
+#     def test_return_type(self):
+#         r = embed.autoload_server(_embed_test_plot, self.sess)
+#         self.assertTrue(isinstance(r, str))
 
-    def test_script_attrs(self):
-        r = embed.autoload_server(_embed_test_plot, self.sess)
-        html = bs4.BeautifulSoup(r)
-        scripts = html.findAll(name='script')
-        self.assertEqual(len(scripts), 1)
-        attrs = scripts[0].attrs
-        self.assertTrue(set(attrs), set([
-            'src',
-            'data-bokeh-docid',
-            'data-bokeh-docapikey',
-            'data-bokeh-modeltype',
-            'data-bokeh-modelid',
-            'data-bokeh-root-url',
-            'async',
-            'id',
-            'data-bokeh-data',
-            'data-bokeh-conn-string'
-        ]))
-        self.assertEqual(attrs['async'], 'true')
-        self.assertEqual(attrs['data-bokeh-data'], 'server')
-        self.assertEqual(attrs['data-bokeh-docapikey'], 'apikey123')
-        self.assertEqual(attrs['data-bokeh-docid'], 'docid10')
-        self.assertEqual(attrs['data-bokeh-modelid'], str(_embed_test_plot._id))
-        self.assertEqual(attrs['data-bokeh-root-url'], "http://foo/")
-        divid = attrs['id']
-        self.assertEqual(attrs['src'], "%s/bokeh/autoload.js/%s" % ("http://foo", divid))
+#     def test_script_attrs(self):
+#         r = embed.autoload_server(_embed_test_plot, self.sess)
+#         html = bs4.BeautifulSoup(r)
+#         scripts = html.findAll(name='script')
+#         self.assertEqual(len(scripts), 1)
+#         attrs = scripts[0].attrs
+#         self.assertTrue(set(attrs), set([
+#             'src',
+#             'data-bokeh-docid',
+#             'data-bokeh-docapikey',
+#             'data-bokeh-modeltype',
+#             'data-bokeh-modelid',
+#             'data-bokeh-root-url',
+#             'async',
+#             'id',
+#             'data-bokeh-data',
+#             'data-bokeh-conn-string'
+#         ]))
+#         self.assertEqual(attrs['async'], 'true')
+#         self.assertEqual(attrs['data-bokeh-data'], 'server')
+#         self.assertEqual(attrs['data-bokeh-docapikey'], 'apikey123')
+#         self.assertEqual(attrs['data-bokeh-docid'], 'docid10')
+#         self.assertEqual(attrs['data-bokeh-modelid'], str(_embed_test_plot._id))
+#         self.assertEqual(attrs['data-bokeh-root-url'], "http://foo/")
+#         divid = attrs['id']
+#         self.assertEqual(attrs['src'], "%s/bokeh/autoload.js/%s" % ("http://foo", divid))
 
 
 if __name__ == "__main__":

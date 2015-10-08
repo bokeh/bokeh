@@ -12,13 +12,12 @@ from .plotting_helpers import (
 # extra imports -- just things to add to 'from plotting import *'
 from .document import Document
 from .models import ColumnDataSource
-from .session import Session
 from .io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, hplot, vplot)
 
 # Names that we want in this namespace (fool pyflakes)
-(GridPlot, Document, ColumnDataSource, Session, cursession, gridplot,
+(GridPlot, Document, ColumnDataSource, cursession, gridplot,
 show, save, reset_output, push, output_file, output_notebook,
 output_server, vplot, hplot)
 
