@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from os.path import exists, join
 import unittest
 
 class TestContents(unittest.TestCase):
@@ -16,6 +17,10 @@ class TestContents(unittest.TestCase):
     def test_version_defined(self):
         import bokeh
         self.assertTrue(bokeh.__version__ != 'unknown')
+
+    def test_license(self):
+        import bokeh
+        self.assertTrue(exists(join(bokeh.__path__[0], 'LICENSE.txt')))
 
 if __name__ == "__main__":
     unittest.main()
