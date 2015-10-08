@@ -219,34 +219,34 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    def push_notebook(self):
-        """ Update date for a plot in the IPthon notebook in place.
+    # def push_notebook(self):
+    #     """ Update date for a plot in the IPthon notebook in place.
 
-        This function can be be used to update data in plot data sources
-        in the IPython notebook, without having to use the Bokeh server.
+    #     This function can be be used to update data in plot data sources
+    #     in the IPython notebook, without having to use the Bokeh server.
 
-        Returns:
-            None
+    #     Returns:
+    #         None
 
-        .. warning::
-            The current implementation leaks memory in the IPython notebook,
-            due to accumulating JS code. This function typically works well
-            with light UI interactions, but should not be used for continuously
-            updating data. See :bokeh-issue:`1732` for more details and to
-            track progress on potential fixes.
+    #     .. warning::
+    #         The current implementation leaks memory in the IPython notebook,
+    #         due to accumulating JS code. This function typically works well
+    #         with light UI interactions, but should not be used for continuously
+    #         updating data. See :bokeh-issue:`1732` for more details and to
+    #         track progress on potential fixes.
 
-        """
-        from IPython.core import display
-        from bokeh.protocol import serialize_json
-        id = self.ref['id']
-        model = self.ref['type']
-        json = serialize_json(self.vm_serialize())
-        js = """
-            var ds = Bokeh.Collections('{model}').get('{id}');
-            var data = {json};
-            ds.set(data);
-        """.format(model=model, id=id, json=json)
-        display.display_javascript(js, raw=True)
+    #     """
+    #     from IPython.core import display
+    #     from bokeh.protocol import serialize_json
+    #     id = self.ref['id']
+    #     model = self.ref['type']
+    #     json = serialize_json(self.vm_serialize())
+    #     js = """
+    #         var ds = Bokeh.Collections('{model}').get('{id}');
+    #         var data = {json};
+    #         ds.set(data);
+    #     """.format(model=model, id=id, json=json)
+    #     display.display_javascript(js, raw=True)
 
     @validation.error(COLUMN_LENGTHS)
     def _check_column_lengths(self):

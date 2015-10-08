@@ -9,7 +9,7 @@ from .properties import Any, HasProps, List, MetaHasProps, Instance, String
 from .query import find
 from .exceptions import DataIntegrityException
 from .util.callback_manager import CallbackManager
-from .util.serialization import dump, make_id
+from .util.serialization import make_id
 from .validation import check_integrity
 
 class Viewable(MetaHasProps):
@@ -178,44 +178,11 @@ class PlotObject(HasProps, CallbackManager):
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    @classmethod
-    def load_json(cls, attrs, instance=None):
-        """Loads all json into a instance of cls, EXCEPT any references
-        which are handled in finalize
-        """
-        if 'id' not in attrs:
-            raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
-        _id = attrs.pop('id')
-
-        if not instance:
-            instance = cls(id=_id, _block_events=True)
-
-        ref_props = {}
-        for p in instance.properties_with_refs():
-            if p in attrs:
-                ref_props[p] = attrs.pop(p)
-        instance._ref_props = ref_props
-
-        instance.update(**attrs)
-        return instance
-
     def layout(self, side, plot):
         try:
             return self in getattr(plot, side)
         except:
             return []
-
-    def finalize(self, models):
-        """Convert any references into instances
-        models is a dict of id->model mappings
-        """
-        attrs = {}
-
-        for name, json in iteritems(getattr(self, "_ref_props", {})):
-            prop = self.__class__.lookup(name)
-            attrs[name] = prop.from_json(json, models=models)
-
-        return attrs
 
     @classmethod
     def _visit_immediate_references(cls, obj, visitor):
@@ -309,19 +276,6 @@ class PlotObject(HasProps, CallbackManager):
         attrs['id'] = self._id
         return attrs
 
-    def dump(self, docid=None, changed_only=True, validate=True):
-        """convert all references to json
-
-        Args:
-            changed_only (bool, optional) : whether to dump only attributes
-                that have had their values changed at some point (default: True)
-            validate (bool, optional) : whether to perform integrity checks on
-                the object graph (default: True)
-        """
-        models = self.references()
-        if validate:
-            check_integrity(models)
-        return dump(models, docid=docid, changed_only=changed_only)
 
     def update(self, **kwargs):
         for k,v in kwargs.items():

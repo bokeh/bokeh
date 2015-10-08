@@ -100,18 +100,6 @@ class TestPlotObject(unittest.TestCase):
         testObject = self.pObjectClass(id='test_id')
         self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.ref)
 
-    def test_load_json(self):
-        cls = self.pObjectClass.get_class("Plot")
-        obj = cls.load_json({'id': 'test_id', 'min_border': 100})
-        self.assertEqual(obj._id, 'test_id')
-        self.assertEqual(obj.title, '')
-        self.assertEqual(obj.min_border, 100)
-
-        obj.load_json({'id': 'test_id', 'title': 'xyz'}, instance=obj)
-        self.assertEqual(obj._id, 'test_id')
-        self.assertEqual(obj.title, 'xyz')
-        self.assertEqual(obj.min_border, 100)
-
     def test_references_by_ref_by_value(self):
         from bokeh.properties import HasProps, Instance, Int
 

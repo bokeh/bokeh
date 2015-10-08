@@ -35,7 +35,6 @@ from ..models.ranges import FactorRange
 from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
 from ..resources import INLINE
-from ..session import Session
 from ..util.notebook import publish_display_data
 from ..util.serialization import make_id
 
@@ -116,12 +115,12 @@ class Chart(Plot):
         else:
             self._doc = Document()
 
-        if self._options.server:
-            _session = None
-            if _session:
-                self._session = _session
-            else:
-                self._session = Session()
+        # if self._options.server:
+        #     _session = None
+        #     if _session:
+        #         self._session = _session
+        #     else:
+        #         self._session = Session()
 
         self.create_tools(self._options.tools)
 

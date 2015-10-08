@@ -17,7 +17,6 @@ import re
 import uuid
 from warnings import warn
 
-from .protocol import serialize_json
 from .resources import Resources
 from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
