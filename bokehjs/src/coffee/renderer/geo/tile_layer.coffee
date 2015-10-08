@@ -1,5 +1,6 @@
 _ = require "underscore"
 Glyph = require "../glyph/glyph"
+{logger} = require "../../common/logging"
 
 class ImagePool
 
@@ -48,22 +49,26 @@ class ProjectionUtils
     [xmax, ymax] = @meters_to_geographic(xmax, ymax)
     return [xmin, ymin, xmax, ymax]
 
-class Tile
+class Helpers
 
-  constructor: (@x, @y, @z, @sw=None, @sh=None) ->
+  @string_lookup_replace: (str, lookup) ->
+    result_str = str
+    for key, value of lookup
+      result_str = result_str.replace(key, value.toString())
+    return result_str
 
 class TileProvider
 
-  constructor: (@url, @tile_size=256) ->
+  constructor: (@url, @tile_size=256, @extra_url_vars={}, @origin=[0,0], @max_zoom=30, @min_zoom=0) ->
     @utils = new ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}
 
-  remove_tile: (key) ->
-    tile = @tiles[key]
-    if tile?
-      @pool.push(tile.img)
-      delete @tiles[key]
+  update: () ->
+    logger.info("Tile Cache Count: " + Object.keys(@tiles).length.toString())
+    for key, tile of @tiles
+      tile.current = false
+      tile.retain = false
 
   tile_xyz_to_key: (x, y, z) ->
     key = "#{x}:#{y}:#{z}"
@@ -83,61 +88,44 @@ class TileProvider
     return tiles
 
   prune_tiles: () ->
-
-    # TODO: handle massive zoom level changed
-
     for key, tile of @tiles
-      tile.retain = tile.current
-
-    for key, tile of @tiles
-      if tile.current and not tile.active
-        coords = tile.coords
-        if not @retain_parent(coords[0], coords[1], coords[2], coords[2] - 5)
-          @retain_children(coords[0], coords[1], coords[2], coords[2] + 2)
+      tile.retain = tile.current or tile.tile_coords[2] < 3 # save the parents...they are cheap
+      if tile.retain
+        @retain_neighbors(tile)
+        @retain_children(tile)
+        @retain_parents(tile)
 
     for key, tile of @tiles
       if not tile.retain
         @remove_tile(key)
 
-  retain_parent: (x, y, z, min_zoom) ->
-    x2 = x // 2
-    y2 = y // 2
-    z2 = z - 1
-    key = @tile_xyz_to_key(x2, y2, z2)
+  remove_tile: (key) ->
     tile = @tiles[key]
+    if tile?
+      @pool.push(tile.img)
+      delete @tiles[key]
 
-    if tile? and tile.active
-      tile.retain = true
-      return true
+  get_image_url: (x, y, z) ->
+    image_url = Helpers.string_lookup_replace(@url, @extra_url_vars)
+    return @format_tile_url(image_url, x, y, z)
 
-    else if tile? and tile.loaded
-      tile.retain = true
+  format_tile_url: (url, x, y, z) ->
+    return "Not Implemented"
 
-    if z2 > min_zoom
-      return @retain_parent(x2, y2, z2, min_zoom)
+  retain_neighbors: (reference_tile) ->
+    throw Error "Not Implemented"
 
-    return false
+  retain_parents: (reference_tile) ->
+    throw Error "Not Implemented"
 
-  retain_children: (x, y, z, max_zoom) ->
-    for i in [x * 2...2 * x + 2] by 1
-      for j in [y * 2...2 * y + 2] by 1
-        key = @tile_xyz_to_key(x, y, z + 1)
-        tile = @tiles[key]
+  retain_children: (reference_tile) ->
+    throw Error "Not Implemented"
 
-        if tile? and tile.active
-          tile.retain = true
-          continue
+  tile_xyz_to_quadkey: (x, y, z) ->
+    return "Not Implemented"
 
-        else if tile? and tile.loaded
-          tile.retain = true
-
-        if (z + 1 < maxZoom)
-          @retain_children(i, j, z + 1, max_zoom)
-
-  update: () ->
-    console.warn "Tile Cache Count: " + Object.keys(@tiles).length.toString()
-    for key, tile of @tiles
-      tile.current = false
+  quadkey_to_tile_xyz: (quadkey) ->
+    return "Not Implemented"
 
 class MercatorTileProvider extends TileProvider
 
@@ -147,8 +135,44 @@ class MercatorTileProvider extends TileProvider
     @initial_resolution = 2 * Math.PI * 6378137 / @tile_size
     @resolutions = (@get_resolution(z) for z in [0..30])
 
-  get_image_url: () ->
-    throw Error "Unimplemented Method"
+  retain_children:(reference_tile) ->
+    quadkey = reference_tile.quadkey
+    min_zoom = quadkey.length
+    max_zoom = min_zoom + 3
+    for key, tile in @tiles
+      if tile.quadkey.indexOf(quadkey) == 0 and tile.quadkey.length > min_zoom and tile.quadkey.length <= max_zoom
+	tile.retain = true
+
+  retain_neighbors:(reference_tile) ->
+    neighbor_radius = 4
+    [tx, ty, tz] = reference_tile.tile_coords
+    neighbor_x = (x for x in range(tx - neighbor_radius, tx + neighbor_radius))
+    neighbor_y = (y for y in range(ty - neighbor_radius, ty+ neighbor_radius))
+
+    for key, tile of @tiles
+      if tile.tile_coords[2] == tz and _.contains(neighbor_x, tile.tile_coords[0]) and _.contains(neighbor_y, tile.tile_coords[1])
+        tile.retain = true
+
+  retain_parents:(reference_tile) ->
+    quadkey = reference_tile.quadkey
+    for key, tile of @tiles
+      tile.retain = quadkey.indexOf(tile.quadkey) == 0
+
+  children_by_tile_xyz: (x, y, z) ->
+    quad_key = @tile_xyz_to_quadkey(x, y, z)
+    child_tile_xyz = []
+    for i in [0..3] by 1
+      [x, y, z] = @quadkey_to_tile_xyz(quad_key + i.toString())
+      b = @get_tile_meter_bounds(x, y, z)
+      if b?
+        child_tile_xyz.push([x, y, z, b])
+
+    return child_tile_xyz
+
+  parent_by_tile_xyz: (x, y, z) ->
+    quad_key = @tile_xyz_to_quadkey(x, y, z)
+    parent_quad_key = quad_key.substring(0, quad_key.length - 1)
+    return @quadkey_to_tile_xyz(parent_quad_key)
 
   get_resolution: (level) ->
     return @initial_resolution / Math.pow(2, level)
@@ -173,11 +197,9 @@ class MercatorTileProvider extends TileProvider
     x_rs = (extent[2] - extent[0]) / width
     y_rs = (extent[3] - extent[1]) / height
     resolution = Math.max(x_rs, y_rs)
-
     closest = @resolutions.reduce (previous, current) ->
       return current if (Math.abs(current - resolution) < Math.abs(previous - resolution))
       return previous
-
     return @resolutions.indexOf(closest)
 
   snap_to_zoom: (extent, height, width, level) ->
@@ -240,7 +262,6 @@ class MercatorTileProvider extends TileProvider
     return [minLon, minLat, maxLon, maxLat]
 
   get_tiles_by_extent: (extent, level, tile_border=1) ->
-
     # unpack extent and convert to tile coordinates
     [xmin, ymin, xmax, ymax] = extent
     [txmin, tymin] = @meters_to_tile(xmin, ymin, level)
@@ -252,7 +273,7 @@ class MercatorTileProvider extends TileProvider
     txmax += tile_border
     tymax += tile_border
 
-    tiles = []
+    tiles = [ø]
     for ty in [tymax..tymin] by -1
       for tx in [txmin..txmax] by 1
         tiles.push([tx, ty, level, @get_tile_meter_bounds(tx, ty, level)])
@@ -331,21 +352,21 @@ class MercatorTileProvider extends TileProvider
 
 class TMSTileProvider extends MercatorTileProvider
 
-  get_image_url: (x, y, z) ->
-    return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+  format_tile_url: (url, x, y, z) ->
+    return url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
 class WMTSTileProvider extends MercatorTileProvider
 
-  get_image_url: (x, y, z) ->
+  format_tile_url: (url, x, y, z) ->
     [x, y, z] = @tms_to_wmts(x, y, z)
-    return @url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+    return url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
 class QUADKEYTileProvider extends MercatorTileProvider
 
-  get_image_url: (x, y, z) ->
+  format_tile_url: (url, x, y, z) ->
     [x, y, z] = @tms_to_wmts(x, y, z)
     quadKey = @tile_xyz_to_quadkey(x, y, z)
-    return @url.replace("{Q}", quadKey)
+    return url.replace("{Q}", quadKey)
 
 class TileLayerView extends Glyph.View
 
@@ -443,6 +464,7 @@ class TileLayerView extends Glyph.View
     tile.alt = ''
     tile.src = @tile_provider.get_image_url(x, y, z)
     tile.tile_coords = [x, y, z]
+    tile.quadkey = @tile_provider.tile_xyz_to_quadkey(x, y, z)
     tile.bounds = bounds
     tile.x_coord = bounds[0]
     tile.y_coord = bounds[3]
