@@ -35,7 +35,54 @@ from .._attributes import ColorAttr, GroupAttr
 def BoxPlot(data, label=None, values=None, color=None, group=None,
             xscale="categorical", yscale="linear", xgrid=False,
             ygrid=True, continuous_range=None, **kw):
-    """Generate a box plot from table-like and column-like inputs."""
+    """ Create a BoxPlot chart containing one or more boxes from table-like data.
+
+    Create a boxplot chart using :class:`BoxPlotBuilder
+    <bokeh.charts.builder.boxplot_builder.BoxPlotBuilder>` to
+    render the glyphs from input data and specification. This primary
+    use case for the boxplot is to depict the distribution of a
+    variable by providing summary statistics for it. This boxplot is particularly
+    useful at comparing distributions between categorical variables.
+
+    This chart implements functionality for segmenting and comparing the values of a
+    variable by an associated categorical variable.
+
+    Args:
+      data (pandas.DataFrame, pandas.Series, list, numpy.array, dict): the data source
+        for the chart
+      values (str, optional): the values to use for producing the boxplot using
+        table-like input data
+      label (str or list(str), optional: the categorical variable to use for creating
+        separate boxes
+      color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
+        categorical variable or color attribute specification to use for coloring the
+        boxes.
+      whisker_color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
+        color of the "whiskers" that show the spread of values outside the .25 and .75
+        quartiles.
+      marker (str or list(str) or bokeh.charts._attributes.MarkerAttr, optional): the
+        marker glyph to use for the outliers
+      outliers (bool, optional): whether to show outliers. Defaults to True.
+      **kw:
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.sampledata.autompg import autompg as df
+        from bokeh.charts import BoxPlot, output_file, show, hplot
+
+        box = BoxPlot(df, values='mpg', label='cyl', title="Auto MPG Box Plot", width=400)
+        box2 = BoxPlot(df, values='mpg', label='cyl', color='cyl',
+                          title="MPG Box Plot by Cylinder Count", width=400)
+
+        output_file('box.html')
+        show(hplot(box, box2))
+    """
 
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(

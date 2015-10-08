@@ -43,8 +43,8 @@ def Line(data=None, x=None, y=None, **kws):
         as an index.
 
     Args:
-        data (list(list), np.ndarray, pd.DataFrame, list(pd.Series)): a 2d data source
-            with columns of data for each line.
+        data (list(list), numpy.ndarray, pandas.DataFrame, list(pd.Series)): a 2d data
+            source with columns of data for each line.
         x (str|list(str), optional): specifies variable(s) to use for x axis
         y (str|list(str), optional): specifies variable(s) to use for y axis
 

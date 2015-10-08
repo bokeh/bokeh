@@ -68,6 +68,7 @@ shown below in pseudocode:
 
     # generally any chart attribute can be handled with attribute specifications
 
+    Chart(df, color='red')          # single constant value supported
     Chart(df, color='a')            # typical use is with column name input
     Chart(df, color=['a', 'b'])     # or multiple column names
     Chart(df, color=color(['a', 'b']))     # equivalent to previous line
