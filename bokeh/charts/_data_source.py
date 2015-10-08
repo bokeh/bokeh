@@ -283,7 +283,7 @@ class ChartDataSource(object):
         if len(arrays) > 0 and len(tables) > 0:
             raise TypeError('Only input either array or table data.')
 
-        # kwarg data
+        # kwarg or list of arrays data
         if len(arrays) == 0 and len(tables) == 0:
 
             # handle list of lists
@@ -322,8 +322,8 @@ class ChartDataSource(object):
                 kwargs = new_kwargs
                 kwargs['columns'] = col_names
             else:
-                raise ValueError(
-                    'No data found for inputs %s' % ', '.join(kwargs['dims']))
+                # non-kwargs list of lists
+                arrays = [arg for arg in args if cls.is_list_arrays(arg)]
 
         # handle array-like
         if len(arrays) > 0:
@@ -380,6 +380,11 @@ class ChartDataSource(object):
         # really want to check for nested lists, where each list might have lists
         if isinstance(data, list):
             if all([ChartDataSource.is_array(col) for col in data]):
+                valid = True
+
+        # equivalent of list of arrays is a table-like numpy ndarray
+        elif isinstance(data, np.ndarray):
+            if len(data.shape) == 2:
                 valid = True
 
         return valid
@@ -442,6 +447,8 @@ class ChartDataSource(object):
     def is_array(data):
         if ChartDataSource.is_list_dicts(data):
             # list of dicts is table type
+            return False
+        elif ChartDataSource.is_list_arrays(data):
             return False
         else:
             return ChartDataSource._is_valid(data, ARRAY_TYPES)
