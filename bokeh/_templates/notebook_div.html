@@ -1,3 +1,13 @@
+{#
+Renders a ``div`` to display a Bokeh model into a Jupyter Notebook.
+
+:param plot_script: typically the output of PLOT_SCRIPT
+:type plot_script: str
+
+:param plot_div: typically the output of PLOT_DIV
+:type plot_div: str
+
+#}
 {{ plot_script|indent(4) }}
 {{ plot_div|indent(4) }}
 

@@ -44,4 +44,3 @@ Resources and Embedding
 -------------------
 
 .. automodule:: bokeh.templates
-

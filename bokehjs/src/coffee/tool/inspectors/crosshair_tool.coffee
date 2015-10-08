@@ -43,18 +43,44 @@ class CrosshairTool extends InspectTool.Model
     @add_dependencies('tooltip', this, ['dimensions'])
 
     @set('spans', {
-      width: new Span.Model({dimension: "width"}),
-      height: new Span.Model({dimension: "height"})
+      width: new Span.Model({
+                               dimension: "width",
+                               render_mode: @get("render_mode"),
+                               location_units: @get("location_units"),
+                               line_color: @get("line_color"),
+                               line_width: @get('line_width'),
+                               line_alpha: @get('line_alpha')
+                             }),
+      height: new Span.Model({
+                               dimension: "height",
+                               render_mode: @get("render_mode"),
+                               location_units: @get("location_units"),
+                               line_color: @get("line_color"),
+                               line_width: @get('line_width'),
+                               line_alpha: @get('line_alpha')
+                             })
     })
+
     renderers = @get('plot').get('renderers')
     renderers.push(@get('spans').width)
     renderers.push(@get('spans').height)
     @get('plot').set('renderers', renderers)
 
+    ast = @display_defaults
+
   defaults: () ->
     return _.extend({}, super(), {
       dimensions: ["width", "height"]
+      location_units: "screen"
+      render_mode: "css"
     })
+
+  display_defaults: () ->
+    return _.extend {}, super(), {
+      line_color: 'black'
+      line_width: 1
+      line_alpha: 1.0
+    }
 
 module.exports =
   Model: CrosshairTool

@@ -36,6 +36,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_autodoc',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
+    'bokeh.sphinxext.bokeh_jinja',
     'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
