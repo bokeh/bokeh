@@ -32,17 +32,21 @@ from ...models.sources import ColumnDataSource
 
 def Line(data=None, x=None, y=None, **kws):
     """ Create a line chart using :class:`LineBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
-    render the geometry from values and index.
+    render the glyphs.
+
+    The line chart is typically is used with column oriented data, where each column
+    contains comparable measurements and the column names are treated as a categorical
+    variable for differentiating the measurement values. One of the columns can be used as
+    an index for either the x or y axis.
+
+    Note: Only the x or y axis can display multiple variables, while the other is used
+        as an index.
 
     Args:
-        values (iterable): iterable 2d representing the data series
-            values matrix.
-        index (str|1d iterable, optional): can be used to specify a common custom
-            index for all data series as an **1d iterable** of any sort that will be used as
-            series common index or a **string** that corresponds to the key of the
-            mapping to be used as index (and not as data series) if
-            area.values is a mapping (like a dict, an OrderedDict
-            or a pandas DataFrame)
+        data (list(list), np.ndarray, pd.DataFrame, list(pd.Series)): a 2d data source
+            with columns of data for each line.
+        x (str|list(str), optional): specifies variable(s) to use for x axis
+        y (str|list(str), optional): specifies variable(s) to use for y axis
 
     In addition the the parameters specific to this chart,
     :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
