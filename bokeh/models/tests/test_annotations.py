@@ -122,9 +122,11 @@ def test_BoxAnnotation():
 def test_Label():
     label = Label()
     assert label.plot is None
-    assert label.x == 'x'
+    assert label.x is None
+    assert label.x_offset is None
     assert label.x_units == 'data'
-    assert label.y == 'y'
+    assert label.y is None
+    assert label.y_offset is None
     assert label.y_units == 'data'
     assert label.angle == 0
     assert label.angle_units == 'rad'
@@ -135,8 +137,10 @@ def test_Label():
     yield (check_props, label, [
         "plot",
         "x",
+        "x_offset",
         "x_units",
         "y",
+        "y_offset",
         "y_units",
         "text",
         "angle",
@@ -144,7 +148,7 @@ def test_Label():
         "x_range_name",
         "y_range_name",
         "level",
-        ], LABEL)
+        ], LABEL, BACKGROUND, BORDER)
 
 def test_Span():
     line = Span()

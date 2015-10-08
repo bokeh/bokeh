@@ -161,6 +161,10 @@ class Label(Annotation):
     The x-coordinates to locate the label anchors.
     """)
 
+    x_offset = Float(help="""
+    The offset in the horizontal direction in "screen space" units
+    """)
+
     x_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the x attribute. Interpreted as "data space" units
     by default.
@@ -168,6 +172,10 @@ class Label(Annotation):
 
     y = Float(help="""
     The y-coordinates to locate the label anchors.
+    """)
+
+    y_offset = Float(help="""
+    The offset in the vertical direction in "screen space" units
     """)
 
     y_units = Enum(SpatialUnits, default='data', help="""
@@ -195,6 +203,14 @@ class Label(Annotation):
 
     label_props = Include(TextProps, help="""
     The %s values for the label.
+    """)
+
+    border_props = Include(LineProps, help="""
+    The %s values for the shades.
+    """)
+
+    background_props = Include(FillProps, help="""
+    The %s values for the shades.
     """)
 
 class Span(Annotation):
