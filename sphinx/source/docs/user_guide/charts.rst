@@ -21,6 +21,62 @@ data.
     available in a ``bokeh._legacy_charts`` modules that will be removed
     later, once all chart types are converted to the new API.
 
+Key Concepts
+------------
+
+* **Data**: Input data is either a Pandas DataFrame or other table-like structure, yet
+  also handling simple formats through conversion to a DataFrame internally.
+* **Smart Defaults**: The attempt is made to provide unique chart attribute assignment
+  (color, marker, etc) by one or more column names, while supporting custom and/or
+  advanced configuration through the same keyword argument.
+
+
+Attribute Specification
+~~~~~~~~~~~~~~~~~~~~~~~
+
+An ``AttrSpec`` is a model for generating a look-up from a unique data label (ex. ('a',
+3)), into a chained iterable, and is what powers one-liner chart generation, while
+allowing customized inputs as well.
+
+If you were to manually generate the glyphs in a plot, you might start by using Pandas
+``groupby`` to identify unique subsets of your data that you'd like to differentiate.
+You would iterate over each data label and group, then assign unique attributes to the
+group.
+
+However, what if we don't want one specific attribute type per group? Instead, let's
+say we grouped by `['a', 'b']`, where `a` has 3 unique values and `b` has 10 unique
+values. We want to change the color by `a` and change the marker by `b`. In the groupby
+iteration, you will see each value of `a` multiple times, meaning you'll need some way
+of keeping track of which unique value of which column will result in the assignment of
+each attribute value.
+
+More importantly, you'll need to have enough unique values of the attribute to assign
+to each value you have grouped on, which isn't necessarily complicated, but it can be
+especially time consuming for new or sporatic users. This process of assigning
+attributes is also generally of little interest to users that prioritize interactive data
+discovery over novel charts. In this case, you are trying to understand what
+relationships exist within the data, so it defeats the purpose if you must understand
+the data before you can plot it.
+
+Attribute Specifications avoid this issue, but are also designed to provide
+the ability to configure specific behavior as well. The typical pattern of use is shown
+shown below in pseudocode:
+
+.. code-block:: python
+
+    from bokeh.charts import color, marker
+
+    # generally any chart attribute can be handled with attribute specifications
+
+    Chart(df, color='a')            # typical use is with column name input
+    Chart(df, color=['a', 'b'])     # or multiple column names
+    Chart(df, color=color(['a', 'b']))     # equivalent to previous line
+
+    # input of custom iterables that are automatically chained
+    Chart(df, color=color('a', palette=['red', 'green', 'blue']))
+    Chart(df, color=color('a', palette=['red', 'green', 'blue']),
+          marker=marker('b', markers=['circle', 'x']))
+
 .. _userguide_charts_bar:
 
 Bar Charts
