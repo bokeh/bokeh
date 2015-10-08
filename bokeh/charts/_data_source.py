@@ -448,8 +448,6 @@ class ChartDataSource(object):
         if ChartDataSource.is_list_dicts(data):
             # list of dicts is table type
             return False
-        elif ChartDataSource.is_list_arrays(data):
-            return False
         else:
             return ChartDataSource._is_valid(data, ARRAY_TYPES)
 
