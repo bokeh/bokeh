@@ -19,7 +19,6 @@ class LabelView extends PlotWidget
     sx = @canvas.vx_to_sx(@_calc_dim('x', @xmapper))
     sy = @canvas.vy_to_sy(@_calc_dim('y', @ymapper))
 
-    debugger;
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
 
@@ -89,7 +88,7 @@ class Label extends HasParent
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'overlay'
+      level: 'glyph'
       label_text_font: "helvetica"
       label_text_font_size: "10pt"
       label_text_font_style: "normal"
