@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from ..enums import Direction, Anchor
 from ..mixins import FillProps, LineProps, TextProps
 from ..plot_object import PlotObject
-from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
+from ..properties import (abstract, AngleSpec, Array, Bool, Dict, DistanceSpec, Enum, Float,
                           Include, Instance, NumberSpec, StringSpec, String, Int)
 
 from .mappers import LinearColorMapper
@@ -846,6 +846,8 @@ class Text(Glyph):
     """)
 
 class TileLayer(Glyph):
+    
+    _args = ('url', 'tile_provider', 'tile_size', 'min_zoom', 'max_zoom')
 
     url = String("url", help="""
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
@@ -857,6 +859,14 @@ class TileLayer(Glyph):
 
     tile_size = Int(default=256, help="""
     tile size in pixels (e.g. 256)
+    """)
+
+    min_zoom = Int(default=0, help="""
+    the minimum zoom level for the tile layer. This is the most "zoomed-out" level.
+    """)
+
+    max_zoom = Int(default=30, help="""
+    the maximum zoom level for the tile layer. This is the most "zoomed-in" level.
     """)
 
 

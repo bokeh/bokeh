@@ -15,6 +15,10 @@ class ImagePool
       return new Image()
 
   push: (img) ->
+
+    if @images.length > 50
+      return
+
     if img.constructor == Array
       Array::push.apply(@images, img)
     else
@@ -90,7 +94,7 @@ class TileProvider
   prune_tiles: () ->
     for key, tile of @tiles
       tile.retain = tile.current or tile.tile_coords[2] < 3 # save the parents...they are cheap
-      if tile.retain
+      if tile.current
         @retain_neighbors(tile)
         @retain_children(tile)
         @retain_parents(tile)
@@ -139,15 +143,15 @@ class MercatorTileProvider extends TileProvider
     quadkey = reference_tile.quadkey
     min_zoom = quadkey.length
     max_zoom = min_zoom + 3
-    for key, tile in @tiles
+    for key, tile of @tiles
       if tile.quadkey.indexOf(quadkey) == 0 and tile.quadkey.length > min_zoom and tile.quadkey.length <= max_zoom
-	tile.retain = true
+        tile.retain = true
 
   retain_neighbors:(reference_tile) ->
     neighbor_radius = 4
     [tx, ty, tz] = reference_tile.tile_coords
-    neighbor_x = (x for x in range(tx - neighbor_radius, tx + neighbor_radius))
-    neighbor_y = (y for y in range(ty - neighbor_radius, ty+ neighbor_radius))
+    neighbor_x = (x for x in [tx - neighbor_radius .. tx + neighbor_radius])
+    neighbor_y = (y for y in [ty - neighbor_radius .. ty + neighbor_radius])
 
     for key, tile of @tiles
       if tile.tile_coords[2] == tz and _.contains(neighbor_x, tile.tile_coords[0]) and _.contains(neighbor_y, tile.tile_coords[1])
@@ -273,7 +277,7 @@ class MercatorTileProvider extends TileProvider
     txmax += tile_border
     tymax += tile_border
 
-    tiles = [ø]
+    tiles = []
     for ty in [tymax..tymin] by -1
       for tx in [txmin..txmax] by 1
         tiles.push([tx, ty, level, @get_tile_meter_bounds(tx, ty, level)])
@@ -411,7 +415,6 @@ class TileLayerView extends Glyph.View
   _index_data: () ->
     @_xy_index()
 
-
   _set_data: () ->
     @tile_provider = @_create_tile_provider(@mget('tile_provider'), @mget('url'), @mget('tile_size'))
     @pool = new ImagePool()
@@ -436,11 +439,17 @@ class TileLayerView extends Glyph.View
       @map_initialized = true
 
   _on_tile_load: (e) =>
-    @tile_provider.tiles[e.target.cache_key] = {img: e.target, tile_coords: e.target.tile_coords, bounds: e.target.bounds, current:true}
-    @_render_tile(e.target.cache_key)
+    tile_data = e.target.tile_data
+    tile_data.img = e.target
+    tile_data.current = true
+    @_render_tile(tile_data.cache_key)
+
+    @tile_provider.tiles[tile_data.cache_key] = tile_data
 
   _on_tile_cache_load: (e) =>
-    @tile_provider.tiles[e.target.cache_key] = {img: e.target, tile_coords: e.target.tile_coords, bounds: e.target.bounds}
+    tile_data = e.target.tile_data
+    tile_data.img = e.target
+    @tile_provider.tiles[tile_data.cache_key] = tile_data
 
   _on_tile_error: (e) =>
     return ''
@@ -462,18 +471,19 @@ class TileLayerView extends Glyph.View
 
     tile.onerror = @_on_tile_error
     tile.alt = ''
+    
+    tile.tile_data =
+      tile_coords : [x, y, z]
+      quadkey : @tile_provider.tile_xyz_to_quadkey(x, y, z)
+      cache_key : @tile_provider.tile_xyz_to_key(x, y, z)
+      bounds : bounds
+      x_coord : bounds[0]
+      y_coord : bounds[3]
+
     tile.src = @tile_provider.get_image_url(x, y, z)
-    tile.tile_coords = [x, y, z]
-    tile.quadkey = @tile_provider.tile_xyz_to_quadkey(x, y, z)
-    tile.bounds = bounds
-    tile.x_coord = bounds[0]
-    tile.y_coord = bounds[3]
-    tile.cache_key = @tile_provider.tile_xyz_to_key(x, y, z)
     return tile
 
   _render: (ctx, indices, {url, image, need_load, sx, sy, sw, sh, angle}) ->
-
-    console.warn("RENDER: " + this.tile_provider.url)
 
     @_update(abridged=true)
 
@@ -537,13 +547,6 @@ class TileLayerView extends Glyph.View
           @_create_tile(cx, cy, cz, cbounds, true)
 
   _update: (abridged=false) =>
-    console.warn("RENDER: " + this.tile_provider.url)
-
-    # if window.stop?
-    #   window.stop()
-    # else if document.execCommand?
-    #   document.execCommand("Stop", false)
-
     @tile_provider.update()
     extent = @get_extent()
     zoom_level = @tile_provider.get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
@@ -580,6 +583,10 @@ class TileLayerView extends Glyph.View
     for t in cached
       @tile_provider.tiles[t].current = true
 
+    # prune cached tiles ===============================================
+    #if not abridged
+    #  @tile_provider.prune_tiles()
+
 class TileLayer extends Glyph.Model
   default_view: TileLayerView
   type: 'TileLayer'
@@ -599,6 +606,11 @@ class TileLayer extends Glyph.Model
       url: "http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png"
       tile_size: 256
       initial_extent: [-180, -90, 180, 90]
+      min_zoom:0
+      max_zoom:30
+      origin_x:0
+      origin_y:0
+      extra_url_vars:{}
     }
 
 module.exports =
