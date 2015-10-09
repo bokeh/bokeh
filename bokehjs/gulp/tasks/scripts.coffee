@@ -22,7 +22,7 @@ resolve = require "resolve"
 rootRequire = require("root-require")
 pkg = rootRequire("./package.json")
 insert = require('gulp-insert')
-license = '/*\n' + fs.readFileSync('../LICENSE.TXT', 'utf-8') + '*/\n';
+license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 
 customLabeler = (bundle, parentLabels, fn) ->
   labels = {}
