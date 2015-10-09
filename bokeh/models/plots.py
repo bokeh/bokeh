@@ -15,7 +15,6 @@ from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..validation.errors import REQUIRED_RANGE
 from .. import validation
-from ..deprecate import deprecatedModuleAttribute
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
@@ -402,11 +401,6 @@ class Plot(Component):
     background_fill = Color("white", help="""
 
     """)
-
-    deprecatedModuleAttribute('Bokeh 0.12.0',
-                              'Replaced with background_fill_color',
-                              'bokeh.models.plots',
-                              'background_fill')
 
     border_fill = Color("white", help="""
 
