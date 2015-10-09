@@ -147,8 +147,7 @@ def _update_legend(plot, legend_name, glyph_renderer):
     legends = plot.select(type=Legend)
     if not legends:
         legend = Legend(plot=plot)
-        plot.renderers.append(legend)
-        plot._dirty = True
+        plot.renderers = plot.renderers + [legend]
     elif len(legends) == 1:
         legend = legends[0]
     else:

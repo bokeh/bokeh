@@ -43,11 +43,9 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
             _update_legend(plot, legend_name, glyph_renderer)
 
         for tool in plot.select(type=BoxSelectTool):
-            tool.renderers.append(glyph_renderer)
-            tool._dirty = True
+            tool.renderers = tool.renderers + [glyph_renderer]
 
-        plot.renderers.append(glyph_renderer)
-        plot._dirty = True
+        plot.renderers = plot.renderers + [glyph_renderer]
         return glyph_renderer
 
     func.__name__ = glyphclass.__view_model__
