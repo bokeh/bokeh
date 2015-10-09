@@ -409,8 +409,10 @@ def _push_or_save(obj):
 # TODO (havocp) right now push() is kind of a no-op, that needs sorting out
 #    if _state.session and _state.document.autostore:
 #        push()
-    if _state.file and _state.file['autosave']:
-        save(obj)
+#    if _state.file and _state.file['autosave']:
+#        save(obj)
+# TODO (havocp) the scatter example calls vplot and then saves it again?
+    pass
 
 def gridplot(plot_arrangement, **kwargs):
     ''' Generate a plot that arranges several subplots into a grid.
@@ -425,9 +427,10 @@ def gridplot(plot_arrangement, **kwargs):
         grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
 
     '''
+    subplots = itertools.chain.from_iterable(plot_arrangement)
     _remove_roots(subplots)
     grid = GridPlot(children=plot_arrangement, **kwargs)
-    subplots = itertools.chain.from_iterable(plot_arrangement)
+    curdoc().add_root(layout)
     _push_or_save(grid)
     return grid
 
@@ -437,6 +440,7 @@ def hplot(*children, **kwargs):
     '''
     _remove_roots(children)
     layout = HBox(children=list(children), **kwargs)
+    curdoc().add_root(layout)
     _push_or_save(layout)
     return layout
 
@@ -446,6 +450,7 @@ def vplot(*children, **kwargs):
     '''
     _remove_roots(children)
     layout = VBox(children=list(children), **kwargs)
+    curdoc().add_root(layout)
     _push_or_save(layout)
     return layout
 
@@ -454,5 +459,6 @@ def vform(*children, **kwargs):
 
     '''
     layout = VBoxForm(children=list(children), **kwargs)
+    curdoc().add_root(layout)
     _push_or_save(layout)
     return layout
