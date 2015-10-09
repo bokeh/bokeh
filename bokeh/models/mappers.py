@@ -76,7 +76,7 @@ class LinearBreaksColorMapper(ColorMapper):
     green.
     """
 
-    palette = Dict(float, help="""
+    palette = Dict(Float, Color, help="""
     A python dictionary correlating a value to a Color.
     """)
 
