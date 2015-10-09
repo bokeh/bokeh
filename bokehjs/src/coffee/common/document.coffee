@@ -176,10 +176,10 @@ class Document
             new_references[v['id']]
           else
             throw new Error("reference #{JSON.stringify(v)} isn't known (not in Document?)")
-        else if _.isObject(v)
-          resolve_dict(v)
         else if _.isArray(v)
           resolve_array(v)
+        else if _.isObject(v)
+          resolve_dict(v)
         else
           v
 
