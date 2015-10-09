@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from six import string_types
 
 from ..enums import Location
-from ..mixins import LineProps, TextProps
+from ..mixins import LineProps, TextProps, FillProps
 from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..query import find
@@ -15,6 +15,7 @@ from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..validation.errors import REQUIRED_RANGE
 from .. import validation
+from ..deprecate import deprecatedModuleAttribute
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
@@ -402,8 +403,21 @@ class Plot(Component):
 
     """)
 
+    deprecatedModuleAttribute('Bokeh 0.12.0',
+                              'Replaced with background_fill_color',
+                              'bokeh.models.plots',
+                              'background_fill')
+
     border_fill = Color("white", help="""
 
+    """)
+
+    background_props = Include(FillProps, help="""
+    The %s for the plot background style.
+    """)
+
+    border_props = Include(FillProps, help="""
+    The %s for the plot border style.
     """)
 
     min_border_top = Int(50, help="""
