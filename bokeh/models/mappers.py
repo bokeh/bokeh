@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import abstract
-from ..properties import Float, Color, Enum, Seq
+from ..properties import Float, Color, Enum, Seq, Dict
 from ..enums import Palette
 from .. import palettes
 
@@ -63,3 +63,33 @@ class LinearColorMapper(ColorMapper):
     def __init__(self, palette=None, **kwargs):
         if palette is not None: kwargs['palette'] = palette
         super(LinearColorMapper, self).__init__(**kwargs)
+
+class LinearBreaksColorMapper(ColorMapper):
+    """ Map numbers in a range [*low*, *high*] linearly into a
+    sequence of colors which are defined by a seires of breaks
+    correlated to different colors.
+
+    For example, if the breaks are specified 0, 0.5, 1 and the
+    colors are defined as 'red', 'white', 'green', values 
+    between 0 and 0.5 will smoothy vary between red and white
+    while values between 0.5 and 1 will vary between white and
+    green.
+    """
+
+    palette = Dict(float, help="""
+    A python dictionary correlating a value to a Color.
+    """)
+
+    low = Float(help="""
+    The minimum value of the range to map into the palette. Values below
+    this are clamped to ``low``.
+    """)
+
+    high = Float(help="""
+    The maximum value of the range to map into the palette. Values above
+    this are clamped to ``high``.
+    """)
+
+    def __init__(self, palette=None, **kwargs):
+        if palette is not None: kwargs['palette'] = palette
+        super(LinearBreaksColorMapper, self).__init__(**kwargs)
