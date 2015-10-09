@@ -141,10 +141,10 @@ class HasProperties extends Backbone.Model
     if not _.isEmpty(attrs)
       old = {}
       for key, value of attrs
-        old[key] = @get(key)
+        old[key] = @get(key, resolve_refs=false)
       super(attrs, options)
       for key, value of attrs
-        @_tell_document_about_change(key, old[key], @get(key))
+        @_tell_document_about_change(key, old[key], @get(key, resolve_refs=false))
 
   convert_to_ref: (value) =>
     # converts value into a refrence if necessary
@@ -277,6 +277,9 @@ class HasProperties extends Backbone.Model
     'type': this.type
     'id': this.id
 
+  # TODO (havocp) I suspect any use of this is broken, because
+  # if we're in a Document we should have already resolved refs,
+  # and if we aren't in a Document we can't resolve refs.
   resolve_ref: (arg) =>
     # ### method: HasProperties::resolve_ref
     # converts references into an objects, leaving non-references alone
@@ -290,8 +293,14 @@ class HasProperties extends Backbone.Model
       # even though we are not in any collection yet
       if arg['type'] == this.type and arg['id'] == this.id
         return this
+      else if @_document
+        model = @_document.get_model_by_id(arg['id'])
+        if model == null
+          throw new Error("#{@} refers to #{JSON.stringify(arg)} but it isn't in document #{@_document}")
+        else
+          return model
       else
-        return @get_base().Collections(arg['type']).get(arg['id'])
+        throw new Error("#{@} Cannot resolve ref #{JSON.stringify(arg)} when not in a Document")
     return arg
 
   get_base: ()->

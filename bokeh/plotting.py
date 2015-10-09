@@ -13,7 +13,7 @@ from .plotting_helpers import (
 from .document import Document
 from .models import ColumnDataSource
 from .io import (
-    curdoc, cursession, output_file, output_notebook, output_server, push,
+    curdoc, cursession, curautoadd, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, hplot, vplot)
 
 # Names that we want in this namespace (fool pyflakes)
@@ -241,8 +241,8 @@ def figure(**kwargs):
 
     fig = Figure(**kwargs)
     curdoc()._current_plot = fig
-    if curdoc().autoadd:
-        curdoc().add(fig)
+    if curautoadd():
+        curdoc().add_root(fig)
     return fig
 
 

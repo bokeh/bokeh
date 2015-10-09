@@ -3,128 +3,107 @@ _ = require "underscore"
 Backbone = require "backbone"
 base = require "../common/base"
 HasProperties = require "../common/has_properties"
-load_models = require "../common/load_models"
 {logger} = require "../common/logging"
-serverutils = require "./serverutils"
-usercontext = require "./usercontext/usercontext"
-
-{index} = base
-
-reload = () ->
-  Config = require("../common/base").Config
-  ping_url = "#{Config.prefix}bokeh/ping"
-  $.get(ping_url).success(() ->
-    logger.info('reloading')
-    window.location.reload()
-  ).fail(_.delay((() -> reload()), 1000))
-  return null
+{Document, RootAddedEvent, RootRemovedEvent} = require "../common/document"
+{ClientConnection} = require "../common/client"
 
 inject_css = (url) ->
   link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
   $('body').append(link)
 
-add_plot_static = (element, model_id, model_type, all_models) ->
-  load_models(all_models)
-  model = base.Collections(model_type).get(model_id)
+# Replace element with a view of model_id from document
+add_model_static = (element, model_id, doc) ->
+  model = doc.get_model_by_id(model_id)
   view = new model.default_view({model : model})
-  if model_id not of index
-    index[model_id] = view
   _.delay(-> $(element).replaceWith(view.$el))
 
-copy_on_write_mapping = {}
-
-add_plot_server = (element, doc_id, model_id, is_public) ->
-  resp = serverutils.utility.load_one_object_chain(doc_id, model_id, is_public)
-  resp.done((data) ->
-    model = base.Collections(data.type).get(model_id)
+_render_document_to_element = (element, document) ->
+  # this is a LOCAL index of views used only by this
+  # particular rendering call, so we can remove
+  # the views we create.
+  views = {}
+  render_model = (model) ->
     view = new model.default_view(model : model)
-    _.delay(-> $(element).replaceWith(view.$el))
-    if model_id not of index
-      index[model_id] = view
-    wswrapper = serverutils.wswrapper
-    wswrapper.subscribe("debug:debug", "")
-    wswrapper.on('msg:debug:debug', (msg) ->
-      if msg == 'reload'
-        reload()
-    )
+    views[model.id] = view
+    $(element).append(view.$el)
+  unrender_model = (model) ->
+    if model.id of views
+      view = views[model.id]
+      $(element).remove(view.$el)
+      delete views[model.id]
+
+  for model in document.roots()
+    render_model(model)
+
+  document.on_change (event) ->
+    if event instanceof RootAddedEvent
+      render_model(event.model)
+    else if event instanceof RootRemovedEvent
+      unrender_model(event.model)
+
+# Fill element with the roots from doc
+add_document_static = (element, doc) ->
+  _.delay(-> _render_document_to_element($(element), doc))
+
+# Fill element with the roots from session_id
+add_document_from_session = (element, session_id) ->
+  connection = new ClientConnection()
+  promise = connection.pull_session(session_id)
+  promise.then(
+    (session) ->
+      _render_document_to_element(element, session.document)
+    (error) ->
+      logger.error("Failed to load Bokeh session " + session_id + ": " + error)
+      throw error
   )
 
-inject_plot = (element_id, all_models) ->
+# Replace element with a view of model_id from the given session
+add_model_from_session = (element, model_id, session_id) ->
+  connection = new ClientConnection()
+  promise = connection.pull_session(session_id)
+  promise.then(
+    (session) ->
+      model = session.document.get_model_by_id(model_id)
+      if not model?
+        throw new Error("Did not find model #{model_id} in session")
+      view = new model.default_view({model : model})
+      $(element).replaceWith(view.$el)
+    (error) ->
+      logger.error("Failed to load Bokeh session " + session_id + ": " + error)
+      throw error
+  )
+
+inject_model = (element_id, model_id, doc) ->
   script = $("#" + element_id)
   if script.length == 0
-    throw new Error("Error injecting plot: could not find script tag with id:
+    throw new Error("Error injecting model: could not find script tag with id:
                     #{element_id}")
   if script.length > 1
-    throw new Error("Error injecting plot: found too many script tags with id:
+    throw new Error("Error injecting model: found too many script tags with id:
                     #{element_id}")
   if not document.body.contains(script[0])
     throw new Error(
-      "Error injecting plot: autoload script tag may only be under <body>")
+      "Error injecting model: autoload script tag may only be under <body>")
   info = script.data()
   Bokeh.set_log_level(info['bokehLoglevel'])
-  logger.info("Injecting plot for script tag with id: #" + element_id)
+  logger.info("Injecting model for script tag with id: #" + element_id)
   base.Config.prefix = info['bokehRootUrl']
   container = $('<div>', {class: 'bokeh-container'})
   container.insertBefore(script)
   if info.bokehData == "static"
     logger.info("  - using static data")
-    add_plot_static(container, info["bokehModelid"], info["bokehModeltype"],
-                    all_models)
+    add_model_static(container, info["bokehModelid"], doc)
   else if info.bokehData == "server"
     logger.info("  - using server data")
-    add_plot_server(container, info["bokehDocid"], info["bokehModelid"],
-                    info["bokehPublic"])
+    add_model_from_session(container, info["bokehModelid"], info["bokehSessionid"])
   else
     throw new Error(
-      "Unknown bokehData value for inject_plot: #{info.bokehData}")
-
-server_page = (title) ->
-  HasProperties.prototype.sync = Backbone.sync
-  $(() ->
-    resp = serverutils.utility.make_websocket()
-    resp.then(() ->
-      wswrapper = serverutils.wswrapper
-      userdocs = new usercontext.UserDocs()
-      userdocs.subscribe(wswrapper, 'defaultuser')
-      load = userdocs.fetch()
-      load.done () ->
-        if title?
-          _render_one(userdocs, title)
-        else
-          _render_all(userdocs)
-      logger.info('subscribing to debug')
-      wswrapper.subscribe("debug:debug", "")
-      wswrapper.on('msg:debug:debug', (msg) ->
-        if msg == 'reload'
-          reload()
-      )
-    )
-  )
-
-_render_all = (userdocs) ->
-  userdocsview = new usercontext.UserDocsView(collection: userdocs)
-  _render(userdocsview.el)
-
-_render_one = (userdocs, title) ->
-  doc = userdocs.find((doc) -> doc.get('title') == title)
-
-  if doc?
-    doc.on('loaded', () ->
-      plot_context = doc.get('plot_context')
-      plot_context_view = new plot_context.default_view(model: plot_context)
-      _render(plot_context_view.el)
-    )
-    doc.load()
-  else
-    msg = "Document '#{title}' wasn't found on this server."
-    _render(msg)
-    logger.error(msg)
-
-_render = (html) -> $('#PlotPane').append(html)
+      "Unknown bokehData value for inject_model: #{info.bokehData}")
 
 module.exports =
   inject_css: inject_css
-  inject_plot: inject_plot
-  add_plot_server: add_plot_server
-  add_plot_static: add_plot_static
-  server_page: server_page
+  inject_model: inject_model
+  add_model_from_session: add_model_from_session
+  add_document_from_session: add_document_from_session
+  add_model_static: add_model_static
+  add_document_static: add_document_static

@@ -20,11 +20,12 @@ from warnings import warn
 from .resources import Resources
 from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, JS_RESOURCES, CSS_RESOURCES
+    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, DOC_JS, PLOT_SCRIPT, JS_RESOURCES, CSS_RESOURCES
 )
 from .util.string import encode_utf8
 
 from .plot_object import PlotObject
+from ._json_encoder import serialize_json
 from collections import Sequence
 from six import string_types
 
@@ -34,7 +35,8 @@ def _wrap_in_function(code):
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
-
+# TODO (havocp) this function doesn't work anymore; need to understand
+# how/why/by-whom it is called and fix it up
 def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -431,3 +433,88 @@ def autoload_server(plot_object, session, public=False):
     )
 
     return encode_utf8(tag)
+
+
+# TODO (havocp) this is the new file_html but for now it
+# doesn't support some things file_html does so keeping it
+# separate just until we clean up the code above.
+def html_page_for_models(plot_objects, resources, title):
+    from .document import Document
+    input_type_valid = False
+
+    # Check for single item
+    if isinstance(plot_objects, (PlotObject, Document)):
+        plot_objects = [plot_objects]
+
+    # Check for sequence
+    if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
+        input_type_valid = True
+
+    if not input_type_valid:
+        raise ValueError('Input must be a PlotObject, a Document, or a Sequence of PlotObjects and Document')
+
+    render_items = []
+    docs_by_id = {}
+    for p in plot_objects:
+        modelid = None
+        if isinstance(p, Document):
+            doc = p
+        else:
+            if p.document is None:
+                raise ValueError("To render a PlotObject as HTML it must be part of a Document")
+            doc = p.document
+            modelid = p._id
+        docid = None
+        for key in docs_by_id:
+            if docs_by_id[key] == doc:
+                docid = key
+        if docid is None:
+            docid = str(uuid.uuid4())
+            docs_by_id[docid] = doc
+
+        elementid = str(uuid.uuid4())
+
+        div = PLOT_DIV.render(
+            elementid=elementid
+        )
+        render_items.append({
+            'docid' : docid,
+            'elementid' : elementid,
+            'div' : div,
+            # if modelid is None, that means the entire document
+            'modelid' : modelid
+            })
+
+    bokeh_js = JS_RESOURCES.render(js_raw=resources.js_raw, js_files=resources.js_files)
+    bokeh_css = CSS_RESOURCES.render(css_raw=resources.css_raw, css_files=resources.css_files)
+
+    docs_json = {}
+    for k, v in docs_by_id.items():
+        docs_json[k] = v.to_json()
+
+    render_items_without_div = []
+    for r in render_items:
+        copy = r.copy()
+        del copy['div']
+        render_items_without_div.append(copy)
+
+    script = PLOT_SCRIPT.render(
+        plot_js=_wrap_in_function(
+            DOC_JS.render(
+                custom_models={}, # TODO
+                docs_json=serialize_json(docs_json),
+                render_items=serialize_json(render_items_without_div)
+            )
+        )
+    )
+
+    template_variables = {
+        'title': title,
+        'bokeh_js': bokeh_js,
+        'bokeh_css': bokeh_css,
+        'plot_script': script,
+        'plot_div': "\n".join(d['div'] for d in render_items)
+    }
+
+    html = FILE.render(template_variables)
+    return encode_utf8(html)

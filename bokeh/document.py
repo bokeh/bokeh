@@ -80,6 +80,11 @@ class Document(object):
         model.attach_document(self)
         self._trigger_on_change(RootAddedEvent(self, model))
 
+# TODO (havocp) uncomment this after we clean up all bokeh's own use of it
+#    def add(self, model):
+#       ''' DEPRECATED synonym for add_root '''
+#       self.add_root(model)
+
     def remove_root(self, model):
         ''' Remove a model as root model from this Document.
 

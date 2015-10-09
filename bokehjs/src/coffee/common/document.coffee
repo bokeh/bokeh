@@ -153,6 +153,7 @@ class Document
   # model instances, set the properties on the models from the
   # JSON
   @_initialize_references_json: (references_json, old_references, new_references) ->
+    to_init = []
     for obj in references_json
       obj_id = obj['id']
       obj_attrs = obj['attributes']
@@ -165,22 +166,44 @@ class Document
           was_new = true
           new_references[obj_id]
 
-      # replace references with actual instances in obj_attrs
-      changes = {}
-      for k, v in obj_attrs
-        if 'id' of v
+      # if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
+      # Do not recurse into properties of objects, only into collections.
+      resolve_ref = (v) ->
+        if _.isObject(v) and 'id' of v
           if v['id'] of old_references
-            changes[k] = old_references[v['id']]
+            old_references[v['id']]
           else if v['id'] of new_references
-            changes[k] = new_references[v['id']]
+            new_references[v['id']]
+          else
+            throw new Error("reference #{JSON.stringify(v)} isn't known (not in Document?)")
+        else if _.isObject(v)
+          resolve_dict(v)
+        else if _.isArray(v)
+          resolve_array(v)
+        else
+          v
 
-      for k, v in changes
-        obj_attrs[k] = v
+      resolve_dict = (dict) ->
+        resolved = {}
+        for k, v of dict
+          resolved[k] = resolve_ref(v)
+        resolved
+
+      resolve_array = (array) ->
+        resolve_ref(v) for v in array
+
+      # replace references with actual instances in obj_attrs
+      obj_attrs = resolve_dict(obj_attrs)
 
       # set all properties on the instance
       instance.set(obj_attrs)
       if was_new
-        instance.initialize(obj_attrs)
+        # we can't call initialize() until all refs
+        # are filled in, so we defer that step
+        to_init.push([instance, obj_attrs])
+
+    for [instance, obj_attrs] in to_init
+      instance.initialize(obj_attrs)
 
   to_json_string : () ->
     JSON.stringify(@to_json())

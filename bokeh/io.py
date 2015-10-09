@@ -25,7 +25,7 @@ import io, itertools, os, warnings
 # Bokeh imports
 from . import browserlib
 from .document import Document
-from .embed import notebook_div, file_html, autoload_server
+from .embed import notebook_div, html_page_for_models, autoload_server
 from .models import Component
 from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox, VBoxForm
@@ -197,10 +197,19 @@ def cursession():
     ''' Return the session for the current default state, if there is one.
 
     Returns:
-        the current default Session object (or None)
+        the current default session (or None)
 
     '''
     return _state.session
+
+def curautoadd():
+    ''' Return whether the current state is in "autoadd" mode (automatically adds plots to the current document)
+
+    Returns:
+        True if we are autoadding
+
+    '''
+    return _state.autoadd
 
 def show(obj, browser=None, new="tab"):
     ''' Immediately display a plot object.
@@ -274,7 +283,7 @@ def save(obj, filename=None, resources=None, title=None, state=None):
     are not provided.
 
     Args:
-        obj (Document or Component object) : a plot object to save
+        obj (Document or model object) : a plot object to save
 
         filename (str, optional) : filename to save document under (default: None)
             If None, use the default state configuration, otherwise raise a
@@ -329,14 +338,24 @@ def _get_save_args(state, filename, resources, title):
 
 def _save_helper(obj, filename, resources, title):
     if isinstance(obj, Component):
-        doc = Document()
-        doc.add(obj)
+        doc = obj.document
+        # this is pretty evil really, because it creates
+        # the strange side effect that obj.document is now set.
+        # but it keeps some historical scripts working.
+        if not doc:
+            # TODO (havocp) this is probably not right; where exactly is autoadd
+            # responsibility, what does autoadd really mean?
+            if curdoc() is not None and curautoadd():
+                doc = curdoc()
+            else:
+                doc = Document()
+            doc.add_root(obj)
     elif isinstance(obj, Document):
         doc = obj
     else:
         raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-    html = file_html(doc, resources, title)
+    html = html_page_for_models(doc, resources, title)
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
@@ -380,15 +399,16 @@ def reset_output(state=None):
     '''
     _state.reset()
 
-def _deduplicate_plots(plot, subplots):
+def _remove_roots(subplots):
     doc = _state.document
-    doc.context.children = list(set(doc.context.children) - set(subplots))
-    doc.add(plot)
-    doc._current_plot = plot # TODO (bev) don't use private attrs
+    for sub in subplots:
+        if sub in doc.roots:
+            doc.remove_root(sub)
 
 def _push_or_save(obj):
-    if _state.session and _state.document.autostore:
-        push()
+# TODO (havocp) right now push() is kind of a no-op, that needs sorting out
+#    if _state.session and _state.document.autostore:
+#        push()
     if _state.file and _state.file['autosave']:
         save(obj)
 
@@ -405,9 +425,9 @@ def gridplot(plot_arrangement, **kwargs):
         grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
 
     '''
+    _remove_roots(subplots)
     grid = GridPlot(children=plot_arrangement, **kwargs)
     subplots = itertools.chain.from_iterable(plot_arrangement)
-    _deduplicate_plots(grid, subplots)
     _push_or_save(grid)
     return grid
 
@@ -415,8 +435,8 @@ def hplot(*children, **kwargs):
     ''' Generate a layout that arranges several subplots horizontally.
 
     '''
+    _remove_roots(children)
     layout = HBox(children=list(children), **kwargs)
-    _deduplicate_plots(layout, children)
     _push_or_save(layout)
     return layout
 
@@ -424,8 +444,8 @@ def vplot(*children, **kwargs):
     ''' Generate a layout that arranges several subplots vertically.
 
     '''
+    _remove_roots(children)
     layout = VBox(children=list(children), **kwargs)
-    _deduplicate_plots(layout, children)
     _push_or_save(layout)
     return layout
 

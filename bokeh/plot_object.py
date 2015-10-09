@@ -114,10 +114,14 @@ class PlotObject(HasProps, CallbackManager):
 
     def trigger(self, attr, old, new):
         # attach first, then detach, so we keep refcount >0 if it will end up that way
-        if isinstance(new, PlotObject) and self._document is not None:
-            new.attach_document(self._document)
-        if isinstance(old, PlotObject):
-            old.detach_document()
+        if self._document is not None:
+            def attach(obj):
+                obj.attach_document(self._document)
+            self._visit_prop_value_references(new, attach, immediate_only=True)
+        def detach(obj):
+            obj.detach_document()
+        self._visit_prop_value_references(old, detach, immediate_only=True)
+
         # chain up to invoke callbacks
         super(PlotObject, self).trigger(attr, old, new)
 
@@ -191,26 +195,32 @@ class PlotObject(HasProps, CallbackManager):
     @classmethod
     def _visit_immediate_references(cls, obj, visitor):
         ''' Visit all references to another PlotObject without recursing into any of the child PlotObject; may visit the same PlotObject more than once if it's referenced more than once. '''
-        def visit_prop_value(obj):
-            if isinstance(obj, PlotObject):
-                # we visit this PlotObject but do NOT recurse
-                visitor(obj)
-            elif isinstance(obj, HasProps):
-                # this isn't a PlotObject, so recurse into it
-                visit_props(obj)
-            elif isinstance(obj, (list, tuple)):
-                for item in obj:
-                    visit_prop_value(item)
-            elif isinstance(obj, dict):
-                for key, value in iteritems(obj):
-                    visit_prop_value(key)
-                    visit_prop_value(value)
+        cls._visit_props_references(obj, visitor, immediate_only=True)
 
-        def visit_props(obj):
-            for attr in obj.properties_with_refs():
-                visit_prop_value(getattr(obj, attr))
+    @classmethod
+    def _visit_props_references(cls, obj, visitor, immediate_only=False):
+        ''' Visit all props of the PlotObject'''
+        for attr in obj.properties_with_refs():
+            cls._visit_prop_value_references(getattr(obj, attr), visitor, immediate_only)
 
-        visit_props(obj)
+    @classmethod
+    def _visit_prop_value_references(cls, obj, visitor, immediate_only=False):
+        ''' Visit all references to another PlotObject for this arbitrary value'''
+        if isinstance(obj, PlotObject):
+            # we visit this PlotObject
+            visitor(obj)
+            if not immediate_only:
+                cls._visit_props_references(obj, visitor, immediate_only)
+        elif isinstance(obj, HasProps):
+            # this isn't a PlotObject, so recurse into it
+            cls._visit_props_references(obj, visitor, immediate_only)
+        elif isinstance(obj, (list, tuple)):
+            for item in obj:
+                cls._visit_prop_value_references(item, visitor, immediate_only)
+        elif isinstance(obj, dict):
+            for key, value in iteritems(obj):
+                cls._visit_prop_value_references(key, visitor, immediate_only)
+                cls._visit_prop_value_references(value, visitor, immediate_only)
 
     @classmethod
     def collect_plot_objects(cls, *input_objs):

@@ -22,8 +22,6 @@ locations =
   GMapPlot:                 require './gmap_plot'
   GeoJSPlot:                require './geojs_plot'
   GridPlot:                 require './grid_plot'
-  PlotContext:              require './plot_context'
-  PlotList:                 require './plot_context'
   Canvas:                   require './canvas'
   LayoutBox:                require './layout_box'
   CartesianFrame:           require './cartesian_frame'

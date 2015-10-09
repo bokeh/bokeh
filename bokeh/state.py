@@ -84,6 +84,7 @@ class State(object):
 
     def __init__(self):
         self._connection = None # reset checks whether it's None
+        self._autoadd = True
         self.reset()
 
     @property
@@ -101,6 +102,14 @@ class State(object):
     @property
     def connection(self):
         return self._connection
+
+    @property
+    def session(self):
+        return self._session
+
+    @property
+    def autoadd(self):
+        return self._autoadd
 
     def _reset_with_doc(self, doc):
         self._document = doc

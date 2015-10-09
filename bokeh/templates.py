@@ -139,6 +139,10 @@ PLOT_JS = jinja2.Template(
     open(join(_templates_path, "plot_js.js")).read()
 )
 
+DOC_JS = jinja2.Template(
+    open(join(_templates_path, "doc_js.js")).read()
+)
+
 PLOT_SCRIPT = jinja2.Template(
     open(join(_templates_path, "plot_script.html")).read()
 )
