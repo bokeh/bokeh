@@ -120,39 +120,10 @@ class Legend extends HasParent
   defaults: ->
     return _.extend {}, super(), {
       legends: []
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'overlay'
 
-      border_line_color: 'black'
-      border_line_width: 1
-      border_line_alpha: 1.0
-      border_line_join: 'miter'
-      border_line_cap: 'butt'
-      border_line_dash: []
-      border_line_dash_offset: 0
 
-      background_fill_color: '#fff'
-      background_fill_alpha: 1.0
 
-      label_standoff: 15
-      label_text_font: "helvetica"
-      label_text_font_size: "10pt"
-      label_text_font_style: "normal"
-      label_text_color: "#444444"
-      label_text_alpha: 1.0
-      label_text_align: "left"
-      label_text_baseline: "middle"
-
-      glyph_height: 20
-      glyph_width: 20
-      label_height: 20
-      label_width: 50
-      legend_padding: 10
-      legend_spacing: 3
-      orientation: "top_right"
       datapoint: null
     }
 

@@ -578,60 +578,7 @@ class Axis extends HasParent
     return _.extend {}, super(), {
       x_range_name: "default"
       y_range_name: "default"
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'overlay'
-      visible: true
-
-      axis_line_color: 'black'
-      axis_line_width: 1
-      axis_line_alpha: 1.0
-      axis_line_join: 'miter'
-      axis_line_cap: 'butt'
-      axis_line_dash: []
-      axis_line_dash_offset: 0
-
-      major_tick_in: 2
-      major_tick_out: 6
-      major_tick_line_color: 'black'
-      major_tick_line_width: 1
-      major_tick_line_alpha: 1.0
-      major_tick_line_join: 'miter'
-      major_tick_line_cap: 'butt'
-      major_tick_line_dash: []
-      major_tick_line_dash_offset: 0
-
-      minor_tick_in: 0
-      minor_tick_out: 4
-      minor_tick_line_color: 'black'
-      minor_tick_line_width: 1
-      minor_tick_line_alpha: 1.0
-      minor_tick_line_join: 'miter'
-      minor_tick_line_cap: 'butt'
-      minor_tick_line_dash: []
-      minor_tick_line_dash_offset: 0
-
-      major_label_standoff: 5
-      major_label_orientation: "horizontal"
-      major_label_text_font: "helvetica"
-      major_label_text_font_size: "10pt"
-      major_label_text_font_style: "normal"
-      major_label_text_color: "#444444"
-      major_label_text_alpha: 1.0
-      major_label_text_align: "center"
-      major_label_text_baseline: "alphabetic"
-
-      axis_label: ""
-      axis_label_standoff: 5
-      axis_label_text_font: "helvetica"
-      axis_label_text_font_size: "16pt"
-      axis_label_text_font_style: "normal"
-      axis_label_text_color: "#444444"
-      axis_label_text_alpha: 1.0
-      axis_label_text_align: "center"
-      axis_label_text_baseline: "alphabetic"
     }
 
 module.exports =

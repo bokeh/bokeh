@@ -81,12 +81,6 @@ class ImageURL extends Glyph.Model
   angles: ['angle']
   fields: ['url:string']
 
-  defaults: ->
-    return _.extend {}, super(), {
-      angle: 0
-      global_alpha: 1.0
-    }
-
 module.exports =
   Model: ImageURL
   View: ImageURLView

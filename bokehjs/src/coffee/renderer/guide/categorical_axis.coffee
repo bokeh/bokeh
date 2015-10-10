@@ -26,6 +26,9 @@ class CategoricalAxis extends Axis.Model
 
     return range_bounds
 
+  display_defaults: () ->
+    return super()
+
 module.exports =
   Model: CategoricalAxis
   View: CategoricalAxisView

@@ -14,6 +14,9 @@ class LinearAxis extends Axis.Model
     if not @get('formatter')?
       @set_obj('formatter', Collections('BasicTickFormatter').create())
 
+  display_defaults: () ->
+    return super()
+
 module.exports =
   Model: LinearAxis
   View: LinearAxisView

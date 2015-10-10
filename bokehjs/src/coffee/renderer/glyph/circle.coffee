@@ -4,7 +4,7 @@ Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
 class CircleView extends Glyph.View
- 
+
   _init_gl: (gl) ->
     # This is how you enable gl for a glyph
     @glglyph = new bokehgl.CircleGLGlyph(gl, this)
@@ -214,11 +214,6 @@ class Circle extends Glyph.Model
   type: 'Circle'
   distances: ['?radius', '?size']
   fields: ['radius_dimension:string']
-
-  display_defaults: ->
-    return _.extend {}, super(), {
-      size: 4 # XXX: Circle should be a marker, then this wouldn't be necessary.
-    }
 
   defaults: ->
     return _.extend {}, super(), {

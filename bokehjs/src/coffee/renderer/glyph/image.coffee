@@ -88,11 +88,6 @@ class Image extends Glyph.Model
   distances: ['dw', 'dh']
   fields: ['image:array', '?rows', '?cols', 'palette:string']
 
-  display_defaults: ->
-    return _.extend {}, super(), {
-      dilate: false
-    }
-
 module.exports =
   Model: Image
   View: ImageView

@@ -92,9 +92,9 @@ class GlyphRendererView extends PlotWidget
 
   render: () ->
     t0 = Date.now()
-    
+
     glsupport = @glyph.glglyph
-    
+
     tmap = Date.now()
     @glyph.map_data()
     dtmap = Date.now() - t0
@@ -198,10 +198,6 @@ class GlyphRenderer extends HasParent
       x_range_name: "default"
       y_range_name: "default"
       data_source: null
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'glyph'
     }
 

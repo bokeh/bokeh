@@ -55,7 +55,6 @@ class Span extends HasParent
       level: "overlay"
       dimension: "width"
       units: "screen"
-      color: "black"
     }
 
 module.exports =
