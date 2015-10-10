@@ -80,16 +80,22 @@ class LinearBreaksColorMapper(ColorMapper):
     A python dictionary correlating a value to a Color.
     """)
 
-    low = Float(help="""
-    The minimum value of the range to map into the palette. Values below
-    this are clamped to ``low``.
-    """)
+    alpha = Seq(Float, help="""
+    A python array, the same length as the dictionary with the
+    desired alpha values
+    """
+    )
 
-    high = Float(help="""
-    The maximum value of the range to map into the palette. Values above
-    this are clamped to ``high``.
-    """)
-
-    def __init__(self, palette=None, **kwargs):
+    def __init__(self, palette, alpha=[1], **kwargs):
         if palette is not None: kwargs['palette'] = palette
+
+        if len(alpha) == 1:
+            alpha = alpha * len(palette)
+        else:
+            if len(alpha) != len(palette):
+                # Got an error and I am not sure how to proceed
+                error('The length of alpha values does not match the number of defined breaks in the palette.')
+
+        kwargs['alpha'] = alpha
+
         super(LinearBreaksColorMapper, self).__init__(**kwargs)

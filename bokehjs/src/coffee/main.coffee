@@ -53,6 +53,7 @@ Bokeh.LogMapper         = require("./mapper/log_mapper")
 Bokeh.CategoricalMapper = require("./mapper/categorical_mapper")
 Bokeh.GridMapper        = require("./mapper/grid_mapper")
 Bokeh.LinearColorMapper = require("./mapper/linear_color_mapper")
+Bokeh.LinearBreaksColorMapper = require("./mapper/linear_breaks_color_mapper")
 
 # palettes
 Bokeh.Palettes = require("./palettes/palettes")

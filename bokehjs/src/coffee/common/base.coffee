@@ -36,6 +36,7 @@ locations =
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
+  LinearBreaksColorMapper:  require '../mapper/linear_breaks_color_mapper'
   LinearMapper:             require '../mapper/linear_mapper'
 
   DataRange1d:              require '../range/data_range1d'
