@@ -193,6 +193,18 @@ class DateFormatter(CellFormatter):
         single quote
     """)
 
+class HTMLTemplateFormatter(CellFormatter):
+    """ HTML formatter using a template.
+    This uses Underscore's `template` method and syntax.  http://underscorejs.org/#template
+    The formatter has access other items in the row via the `dataContext` object passed to the formatter.
+    So, for example, if another column in the datasource was named `url`, the template could access it as:
+        '<a href="<%= url %>"><%= value %></a>'
+
+    """
+    template = String('<%= value %>', help="""
+    Template string to be used by Underscore's template method.
+    """)
+
 class StringEditor(CellEditor):
     """ Basic string cell editor with auto-completion.
 
