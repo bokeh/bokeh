@@ -20,15 +20,14 @@ class Glyph(PlotObject):
 
     def __init__(self, **kwargs):
         props = dict()
-        if "line_alpha" in self.__class__.__dict__.keys():
+        if hasattr(self.__class__, "line_alpha"):
             props.update(themes.default['line_defaults'])
-        if "fill_alpha" in self.__class__.__dict__.keys():
+        if hasattr(self.__class__, "fill_alpha"):
             props.update(themes.default['fill_defaults'])
-        if "text_alpha" in self.__class__.__dict__.keys():
+        if hasattr(self.__class__, "text_alpha"):
             props.update(themes.default['text_defaults'])
         props.update(kwargs)
         super(Glyph, self).__init__(**props)
-
 
     visible = Bool(True, help="""
     Whether the glyph should render or not.
