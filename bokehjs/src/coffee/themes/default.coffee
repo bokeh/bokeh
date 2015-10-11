@@ -1,4 +1,3 @@
-
 fill_defaults =
   fill_color: 'gray'
   fill_alpha: 1.0
@@ -198,7 +197,3 @@ module.exports =
   fill_defaults: fill_defaults
   line_defaults: line_defaults
   text_defaults: text_defaults
-
-
-
-
