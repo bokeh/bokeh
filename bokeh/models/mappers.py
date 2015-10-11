@@ -76,8 +76,25 @@ class SegmentedColorMapper(ColorMapper):
     green.
     """
 
-    palette = Dict(Float, Color, help="""
-    A python dictionary correlating a value to a Color.
+    palette = Seq(Color, help="""
+    A sequence of colors to use as the target palette for mapping.
+
+    This property can also be set as a ``String``, to the name of
+    any of the palettes shown in :ref:`bokeh_dot_palettes`.
+    """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
+
+    segments = Seq(Float, help="""
+    A listing of values which are directly tied to the 
+    colors defined in the palette.  The list must have
+    at least two elements.  If there are exactly two
+    elements, then the resulting colormap will be
+    interpolated between these two values and across
+    all of the colors defined in the palette.  If there
+    are more than two colors, the length must match the
+    number of colors in the palette.  In this configuration
+    each segment value is tied to the palette color of the
+    same index.  This argument is optional.  If it is
+    not provided, the min and max of the data will be used.
     """)
 
     alpha = Seq(Float, help="""
@@ -86,8 +103,9 @@ class SegmentedColorMapper(ColorMapper):
     """
     )
 
-    def __init__(self, palette, alpha=[1], **kwargs):
+    def __init__(self, palette=None, segments=None, alpha=[1], **kwargs):
         if palette is not None: kwargs['palette'] = palette
+        if segments is not None: kwargs['segments'] = segments
 
         if len(alpha) == 1:
             alpha = alpha * len(palette)

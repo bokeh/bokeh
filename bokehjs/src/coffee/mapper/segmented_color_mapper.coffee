@@ -8,17 +8,17 @@ class SegmentedColorMapper extends HasProperties
     @palette       = @_build_palette(@get('palette'))
     @alpha         = @_rescale_alpha(@get('alpha'))
     @little_endian = @_is_little_endian()
-
-    console.log(@get('palette'))
-    console.log(@palette)
+    @segments      = null
+    if @get('segments')?
+      @segments = @get('segments')
 
   generate_linear_interpolation: () ->
     # Extract the keys from the palette which are the break points
-    breaks = _.keys(@palette).map(Number)
+    breaks = @segments
     breaks_sorted = _.sortBy(breaks)
 
     # Extract the colors from the palette which are correlated to the break points
-    colors = _.values(@palette)
+    colors = @palette
 
     # Align the colors based on the sorted breaks
     colors_sorted = new Uint32Array(colors.length)
@@ -190,6 +190,16 @@ class SegmentedColorMapper extends HasProperties
     buf = new ArrayBuffer(data.length * 4)
     color = new Uint32Array(buf)
 
+    # Test to see if the 'segments' variable existst.
+    # if it does not we need to set it to the appropriate
+    # values for the data
+    if @segments == null 
+      # We need to use the data to set the limits
+      @segments = [_.min(data), _.max(data)]
+
+    if (@segments.length == 2) & (@palette.length > 2)
+      @segments = _.range(@segments[0], @segments[1], (@segments[1]-@segments[0])/(@palette.length - 1))
+
     interp = @generate_linear_interpolation()
 
     for i in [0...data.length]
@@ -211,15 +221,15 @@ class SegmentedColorMapper extends HasProperties
 
   _build_palette: (palette) ->
 #    new_palette = new Uint32Array(_.keys(palette).length + 1)
-    new_palette = {}
+    new_palette = []
     _convert = (value) ->
       if _.isNumber(value)
         return value
       else
         return parseInt(value.slice(1), 16)
     
-    for k,v of palette
-      new_palette[k] = _convert(v)
+    for i in _.range(palette.length)
+      new_palette[i] = _convert(palette[i])
 
     return new_palette
 
