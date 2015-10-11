@@ -1,5 +1,3 @@
-
-
 fill_defaults:
   fill_color: 'gray'
   fill_alpha: 1.0
@@ -192,7 +190,3 @@ attrs:
 
   Wedge:
     direction: 'anticlock'
-
-
-
-
