@@ -1,7 +1,7 @@
 _ = require "underscore"
 HasProperties = require "../common/has_properties"
 
-class LinearBreaksColorMapper extends HasProperties
+class SegmentedColorMapper extends HasProperties
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -234,4 +234,4 @@ class LinearBreaksColorMapper extends HasProperties
     return(new_alpha)
 
 module.exports =
-  Model: LinearBreaksColorMapper,
+  Model: SegmentedColorMapper,

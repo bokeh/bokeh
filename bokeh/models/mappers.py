@@ -64,7 +64,7 @@ class LinearColorMapper(ColorMapper):
         if palette is not None: kwargs['palette'] = palette
         super(LinearColorMapper, self).__init__(**kwargs)
 
-class LinearBreaksColorMapper(ColorMapper):
+class SegmentedColorMapper(ColorMapper):
     """ Map numbers in a range [*low*, *high*] linearly into a
     sequence of colors which are defined by a seires of breaks
     correlated to different colors.
@@ -98,4 +98,4 @@ class LinearBreaksColorMapper(ColorMapper):
 
         kwargs['alpha'] = alpha
 
-        super(LinearBreaksColorMapper, self).__init__(**kwargs)
+        super(SegmentedColorMapper, self).__init__(**kwargs)
