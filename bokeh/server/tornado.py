@@ -99,20 +99,22 @@ class BokehTornado(TornadoApplication):
         self._clients.discard(connection)
 
         # clean up sessions when they have no connections anymore
+        # TODO (havocp) this should be after a timeout, to allow
+        # clients to reconnect if the connection is lost.
         while connection.subscribed_sessions:
             session = next(iter(connection.subscribed_sessions))
             connection.unsubscribe_session(session)
             if session.connection_count == 0:
                 self.discard_session(session)
 
-    def create_session_if_needed(self, connection, sessionid):
+    def create_session_if_needed(self, application, sessionid):
         # this is because empty sessionids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(sessionid) == 0:
             raise ProtocolError("Session ID must not be empty")
 
         if sessionid not in self._sessions:
-            doc = connection.application.create_document()
+            doc = application.create_document()
             session = ServerSession(sessionid, doc)
             self._sessions[sessionid] = session
 

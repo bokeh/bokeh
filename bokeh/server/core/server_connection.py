@@ -43,7 +43,7 @@ class ServerConnection(object):
         self._socket.send_message(msg)
 
     def create_session_if_needed(self, sessionid):
-        return self._tornado_app.create_session_if_needed(self, sessionid)
+        return self._tornado_app.create_session_if_needed(self._application, sessionid)
 
     def get_session(self, sessionid):
         return self._tornado_app.get_session(sessionid)

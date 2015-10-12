@@ -25,7 +25,7 @@ import io, itertools, os, warnings
 # Bokeh imports
 from . import browserlib
 from .document import Document
-from .embed import notebook_div, html_page_for_models, autoload_server
+from .embed import notebook_div, static_html_page_for_models, autoload_server
 from .models import Component
 from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox, VBoxForm
@@ -355,7 +355,7 @@ def _save_helper(obj, filename, resources, title):
     else:
         raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-    html = html_page_for_models(doc, resources, title)
+    html = static_html_page_for_models(doc, resources, title)
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 

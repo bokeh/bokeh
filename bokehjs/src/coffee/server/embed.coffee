@@ -47,10 +47,23 @@ _render_document_to_element = (element, document) ->
 add_document_static = (element, doc) ->
   _.delay(-> _render_document_to_element($(element), doc))
 
+_connection = null
+_get_connection = () ->
+  if not _connection?
+    _connection = new ClientConnection()
+  _connection
+
+# map from session id to promise of ClientSession
+_sessions = {}
+_get_session = (session_id) ->
+  if session_id not of _sessions
+    _sessions[session_id] = _get_connection().pull_session(session_id)
+
+  _sessions[session_id]
+
 # Fill element with the roots from session_id
 add_document_from_session = (element, session_id) ->
-  connection = new ClientConnection()
-  promise = connection.pull_session(session_id)
+  promise = _get_session(session_id)
   promise.then(
     (session) ->
       _render_document_to_element(element, session.document)
@@ -61,8 +74,7 @@ add_document_from_session = (element, session_id) ->
 
 # Replace element with a view of model_id from the given session
 add_model_from_session = (element, model_id, session_id) ->
-  connection = new ClientConnection()
-  promise = connection.pull_session(session_id)
+  promise = _get_session(session_id)
   promise.then(
     (session) ->
       model = session.document.get_model_by_id(model_id)

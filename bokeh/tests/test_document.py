@@ -330,3 +330,19 @@ class TestDocument(unittest.TestCase):
 
         assert root1.foo == 57
         assert root1.child.foo == 44
+
+    # a more realistic set of models instead of fake models
+    def test_scatter(self):
+        from bokeh.io import output_document
+        from bokeh.plotting import figure
+        import numpy as np
+        d = document.Document()
+        output_document(d)
+        assert not d.roots
+        assert len(d._all_models) == 0
+        p1 = figure(tools=[])
+        N = 10
+        x = np.linspace(0, 4*np.pi, N)
+        y = np.sin(x)
+        p1.scatter(x,y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
+        assert len(d.roots) == 1
