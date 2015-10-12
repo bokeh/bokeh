@@ -220,7 +220,6 @@ class SegmentedColorMapper extends HasProperties
     return little_endian
 
   _build_palette: (palette) ->
-#    new_palette = new Uint32Array(_.keys(palette).length + 1)
     new_palette = []
     _convert = (value) ->
       if _.isNumber(value)
