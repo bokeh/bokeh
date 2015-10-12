@@ -7,7 +7,8 @@ from ..plot_object import PlotObject
 from ..properties import abstract
 from ..properties import Float, Color, Enum, Seq
 from ..enums import Palette
-from .. import palettes
+from .. import colors as bkColors
+from .. import palettes as bkPalettes
 
 @abstract
 class ColorMapper(PlotObject):
@@ -103,15 +104,99 @@ class SegmentedColorMapper(ColorMapper):
     """
     )
 
-    def __init__(self, palette=None, segments=None, alpha=[1], **kwargs):
-        if palette is not None: kwargs['palette'] = palette
-        if segments is not None: kwargs['segments'] = segments
+    def __init__(self, palette=None, segments=None, alpha=1, **kwargs):
+        if palette is not None: 
+            # Lets do some work on the Palette to ensure that only hex values
+            # or integers make it to the Javascipt.  The interpolation routines
+            # require that we have the actual value of the colors.  Although 
+            # it seems possible to convert named colors to individual colors
+            # in the browser, it seemed hackish and non-trustworthy.  Lets
+            # just do it here with some logic and always pass the JS a list 
+            # of hex codes.
 
+            # Define a dict to hold any alpha values that we might extract
+            # from the different colors in the passed palette.  These can 
+            # come from a 4-tuple or a 
+            alpha_hold = {}
+
+            # Check to see if this is a single string.  If this is the case,
+            # this is likely a named preknown colormap.
+            if not isinstance(palette, list):
+                # We have a single item which has been passed.
+                if not isinstance(palette, str):
+                    ##### THROW ERROR: palette must be the name of a known palette if it is passed as a scalar
+                    pass
+                else:
+                    # This is a string, lets see if we can validate the name
+                    if any([x == palette for x in dir(bkPalettes)]):
+                        palette = eval('bkPalettes.' + palette)
+                    else:
+                        pass
+                        ##### THROW ERROR: The named palette does not seem to exist
+
+            else:
+                # This is a list object.  Lets itterate over each element of it
+                # and try to make a good list of hex numbers
+
+                # Create a temporary placeholder to store the converted colors
+                tmpPalette = [None] * len(palette)
+
+                # Loop over each of the palette entries and attempt to convert the entry
+                # into a hex number which can be stored in the tmpPalette variable.
+                for i in range(len(palette)):
+                    if type(palette[i]) == str:
+                        if any([x == palette[i] for x in dir(bkColors)]):
+                            tmpPalette[i] = eval('bkColors.' + palette[i] + '.to_hex()')
+                        if palette[i][0] == '#':
+                            if len(palette[i]) >= 7:
+                                tmpPalette[i] = palette[i][0:7]
+                            if len(palette[i]) == 9:
+                                alpha_hold[i] = int(palette[i][7:9], 16)/255
+
+                    if type(palette[i]) == int:
+                        tmpPalette[i] = '#' + format(palette[i] & 0xFFFFFFFF, '06X')
+
+                    if type(palette[i]).__name__ == 'NamedColor':
+                        tmpPalette[i] = palette[i].to_hex()
+
+                    if type(palette[i]) == tuple:
+                        if len(palette[i]) >= 3:
+                            tmpPalette[i] = '#' + format(palette[i][0], '02X') + format(palette[i][1], '02X') + format(palette[i][2], '02X')
+                        if len(palette[i]) == 4:
+                            alpha_hold[i] = palette[i][3]
+
+                # Check to ensure that all of the colors were able to be converted
+                none_indexs = [i for i in range(len(tmpPalette)) if tmpPalette[i] == None]
+                if len(none_indexs) > 0:
+                    ##### THROW ERROR: Some colors specified in the palette were unable to be converted into well formatted hex strings [indexs (list the indexs)]
+                    pass
+
+                # Make the data stored in tmpPalette authorative
+                palette = tmpPalette
+
+            kwargs['palette'] = palette
+        
         if not isinstance(alpha, list):
             # Convert the scalar object to a vector so that the Seq property 
             # type can be used.
             alpha = [alpha] * len(palette)
 
+        # Overwrite the alpha values with those specified by the colors in the palette.
+        # This may not be the desired functionality.  Who should win, the information in
+        # the palette, or the direct alpha information specified in the alpha parameter?
+        for k,v in list(alpha_hold.items()):
+            alpha[k] = v
+
         kwargs['alpha'] = alpha
+
+        if segments is not None: kwargs['segments'] = segments
+
+        print('Palette:')
+        print(palette)
+        print('Alpha:')
+        print(alpha)
+        if segments is not None:
+            print('Segments:')
+            print(segments)
 
         super(SegmentedColorMapper, self).__init__(**kwargs)
