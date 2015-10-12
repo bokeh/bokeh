@@ -17,6 +17,7 @@ from __future__ import print_function
 # Stdlib imports
 import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
+from shutil import copy
 
 try:
     import colorama
@@ -83,8 +84,7 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 # Classes and functions
 # -----------------------------------------------------------------------------
 
-package_data = []
-
+package_data = ['LICENSE.txt']
 
 def package_path(path, filters=()):
     if not os.path.exists(path):
@@ -97,12 +97,11 @@ def package_path(path, filters=()):
             for f in files:
                 if not filters or f.endswith(filters):
                     package_data.append(join(path, f))
+
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # And this is an intended PR to fix it: https://github.com/pypa/virtualenv/pull/508
 # Workaround to fix our issue: https://github.com/bokeh/bokeh/issues/378
-
-
 def getsitepackages():
     """Returns a list containing all global site-packages directories
     (and possibly site-python)."""
@@ -525,6 +524,8 @@ except ImportError as e:
 
 if bdist_wheel is not None:
     _cmdclass["bdist_wheel"] = bdist_wheel
+
+copy("LICENSE.txt", "bokeh/")
 
 setup(
     name='bokeh',
