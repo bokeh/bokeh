@@ -14,6 +14,8 @@ inject_css = (url) ->
 # Replace element with a view of model_id from document
 add_model_static = (element, model_id, doc) ->
   model = doc.get_model_by_id(model_id)
+  if not model?
+    throw new Error("Model #{model_id} was not in document #{doc}")
   view = new model.default_view({model : model})
   _.delay(-> $(element).replaceWith(view.$el))
 
