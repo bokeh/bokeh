@@ -160,29 +160,8 @@ class Grid extends HasParent
     return _.extend {}, super(), {
       x_range_name: "default"
       y_range_name: "default"
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'underlay'
-      band_fill_color: null
-      band_fill_alpha: 0
-      grid_line_color: '#cccccc'
-      grid_line_width: 1
-      grid_line_alpha: 1.0
-      grid_line_join: 'miter'
-      grid_line_cap: 'butt'
-      grid_line_dash: []
-      grid_line_dash_offset: 0
-      minor_grid_line_color: null
-      minor_grid_line_width: 1
-      minor_grid_line_alpha: 1.0
-      minor_grid_line_join: 'miter'
-      minor_grid_line_cap: 'butt'
-      minor_grid_line_dash: []
-      minor_grid_line_dash_offset: 0
     }
-
 
 module.exports =
   Model: Grid

@@ -16,6 +16,9 @@ class DatetimeAxis extends Axis.Model
     if not @get('formatter')?
       @set_obj('formatter', Collections('DatetimeTickFormatter').create())
 
+  display_defaults: () ->
+    return super()
+
 module.exports =
   Model: DatetimeAxis
   View: DatetimeAxisView

@@ -141,12 +141,6 @@ class Rect extends Glyph.Model
   distances: ['width', 'height']
   angles: ['angle']
 
-  display_defaults: ->
-    return _.extend {}, super(), {
-      angle: 0.0
-      dilate: false
-    }
-
 module.exports =
   Model: Rect
   View: RectView

@@ -97,10 +97,6 @@ class GeoJSPlot extends Plot.Model
   defaults: ->
     return _.extend {}, super(), {
       title: 'GeoJSPlot'
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       border_fill: "#fff",
     }
 

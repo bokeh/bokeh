@@ -8,6 +8,7 @@ properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
+theme = require "../../themes/default"
 
 class GlyphView extends ContinuumView
 
@@ -39,24 +40,24 @@ class GlyphView extends ContinuumView
           return
 
       @_render(ctx, indices, data)
-  
+
   _render_gl: (ctx, indices, mainglyph) ->
     # Get transform, and verify that its linear
     [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
-      return false 
-    
-    trans = 
-        width: ctx.glcanvas.width, height: ctx.glcanvas.height, 
-        dx: dx, dy: dy, sx: (dx[1]-dx[0]), sy: (dy[1]-dy[0])  
+      return false
+
+    trans =
+        width: ctx.glcanvas.width, height: ctx.glcanvas.height,
+        dx: dx, dy: dy, sx: (dx[1]-dx[0]), sy: (dy[1]-dy[0])
     @glglyph.draw(indices, mainglyph, trans)
     return true  # success
 
   map_data: () ->
-    
+
     # todo: if using gl, skip this (when is this called?)
-    
+
     # map all the coordinate fields
     for [xname, yname] in @model.coords
       sxname = "s#{xname}"
@@ -125,7 +126,7 @@ class GlyphView extends ContinuumView
     # finally, warm the visual properties cache
     for name, prop of @visuals
       prop.warm_cache(source)
-    
+
     if @glglyph?
       @glglyph.set_visuals_changed()
 
@@ -272,31 +273,6 @@ class Glyph extends HasParent
   # Any other data values go here
   fields: []
 
-  fill_defaults: {
-    fill_color: 'gray'
-    fill_alpha: 1.0
-  }
-
-  line_defaults: {
-    line_color: 'black'
-    line_width: 1
-    line_alpha: 1.0
-    line_join: 'miter'
-    line_cap: 'butt'
-    line_dash: []
-    line_dash_offset: 0
-  }
-
-  text_defaults: {
-    text_font: "helvetica"
-    text_font_size: "12pt"
-    text_font_style: "normal"
-    text_color: "#444444"
-    text_alpha: 1.0
-    text_align: "left"
-    text_baseline: "bottom"
-  }
-
   defaults: ->
     return _.extend {
       visible: true
@@ -306,9 +282,9 @@ class Glyph extends HasParent
     result = {}
     for prop in @visuals
       switch prop
-        when 'line' then defaults = @line_defaults
-        when 'fill' then defaults = @fill_defaults
-        when 'text' then defaults = @text_defaults
+        when 'line' then defaults = theme.line_defaults
+        when 'fill' then defaults = theme.fill_defaults
+        when 'text' then defaults = theme.text_defaults
         else
           logger.warn("unknown visual property type '#{prop}'")
           continue

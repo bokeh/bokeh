@@ -10,6 +10,7 @@ from ..mixins import FillProps, LineProps, TextProps
 from ..plot_object import PlotObject
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, NumberSpec, StringSpec)
+from .. import themes
 
 from .mappers import LinearColorMapper
 
@@ -19,7 +20,18 @@ class Glyph(PlotObject):
 
     """
 
-    visible = Bool(help="""
+    def __init__(self, **kwargs):
+        props = dict()
+        if hasattr(self.__class__, "line_alpha"):
+            props.update(themes.default['line_defaults'])
+        if hasattr(self.__class__, "fill_alpha"):
+            props.update(themes.default['fill_defaults'])
+        if hasattr(self.__class__, "text_alpha"):
+            props.update(themes.default['text_defaults'])
+        props.update(kwargs)
+        super(Glyph, self).__init__(**props)
+
+    visible = Bool(True, help="""
     Whether the glyph should render or not.
     """)
 

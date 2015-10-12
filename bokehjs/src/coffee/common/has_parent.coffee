@@ -1,5 +1,6 @@
 _ = require "underscore"
 HasProperties = require "./has_properties"
+theme = require "../themes/default"
 
 # hasparent
 # display_options can be passed down to children
@@ -52,6 +53,6 @@ class HasParent extends HasProperties
     return @_display_defaults[attr]
 
   display_defaults: () ->
-    return {}
+    return theme.attrs[@type] ? {}
 
 module.exports = HasParent

@@ -52,24 +52,11 @@ class BoxAnnotation extends HasParent
     return _.extend {}, super(), {
       x_range_name: "default"
       y_range_name: "default"
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'annotation'
       left_units: 'data'
       right_units: 'data'
       top_units: 'data'
       bottom_units: 'data'
-      fill_color: '#fff9ba'
-      fill_alpha: 0.4
-      line_color: '#cccccc'
-      line_width: 1
-      line_alpha: 0.3
-      line_join: 'miter'
-      line_cap: 'butt'
-      line_dash: []
-      line_dash_offset: 0
     }
 
 module.exports =
