@@ -14,7 +14,7 @@ from .models import (
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
-    WheelZoomTool, ColumnDataSource)
+    WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from .properties import ColorSpec, Datetime
 from .util.string import nice_join
@@ -95,22 +95,6 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
         result[argname] = kwargs.pop(prefix + argname, alpha)
 
     return result
-
-def _match_args(argnames, glyphclass, datasource, args, kwargs):
-    """ Processes the arguments and kwargs passed in to __call__ to line
-    them up with the argnames of the underlying Glyph
-
-    Returns
-    ---------
-    glyph_params : dict of params that should be in the glyphspec
-    """
-    # Go through the list of position and keyword arguments, matching up
-    # the full list of required glyph data attributes
-    attributes = dict(zip(argnames, args))
-    missing = set(argnames[len(args):]) - set(kwargs.keys())
-    if missing:
-        raise RuntimeError("Missing required glyph parameters: %s" % ", ".join(sorted(missing)))
-    kwargs.update(attributes)
 
 def _process_sequence_literals(glyphclass, kwargs, source):
     dataspecs = glyphclass.dataspecs_with_refs()
@@ -412,3 +396,97 @@ class _list_attr_splat(list):
             return dir(self[0])
         else:
             return dir(self)
+
+_arg_template = "    %s (%s) : %s (default %r)"
+_doc_template = """ Configure and add %s glyphs to this Figure.
+
+Args:
+%s
+
+Keyword Args:
+%s
+
+Other Parameters:
+    alpha (float) : an alias to set all alpha keyword args at once
+    color (Color) : an alias to set all color keyword args at once
+    data_source (ColumnDataSource) : a user supplied data source
+    legend (str) : a legend tag for this glyph
+    x_range_name (str) : name an extra range to use for mapping x-coordinates
+    y_range_name (str) : name an extra range to use for mapping y-coordinates
+    level (Enum) : control the render level order for this glyph
+
+It is also possible to set the color and alpha parameters of a "nonselection"
+glyph. To do so, prefix any visual parameter with ``'nonselection_'``.
+For example, pass ``nonselection_alpha`` or ``nonselection_fill_alpha``.
+
+Returns:
+    GlyphRenderer
+"""
+
+def _glyph_function(glyphclass, extra_docs=None):
+
+    def func(self, *args, **kwargs):
+
+        # pop off glyph *function* parameters that are not glyph class properties
+        legend_name = kwargs.pop("legend", None)
+        renderer_kws = _pop_renderer_args(kwargs)
+        source = renderer_kws['data_source']
+
+        # pop off all color values for the glyph or nonselection glyphs
+        glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
+        nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
+
+        # add the positional arguments as kwargs
+        attributes = dict(zip(glyphclass._args, args))
+        kwargs.update(attributes)
+
+        # if there are any hardcoded data sequences, move them to the data source and update
+        _process_sequence_literals(glyphclass, kwargs, source)
+        _process_sequence_literals(glyphclass, glyph_ca, source)
+        _process_sequence_literals(glyphclass, nsglyph_ca, source)
+
+        # create the default and nonselection glyphs
+        glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
+        nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
+
+        glyph_renderer = GlyphRenderer(glyph=glyph, nonselection_glyph=nsglyph, **renderer_kws)
+
+        if legend_name:
+            _update_legend(self, legend_name, glyph_renderer)
+
+        for tool in self.select(type=BoxSelectTool):
+            # this awkward syntax is needed to go through Property.__set__ and
+            # therefore trigger a change event. With improvements to Property
+            # we might be able to use a more natural append() or +=
+            tool.renderers = tool.renderers + [glyph_renderer]
+
+        # awkward syntax for same reason mentioned above
+        self.renderers = self.renderers + [glyph_renderer]
+        return glyph_renderer
+
+    func.__name__ = glyphclass.__view_model__
+
+    arglines = []
+    for arg in glyphclass._args:
+        spec = getattr(glyphclass, arg)
+        desc = " ".join(x.strip() for x in spec.__doc__.strip().split("\n\n")[0].split('\n'))
+        arglines.append(_arg_template % (arg, spec.__class__.__name__, desc, spec.default))
+
+    kwlines = []
+    kws = glyphclass.properties() - set(glyphclass._args)
+    for kw in sorted(kws):
+        if kw == "session": continue # TODO (bev) improve or remove
+        spec = getattr(glyphclass, kw)
+        if spec.__doc__:
+            typ = spec.__class__.__name__
+            desc = " ".join(x.strip() for x in spec.__doc__.strip().split("\n\n")[0].split('\n'))
+        else:
+            typ = str(spec)
+            desc = ""
+        kwlines.append(_arg_template % (kw, typ, desc, spec.default))
+
+    func.__doc__ = _doc_template  % (glyphclass.__name__, "\n".join(arglines), "\n".join(kwlines))
+
+    if extra_docs:
+        func.__doc__ += extra_docs
+    return func

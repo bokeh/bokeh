@@ -1,3 +1,14 @@
+{#
+Renders JavaScript code for "autoloading".
+
+The code automatically and asynchronously loads BokehJS (if necessary) and
+then replaces the AUTOLOAD_SERVER or AUTOLOAD_STATIC ``<script>`` tag that
+calls it with the rendered model.
+
+:param elementid: the unique id for the script tag
+:type elementid: str
+
+#}
 (function(global) {
   if (typeof (window._bokeh_onload_callbacks) === "undefined"){
     window._bokeh_onload_callbacks = [];

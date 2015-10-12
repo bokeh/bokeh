@@ -2,6 +2,7 @@ _ = require "underscore"
 rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
+{arrayMax} = require "../../common/mathutils"
 HasParent = require "../../common/has_parent"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
@@ -41,15 +42,21 @@ class GlyphView extends ContinuumView
       @_render(ctx, indices, data)
   
   _render_gl: (ctx, indices, mainglyph) ->
-    # Get transform, and verify that its linear
-    [dx, dy] = @renderer.map_to_screen([0, 1, 2], [0, 1, 2])
+    # Get transform
+    wx = wy = 1  # Weights to scale our vectors
+    [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
+    # Try again, but with weighs so we're looking at ~100 in screen coordinates
+    wx = 100 / Math.min(Math.max(Math.abs(dx[1] - dx[0]), 1e-12), 1e12)
+    wy = 100 / Math.min(Math.max(Math.abs(dy[1] - dy[0]), 1e-12), 1e12)
+    [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
+    # Test how linear it is
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
       return false 
     
     trans = 
         width: ctx.glcanvas.width, height: ctx.glcanvas.height, 
-        dx: dx, dy: dy, sx: (dx[1]-dx[0]), sy: (dy[1]-dy[0])  
+        dx: dx, dy: dy, sx: (dx[1]-dx[0])/wx, sy: (dy[1]-dy[0])/wy
     @glglyph.draw(indices, mainglyph, trans)
     return true  # success
 
@@ -108,7 +115,7 @@ class GlyphView extends ContinuumView
     # set any distances as well as their max
     for name, prop of @distances
       @[name] = prop.array(source)
-      @["max_#{name}"] = Math.max.apply(null, @[name])
+      @["max_#{name}"] = arrayMax(@[name])
 
     # set any misc fields
     for name, prop of @fields

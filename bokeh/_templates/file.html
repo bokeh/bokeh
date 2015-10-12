@@ -1,3 +1,22 @@
+{#
+Renders Bokeh models into a basic .html file.
+
+:param title: value for ``<title>`` tags
+:type title: str
+
+:param plot_resources: typically the output of RESOURCES
+:type plot_resources: str
+
+:param plot_script: typically the output of PLOT_SCRIPT
+:type plot_script: str
+
+:param plot_div: typically the output of PLOT_DIV
+:type plot_div: str
+
+Users can customize the file output by providing their own Jinja2 template
+that accepts these same parameters.
+
+#}
 <!DOCTYPE html>
 <html lang="en">
     <head>

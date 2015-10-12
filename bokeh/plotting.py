@@ -3,10 +3,11 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
-from . import _glyph_functions as gf
 from .models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
+from .models import glyphs, markers
 from .plotting_helpers import (
-    _list_attr_splat, _get_range, _get_axis_class, _get_num_minor_ticks, _process_tools_arg
+    _list_attr_splat, _get_range, _get_axis_class, _get_num_minor_ticks,
+    _process_tools_arg, _glyph_function
 )
 
 # extra imports -- just things to add to 'from plotting import *'
@@ -151,38 +152,426 @@ class Figure(Plot):
         """
         return _list_attr_splat(self.xgrid + self.ygrid)
 
-    annular_wedge     = gf.annular_wedge
-    annulus           = gf.annulus
-    arc               = gf.arc
-    asterisk          = gf.asterisk
-    bezier            = gf.bezier
-    circle            = gf.circle
-    circle_cross      = gf.circle_cross
-    circle_x          = gf.circle_x
-    cross             = gf.cross
-    diamond           = gf.diamond
-    diamond_cross     = gf.diamond_cross
-    image             = gf.image
-    image_rgba        = gf.image_rgba
-    image_url         = gf.image_url
-    inverted_triangle = gf.inverted_triangle
-    line              = gf.line
-    multi_line        = gf.multi_line
-    oval              = gf.oval
-    patch             = gf.patch
-    patches           = gf.patches
-    quad              = gf.quad
-    quadratic         = gf.quadratic
-    ray               = gf.ray
-    rect              = gf.rect
-    segment           = gf.segment
-    square            = gf.square
-    square_cross      = gf.square_cross
-    square_x          = gf.square_x
-    text              = gf.text
-    triangle          = gf.triangle
-    wedge             = gf.wedge
-    x                 = gf.x
+
+
+    annular_wedge = _glyph_function(glyphs.AnnularWedge)
+
+    annulus = _glyph_function(glyphs.Annulus, """
+Examples:
+
+        .. bokeh-plot::
+            :source-position: above
+
+            from bokeh.plotting import figure, output_file, show
+
+            plot = figure(width=300, height=300)
+            plot.annulus(x=[1, 2, 3], y=[1, 2, 3], color="#7FC97F",
+                         inner_radius=0.2, outer_radius=0.5)
+
+            show(plot)
+
+    """)
+
+    arc = _glyph_function(glyphs.Arc)
+
+    asterisk = _glyph_function(markers.Asterisk, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.asterisk(x=[1,2,3], y=[1,2,3], size=20, color="#F0027F")
+
+        show(plot)
+
+""")
+
+    bezier = _glyph_function(glyphs.Bezier)
+
+    circle = _glyph_function(markers.Circle, """
+.. note::
+    Only one of ``size`` or ``radius`` should be provided. Note that ``radius``
+    defaults to data units.
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle(x=[1, 2, 3], y=[1, 2, 3], size=20)
+
+        show(plot)
+
+""")
+
+    circle_cross = _glyph_function(markers.CircleCross, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_cross(x=[1,2,3], y=[4,5,6], size=20,
+                          color="#FB8072", fill_alpha=0.2, line_width=2)
+
+        show(plot)
+
+""")
+
+    circle_x = _glyph_function(markers.CircleX, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                     color="#DD1C77", fill_alpha=0.2)
+
+        show(plot)
+
+""")
+
+    cross = _glyph_function(markers.Cross, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                   color="#E6550D", line_width=2)
+
+        show(plot)
+
+""")
+
+    diamond = _glyph_function(markers.Diamond, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.diamond(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                    color="#1C9099", line_width=2)
+
+        show(plot)
+
+""")
+
+    diamond_cross = _glyph_function(markers.DiamondCross, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                           color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+""")
+
+    image = _glyph_function(glyphs.Image)
+
+    image_rgba = _glyph_function(glyphs.ImageRGBA, """
+.. note::
+    The ``image_rgba`` method accepts images as a two-dimensional array of RGBA
+    values (encoded as 32-bit integers).
+
+""")
+
+    image_url = _glyph_function(glyphs.ImageURL)
+
+    inverted_triangle = _glyph_function(markers.InvertedTriangle, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.inverted_triangle(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
+
+        show(plot)
+
+""")
+
+    line = _glyph_function(glyphs.Line, """
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(title="line", plot_width=300, plot_height=300)
+       p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
+
+       show(p)
+
+""")
+
+    multi_line = _glyph_function(glyphs.MultiLine, """
+.. note::
+    For this glyph, the data is not simply an array of scalars, it is an
+    "array of arrays".
+
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
+                    color=['red','green'])
+
+       show(p)
+
+""")
+
+    oval = _glyph_function(glyphs.Oval, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.oval(x=[1, 2, 3], y=[1, 2, 3], width=0.2, height=0.4,
+                  angle=-0.7, color="#1D91C0")
+
+        show(plot)
+
+""")
+
+    patch = _glyph_function(glyphs.Patch, """
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
+
+       show(p)
+
+""")
+
+    patches = _glyph_function(glyphs.Patches, """
+.. note::
+    For this glyph, the data is not simply an array of scalars, it is an
+    "array of arrays".
+
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
+                color=["#43a2ca", "#a8ddb5"])
+
+       show(p)
+
+""")
+
+    quad = _glyph_function(glyphs.Quad, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.quad(top=[2, 3, 4], bottom=[1, 2, 3], left=[1, 2, 3],
+            right=[1.2, 2.5, 3.7], color="#B3DE69")
+
+        show(plot)
+
+""")
+
+    quadratic = _glyph_function(glyphs.Quadratic)
+
+    ray = _glyph_function(glyphs.Ray, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.ray(x=[1, 2, 3], y=[1, 2, 3], length=45, angle=-0.7, color="#FB8072",
+                 line_width=2)
+
+        show(plot)
+
+""")
+
+    rect = _glyph_function(glyphs.Rect, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
+            width_units="screen", height_units="screen")
+
+        show(plot)
+
+""")
+
+    segment = _glyph_function(glyphs.Segment, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.segment(x0=[1, 2, 3], y0=[1, 2, 3], x1=[1, 2, 3],
+                    y1=[1.2, 2.5, 3.7], color="#F4A582",
+                    line_width=3)
+
+        show(plot)
+
+""")
+
+    square = _glyph_function(markers.Square, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
+
+        show(plot)
+
+""")
+
+    square_cross = _glyph_function(markers.SquareCross, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                         color="#7FC97F",fill_color=None, line_width=2)
+
+        show(plot)
+
+""")
+
+    square_x = _glyph_function(markers.SquareX, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                     color="#FDAE6B",fill_color=None, line_width=2)
+
+        show(plot)
+
+""")
+
+    text = _glyph_function(glyphs.Text, """
+.. note::
+    The location and angle of the text relative to the ``x``, ``y`` coordinates
+    is indicated by the alignment and baseline text properties.
+
+Returns:
+    GlyphRenderer
+
+""")
+
+    triangle = _glyph_function(markers.Triangle, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                     color="#99D594", line_width=2)
+
+        show(plot)
+
+""")
+
+    wedge = _glyph_function(glyphs.Wedge, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
+                     end_angle=4.1, radius_units="screen", color="#2b8cbe")
+
+        show(plot)
+
+""")
+
+    x = _glyph_function(markers.X, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.x(x=[1, 2, 3], y=[1, 2, 3], size=[10, 20, 25], color="#fa9fb5")
+
+        show(plot)
+
+""")
 
     def scatter(self, *args, **kwargs):
         """ Creates a scatter plot of the given x and y items.
