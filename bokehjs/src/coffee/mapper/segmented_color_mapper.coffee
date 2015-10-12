@@ -197,8 +197,12 @@ class SegmentedColorMapper extends HasProperties
       # We need to use the data to set the limits
       @segments = [_.min(data), _.max(data)]
 
+    # Equally spread the segment points throughout the color space
     if (@segments.length == 2) & (@palette.length > 2)
-      @segments = _.range(@segments[0], @segments[1], (@segments[1]-@segments[0])/(@palette.length - 1))
+      segments_0 = @segments[0]
+      segments_1 = @segments[1]
+      @segments = _.range(segments_0, segments_1, (segments_1 - segments_0)/(@palette.length - 1))
+      @segments[@palette.length - 1] = segments_1
 
     interp = @generate_linear_interpolation()
 
