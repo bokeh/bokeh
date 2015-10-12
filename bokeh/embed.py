@@ -434,12 +434,43 @@ def autoload_server(plot_object, session, public=False):
 
     return encode_utf8(tag)
 
+def _html_page_for_render_items(resources, docs_json, render_items, title):
+    bokeh_js = JS_RESOURCES.render(js_raw=resources.js_raw, js_files=resources.js_files)
+    bokeh_css = CSS_RESOURCES.render(css_raw=resources.css_raw, css_files=resources.css_files)
+
+    render_items_without_div = []
+    for r in render_items:
+        copy = r.copy()
+        del copy['div']
+        render_items_without_div.append(copy)
+
+    script = PLOT_SCRIPT.render(
+        plot_js=_wrap_in_function(
+            DOC_JS.render(
+                custom_models={}, # TODO
+                docs_json=serialize_json(docs_json),
+                render_items=serialize_json(render_items_without_div)
+            )
+        )
+    )
+
+    template_variables = {
+        'title': title,
+        'bokeh_js': bokeh_js,
+        'bokeh_css': bokeh_css,
+        'plot_script': script,
+        'plot_div': "\n".join(d['div'] for d in render_items)
+    }
+
+    html = FILE.render(template_variables)
+    return encode_utf8(html)
 
 # TODO (havocp) this is the new file_html but for now it
 # doesn't support some things file_html does so keeping it
 # separate just until we clean up the code above.
-def html_page_for_models(plot_objects, resources, title):
+def static_html_page_for_models(plot_objects, resources, title):
     from .document import Document
+
     input_type_valid = False
 
     # Check for single item
@@ -485,36 +516,39 @@ def html_page_for_models(plot_objects, resources, title):
             'modelid' : modelid
             })
 
-    bokeh_js = JS_RESOURCES.render(js_raw=resources.js_raw, js_files=resources.js_files)
-    bokeh_css = CSS_RESOURCES.render(css_raw=resources.css_raw, css_files=resources.css_files)
-
     docs_json = {}
     for k, v in docs_by_id.items():
         docs_json[k] = v.to_json()
 
-    render_items_without_div = []
-    for r in render_items:
-        copy = r.copy()
-        del copy['div']
-        render_items_without_div.append(copy)
+    return _html_page_for_render_items(resources, docs_json, render_items, title)
 
-    script = PLOT_SCRIPT.render(
-        plot_js=_wrap_in_function(
-            DOC_JS.render(
-                custom_models={}, # TODO
-                docs_json=serialize_json(docs_json),
-                render_items=serialize_json(render_items_without_div)
-            )
+def server_html_page_for_models(session_id, model_ids, resources, title):
+    render_items = []
+    for modelid in model_ids:
+        elementid = str(uuid.uuid4())
+
+        div = PLOT_DIV.render(
+            elementid=elementid
         )
+        render_items.append({
+            'sessionid' : session_id,
+            'elementid' : elementid,
+            'div' : div,
+            # if modelid is None, that means the entire document
+            'modelid' : modelid
+            })
+
+    return _html_page_for_render_items(resources, {}, render_items, title)
+
+def server_html_page_for_session(session_id, resources, title):
+    elementid = str(uuid.uuid4())
+    div = PLOT_DIV.render(
+        elementid=elementid
     )
+    render_items = [{
+        'sessionid' : session_id,
+        'elementid' : elementid,
+        'div' : div
+    }]
 
-    template_variables = {
-        'title': title,
-        'bokeh_js': bokeh_js,
-        'bokeh_css': bokeh_css,
-        'plot_script': script,
-        'plot_div': "\n".join(d['div'] for d in render_items)
-    }
-
-    html = FILE.render(template_variables)
-    return encode_utf8(html)
+    return _html_page_for_render_items(resources, {}, render_items, title)

@@ -43,8 +43,12 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring):
             _update_legend(plot, legend_name, glyph_renderer)
 
         for tool in plot.select(type=BoxSelectTool):
+            # this awkward syntax is needed to go through Property.__set__ and
+            # therefore trigger a change event. With improvements to Property
+            # we might be able to use a more natural append() or +=
             tool.renderers = tool.renderers + [glyph_renderer]
 
+        # awkward syntax for same reason mentioned above
         plot.renderers = plot.renderers + [glyph_renderer]
         return glyph_renderer
 

@@ -7,6 +7,8 @@ import logging
 log = logging.getLogger(__name__)
 
 def main():
+    # TODO make log level a command line option
+    logging.basicConfig(level=logging.DEBUG)
     # TODO we need to fill in Application with handlers,
     # using command line options or config files
     application = Application()
@@ -17,5 +19,4 @@ def main():
     server.start()
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
     main()

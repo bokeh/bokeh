@@ -147,6 +147,9 @@ def _update_legend(plot, legend_name, glyph_renderer):
     legends = plot.select(type=Legend)
     if not legends:
         legend = Legend(plot=plot)
+        # this awkward syntax is needed to go through Property.__set__ and
+        # therefore trigger a change event. With improvements to Property
+        # we might be able to use a more natural append() or +=
         plot.renderers = plot.renderers + [legend]
     elif len(legends) == 1:
         legend = legends[0]
