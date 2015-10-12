@@ -54,7 +54,7 @@ def _get_cdn_urls(components, version=None, minified=True):
         return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
 
     result = {
-        'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
+        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
         'messages' : [],
     }
 
