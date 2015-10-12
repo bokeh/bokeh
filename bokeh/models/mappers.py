@@ -107,12 +107,10 @@ class SegmentedColorMapper(ColorMapper):
         if palette is not None: kwargs['palette'] = palette
         if segments is not None: kwargs['segments'] = segments
 
-        if len(alpha) == 1:
-            alpha = alpha * len(palette)
-        else:
-            if len(alpha) != len(palette):
-                # Got an error and I am not sure how to proceed
-                error('The length of alpha values does not match the number of defined breaks in the palette.')
+        if not isinstance(alpha, list):
+            # Convert the scalar object to a vector so that the Seq property 
+            # type can be used.
+            alpha = [alpha] * len(palette)
 
         kwargs['alpha'] = alpha
 
