@@ -191,12 +191,4 @@ class SegmentedColorMapper(ColorMapper):
 
         if segments is not None: kwargs['segments'] = segments
 
-        print('Palette:')
-        print(palette)
-        print('Alpha:')
-        print(alpha)
-        if segments is not None:
-            print('Segments:')
-            print(segments)
-
         super(SegmentedColorMapper, self).__init__(**kwargs)
