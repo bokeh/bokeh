@@ -41,9 +41,9 @@ class SegmentedColorMapper extends HasProperties
     alphas = new Uint8ClampedArray(colors.length)
 
     for i in _.range(colors.length)
-      reds[i] = (colors[i] & 0xff)
+      reds[i] = (colors[i] & 0xff0000) >> 16
       greens[i] = (colors[i] & 0xff00) >> 8
-      blues[i] = (colors[i] & 0xff0000) >> 16
+      blues[i] = (colors[i] & 0xff)
       alphas[i] = @alpha[i]
 
     # Determine the min and the max values of the breaks 
@@ -78,10 +78,10 @@ class SegmentedColorMapper extends HasProperties
         )
         if(ind != -1)
           color = colors[ind]
-          red = (color & 0xff)
+          red = (color & 0xff0000) >> 16
           green = (color & 0xff00) >> 8
-          blue = (color & 0xff0000) >> 16
-          alpha = 255
+          blue = (color & 0xff)
+          alpha = alphas[i]
         else
           # We do not equal one of the breaks, therefore we must 
           # interpolate now to get the right color
@@ -115,7 +115,7 @@ class SegmentedColorMapper extends HasProperties
           alpha = ((alpha_stop - alpha_start)*frac_shift) + alpha_start
 
         # Combine the RGBA values correctly for display
-        color = (alpha << 24) | (red << 16) | (green << 8) | (blue)
+        color = (alpha << 24) | (blue << 16) | (green << 8) | (red)
 
         return(color)
     else
@@ -143,9 +143,9 @@ class SegmentedColorMapper extends HasProperties
         )
         if(ind != -1)
           color = colors[ind]
-          red = (color & 0xff)
+          red = (color & 0xff0000) >> 16
           green = (color & 0xff00) >> 8
-          blue = (color & 0xff0000) >> 16
+          blue = (color & 0xff)
           alpha = 255
         else
           # We do not equal one of the breaks, therefore we must 
