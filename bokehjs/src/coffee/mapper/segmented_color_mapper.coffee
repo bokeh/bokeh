@@ -5,10 +5,11 @@ class SegmentedColorMapper extends HasProperties
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @palette       = @_build_palette(@get('palette'))
-    @alpha         = @_rescale_alpha(@get('alpha'))
-    @little_endian = @_is_little_endian()
-    @segments      = null
+    @palette             = @_build_palette(@get('palette'))
+    @alpha               = @_rescale_alpha(@get('alpha'))
+    @interpolationMethod = @get('interpolationMethod')
+    @little_endian       = @_is_little_endian()
+    @segments            = null
     if @get('segments')?
       @segments = @get('segments')
 
@@ -53,7 +54,7 @@ class SegmentedColorMapper extends HasProperties
     # Initialize the return variable
     ret = null
 
-    if @little_endian
+    intermediateReturn = (interpolation_function, endian_combining_function) ->
       ret = (value) -> 
         # See if we are above the highest or lower than the lowest?
         # If we are greater than or less than, then the result will
@@ -72,117 +73,91 @@ class SegmentedColorMapper extends HasProperties
         green = null
         alpha = null
 
-        # See if we exaclty equal a break, if we do then return the associated color
-        ind = _.findIndex(breaks, (x) -> 
-          return x == value
-        )
-        if(ind != -1)
-          color = colors[ind]
-          red = (color & 0xff0000) >> 16
-          green = (color & 0xff00) >> 8
-          blue = (color & 0xff)
-          alpha = alphas[i]
-        else
-          # We do not equal one of the breaks, therefore we must 
-          # interpolate now to get the right color
+        [red, green, blue, alpha] = interpolation_function(value, breaks, reds, greens, blues, alphas)
 
-          # Determine which two breaks we are inbetween
-          ind = _.findIndex(breaks, (x) ->
-            return value < x
-          )
-
-          break_start = breaks[ind-1]
-          break_stop = breaks[ind]
-
-          # Determine how far inbetween
-          frac_shift = (value - break_start) / (break_stop - break_start)
-
-          # Interpolate between the different colors by the correct amount
-          red_start = reds[ind-1]
-          red_stop = reds[ind]
-          red = ((red_stop - red_start)*frac_shift) + red_start
-
-          green_start = greens[ind-1]
-          green_stop = greens[ind]
-          green = ((green_stop - green_start)*frac_shift) + green_start
-
-          blue_start = blues[ind-1]
-          blue_stop = blues[ind]
-          blue = ((blue_stop - blue_start)*frac_shift) + blue_start
-
-          alpha_start = alphas[ind-1]
-          alpha_stop = alphas[ind]
-          alpha = ((alpha_stop - alpha_start)*frac_shift) + alpha_start
-
-        # Combine the RGBA values correctly for display
-        color = (alpha << 24) | (blue << 16) | (green << 8) | (red)
+        color = endian_combining_function(red, blue, green, alpha)
 
         return(color)
+
+    color_combination_little_endian = (red, blue, green, alpha) ->
+      return (alpha << 24) | (blue << 16) | (green << 8) | (red)
+
+    color_combination_big_endian = (red, blue, green, alpha) ->
+      return (blue << 24) | (green << 16) | (red << 8) | (alpha)
+
+    interpolator_linear = (value, breaks, reds, greens, blues, alphas) ->
+      # See if we exaclty equal a break, if we do then return the associated color
+      ind = _.findIndex(breaks, (x) -> 
+        return x == value
+      )
+      if(ind != -1)
+        color = colors[ind]
+        red = reds[ind]
+        green = greens[ind]
+        blue = blues[ind]
+        alpha = alphas[ind]
+      else
+        # We do not equal one of the breaks, therefore we must 
+        # interpolate now to get the right color
+
+        # Determine which two breaks we are inbetween
+        ind = _.findIndex(breaks, (x) ->
+          return value < x
+        )
+
+        break_start = breaks[ind-1]
+        break_stop = breaks[ind]
+
+        # Determine how far inbetween
+        frac_shift = (value - break_start) / (break_stop - break_start)
+
+        # Interpolate between the different colors by the correct amount
+        red_start = reds[ind-1]
+        red_stop = reds[ind]
+        red = ((red_stop - red_start)*frac_shift) + red_start
+
+        green_start = greens[ind-1]
+        green_stop = greens[ind]
+        green = ((green_stop - green_start)*frac_shift) + green_start
+
+        blue_start = blues[ind-1]
+        blue_stop = blues[ind]
+        blue = ((blue_stop - blue_start)*frac_shift) + blue_start
+
+        alpha_start = alphas[ind-1]
+        alpha_stop = alphas[ind]
+        alpha = ((alpha_stop - alpha_start)*frac_shift) + alpha_start
+      return([red, green, blue, alpha])
+
+    interpolator_step = (value, breaks, reds, greens, blues, alphas) ->
+      # See if we exaclty equal a break, if we do then return the associated color
+      ind = _.findLastIndex(breaks, (x) -> 
+        return value >= x
+      )
+
+      red = reds[ind]
+      green = greens[ind]
+      blue = blues[ind]
+      alpha = alphas[ind]
+
+      return([red, green, blue, alpha])
+
+    endian_combiner = null
+    interpolator = null
+
+    if @little_endian
+      endian_combiner = color_combination_little_endian
     else
-       ret = (value) -> 
-        # See if we are above the highest or lower than the lowest?
-        # If we are greater than or less than, then the result will
-        # be to have all values greater or less than to be colored
-        # with either the highest or the lowest color, respectively.
-        # (Jezz I am wordy)
-        if(value > breaks_max)
-          value = breaks_max
+      endian_combiner = color_combination_big_endian
 
-        if(value < breaks_min)
-          value = breaks_min
+    if @interpolationMethod == 'linear'
+      interpolator = interpolator_linear
 
-        # Initialize the color variable
-        red = null
-        blue = null
-        green = null
-        alpha = null
+    if @interpolationMethod == 'step'
+      interpolator = interpolator_step
 
-        # See if we exaclty equal a break, if we do then return the associated color
-        ind = _.findIndex(breaks, (x) -> 
-          return x == value
-        )
-        if(ind != -1)
-          color = colors[ind]
-          red = (color & 0xff0000) >> 16
-          green = (color & 0xff00) >> 8
-          blue = (color & 0xff)
-          alpha = 255
-        else
-          # We do not equal one of the breaks, therefore we must 
-          # interpolate now to get the right color
-
-          # Determine which two breaks we are inbetween
-          ind = _.findIndex(breaks, (x) ->
-            return value < x
-          )
-
-          break_start = breaks[ind-1]
-          break_stop = breaks[ind]
-
-          # Determine how far inbetween
-          frac_shift = (value - break_start) / (break_stop - break_start)
-
-          # Interpolate between the different colors by the correct amount
-          red_start = reds[ind-1]
-          red_stop = reds[ind]
-          red = ((red_stop - red_start)*frac_shift) + red_start
-
-          green_start = greens[ind-1]
-          green_stop = greens[ind]
-          green = ((green_stop - green_start)*frac_shift) + green_start
-
-          blue_start = blues[ind-1]
-          blue_stop = blues[ind]
-          blue = ((blue_stop - blue_start)*frac_shift) + blue_start
-
-          alpha_start = alphas[ind-1]
-          alpha_stop = alphas[ind]
-          alpha = ((alpha_stop - alpha_start)*frac_shift) + alpha_start
-
-        # Combine the RGBA values correctly for display
-        color = (blue << 24) | (green << 16) | (red << 8) | (alpha)
-
-        return(color)
+    if (endian_combiner != null) & (interpolator != null)
+      ret = intermediateReturn(interpolator, endian_combiner)
 
     return(ret)
 

@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import abstract
-from ..properties import Float, Color, Enum, Seq
+from ..properties import Float, Color, Enum, Seq, String
 from ..enums import Palette
 from .. import colors as bkColors
 from .. import palettes as bkPalettes
@@ -104,7 +104,14 @@ class SegmentedColorMapper(ColorMapper):
     """
     )
 
-    def __init__(self, palette=None, segments=None, alpha=1, **kwargs):
+    interpolationMethod = String(default='linear', help="""
+    A string which describes the method of interpolation.  The default, 'linear',
+    will result in a gradual transition from one color to the next.  Other
+    options are 'step' which will result in a single color for all values 
+    which fall between the segment markers (an effective floor function) 
+    """)
+
+    def __init__(self, palette=None, segments=None, alpha=1, interpolationMethod='linear', **kwargs):
         if palette is not None: 
             # Lets do some work on the Palette to ensure that only hex values
             # or integers make it to the Javascipt.  The interpolation routines
@@ -190,5 +197,7 @@ class SegmentedColorMapper(ColorMapper):
         kwargs['alpha'] = alpha
 
         if segments is not None: kwargs['segments'] = segments
+
+        kwargs['interpolationMethod'] = interpolationMethod
 
         super(SegmentedColorMapper, self).__init__(**kwargs)
