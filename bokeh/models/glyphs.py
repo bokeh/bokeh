@@ -11,7 +11,7 @@ from ..plot_object import PlotObject
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, NumberSpec, StringSpec)
 
-from .mappers import LinearColorMapper, ColorMapper, SegmentedColorMapper
+from .mappers import LinearColorMapper, ColorMapper
 
 @abstract
 class Glyph(PlotObject):

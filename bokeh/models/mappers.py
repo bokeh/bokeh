@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import abstract
-from ..properties import Float, Color, Enum, Seq, Dict
+from ..properties import Float, Color, Enum, Seq
 from ..enums import Palette
 from .. import palettes
 
