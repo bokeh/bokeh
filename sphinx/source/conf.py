@@ -339,5 +339,6 @@ texinfo_documents = [
 #texinfo_show_urls = 'footnote'
 
 # intersphinx settings
-intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None),
-                       'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None)}
+intersphinx_mapping = {'python': ('https://docs.python.org/', None),
+                       'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
+                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
