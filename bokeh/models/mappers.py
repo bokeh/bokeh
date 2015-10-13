@@ -201,3 +201,108 @@ class SegmentedColorMapper(ColorMapper):
         kwargs['interpolationMethod'] = interpolationMethod
 
         super(SegmentedColorMapper, self).__init__(**kwargs)
+
+
+class SegmentedColorMapperTwo(SegmentedColorMapper):
+
+    low = Float(help="""
+    The minimum value of the range to map into the palette. Values below
+    this are clamped to ``low``.
+    """)
+
+    high = Float(help="""
+    The maximum value of the range to map into the palette. Values above
+    this are clamped to ``high``.
+    """)
+
+    def __init__(self, palette=None, low = None, high = None, alpha=1, **kwargs):
+
+        palette = expandPalette(palette)
+
+        if not isinstance(palette, list):
+            ##### THROW ERROR: 
+            pass
+
+        palette.extend(palette[len(palette) - 1])
+        kwargs['palette'] = palette
+        kwargs['interpolationMethod'] = 'step'
+        kwargs['alpha'] = alpha
+        kwargs['low'] = low
+        kwargs['high'] = high
+
+        super(SegmentedColorMapperTwo, self).__init__(**kwargs)
+
+# Helper function to expand the palette.  Originally in the constructor of the
+# SegmentedColorMapper, I pulled this out so the code could be reused in the 
+# LinearColorMapper front end for SegmentedColorMapper.
+def expandPalette(palette = None):
+    if palette is not None: 
+        # Lets do some work on the Palette to ensure that only hex values
+        # or integers make it to the Javascipt.  The interpolation routines
+        # require that we have the actual value of the colors.  Although 
+        # it seems possible to convert named colors to individual colors
+        # in the browser, it seemed hackish and non-trustworthy.  Lets
+        # just do it here with some logic and always pass the JS a list 
+        # of hex codes.
+
+        # Define a dict to hold any alpha values that we might extract
+        # from the different colors in the passed palette.  These can 
+        # come from a 4-tuple or a 
+        alpha_hold = {}
+
+        # Check to see if this is a single string.  If this is the case,
+        # this is likely a named preknown colormap.
+        if not isinstance(palette, list):
+            # We have a single item which has been passed.
+            if not isinstance(palette, str):
+                ##### THROW ERROR: palette must be the name of a known palette if it is passed as a scalar
+                pass
+            else:
+                # This is a string, lets see if we can validate the name
+                if any([x == palette for x in dir(bkPalettes)]):
+                    palette = eval('bkPalettes.' + palette)
+                else:
+                    pass
+                    ##### THROW ERROR: The named palette does not seem to exist
+
+        else:
+            # This is a list object.  Lets itterate over each element of it
+            # and try to make a good list of hex numbers
+
+            # Create a temporary placeholder to store the converted colors
+            tmpPalette = [None] * len(palette)
+
+            # Loop over each of the palette entries and attempt to convert the entry
+            # into a hex number which can be stored in the tmpPalette variable.
+            for i in range(len(palette)):
+                if type(palette[i]) == str:
+                    if any([x == palette[i] for x in dir(bkColors)]):
+                        tmpPalette[i] = eval('bkColors.' + palette[i] + '.to_hex()')
+                    if palette[i][0] == '#':
+                        if len(palette[i]) >= 7:
+                            tmpPalette[i] = palette[i][0:7]
+                        if len(palette[i]) == 9:
+                            alpha_hold[i] = int(palette[i][7:9], 16)/255
+
+                if type(palette[i]) == int:
+                    tmpPalette[i] = '#' + format(palette[i] & 0xFFFFFFFF, '06X')
+
+                if type(palette[i]).__name__ == 'NamedColor':
+                    tmpPalette[i] = palette[i].to_hex()
+
+                if type(palette[i]) == tuple:
+                    if len(palette[i]) >= 3:
+                        tmpPalette[i] = '#' + format(palette[i][0], '02X') + format(palette[i][1], '02X') + format(palette[i][2], '02X')
+                    if len(palette[i]) == 4:
+                        alpha_hold[i] = palette[i][3]
+
+            # Check to ensure that all of the colors were able to be converted
+            none_indexs = [i for i in range(len(tmpPalette)) if tmpPalette[i] == None]
+            if len(none_indexs) > 0:
+                ##### THROW ERROR: Some colors specified in the palette were unable to be converted into well formatted hex strings [indexs (list the indexs)]
+                pass
+
+            # Make the data stored in tmpPalette authorative
+            palette = tmpPalette
+    return(palette)
+

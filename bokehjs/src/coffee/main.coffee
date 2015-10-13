@@ -54,6 +54,7 @@ Bokeh.CategoricalMapper = require("./mapper/categorical_mapper")
 Bokeh.GridMapper        = require("./mapper/grid_mapper")
 Bokeh.LinearColorMapper = require("./mapper/linear_color_mapper")
 Bokeh.SegmentedColorMapper = require("./mapper/segmented_color_mapper")
+Bokeh.SegmentedColorMapperTwo = require("./mapper/segmented_color_mapper_two")
 
 # palettes
 Bokeh.Palettes = require("./palettes/palettes")
