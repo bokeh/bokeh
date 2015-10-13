@@ -32,8 +32,8 @@ class Stat(HasProps):
     # inputs
     column = ColumnLabel(help="""A column to use for the stat calculation. Required
         when providing a ColumnDataSource as input.""")
-    source = ColumnDataSource(help="""One option for providing the data source for
-        stat calculation.""")
+    source = Instance(ColumnDataSource, help="""One option for providing the data
+        source for stat calculation.""")
     values = EitherColumn(Column(Float), Column(Int), Column(String),
                   Column(Date), Column(Datetime), Column(Bool), default=None, help="""
                   Second option for providing values for stat calculation is by
