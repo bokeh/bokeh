@@ -847,7 +847,7 @@ class Text(Glyph):
 
 class TileLayer(Glyph):
     
-    _args = ('url', 'tile_provider', 'tile_size', 'min_zoom', 'max_zoom')
+    _args = ('url', 'tile_provider', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset')
 
     url = String("url", help="""
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
@@ -868,6 +868,15 @@ class TileLayer(Glyph):
     max_zoom = Int(default=30, help="""
     the maximum zoom level for the tile layer. This is the most "zoomed-in" level.
     """)
+
+    x_origin_offset = Float(default=20037508.34, help="""
+    x offset in plot coordinates
+    """)
+
+    y_origin_offset = Float(default=20037508.34, help="""
+    y offset in plot coordinates
+    """)
+
 
 
 class Wedge(Glyph):

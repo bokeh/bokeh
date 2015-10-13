@@ -63,10 +63,12 @@ class Helpers
 
 class TileProvider
 
-  constructor: (@url, @tile_size=256, @extra_url_vars={}, @origin=[0,0], @max_zoom=30, @min_zoom=0) ->
+  constructor: (@url, @tile_size=256, @x_origin_offset=20037508.34, @y_origin_offset=20037508.34) ->
     @utils = new ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}
+    @max_zoom = 0
+    @min_zoom = 30
 
   update: () ->
     logger.info("Tile Cache Count: " + Object.keys(@tiles).length.toString())
@@ -227,14 +229,14 @@ class MercatorTileProvider extends TileProvider
 
   pixels_to_meters: (px, py, level) ->
     res = @get_resolution(level)
-    mx = px * res - @origin_shift
-    my = py * res - @origin_shift
+    mx = px * res - @x_origin_offset
+    my = py * res - @y_origin_offset
     return [mx, my]
 
   meters_to_pixels: (mx, my, level) ->
     res = @get_resolution(level)
-    px = (mx + @origin_shift) / res
-    py = (my + @origin_shift) / res
+    px = (mx + @x_origin_offset) / res
+    py = (my + @y_origin_offset) / res
     return [px, py]
 
   pixels_to_tile: (px, py) ->
@@ -407,16 +409,16 @@ class TileLayerView extends Glyph.View
     @x_range.set('end', new_extent[2])
     @y_range.set('end', new_extent[3])
 
-  _create_tile_provider: (provider_type, service_url, tile_size) ->
-    return new QUADKEYTileProvider(service_url, tile_size) if(provider_type.toLowerCase() == 'quadkeytileprovider')
-    return new TMSTileProvider(service_url, tile_size) if(provider_type.toLowerCase() == 'tmstileprovider')
-    return new WMTSTileProvider(service_url, tile_size)
+  _create_tile_provider: (provider_type, service_url, tile_size, x_origin_offset, y_origin_offset) ->
+    return new QUADKEYTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset) if(provider_type.toLowerCase() == 'quadkeytileprovider')
+    return new TMSTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset) if(provider_type.toLowerCase() == 'tmstileprovider')
+    return new WMTSTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset)
 
   _index_data: () ->
     @_xy_index()
 
   _set_data: () ->
-    @tile_provider = @_create_tile_provider(@mget('tile_provider'), @mget('url'), @mget('tile_size'))
+    @tile_provider = @_create_tile_provider(@mget('tile_provider'), @mget('url'), @mget('tile_size'), @mget('x_origin_offset'), @mget('y_origin_offset'))
     @pool = new ImagePool()
     @map_plot = @renderer.plot_view.model
     @map_canvas = @renderer.plot_view.canvas_view.ctx
@@ -608,8 +610,8 @@ class TileLayer extends Glyph.Model
       initial_extent: [-180, -90, 180, 90]
       min_zoom:0
       max_zoom:30
-      origin_x:0
-      origin_y:0
+      x_origin_offset:20037508.34
+      y_origin_offset:20037508.34
       extra_url_vars:{}
     }
 

@@ -77,6 +77,11 @@ describe "Tile Providers", ->
       xyz = provider.key_to_tile_xyz('1:1:1')
       expect(xyz).to.be.eql([1,1,1])
 
+    it "should successfully set x_origin_offset and y_origin_offset", ->
+      offset_provider = new Geo.TileProvider(url, 256, x_origin_offset=0, y_origin_offset=0)
+      expect(offset_provider.x_origin_offset).to.be.equal(0)
+      expect(offset_provider.y_origin_offset).to.be.equal(0)
+
     it "should prune tiles", ->
 
     it "should return tiles in ascending distance from center tile", ->
@@ -119,6 +124,11 @@ describe "Tile Providers", ->
       expect(bounds[1]).to.be.closeTo(3483082.504898913, tol)
       expect(bounds[2]).to.be.closeTo(-10018754.171394622, tol)
       expect(bounds[3]).to.be.closeTo(3502650.384139918, tol)
+
+    it "should account of x_origin_offset and y_origin_offset", ->
+      offset_provider = new Geo.TMSTileProvider(url, 256, 0, 0)
+      bounds = offset_provider.get_tile_meter_bounds(0, 0, 16)
+      expect(bounds).to.include(0)
 
     it "should get tile bounds in lat/lng", ->
       [x, y, z] = provider.wmts_to_tms(511, 845, 11)
@@ -177,7 +187,7 @@ describe "Tile Providers", ->
       expect(provider.pixels_to_tile(0, 0)).to.be.eql([0,0])
 
     it "should convert pixel x/y to meters x/y", ->
-      expect(provider.pixels_to_meters(0, 0, 0)).to.be.eql([-20037508.342789244, -20037508.342789244])
+      expect(provider.pixels_to_meters(0, 0, 0)).to.be.eql([-20037508.34, -20037508.34])
 
     it "should get tile bounds in meters", ->
       bounds = provider.get_tile_meter_bounds(511, 1202, 11)
