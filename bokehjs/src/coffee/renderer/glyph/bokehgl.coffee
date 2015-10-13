@@ -286,9 +286,9 @@ class LineGLGlyph extends BaseGLGlyph
           
           // Correct angles for aspect ratio
           vec2 av;
-          av = vec2(1.0, tan(a_angles.x)) * abs_scale_aspect;
+          av = vec2(1.0, tan(a_angles.x)) / abs_scale_aspect;
           v_angles.x = atan(av.y, av.x);
-          av = vec2(1.0, tan(a_angles.y)) * abs_scale_aspect;
+          av = vec2(1.0, tan(a_angles.y)) / abs_scale_aspect;
           v_angles.y = atan(av.y, av.x);
           
           // Thickness below 1 pixel are represented using a 1 pixel thickness
@@ -318,7 +318,7 @@ class LineGLGlyph extends BaseGLGlyph
           // This is a join
           // ----------------------------------------------------------------
           if( t1 != t2 ) {
-              float angle = v_angles.x; //atan (t1.x*t2.y-t1.y*t2.x, t1.x*t2.x+t1.y*t2.y);  // TODO: do we even need the angles then?
+              float angle = atan (t1.x*t2.y-t1.y*t2.x, t1.x*t2.x+t1.y*t2.y);  // Angle needs recalculation for some reason
               vec2 t  = normalize(t1+t2);
               vec2 o  = vec2( + t.y, - t.x);
       
@@ -444,9 +444,9 @@ class LineGLGlyph extends BaseGLGlyph
     
     FRAG_: """
       precision mediump float;
-      
+      uniform vec4  u_color;
       void main () {
-        gl_FragColor = vec4(0.0, 0.5, 0.0, 1.0);
+        gl_FragColor = u_color;
       }
     
     """
@@ -783,7 +783,7 @@ class LineGLGlyph extends BaseGLGlyph
       sx /= scale_length; sy /= scale_length
       
       # Do we need to re-calculate segment data and cumsum?
-      if Math.abs(@_scale_aspect - (sy / sx)) > (1e-3 * @_scale_aspect)
+      if Math.abs(@_scale_aspect - (sy / sx)) > Math.abs(1e-3 * @_scale_aspect)
         console.log('recalculating line segments')
         @_update_scale(sx, sy)
         @_scale_aspect = sy / sx
@@ -949,13 +949,22 @@ class LineGLGlyph extends BaseGLGlyph
       # Order of indices is such that drawing as line_strip reveals the line skeleton
       # Might have implications on culling, if we ever turn that on. 
       # Order in paper was: 0 1 2 1 2 3
-      for i in [0...n]
-        I[i*6+0] = 0 + 4*i
-        I[i*6+1] = 1 + 4*i
-        I[i*6+2] = 3 + 4*i
-        I[i*6+3] = 2 + 4*i
-        I[i*6+4] = 0 + 4*i
-        I[i*6+5] = 3 + 4*i     
+      if 0
+        for i in [0...n]
+          I[i*6+0] = 0 + 4*i
+          I[i*6+1] = 1 + 4*i
+          I[i*6+2] = 2 + 4*i
+          I[i*6+3] = 1 + 4*i
+          I[i*6+4] = 2 + 4*i
+          I[i*6+5] = 3 + 4*i  
+      else
+        for i in [0...n]
+          I[i*6+0] = 0 + 4*i
+          I[i*6+1] = 1 + 4*i
+          I[i*6+2] = 3 + 4*i
+          I[i*6+3] = 2 + 4*i
+          I[i*6+4] = 0 + 4*i
+          I[i*6+5] = 3 + 4*i     
 
     _update_scale: (sx, sy) ->
       n = @nvertices
