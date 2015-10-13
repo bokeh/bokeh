@@ -18,18 +18,16 @@ types on top of it.
 
 from __future__ import absolute_import
 
-from ..models.sources import ColumnDataSource
-from ..models.ranges import Range, Range1d, FactorRange
-from ..properties import (Color, HasProps, Instance, Seq, List, String, Property,
-                          Either, Dict)
-
-from bokeh.charts import DEFAULT_PALETTE
-from .utils import collect_attribute_columns
+from ._attributes import AttrSpec, ColorAttr, GroupAttr
 from ._chart import Chart
 from ._data_source import ChartDataSource
-from ._properties import Dimension, ColumnLabel
-from ._attributes import AttrSpec, ColorAttr, GroupAttr
 from ._models import CompositeGlyph
+from ._properties import Dimension, ColumnLabel
+from .utils import collect_attribute_columns
+from ..models.ranges import Range, Range1d, FactorRange
+from ..models.sources import ColumnDataSource
+from ..properties import (HasProps, Instance, List, String, Property,
+                          Either, Dict)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -37,7 +35,11 @@ from ._models import CompositeGlyph
 
 
 def create_and_build(builder_class, *data, **kws):
+    """A factory function for handling Chart and Builder generation.
 
+    Returns:
+        :class:`Chart`
+    """
     if isinstance(builder_class.dimensions, Property):
         raise NotImplementedError('Each builder must specify its dimensions.')
 
@@ -92,11 +94,12 @@ class Builder(HasProps):
         _legends:
 
 
-    so Builder can use it all to _yield_renderers on a chart when called with the
+    The Builder uses these to _yield_renderers on a chart when called with the
     create method.
 
     """
 
+    # Optional Inputs
     x_range = Instance(Range)
     y_range = Instance(Range)
 
@@ -106,21 +109,26 @@ class Builder(HasProps):
     xscale = String()
     yscale = String()
 
-    # Dimensional Modeling
+    # Dimensional Modeling (specified by Builder)
     dimensions = List(String, help="""The dimension
         labels that drive the position of the glyphs.""")
-    req_dimensions = Either(List(String), List(List(String)), List(Dict(String, String)), help="""The dimension
-        labels that must exist to produce the glyphs. This specifies what are the valid configurations
-        for the chart, with the option of specifying the type of the columns.""")
+    req_dimensions = Either(List(String), List(List(String)), List(Dict(String, String)),
+                            help="""The dimension labels that must exist to produce the
+                            glyphs. This specifies what are the valid configurations
+                            for the chart, with the option of specifying the type of the
+                            columns.""")
 
-    attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
-    default_attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to group data.""")
+    attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to
+        group data.""")
+    default_attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs
+        used to group data.""")
 
-    attribute_columns = List(ColumnLabel)
+    # Derived properties (created by Builder at runtime)
+    attribute_columns = List(ColumnLabel, help="""All columns used for specifying
+        attributes for the Chart.""")
 
-    palette = Seq(Color, default=DEFAULT_PALETTE)
-
-    comp_glyphs = List(Instance(CompositeGlyph))
+    comp_glyphs = List(Instance(CompositeGlyph), help="""A list of composite glyphs,
+        where each represents a unique subset of data.""")
     labels = List(String, help="""Represents the unique labels to be used for legends.""")
     label_attributes = List(String, help="""List of attributes to use for legends.""")
 
@@ -189,8 +197,10 @@ class Builder(HasProps):
         Makes sure that all attributes have access to the data
         source, which is used for mapping attributes to groups
         of data.
-        """
 
+        Returns:
+            None
+        """
         source = ColumnDataSource(data.df)
         attr_names = self.default_attributes.keys()
         for attr_name in attr_names:
@@ -214,7 +224,11 @@ class Builder(HasProps):
             self.attributes[attr_name].data = source
 
     def _setup(self):
-        """Perform any initial pre-processing, attribute config."""
+        """Perform any initial pre-processing, attribute config.
+
+        Returns:
+            None
+        """
         pass
 
     def _process_data(self):
@@ -223,6 +237,9 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type. It is the place
         where we make specific calculations for each chart.
+
+        Returns:
+            None
         """
         pass
 
@@ -239,6 +256,9 @@ class Builder(HasProps):
 
         It has to be implemented by any of the inherited class
         representing each different chart type.
+
+        Yields:
+            :class:`GlyphRenderer`
         """
         raise NotImplementedError('Subclasses of %s must implement _yield_renderers.' % self.__class__.__name__)
 
@@ -250,13 +270,25 @@ class Builder(HasProps):
                 }
 
     def add_glyph(self, group, glyph):
-        """Add a composite glyph"""
+        """Add a composite glyph.
+
+        Manages the legend, since the builder might not want all attribute types
+        used for the legend.
+
+        Args:
+            group (:class:`DataGroup`): the data the `glyph` is associated with
+            glyph (:class:`CompositeGlyph`): the glyph associated with the `group`
+
+        Returns:
+            None
+        """
         if isinstance(glyph, list):
             for sub_glyph in glyph:
                 self.comp_glyphs.append(sub_glyph)
         else:
             self.comp_glyphs.append(glyph)
 
+        # handle cases where builders have specified which attributes to use for labels
         label = None
         if len(self.label_attributes) > 0:
             for attr in self.label_attributes:
@@ -264,6 +296,7 @@ class Builder(HasProps):
                 if self.attributes[attr].columns is not None:
                     label = self.get_group_label(group, attr=attr)
 
+        # if no special case for labeling, just use the group label
         if label is None:
             label = self.get_group_label(group, attr='label')
 
@@ -273,6 +306,16 @@ class Builder(HasProps):
             self.labels.append(label)
 
     def get_group_label(self, group, attr='label'):
+        """Get the label of the group by the attribute name.
+
+        Args:
+            group (:attr:`DataGroup`: the group of data
+            attr (str, optional): the attribute name containing the label, defaults to
+                'label'.
+
+        Returns:
+            str: the label for the group
+        """
         if attr is 'label':
             label = group.label
         else:
@@ -282,7 +325,14 @@ class Builder(HasProps):
 
     @staticmethod
     def get_label(raw_label):
+        """Converts a label by string or tuple to a string representation.
 
+        Args:
+            raw_label (str or tuple(any, any)): a unique identifier for the data group
+
+        Returns:
+            str: a label that is usable in charts
+        """
         # don't convert None type to string so we can test for it later
         if raw_label is None:
             return None
@@ -294,9 +344,20 @@ class Builder(HasProps):
         return str(raw_label)
 
     def create(self, chart=None):
+        """Builds the renderers, adding them and other components to the chart.
+
+        Args:
+            chart (:class:`Chart`, optional): the chart that will contain the glyph
+                renderers that the `Builder` produces.
+
+        Returns:
+            :class:`Chart`
+        """
+        # call methods that allow customized setup by subclasses
         self._setup()
         self._process_data()
 
+        # create and add renderers to chart
         renderers = self._yield_renderers()
         if chart is None:
             chart = Chart()
@@ -360,7 +421,16 @@ class XYBuilder(Builder):
             self.ylabel = ', '.join(select)
 
     def _get_range(self, dim, start, end):
+        """Create a :class:`Range` for the :class:`Chart`.
 
+        Args:
+            dim (str): the name of the dimension, which is an attribute of the builder
+            start: the starting value of the range
+            end: the ending value of the range
+
+        Returns:
+            :class:`Range`
+        """
         dim_ref = getattr(self, dim)
         values = dim_ref.data
         dtype = dim_ref.dtype.name
@@ -384,6 +454,10 @@ class XYBuilder(Builder):
 
 
 class AggregateBuilder(Builder):
+    """A base class for deriving specific builders performing aggregation with stats.
+
+    The typical AggregateBuilder takes a single dimension of values.
+    """
 
     values = Dimension('values')
 

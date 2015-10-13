@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
+from bokeh.models.renderers import GlyphRenderer
+from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, Either, Float, Color, Instance, List,
                               Any)
 from ._properties import ColumnLabel, Column
-from bokeh.models.sources import ColumnDataSource
-from bokeh.models.renderers import GlyphRenderer
 
 
 class CompositeGlyph(HasProps):
@@ -35,15 +35,23 @@ class CompositeGlyph(HasProps):
             - Note: Operations require implementation of special methods
     """
 
+    # composite glyph inputs
     label = String('All', help='Identifies the subset of data.')
-    values = Either(Column(Float), Column(String), help='Array-like values.')
-    color = Color(default='gray')
-    fill_alpha = Float(default=0.8)
+    values = Either(Column(Float), Column(String), help="""Array-like values,
+        which are used as the input to the composite glyph.""")
 
-    source = Instance(ColumnDataSource)
-    operations = List(Any)
+    # derived from inputs
+    source = Instance(ColumnDataSource, help="""The data source used for the contained
+        glyph renderers. Simple glyphs part of the composite glyph might not use the
+        column data source.""")
     renderers = List(Instance(GlyphRenderer))
 
+    operations = List(Any, help="""A list of chart operations that can be applied to
+        manipulate their visual depiction.""")
+
+    color = Color(default='gray', help="""A high level color. Some glyphs will
+        implement more specific color attributes for parts or specific glyphs.""")
+    fill_alpha = Float(default=0.8)
     left_buffer = Float(default=0.0)
     right_buffer = Float(default=0.0)
     top_buffer = Float(default=0.0)
@@ -61,6 +69,7 @@ class CompositeGlyph(HasProps):
         self.setup()
 
     def setup(self):
+        """Build renderers and data source and set sources on renderers."""
         self.renderers = [renderer for renderer in self.build_renderers()]
         if self.renderers is not None:
             self.refresh()
@@ -90,15 +99,19 @@ class CompositeGlyph(HasProps):
             renderer.data_source = self.source
 
     def __stack__(self, glyphs):
+        """A special method the `stack` function applies to composite glyphs."""
         pass
 
     def __jitter__(self, glyphs):
+        """A special method the `jitter` function applies to composite glyphs."""
         pass
 
     def __dodge__(self, glyphs):
+        """A special method the `dodge` function applies to composite glyphs."""
         pass
 
     def __overlay__(self, glyphs):
+        """A special method the `overlay` function applies to composite glyphs."""
         pass
 
     def apply_operations(self):
@@ -106,11 +119,19 @@ class CompositeGlyph(HasProps):
 
 
 class CollisionModifier(HasProps):
-    """Models an special type of operation that affects glyphs as they intersect."""
-    comp_glyphs = List(Instance(CompositeGlyph))
-    name = String()
-    method_name = String()
-    columns = Either(ColumnLabel, List(ColumnLabel))
+    """Models an special type of operation that alters how glyphs interact.
+
+    Used to handle the manipulation of glyphs for operations, such as stacking. The
+    list of `CompositeGlyph`s can either be input into the `CollisionModifier` as
+    keyword args, or added individually with the `add_glyph` method.
+    """
+    comp_glyphs = List(Instance(CompositeGlyph), help="""A list of composite glyphs,
+        to apply the modification to.""")
+    name = String(help="""The name of the collision modifier.""")
+    method_name = String(help="""The name of the method that will be utilized on
+        the composite glyphs. This method must exist on all `comp_glyphs`.""")
+    columns = Either(ColumnLabel, List(ColumnLabel), help="""Some collision modifiers
+        might require column labels to apply the operation in relation to.""")
 
     def add_glyph(self, comp_glyph):
         self.comp_glyphs.append(comp_glyph)

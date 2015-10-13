@@ -1,25 +1,30 @@
 from __future__ import absolute_import
 
-from six import iteritems
 from collections import defaultdict
+
 import numpy as np
+from six import iteritems
 
-from bokeh.properties import (Float, String, Datetime, Bool, Instance,
-                              List, Either, Int, Enum)
-from bokeh.models.sources import ColumnDataSource
-from bokeh.models.renderers import GlyphRenderer
-from bokeh.models.glyphs import Rect, Segment, Line
+from bokeh.charts import DEFAULT_PALETTE
 from bokeh.enums import DashPattern
-
+from bokeh.models.glyphs import Rect, Segment, Line
+from bokeh.models.renderers import GlyphRenderer
+from bokeh.models.sources import ColumnDataSource
+from bokeh.properties import (Float, String, Datetime, Bool, Instance,
+                              List, Either, Int, Enum, Color)
 from ._models import CompositeGlyph
 from ._properties import Column, EitherColumn
-from bokeh.charts import DEFAULT_PALETTE
-from .utils import marker_types
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
+from .utils import marker_types
 
 
 class NestedCompositeGlyph(CompositeGlyph):
-    """A composite glyph that consists of other composite glyphs."""
+    """A composite glyph that consists of other composite glyphs.
+
+    An important responsibility of the `CompositeGlyph` is to understand the bounds
+    of the glyph renderers that make it up. This class is used to provide convenient
+    properties that return the bounds from the child `CompositeGlyphs`.
+    """
 
     children = List(Instance(CompositeGlyph))
 
@@ -78,7 +83,7 @@ class XyGlyph(CompositeGlyph):
 class PointGlyph(XyGlyph):
     """A set of glyphs placed in x,y coordinates with the same attributes."""
 
-    fill_color = String(default=DEFAULT_PALETTE[1])
+    fill_color = Color(default=DEFAULT_PALETTE[1])
     fill_alpha = Float(default=0.7)
     marker = String(default='circle')
     size = Float(default=8)
@@ -134,6 +139,7 @@ class LineGlyph(XyGlyph):
         return ColumnDataSource(data)
 
     def build_renderers(self):
+        """Yield a `GlyphRenderer` for the group of data."""
         glyph = Line(x='x_values', y='y_values',
                      line_color=self.line_color,
                      line_alpha=self.line_alpha,
@@ -152,14 +158,15 @@ class AggregateGlyph(NestedCompositeGlyph):
     stack_label = String()
     stack_shift = Float(default=0.0)
 
-    dodge_label = String()
+    dodge_label = String(help="""Where on the scale the glyph should be placed.""")
     dodge_shift = Float(default=None)
 
     agg = Instance(Stat, default=Sum())
 
-    span = Float()
+    span = Float(help="""The range of values represented by the aggregate.""")
 
     def get_dodge_label(self, shift=0.0):
+        """Generate the label defining an offset in relation to a position on a scale."""
         if self.dodge_shift is None:
             shift_str = ':' + str(0.5 + shift)
         elif self.dodge_shift is not None:
@@ -169,23 +176,35 @@ class AggregateGlyph(NestedCompositeGlyph):
         return str(self.label) + shift_str
 
     def filter_glyphs(self, glyphs):
+        """Return only the glyphs that are of the same class."""
         return [glyph for glyph in glyphs if isinstance(glyph, self.__class__)]
 
     @staticmethod
     def groupby(glyphs, prop):
+        """Returns a dict of `CompositeGlyph`s, grouped by unique values of prop.
+
+        For example, if all glyphs had a value of 'a' or 'b' for glyph.prop, the dict
+        would contain two keys, 'a' and 'b', where each value is a list of the glyphs
+        that had each of the values.
+        """
         grouped = defaultdict(list)
         [grouped[getattr(glyph, prop)].append(glyph) for glyph in glyphs]
         return grouped
 
     def __stack__(self, glyphs):
+        """Apply relative shifts to the composite glyphs for stacking."""
         if self.stack_label is not None:
             filtered_glyphs = self.filter_glyphs(glyphs)
             grouped = self.groupby(filtered_glyphs, 'label')
 
             for index, group in iteritems(grouped):
                 group = sorted(group, key=lambda x: x.stack_label)
+
+                # separate the negative and positive aggregates into separate groups
                 neg_group = [glyph for glyph in group if glyph.span < 0]
                 pos_group = [glyph for glyph in group if glyph.span >= 0]
+
+                # apply stacking to each group separately
                 for group in [neg_group, pos_group]:
                     shift = []
                     for i, glyph in enumerate(group):
@@ -196,6 +215,7 @@ class AggregateGlyph(NestedCompositeGlyph):
                             glyph.refresh()
 
     def __dodge__(self, glyphs):
+        """Apply relative shifts to the composite glyphs for dodging."""
         if self.dodge_label is not None:
             filtered_glyphs = self.filter_glyphs(glyphs)
             grouped = self.groupby(filtered_glyphs, 'dodge_label')
@@ -215,19 +235,19 @@ class AggregateGlyph(NestedCompositeGlyph):
 class Interval(AggregateGlyph):
     """A rectangle representing aggregated values.
 
-    The interval is a rect glyph where two of the parallel
-    sides represent a summary of values. Each of the two sides
-    is derived from a separate aggregation of the values
-    provided to the interval.
+    The interval is a rect glyph where two of the parallel sides represent a
+    summary of values. Each of the two sides is derived from a separate aggregation of
+    the values provided to the interval.
 
-    Note: A bar is a special case interval where one side
-    is pinned and used to communicate a value relative to
-    it.
+    Note: A bar is a special case interval where one side is pinned and used to
+    communicate a value relative to it.
     """
 
     width = Float(default=0.8)
-    start_agg = Instance(Stat, default=Min())
-    end_agg = Instance(Stat, default=Max())
+    start_agg = Instance(Stat, default=Min(), help="""The stat used to derive the
+        starting point of the composite glyph.""")
+    end_agg = Instance(Stat, default=Max(), help="""The stat used to derive the end
+        point of the composite glyph.""")
 
     start = Float(default=0.0)
     end = Float()
@@ -248,14 +268,17 @@ class Interval(AggregateGlyph):
         super(Interval, self).__init__(**kwargs)
 
     def get_start(self):
+        """Get the value for the start of the glyph."""
         self.start_agg.set_data(self.values)
         return self.start_agg.value
 
     def get_end(self):
+        """Get the value for the end of the glyph."""
         self.end_agg.set_data(self.values)
         return self.end_agg.value
 
     def get_span(self):
+        """The total range between the start and end."""
         return self.end - self.start
 
     def build_source(self):
@@ -273,14 +296,23 @@ class Interval(AggregateGlyph):
         y = [self.stack_shift + (self.span / 2.0) + self.start]
         color = [self.color]
         fill_alpha = [self.fill_alpha]
-        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color, fill_alpha=fill_alpha))
+        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color,
+                                     fill_alpha=fill_alpha))
 
     @property
     def x_max(self):
+        """The maximum extent of the glyph in x.
+
+        Note: Dodging the glyph can affect the value.
+        """
         return (self.dodge_shift or self.label_value) + (self.width / 2.0)
 
     @property
     def x_min(self):
+        """The maximum extent of the glyph in y.
+
+        Note: Dodging the glyph can affect this value.
+        """
         return (self.dodge_shift or self.label_value) - (self.width / 2.0)
 
     @property
@@ -288,22 +320,33 @@ class Interval(AggregateGlyph):
         """Maximum extent of all `Glyph`s.
 
         How much we are stacking + the height of the interval + the base of the interval
+
+        Note: the start and end of the glyph can swap between being associated with the
+        min and max when the glyph end represents a negative value.
         """
         return max(self.bottom, self.top)
 
     @property
     def y_min(self):
+        """The minimum extent of all `Glyph`s in y.
+
+        Note: the start and end of the glyph can swap between being associated with the
+        min and max when the glyph end represents a negative value.
+        """
         return min(self.bottom, self.top)
 
     @property
     def bottom(self):
+        """The value associated with the start of the stacked glyph."""
         return self.stack_shift + self.start
 
     @property
     def top(self):
+        """The value associated with the end of the stacked glyph."""
         return self.stack_shift + self.span + self.start
 
     def build_renderers(self):
+        """Yields a `GlyphRenderer` associated with a `Rect` glyph."""
         glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color', fill_alpha='fill_alpha')
         yield GlyphRenderer(glyph=glyph)
 
@@ -311,7 +354,8 @@ class Interval(AggregateGlyph):
 class BarGlyph(Interval):
     """Special case of Interval where the span represents a value.
 
-    A bar always begins from 0, or the value that is being compared to.
+    A bar always begins from 0, or the value that is being compared to, and
+    extends to some positive or negative value.
     """
 
     def __init__(self, label, values, agg='sum', **kwargs):
@@ -341,9 +385,9 @@ class BoxGlyph(AggregateGlyph):
     as well.
     """
 
-    q1 = Float()
-    q2 = Float()
-    q3 = Float()
+    q1 = Float(help="""Derived value for 25% of all values.""")
+    q2 = Float(help="""Derived value for 50% of all values.""")
+    q3 = Float(help="""Derived value for 75% of all values.""")
     iqr = Float()
 
     w0 = Float(help='Lower whisker')
@@ -383,6 +427,7 @@ class BoxGlyph(AggregateGlyph):
         super(BoxGlyph, self).__init__(**kwargs)
 
     def build_renderers(self):
+        """Yields all renderers that make up the BoxGlyph."""
 
         self.calc_quartiles()
         outlier_values = self.values[((self.values < self.w0) | (self.values > self.w1))]
@@ -404,6 +449,7 @@ class BoxGlyph(AggregateGlyph):
         yield self.whisker_glyph
 
     def calc_quartiles(self):
+        """Sets all derived stat properties of the BoxGlyph."""
         self.q1 = self.q2_glyph.start
         self.q2 = self.q2_glyph.end
         self.q3 = self.q3_glyph.end
@@ -412,6 +458,7 @@ class BoxGlyph(AggregateGlyph):
         self.w1 = self.q3 + (1.5 * self.iqr)
 
     def build_source(self):
+        """Calculate stats and builds and returns source for whiskers."""
         self.calc_quartiles()
         x_label = self.get_dodge_label()
         x_w0_label = self.get_dodge_label(shift=(self.whisker_width / 2.0))
@@ -426,6 +473,7 @@ class BoxGlyph(AggregateGlyph):
         return ColumnDataSource(dict(x0s=x0s, y0s=y0s, x1s=x1s, y1s=y1s))
 
     def _set_sources(self):
+        """Set the column data source on the whisker glyphs."""
         self.whisker_glyph.data_source = self.source
 
     def get_extent(self, func, prop_name):
@@ -433,6 +481,7 @@ class BoxGlyph(AggregateGlyph):
 
     @property
     def composite_glyphs(self):
+        """Returns list of composite glyphs, excluding the regular glyph renderers."""
         comp_glyphs = [self.q2_glyph, self.q3_glyph]
         if isinstance(self.outliers, PointGlyph):
             comp_glyphs.append(self.outliers)
@@ -462,14 +511,15 @@ class HistogramGlyph(AggregateGlyph):
     options for displaying it, such as KDE and cumulative density.
     """
 
-    bins = Instance(Bins)
-    bin_count = Float()
-
-    bars = List(Instance(BarGlyph))
-
-    centers = List(Float)
-
+    # input properties
     bin_width = Float()
+    bin_count = Float(help="""Provide a manually specified number of bins to use.""")
+
+    # derived models
+    bins = Instance(Bins, help="""A stat used to calculate the bins. The bins stat
+        includes attributes about each composite bin.""")
+    bars = List(Instance(BarGlyph), help="""The histogram is comprised of many
+        BarGlyphs that are derived from the values.""")
 
     def __init__(self, values, label=None, color=None, bin_count=None, **kwargs):
         if label is not None:
@@ -484,21 +534,25 @@ class HistogramGlyph(AggregateGlyph):
         super(HistogramGlyph, self).__init__(**kwargs)
 
     def _set_sources(self):
+        # No need to set sources, since composite glyphs handle this
         pass
 
     def build_source(self):
+        # No need to build source, since composite glyphs handle this
         pass
 
     def build_renderers(self):
+        """Yield a bar glyph for each bin."""
         self.bins = Bins(values=self.values, bin_count=self.bin_count)
-        self.centers = [bin.center for bin in self.bins.bins]
-        self.bin_width = self.centers[1] - self.centers[0]
+        centers = [bin.center for bin in self.bins.bins]
+        self.bin_width = centers[1] - centers[0]
 
         bars = []
         for bin in self.bins.bins:
             bars.append(BarGlyph(label=bin.center, values=bin.values, color=self.color,
                                  fill_alpha=self.fill_alpha, agg=bin.stat, width=self.bin_width))
 
+        # provide access to bars as children for bounds properties
         self.bars = bars
         self.children = self.bars
 

@@ -7,17 +7,22 @@ selection spec:
 """
 
 from __future__ import absolute_import
+
 import numpy as np
 import pandas as pd
 
 from bokeh.properties import (HasProps, Either, String, Int, List, Bool,
                               PrimitiveProperty, bokeh_integer_types, Array)
-
 from .utils import special_columns, title_from_columns
 
 
 class Column(Array):
+    """Represents column-oriented data.
 
+    This property is used to provide a consistent interface for column-like data. The
+    property both validates the data types set, and transforms all column-like data into
+    `pd.Series` data.
+    """
     def _is_seq(self, value):
         is_array = super(Column, self)._is_seq(value)
         return isinstance(value, pd.Series) or isinstance(value, list) or is_array
@@ -43,7 +48,10 @@ class Column(Array):
 
 
 class Logical(Bool):
-    """A boolean like data type."""
+    """A boolean like data type.
+
+    This property is valid for both python and numpy boolean types.
+    """
     def validate(self, value):
         try:
             super(Logical, self).validate(value)
@@ -65,8 +73,7 @@ class ColumnLabel(Either):
 
     def __init__(self, columns=None, default=None, help=None):
         # ToDo: make sure we can select by integer
-        types = (String,
-                 Int)
+        types = (String, Int)
         self.columns = columns
         super(ColumnLabel, self).__init__(*types, default=default, help=help)
 
@@ -91,14 +98,17 @@ class ColumnLabel(Either):
 class Dimension(HasProps):
     """Configures valid Chart column selections.
 
-    A dimension is Chart property that is assigned one or more columns names or indices. Each
-    column can match one or more column types, which are important to charts,
+    A dimension is Chart property that is assigned one or more columns names or indices.
+    Each column can match one or more column types, which are important to charts,
     because the type of column selection can greatly affect the behavior of generalized
     Charts.
 
     The Dimension also provides convenient utilities for accessing information
     about the current provided configuration at the global, non-grouped level.
 
+    The dimension configuration does not require the data, but when the data is
+    added using the `set_data` method, then validation can occur of the settings
+    by using the `valid` and `invalid` types identified by the selection.
     """
 
     name = String()
@@ -181,6 +191,7 @@ class Dimension(HasProps):
 
     @property
     def computed(self):
+        """Check the `ChartDataSource` to see if the selection is a derived column."""
         if self._chart_source is None:
             return False
         else:

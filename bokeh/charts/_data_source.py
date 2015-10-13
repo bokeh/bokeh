@@ -15,48 +15,30 @@ methods.
 
 from __future__ import absolute_import
 
-from six import iteritems
-from six.moves import zip
 from copy import copy
+from itertools import chain
 from operator import itemgetter
-from itertools import islice, product, chain
+
 import numpy as np
 import pandas as pd
-
-from ..properties import bokeh_integer_types, Datetime, List, HasProps
-from ..models.sources import ColumnDataSource
+from six import iteritems
+from six.moves import zip
 
 from ._properties import ColumnLabel
-from .utils import collect_attribute_columns, special_columns
+from .utils import collect_attribute_columns, special_columns, gen_column_names
+from ..models.sources import ColumnDataSource
+from ..properties import bokeh_integer_types, Datetime, List, HasProps
 
-DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
+
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
 ARRAY_TYPES = [tuple, list, np.ndarray, pd.Series]
 TABLE_TYPES = [dict, pd.DataFrame]
-
-
-def take(n, iterable):
-    """Return first n items of the iterable as a list."""
-    return islice(iterable, n)
-
-
-def gen_column_names(n):
-    """Produces list of unique column names of length n."""
-    col_names = list(DEFAULT_COLUMN_NAMES)
-
-    # a-z
-    if n < len(col_names):
-        return list(take(n, col_names))
-    # a-z and aa-zz (500+ columns)
-    else:
-        n_left = n - len(col_names)
-        labels = [''.join(item) for item in
-                  take(n_left, product(DEFAULT_COLUMN_NAMES, DEFAULT_COLUMN_NAMES))]
-        col_names.extend(labels)
-        return col_names
+DEFAULT_DIMS = ['x', 'y']
+DEFAULT_REQ_DIMS = [['x'], ['y'], ['x', 'y']]
 
 
 class DataOperator(HasProps):
+    """An operation that transforms data before use in plotting."""
     columns = List(ColumnLabel(), default=None,
                    help="""List of columns to perform operation on.""")
 
@@ -69,7 +51,10 @@ class DataOperator(HasProps):
 
 
 class DataGroup(object):
-    """Contains subset of data and metadata about it."""
+    """Contains subset of data and metadata about it.
+
+    Note: resets the index on the input data
+    """
 
     def __init__(self, label, data, attr_specs):
         self.label = label
@@ -77,6 +62,14 @@ class DataGroup(object):
         self.attr_specs = attr_specs
 
     def get_values(self, selection):
+        """Get the data associated with the selection of columns.
+
+        Args:
+            selection (List(Str) or Str): the column or columns selected
+
+        Returns:
+            :class:`pandas.DataFrame`
+        """
         if selection in special_columns:
             return special_columns[selection](self.data)
         elif isinstance(selection, str):
@@ -92,8 +85,9 @@ class DataGroup(object):
     def source(self):
         return ColumnDataSource(self.data)
 
-    def __getitem__(self, key):
-        return self.attr_specs[key]
+    def __getitem__(self, spec_name):
+        """Get the value of the :class:`AttrSpec` associated with `spec_name`."""
+        return self.attr_specs[spec_name]
 
     def __repr__(self):
         return '<DataGroup(%s) - attributes: %s>' % (str(self.label), self.attr_specs)
@@ -106,12 +100,13 @@ def groupby(df, **specs):
     """Convenience iterator around pandas groupby and attribute specs.
 
     Args:
-        df (:class:`~pandas.DataFrame`):
-            The entire data source being used for the Chart.
-        **specs:
+        df (:class:`~pandas.DataFrame`): The entire data source being
+            used for the Chart.
+        **specs: Name, :class:`AttrSpec` pairing, used to identify the lowest
+            level where the data is grouped.
 
     Yields:
-        `DataGroup`: each unique group of data to be used to produce glyphs
+        :class:`DataGroup`: each unique group of data to be used to produce glyphs
 
     """
 
@@ -154,10 +149,6 @@ def groupby(df, **specs):
         yield DataGroup(label='all', data=df, attr_specs=attrs)
 
 
-DEFAULT_DIMS = ['x', 'y']
-DEFAULT_REQ_DIMS = [['x'], ['y'], ['x', 'y']]
-
-
 class ChartDataSource(object):
     """Validates, normalizes, groups, and assigns Chart attributes to groups.
 
@@ -172,6 +163,18 @@ class ChartDataSource(object):
     def __init__(self, df, dims=None, required_dims=None, selections=None,
                  **kwargs):
 
+        """ Create a :class:`ChartDataSource`.
+
+        Args:
+            df (:class:`pandas.DataFrame`):
+            dims (List(Str), optional): list of valid dimensions for the chart.
+            required_dims (List(List(Str)), optional): list of list of valid dimensional
+                selections for the chart.
+            selections (Dict(dimension, List(Column)), optional): mapping between a
+                dimension and the column name(s) associated with it. This represents what
+                the user selected for the current chart.
+            **kwargs:
+        """
         if dims is None:
             dims = DEFAULT_DIMS
 
@@ -188,7 +191,13 @@ class ChartDataSource(object):
         self._validate_selections()
 
     def get_selections(self, selections, **kwargs):
-        """Maps chart dimensions to selections and checks that required dim requirements are met."""
+        """Maps chart dimensions to selections and checks input requirements.
+
+        Returns:
+            Dict(dimension, List(Column)): Mapping between each dimension and the
+                selected columns. If no selection is made for a dimension, then the
+                dimension will be associated with `None`.
+        """
         select_map = {}
 
         # extract selections from kwargs using dimension list
@@ -226,6 +235,7 @@ class ChartDataSource(object):
         return select_map
 
     def apply_operations(self):
+        """Applies each data operation."""
         # ToDo: Handle order of operation application, see GoG pg. 71
         for dim, select in iteritems(self._selections):
             if isinstance(select, DataOperator):
@@ -234,14 +244,26 @@ class ChartDataSource(object):
     def __getitem__(self, dim):
         """Get the columns selected for the given dimension name.
 
+        If the dimension is not in `_selections`, `None` is returned.
+
         e.g. dim='x'
+
+        Returns:
+            Str or List(Str): the columns selected
         """
         if dim in self._selections:
             return self._selections[dim]
         else:
             return None
 
-    def stack_measures(self, measures, ids=None, var_name='variable', value_name='value'):
+    def stack_measures(self, measures, ids=None, var_name='variable',
+                       value_name='value'):
+        """Converts a 'wide' table to a 'tall' table.
+
+        A wide table is one where the column names represent a categorical variable
+        and each contains only the values associated with each unique value of the
+        categorical variable.
+        """
         for dim in self._dims:
             # find the dimension the measures are associated with
 
@@ -266,6 +288,10 @@ class ChartDataSource(object):
 
         Iterates over DataGroup, which represent the lowest level of data that is assigned
         to the attributes for plotting.
+
+        Yields:
+            :class:`DataGroup`: contains metadata and attributes assigned to the group
+                of data
         """
         if len(specs) == 0:
             raise ValueError(
@@ -275,7 +301,19 @@ class ChartDataSource(object):
 
     @classmethod
     def from_data(cls, *args, **kwargs):
-        """Automatically handle all valid inputs."""
+        """Automatically handle all valid inputs.
+
+        Attempts to use any data that can be represented in a Table-like
+        format, along with any generated requirements, to produce a
+        :class:`ChartDataSource`. Internally, these data types are generated,
+        so that a :class:`pandas.DataFrame` can be generated.
+
+        Identifies inputs that are array vs table like, handling them accordingly. If
+        possible, existing column names are used, otherwise column names are generated.
+
+        Returns:
+            :class:`ColumnDataSource`
+        """
         arrays = [arg for arg in args if cls.is_array(arg)]
         tables = [arg for arg in args if cls.is_table(arg) or cls.is_list_dicts(arg)]
 
@@ -369,6 +407,11 @@ class ChartDataSource(object):
 
     @staticmethod
     def is_list_arrays(data):
+        """Verify if input data is a list of array-like data.
+
+        Returns:
+            bool
+        """
         valid = False
 
         # ToDo: handle groups of arrays types, list of lists of arrays
@@ -395,6 +438,11 @@ class ChartDataSource(object):
 
     @staticmethod
     def _collect_dimensions(**kwargs):
+        """Returns dimensions by name from kwargs.
+
+        Returns:
+            iterable(str): iterable of dimension names as strings
+        """
         dims = kwargs.pop(kwargs, None)
         if not dims:
             return 'x', 'y'
@@ -403,7 +451,11 @@ class ChartDataSource(object):
 
     @classmethod
     def from_arrays(cls, arrays, column_names=None, **kwargs):
+        """Produce :class:`ColumnDataSource` from array-like data.
 
+        Returns:
+            :class:`ColumnDataSource`
+        """
         # handle list of arrays
         if any(cls.is_list_arrays(array) for array in arrays):
             list_of_arrays = copy(arrays)
@@ -431,20 +483,41 @@ class ChartDataSource(object):
 
     @classmethod
     def from_dict(cls, data, **kwargs):
+        """Produce :class:`ColumnDataSource` from table-like dict.
+
+        Returns:
+            :class:`ColumnDataSource`
+        """
         return cls(df=pd.DataFrame.from_dict(data), **kwargs)
 
     @staticmethod
     def is_table(data):
-        return ChartDataSource._is_valid(data,
-                                         TABLE_TYPES) or ChartDataSource.is_list_dicts(
-            data)
+        """Verify if data is table-like.
+
+        Inspects the types and structure of data.
+
+        Returns:
+            bool
+        """
+        return (ChartDataSource._is_valid(data, TABLE_TYPES) or
+                ChartDataSource.is_list_dicts(data))
 
     @staticmethod
     def is_list_dicts(data):
+        """Verify if data is row-oriented, table-like data.
+
+        Returns:
+            bool
+        """
         return isinstance(data, list) and all([isinstance(row, dict) for row in data])
 
     @staticmethod
     def is_array(data):
+        """Verify if data is array-like.
+
+        Returns:
+            bool
+        """
         if ChartDataSource.is_list_dicts(data):
             # list of dicts is table type
             return False
@@ -453,10 +526,23 @@ class ChartDataSource(object):
 
     @staticmethod
     def _is_valid(data, types):
+        """Checks for each type against data.
+
+        Args:
+            data: a generic source of data
+            types: a list of classes
+
+        Returns:
+            bool
+        """
         return any([isinstance(data, valid_type) for valid_type in types])
 
     def _validate_selections(self):
-        """Raises selection error if selections are not valid compared to requirements."""
+        """Raises selection error if selections are not valid compared to requirements.
+
+        Returns:
+            None
+        """
 
         required_dims = self._required_dims
         selections = self._selections
@@ -475,7 +561,8 @@ class ChartDataSource(object):
                     # found a match to the requirements
                     return
 
-            # If we reach this point, nothing was validated, let's construct useful error messages
+            # If we reach this point, nothing was validated, let's
+            # construct useful error messages
             error_str = 'Did not receive a valid combination of selections.\n\nValid configurations are: %s' + \
                         '\nReceived inputs are: %s' + \
                         '\n\nAvailable columns are: %s'
@@ -485,18 +572,28 @@ class ChartDataSource(object):
                              iteritems(selections) if sel is not None]
 
             raise ValueError(error_str % (
-            ' or '.join(req_str), ', '.join(selection_str), ', '.join(self.columns)))
+                ' or '.join(req_str), ', '.join(selection_str), ', '.join(self.columns)))
         else:
             # if we have no dimensional requirements, they all pass
             return
 
     @staticmethod
     def is_number(value):
+        """Verifies that value is a numerical type.
+
+        Returns:
+            bool
+        """
         numbers = (float,) + bokeh_integer_types
         return isinstance(value, numbers)
 
     @staticmethod
     def is_datetime(value):
+        """Verifies that value is a valid Datetime type, or can be converted to it.
+
+        Returns:
+            bool
+        """
         try:
             dt = Datetime(value)
             dt  # shut up pyflakes
@@ -507,15 +604,22 @@ class ChartDataSource(object):
 
     @staticmethod
     def collect_metadata(data):
+        """Introspect which columns match to which types of data."""
         # ToDo: implement column metadata collection
         return {}
 
     @property
     def columns(self):
+        """All column names associated with the data.
+
+        Returns:
+            List(Str)
+        """
         return self._data.columns
 
     @property
     def index(self):
+        """The index for the :class:`pandas.DataFrame` data source."""
         return self._data.index
 
     @property
@@ -524,6 +628,11 @@ class ChartDataSource(object):
 
     @staticmethod
     def is_computed(column):
+        """Verify if the column provided matches to known computed columns.
+
+        Returns:
+            bool
+        """
         if column in COMPUTED_COLUMN_NAMES:
             return True
         else:

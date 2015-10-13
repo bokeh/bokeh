@@ -23,7 +23,9 @@ from ..properties import Auto, Bool, Either, Enum, Int, String
 
 Scale = enumeration('linear', 'categorical', 'datetime')
 
+
 class ChartOptions(PlotObject):
+    """Contains the default properties for :class:`Chart`."""
 
     id = String(None, help="""
     Id of the chart.
@@ -97,4 +99,5 @@ class ChartOptions(PlotObject):
     """)
 
 
+# A shared instance of chart options used for overriding defaults
 default_options = ChartOptions()

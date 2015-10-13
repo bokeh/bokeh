@@ -20,12 +20,13 @@ the generation of several outputs (file, server, notebook).
 
 from __future__ import absolute_import
 
-from six import iteritems
-import numpy as np
 from collections import defaultdict
 
-from ._chart_options import ChartOptions
+import numpy as np
+from six import iteritems
+
 from . import defaults
+from ._chart_options import ChartOptions
 from ..browserlib import view
 from ..document import Document
 from ..embed import file_html

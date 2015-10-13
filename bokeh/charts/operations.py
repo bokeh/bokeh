@@ -1,11 +1,18 @@
+""" CollisionModifiers and DataOperators used to specify Chart manipulations.
+
+The general approach for these operations is to use a class for modeling the
+operation, which is lazy evaluated, and doesn't require the data on initialization.
+
+An associated, user-facing function is provided for a more friendly interface.
+"""
+
 from __future__ import absolute_import
 
 from copy import copy
 
 from bokeh.properties import String
-
-from ._models import CollisionModifier
 from ._data_source import DataOperator
+from ._models import CollisionModifier
 
 
 class Stack(CollisionModifier):
@@ -78,6 +85,7 @@ class Blend(DataOperator):
 
 
 def stack(renderers=None, columns=None):
+    """Stacks the :class:`CompositeGlyph`s."""
     if renderers is not None:
         stacker = Stack(renderers=renderers)
         stacker.apply()
@@ -89,6 +97,9 @@ def stack(renderers=None, columns=None):
 
 
 def blend(*cols, **kwargs):
-    """Provides a simple function for specifying a Blend data operation."""
+    """Provides a simple function for specifying a Blend data operation.
+
+    See :class:`Blend`
+    """
 
     return Blend(*cols, **kwargs)

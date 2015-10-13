@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 # defaults and constants
-from .utils import DEFAULT_PALETTE
+from ..plotting_helpers import DEFAULT_PALETTE
 from ._chart_options import default_options as defaults
 
 # main components
@@ -26,5 +26,6 @@ from ..io import (
 
 # Silence pyflakes
 (curdoc, cursession, output_file, output_notebook, output_server, push,
- reset_output, save, show, gridplot, vplot, hplot, ColumnDataSource)
+ reset_output, save, show, gridplot, vplot, hplot, ColumnDataSource,
+ DEFAULT_PALETTE)
 

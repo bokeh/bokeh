@@ -1,15 +1,15 @@
 from __future__ import absolute_import
 
-from itertools import cycle
 from copy import copy
+from itertools import cycle
 
-from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
-                              Color)
-from bokeh.models.sources import ColumnDataSource
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.charts._properties import ColumnLabel
 from bokeh.charts.utils import marker_types
 from bokeh.enums import DashPattern
+from bokeh.models.sources import ColumnDataSource
+from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
+                              Color)
 
 
 class AttrSpec(HasProps):
