@@ -35,7 +35,10 @@ Key Concepts
 Accepted Charts Data Formats
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Charts predominately
+Charts make use of Pandas :class:`~pandas.DataFrame` internally, so any inputs provided
+coerced into this format. The Charts interface provides support for the more simple
+types externally, which can be useful for quickly building charts, or can avoid having
+to remember how to import and create a dataframe.
 
 
 Attribute Specification
