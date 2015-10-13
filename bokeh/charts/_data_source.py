@@ -273,6 +273,10 @@ class ChartDataSource(object):
             else:
                 dim_cols = selection
 
+            # handle case where multiple stacking operations create duplicate cols
+            if var_name in self._data.columns.tolist():
+                var_name += '_'
+
             if measures == dim_cols:
                 self._selections[dim] = value_name
                 if ids is not None:
