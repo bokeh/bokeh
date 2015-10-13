@@ -35,7 +35,7 @@ def Scatter(data=None, x=None, y=None, **kws):
         data (arrays or dict(array) or list(dict) or pd.DataFrame): table-like data
 
     In addition the the parameters specific to this chart,
-    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`

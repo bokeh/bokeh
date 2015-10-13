@@ -53,11 +53,11 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
         continuous_range(Range1d, optional): Custom continuous_range to be
             used. (Defaults to None)
 
-    In addition the the parameters specific to this chart,
-    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
+        :class:`Chart <bokeh.charts._chart.Chart>`: a chart
 
     Examples:
 

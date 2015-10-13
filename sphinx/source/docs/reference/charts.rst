@@ -8,6 +8,16 @@
     :local:
     :depth: 2
 
+.. _userguide_charts_generic_arguments:
+
+Chart Options
+-------------
+
+See the options available as input to all Charts in
+:ref:`userguide_charts_defaults`. Each of these can
+be set at a global level with the shared defaults
+object, or can be passed as kwargs to each Chart.
+
 Chart Functions
 ---------------
 

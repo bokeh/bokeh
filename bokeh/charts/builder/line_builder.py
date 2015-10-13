@@ -49,7 +49,7 @@ def Line(data=None, x=None, y=None, **kws):
         y (str|list(str), optional): specifies variable(s) to use for y axis
 
     In addition the the parameters specific to this chart,
-    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`

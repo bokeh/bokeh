@@ -25,7 +25,10 @@ Scale = enumeration('linear', 'categorical', 'datetime')
 
 
 class ChartOptions(PlotObject):
-    """Contains the default properties for :class:`Chart`."""
+    """Contains the default properties for :class:`Chart <bokeh.charts._chart.Chart`.
+
+    Each of the ChartOptions properties can be passed into a Chart as kwargs.
+    """
 
     id = String(None, help="""
     Id of the chart.
@@ -94,8 +97,8 @@ class ChartOptions(PlotObject):
 
     responsive = Bool(False, help="""
     If True, the chart will automatically resize based on the size of its container. The
-    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height`` will
-    act only to set the initial aspect ratio.
+    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height``
+    will act only to set the initial aspect ratio.
     """)
 
 
