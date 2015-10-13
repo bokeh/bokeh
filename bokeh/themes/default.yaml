@@ -81,9 +81,6 @@ attrs:
     line_dash: []
     line_dash_offset: 0
 
-  Circle:
-    size: 4 # XXX: Circle should be a marker, then this wouldn't be necessary.
-
   GMapPlot:
     border_fill: "#ffffff"
 
