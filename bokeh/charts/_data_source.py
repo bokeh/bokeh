@@ -116,7 +116,7 @@ def groupby(df, **specs):
     if spec_cols:
         # df = df.sort(columns=spec_cols)
 
-        for name, data in df.groupby(spec_cols):
+        for name, data in df.groupby(spec_cols, sort=False):
 
             attrs = {}
             for spec_name, spec in iteritems(specs):

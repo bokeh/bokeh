@@ -23,7 +23,7 @@ from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph
 from ...properties import Float, Enum, Bool
 from .._properties import Dimension
-from .._attributes import ColorAttr, GroupAttr
+from .._attributes import ColorAttr, CatAttr
 from ..operations import Stack, Dodge
 from ...enums import Aggregation
 from ..stats import stats
@@ -57,7 +57,7 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        :class:`Chart <bokeh.charts._chart.Chart>`: a chart
+        :class:`Chart`: includes glyph renderers that generate bars
 
     Examples:
 
@@ -136,10 +136,11 @@ class BarBuilder(Builder):
     dimensions = ['values']
     #req_dimensions = [['values']]
 
-    default_attributes = {'label': GroupAttr(),
+    default_attributes = {'label': CatAttr(),
                           'color': ColorAttr(),
-                          'stack': GroupAttr(),
-                          'group': GroupAttr()}
+                          'line_color': ColorAttr(default='white'),
+                          'stack': CatAttr(),
+                          'group': CatAttr()}
 
     agg = Enum(Aggregation, default='sum')
 
@@ -239,6 +240,7 @@ class BarBuilder(Builder):
                             agg=stats[self.agg](),
                             width=self.bar_width,
                             color=group['color'],
+                            line_color=group['line_color'],
                             fill_alpha=self.fill_alpha,
                             stack_label=self.get_label(group['stack']),
                             dodge_label=self.get_label(group['group']),

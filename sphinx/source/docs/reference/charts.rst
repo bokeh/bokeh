@@ -18,8 +18,8 @@ See the options available as input to all Charts in
 be set at a global level with the shared defaults
 object, or can be passed as kwargs to each Chart.
 
-Chart Functions
----------------
+Charts
+------
 
 .. automodule:: bokeh.charts
 
@@ -29,10 +29,29 @@ Chart Functions
     .. autofunction:: Line
     .. autofunction:: Scatter
 
+Chart Functions
+---------------
+
+Data Operations
+~~~~~~~~~~~~~~~
+
+.. autofunction:: bokeh.charts.blend
+
+Attribute Generators
+~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: bokeh.charts.color
+.. autofunction:: bokeh.charts.marker
+.. autofunction:: bokeh.charts.cat
+
 Helper Classes
 --------------
 
 .. autoclass:: bokeh.charts.Chart
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts._attributes.AttrSpec
     :members:
     :undoc-members:
 

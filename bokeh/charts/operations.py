@@ -78,9 +78,8 @@ class Blend(DataOperator):
     def apply(self, data):
         data_copy = copy(data)
 
-        labels_name = self.labels_name + '_' + '_'.join(self.columns)
         data_copy.stack_measures(measures=self.columns, value_name=self.name,
-                                 var_name=labels_name)
+                                 var_name=self.labels_name)
         return data_copy._data
 
 
@@ -99,7 +98,17 @@ def stack(renderers=None, columns=None):
 def blend(*cols, **kwargs):
     """Provides a simple function for specifying a Blend data operation.
 
+    Args:
+        cols (str): each column to use for blending by name
+        **kwargs: the keyword args supported by :class:`Blend`
+
+            * name (str): name of the column to contain the blended values
+            * labels_name (str): name of the column to contain the name of the columns
+              used for blending
+
+
     See :class:`Blend`
+
     """
 
     return Blend(*cols, **kwargs)

@@ -18,7 +18,7 @@ types on top of it.
 
 from __future__ import absolute_import
 
-from ._attributes import AttrSpec, ColorAttr, GroupAttr
+from ._attributes import AttrSpec, ColorAttr, CatAttr
 from ._chart import Chart
 from ._data_source import ChartDataSource
 from ._models import CompositeGlyph
@@ -461,5 +461,5 @@ class AggregateBuilder(Builder):
 
     values = Dimension('values')
 
-    default_attributes = {'label': GroupAttr(),
+    default_attributes = {'label': CatAttr(),
                           'color': ColorAttr()}

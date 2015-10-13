@@ -25,7 +25,7 @@ from ...properties import Bool, String
 from .bar_builder import BarBuilder
 from ..glyphs import BoxGlyph
 from ..utils import title_from_columns
-from .._attributes import ColorAttr, GroupAttr
+from .._attributes import ColorAttr, CatAttr
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -48,8 +48,8 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
     variable by an associated categorical variable.
 
     Args:
-      data (pandas.DataFrame, pandas.Series, list, numpy.array, dict): the data source
-        for the chart
+      data (:class:`~pandas.DataFrame`, :class:`~pandas.Series`, list, \
+        :class:`~numpy.ndarray`, dict): the data source for the chart
       values (str, optional): the values to use for producing the boxplot using
         table-like input data
       label (str or list(str), optional: the categorical variable to use for creating
@@ -66,7 +66,7 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
       **kw:
 
     Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
+        :class:`Chart`: includes glyph renderers that generate Boxes and Whiskers
 
     Examples:
 
@@ -113,12 +113,12 @@ class BoxPlotBuilder(BarBuilder):
     """
 
     # ToDo: Support easier adding of one attr without reimplementation
-    default_attributes = {'label': GroupAttr(),
+    default_attributes = {'label': CatAttr(),
                           'color': ColorAttr(default='DimGrey'),
                           'outlier_fill_color': ColorAttr(default='red'),
                           'whisker_color': ColorAttr(default='black'),
-                          'stack': GroupAttr(),
-                          'group': GroupAttr()}
+                          'stack': CatAttr(),
+                          'group': CatAttr()}
 
     # TODO: (bev) should be an enumeration
     marker = String(help="""

@@ -8,7 +8,7 @@ from ._chart_options import default_options as defaults
 from ._chart import Chart
 
 # operations and attributes for users to input into Charts
-from ._attributes import color, marker
+from ._attributes import color, marker, cat
 from .operations import stack, blend
 
 # builders

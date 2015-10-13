@@ -51,7 +51,10 @@ class CompositeGlyph(HasProps):
 
     color = Color(default='gray', help="""A high level color. Some glyphs will
         implement more specific color attributes for parts or specific glyphs.""")
+    line_color = Color(default='black', help="""A default outline color for contained
+        glyphs.""")
     fill_alpha = Float(default=0.8)
+
     left_buffer = Float(default=0.0)
     right_buffer = Float(default=0.0)
     top_buffer = Float(default=0.0)

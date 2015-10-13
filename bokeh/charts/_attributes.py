@@ -9,7 +9,7 @@ from bokeh.charts.utils import marker_types
 from bokeh.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
-                              Color)
+                              Color, Bool)
 
 
 class AttrSpec(HasProps):
@@ -30,9 +30,13 @@ class AttrSpec(HasProps):
     default = Any(default=None)
     attr_map = Dict(Any, Any)
     iterable = List(Any, default=None)
-    items = List(Any)
+    items = List(Any, default=None)
 
-    def __init__(self, columns=None, df=None, iterable=None, default=None, **properties):
+    sort = Bool(default=True)
+    ascending = Bool(default=True)
+
+    def __init__(self, columns=None, df=None, iterable=None, default=None,
+                 items=None, **properties):
 
         properties['columns'] = self._ensure_list(columns)
 
@@ -47,6 +51,9 @@ class AttrSpec(HasProps):
 
         if iterable is not None:
             properties['iterable'] = iterable
+
+        if items is not None:
+            properties['items'] = items
 
         super(AttrSpec, self).__init__(**properties)
 
@@ -75,9 +82,11 @@ class AttrSpec(HasProps):
 
     def _generate_items(self, df, columns):
         """Produce list of unique tuples that identify each item."""
-        df = df.sort(columns=columns)
-        items = df[columns].drop_duplicates()
-        self.items = [tuple(x) for x in items.to_records(index=False)]
+        if self.items is None or len(self.items) == 0:
+            if self.sort:
+                df = df.sort(columns=columns, ascending=self.ascending)
+            items = df[columns].drop_duplicates()
+            self.items = [tuple(x) for x in items.to_records(index=False)]
 
     def _create_attr_map(self, df, columns):
         """Creates map between unique values and available attributes."""
@@ -160,11 +169,11 @@ class DashAttr(AttrSpec):
         super(DashAttr, self).__init__(**kwargs)
 
 
-class GroupAttr(AttrSpec):
+class CatAttr(AttrSpec):
     name = 'nest'
 
     def __init__(self, **kwargs):
-        super(GroupAttr, self).__init__(**kwargs)
+        super(CatAttr, self).__init__(**kwargs)
 
     def _setup_iterable(self):
         return iter(self.items)
@@ -197,8 +206,41 @@ def color(columns=None, palette=None, **kwargs):
 
 def marker(columns=None, markers=None, **kwargs):
 
+    """ Specifies detailed configuration for a marker attribute.
+
+    Args:
+        columns (list or str):
+        markers (list(str) or str): a custom list of markers. Must exist within
+            :data:`marker_types`.
+        **kwargs: any keyword, arg supported by :class:`AttrSpec`
+
+    Returns:
+        :class:`CatAttr`
+    """
     if markers is not None:
         kwargs['markers'] = markers
 
     kwargs['columns'] = columns
     return MarkerAttr(**kwargs)
+
+
+def cat(columns=None, cats=None, sort=True, ascending=True, **kwargs):
+    """ Specifies detailed configuration for a chart attribute that uses categoricals.
+
+    Args:
+        columns (list or str): the columns used to generate the categorical variable
+        cats (list, optional): overrides the values derived from columns
+        sort (bool, optional): whether to sort the values
+        **kwargs: any keyword, arg supported by :class:`AttrSpec`
+
+    Returns:
+        :class:`CatAttr`
+    """
+    if cats is not None:
+        kwargs['cats'] = cats
+
+    kwargs['columns'] = columns
+    kwargs['sort'] = sort
+    kwargs['ascending'] = ascending
+
+    return CatAttr(**kwargs)

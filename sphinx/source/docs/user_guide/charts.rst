@@ -24,11 +24,18 @@ data.
 Key Concepts
 ------------
 
-* **Data**: Input data is either a Pandas DataFrame or other table-like structure, yet
-  also handling simple formats through conversion to a DataFrame internally.
+* **Data**: Input data is either a Pandas :class:`pandas.DataFrame` or other table-like
+    structure, yet also handling simple formats through conversion to a `DataFrame`
+    internally.
 * **Smart Defaults**: The attempt is made to provide unique chart attribute assignment
   (color, marker, etc) by one or more column names, while supporting custom and/or
   advanced configuration through the same keyword argument.
+
+
+Accepted Charts Data Formats
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Charts predominately
 
 
 Attribute Specification

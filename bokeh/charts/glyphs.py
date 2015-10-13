@@ -198,7 +198,6 @@ class AggregateGlyph(NestedCompositeGlyph):
             grouped = self.groupby(filtered_glyphs, 'label')
 
             for index, group in iteritems(grouped):
-                group = sorted(group, key=lambda x: x.stack_label)
 
                 # separate the negative and positive aggregates into separate groups
                 neg_group = [glyph for glyph in group if glyph.span < 0]
@@ -296,8 +295,9 @@ class Interval(AggregateGlyph):
         y = [self.stack_shift + (self.span / 2.0) + self.start]
         color = [self.color]
         fill_alpha = [self.fill_alpha]
+        line_color = [self.line_color]
         return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color,
-                                     fill_alpha=fill_alpha))
+                                     fill_alpha=fill_alpha, line_color=line_color))
 
     @property
     def x_max(self):
@@ -347,7 +347,8 @@ class Interval(AggregateGlyph):
 
     def build_renderers(self):
         """Yields a `GlyphRenderer` associated with a `Rect` glyph."""
-        glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color', fill_alpha='fill_alpha')
+        glyph = Rect(x='x', y='y', width='width', height='height', fill_color='color',
+                     fill_alpha='fill_alpha', line_color='line_color')
         yield GlyphRenderer(glyph=glyph)
 
 
