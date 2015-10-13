@@ -5,9 +5,10 @@ logger = logging.getLogger(__file__)
 
 from six import add_metaclass, iteritems
 
+from .exceptions import DataIntegrityException
 from .properties import Any, HasProps, List, MetaHasProps, Instance, String
 from .query import find
-from .exceptions import DataIntegrityException
+from . import themes
 from .util.callback_manager import CallbackManager
 from .util.serialization import make_id
 from .validation import check_integrity
@@ -77,7 +78,11 @@ class PlotObject(HasProps, CallbackManager):
         # kwargs may assign to properties, so we need
         # to chain up here after we already initialize
         # some of our fields.
-        super(PlotObject, self).__init__(**kwargs)
+        props = dict()
+        for cls in self.__class__.__mro__[-2::-1]:
+            props.update(themes.default['attrs'].get(cls.__name__, {}))
+        props.update(kwargs)
+        super(PlotObject, self).__init__(**props)
 
     def attach_document(self, doc):
         # we want an ERROR if you attach to a different doc,

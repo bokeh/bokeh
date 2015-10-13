@@ -66,7 +66,7 @@ class AdaptiveTicker(Ticker):
     The smallest allowable interval between two adjacent ticks.
     """)
 
-    max_interval = Float(100.0, help="""
+    max_interval = Float(float('Inf'), help="""
     The largest allowable interval between two adjacent ticks.
     """)
 
