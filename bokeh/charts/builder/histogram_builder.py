@@ -59,7 +59,7 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
       **kw:
 
     Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
+        :class:`Chart`: includes glyph renderers that generate the histograms
 
     Examples:
 

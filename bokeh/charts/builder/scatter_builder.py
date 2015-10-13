@@ -38,7 +38,7 @@ def Scatter(data=None, x=None, y=None, **kws):
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
+        :class:`Chart`: includes glyph renderers that generate the scatter points
 
     Examples:
 
