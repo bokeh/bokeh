@@ -37,6 +37,6 @@ def license():
         None
 
     '''
-    from os.path import join
-    with open(join(__path__[0], 'LICENSE.txt')) as lic:
+    import os
+    with open(os.path.join(__path__[0], os.pardir, 'LICENSE.txt')) as lic:
         print(lic.read())
