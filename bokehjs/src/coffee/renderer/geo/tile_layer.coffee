@@ -58,12 +58,12 @@ class Helpers
   @string_lookup_replace: (str, lookup) ->
     result_str = str
     for key, value of lookup
-      result_str = result_str.replace(key, value.toString())
+      result_str = result_str.replace('{'+key+'}', value)
     return result_str
 
 class TileProvider
 
-  constructor: (@url, @tile_size=256, @x_origin_offset=20037508.34, @y_origin_offset=20037508.34) ->
+  constructor: (@url, @tile_size=256, @x_origin_offset=20037508.34, @y_origin_offset=20037508.34, @extra_url_vars={}) ->
     @utils = new ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}
@@ -116,7 +116,7 @@ class TileProvider
     return @format_tile_url(image_url, x, y, z)
 
   format_tile_url: (url, x, y, z) ->
-    return "Not Implemented"
+    return url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
   retain_neighbors: (reference_tile) ->
     throw Error "Not Implemented"
@@ -409,10 +409,10 @@ class TileLayerView extends Glyph.View
     @x_range.set('end', new_extent[2])
     @y_range.set('end', new_extent[3])
 
-  _create_tile_provider: (provider_type, service_url, tile_size, x_origin_offset, y_origin_offset) ->
-    return new QUADKEYTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset) if(provider_type.toLowerCase() == 'quadkeytileprovider')
-    return new TMSTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset) if(provider_type.toLowerCase() == 'tmstileprovider')
-    return new WMTSTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset)
+  _create_tile_provider: (provider_type, service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars) ->
+    return new QUADKEYTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars) if(provider_type.toLowerCase() == 'quadkeytileprovider')
+    return new TMSTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars) if(provider_type.toLowerCase() == 'tmstileprovider')
+    return new WMTSTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars)
 
   _index_data: () ->
     @_xy_index()

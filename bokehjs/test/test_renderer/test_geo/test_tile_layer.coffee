@@ -81,6 +81,19 @@ describe "Tile Providers", ->
       offset_provider = new Geo.TileProvider(url, 256, x_origin_offset=0, y_origin_offset=0)
       expect(offset_provider.x_origin_offset).to.be.equal(0)
       expect(offset_provider.y_origin_offset).to.be.equal(0)
+   
+    it "should successfully set extra_url_vars property", ->
+      url = 'http://{test_key}/{test_key2}/{X}/{Y}/{Z}.png'
+      expect_url = 'http://test_value/test_value2/0/0/0.png'
+      extra_url_vars =
+        test_key : 'test_value'
+        test_key2 : 'test_value2'
+
+      tile_source = new Geo.TileProvider(url, undefined, undefined, undefined, extra_url_vars)
+      expect(tile_source.extra_url_vars).to.have.any.keys('test_key')
+      expect(tile_source.extra_url_vars).to.have.any.keys('test_key2')
+      formatted_url = tile_source.get_image_url(0,0,0)
+      expect(tile_source.get_image_url(0,0,0)).to.be.equal(expect_url)
 
     it "should prune tiles", ->
 
