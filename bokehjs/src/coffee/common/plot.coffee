@@ -408,12 +408,12 @@ class PlotView extends ContinuumView
 
   _paint_empty: (ctx, frame_box) ->
     @border_props.set_value(ctx)
-    # ctx.fillStyle = @mget('border_fill')
     ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
                  @canvas_view.mget('canvas_height')) # TODO
+    ctx.clearRect(frame_box...)
+
     @background_props.set_value(ctx)
-    # ctx.fillStyle = @mget('background_fill')
-    ctx.fillRect.apply(ctx, frame_box)
+    ctx.fillRect(frame_box...)
 
 class Plot extends HasParent
   type: 'Plot'

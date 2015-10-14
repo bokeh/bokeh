@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 from six import string_types
+import warnings
 
 from ..enums import Location
 from ..mixins import LineProps, TextProps, FillProps
@@ -83,7 +84,25 @@ class Plot(Component):
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
+
+        set_background_fill, set_border_fill = False, False
+        if "background_fill" in kwargs:
+            if "background_fill_color" in kwargs:
+                raise ValueError
+            background_fill = kwargs.pop('background_fill')
+            set_background_fill = True
+        if "border_fill" in kwargs:
+            if "border_fill_color" in kwargs:
+                raise ValueError
+            border_fill = kwargs.pop('border_fill')
+            set_border_fill = True
+
         super(Plot, self).__init__(**kwargs)
+
+        if set_background_fill:
+            self.background_fill = background_fill
+        if set_border_fill:
+            self.border_fill = border_fill
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
@@ -285,6 +304,8 @@ class Plot(Component):
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
 
+    __deprecated_attributes__ = ('background_fill', 'border_fill')
+
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
     """)
@@ -398,13 +419,41 @@ class Plot(Component):
 
     """)
 
-    background_fill = Color("white", help="""
+    @property
+    def background_fill(self):
+        warnings.warn(
+            """
+            Glyph property 'background_fill' will be deprecated in Bokeh
+            0.12.0. Use 'background_fill_color' instead.
+            """)
+        return self.background_fill_color
 
-    """)
+    @background_fill.setter
+    def background_fill(self, color):
+        warnings.warn(
+            """
+            Glyph property 'background_fill' will be deprecated in Bokeh
+            0.12.0. Use 'background_fill_color' instead.
+            """)
+        self.background_fill_color = color
 
-    border_fill = Color("white", help="""
+    @property
+    def border_fill(self):
+        warnings.warn(
+            """
+            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
+            Use 'border_fill_color' instead.
+            """)
+        return self.border_fill_color
 
-    """)
+    @border_fill.setter
+    def border_fill(self, color):
+        warnings.warn(
+            """
+            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
+            Use 'border_fill_color' instead.
+            """)
+        self.border_fill_color = color
 
     background_props = Include(FillProps, help="""
     The %s for the plot background style.
@@ -546,7 +595,7 @@ class GridPlot(Plot):
         match the given selector. See Plot.select for detailed usage infomation.
 
         Returns:
-            seq[PlotObject]
+            seq[bject]
 
         '''
 
