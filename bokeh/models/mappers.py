@@ -9,6 +9,7 @@ from ..properties import Float, Color, Enum, Seq, String
 from ..enums import Palette
 from .. import colors as bkColors
 from .. import palettes as bkPalettes
+from .. import palettes
 
 @abstract
 class ColorMapper(PlotObject):
