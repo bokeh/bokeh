@@ -30,7 +30,7 @@ Support
 -------
 
 Only a subset of Bokeh's objects are capable of rendering in WebGL.
-Currently this is limited to circle and square marker glyphs. We plan
+Currently this is limited to the line, circle marker, and square marker. We plan
 to extend the support to more markers, lines, and other objects such
 as maps. You can safely combine multiple glyphs in a plot, of which
 some are rendered in WebGL, and some are not.
