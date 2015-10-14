@@ -768,7 +768,6 @@ class LineGLGlyph extends BaseGLGlyph
       
       # Do we need to re-calculate segment data and cumsum?
       if Math.abs(@_scale_aspect - (sy / sx)) > Math.abs(1e-3 * @_scale_aspect)
-        console.log('recalculating line segments')
         @_update_scale(sx, sy)
         @_scale_aspect = sy / sx
       
@@ -789,12 +788,41 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
       @prog.set_uniform('u_scale_length', 'float', [scale_length])
       
-      # todo: if I is larger than 65k, we need to draw in parts
-      @index_buffer.set_size(@I_triangles.length*2)
-      @index_buffer.set_data(0, new Uint16Array(@I_triangles))
-      @prog.draw(@gl.TRIANGLES, @index_buffer)
-      # @prog.draw(@gl.LINE_STRIP, @index_buffer)  # Use this to draw the line skeleton
-    
+      if @I_triangles.length < 65535
+        # Data is small enough to draw in one pass
+        @index_buffer.set_size(@I_triangles.length*2)
+        @index_buffer.set_data(0, new Uint16Array(@I_triangles))
+        @prog.draw(@gl.TRIANGLES, @index_buffer)
+        # @prog.draw(@gl.LINE_STRIP, @index_buffer)  # Use this to draw the line skeleton
+      else
+        # Work around the limit that the indexbuffer must be uint16. We draw in chunks.
+        # First collect indices in chunks
+        indices = @I_triangles
+        nvertices = @I_triangles.length
+        chunksize = 64008  # 65536 max. 64008 is divisible by 12
+        chunks = []
+        for i in [0...Math.ceil(nvertices/chunksize)]
+           chunks.push([])
+        for i in [0...indices.length]
+          uint16_index = indices[i] % chunksize
+          chunk = Math.floor(indices[i] / chunksize)
+          chunks[chunk].push(uint16_index)
+        # Then draw each chunk
+        for chunk in [0...chunks.length]
+          these_indices = new Uint16Array(chunks[chunk])
+          offset = chunk * chunksize * 4
+          if these_indices.length == 0
+            continue
+          @prog.set_attribute('a_position', 'vec2', [mainGlyph.glglyph.vbo_position, 0, offset * 2])
+          @prog.set_attribute('a_tangents', 'vec4', [mainGlyph.glglyph.vbo_tangents, 0, offset * 4])
+          @prog.set_attribute('a_segment', 'vec2', [mainGlyph.glglyph.vbo_segment, 0, offset * 2])
+          @prog.set_attribute('a_angles', 'vec2', [mainGlyph.glglyph.vbo_angles, 0, offset * 2])
+          @prog.set_attribute('a_texcoord', 'vec2', [mainGlyph.glglyph.vbo_texcoord, 0, offset * 2])
+          # The actual drawing
+          @index_buffer.set_size(these_indices.length*2)
+          @index_buffer.set_data(0, these_indices)
+          @prog.draw(@gl.TRIANGLES, @index_buffer)
+        
     _set_data: () ->
       @_bake()
       
