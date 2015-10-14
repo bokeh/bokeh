@@ -278,13 +278,14 @@ class LineGLGlyph extends BaseGLGlyph
           // Scale to map to pixel coordinates. The original algorithm from the paper
           // assumed isotropic scale. We obviously do not have this.
           vec2 abs_scale_aspect = abs(u_scale_aspect);
-          vec2 abs_scale = u_scale_length *abs_scale_aspect;
+          vec2 abs_scale = u_scale_length * abs_scale_aspect;
                     
           // Attributes to varyings
           v_segment = a_segment * u_scale_length;
           v_length  = u_length * u_scale_length;
           
           // Correct angles for aspect ratio
+          
           vec2 av;
           av = vec2(1.0, tan(a_angles.x)) / abs_scale_aspect;
           v_angles.x = atan(av.y, av.x);
@@ -314,7 +315,7 @@ class LineGLGlyph extends BaseGLGlyph
           float v = a_texcoord.y;
           vec2 o1 = vec2( +t1.y, -t1.x);
           vec2 o2 = vec2( +t2.y, -t2.x);
-                             
+                     
           // This is a join
           // ----------------------------------------------------------------
           if( t1 != t2 ) {
@@ -429,7 +430,7 @@ class LineGLGlyph extends BaseGLGlyph
           {
               v_miter.y = 1e10;
           }
-      
+          
           v_texcoord = vec2( u, v*w );
           
           // Calculate position in device coordinates. Note that we 
@@ -509,13 +510,23 @@ class LineGLGlyph extends BaseGLGlyph
           }        
           // Bevel join
           else if ( type == 2 ) {
+              if (dx < segment.x) {
+                  vec2 x= texcoord - vec2(segment.x,0.0);
+                  d = max(d, max(abs(x.x), abs(x.y)));
+                  
+              } else if (dx > segment.y) {
+                  vec2 x = texcoord - vec2(segment.y,0.0);
+                  d = max(d, max(abs(x.x), abs(x.y)));
+              }
+              /*  Original code for bevel which does not work for us
               if( (dx < segment.x) ||  (dx > segment.y) )
-                  d = max(d, min(abs(miter.x),abs(miter.y)));
+                  d = max(d, min(abs(x.x),abs(x.y)));
+              */
           }        
           // Miter limit
           if( (dx < segment.x) ||  (dx > segment.y) ) {
               d = max(d, min(abs(miter.x),abs(miter.y)) - miter_limit*linewidth/2.0 );
-          }        
+          }
           return d;
       }
       
