@@ -208,15 +208,8 @@ class LineGLGlyph extends BaseGLGlyph
       uniform float u_antialias;
       uniform float u_length;
       uniform float u_linewidth;
-      uniform vec2 u_linecaps;
-      uniform float u_linejoin;
-      uniform float u_miter_limit;      
-      uniform float u_dash_phase;
-      uniform float u_dash_period;
       uniform float u_dash_index;
-      uniform vec2 u_dash_caps;
       uniform float u_closed;
-      // TODO: some uniforms can be set directly in fragment shader, rather than passing as a varying
       
       attribute vec2 a_position;
       attribute vec4 a_tangents;
@@ -227,19 +220,10 @@ class LineGLGlyph extends BaseGLGlyph
       varying vec4  v_color;
       varying vec2  v_segment;
       varying vec2  v_angles;
-      varying vec2  v_linecaps;
       varying vec2  v_texcoord;
       varying vec2  v_miter;
-      varying float v_miter_limit;
       varying float v_length;
-      varying float v_linejoin;
       varying float v_linewidth;
-      varying float v_antialias;
-      varying float v_dash_phase;
-      varying float v_dash_period;
-      varying float v_dash_index;
-      varying vec2  v_dash_caps;
-      varying float v_closed;
       
       float cross(in vec2 v1, in vec2 v2)
       {
@@ -261,31 +245,20 @@ class LineGLGlyph extends BaseGLGlyph
       
       void main()
       {          
+          bool closed = (u_closed > 0.0);
+          
+          // Attributes and uniforms to varyings
           v_color = u_color;
           v_linewidth = u_linewidth;
-          v_antialias = u_antialias;
-          v_linecaps = u_linecaps;
-          v_linejoin    = u_linejoin;
-          v_miter_limit = u_miter_limit;
-          v_length      = u_length;
-          v_dash_phase  = u_dash_phase;
-          v_dash_period = u_dash_period;
-          v_dash_index  = u_dash_index;
-          v_dash_caps   = u_dash_caps;
-          v_closed = u_closed;
-          bool closed = (v_closed > 0.0);
+          v_segment = a_segment * u_scale_length;
+          v_length = u_length * u_scale_length;
           
           // Scale to map to pixel coordinates. The original algorithm from the paper
           // assumed isotropic scale. We obviously do not have this.
           vec2 abs_scale_aspect = abs(u_scale_aspect);
           vec2 abs_scale = u_scale_length * abs_scale_aspect;
-                    
-          // Attributes to varyings
-          v_segment = a_segment * u_scale_length;
-          v_length  = u_length * u_scale_length;
-          
+            
           // Correct angles for aspect ratio
-          
           vec2 av;
           av = vec2(1.0, tan(a_angles.x)) / abs_scale_aspect;
           v_angles.x = atan(av.y, av.x);
@@ -298,14 +271,13 @@ class LineGLGlyph extends BaseGLGlyph
           v_linewidth = max(v_linewidth, 1.0);
           
           // If color is fully transparent we just will discard the fragment anyway
-          if( v_color.a <= 0.0 )
-          {
+          if( v_color.a <= 0.0 ) {
               gl_Position = vec4(0.0,0.0,0.0,1.0);
               return;
           }
       
           // This is the actual half width of the line
-          float w = ceil(1.25*v_antialias+v_linewidth)/2.0;
+          float w = ceil(1.25*u_antialias+v_linewidth)/2.0;
           
           vec2 position = a_position * abs_scale;
           
@@ -323,7 +295,7 @@ class LineGLGlyph extends BaseGLGlyph
               vec2 t  = normalize(t1+t2);
               vec2 o  = vec2( + t.y, - t.x);
       
-              if ( v_dash_index > 0.0 )
+              if ( u_dash_index > 0.0 )
               {
                   // Broken angle
                   // ----------------------------------------------------------------
@@ -444,12 +416,12 @@ class LineGLGlyph extends BaseGLGlyph
     """
     
     FRAG_: """
+      // Fragment shader that can be convenient during debugging to show the line skeleton.
       precision mediump float;
       uniform vec4  u_color;
       void main () {
         gl_FragColor = u_color;
-      }
-    
+      }    
     """
     
     FRAG: """
@@ -460,22 +432,23 @@ class LineGLGlyph extends BaseGLGlyph
       
       uniform sampler2D u_dash_atlas;
       
+      uniform vec2 u_linecaps;
+      uniform float u_miter_limit;
+      uniform float u_linejoin;
+      uniform float u_antialias;
+      uniform float u_dash_phase;
+      uniform float u_dash_period;
+      uniform float u_dash_index;
+      uniform vec2 u_dash_caps;
+      uniform float u_closed;
+      
       varying vec4  v_color;
       varying vec2  v_segment;
       varying vec2  v_angles;
-      varying vec2  v_linecaps;  // todo: can prob be u_linecaps instead
       varying vec2  v_texcoord;
       varying vec2  v_miter;
-      varying float v_miter_limit;  // todo: can prob be u_miter_limit instead
       varying float v_length;
-      varying float v_linejoin;  // todo: can prob be u_linejoin instead
       varying float v_linewidth;
-      varying float v_antialias;  // todo: can prob be u_antialias instead
-      varying float v_dash_phase;  // todo: can prob be u_dash_phase instead
-      varying float v_dash_period;  // todo: can prob be u_dash_period instead
-      varying float v_dash_index;  // todo: can prob be u_dash_index instead
-      varying vec2  v_dash_caps;  // todo: can prob be u_dash_caps instead
-      varying float v_closed;  // todo: can prob be u_closed instead
       
       // Compute distance to cap ----------------------------------------------------
       float cap( int type, float dx, float dy, float t )
@@ -538,34 +511,34 @@ class LineGLGlyph extends BaseGLGlyph
           }
       
           // Test if dash pattern is the solid one (0)
-          bool solid =  (v_dash_index == 0.0);
+          bool solid =  (u_dash_index == 0.0);
       
           // Test if path is closed
-          bool closed = (v_closed > 0.0);
+          bool closed = (u_closed > 0.0);
           
           vec4 color = v_color;
           float dx = v_texcoord.x;
           float dy = v_texcoord.y;
-          float t = v_linewidth/2.0-v_antialias;
+          float t = v_linewidth/2.0-u_antialias;
           float width = 1.0;  //v_linewidth; original code had dashes scale with line width, we do not
           float d = 0.0;
          
-          vec2 linecaps = v_linecaps;
-          vec2 dash_caps = v_dash_caps;
+          vec2 linecaps = u_linecaps;
+          vec2 dash_caps = u_dash_caps;
           float line_start = 0.0;
-          float line_stop  = v_length;
+          float line_stop = v_length;
   
           // Solid line --------------------------------------------------------------
           if( solid ) {
               d = abs(dy);
               if( (!closed) && (dx < line_start) ) {
-                  d = cap( int(v_linecaps.x), abs(dx), abs(dy), t );
+                  d = cap( int(u_linecaps.x), abs(dx), abs(dy), t );
               }
               else if( (!closed) &&  (dx > line_stop) ) {
-                  d = cap( int(v_linecaps.y), abs(dx)-line_stop, abs(dy), t );
+                  d = cap( int(u_linecaps.y), abs(dx)-line_stop, abs(dy), t );
               }
               else {
-                  d = join( int(v_linejoin), abs(dy), v_segment, v_texcoord, v_miter, v_miter_limit, v_linewidth );
+                  d = join( int(u_linejoin), abs(dy), v_segment, v_texcoord, v_miter, u_miter_limit, v_linewidth );
               }
   
           // Dash line --------------------------------------------------------------
@@ -573,9 +546,9 @@ class LineGLGlyph extends BaseGLGlyph
               float segment_start = v_segment.x;
               float segment_stop  = v_segment.y;
               float segment_center= (segment_start+segment_stop)/2.0;
-              float freq          = v_dash_period*width;
-              float u = mod( dx + v_dash_phase*width, freq);
-              vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, v_dash_index)) * 255.0 -10.0;  // conversion to int-like
+              float freq          = u_dash_period*width;
+              float u = mod( dx + u_dash_phase*width, freq);
+              vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, u_dash_index)) * 255.0 -10.0;  // conversion to int-like
               float dash_center= tex.x * width;
               float dash_type  = tex.y;
               float _start = tex.z * width;
@@ -586,8 +559,8 @@ class LineGLGlyph extends BaseGLGlyph
               // Compute extents of the first dash (the one relative to v_segment.x)
               // Note: this could be computed in the vertex shader
               if( (dash_stop < segment_start) && (dash_caps.x != 5.0) ) {
-                  float u = mod(segment_start + v_dash_phase*width, freq);
-                  vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, v_dash_index)) * 255.0 -10.0;  // conversion to int-like
+                  float u = mod(segment_start + u_dash_phase*width, freq);
+                  vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, u_dash_index)) * 255.0 -10.0;  // conversion to int-like
                   dash_center= tex.x * width;
                   //dash_type  = tex.y;
                   float _start = tex.z * width;
@@ -599,8 +572,8 @@ class LineGLGlyph extends BaseGLGlyph
               // Compute extents of the last dash (the one relatives to v_segment.y)
               // Note: This could be computed in the vertex shader
               else if( (dash_start > segment_stop)  && (dash_caps.y != 5.0) ) {
-                  float u = mod(segment_stop + v_dash_phase*width, freq);
-                  vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, v_dash_index)) * 255.0 -10.0;  // conversion to int-like
+                  float u = mod(segment_stop + u_dash_phase*width, freq);
+                  vec4 tex = texture2D(u_dash_atlas, vec2(u/freq, u_dash_index)) * 255.0 -10.0;  // conversion to int-like
                   dash_center= tex.x * width;
                   //dash_type  = tex.y;
                   float _start = tex.z * width;
@@ -615,8 +588,8 @@ class LineGLGlyph extends BaseGLGlyph
               //if( dx < line_start) discontinuous = false;
               //if( dx > line_stop)  discontinuous = false;
       
-              float d_join = join( int(v_linejoin), abs(dy),
-                                  v_segment, v_texcoord, v_miter, v_miter_limit, v_linewidth );
+              float d_join = join( int(u_linejoin), abs(dy),
+                                  v_segment, v_texcoord, v_miter, u_miter_limit, v_linewidth );
       
               // When path is closed, we do not have room for linecaps, so we make room
               // by shortening the total length
@@ -626,9 +599,9 @@ class LineGLGlyph extends BaseGLGlyph
               }
       
               // We also need to take antialias area into account
-              //line_start += v_antialias;
-              //line_stop  -= v_antialias;
-      
+              //line_start += u_antialias;
+              //line_stop  -= u_antialias;
+
               // Check is dash stop is before line start
               if( dash_stop <= line_start ) {
                   discard;
@@ -756,7 +729,7 @@ class LineGLGlyph extends BaseGLGlyph
               gl_FragColor = color;
           }
           else {
-              d /= v_antialias;
+              d /= u_antialias;
               gl_FragColor = vec4(color.xyz, exp(-d*d)*color.a);
           }
       }
@@ -819,10 +792,8 @@ class LineGLGlyph extends BaseGLGlyph
       # todo: if I is larger than 65k, we need to draw in parts
       @index_buffer.set_size(@I_triangles.length*2)
       @index_buffer.set_data(0, new Uint16Array(@I_triangles))
-      if @FRAG.length < 500
-        @prog.draw(@gl.LINE_STRIP, @index_buffer)
-      else
-        @prog.draw(@gl.TRIANGLES, @index_buffer)
+      @prog.draw(@gl.TRIANGLES, @index_buffer)
+      # @prog.draw(@gl.LINE_STRIP, @index_buffer)  # Use this to draw the line skeleton
     
     _set_data: () ->
       @_bake()
@@ -861,19 +832,21 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_uniform('u_dash_index', 'float', [dash_index])  # 0 means solid line
       @prog.set_uniform('u_dash_phase', 'float', [@glyph.visuals.line.dash_offset.value()])
       @prog.set_uniform('u_dash_period', 'float', [dash_period])
-      @prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])  # TODO: Check what canvas does
-      @prog.set_uniform('u_closed', 'float', [0])  # TODO: we dont do closed lines; rip this out
+      @prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])
+      @prog.set_uniform('u_closed', 'float', [0])  # We dont do closed lines
     
     _bake: () ->
+      # This is what you get if you port 50 lines of numpy code to JS.
+      # V_segment is handled in another method, because it depends on the aspect
+      # ratio of the scale (The original paper/code assumed isotropic scaling).
+      #
+      # Buffer dtype from the Python implementation:
+      #
       # self.vtype = np.dtype( [('a_position', 'f4', 2),
       #                         ('a_segment',  'f4', 2),
       #                         ('a_angles',   'f4', 2),
       #                         ('a_tangents', 'f4', 4),
       #                         ('a_texcoord', 'f4', 2) ])
-      
-      # This is what you get if you port 50 lines of numpy code to JS.
-      # V_segment is not handled here, because it depends on the aspect ratio of
-      # the scale (The original paper/code assumed isotropic scaling).
                   
       # Init array of implicit shape nx2
       n = @nvertices
@@ -960,24 +933,19 @@ class LineGLGlyph extends BaseGLGlyph
       # Order of indices is such that drawing as line_strip reveals the line skeleton
       # Might have implications on culling, if we ever turn that on. 
       # Order in paper was: 0 1 2 1 2 3
-      if 0
-        for i in [0...n]
-          I[i*6+0] = 0 + 4*i
-          I[i*6+1] = 1 + 4*i
-          I[i*6+2] = 2 + 4*i
-          I[i*6+3] = 1 + 4*i
-          I[i*6+4] = 2 + 4*i
-          I[i*6+5] = 3 + 4*i  
-      else
-        for i in [0...n]
-          I[i*6+0] = 0 + 4*i
-          I[i*6+1] = 1 + 4*i
-          I[i*6+2] = 3 + 4*i
-          I[i*6+3] = 2 + 4*i
-          I[i*6+4] = 0 + 4*i
-          I[i*6+5] = 3 + 4*i     
+      for i in [0...n]
+        I[i*6+0] = 0 + 4*i
+        I[i*6+1] = 1 + 4*i
+        I[i*6+2] = 3 + 4*i
+        I[i*6+3] = 2 + 4*i
+        I[i*6+4] = 0 + 4*i
+        I[i*6+5] = 3 + 4*i     
 
     _update_scale: (sx, sy) ->
+      # Update segment data and cumsum so the length along the line has the
+      # scale aspect ratio in it. In the vertex shader we multiply with the
+      # "isotropic part" of the scale.
+      
       n = @nvertices
       m = 4 * n - 4
       # Prepare arrays
