@@ -222,4 +222,4 @@ class SegmentedColorMapper extends HasProperties
     return(new_alpha)
 
 module.exports =
-  Model: SegmentedColorMapper,
+  Model: SegmentedColorMapper

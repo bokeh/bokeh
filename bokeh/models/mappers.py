@@ -203,7 +203,7 @@ class SegmentedColorMapper(ColorMapper):
         super(SegmentedColorMapper, self).__init__(**kwargs)
 
 
-class SegmentedColorMapperTwo(SegmentedColorMapper):
+class LinearColorMapperReplacement(SegmentedColorMapper):
 
     low = Float(help="""
     The minimum value of the range to map into the palette. Values below
@@ -215,22 +215,43 @@ class SegmentedColorMapperTwo(SegmentedColorMapper):
     this are clamped to ``high``.
     """)
 
-    def __init__(self, palette=None, low = None, high = None, alpha=1, **kwargs):
+    # TODO: (jc) what is the color code for transparent?
+    # TODO: (bev) better docstring
+    reserve_color = Color("#ffffff", help="""
+    Used by Abstract Rendering.
+    """)
+
+    # TODO: (bev) better docstring
+    reserve_val = Float(default=None, help="""
+    Used by Abstract Rendering.
+    """)
+
+    def __init__(self, palette=None, low = None, high = None, alpha=1, reserve_color = None, reserve_val = None, **kwargs):
 
         palette = expandPalette(palette)
+
+        # Reuse the expandPalette framework to convert the single reserve color
+        # to a hex code which can be passed to the JS code.  (This feels a bit hackinsh
+        # but it is better than simply dupliacting the code below.)
+        reserve_color = expandPalette([reserve_color])[0]
 
         if not isinstance(palette, list):
             ##### THROW ERROR: 
             pass
 
-        palette.extend(palette[len(palette) - 1])
+        # Duplicate the final color to mimic the behavior of the original 
+        # LinearColorMapper Class
+        palette.append(palette[len(palette) - 1])
+
         kwargs['palette'] = palette
         kwargs['interpolationMethod'] = 'step'
         kwargs['alpha'] = alpha
         kwargs['low'] = low
         kwargs['high'] = high
+        kwargs['reserve_color'] = reserve_color
+        kwargs['reserve_val'] = reserve_val
 
-        super(SegmentedColorMapperTwo, self).__init__(**kwargs)
+        super(LinearColorMapperReplacement, self).__init__(**kwargs)
 
 # Helper function to expand the palette.  Originally in the constructor of the
 # SegmentedColorMapper, I pulled this out so the code could be reused in the 
