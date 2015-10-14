@@ -85,24 +85,7 @@ class Plot(Component):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
 
-        set_background_fill, set_border_fill = False, False
-        if "background_fill" in kwargs:
-            if "background_fill_color" in kwargs:
-                raise ValueError
-            background_fill = kwargs.pop('background_fill')
-            set_background_fill = True
-        if "border_fill" in kwargs:
-            if "border_fill_color" in kwargs:
-                raise ValueError
-            border_fill = kwargs.pop('border_fill')
-            set_border_fill = True
-
         super(Plot, self).__init__(**kwargs)
-
-        if set_background_fill:
-            self.background_fill = background_fill
-        if set_border_fill:
-            self.border_fill = border_fill
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
