@@ -9,7 +9,8 @@ import warnings
 from ..enums import Location
 from ..mixins import LineProps, TextProps, FillProps
 from ..plot_object import PlotObject
-from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
+from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+    List, Dict, Include)
 from ..query import find
 from ..util.string import nice_join
 from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
