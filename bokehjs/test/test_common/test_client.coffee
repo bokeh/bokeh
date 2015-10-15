@@ -56,7 +56,7 @@ with_server = (f) ->
     console.log("server err: #{data}")
   handle.on 'close', (code) ->
     console.log("server exited #{code}")
-    promise.reject("Server exited before test promise was resolved")
+    promise.reject(new Error("Server exited before test promise was resolved"))
 
   cleanup_process = (value_or_error) ->
     console.log("Killing server process")
@@ -83,7 +83,7 @@ with_server = (f) ->
         client.destroy()
         client = null
     else if num_server_attempts > 10
-      promise.reject("Failed to connect to the server")
+      promise.reject(new Error("Failed to connect to the server"))
     else if client != null
       # still waiting on a client we already have...
       setTimeout checkServer, 100
