@@ -9,8 +9,7 @@ from ..enums import (Orientation, SpatialUnits, RenderLevel, Dimension,
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, Float, Either, Auto, String, AngleSpec,
-                          NumberSpec)
+                          Include, Float, Either, Auto, AngleSpec, NumberSpec)
 
 from .renderers import Renderer, GlyphRenderer
 
