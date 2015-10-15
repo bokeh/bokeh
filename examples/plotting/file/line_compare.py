@@ -13,15 +13,6 @@ p2 = figure(title="WebGL", webgl=True)
 ys = 10  # yscale, to increase anisotropy
 lines = []
 
-def interp(x, y):
-    xx, yy = [], []
-    for i in range(len(x)):
-        if i > 0:
-            xx.append(0.5*(x[i-1]+x[i]))
-            yy.append(0.5*(y[i-1]+y[i]))
-        xx.append(x[i])
-        yy.append(y[i])
-    return np.array(xx), np.array(yy)
 
 for p in (p1, p2):
     
@@ -44,7 +35,6 @@ for p in (p1, p2):
     t = np.arange(10)
     x = t - 5
     y = 0.3 * (t + 1) * ((t % 2)*2-1) - 6
-    x, y = interp(*interp(x, y))
     #
     p.line(x,y*ys, color="#aa2222", line_width=6, line_cap='butt', line_join='round', line_dash=[10, 10])
     lines.append(p.renderers[-1])
