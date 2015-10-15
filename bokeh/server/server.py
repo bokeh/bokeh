@@ -12,6 +12,8 @@ from .tornado import BokehTornado
 
 from bokeh.application import Application
 
+from bokeh.resources import DEFAULT_SERVER_HTTP_URL, DEFAULT_SERVER_PORT
+
 class Server(object):
     ''' A Server which creates a new Session for each connection, using an Application to initialize each Session.
 
@@ -28,7 +30,7 @@ class Server(object):
             self._applications = applications
         self._tornado = BokehTornado(self._applications)
         self._http = HTTPServer(self._tornado)
-        self._port = 8888
+        self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
             self._port = kwargs['port']
         # these queue a callback on the ioloop rather than

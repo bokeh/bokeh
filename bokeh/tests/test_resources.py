@@ -2,8 +2,15 @@ from __future__ import absolute_import
 
 import unittest
 
+import os
+
 import bokeh.resources as resources
-from bokeh.resources import _get_cdn_urls
+from bokeh.resources import _get_cdn_urls, websocket_url_for_server_url
+
+
+# if BOKEH_RESOURCES is set many tests in this file fail
+if os.environ.get("BOKEH_RESOURCES"):
+    raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
 WRAPPER = """Bokeh.$(function() {
     foo
@@ -58,6 +65,17 @@ def test_inline_css_resources():
 
 
 class TestResources(unittest.TestCase):
+
+    def test_websocket_url(self):
+        self.assertEqual("ws://example.com:4000/ws", websocket_url_for_server_url("http://example.com:4000"))
+        # with trailing / on original url
+        self.assertEqual("ws://example.com:4000/ws", websocket_url_for_server_url("http://example.com:4000/"))
+        # with https
+        self.assertEqual("wss://example.com:4000/ws", websocket_url_for_server_url("https://example.com:4000"))
+        # with a path
+        self.assertEqual("wss://example.com:4000/bar/ws", websocket_url_for_server_url("https://example.com:4000/bar"))
+        # with path with trailing slash
+        self.assertEqual("wss://example.com:4000/bar/ws", websocket_url_for_server_url("https://example.com:4000/bar/"))
 
     def test_basic(self):
         r = resources.Resources()

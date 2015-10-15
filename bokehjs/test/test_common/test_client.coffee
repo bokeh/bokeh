@@ -13,7 +13,7 @@ global.WebSocket = require("websocket").w3cwebsocket
 
 HasProperties = utils.require "common/has_properties"
 {Document, ModelChangedEvent} = utils.require "common/document"
-{ClientConnection, ClientSession} = utils.require "common/client"
+{ClientConnection, ClientSession, DEFAULT_SERVER_WEBSOCKET_URL} = utils.require "common/client"
 Range1d = utils.require("range/range1d").Model
 
 # Promise works in a very annoying way, make it
@@ -89,7 +89,7 @@ with_server = (f) ->
       setTimeout checkServer, 100
     else
       num_server_attempts = num_server_attempts + 1
-      client = net.connect(8888, 'localhost')
+      client = net.connect(5006, 'localhost')
       client.on 'error', () ->
         client.destroy()
         client = null
@@ -105,13 +105,11 @@ with_server = (f) ->
 
   promise
 
-DEFAULT_WS_URL = "ws://localhost:8888/ws"
-
 describe "Client", ->
 
   it "should be able to connect", ->
     promise = with_server (server_process) ->
-      connection = new ClientConnection(DEFAULT_WS_URL)
+      connection = new ClientConnection(DEFAULT_SERVER_WEBSOCKET_URL)
       connection.connect().then(
         (value) ->
           console.log("Connection result #{value}")
@@ -126,7 +124,7 @@ describe "Client", ->
 
   it "should sync a document between two connections", ->
     promise = with_server (server_process) ->
-      connection1 = new ClientConnection(DEFAULT_WS_URL)
+      connection1 = new ClientConnection(DEFAULT_SERVER_WEBSOCKET_URL)
       added_root = connection1.connect().then(
         (value) ->
           connection1.pull_session().then(
@@ -143,7 +141,7 @@ describe "Client", ->
 
       added_root.then(
         (session_id) ->
-          connection2 = new ClientConnection(DEFAULT_WS_URL)
+          connection2 = new ClientConnection(DEFAULT_SERVER_WEBSOCKET_URL)
           ok = connection2.connect().then(
             (value) ->
               connection2.pull_session(session_id).then(

@@ -46,7 +46,8 @@ import os, time
 # Bokeh imports
 from .document import Document
 from .resources import Resources
-from .client import DEFAULT_SERVER_URL, DEFAULT_SESSION_ID, ClientSession, ClientConnection
+from .client import DEFAULT_SESSION_ID, ClientSession, ClientConnection
+from bokeh.resources import DEFAULT_SERVER_HTTP_URL, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -214,7 +215,7 @@ class State(object):
                 Any existing session with the same name will be overwritten.
                 Use None to generate a random session ID.
 
-            url (str, optional) : URL of the Bokeh server (default: "default")
+            url (str, optional) : base URL of the Bokeh server (default: "default")
                 If "default" use the default localhost URL.
 
             clear (bool, optional) : Whether to clear the document (default: True)
@@ -229,9 +230,9 @@ class State(object):
 
         """
         if url == "default":
-            url = DEFAULT_SERVER_URL
+            url = DEFAULT_SERVER_HTTP_URL
 
-        self._connection = ClientConnection(url=url)
+        self._connection = ClientConnection(url=websocket_url_for_server_url(url))
         self._session = ClientSession(self._connection, sessionid)
         self._document = self._session.document
 

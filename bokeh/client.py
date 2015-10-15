@@ -16,11 +16,11 @@ from tornado.websocket import websocket_connect
 from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
 from bokeh.server.protocol.receiver import Receiver
 from bokeh.server.protocol import Protocol
+from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL
 import uuid
 
 from .document import Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
 
-DEFAULT_SERVER_URL = "ws://localhost:8888/ws"
 DEFAULT_SESSION_ID = "default"
 
 class ClientConnection(object):
@@ -65,7 +65,7 @@ class ClientConnection(object):
             else:
                 yield connection._next()
 
-    def __init__(self, io_loop=None, url=DEFAULT_SERVER_URL):
+    def __init__(self, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
         '''
           Opens a websocket connection to the server.
         '''
