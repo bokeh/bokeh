@@ -132,15 +132,13 @@ class SegmentedColorMapper(ColorMapper):
             if not isinstance(palette, list):
                 # We have a single item which has been passed.
                 if not isinstance(palette, str):
-                    ##### THROW ERROR: palette must be the name of a known palette if it is passed as a scalar
-                    pass
+                    raise ValueError('palette must be the name of a known palette if it is passed as a scalar')
                 else:
                     # This is a string, lets see if we can validate the name
                     if any([x == palette for x in dir(bkPalettes)]):
                         palette = eval('bkPalettes.' + palette)
                     else:
-                        pass
-                        ##### THROW ERROR: The named palette does not seem to exist
+                        raise ValueError('the names palette does not seem to exist')
 
             else:
                 # This is a list object.  Lets itterate over each element of it
@@ -176,10 +174,9 @@ class SegmentedColorMapper(ColorMapper):
                 # Check to ensure that all of the colors were able to be converted
                 none_indexs = [i for i in range(len(tmpPalette)) if tmpPalette[i] == None]
                 if len(none_indexs) > 0:
-                    ##### THROW ERROR: Some colors specified in the palette were unable to be converted into well formatted hex strings [indexs (list the indexs)]
-                    pass
+                    raise ValueError('some colors specified in the palette were unable to be converted into well formatted hex strings')
 
-                # Make the data stored in tmpPalette authorative
+                # Make the data stored in tmpPalette authoritative
                 palette = tmpPalette
 
             kwargs['palette'] = palette
@@ -194,6 +191,13 @@ class SegmentedColorMapper(ColorMapper):
         # the palette, or the direct alpha information specified in the alpha parameter?
         for k,v in list(alpha_hold.items()):
             alpha[k] = v
+
+        # Check to ensure that all of the alpha values are ok.
+        if any([x > 1 for x in alpha]):
+            raise ValueError('alpha can not have any values greater than 1.0')
+
+        if any([x < 0 for x in alpha]):
+            raise ValueError('alpha cannot have any values less than 0.0')
 
         kwargs['alpha'] = alpha
 
