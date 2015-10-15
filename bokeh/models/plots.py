@@ -86,6 +86,14 @@ class Plot(Component):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
 
+        if "border_fill" in kwargs and "border_fill_color" in kwargs:
+            raise RuntimeError("""Conflicting properties set on plot:
+            border_fill, border_fill_color.""")
+
+        if "background_fill" in kwargs and "background_fill_color" in kwargs:
+            raise RuntimeError("""Conflicting properties set on plot:
+            background_fill, background_fill_color.""")
+
         super(Plot, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
