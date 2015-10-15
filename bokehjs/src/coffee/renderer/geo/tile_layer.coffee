@@ -443,8 +443,7 @@ class TileLayerView extends Glyph.View
 
   _map_data: () ->
     if not @map_initialized?
-      debugger
-      @initial_extent = [-20037508.34, -20037508.34, 20037508.34, 20037508.34 ]
+      @initial_extent = @get_extent()
       zoom_level = @tile_source.get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
       new_extent = @tile_source.snap_to_zoom(@initial_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
       @x_range.set('start', new_extent[0])
