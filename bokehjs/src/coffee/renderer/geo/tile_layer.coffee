@@ -58,10 +58,10 @@ class Helpers
   @string_lookup_replace: (str, lookup) ->
     result_str = str
     for key, value of lookup
-      result_str = result_str.replace('{'+key+'}', value)
+      result_str = result_str.replace('{'+key+'}', value.toString())
     return result_str
 
-class TileProvider
+class TileSource
 
   constructor: (@url, @tile_size=256, @x_origin_offset=20037508.34, @y_origin_offset=20037508.34, @extra_url_vars={}) ->
     @utils = new ProjectionUtils()
@@ -71,7 +71,10 @@ class TileProvider
     @min_zoom = 30
 
   update: () ->
+    debugger
     logger.info("Tile Cache Count: " + Object.keys(@tiles).length.toString())
+    logger.info("X_ORIGIN_OFFSET: " + @x_origin_offset.toString())
+    logger.info("Y_ORIGIN_OFFSET: " + @y_origin_offset.toString())
     for key, tile of @tiles
       tile.current = false
       tile.retain = false
@@ -113,19 +116,16 @@ class TileProvider
 
   get_image_url: (x, y, z) ->
     image_url = Helpers.string_lookup_replace(@url, @extra_url_vars)
-    return @format_tile_url(image_url, x, y, z)
-
-  format_tile_url: (url, x, y, z) ->
-    return url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+    return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
   retain_neighbors: (reference_tile) ->
-    throw Error "Not Implemented"
+    throw Error("Not Implemented")
 
   retain_parents: (reference_tile) ->
-    throw Error "Not Implemented"
+    throw Error("Not Implemented")
 
   retain_children: (reference_tile) ->
-    throw Error "Not Implemented"
+    throw Error("Not Implemented")
 
   tile_xyz_to_quadkey: (x, y, z) ->
     return "Not Implemented"
@@ -133,7 +133,7 @@ class TileProvider
   quadkey_to_tile_xyz: (quadkey) ->
     return "Not Implemented"
 
-class MercatorTileProvider extends TileProvider
+class MercatorTileSource extends TileSource
 
   constructor: ->
     super
@@ -356,23 +356,26 @@ class MercatorTileProvider extends TileProvider
         return [x, y, z]
     return [0, 0, 0]
 
-class TMSTileProvider extends MercatorTileProvider
+class TMSTileSource extends MercatorTileSource
 
-  format_tile_url: (url, x, y, z) ->
-    return url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+  get_image_url: (x, y, z) ->
+    image_url = Helpers.string_lookup_replace(@url, @extra_url_vars)
+    return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
-class WMTSTileProvider extends MercatorTileProvider
+class WMTSTileSource extends MercatorTileSource
 
-  format_tile_url: (url, x, y, z) ->
+  get_image_url: (x, y, z) ->
+    image_url = Helpers.string_lookup_replace(@url, @extra_url_vars)
     [x, y, z] = @tms_to_wmts(x, y, z)
-    return url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
+    return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
-class QUADKEYTileProvider extends MercatorTileProvider
+class QUADKEYTileSource extends MercatorTileSource
 
-  format_tile_url: (url, x, y, z) ->
+  get_image_url: (x, y, z) ->
+    image_url = Helpers.string_lookup_replace(@url, @extra_url_vars)
     [x, y, z] = @tms_to_wmts(x, y, z)
     quadKey = @tile_xyz_to_quadkey(x, y, z)
-    return url.replace("{Q}", quadKey)
+    return image_url.replace("{Q}", quadKey)
 
 class TileLayerView extends Glyph.View
 
@@ -389,36 +392,45 @@ class TileLayerView extends Glyph.View
     x_percent = (e.bokeh.plot_x - xmin) / (xmax - xmin)
     y_percent = (e.bokeh.plot_y - ymin) / (ymax - ymin)
 
-    zoom_level = @tile_provider.get_closest_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+    zoom_level = @tile_source.get_closest_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
 
     if e.srcEvent.shiftKey
       zoom_level = zoom_level - 1
     else
       zoom_level = zoom_level + 1
 
-    new_resolution = @tile_provider.resolutions[zoom_level]
+    new_resolution = @tile_source.resolutions[zoom_level]
     new_xrange = new_resolution * @map_frame.get('width')
     new_yrange = new_resolution * @map_frame.get('height')
     nxmin = e.bokeh.plot_x - (x_percent * new_xrange)
     nymin = e.bokeh.plot_y - (y_percent * new_yrange)
     nxmax = xmin + new_xrange
     nymax = ymin + new_yrange
-    new_extent = @tile_provider.snap_to_zoom([nxmin, nymin, nxmax, nymax], @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+    new_extent = @tile_source.snap_to_zoom([nxmin, nymin, nxmax, nymax], @map_frame.get('height'), @map_frame.get('width'), zoom_level)
     @x_range.set('start', new_extent[0])
     @y_range.set('start', new_extent[1])
     @x_range.set('end', new_extent[2])
     @y_range.set('end', new_extent[3])
 
-  _create_tile_provider: (provider_type, service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars) ->
-    return new QUADKEYTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars) if(provider_type.toLowerCase() == 'quadkeytileprovider')
-    return new TMSTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars) if(provider_type.toLowerCase() == 'tmstileprovider')
-    return new WMTSTileProvider(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars)
+  _create_tile_source: (source_type, service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars) ->
+
+    if source_type.toLowerCase() == 'quadkeytilesource'
+      return new QUADKEYTileSource(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars)
+
+    if source_type.toLowerCase() == 'tmstilesource'
+      return new TMSTileSource(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars)
+
+    if source_type.toLowerCase() == 'wmtstilesource'
+      return new WMTSTileSource(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars)
+
+    throw Error("Source Type #{source_type} not among valid tile source types (e.g. QUADKEYTileSource, TMSTileSource, WMTSTileSource)")
+
 
   _index_data: () ->
     @_xy_index()
 
   _set_data: () ->
-    @tile_provider = @_create_tile_provider(@mget('tile_provider'), @mget('url'), @mget('tile_size'), @mget('x_origin_offset'), @mget('y_origin_offset'))
+    @tile_source = @_create_tile_source(@mget('tile_source'), @mget('url'), @mget('tile_size'), @mget('x_origin_offset'), @mget('y_origin_offset'), @mget('extra_url_vars'))
     @pool = new ImagePool()
     @map_plot = @renderer.plot_view.model
     @map_canvas = @renderer.plot_view.canvas_view.ctx
@@ -431,9 +443,10 @@ class TileLayerView extends Glyph.View
 
   _map_data: () ->
     if not @map_initialized?
+      debugger
       @initial_extent = [-20037508.34, -20037508.34, 20037508.34, 20037508.34 ]
-      zoom_level = @tile_provider.get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
-      new_extent = @tile_provider.snap_to_zoom(@initial_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+      zoom_level = @tile_source.get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
+      new_extent = @tile_source.snap_to_zoom(@initial_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
       @x_range.set('start', new_extent[0])
       @y_range.set('start', new_extent[1])
       @x_range.set('end', new_extent[2])
@@ -446,12 +459,12 @@ class TileLayerView extends Glyph.View
     tile_data.current = true
     @_render_tile(tile_data.cache_key)
 
-    @tile_provider.tiles[tile_data.cache_key] = tile_data
+    @tile_source.tiles[tile_data.cache_key] = tile_data
 
   _on_tile_cache_load: (e) =>
     tile_data = e.target.tile_data
     tile_data.img = e.target
-    @tile_provider.tiles[tile_data.cache_key] = tile_data
+    @tile_source.tiles[tile_data.cache_key] = tile_data
 
   _on_tile_error: (e) =>
     return ''
@@ -476,13 +489,13 @@ class TileLayerView extends Glyph.View
     
     tile.tile_data =
       tile_coords : [x, y, z]
-      quadkey : @tile_provider.tile_xyz_to_quadkey(x, y, z)
-      cache_key : @tile_provider.tile_xyz_to_key(x, y, z)
+      quadkey : @tile_source.tile_xyz_to_quadkey(x, y, z)
+      cache_key : @tile_source.tile_xyz_to_key(x, y, z)
       bounds : bounds
       x_coord : bounds[0]
       y_coord : bounds[3]
 
-    tile.src = @tile_provider.get_image_url(x, y, z)
+    tile.src = @tile_source.get_image_url(x, y, z)
     return tile
 
   _render: (ctx, indices, {url, image, need_load, sx, sy, sw, sh, angle}) ->
@@ -499,7 +512,7 @@ class TileLayerView extends Glyph.View
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
 
   _draw_tile: (tile_key) ->
-    tile_obj = @tile_provider.tiles[tile_key]
+    tile_obj = @tile_source.tiles[tile_key]
     if tile_obj?
       [sxmin, symin] = @renderer.plot_view.frame.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]], @renderer.plot_view.canvas)
       [sxmax, symax] = @renderer.plot_view.frame.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]], @renderer.plot_view.canvas)
@@ -536,23 +549,23 @@ class TileLayerView extends Glyph.View
 
   _prefetch_tiles: () =>
     extent = @get_extent()
-    zoom_level = @tile_provider.get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
-    tiles = @tile_provider.get_tiles_by_extent(extent, zoom_level)
+    zoom_level = @tile_source.get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+    tiles = @tile_source.get_tiles_by_extent(extent, zoom_level)
     for t in [0..Math.min(10, tiles.length)] by 1
       [x, y, z, bounds] = t
-      children = @tile_provider.children_by_tile_xyz(x, y, z)
+      children = @tile_source.children_by_tile_xyz(x, y, z)
       for c in children
         [cx, cy, cz, cbounds] = c
-        if @tile_provider.tile_xyz_to_key(cx, cy, cz) of @tile_provider.tiles
+        if @tile_source.tile_xyz_to_key(cx, cy, cz) of @tile_source.tiles
           continue
         else
           @_create_tile(cx, cy, cz, cbounds, true)
 
   _update: (abridged=false) =>
-    @tile_provider.update()
+    @tile_source.update()
     extent = @get_extent()
-    zoom_level = @tile_provider.get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
-    tiles = @tile_provider.get_tiles_by_extent(extent, zoom_level)
+    zoom_level = @tile_source.get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+    tiles = @tile_source.get_tiles_by_extent(extent, zoom_level)
 
     parents = []
     need_load = []
@@ -561,13 +574,13 @@ class TileLayerView extends Glyph.View
     for t in tiles
       [x, y, z, bounds] = t
       if @_is_valid_tile(x, y, z)
-        key = @tile_provider.tile_xyz_to_key(x, y, z)
-        if key of @tile_provider.tiles
+        key = @tile_source.tile_xyz_to_key(x, y, z)
+        if key of @tile_source.tiles
           cached.push(key)
         else
-          [px, py, pz] = @tile_provider.get_closest_parent_by_tile_xyz(x, y, z)
-          parent_key = @tile_provider.tile_xyz_to_key(px, py, pz)
-          if parent_key of @tile_provider.tiles
+          [px, py, pz] = @tile_source.get_closest_parent_by_tile_xyz(x, y, z)
+          parent_key = @tile_source.tile_xyz_to_key(px, py, pz)
+          if parent_key of @tile_source.tiles
             parents.push(parent_key)
           need_load.push(t)
 
@@ -583,11 +596,11 @@ class TileLayerView extends Glyph.View
     # draw cached tiles ===============================================
     @_render_tiles(cached)
     for t in cached
-      @tile_provider.tiles[t].current = true
+      @tile_source.tiles[t].current = true
 
     # prune cached tiles ===============================================
     #if not abridged
-    #  @tile_provider.prune_tiles()
+    #  @tile_source.prune_tiles()
 
 class TileLayer extends Glyph.Model
   default_view: TileLayerView
@@ -604,10 +617,9 @@ class TileLayer extends Glyph.Model
 
   display_defaults: ->
     return _.extend {}, super(), {
-      tile_provider: "WMTSTileProvider"
+      tile_source: "WMTSTileSource"
       url: "http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png"
       tile_size: 256
-      initial_extent: [-180, -90, 180, 90]
       min_zoom:0
       max_zoom:30
       x_origin_offset:20037508.34
@@ -618,9 +630,9 @@ class TileLayer extends Glyph.Model
 module.exports =
   Model: TileLayer
   View: TileLayerView
-  TileProvider: TileProvider
+  TileSource: TileSource
   ProjectionUtils: ProjectionUtils
-  MercatorTileProvider: MercatorTileProvider
-  TMSTileProvider: TMSTileProvider
-  WMTSTileProvider: WMTSTileProvider
-  QUADKEYTileProvider: QUADKEYTileProvider
+  MercatorTileSource: MercatorTileSource
+  TMSTileSource: TMSTileSource
+  WMTSTileSource: WMTSTileSource
+  QUADKEYTileSource: QUADKEYTileSource

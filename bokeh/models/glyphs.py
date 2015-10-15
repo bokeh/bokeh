@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from ..enums import Direction, Anchor
 from ..mixins import FillProps, LineProps, TextProps
 from ..plot_object import PlotObject
-from ..properties import (abstract, AngleSpec, Array, Bool, Dict, DistanceSpec, Enum, Float,
+from ..properties import (abstract, AngleSpec, Any, Array, Bool, Dict, DistanceSpec, Enum, Float,
                           Include, Instance, NumberSpec, StringSpec, String, Int)
 
 from .mappers import LinearColorMapper
@@ -847,14 +847,14 @@ class Text(Glyph):
 
 class TileLayer(Glyph):
     
-    _args = ('url', 'tile_provider', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset')
+    _args = ('url', 'tile_source', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars')
 
     url = String("url", help="""
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
     """)
 
-    tile_provider = String(default="WMTSTileProvider", help="""
-    associated tile provider type.  Examples include: WMTSTileProvider, QuadKeyTileProvider, TMSTileProvider
+    tile_source = String(default="WMTSTileSource", help="""
+    associated tile provider type.  Examples include: WMTSTileSource, QuadKeyTileSource, TMSTileSource
     """)
 
     tile_size = Int(default=256, help="""
@@ -876,8 +876,10 @@ class TileLayer(Glyph):
     y_origin_offset = Float(default=20037508.34, help="""
     y offset in plot coordinates
     """)
-
-
+    
+    extra_url_vars = Dict(String, Any(String, Int), help="""
+    A dictionary that maps url variable template variables to string value
+    """)
 
 class Wedge(Glyph):
     """ Render wedges.
