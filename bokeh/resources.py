@@ -25,8 +25,8 @@ from .util.paths import bokehjsdir
 
 
 DEFAULT_SERVER_HOST = "localhost"
-DEFAULT_SERVER_PORT = "5006"
-DEFAULT_SERVER_HTTP_URL = "http://%s:%s/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
+DEFAULT_SERVER_PORT = 5006
+DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
 
 def websocket_url_for_server_url(url):
     if url.startswith("http:"):
