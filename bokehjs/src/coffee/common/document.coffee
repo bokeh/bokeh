@@ -225,10 +225,14 @@ class Document
     }
 
   @from_json_string : (s) ->
+    if s == null or not s?
+      throw new Error("JSON string is #{typeof s}")
     json = JSON.parse(s)
     Document.from_json(json)
 
   @from_json : (json) ->
+    if typeof json != 'object'
+      throw new Error("JSON object has wrong type #{typeof json}")
     roots_json = json['roots']
     root_ids = roots_json['root_ids']
     references_json = roots_json['references']
@@ -254,6 +258,7 @@ class Document
     json_events = []
     for event in events
       if event.document != @
+        console.log("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
         throw new Error("Cannot create a patch using events from a different document")
       if event instanceof ModelChangedEvent
         value = event.new_
