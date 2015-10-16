@@ -103,7 +103,8 @@ class ToolManager extends HasProperties
       if tools.length == 0
         continue
       gestures[et].tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
-      gestures[et].tools[0].set('active', true)
+      if et not in ['pinch', 'scroll']
+        gestures[et].tools[0].set('active', true)
 
   _active_change: (tool) =>
     et = tool.get('event_type')
