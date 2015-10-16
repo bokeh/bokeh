@@ -59,8 +59,10 @@ describe "Tile Sources", ->
   tol = 0.01
 
   describe "Tile Source (Base Class)", ->
-    url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
-    source = new Geo.TileSource(url, 256)
+    tile_options =
+      url : 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
+
+    source = new Geo.TileSource(tile_options)
 
     it "should remove tile and add back to image pool ", ->
       expect(source.pool.images.length).to.be.equal(0)
@@ -78,18 +80,25 @@ describe "Tile Sources", ->
       expect(xyz).to.be.eql([1,1,1])
 
     it "should successfully set x_origin_offset and y_origin_offset", ->
-      offset_source = new Geo.TileSource(url, 256, x_origin_offset=0, y_origin_offset=0)
+      tile_options =
+        x_origin_offset : 0
+        y_origin_offset : 0
+      offset_source = new Geo.TileSource(tile_options)
       expect(offset_source.x_origin_offset).to.be.equal(0)
       expect(offset_source.y_origin_offset).to.be.equal(0)
    
     it "should successfully set extra_url_vars property", ->
-      url = 'http://{test_key}/{test_key2}/{X}/{Y}/{Z}.png'
-      expect_url = 'http://test_value/test_value2/0/0/0.png'
-      extra_url_vars =
+
+      test_extra_url_vars =
         test_key : 'test_value'
         test_key2 : 'test_value2'
 
-      tile_source = new Geo.TileSource(url, undefined, undefined, undefined, extra_url_vars)
+      tile_options =
+        url : 'http://{test_key}/{test_key2}/{X}/{Y}/{Z}.png'
+        extra_url_vars : test_extra_url_vars
+
+      tile_source = new Geo.TileSource(tile_options)
+      expect_url = 'http://test_value/test_value2/0/0/0.png'
       expect(tile_source.extra_url_vars).to.have.any.keys('test_key')
       expect(tile_source.extra_url_vars).to.have.any.keys('test_key2')
       formatted_url = tile_source.get_image_url(0,0,0)
@@ -120,17 +129,31 @@ describe "Tile Sources", ->
       T.expect_mercator_tile_counts(source)
 
     it "should successfully set x_origin_offset and y_origin_offset", ->
-      offset_source = new Geo.TMSTileSource(url, 256, x_origin_offset=0, y_origin_offset=0)
+      tile_options = 
+        x_origin_offset : 0
+        y_origin_offset : 0
+      offset_source = new Geo.TMSTileSource(tile_options)
       expect(offset_source.x_origin_offset).to.be.equal(0)
       expect(offset_source.y_origin_offset).to.be.equal(0)
+
+    it "should account of x_origin_offset and y_origin_offset", ->
+      tile_options =
+        x_origin_offset : 0
+        y_origin_offset : 0
+      offset_source = new Geo.TMSTileSource(tile_options)
+      bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
+      expect(bounds).to.include(0)
 
     it "should calculate resolution", ->
       expect(source.get_resolution(1)).to.be.closeTo(78271.517, tol)
       expect(source.get_resolution(12)).to.be.closeTo(38.2185, tol)
 
   describe "WMTS tile source", ->
-    url = 'http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga'
-    source = new Geo.WMTSTileSource(url)
+
+    tile_options =
+      url : 'http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga'
+
+    source = new Geo.WMTSTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -143,10 +166,6 @@ describe "Tile Sources", ->
       expect(bounds[2]).to.be.closeTo(-10018754.171394622, tol)
       expect(bounds[3]).to.be.closeTo(3502650.384139918, tol)
 
-    it "should account of x_origin_offset and y_origin_offset", ->
-      offset_source = new Geo.TMSTileSource(url, 256, 0, 0)
-      bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
-      expect(bounds).to.include(0)
 
     it "should get tile bounds in lat/lng", ->
       [x, y, z] = source.wmts_to_tms(511, 845, 11)
@@ -157,8 +176,9 @@ describe "Tile Sources", ->
       expect(bounds[3]).to.be.closeTo(29.99300228455108, tol)
 
   describe "QUADKEY tile source", ->
-    url = 'http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0'
-    source = new Geo.QUADKEYTileSource(url)
+    tile_options =
+      url : 'http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0'
+    source = new Geo.QUADKEYTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -222,8 +242,10 @@ describe "Tile Sources", ->
       expect(bounds[3]).to.be.closeTo(29.99300228455108, tol)
 
     it "should get tile urls by geographic extent", ->
-      service = 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
-      source = new Geo.TMSTileSource(service)
+      tile_options =
+        url : 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
+
+      source = new Geo.TMSTileSource(tile_options)
 
       [xmin, ymin, xmax, ymax, level] = [-90.283741, 29.890626, -89.912952,
                                           30.057766, 11]

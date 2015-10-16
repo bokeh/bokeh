@@ -847,7 +847,7 @@ class Text(Glyph):
 
 class TileLayer(Glyph):
     
-    _args = ('url', 'tile_source', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars')
+    _args = ('url', 'tile_source', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
     url = String("url", help="""
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
@@ -880,6 +880,11 @@ class TileLayer(Glyph):
     extra_url_vars = Dict(String, Any(String, Int), help="""
     A dictionary that maps url variable template variables to string value
     """)
+
+    initial_resolution = Float(default=1.0, help="""
+    y offset in plot coordinates
+    """)
+
 
 class Wedge(Glyph):
     """ Render wedges.

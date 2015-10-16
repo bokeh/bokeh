@@ -63,7 +63,15 @@ class Helpers
 
 class TileSource
 
-  constructor: (@url, @tile_size=256, @x_origin_offset=20037508.34, @y_origin_offset=20037508.34, @extra_url_vars={}) ->
+  constructor: (options={}) ->
+
+    @url = options.url ? ''
+    @tile_size = options.tile_size ? 256
+    @full_extent = options.full_extent ? [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
+    @extra_url_vars = options.extra_url_vars ? {}
+    @x_origin_offset = options.x_origin_offset ? 20037508.34
+    @y_origin_offset = options.y_origin_offset ? 20037508.34
+
     @utils = new ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}
@@ -71,7 +79,6 @@ class TileSource
     @min_zoom = 30
 
   update: () ->
-    debugger
     logger.info("Tile Cache Count: " + Object.keys(@tiles).length.toString())
     logger.info("X_ORIGIN_OFFSET: " + @x_origin_offset.toString())
     logger.info("Y_ORIGIN_OFFSET: " + @y_origin_offset.toString())
@@ -412,16 +419,24 @@ class TileLayerView extends Glyph.View
     @x_range.set('end', new_extent[2])
     @y_range.set('end', new_extent[3])
 
-  _create_tile_source: (source_type, service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars) ->
+  _create_tile_source: () ->
+
+    tile_options =
+      url : @mget('url')
+      tile_size : @mget('tile_size')
+      x_origin_offset : @mget('x_origin_offset')
+      y_origin_offset : @mget('y_origin_offset')
+      extra_url_vars : @mget('extra_url_vars')
+      initial_resolution : @mget('initial_resolution')
 
     if source_type.toLowerCase() == 'quadkeytilesource'
-      return new QUADKEYTileSource(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars)
+      return new QUADKEYTileSource(tile_options)
 
     if source_type.toLowerCase() == 'tmstilesource'
-      return new TMSTileSource(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars)
+      return new TMSTileSource(tile_options)
 
     if source_type.toLowerCase() == 'wmtstilesource'
-      return new WMTSTileSource(service_url, tile_size, x_origin_offset, y_origin_offset, extra_url_vars)
+      return new WMTSTileSource(tile_options)
 
     throw Error("Source Type #{source_type} not among valid tile source types (e.g. QUADKEYTileSource, TMSTileSource, WMTSTileSource)")
 
@@ -430,7 +445,8 @@ class TileLayerView extends Glyph.View
     @_xy_index()
 
   _set_data: () ->
-    @tile_source = @_create_tile_source(@mget('tile_source'), @mget('url'), @mget('tile_size'), @mget('x_origin_offset'), @mget('y_origin_offset'), @mget('extra_url_vars'))
+    @tile_source = @_create_tile_source()
+
     @pool = new ImagePool()
     @map_plot = @renderer.plot_view.model
     @map_canvas = @renderer.plot_view.canvas_view.ctx
@@ -624,6 +640,7 @@ class TileLayer extends Glyph.Model
       x_origin_offset:20037508.34
       y_origin_offset:20037508.34
       extra_url_vars:{}
+      initial_resolution:2 * Math.PI * 6378137 / 256
     }
 
 module.exports =
