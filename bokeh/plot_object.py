@@ -293,6 +293,12 @@ class PlotObject(HasProps, CallbackManager):
         """
         attrs = self.vm_props(changed_only)
         attrs['id'] = self._id
+        for (k, v) in attrs.items():
+            # we can't serialize Infinity, we send it as None and the
+            # other side has to fix it up.
+            if isinstance(v, float) and v == float('inf'):
+                attrs[k] = None
+
         return attrs
 
 
