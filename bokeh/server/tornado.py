@@ -57,7 +57,7 @@ class BokehTornado(TornadoApplication):
             io_loop = IOLoop.current()
         self._loop = io_loop
         self._loop.add_callback(self._start_async)
-        self._stats_job = PeriodicCallback(self.log_stats, 5.0 * 1000, io_loop=self._loop)
+        self._stats_job = PeriodicCallback(self.log_stats, 15.0 * 1000, io_loop=self._loop)
         self._stats_job.start()
 
     def start(self):
