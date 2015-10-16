@@ -165,7 +165,7 @@ class SegmentedColorMapper extends HasProperties
     buf = new ArrayBuffer(data.length * 4)
     color = new Uint32Array(buf)
 
-    # Test to see if the 'segments' variable existst.
+    # Test to see if the 'segments' variable exists.
     # if it does not we need to set it to the appropriate
     # values for the data
     if @segments == null 
