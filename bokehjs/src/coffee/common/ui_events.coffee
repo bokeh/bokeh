@@ -92,15 +92,16 @@ class UIEvents extends Backbone.Model
     tm = @get('tool_manager')
     base_event_type = event_type.split(":")[0]
     gestures = tm.get('gestures')
-    active = gestures[base_event_type].active
-    @_trigger_event(event_type, active, e)
+    active_tool = gestures[base_event_type].active
+    if active_tool?
+      @_trigger_event(event_type, active_tool, e)
 
-  _trigger_event: (event_type, active, e)->
-    if active?
+  _trigger_event: (event_type, active_tool, e)->
+    if active_tool.get('active') == true
       if event_type == 'scroll'
         e.preventDefault()
         e.stopPropagation()
-      @trigger("#{event_type}:#{active.id}", e)
+      @trigger("#{event_type}:#{active_tool.id}", e)
 
   _bokify_hammer: (e) ->
     if e.pointerType == "mouse"

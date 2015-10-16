@@ -45,3 +45,27 @@ def test_wheel_zoom_can_be_selected(output_file_url, selenium):
     scroll_button.click()
     scroll_classes = scroll_button.get_attribute('class')
     assert 'active' in scroll_classes
+
+
+def test_wheel_zoom_can_be_selected_and_deselected(output_file_url, selenium):
+
+    # Make plot and add a taptool callback that generates an alert
+    plot = make_plot()
+
+    # Save the plot and start the test
+    save(plot)
+    selenium.get(output_file_url)
+
+    # Tap the plot and test for alert
+    scroll_button = selenium.find_element_by_css_selector('.bk-button-bar-list[type="scroll"] button')
+    # Check is not active
+    scroll_classes = scroll_button.get_attribute('class')
+    assert 'active' not in scroll_classes
+    # Click and check is active
+    scroll_button.click()
+    scroll_classes = scroll_button.get_attribute('class')
+    assert 'active' in scroll_classes
+    # Click again and check is not active
+    scroll_button.click()
+    scroll_classes = scroll_button.get_attribute('class')
+    assert 'active' not in scroll_classes
