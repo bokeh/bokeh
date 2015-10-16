@@ -82,7 +82,7 @@ class Document
 
   # called by the model
   _notify_change : (model, attr, old, new_) ->
-    @_trigger_on_change(new ModelChangedEvent(model, attr, old, new_))
+    @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_))
 
   # called by the model on attach
   _notify_attach : (model) ->
