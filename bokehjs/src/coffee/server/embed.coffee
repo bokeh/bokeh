@@ -6,6 +6,7 @@ HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 {Document, RootAddedEvent, RootRemovedEvent} = require "../common/document"
 {ClientConnection} = require "../common/client"
+{Promise} = require "es6-promise"
 
 inject_css = (url) ->
   link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
@@ -49,15 +50,28 @@ add_document_static = (element, doc) ->
 
 _connection = null
 _get_connection = () ->
-  if not _connection?
+  if _connection == null
     _connection = new ClientConnection()
-  _connection
+    _connection.connect().then(
+      (whatever) ->
+        _connection
+      (error) ->
+        logger.error("Failed to connect to Bokeh server #{error}")
+        throw error
+    )
+  else
+    Promise.resolve(_connection)
 
 # map from session id to promise of ClientSession
 _sessions = {}
 _get_session = (session_id) ->
   if session_id not of _sessions
-    _sessions[session_id] = _get_connection().pull_session(session_id)
+    _sessions[session_id] = _get_connection().then(
+      (connection) ->
+        connection.pull_session(session_id)
+      (error) ->
+        throw error
+    )
 
   _sessions[session_id]
 
