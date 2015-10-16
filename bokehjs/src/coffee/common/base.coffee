@@ -47,7 +47,7 @@ locations =
   Span:                     require '../renderer/annotation/span'
   Tooltip:                  require '../renderer/annotation/tooltip'
 
-  TileLayer:                require '../renderer/geo/tile_layer'
+  TileLayer:                require '../renderer/tile/tile_layer'
 
   GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 

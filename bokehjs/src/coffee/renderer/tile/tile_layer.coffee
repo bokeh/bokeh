@@ -67,10 +67,13 @@ class TileSource
 
     @url = options.url ? ''
     @tile_size = options.tile_size ? 256
-    @full_extent = options.full_extent ? [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
     @extra_url_vars = options.extra_url_vars ? {}
-    @x_origin_offset = options.x_origin_offset ? 20037508.34
-    @y_origin_offset = options.y_origin_offset ? 20037508.34
+
+    # any default for these can be set by subclasses
+    @full_extent = options.full_extent
+    @x_origin_offset = options.x_origin_offset
+    @y_origin_offset = options.y_origin_offset
+    @initial_resolution = options.initial_resolution
 
     @utils = new ProjectionUtils()
     @pool = new ImagePool()
@@ -144,9 +147,11 @@ class MercatorTileSource extends TileSource
 
   constructor: ->
     super
-    @origin_shift = 2 * Math.PI * 6378137 / 2.0
-    @initial_resolution = 2 * Math.PI * 6378137 / @tile_size
-    @resolutions = (@get_resolution(z) for z in [0..30])
+    @full_extent = @full_extent ? [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
+    @x_origin_offset = @x_origin_offset ? 20037508.34
+    @y_origin_offset = @y_origin_offset ? 20037508.34
+    @initial_resolution = @initial_resolution ? 2 * Math.PI * 6378137 / @tile_size
+    @resolutions = @resolutions ? (@get_resolution(z) for z in [0..30])
 
   retain_children:(reference_tile) ->
     quadkey = reference_tile.quadkey

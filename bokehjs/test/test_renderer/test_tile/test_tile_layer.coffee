@@ -3,7 +3,7 @@ _ = require "underscore"
 utils = require "../../utils"
 
 base = utils.require "common/base"
-Geo = utils.require "renderer/geo/tile_layer"
+Geo = utils.require "renderer/tile/tile_layer"
 
 describe "Projection Utils", ->
   utils = new Geo.ProjectionUtils()
