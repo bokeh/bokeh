@@ -16,6 +16,8 @@ from tornado import gen
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import Application as TornadoApplication
 
+from bokeh.resources import Resources
+
 from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
 from .core.server_session import ServerSession
@@ -38,6 +40,9 @@ class BokehTornado(TornadoApplication):
     '''
 
     def __init__(self, applications, io_loop=None, extra_patterns=None):
+
+        self._resources = Resources(mode="server", root_url="/")
+
         extra_patterns = extra_patterns or []
         relative_patterns = []
         for key in applications:
@@ -59,6 +64,10 @@ class BokehTornado(TornadoApplication):
         self._loop.add_callback(self._start_async)
         self._stats_job = PeriodicCallback(self.log_stats, 15.0 * 1000, io_loop=self._loop)
         self._stats_job.start()
+
+    @property
+    def resources(self):
+        return self._resources
 
     def start(self):
         ''' Start the Bokeh Server application main loop.

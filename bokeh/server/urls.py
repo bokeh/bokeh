@@ -5,11 +5,12 @@ from __future__ import absolute_import
 
 from .views.ws import WSHandler
 from .views.doc_handler import DocHandler
+from .views.static_handler import StaticHandler
 
 toplevel_patterns = [
     # TODO implement /
     # (r'/', SomeHandler),
-    # TODO add a static handler for the bokeh JS and CSS
+    (r'/bokehjs/static/(.*)', StaticHandler)
 ]
 
 # These all get prefixed with the application route, so /foo/ws etc.

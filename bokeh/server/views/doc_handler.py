@@ -12,9 +12,6 @@ from tornado import gen
 from tornado.web import RequestHandler
 
 from bokeh.embed import server_html_page_for_session
-from bokeh.resources import Resources
-
-SERVER_RESOURCES = Resources(mode='server')
 
 class DocHandler(RequestHandler):
     ''' Implements a custom Tornado handler for document display page
@@ -25,7 +22,7 @@ class DocHandler(RequestHandler):
         # Note: tornado_app is stored as self.application
         super(DocHandler, self).__init__(tornado_app, *args, **kw)
 
-    def initialize(self, bokeh_application):
+    def initialize(self, *args, **kw):
         pass
 
     def get(self, *args, **kwargs):
@@ -34,6 +31,6 @@ class DocHandler(RequestHandler):
         session = self.application.get_session(session_id)
 
         # TODO (havocp) we should add a "title" property to Document probably
-        page = server_html_page_for_session(session_id, SERVER_RESOURCES, "Bokeh App")
+        page = server_html_page_for_session(session_id, self.application.resources, "Bokeh App")
 
         self.write(page)
