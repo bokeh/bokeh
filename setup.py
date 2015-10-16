@@ -84,6 +84,8 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 # Classes and functions
 # -----------------------------------------------------------------------------
 
+copy("LICENSE.txt", "bokeh/")
+
 package_data = ['LICENSE.txt']
 
 def package_path(path, filters=()):
@@ -524,8 +526,6 @@ except ImportError as e:
 
 if bdist_wheel is not None:
     _cmdclass["bdist_wheel"] = bdist_wheel
-
-copy("LICENSE.txt", "bokeh/")
 
 setup(
     name='bokeh',
