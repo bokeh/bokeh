@@ -12,7 +12,14 @@ class Message
     @buffers = []
 
   @assemble : (header_json, metadata_json, content_json) ->
-    new Message(JSON.parse(header_json), JSON.parse(metadata_json), JSON.parse(content_json))
+    try
+      header = JSON.parse(header_json)
+      metadata = JSON.parse(metadata_json)
+      content = JSON.parse(content_json)
+      new Message(header, metadata, content)
+    catch e
+      logger.error("Failure parsing json #{e} #{header_json} #{metadata_json} #{content_json}", e)
+      throw e
 
   @create_header : (msgtype, options) ->
     header = {
@@ -28,13 +35,16 @@ class Message
     new Message(header, {}, content)
 
   send : (socket) ->
-    header_json = JSON.stringify(@header)
-    metadata_json = JSON.stringify(@metadata)
-    content_json = JSON.stringify(@content)
-    #console.log("h #{header_json} m #{metadata_json} c #{content_json}")
-    socket.send(header_json)
-    socket.send(metadata_json)
-    socket.send(content_json)
+    try
+      header_json = JSON.stringify(@header)
+      metadata_json = JSON.stringify(@metadata)
+      content_json = JSON.stringify(@content)
+      socket.send(header_json)
+      socket.send(metadata_json)
+      socket.send(content_json)
+    catch e
+      logger.error("Error sending ", @, e)
+      throw e
 
   complete : ->
     if @header? and @metadata? and @content?
@@ -160,12 +170,14 @@ class ClientConnection
     setTimeout retry, milliseconds
 
   send : (message) ->
+    if @socket == null
+      throw new Error("not connected so cannot send #{message}")
     message.send(@socket)
 
   send_with_reply : (message) ->
     promise = new Promise (resolve, reject) =>
       @_pending_replies[message.msgid()] = [resolve, reject]
-      message.send(@socket)
+      @send(message)
 
     promise.then(
       (message) ->
