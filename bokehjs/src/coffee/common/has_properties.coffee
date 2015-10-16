@@ -351,38 +351,72 @@ class HasProperties extends Backbone.Model
     )
     return resp
 
+  # true if this class can be serialized and synced with the server-side
+  # Document. We should refactor HasProperties to avoid this boolean
+  # (classes that can be in the document should have a special interface
+  # that has the attributes_as_json, attach_document, and related methods)
+  serializable_in_document: () ->
+    true
+
+  # dict of attributes that should be serialized to the server. We
+  # sometimes stick things in attributes that aren't part of the
+  # Document's models, subtypes that do that have to remove their
+  # extra attributes here.
+  serializable_attributes: () ->
+    attrs = {}
+    for k, v in @attributes
+      if v instanceof HasProperties and not v.serializable_in_document()
+        ;
+      else
+        attrs[k] = v
+    attrs
+
   # Convert attributes to "shallow" JSON (values which are themselves models
   # are included as just references)
   # TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
   # backbone will have implemented a toJSON already that we may need to override
   attributes_as_json: () ->
-    json = {}
-    for key of @attributes
-      value = @attributes[key]
+    value_to_json = (key, value) ->
       if value instanceof HasProperties
-        json[key] = value.ref()
+        value.ref()
+      else if _.isArray(value)
+        ref_array = []
+        for v, i in value
+          ref_array.push(value_to_json(i, v))
+        ref_array
+      else if _.isObject(value)
+        ref_obj = {}
+        for own key of value
+          if value[key] instanceof HasProperties and not value[key].serializable_in_document()
+            ;
+          else
+            ref_obj[key] = value_to_json(key, value[key])
+        ref_obj
       else
-        json[key] = value
-    json
+        value
+
+    value_to_json("attributes", @serializable_attributes())
 
   # Get models that are immediately referenced by our properties
   # (do not recurse)
   _immediate_references: () ->
     result = {}
+    record = (value) ->
+      if value instanceof HasProperties and value.serializable_in_document()
+          result[value.id] = value
     for key of @attributes
       value = @attributes[key]
+
       if value is null
         ;
       else if value instanceof HasProperties
-        result[value.id] = value
+        record(value)
       else if Array.isArray(value)
         for elem in value
-          if elem instanceof HasProperties
-            result[elem.id] = elem
+          record(elem)
       else if typeof value == "object"
         for k, elem of value
-          if elem instanceof HasProperties
-            result[elem.id] = elem
+          record(elem)
     for id, obj of result
       obj
 
@@ -402,6 +436,9 @@ class HasProperties extends Backbone.Model
     refs
 
   attach_document: (doc) ->
+    if not @serializable_in_document()
+      logger.error("Not serializable in document ", @)
+      throw new Error("Should not be calling attach_document() on object which isn't serializable_in_document()")
     if @document != null and @document != doc
       throw new Error("Models must be owned by only a single document")
     first_attach = @document == null
@@ -420,6 +457,10 @@ class HasProperties extends Backbone.Model
           c.detach_document()
 
   _tell_document_about_change: (attr, old, new_) ->
+    # this is pretty inefficient to compute @serializable_attributes()
+    # but deal with it later maybe after refactoring HasProperties
+    if attr not of @serializable_attributes()
+      return
     if new_ instanceof HasProperties and @document != null
       new_.attach_document(@document)
     if old instanceof HasProperties

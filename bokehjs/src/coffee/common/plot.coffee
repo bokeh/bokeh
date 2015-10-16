@@ -534,6 +534,11 @@ class Plot extends HasParent
     'min_border_right'
   ]
 
+  serializable_attributes: () ->
+    attrs = super()
+    delete attrs['solver']
+    attrs
+
   defaults: ->
     return _.extend {}, super(), {
       renderers: [],

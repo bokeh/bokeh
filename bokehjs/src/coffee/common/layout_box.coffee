@@ -67,6 +67,9 @@ class LayoutBox extends HasProperties
     @register_setter('aspect', @_set_aspect)
     @add_dependencies('aspect', this, ['width', 'height'])
 
+  serializable_in_document: () ->
+    false
+
   contains: (vx, vy) ->
     return (
       vx >= @get('left') and vx <= @get('right') and
