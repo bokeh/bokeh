@@ -95,7 +95,7 @@ class DataGroup(object):
 
     @property
     def source(self):
-        """The :class:`ColumnDataSource representation of the DataFrame."""
+        """The :class:`ColumnDataSource` representation of the DataFrame."""
         return ColumnDataSource(self.data)
 
     def __getitem__(self, spec_name):
@@ -166,27 +166,28 @@ class ChartDataSource(object):
     """Validates, normalizes, groups, and assigns Chart attributes to groups.
 
     Supported inputs are:
-        Array-like - list, tuple, np.ndarray, pd.Series
-        Table-like - records: list(dict), columns: dict(list), pd.DataFrame, blaze resource
 
-    Converts inputs that could be treated as table-like data to pandas
-    DataFrame, which is used for assigning attributes to data groups.
+    - **Array-like**: list, tuple, :class:`numpy.ndarray`, :class:`pandas.Series`
+    - **Table-like**:
+        - records: list(dict)
+        - columns: dict(list), :class:`pandas.DataFrame`, or blaze resource
+
+    Converts inputs that could be treated as table-like data to pandas DataFrame,
+    which is used for assigning attributes to data groups.
     """
 
-    def __init__(self, df, dims=None, required_dims=None, selections=None,
-                 **kwargs):
-
-        """ Create a :class:`ChartDataSource`.
+    def __init__(self, df, dims=None, required_dims=None, selections=None, **kwargs):
+        """Create a :class:`ChartDataSource`.
 
         Args:
-            df (:class:`pandas.DataFrame`):
+            df (:class:`pandas.DataFrame`): the original data source for the chart
             dims (List(Str), optional): list of valid dimensions for the chart.
             required_dims (List(List(Str)), optional): list of list of valid dimensional
                 selections for the chart.
             selections (Dict(dimension, List(Column)), optional): mapping between a
                 dimension and the column name(s) associated with it. This represents what
                 the user selected for the current chart.
-            **kwargs:
+            **kwargs: additional keyword arguments
         """
         if dims is None:
             dims = DEFAULT_DIMS
@@ -207,9 +208,8 @@ class ChartDataSource(object):
         """Maps chart dimensions to selections and checks input requirements.
 
         Returns:
-            Dict(dimension, List(Column)): Mapping between each dimension and the
-                selected columns. If no selection is made for a dimension, then the
-                dimension will be associated with `None`.
+            mapping between each dimension and the selected columns. If no selection is
+                made for a dimension, then the dimension will be associated with `None`.
         """
         select_map = {}
 
@@ -301,14 +301,14 @@ class ChartDataSource(object):
                                          var_name=var_name, value_name=value_name)
 
     def groupby(self, **specs):
-        """Iterable of chart attribute specifications, associated with columns.
+        """ Iterable of chart attribute specifications, associated with columns.
 
         Iterates over DataGroup, which represent the lowest level of data that is assigned
         to the attributes for plotting.
 
         Yields:
-            :class:`DataGroup`: contains metadata and attributes assigned to the group
-                of data
+            a DataGroup, which contains metadata and attributes
+                assigned to the group of data
         """
         if len(specs) == 0:
             raise ValueError(
@@ -320,10 +320,10 @@ class ChartDataSource(object):
     def from_data(cls, *args, **kwargs):
         """Automatically handle all valid inputs.
 
-        Attempts to use any data that can be represented in a Table-like
-        format, along with any generated requirements, to produce a
-        :class:`ChartDataSource`. Internally, these data types are generated,
-        so that a :class:`pandas.DataFrame` can be generated.
+        Attempts to use any data that can be represented in a Table-like format,
+        along with any generated requirements, to produce a
+        :class:`ChartDataSource`. Internally, these data types are generated, so that a
+        :class:`pandas.DataFrame` can be generated.
 
         Identifies inputs that are array vs table like, handling them accordingly. If
         possible, existing column names are used, otherwise column names are generated.

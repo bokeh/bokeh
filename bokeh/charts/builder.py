@@ -317,14 +317,7 @@ class Builder(HasProps):
         """Helper method to retrieve maximum extents of all the renderers.
 
         Returns:
-            mapping between dimension and value::
-
-                {
-                    'x_max': float,
-                    'y_max': float,
-                    'x_min': float,
-                    'y_min': float
-                }
+            a dict mapping between dimension and value for x_max, y_max, x_min, y_min
 
         """
         return {'x_max': max([renderer.x_max for renderer in self.comp_glyphs]),
