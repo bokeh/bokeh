@@ -2,21 +2,21 @@ from __future__ import absolute_import
 
 # defaults and constants
 from ..plotting_helpers import DEFAULT_PALETTE
-from ._chart_options import default_options as defaults
+from .chart_options import default_options as defaults
 
 # main components
-from ._chart import Chart
+from .chart import Chart
 
 # operations and attributes for users to input into Charts
-from ._attributes import color, marker, cat
+from .attributes import color, marker, cat
 from .operations import stack, blend
 
 # builders
-from .builder.line_builder import Line
-from .builder.histogram_builder import Histogram
-from .builder.bar_builder import Bar
-from .builder.scatter_builder import Scatter
-from .builder.boxplot_builder import BoxPlot
+from .builders.line_builder import Line
+from .builders.histogram_builder import Histogram
+from .builders.bar_builder import Bar
+from .builders.scatter_builder import Scatter
+from .builders.boxplot_builder import BoxPlot
 
 # easy access to required bokeh components
 from ..models import ColumnDataSource

@@ -44,38 +44,78 @@ Attribute Generators
 .. autofunction:: bokeh.charts.marker
 .. autofunction:: bokeh.charts.cat
 
-Helper Classes
---------------
-
-.. autoclass:: bokeh.charts.Chart
-    :members:
-    :undoc-members:
-
-.. autoclass:: bokeh.charts._attributes.AttrSpec
-    :members:
-    :undoc-members:
-
 .. _bokeh_dot_charts_builders:
 
 Builders
 --------
 
-.. autoclass:: bokeh.charts.builder.bar_builder.BarBuilder
+.. autoclass:: bokeh.charts.builders.bar_builder.BarBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.boxplot_builder.BoxPlotBuilder
+.. autoclass:: bokeh.charts.builders.boxplot_builder.BoxPlotBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.histogram_builder.HistogramBuilder
+.. autoclass:: bokeh.charts.builders.histogram_builder.HistogramBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.line_builder.LineBuilder
+.. autoclass:: bokeh.charts.builders.line_builder.LineBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.scatter_builder.ScatterBuilder
+.. autoclass:: bokeh.charts.builders.scatter_builder.ScatterBuilder
     :members:
     :undoc-members:
+
+Helper Classes
+--------------
+
+Core Classes
+~~~~~~~~~~~~
+
+.. autoclass:: bokeh.charts.Chart
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builder.Builder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.data_source.ChartDataSource
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.data_source.DataGroup
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.models.CompositeGlyph
+    :members:
+    :undoc-members:
+    :exclude-members: build_renderers, build_source
+
+Attribute Specs
+~~~~~~~~~~~~~~~
+
+.. autoclass:: bokeh.charts.attributes.AttrSpec
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.attributes.ColorAttr
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.attributes.MarkerAttr
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.attributes.DashAttr
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.attributes.CatAttr
+    :members:
+    :undoc-members:
+

@@ -9,7 +9,7 @@
 from __future__ import absolute_import
 
 import pytest
-from bokeh.charts.builder.line_builder import LineBuilder
+from bokeh.charts.builders.line_builder import LineBuilder
 
 
 @pytest.fixture

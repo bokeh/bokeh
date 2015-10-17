@@ -17,7 +17,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from bokeh.charts._data_source import ChartDataSource
+from bokeh.charts.data_source import ChartDataSource
 
 #-----------------------------------------------------------------------------
 # Classes and functions

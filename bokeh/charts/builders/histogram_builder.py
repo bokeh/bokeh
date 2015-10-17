@@ -20,7 +20,7 @@ from __future__ import absolute_import
 from ...models import Range1d
 from ...properties import Bool, Int
 
-from .._builder import create_and_build
+from ..builder import create_and_build
 from .bar_builder import BarBuilder
 from ..glyphs import HistogramGlyph
 
@@ -35,7 +35,7 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
     """ Create a histogram chart with one or more histograms.
 
     Create a histogram chart using :class:`HistogramBuilder
-    <bokeh.charts.builder.histogram_builder.HistogramBuilder>` to
+    <bokeh.charts.builders.histogram_builder.HistogramBuilder>` to
     render the glyphs from input data and specification. This primary
     use case for the histogram is to depict the distribution of a
     variable by binning and aggregating the values in each bin.
@@ -122,8 +122,8 @@ class HistogramBuilder(BarBuilder):
 
     glyph = HistogramGlyph
 
-    def _setup(self):
-        super(HistogramBuilder, self)._setup()
+    def setup(self):
+        super(HistogramBuilder, self).setup()
 
         if self.attributes['color'].columns is not None:
             self.fill_alpha = 0.6
@@ -131,7 +131,7 @@ class HistogramBuilder(BarBuilder):
     def get_extra_args(self):
         return dict(bin_count=self.bins)
 
-    def _set_ranges(self):
+    def set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """

@@ -18,12 +18,12 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
-from .._builder import Builder, create_and_build
+from ..builder import Builder, create_and_build
 from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph
 from ...properties import Float, Enum, Bool
-from .._properties import Dimension
-from .._attributes import ColorAttr, CatAttr
+from ..properties import Dimension
+from ..attributes import ColorAttr, CatAttr
 from ..operations import Stack, Dodge
 from ...enums import Aggregation
 from ..stats import stats
@@ -35,7 +35,7 @@ from ..stats import stats
 
 def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="sum", xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, continuous_range=None, **kw):
-    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builder.bar_builder.BarBuilder>`
+    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builders.bar_builder.BarBuilder>`
     render the geometry from values, cat and stacked.
 
     Args:
@@ -154,7 +154,7 @@ class BarBuilder(Builder):
 
     label_only = Bool(False)
 
-    def _setup(self):
+    def setup(self):
 
         if self.attributes['color'].columns is None:
             if self.attributes['stack'].columns is not None:
@@ -183,7 +183,7 @@ class BarBuilder(Builder):
             else:
                 self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
 
-    def _set_ranges(self):
+    def set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
@@ -192,7 +192,7 @@ class BarBuilder(Builder):
 
         # Items are identified by tuples. If the tuple has a single value, we unpack it
         for item in x_items:
-            item = self.get_label(item)
+            item = self._get_label(item)
 
             x_labels.append(str(item))
 
@@ -223,7 +223,7 @@ class BarBuilder(Builder):
             BarBuilder.default_attributes.keys())
         return {attr: group[attr] for attr in attrs}
 
-    def _yield_renderers(self):
+    def yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the ColumnDataSource.
@@ -235,15 +235,15 @@ class BarBuilder(Builder):
             group_kwargs = kwargs.copy()
             group_kwargs.update(glyph_kwargs)
 
-            bg = self.glyph(label=self.get_label(group['label']),
+            bg = self.glyph(label=self._get_label(group['label']),
                             values=group.data[self.values.selection].values,
                             agg=stats[self.agg](),
                             width=self.bar_width,
                             color=group['color'],
                             line_color=group['line_color'],
                             fill_alpha=self.fill_alpha,
-                            stack_label=self.get_label(group['stack']),
-                            dodge_label=self.get_label(group['group']),
+                            stack_label=self._get_label(group['stack']),
+                            dodge_label=self._get_label(group['group']),
                             **group_kwargs)
 
             self.add_glyph(group, bg)

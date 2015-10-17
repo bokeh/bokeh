@@ -4,7 +4,7 @@ from copy import copy
 from itertools import cycle
 
 from bokeh.charts import DEFAULT_PALETTE
-from bokeh.charts._properties import ColumnLabel
+from bokeh.charts.properties import ColumnLabel
 from bokeh.charts.utils import marker_types
 from bokeh.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource

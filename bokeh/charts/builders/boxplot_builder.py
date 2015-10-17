@@ -19,13 +19,13 @@ It also add a new chained stacked method.
 
 from __future__ import absolute_import
 
-from .._builder import create_and_build
+from ..builder import create_and_build
 from ...models import Range1d
 from ...properties import Bool, String
 from .bar_builder import BarBuilder
 from ..glyphs import BoxGlyph
 from ..utils import title_from_columns
-from .._attributes import ColorAttr, CatAttr
+from ..attributes import ColorAttr, CatAttr
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -38,7 +38,7 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
     """ Create a BoxPlot chart containing one or more boxes from table-like data.
 
     Create a boxplot chart using :class:`BoxPlotBuilder
-    <bokeh.charts.builder.boxplot_builder.BoxPlotBuilder>` to
+    <bokeh.charts.builders.boxplot_builder.BoxPlotBuilder>` to
     render the glyphs from input data and specification. This primary
     use case for the boxplot is to depict the distribution of a
     variable by providing summary statistics for it. This boxplot is particularly
@@ -117,6 +117,7 @@ class BoxPlotBuilder(BarBuilder):
                           'color': ColorAttr(default='DimGrey'),
                           'outlier_fill_color': ColorAttr(default='red'),
                           'whisker_color': ColorAttr(default='black'),
+                          'line_color': ColorAttr(default='black'),
                           'stack': CatAttr(),
                           'group': CatAttr()}
 
@@ -131,7 +132,7 @@ class BoxPlotBuilder(BarBuilder):
 
     glyph = BoxGlyph
 
-    def _setup(self):
+    def setup(self):
         if self.ylabel is None:
             self.ylabel = self.values.selected_title
 

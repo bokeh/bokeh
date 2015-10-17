@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bokeh.charts._attributes import AttrSpec
+from bokeh.charts.attributes import AttrSpec
 from bokeh.sampledata.autompg import autompg
 
 

@@ -18,9 +18,9 @@ functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.charts._builder import create_and_build, XYBuilder
+from bokeh.charts.builder import create_and_build, XYBuilder
 from bokeh.charts.glyphs import PointGlyph
-from bokeh.charts._attributes import MarkerAttr, ColorAttr
+from bokeh.charts.attributes import MarkerAttr, ColorAttr
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -28,7 +28,7 @@ from bokeh.charts._attributes import MarkerAttr, ColorAttr
 
 
 def Scatter(data=None, x=None, y=None, **kws):
-    """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builder.scatter_builder.ScatterBuilder>`
+    """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builders.scatter_builder.ScatterBuilder>`
     to render the geometry from values.
 
     Args:
@@ -80,7 +80,7 @@ class ScatterBuilder(XYBuilder):
     default_attributes = {'color': ColorAttr(),
                           'marker': MarkerAttr()}
 
-    def _yield_renderers(self):
+    def yield_renderers(self):
         """Use the marker glyphs to display the points.
 
         Takes reference points from data loaded at the ColumnDataSource.

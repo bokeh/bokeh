@@ -19,9 +19,9 @@ from __future__ import absolute_import
 
 from six import iteritems
 from itertools import chain
-from .._builder import XYBuilder, create_and_build
+from ..builder import XYBuilder, create_and_build
 from ..glyphs import LineGlyph
-from .._attributes import DashAttr, ColorAttr
+from ..attributes import DashAttr, ColorAttr
 from ...models.sources import ColumnDataSource
 
 
@@ -31,7 +31,7 @@ from ...models.sources import ColumnDataSource
 
 
 def Line(data=None, x=None, y=None, **kws):
-    """ Create a line chart using :class:`LineBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
+    """ Create a line chart using :class:`LineBuilder <bokeh.charts.builders.line_builder.LineBuilder>` to
     render the glyphs.
 
     The line chart is typically is used with column oriented data, where each column
@@ -104,7 +104,7 @@ class LineBuilder(XYBuilder):
     def measure_input(self):
         return isinstance(self.y.selection, list) or isinstance(self.x.selection, list)
 
-    def _setup(self):
+    def setup(self):
         """Handle input options that require transforming data and/or user selections."""
 
         # handle special case of inputs as measures
@@ -173,7 +173,7 @@ class LineBuilder(XYBuilder):
         # update our dimension with the updated data
         dim_prop.set_data(self._data)
 
-    def _yield_renderers(self):
+    def yield_renderers(self):
         for group in self._data.groupby(**self.attributes):
             glyph = LineGlyph(x=group.get_values(self.x.selection),
                               y=group.get_values(self.y.selection),

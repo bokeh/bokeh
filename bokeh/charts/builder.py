@@ -18,11 +18,11 @@ types on top of it.
 
 from __future__ import absolute_import
 
-from ._attributes import AttrSpec, ColorAttr, CatAttr
-from ._chart import Chart
-from ._data_source import ChartDataSource
-from ._models import CompositeGlyph
-from ._properties import Dimension, ColumnLabel
+from .attributes import AttrSpec, ColorAttr, CatAttr
+from .chart import Chart
+from .data_source import ChartDataSource
+from .models import CompositeGlyph
+from .properties import Dimension, ColumnLabel
 from .utils import collect_attribute_columns
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
@@ -75,27 +75,22 @@ class Builder(HasProps):
     It provides useful methods to be used by the inherited builder classes,
     in order to automate most of the charts creation tasks and leave the
     core customization to specialized builder classes. In that pattern
-    inherited builders just need to provide:
+    inherited builders just need to provide the following methods:
 
-     - the following methods:
-        * _yield_renderers: yields the glyphs to be rendered into the plot (and
-            eventually create the self._legends attribute to be used to
-            create the proper legends when builder is called to build
-            the glyphs on a Chart object
-        * _process_data(optional): Get the input data and calculates the 'data'
-            attribute to be used to calculate the source data
-        * _set_sources(optional): Push data into the self.source attribute
-            (of type ColumnDataSource) and build the proper ranges
-            (self.x_range and self.y_range).
-
-    - the following attributes:
-        x_range:
-        y_range:
-        _legends:
-
-
-    The Builder uses these to _yield_renderers on a chart when called with the
-    create method.
+    * :meth:`~bokeh.charts.builder.Builder.setup` (optional): provides a pre-renderer
+      creation area to introspect properties, setup attributes, etc.
+    * :meth:`~bokeh.charts.builder.Builder.process_data` (optional): provides a
+      pre-renderer creation area to make manipulations to the source data.
+    * :meth:`~bokeh.charts.builder.Builder.yield_renderers`: yields the glyphs to be
+      rendered into the plot. Here you should call the
+      :meth:`~bokeh.charts.builder.Builder.add_glyph` method so that the builder can
+      setup the legend for you.
+    * :meth:`~bokeh.charts.builder.Builder.set_ranges`: setup the ranges for the
+      glyphs. This is called after glyph creation, so you are able to inspect the
+      comp_glyphs for their minimum and maximum values. See the
+      :meth:`~bokeh.charts.builder.Builder.create` method for more information on
+      when this is called and how the builder provides the ranges to the containing
+      :class:`Chart` using the :meth:`Chart.add_ranges` method.
 
     """
 
@@ -109,26 +104,70 @@ class Builder(HasProps):
     xscale = String()
     yscale = String()
 
-    # Dimensional Modeling (specified by Builder)
+    # Dimension Configuration
     dimensions = List(String, help="""The dimension
-        labels that drive the position of the glyphs.""")
-    req_dimensions = Either(List(String), List(List(String)), List(Dict(String, String)),
-                            help="""The dimension labels that must exist to produce the
-                            glyphs. This specifies what are the valid configurations
-                            for the chart, with the option of specifying the type of the
-                            columns.""")
+        labels that drive the position of the glyphs. Subclasses should implement this
+        so that the Builder base class knows which dimensions it needs to operate on.
+        An example for a builder working with cartesian x and y coordinates would be
+        dimensions = ['x', 'y']. You should then instantiate the x and y dimensions as
+        attributes of the subclass of builder using the
+        :class:`Dimension <bokeh.charts.properties.Dimension>` class. One for x,
+        as x = Dimension(...), and one as y = Dimension(...).
+        """)
 
-    attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs used to
-        group data.""")
-    default_attributes = Dict(String, Instance(AttrSpec), help="""The attribute specs
-        used to group data.""")
+    req_dimensions = Either(List(String), List(List(String)), List(Dict(String, String)),
+                            help="""
+        The dimension labels that must exist to produce the glyphs. This specifies what
+        are the valid configurations for the chart, with the option of specifying the
+        type of the columns. The :class:`~bokeh.charts.data_source.ChartDataSource` will
+        inspect this property of your subclass of Builder and use this to fill in any
+        required dimensions if no keyword arguments are used.
+        """)
+
+    # Attribute Configuration
+    attributes = Dict(String, Instance(AttrSpec), help="""
+        The attribute specs used to group data. This is a mapping between the role of
+        the attribute spec (e.g. 'color') and the
+        :class:`~bokeh.charts.attributes.AttrSpec` class (e.g.,
+        :class:`~bokeh.charts.attributes.ColorAttr`). The Builder will use this
+        attributes property during runtime, which will consist of any attribute specs
+        that are passed into the chart creation function (e.g.,
+        :class:`~bokeh.charts.Bar`), ones that are created for the user from simple
+        input types (e.g. `Bar(..., color='red')` or `Bar(..., color=<column_name>)`),
+        or lastly, the attribute spec found in the default_attributes configured for
+        the subclass of :class:`~bokeh.charts.builder.Builder`.
+        """)
+
+    default_attributes = Dict(String, Instance(AttrSpec), help="""
+        The default attribute specs used to group data. This is where the subclass of
+        Builder should specify what the default attributes are that will yield
+        attribute values to each group of data, and any specific configuration. For
+        example, the :class:`ColorAttr` utilizes a default palette for assigning color
+        based on groups of data. If the user doesn't assign a column of the data to the
+        associated attribute spec, then the default attrspec is used, which will yield
+        a constant color value for each group of data. This is by default the first
+        color in the default palette, but can be customized by setting the default color
+        in the ColorAttr.
+        """)
 
     # Derived properties (created by Builder at runtime)
-    attribute_columns = List(ColumnLabel, help="""All columns used for specifying
-        attributes for the Chart.""")
+    attribute_columns = List(ColumnLabel, help="""
+        All columns used for specifying attributes for the Chart. The Builder will set
+        this value on creation so that the subclasses can know the distinct set of columns
+        that are being used to assign attributes.
+        """)
 
-    comp_glyphs = List(Instance(CompositeGlyph), help="""A list of composite glyphs,
-        where each represents a unique subset of data.""")
+    comp_glyphs = List(Instance(CompositeGlyph), help="""
+        A list of composite glyphs, where each represents a unique subset of data. The
+        composite glyph is a helper class that encapsulates all low level
+        :class:`~bokeh.models.glyphs.Glyph`, that represent a higher level group of
+        data. For example, the :class:`BoxGlyph` is a single class that yields
+        each :class:`GlyphRenderer` needed to produce a Box on a :class:`BoxPlot`. The
+        single Box represents a full array of values that are aggregated, and is made
+        up of multiple :class:`~bokeh.models.glyphs.Rect` and
+        :class:`~bokeh.models.glyphs.Segment` glyphs.
+        """)
+
     labels = List(String, help="""Represents the unique labels to be used for legends.""")
     label_attributes = List(String, help="""List of attributes to use for legends.""")
 
@@ -142,8 +181,6 @@ class Builder(HasProps):
                 inferred from incoming input.It can be ``top_left``,
                 ``top_right``, ``bottom_left``, ``bottom_right``.
                 It is ``top_right`` is you set it as True.
-            palette(list, optional): a list containing the colormap as hex values.
-
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -155,24 +192,24 @@ class Builder(HasProps):
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
             data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
+                to the ChartDataSource for each Builder class.
             attr (list(AttrSpec)): to be filled with the new attributes created after
                 loading the data dict.
         """
+        data = None
+        if len(args) != 0:
 
-        if len(args) == 0:
-            data = None
-        else:
+            # chart dimensions can be literal dimensions or attributes
+            dims = self.dimensions + list(self.default_attributes.keys())
 
             # pop the dimension inputs from kwargs
             data_args = {}
-            for dim in self.dimensions:
+            for dim in dims:
                 if dim in kws.keys():
-                    data_args[dim] = kws.pop(dim)
+                    data_args[dim] = kws[dim]
 
             # build chart data source from inputs, given the dimension configuration
-            data_args['dims'] = tuple(self.dimensions)
+            data_args['dims'] = tuple(dims)
             data_args['required_dims'] = tuple(self.req_dimensions)
             data = ChartDataSource.from_data(*args, **data_args)
 
@@ -182,6 +219,10 @@ class Builder(HasProps):
 
             # handle input attrs and ensure attrs have access to data
             self._setup_attrs(data, kws)
+
+            # remove inputs handled by dimensions and chart attributes
+            for dim in dims:
+                kws.pop(dim, None)
 
         super(Builder, self).__init__(**kws)
 
@@ -200,6 +241,7 @@ class Builder(HasProps):
 
         Returns:
             None
+
         """
         source = ColumnDataSource(data.df)
         attr_names = self.default_attributes.keys()
@@ -223,15 +265,16 @@ class Builder(HasProps):
         for attr_name in attr_names:
             self.attributes[attr_name].data = source
 
-    def _setup(self):
+    def setup(self):
         """Perform any initial pre-processing, attribute config.
 
         Returns:
             None
+
         """
         pass
 
-    def _process_data(self):
+    def process_data(self):
         """Make any global data manipulations before grouping.
 
         It has to be implemented by any of the inherited class
@@ -240,18 +283,11 @@ class Builder(HasProps):
 
         Returns:
             None
+
         """
         pass
 
-    def _set_ranges(self):
-        """Calculate and set the x and y ranges.
-
-        It has to be implemented by any of the subclasses of builder
-        representing each different chart type.
-        """
-        raise NotImplementedError('Subclasses of %s must implement _set_ranges.' % self.__class__.__name__)
-
-    def _yield_renderers(self):
+    def yield_renderers(self):
         """ Generator that yields the glyphs to be draw on the plot
 
         It has to be implemented by any of the inherited class
@@ -260,9 +296,37 @@ class Builder(HasProps):
         Yields:
             :class:`GlyphRenderer`
         """
-        raise NotImplementedError('Subclasses of %s must implement _yield_renderers.' % self.__class__.__name__)
+        raise NotImplementedError('Subclasses of %s must implement _yield_renderers.' %
+                                  self.__class__.__name__)
 
-    def _get_dim_extents(self):
+    def set_ranges(self):
+        """Calculate and set the x and y ranges.
+
+        It has to be implemented by any of the subclasses of builder
+        representing each different chart type, and is called after
+        :meth:`yield_renderers`.
+
+        Returns:
+            None
+
+        """
+        raise NotImplementedError('Subclasses of %s must implement _set_ranges.' %
+                                  self.__class__.__name__)
+
+    def get_dim_extents(self):
+        """Helper method to retrieve maximum extents of all the renderers.
+
+        Returns:
+            mapping between dimension and value::
+
+                {
+                    'x_max': float,
+                    'y_max': float,
+                    'x_min': float,
+                    'y_min': float
+                }
+
+        """
         return {'x_max': max([renderer.x_max for renderer in self.comp_glyphs]),
                 'y_max': max([renderer.y_max for renderer in self.comp_glyphs]),
                 'x_min': min([renderer.x_min for renderer in self.comp_glyphs]),
@@ -294,18 +358,18 @@ class Builder(HasProps):
             for attr in self.label_attributes:
                 # this will get the last attribute group label for now
                 if self.attributes[attr].columns is not None:
-                    label = self.get_group_label(group, attr=attr)
+                    label = self._get_group_label(group, attr=attr)
 
         # if no special case for labeling, just use the group label
         if label is None:
-            label = self.get_group_label(group, attr='label')
+            label = self._get_group_label(group, attr='label')
 
         # add to legend if new and unique label
         if str(label) not in self.labels and label is not None:
             self._legends.append((label, glyph.renderers))
             self.labels.append(label)
 
-    def get_group_label(self, group, attr='label'):
+    def _get_group_label(self, group, attr='label'):
         """Get the label of the group by the attribute name.
 
         Args:
@@ -321,10 +385,10 @@ class Builder(HasProps):
         else:
             label = group[attr]
 
-        return self.get_label(label)
+        return self._get_label(label)
 
     @staticmethod
-    def get_label(raw_label):
+    def _get_label(raw_label):
         """Converts a label by string or tuple to a string representation.
 
         Args:
@@ -354,18 +418,18 @@ class Builder(HasProps):
             :class:`Chart`
         """
         # call methods that allow customized setup by subclasses
-        self._setup()
-        self._process_data()
+        self.setup()
+        self.process_data()
 
         # create and add renderers to chart
-        renderers = self._yield_renderers()
+        renderers = self.yield_renderers()
         if chart is None:
             chart = Chart()
         chart.add_renderers(self, renderers)
 
         # handle ranges after renders, since ranges depend on aggregations
         # ToDo: should reconsider where this occurs
-        self._set_ranges()
+        self.set_ranges()
         chart.add_ranges('x', self.x_range)
         chart.add_ranges('y', self.y_range)
 
@@ -394,11 +458,11 @@ class XYBuilder(Builder):
 
     default_attributes = {'color': ColorAttr()}
 
-    def _set_ranges(self):
+    def set_ranges(self):
         """Calculate and set the x and y ranges."""
         # ToDo: handle when only single dimension is provided
 
-        extents = self._get_dim_extents()
+        extents = self.get_dim_extents()
 
         endx = extents['x_max']
         startx = extents['x_min']

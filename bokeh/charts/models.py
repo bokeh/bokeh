@@ -4,7 +4,7 @@ from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, Either, Float, Color, Instance, List,
                               Any)
-from ._properties import ColumnLabel, Column
+from .properties import ColumnLabel, Column
 
 
 class CompositeGlyph(HasProps):
@@ -15,7 +15,7 @@ class CompositeGlyph(HasProps):
     purpose of the composite glyph is to abstract
     away the details of constructing glyphs, based on
     the details of a subset of data, from the grouping
-    operations that a generalized builder must implement.
+    operations that a generalized builders must implement.
 
     In general, the Builder operates at the full column
     oriented data source level, segmenting and assigning
@@ -69,7 +69,6 @@ class CompositeGlyph(HasProps):
             kwargs['label'] = label
 
         super(CompositeGlyph, self).__init__(**kwargs)
-        self.setup()
 
     def setup(self):
         """Build renderers and data source and set sources on renderers."""

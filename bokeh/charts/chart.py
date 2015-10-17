@@ -26,7 +26,7 @@ import numpy as np
 from six import iteritems
 
 from . import defaults
-from ._chart_options import ChartOptions
+from .chart_options import ChartOptions
 from ..browserlib import view
 from ..document import Document
 from ..embed import file_html

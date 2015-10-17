@@ -11,8 +11,8 @@ from __future__ import absolute_import
 from copy import copy
 
 from bokeh.properties import String
-from ._data_source import DataOperator
-from ._models import CollisionModifier
+from .data_source import DataOperator
+from .models import CollisionModifier
 
 
 class Stack(CollisionModifier):

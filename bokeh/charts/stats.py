@@ -19,7 +19,7 @@ import pandas as pd
 
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import HasProps, Float, Either, String, Date, Datetime, Int, Bool, List, Instance
-from ._properties import Column, EitherColumn, ColumnLabel
+from .properties import Column, EitherColumn, ColumnLabel
 
 
 class Stat(HasProps):

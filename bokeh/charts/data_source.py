@@ -24,7 +24,7 @@ import pandas as pd
 from six import iteritems
 from six.moves import zip
 
-from ._properties import ColumnLabel
+from .properties import ColumnLabel
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
 from ..properties import bokeh_integer_types, Datetime, List, HasProps
@@ -53,10 +53,22 @@ class DataOperator(HasProps):
 class DataGroup(object):
     """Contains subset of data and metadata about it.
 
+    The DataGroup contains a map from the labels of each attribute
+    associated with an :class:`AttrSpec` to the value of the attribute assigned to the
+    DataGroup.
+
     Note: resets the index on the input data
     """
 
     def __init__(self, label, data, attr_specs):
+        """Create a DataGroup for the data, with a label and assoicated attributes.
+
+        Args:
+            label (str): the label for the group based on unique values of each column
+            data (:class:`pandas.DataFrame`): the subset of data associated with the group
+            attr_specs dict(str, :class:`AttrSpec`): mapping between attribute name and
+              the associated :class:`AttrSpec`.
+        """
         self.label = label
         self.data = data.reset_index()
         self.attr_specs = attr_specs
@@ -83,6 +95,7 @@ class DataGroup(object):
 
     @property
     def source(self):
+        """The :class:`ColumnDataSource representation of the DataFrame."""
         return ColumnDataSource(self.data)
 
     def __getitem__(self, spec_name):
@@ -218,8 +231,8 @@ class ChartDataSource(object):
                     select_map = selections
             else:
                 # selection input type isn't valid
-                raise ValueError(
-                    'selections input must be provided as: dict(dimension: column) or None')
+                raise ValueError('selections input must be provided as: \
+                                 dict(dimension: column) or None')
 
         # make sure each dimension is represented in the selection map
         for dim in self._dims:

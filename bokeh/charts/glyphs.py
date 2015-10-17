@@ -12,8 +12,8 @@ from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,
                               List, Either, Int, Enum, Color)
-from ._models import CompositeGlyph
-from ._properties import Column, EitherColumn
+from .models import CompositeGlyph
+from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
 from .utils import marker_types
 
@@ -97,6 +97,7 @@ class PointGlyph(XyGlyph):
         kwargs['marker'] = marker or self.marker
         kwargs['size'] = size or self.size
         super(PointGlyph, self).__init__(**kwargs)
+        self.setup()
 
     def get_glyph(self):
         return marker_types[self.marker]
@@ -126,6 +127,7 @@ class LineGlyph(XyGlyph):
         kwargs['width'] = width or self.width
         kwargs['dash'] = dash or self.dash
         super(LineGlyph, self).__init__(**kwargs)
+        self.setup()
 
     def build_source(self):
         if self.x is None:
@@ -265,6 +267,7 @@ class Interval(AggregateGlyph):
         kwargs['values'] = values
 
         super(Interval, self).__init__(**kwargs)
+        self.setup()
 
     def get_start(self):
         """Get the value for the start of the glyph."""
@@ -362,6 +365,7 @@ class BarGlyph(Interval):
     def __init__(self, label, values, agg='sum', **kwargs):
         kwargs['end_agg'] = agg
         super(BarGlyph, self).__init__(label, values, **kwargs)
+        self.setup()
 
     def get_start(self):
         return 0.0
@@ -375,6 +379,7 @@ class QuartileGlyph(Interval):
         kwargs['start_agg'] = Quantile(interval=interval1)
         kwargs['end_agg'] = Quantile(interval=interval2)
         super(QuartileGlyph, self).__init__(**kwargs)
+        self.setup()
 
 
 class BoxGlyph(AggregateGlyph):
@@ -426,6 +431,7 @@ class BoxGlyph(AggregateGlyph):
         kwargs['q3_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.5,
                                            interval2=0.75, width=width, color=bar_color)
         super(BoxGlyph, self).__init__(**kwargs)
+        self.setup()
 
     def build_renderers(self):
         """Yields all renderers that make up the BoxGlyph."""
@@ -533,6 +539,7 @@ class HistogramGlyph(AggregateGlyph):
         kwargs.pop('width', None)
 
         super(HistogramGlyph, self).__init__(**kwargs)
+        self.setup()
 
     def _set_sources(self):
         # No need to set sources, since composite glyphs handle this

@@ -17,7 +17,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from bokeh.charts._builder import Builder
+from bokeh.charts.builders import Builder
 
 #-----------------------------------------------------------------------------
 # Classes and functions
