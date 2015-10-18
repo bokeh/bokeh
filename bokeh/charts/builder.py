@@ -200,7 +200,8 @@ class Builder(HasProps):
         if len(args) != 0:
 
             # chart dimensions can be literal dimensions or attributes
-            dims = self.dimensions + list(self.default_attributes.keys())
+            attrs = list(self.default_attributes.keys())
+            dims = self.dimensions + attrs
 
             # pop the dimension inputs from kwargs
             data_args = {}
@@ -211,6 +212,7 @@ class Builder(HasProps):
             # build chart data source from inputs, given the dimension configuration
             data_args['dims'] = tuple(dims)
             data_args['required_dims'] = tuple(self.req_dimensions)
+            data_args['attrs'] = attrs
             data = ChartDataSource.from_data(*args, **data_args)
 
             # make sure that the builder dimensions have access to the chart data source

@@ -190,6 +190,7 @@ class ChartDataSource(object):
             required_dims = DEFAULT_REQ_DIMS
 
         self.input_type = kwargs.pop('input_type', None)
+        self.attrs = kwargs.pop('attrs', None)
         self._data = df
         self._dims = dims
         self._required_dims = required_dims
@@ -557,7 +558,8 @@ class ChartDataSource(object):
 
         required_dims = self._required_dims
         selections = self._selections
-        dims = [dim for dim, sel in iteritems(selections) if sel is not None]
+        dims = [dim for dim, sel in iteritems(selections) if sel is not None and dim
+                not in self.attrs]
 
         # look for a match for selections to dimensional requirements
         if len(required_dims) > 0:
