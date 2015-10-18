@@ -52,7 +52,7 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
         :class:`~numpy.ndarray`, dict): the data source for the chart
       values (str, optional): the values to use for producing the boxplot using
         table-like input data
-      label (str or list(str), optional: the categorical variable to use for creating
+      label (str or list(str), optional): the categorical variable to use for creating
         separate boxes
       color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
         categorical variable or color attribute specification to use for coloring the

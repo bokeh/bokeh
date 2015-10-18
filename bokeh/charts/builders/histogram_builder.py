@@ -49,7 +49,7 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
         for the chart
       values (str, optional): the values to use for producing the histogram using
         table-like input data
-      label (str or list(str), optional: the categorical variable to use for creating
+      label (str or list(str), optional): the categorical variable to use for creating
         separate histograms
       color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
         categorical variable or color attribute specification to use for coloring the

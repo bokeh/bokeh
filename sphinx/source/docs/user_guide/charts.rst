@@ -40,19 +40,21 @@ coerced into this format. The Charts interface provides support for the more sim
 types externally, which can be useful for quickly building charts, or can avoid having
 to remember how to import and create a dataframe.
 
+.. _userguide_attribute_specification
 
 Attribute Specification
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 An ``AttrSpec`` is a model for generating a look-up from a unique data label (ex. ('a',
-3)), into a chained iterable, and is what powers one-liner chart generation, while
-allowing customized inputs as well.
+3)), into a chained iterable. This functionality is what powers one-liner chart
+generation, while also providing flexibility for customized inputs.
 
 If you were to manually generate the glyphs in a plot, you might start by using Pandas
-``groupby`` to identify unique subsets of your data that you'd like to differentiate.
-You would iterate over each data label and group, then assign unique attributes to the
-group.
+:meth:`~pandas.DataFrame.groupby` to identify unique subsets of your data that you'd
+like to differentiate. You would iterate over each data label and data group and assign
+unique attributes to the group.
 
+**Simple Use Case**
 However, what if we don't want one specific attribute type per group? Instead, let's
 say we grouped by `['a', 'b']`, where `a` has 3 unique values and `b` has 10 unique
 values. We want to change the color by `a` and change the marker by `b`. In the groupby
@@ -60,13 +62,14 @@ iteration, you will see each value of `a` multiple times, meaning you'll need so
 of keeping track of which unique value of which column will result in the assignment of
 each attribute value.
 
-More importantly, you'll need to have enough unique values of the attribute to assign
-to each value you have grouped on, which isn't necessarily complicated, but it can be
-especially time consuming for new or sporatic users. This process of assigning
+**Supporting Exploratory Use**
+More importantly, you'll need to pre-define enough unique values of the attribute to
+assign to each value you have grouped on, which isn't necessarily complicated, but it
+can be especially time consuming for new or sporatic users. This process of assigning
 attributes is also generally of little interest to users that prioritize interactive data
-discovery over novel charts. In this case, you are trying to understand what
-relationships exist within the data, so it defeats the purpose if you must understand
-the data before you can plot it.
+discovery over novel charts. With the discovery use case, you are trying to understand
+what relationships exist within the data, so it is counter-productive to require the user
+to understand the data before plotting it.
 
 Attribute Specifications avoid this issue, but are also designed to provide
 the ability to configure specific behavior as well. The typical pattern of use is shown

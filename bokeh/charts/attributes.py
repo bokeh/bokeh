@@ -20,24 +20,70 @@ class AttrSpec(HasProps):
 
     Once created as attr_spec, you can do attr_spec[data_label], where data_label must
     be a one dimensional tuple of values, representing the unique group in the data.
+
+    See the :meth:`AttrSpec.setup` method for the primary way to provide an existing
+    AttrSpec with data and column values and update all derived property values.
     """
 
     id = Any()
     data = Instance(ColumnDataSource)
     name = String(help='Name of the attribute the spec provides.')
-    columns = Either(ColumnLabel, List(ColumnLabel))
 
-    default = Any(default=None)
-    attr_map = Dict(Any, Any)
-    iterable = List(Any, default=None)
-    items = List(Any, default=None)
+    columns = Either(ColumnLabel, List(ColumnLabel), help="""
+        The label or list of column labels that correspond to the columns that will be
+        used to find all distinct values (single column) or combination of values (
+        multiple columns) to then assign a unique attribute to. If not enough unique
+        attribute values are found, then the attribute values will be cycled.
+        """)
 
-    sort = Bool(default=True)
-    ascending = Bool(default=True)
+    default = Any(default=None, help="""
+        The default value for the attribute, which is used if no column is assigned to
+        the attribute for plotting. If the default value is not provided, the first
+        value in the `iterable` property is used.
+        """)
+
+    attr_map = Dict(Any, Any, help="""
+        Created by the attribute specification when `iterable` and `data` are
+        available. The `attr_map` will include a mapping between the distinct value(s)
+        found in `columns` and the attribute value that has been assigned.
+        """)
+
+    iterable = List(Any, default=None, help="""
+        The iterable of attribute values to assign to the distinct values found in
+        `columns` of `data`.
+        """)
+
+    items = List(Any, default=None, help="""
+        The attribute specification calculates this list of distinct values that are
+        found in `columns` of `data`.
+        """)
+
+    sort = Bool(default=True, help="""
+        A boolean flag to tell the attribute specification to sort `items`, when it is
+        calculated. This affects which value of `iterable` is assigned to each distinct
+        value in `items`.
+        """)
+
+    ascending = Bool(default=True, help="""
+        A boolean flag to tell the attribute specification how to sort `items` if the
+        `sort` property is set to `True`. The default setting for `ascending` is `True`.
+        """)
 
     def __init__(self, columns=None, df=None, iterable=None, default=None,
                  items=None, **properties):
 
+        """Create a lazy evaluated attribute specification.
+
+        Args:
+            columns: a list of column labels
+            df(:class:`~pandas.DataFrame`): the data source for the attribute spec.
+            iterable: an iterable of distinct attribute values
+            default: a value to use as the default attribute when no columns are passed
+            items: the distinct values in columns. If items is provided as input,
+                then the values provided are used instead of being calculated. This can
+                be used to force a specific order for assignment.
+            **properties: other properties to pass to parent :class:`HasProps`
+        """
         properties['columns'] = self._ensure_list(columns)
 
         if df is not None:
@@ -59,6 +105,7 @@ class AttrSpec(HasProps):
 
     @staticmethod
     def _ensure_list(attr):
+        """Always returns a list with the provided value. Returns the value if a list."""
         if isinstance(attr, str):
             return [attr]
         elif isinstance(attr, tuple):
@@ -68,12 +115,14 @@ class AttrSpec(HasProps):
 
     @staticmethod
     def _ensure_tuple(attr):
+        """Return tuple with the provided value. Returns the value if a tuple."""
         if not isinstance(attr, tuple):
             return (attr,)
         else:
             return attr
 
     def _setup_default(self):
+        """Stores the first value of iterable into `default` property."""
         self.default = next(self._setup_iterable())
 
     def _setup_iterable(self):
@@ -101,6 +150,7 @@ class AttrSpec(HasProps):
         return iter_map
 
     def set_columns(self, columns):
+        """Set columns property and update derived properties as needed."""
         columns = self._ensure_list(columns)
         if all([col in self.data.column_names for col in columns]):
             self.columns = columns
@@ -111,6 +161,7 @@ class AttrSpec(HasProps):
             self._setup_default()
 
     def setup(self, data=None, columns=None):
+        """Set the data and update derived properties as needed."""
         if data is not None:
             self.data = data
 
@@ -134,6 +185,10 @@ class AttrSpec(HasProps):
 
 
 class ColorAttr(AttrSpec):
+    """An attribute specification for mapping unique data values to colors.
+
+    Note: Should be expanded to support more complex coloring options.
+    """
     name = 'color'
     iterable = List(Color, default=DEFAULT_PALETTE)
 
@@ -145,6 +200,7 @@ class ColorAttr(AttrSpec):
 
 
 class MarkerAttr(AttrSpec):
+    """An attribute specification for mapping unique data values to markers."""
     name = 'marker'
     iterable = List(String, default=list(marker_types.keys()))
 
@@ -159,6 +215,7 @@ dashes = DashPattern._values
 
 
 class DashAttr(AttrSpec):
+    """An attribute specification for mapping unique data values to line dashes."""
     name = 'dash'
     iterable = List(String, default=dashes)
 
@@ -170,6 +227,12 @@ class DashAttr(AttrSpec):
 
 
 class CatAttr(AttrSpec):
+    """An attribute specification for mapping unique data values to labels.
+
+    Note: this is a special attribute specification, which is used for defining which
+        labels are used for one aspect of a chart (grouping) vs another (stacking or
+        legend)
+    """
     name = 'nest'
 
     def __init__(self, **kwargs):
@@ -196,7 +259,17 @@ to the Chart.
 
 
 def color(columns=None, palette=None, **kwargs):
-    """Produces a ColorAttr specification for coloring groups of data based on columns."""
+    """Produces a ColorAttr specification for coloring groups of data based on columns.
+
+    Args:
+        columns (str or list(str), optional): a column or list of columns for coloring
+        palette (list(str), optional): a list of colors to use for assigning to unique
+            values in `columns`.
+        **kwargs: any keyword, arg supported by :class:`AttrSpec`
+
+    Returns:
+        a `ColorAttr` object
+    """
     if palette is not None:
         kwargs['palette'] = palette
 
@@ -215,7 +288,7 @@ def marker(columns=None, markers=None, **kwargs):
         **kwargs: any keyword, arg supported by :class:`AttrSpec`
 
     Returns:
-        :class:`CatAttr`
+        a `MarkerAttr` object
     """
     if markers is not None:
         kwargs['markers'] = markers
@@ -234,7 +307,7 @@ def cat(columns=None, cats=None, sort=True, ascending=True, **kwargs):
         **kwargs: any keyword, arg supported by :class:`AttrSpec`
 
     Returns:
-        :class:`CatAttr`
+        a `CatAttr` object
     """
     if cats is not None:
         kwargs['cats'] = cats
