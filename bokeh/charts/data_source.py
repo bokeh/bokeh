@@ -1,10 +1,4 @@
-"""This is the Bokeh charts interface. It gives you a high level API to build
-complex plot is a simple way.
-
-This is the ChartObject class, a minimal prototype class to build more chart
-types on top of it. It provides the mechanisms to support the shared chained
-methods.
-"""
+"""The classes and functionality used to transform data inputs to consistent types."""
 # -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
 #

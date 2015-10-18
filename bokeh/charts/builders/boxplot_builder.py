@@ -48,8 +48,7 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
     variable by an associated categorical variable.
 
     Args:
-      data (:class:`~pandas.DataFrame`, :class:`~pandas.Series`, list, \
-        :class:`~numpy.ndarray`, dict): the data source for the chart
+      data (:ref:`userguide_charts_data_types`): the data source for the chart
       values (str, optional): the values to use for producing the boxplot using
         table-like input data
       label (str or list(str), optional): the categorical variable to use for creating

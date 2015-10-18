@@ -45,8 +45,7 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
     the variable by a categorical variable.
 
     Args:
-      data (pandas.DataFrame, pandas.Series, list, numpy.array, dict): the data source
-        for the chart
+      data (:ref:`userguide_charts_data_types`): the data source for the chart
       values (str, optional): the values to use for producing the histogram using
         table-like input data
       label (str or list(str), optional): the categorical variable to use for creating

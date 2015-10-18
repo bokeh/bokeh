@@ -51,6 +51,13 @@ def Line(data=None, x=None, y=None, **kws):
     In addition the the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
+    Note: this chart type differs on input types as compared to other charts,
+        due to the way that line charts typically are plotting labeled series. For
+        example, a column for APPL stock prices over time. Another way this could be
+        plotted is to have a DataFrame with a column of `stock_label` and columns of
+        `price`, which is the stacked format. Both should be supported, but the former
+        is the expected one. Internally, the latter format is being derived.
+
     Returns:
         :class:`Chart`: includes glyph renderers that generate the lines
 

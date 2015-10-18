@@ -32,7 +32,9 @@ def Scatter(data=None, x=None, y=None, **kws):
     to render the geometry from values.
 
     Args:
-        data (arrays or dict(array) or list(dict) or pd.DataFrame): table-like data
+        data (:ref:`userguide_charts_data_types`): table-like data
+        x (str or list(str), optional): the column label to use for the x dimension
+        y (str or list(str), optional): the column label to use for the y dimension
 
     In addition the the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.

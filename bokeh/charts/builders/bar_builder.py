@@ -39,7 +39,7 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     render the geometry from values, cat and stacked.
 
     Args:
-        data (:class:`DataFrame <pandas.DataFrame>` or dict(name, column)): the data
+        data (:ref:`userguide_charts_data_types`): the data
             source for the chart.
         values (str, optional): iterable 2d representing the data series
             values matrix.

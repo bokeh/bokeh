@@ -31,6 +31,7 @@ Key Concepts
   (color, marker, etc) by one or more column names, while supporting custom and/or
   advanced configuration through the same keyword argument.
 
+.. _userguide_charts_data_types:
 
 Accepted Charts Data Formats
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,6 +40,13 @@ Charts make use of Pandas :class:`~pandas.DataFrame` internally, so any inputs p
 coerced into this format. The Charts interface provides support for the more simple
 types externally, which can be useful for quickly building charts, or can avoid having
 to remember how to import and create a dataframe.
+
+The input types accepted are:
+
+- **Array-like**: 1..* list, tuple, :class:`numpy.ndarray`, :class:`pandas.Series`
+- **Table-like**:
+    - records: a list(dict)
+    - columns: a dict(list), :class:`pandas.DataFrame`, or blaze resource
 
 .. _userguide_attribute_specification:
 
