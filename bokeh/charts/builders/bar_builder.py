@@ -94,6 +94,7 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
         kw['label_only'] = True
         if (agg == 'sum') or (agg == 'mean'):
             agg = 'count'
+            values = label
 
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
