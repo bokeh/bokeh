@@ -326,9 +326,14 @@ class ChartDataSource(object):
         Returns:
             :class:`ColumnDataSource`
         """
+
+        # make sure the attributes are not considered for data inputs
         attrs = kwargs.pop('attrs', None)
         if attrs is not None:
-            args = [arg for arg in args if arg not in attrs]
+            # look at each arg, and keep it if it isn't a string, or if it is a string,
+            #  make sure that it isn't the name of an attribute
+            args = [arg for arg in args if (not isinstance(arg, str) or
+                                            isinstance(arg, str) and arg not in attrs)]
 
         arrays = [arg for arg in args if cls.is_array(arg)]
         tables = [arg for arg in args if cls.is_table(arg) or cls.is_list_dicts(arg)]
