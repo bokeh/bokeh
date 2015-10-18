@@ -187,7 +187,9 @@ class BarBuilder(Builder):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        x_items = self.attributes['label']._items
+        x_items = self.attributes['label'].items
+        if x_items is None:
+            x_items = ''
         x_labels = []
 
         # Items are identified by tuples. If the tuple has a single value, we unpack it

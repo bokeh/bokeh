@@ -326,6 +326,10 @@ class ChartDataSource(object):
         Returns:
             :class:`ColumnDataSource`
         """
+        attrs = kwargs.pop('attrs', None)
+        if attrs is not None:
+            args = [arg for arg in args if arg not in attrs]
+
         arrays = [arg for arg in args if cls.is_array(arg)]
         tables = [arg for arg in args if cls.is_table(arg) or cls.is_list_dicts(arg)]
 
@@ -558,8 +562,9 @@ class ChartDataSource(object):
 
         required_dims = self._required_dims
         selections = self._selections
-        dims = [dim for dim, sel in iteritems(selections) if sel is not None and dim
-                not in self.attrs]
+        dims = [dim for dim, sel in iteritems(selections) if sel is not None]
+        if self.attrs is not None:
+            dims = [dim for dim in dims if dim not in self.attrs]
 
         # look for a match for selections to dimensional requirements
         if len(required_dims) > 0:
