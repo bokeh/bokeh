@@ -175,8 +175,7 @@ class Builder(HasProps):
         """Common arguments to be used by all the inherited classes.
 
         Args:
-            data (iterable): iterable 2d representing the data series
-                values matrix.
+            data (:ref:`userguide_charts_data_types`): source data for the chart
             legend (str, bool): the legend of your plot. The legend content is
                 inferred from incoming input.It can be ``top_left``,
                 ``top_right``, ``bottom_left``, ``bottom_right``.
