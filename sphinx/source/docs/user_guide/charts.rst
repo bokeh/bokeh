@@ -40,7 +40,7 @@ coerced into this format. The Charts interface provides support for the more sim
 types externally, which can be useful for quickly building charts, or can avoid having
 to remember how to import and create a dataframe.
 
-.. _userguide_attribute_specification
+.. _userguide_attribute_specification:
 
 Attribute Specification
 ~~~~~~~~~~~~~~~~~~~~~~~

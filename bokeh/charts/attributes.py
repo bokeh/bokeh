@@ -71,7 +71,6 @@ class AttrSpec(HasProps):
 
     def __init__(self, columns=None, df=None, iterable=None, default=None,
                  items=None, **properties):
-
         """Create a lazy evaluated attribute specification.
 
         Args:

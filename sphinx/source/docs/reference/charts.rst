@@ -8,8 +8,6 @@
     :local:
     :depth: 2
 
-.. _userguide_charts_generic_arguments:
-
 Chart Options
 -------------
 
@@ -17,6 +15,8 @@ See the options available as input to all Charts in
 :ref:`userguide_charts_defaults`. Each of these can
 be set at a global level with the shared defaults
 object, or can be passed as kwargs to each Chart.
+
+.. _bokeh_charts_charts:
 
 Charts
 ------
@@ -29,6 +29,8 @@ Charts
     .. autofunction:: Line
     .. autofunction:: Scatter
 
+.. _bokeh_charts_functions:
+
 Chart Functions
 ---------------
 
@@ -36,6 +38,8 @@ Data Operations
 ~~~~~~~~~~~~~~~
 
 .. autofunction:: bokeh.charts.blend
+
+.. _bokeh_charts_attr_gen:
 
 Attribute Generators
 ~~~~~~~~~~~~~~~~~~~~
@@ -69,8 +73,12 @@ Builders
     :members:
     :undoc-members:
 
+.. _bokeh_charts_helper_classes:
+
 Helper Classes
 --------------
+
+.. _bokeh_charts_core:
 
 Core Classes
 ~~~~~~~~~~~~
@@ -79,22 +87,33 @@ Core Classes
     :members:
     :undoc-members:
 
+    .. automethod:: bokeh.charts.Chart.__init__
+
 .. autoclass:: bokeh.charts.builder.Builder
     :members:
     :undoc-members:
+
+    .. automethod:: bokeh.charts.builder.Builder.__init__
 
 .. autoclass:: bokeh.charts.data_source.ChartDataSource
     :members:
     :undoc-members:
 
+    .. automethod:: bokeh.charts.data_source.ChartDataSource.__init__
+
 .. autoclass:: bokeh.charts.data_source.DataGroup
     :members:
     :undoc-members:
 
+    .. automethod:: bokeh.charts.data_source.ChartDataSource.__init__
+
 .. autoclass:: bokeh.charts.models.CompositeGlyph
     :members:
     :undoc-members:
-    :exclude-members: build_renderers, build_source
+
+    .. automethod:: bokeh.charts.models.CompositeGlyph.__init__
+
+.. _bokeh_charts_attr_specs:
 
 Attribute Specs
 ~~~~~~~~~~~~~~~
@@ -102,6 +121,8 @@ Attribute Specs
 .. autoclass:: bokeh.charts.attributes.AttrSpec
     :members:
     :undoc-members:
+
+    .. automethod:: bokeh.charts.attributes.AttrSpec.__init__
 
 .. autoclass:: bokeh.charts.attributes.ColorAttr
     :members:
@@ -118,4 +139,5 @@ Attribute Specs
 .. autoclass:: bokeh.charts.attributes.CatAttr
     :members:
     :undoc-members:
+
 
