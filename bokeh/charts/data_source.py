@@ -32,14 +32,37 @@ DEFAULT_REQ_DIMS = [['x'], ['y'], ['x', 'y']]
 
 
 class ColumnAssigner(HasProps):
-    data = Instance(ColumnDataSource)
-    dims = List(String)
-    attrs = List(String)
+    """Defines behavior for assigning columns to dimensions.
+
+    This class is used to collect assignments between columns and :class:`Builder`
+    dimensions when none are provided. The :class:`ChartDataSource` receives a
+    ColumnAssigner from each :class:`Builder`, which can implement custom behavior.
+
+    Each subclass must implement the :meth:`get_assignment` method, which returns
+    a `dict` mapping between each dimension in `dims` and one or more column names,
+    or `None` if no assignment is made for the associated dimension.
+    """
+    dims = List(String, help="""
+        The list of dimension names that are associated with the :class:`Builder`. The
+        ColumnAssigner should return a dict with each dimension as a key when the
+        :meth:`get_assignment` method is called.
+        """)
+    attrs = List(String, help="""
+        This list of attribute names that are associated with the :class:`Builder`. These
+        can be used to alter which dimensions are assigned which columns, versus which
+        attributes are assigned which columns.
+        """)
 
     def __init__(self, df=None, **properties):
+        """Create the assigner.
+
+        Args:
+            df (:class:`pandas.DataFrame`, optional): the data source to use for
+                assigning columns from
+            **properties: any attribute of the ColumnAssigner
+        """
         if df is not None:
             self._df = df
-            properties['data'] = ColumnDataSource(df)
         super(ColumnAssigner, self).__init__(**properties)
 
     def get_assignment(self):
@@ -47,6 +70,10 @@ class ColumnAssigner(HasProps):
 
 
 class OrderedAssigner(ColumnAssigner):
+    """Assigns one column for each dimension that is not an attribute, in order.
+
+    This is the default column assigner for the :class:`Builder`.
+    """
 
     def get_assignment(self):
         """Get a mapping between dimension and selection when none are provided."""
