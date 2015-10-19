@@ -302,7 +302,8 @@ def cat(columns=None, cats=None, sort=True, ascending=True, **kwargs):
     Args:
         columns (list or str): the columns used to generate the categorical variable
         cats (list, optional): overrides the values derived from columns
-        sort (bool, optional): whether to sort the values
+        sort (bool, optional): whether to sort the categorical values (default=True)
+        ascending (bool, optional): whether to sort the categorical values (default=True)
         **kwargs: any keyword, arg supported by :class:`AttrSpec`
 
     Returns:
