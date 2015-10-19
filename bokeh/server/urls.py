@@ -15,6 +15,6 @@ toplevel_patterns = [
 
 # These all get prefixed with the application route, so /foo/ws etc.
 per_app_patterns = [
-    (r'/', DocHandler),
+    (r'/?', DocHandler),
     (r'/ws', WSHandler),
 ]

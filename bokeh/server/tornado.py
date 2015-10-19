@@ -52,7 +52,9 @@ class BokehTornado(TornadoApplication):
                 else:
                     route = key + p[0]
                 relative_patterns.append((route, p[1], { "bokeh_application" : applications[key] }))
-        super(BokehTornado, self).__init__(extra_patterns + relative_patterns + toplevel_patterns, **settings)
+        all_patterns = extra_patterns + relative_patterns + toplevel_patterns
+        log.debug("Patterns are: %r", all_patterns)
+        super(BokehTornado, self).__init__(all_patterns, **settings)
 
         self._applications = applications
         self._sessions = dict()
