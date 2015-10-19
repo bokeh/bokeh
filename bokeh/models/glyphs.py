@@ -15,26 +15,16 @@ from .mappers import LinearColorMapper
 
 @abstract
 class Glyph(PlotObject):
-    """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
-
-    """
+    """ Base class for all glyph models. """
 
     visible = Bool(help="""
     Whether the glyph should render or not.
     """)
 
 class AnnularWedge(Glyph):
-    """ Render annular wedges.
+    """ Render annular wedges. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/AnnularWedge.py
-        :source-position: none
-
-    *source:* `tests/glyphs/AnnularWedge.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/AnnularWedge.py>`_
-
-    """
+    __example__ = "tests/glyphs/AnnularWedge.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -77,17 +67,9 @@ class AnnularWedge(Glyph):
     """)
 
 class Annulus(Glyph):
-    """ Render annuli.
+    """ Render annuli. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Annulus.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Annulus.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Annulus.py>`_
-
-    """
+    __example__ = "tests/glyphs/Annulus.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -118,17 +100,9 @@ class Annulus(Glyph):
     """)
 
 class Arc(Glyph):
-    """ Render arcs.
+    """ Render arcs. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Arc.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Arc.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Arc.py>`_
-
-    """
+    __example__ = "tests/glyphs/Arc.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -168,16 +142,9 @@ class Bezier(Glyph):
     For more information consult the `Wikipedia article for Bézier curve`_.
 
     .. _Wikipedia article for Bézier curve: http://en.wikipedia.org/wiki/Bézier_curve
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Bezier.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Bezier.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Bezier.py>`_
-
     """
+
+    __example__ = "tests/glyphs/Bezier.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -227,16 +194,9 @@ class Gear(Glyph):
     article for Gear`_.
 
     .. _Wikipedia article for Gear: http://en.wikipedia.org/wiki/Gear
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Gear.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Gear.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Gear.py>`_
-
     """
+
+    __example__ = "tests/glyphs/Gear.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -294,10 +254,7 @@ class Gear(Glyph):
     """)
 
 class Image(Glyph):
-    """ Render images given as scalar data together with a color
-    mapper.
-
-    """
+    """ Render images given as scalar data together with a color mapper. """
 
     def __init__(self, **kwargs):
         if 'palette' in kwargs and 'color_mapper' in kwargs:
@@ -341,7 +298,6 @@ class Image(Glyph):
     .. note::
         This is not the number of pixels that an image is wide.
         That number is fixed by the image itself.
-
     """)
 
     dh = DistanceSpec("dh", help="""
@@ -350,7 +306,6 @@ class Image(Glyph):
     .. note::
         This is not the number of pixels that an image is tall.
         That number is fixed by the image itself.
-
     """)
 
     dilate = Bool(False, help="""
@@ -359,7 +314,6 @@ class Image(Glyph):
 
     This setting may be useful if pixel rounding errors are causing
     images to have a gap between them, when they should appear flush.
-
     """)
 
     color_mapper = Instance(LinearColorMapper, help="""
@@ -368,16 +322,13 @@ class Image(Glyph):
 
     .. note::
         The color mapping step happens on the client.
-
     """)
 
     # TODO: (bev) support anchor property for Image
     # ref: https://github.com/bokeh/bokeh/issues/1763
 
 class ImageRGBA(Glyph):
-    """ Render images given as RGBA data.
-
-    """
+    """ Render images given as RGBA data. """
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -409,7 +360,6 @@ class ImageRGBA(Glyph):
     .. note::
         This is not the number of pixels that an image is wide.
         That number is fixed by the image itself.
-
     """)
 
     dh = DistanceSpec("dh", help="""
@@ -418,7 +368,6 @@ class ImageRGBA(Glyph):
     .. note::
         This is not the number of pixels that an image is tall.
         That number is fixed by the image itself.
-
     """)
 
     dilate = Bool(False, help="""
@@ -433,17 +382,9 @@ class ImageRGBA(Glyph):
     # ref: https://github.com/bokeh/bokeh/issues/1763
 
 class ImageURL(Glyph):
-    """ Render images loaded from given URLs.
+    """ Render images loaded from given URLs. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/ImageURL.py
-        :source-position: none
-
-    *source:* `tests/glyphs/ImageURL.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/ImageURL.py>`_
-
-    """
+    __example__ = "tests/glyphs/ImageURL.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -455,7 +396,6 @@ class ImageURL(Glyph):
     .. note::
         The actual retrieving and loading of the images happens on
         the client.
-
     """)
 
     x = NumberSpec("x", help="""
@@ -476,7 +416,6 @@ class ImageURL(Glyph):
 
     .. note::
         This may be renamed to "dw" in the future.
-
     """)
 
     # TODO: (bev) rename to "dh" for consistency
@@ -489,7 +428,6 @@ class ImageURL(Glyph):
 
     .. note::
         This may be renamed to "dh" in the future.
-
     """)
 
     angle = AngleSpec(default=0, help="""
@@ -520,19 +458,12 @@ class Line(Glyph):
     .. note::
         The ``Line`` glyph is different from most other glyphs in that
         the vector of values only produces one glyph on the Plot.
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Line.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Line.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Line.py>`_
-
     """
     # a canonical order for positional args that can be used for any
     # functions derived from this class
     _args = ('x', 'y')
+
+    __example__ = "tests/glyphs/Line.py"
 
     x = NumberSpec("x", help="""
     The x-coordinates for the points of the line.
@@ -553,16 +484,9 @@ class MultiLine(Glyph):
         The data for the ``MultiLine`` glyph is different in that the
         vector of values is not a vector of scalars. Rather, it is a
         "list of lists".
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/MultiLine.py
-        :source-position: none
-
-    *source:* `tests/glyphs/MultiLine.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/MultiLine.py>`_
-
     """
+
+    __example__ = "tests/glyphs/MultiLine.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -586,16 +510,9 @@ class Oval(Glyph):
     .. note::
         This glyph renders ovals using Bézier curves, which are similar,
         but not identical to ellipses.
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Oval.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Oval.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Oval.py>`_
-
     """
+
+    __example__ = "tests/glyphs/Oval.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -635,16 +552,9 @@ class Patch(Glyph):
     .. note::
         The ``Patch`` glyph is different from most other glyphs in that
         the vector of values only produces one glyph on the Plot.
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Patch.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Patch.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Patch.py>`_
-
     """
+
+    __example__ = "tests/glyphs/Patch.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -657,7 +567,6 @@ class Patch(Glyph):
         A patch may comprise multiple polygons. In this case the
         x-coordinates for each polygon should be separated by NaN
         values in the sequence.
-
     """)
 
     y = NumberSpec("y", help="""
@@ -667,7 +576,6 @@ class Patch(Glyph):
         A patch may comprise multiple polygons. In this case the
         y-coordinates for each polygon should be separated by NaN
         values in the sequence.
-
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
@@ -685,16 +593,9 @@ class Patches(Glyph):
         The data for the ``Patches`` glyph is different in that the
         vector of values is not a vector of scalars. Rather, it is a
         "list of lists".
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Patches.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Patches.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Patches.py>`_
-
     """
+
+    __example__ = "tests/glyphs/Patches.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -707,7 +608,6 @@ class Patches(Glyph):
         Individual patches may comprise multiple polygons. In this case
         the x-coordinates for each polygon should be separated by NaN
         values in the sublists.
-
     """)
 
     ys = NumberSpec("ys", help="""
@@ -717,7 +617,6 @@ class Patches(Glyph):
         Individual patches may comprise multiple polygons. In this case
         the y-coordinates for each polygon should be separated by NaN
         values in the sublists.
-
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
@@ -729,17 +628,9 @@ class Patches(Glyph):
     """)
 
 class Quad(Glyph):
-    """ Render axis-aligned quads.
+    """ Render axis-aligned quads. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Quad.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Quad.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Quad.py>`_
-
-    """
+    __example__ = "tests/glyphs/Quad.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -770,17 +661,9 @@ class Quad(Glyph):
     """)
 
 class Quadratic(Glyph):
-    """ Render parabolas.
+    """ Render parabolas. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Quadratic.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Quadratic.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Quadratic.py>`_
-
-    """
+    __example__ = "tests/glyphs/Quadratic.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -815,17 +698,9 @@ class Quadratic(Glyph):
     """)
 
 class Ray(Glyph):
-    """ Render rays.
+    """ Render rays. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Ray.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Ray.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Ray.py>`_
-
-    """
+    __example__ = "tests/glyphs/Ray.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -853,17 +728,9 @@ class Ray(Glyph):
     """)
 
 class Rect(Glyph):
-    """ Render rectangles.
+    """ Render rectangles. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Rect.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Rect.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Rect.py>`_
-
-    """
+    __example__ = "tests/glyphs/Rect.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -907,17 +774,9 @@ class Rect(Glyph):
     """)
 
 class Segment(Glyph):
-    """ Render segments.
+    """ Render segments. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Segment.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Segment.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Segment.py>`_
-
-    """
+    __example__ = "tests/glyphs/Segment.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -944,17 +803,9 @@ class Segment(Glyph):
     """)
 
 class Text(Glyph):
-    """ Render text.
+    """ Render text. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Text.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Text.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Text.py>`_
-
-    """
+    __example__ = "tests/glyphs/Text.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -996,16 +847,9 @@ class Text(Glyph):
 
 class Wedge(Glyph):
     """ Render wedges.
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Wedge.py
-        :source-position: none
-
-    *source:* `tests/glyphs/Wedge.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Wedge.py>`_
-
     """
+
+    __example__ = "tests/glyphs/Wedge.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
