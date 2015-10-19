@@ -105,7 +105,6 @@ class DashAtlas
     findex_period = @_atlas[key]
     if findex_period is undefined
       [data, period] = @make_pattern(pattern)
-      #console.log(period, key, data)
       @tex.set_data([@_index, 0], [1, @_width], new Uint8Array(x+10 for x in data))
       @_atlas[key] = [@_index / @_height, period]
       @_index += 1
