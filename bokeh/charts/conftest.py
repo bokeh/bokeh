@@ -37,3 +37,8 @@ def wide_data_with_cat(test_data):
     data = test_data.dict_data.copy()
     data['col3'] = test_data.cat_list
     return data
+
+
+@pytest.fixture(scope='module')
+def df_with_cat_index(test_data):
+    return pd.DataFrame(test_data.dict_data, index=test_data.cat_list)

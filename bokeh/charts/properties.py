@@ -25,7 +25,8 @@ class Column(Array):
     """
     def _is_seq(self, value):
         is_array = super(Column, self)._is_seq(value)
-        return isinstance(value, pd.Series) or isinstance(value, list) or is_array
+        return (isinstance(value, pd.Series) or isinstance(value, pd.Index) or
+                isinstance(value, list) or is_array)
 
     def _new_instance(self, value):
         return pd.Series(value)

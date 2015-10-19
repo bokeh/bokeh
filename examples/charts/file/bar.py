@@ -31,6 +31,9 @@ bar_plot8 = Bar(df, label='cyl', values='neg_mpg', agg='mean', group='origin',
                 color='origin', legend='top_right',
                 title="label='cyl' values='neg_mpg' agg='mean' group='origin'")
 
+# infer labels from index
+df = df.set_index('cyl')
+bar_plot9 = Bar(df, values='mpg', agg='mean', legend='top_right', title='inferred labels')
 
 # collect and display
 output_file("bar.html")
@@ -39,6 +42,6 @@ show(
     vplot(
         hplot(bar_plot, bar_plot2, bar_plot3),
         hplot(bar_plot4, bar_plot5, bar_plot6),
-        hplot(bar_plot7, bar_plot8)
+        hplot(bar_plot7, bar_plot8, bar_plot9)
     )
 )

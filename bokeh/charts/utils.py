@@ -20,7 +20,6 @@ from collections import OrderedDict
 from copy import copy
 from math import cos, sin
 
-import pandas as pd
 from pandas.io.json import json_normalize
 from six import iteritems
 
@@ -238,7 +237,7 @@ def get_index(data):
 
     Should be used to abstract away from specific types of data.
     """
-    return pd.Series(data.index.values)
+    return data.index
 
 
 def get_unity(data, value=1):

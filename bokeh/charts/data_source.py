@@ -222,6 +222,7 @@ class ChartDataSource(object):
         self.column_assigner = column_assigner(df=df, dims=list(self._dims),
                                                attrs=self.attrs)
         self._selections = self.get_selections(selections, **kwargs)
+        self.setup_derived_columns()
         self.apply_operations()
         self.meta = self.collect_metadata(df)
         self._validate_selections()
@@ -276,6 +277,16 @@ class ChartDataSource(object):
             if isinstance(select, DataOperator):
                 self._data = select.apply(self)
 
+    def setup_derived_columns(self):
+        """Attempt to add special case columns to the DataFrame for the builder."""
+        for dim in self._dims:
+            dim_selection = self[dim]
+            if dim_selection is not None and isinstance(dim_selection, str) and \
+                dim_selection in special_columns and dim_selection not in \
+                    self.df.columns.tolist():
+                        self._data[dim_selection] = special_columns[dim_selection](
+                            self._data)
+
     def __getitem__(self, dim):
         """Get the columns selected for the given dimension name.
 
@@ -290,6 +301,10 @@ class ChartDataSource(object):
             return self._selections[dim]
         else:
             return None
+
+    def __setitem__(self, dim, value):
+        self._selections[dim] = value
+        self.setup_derived_columns()
 
     def stack_measures(self, measures, ids=None, var_name='variable',
                        value_name='value'):

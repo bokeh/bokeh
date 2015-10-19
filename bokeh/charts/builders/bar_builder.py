@@ -27,6 +27,7 @@ from ..attributes import ColorAttr, CatAttr
 from ..operations import Stack, Dodge
 from ...enums import Aggregation
 from ..stats import stats
+from ...models.sources import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -154,6 +155,7 @@ class BarBuilder(Builder):
     label_attributes = ['stack', 'group']
 
     label_only = Bool(False)
+    values_only = Bool(False)
 
     def setup(self):
 
@@ -171,6 +173,13 @@ class BarBuilder(Builder):
             self.attributes['label'].set_columns(self.values.selection)
         else:
             pass
+
+        if (self.attributes['label'].columns is None and
+            self.values.selection is not None and
+                self.glyph == BarGlyph):
+            self._data['label'] = 'index'
+            self.attributes['label'].setup(data=ColumnDataSource(self._data.df),
+                                           columns='index')
 
         if self.xlabel is None:
             if self.attributes['label'].columns is not None:
