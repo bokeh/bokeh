@@ -21,7 +21,7 @@ from six.moves import zip
 from .properties import ColumnLabel
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
-from ..properties import bokeh_integer_types, Datetime, List, HasProps, Instance, String
+from ..properties import bokeh_integer_types, Datetime, List, HasProps, String
 
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -204,7 +204,7 @@ def groupby(df, **specs):
         for spec_name, spec in iteritems(specs):
             attrs[spec_name] = spec[None]
 
-        yield DataGroup(label='all', data=df, attr_specs=attrs)
+        yield DataGroup(label='None', data=df, attr_specs=attrs)
 
 
 class ChartDataSource(object):

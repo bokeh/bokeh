@@ -204,7 +204,7 @@ class Builder(HasProps):
                 loading the data dict.
         """
         data = None
-        if len(args) != 0:
+        if len(args) != 0 or len(kws) != 0:
 
             # chart dimensions can be literal dimensions or attributes
             attrs = list(self.default_attributes.keys())
@@ -476,15 +476,21 @@ class XYBuilder(Builder):
         self.y_range = self._get_range('y', starty, endy)
 
         if self.xlabel is None:
-            select = self.x.selection
-            if not isinstance(select, list):
-                select = [select]
+            if self.x.selection is not None:
+                select = self.x.selection
+                if not isinstance(select, list):
+                    select = [select]
+            else:
+                select = ['']
             self.xlabel = ', '.join(select)
 
         if self.ylabel is None:
-            select = self.y.selection
-            if not isinstance(select, list):
-                select = [select]
+            if self.y.selection is not None:
+                select = self.y.selection
+                if not isinstance(select, list):
+                    select = [select]
+            else:
+                select = ['']
             self.ylabel = ', '.join(select)
 
     def _get_range(self, dim, start, end):
@@ -501,6 +507,8 @@ class XYBuilder(Builder):
         dim_ref = getattr(self, dim)
         values = dim_ref.data
         dtype = dim_ref.dtype.name
+
+        # object data or single value
         if dtype == 'object':
             factors = values.drop_duplicates()
             factors.sort(inplace=True)
@@ -511,11 +519,11 @@ class XYBuilder(Builder):
             return Range1d(start=start, end=end)
         else:
 
-            diff = end - start
-            if diff == 0:
+            if end == 'None' or (end - start) == 0:
                 setattr(self, dim + 'scale', 'categorical')
                 return FactorRange(factors=['None'])
             else:
+                diff = end - start
                 setattr(self, dim + 'scale', 'linear')
                 return Range1d(start=start - 0.1 * diff, end=end + 0.1 * diff)
 

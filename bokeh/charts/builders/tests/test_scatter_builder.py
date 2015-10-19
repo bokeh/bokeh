@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.charts import Scatter
+from bokeh.charts.builders.scatter_builder import ScatterBuilder
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -22,5 +22,6 @@ from bokeh.charts import Scatter
 
 
 def test_list_input(test_data):
-    scatter0 = Scatter(x=test_data.list_data[0])
-    assert len(scatter0.renderers) > 0
+    scatter0 = ScatterBuilder(x=test_data.list_data[0])
+    scatter0.create()
+    assert len(scatter0.comp_glyphs) > 0

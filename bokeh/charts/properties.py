@@ -160,6 +160,9 @@ class Dimension(HasProps):
 
             return self._data[self.selection]
 
+    def __len__(self):
+        return len(self.data.index)
+
     def set_data(self, data):
         """Set data property so that builders has access to configuration metadata."""
         self.selection = data[self.name]

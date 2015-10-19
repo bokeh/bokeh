@@ -36,7 +36,7 @@ class CompositeGlyph(HasProps):
     """
 
     # composite glyph inputs
-    label = String('All', help='Identifies the subset of data.')
+    label = String('None', help='Identifies the subset of data.')
     values = Either(Column(Float), Column(String), help="""Array-like values,
         which are used as the input to the composite glyph.""")
 

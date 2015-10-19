@@ -58,11 +58,6 @@ def Scatter(data=None, x=None, y=None, **kws):
         show(scatter)
 
     """
-    if x is None and y is not None:
-        x = 'unity'
-    elif x is not None and y is None:
-        y = 'unity'
-
     kws['x'] = x
     kws['y'] = y
     return create_and_build(ScatterBuilder, data, **kws)
