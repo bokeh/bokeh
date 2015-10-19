@@ -39,7 +39,7 @@ class WSHandler(WebSocketHandler):
         # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
-    def initialize(self, bokeh_application):
+    def initialize(self, bokeh_application, bokeh_websocket_path):
         pass
 
     def open(self):

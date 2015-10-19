@@ -48,10 +48,13 @@ _render_document_to_element = (element, document) ->
 add_document_static = (element, doc) ->
   _.delay(-> _render_document_to_element($(element), doc))
 
+_websocket_url = null
 _connection = null
 _get_connection = () ->
   if _connection == null
-    _connection = new ClientConnection()
+    if _websocket_url == null
+      throw new Error("set_websocket_path was not called")
+    _connection = new ClientConnection(_websocket_url)
     _connection.connect().then(
       (whatever) ->
         _connection
@@ -61,6 +64,16 @@ _get_connection = () ->
     )
   else
     Promise.resolve(_connection)
+
+set_websocket_path = (path) ->
+  if _connection != null
+    throw new Error("set_websocket_url called too late after we already opened websocket")
+  proto = null
+  if document.location.protocol == "https:"
+    proto = "wss:"
+  else
+    proto = "ws:"
+  _websocket_url = proto + "//" + document.location.host + path
 
 # map from session id to promise of ClientSession
 _sessions = {}
@@ -129,6 +142,7 @@ inject_model = (element_id, model_id, doc) ->
       "Unknown bokehData value for inject_model: #{info.bokehData}")
 
 module.exports =
+  set_websocket_path: set_websocket_path
   inject_css: inject_css
   inject_model: inject_model
   add_model_from_session: add_model_from_session

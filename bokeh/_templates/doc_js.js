@@ -3,6 +3,11 @@ Bokeh.Collections.register_models({
     "{{ name }}": {{ impl }},
   {%- endfor %}
 });
+
+{% if websocket_path -%}
+  Bokeh.embed.set_websocket_path("{{ websocket_path }}");
+{%- endif %}
+
 var docs_json = {{ docs_json }};
 var docs = {};
 for (key in docs_json) {

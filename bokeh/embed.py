@@ -449,7 +449,7 @@ def autoload_server(plot_object, session, public=False):
 
     return encode_utf8(tag)
 
-def _html_page_for_render_items(resources, docs_json, render_items, title):
+def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_path):
     bokeh_js = JS_RESOURCES.render(js_raw=resources.js_raw, js_files=resources.js_files)
     bokeh_css = CSS_RESOURCES.render(css_raw=resources.css_raw, css_files=resources.css_files)
 
@@ -463,6 +463,7 @@ def _html_page_for_render_items(resources, docs_json, render_items, title):
         plot_js=_wrap_in_function(
             DOC_JS.render(
                 custom_models={}, # TODO
+                websocket_path=websocket_path,
                 docs_json=serialize_json(docs_json),
                 render_items=serialize_json(render_items_without_div)
             )
@@ -535,9 +536,9 @@ def static_html_page_for_models(plot_objects, resources, title):
     for k, v in docs_by_id.items():
         docs_json[k] = v.to_json()
 
-    return _html_page_for_render_items(resources, docs_json, render_items, title)
+    return _html_page_for_render_items(resources, docs_json, render_items, title, websocket_path=None)
 
-def server_html_page_for_models(session_id, model_ids, resources, title):
+def server_html_page_for_models(session_id, model_ids, resources, title, websocket_path):
     render_items = []
     for modelid in model_ids:
         elementid = str(uuid.uuid4())
@@ -553,9 +554,9 @@ def server_html_page_for_models(session_id, model_ids, resources, title):
             'modelid' : modelid
             })
 
-    return _html_page_for_render_items(resources, {}, render_items, title)
+    return _html_page_for_render_items(resources, {}, render_items, title, websocket_path)
 
-def server_html_page_for_session(session_id, resources, title):
+def server_html_page_for_session(session_id, resources, title, websocket_path):
     elementid = str(uuid.uuid4())
     div = PLOT_DIV.render(
         elementid=elementid
@@ -566,4 +567,4 @@ def server_html_page_for_session(session_id, resources, title):
         'div' : div
     }]
 
-    return _html_page_for_render_items(resources, {}, render_items, title)
+    return _html_page_for_render_items(resources, {}, render_items, title, websocket_path)
