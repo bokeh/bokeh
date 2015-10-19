@@ -30,3 +30,10 @@ class TestData(object):
 @pytest.fixture(scope='module')
 def test_data():
     return TestData()
+
+
+@pytest.fixture(scope='module')
+def wide_data_with_cat(test_data):
+    data = test_data.dict_data.copy()
+    data['col3'] = test_data.cat_list
+    return data
