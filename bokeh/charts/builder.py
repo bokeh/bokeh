@@ -78,10 +78,8 @@ class Builder(HasProps):
     core customization to specialized builder classes. In that pattern
     inherited builders just need to provide the following methods:
 
-    * :meth:`~bokeh.charts.builder.Builder.setup` (optional): provides a pre-renderer
-      creation area to introspect properties, setup attributes, etc.
-    * :meth:`~bokeh.charts.builder.Builder.process_data` (optional): provides a
-      pre-renderer creation area to make manipulations to the source data.
+    Required:
+
     * :meth:`~bokeh.charts.builder.Builder.yield_renderers`: yields the glyphs to be
       rendered into the plot. Here you should call the
       :meth:`~bokeh.charts.builder.Builder.add_glyph` method so that the builder can
@@ -92,6 +90,16 @@ class Builder(HasProps):
       :meth:`~bokeh.charts.builder.Builder.create` method for more information on
       when this is called and how the builder provides the ranges to the containing
       :class:`Chart` using the :meth:`Chart.add_ranges` method.
+
+    Optional:
+
+    * :meth:`~bokeh.charts.builder.Builder.setup`: provides an area
+      where subclasses of builder can introspect properties, setup attributes, or change
+      property values. This is called before
+      :meth:`~bokeh.charts.builder.Builder.process_data`.
+    * :meth:`~bokeh.charts.builder.Builder.process_data`: provides an area
+      where subclasses of builder can manipulate the source data before renderers are
+      created.
 
     """
 
