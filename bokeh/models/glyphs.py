@@ -845,47 +845,6 @@ class Text(Glyph):
     The %s values for the text.
     """)
 
-class TileLayer(Glyph):
-    
-    _args = ('url', 'tile_source', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
-
-    url = String("url", help="""
-    tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
-    """)
-
-    tile_source = String(default="WMTSTileSource", help="""
-    associated tile provider type.  Examples include: WMTSTileSource, QuadKeyTileSource, TMSTileSource
-    """)
-
-    tile_size = Int(default=256, help="""
-    tile size in pixels (e.g. 256)
-    """)
-
-    min_zoom = Int(default=0, help="""
-    the minimum zoom level for the tile layer. This is the most "zoomed-out" level.
-    """)
-
-    max_zoom = Int(default=30, help="""
-    the maximum zoom level for the tile layer. This is the most "zoomed-in" level.
-    """)
-
-    x_origin_offset = Float(default=20037508.34, help="""
-    x offset in plot coordinates
-    """)
-
-    y_origin_offset = Float(default=20037508.34, help="""
-    y offset in plot coordinates
-    """)
-    
-    extra_url_vars = Dict(String, Any(String, Int), help="""
-    A dictionary that maps url variable template variables to string value
-    """)
-
-    initial_resolution = Float(default=1.0, help="""
-    y offset in plot coordinates
-    """)
-
-
 class Wedge(Glyph):
     """ Render wedges.
     """

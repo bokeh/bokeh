@@ -245,6 +245,26 @@ class Plot(Component):
         self.renderers.append(g)
         return g
 
+    def add_tile(self, tile_source):
+        ''' Adds a tile layer to the plot with associated data sources and ranges.
+
+        This function will take care of creating and configurinf a Glyph object,
+        and then add it to the plot's list of renderers.
+
+        Args:
+            tile_source (TileSource) : a tile source instance which contain tileset configuration 
+
+        Keyword Arguments:
+            Any additional keyword arguments are passed on as-is to the
+
+        Returns:
+            TileRenderer : TileRenderer
+
+        '''
+        tile_renderer = TileRenderer(data_source=source, glyph=glyph, **kw)
+        self.renderers.append(tile_renderer)
+        return tile_renderer
+
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
         missing = []

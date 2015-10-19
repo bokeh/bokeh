@@ -25,6 +25,11 @@ class Renderer(PlotObject):
     generally useful to instantiate on its own.
 
     """
+class TileRenderer(Renderer):
+
+    tile_source = Instance(TileSource, help="""
+    Local data source to use when rendering glyphs on the plot.
+    """)
 
 class GlyphRenderer(Renderer):
     """

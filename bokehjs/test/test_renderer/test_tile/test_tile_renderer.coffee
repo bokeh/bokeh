@@ -3,10 +3,17 @@ _ = require "underscore"
 utils = require "../../utils"
 
 base = utils.require "common/base"
-Geo = utils.require "renderer/tile/tile_layer"
+
+TileRenderer = utils.require "renderer/tile/tile_renderer"
+tile_source = utils.require "renderer/tile/tile_source"
+mercator_tile_source = utils.require "renderer/tile/mercator_tile_source"
+tms_tile_source = utils.require "renderer/tile/tms_tile_source"
+wmts_tile_source = utils.require "renderer/tile/wmts_tile_source"
+quadkey_tile_source = utils.require "renderer/tile/quadkey_tile_source"
 
 describe "Projection Utils", ->
-  utils = new Geo.ProjectionUtils()
+
+  utils = new tile_source.ProjectionUtils()
   tol = 0.01
 
   it "should convert lat/lng to meters", ->
@@ -59,10 +66,11 @@ describe "Tile Sources", ->
   tol = 0.01
 
   describe "Tile Source (Base Class)", ->
+
     tile_options =
       url : 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
 
-    source = new Geo.TileSource(tile_options)
+    source = new tile_source.TileSource(tile_options)
 
     it "should remove tile and add back to image pool ", ->
       expect(source.pool.images.length).to.be.equal(0)
@@ -83,7 +91,7 @@ describe "Tile Sources", ->
       tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new Geo.TileSource(tile_options)
+      offset_source = new tile_source.TileSource(tile_options)
       expect(offset_source.x_origin_offset).to.be.equal(0)
       expect(offset_source.y_origin_offset).to.be.equal(0)
    
@@ -97,7 +105,7 @@ describe "Tile Sources", ->
         url : 'http://{test_key}/{test_key2}/{X}/{Y}/{Z}.png'
         extra_url_vars : test_extra_url_vars
 
-      tile_source = new Geo.TileSource(tile_options)
+      tile_source = new tile_source.TileSource(tile_options)
       expect_url = 'http://test_value/test_value2/0/0/0.png'
       expect(tile_source.extra_url_vars).to.have.any.keys('test_key')
       expect(tile_source.extra_url_vars).to.have.any.keys('test_key2')
@@ -123,7 +131,7 @@ describe "Tile Sources", ->
 
   describe "TMS tile source", ->
     url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
-    source = new Geo.TMSTileSource(url)
+    source = new tms_tile_source.TMSTileSource(url)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -132,7 +140,7 @@ describe "Tile Sources", ->
       tile_options = 
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new Geo.TMSTileSource(tile_options)
+      offset_source = new tms_tile_source.TMSTileSource(tile_options)
       expect(offset_source.x_origin_offset).to.be.equal(0)
       expect(offset_source.y_origin_offset).to.be.equal(0)
 
@@ -140,7 +148,7 @@ describe "Tile Sources", ->
       tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new Geo.TMSTileSource(tile_options)
+      offset_source = new tms_tile_source.TMSTileSource(tile_options)
       bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
       expect(bounds).to.include(0)
 
@@ -153,7 +161,7 @@ describe "Tile Sources", ->
     tile_options =
       url : 'http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga'
 
-    source = new Geo.WMTSTileSource(tile_options)
+    source = new wmts_tile_source.WMTSTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -178,7 +186,7 @@ describe "Tile Sources", ->
   describe "QUADKEY tile source", ->
     tile_options =
       url : 'http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0'
-    source = new Geo.QUADKEYTileSource(tile_options)
+    source = new quadkey_tile_source.QUADKEYTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -197,7 +205,7 @@ describe "Tile Sources", ->
 
   describe "MERCATOR tile source", ->
 
-    source = new Geo.MercatorTileSource()
+    source = new mercator_tile_source.MercatorTileSource()
     tol = 0.01
 
     it "should calculate resolution", ->
@@ -245,7 +253,7 @@ describe "Tile Sources", ->
       tile_options =
         url : 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
 
-      source = new Geo.TMSTileSource(tile_options)
+      source = new tms_tile_source.TMSTileSource(tile_options)
 
       [xmin, ymin, xmax, ymax, level] = [-90.283741, 29.890626, -89.912952,
                                           30.057766, 11]

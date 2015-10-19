@@ -1,1 +1,1 @@
-require "./test_tile_layer"
+require "./test_tile_renderer"
