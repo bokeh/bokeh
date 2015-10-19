@@ -22,8 +22,8 @@ from itertools import chain
 from ..builder import XYBuilder, create_and_build
 from ..glyphs import LineGlyph
 from ..attributes import DashAttr, ColorAttr
+from ..data_source import ColumnAssigner
 from ...models.sources import ColumnDataSource
-
 
 # -----------------------------------------------------------------------------
 # Classes and functions
@@ -84,6 +84,13 @@ def Line(data=None, x=None, y=None, **kws):
     return create_and_build(LineBuilder, data, **kws)
 
 
+class NumericalColumnsAssigner(ColumnAssigner):
+
+    def get_assignment(self):
+        df = self._df._get_numeric_data()
+        return {'y': df.columns.tolist()}
+
+
 class LineBuilder(XYBuilder):
     """This is the Line class and it is in charge of plotting
     Line charts in an easy and intuitive way.
@@ -97,6 +104,8 @@ class LineBuilder(XYBuilder):
                           'dash': DashAttr()}
 
     dimensions = ['y', 'x']
+
+    column_selector = NumericalColumnsAssigner
 
     @property
     def measures(self):

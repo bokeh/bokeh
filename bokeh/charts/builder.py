@@ -24,6 +24,7 @@ from .data_source import ChartDataSource
 from .models import CompositeGlyph
 from .properties import Dimension, ColumnLabel
 from .utils import collect_attribute_columns
+from .data_source import ColumnAssigner, OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
 from ..properties import (HasProps, Instance, List, String, Property,
@@ -171,6 +172,13 @@ class Builder(HasProps):
     labels = List(String, help="""Represents the unique labels to be used for legends.""")
     label_attributes = List(String, help="""List of attributes to use for legends.""")
 
+    """
+    Used to assign columns to dimensions when no selections have been provided. The
+    default behavior is provided by the :class:`OrderedAssigner`, which assigns
+    a single column to each dimension available in the `Builder`'s `dims` property.
+    """
+    column_selector = OrderedAssigner
+
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
 
@@ -212,6 +220,7 @@ class Builder(HasProps):
             data_args['dims'] = tuple(dims)
             data_args['required_dims'] = tuple(self.req_dimensions)
             data_args['attrs'] = attrs
+            data_args['column_assigner'] = self.column_selector
             data = ChartDataSource.from_data(*args, **data_args)
 
             # make sure that the builder dimensions have access to the chart data source

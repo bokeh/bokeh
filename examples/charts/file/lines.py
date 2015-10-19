@@ -16,6 +16,9 @@ df = pd.DataFrame(data)
 # add a column with a range of dates, as if the values were sampled then
 df['date'] = pd.date_range('1/1/2015', periods=len(df.index), freq='D')
 
+# default behavior for dataframe input is to plot each numerical column as a line
+line = Line(df)
+show(line)
 
 # build the line plots
 line0 = Line(df, y=['python', 'pypy', 'jython'],
@@ -45,6 +48,7 @@ output_file("lines.html", title="line.py example")
 
 show(
     vplot(
+        hplot(line),
         hplot(line0, line1),
         hplot(line2, line3),
         hplot(line4)

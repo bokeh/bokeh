@@ -21,7 +21,7 @@ from six.moves import zip
 from .properties import ColumnLabel
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
-from ..properties import bokeh_integer_types, Datetime, List, HasProps
+from ..properties import bokeh_integer_types, Datetime, List, HasProps, Instance, String
 
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -29,6 +29,30 @@ ARRAY_TYPES = [tuple, list, np.ndarray, pd.Series]
 TABLE_TYPES = [dict, pd.DataFrame]
 DEFAULT_DIMS = ['x', 'y']
 DEFAULT_REQ_DIMS = [['x'], ['y'], ['x', 'y']]
+
+
+class ColumnAssigner(HasProps):
+    data = Instance(ColumnDataSource)
+    dims = List(String)
+    attrs = List(String)
+
+    def __init__(self, df=None, **properties):
+        if df is not None:
+            self._df = df
+            properties['data'] = ColumnDataSource(df)
+        super(ColumnAssigner, self).__init__(**properties)
+
+    def get_assignment(self):
+        raise NotImplementedError('You must return map between each dim and selection.')
+
+
+class OrderedAssigner(ColumnAssigner):
+
+    def get_assignment(self):
+        """Get a mapping between dimension and selection when none are provided."""
+        dims = [dim for dim in self.dims if dim not in self.attrs]
+        return {dim: sel for dim, sel in
+                zip(dims, self._df.columns.tolist())}
 
 
 class DataOperator(HasProps):
@@ -170,7 +194,8 @@ class ChartDataSource(object):
     which is used for assigning attributes to data groups.
     """
 
-    def __init__(self, df, dims=None, required_dims=None, selections=None, **kwargs):
+    def __init__(self, df, dims=None, required_dims=None, selections=None,
+                 column_assigner=OrderedAssigner, **kwargs):
         """Create a :class:`ChartDataSource`.
 
         Args:
@@ -190,10 +215,12 @@ class ChartDataSource(object):
             required_dims = DEFAULT_REQ_DIMS
 
         self.input_type = kwargs.pop('input_type', None)
-        self.attrs = kwargs.pop('attrs', None)
+        self.attrs = kwargs.pop('attrs', [])
         self._data = df
         self._dims = dims
         self._required_dims = required_dims
+        self.column_assigner = column_assigner(df=df, dims=list(self._dims),
+                                               attrs=list(self.attrs))
         self._selections = self.get_selections(selections, **kwargs)
         self.apply_operations()
         self.meta = self.collect_metadata(df)
@@ -218,8 +245,8 @@ class ChartDataSource(object):
         if len(select_map.keys()) == 0:
             if selections is None:
                 # if no selections are provided, we assume they were provided in order
-                select_map = {dim: sel for dim, sel in
-                              zip(self._dims, self._data.columns)}
+                select_map = self.column_assigner.get_assignment()
+
             elif isinstance(selections, dict):
                 if len(selections.keys()) != 0:
                     # selections were specified in inputs
@@ -282,14 +309,17 @@ class ChartDataSource(object):
                 dim_cols = selection
 
             # handle case where multiple stacking operations create duplicate cols
-            if var_name in self._data.columns.tolist():
+            if var_name in self.df.columns.tolist():
                 var_name += '_'
 
             if measures == dim_cols:
                 self._selections[dim] = value_name
                 if ids is not None:
-                    self._data = pd.melt(self._data, id_vars=ids, value_vars=measures,
-                                         var_name=var_name, value_name=value_name)
+
+                    # handle case where we already stacked by one dimension/attribute
+                    if all([measure in self.df.columns.tolist() for measure in measures]):
+                        self._data = pd.melt(self._data, id_vars=ids, value_vars=measures,
+                                             var_name=var_name, value_name=value_name)
                 else:
                     ids = list(set(self._data.columns) - set(measures))
                     self._data = pd.melt(self._data, id_vars=ids, value_vars=measures,
@@ -329,6 +359,7 @@ class ChartDataSource(object):
 
         # make sure the attributes are not considered for data inputs
         attrs = kwargs.pop('attrs', None)
+
         if attrs is not None:
             # look at each arg, and keep it if it isn't a string, or if it is a string,
             #  make sure that it isn't the name of an attribute
@@ -383,6 +414,8 @@ class ChartDataSource(object):
             else:
                 # non-kwargs list of lists
                 arrays = [arg for arg in args if cls.is_list_arrays(arg)]
+
+        kwargs['attrs'] = attrs
 
         # handle array-like
         if len(arrays) > 0:
