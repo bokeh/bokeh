@@ -220,7 +220,7 @@ class ChartDataSource(object):
         self._dims = dims
         self._required_dims = required_dims
         self.column_assigner = column_assigner(df=df, dims=list(self._dims),
-                                               attrs=list(self.attrs))
+                                               attrs=self.attrs)
         self._selections = self.get_selections(selections, **kwargs)
         self.apply_operations()
         self.meta = self.collect_metadata(df)
@@ -415,7 +415,8 @@ class ChartDataSource(object):
                 # non-kwargs list of lists
                 arrays = [arg for arg in args if cls.is_list_arrays(arg)]
 
-        kwargs['attrs'] = attrs
+        if attrs is not None:
+            kwargs['attrs'] = attrs
 
         # handle array-like
         if len(arrays) > 0:
