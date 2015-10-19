@@ -105,7 +105,7 @@ Core Classes
     :members:
     :undoc-members:
 
-    .. automethod:: bokeh.charts.data_source.ChartDataSource.__init__
+    .. automethod:: bokeh.charts.data_source.DataGroup.__init__
 
 .. autoclass:: bokeh.charts.models.CompositeGlyph
     :members:
