@@ -8,6 +8,15 @@ log = logging.getLogger(__name__)
 
 from tornado import gen, locks
 from bokeh.document import ModelChangedEvent, RootAddedEvent, RootRemovedEvent
+import time
+
+def current_time():
+    try:
+        # python >=3.3 only
+        return time.monotonic()
+    except:
+        # if your python is old, don't set your clock backward!
+        return time.time()
 
 class ServerSession(object):
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
@@ -22,6 +31,7 @@ class ServerSession(object):
         self._id = sessionid
         self._document = document
         self._subscribed_connections = set()
+        self._last_unsubscribe_time = current_time()
         self._lock = locks.Lock()
         self._current_patch = None
         self._current_patch_connection = None
@@ -42,10 +52,15 @@ class ServerSession(object):
     def unsubscribe(self, connection):
         """This should only be called by ServerConnection.unsubscribe_session or our book-keeping will be broken"""
         self._subscribed_connections.discard(connection)
+        self._last_unsubscribe_time = current_time()
 
     @property
     def connection_count(self):
         return len(self._subscribed_connections)
+
+    @property
+    def seconds_since_last_unsubscribe(self):
+        return current_time() - self._last_unsubscribe_time
 
     def _document_changed(self, event):
         may_suppress = self._current_patch is not None and \

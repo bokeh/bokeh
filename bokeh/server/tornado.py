@@ -75,6 +75,9 @@ class BokehTornado(TornadoApplication):
         self._loop.add_callback(self._start_async)
         self._stats_job = PeriodicCallback(self.log_stats, 15.0 * 1000, io_loop=self._loop)
         self._stats_job.start()
+        self._unused_session_linger_seconds = 60*30
+        self._cleanup_job = PeriodicCallback(self.cleanup_sessions, 17.0 * 1000, io_loop=self._loop)
+        self._cleanup_job.start()
 
     @property
     def resources(self):
@@ -118,14 +121,10 @@ class BokehTornado(TornadoApplication):
     def client_lost(self, connection):
         self._clients.discard(connection)
 
-        # clean up sessions when they have no connections anymore
-        # TODO (havocp) this should be after a timeout, to allow
-        # clients to reconnect if the connection is lost.
+        # detach this connection from any sessions it was using
         while connection.subscribed_sessions:
             session = next(iter(connection.subscribed_sessions))
             connection.unsubscribe_session(session)
-            if session.connection_count == 0:
-                self.discard_session(session)
 
     def create_session_if_needed(self, application, sessionid):
         # this is because empty sessionids would be "falsey" and
@@ -148,8 +147,17 @@ class BokehTornado(TornadoApplication):
     def discard_session(self, session):
         if session.connection_count > 0:
             raise RuntimeError("Should not be discarding a session with open connections")
-        log.debug("Discarding session %r", session.id)
+        log.debug("Discarding session %r last in use %r seconds ago", session.id, session.seconds_since_last_unsubscribe)
         del self._sessions[session.id]
+
+    def cleanup_sessions(self):
+        to_discard = []
+        for session in self._sessions.values():
+            if session.connection_count == 0 and \
+               session.seconds_since_last_unsubscribe > self._unused_session_linger_seconds:
+                to_discard.append(session)
+        for session in to_discard:
+            self.discard_session(session)
 
     def log_stats(self):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
