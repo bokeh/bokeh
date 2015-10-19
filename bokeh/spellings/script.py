@@ -29,6 +29,13 @@ class ScriptHandler(SpellingHandler):
         else:
             raise ValueError('Must pass a filename to ScriptHandler')
 
+    def url_path(self):
+        if self.failed:
+            return None
+        else:
+            # TODO should fix invalid URL characters
+            return '/' + os.path.splitext(os.path.basename(self._path))[0]
+
     def modify_document(self, doc):
         if self.failed:
             return

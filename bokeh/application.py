@@ -14,6 +14,8 @@ class Application(object):
         """Loads a new document using the Application's handlers to fill it in."""
         doc = Document()
         for h in self._handlers:
+            # TODO (havocp) we need to check the 'failed' flag on each handler
+            # and build a composite error display.
             h.modify_document(doc)
         return doc
 

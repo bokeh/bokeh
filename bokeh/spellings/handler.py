@@ -8,7 +8,12 @@ class SpellingHandler(object):
         self._error = None
         self._error_detail = None
 
+    def url_path(self):
+        """Returns a default URL path if the spelling specified one."""
+        return None
+
     def modify_document(self, doc):
+        """Modifies the application document however the spelling specifies."""
         pass
 
     @property
