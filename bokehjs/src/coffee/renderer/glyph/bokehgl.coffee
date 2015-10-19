@@ -672,20 +672,20 @@ class LineGLGlyph extends BaseGLGlyph
               else if( (dx > line_stop) && (dash_stop > line_stop) && (dash_start < line_stop) ) {
                   d = cap( int(linecaps.y), dx-line_stop, dy, t);
               }
-              // Dash cap left
-              else if( dash_type < 0.0 ) {
+              // Dash cap left - dash_type = -1, 0 or 1, but there may be roundoff errors
+              else if( dash_type < -0.5 ) {
                   d = cap( int(dash_caps.y), abs(u-dash_center), dy, t);
                   if( (dx > line_start) && (dx < line_stop) )
                       d = max(d,d_join);
               }
               // Dash cap right
-              else if( dash_type > 0.0 ) {
+              else if( dash_type > 0.5 ) {
                   d = cap( int(dash_caps.x), abs(dash_center-u), dy, t);
                   if( (dx > line_start) && (dx < line_stop) )
                       d = max(d,d_join);
               }
               // Dash body (plain)
-              else if( dash_type == 0.0 ) {
+              else {// if( dash_type > -0.5 &&  dash_type < 0.5) {
                   d = abs(dy);
               }
       
