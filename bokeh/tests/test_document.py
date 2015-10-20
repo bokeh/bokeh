@@ -108,18 +108,13 @@ class TestDocument(unittest.TestCase):
         print("putting child1 back in root1")
         root1.child = child1
         assert len(d._all_models) == 3
-# This will fail if uncommented because refcounting isn't
-# a reliable GC in the face of cycles. We
-# could implement mark-and-sweep or another
-# GC algorithm for _all_models but it would be
-# less efficient. Do we need to allow cycles?
-# (when do we use them?)
-#        print("Removing root1")
-#        d.remove_root(root1)
-#        assert len(d._all_models) == 1
-#        print("Removing root2")
-#        d.remove_root(root2)
-#        assert len(d._all_models) == 0
+
+        print("Removing root1")
+        d.remove_root(root1)
+        assert len(d._all_models) == 1
+        print("Removing root2")
+        d.remove_root(root2)
+        assert len(d._all_models) == 0
 
     def test_change_notification(self):
         d = document.Document()

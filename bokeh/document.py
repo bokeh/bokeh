@@ -44,24 +44,74 @@ class Document(object):
 
         # TODO (bev) add vars, stores
 
-        self._all_model_counts = defaultdict(int)
+        self._all_models_freeze_count = 0
         self._all_models = dict()
         self._callbacks = []
 
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) '''
-        while len(self._roots) > 0:
-            r = next(iter(self._roots))
-            self.remove_root(r)
+        self._push_all_models_freeze()
+        try:
+            while len(self._roots) > 0:
+                r = next(iter(self._roots))
+                self.remove_root(r)
+        finally:
+            self._pop_all_models_freeze()
 
     def _destructively_move(self, dest_doc):
         '''Move all fields in this doc to the dest_doc, leaving this doc empty'''
+        if dest_doc is self:
+            raise RuntimeError("Attempted to overwrite a document with itself")
         dest_doc.clear()
-        while self.roots:
-            r = next(iter(self.roots))
-            self.remove_root(r)
+        # we have to remove ALL roots before adding any
+        # to the new doc or else models referenced from multiple
+        # roots could be in both docs at once, which isn't allowed.
+        roots = []
+        self._push_all_models_freeze()
+        try:
+            while self.roots:
+                r = next(iter(self.roots))
+                self.remove_root(r)
+                roots.append(r)
+        finally:
+            self._pop_all_models_freeze()
+        for r in roots:
+            if r.document is not None:
+                raise RuntimeError("Somehow we didn't detach %r" % (r))
+        if len(self._all_models) != 0:
+            raise RuntimeError("_all_models still had stuff in it: %r" % (self._all_models))
+        for r in roots:
             dest_doc.add_root(r)
         # TODO other fields of doc
+
+    def _push_all_models_freeze(self):
+        self._all_models_freeze_count += 1
+
+    def _pop_all_models_freeze(self):
+        self._all_models_freeze_count -= 1
+        if self._all_models_freeze_count == 0:
+            self._recompute_all_models()
+
+    def _invalidate_all_models(self):
+        # if freeze count is > 0, we'll recompute on unfreeze
+        if self._all_models_freeze_count == 0:
+            self._recompute_all_models()
+
+    def _recompute_all_models(self):
+        new_all_models_set = set()
+        for r in self.roots:
+            new_all_models_set = new_all_models_set.union(r.references())
+        old_all_models_set = set(self._all_models.values())
+        to_detach = old_all_models_set - new_all_models_set
+        to_attach = new_all_models_set - old_all_models_set
+        recomputed = {}
+        for m in new_all_models_set:
+            recomputed[m._id] = m
+        for d in to_detach:
+            d._detach_document()
+        for a in to_attach:
+            a._attach_document(self)
+        self._all_models = recomputed
 
     @property
     def roots(self):
@@ -77,8 +127,11 @@ class Document(object):
         '''
         if model in self._roots:
             return
-        self._roots.add(model)
-        model.attach_document(self)
+        self._push_all_models_freeze()
+        try:
+            self._roots.add(model)
+        finally:
+            self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
 # TODO (havocp) uncomment this after we clean up all bokeh's own use of it
@@ -95,8 +148,11 @@ class Document(object):
         '''
         if model not in self._roots:
             return # TODO (bev) ValueError?
-        self._roots.remove(model)
-        model.detach_document()
+        self._push_all_models_freeze()
+        try:
+            self._roots.remove(model)
+        finally:
+            self._pop_all_models_freeze()
         self._trigger_on_change(RootRemovedEvent(self, model))
 
     def get_model_by_id(self, model_id):
@@ -132,22 +188,6 @@ class Document(object):
         ''' Called by PlotObject when it changes
         '''
         self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new))
-
-    def _notify_attach(self, model):
-        self._all_model_counts[model._id] += 1
-        self._all_models[model._id] = model
-
-    def _notify_detach(self, model):
-        ''' Called by PlotObject once for each time the PlotObject is
-        removed from the object graph. Returns the attach_count
-
-        '''
-        self._all_model_counts[model._id] -= 1
-        attach_count = self._all_model_counts[model._id]
-        if attach_count == 0:
-            del self._all_models[model._id]
-            del self._all_model_counts[model._id]
-        return attach_count
 
     @classmethod
     def _references_json(cls, references):

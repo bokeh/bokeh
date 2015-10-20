@@ -84,49 +84,29 @@ class PlotObject(HasProps, CallbackManager):
         props.update(kwargs)
         super(PlotObject, self).__init__(**props)
 
-    def attach_document(self, doc):
-        # we want an ERROR if you attach to a different doc,
-        # but we want to call notify_attach multiple times
-        # if a plot object is mentioned as the value for
-        # multiple fields. There's a refcount which is supposed
-        # to track the number of fields in the doc we are the value
-        # of. This means we don't recurse on the second attach though.
+    def _attach_document(self, doc):
+        '''This should only be called by the Document implementation to set the document field'''
         if self._document is not None and self._document is not doc:
-            raise RuntimeError("PlotObjects must be owned by only a single document")
-        first_attach = self._document is None
+            raise RuntimeError("PlotObjects must be owned by only a single document, %r is already in a doc" % (self))
         self._document = doc
-        if self._document is not None:
-            self._document._notify_attach(self)
-            if first_attach:
-                doc = self._document
-                def attach(obj):
-                    obj.attach_document(doc)
-                self._visit_immediate_references(self, attach)
 
-    def detach_document(self):
-        if self._document is not None:
-            if not self._document._notify_detach(self):
-                self._document = None
-                # we only detach children when we are detached the
-                # last time.
-                def detach(obj):
-                    obj.detach_document()
-                self._visit_immediate_references(self, detach)
+    def _detach_document(self):
+        '''This should only be called by the Document implementation to unset the document field'''
+        self._document = None
 
     @property
     def document(self):
         return self._document
 
     def trigger(self, attr, old, new):
-        # attach first, then detach, so we keep refcount >0 if it will end up that way
+        dirty = { 'count' : 0 }
+        def mark_dirty(obj):
+            dirty['count'] += 1
         if self._document is not None:
-            def attach(obj):
-                obj.attach_document(self._document)
-            self._visit_prop_value_references(new, attach, immediate_only=True)
-        def detach(obj):
-            obj.detach_document()
-        self._visit_prop_value_references(old, detach, immediate_only=True)
-
+            self._visit_prop_value_references(new, mark_dirty, immediate_only=True)
+            self._visit_prop_value_references(old, mark_dirty, immediate_only=True)
+            if dirty['count'] > 0:
+                self._document._invalidate_all_models()
         # chain up to invoke callbacks
         super(PlotObject, self).trigger(attr, old, new)
 
