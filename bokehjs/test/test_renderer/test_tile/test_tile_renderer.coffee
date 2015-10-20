@@ -130,7 +130,7 @@ describe "tile sources", ->
 
   describe "tms tile source", ->
     url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
-    source = new TMSTileSource(url)
+    source = new TMSTileSource.Model(url)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -139,7 +139,7 @@ describe "tile sources", ->
       tile_options = 
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new TMSTileSource(tile_options)
+      offset_source = new TMSTileSource.Model(tile_options)
       expect(offset_source.get('x_origin_offset')).to.be.equal(0)
       expect(offset_source.get('y_origin_offset')).to.be.equal(0)
 
@@ -147,7 +147,7 @@ describe "tile sources", ->
       tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new TMSTileSource(tile_options)
+      offset_source = new TMSTileSource.Model(tile_options)
       bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
       expect(bounds).to.include(0)
 
@@ -160,7 +160,7 @@ describe "tile sources", ->
     tile_options =
       url : 'http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga'
 
-    source = new WMTSTileSource(tile_options)
+    source = new WMTSTileSource.Model(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -184,7 +184,7 @@ describe "tile sources", ->
   describe "quadkey tile source", ->
     tile_options =
       url : 'http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0'
-    source = new QUADKEYTileSource(tile_options)
+    source = new QUADKEYTileSource.Model(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -251,7 +251,7 @@ describe "tile sources", ->
       tile_options =
         url : 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
 
-      source = new TMSTileSource(tile_options)
+      source = new TMSTileSource.Model(tile_options)
 
       [xmin, ymin, xmax, ymax, level] = [-90.283741, 29.890626, -89.912952,
                                           30.057766, 11]
