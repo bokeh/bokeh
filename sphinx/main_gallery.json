@@ -27,7 +27,7 @@
         { "path": "examples/plotting/file/elements.py",        "name": "elements"                                    },
         { "path": "examples/plotting/file/boxplot.py",         "name": "boxplot"                                     },
         { "path": "examples/charts/file/area.py",              "name": "area_chart"                                  },
-        { "path": "examples/charts/file/boxplot.py",           "name": "boxplot_chart"                               },
+        { "path": "examples/charts/file/boxplot_gallery.py",   "name": "boxplot_chart"                               },
         { "path": "examples/charts/file/cat_heatmap.py",       "name": "cat_heatmap_chart"                           },
         { "path": "examples/charts/file/donut.py",             "name": "donut_chart"                                 },
         { "path": "examples/charts/file/dots.py",              "name": "dot_chart"                                   },
