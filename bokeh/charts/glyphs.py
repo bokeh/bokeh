@@ -21,7 +21,7 @@ from .utils import marker_types
 class NestedCompositeGlyph(CompositeGlyph):
     """A composite glyph that consists of other composite glyphs.
 
-    An important responsibility of the `CompositeGlyph` is to understand the bounds
+    An important responsibility of any `CompositeGlyph` is to understand the bounds
     of the glyph renderers that make it up. This class is used to provide convenient
     properties that return the bounds from the child `CompositeGlyphs`.
     """

@@ -107,7 +107,7 @@ def polar_to_cartesian(r, start_angles, end_angles):
     return zip(*points)
 
 
-# ToDo: Reconsider whether to utilize thing, vice Chart
+# ToDo: Reconsider whether to utilize this, vice Chart
 # TODO: Experimental implementation. This should really be a shared
 #       pattern between plotting/charts and other bokeh interfaces.
 #       This will probably be part of the future charts re-design
@@ -198,7 +198,11 @@ def show(obj, title='test', filename=False, server=False, notebook=False, **kws)
 
 
 def ordered_set(iterable):
-    """Creates an ordered list from strings, tuples or other hashable items."""
+    """Creates an ordered list from strings, tuples or other hashable items.
+
+    Returns:
+        list of unique and ordered values
+    """
 
     mmap = {}
     ord_set = []
@@ -212,9 +216,25 @@ def ordered_set(iterable):
 
 
 def collect_attribute_columns(**specs):
-    """Collect list of unique and ordered columns across attribute specifications."""
-    selected_specs = {spec_name: spec for spec_name, spec in iteritems(specs) if spec.columns}
-    return ordered_set(list(itertools.chain.from_iterable([spec.columns for spec in selected_specs.values()])))
+    """Collect list of unique and ordered columns across attribute specifications.
+
+    Args:
+        specs (dict): attribute name, :class:`AttrSpec` mapping
+
+    Returns:
+        list of columns in order as they appear in attr spec and without duplicates
+    """
+
+    # filter down to only the specs with columns assigned to them
+    selected_specs = {spec_name: spec for spec_name, spec in iteritems(specs)
+                      if spec.columns}
+
+    # all columns used in selections of attribute specifications
+    spec_cols = list(itertools.chain.from_iterable([spec.columns
+                                                    for spec in selected_specs.values()]))
+
+    # return a list of unique columns in order as they appear
+    return ordered_set(spec_cols)
 
 
 def df_from_json(data, **kwargs):
@@ -236,6 +256,13 @@ def get_index(data):
     """A generic function to return the index from values.
 
     Should be used to abstract away from specific types of data.
+
+    Args:
+        data (:class:`pandas.Series`, :class:`pandas.DataFrame`): a data source to
+            return or derive an index for.
+
+    Returns:
+        a pandas index
     """
     return data.index
 
@@ -245,6 +272,14 @@ def get_unity(data, value=1):
 
     Useful for charts that need this special data type when no input is provided
     for one of the dimensions.
+
+    Args:
+        data (:class:`pandas.DataFrame`): the data to add constant column to.
+        value (str, int, object): a valid value for a dataframe, used as constant value
+            for each row.
+
+    Returns:
+        a copy of `data` with a column of '_charts_ones' added to it
     """
     data_copy = data.copy()
     data_copy['_charts_ones'] = value
@@ -270,7 +305,14 @@ def title_from_columns(cols):
 
 
 def gen_column_names(n):
-    """Produces list of unique column names of length n."""
+    """Produces list of unique column names of length n.
+
+    Args:
+        n (int): count of column names to provide
+
+    Returns:
+        list(str) of length `n`
+    """
     col_names = list(DEFAULT_COLUMN_NAMES)
 
     # a-z
