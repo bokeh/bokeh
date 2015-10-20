@@ -68,8 +68,8 @@ class TileRendererView extends PlotWidget
     tile_data = e.target.tile_data
     tile_data.img = e.target
     tile_data.current = true
-    @_render_tile(tile_data.cache_key)
     @mget('tile_source').tiles[tile_data.cache_key] = tile_data
+    @_render_tile(tile_data.cache_key)
 
   _on_tile_cache_load: (e) =>
     tile_data = e.target.tile_data
