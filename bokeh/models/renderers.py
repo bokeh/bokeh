@@ -15,6 +15,7 @@ from .. import validation
 
 from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
+from .tiles import TileSource
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,22 @@ class TileRenderer(Renderer):
 
     tile_source = Instance(TileSource, help="""
     Local data source to use when rendering glyphs on the plot.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen
+    locations when rendering glyphs on the plot. If unset, use the
+    default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen
+    locations when rendering glyphs on the plot. If unset, use the
+    default -range.
+    """)
+
+    level = Enum(RenderLevel, default="glyph", help="""
+    Specifies the level in which to render the glyph.
     """)
 
 class GlyphRenderer(Renderer):

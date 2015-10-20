@@ -1,9 +1,10 @@
 from __future__ import absolute_import
+from ..plot_object import PlotObject
 
 from ..properties import (abstract, AngleSpec, Any, Array, Bool, Dict, DistanceSpec, Enum, Float,
-                          Include, Instance, NumberSpec, StringSpec, String, Int)
+                          Include, Instance, NumberSpec, StringSpec, String, Int, HasProps)
 
-class TileSource(HasProps):
+class TileSource(PlotObject):
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
@@ -14,7 +15,7 @@ class TileSource(HasProps):
     tile_size = Int(default=256, help="""
     tile size in pixels (e.g. 256)
     """)
-
+    
     min_zoom = Int(default=0, help="""
     the minimum zoom level for the tile layer. This is the most "zoomed-out" level.
     """)

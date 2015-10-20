@@ -1,6 +1,7 @@
 _ = require "underscore"
 HasProperties = require "../../common/has_properties"
 tile_utils = require "./tile_utils"
+{logger} = require "../../common/logging"
 
 class TileSource extends HasProperties
 

@@ -527,21 +527,6 @@ Returns:
 
 """)
 
-    tile_layer = _glyph_function(glyphs.TileLayer, """
-Examples:
-
-    .. bokeh-plot::
-        :source-position: above
-
-        from bokeh.plotting import figure, output_file, show
-
-        plot = figure(width=800, height=800)
-        plot.tile_layer(url='http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png')
-
-        show(plot)
-
-""")
-
     triangle = _glyph_function(markers.Triangle, """
 Examples:
 

@@ -2,8 +2,8 @@ _ = require "underscore"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
-tile_source = require "./tile_source"
-wmts_tile_source = require "./wmts_tile_source"
+wmts = require "./wmts_tile_source"
+ImagePool = require "./image_pool"
 {logger} = require "../../common/logging"
 
 class TileRendererView extends PlotWidget
@@ -28,7 +28,7 @@ class TileRendererView extends PlotWidget
     else
       zoom_level = zoom_level + 1
 
-    new_resolution = @tile_source.resolutions[zoom_level]
+    new_resolution = @mget('tile_source').resolutions[zoom_level]
     new_xrange = new_resolution * @map_frame.get('width')
     new_yrange = new_resolution * @map_frame.get('height')
     nxmin = e.bokeh.plot_x - (x_percent * new_xrange)
@@ -42,7 +42,7 @@ class TileRendererView extends PlotWidget
     @y_range.set('end', new_extent[3])
 
   _set_data: () ->
-    @pool = new tile_source.ImagePool()
+    @pool = new ImagePool()
     @map_plot = @plot_view.model
     @map_canvas = @plot_view.canvas_view.ctx
     @map_frame = @plot_view.frame
@@ -74,7 +74,7 @@ class TileRendererView extends PlotWidget
   _on_tile_cache_load: (e) =>
     tile_data = e.target.tile_data
     tile_data.img = e.target
-    @tile_source.tiles[tile_data.cache_key] = tile_data
+    @mget('tile_source').tiles[tile_data.cache_key] = tile_data
 
   _on_tile_error: (e) =>
     return ''
@@ -105,7 +105,7 @@ class TileRendererView extends PlotWidget
       x_coord : bounds[0]
       y_coord : bounds[3]
 
-    tile.src = @('tile_source').get_image_url(x, y, z)
+    tile.src = @mget('tile_source').get_image_url(x, y, z)
     return tile
 
   render: (ctx, indices, args) ->
@@ -127,7 +127,7 @@ class TileRendererView extends PlotWidget
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
 
   _draw_tile: (tile_key) ->
-    tile_obj = @('tile_source').tiles[tile_key]
+    tile_obj = @mget('tile_source').tiles[tile_key]
     if tile_obj?
       [sxmin, symin] = @plot_view.frame.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]], @plot_view.canvas)
       [sxmax, symax] = @plot_view.frame.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]], @plot_view.canvas)
@@ -171,13 +171,13 @@ class TileRendererView extends PlotWidget
       children = @mget('tile_source').children_by_tile_xyz(x, y, z)
       for c in children
         [cx, cy, cz, cbounds] = c
-        if @mget('tile_source').tile_xyz_to_key(cx, cy, cz) of @tile_source.tiles
+        if @mget('tile_source').tile_xyz_to_key(cx, cy, cz) of @mget('tile_source').tiles
           continue
         else
           @_create_tile(cx, cy, cz, cbounds, true)
 
   _update: (abridged=false) =>
-    @tile_source.update()
+    @mget('tile_source').update()
     extent = @get_extent()
     zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
     tiles = @mget('tile_source').get_tiles_by_extent(extent, zoom_level)
@@ -229,7 +229,7 @@ class TileRenderer extends HasParent
       global_alpha: 1.0
       x_range_name: "default"
       y_range_name: "default"
-      tile_source: new wmts_tile_source.WMTSTileSource()
+      tile_source: new wmts.Model()
     }
 
   display_defaults: ->
