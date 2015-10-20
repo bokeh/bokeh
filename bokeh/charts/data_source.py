@@ -82,6 +82,15 @@ class OrderedAssigner(ColumnAssigner):
                 zip(dims, self._df.columns.tolist())}
 
 
+class NumericalColumnsAssigner(ColumnAssigner):
+    """Assigns all numerical columns to the y dimension."""
+
+    def get_assignment(self):
+        # filter down to only the numerical columns
+        df = self._df._get_numeric_data()
+        return {'y': df.columns.tolist()}
+
+
 class DataOperator(HasProps):
     """An operation that transforms data before it is used for plotting."""
     columns = List(ColumnLabel(), default=None, help="""
@@ -234,7 +243,13 @@ class ChartDataSource(object):
             selections (Dict(dimension, List(Column)), optional): mapping between a
                 dimension and the column name(s) associated with it. This represents what
                 the user selected for the current chart.
-            **kwargs: additional keyword arguments
+            column_assigner (:class:`ColumnAssigner`, optional): a reference to a
+                ColumnAssigner class, which is used to collect dimension column
+                assignment when keyword arguments aren't provided. The default value is
+                :class:`OrderedAssigner`, which assumes you want to assign each column
+                or array to each dimension of the chart in order that they are received.
+            **kwargs:
+                attrs (list(str)): list of attribute names the chart uses
         """
         if dims is None:
             dims = DEFAULT_DIMS

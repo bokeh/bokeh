@@ -17,7 +17,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from bokeh.charts.data_source import ChartDataSource
+from bokeh.charts.data_source import ChartDataSource, NumericalColumnsAssigner
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -91,6 +91,18 @@ def test_derived_cols_from_lists(test_data):
     """List of lists for dimension results in column derivation."""
     ds = ChartDataSource.from_data(test_data.array_data, dims=('y', 'x'))
     assert ds['y'] == ['a', 'b']
+
+
+def test_custom_derived_cols_from_df(test_data):
+    """Wide dataframe columns assigned to y dimension for the chart.
+
+    This tests using the NumericalColumnsAssigner, which is used for charts
+    that prefer behavior of expecting series-like data. Typically the x axis
+    is used as an index, then the y axis will be assigned multiple columns.
+    """
+    ds = ChartDataSource.from_data(test_data.pd_data, dims=('x', 'y'),
+                                   column_assigner=NumericalColumnsAssigner)
+    assert ds['y'] == ['col1', 'col2']
 
 
 # ToDo: add tests for blaze support
