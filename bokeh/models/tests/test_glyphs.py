@@ -14,7 +14,6 @@ from bokeh.models.glyphs import (
     Rect,
     Segment,
     Text,
-    TileLayer,
     Wedge)
 
 from bokeh.models.glyphs import (
@@ -434,26 +433,6 @@ def test_Text():
         "x_offset",
         "y_offset"
     ], TEXT)
-
-def test_TileLayer():
-    test_url = "http://test.url.test"
-    test_tile_size = 256
-    test_tile_source = "WMTSTileSource"
-    glyph = TileLayer(url=test_url, tile_size=test_tile_size, tile_source=test_tile_source)
-    assert glyph.url == test_url
-    assert glyph.tile_size == test_tile_size
-    assert glyph.tile_source == test_tile_source
-    yield (check_props, glyph, [
-        "url",
-        "tile_size",
-        "tile_source",
-        "min_zoom",
-        "max_zoom",
-        "x_origin_offset",
-        "y_origin_offset",
-        "extra_url_vars",
-        "initial_resolution",
-    ])
 
 def test_Wedge():
     glyph = Wedge()
