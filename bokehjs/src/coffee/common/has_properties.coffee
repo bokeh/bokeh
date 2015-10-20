@@ -308,48 +308,11 @@ class HasProperties extends Backbone.Model
       @_base = require('./base')
     return @_base
 
-  url: () ->
-    # ### method HasProperties::url
-    # model where our API processes this model
-    doc = @get('doc')
-    if not doc?
-      logger.error("unset 'doc' in #{@}")
-
-    url = @get_base().Config.prefix + "bokeh/bb/" + doc + "/" + @type + "/"
-    if (@isNew())
-      return url
-    return url + @get('id') + "/"
-
   sync: (method, model, options) ->
-    # this should be fixed via monkey patching when extended by an
-    # environment that implements the model backend,
-    # to enable normal beaviour, add this line
-    #
-    # HasProperties.prototype.sync = Backbone.sync
+    # make this a no-op, we sync the whole document never individual models
     return options.success(model.attributes, null, {})
 
   defaults: -> {}
-
-  rpc: (funcname, args, kwargs) =>
-    prefix = @get_base().Config.prefix
-    doc = @get('doc')
-    if not doc?
-      throw new Error("Unset 'doc' in " + this)
-    id = @get('id')
-    type = @type
-    url = "#{prefix}bokeh/bb/rpc/#{doc}/#{type}/#{id}/#{funcname}/"
-    data =
-      args: args
-      kwargs: kwargs
-    resp = $.ajax(
-      type: 'POST'
-      url: url,
-      data: JSON.stringify(data)
-      contentType: 'application/json'
-      xhrFields:
-        withCredentials: true
-    )
-    return resp
 
   # true if this class can be serialized and synced with the server-side
   # Document. We should refactor HasProperties to avoid this boolean
