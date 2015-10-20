@@ -364,7 +364,9 @@ class HasProperties extends Backbone.Model
   # extra attributes here.
   serializable_attributes: () ->
     attrs = {}
-    for k, v in @attributes
+    for k, v of @attributes
+      # this is weird because when we set an attribute to null it becomes
+      # serializable even though it usually isn't. harmless?
       if v instanceof HasProperties and not v.serializable_in_document()
         ;
       else
@@ -457,13 +459,9 @@ class HasProperties extends Backbone.Model
           c.detach_document()
 
   _tell_document_about_change: (attr, old, new_) ->
-    # this is pretty inefficient to compute @serializable_attributes()
-    # but deal with it later maybe after refactoring HasProperties
-    if attr not of @serializable_attributes()
-      return
-    if new_ instanceof HasProperties and @document != null
+    if new_ instanceof HasProperties and @document != null and new_.serializable_in_document()
       new_.attach_document(@document)
-    if old instanceof HasProperties
+    if old instanceof HasProperties and old.serializable_in_document()
       old.detach_document()
     if @document != null
       @document._notify_change(@, attr, old, new_)

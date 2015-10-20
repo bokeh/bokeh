@@ -46,7 +46,7 @@ with_server = (f) ->
   else
     pypath = basedir
   env = _.extend({}, process.env, { PYTHONPATH: pypath })
-  handle = child_process.spawn("python", ["-c", "import bokeh.bk as bk; bk.main()"], {
+  handle = child_process.spawn("python", ["-c", "import bokeh.command as command; command.main(['bokeh', 'serve'])"], {
     env: env,
     cwd: basedir
   })
