@@ -8,4 +8,5 @@ class TMSTileSource extends MercatorTileSource
     image_url = @string_lookup_replace(@get('url'), @get('extra_url_vars'))
     return image_url.replace("{X}", x).replace('{Y}', y).replace("{Z}", z)
 
-module.exports = TMSTileSource
+module.exports =
+  Model : TMSTileSource

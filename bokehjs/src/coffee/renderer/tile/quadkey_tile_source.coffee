@@ -10,4 +10,5 @@ class QUADKEYTileSource extends MercatorTileSource
     quadKey = @tile_xyz_to_quadkey(x, y, z)
     return image_url.replace("{Q}", quadKey)
 
-module.exports = QUADKEYTileSource
+module.exports =
+  Model : QUADKEYTileSource
