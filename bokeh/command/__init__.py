@@ -44,6 +44,7 @@ class ApplicationsSubcommand(Subcommand):
         applications = {}
 
         for file in files:
+            file = os.path.abspath(file)
             if os.path.isdir(file):
                 handler = DirectoryHandler(filename=file)
             else:
