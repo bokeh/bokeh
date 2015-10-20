@@ -48,7 +48,7 @@ locations =
   Tooltip:                  require '../renderer/annotation/tooltip'
 
   TileRenderer:             require '../renderer/tile/tile_renderer'
-  TileSource:               require '../renderer/tile/tms_tile_source'
+  TileSource:               require '../renderer/tile/tile_source'
   TMSTileSource:            require '../renderer/tile/tms_tile_source'
   WMTSTileSource:           require '../renderer/tile/wmts_tile_source'
   QUADKEYTileSource:        require '../renderer/tile/quadkey_tile_source'

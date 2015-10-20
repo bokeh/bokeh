@@ -1,14 +1,48 @@
-tile_source = require "./tile_source"
+_ = require "underscore"
+TileSource = require "./tile_source"
 
-class MercatorTileSource extends tile_source.TileSource
+class MercatorTileSource extends TileSource
 
-  constructor: ->
-    super
-    @full_extent = @full_extent ? [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
-    @x_origin_offset = @x_origin_offset ? 20037508.34
-    @y_origin_offset = @y_origin_offset ? 20037508.34
-    @initial_resolution = @initial_resolution ? 2 * Math.PI * 6378137 / @tile_size
-    @resolutions = @resolutions ? (@get_resolution(z) for z in [0..30])
+  type: 'MercatorTileSource'
+  
+  defaults: =>
+    return _.extend {}, super(), {
+      tile_size : 256
+      max_zoom : 25
+      min_zoom : 0
+      extra_url_vars : {}
+      full_extent : [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
+      x_origin_offset : 20037508.34
+      y_origin_offset : 20037508.34
+      initial_resolution : 2 * Math.PI * 6378137 / 256
+      resolutions : [
+        156543.03392804097
+        78271.51696402048
+        39135.75848201024
+        19567.87924100512
+        9783.93962050256
+        4891.96981025128
+        2445.98490512564
+        1222.99245256282
+        611.49622628141
+        305.748113140705
+        152.8740565703525
+        76.43702828517625
+        38.21851414258813
+        19.109257071294063
+        9.554628535647032
+        4.777314267823516
+        2.388657133911758
+        1.194328566955879
+        0.5971642834779395
+        0.29858214173896974
+        0.14929107086948487
+        0.07464553543474244
+        0.03732276771737122
+        0.01866138385868561
+        0.009330691929342804
+      ]
+    }
 
   retain_children:(reference_tile) ->
     quadkey = reference_tile.quadkey
@@ -41,7 +75,6 @@ class MercatorTileSource extends tile_source.TileSource
       b = @get_tile_meter_bounds(x, y, z)
       if b?
         child_tile_xyz.push([x, y, z, b])
-
     return child_tile_xyz
 
   parent_by_tile_xyz: (x, y, z) ->
@@ -50,7 +83,7 @@ class MercatorTileSource extends tile_source.TileSource
     return @quadkey_to_tile_xyz(parent_quad_key)
 
   get_resolution: (level) ->
-    return @initial_resolution / Math.pow(2, level)
+    return @get('initial_resolution') / Math.pow(2, level)
 
   get_resolution_by_extent: (extent, height, width) ->
     x_rs = (extent[2] - extent[0]) / width
@@ -62,7 +95,7 @@ class MercatorTileSource extends tile_source.TileSource
     y_rs = (extent[3] - extent[1]) / height
     resolution = Math.max(x_rs, y_rs)
     i = 0
-    for r in @resolutions
+    for r in @get('resolutions')
       if resolution > r
         return 0 if i == 0
         return i - 1 if i > 0
@@ -72,13 +105,14 @@ class MercatorTileSource extends tile_source.TileSource
     x_rs = (extent[2] - extent[0]) / width
     y_rs = (extent[3] - extent[1]) / height
     resolution = Math.max(x_rs, y_rs)
-    closest = @resolutions.reduce (previous, current) ->
+    ress = @get('resolutions')
+    closest = @get('resolutions').reduce (previous, current) ->
       return current if (Math.abs(current - resolution) < Math.abs(previous - resolution))
       return previous
-    return @resolutions.indexOf(closest)
+    return @get('resolutions').indexOf(closest)
 
   snap_to_zoom: (extent, height, width, level) ->
-    desired_res = @resolutions[level]
+    desired_res = @get('resolutions')[level]
     desired_x_delta = width * desired_res
     desired_y_delta = height * desired_res
 
@@ -98,33 +132,33 @@ class MercatorTileSource extends tile_source.TileSource
 
   pixels_to_meters: (px, py, level) ->
     res = @get_resolution(level)
-    mx = px * res - @x_origin_offset
-    my = py * res - @y_origin_offset
+    mx = px * res - @get('x_origin_offset')
+    my = py * res - @get('y_origin_offset')
     return [mx, my]
 
   meters_to_pixels: (mx, my, level) ->
     res = @get_resolution(level)
-    px = (mx + @x_origin_offset) / res
-    py = (my + @y_origin_offset) / res
+    px = (mx + @get('x_origin_offset')) / res
+    py = (my + @get('y_origin_offset')) / res
     return [px, py]
 
   pixels_to_tile: (px, py) ->
-    tx = Math.max(Math.ceil(px / parseFloat(@tile_size)) - 1, 0)
-    ty = Math.max(Math.ceil(py / parseFloat(@tile_size)) - 1, 0)
+    tx = Math.max(Math.ceil(px / parseFloat(@get('tile_size'))) - 1, 0)
+    ty = Math.max(Math.ceil(py / parseFloat(@get('tile_size'))) - 1, 0)
     return [tx, ty]
 
   pixels_to_raster: (px, py, level) ->
-    mapSize = @tile_size << level
+    mapSize = @get('tile_size') << level
     return [px, mapSize - py]
 
   meters_to_tile: (mx, my, level) ->
-    [px, py]= @meters_to_pixels(mx, my, level)
+    [px, py] = @meters_to_pixels(mx, my, level)
     return @pixels_to_tile(px, py)
 
   get_tile_meter_bounds: (tx, ty, level) ->
     # expects tms styles coordinates (bottom-left origin)
-    [xmin, ymin] = @pixels_to_meters(tx * @tile_size, ty * @tile_size, level)
-    [xmax, ymax] = @pixels_to_meters((tx + 1) * @tile_size, (ty + 1) * @tile_size, level)
+    [xmin, ymin] = @pixels_to_meters(tx * @get('tile_size'), ty * @get('tile_size'), level)
+    [xmax, ymax] = @pixels_to_meters((tx + 1) * @get('tile_size'), (ty + 1) * @get('tile_size'), level)
 
     if xmin? and ymin? and xmax? and ymax?
       return [xmin, ymin, xmax, ymax]
@@ -225,5 +259,4 @@ class MercatorTileSource extends tile_source.TileSource
         return [x, y, z]
     return [0, 0, 0]
 
-module.exports =
-  MercatorTileSource : MercatorTileSource
+module.exports = MercatorTileSource

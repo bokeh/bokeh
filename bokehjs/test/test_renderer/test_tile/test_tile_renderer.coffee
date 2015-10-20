@@ -1,19 +1,18 @@
 _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
-
 base = utils.require "common/base"
-
 TileRenderer = utils.require "renderer/tile/tile_renderer"
-tile_source = utils.require "renderer/tile/tile_source"
-mercator_tile_source = utils.require "renderer/tile/mercator_tile_source"
-tms_tile_source = utils.require "renderer/tile/tms_tile_source"
-wmts_tile_source = utils.require "renderer/tile/wmts_tile_source"
-quadkey_tile_source = utils.require "renderer/tile/quadkey_tile_source"
+TileSource = utils.require "renderer/tile/tile_source"
+MercatorTileSource = utils.require "renderer/tile/mercator_tile_source"
+TMSTileSource = utils.require "renderer/tile/tms_tile_source"
+WMTSTileSource = utils.require "renderer/tile/wmts_tile_source"
+QUADKEYTileSource = utils.require "renderer/tile/quadkey_tile_source"
+tile_utils = utils.require "renderer/tile/tile_utils"
 
-describe "Projection Utils", ->
+describe "projection utils", ->
 
-  utils = new tile_source.ProjectionUtils()
+  utils = new tile_utils.ProjectionUtils()
   tol = 0.01
 
   it "should convert lat/lng to meters", ->
@@ -60,17 +59,17 @@ class TileExpects
       tiles = source.get_tiles_by_extent(@GEOGRAPHIC_BOUNDS, zoom_level, 0)
       expect(tiles.length).to.be.equal(4 ** zoom_level * 2)
 
-describe "Tile Sources", ->
+describe "tile sources", ->
 
   T = new TileExpects()
   tol = 0.01
 
-  describe "Tile Source (Base Class)", ->
+  describe "tile source (base class)", ->
 
     tile_options =
       url : 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
 
-    source = new tile_source.TileSource(tile_options)
+    source = new TileSource(tile_options)
 
     it "should remove tile and add back to image pool ", ->
       expect(source.pool.images.length).to.be.equal(0)
@@ -91,9 +90,9 @@ describe "Tile Sources", ->
       tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new tile_source.TileSource(tile_options)
-      expect(offset_source.x_origin_offset).to.be.equal(0)
-      expect(offset_source.y_origin_offset).to.be.equal(0)
+      offset_source = new TileSource(tile_options)
+      expect(offset_source.get('x_origin_offset')).to.be.equal(0)
+      expect(offset_source.get('y_origin_offset')).to.be.equal(0)
    
     it "should successfully set extra_url_vars property", ->
 
@@ -105,10 +104,10 @@ describe "Tile Sources", ->
         url : 'http://{test_key}/{test_key2}/{X}/{Y}/{Z}.png'
         extra_url_vars : test_extra_url_vars
 
-      tile_source = new tile_source.TileSource(tile_options)
+      tile_source = new TileSource(tile_options)
       expect_url = 'http://test_value/test_value2/0/0/0.png'
-      expect(tile_source.extra_url_vars).to.have.any.keys('test_key')
-      expect(tile_source.extra_url_vars).to.have.any.keys('test_key2')
+      expect(tile_source.get('extra_url_vars')).to.have.any.keys('test_key')
+      expect(tile_source.get('extra_url_vars')).to.have.any.keys('test_key2')
       formatted_url = tile_source.get_image_url(0,0,0)
       expect(tile_source.get_image_url(0,0,0)).to.be.equal(expect_url)
 
@@ -129,9 +128,9 @@ describe "Tile Sources", ->
         expect(t[0]).to.be.within(3, 4)
         expect(t[1]).to.be.within(3, 4)
 
-  describe "TMS tile source", ->
+  describe "tms tile source", ->
     url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
-    source = new tms_tile_source.TMSTileSource(url)
+    source = new TMSTileSource(url)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -140,15 +139,15 @@ describe "Tile Sources", ->
       tile_options = 
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new tms_tile_source.TMSTileSource(tile_options)
-      expect(offset_source.x_origin_offset).to.be.equal(0)
-      expect(offset_source.y_origin_offset).to.be.equal(0)
+      offset_source = new TMSTileSource(tile_options)
+      expect(offset_source.get('x_origin_offset')).to.be.equal(0)
+      expect(offset_source.get('y_origin_offset')).to.be.equal(0)
 
     it "should account of x_origin_offset and y_origin_offset", ->
       tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
-      offset_source = new tms_tile_source.TMSTileSource(tile_options)
+      offset_source = new TMSTileSource(tile_options)
       bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
       expect(bounds).to.include(0)
 
@@ -156,12 +155,12 @@ describe "Tile Sources", ->
       expect(source.get_resolution(1)).to.be.closeTo(78271.517, tol)
       expect(source.get_resolution(12)).to.be.closeTo(38.2185, tol)
 
-  describe "WMTS tile source", ->
+  describe "wmts tile source", ->
 
     tile_options =
       url : 'http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga'
 
-    source = new wmts_tile_source.WMTSTileSource(tile_options)
+    source = new WMTSTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -174,7 +173,6 @@ describe "Tile Sources", ->
       expect(bounds[2]).to.be.closeTo(-10018754.171394622, tol)
       expect(bounds[3]).to.be.closeTo(3502650.384139918, tol)
 
-
     it "should get tile bounds in lat/lng", ->
       [x, y, z] = source.wmts_to_tms(511, 845, 11)
       bounds = source.get_tile_geographic_bounds(x, y, z)
@@ -183,10 +181,10 @@ describe "Tile Sources", ->
       expect(bounds[2]).to.be.closeTo(-90, tol)
       expect(bounds[3]).to.be.closeTo(29.99300228455108, tol)
 
-  describe "QUADKEY tile source", ->
+  describe "quadkey tile source", ->
     tile_options =
       url : 'http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0'
-    source = new quadkey_tile_source.QUADKEYTileSource(tile_options)
+    source = new QUADKEYTileSource(tile_options)
 
     it "should get tiles for extent correctly", ->
       T.expect_mercator_tile_counts(source)
@@ -203,9 +201,9 @@ describe "Tile Sources", ->
       expect(source.quadkey_to_tile_xyz('00')).to.be.eql([0, 0, 2])
       expect(source.quadkey_to_tile_xyz('0000032320')).to.be.eql([20, 30, 10])
 
-  describe "MERCATOR tile source", ->
+  describe "mercator tile source", ->
 
-    source = new mercator_tile_source.MercatorTileSource()
+    source = new MercatorTileSource()
     tol = 0.01
 
     it "should calculate resolution", ->
@@ -253,7 +251,7 @@ describe "Tile Sources", ->
       tile_options =
         url : 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
 
-      source = new tms_tile_source.TMSTileSource(tile_options)
+      source = new TMSTileSource(tile_options)
 
       [xmin, ymin, xmax, ymax, level] = [-90.283741, 29.890626, -89.912952,
                                           30.057766, 11]
