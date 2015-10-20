@@ -13,6 +13,7 @@ from bokeh.util.callback_manager import _check_callback
 from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
 from json import loads
+from bokeh.properties import ContainerProperty
 
 class DocumentChangedEvent(object):
     def __init__(self, document):
@@ -186,6 +187,39 @@ class Document(object):
     def _initialize_references_json(cls, references_json, references):
         '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
 
+        def instantiate_value(v):
+            if v is None:
+                return v
+            elif isinstance(v, list):
+                instantiated = []
+                for elem in v:
+                    instantiated.append(instantiate_value(elem))
+                return instantiated
+            elif isinstance(v, dict) and 'id' in v:
+                return references[v['id']]
+            else:
+                raise ValueError("Do not know how to instantiate %r" % (v))
+
+        def instantiate(instance, name, v):
+            prop = instance.lookup(name)
+            if isinstance(prop, ContainerProperty):
+                if v is None:
+                    return v
+                elif isinstance(v, list):
+                    instantiated = []
+                    for elem in v:
+                        instantiated.append(instantiate_value(elem))
+                    return instantiated
+                elif isinstance(v, dict):
+                    instantiated = {}
+                    for key, value in v.items():
+                        instantiated[key] = instantiate_value(value)
+                    return instantiated
+                else:
+                    raise ValueError("Do not know how to instantiate container %r %r" % (prop, v))
+            else:
+                return instantiate_value(v)
+
         # Now set all props
         for obj in references_json:
             obj_id = obj['id']
@@ -196,9 +230,7 @@ class Document(object):
             # replace references with actual instances in obj_attrs
             for p in instance.properties_with_refs():
                 if p in obj_attrs:
-                    ref = obj_attrs[p]
-                    if ref is not None:
-                        obj_attrs[p] = references[ref['id']]
+                    obj_attrs[p] = instantiate(instance, p, obj_attrs[p])
 
             # set all properties on the instance
             instance.update(**obj_attrs)
