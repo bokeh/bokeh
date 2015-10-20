@@ -79,7 +79,8 @@ class CompositeGlyph(HasProps):
     def refresh(self):
         """Update the GlyphRenderers.
 
-        Note: this method would be called after data is added.
+        .. note:
+            this method would be called after data is added.
         """
         if self.renderers is not None:
             self.source = self.build_source()
@@ -94,8 +95,9 @@ class CompositeGlyph(HasProps):
     def _set_sources(self):
         """Store reference to source in each GlyphRenderer.
 
-        Note: if the glyphs that are part of the composite glyph differ,
-        you may have to override this method and handle the sources manually.
+        .. note::
+            if the glyphs that are part of the composite glyph differ, you may have to
+            override this method and handle the sources manually.
         """
         for renderer in self.renderers:
             renderer.data_source = self.source

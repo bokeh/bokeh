@@ -186,7 +186,8 @@ class AttrSpec(HasProps):
 class ColorAttr(AttrSpec):
     """An attribute specification for mapping unique data values to colors.
 
-    Note: Should be expanded to support more complex coloring options.
+    .. note::
+        Should be expanded to support more complex coloring options.
     """
     name = 'color'
     iterable = List(Color, default=DEFAULT_PALETTE)
@@ -228,7 +229,8 @@ class DashAttr(AttrSpec):
 class CatAttr(AttrSpec):
     """An attribute specification for mapping unique data values to labels.
 
-    Note: this is a special attribute specification, which is used for defining which
+    .. note::
+        this is a special attribute specification, which is used for defining which
         labels are used for one aspect of a chart (grouping) vs another (stacking or
         legend)
     """

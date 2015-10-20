@@ -39,7 +39,8 @@ def Line(data=None, x=None, y=None, **kws):
     variable for differentiating the measurement values. One of the columns can be used as
     an index for either the x or y axis.
 
-    Note: Only the x or y axis can display multiple variables, while the other is used
+    .. note::
+        Only the x or y axis can display multiple variables, while the other is used
         as an index.
 
     Args:
@@ -51,7 +52,8 @@ def Line(data=None, x=None, y=None, **kws):
     In addition the the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
-    Note: this chart type differs on input types as compared to other charts,
+    .. note::
+        This chart type differs on input types as compared to other charts,
         due to the way that line charts typically are plotting labeled series. For
         example, a column for APPL stock prices over time. Another way this could be
         plotted is to have a DataFrame with a column of `stock_label` and columns of

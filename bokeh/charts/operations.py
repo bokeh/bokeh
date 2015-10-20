@@ -43,13 +43,14 @@ class Blend(DataOperator):
     operation is like an OR because a category in either variable is included
     in the blended variable
 
-    Note: The variables not being blended must be duplicated (consider a
-    sample time). For example, two variables, 'sensor_a' and
-    'sensor_b' only contain two values, either 'on' or 'off', with one
-    more column of 'datetime'. Blending 'sensor_a' and 'sensor_b' results
-    in two columns, 'datetime' and 'sensors_state'.
+    .. note::
+        The variables not being blended must be duplicated (consider a sample time).
+        For example, two variables, 'sensor_a' and 'sensor_b' only contain two values,
+        either 'on' or 'off', with one more column of 'datetime'. Blending 'sensor_a'
+        and 'sensor_b' results in two columns, 'datetime' and 'sensors_state'.
 
-    Example cases are shown below:
+    Example:
+
         - cat1 + cat2 = [cat1, cat2]
         - cat1 + num1 = [cat1, cat(num1)]
         - num1 + num2 = [num1, num2]

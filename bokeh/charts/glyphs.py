@@ -240,8 +240,9 @@ class Interval(AggregateGlyph):
     summary of values. Each of the two sides is derived from a separate aggregation of
     the values provided to the interval.
 
-    Note: A bar is a special case interval where one side is pinned and used to
-    communicate a value relative to it.
+    .. note::
+        A bar is a special case interval where one side is pinned and used to
+        communicate a value relative to it.
     """
 
     width = Float(default=0.8)
@@ -306,7 +307,8 @@ class Interval(AggregateGlyph):
     def x_max(self):
         """The maximum extent of the glyph in x.
 
-        Note: Dodging the glyph can affect the value.
+        .. note::
+            Dodging the glyph can affect the value.
         """
         return (self.dodge_shift or self.label_value) + (self.width / 2.0)
 
@@ -314,7 +316,8 @@ class Interval(AggregateGlyph):
     def x_min(self):
         """The maximum extent of the glyph in y.
 
-        Note: Dodging the glyph can affect this value.
+        .. note::
+            Dodging the glyph can affect the value.
         """
         return (self.dodge_shift or self.label_value) - (self.width / 2.0)
 
@@ -324,8 +327,9 @@ class Interval(AggregateGlyph):
 
         How much we are stacking + the height of the interval + the base of the interval
 
-        Note: the start and end of the glyph can swap between being associated with the
-        min and max when the glyph end represents a negative value.
+        .. note::
+            the start and end of the glyph can swap between being associated with the
+            min and max when the glyph end represents a negative value.
         """
         return max(self.bottom, self.top)
 
@@ -333,8 +337,9 @@ class Interval(AggregateGlyph):
     def y_min(self):
         """The minimum extent of all `Glyph`s in y.
 
-        Note: the start and end of the glyph can swap between being associated with the
-        min and max when the glyph end represents a negative value.
+        .. note::
+            the start and end of the glyph can swap between being associated with the
+            min and max when the glyph end represents a negative value.
         """
         return min(self.bottom, self.top)
 

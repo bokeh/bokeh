@@ -102,7 +102,8 @@ class DataGroup(object):
     associated with an :class:`AttrSpec` to the value of the attribute assigned to the
     DataGroup.
 
-    Note: resets the index on the input data
+    .. note::
+        resets the index on the input data
     """
 
     def __init__(self, label, data, attr_specs):
@@ -347,7 +348,7 @@ class ChartDataSource(object):
         Example:
 
             .. note::
-            
+
                 This example is fairly low level and is not something the typical
                 user should worry about. The interface for data transformations from
                 the user perspective are the :ref:`bokeh_charts_functions`.
