@@ -30,6 +30,7 @@
     "gulp": "^3.9.0",
     "gulp-change": "^1.0.0",
     "gulp-eco-template": "^0.1.0",
+    "gulp-insert": "^0.5.0",
     "gulp-less": "^3.0.2",
     "gulp-mocha": "^2.0.0",
     "gulp-rename": "^1.2.0",
