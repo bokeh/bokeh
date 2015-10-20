@@ -33,14 +33,13 @@ class ApplicationsSubcommand(Subcommand):
 
     def __init__(self, **kwargs):
         super(ApplicationsSubcommand, self).__init__(**kwargs)
-        self.parser.add_argument('files', metavar='DIRECTORY-OR-SCRIPT', nargs='*',  help="The app directories or scripts to serve (current directory if not specified)",
-                                 default=os.getcwd())
+        self.parser.add_argument('files', metavar='DIRECTORY-OR-SCRIPT', nargs='*',  help="The app directories or scripts to serve (serve empty document if not specified)", default=None)
 
     def build_applications(self, args):
         if args.files:
             files = args.files
         else:
-            files = [os.getcwd()]
+            files = []
 
         applications = {}
 
@@ -59,6 +58,10 @@ class ApplicationsSubcommand(Subcommand):
                     die("Don't know the URL path to use for %s" % (file))
                 route = '/'
             applications[route] = application
+
+        if len(applications) == 0:
+            # create an empty application by default, used with output_server typically
+            applications['/'] = Application()
 
         return applications
 
