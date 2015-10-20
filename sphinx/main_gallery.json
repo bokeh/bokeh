@@ -31,7 +31,7 @@
         { "path": "examples/charts/file/cat_heatmap.py",       "name": "cat_heatmap_chart"                           },
         { "path": "examples/charts/file/donut.py",             "name": "donut_chart"                                 },
         { "path": "examples/charts/file/dots.py",              "name": "dot_chart"                                   },
-        { "path": "examples/charts/file/histograms.py",        "name": "histograms_chart"                            },
+        { "path": "examples/charts/file/histogram_gallery.py", "name": "histograms_chart"                            },
         { "path": "examples/charts/file/iris_scatter.py",      "name": "iris_scatter_chart"                          },
         { "path": "examples/charts/file/lines.py",             "name": "line_chart"                                  },
         { "path": "examples/charts/file/palettes.py",          "name": "palettes"                                    },
