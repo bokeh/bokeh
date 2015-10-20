@@ -140,4 +140,9 @@ Attribute Specs
     :members:
     :undoc-members:
 
+Utilities
+---------
+
+.. autofunction:: bokeh.charts.utils.df_from_json
+
 
