@@ -46,8 +46,8 @@ def Line(data=None, x=None, y=None, **kws):
     Args:
         data (list(list), numpy.ndarray, pandas.DataFrame, list(pd.Series)): a 2d data
             source with columns of data for each line.
-        x (str|list(str), optional): specifies variable(s) to use for x axis
-        y (str|list(str), optional): specifies variable(s) to use for y axis
+        x (str or list(str), optional): specifies variable(s) to use for x axis
+        y (str or list(str), optional): specifies variable(s) to use for y axis
 
     In addition the the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
