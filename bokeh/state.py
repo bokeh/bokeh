@@ -46,8 +46,8 @@ import os, time
 # Bokeh imports
 from .document import Document
 from .resources import Resources
-from .client import DEFAULT_SESSION_ID, ClientSession, ClientConnection
-from bokeh.resources import DEFAULT_SERVER_HTTP_URL, websocket_url_for_server_url
+from .client import DEFAULT_SESSION_ID
+from bokeh.resources import DEFAULT_SERVER_HTTP_URL
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -73,24 +73,33 @@ class State(object):
                 {
                     'filename'  : # filename to use when saving
                     'resources' : # resources configuration
-                    'autosave'  : # whether to autosave
                     'title'     : # a title for the HTML document
                 }
 
         notebook (bool) : whether to generate notebook output
 
-        session (:class:`bokeh.session.Session`) : a default session for Bokeh server output
+        session_id (str) : a default session ID for Bokeh server output
+
+        autoadd (bool) : whether certain functions automatically add roots to the document
+
+        autosave (bool) : whether certain functions automatically save the file
+
+        autopush (bool): whether certain functions automatically push to the server
 
     """
 
     def __init__(self):
-        self._connection = None # reset checks whether it's None
+        # TODO (havocp) right now there's no way to turn off autoadd
         self._autoadd = True
         self.reset()
 
     @property
     def document(self):
         return self._document
+
+    @document.setter
+    def document(self, doc):
+        self._document = doc
 
     @property
     def file(self):
@@ -101,28 +110,39 @@ class State(object):
         return self._notebook
 
     @property
-    def connection(self):
-        return self._connection
+    def session_id(self):
+        return self._session_id
 
     @property
-    def session(self):
-        return self._session
+    def server_url(self):
+        return self._server_url
 
     @property
     def autoadd(self):
         return self._autoadd
 
-    def _reset_with_doc(self, doc):
-        self._document = doc
+    @property
+    def autosave(self):
+        return self._autosave
+
+    @property
+    def autopush(self):
+        return self._autopush
+
+    def _reset_keeping_doc(self):
         self._file = None
         self._notebook = False
-        if self._connection is not None:
-            self._connection.close()
-        self._connection = None
-        self._session = None
+        self._session_id = None
+        self._server_url = None
+        self._autosave = False
+        self._autopush = False
+
+    def _reset_with_doc(self, doc):
+        self._document = doc
+        self._reset_keeping_doc()
 
     def reset(self):
-        ''' Deactivate all currently active output modes.
+        ''' Deactivate all currently active output modes and set curdoc() to a fresh empty Document.
 
         Subsequent calls to show() will not render until a new output mode is
         activated.
@@ -133,16 +153,13 @@ class State(object):
         '''
         self._reset_with_doc(Document())
 
-    def output_document(self, doc):
-        """ Output to a document.
-
-        Args:
-            doc (Document) : the document curdoc() will return
-        """
-        self._reset_with_doc(doc)
-
     def output_file(self, filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
-        """ Output to a static HTML file.
+        """Output to a standalone HTML file.
+
+        Does not change the current Document from curdoc(). File,
+        server, and notebook output may be active at the same
+        time, so this does not clear the effects of
+        output_server() or output_notebook().
 
         Args:
             filename (str) : a filename for saving the HTML document
@@ -172,29 +189,22 @@ class State(object):
         self._file = {
             'filename'  : filename,
             'resources' : Resources(mode=mode, root_dir=root_dir),
-            'autosave'  : autosave,
-            'title'     : title,
+            'title'     : title
         }
+        self._autosave = autosave
 
         if os.path.isfile(filename):
             logger.info("Session output file '%s' already exists, will be overwritten." % filename)
 
-    # TODO update output_notebook to match output_server
-    def output_notebook(self, url=None, docname=None, session=None, name=None):
-        """ Generate output in Jupyter/IPython notebook cells.
+    def output_notebook(self):
+        """Generate output in Jupyter/IPython notebook cells.
 
-        Args:
-            url (str, optional) : URL of the Bokeh server (default: "default")
-                If "default", then ``session.DEFAULT_SERVER_URL`` is used.
-
-            docname (str) : Name of document to push on Bokeh server
-                Any existing documents with the same name will be overwritten.
-
-            session (Session, optional) : An explicit session to use (default: None)
-                If None, a new default session is created.
-
-            name (str, optional) : A name for the session
-                If None, the server URL is used as the name
+        This does not clear the effects of output_file() or
+        output_server(), it only adds an additional output
+        destination (publishing to IPython Notebook). If
+        output_server() has been called, the notebook output cell
+        will be loaded from a Bokeh server; otherwise, Bokeh
+        publishes HTML to the notebook directly.
 
         Returns:
             None
@@ -202,39 +212,39 @@ class State(object):
         """
         self._notebook = True
 
-        if session or url or name:
-            if docname is None:
-                docname = "IPython Session at %s" % time.ctime()
-            self.output_server(docname, url=url, session=session, name=name)
+    def output_server(self, session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
+        """Store Bokeh plots and objects on a Bokeh server.
 
-    def output_server(self, sessionid=DEFAULT_SESSION_ID, url="default", clear=True):
-        """ Sync curdoc() to a Bokeh server.
+        File, server, and notebook output may be active at the
+        same time, so this does not clear the effects of
+        output_file() or output_notebook(). output_server()
+        changes the behavior of output_notebook(), so the notebook
+        will load output cells from the server rather than
+        receiving them as inline HTML.
 
         Args:
-            sessionid (str) : Name of session to push on Bokeh server
+            session_id (str) : Name of session to push on Bokeh server
                 Any existing session with the same name will be overwritten.
-                Use None to generate a random session ID.
 
             url (str, optional) : base URL of the Bokeh server (default: "default")
                 If "default" use the default localhost URL.
 
-            clear (bool, optional) : Whether to clear the document (default: True)
-                If True, an existing server document will be cleared of any
-                existing objects.
+            autopush (bool, optional) : whether to automatically push (default: False)
+                If True, then Bokeh plotting APIs may opt to automatically
+                push the document more frequently (e.g., after any plotting
+                command). If False, then the document is only pushed upon calling
+                :func:`show` or :func:`push`.
 
         Returns:
             None
 
         .. warning::
-            Calling this function will replace any existing document in the named session.
+            Calling this function will replace any existing server-side document in the named session.
 
         """
         if url == "default":
             url = DEFAULT_SERVER_HTTP_URL
 
-        self._connection = ClientConnection(url=websocket_url_for_server_url(url))
-        self._session = ClientSession(self._connection, sessionid)
-        self._document = self._session.document
-
-        if clear:
-            self._document.clear()
+        self._session_id = session_id
+        self._server_url = url
+        self._autopush = autopush

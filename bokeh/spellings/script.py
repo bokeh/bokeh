@@ -4,7 +4,7 @@ from .handler import SpellingHandler
 import uuid
 import os
 import sys
-from bokeh.io import output_document, curdoc
+from bokeh.io import set_curdoc, curdoc
 
 class ScriptHandler(SpellingHandler):
     """Run a script which modifies a Document"""
@@ -42,7 +42,7 @@ class ScriptHandler(SpellingHandler):
         from types import ModuleType
         self._module_name = 'bk_script_' + str(uuid.uuid4()).replace('-', '')
         self._module = ModuleType(self._module_name)
-        output_document(doc)
+        set_curdoc(doc)
         try:
             exec(self._code, self._module.__dict__)
             newdoc = curdoc()

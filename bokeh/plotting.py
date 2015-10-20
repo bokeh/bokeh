@@ -14,12 +14,12 @@ from .plotting_helpers import (
 from .document import Document
 from .models import ColumnDataSource
 from .io import (
-    curdoc, cursession, curautoadd, output_file, output_notebook, output_server, push,
+    curdoc, curstate, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, hplot, vplot)
 
 # Names that we want in this namespace (fool pyflakes)
-(GridPlot, Document, ColumnDataSource, cursession, gridplot,
-show, save, reset_output, push, output_file, output_notebook,
+(GridPlot, Document, ColumnDataSource, gridplot,
+curstate, show, save, reset_output, push, output_file, output_notebook,
 output_server, vplot, hplot)
 
 
@@ -629,8 +629,8 @@ def figure(**kwargs):
         kwargs['plot_width'] = kwargs.pop('width')
 
     fig = Figure(**kwargs)
-    curdoc()._current_plot = fig
-    if curautoadd():
+    curdoc()._current_plot = fig # TODO (havocp) store this on state, not doc?
+    if curstate().autoadd:
         curdoc().add_root(fig)
     return fig
 

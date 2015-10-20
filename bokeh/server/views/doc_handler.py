@@ -27,7 +27,9 @@ class DocHandler(RequestHandler):
         pass
 
     def get(self, *args, **kwargs):
-        session_id = str(uuid.uuid4())
+        session_id = self.get_argument("bokeh-session-id", default=None)
+        if session_id is None:
+            session_id = str(uuid.uuid4())
         self.application.create_session_if_needed(self.bokeh_application, session_id)
         session = self.application.get_session(session_id)
 
