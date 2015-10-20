@@ -113,8 +113,8 @@ class ClientConnection(object):
         sent = message.send(self._socket)
         log.debug("Sent %r [%d bytes]", message, sent)
 
-    def _send_patch_document(self, sessionid, event):
-        msg = self._protocol.create('PATCH-DOC', sessionid, [event])
+    def _send_patch_document(self, session_id, event):
+        msg = self._protocol.create('PATCH-DOC', session_id, [event])
         self.send_message(msg)
 
     def _send_message_wait_for_reply(self, message):
@@ -126,20 +126,20 @@ class ClientConnection(object):
         self._loop_until(have_reply_or_disconnected)
         return waiter.reply
 
-    def push_session(self, doc, sessionid=DEFAULT_SESSION_ID):
+    def push_session(self, doc, session_id=DEFAULT_SESSION_ID):
         ''' Create a session by pushing the given document to the server, overwriting any existing server-side doc
 
         Args:
             doc : bokeh.document.Document
                 The Document to initialize the session with.
 
-            sessionid : string, optional
+            session_id : string, optional
                 The name of the session (omit to use 'default', None to use random unique id)
 
         Returns:
             session :  a ClientSession with the given document and ID
         '''
-        session = ClientSession(self, doc, sessionid)
+        session = ClientSession(self, doc, session_id)
         msg = self._protocol.create('PUSH-DOC', session.id, session.document)
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
@@ -149,17 +149,17 @@ class ClientConnection(object):
         else:
             return session
 
-    def pull_session(self, sessionid=DEFAULT_SESSION_ID):
+    def pull_session(self, session_id=DEFAULT_SESSION_ID):
         ''' Create a session by pulling the document from the given session on the server.
         Args:
-            sessionid : string, optional
+            session_id : string, optional
                 The name of the session (omit to use 'default', None to use random unique id)
 
         Returns:
             session :  a ClientSession with the given ID
         '''
-        sessionid = ClientSession._ensure_session_id(sessionid)
-        msg = self._protocol.create('PULL-DOC-REQ', sessionid)
+        session_id = ClientSession._ensure_session_id(session_id)
+        msg = self._protocol.create('PULL-DOC-REQ', session_id)
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
@@ -168,7 +168,7 @@ class ClientConnection(object):
         else:
             doc = Document()
             reply.push_to_document(doc)
-            session = ClientSession(self, doc, sessionid)
+            session = ClientSession(self, doc, session_id)
             return session
 
     def _send_request_server_info(self):
@@ -296,23 +296,23 @@ class ClientConnection(object):
 
 class ClientSession(object):
 
-    def __init__(self, connection, doc, sessionid=DEFAULT_SESSION_ID):
+    def __init__(self, connection, doc, session_id=DEFAULT_SESSION_ID):
         '''
           Attaches to a particular named session on the server.
         '''
         self._connection = connection
         self._document = doc
-        self._id = self._ensure_session_id(sessionid)
+        self._id = self._ensure_session_id(session_id)
         self._document.on_change(self._document_changed)
         # registering may remove the on_change above as side effect
         self._connection._register_session(self)
         self._current_patch = None
 
     @classmethod
-    def _ensure_session_id(cls, sessionid=DEFAULT_SESSION_ID):
-        if sessionid is None:
-            sessionid = str(uuid.uuid4())
-        return sessionid
+    def _ensure_session_id(cls, session_id=DEFAULT_SESSION_ID):
+        if session_id is None:
+            session_id = str(uuid.uuid4())
+        return session_id
 
     @property
     def document(self):
