@@ -36,7 +36,7 @@ class TileSource(PlotObject):
     """)
     
     extra_url_vars = Dict(String, Any(String, Int), help="""
-    A dictionary that maps url variable template variables to string value
+    A dictionary that maps url variable template keys to values.  These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)
 
     initial_resolution = Float(default=1.0, help="""
