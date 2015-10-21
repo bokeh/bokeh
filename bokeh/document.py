@@ -227,38 +227,38 @@ class Document(object):
     def _initialize_references_json(cls, references_json, references):
         '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
 
-        def instantiate_value(v):
+        def initialize_value(v):
             if v is None:
                 return v
             elif isinstance(v, list):
-                instantiated = []
+                initialized = []
                 for elem in v:
-                    instantiated.append(instantiate_value(elem))
-                return instantiated
+                    initialized.append(initialize_value(elem))
+                return initialized
             elif isinstance(v, dict) and 'id' in v:
                 return references[v['id']]
             else:
-                raise ValueError("Do not know how to instantiate %r" % (v))
+                raise ValueError("Do not know how to initialize %r" % (v))
 
-        def instantiate(instance, name, v):
+        def initialize(instance, name, v):
             prop = instance.lookup(name)
             if isinstance(prop, ContainerProperty):
                 if v is None:
                     return v
                 elif isinstance(v, list):
-                    instantiated = []
+                    initialized = []
                     for elem in v:
-                        instantiated.append(instantiate_value(elem))
-                    return instantiated
+                        initialized.append(initialize_value(elem))
+                    return initialized
                 elif isinstance(v, dict):
-                    instantiated = {}
+                    initialized = {}
                     for key, value in v.items():
-                        instantiated[key] = instantiate_value(value)
-                    return instantiated
+                        initialized[key] = initialize_value(value)
+                    return initialized
                 else:
-                    raise ValueError("Do not know how to instantiate container %r %r" % (prop, v))
+                    raise ValueError("Do not know how to initialize container %r %r" % (prop, v))
             else:
-                return instantiate_value(v)
+                return initialize_value(v)
 
         # Now set all props
         for obj in references_json:
@@ -270,7 +270,7 @@ class Document(object):
             # replace references with actual instances in obj_attrs
             for p in instance.properties_with_refs():
                 if p in obj_attrs:
-                    obj_attrs[p] = instantiate(instance, p, obj_attrs[p])
+                    obj_attrs[p] = initialize(instance, p, obj_attrs[p])
 
             # set all properties on the instance
             instance.update(**obj_attrs)
