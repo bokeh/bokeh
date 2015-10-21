@@ -4,11 +4,12 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..enums import Orientation, SpatialUnits, RenderLevel
+from ..enums import (Orientation, SpatialUnits, RenderLevel, Dimension,
+                     RenderMode)
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, NumberSpec, Either, Auto)
+                          Include, NumberSpec, Either, Auto, Float)
 
 from .renderers import Renderer, GlyphRenderer
 
@@ -145,4 +146,48 @@ class BoxAnnotation(Annotation):
 
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the shades.
+    """)
+
+class Span(Annotation):
+    """ Render a horizontal or vertical line span.
+
+    """
+    location = Float(help="""
+    The location of the span.
+    """)
+
+    location_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the location attribute. Interpreted as "data space"
+    units by default.
+    """)
+
+    dimension = Enum(Dimension, default='width', help="""
+    The direction of the span.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    level = Enum(RenderLevel, default="annotation", help="""
+    Specifies the level in which to render the span.
+    """)
+
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the span is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas".
+
+    .. warning::
+        The line_dash and line_dash_offset attributes aren't supported if
+        the render_mode is set to "css"
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the span.
     """)

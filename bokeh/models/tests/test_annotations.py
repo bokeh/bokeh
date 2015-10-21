@@ -1,6 +1,6 @@
 from __future__ import  absolute_import
 
-from bokeh.models.annotations import Legend, BoxAnnotation
+from bokeh.models.annotations import Legend, BoxAnnotation, Span
 from bokeh.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -118,3 +118,25 @@ def test_BoxAnnotation():
         "y_range_name",
         "level",
     ], LINE, FILL)
+
+def test_Span():
+    line = Span()
+    assert line.plot is None
+    assert line.location is None
+    assert line.location_units == 'data'
+    assert line.dimension == 'width'
+    assert line.x_range_name == 'default'
+    assert line.y_range_name == 'default'
+    assert line.level == 'annotation'
+    assert line.render_mode == 'canvas'
+    yield check_line, line
+    yield (check_props, line, [
+        "plot",
+        "location",
+        "location_units",
+        "dimension",
+        "x_range_name",
+        "y_range_name",
+        "level",
+        "render_mode"
+    ], LINE)

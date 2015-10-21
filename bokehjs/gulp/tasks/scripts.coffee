@@ -21,6 +21,8 @@ argv = require("yargs").argv
 resolve = require "resolve"
 rootRequire = require("root-require")
 pkg = rootRequire("./package.json")
+insert = require('gulp-insert')
+license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 
 customLabeler = (bundle, parentLabels, fn) ->
   labels = {}
@@ -126,7 +128,7 @@ gulp.task "scripts:build", (cb) ->
       .transform("browserify-eco")
       .transform("coffeeify")
       .bundle()
-      .pipe(source(paths.bokehjs.coffee.destination.full))
+      .pipe(source(paths.coffee.bokehjs.destination.full))
       .pipe(buffer())
       .pipe(sourcemaps.init({loadMaps: true}))
       # This solves a conflict when requirejs is loaded on the page. Backbone
@@ -136,6 +138,7 @@ gulp.task "scripts:build", (cb) ->
         "(function() { var define = undefined; return #{content} })()"
       .pipe change (content) ->
         "bokehRequire = #{content}"
+      .pipe(insert.prepend(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
@@ -149,7 +152,7 @@ gulp.task "scripts:build", (cb) ->
       .transform("browserify-eco")
       .transform("coffeeify")
       .bundle()
-      .pipe(source(paths.widgets.coffee.destination.full))
+      .pipe(source(paths.coffee.widgets.destination.full))
       .pipe(buffer())
       .pipe(sourcemaps.init({loadMaps: true}))
       # This solves a conflict when requirejs is loaded on the page. Backbone
@@ -157,6 +160,7 @@ gulp.task "scripts:build", (cb) ->
       # our backbone.
       .pipe change (content) ->
         "(function() { var define = undefined; return #{content} })()"
+      .pipe(insert.prepend(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
@@ -165,11 +169,11 @@ gulp.task "scripts:build", (cb) ->
   null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:minify", ->
-  tasks = [paths.bokehjs, paths.widgets].map (entry) ->
-    gulp.src(entry.coffee.destination.fullWithPath)
+  tasks = [paths.coffee.bokehjs, paths.coffee.widgets].map (entry) ->
+    gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(sourcemaps.init({loadMaps: true}))
-      .pipe(uglify())
+      .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
   es.merge.apply(null, tasks)
