@@ -13,14 +13,14 @@ from bokeh.models import WMTSTileSource
 
 output_file("tile_source_example.html", title="Tile Source Example")
 
-# create tile source from templated url
-osm_url = 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
-tile_source = WMTSTileSource()
-tile_source.url = osm_url
-
 # set to roughly full extent of web mercator projection
 x_range = Range1d(start=-20000000, end=20000000)
 y_range = Range1d(start=-20000000, end=20000000)
+
+# create tile source from templated url
+tile_options = {}
+tile_options['url'] = 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
+tile_source = WMTSTileSource(**tile_options)
 
 # instantiate plot and add tile source
 p = Plot(x_range=x_range, y_range=y_range, plot_height=800, plot_width=800)
