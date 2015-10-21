@@ -22,8 +22,6 @@ class DoubleTapToolView extends SelectTool.View
     plot_x2 = x_mapper.v_map_from_target([vx], true)
     plot_y2 = y_mapper.v_map_from_target([vy], true)
 
-    debugger
-
     e.bokeh.plot_x =  plot_x
     e.bokeh.plot_y = plot_y
 
