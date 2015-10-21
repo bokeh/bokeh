@@ -82,17 +82,18 @@ class BaseResources(object):
     _default_root_dir = "."
     _default_root_url = "http://127.0.0.1:5006/"
 
-    _components = ["bokeh", "bokeh-widgets"]
-
     logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None):
+        self.components = ["bokeh", "bokeh-widgets"]
+
         self.mode = settings.resources(mode)
         self.root_dir = settings.rootdir(root_dir)
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
         self.log_level = settings.log_level(log_level)
+
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
@@ -182,24 +183,20 @@ class BaseResources(object):
         end = "/* END %s */" % path
         return "%s\n%s\n%s" % (begin, middle, end)
 
-    @property
-    def components(self):
-        return self._components
-
     def _use_component(self, component, use):
         obj = copy.deepcopy(self)
 
         if use:
-            if component not in obj._components:
+            if component not in obj.components:
                 try:
-                    i = obj._components.index("bokeh")
+                    i = obj.components.index("bokeh")
                 except ValueError:
                     i = 0
 
-                obj._components.insert(i, component)
+                obj.components.insert(i, component)
         else:
             try:
-                obj._components.remove(component)
+                obj.components.remove(component)
             except ValueError:
                 pass
 
