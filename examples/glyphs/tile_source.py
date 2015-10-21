@@ -2,13 +2,14 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
-from bokeh.plotting import figure, output_file
+
+from bokeh.plotting import figure
+from bokeh.plotting import output_file
+
 from bokeh.models import Plot
 from bokeh.models import Range1d
 from bokeh.models import WheelZoomTool,ResizeTool,PanTool,BoxZoomTool 
 from bokeh.models import WMTSTileSource
-
-WMTSTileSource, Range1d
 
 output_file("tile_source_example.html", title="Tile Source Example")
 
