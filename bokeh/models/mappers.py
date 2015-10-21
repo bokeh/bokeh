@@ -105,14 +105,14 @@ class SegmentedColorMapper(ColorMapper):
     """
     )
 
-    interpolationMethod = String(default='linear', help="""
+    color_mapping_method = String(default='linear', help="""
     A string which describes the method of interpolation.  The default, 'linear',
     will result in a gradual transition from one color to the next.  Other
     options are 'step' which will result in a single color for all values 
     which fall between the segment markers (an effective floor function) 
     """)
 
-    def __init__(self, palette=None, segments=None, alpha=1, interpolationMethod='linear', **kwargs):
+    def __init__(self, palette=None, segments=None, alpha=1, color_mapping_method='linear', **kwargs):
         # Elegantly handle the possability that some parameters can be passed from the
         # kwargs structure (because of subclassing)
         if palette is None and 'palette' in kwargs.keys():
@@ -124,8 +124,8 @@ class SegmentedColorMapper(ColorMapper):
         if alpha is None and 'alpha' in kwargs.keys():
             alpha = kwargs['alpha']
 
-        if interpolationMethod is None and 'interpolationMethod' in kwargs.keys():
-            interpolationMethod = kwargs['interpolationMethod']
+        if color_mapping_method is None and 'color_mapping_method' in kwargs.keys():
+            color_mapping_method = kwargs['color_mapping_method']
 
 
         # Define a dict to hold any alpha values that we might extract
@@ -162,7 +162,7 @@ class SegmentedColorMapper(ColorMapper):
 
         if segments is not None: kwargs['segments'] = segments
 
-        kwargs['interpolationMethod'] = interpolationMethod
+        kwargs['color_mapping_method'] = color_mapping_method
 
         super(SegmentedColorMapper, self).__init__(**kwargs)
 
@@ -210,7 +210,7 @@ class LinearColorMapperReplacement(SegmentedColorMapper):
             reserve_color = expandPalette([reserve_color])['palette'][0]
 
         kwargs['palette'] = palette
-        kwargs['interpolationMethod'] = 'step'
+        kwargs['color_mapping_mode'] = 'step'
         kwargs['alpha'] = alpha
         kwargs['low'] = low
         kwargs['high'] = high
