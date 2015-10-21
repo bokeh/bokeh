@@ -17,6 +17,7 @@ from .builder.histogram_builder import Histogram
 from .builder.bar_builder import Bar
 from .builder.scatter_builder import Scatter
 from .builder.boxplot_builder import BoxPlot
+from .builder.timeseries_builder import TimeSeries
 
 # easy access to required bokeh components
 from ..models import ColumnDataSource
@@ -27,4 +28,3 @@ from ..io import (
 # Silence pyflakes
 (curdoc, cursession, output_file, output_notebook, output_server, push,
  reset_output, save, show, gridplot, vplot, hplot, ColumnDataSource)
-
