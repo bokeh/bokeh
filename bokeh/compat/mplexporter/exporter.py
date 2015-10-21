@@ -189,7 +189,7 @@ class Exporter(object):
         if (markerstyle['marker'] in ['None', 'none', None]
                 or markerstyle['markerpath'][0].size == 0):
             markerstyle = None
-        label = line._get_label()
+        label = line.get_label()
         if markerstyle or linestyle:
             self.renderer.draw_marked_line(data=data, coordinates=coordinates,
                                            linestyle=linestyle,
