@@ -107,6 +107,7 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
             # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
 
     '''
+    raise RuntimeError("TODO components needs to be ported to tornado")
     custom_models, all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
 
     if wrap_script:
@@ -279,6 +280,7 @@ def notebook_div(plot_object):
         has already been executed.
 
     '''
+    raise RuntimeError("TODO notebook_div needs to be ported to tornado")
     ref = plot_object.ref
     elementid = str(uuid.uuid4())
 
@@ -331,6 +333,7 @@ def file_html(plot_object,
         UTF-8 encoded HTML
 
     '''
+    raise RuntimeError("TODO file_html needs to be ported to tornado")
     from .document import Document
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
@@ -392,6 +395,7 @@ def autoload_static(plot_object, resources, script_path):
         ValueError
 
     '''
+    raise RuntimeError("TODO autoload_static needs to be ported to tornado")
     if resources.mode == 'inline':
         raise ValueError("autoload_static() requires non-inline resources")
 
@@ -434,6 +438,7 @@ def autoload_server(plot_object, session, public=False):
             loaded from the Bokeh Server
 
     '''
+    raise RuntimeError("TODO autoload_server needs to be ported to tornado")
     elementid = str(uuid.uuid4())
     resources = Resources(root_url=session.root_url, mode="server")
     tag = AUTOLOAD_SERVER.render(
