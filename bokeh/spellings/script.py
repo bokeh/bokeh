@@ -19,7 +19,7 @@ class ScriptHandler(SpellingHandler):
             try:
                 nodes = ast.parse(source, src_path)
                 self._code = compile(nodes, filename=src_path, mode='exec')
-            except SyntaxError, e:
+            except SyntaxError as e:
                 self._failed = True
                 self._error = ("Invalid syntax in \"%s\" on line %d:\n%s" % (os.path.basename(e.filename), e.lineno, e.text))
                 import traceback
@@ -49,7 +49,7 @@ class ScriptHandler(SpellingHandler):
             # script is supposed to edit the doc not replace it
             if newdoc is not doc:
                 raise RuntimeError("Script at '%s' replaced the output document" % (self._path))
-        except Exception, e:
+        except Exception as e:
             self._failed = True
             import traceback
             self._error_detail = traceback.format_exc(e)
