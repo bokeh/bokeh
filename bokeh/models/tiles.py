@@ -40,7 +40,7 @@ class TileSource(PlotObject):
     """)
 
     initial_resolution = Float(default=1.0, help="""
-    y offset in plot coordinates
+    resolution (plot_units / pixels) of minimum zoom level of tileset projection.
     """)
 
 class TMSTileSource(TileSource):
