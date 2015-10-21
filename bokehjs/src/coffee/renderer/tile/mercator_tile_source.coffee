@@ -8,7 +8,7 @@ class MercatorTileSource extends TileSource
   defaults: =>
     return _.extend {}, super(), {
       tile_size : 256
-      max_zoom : 25
+      max_zoom : 30
       min_zoom : 0
       extra_url_vars : {}
       full_extent : [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
