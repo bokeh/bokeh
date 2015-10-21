@@ -6,6 +6,6 @@ scatter = Scatter(data, x='petal_length', y='petal_width',
                   title='Iris Dataset Color and Marker by Species',
                   legend=True)
 
-output_file("scatter.html")
+output_file("iris_simple.html")
 
 show(scatter)

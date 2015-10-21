@@ -42,7 +42,7 @@ line4 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              legend=True)
 
 
-output_file("lines.html", title="line.py example")
+output_file("line_multi.html", title="line examples")
 
 
 show(

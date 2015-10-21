@@ -9,5 +9,5 @@ title = "MPG by Cylinders and Data Source, Colored by Cylinders"
 box_plot = BoxPlot(df, label=['cyl', 'origin'], values='mpg', color='cyl',
                    title=title)
 
-output_file("boxplot_gallery.html")
+output_file("boxplot_single.html")
 show(box_plot)

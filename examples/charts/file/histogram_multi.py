@@ -17,7 +17,7 @@ hist4 = Histogram(df, values='hp', color='cyl',
 hist5 = Histogram(df, values='mpg', bins=50,
                   title="df, values='mpg', bins=50")
 
-output_file("histograms.html")
+output_file("histogram_multi.html")
 
 show(
     vplot(

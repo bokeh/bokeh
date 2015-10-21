@@ -43,7 +43,7 @@ scatter6 = Scatter(flowers, x=blend('petal_length', 'sepal_length', name='length
                    title='x=petal_length+sepal_length, y=petal_width+sepal_width, color=species',
                    legend='top_right')
 
-output_file("scatter.html")
+output_file("scatter_multi.html")
 
 show(vplot(
     hplot(scatter0, scatter1),

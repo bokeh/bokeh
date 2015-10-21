@@ -36,7 +36,7 @@ df = df.set_index('cyl')
 bar_plot9 = Bar(df, values='mpg', agg='mean', legend='top_right', title='inferred labels')
 
 # collect and display
-output_file("bar.html")
+output_file("bar_multi.html")
 
 show(
     vplot(
