@@ -256,38 +256,38 @@ def expandPalette(palette = None):
             # and try to make a good list of hex numbers
 
             # Create a temporary placeholder to store the converted colors
-            tmpPalette = [None] * len(palette)
+            tmp_palette = [None] * len(palette)
 
             # Loop over each of the palette entries and attempt to convert the entry
             # into a hex number which can be stored in the tmpPalette variable.
             for i in range(len(palette)):
                 if type(palette[i]) == str:
                     if any([x == palette[i] for x in dir(bkColors)]):
-                        tmpPalette[i] = eval('bkColors.' + palette[i] + '.to_hex()')
+                        tmp_palette[i] = eval('bkColors.' + palette[i] + '.to_hex()')
                     if palette[i][0] == '#':
                         if len(palette[i]) >= 7:
-                            tmpPalette[i] = palette[i][0:7]
+                            tmp_palette[i] = palette[i][0:7]
                         if len(palette[i]) == 9:
                             alpha_hold[i] = int(palette[i][7:9], 16)/255
 
                 if type(palette[i]) == int:
-                    tmpPalette[i] = '#' + format(palette[i] & 0xFFFFFFFF, '06X')
+                    tmp_palette[i] = '#' + format(palette[i] & 0xFFFFFFFF, '06X')
 
                 if type(palette[i]).__name__ == 'NamedColor':
-                    tmpPalette[i] = palette[i].to_hex()
+                    tmp_palette[i] = palette[i].to_hex()
 
                 if type(palette[i]) == tuple:
                     if len(palette[i]) >= 3:
-                        tmpPalette[i] = '#' + format(palette[i][0], '02X') + format(palette[i][1], '02X') + format(palette[i][2], '02X')
+                        tmp_palette[i] = '#' + format(palette[i][0], '02X') + format(palette[i][1], '02X') + format(palette[i][2], '02X')
                     if len(palette[i]) == 4:
                         alpha_hold[i] = palette[i][3]
 
             # Check to ensure that all of the colors were able to be converted
-            none_indexs = [i for i in range(len(tmpPalette)) if tmpPalette[i] == None]
+            none_indexs = [i for i in range(len(tmp_palette)) if tmp_palette[i] == None]
             if len(none_indexs) > 0:
                 raise ValueError('some colors specified in the palette were unable to be converted into well formatted hex strings')
 
-            # Make the data stored in tmpPalette authorative
-            palette = tmpPalette
+            # Make the data stored in tmpPalette authoritative
+            palette = tmp_palette
     return({'palette': palette, 'alpha_hold': alpha_hold})
 
