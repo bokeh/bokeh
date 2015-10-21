@@ -187,22 +187,8 @@ class TapTool(Tool):
     """)
 
 class DoubleTapTool(Tool):
-    """ *toolbar icon*: |tap_select_icon|
-
-    The tap selection tool allows the user to select at single points by
-    left-clicking a mouse, or tapping with a finger.
-
-    See :ref:`userguide_styling_selected_unselected_glyphs` for information
-    on styling selected and unselected glyphs.
-
-    .. |tap_select_icon| image:: /_images/icons/TapSelect.png
-        :height: 18pt
-
-    .. note::
-        Selections can be comprised of multiple regions, even those
-        made by different selection tools. Hold down the <<shift>> key
-        while making a selection to append the new selection to any
-        previous seletion that might exist.
+    """ 
+    The doubletap tool allows for fixed-resolution zooming on tile sources
     """
 
     names = List(String, help="""

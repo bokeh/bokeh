@@ -1,5 +1,6 @@
 _ = require "underscore"
 HasProperties = require "../../common/has_properties"
+ImagePool = require "./image_pool"
 tile_utils = require "./tile_utils"
 {logger} = require "../../common/logging"
 
@@ -27,7 +28,7 @@ class TileSource extends HasProperties
   constructor: (options={}) ->
     super
     @utils = new tile_utils.ProjectionUtils()
-    @pool = new tile_utils.ImagePool()
+    @pool = new ImagePool()
     @tiles = {}
 
   string_lookup_replace: (str, lookup) ->
