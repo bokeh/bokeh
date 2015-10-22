@@ -141,22 +141,24 @@ class TileRendererView extends PlotWidget
       sy = symin
       @map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
 
+  _set_rect:() ->
+    outline_width = @plot_view.outline_props.width.value()
+    @map_canvas.rect(
+      @map_frame.get('left') + outline_width/2, @map_frame.get('bottom') - outline_width/2,
+      @map_frame.get('width') - outline_width, @map_frame.get('height') - outline_width,
+    )
+
+
   _render_tile: (tile_key) ->
     @map_canvas.save()
-    @map_canvas.rect(
-      @map_frame.get('left')+1, @map_frame.get('bottom')+2,
-      @map_frame.get('width')-2, @map_frame.get('height'),
-    )
+    @_set_rect()
     @map_canvas.clip()
     @_draw_tile(tile_key)
     @map_canvas.restore()
 
   _render_tiles: (tile_keys) ->
     @map_canvas.save()
-    @map_canvas.rect(
-      @map_frame.get('left')+1, @map_frame.get('bottom')+2,
-      @map_frame.get('width')-2, @map_frame.get('height'),
-    )
+    @_set_rect()
     @map_canvas.clip()
     for tile_key in tile_keys
       @_draw_tile(tile_key)
@@ -234,7 +236,7 @@ class TileRenderer extends HasParent
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'glyph'
+      level: 'underlay'
     }
 
 module.exports =

@@ -44,7 +44,7 @@ class TileRenderer(Renderer):
     default -range.
     """)
 
-    level = Enum(RenderLevel, default="glyph", help="""
+    level = Enum(RenderLevel, default="underlay", help="""
     Specifies the level in which to render the glyph.
     """)
 
