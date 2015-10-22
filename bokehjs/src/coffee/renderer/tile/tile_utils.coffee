@@ -1,3 +1,6 @@
+proj4 = require "proj4"
+mercator = proj4.defs('GOOGLE')
+wgs84 = proj4.defs('WGS84')
 
 class ProjectionUtils
 
@@ -5,16 +8,10 @@ class ProjectionUtils
     @origin_shift = 2 * Math.PI * 6378137 / 2.0
 
   geographic_to_meters: (xLon, yLat) ->
-    mx = xLon * @origin_shift / 180.0
-    my = Math.log( Math.tan((90 + yLat) * Math.PI / 360.0 )) / (Math.PI / 180.0)
-    my = my * @origin_shift / 180.0
-    return [mx, my]
+    return  proj4(wgs84, mercator, [xLon, yLat])
 
   meters_to_geographic: (mx, my) ->
-    lon = (mx / @origin_shift) * 180.0
-    lat = (my / @origin_shift) * 180.0
-    lat = 180 / Math.PI * (2 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0)
-    return [lon, lat]
+    return  proj4(mercator, wgs84, [mx, my])
 
   geographic_extent_to_meters: (extent) ->
     [xmin, ymin, xmax, ymax] = extent
