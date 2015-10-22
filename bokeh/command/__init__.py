@@ -91,7 +91,7 @@ class Serve(ApplicationsSubcommand):
         # TODO make log level a command line option
         logging.basicConfig(level=logging.DEBUG)
 
-        server = Server(applications)
+        server = Server(applications, port=self.port)
         if self.develop_mode:
             log.info("Using develop mode (do not enable --develop in production)")
         log.info("Starting Bokeh server on port %d with apps at %r", server.port, sorted(applications.keys()))
