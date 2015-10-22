@@ -103,8 +103,8 @@ class PlotObject(HasProps, CallbackManager):
         def mark_dirty(obj):
             dirty['count'] += 1
         if self._document is not None:
-            self._visit_prop_value_references(new, mark_dirty, immediate_only=True)
-            self._visit_prop_value_references(old, mark_dirty, immediate_only=True)
+            self._visit_value_and_its_immediate_references(new, mark_dirty)
+            self._visit_value_and_its_immediate_references(old, mark_dirty)
             if dirty['count'] > 0:
                 self._document._invalidate_all_models()
         # chain up to invoke callbacks
@@ -178,38 +178,33 @@ class PlotObject(HasProps, CallbackManager):
             return []
 
     @classmethod
-    def _visit_immediate_references(cls, obj, visitor):
-        ''' Visit all references to another PlotObject without recursing into any of the child PlotObject; may visit the same PlotObject more than once if it's referenced more than once. '''
-        cls._visit_props_references(obj, visitor, immediate_only=True)
+    def _visit_immediate_value_references(cls, value, visitor):
+        ''' Visit all references to another PlotObject without recursing into any of the child PlotObject; may visit the same PlotObject more than once if it's referenced more than once. Does not visit the passed-in value.'''
+        if isinstance(value, HasProps):
+            for attr in value.properties_with_refs():
+                child = getattr(value, attr)
+                cls._visit_value_and_its_immediate_references(child, visitor)
+        else:
+            cls._visit_value_and_its_immediate_references(value, visitor)
 
     @classmethod
-    def _visit_props_references(cls, obj, visitor, immediate_only=False):
-        ''' Visit all props of the PlotObject'''
-        for attr in obj.properties_with_refs():
-            cls._visit_prop_value_references(getattr(obj, attr), visitor, immediate_only)
-
-    @classmethod
-    def _visit_prop_value_references(cls, obj, visitor, immediate_only=False):
-        ''' Visit all references to another PlotObject for this arbitrary value'''
+    def _visit_value_and_its_immediate_references(cls, obj, visitor):
         if isinstance(obj, PlotObject):
-            # we visit this PlotObject
             visitor(obj)
-            if not immediate_only:
-                cls._visit_props_references(obj, visitor, immediate_only)
         elif isinstance(obj, HasProps):
             # this isn't a PlotObject, so recurse into it
-            cls._visit_props_references(obj, visitor, immediate_only)
+            cls._visit_immediate_value_references(obj, visitor)
         elif isinstance(obj, (list, tuple)):
             for item in obj:
-                cls._visit_prop_value_references(item, visitor, immediate_only)
+                cls._visit_value_and_its_immediate_references(item, visitor)
         elif isinstance(obj, dict):
             for key, value in iteritems(obj):
-                cls._visit_prop_value_references(key, visitor, immediate_only)
-                cls._visit_prop_value_references(value, visitor, immediate_only)
+                cls._visit_value_and_its_immediate_references(key, visitor)
+                cls._visit_value_and_its_immediate_references(value, visitor)
 
     @classmethod
-    def collect_plot_objects(cls, *input_objs):
-        """ Iterate over ``input_objs`` and descend through their structure
+    def collect_plot_objects(cls, *input_values):
+        """ Iterate over ``input_values`` and descend through their structure
         collecting all nested ``PlotObjects`` on the go. The resulting list
         is duplicate-free based on objects' identifiers.
         """
@@ -219,11 +214,11 @@ class PlotObject(HasProps, CallbackManager):
         def collect_one(obj):
             if obj._id not in ids:
                 ids.add(obj._id)
-                obj._visit_immediate_references(obj, collect_one)
+                cls._visit_immediate_value_references(obj, collect_one)
                 objs.append(obj)
 
-        for obj in input_objs:
-            collect_one(obj)
+        for value in input_values:
+            cls._visit_value_and_its_immediate_references(value, collect_one)
         return objs
 
     def references(self):

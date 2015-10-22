@@ -224,9 +224,7 @@ class Document(object):
         return references
 
     @classmethod
-    def _initialize_references_json(cls, references_json, references):
-        '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
-
+    def _compute_object_property_initializer(cls, instance, prop_name, json_value, references):
         def initialize_value(v):
             if v is None:
                 return v
@@ -236,31 +234,35 @@ class Document(object):
                     initialized.append(initialize_value(elem))
                 return initialized
             elif isinstance(v, dict) and 'id' in v:
+                if v['id'] not in references:
+                   raise ValueError("Nothing in references dict for %r property %r for %r" % (v, prop_name, instance))
                 return references[v['id']]
             else:
                 raise ValueError("Do not know how to initialize %r" % (v))
 
-        def initialize(instance, name, v):
-            prop = instance.lookup(name)
-            if isinstance(prop, ContainerProperty):
-                if v is None:
-                    return v
-                elif isinstance(v, list):
-                    initialized = []
-                    for elem in v:
-                        initialized.append(initialize_value(elem))
-                    return initialized
-                elif isinstance(v, dict):
-                    initialized = {}
-                    for key, value in v.items():
-                        initialized[key] = initialize_value(value)
-                    return initialized
-                else:
-                    raise ValueError("Do not know how to initialize container %r %r" % (prop, v))
+        prop = instance.lookup(prop_name)
+        if isinstance(prop, ContainerProperty):
+            if json_value is None:
+                return json_value
+            elif isinstance(json_value, list):
+                initialized = []
+                for elem in json_value:
+                    initialized.append(initialize_value(elem))
+                return initialized
+            elif isinstance(json_value, dict):
+                initialized = {}
+                for key, value in json_value.items():
+                    initialized[key] = initialize_value(value)
+                return initialized
             else:
-                return initialize_value(v)
+                raise ValueError("Do not know how to initialize container %r %r" % (prop, json_value))
+        else:
+            return initialize_value(json_value)
 
-        # Now set all props
+    @classmethod
+    def _initialize_references_json(cls, references_json, references):
+        '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
+
         for obj in references_json:
             obj_id = obj['id']
             obj_attrs = obj['attributes']
@@ -270,9 +272,16 @@ class Document(object):
             # replace references with actual instances in obj_attrs
             for p in instance.properties_with_refs():
                 if p in obj_attrs:
-                    obj_attrs[p] = initialize(instance, p, obj_attrs[p])
+                    obj_attrs[p] = cls._compute_object_property_initializer(instance, p, obj_attrs[p], references)
 
             # set all properties on the instance
+            remove = []
+            for key in obj_attrs:
+                if key not in instance.properties():
+                    logger.warn("Client sent attr %r for instance %r, which is a client-only or invalid attribute that shouldn't have been sent", key, instance)
+                    remove.append(key)
+            for key in remove:
+                del obj_attrs[key]
             instance.update(**obj_attrs)
 
     # TODO (havocp) there are other overlapping old serialization
@@ -348,22 +357,25 @@ class Document(object):
 
             if isinstance(event, ModelChangedEvent):
                 value = event.new
-                if isinstance(value, PlotObject):
-                    # the new value is an object that may have
-                    # not-yet-in-the-remote-doc references, and may also
-                    # itself not be in the remote doc yet.  the remote may
-                    # already have some of the references, but
-                    # unfortunately we don't have an easy way to know
-                    # unless we were to check BEFORE the attr gets changed
-                    # (we need the old _all_models before setting the
-                    # property). So we have to send all the references the
-                    # remote could need, even though it could be inefficient.
-                    # If it turns out we need to fix this we could probably
-                    # do it by adding some complexity.
-                    value_refs = value.references()
-                    # we know we don't want a whole new copy of the obj we're patching
+
+                # the new value is an object that may have
+                # not-yet-in-the-remote-doc references, and may also
+                # itself not be in the remote doc yet.  the remote may
+                # already have some of the references, but
+                # unfortunately we don't have an easy way to know
+                # unless we were to check BEFORE the attr gets changed
+                # (we need the old _all_models before setting the
+                # property). So we have to send all the references the
+                # remote could need, even though it could be inefficient.
+                # If it turns out we need to fix this we could probably
+                # do it by adding some complexity.
+                value_refs = set(PlotObject.collect_plot_objects(value))
+
+                # we know we don't want a whole new copy of the obj we're patching
+                # unless it's also the new value
+                if event.model != value:
                     value_refs.discard(event.model)
-                    references = references.union(value_refs)
+                references = references.union(value_refs)
 
                 json_events.append({ 'kind' : 'ModelChanged',
                                      'model' : event.model.ref,
@@ -418,8 +430,11 @@ class Document(object):
                 attr = event_json['attr']
                 value = event_json['new']
                 if attr in patched_obj.properties_with_refs():
-                    value = references[value['id']]
-                patched_obj.update(** { attr : value })
+                    value = self._compute_object_property_initializer(patched_obj, attr, value, references)
+                if attr in patched_obj.properties():
+                    patched_obj.update(** { attr : value })
+                else:
+                    logger.warn("Client sent attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", attr, patched_obj)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
