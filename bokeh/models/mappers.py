@@ -73,7 +73,7 @@ class SegmentedColorMapper(ColorMapper):
 
     For example, if the breaks are specified 0, 0.5, 1 and the
     colors are defined as 'red', 'white', 'green', values 
-    between 0 and 0.5 will smoothy vary between red and white
+    between 0 and 0.5 will smoothly vary between red and white
     while values between 0.5 and 1 will vary between white and
     green.
     """
@@ -210,7 +210,7 @@ class LinearColorMapperReplacement(SegmentedColorMapper):
             reserve_color = expandPalette([reserve_color])['palette'][0]
 
         kwargs['palette'] = palette
-        kwargs['color_mapping_mode'] = 'step'
+        kwargs['color_mapping_method'] = 'step'
         kwargs['alpha'] = alpha
         kwargs['low'] = low
         kwargs['high'] = high
