@@ -397,6 +397,7 @@ class HasProperties extends Backbone.Model
   _immediate_references: () ->
     result = {}
     HasProperties._value_record_references(@, result, false) # false = no recurse
+    delete result[@id]
     _.values(result)
 
   attach_document: (doc) ->
