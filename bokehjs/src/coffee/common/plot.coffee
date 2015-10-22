@@ -536,7 +536,8 @@ class Plot extends HasParent
 
   serializable_attributes: () ->
     attrs = super()
-    delete attrs['solver']
+    for a in ['solver', 'above', 'below', 'left', 'right']
+      delete attrs[a]
     attrs
 
   defaults: ->

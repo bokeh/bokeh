@@ -37,6 +37,12 @@ class HasParent extends HasProperties
     super(attrs, options)
     @_parent = HasProperties.prototype.get.apply(this, ['parent'])
 
+  serializable_attributes: () ->
+    attrs = super()
+    for a in ['parent']
+      delete attrs[a]
+    attrs
+
   get: (attr, resolve_refs=true) ->
     if not @_display_defaults
       @_display_defaults = @display_defaults()
