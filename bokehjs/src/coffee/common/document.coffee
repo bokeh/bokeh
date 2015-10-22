@@ -149,11 +149,41 @@ class Document
 
       references
 
+  # if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
+  # recurse into collections but not into HasProperties
+  @_resolve_refs: (value, old_references, new_references) ->
+
+    resolve_ref = (v) ->
+      if HasProperties._is_ref(v)
+        if v['id'] of old_references
+          old_references[v['id']]
+        else if v['id'] of new_references
+          new_references[v['id']]
+        else
+          throw new Error("reference #{JSON.stringify(v)} isn't known (not in Document?)")
+      else if _.isArray(v)
+        resolve_array(v)
+      else if _.isObject(v)
+        resolve_dict(v)
+      else
+        v
+
+    resolve_dict = (dict) ->
+      resolved = {}
+      for k, v of dict
+        resolved[k] = resolve_ref(v)
+      resolved
+
+    resolve_array = (array) ->
+      resolve_ref(v) for v in array
+
+    resolve_ref(value)
+
   # given a JSON representation of all models in a graph and new
   # model instances, set the properties on the models from the
   # JSON
   @_initialize_references_json: (references_json, old_references, new_references) ->
-    to_init = []
+    to_update = {}
     for obj in references_json
       obj_id = obj['id']
       obj_attrs = obj['attributes']
@@ -166,44 +196,42 @@ class Document
           was_new = true
           new_references[obj_id]
 
-      # if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
-      # Do not recurse into properties of objects, only into collections.
-      resolve_ref = (v) ->
-        if _.isObject(v) and 'id' of v
-          if v['id'] of old_references
-            old_references[v['id']]
-          else if v['id'] of new_references
-            new_references[v['id']]
-          else
-            throw new Error("reference #{JSON.stringify(v)} isn't known (not in Document?)")
-        else if _.isArray(v)
-          resolve_array(v)
-        else if _.isObject(v)
-          resolve_dict(v)
-        else
-          v
-
-      resolve_dict = (dict) ->
-        resolved = {}
-        for k, v of dict
-          resolved[k] = resolve_ref(v)
-        resolved
-
-      resolve_array = (array) ->
-        resolve_ref(v) for v in array
-
       # replace references with actual instances in obj_attrs
-      obj_attrs = resolve_dict(obj_attrs)
+      obj_attrs = Document._resolve_refs(obj_attrs, old_references, new_references)
 
-      # set all properties on the instance
-      instance.set(obj_attrs)
+      to_update[instance.id] = [instance, obj_attrs, was_new]
+
+    # this is so that, barring cycles, when an instance gets its
+    # refs resolved, the values for those refs also have their
+    # refs resolved.
+    foreach_depth_first = (items, f) ->
+      already_started = {}
+      foreach_value = (v, f) ->
+        if v instanceof HasProperties
+          # note that we ignore instances that aren't updated (not in to_update)
+          if v.id not of already_started and v.id of items
+            already_started[v.id] = true
+            [same_as_v, attrs, was_new] = items[v.id]
+            for a, e of attrs
+              foreach_value(e, f)
+            f(v, attrs, was_new)
+        else if _.isArray(v)
+          for e in v
+            foreach_value(e, f)
+        else if _.isObject(v)
+          for k, e of v
+            foreach_value(e, f)
+      for k, v of items
+        foreach_value(v[0], f)
+
+    # this first pass removes all 'refs' replacing them with real instances
+    foreach_depth_first to_update, (instance, attrs, was_new) ->
+      instance.set(attrs)
+
+    # after removing all the refs, we can run the initialize code safely
+    foreach_depth_first to_update, (instance, attrs, was_new) ->
       if was_new
-        # we can't call initialize() until all refs
-        # are filled in, so we defer that step
-        to_init.push([instance, obj_attrs])
-
-    for [instance, obj_attrs] in to_init
-      instance.initialize(obj_attrs)
+        instance.initialize(attrs)
 
   to_json_string : () ->
     JSON.stringify(@to_json())
@@ -262,25 +290,26 @@ class Document
         throw new Error("Cannot create a patch using events from a different document")
       if event instanceof ModelChangedEvent
         value = event.new_
-        if value instanceof HasProperties
-          value_refs = value.references()
+        value_json = HasProperties._value_to_json('new_', value)
+        value_refs = {}
+        HasProperties._value_record_references(value, value_refs, true) # true = recurse
+
+        if event.model.id of value_refs and event.model != value
           # we know we don't want a whole new copy of the obj we're patching
-          i = value_refs.indexOf(event.model)
-          if i >= 0
-            value_refs.splice(i, 1)
-          for r in value_refs
-            references[r.id] = r
+          # unless it's also the value itself
+          delete value_refs[event.model.id]
+        for id of value_refs
+          references[id] = value_refs[id]
 
         json_event = {
           'kind' : 'ModelChanged',
           'model' : event.model.ref(),
           'attr' : event.attr,
-          'new' : value
+          'new' : value_json
         }
         json_events.push(json_event)
       else if event instanceof RootAddedEvent
-        for r in event.model.references()
-          references[r.id] = r
+        HasProperties._value_record_references(event.model, references, true)
         json_event = {
           'kind' : 'RootAdded',
           'model' : event.model.ref()
@@ -293,13 +322,9 @@ class Document
         }
         json_events.push(json_event)
 
-    references_list =
-      for k,v of references
-        v
-
     {
       'events' : json_events,
-      'references' : Document._references_json(references_list)
+      'references' : Document._references_json(_.values(references))
     }
 
   apply_json_patch_string: (patch) ->
@@ -316,12 +341,15 @@ class Document
         model_id = event_json['model']['id']
         if model_id of @_all_models
           references[model_id] = @_all_models[model_id]
+        else
+          console.log("Got an event for unknown model ", event_json['model'])
+          throw new Error("event model wasn't known")
 
     # split references into old and new so we know whether to initialize or update
     old_references = {}
     new_references = {}
     for id, value of references
-      if id not of @_all_models
+      if id of @_all_models
         old_references[id] = value
       else
         new_references[id] = value
@@ -335,9 +363,7 @@ class Document
           throw new Error("Cannot apply patch to #{patched_id} which is not in the document")
         patched_obj = @_all_models[patched_id]
         attr = event_json['attr']
-        value = event_json['new']
-        if typeof value == 'object' and 'id' of value and value['id'] of references
-          value = references[value['id']]
+        value = Document._resolve_refs(event_json['new'], old_references, new_references)
         patched_obj.set({ "#{attr}" : value })
       else if event_json['kind'] == 'RootAdded'
         root_id = event_json['model']['id']

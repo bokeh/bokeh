@@ -3,15 +3,6 @@ _ = require "underscore"
 Backbone = require "backbone"
 {logger} = require "./logging"
 
-_is_ref = (arg) ->
-  if _.isObject(arg)
-    keys = _.keys(arg).sort()
-    if keys.length==2
-      return keys[0]=='id' and keys[1]=='type'
-    if keys.length==3
-      return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
-  return false
-
 class HasProperties extends Backbone.Model
   # Our property system
   # we support python style computed properties, with getters
@@ -277,6 +268,15 @@ class HasProperties extends Backbone.Model
     'type': this.type
     'id': this.id
 
+  @_is_ref = (arg) ->
+    if _.isObject(arg)
+      keys = _.keys(arg).sort()
+      if keys.length==2
+        return keys[0]=='id' and keys[1]=='type'
+      if keys.length==3
+        return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
+    return false
+
   # TODO (havocp) I suspect any use of this is broken, because
   # if we're in a Document we should have already resolved refs,
   # and if we aren't in a Document we can't resolve refs.
@@ -288,7 +288,7 @@ class HasProperties extends Backbone.Model
       return arg
     if _.isArray(arg)
       return (@resolve_ref(x) for x in arg)
-    if _is_ref(arg)
+    if HasProperties._is_ref(arg)
       # this way we can reference ourselves
       # even though we are not in any collection yet
       if arg['type'] == this.type and arg['id'] == this.id
@@ -329,76 +329,75 @@ class HasProperties extends Backbone.Model
     attrs = {}
     for k, v of @attributes
       # this is weird because when we set an attribute to null it becomes
-      # serializable even though it usually isn't. harmless?
+      # serializable even though it usually isn't.
+      # TODO (havocp) this is unacceptable because the Python side will
+      # throw an exception if it sees an unknown property name, so we
+      # can't even send null.
       if v instanceof HasProperties and not v.serializable_in_document()
         ;
       else
         attrs[k] = v
     attrs
 
+  # JSON serialization requires special measures to deal with cycles,
+  # which means objects can't be serialized independently but only
+  # as a whole object graph. This catches mistakes where we accidentally
+  # try to serialize an object in the wrong place (for example if
+  # we leave an object instead of a ref in a message we try to send
+  # over the websocket, or if we try to use Backbone's sync stuff)
+  toJSON: (options) ->
+    throw new Error("bug: toJSON should not be called on #{@}, models require special serialization measures")
+
+  @_value_to_json: (key, value) ->
+    if value instanceof HasProperties
+      value.ref()
+    else if _.isArray(value)
+      ref_array = []
+      for v, i in value
+        ref_array.push(HasProperties._value_to_json(i, v))
+      ref_array
+    else if _.isObject(value)
+      ref_obj = {}
+      for own key of value
+        if value[key] instanceof HasProperties and not value[key].serializable_in_document()
+          ;
+        else
+          ref_obj[key] = HasProperties._value_to_json(key, value[key])
+      ref_obj
+    else
+      value
+
   # Convert attributes to "shallow" JSON (values which are themselves models
   # are included as just references)
   # TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
   # backbone will have implemented a toJSON already that we may need to override
   attributes_as_json: () ->
-    value_to_json = (key, value) ->
-      if value instanceof HasProperties
-        value.ref()
-      else if _.isArray(value)
-        ref_array = []
-        for v, i in value
-          ref_array.push(value_to_json(i, v))
-        ref_array
-      else if _.isObject(value)
-        ref_obj = {}
-        for own key of value
-          if value[key] instanceof HasProperties and not value[key].serializable_in_document()
-            ;
-          else
-            ref_obj[key] = value_to_json(key, value[key])
-        ref_obj
-      else
-        value
+    HasProperties._value_to_json("attributes", @serializable_attributes())
 
-    value_to_json("attributes", @serializable_attributes())
+  # add all references from 'v' to 'result', if recurse
+  # is true then descend into HasProperties, if false only
+  # descend into non-HasProperties
+  @_value_record_references: (v, result, recurse) ->
+    if v is null
+      ;
+    else if v instanceof HasProperties
+      if v.serializable_in_document() and v.id not of result
+        result[v.id] = v
+        for key of v.attributes
+          HasProperties._value_record_references(v.attributes[key], result, recurse)
+    else if _.isArray(v)
+      for elem in v
+        HasProperties._value_record_references(elem, result, recurse)
+    else if _.isObject(v)
+      for own k, elem of v
+        HasProperties._value_record_references(elem, result, recurse)
 
   # Get models that are immediately referenced by our properties
-  # (do not recurse)
+  # (do not recurse, do not include ourselves)
   _immediate_references: () ->
     result = {}
-    record = (value) ->
-      if value instanceof HasProperties and value.serializable_in_document()
-          result[value.id] = value
-    for key of @attributes
-      value = @attributes[key]
-
-      if value is null
-        ;
-      else if value instanceof HasProperties
-        record(value)
-      else if Array.isArray(value)
-        for elem in value
-          record(elem)
-      else if typeof value == "object"
-        for k, elem of value
-          record(elem)
-    for id, obj of result
-      obj
-
-  # Get all models that this model has references to, recursively,
-  # including the model itself
-  references: () ->
-    visited = {}
-    collect = (obj) ->
-      if obj.id not of visited
-        visited[obj.id] = obj
-        children = obj._immediate_references()
-        for c in children
-          collect(c)
-    collect(@)
-    refs = for id, obj of visited
-      obj
-    refs
+    HasProperties._value_record_references(@, result, false) # false = no recurse
+    _.values(result)
 
   attach_document: (doc) ->
     if not @serializable_in_document()
