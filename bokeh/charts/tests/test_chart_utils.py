@@ -15,29 +15,22 @@
 
 from __future__ import absolute_import
 
-import unittest
-
-from bokeh.charts.utils import chunk
-
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-class TestBuilder(unittest.TestCase):
 
-    def test_chunk(self):
-        chunk_list = list(chunk(range(5), 2))
-        self.assertEqual(len(chunk_list), 3)
-        self.assertEqual(len(chunk_list[0]), 2)
+def test_ordered_set():
+    pass
 
-    # TODO (bev): fix test properly
-    # def test_make_scatter(self):
-    #     source = ColumnDataSource({"a": [2, 4, 5]})
-    #     renderer = make_scatter(source, [0], [1], "circle", "black")
-    #     scatter = renderer.glyph
-    #     self.assertIsInstance(renderer, GlyphRenderer)
-    #     self.assertEqual(renderer.data_source, source)
-    #     self.assertEqual(scatter.x, [0])
-    #     self.assertEqual(scatter.y, [1])
-    #     self.assertIsInstance(scatter, Circle)
-    #     self.assertEqual(scatter.line_color, "black")
+
+def test_collect_attribute_columns():
+    pass
+
+
+def test_df_from_json():
+    pass
+
+
+def test_title_from_columns():
+    pass

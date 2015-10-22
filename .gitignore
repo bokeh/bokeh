@@ -60,6 +60,8 @@
 ./.shelf
 # coverage reports
 .coverage
+# ipython files
+**/.ipynb_checkpoints
 
 # Logs and databases #
 ######################

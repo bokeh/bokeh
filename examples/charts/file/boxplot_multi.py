@@ -38,7 +38,7 @@ box_plot8 = BoxPlot(df, label='cyl', values='mpg', outliers=False,
                     title="label='cyl', values='mpg', outliers=False")
 
 # collect and display
-output_file("boxplot.html")
+output_file("boxplot_multi.html")
 
 show(
     vplot(

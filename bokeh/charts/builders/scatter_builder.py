@@ -18,9 +18,9 @@ functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.charts._builder import create_and_build, XYBuilder
+from bokeh.charts.builder import create_and_build, XYBuilder
 from bokeh.charts.glyphs import PointGlyph
-from bokeh.charts._attributes import MarkerAttr, ColorAttr
+from bokeh.charts.attributes import MarkerAttr, ColorAttr
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -28,17 +28,19 @@ from bokeh.charts._attributes import MarkerAttr, ColorAttr
 
 
 def Scatter(data=None, x=None, y=None, **kws):
-    """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builder.scatter_builder.ScatterBuilder>`
+    """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builders.scatter_builder.ScatterBuilder>`
     to render the geometry from values.
 
     Args:
-        data (arrays or dict(array) or list(dict) or pd.DataFrame): table-like data
+        data (:ref:`userguide_charts_data_types`): table-like data
+        x (str or list(str), optional): the column label to use for the x dimension
+        y (str or list(str), optional): the column label to use for the y dimension
 
     In addition the the parameters specific to this chart,
-    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
+        :class:`Chart`: includes glyph renderers that generate the scatter points
 
     Examples:
 
@@ -49,17 +51,13 @@ def Scatter(data=None, x=None, y=None, **kws):
         from bokeh.charts import Scatter, output_file, show
 
         scatter = Scatter(df, x='mpg', y='hp', color='cyl', marker='origin',
-                          title="mpg", xlabel="Miles Per Gallon", ylabel="Horsepower")
+                          title="Auto MPG", xlabel="Miles Per Gallon",
+                          ylabel="Horsepower")
 
         output_file('scatter.html')
         show(scatter)
 
     """
-    if x is None and y is not None:
-        x = 'unity'
-    elif x is not None and y is None:
-        y = 'unity'
-
     kws['x'] = x
     kws['y'] = y
     return create_and_build(ScatterBuilder, data, **kws)
@@ -79,7 +77,7 @@ class ScatterBuilder(XYBuilder):
     default_attributes = {'color': ColorAttr(),
                           'marker': MarkerAttr()}
 
-    def _yield_renderers(self):
+    def yield_renderers(self):
         """Use the marker glyphs to display the points.
 
         Takes reference points from data loaded at the ColumnDataSource.
