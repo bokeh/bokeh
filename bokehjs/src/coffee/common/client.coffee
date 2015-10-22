@@ -352,6 +352,15 @@ class ClientSession
     if @_current_patch? and @_should_suppress_on_change(@_current_patch, event)
       return
 
+    # Filter out changes to attributes that aren't server-visible
+    if event instanceof ModelChangedEvent and event.attr not of event.model.serializable_attributes()
+      return
+
+    # This would happen for example if someone adds a non-serializable model as a root
+    if 'model' of event and not event.model.serializable_in_document()
+      logger.error("non-serializable model should not be in an event #{event}")
+      return
+
     patch = Message.create('PATCH-DOC', { sessid: @id },
       @document.create_json_patch([event]))
     @connection.send(patch)
