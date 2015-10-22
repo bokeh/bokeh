@@ -134,10 +134,21 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-# TODO (havocp) uncomment this after we clean up all bokeh's own use of it
-#    def add(self, model):
-#       ''' DEPRECATED synonym for add_root '''
-#       self.add_root(model)
+    # TODO (havocp) should probably drop either this or add_root.
+    # this is the backward compatible one but perhaps a tad unclear
+    # if we also allow adding other things besides roots.
+    def add(self, *objects):
+        """ Call add_root() on each object.
+        .. warning::
+            This function should only be called on top level objects such
+            as Plot, and Layout containers.
+        Args:
+            *objects (PlotObject) : objects to add to the Document
+        Returns:
+            None
+        """
+        for obj in objects:
+            self.add_root(obj)
 
     def remove_root(self, model):
         ''' Remove a model as root model from this Document.

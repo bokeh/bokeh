@@ -306,20 +306,24 @@ def notebook_div(plot_object):
     return encode_utf8(html)
 
 
-def file_html(plot_object,
+def file_html(plot_objects,
               resources,
               title,
               js_resources=None,
               css_resources=None,
               template=FILE,
               template_variables=None):
-    ''' Return an HTML document that embeds a Bokeh plot.
+    '''Return an HTML document that embeds Bokeh PlotObject or Document objects.
 
     The data for the plot is stored directly in the returned HTML.
 
+    This is an alias for standalone_html_page_for_models() which
+    supports customizing the JS/CSS resources independently and
+    customizing the jinja2 template.
+
     Args:
-        plot_object (PlotObject) : Bokeh object to render
-            typically a Plot or PlotContext
+        plot_objects (PlotObject or Document or list) : Bokeh object or objects to render
+            typically a PlotObject or Document
         resources (Resources) : a resource configuration for BokehJS assets
         title (str) : a title for the HTML document ``<title>`` tags
         template (Template, optional) : HTML document template (default: FILE)
@@ -333,47 +337,12 @@ def file_html(plot_object,
         UTF-8 encoded HTML
 
     '''
-    raise RuntimeError("TODO file_html needs to be ported to tornado")
-    from .document import Document
-    if not isinstance(plot_object, (PlotObject, Document)):
-        raise ValueError('plot_object must be a single PlotObject')
+    plot_objects = _check_plot_objects(plot_objects)
 
-    if resources:
-        if js_resources:
-            warn('Both resources and js_resources provided. resources will override js_resources.')
-        if css_resources:
-            warn('Both resources and css_resources provided. resources will override css_resources.')
-
-        js_resources = resources
-        css_resources = resources
-
-    bokeh_js = ''
-    if js_resources:
-        if not css_resources:
-            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_js = JS_RESOURCES.render(js_raw=js_resources.js_raw, js_files=js_resources.js_files)
-
-    bokeh_css = ''
-    if css_resources:
-        if not js_resources:
-            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
-
-    script, div = components(plot_object)
-    template_variables_full = \
-        template_variables.copy() if template_variables is not None else {}
-    template_variables_full.update(
-        {
-            'title': title,
-            'bokeh_js': bokeh_js,
-            'bokeh_css': bokeh_css,
-            'plot_script': script,
-            'plot_div': div,
-        }
-    )
-    html = template.render(template_variables_full)
-    return encode_utf8(html)
-
+    (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
+    return _html_page_for_render_items(resources, docs_json, render_items, title, websocket_path=None,
+                                       js_resources=js_resources, css_resources=css_resources,
+                                       template=template, template_variables=template_variables)
 
 def autoload_static(plot_object, resources, script_path):
     ''' Return JavaScript code and a script tag that can be used to embed
@@ -454,9 +423,29 @@ def autoload_server(plot_object, session, public=False):
 
     return encode_utf8(tag)
 
-def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_path):
-    bokeh_js = JS_RESOURCES.render(js_raw=resources.js_raw, js_files=resources.js_files)
-    bokeh_css = CSS_RESOURCES.render(css_raw=resources.css_raw, css_files=resources.css_files)
+def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_path,
+                                js_resources=None, css_resources=None, template=FILE,
+                                template_variables=None):
+    if resources:
+        if js_resources:
+            warn('Both resources and js_resources provided. resources will override js_resources.')
+        if css_resources:
+            warn('Both resources and css_resources provided. resources will override css_resources.')
+
+        js_resources = resources
+        css_resources = resources
+
+    bokeh_js = ''
+    if js_resources:
+        if not css_resources:
+            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+        bokeh_js = JS_RESOURCES.render(js_raw=js_resources.js_raw, js_files=js_resources.js_files)
+
+    bokeh_css = ''
+    if css_resources:
+        if not js_resources:
+            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+        bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
 
     render_items_without_div = []
     for r in render_items:
@@ -475,21 +464,20 @@ def _html_page_for_render_items(resources, docs_json, render_items, title, webso
         )
     )
 
-    template_variables = {
+    template_variables_full = \
+        template_variables.copy() if template_variables is not None else {}
+    template_variables_full.update({
         'title': title,
         'bokeh_js': bokeh_js,
         'bokeh_css': bokeh_css,
         'plot_script': script,
         'plot_div': "\n".join(d['div'] for d in render_items)
-    }
+    })
 
-    html = FILE.render(template_variables)
+    html = template.render(template_variables_full)
     return encode_utf8(html)
 
-# TODO (havocp) this is the new file_html but for now it
-# doesn't support some things file_html does so keeping it
-# separate just until we clean up the code above.
-def static_html_page_for_models(plot_objects, resources, title):
+def _check_plot_objects(plot_objects):
     from .document import Document
 
     input_type_valid = False
@@ -504,6 +492,13 @@ def static_html_page_for_models(plot_objects, resources, title):
 
     if not input_type_valid:
         raise ValueError('Input must be a PlotObject, a Document, or a Sequence of PlotObjects and Document')
+
+    return plot_objects
+
+def _standalone_docs_json_and_render_items(plot_objects):
+    from .document import Document
+
+    plot_objects = _check_plot_objects(plot_objects)
 
     render_items = []
     docs_by_id = {}
@@ -541,11 +536,40 @@ def static_html_page_for_models(plot_objects, resources, title):
     for k, v in docs_by_id.items():
         docs_json[k] = v.to_json()
 
-    return _html_page_for_render_items(resources, docs_json, render_items, title, websocket_path=None)
+    return (docs_json, render_items)
+
+# TODO this is a theory about what file_html() "should" be,
+# with a more explicit name similar to the server names below,
+# and without the jinja2 entanglement. Thus this encapsulates that
+# we use jinja2 and encapsulates the exact template variables we require.
+# Anyway, we should deprecate file_html or else drop this version,
+# most likely.
+def standalone_html_page_for_models(plot_objects, resources, title):
+    ''' Return an HTML document that renders zero or more Bokeh documents or models.
+
+    The document for each model will be embedded directly in the HTML, so the
+    resulting HTML file is standalone (does not require a server). Depending
+    on the provided resources, the HTML file may be completely self-contained
+    or may have to load JS and CSS from different files.
+
+    Args:
+        plot_objects (PlotObject or Document) : Bokeh object to render
+            typically a PlotObject or a Document
+        resources (Resources) : a resource configuration for BokehJS assets
+        title (str) : a title for the HTML document ``<title>`` tags
+
+    Returns:
+        UTF-8 encoded HTML
+
+    '''
+    return file_html(plot_objects, resources, title)
 
 def server_html_page_for_models(session_id, model_ids, resources, title, websocket_path):
     render_items = []
     for modelid in model_ids:
+        if modelid is None:
+            raise ValueError("None found in list of model_ids")
+
         elementid = str(uuid.uuid4())
 
         div = PLOT_DIV.render(
@@ -555,7 +579,6 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
             'sessionid' : session_id,
             'elementid' : elementid,
             'div' : div,
-            # if modelid is None, that means the entire document
             'modelid' : modelid
             })
 
@@ -570,6 +593,7 @@ def server_html_page_for_session(session_id, resources, title, websocket_path):
         'sessionid' : session_id,
         'elementid' : elementid,
         'div' : div
+        # no 'modelid' implies the entire session document
     }]
 
     return _html_page_for_render_items(resources, {}, render_items, title, websocket_path)
