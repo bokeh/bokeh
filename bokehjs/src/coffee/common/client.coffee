@@ -92,7 +92,7 @@ message_handlers = {
     logger.debug("Unhandled OK reply to #{message.reqid()}")
 
   'ERROR' : (connection, message) ->
-    logger.error("Unhandled ERROR reply to #{message.reqid()}: ${message.content['text']}")
+    logger.error("Unhandled ERROR reply to #{message.reqid()}: #{message.content['text']}")
 }
 
 class ClientConnection
