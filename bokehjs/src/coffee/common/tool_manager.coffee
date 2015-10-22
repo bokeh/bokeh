@@ -63,6 +63,7 @@ class ToolManagerView extends Backbone.View
     return @
 
 class ToolManager extends HasProperties
+  type: 'ToolManager'
 
   initialize: (attrs, options) ->
     super(attrs, options)
