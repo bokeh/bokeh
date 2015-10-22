@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 
-from bokeh.models import SegmentedColorMapper, LinearColorMapper
+from bokeh.models import SegmentedColorMapper
 import bokeh.colors as bkColors
 
 class TestSegmentedColorMapper(unittest.TestCase):
