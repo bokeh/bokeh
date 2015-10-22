@@ -10,7 +10,7 @@ from six import string_types
 
 from .models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
-    TapTool, DoubleTapTool, CrosshairTool, DataRange1d, DatetimeAxis,
+    TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
@@ -19,6 +19,8 @@ from .models import (
 from .properties import ColorSpec, Datetime
 from .util.string import nice_join
 import warnings
+
+DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
 def get_default_color(plot=None):
     colors = [
@@ -202,7 +204,6 @@ _known_tools = {
     "resize": lambda: ResizeTool(),
     "click": "tap",
     "tap": lambda: TapTool(always_active=True),
-    "doubletap": lambda: DoubleTapTool(always_active=True),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),
     "poly_select": lambda: PolySelectTool(),

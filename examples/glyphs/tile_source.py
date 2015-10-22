@@ -19,13 +19,16 @@ y_range = Range1d(start=-20000000, end=20000000)
 
 # create tile source from templated url
 tile_options = {}
-tile_options['url'] = 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png'
+tile_options['url'] = 'http://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
 tile_source = WMTSTileSource(**tile_options)
 
 # instantiate plot and add tile source
 p = Plot(x_range=x_range, y_range=y_range, plot_height=800, plot_width=800)
 p.add_tools(ResizeTool(), WheelZoomTool(), PanTool(), BoxZoomTool())
-p.add_tile(tile_source)
+
+tile_renderer_options = {}
+tile_renderer_options['alpha'] = .5
+p.add_tile(tile_source, **tile_renderer_options)
 
 doc = Document()
 doc.add(p)

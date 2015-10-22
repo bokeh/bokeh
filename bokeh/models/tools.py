@@ -186,30 +186,6 @@ class TapTool(Tool):
     Whether the hover tool must be explicitly activated.
     """)
 
-class DoubleTapTool(Tool):
-    """ 
-    The doubletap tool allows for fixed-resolution zooming on tile sources
-    """
-
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used.
-    """)
-
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
-    defaults to all renderers on a plot.
-    """)
-
-    callback = Instance(Callback, help="""
-    A client-side action specification, like opening a URL, showing
-    a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
-    """)
-
-    always_active = Bool(True, help="""
-    Whether the hover tool must be explicitly activated.
-    """)
-
 
 class CrosshairTool(Tool):
     """ *toolbar icon*: |inspector_icon|

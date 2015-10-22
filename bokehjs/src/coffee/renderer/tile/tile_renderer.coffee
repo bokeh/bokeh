@@ -14,33 +14,6 @@ class TileRendererView extends PlotWidget
   get_extent: () ->
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
 
-  _doubletap: (e) =>
-    extent = @get_extent()
-    [xmin, ymin, xmax, ymax] = extent
-
-    x_percent = (e.bokeh.plot_x - xmin) / (xmax - xmin)
-    y_percent = (e.bokeh.plot_y - ymin) / (ymax - ymin)
-
-    zoom_level = @mget('tile_source').get_closest_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
-
-    if e.srcEvent.shiftKey
-      zoom_level = zoom_level - 1
-    else
-      zoom_level = zoom_level + 1
-
-    new_resolution = @mget('tile_source').resolutions[zoom_level]
-    new_xrange = new_resolution * @map_frame.get('width')
-    new_yrange = new_resolution * @map_frame.get('height')
-    nxmin = e.bokeh.plot_x - (x_percent * new_xrange)
-    nymin = e.bokeh.plot_y - (y_percent * new_yrange)
-    nxmax = xmin + new_xrange
-    nymax = ymin + new_yrange
-    new_extent = @mget('tile_source').snap_to_zoom([nxmin, nymin, nxmax, nymax], @map_frame.get('height'), @map_frame.get('width'), zoom_level)
-    @x_range.set('start', new_extent[0])
-    @y_range.set('start', new_extent[1])
-    @x_range.set('end', new_extent[2])
-    @y_range.set('end', new_extent[3])
-
   _set_data: () ->
     @pool = new ImagePool()
     @map_plot = @plot_view.model
@@ -50,7 +23,6 @@ class TileRendererView extends PlotWidget
     @x_mapper = this.map_frame.get('x_mappers')['default']
     @y_range = @map_plot.get('y_range')
     @y_mapper = this.map_frame.get('y_mappers')['default']
-    # @renderer.listenTo(@renderer, 'doubletap', @_doubletap)
 
   _map_data: () ->
     @initial_extent = @get_extent()
