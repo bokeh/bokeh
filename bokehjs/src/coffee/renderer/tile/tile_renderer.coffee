@@ -7,9 +7,9 @@ ImagePool = require "./image_pool"
 {logger} = require "../../common/logging"
 
 class TileRendererView extends PlotWidget
-
-  trace: (msg) ->
-    console.warn "TileLayerView :: " + msg.toString()
+  
+  bind_bokeh_events: () ->
+    @listenTo(@model, 'change', @request_render)
 
   get_extent: () ->
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
@@ -139,6 +139,7 @@ class TileRendererView extends PlotWidget
       sh = symax - symin
       sx = sxmin
       sy = symin
+      @map_canvas.globalAlpha = @mget('alpha')
       @map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
 
   _set_rect:() ->
@@ -147,19 +148,17 @@ class TileRendererView extends PlotWidget
       @map_frame.get('left') + outline_width/2, @map_frame.get('bottom') - outline_width/2,
       @map_frame.get('width') - outline_width, @map_frame.get('height') - outline_width,
     )
-
+    @map_canvas.clip()
 
   _render_tile: (tile_key) ->
     @map_canvas.save()
     @_set_rect()
-    @map_canvas.clip()
     @_draw_tile(tile_key)
     @map_canvas.restore()
 
   _render_tiles: (tile_keys) ->
     @map_canvas.save()
     @_set_rect()
-    @map_canvas.clip()
     for tile_key in tile_keys
       @_draw_tile(tile_key)
     @map_canvas.restore()
@@ -228,7 +227,7 @@ class TileRenderer extends HasParent
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
-      global_alpha: 1.0
+      alpha: 1.0
       x_range_name: "default"
       y_range_name: "default"
       tile_source: new wmts.Model()

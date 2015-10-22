@@ -8,7 +8,7 @@ import logging
 
 from ..plot_object import PlotObject
 from ..properties import abstract
-from ..properties import String, Enum, Instance
+from ..properties import String, Enum, Instance, Float
 from ..enums import Units, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from .. import validation
@@ -30,6 +30,10 @@ class TileRenderer(Renderer):
 
     tile_source = Instance(TileSource, help="""
     Local data source to use when rendering glyphs on the plot.
+    """)
+
+    alpha = Float(1.0, help="""
+    tile opacity 0.0 - 1.0
     """)
 
     x_range_name = String('default', help="""

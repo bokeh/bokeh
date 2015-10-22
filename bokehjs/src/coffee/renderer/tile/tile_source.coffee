@@ -31,6 +31,14 @@ class TileSource extends HasProperties
     @pool = new ImagePool()
     @tiles = {}
 
+    url = @get('url')
+    url = url.replace('{x}','{X}')
+    url = url.replace('{y}','{Y}')
+    url = url.replace('{z}','{Z}')
+    url = url.replace('{q}','{Q}')
+
+    @set('url', url)
+
   string_lookup_replace: (str, lookup) ->
     result_str = str
     for key, value of lookup
