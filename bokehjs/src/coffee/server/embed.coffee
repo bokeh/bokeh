@@ -8,10 +8,6 @@ HasProperties = require "../common/has_properties"
 {ClientConnection} = require "../common/client"
 {Promise} = require "es6-promise"
 
-inject_css = (url) ->
-  link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
-  $('body').append(link)
-
 # Replace element with a view of model_id from document
 add_model_static = (element, model_id, doc) ->
   model = doc.get_model_by_id(model_id)
@@ -114,6 +110,9 @@ add_model_from_session = (element, model_id, session_id) ->
       throw error
   )
 
+inject_css = (url) ->
+  link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
+  $('body').append(link)
 inject_model = (element_id, model_id, doc) ->
   script = $("#" + element_id)
   if script.length == 0
@@ -141,11 +140,34 @@ inject_model = (element_id, model_id, doc) ->
     throw new Error(
       "Unknown bokehData value for inject_model: #{info.bokehData}")
 
+embed_items = (docs_json, render_items, websocket_path) ->
+  if websocket_path?
+    set_websocket_path(websocket_path)
+
+  docs = {}
+  for docid of docs_json
+    docs[docid]= Document.from_json(docs_json[docid])
+
+  for item in render_items
+    elem = $('#' + item['elementid']);
+    promise = null;
+    if 'modelid' of item and item['modelid'] != null
+      if 'docid' of item and item['docid'] != null
+        add_model_static(elem, item['modelid'], docs[item['docid']])
+      else
+        promise = add_model_from_session(elem, item['modelid'], item['sessionid'])
+    else
+      if 'docid' of item and item['docid'] != null
+         add_document_static(elem, docs[item['docid']])
+      else
+         promise = add_document_from_session(elem, item['sessionid'])
+
+    if promise != null
+      promise.then(
+        (value) ->,
+        (error) ->
+          console.log("Error rendering Bokeh items ", error)
+      )
+
 module.exports =
-  set_websocket_path: set_websocket_path
-  inject_css: inject_css
-  inject_model: inject_model
-  add_model_from_session: add_model_from_session
-  add_document_from_session: add_document_from_session
-  add_model_static: add_model_static
-  add_document_static: add_document_static
+  embed_items: embed_items
