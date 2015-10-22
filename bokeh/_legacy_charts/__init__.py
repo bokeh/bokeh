@@ -18,9 +18,9 @@ from ._data_adapter import DataAdapter; DataAdapter
 
 from ..models import ColumnDataSource; ColumnDataSource
 from ..io import (
-    curdoc, cursession, output_file, output_notebook, output_server, push,
+    curdoc, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, vplot, hplot)
 
 # Silence pyflakes
-(curdoc, cursession, output_file, output_notebook, output_server, push,
+(curdoc, output_file, output_notebook, output_server, push,
  reset_output, save, show, gridplot, vplot, hplot)
