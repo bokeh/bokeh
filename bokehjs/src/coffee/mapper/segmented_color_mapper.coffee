@@ -7,7 +7,7 @@ class SegmentedColorMapper extends HasProperties
     super(attrs, options)
     @palette             = @_build_palette(@get('palette'))
     @alpha               = @_rescale_alpha(@get('alpha'))
-    @interpolationMethod = @get('interpolationMethod')
+    @color_mapping_method = @get('color_mapping_method')
     @little_endian       = @_is_little_endian()
     @segments            = null
     if @get('segments')?
@@ -54,7 +54,7 @@ class SegmentedColorMapper extends HasProperties
     # Initialize the return variable
     ret = null
 
-    intermediateReturn = (interpolation_function, endian_combining_function) ->
+    intermediateReturn = (color_mapper_function, endian_combining_function) ->
       ret = (value) -> 
         # See if we are above the highest or lower than the lowest?
         # If we are greater than or less than, then the result will
@@ -73,7 +73,7 @@ class SegmentedColorMapper extends HasProperties
         green = null
         alpha = null
 
-        [red, green, blue, alpha] = interpolation_function(value, breaks, reds, greens, blues, alphas)
+        [red, green, blue, alpha] = color_mapper_function(value, breaks, reds, greens, blues, alphas)
 
         color = endian_combining_function(red, blue, green, alpha)
 
@@ -85,7 +85,7 @@ class SegmentedColorMapper extends HasProperties
     color_combination_big_endian = (red, blue, green, alpha) ->
       return (blue << 24) | (green << 16) | (red << 8) | (alpha)
 
-    interpolator_linear = (value, breaks, reds, greens, blues, alphas) ->
+    color_mapper_linear = (value, breaks, reds, greens, blues, alphas) ->
       # See if we exaclty equal a break, if we do then return the associated color
       ind = _.findIndex(breaks, (x) -> 
         return x == value
@@ -129,8 +129,8 @@ class SegmentedColorMapper extends HasProperties
         alpha = ((alpha_stop - alpha_start)*frac_shift) + alpha_start
       return([red, green, blue, alpha])
 
-    interpolator_step = (value, breaks, reds, greens, blues, alphas) ->
-      # See if we exaclty equal a break, if we do then return the associated color
+    color_mapper_step = (value, breaks, reds, greens, blues, alphas) ->
+      # See if we exactly equal a break, if we do then return the associated color
       ind = _.findLastIndex(breaks, (x) -> 
         return value >= x
       )
@@ -143,21 +143,21 @@ class SegmentedColorMapper extends HasProperties
       return([red, green, blue, alpha])
 
     endian_combiner = null
-    interpolator = null
+    color_mapper = null
 
     if @little_endian
       endian_combiner = color_combination_little_endian
     else
       endian_combiner = color_combination_big_endian
 
-    if @interpolationMethod == 'linear'
-      interpolator = interpolator_linear
+    if @color_mapper_method == 'linear'
+      color_mapper = color_mapper_linear
 
-    if @interpolationMethod == 'step'
-      interpolator = interpolator_step
+    if @color_mapper_method == 'step'
+      color_mapper = color_mapper_step
 
-    if (endian_combiner != null) & (interpolator != null)
-      ret = intermediateReturn(interpolator, endian_combiner)
+    if (endian_combiner != null) & (color_mapper != null)
+      ret = intermediateReturn(color_mapper, endian_combiner)
 
     return(ret)
 
@@ -222,4 +222,4 @@ class SegmentedColorMapper extends HasProperties
     return(new_alpha)
 
 module.exports =
-  Model: SegmentedColorMapper
+  Model: SegmentedColorMapper,
