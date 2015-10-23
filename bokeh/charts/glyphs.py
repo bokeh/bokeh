@@ -161,13 +161,13 @@ class StepGlyph(LineGlyph):
         elif self.y is None:
             y = self.x.index
 
-        xs = np.empty(2*len(orig_xs)-1, dtype=np.int)
-        xs[::2] = orig_xs[:]
-        xs[1::2] = orig_xs[1:]
+        xs = np.empty(2*len(x)-1, dtype=np.int)
+        xs[::2] = x[:]
+        xs[1::2] = x[1:]
 
-        ys = np.empty(2*len(orig_ys)-1)
-        ys[::2] = orig_ys[:]
-        ys[1::2] = orig_ys[:-1]
+        ys = np.empty(2*len(y)-1)
+        ys[::2] = y[:]
+        ys[1::2] = y[:-1]
 
         data = dict(x_values=xs, y_values=ys)
         return ColumnDataSource(data)
