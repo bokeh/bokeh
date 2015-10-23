@@ -42,6 +42,13 @@ class WSHandler(WebSocketHandler):
     def initialize(self, bokeh_application, bokeh_websocket_path):
         pass
 
+    def check_origin(self, origin):
+        # Allow ANY site to open our websocket...
+        # this is to make the autoload embed work.
+        # Potentially, we should limit this somehow
+        # or make it configurable.
+        return True
+
     def open(self):
         ''' Initialize a connection to a client.
 
