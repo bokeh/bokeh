@@ -45,7 +45,7 @@ class TileRenderer(Renderer):
     y_range_name = String('default', help="""
     A particular (named) y-range to use for computing screen
     locations when rendering glyphs on the plot. If unset, use the
-    default -range.
+    default y-range.
     """)
 
     level = Enum(RenderLevel, default="underlay", help="""
