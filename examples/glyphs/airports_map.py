@@ -40,6 +40,7 @@ with urllib.request.urlopen(airports_service) as response:
     x_range = Range1d(start=df['geometry.x'].min() - 10000, end=df['geometry.x'].max() + 10000)
     y_range = Range1d(start=df['geometry.y'].min() - 10000, end=df['geometry.y'].max() + 10000)
 
+    # create plot and add tools
     hover_tool = HoverTool(tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")])
     p = Plot(x_range=x_range, y_range=y_range, plot_height=800, plot_width=800, title=title)
     p.add_tools(ResizeTool(), WheelZoomTool(), PanTool(), BoxZoomTool(), hover_tool)
