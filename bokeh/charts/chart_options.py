@@ -23,7 +23,12 @@ from ..properties import Auto, Bool, Either, Enum, Int, String
 
 Scale = enumeration('linear', 'categorical', 'datetime')
 
+
 class ChartOptions(PlotObject):
+    """Contains the default properties for :class:`Chart <bokeh.charts._chart.Chart`.
+
+    Each of the ChartOptions properties can be passed into a Chart as kwargs.
+    """
 
     id = String(None, help="""
     Id of the chart.
@@ -86,15 +91,16 @@ class ChartOptions(PlotObject):
     Whether to add default tools the the chart.
     """)
 
-    title_text_font_size = String('12pt', help="""
+    title_text_font_size = String('14pt', help="""
     Font size to use for title label.
     """)
 
     responsive = Bool(False, help="""
     If True, the chart will automatically resize based on the size of its container. The
-    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height`` will
-    act only to set the initial aspect ratio.
+    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height``
+    will act only to set the initial aspect ratio.
     """)
 
 
+# A shared instance of chart options used for overriding defaults
 default_options = ChartOptions()

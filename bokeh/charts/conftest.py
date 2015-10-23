@@ -1,16 +1,15 @@
-"""Defines chart-wide shared test fixtures.
+"""Defines chart-wide shared test fixtures."""
 
-"""
-
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
+from bokeh.charts.attributes import AttrSpec
 from bokeh.sampledata.autompg import autompg
-from bokeh.charts._attributes import AttrSpec
 
 
 class TestData(object):
+    """Contains properties with easy access to data used across tests."""
     def __init__(self):
         self.cat_list = ['a', 'c', 'a', 'b']
         self.list_data = [[1, 2, 3, 4], [2, 3, 4, 5]]
@@ -31,3 +30,15 @@ class TestData(object):
 @pytest.fixture(scope='module')
 def test_data():
     return TestData()
+
+
+@pytest.fixture(scope='module')
+def wide_data_with_cat(test_data):
+    data = test_data.dict_data.copy()
+    data['col3'] = test_data.cat_list
+    return data
+
+
+@pytest.fixture(scope='module')
+def df_with_cat_index(test_data):
+    return pd.DataFrame(test_data.dict_data, index=test_data.cat_list)

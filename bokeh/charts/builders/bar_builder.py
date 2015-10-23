@@ -18,15 +18,16 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
-from .._builder import Builder, create_and_build
+from ..builder import Builder, create_and_build
 from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph
-from ...properties import Float, Enum
-from .._properties import Dimension
-from .._attributes import ColorAttr, GroupAttr
+from ...properties import Float, Enum, Bool
+from ..properties import Dimension
+from ..attributes import ColorAttr, CatAttr
 from ..operations import Stack, Dodge
 from ...enums import Aggregation
 from ..stats import stats
+from ...models.sources import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -35,52 +36,66 @@ from ..stats import stats
 
 def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="sum", xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, continuous_range=None, **kw):
-    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builder.bar_builder.BarBuilder>`
+    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builders.bar_builder.BarBuilder>`
     render the geometry from values, cat and stacked.
 
     Args:
-        values (iterable): iterable 2d representing the data series
+        data (:ref:`userguide_charts_data_types`): the data
+            source for the chart.
+        values (str, optional): iterable 2d representing the data series
             values matrix.
-        cat (list or bool, optional): list of string representing the categories.
+        label (list(str) or str, optional): list of string representing the categories.
             (Defaults to None)
-        stacked (bool, optional): to see the bars stacked or grouped.
+        stack (list(str) or str, optional): columns to use for stacking.
             (Defaults to False, so grouping is assumed)
+        group (list(str) or str, optional): columns to use for grouping.
+        agg (str): how to aggregate the `values`. (Defaults to 'sum', or only label is
+            provided, then performs a `count`)
         continuous_range(Range1d, optional): Custom continuous_range to be
             used. (Defaults to None)
 
-    In addition the the parameters specific to this chart,
-    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
+        :class:`Chart`: includes glyph renderers that generate bars
 
     Examples:
 
         .. bokeh-plot::
             :source-position: above
 
-            from collections import OrderedDict
-            from bokeh.charts import Bar, output_file, show
+            from bokeh.charts import Bar, output_file, show, hplot
 
-            # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
-            xyvalues = OrderedDict()
-            xyvalues['python']=[-2, 5]
-            xyvalues['pypy']=[12, 40]
-            xyvalues['jython']=[22, 30]
+            # best support is with data in a format that is table-like
+            data = {
+                'sample': ['1st', '2nd', '1st', '2nd', '1st', '2nd'],
+                'interpreter': ['python', 'python', 'pypy', 'pypy', 'jython', 'jython'],
+                'timing': [-2, 5, 12, 40, 22, 30]
+            }
 
-            cat = ['1st', '2nd']
+            # x-axis labels pulled from the interpreter column, stacking labels from sample column
+            bar = Bar(data, values='timing', label='interpreter', stack='sample', agg='mean',
+                      title="Python Interpreter Sampling", legend='top_right', width=400)
 
-            bar = Bar(xyvalues, cat, title="Stacked bars",
-                    xlabel="category", ylabel="language")
+            # table-like data results in reconfiguration of the chart with no data manipulation
+            bar2 = Bar(data, values='timing', label=['interpreter', 'sample'],
+                       agg='mean', title="Python Interpreters", width=400)
 
             output_file("stacked_bar.html")
-            show(bar)
+            show(hplot(bar, bar2))
 
     """
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(
             "continuous_range must be an instance of bokeh.models.ranges.Range1d"
         )
+
+    if label is not None and values is None:
+        kw['label_only'] = True
+        if (agg == 'sum') or (agg == 'mean'):
+            agg = 'count'
+            values = label
 
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
@@ -113,11 +128,7 @@ class BarBuilder(Builder):
     or from the indexes of the passed values if no cat is supplied.  The
     y_range can be supplied as the parameter continuous_range,
     or will be calculated as a linear range (Range1d) based on the supplied
-    values using the following rules:
-
-     * with all positive data: start = 0, end = 1.1 * max
-     * with all negative data: start = 1.1 * min, end = 0
-     * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
+    values.
 
     """
 
@@ -127,10 +138,11 @@ class BarBuilder(Builder):
     dimensions = ['values']
     #req_dimensions = [['values']]
 
-    default_attributes = {'label': GroupAttr(),
+    default_attributes = {'label': CatAttr(),
                           'color': ColorAttr(),
-                          'stack': GroupAttr(),
-                          'group': GroupAttr()}
+                          'line_color': ColorAttr(default='white'),
+                          'stack': CatAttr(),
+                          'group': CatAttr()}
 
     agg = Enum(Aggregation, default='sum')
 
@@ -142,7 +154,10 @@ class BarBuilder(Builder):
     glyph = BarGlyph
     label_attributes = ['stack', 'group']
 
-    def _setup(self):
+    label_only = Bool(False)
+    values_only = Bool(False)
+
+    def setup(self):
 
         if self.attributes['color'].columns is None:
             if self.attributes['stack'].columns is not None:
@@ -159,6 +174,13 @@ class BarBuilder(Builder):
         else:
             pass
 
+        if (self.attributes['label'].columns is None and
+            self.values.selection is not None and
+                self.glyph == BarGlyph):
+            self._data['label'] = 'index'
+            self.attributes['label'].setup(data=ColumnDataSource(self._data.df),
+                                           columns='index')
+
         if self.xlabel is None:
             if self.attributes['label'].columns is not None:
                 self.xlabel = str(', '.join(self.attributes['label'].columns).title()).title()
@@ -166,32 +188,40 @@ class BarBuilder(Builder):
                 self.xlabel = self.values.selection
 
         if self.ylabel is None:
-            if not self.values.computed:
+            if not self.label_only:
                 self.ylabel = '%s( %s )' % (self.agg.title(), str(self.values.selection).title())
             else:
                 self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
 
-    def _set_ranges(self):
+    def set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        x_items = self.attributes['label']._items
+        x_items = self.attributes['label'].items
+        if x_items is None:
+            x_items = ''
         x_labels = []
 
         # Items are identified by tuples. If the tuple has a single value, we unpack it
         for item in x_items:
-            item = self.get_label(item)
+            item = self._get_label(item)
 
             x_labels.append(str(item))
 
         self.x_range = FactorRange(factors=x_labels)
-        y_shift = 0.1 * ((self.max_height + self.max_height) / 2)
-        if self.glyph == BarGlyph:
-            start = 0.0
-        else:
-            start = self.min_height - y_shift
+        y_shift = abs(0.1 * ((self.min_height + self.max_height) / 2))
 
-        self.y_range = Range1d(start=start, end=self.max_height + y_shift)
+        if self.min_height < 0:
+            start = self.min_height - y_shift
+        else:
+            start = 0.0
+
+        if self.max_height > 0:
+            end = self.max_height + y_shift
+        else:
+            end = 0.0
+
+        self.y_range = Range1d(start=start, end=end)
 
     def get_extra_args(self):
         if self.__class__ is not BarBuilder:
@@ -205,7 +235,7 @@ class BarBuilder(Builder):
             BarBuilder.default_attributes.keys())
         return {attr: group[attr] for attr in attrs}
 
-    def _yield_renderers(self):
+    def yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the ColumnDataSource.
@@ -217,14 +247,15 @@ class BarBuilder(Builder):
             group_kwargs = kwargs.copy()
             group_kwargs.update(glyph_kwargs)
 
-            bg = self.glyph(label=self.get_label(group['label']),
+            bg = self.glyph(label=self._get_label(group['label']),
                             values=group.data[self.values.selection].values,
                             agg=stats[self.agg](),
                             width=self.bar_width,
                             color=group['color'],
+                            line_color=group['line_color'],
                             fill_alpha=self.fill_alpha,
-                            stack_label=self.get_label(group['stack']),
-                            dodge_label=self.get_label(group['group']),
+                            stack_label=self._get_label(group['stack']),
+                            dodge_label=self._get_label(group['group']),
                             **group_kwargs)
 
             self.add_glyph(group, bg)

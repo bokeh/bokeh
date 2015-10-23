@@ -14,15 +14,14 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.charts.builder.histogram_builder import HistogramBuilder
+from bokeh.charts.builders.scatter_builder import ScatterBuilder
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def test_supported_input(test_data):
-    hist_builder = HistogramBuilder(test_data.auto_data.mpg.values)
-    hist_builder.create()
-    assert len(hist_builder.comp_glyphs) > 0
-
+def test_list_input(test_data):
+    scatter0 = ScatterBuilder(x=test_data.list_data[0])
+    scatter0.create()
+    assert len(scatter0.comp_glyphs) > 0

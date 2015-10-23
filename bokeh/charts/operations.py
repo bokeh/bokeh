@@ -1,11 +1,18 @@
+""" CollisionModifiers and DataOperators used to specify Chart manipulations.
+
+The general approach for these operations is to use a class for modeling the
+operation, which is lazy evaluated, and doesn't require the data on initialization.
+
+An associated, user-facing function is provided for a more friendly interface.
+"""
+
 from __future__ import absolute_import
 
 from copy import copy
 
 from bokeh.properties import String
-
-from ._models import CollisionModifier
-from ._data_source import DataOperator
+from .data_source import DataOperator
+from .models import CollisionModifier
 
 
 class Stack(CollisionModifier):
@@ -36,13 +43,14 @@ class Blend(DataOperator):
     operation is like an OR because a category in either variable is included
     in the blended variable
 
-    Note: The variables not being blended must be duplicated (consider a
-    sample time). For example, two variables, 'sensor_a' and
-    'sensor_b' only contain two values, either 'on' or 'off', with one
-    more column of 'datetime'. Blending 'sensor_a' and 'sensor_b' results
-    in two columns, 'datetime' and 'sensors_state'.
+    .. note::
+        The variables not being blended must be duplicated (consider a sample time).
+        For example, two variables, 'sensor_a' and 'sensor_b' only contain two values,
+        either 'on' or 'off', with one more column of 'datetime'. Blending 'sensor_a'
+        and 'sensor_b' results in two columns, 'datetime' and 'sensors_state'.
 
-    Example cases are shown below:
+    Example:
+
         - cat1 + cat2 = [cat1, cat2]
         - cat1 + num1 = [cat1, cat(num1)]
         - num1 + num2 = [num1, num2]
@@ -71,13 +79,13 @@ class Blend(DataOperator):
     def apply(self, data):
         data_copy = copy(data)
 
-        labels_name = self.labels_name + '_' + '_'.join(self.columns)
         data_copy.stack_measures(measures=self.columns, value_name=self.name,
-                                 var_name=labels_name)
+                                 var_name=self.labels_name)
         return data_copy._data
 
 
 def stack(renderers=None, columns=None):
+    """Stacks the :class:`CompositeGlyph`s."""
     if renderers is not None:
         stacker = Stack(renderers=renderers)
         stacker.apply()
@@ -89,6 +97,19 @@ def stack(renderers=None, columns=None):
 
 
 def blend(*cols, **kwargs):
-    """Provides a simple function for specifying a Blend data operation."""
+    """Provides a simple function for specifying a Blend data operation.
+
+    Args:
+        cols (str): each column to use for blending by name
+        **kwargs: the keyword args supported by :class:`Blend`
+
+            * name (str): name of the column to contain the blended values
+            * labels_name (str): name of the column to contain the name of the columns
+              used for blending
+
+
+    See :class:`Blend`
+
+    """
 
     return Blend(*cols, **kwargs)
