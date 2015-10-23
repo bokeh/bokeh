@@ -49,7 +49,7 @@ _connection = null
 _get_connection = () ->
   if _connection == null
     if _websocket_url == null
-      throw new Error("set_websocket_path was not called")
+      throw new Error("set_websocket_url was not called")
     _connection = new ClientConnection(_websocket_url)
     _connection.connect().then(
       (whatever) ->
@@ -61,15 +61,10 @@ _get_connection = () ->
   else
     Promise.resolve(_connection)
 
-set_websocket_path = (path) ->
+set_websocket_url = (url) ->
   if _connection != null
     throw new Error("set_websocket_url called too late after we already opened websocket")
-  proto = null
-  if document.location.protocol == "https:"
-    proto = "wss:"
-  else
-    proto = "ws:"
-  _websocket_url = proto + "//" + document.location.host + path
+  _websocket_url = url
 
 # map from session id to promise of ClientSession
 _sessions = {}
@@ -113,36 +108,26 @@ add_model_from_session = (element, model_id, session_id) ->
 inject_css = (url) ->
   link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
   $('body').append(link)
-inject_model = (element_id, model_id, doc) ->
-  script = $("#" + element_id)
-  if script.length == 0
-    throw new Error("Error injecting model: could not find script tag with id:
-                    #{element_id}")
-  if script.length > 1
-    throw new Error("Error injecting model: found too many script tags with id:
-                    #{element_id}")
-  if not document.body.contains(script[0])
-    throw new Error(
-      "Error injecting model: autoload script tag may only be under <body>")
-  info = script.data()
-  Bokeh.set_log_level(info['bokehLoglevel'])
-  logger.info("Injecting model for script tag with id: #" + element_id)
-  base.Config.prefix = info['bokehRootUrl']
-  container = $('<div>', {class: 'bokeh-container'})
-  container.insertBefore(script)
-  if info.bokehData == "static"
-    logger.info("  - using static data")
-    add_model_static(container, info["bokehModelid"], doc)
-  else if info.bokehData == "server"
-    logger.info("  - using server data")
-    add_model_from_session(container, info["bokehModelid"], info["bokehSessionid"])
-  else
-    throw new Error(
-      "Unknown bokehData value for inject_model: #{info.bokehData}")
 
-embed_items = (docs_json, render_items, websocket_path) ->
-  if websocket_path?
-    set_websocket_path(websocket_path)
+# pull missing render item fields from data- attributes
+fill_render_item_from_script_tag = (script, item) ->
+  info = script.data()
+  # length checks are because we put all the attributes on the tag
+  # but sometimes set them to empty string
+  if info.bokehLogLevel? and info.bokehLogLevel.length > 0
+    Bokeh.set_log_level(info['bokehLoglevel'])
+  if info.bokehDocId? and info.bokehDocId.length > 0
+    item['docid'] = info.bokehDocId
+  if info.bokehModelId? and info.bokehModelId.length > 0
+    item['modelid'] = info.bokehModelId
+  if info.bokehSessionId? and info.bokehSessionId.length > 0
+    item['sessionid'] = info.bokehSessionId
+
+  logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
+
+embed_items = (docs_json, render_items, websocket_url) ->
+  if websocket_url?
+    set_websocket_url(websocket_url)
 
   docs = {}
   for docid of docs_json
@@ -150,17 +135,34 @@ embed_items = (docs_json, render_items, websocket_path) ->
 
   for item in render_items
     elem = $('#' + item['elementid']);
+    if elem.length == 0
+      throw new Error("Error rendering Bokeh model: could not find tag with id: #{item['element_id']}")
+    if elem.length > 1
+      throw new Error("Error rendering Bokeh model: found too many tags with id: #{item['element_id']}")
+    if not document.body.contains(elem[0])
+      throw new Error("Error rendering Bokeh model: element with id '#{item['elementid']}' must be under <body>")
+
+    if elem.prop("tagName") == "SCRIPT"
+      fill_render_item_from_script_tag(elem, item)
+      container = $('<div>', {class: 'bokeh-container'})
+      elem.replaceWith(container)
+      elem = container
+
     promise = null;
-    if 'modelid' of item and item['modelid'] != null
-      if 'docid' of item and item['docid'] != null
-        add_model_static(elem, item['modelid'], docs[item['docid']])
+    if item.modelid?
+      if item.docid?
+        add_model_static(elem, item.modelid, docs[item.docid])
+      else if item.sessionid?
+        promise = add_model_from_session(elem, item.modelid, item.sessionid)
       else
-        promise = add_model_from_session(elem, item['modelid'], item['sessionid'])
+        throw new Error("Error rendering Bokeh model #{item['modelid']} to element #{item['elementid']}: no document ID or session ID specified")
     else
-      if 'docid' of item and item['docid'] != null
-         add_document_static(elem, docs[item['docid']])
+      if item.docid?
+         add_document_static(elem, docs[item.docid])
+      else if item.sessionid?
+         promise = add_document_from_session(elem, item.sessionid)
       else
-         promise = add_document_from_session(elem, item['sessionid'])
+        throw new Error("Error rendering Bokeh document to element #{item['elementid']}: no document ID or session ID specified")
 
     if promise != null
       promise.then(
@@ -171,3 +173,4 @@ embed_items = (docs_json, render_items, websocket_path) ->
 
 module.exports =
   embed_items: embed_items
+  inject_css: inject_css

@@ -2,11 +2,24 @@
 Renders JavaScript code for "autoloading".
 
 The code automatically and asynchronously loads BokehJS (if necessary) and
-then replaces the AUTOLOAD_SERVER or AUTOLOAD_STATIC ``<script>`` tag that
+then replaces the AUTOLOAD_TAG ``<script>`` tag that
 calls it with the rendered model.
 
 :param elementid: the unique id for the script tag
 :type elementid: str
+
+:param websocket_url: path to use to open websocket, or null if we aren't using a server
+:type websocket_url: str
+
+:param docs_json: embedded JSON serialization of documents
+:type docs_json: dict
+
+:param js_url: URL making up Bokeh library
+:type js_url: str
+
+:param css_files: CSS files to inject
+:type css_files: list
+
 
 #}
 (function(global) {
@@ -34,9 +47,9 @@ calls it with the rendered model.
       console.warn("failed to load library " + url);
     };
     document.getElementsByTagName("head")[0].appendChild(s);
-  }
+  };
 
-  bokehjs_url = "{{ js_url }}"
+  bokehjs_url = "{{ js_url }}";
 
   var elt = document.getElementById("{{ elementid }}");
   if(elt==null) {
@@ -44,20 +57,28 @@ calls it with the rendered model.
     return false;
   }
 
-  // These will be set for the static case
-  {%- if all_models %}
-  var all_models = {{ all_models }};
+  {% if websocket_url -%}
+  var websocket_url = "{{ websocket_url }}";
   {%- else %}
-  var all_models = null;
+  var websocket_url = null;
   {%- endif %}
 
-  if(typeof(Bokeh) !== "undefined") {
+  // Docs will be set for the static case
+  {%- if docs_json %}
+  var docs_json = {{ docs_json }};
+  {%- else %}
+  var docs_json = {};
+  {%- endif %}
+
+  var render_items = [{ 'elementid' : "{{ elementid }}" }];
+
+  if (typeof(Bokeh) !== "undefined") {
     console.log("Bokeh: BokehJS loaded, going straight to plotting");
-    Bokeh.embed.inject_plot("{{ elementid }}", all_models);
+    Bokeh.embed.embed_items(docs_json, render_items, websocket_url);
   } else {
     load_lib(bokehjs_url, function() {
-      console.log("Bokeh: BokehJS plotting callback run at", new Date())
-      Bokeh.embed.inject_plot("{{ elementid }}", all_models);
+      console.log("Bokeh: BokehJS plotting callback run at", new Date());
+      Bokeh.embed.embed_items(docs_json, render_items, websocket_url);
     });
   }
 

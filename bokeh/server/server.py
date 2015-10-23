@@ -38,6 +38,7 @@ class Server(object):
         self._http.bind(self._port)
         self._http.start(1)
 
+    # TODO this is broken, it's only used by test_client_server.py so fix that then remove this
     @property
     def ws_url(self):
         return "ws://localhost:" + str(self._port) + "/ws"

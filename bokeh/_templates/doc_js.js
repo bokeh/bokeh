@@ -4,13 +4,13 @@ Bokeh.Collections.register_models({
   {%- endfor %}
 });
 
-{% if websocket_path -%}
-  var websocket_path = "{{ websocket_path }}";
+{% if websocket_url -%}
+  var websocket_url = "{{ websocket_url }}";
 {%- else %}
-  var websocket_path = null;
+  var websocket_url = null;
 {%- endif %}
 
 var docs_json = {{ docs_json }};
 var render_items = {{ render_items }};
 
-Bokeh.embed.embed_items(docs_json, render_items, websocket_path);
+Bokeh.embed.embed_items(docs_json, render_items, websocket_url);

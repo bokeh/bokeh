@@ -40,9 +40,7 @@ class BokehTornado(TornadoApplication):
     '''
 
     def __init__(self, applications, io_loop=None, extra_patterns=None):
-
-        self._resources = Resources(mode="server", root_url="/")
-
+        self._resources = {}
         extra_patterns = extra_patterns or []
         relative_patterns = []
         for key in applications:
@@ -79,9 +77,21 @@ class BokehTornado(TornadoApplication):
         self._cleanup_job = PeriodicCallback(self.cleanup_sessions, 17.0 * 1000, io_loop=self._loop)
         self._cleanup_job.start()
 
-    @property
-    def resources(self):
-        return self._resources
+    def root_url_for_request(self, request):
+        # If we add a "whole server prefix," we'd put that on here too
+        return request.protocol + "://" + request.host + "/"
+
+    def websocket_url_for_request(self, request, websocket_path):
+        protocol = "ws"
+        if request.protocol == "https":
+            protocol = "wss"
+        return protocol + "://" + request.host + websocket_path
+
+    def resources(self, request):
+        root_url = self.root_url_for_request(request)
+        if root_url not in self._resources:
+            self._resources[root_url] = Resources(mode="server", root_url=root_url)
+        return self._resources[root_url]
 
     def start(self):
         ''' Start the Bokeh Server application main loop.

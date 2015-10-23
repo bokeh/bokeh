@@ -1,9 +1,8 @@
 ''' The templates module contains Jinja2 templates used by Bokeh embed
 Bokeh models (e.g. plots, widgets, layouts) in various ways.
 
-.. bokeh-jinja:: bokeh.templates.AUTOLOAD
-.. bokeh-jinja:: bokeh.templates.AUTOLOAD_SERVER
-.. bokeh-jinja:: bokeh.templates.AUTOLOAD_STATIC
+.. bokeh-jinja:: bokeh.templates.AUTOLOAD_JS
+.. bokeh-jinja:: bokeh.templates.AUTOLOAD_TAG
 .. bokeh-jinja:: bokeh.templates.CSS_RESOURCES
 .. bokeh-jinja:: bokeh.templates.DOC_JS
 .. bokeh-jinja:: bokeh.templates.FILE
@@ -35,7 +34,5 @@ FILE = _env.get_template("file.html")
 NOTEBOOK_LOAD = _env.get_template("notebook_load.html")
 NOTEBOOK_DIV = _env.get_template("notebook_div.html")
 
-AUTOLOAD = _env.get_template("autoload.js")
-AUTOLOAD_SERVER = _env.get_template("autoload_server.html")
-AUTOLOAD_STATIC = _env.get_template("autoload_static.html")
-
+AUTOLOAD_JS = _env.get_template("autoload_js.js")
+AUTOLOAD_TAG = _env.get_template("autoload_tag.html")
