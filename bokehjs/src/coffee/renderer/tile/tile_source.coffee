@@ -102,9 +102,9 @@ class TileSource extends HasProperties
     throw Error("Not Implemented")
 
   tile_xyz_to_quadkey: (x, y, z) ->
-    return "Not Implemented"
+    throw Error("Not Implemented")
 
   quadkey_to_tile_xyz: (quadkey) ->
-    return "Not Implemented"
+    throw Error("Not Implemented")
 
 module.exports = TileSource
