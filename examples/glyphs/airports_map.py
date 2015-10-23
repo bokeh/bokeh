@@ -14,7 +14,10 @@ from bokeh.models import WheelZoomTool, ResizeTool, PanTool, BoxZoomTool, HoverT
 from bokeh.models import WMTSTileSource
 from bokeh.models import ColumnDataSource
 
-import urllib.request
+try:
+    import urllib.request as urllib_request
+except ImportError:
+    import urllib2 as urllib_request
 
 from pandas.io.json import json_normalize
 
@@ -22,43 +25,42 @@ title = "US Airports: Field Elevation > 1500m"
 output_file("airports_map.html", title=title)
 airports_service = 'http://s3.amazonaws.com/bokeh_data/airports.json'
 
-with urllib.request.urlopen(airports_service) as response:
+response = urllib_request.urlopen(airports_service)
+content = response.read().decode('utf8')
+airports = json.loads(content)
+schema = [['attributes', 'nam'], ['attributes', 'zv3'], ['geometry', 'x'], ['geometry', 'y']]
+df = json_normalize(airports['features'], meta=schema)
+df.rename(columns={'attributes.nam': 'name', 'attributes.zv3': 'elevation'}, inplace=True)
+points_source = ColumnDataSource(df)
 
-    content = response.read().decode('utf8')
-    airports = json.loads(content)
-    schema = [['attributes', 'nam'], ['attributes', 'zv3'], ['geometry', 'x'], ['geometry', 'y']]
-    df = json_normalize(airports['features'], meta=schema)
-    df.rename(columns={'attributes.nam': 'name', 'attributes.zv3': 'elevation'}, inplace=True)
-    points_source = ColumnDataSource(df)
+# create tile source
+tile_options = {}
+tile_options['url'] = 'http://otile2.mqcdn.com/tiles/1.0.0/sat/{Z}/{X}/{Y}.png'
+tile_source = WMTSTileSource(**tile_options)
 
-    # create tile source
-    tile_options = {}
-    tile_options['url'] = 'http://otile2.mqcdn.com/tiles/1.0.0/sat/{Z}/{X}/{Y}.png'
-    tile_source = WMTSTileSource(**tile_options)
+# set to roughly extent of points
+x_range = Range1d(start=df['geometry.x'].min() - 10000, end=df['geometry.x'].max() + 10000)
+y_range = Range1d(start=df['geometry.y'].min() - 10000, end=df['geometry.y'].max() + 10000)
 
-    # set to roughly extent of points
-    x_range = Range1d(start=df['geometry.x'].min() - 10000, end=df['geometry.x'].max() + 10000)
-    y_range = Range1d(start=df['geometry.y'].min() - 10000, end=df['geometry.y'].max() + 10000)
+# create plot and add tools
+hover_tool = HoverTool(tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")])
+p = Plot(x_range=x_range, y_range=y_range, plot_height=800, plot_width=800, title=title)
+p.add_tools(ResizeTool(), WheelZoomTool(), PanTool(), BoxZoomTool(), hover_tool)
+p.add_tile(tile_source)
 
-    # create plot and add tools
-    hover_tool = HoverTool(tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")])
-    p = Plot(x_range=x_range, y_range=y_range, plot_height=800, plot_width=800, title=title)
-    p.add_tools(ResizeTool(), WheelZoomTool(), PanTool(), BoxZoomTool(), hover_tool)
-    p.add_tile(tile_source)
+# create point glyphs
+point_options = {}
+point_options['x'] = 'geometry.x'
+point_options['y'] = 'geometry.y'
+point_options['size'] = 9
+point_options['fill_color'] = "#60ACA1"
+point_options['line_color'] = "#D2C4C1"
+point_options['line_width'] = 1.5
+points_glyph = Circle(**point_options)
+p.add_glyph(points_source, points_glyph)
 
-    # create point glyphs
-    point_options = {}
-    point_options['x'] = 'geometry.x'
-    point_options['y'] = 'geometry.y'
-    point_options['size'] = 9
-    point_options['fill_color'] = "#60ACA1"
-    point_options['line_color'] = "#D2C4C1"
-    point_options['line_width'] = 1.5
-    points_glyph = Circle(**point_options)
-    p.add_glyph(points_source, points_glyph)
-
-    doc = Document()
-    doc.add(p)
+doc = Document()
+doc.add(p)
 
 if __name__ == "__main__":
     filename = "airports_map.html"
