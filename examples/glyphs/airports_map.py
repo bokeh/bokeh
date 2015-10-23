@@ -31,6 +31,7 @@ with urllib.request.urlopen(airports_service) as response:
     df.rename(columns={'attributes.nam': 'name', 'attributes.zv3': 'elevation'}, inplace=True)
     points_source = ColumnDataSource(df)
 
+    # create tile source
     tile_options = {}
     tile_options['url'] = 'http://otile2.mqcdn.com/tiles/1.0.0/sat/{Z}/{X}/{Y}.png'
     tile_source = WMTSTileSource(**tile_options)
