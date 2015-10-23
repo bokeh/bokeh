@@ -14,11 +14,9 @@ from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger(__name__)
-from os.path import join, relpath, splitext
+from os.path import join, relpath
 import re
 import copy
-
-import six
 
 from . import __version__
 from .settings import settings
