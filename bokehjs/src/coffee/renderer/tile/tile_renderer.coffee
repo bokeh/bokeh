@@ -26,9 +26,6 @@ class TileRendererView extends PlotWidget
 
   _map_data: () ->
     @initial_extent = @get_extent()
-    console.dir(@mget('tile_source'))
-    console.warn(@mget('tile_source'))
-    console.warn(@mget('tile_source'))
     zoom_level = @mget('tile_source').get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
     new_extent = @mget('tile_source').snap_to_zoom(@initial_extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
     @x_range.set('start', new_extent[0])
@@ -41,7 +38,7 @@ class TileRendererView extends PlotWidget
     tile_data.img = e.target
     tile_data.current = true
     @mget('tile_source').tiles[tile_data.cache_key] = tile_data
-    @_render_tile(tile_data.cache_key)
+    @request_render
 
   _on_tile_cache_load: (e) =>
     tile_data = e.target.tile_data
@@ -87,15 +84,11 @@ class TileRendererView extends PlotWidget
       @_map_data()
       @map_initialized = true
 
-    @_update(abridged=true)
-
-    if @render_timer?
-      clearTimeout(@render_timer)
+    @_update()
 
     if @prefetch_timer?
       clearTimeout(@prefetch_timer)
 
-    @render_timer = setTimeout(@_update, 65)
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
 
   _draw_tile: (tile_key) ->
@@ -122,12 +115,6 @@ class TileRendererView extends PlotWidget
     )
     @map_canvas.clip()
 
-  _render_tile: (tile_key) ->
-    @map_canvas.save()
-    @_set_rect()
-    @_draw_tile(tile_key)
-    @map_canvas.restore()
-
   _render_tiles: (tile_keys) ->
     @map_canvas.save()
     @_set_rect()
@@ -149,7 +136,12 @@ class TileRendererView extends PlotWidget
         else
           @_create_tile(cx, cy, cz, cbounds, true)
 
-  _update: (abridged=false) =>
+  _fetch_tiles:(tiles) ->
+    for t in tiles
+      [x, y, z, bounds] = t
+      @_create_tile(x, y, z, bounds)
+
+  _update: () =>
     @mget('tile_source').update()
     extent = @get_extent()
     zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
@@ -172,23 +164,26 @@ class TileRendererView extends PlotWidget
             parents.push(parent_key)
           need_load.push(t)
 
-    # first draw stand-in parents =====================================
+    # draw stand-in parents
     @_render_tiles(parents)
 
-    # load missing tiles ==============================================
-    if not abridged
-      for t in need_load
-        [x, y, z, bounds] = t
-        @_create_tile(x, y, z, bounds)
-
-    # draw cached tiles ===============================================
+    # draw cached
     @_render_tiles(cached)
     for t in cached
       @mget('tile_source').tiles[t].current = true
 
-    # prune cached tiles ===============================================
-    #if not abridged
-    #  @tile_source.prune_tiles()
+    # fetch missing
+    if Object.keys(@mget('tile_source').tiles).length == 0
+      @_fetch_tiles(need_load)
+    else
+
+      if @render_timer?
+        clearTimeout(@render_timer)
+
+      @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
+
+    # prune cached tiles
+    #@tile_source.prune_tiles()
 
 class TileRenderer extends HasParent
   default_view: TileRendererView
