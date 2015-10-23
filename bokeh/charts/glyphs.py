@@ -150,6 +150,29 @@ class LineGlyph(XyGlyph):
         yield GlyphRenderer(glyph=glyph)
 
 
+class StepGlyph(LineGlyph):
+    """Represents a group of data as a stepped line."""
+
+    def build_source(self):
+        x = self.x
+        y = self.y
+        if self.x is None:
+            x = self.y.index
+        elif self.y is None:
+            y = self.x.index
+
+        xs = np.empty(2*len(orig_xs)-1, dtype=np.int)
+        xs[::2] = orig_xs[:]
+        xs[1::2] = orig_xs[1:]
+
+        ys = np.empty(2*len(orig_ys)-1)
+        ys[::2] = orig_ys[:]
+        ys[1::2] = orig_ys[:-1]
+
+        data = dict(x_values=xs, y_values=ys)
+        return ColumnDataSource(data)
+
+
 class AggregateGlyph(NestedCompositeGlyph):
     """A base composite glyph for aggregating an array.
 
