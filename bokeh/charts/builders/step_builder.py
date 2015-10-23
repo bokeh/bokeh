@@ -68,7 +68,6 @@ def Step(data=None, x=None, y=None, **kws):
         show(line)
 
     """
-    print "ASDASDASD"
     kws['x'] = x
     kws['y'] = y
     return create_and_build(StepBuilder, data, **kws)
