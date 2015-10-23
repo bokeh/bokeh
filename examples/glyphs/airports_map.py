@@ -46,6 +46,7 @@ with urllib.request.urlopen(airports_service) as response:
     p.add_tools(ResizeTool(), WheelZoomTool(), PanTool(), BoxZoomTool(), hover_tool)
     p.add_tile(tile_source)
 
+    # create point glyphs
     point_options = {}
     point_options['x'] = 'geometry.x'
     point_options['y'] = 'geometry.y'
