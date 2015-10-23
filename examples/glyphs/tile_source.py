@@ -1,14 +1,15 @@
+from __future__ import print_function
+
 from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 
-from bokeh.plotting import figure
 from bokeh.plotting import output_file
 
 from bokeh.models import Plot
 from bokeh.models import Range1d
-from bokeh.models import WheelZoomTool,ResizeTool,PanTool,BoxZoomTool 
+from bokeh.models import WheelZoomTool, ResizeTool, PanTool, BoxZoomTool
 from bokeh.models import WMTSTileSource
 
 output_file("tile_source_example.html", title="Tile Source Example")
@@ -27,7 +28,6 @@ p = Plot(x_range=x_range, y_range=y_range, plot_height=800, plot_width=800)
 p.add_tools(ResizeTool(), WheelZoomTool(), PanTool(), BoxZoomTool())
 
 tile_renderer_options = {}
-tile_renderer_options['alpha'] = .5
 p.add_tile(tile_source, **tile_renderer_options)
 
 doc = Document()
