@@ -17,7 +17,7 @@ from bokeh.models import ColumnDataSource
 try:
     import urllib.request as urllib_request
 except ImportError:
-    import urllib2 as urllib_request
+    import urllib2 as urllib_request  # python 2
 
 from pandas.io.json import json_normalize
 
