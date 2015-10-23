@@ -38,7 +38,7 @@ class TileRendererView extends PlotWidget
     tile_data.img = e.target
     tile_data.current = true
     @mget('tile_source').tiles[tile_data.cache_key] = tile_data
-    @request_render
+    @request_render()
 
   _on_tile_cache_load: (e) =>
     tile_data = e.target.tile_data
@@ -164,23 +164,19 @@ class TileRendererView extends PlotWidget
             parents.push(parent_key)
           need_load.push(t)
 
-    # draw stand-in parents
+    # draw stand-in parents ----------
     @_render_tiles(parents)
 
-    # draw cached
+    # draw cached ----------
     @_render_tiles(cached)
     for t in cached
       @mget('tile_source').tiles[t].current = true
 
-    # fetch missing
-    if Object.keys(@mget('tile_source').tiles).length == 0
-      @_fetch_tiles(need_load)
-    else
+    # fetch missing -------
+    if @render_timer?
+      clearTimeout(@render_timer)
 
-      if @render_timer?
-        clearTimeout(@render_timer)
-
-      @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
+    @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
 
     # prune cached tiles
     #@tile_source.prune_tiles()
