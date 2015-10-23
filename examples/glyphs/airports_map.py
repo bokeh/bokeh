@@ -19,7 +19,7 @@ import urllib.request
 from pandas.io.json import json_normalize
 
 title = "US Airports: Field Elevation > 1500m"
-output_file("airports.html", title=title)
+output_file("airports_map.html", title=title)
 airports_service = 'http://s3.amazonaws.com/bokeh_data/airports.json'
 
 with urllib.request.urlopen(airports_service) as response:
@@ -60,7 +60,7 @@ with urllib.request.urlopen(airports_service) as response:
     doc.add(p)
 
 if __name__ == "__main__":
-    filename = "airports.html"
+    filename = "airports_map.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Bokeh Airports Example"))
     print("Wrote %s" % filename)
