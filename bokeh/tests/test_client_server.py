@@ -27,14 +27,17 @@ logging.basicConfig(level=logging.DEBUG)
 # and ensures the server unlistens
 class ManagedServerLoop(object):
     def __init__(self, application):
-        self._loop = IOLoop()
-        self._loop.make_current()
-        self._server = Server(application)
+        loop = IOLoop()
+        loop.make_current()
+        self._server = Server(application, io_loop=loop)
     def __exit__(self, type, value, traceback):
         self._server.unlisten()
-        self._loop.close()
+        self._server.io_loop.close()
     def __enter__(self):
         return self._server
+    @property
+    def io_loop(self):
+        return self.s_server.io_loop
 
 class TestClientServer(unittest.TestCase):
 
@@ -44,7 +47,7 @@ class TestClientServer(unittest.TestCase):
             # we don't have to start the server because it
             # uses the same main loop as the client, so
             # if we start either one it starts both
-            connection = ClientConnection()
+            connection = ClientConnection(io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
             connection.close()
@@ -54,7 +57,7 @@ class TestClientServer(unittest.TestCase):
     def test_disconnect_on_error(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
             # send a bogus message
@@ -67,7 +70,7 @@ class TestClientServer(unittest.TestCase):
     def test_push_document(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
@@ -104,7 +107,7 @@ class TestClientServer(unittest.TestCase):
         application.add(handler)
 
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
@@ -130,7 +133,7 @@ class TestClientServer(unittest.TestCase):
     def test_request_server_info(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
@@ -148,7 +151,7 @@ class TestClientServer(unittest.TestCase):
     def test_client_changes_go_to_server(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
@@ -192,7 +195,7 @@ class TestClientServer(unittest.TestCase):
     def test_server_changes_go_to_client(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
@@ -239,7 +242,7 @@ class TestClientServer(unittest.TestCase):
 def test_client_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:
-        connection = ClientConnection(url=server.ws_url)
+        connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
         connection.connect()
         assert connection.connected
 
@@ -288,7 +291,7 @@ def test_client_changes_do_not_boomerang(monkeypatch):
 def test_server_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:
-        connection = ClientConnection(url=server.ws_url)
+        connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
         connection.connect()
         assert connection.connected
 

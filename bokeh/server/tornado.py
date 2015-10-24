@@ -77,6 +77,10 @@ class BokehTornado(TornadoApplication):
         self._cleanup_job = PeriodicCallback(self.cleanup_sessions, 17.0 * 1000, io_loop=self._loop)
         self._cleanup_job.start()
 
+    @property
+    def io_loop(self):
+        return self._loop
+
     def root_url_for_request(self, request):
         # If we add a "whole server prefix," we'd put that on here too
         return request.protocol + "://" + request.host + "/"

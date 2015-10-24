@@ -28,7 +28,10 @@ class Server(object):
             self._applications = { '/' : applications }
         else:
             self._applications = applications
-        self._tornado = BokehTornado(self._applications)
+        io_loop = None
+        if 'io_loop' in kwargs:
+            io_loop = kwargs['io_loop']
+        self._tornado = BokehTornado(self._applications, io_loop=io_loop)
         self._http = HTTPServer(self._tornado)
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
@@ -46,6 +49,10 @@ class Server(object):
     @property
     def port(self):
         return self._port
+
+    @property
+    def io_loop(self):
+        return self._tornado.io_loop
 
     def start(self):
         ''' Start the Bokeh Server's IO loop.
