@@ -78,7 +78,7 @@ class TestComponents(unittest.TestCase):
         mock_uuid.uuid4.return_value = 'uuid'
 
         plot = _embed_test_plot
-        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "uuid", "modeltype": "Plot"}
+        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "uuid", "docid": "uuid"}
         script, plotdict = embed.components(_embed_test_plot, wrap_plot_info=False)
         self.assertEqual(plotdict, expected_plotdict)
 
@@ -215,22 +215,23 @@ class TestAutoloadStatic(unittest.TestCase):
         r = embed.autoload_static(_embed_test_plot, CDN, "some/path")
         self.assertEqual(len(r), 2)
 
-    def test_script_attrs(self):
+    @mock.patch('bokeh.embed.uuid')
+    def test_script_attrs(self, mock_uuid):
+        mock_uuid.uuid4 = mock.Mock()
+        mock_uuid.uuid4.return_value = 'uuid'
         js, tag = embed.autoload_static(_embed_test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag)
         scripts = html.findAll(name='script')
         self.assertEqual(len(scripts), 1)
         attrs = scripts[0].attrs
         self.assertTrue(set(attrs), set(['src',
-            'data-bokeh-modeltype',
-            'data-bokeh-modelid',
+            'data-bokeh-model-id',
             'async',
             'id',
-            'data-bokeh-data']))
+            'data-bokeh-doc-id']))
         self.assertEqual(attrs['async'], 'true')
-        self.assertEqual(attrs['data-bokeh-data'], 'static')
-        self.assertEqual(attrs['data-bokeh-modeltype'], 'Plot')
-        self.assertEqual(attrs['data-bokeh-modelid'], str(_embed_test_plot._id))
+        self.assertEqual(attrs['data-bokeh-doc-id'], 'uuid')
+        self.assertEqual(attrs['data-bokeh-model-id'], str(_embed_test_plot._id))
         self.assertEqual(attrs['src'], 'some/path')
 
 

@@ -20,7 +20,8 @@ from warnings import warn
 from .resources import Resources
 from .templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, DOC_JS, PLOT_SCRIPT, JS_RESOURCES, CSS_RESOURCES
+    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, PLOT_SCRIPT,
+    JS_RESOURCES, CSS_RESOURCES
 )
 from .util.string import encode_utf8
 
@@ -37,8 +38,6 @@ def _wrap_in_function(code):
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
-# TODO (havocp) this function doesn't work anymore; need to understand
-# how/why/by-whom it is called and fix it up
 def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -109,95 +108,48 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
             # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
 
     '''
-    raise RuntimeError("TODO components needs to be ported to tornado")
-    custom_models, all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
+    if resources is not None:
+        warn('Because the ``resources`` argument is no longer needed, '
+             'it is deprecated and no longer has any effect',
+             DeprecationWarning, stacklevel=2)
 
-    if wrap_script:
-        script = _get_script(custom_models, all_models, plots)
-    else:
-        script = _get_js(custom_models, all_models, plots)
+    # 1) Convert single items and dicts into list
+
+    was_single_object = isinstance(plot_objects, PlotObject) or isinstance(plot_objects, Document)
+    # converts single to list
+    plot_objects = _check_plot_objects(plot_objects, allow_dict=True)
+    # now convert dict to list, saving keys in the same order
+    plot_object_keys = None
+    if isinstance(plot_objects, dict):
+        plot_object_keys = plot_objects.keys()
+        values = []
+        # don't just use .values() to ensure we are in the same order as key list
+        for k in plot_object_keys:
+            values.append(plot_objects[k])
+        plot_objects = values
+
+    # 2) Do our rendering
+
+    (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
+    script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
     script = encode_utf8(script)
 
     if wrap_plot_info:
-        return script, divs
+        results = list(_div_for_render_item(item) for item in render_items)
     else:
-        return script, plot_info
+        results = render_items
 
+    # 3) convert back to the input shape
 
-def _get_components(plot_objects, resources=None):
-    plot_objects = _check_components_input(plot_objects, resources)
-
-    custom_models = {}
-    all_models = dict()
-    plots = []
-
-    if isinstance(plot_objects, Sequence):
-        divs = []
-        for idx, plot_object in enumerate(plot_objects):
-            elementid = str(uuid.uuid4())
-            _append_plot(custom_models, all_models, plots, plot_object, elementid)
-            divs = _append_div(elementid, divs)
-        if len(divs) == 1:
-            divs = divs[0]
-            plot_info = plots[0]
-        else:
-            divs = tuple(divs)
-            plot_info = tuple(plots)
-
-    if isinstance(plot_objects, dict):
-        divs = {}
-        plot_info = {}
-        for key in plot_objects.keys():
-            elementid = str(uuid.uuid4())
-            plot_info[key] = _append_plot(custom_models, all_models, plots, plot_objects[key], elementid)
-            divs = _append_div(elementid, divs, key)
-
-    return custom_models, list(all_models.values()), plots, plot_info, divs
-
-
-def _check_components_input(plot_objects, resources=None):
-    if resources is not None:
-        warn('Because the ``resources`` argument is no longer needed, '
-             'it is deprecated and will be removed in'
-             'a future version.', DeprecationWarning, stacklevel=2)
-
-    input_type_valid = False
-
-    # Check for single item
-    if isinstance(plot_objects, (PlotObject, Document)):
-        plot_objects = [plot_objects]
-
-    # Check for sequence
-    if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
-        input_type_valid = True
-
-    if isinstance(plot_objects, dict) and \
-       all(isinstance(x, string_types) for x in plot_objects.keys()) and \
-       all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
-        input_type_valid = True
-
-    if not input_type_valid:
-        raise ValueError('Input must be a PlotObject, a Sequence of PlotObjects, or a mapping of string to PlotObjects')
-
-    return plot_objects
-
-
-def _get_js(custom_models, all_models, plots):
-    js = PLOT_JS.render(
-        custom_models=custom_models,
-        all_models=serialize_json(all_models),
-        plots=plots
-    )
-    return _wrap_in_function(js)
-
-
-def _get_script(custom_models, all_models, plots):
-    js = _get_js(custom_models, all_models, plots)
-    script = PLOT_SCRIPT.render(
-        plot_js=js,
-    )
-    return script
-
+    if was_single_object:
+        return script, results[0]
+    elif plot_object_keys is not None:
+        result = {}
+        for (key, value) in zip(plot_object_keys, results):
+            result[key] = value
+        return script, result
+    else:
+        return script, tuple(results)
 
 def _escape_code(code):
     """ Escape JS/CS source code, so that it can be embbeded in a JS string.
@@ -232,37 +184,6 @@ def _extract_custom_models(plot_object):
             custom_models[name] = impl
 
     return custom_models
-
-def _append_plot(custom_models, all_models, plots, plot_object, elementid):
-    ref = plot_object.ref
-
-    custom_models.update(_extract_custom_models(plot_object))
-
-    for item in plot_object.dump():
-        all_models[item['id']] = item
-
-    plot_info = {
-        'modelid': ref["id"],
-        'elementid': elementid,
-        'modeltype': ref["type"]
-    }
-    plots.append(plot_info)
-    return plot_info
-
-
-def _append_div(elementid, divs=None, key=None):
-    div = PLOT_DIV.render(
-        elementid=elementid
-    )
-    if isinstance(divs, list):
-        divs.append(encode_utf8(div))
-        return divs
-    elif isinstance(divs, dict):
-        divs[key] = encode_utf8(div)
-        return divs
-    else:
-        return encode_utf8(div)
-
 
 def notebook_div(plot_object):
     ''' Return HTML for a div that will display a Bokeh plot in an
@@ -442,17 +363,19 @@ def autoload_server(plot_object, app_path="/", session_id=DEFAULT_SESSION_ID, ur
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, websocket_url):
-    return PLOT_SCRIPT.render(
-        plot_js=_wrap_in_function(
-            DOC_JS.render(
-                custom_models={}, # TODO
-                websocket_url=websocket_url,
-                docs_json=serialize_json(docs_json),
-                render_items=serialize_json(render_items)
-            )
+def _script_for_render_items(docs_json, render_items, websocket_url, wrap_script = True):
+    plot_js = _wrap_in_function(
+        DOC_JS.render(
+            custom_models={}, # TODO
+            websocket_url=websocket_url,
+            docs_json=serialize_json(docs_json),
+            render_items=serialize_json(render_items)
         )
     )
+    if wrap_script:
+        return PLOT_SCRIPT.render(plot_js=plot_js)
+    else:
+        return plot_js
 
 def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url,
                                 js_resources=None, css_resources=None, template=FILE,
@@ -494,7 +417,7 @@ def _html_page_for_render_items(resources, docs_json, render_items, title, webso
     html = template.render(template_variables_full)
     return encode_utf8(html)
 
-def _check_plot_objects(plot_objects):
+def _check_plot_objects(plot_objects, allow_dict=False):
     input_type_valid = False
 
     # Check for single item
@@ -505,8 +428,17 @@ def _check_plot_objects(plot_objects):
     if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
         input_type_valid = True
 
+    if allow_dict:
+        if isinstance(plot_objects, dict) and \
+           all(isinstance(x, string_types) for x in plot_objects.keys()) and \
+           all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
+            input_type_valid = True
+
     if not input_type_valid:
-        raise ValueError('Input must be a PlotObject, a Document, or a Sequence of PlotObjects and Document')
+        if allow_dict:
+            raise ValueError('Input must be a PlotObject, a Document, a Sequence of PlotObjects and Document, or a dictionary from string to PlotObject and Document')
+        else:
+            raise ValueError('Input must be a PlotObject, a Document, or a Sequence of PlotObjects and Document')
 
     return plot_objects
 
