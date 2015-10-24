@@ -534,11 +534,8 @@ class Plot extends HasParent
     'min_border_right'
   ]
 
-  serializable_attributes: () ->
-    attrs = super()
-    for a in ['solver', 'above', 'below', 'left', 'right']
-      delete attrs[a]
-    attrs
+  nonserializable_attribute_names: () ->
+    super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame'])
 
   defaults: ->
     return _.extend {}, super(), {

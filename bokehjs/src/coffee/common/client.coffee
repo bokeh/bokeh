@@ -356,11 +356,6 @@ class ClientSession
     if event instanceof ModelChangedEvent and event.attr not of event.model.serializable_attributes()
       return
 
-    # This would happen for example if someone adds a non-serializable model as a root
-    if 'model' of event and not event.model.serializable_in_document()
-      logger.error("non-serializable model should not be in an event #{event}")
-      return
-
     patch = Message.create('PATCH-DOC', { sessid: @id },
       @document.create_json_patch([event]))
     @connection.send(patch)

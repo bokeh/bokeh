@@ -166,7 +166,8 @@ embed_items = (docs_json, render_items, websocket_url) ->
 
     if promise != null
       promise.then(
-        (value) ->,
+        (value) ->
+          console.log("Bokeh items were rendered successfully")
         (error) ->
           console.log("Error rendering Bokeh items ", error)
       )

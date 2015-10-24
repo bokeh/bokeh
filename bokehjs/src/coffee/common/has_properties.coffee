@@ -268,7 +268,7 @@ class HasProperties extends Backbone.Model
     'type': this.type
     'id': this.id
 
-  @_is_ref = (arg) ->
+  @_is_ref: (arg) ->
     if _.isObject(arg)
       keys = _.keys(arg).sort()
       if keys.length==2
@@ -314,28 +314,31 @@ class HasProperties extends Backbone.Model
 
   defaults: -> {}
 
-  # true if this class can be serialized and synced with the server-side
-  # Document. We should refactor HasProperties to avoid this boolean
-  # (classes that can be in the document should have a special interface
-  # that has the attributes_as_json, attach_document, and related methods)
-  serializable_in_document: () ->
-    true
+  # TODO remove this, for now it's just to help find nonserializable_attribute_names we
+  # need to add.
+  serializable_in_document: true
+
+  # returns a list of those names which should not be included
+  # in the Document and should not go to the server. Subtypes
+  # should override this. The result will be cached on the class,
+  # so this only gets called one time on one instance.
+  nonserializable_attribute_names: () ->
+    []
 
   # dict of attributes that should be serialized to the server. We
   # sometimes stick things in attributes that aren't part of the
   # Document's models, subtypes that do that have to remove their
   # extra attributes here.
   serializable_attributes: () ->
+    if not @constructor._nonserializable_names_cache?
+      names = {}
+      for n in @nonserializable_attribute_names()
+        names[n] = true
+      @constructor._nonserializable_names_cache = names
+    nonserializable = @constructor._nonserializable_names_cache
     attrs = {}
     for k, v of @attributes
-      # this is weird because when we set an attribute to null it becomes
-      # serializable even though it usually isn't.
-      # TODO (havocp) this is unacceptable because the Python side will
-      # throw an exception if it sees an unknown property name, so we
-      # can't even send null.
-      if v instanceof HasProperties and not v.serializable_in_document()
-        ;
-      else
+      if k not of nonserializable
         attrs[k] = v
     attrs
 
@@ -348,21 +351,24 @@ class HasProperties extends Backbone.Model
   toJSON: (options) ->
     throw new Error("bug: toJSON should not be called on #{@}, models require special serialization measures")
 
-  @_value_to_json: (key, value) ->
+  @_value_to_json: (key, value, optional_parent_object) ->
     if value instanceof HasProperties
       value.ref()
     else if _.isArray(value)
       ref_array = []
       for v, i in value
-        ref_array.push(HasProperties._value_to_json(i, v))
+        if v instanceof HasProperties and not v.serializable_in_document
+          console.log("NEED TO ADD #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because array contains a nonserializable type #{v.constructor.name} under index #{i}")
+        else
+          ref_array.push(HasProperties._value_to_json(i, v, value))
       ref_array
     else if _.isObject(value)
       ref_obj = {}
-      for own key of value
-        if value[key] instanceof HasProperties and not value[key].serializable_in_document()
-          ;
+      for own subkey of value
+        if value[subkey] instanceof HasProperties and not value[subkey].serializable_in_document
+          console.log("NEED TO ADD #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because value of type #{value.constructor.name} contains a nonserializable type #{value[subkey].constructor.name} under #{subkey}")
         else
-          ref_obj[key] = HasProperties._value_to_json(key, value[key])
+          ref_obj[subkey] = HasProperties._value_to_json(subkey, value[subkey], value)
       ref_obj
     else
       value
@@ -372,7 +378,16 @@ class HasProperties extends Backbone.Model
   # TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
   # backbone will have implemented a toJSON already that we may need to override
   attributes_as_json: () ->
-    HasProperties._value_to_json("attributes", @serializable_attributes())
+    # TODO remove serializable_in_document and this check once we aren't seeing these
+    # warnings anymore
+    fail = false
+    for own key, value of @serializable_attributes()
+      if value instanceof HasProperties and not value.serializable_in_document
+        console.log("NEED TO ADD #{key} to nonserializable_attribute_names of #{@.constructor.name} because value #{value.constructor.name} is not serializable")
+        fail = true
+    if fail
+      return {}
+    HasProperties._value_to_json("attributes", @serializable_attributes(), @)
 
   # add all references from 'v' to 'result', if recurse
   # is true then descend into HasProperties, if false only
@@ -381,9 +396,9 @@ class HasProperties extends Backbone.Model
     if v is null
       ;
     else if v instanceof HasProperties
-      if v.serializable_in_document() and v.id not of result
+      if v.id not of result
         result[v.id] = v
-        for key of v.attributes
+        for key of v.serializable_attributes()
           HasProperties._value_record_references(v.attributes[key], result, recurse)
     else if _.isArray(v)
       for elem in v
@@ -401,9 +416,6 @@ class HasProperties extends Backbone.Model
     _.values(result)
 
   attach_document: (doc) ->
-    if not @serializable_in_document()
-      logger.error("Not serializable in document ", @)
-      throw new Error("Should not be calling attach_document() on object which isn't serializable_in_document()")
     if @document != null and @document != doc
       throw new Error("Models must be owned by only a single document")
     first_attach = @document == null
@@ -422,9 +434,22 @@ class HasProperties extends Backbone.Model
           c.detach_document()
 
   _tell_document_about_change: (attr, old, new_) ->
-    if new_ instanceof HasProperties and @document != null and new_.serializable_in_document()
+    if attr not of @serializable_attributes()
+      return
+
+    # TODO remove serializable_in_document and these checks once we aren't seeing these
+    # warnings anymore
+    if old instanceof HasProperties and not old.serializable_in_document
+      console.log("NEED TO ADD #{attr} to nonserializable_attribute_names of #{@constructor.name} because old value #{old.constructor.name} is not serializable")
+      return
+
+    if new_ instanceof HasProperties and not new_.serializable_in_document
+      console.log("NEED TO ADD #{attr} to nonserializable_attribute_names of #{@constructor.name} because new value #{new_.constructor.name} is not serializable")
+      return
+
+    if new_ instanceof HasProperties and @document != null
       new_.attach_document(@document)
-    if old instanceof HasProperties and old.serializable_in_document()
+    if old instanceof HasProperties
       old.detach_document()
     if @document != null
       @document._notify_change(@, attr, old, new_)

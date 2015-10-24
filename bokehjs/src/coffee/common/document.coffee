@@ -290,7 +290,7 @@ class Document
         throw new Error("Cannot create a patch using events from a different document")
       if event instanceof ModelChangedEvent
         value = event.new_
-        value_json = HasProperties._value_to_json('new_', value)
+        value_json = HasProperties._value_to_json('new_', value, event.model)
         value_refs = {}
         HasProperties._value_record_references(value, value_refs, true) # true = recurse
 

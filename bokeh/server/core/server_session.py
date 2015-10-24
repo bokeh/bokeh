@@ -97,7 +97,6 @@ class ServerSession(object):
     @gen.coroutine
     def _handle_patch(self, message, connection):
         with (yield self._lock.acquire()):
-            log.debug("patching session %r with %r", self.id, message.content)
             self._current_patch = message
             self._current_patch_connection = connection
             try:

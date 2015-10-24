@@ -443,6 +443,7 @@ class Document(object):
                 if attr in patched_obj.properties_with_refs():
                     value = self._compute_object_property_initializer(patched_obj, attr, value, references)
                 if attr in patched_obj.properties():
+                    logger.debug("Patching attribute %s of %r", attr, patched_obj)
                     patched_obj.update(** { attr : value })
                 else:
                     logger.warn("Client sent attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", attr, patched_obj)
