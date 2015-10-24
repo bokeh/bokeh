@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-Numeral = require "numeral"
+Numbro = require "numbro"
 HasProperties = require "../common/has_properties"
 
 class CellFormatter extends HasProperties
@@ -57,7 +57,7 @@ class NumberFormatter extends StringFormatter
       when "round", "nearest"   then Math.round
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil
-    value = Numeral.format(value, format, language, rounding)
+    value = Numbro.format(value, format, language, rounding)
     return super(row, cell, value, columnDef, dataContext)
 
 class BooleanFormatter extends CellFormatter
