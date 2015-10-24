@@ -14,5 +14,5 @@ line = Step(data, y=['python', 'pypy', 'jython'],
             color=['python', 'pypy', 'jython'],
             title="Interpreter Sample Data", ylabel='Duration', legend=True)
 
-output_file("line_single.html")
+output_file("steps.html")
 show(line)
