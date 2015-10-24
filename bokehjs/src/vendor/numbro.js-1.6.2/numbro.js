@@ -6,8 +6,7 @@
  * http://www.foretagsplatsen.se
  */
 
-(function () {
-    'use strict';
+var _ = require("underscore");
 
     /************************************
         Constants
@@ -140,18 +139,19 @@
     ************************************/
 
     // determine what type of formatting we need to do
-    function formatNumbro(n, format, roundingFunction) {
+    function formatNumbro(value, format, language, roundingFunction) {
         var output;
+        // TODO: do something with `language`
 
         // figure out what kind of format we are dealing with
         if (format.indexOf('$') > -1) { // currency!!!!!
-            output = formatCurrency(n, format, roundingFunction);
+            output = formatCurrency(value, format, roundingFunction);
         } else if (format.indexOf('%') > -1) { // percentage
-            output = formatPercentage(n, format, roundingFunction);
+            output = formatPercentage(value, format, roundingFunction);
         } else if (format.indexOf(':') > -1) { // time
-            output = formatTime(n, format);
+            output = formatTime(value);
         } else { // plain ol' numbers or bytes
-            output = formatNumber(n._value, format, roundingFunction);
+            output = formatNumber(value, format, roundingFunction);
         }
 
         // return string
@@ -217,7 +217,7 @@
         return n._value;
     }
 
-    function formatCurrency(n, originalFormat, roundingFunction) {
+    function formatCurrency(value, originalFormat, roundingFunction) {
         var format = originalFormat,
             symbolIndex = format.indexOf('$'),
             openParenIndex = format.indexOf('('),
@@ -252,7 +252,7 @@
         }
 
         // Format The Number
-        output = formatNumber(n._value, format, roundingFunction, decimalSeparator);
+        output = formatNumber(value, format, roundingFunction, decimalSeparator);
 
         if (originalFormat.indexOf('$') === -1) {
             // Use defaults instead of the format provided
@@ -311,10 +311,10 @@
         return output;
     }
 
-    function formatPercentage(n, format, roundingFunction) {
+    function formatPercentage(value, format, roundingFunction) {
         var space = '',
-            output,
-            value = n._value * 100;
+            output;
+        value = value * 100;
 
         // check for space before %
         if (format.indexOf(' %') > -1) {
@@ -337,10 +337,10 @@
         return output;
     }
 
-    function formatTime(n) {
-        var hours = Math.floor(n._value / 60 / 60),
-            minutes = Math.floor((n._value - (hours * 60 * 60)) / 60),
-            seconds = Math.round(n._value - (hours * 60 * 60) - (minutes * 60));
+    function formatTime(value) {
+        var hours = Math.floor(value / 60 / 60),
+            minutes = Math.floor((value - (hours * 60 * 60)) / 60),
+            seconds = Math.round(value - (hours * 60 * 60) - (minutes * 60));
         return hours + ':' +
             ((minutes < 10) ? '0' + minutes : minutes) + ':' +
             ((seconds < 10) ? '0' + seconds : seconds);
@@ -1101,123 +1101,12 @@
         }, -Infinity);
     }
 
-    /************************************
-        Numbro Prototype
-    ************************************/
-
-
-    numbro.fn = Numbro.prototype = {
-
-        clone: function() {
-            return numbro(this);
-        },
-
-        format: function(inputString, roundingFunction) {
-            return formatNumbro(this,
-                inputString ? inputString : defaultFormat,
-                (roundingFunction !== undefined) ? roundingFunction : Math.round
-            );
-        },
-
-        formatCurrency: function(inputString, roundingFunction) {
-            return formatCurrency(this,
-                inputString ? inputString : defaultCurrencyFormat,
-                (roundingFunction !== undefined) ? roundingFunction : Math.round
-            );
-        },
-
-        unformat: function(inputString) {
-            if (Object.prototype.toString.call(inputString) === '[object Number]') {
-                return inputString;
-            }
-            return unformatNumbro(this, inputString ? inputString : defaultFormat);
-        },
-
-        value: function() {
-            return this._value;
-        },
-
-        valueOf: function() {
-            return this._value;
-        },
-
-        set: function(value) {
-            this._value = Number(value);
-            return this;
-        },
-
-        add: function(value) {
-            var corrFactor = correctionFactor.call(null, this._value, value);
-
-            function cback(accum, curr) {
-                return accum + corrFactor * curr;
-            }
-            this._value = [this._value, value].reduce(cback, 0) / corrFactor;
-            return this;
-        },
-
-        subtract: function(value) {
-            var corrFactor = correctionFactor.call(null, this._value, value);
-
-            function cback(accum, curr) {
-                return accum - corrFactor * curr;
-            }
-            this._value = [value].reduce(cback, this._value * corrFactor) / corrFactor;
-            return this;
-        },
-
-        multiply: function(value) {
-            function cback(accum, curr) {
-                var corrFactor = correctionFactor(accum, curr),
-                    result = accum * corrFactor;
-                result *= curr * corrFactor;
-                result /= corrFactor * corrFactor;
-                return result;
-            }
-            this._value = [this._value, value].reduce(cback, 1);
-            return this;
-        },
-
-        divide: function(value) {
-            function cback(accum, curr) {
-                var corrFactor = correctionFactor(accum, curr);
-                return (accum * corrFactor) / (curr * corrFactor);
-            }
-            this._value = [this._value, value].reduce(cback);
-            return this;
-        },
-
-        difference: function(value) {
-            return Math.abs(numbro(this._value).subtract(value).value());
-        }
-
-    };
-
-    /************************************
-        Exposing Numbro
-    ************************************/
-
-    // CommonJS module is defined
-    if (hasModule) {
-        module.exports = numbro;
+    function format(input, formatString, language, roundingFunction) {
+        return formatNumbro(
+            Number(input),
+            _.isString(formatString)        ? formatString        : defaultFormat,
+            _.isString(language)            ? languages[language] : languages[defaultLanguage],
+            _.isUndefined(roundingFunction) ? Math.round          : roundingFunction);
     }
 
-    //Todo: Rename the folder in 2.0.0
-    numbro.loadCulturesInNode('languages');
-
-    /*global ender:false */
-    if (typeof ender === 'undefined') {
-        // here, `this` means `window` in the browser, or `global` on the server
-        // add `numbro` as a global object via a string identifier,
-        // for Closure Compiler 'advanced' mode
-        this.numbro = numbro;
-    }
-
-    /*global define:false */
-    if (typeof define === 'function' && define.amd) {
-        define([], function() {
-            return numbro;
-        });
-    }
-
-}.call(typeof window === 'undefined' ? this : window));
+    module.exports = {"format": format};
