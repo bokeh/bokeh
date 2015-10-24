@@ -289,7 +289,14 @@ class ClientConnection(object):
                 raise e
 
     def _register_session(self, session):
-        self._sessions.add(session)
+        if isinstance(self._state, self.DISCONNECTED):
+            # this is sketchy to do this synchronously
+            # http://blog.ometer.com/2011/07/24/callbacks-synchronous-and-asynchronous/
+            # but since our only caller is in this file
+            # we'll live with it
+            session._notify_disconnected()
+        else:
+            self._sessions.add(session)
 
     def _tell_sessions_about_disconnect(self):
         for session in self._sessions:
@@ -306,9 +313,12 @@ class ClientSession(object):
         self._document = doc
         self._id = self._ensure_session_id(session_id)
         self._document.on_change(self._document_changed)
-        # registering may remove the on_change above as side effect
+        self._connected = True
+        # registering may remove the on_change above and
+        # set our disconnected flag as side effect
         self._connection._register_session(self)
         self._current_patch = None
+
 
     @classmethod
     def _ensure_session_id(cls, session_id=DEFAULT_SESSION_ID):
@@ -324,8 +334,13 @@ class ClientSession(object):
     def id(self):
         return self._id
 
+    @property
+    def connected(self):
+        return self._connected
+
     def _notify_disconnected(self):
         '''Called by the ClientConnection we are using to notify us of disconnect'''
+        self._connected = False
         self._document.remove_on_change(self._document_changed)
 
     def _document_changed(self, event):
