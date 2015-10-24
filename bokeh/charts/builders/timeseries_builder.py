@@ -24,13 +24,19 @@ from ..glyphs import LineGlyph
 from ..attributes import DashAttr, ColorAttr
 from ...models.sources import ColumnDataSource
 from .line_builder import LineBuilder
+from .step_builder import StepBuilder
+# from .line_builder import LineBuilder
 
 # -----------------------------------------------------------------------------
 # Classes and functions
 # -----------------------------------------------------------------------------
 
+BUILDER_TYPES = {
+    'line': LineBuilder,
+    'step': StepBuilder,
+}
 
-def TimeSeries(data=None, x=None, y=None, **kws):
+def TimeSeries(data=None, x=None, y=None, builder_type=LineBuilder, **kws):
     """ Create a line chart using :class:`TimeSeriesBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
     render the geometry from values and index.
 
@@ -68,6 +74,7 @@ def TimeSeries(data=None, x=None, y=None, **kws):
 
     """
 
+    builder_type = BUILDER_TYPES.get(builder_type, builder_type)
     kws['x'] = x
     kws['y'] = y
-    return create_and_build(LineBuilder, data, **kws)
+    return create_and_build(builder_type, data, **kws)
