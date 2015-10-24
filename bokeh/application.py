@@ -2,6 +2,10 @@ from __future__ import absolute_import
 
 from .document import Document
 
+import logging
+
+log = logging.getLogger(__name__)
+
 class Application(object):
     """An Application is a factory for Document instances"""
 
@@ -17,6 +21,9 @@ class Application(object):
             # TODO (havocp) we need to check the 'failed' flag on each handler
             # and build a composite error display.
             h.modify_document(doc)
+            if h.failed:
+                # TODO (havocp) this could be formatted a lot more nicely
+                log.error("Error running application handler %r: %r %r ", h, h.error, h.error_detail)
         return doc
 
     def add(self, handler):
