@@ -254,10 +254,9 @@ def _show_file_with_state(obj, state, new, controller):
     controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
 
 def _show_notebook_with_state(obj, state):
-    # TODO (havocp) autoload_server and notebook_div need fixing
     if state.session_id:
         push(state=state)
-        snippet = autoload_server(obj, state.session)
+        snippet = autoload_server(obj, session_id=state.session_id, url=state.server_url)
         publish_display_data({'text/html': snippet})
     else:
         publish_display_data({'text/html': notebook_div(obj)})
@@ -405,6 +404,7 @@ def push(session_id=None, url=None, document=None, state=None):
     connection.connect()
     session = connection.push_session(document, session_id=session_id)
     connection.close()
+    connection.loop_until_closed()
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.

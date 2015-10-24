@@ -281,31 +281,20 @@ def notebook_div(plot_object):
         has already been executed.
 
     '''
-    raise RuntimeError("TODO notebook_div needs to be ported to tornado")
-    ref = plot_object.ref
-    elementid = str(uuid.uuid4())
+    plot_object = _check_one_plot_object(plot_object)
 
-    plots = [{
-        'modelid': ref["id"],
-        'elementid': elementid,
-        'modeltype': ref["type"]
-    }]
+    (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
+    item = render_items[0]
 
-    js = PLOT_JS.render(
-        custom_models = _extract_custom_models(plot_object),
-        all_models = serialize_json(plot_object.dump()),
-        plots = plots
-    )
-    script = PLOT_SCRIPT.render(
-        plot_js = _wrap_in_function(js),
-    )
-    div = PLOT_DIV.render(elementid=elementid)
+    script = _script_for_render_items(docs_json, render_items, websocket_url=None)
+
+    div = _div_for_render_item(item)
+
     html = NOTEBOOK_DIV.render(
         plot_script = script,
         plot_div = div,
     )
     return encode_utf8(html)
-
 
 def file_html(plot_objects,
               resources,
@@ -373,11 +362,9 @@ def autoload_static(plot_object, resources, script_path):
     if resources.dev:
         raise ValueError("autoload_static() only works with non-dev resources")
 
-    plot_objects = _check_plot_objects(plot_object)
-    if len(plot_objects) != 1:
-        raise ValueError("Specify exactly one plot object for autoload_static")
+    plot_object = _check_one_plot_object(plot_object)
 
-    (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
+    (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
     item = render_items[0]
 
     model_id = ""
@@ -445,8 +432,6 @@ def autoload_server(plot_object, app_path="/", session_id=DEFAULT_SESSION_ID, ur
         app_path = app_path[1:]
     src_path = url + app_path + "autoload.js" + "?bokeh-autoload-element=" + elementid
 
-    print("src_path=" + src_path)
-
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         elementid = elementid,
@@ -456,6 +441,18 @@ def autoload_server(plot_object, app_path="/", session_id=DEFAULT_SESSION_ID, ur
     )
 
     return encode_utf8(tag)
+
+def _script_for_render_items(docs_json, render_items, websocket_url):
+    return PLOT_SCRIPT.render(
+        plot_js=_wrap_in_function(
+            DOC_JS.render(
+                custom_models={}, # TODO
+                websocket_url=websocket_url,
+                docs_json=serialize_json(docs_json),
+                render_items=serialize_json(render_items)
+            )
+        )
+    )
 
 def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url,
                                 js_resources=None, css_resources=None, template=FILE,
@@ -481,16 +478,7 @@ def _html_page_for_render_items(resources, docs_json, render_items, title, webso
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
         bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
 
-    script = PLOT_SCRIPT.render(
-        plot_js=_wrap_in_function(
-            DOC_JS.render(
-                custom_models={}, # TODO
-                websocket_url=websocket_url,
-                docs_json=serialize_json(docs_json),
-                render_items=serialize_json(render_items)
-            )
-        )
-    )
+    script = _script_for_render_items(docs_json, render_items, websocket_url)
 
     template_variables_full = \
         template_variables.copy() if template_variables is not None else {}
@@ -521,6 +509,12 @@ def _check_plot_objects(plot_objects):
         raise ValueError('Input must be a PlotObject, a Document, or a Sequence of PlotObjects and Document')
 
     return plot_objects
+
+def _check_one_plot_object(plot_object):
+    plot_objects = _check_plot_objects(plot_object)
+    if len(plot_objects) != 1:
+        raise ValueError("Input must be exactly one PlotObject or Document")
+    return plot_objects[0]
 
 def _div_for_render_item(item):
     return PLOT_DIV.render(elementid=item['elementid'])
