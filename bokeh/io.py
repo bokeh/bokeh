@@ -129,7 +129,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
     load_notebook(resources, verbose, hide_banner)
     _state.output_notebook()
 
-def output_server(self, session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
+def output_server(session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
     """Store Bokeh plots and objects on a Bokeh server.
 
     File, server, and notebook output may be active at the
