@@ -76,7 +76,9 @@ class ClientConnection(object):
         self._socket = None
         self._state = self.NOT_YET_CONNECTED()
         if io_loop is None:
-            io_loop = IOLoop.current()
+            # We can't use IOLoop.current because then we break
+            # when running inside a notebook since ipython also uses it
+            io_loop = IOLoop()
         self._loop = io_loop
         self._until_predicate = None
         self._protocol = Protocol("1.0")
