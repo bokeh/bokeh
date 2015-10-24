@@ -34,4 +34,4 @@ tsstep = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='step',
     title="Timeseries", tools=TOOLS, ylabel='Stock Prices')
 
-show(vplot(tsline,tsstep))
+show(vplot(tsline, tsstep))

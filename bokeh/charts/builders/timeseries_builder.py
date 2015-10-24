@@ -25,7 +25,6 @@ from ..attributes import DashAttr, ColorAttr
 from ...models.sources import ColumnDataSource
 from .line_builder import LineBuilder
 from .step_builder import StepBuilder
-# from .line_builder import LineBuilder
 
 # -----------------------------------------------------------------------------
 # Classes and functions
