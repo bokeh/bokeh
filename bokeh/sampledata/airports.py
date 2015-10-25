@@ -18,5 +18,6 @@ with open(os.path.join(_data_dir(), 'airports.json'), 'r') as data_file:
     data.rename(columns={'geometry.x': 'x', 'geometry.y': 'y'}, inplace=True)
 
 """
-The data in airports.json is a subset of US airports with field elevations > 1500 meter. The query result was taken from http://services.nationalmap.gov/arcgis/rest/services/GlobalMap/GlobalMapWFS/MapServer/10/query on October 15, 2015.
+The data in airports.json is a subset of US airports with field elevations > 1500 meter.
+The query result was taken from http://services.nationalmap.gov/arcgis/rest/services/GlobalMap/GlobalMapWFS/MapServer/10/query on October 15, 2015.
 """
