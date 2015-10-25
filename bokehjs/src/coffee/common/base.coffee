@@ -52,6 +52,7 @@ locations =
   TMSTileSource:            require '../renderer/tile/tms_tile_source'
   WMTSTileSource:           require '../renderer/tile/wmts_tile_source'
   QUADKEYTileSource:        require '../renderer/tile/quadkey_tile_source'
+  BBoxTileSource:           require '../renderer/tile/bbox_tile_source'
 
   GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 

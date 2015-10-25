@@ -8,6 +8,7 @@ MercatorTileSource = utils.require "renderer/tile/mercator_tile_source"
 TMSTileSource = utils.require "renderer/tile/tms_tile_source"
 WMTSTileSource = utils.require "renderer/tile/wmts_tile_source"
 QUADKEYTileSource = utils.require "renderer/tile/quadkey_tile_source"
+BBoxTileSource = utils.require "renderer/tile/bbox_tile_source"
 tile_utils = utils.require "renderer/tile/tile_utils"
 
 describe "projection utils", ->
@@ -113,6 +114,17 @@ describe "tile sources", ->
 
     it "should prune tiles", ->
 
+    it "should handle case-insensitive url parameters (template url)", ->
+      tile_options =
+        url : 'http://mock/{x}/{y}/{z}.png'
+      expect_url = 'http://mock/0/0/0.png'
+      tile_source = new TileSource(tile_options)
+      expect(tile_source.get_image_url(0,0,0)).to.be.equal(expect_url)
+
+      tile_options.url = 'http://mock/{X}/{Y}/{Z}.png'
+      tile_source = new TileSource(tile_options)
+      expect(tile_source.get_image_url(0,0,0)).to.be.equal(expect_url)
+
     it "should return tiles in ascending distance from center tile", ->
 
       tiles = []
@@ -200,6 +212,34 @@ describe "tile sources", ->
       expect(source.quadkey_to_tile_xyz('0')).to.be.eql([0, 0, 1])
       expect(source.quadkey_to_tile_xyz('00')).to.be.eql([0, 0, 2])
       expect(source.quadkey_to_tile_xyz('0000032320')).to.be.eql([20, 30, 10])
+
+  describe "bbox tile source", ->
+    tile_options =
+	    url : 'http://maps.ngdc.noaa.gov/soap/web_mercator/dem_hillshades/MapServer/WMSServer?request=GetMap&service=WMS&styles=default&version=1.3.0&format=image/png&bbox={XMIN},{YMIN},{XMAX},{YMAX}&width=256&height=256&crs=3857&layers=DEM%20Hillshades&BGCOLOR=0x000000&transparent=true'
+    source = new BBoxTileSource.Model(tile_options)
+
+    it "should get tiles for extent correctly", ->
+      T.expect_mercator_tile_counts(source)
+
+    it "should handle case-insensitive url parameters (template url)", ->
+
+      tile_options =
+        url : 'http://mock?bbox={xmin},{ymin},{xmax},{ymax}'
+
+      tile_source = new BBoxTileSource.Model(tile_options)
+      url = tile_source.get_image_url(0,0,0)
+      expect(url.indexOf('{xmin}')).to.be.equal(-1)
+      expect(url.indexOf('{ymin}')).to.be.equal(-1)
+      expect(url.indexOf('{xmax}')).to.be.equal(-1)
+      expect(url.indexOf('{ymax}')).to.be.equal(-1)
+
+      tile_options.url = 'http://mock?bbox={XMIN},{YMIN},{XMAX},{YMAX}'
+      tile_source = new BBoxTileSource.Model(tile_options)
+      url = tile_source.get_image_url(0,0,0)
+      expect(url.indexOf('{XMIN}')).to.be.equal(-1)
+      expect(url.indexOf('{YMIN}')).to.be.equal(-1)
+      expect(url.indexOf('{XMAX}')).to.be.equal(-1)
+      expect(url.indexOf('{YMAX}')).to.be.equal(-1)
 
   describe "mercator tile source", ->
 

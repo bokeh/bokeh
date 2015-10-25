@@ -30,20 +30,27 @@ class TileSource extends HasProperties
     @utils = new tile_utils.ProjectionUtils()
     @pool = new ImagePool()
     @tiles = {}
+    @normalize_case()
 
-    url = @get('url')
-    url = url.replace('{x}','{X}')
-    url = url.replace('{y}','{Y}')
-    url = url.replace('{z}','{Z}')
-    url = url.replace('{q}','{Q}')
-
-    @set('url', url)
 
   string_lookup_replace: (str, lookup) ->
     result_str = str
     for key, value of lookup
       result_str = result_str.replace('{'+key+'}', value.toString())
     return result_str
+
+  normalize_case:() ->
+    '''Note: should probably be refactored into subclasses.'''
+    url = @get('url')
+    url = url.replace('{x}','{X}')
+    url = url.replace('{y}','{Y}')
+    url = url.replace('{z}','{Z}')
+    url = url.replace('{q}','{Q}')
+    url = url.replace('{xmin}','{XMIN}')
+    url = url.replace('{ymin}','{YMIN}')
+    url = url.replace('{xmax}','{XMAX}')
+    url = url.replace('{ymax}','{YMAX}')
+    @set('url', url)
 
   update: () ->
     logger.info("Tile Cache Count: " + Object.keys(@tiles).length.toString())
