@@ -104,7 +104,6 @@ class TileRendererView extends PlotWidget
       sh = symax - symin
       sx = sxmin
       sy = symin
-      @map_canvas.globalAlpha = @mget('alpha')
       @map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
 
   _set_rect:() ->
@@ -118,6 +117,7 @@ class TileRendererView extends PlotWidget
   _render_tiles: (tile_keys) ->
     @map_canvas.save()
     @_set_rect()
+    @map_canvas.globalAlpha = @mget('alpha')
     for tile_key in tile_keys
       @_draw_tile(tile_key)
     @map_canvas.restore()
