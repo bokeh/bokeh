@@ -108,10 +108,11 @@ class TileRendererView extends PlotWidget
 
   _set_rect:() ->
     outline_width = @plot_view.outline_props.width.value()
-    @map_canvas.rect(
-      @map_frame.get('left') + outline_width/2, @map_frame.get('bottom') - outline_width/2,
-      @map_frame.get('width') - outline_width, @map_frame.get('height') - outline_width,
-    )
+    l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
+    t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
+    w = @map_frame.get('width') - outline_width
+    h = @map_frame.get('height') - outline_width
+    @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 
   _render_tiles: (tile_keys) ->
