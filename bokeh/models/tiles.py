@@ -72,7 +72,7 @@ class QUADKEYTileSource(TileSource):
 
 class BBoxTileSource(TileSource):
     """
-    The BBoxTileSource has the same default tile origin as the WMTSTileSource but requested tiles use a {XMIN}, {YMIN}, {XMAX}, {YMAX} in the templated url instead of {X},{Y},{Z}.
+    The BBoxTileSource has the same default tile origin as the WMTSTileSource but requested tiles use a {XMIN}, {YMIN}, {XMAX}, {YMAX}.
 
     Example url: http://your.custom.tile.serivce?bbox={XMIN},{YMIN},{XMAX},{YMAX}
     """
