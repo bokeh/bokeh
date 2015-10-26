@@ -20,7 +20,7 @@ from warnings import warn
 from .resources import Resources
 from .templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, PLOT_SCRIPT,
+    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG,
     JS_RESOURCES, CSS_RESOURCES
 )
 from .util.string import encode_utf8
@@ -373,7 +373,7 @@ def _script_for_render_items(docs_json, render_items, websocket_url, wrap_script
         )
     )
     if wrap_script:
-        return PLOT_SCRIPT.render(plot_js=plot_js)
+        return SCRIPT_TAG.render(js_code=plot_js)
     else:
         return plot_js
 

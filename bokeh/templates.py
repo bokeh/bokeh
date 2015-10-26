@@ -10,7 +10,7 @@ Bokeh models (e.g. plots, widgets, layouts) in various ways.
 .. bokeh-jinja:: bokeh.templates.NOTEBOOK_LOAD
 .. bokeh-jinja:: bokeh.templates.NOTEBOOK_DIV
 .. bokeh-jinja:: bokeh.templates.PLOT_DIV
-.. bokeh-jinja:: bokeh.templates.PLOT_SCRIPT
+.. bokeh-jinja:: bokeh.templates.SCRIPT_TAG
 
 '''
 from __future__ import absolute_import
@@ -22,8 +22,9 @@ _env = Environment(loader=PackageLoader('bokeh', '_templates'))
 JS_RESOURCES = _env.get_template("js_resources.html")
 CSS_RESOURCES = _env.get_template("css_resources.html")
 
+SCRIPT_TAG = _env.get_template("script_tag.html")
+
 PLOT_DIV = _env.get_template("plot_div.html")
-PLOT_SCRIPT = _env.get_template("plot_script.html")
 
 DOC_JS = _env.get_template("doc_js.js")
 
