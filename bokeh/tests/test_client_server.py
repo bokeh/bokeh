@@ -10,7 +10,7 @@ from bokeh.client import ClientConnection
 from bokeh.server.server import Server
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
-from bokeh.server.core.server_session import ServerSession
+from bokeh.server.session import ServerSession
 from tornado.ioloop import IOLoop
 import pytest
 
