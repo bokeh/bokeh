@@ -112,7 +112,11 @@ class Html(ApplicationsSubcommand):
 
         for (route, app) in applications.items():
             doc = app.create_document()
-            filename = route[1:] + ".html"
+            if route == "/":
+                filename = "index.html"
+            else:
+                filename = route[1:] + ".html"
+
             output_file(filename)
             save(doc)
 
