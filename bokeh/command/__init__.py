@@ -105,7 +105,7 @@ class Html(ApplicationsSubcommand):
 
     def __init__(self, **kwargs):
         super(Html, self).__init__(**kwargs)
-        self.parser.add_argument('--show', metavar='MODE', type=str, help="Open generated file(s) in a browser", default=None)
+        self.parser.add_argument('--show', action='store_true', help="Open generated file(s) in a browser")
 
     def func(self, args):
         applications = self.build_applications(args)
@@ -118,10 +118,9 @@ class Html(ApplicationsSubcommand):
                 filename = route[1:] + ".html"
 
             output_file(filename)
-            save(doc)
 
-            if args.show is not None:
-                show(doc, new=args.show)
+            if args.show:
+                show(doc, new='tab')
             else:
                 save(doc)
 
