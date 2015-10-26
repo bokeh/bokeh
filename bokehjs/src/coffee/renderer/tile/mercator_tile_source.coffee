@@ -14,14 +14,20 @@ class MercatorTileSource extends TileSource
       full_extent : [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
       x_origin_offset : 20037508.34
       y_origin_offset : 20037508.34
-      initial_resolution : 2 * Math.PI * 6378137 / 256
+      initial_resolution : undefined
       resolutions : undefined
     }
 
   constructor: ->
     super
+
+    # compensation for not knowing how to do computed default properties
+    # warning: order matters here...
+    if not @get('initial_resolution')?
+      @set('initial_resolution', 2 * Math.PI * 6378137 / @get('tile_size'))
+
     if not @get('resolutions')?
-      @set('resolutions', (@get_resolution(z) for z in [@get('min_zoom')..@get('max_zoom')]))
+      @set('resolutions', (@get_resolution(z) for z in [0..50]))
 
   retain_children:(reference_tile) ->
     quadkey = reference_tile.quadkey

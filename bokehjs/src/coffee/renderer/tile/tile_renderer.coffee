@@ -144,12 +144,32 @@ class TileRendererView extends PlotWidget
       @_create_tile(x, y, z, bounds)
 
   _update: () =>
+    min_zoom = @mget('tile_source').get('min_zoom')
+    max_zoom = @mget('tile_source').get('max_zoom')
+
     @mget('tile_source').update()
     extent = @get_extent()
     zooming_out = @extent[2] - @extent[0] < extent[2] - extent[0]
-    @extent = extent
 
     zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+    snap_back = false
+    if zoom_level < min_zoom
+      extent = @extent
+      zoom_level = min_zoom
+      snap_back = true
+
+    else if zoom_level > max_zoom
+      extent = @extent
+      zoom_level = max_zoom
+      snap_back = true
+
+    if snap_back
+      @plot_model.set({x_range:k})
+      @x_range.set(x_range:{start:extent[0], end: extent[2]})
+      @y_range.set({start:extent[1], end: extent[3]})
+      @extent = extent
+
+    @extent = extent
     tiles = @mget('tile_source').get_tiles_by_extent(extent, zoom_level)
 
     parents = []
