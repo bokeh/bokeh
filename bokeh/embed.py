@@ -216,6 +216,17 @@ def notebook_div(plot_object):
     )
     return encode_utf8(html)
 
+def _use_widgets(plot_objects):
+    from .models.widgets import Widget
+    for o in plot_objects:
+        if isinstance(o, Document):
+            if _use_widgets(o.roots):
+                return True
+        else:
+            if any(isinstance(model, Widget) for model in o.references()):
+                return True
+    return False
+
 def file_html(plot_objects,
               resources,
               title,
@@ -252,7 +263,8 @@ def file_html(plot_objects,
     (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
     return _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url=None,
                                        js_resources=js_resources, css_resources=css_resources,
-                                       template=template, template_variables=template_variables)
+                                       template=template, template_variables=template_variables,
+                                       use_widgets=_use_widgets(plot_objects))
 
 # TODO rename this "standalone"?
 def autoload_static(plot_object, resources, script_path):
@@ -378,7 +390,7 @@ def _script_for_render_items(docs_json, render_items, websocket_url, wrap_script
 
 def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url,
                                 js_resources=None, css_resources=None, template=FILE,
-                                template_variables={}):
+                                template_variables={}, use_widgets=True):
     if resources:
         if js_resources:
             warn('Both resources and js_resources provided. resources will override js_resources.')
@@ -392,12 +404,14 @@ def _html_page_for_render_items(resources, docs_json, render_items, title, webso
     if js_resources:
         if not css_resources:
             warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+        js_resources = js_resources.use_widgets(use_widgets)
         bokeh_js = js_resources.render_js()
 
     bokeh_css = ''
     if css_resources:
         if not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+        css_resources = css_resources.use_widgets(use_widgets)
         bokeh_css = css_resources.render_css()
 
     script = _script_for_render_items(docs_json, render_items, websocket_url)
