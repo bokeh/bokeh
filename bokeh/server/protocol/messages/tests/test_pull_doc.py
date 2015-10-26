@@ -28,11 +28,11 @@ class TestPullDocument(unittest.TestCase):
 
     def test_create_reply(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakesession', sample)
+        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', 'fakesession', sample)
 
     def test_create_reply_then_parse(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakesession', sample)
+        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', 'fakesession', sample)
         copy = document.Document()
         msg.push_to_document(copy)
         assert len(sample.roots) == 2
