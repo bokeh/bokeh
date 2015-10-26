@@ -1,6 +1,6 @@
 from __future__ import  absolute_import
 
-from bokeh.models.annotations import Legend, BoxAnnotation, Span
+from bokeh.models.annotations import Legend, BoxAnnotation, Span, Arrow
 from bokeh.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
@@ -140,3 +140,18 @@ def test_Span():
         "level",
         "render_mode"
     ], LINE)
+
+def test_Arrow():
+    arrow = Arrow()
+    assert arrow.plot is None
+    assert arrow.xs is None
+    assert arrow.ys is None
+    assert arrow.level == 'annotation'
+    yield check_line, arrow
+    yield check_fill, arrow
+    yield (check_props, arrow, [
+        "plot",
+        "xs",
+        "ys",
+        "level"
+    ], LINE, FILL)

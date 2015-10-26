@@ -191,3 +191,28 @@ class Span(Annotation):
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the span.
     """)
+
+class Arrow(Annotation):
+    """ Render an arrow annotation.
+
+    """
+
+    xs = Tuple(Float, help="""
+    The x coordinates for the arrow with the first element being the head
+    """)
+
+    ys = Tuple (Float, help="""
+    The y coordinates for the arrow with the first element being the head
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the shades.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the shades.
+    """)
+
+    level = Enum(RenderLevel, default="annotation", help="""
+    Specifies the level in which to render the arrow.
+    """)
