@@ -20,8 +20,7 @@ from warnings import warn
 from .resources import Resources
 from .templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG,
-    JS_RESOURCES, CSS_RESOURCES
+    NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
 from .util.string import encode_utf8
 
@@ -393,13 +392,13 @@ def _html_page_for_render_items(resources, docs_json, render_items, title, webso
     if js_resources:
         if not css_resources:
             warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_js = JS_RESOURCES.render(js_raw=js_resources.js_raw, js_files=js_resources.js_files)
+        bokeh_js = js_resources.render_js()
 
     bokeh_css = ''
     if css_resources:
         if not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
+        bokeh_css = css_resources.render_css()
 
     script = _script_for_render_items(docs_json, render_items, websocket_url)
 
