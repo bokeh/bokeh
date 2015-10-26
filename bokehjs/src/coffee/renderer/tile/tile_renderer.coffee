@@ -23,6 +23,7 @@ class TileRendererView extends PlotWidget
     @x_mapper = this.map_frame.get('x_mappers')['default']
     @y_range = @map_plot.get('y_range')
     @y_mapper = this.map_frame.get('y_mappers')['default']
+    @extent = @get_extent()
 
   _map_data: () ->
     @initial_extent = @get_extent()
@@ -145,12 +146,16 @@ class TileRendererView extends PlotWidget
   _update: () =>
     @mget('tile_source').update()
     extent = @get_extent()
+    zooming_out = @extent[2] - @extent[0] < extent[2] - extent[0]
+    @extent = extent
+
     zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
     tiles = @mget('tile_source').get_tiles_by_extent(extent, zoom_level)
 
     parents = []
     need_load = []
     cached = []
+    children = []
 
     for t in tiles
       [x, y, z, bounds] = t
@@ -158,15 +163,27 @@ class TileRendererView extends PlotWidget
         key = @mget('tile_source').tile_xyz_to_key(x, y, z)
         if key of @mget('tile_source').tiles
           cached.push(key)
+
         else
+
           [px, py, pz] = @mget('tile_source').get_closest_parent_by_tile_xyz(x, y, z)
           parent_key = @mget('tile_source').tile_xyz_to_key(px, py, pz)
-          if parent_key of @mget('tile_source').tiles
+          if parent_key of @mget('tile_source').tiles and parent_key not in parents
             parents.push(parent_key)
+
+          if zooming_out
+            children = @mget('tile_source').children_by_tile_xyz(x, y, z)
+            for c in children
+              [cx, cy, cz, cbounds] = c
+              child_key = @mget('tile_source').tile_xyz_to_key(cx, cy, cz)
+              if child_key of @mget('tile_source').tiles
+                children.push(child_key)
+
           need_load.push(t)
 
     # draw stand-in parents ----------
     @_render_tiles(parents)
+    @_render_tiles(children)
 
     # draw cached ----------
     @_render_tiles(cached)
