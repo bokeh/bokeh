@@ -7,7 +7,6 @@ import bs4
 
 import bokeh.embed as embed
 from bokeh.resources import CDN, INLINE, Resources, JSResources, CSSResources
-from bokeh.templates import JS_RESOURCES, CSS_RESOURCES
 from bokeh.plotting import figure
 from jinja2 import Template
 from six import string_types
@@ -151,11 +150,11 @@ class TestFileHTML(unittest.TestCase):
 
 
 def test_file_html_handles_js_only_resources():
-    js_resources = JSResources()
+    js_resources = JSResources(mode="relative")
     template = Template("<head>{{ bokeh_js }}</head><body></body>")
     output = embed.file_html(_embed_test_plot, None, "title", template=template, js_resources=js_resources)
-    rendered_js = JS_RESOURCES.render(js_raw=js_resources.js_raw)
-    assert output == "<head>%s</head><body></body>" % rendered_js
+    html = "<head>%s</head><body></body>" % js_resources.use_widgets(False).render_js()
+    assert output == html
 
 
 @mock.patch('bokeh.embed.warn')
@@ -186,11 +185,11 @@ def test_file_html_provides_warning_if_both_resources_and_css_provided(mock_warn
 
 
 def test_file_html_handles_css_only_resources():
-    css_resources = CSSResources()
+    css_resources = CSSResources(mode="relative")
     template = Template("<head>{{ bokeh_css }}</head><body></body>")
     output = embed.file_html(_embed_test_plot, None, "title", template=template, css_resources=css_resources)
-    rendered_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw)
-    assert output == "<head>%s</head><body></body>" % rendered_css
+    html = "<head>%s</head><body></body>" % css_resources.use_widgets(False).render_css()
+    assert output == html
 
 
 @mock.patch('bokeh.embed.warn')

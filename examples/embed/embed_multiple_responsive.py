@@ -2,7 +2,6 @@ from bokeh.browserlib import view
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.resources import INLINE
-from bokeh.templates import JS_RESOURCES, CSS_RESOURCES
 
 from jinja2 import Template
 import random
@@ -46,15 +45,8 @@ template = Template('''<!DOCTYPE html>
 
 resources = INLINE
 
-js_resources = JS_RESOURCES.render(
-    js_raw=resources.js_raw,
-    js_files=resources.js_files
-)
-
-css_resources = CSS_RESOURCES.render(
-    css_raw=resources.css_raw,
-    css_files=resources.css_files
-)
+js_resources = resources.render_js()
+css_resources = resources.render_css()
 
 script, div = components({'red': red, 'blue': blue, 'green': green})
 
