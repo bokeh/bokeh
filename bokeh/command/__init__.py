@@ -8,8 +8,7 @@ from bokeh.settings import settings
 from bokeh.application import Application
 from bokeh.server.server import Server
 from bokeh.application.spellings import ScriptHandler, DirectoryHandler
-from bokeh.io import output_file, save
-from bokeh import browserlib
+from bokeh.io import output_file, save, show
 
 import logging
 log = logging.getLogger(__name__)
@@ -76,7 +75,7 @@ class Serve(ApplicationsSubcommand):
     def __init__(self, **kwargs):
         super(Serve, self).__init__(**kwargs)
         self.parser.add_argument('--port', metavar='PORT', type=int, help="Port to listen on", default=-1)
-        self.parser.add_argument('--develop', type=bool, help="Enable develop-time features that should not be used in production", default=False)
+        self.parser.add_argument('--develop', action='store_true', help="Enable develop-time features that should not be used in production")
         self.port = 5006
         self.develop_mode = False
         self.server = None
@@ -106,6 +105,7 @@ class Html(ApplicationsSubcommand):
 
     def __init__(self, **kwargs):
         super(Html, self).__init__(**kwargs)
+        self.parser.add_argument('--show', metavar='MODE', type=str, help="Open generated file(s) in a browser", default=None)
 
     def func(self, args):
         applications = self.build_applications(args)
@@ -116,11 +116,10 @@ class Html(ApplicationsSubcommand):
             output_file(filename)
             save(doc)
 
-            # TODO: the following 2 settings should be supported as a cmd arg
-            open_mode  = 2# new = 'tab': 2, 'window': 1
-            browser = None
-            controller = browserlib.get_browser_controller(browser=browser)
-            controller.open("file://" + os.path.abspath(filename), new=open_mode)
+            if args.show is not None:
+                show(doc, new=args.show)
+            else:
+                save(doc)
 
 subcommands = [Serve, Html]
 
