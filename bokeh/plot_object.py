@@ -5,7 +5,6 @@ logger = logging.getLogger(__file__)
 
 from six import add_metaclass, iteritems
 
-from .exceptions import DataIntegrityException
 from .properties import Any, HasProps, List, MetaHasProps, Instance, String
 from .query import find
 from . import themes
@@ -150,7 +149,7 @@ class PlotObject(HasProps, CallbackManager):
         '''
         result = list(self.select(selector))
         if len(result) > 1:
-            raise DataIntegrityException("found more than one object matching %s" % selector)
+            raise ValueError("found more than one object matching %s" % selector)
         if len(result) == 0:
             return None
         return result[0]
