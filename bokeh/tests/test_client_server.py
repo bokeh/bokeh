@@ -5,7 +5,7 @@ import unittest
 import logging
 import bokeh.document as document
 from bokeh.application import Application
-from bokeh.spellings import FunctionHandler
+from bokeh.application.spellings import FunctionHandler
 from bokeh.client import ClientConnection
 from bokeh.server.server import Server
 from bokeh.plot_object import PlotObject
