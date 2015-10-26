@@ -13,16 +13,15 @@ p.xaxis.axis_label = 'Petal Length'
 p.yaxis.axis_label = 'Petal Width'
 
 p.circle(flowers["petal_length"], flowers["petal_width"],
-        color=flowers["color"], fill_alpha=0.2, size=10)
-p.line(x=[3, 7], y=[2.25, 1.05], color='black', line_dash='dashed')
+        color=flowers["color"], fill_alpha=0.3, size=10)
+p.line(x=[3, 7], y=[2.25, 1.05], color='orange', alpha=0.5, line_dash='8 4', line_width=3)
 
-label_props = dict(level='underlay',
-                   label_text_font_size='50pt',
+label_props = dict(label_text_font_size='40pt',
                    label_text_align='center',
-                   label_text_color='#CFCFCF')
+                   label_text_alpha=0.5)
 
-versicolor_label = Label(text='Versicolor', x=4.5, y=1.2, **label_props)
-virginica_label = Label(text='Virginica', x=5.5, y=2.1, **label_props)
+versicolor_label = Label(text='Versicolor', x=5.3, y=1.1, label_text_color='green', **label_props)
+virginica_label = Label(text='Virginica', x=4.4, y=2.2, label_text_color='blue', **label_props)
 
 p.renderers.extend([versicolor_label, virginica_label])
 
