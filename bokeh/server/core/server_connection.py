@@ -38,15 +38,15 @@ class ServerConnection(object):
     def error(self, message, text):
         return self.protocol.create('ERROR', message.header['msgid'], text)
 
-    def send_patch_document(self, sessionid, event):
-        msg = self.protocol.create('PATCH-DOC', sessionid, [event])
+    def send_patch_document(self, session_id, event):
+        msg = self.protocol.create('PATCH-DOC', session_id, [event])
         self._socket.send_message(msg)
 
-    def create_session_if_needed(self, sessionid):
-        return self._tornado_app.create_session_if_needed(self._application, sessionid)
+    def create_session_if_needed(self, session_id):
+        return self._tornado_app.create_session_if_needed(self._application, session_id)
 
-    def get_session(self, sessionid):
-        return self._tornado_app.get_session(sessionid)
+    def get_session(self, session_id):
+        return self._tornado_app.get_session(session_id)
 
     @property
     def protocol(self):

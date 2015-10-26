@@ -140,23 +140,23 @@ class BokehTornado(TornadoApplication):
             session = next(iter(connection.subscribed_sessions))
             connection.unsubscribe_session(session)
 
-    def create_session_if_needed(self, application, sessionid):
-        # this is because empty sessionids would be "falsey" and
+    def create_session_if_needed(self, application, session_id):
+        # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
-        if len(sessionid) == 0:
+        if len(session_id) == 0:
             raise ProtocolError("Session ID must not be empty")
 
-        if sessionid not in self._sessions:
+        if session_id not in self._sessions:
             doc = application.create_document()
-            session = ServerSession(sessionid, doc)
-            self._sessions[sessionid] = session
+            session = ServerSession(session_id, doc)
+            self._sessions[session_id] = session
 
-    def get_session(self, sessionid):
-        if sessionid in self._sessions:
-            session = self._sessions[sessionid]
+    def get_session(self, session_id):
+        if session_id in self._sessions:
+            session = self._sessions[session_id]
             return session
         else:
-            raise ProtocolError("No such session " + sessionid)
+            raise ProtocolError("No such session " + session_id)
 
     def discard_session(self, session):
         if session.connection_count > 0:

@@ -23,12 +23,12 @@ class ServerSession(object):
 
     '''
 
-    def __init__(self, sessionid, document):
-        if sessionid is None:
+    def __init__(self, session_id, document):
+        if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
             raise ValueError("Sessions must have a document")
-        self._id = sessionid
+        self._id = session_id
         self._document = document
         self._subscribed_connections = set()
         self._last_unsubscribe_time = current_time()
