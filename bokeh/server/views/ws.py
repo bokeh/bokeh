@@ -14,7 +14,6 @@ from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
-from ..core.server_task import ServerTask
 from ..protocol import Protocol
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver

@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 from tornado import gen
 
-from ..core.server_session import ServerSession
+from ..session import ServerSession
 from ..exceptions import ProtocolError
 
 class ServerHandler(object):
