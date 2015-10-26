@@ -41,7 +41,7 @@ for cat in cats:
 
 output_server('boxplot')
 
-p = figure(tools="previewsave", background_fill="#EFE8E2", title="", x_range=cats)
+p = figure(tools="previewsave", background_fill_color="#EFE8E2", title="", x_range=cats)
 
 # If no outliers, shrink lengths of stems to be no longer than the minimums or maximums
 qmin = groups.quantile(q=0.00)

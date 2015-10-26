@@ -334,7 +334,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if arg in kw:
             setattr(plot, arg, kw.pop(arg))
 
-    fill_args = ["background_fill", "border_fill"]
+    fill_args = ["background_fill_color", "border_fill_color"]
     for arg in fill_args:
         if arg in kw:
             setattr(plot, arg, kw.pop(arg))
