@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 
 import unittest
 
-from bokeh.spellings import ScriptHandler
+from bokeh.application.spellings import ScriptHandler
 from bokeh.document import Document
 
 def _with_temp_file(func):
