@@ -1,8 +1,10 @@
+{%- if custom_models -%}
 Bokeh.Collections.register_models({
   {% for name, impl in custom_models.items() -%}
     "{{ name }}": {{ impl }},
   {%- endfor %}
 });
+{% endif -%}
 
 {% if websocket_url -%}
   var websocket_url = "{{ websocket_url }}";
