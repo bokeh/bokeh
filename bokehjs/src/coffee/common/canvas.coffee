@@ -31,9 +31,7 @@ class CanvasView extends ContinuumView
     @canvas_overlay = @$('div.bk-canvas-overlays')
     @map_div = @$('div.bk-canvas-map') ? null
 
-    # Create context. This is the object that gets passed arount while drawing
-    @ctx = @canvas[0].getContext('2d')
-    @ctx.glcanvas = null  # init without webgl support (can be overriden in plot.coffee)
+    @ctx = @_get_context(@canvas[0])
 
     logger.debug("CanvasView initialized")
 
@@ -68,14 +66,19 @@ class CanvasView extends ContinuumView
     @ctx.scale(ratio, ratio)
     @ctx.translate(0.5, 0.5)
 
-    # work around canvas incompatibilities
-    # todo: this is done ON EACH DRAW, is that intended?
-    @_fixup_line_dash(@ctx)
-    @_fixup_line_dash_offset(@ctx)
-    @_fixup_image_smoothing(@ctx)
-    @_fixup_measure_text(@ctx)
-
     @model.new_bounds = false
+
+  _get_context: (canvas) ->
+    ctx = canvas.getContext('2d')
+    ctx.glcanvas = null           # init without webgl support (can be overriden in plot.coffee)
+
+    # work around canvas incompatibilities
+    @_fixup_line_dash(ctx)
+    @_fixup_line_dash_offset(ctx)
+    @_fixup_image_smoothing(ctx)
+    @_fixup_measure_text(ctx)
+
+    ctx
 
   _fixup_line_dash: (ctx) ->
     if (!ctx.setLineDash)
@@ -96,10 +99,10 @@ class CanvasView extends ContinuumView
 
   _fixup_image_smoothing: (ctx) ->
     ctx.setImageSmoothingEnabled = (value) ->
-      ctx.imageSmoothingEnabled = value;
-      ctx.mozImageSmoothingEnabled = value;
-      ctx.oImageSmoothingEnabled = value;
-      ctx.webkitImageSmoothingEnabled = value;
+      ctx.imageSmoothingEnabled = value
+      ctx.mozImageSmoothingEnabled = value
+      ctx.oImageSmoothingEnabled = value
+      ctx.webkitImageSmoothingEnabled = value
     ctx.getImageSmoothingEnabled = () ->
       return ctx.imageSmoothingEnabled ? true
 
