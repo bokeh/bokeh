@@ -29,7 +29,8 @@ scatter4 = Scatter(
 
 # Example with nested json/dict like data, which has been pre-aggregated and pivoted
 df2 = df_from_json(data)
-df2 = df2.sort('medals.total', ascending=False)
+df2 = df2.sort('total', ascending=False)
+
 df2 = df2.head(10)
 df2 = pd.melt(df2, id_vars=['abbr', 'name'])
 
@@ -43,7 +44,7 @@ scatter6 = Scatter(flowers, x=blend('petal_length', 'sepal_length', name='length
                    title='x=petal_length+sepal_length, y=petal_width+sepal_width, color=species',
                    legend='top_right')
 
-output_file("scatter.html")
+output_file("scatter_multi.html")
 
 show(vplot(
     hplot(scatter0, scatter1),

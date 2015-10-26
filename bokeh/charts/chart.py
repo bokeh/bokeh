@@ -20,12 +20,13 @@ the generation of several outputs (file, server, notebook).
 
 from __future__ import absolute_import
 
-from six import iteritems
-import numpy as np
 from collections import defaultdict
 
-from ._chart_options import ChartOptions
+import numpy as np
+from six import iteritems
+
 from . import defaults
+from .chart_options import ChartOptions
 from ..browserlib import view
 from ..document import Document
 from ..embed import file_html
@@ -82,11 +83,15 @@ class Chart(Plot):
 
         # Initializes then gets default properties
         super(Chart, self).__init__(id=self._options.id or make_id())
+
+        # create new chart options to get default properties with values
         default_props = ChartOptions().properties_with_values()
+
+        # get the properties and values from the module-wide defaults object
         option_props = ChartOptions.properties_with_values(defaults)
         option_props.pop('id')
 
-        # sets overridden defaults
+        # if the module defaults differs from ChartOptions defaults, use that value
         # ToDo: allow Chart/Plot properties as well as ChartOptions
         for option, value in iteritems(option_props):
             if value != default_props[option]:

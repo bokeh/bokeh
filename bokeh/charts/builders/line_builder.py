@@ -19,11 +19,11 @@ from __future__ import absolute_import
 
 from six import iteritems
 from itertools import chain
-from .._builder import XYBuilder, create_and_build
+from ..builder import XYBuilder, create_and_build
 from ..glyphs import LineGlyph
-from .._attributes import DashAttr, ColorAttr
+from ..attributes import DashAttr, ColorAttr
+from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
-
 
 # -----------------------------------------------------------------------------
 # Classes and functions
@@ -31,24 +31,37 @@ from ...models.sources import ColumnDataSource
 
 
 def Line(data=None, x=None, y=None, **kws):
-    """ Create a line chart using :class:`LineBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
-    render the geometry from values and index.
+    """ Create a line chart using :class:`LineBuilder <bokeh.charts.builders.line_builder.LineBuilder>` to
+    render the glyphs.
+
+    The line chart is typically is used with column oriented data, where each column
+    contains comparable measurements and the column names are treated as a categorical
+    variable for differentiating the measurement values. One of the columns can be used as
+    an index for either the x or y axis.
+
+    .. note::
+        Only the x or y axis can display multiple variables, while the other is used
+        as an index.
 
     Args:
-        values (iterable): iterable 2d representing the data series
-            values matrix.
-        index (str|1d iterable, optional): can be used to specify a common custom
-            index for all data series as an **1d iterable** of any sort that will be used as
-            series common index or a **string** that corresponds to the key of the
-            mapping to be used as index (and not as data series) if
-            area.values is a mapping (like a dict, an OrderedDict
-            or a pandas DataFrame)
+        data (list(list), numpy.ndarray, pandas.DataFrame, list(pd.Series)): a 2d data
+            source with columns of data for each line.
+        x (str or list(str), optional): specifies variable(s) to use for x axis
+        y (str or list(str), optional): specifies variable(s) to use for y axis
 
     In addition the the parameters specific to this chart,
-    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
+
+    .. note::
+        This chart type differs on input types as compared to other charts,
+        due to the way that line charts typically are plotting labeled series. For
+        example, a column for APPL stock prices over time. Another way this could be
+        plotted is to have a DataFrame with a column of `stock_label` and columns of
+        `price`, which is the stacked format. Both should be supported, but the former
+        is the expected one. Internally, the latter format is being derived.
 
     Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
+        :class:`Chart`: includes glyph renderers that generate the lines
 
     Examples:
 
@@ -87,6 +100,8 @@ class LineBuilder(XYBuilder):
 
     dimensions = ['y', 'x']
 
+    column_selector = NumericalColumnsAssigner
+
     @property
     def measures(self):
         if isinstance(self.y.selection, list):
@@ -100,7 +115,7 @@ class LineBuilder(XYBuilder):
     def measure_input(self):
         return isinstance(self.y.selection, list) or isinstance(self.x.selection, list)
 
-    def _setup(self):
+    def setup(self):
         """Handle input options that require transforming data and/or user selections."""
 
         # handle special case of inputs as measures
@@ -169,7 +184,7 @@ class LineBuilder(XYBuilder):
         # update our dimension with the updated data
         dim_prop.set_data(self._data)
 
-    def _yield_renderers(self):
+    def yield_renderers(self):
         for group in self._data.groupby(**self.attributes):
             glyph = LineGlyph(x=group.get_values(self.x.selection),
                               y=group.get_values(self.y.selection),

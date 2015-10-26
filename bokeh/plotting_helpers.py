@@ -20,6 +20,8 @@ from .properties import ColorSpec, Datetime
 from .util.string import nice_join
 import warnings
 
+DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+
 def get_default_color(plot=None):
     colors = [
       "#1f77b4",

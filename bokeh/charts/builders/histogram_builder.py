@@ -20,7 +20,7 @@ from __future__ import absolute_import
 from ...models import Range1d
 from ...properties import Bool, Int
 
-from .._builder import create_and_build
+from ..builder import create_and_build
 from .bar_builder import BarBuilder
 from ..glyphs import HistogramGlyph
 
@@ -32,7 +32,49 @@ from ..glyphs import HistogramGlyph
 def Histogram(data, values=None, label=None, color=None, agg="count",
               bins=None, yscale="linear", xgrid=False, ygrid=True,
               continuous_range=None, **kw):
+    """ Create a histogram chart with one or more histograms.
 
+    Create a histogram chart using :class:`HistogramBuilder
+    <bokeh.charts.builders.histogram_builder.HistogramBuilder>` to
+    render the glyphs from input data and specification. This primary
+    use case for the histogram is to depict the distribution of a
+    variable by binning and aggregating the values in each bin.
+
+    This chart implements functionality to provide convenience in optimal
+    selection of bin count, but also for segmenting and comparing segments of
+    the variable by a categorical variable.
+
+    Args:
+      data (:ref:`userguide_charts_data_types`): the data source for the chart
+      values (str, optional): the values to use for producing the histogram using
+        table-like input data
+      label (str or list(str), optional): the categorical variable to use for creating
+        separate histograms
+      color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
+        categorical variable or color attribute specification to use for coloring the
+        histogram.
+      agg (str, optional): how to aggregate the bins. Defaults to "count".
+      bins (int, optional): the number of bins to use. Defaults to None to auto select.
+      **kw:
+
+    Returns:
+        :class:`Chart`: includes glyph renderers that generate the histograms
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.sampledata.autompg import autompg as df
+        from bokeh.charts import Histogram, output_file, show, hplot
+
+        hist = Histogram(df, values='mpg', title="Auto MPG Histogram", width=400)
+        hist2 = Histogram(df, values='mpg', label='cyl', color='cyl', legend='top_right',
+                          title="MPG Histogram by Cylinder Count", width=400)
+
+        output_file('hist.html')
+        show(hplot(hist, hist2))
+    """
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(
             "continuous_range must be an instance of bokeh.models.ranges.Range1d"
@@ -79,8 +121,8 @@ class HistogramBuilder(BarBuilder):
 
     glyph = HistogramGlyph
 
-    def _setup(self):
-        super(HistogramBuilder, self)._setup()
+    def setup(self):
+        super(HistogramBuilder, self).setup()
 
         if self.attributes['color'].columns is not None:
             self.fill_alpha = 0.6
@@ -88,7 +130,7 @@ class HistogramBuilder(BarBuilder):
     def get_extra_args(self):
         return dict(bin_count=self.bins)
 
-    def _set_ranges(self):
+    def set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """

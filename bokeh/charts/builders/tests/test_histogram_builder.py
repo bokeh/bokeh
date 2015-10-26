@@ -14,17 +14,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from bokeh.charts.builder.bar_builder import BarBuilder
-from bokeh.charts.stats import CountDistinct
+from bokeh.charts.builders.histogram_builder import HistogramBuilder
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def test_cat_list_input(test_data):
-    num_items = CountDistinct(values=test_data.cat_list).value
-    bar_builder = BarBuilder(test_data.cat_list)
-    bar_builder.create()
-    assert len(bar_builder.comp_glyphs) == num_items
+def test_series_input(test_data):
+    hist_builder = HistogramBuilder(test_data.auto_data.mpg.values)
+    hist_builder.create()
+    assert len(hist_builder.comp_glyphs) > 0
 
