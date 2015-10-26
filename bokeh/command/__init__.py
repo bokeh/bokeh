@@ -9,6 +9,7 @@ from bokeh.application import Application
 from bokeh.server.server import Server
 from bokeh.application.spellings import ScriptHandler, DirectoryHandler
 from bokeh.io import output_file, save
+from bokeh import browserlib
 
 import logging
 log = logging.getLogger(__name__)
@@ -111,8 +112,15 @@ class Html(ApplicationsSubcommand):
 
         for (route, app) in applications.items():
             doc = app.create_document()
-            output_file(route[1:] + ".html")
+            filename = route[1:] + ".html"
+            output_file(filename)
             save(doc)
+
+            # TODO: the following 2 settings should be supported as a cmd arg
+            open_mode  = 2# new = 'tab': 2, 'window': 1
+            browser = None
+            controller = browserlib.get_browser_controller(browser=browser)
+            controller.open("file://" + os.path.abspath(filename), new=open_mode)
 
 subcommands = [Serve, Html]
 
