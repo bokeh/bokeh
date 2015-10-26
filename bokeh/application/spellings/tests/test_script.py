@@ -25,15 +25,15 @@ from bokeh.io import curdoc
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
 
-class AnotherModel(PlotObject):
+class AnotherModelInTestScript(PlotObject):
     bar = Int(1)
 
-class SomeModel(PlotObject):
+class SomeModelInTestScript(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
 
-curdoc().add_root(AnotherModel())
-curdoc().add_root(SomeModel())
+curdoc().add_root(AnotherModelInTestScript())
+curdoc().add_root(SomeModelInTestScript())
 """
 
 class TestScriptHandler(unittest.TestCase):

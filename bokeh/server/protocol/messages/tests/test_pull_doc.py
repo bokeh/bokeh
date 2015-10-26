@@ -7,10 +7,10 @@ from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
 from bokeh.server.protocol import Protocol
 
-class AnotherModel(PlotObject):
+class AnotherModelInTestPullDoc(PlotObject):
     bar = Int(1)
 
-class SomeModel(PlotObject):
+class SomeModelInTestPullDoc(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
 
@@ -18,9 +18,9 @@ class TestPullDocument(unittest.TestCase):
 
     def _sample_doc(self):
         doc = document.Document()
-        another = AnotherModel()
-        doc.add_root(SomeModel(child=another))
-        doc.add_root(SomeModel())
+        another = AnotherModelInTestPullDoc()
+        doc.add_root(SomeModelInTestPullDoc(child=another))
+        doc.add_root(SomeModelInTestPullDoc())
         return doc
 
     def test_create_req(self):

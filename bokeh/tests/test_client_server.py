@@ -14,10 +14,10 @@ from bokeh.server.session import ServerSession
 from tornado.ioloop import IOLoop
 import pytest
 
-class AnotherModel(PlotObject):
+class AnotherModelInTestClientServer(PlotObject):
     bar = Int(1)
 
-class SomeModel(PlotObject):
+class SomeModelInTestClientServer(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
 
@@ -75,8 +75,8 @@ class TestClientServer(unittest.TestCase):
             assert connection.connected
 
             doc = document.Document()
-            doc.add_root(AnotherModel(bar=43))
-            doc.add_root(SomeModel(foo=42))
+            doc.add_root(AnotherModelInTestClientServer(bar=43))
+            doc.add_root(SomeModelInTestClientServer(foo=42))
 
             client_session = connection.push_session(doc, 'test_push_document')
             assert client_session.document == doc
@@ -101,8 +101,8 @@ class TestClientServer(unittest.TestCase):
     def test_pull_document(self):
         application = Application()
         def add_roots(doc):
-            doc.add_root(AnotherModel(bar=43))
-            doc.add_root(SomeModel(foo=42))
+            doc.add_root(AnotherModelInTestClientServer(bar=43))
+            doc.add_root(SomeModelInTestClientServer(foo=42))
         handler = FunctionHandler(add_roots)
         application.add(handler)
 
@@ -156,7 +156,7 @@ class TestClientServer(unittest.TestCase):
             assert connection.connected
 
             doc = document.Document()
-            client_root = SomeModel(foo=42)
+            client_root = SomeModelInTestClientServer(foo=42)
 
             client_session = connection.push_session(doc, 'test_client_changes_go_to_server')
             server_session = server.get_session(client_session.id)
@@ -205,7 +205,7 @@ class TestClientServer(unittest.TestCase):
             server_session = server.get_session(client_session.id)
 
             assert len(client_session.document.roots) == 0
-            server_root = SomeModel(foo=42)
+            server_root = SomeModelInTestClientServer(foo=42)
             server_session.document.add_root(server_root)
             def client_has_root():
                 return len(doc.roots) > 0
@@ -247,7 +247,7 @@ def test_client_changes_do_not_boomerang(monkeypatch):
         assert connection.connected
 
         doc = document.Document()
-        client_root = SomeModel(foo=42)
+        client_root = SomeModelInTestClientServer(foo=42)
         doc.add_root(client_root)
 
         client_session = connection.push_session(doc, 'test_client_changes_do_not_boomerang')
@@ -296,7 +296,7 @@ def test_server_changes_do_not_boomerang(monkeypatch):
         assert connection.connected
 
         doc = document.Document()
-        client_root = SomeModel(foo=42)
+        client_root = SomeModelInTestClientServer(foo=42)
         doc.add_root(client_root)
 
         client_session = connection.push_session(doc, 'test_server_changes_do_not_boomerang')

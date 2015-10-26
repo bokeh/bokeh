@@ -7,10 +7,10 @@ from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
 from bokeh.server.protocol import Protocol
 
-class AnotherModel(PlotObject):
+class AnotherModelInTestPatchDoc(PlotObject):
     bar = Int(1)
 
-class SomeModel(PlotObject):
+class SomeModelInTestPatchDoc(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
 
@@ -18,9 +18,9 @@ class TestPatchDocument(unittest.TestCase):
 
     def _sample_doc(self):
         doc = document.Document()
-        another = AnotherModel()
-        doc.add_root(SomeModel(child=another))
-        doc.add_root(SomeModel())
+        another = AnotherModelInTestPatchDoc()
+        doc.add_root(SomeModelInTestPatchDoc(child=another))
+        doc.add_root(SomeModelInTestPatchDoc())
         return doc
 
     def test_create_model_changed(self):
@@ -62,7 +62,7 @@ class TestPatchDocument(unittest.TestCase):
                 other_root = r
         assert root is not None
         assert other_root is not None
-        new_child = AnotherModel(bar=56)
+        new_child = AnotherModelInTestPatchDoc(bar=56)
 
         # integer property changed
         event1 = document.ModelChangedEvent(sample, root, 'foo', root.foo, 42)

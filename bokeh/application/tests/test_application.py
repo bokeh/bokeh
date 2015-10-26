@@ -8,10 +8,10 @@ from bokeh.document import Document
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
 
-class AnotherModel(PlotObject):
+class AnotherModelInTestApplication(PlotObject):
     bar = Int(1)
 
-class SomeModel(PlotObject):
+class SomeModelInTestApplication(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
 
@@ -25,8 +25,8 @@ class TestApplication(unittest.TestCase):
     def test_one_handler(self):
         a = Application()
         def add_roots(doc):
-            doc.add_root(AnotherModel())
-            doc.add_root(SomeModel())
+            doc.add_root(AnotherModelInTestApplication())
+            doc.add_root(SomeModelInTestApplication())
         handler = FunctionHandler(add_roots)
         a.add(handler)
         doc = a.create_document()
@@ -35,10 +35,10 @@ class TestApplication(unittest.TestCase):
     def test_two_handlers(self):
         a = Application()
         def add_roots(doc):
-            doc.add_root(AnotherModel())
-            doc.add_root(SomeModel())
+            doc.add_root(AnotherModelInTestApplication())
+            doc.add_root(SomeModelInTestApplication())
         def add_one_root(doc):
-            doc.add_root(AnotherModel())
+            doc.add_root(AnotherModelInTestApplication())
         handler = FunctionHandler(add_roots)
         a.add(handler)
         handler2 = FunctionHandler(add_one_root)
