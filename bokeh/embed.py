@@ -223,7 +223,7 @@ def file_html(plot_objects,
               js_resources=None,
               css_resources=None,
               template=FILE,
-              template_variables=None):
+              template_variables={}):
     '''Return an HTML document that embeds Bokeh PlotObject or Document objects.
 
     The data for the plot is stored directly in the returned HTML.
@@ -379,7 +379,7 @@ def _script_for_render_items(docs_json, render_items, websocket_url, wrap_script
 
 def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url,
                                 js_resources=None, css_resources=None, template=FILE,
-                                template_variables=None):
+                                template_variables={}):
     if resources:
         if js_resources:
             warn('Both resources and js_resources provided. resources will override js_resources.')
@@ -403,16 +403,15 @@ def _html_page_for_render_items(resources, docs_json, render_items, title, webso
 
     script = _script_for_render_items(docs_json, render_items, websocket_url)
 
-    template_variables_full = \
-        template_variables.copy() if template_variables is not None else {}
+    template_variables_full = template_variables.copy()
 
-    template_variables_full.update({
-        'title': title,
-        'bokeh_js': bokeh_js,
-        'bokeh_css': bokeh_css,
-        'plot_script': script,
-        'plot_div': "\n".join(_div_for_render_item(item) for item in render_items)
-    })
+    template_variables_full.update(dict(
+        title = title,
+        bokeh_js = bokeh_js,
+        bokeh_css = bokeh_css,
+        plot_script = script,
+        plot_div = "\n".join(_div_for_render_item(item) for item in render_items)
+    ))
 
     html = template.render(template_variables_full)
     return encode_utf8(html)
