@@ -20,8 +20,8 @@ from bokeh.resources import Resources
 
 from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
-from .core.server_session import ServerSession
-from .core.server_connection import ServerConnection
+from .session import ServerSession
+from .connection import ServerConnection
 from .exceptions import ProtocolError
 
 class BokehTornado(TornadoApplication):
