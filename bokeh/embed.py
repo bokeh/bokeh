@@ -69,9 +69,9 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
             .. code-block:: python
 
                 {
-                    'modelid':  'The plots id, which can be used in the Bokeh.index',
+                    'modelid':  'The model ID, used with Document.get_model_by_id',
                     'elementid': 'The css identifier the BokehJS will look for to target the plot',
-                    'modeltype': 'The Bokeh model name e.g. Plot, Slider',
+                    'docid': 'Used by Bokeh to find the doc embedded in the returned script',
                 }
 
     Returns:
