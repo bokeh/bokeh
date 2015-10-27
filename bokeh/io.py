@@ -160,7 +160,7 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
 
     """
 
-    _state.output_server(session_id, url, autopush)
+    _state.output_server(session_id=session_id, url=url, autopush=autopush)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
@@ -243,7 +243,7 @@ def _show_with_state(obj, state, browser, new):
     if state.notebook:
         _show_notebook_with_state(obj, state)
 
-    elif state.session_id:
+    elif state.session_id and state.server_url:
         _show_server_with_state(obj, state, new, controller)
 
     if state.file:
@@ -361,6 +361,14 @@ def _save_helper(obj, filename, resources, title):
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
+# this function exists mostly to be mocked in tests
+def _push_to_server(websocket_url, document, session_id):
+    connection = ClientConnection(url=websocket_url)
+    connection.connect()
+    session = connection.push_session(document, session_id=session_id)
+    connection.close()
+    connection.loop_until_closed()
+
 def push(session_id=None, url=None, document=None, state=None):
     ''' Update the server with the data for the current document.
 
@@ -400,11 +408,7 @@ def push(session_id=None, url=None, document=None, state=None):
     if not document:
         warnings.warn("No document to push")
 
-    connection = ClientConnection(url=websocket_url_for_server_url(url))
-    connection.connect()
-    session = connection.push_session(document, session_id=session_id)
-    connection.close()
-    connection.loop_until_closed()
+    _push_to_server(websocket_url=websocket_url_for_server_url(url), document=document, session_id=session_id)
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
