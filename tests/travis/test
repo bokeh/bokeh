@@ -75,6 +75,8 @@ parser.add_argument("-u", "--upload", dest="upload", action="store_true", defaul
 
 args = parser.parse_args()
 
+args.log_file.truncate()
+
 def write(*values, **kwargs):
     end = kwargs.get('end', '\n')
     print(*values, end=end)
@@ -445,8 +447,8 @@ def test_example(example, flags):
     return False
 
 def start_bokeh_server():
-    cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
-    argv = ["--bokeh-port=%s" % args.bokeh_port, "--backend=memory"]
+    cmd = ["bin/bokeh", "serve"]
+    argv = ["--port=%s" % args.bokeh_port]
 
     try:
         proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)
@@ -466,8 +468,10 @@ def start_bokeh_server():
 
         def wait_for_bokeh_server():
             def helper():
+                if proc.returncode is not None:
+                    return True
                 try:
-                    return requests.get('http://localhost:%s/bokeh/ping' % args.bokeh_port)
+                    return requests.get('http://localhost:%s/' % args.bokeh_port)
                 except ConnectionError:
                     return False
 
@@ -475,6 +479,10 @@ def start_bokeh_server():
 
         if not wait_for_bokeh_server():
             write("Timeout when running: %s" % " ".join(cmd + argv))
+            sys.exit(1)
+
+        if proc.returncode is not None:
+            write("bokeh server exited with code " + str(proc.returncode))
             sys.exit(1)
 
         return proc
