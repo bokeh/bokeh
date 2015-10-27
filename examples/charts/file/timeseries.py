@@ -29,22 +29,23 @@ output_file("stocks_timeseries.html")
 # line simple
 tsline = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Line)')
+    title="Timeseries (Line)", tools=TOOLS, ylabel='Stock Prices')
 
 # line explicit
 tsline2 = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], color=['IBM', 'AAPL'],
     dash=['IBM', 'AAPL'], legend=True,
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Line Explicit)')
+    title="Timeseries (Line Explicit)", tools=TOOLS, ylabel='Stock Prices')
 
 # step
 tsstep = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='step',
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Step)')
+    title="Timeseries (Step)", tools=TOOLS, ylabel='Stock Prices')
 
 # point
 tspoint = TimeSeries(
-    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='point',
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Point)')
+    xyvalues, x='Date', y=['IBM', 'AAPL'], marker=['IBM', 'AAPL'], legend=True,
+    color=['IBM', 'AAPL'], builder_type='point',
+    title="Timeseries (Point)", tools=TOOLS, ylabel='Stock Prices')
 
 show(vplot(tsline, tsline2, tsstep, tspoint))

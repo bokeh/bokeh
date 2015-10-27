@@ -130,11 +130,10 @@ class AttrSpec(HasProps):
 
     def _generate_items(self, df, columns):
         """Produce list of unique tuples that identify each item."""
-        if self.items is None or len(self.items) == 0:
-            if self.sort:
-                df = df.sort(columns=columns, ascending=self.ascending)
-            items = df[columns].drop_duplicates()
-            self.items = [tuple(x) for x in items.to_records(index=False)]
+        if self.sort:
+            df = df.sort(columns=columns, ascending=self.ascending)
+        items = df[columns].drop_duplicates()
+        self.items = [tuple(x) for x in items.to_records(index=False)]
 
     def _create_attr_map(self, df, columns):
         """Creates map between unique values and available attributes."""

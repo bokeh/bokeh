@@ -21,7 +21,7 @@ from six import iteritems
 from itertools import chain
 from ..builder import XYBuilder, create_and_build
 from ..glyphs import LineGlyph, PointGlyph
-from ..attributes import DashAttr, ColorAttr
+from ..attributes import DashAttr, ColorAttr, MarkerAttr
 from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
 
@@ -96,7 +96,8 @@ class LineBuilder(XYBuilder):
     """
 
     default_attributes = {'color': ColorAttr(),
-                          'dash': DashAttr()}
+                          'dash': DashAttr(),
+                          'marker': MarkerAttr()}
 
     dimensions = ['y', 'x']
 
@@ -124,8 +125,9 @@ class LineBuilder(XYBuilder):
         if self.measure_input:
 
             # Check if we stack measurements and by which attributes
-            stack_flags = {'color': self.attr_measurement('color'),
-                           'dash': self.attr_measurement('dash')}
+            # This happens if we used the same series labels for dimensions as attributes
+            stack_flags = {k: self.attr_measurement(k) for k in list(
+                           self.attributes.keys())}
 
             # collect the other columns used as identifiers, that aren't a measurement name
             id_cols = [self.attributes[attr].columns
@@ -141,16 +143,12 @@ class LineBuilder(XYBuilder):
             # stack the measurement dimension while keeping id columns
             self._stack_measures(ids=id_cols)
 
-            # set the attributes to key off of the name of the stacked measurement, if stacked
-            if stack_flags['color']:
-                # color by the name of each variable
-                self.attributes['color'] = ColorAttr(columns='variable',
-                                                     data=ColumnDataSource(self._data.df))
-
-            if stack_flags['dash']:
-                # dash by the name of each variable
-                self.attributes['dash'] = DashAttr(columns='variable',
-                                                   data=ColumnDataSource(self._data.df))
+            # set the attributes to key off of the name of the stacked measurement
+            source = ColumnDataSource(self._data.df)
+            for attr_name, stack_flag in iteritems(stack_flags):
+                if stack_flags[attr_name]:
+                    default_attr = self.attributes[attr_name]
+                    default_attr.setup(columns='variable', data=source)
 
         # Handle when to use special column names
         if self.x.selection is None and self.y.selection is not None:
@@ -165,7 +163,12 @@ class LineBuilder(XYBuilder):
                                       cols == self.x.selection))
 
     def _stack_measures(self, ids):
-        """Transform data so that id columns are kept and measures are stacked in single column."""
+        """Stack data and keep the ids columns.
+
+        Args:
+            ids (list(str)): the column names that describe the measures
+        
+        """
         if isinstance(self.y.selection, list):
             dim = 'y'
             if self.x.selection is not None:
