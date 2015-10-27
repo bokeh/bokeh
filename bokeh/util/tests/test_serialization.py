@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 
-from bokeh.util.serialization import get_json, make_id, urljoin, traverse_data
+from bokeh.util.serialization import make_id, traverse_data
 
 class DummyRequestCallable():
     def json(self):
