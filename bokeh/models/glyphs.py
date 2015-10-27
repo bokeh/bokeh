@@ -228,7 +228,7 @@ class Gear(Glyph):
     How many teeth the gears have. [int]
     """)
 
-    pressure_angle = NumberSpec(default=20, help= """
+    pressure_angle = NumberSpec(default=20, help="""
     The complement of the angle between the direction that the teeth
     exert force on each other, and the line joining the centers of the
     two gears. [deg]

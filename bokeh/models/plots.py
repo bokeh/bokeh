@@ -18,7 +18,7 @@ from .. import validation
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, GlyphRenderer
+from .renderers import Renderer, GlyphRenderer, TileRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
@@ -244,6 +244,23 @@ class Plot(Component):
         g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
         self.renderers.append(g)
         return g
+
+    def add_tile(self, tile_source, **kw):
+        '''Adds new TileRenderer into the Plot.renderers
+
+        Args:
+            tile_source (TileSource) : a tile source instance which contain tileset configuration 
+
+        Keyword Arguments:
+            Additional keyword arguments are passed on as-is to the tile renderer
+
+        Returns:
+            TileRenderer : TileRenderer
+
+        '''
+        tile_renderer = TileRenderer(tile_source=tile_source, **kw)
+        self.renderers.append(tile_renderer)
+        return tile_renderer
 
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
