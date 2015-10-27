@@ -44,6 +44,13 @@ class Stat(HasProps):
         multiple properties to provide the calculation if required.""")
 
     def __init__(self, **properties):
+
+        source = properties.pop('source', None)
+        if source is not None:
+            if isinstance(source, pd.DataFrame):
+                source = ColumnDataSource(source)
+            properties['source'] = source
+
         super(Stat, self).__init__(**properties)
         self._refresh()
 
@@ -70,7 +77,7 @@ class Stat(HasProps):
     def get_data(self):
         """Returns the available columnlabel/source values or column values."""
         if self.source is not None and self.column is not None:
-            return self.source._data[self.column]
+            return pd.Series(self.source._data[self.column])
         elif self.values is not None:
             return self.values
         else:
@@ -211,10 +218,10 @@ class Bins(Stat):
     def calc_num_bins(self, values):
         iqr = self.q3.value - self.q1.value
         self.bin_width = 2 * iqr * (len(values) ** -(1. / 3.))
-        self.bin_count = np.ceil((self.values.max() - self.values.min())/self.bin_width)
+        self.bin_count = np.ceil((values.max() - values.min())/self.bin_width)
 
 
-def bin(values, num_bins=5, bins=None, labels=None):
+def bin(values=None, column=None, bins=None, labels=None):
     """Specify binning or bins to be used for column or values."""
 
     if isinstance(values, str):
@@ -223,10 +230,8 @@ def bin(values, num_bins=5, bins=None, labels=None):
     else:
         column = None
 
-    if bins is None:
-        bins = num_bins
-
-    return Bins(values=values, column=column, bins=bins, num_bins=num_bins, labels=labels)
+    return Bins(values=values, column=column, bin_count=bins,
+                labels=labels)
 
 
 stats = {
