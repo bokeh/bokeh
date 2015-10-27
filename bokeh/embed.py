@@ -392,7 +392,7 @@ def _script_for_render_items(docs_json, render_items, websocket_url,
                              custom_models, wrap_script=True):
     # this avoids emitting the "register custom models" code at all
     # just to register an empty set
-    if len(custom_models) == 0:
+    if (custom_models is not None) and len(custom_models) == 0:
         custom_models = None
 
     plot_js = _wrap_in_function(
