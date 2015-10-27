@@ -401,11 +401,20 @@ class HasProps(object):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def clone(self):
-        """ Returns a duplicate of this object with all its properties
-        set appropriately.  Values which are containers are shallow-copied.
+    def clone(self, excluded_properties=None):
+        """ Returns a duplicate of this object with all its properties set
+        appropriately except the ones specified in a list of
+        ``excluded_properties``. Values which are containers are
+        shallow-copied.
         """
-        return self.__class__(**self.changed_properties_with_values())
+        properties_to_clone = self.changed_properties_with_values()
+        if excluded_properties is not None:
+            for prop in excluded_properties:
+                try:
+                    del properties_to_clone[prop]
+                except KeyError:
+                    pass
+        return self.__class__(**properties_to_clone)
 
     @classmethod
     def lookup(cls, name):
