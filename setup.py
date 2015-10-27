@@ -83,8 +83,11 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 # -----------------------------------------------------------------------------
 # Classes and functions
 # -----------------------------------------------------------------------------
-
-copy("LICENSE.txt", "bokeh/")
+try:
+    copy("LICENSE.txt", "bokeh/")
+except FileNotFoundError:
+    # setup.py called from bokehjs dir by gulp watch process
+    copy("../LICENSE.txt", "../bokeh/")
 
 package_data = ['LICENSE.txt']
 
