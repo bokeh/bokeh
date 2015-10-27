@@ -15,5 +15,5 @@ def test_explicit_bin_count(ds):
 
 
 def test_auto_bin_count(ds):
-    b = Bins(source=ds, column='mpg', bin_count=2)
-    assert len(b.bins) == 2
+    b = Bins(source=ds, column='mpg')
+    assert len(b.bins) == 12
