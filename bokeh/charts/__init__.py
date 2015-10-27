@@ -19,6 +19,7 @@ from .builders.scatter_builder import Scatter
 from .builders.boxplot_builder import BoxPlot
 from .builders.step_builder import Step
 from .builders.timeseries_builder import TimeSeries
+from .builders.dot_builder import Dot
 
 # easy access to required bokeh components
 from ..models import ColumnDataSource

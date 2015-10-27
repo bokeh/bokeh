@@ -404,6 +404,40 @@ class BarGlyph(Interval):
         return 0.0
 
 
+class DotGlyph(Interval):
+    """Special case of Interval where the span represents a value.
+
+    A bar always begins from 0, or the value that is being compared to, and
+    extends to some positive or negative value.
+    """
+
+    marker = String(default='circle')
+    size = Float(default=8)
+
+    def __init__(self, label, values, agg='sum', **kwargs):
+        kwargs['end_agg'] = agg
+        super(DotGlyph, self).__init__(label, values, **kwargs)
+        self.setup()
+
+    def get_start(self):
+        return 0.0
+
+    def get_glyph(self):
+        return marker_types[self.marker]
+
+    def build_renderers(self):
+        glyph_type = self.get_glyph()
+        print ("LLL", self.color, self.line_color)
+        glyph = glyph_type(x='x', y='height',
+                           line_color=self.line_color,
+                           fill_color=self.color,
+                           size=self.size,
+                        #    fill_alpha='fill_alpha',
+                        #    line_alpha='line_alpha'
+                           )
+        yield GlyphRenderer(glyph=glyph)
+
+
 class QuartileGlyph(Interval):
     """An interval that has start and end aggregations of quartiles."""
     def __init__(self, label, values, interval1, interval2, **kwargs):

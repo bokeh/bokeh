@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from bokeh._legacy_charts import Dot, show, output_file
-
+from bokeh.charts import Dot
 # create some example data
 xyvalues = OrderedDict(
     python=[2, 3, 7, 5, 26],
@@ -16,9 +16,16 @@ xyvalues = OrderedDict(
 
 output_file("dots.html")
 
-dots = Dot(
-    xyvalues, cat=['lists','loops','dicts', 'gen exp', 'exceptions'],
-    title="Dots Example", ylabel='Performance', legend=True
-)
+# dots = Dot(
+#     xyvalues, cat=['lists','loops','dicts', 'gen exp', 'exceptions'],
+#     title="Dots Example", ylabel='Performance', legend=True
+# )
 
+from bokeh.sampledata.autompg import autompg as df
+
+df['neg_mpg'] = 0 - df['mpg']
+
+dots = Dot(df, label='cyl',  values='mpg', title="label='cyl'")
+
+df = df.set_index('cyl')
 show(dots)
