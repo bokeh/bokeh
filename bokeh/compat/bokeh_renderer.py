@@ -116,7 +116,14 @@ class BokehRenderer(Renderer):
         self.ax = ax
         self.plot.title = ax.get_title()
         # to avoid title conversion by draw_text later
-
+        
+        #Make sure that that all information about the axes are passed to the properties
+        if props.get('xscale', False):
+            props['axes'][0]['scale'] = props['xscale']
+            
+        if props.get('yscale', False):
+            props['axes'][1]['scale'] = props['yscale']
+            
         # Add axis
         for props in props['axes']:
             if   props['position'] == "bottom" : location, dim, thing = "below", 0, ax.xaxis
