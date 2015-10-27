@@ -230,20 +230,16 @@ class BarBuilder(Builder):
         else:
             return {}
 
-    def collect_glyph_kwargs(self, group):
-        attrs = set(self.default_attributes.keys()) - set(
-            BarBuilder.default_attributes.keys())
-        return {attr: group[attr] for attr in attrs}
-
     def yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the ColumnDataSource.
         """
         kwargs = self.get_extra_args()
+        attrs = self.collect_attr_kwargs()
 
         for group in self._data.groupby(**self.attributes):
-            glyph_kwargs = self.collect_glyph_kwargs(group)
+            glyph_kwargs = self.get_group_kwargs(group, attrs)
             group_kwargs = kwargs.copy()
             group_kwargs.update(glyph_kwargs)
 

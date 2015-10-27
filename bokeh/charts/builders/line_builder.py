@@ -188,10 +188,17 @@ class LineBuilder(XYBuilder):
 
     def yield_renderers(self):
 
+        # get the list of builder attributes and only pass them on if glyph supports
+        attrs = list(self.attributes.keys())
+        attrs = [attr for attr in attrs if attr in self.glyph.class_properties()]
+
         for group in self._data.groupby(**self.attributes):
+
+            group_kwargs = self.get_group_kwargs(group, attrs)
+
             glyph = self.glyph(x=group.get_values(self.x.selection),
                                y=group.get_values(self.y.selection),
-                               color=group['color'])
+                               **group_kwargs)
 
             # dash=group['dash']
             # save reference to composite glyph

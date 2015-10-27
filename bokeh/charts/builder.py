@@ -418,6 +418,14 @@ class Builder(HasProps):
 
         return str(raw_label)
 
+    def collect_attr_kwargs(self):
+        attrs = set(self.default_attributes.keys()) - set(
+            self.__class__.default_attributes.keys())
+        return attrs
+
+    def get_group_kwargs(self, group, attrs):
+        return {attr: group[attr] for attr in attrs}
+
     def create(self, chart=None):
         """Builds the renderers, adding them and other components to the chart.
 

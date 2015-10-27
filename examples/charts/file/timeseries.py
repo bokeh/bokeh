@@ -26,16 +26,25 @@ TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 
 output_file("stocks_timeseries.html")
 
+# line simple
 tsline = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
     title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Line)')
 
+# line explicit
+tsline2 = TimeSeries(
+    xyvalues, x='Date', y=['IBM', 'AAPL'], color=['IBM', 'AAPL'],
+    dash=['IBM', 'AAPL'], legend=True,
+    title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Line Explicit)')
+
+# step
 tsstep = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='step',
     title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Step)')
 
+# point
 tspoint = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='point',
     title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Point)')
 
-show(vplot(tsline, tsstep, tspoint))
+show(vplot(tsline, tsline2, tsstep, tspoint))
