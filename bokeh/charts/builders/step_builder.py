@@ -17,13 +17,9 @@ passing the arguments to the Chart class and calling the proper functions.
 # -----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-from six import iteritems
-from itertools import chain
 from ..builder import create_and_build
 from .line_builder import LineBuilder
 from ..glyphs import StepGlyph
-from ..attributes import DashAttr, ColorAttr
-from ...models.sources import ColumnDataSource
 
 
 # -----------------------------------------------------------------------------
