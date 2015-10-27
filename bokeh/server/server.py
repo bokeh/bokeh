@@ -30,7 +30,10 @@ class Server(object):
             self._applications = { '/' : applications }
         else:
             self._applications = applications
-        self._tornado = BokehTornado(self._applications)
+        io_loop = None
+        if 'io_loop' in kwargs:
+            io_loop = kwargs['io_loop']
+        self._tornado = BokehTornado(self._applications, io_loop=io_loop)
         self._http = HTTPServer(self._tornado)
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
@@ -44,6 +47,7 @@ class Server(object):
             log.critical("Cannot start bokeh server, port %s already in use" % self._port)
             sys.exit(1)
 
+    # TODO this is broken, it's only used by test_client_server.py so fix that then remove this
     @property
     def ws_url(self):
         return "ws://localhost:" + str(self._port) + "/ws"
@@ -51,6 +55,10 @@ class Server(object):
     @property
     def port(self):
         return self._port
+
+    @property
+    def io_loop(self):
+        return self._tornado.io_loop
 
     def start(self):
         ''' Start the Bokeh Server's IO loop.
@@ -81,8 +89,8 @@ class Server(object):
         '''
         self._http.stop()
 
-    def get_session(self, sessionid):
+    def get_session(self, session_id):
         '''Gets a session by name (session must already exist)'''
 
-        return self._tornado.get_session(sessionid)
+        return self._tornado.get_session(session_id)
 

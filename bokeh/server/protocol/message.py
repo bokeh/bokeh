@@ -120,26 +120,6 @@ class Message(object):
             raise ProtocolError("too many buffers received expecting " + str(self.header['num_buffers']))
         self._buffers.append((buf_header, buf_payload))
 
-    @return_future
-    def handle_server(self, server, callback=None):
-        '''
-
-        '''
-        return callback(self._handle_server(server))
-
-    def _handle_server(self, server):
-        raise NotImplementedError("")
-
-    @return_future
-    def handle_client(self, client, callback=None):
-        '''
-
-        '''
-        return callback(self._handle_client(client))
-
-    def _handle_client(self, client):
-        raise NotImplementedError("")
-
     def write_buffers(self, conn):
         ''' Write any buffer headers and payloads to the given connection.
 

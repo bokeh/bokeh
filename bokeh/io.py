@@ -129,7 +129,7 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
     load_notebook(resources, verbose, hide_banner)
     _state.output_notebook()
 
-def output_server(self, session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
+def output_server(session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
     """Store Bokeh plots and objects on a Bokeh server.
 
     File, server, and notebook output may be active at the
@@ -160,7 +160,7 @@ def output_server(self, session_id=DEFAULT_SESSION_ID, url="default", autopush=F
 
     """
 
-    _state.output_server(session_id, url, autopush)
+    _state.output_server(session_id=session_id, url=url, autopush=autopush)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
@@ -243,7 +243,7 @@ def _show_with_state(obj, state, browser, new):
     if state.notebook:
         _show_notebook_with_state(obj, state)
 
-    elif state.session_id:
+    elif state.session_id and state.server_url:
         _show_server_with_state(obj, state, new, controller)
 
     if state.file:
@@ -254,10 +254,9 @@ def _show_file_with_state(obj, state, new, controller):
     controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
 
 def _show_notebook_with_state(obj, state):
-    # TODO (havocp) autoload_server and notebook_div need fixing
     if state.session_id:
         push(state=state)
-        snippet = autoload_server(obj, state.session)
+        snippet = autoload_server(obj, session_id=state.session_id, url=state.server_url)
         publish_display_data({'text/html': snippet})
     else:
         publish_display_data({'text/html': notebook_div(obj)})
@@ -362,6 +361,14 @@ def _save_helper(obj, filename, resources, title):
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
+# this function exists mostly to be mocked in tests
+def _push_to_server(websocket_url, document, session_id):
+    connection = ClientConnection(url=websocket_url)
+    connection.connect()
+    session = connection.push_session(document, session_id=session_id)
+    connection.close()
+    connection.loop_until_closed()
+
 def push(session_id=None, url=None, document=None, state=None):
     ''' Update the server with the data for the current document.
 
@@ -401,10 +408,7 @@ def push(session_id=None, url=None, document=None, state=None):
     if not document:
         warnings.warn("No document to push")
 
-    connection = ClientConnection(url=websocket_url_for_server_url(url))
-    connection.connect()
-    session = connection.push_session(document, session_id=session_id)
-    connection.close()
+    _push_to_server(websocket_url=websocket_url_for_server_url(url), document=document, session_id=session_id)
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.

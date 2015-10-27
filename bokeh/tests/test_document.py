@@ -6,10 +6,10 @@ import bokeh.document as document
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
 
-class AnotherModel(PlotObject):
+class AnotherModelInTestDocument(PlotObject):
     bar = Int(1)
 
-class SomeModel(PlotObject):
+class SomeModelInTestDocument(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
 
@@ -22,7 +22,7 @@ class TestDocument(unittest.TestCase):
     def test_add_roots(self):
         d = document.Document()
         assert not d.roots
-        d.add_root(AnotherModel())
+        d.add_root(AnotherModelInTestDocument())
         assert len(d.roots) == 1
         assert next(iter(d.roots)).document == d
 
@@ -30,8 +30,8 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        m = SomeModel()
-        m2 = AnotherModel()
+        m = SomeModelInTestDocument()
+        m2 = AnotherModelInTestDocument()
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
@@ -47,8 +47,8 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        m = SomeModel()
-        m2 = AnotherModel()
+        m = SomeModelInTestDocument()
+        m2 = AnotherModelInTestDocument()
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
@@ -61,9 +61,9 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        root1 = SomeModel()
-        root2 = SomeModel()
-        child1 = AnotherModel()
+        root1 = SomeModelInTestDocument()
+        root2 = SomeModelInTestDocument()
+        child1 = AnotherModelInTestDocument()
         root1.child = child1
         root2.child = child1
         d.add_root(root1)
@@ -87,9 +87,9 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        root1 = SomeModel()
-        root2 = SomeModel()
-        child1 = SomeModel()
+        root1 = SomeModelInTestDocument()
+        root2 = SomeModelInTestDocument()
+        child1 = SomeModelInTestDocument()
         root1.child = child1
         root2.child = child1
         child1.child = root1
@@ -119,7 +119,7 @@ class TestDocument(unittest.TestCase):
     def test_change_notification(self):
         d = document.Document()
         assert not d.roots
-        m = AnotherModel()
+        m = AnotherModelInTestDocument()
         d.add_root(m)
         assert len(d.roots) == 1
         assert m.bar == 1
@@ -140,7 +140,7 @@ class TestDocument(unittest.TestCase):
     def test_change_notification_removal(self):
         d = document.Document()
         assert not d.roots
-        m = AnotherModel()
+        m = AnotherModelInTestDocument()
         d.add_root(m)
         assert len(d.roots) == 1
         assert m.bar == 1
@@ -164,13 +164,13 @@ class TestDocument(unittest.TestCase):
             events.append(event)
         d.on_change(listener)
 
-        m = AnotherModel(bar=1)
+        m = AnotherModelInTestDocument(bar=1)
         d.add_root(m)
         assert len(d.roots) == 1
         assert len(events) == 1
         assert isinstance(events[0], document.RootAddedEvent)
         assert events[0].model == m
-        m2 = AnotherModel(bar=2)
+        m2 = AnotherModelInTestDocument(bar=2)
         d.add_root(m2)
         assert len(d.roots) == 2
         assert len(events) == 2
@@ -192,8 +192,8 @@ class TestDocument(unittest.TestCase):
     def test_clear(self):
         d = document.Document()
         assert not d.roots
-        d.add_root(AnotherModel())
-        d.add_root(AnotherModel())
+        d.add_root(AnotherModelInTestDocument())
+        d.add_root(AnotherModelInTestDocument())
         assert len(d.roots) == 2
         d.clear()
         assert not d.roots
@@ -203,7 +203,7 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        root1 = SomeModel()
+        root1 = SomeModelInTestDocument()
         d.add_root(root1)
 
         json = d.to_json_string()
@@ -215,9 +215,9 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        root1 = SomeModel(foo=42)
-        root2 = SomeModel(foo=43)
-        child1 = SomeModel(foo=44)
+        root1 = SomeModelInTestDocument(foo=42)
+        root2 = SomeModelInTestDocument(foo=43)
+        child1 = SomeModelInTestDocument(foo=44)
         root1.child = child1
         root2.child = child1
         d.add_root(root1)
@@ -241,9 +241,9 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        root1 = SomeModel(foo=42)
-        root2 = SomeModel(foo=43)
-        child1 = SomeModel(foo=44)
+        root1 = SomeModelInTestDocument(foo=42)
+        root2 = SomeModelInTestDocument(foo=43)
+        child1 = SomeModelInTestDocument(foo=44)
         root1.child = child1
         root2.child = child1
         d.add_root(root1)
@@ -266,11 +266,11 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        root1 = SomeModel(foo=42)
-        root2 = SomeModel(foo=43)
-        child1 = SomeModel(foo=44)
-        child2 = SomeModel(foo=45)
-        child3 = SomeModel(foo=46, child=child2)
+        root1 = SomeModelInTestDocument(foo=42)
+        root2 = SomeModelInTestDocument(foo=43)
+        child1 = SomeModelInTestDocument(foo=44)
+        child2 = SomeModelInTestDocument(foo=45)
+        child3 = SomeModelInTestDocument(foo=46, child=child2)
         root1.child = child1
         root2.child = child1
         d.add_root(root1)
@@ -307,8 +307,8 @@ class TestDocument(unittest.TestCase):
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
-        root1 = SomeModel(foo=42)
-        child1 = SomeModel(foo=43)
+        root1 = SomeModelInTestDocument(foo=42)
+        child1 = SomeModelInTestDocument(foo=43)
         root1.child = child1
         d.add_root(root1)
         assert len(d.roots) == 1
@@ -316,7 +316,7 @@ class TestDocument(unittest.TestCase):
         assert root1.foo == 42
         assert root1.child.foo == 43
 
-        child2 = SomeModel(foo=44)
+        child2 = SomeModelInTestDocument(foo=44)
 
         event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
         event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child2)

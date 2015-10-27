@@ -7,8 +7,8 @@ import os
 from bokeh.settings import settings
 from bokeh.application import Application
 from bokeh.server.server import Server
-from bokeh.spellings import ScriptHandler, DirectoryHandler
-from bokeh.io import output_file, save
+from bokeh.application.spellings import ScriptHandler, DirectoryHandler
+from bokeh.io import output_file, save, show
 
 import logging
 log = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ class Serve(ApplicationsSubcommand):
     def __init__(self, **kwargs):
         super(Serve, self).__init__(**kwargs)
         self.parser.add_argument('--port', metavar='PORT', type=int, help="Port to listen on", default=-1)
-        self.parser.add_argument('--develop', type=bool, help="Enable develop-time features that should not be used in production", default=False)
+        self.parser.add_argument('--develop', action='store_true', help="Enable develop-time features that should not be used in production")
         self.port = 5006
         self.develop_mode = False
         self.server = None
@@ -105,14 +105,24 @@ class Html(ApplicationsSubcommand):
 
     def __init__(self, **kwargs):
         super(Html, self).__init__(**kwargs)
+        self.parser.add_argument('--show', action='store_true', help="Open generated file(s) in a browser")
 
     def func(self, args):
         applications = self.build_applications(args)
 
         for (route, app) in applications.items():
             doc = app.create_document()
-            output_file(route[1:] + ".html")
-            save(doc)
+            if route == "/":
+                filename = "index.html"
+            else:
+                filename = route[1:] + ".html"
+
+            output_file(filename)
+
+            if args.show:
+                show(doc, new='tab')
+            else:
+                save(doc)
 
 subcommands = [Serve, Html]
 

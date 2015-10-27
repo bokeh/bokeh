@@ -20,8 +20,8 @@ from bokeh.resources import Resources
 
 from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
-from .core.server_session import ServerSession
-from .core.server_connection import ServerConnection
+from .session import ServerSession
+from .connection import ServerConnection
 from .exceptions import ProtocolError
 
 class BokehTornado(TornadoApplication):
@@ -40,9 +40,7 @@ class BokehTornado(TornadoApplication):
     '''
 
     def __init__(self, applications, io_loop=None, extra_patterns=None):
-
-        self._resources = Resources(mode="server", root_url="/")
-
+        self._resources = {}
         extra_patterns = extra_patterns or []
         relative_patterns = []
         for key in applications:
@@ -80,8 +78,24 @@ class BokehTornado(TornadoApplication):
         self._cleanup_job.start()
 
     @property
-    def resources(self):
-        return self._resources
+    def io_loop(self):
+        return self._loop
+
+    def root_url_for_request(self, request):
+        # If we add a "whole server prefix," we'd put that on here too
+        return request.protocol + "://" + request.host + "/"
+
+    def websocket_url_for_request(self, request, websocket_path):
+        protocol = "ws"
+        if request.protocol == "https":
+            protocol = "wss"
+        return protocol + "://" + request.host + websocket_path
+
+    def resources(self, request):
+        root_url = self.root_url_for_request(request)
+        if root_url not in self._resources:
+            self._resources[root_url] = Resources(mode="server", root_url=root_url)
+        return self._resources[root_url]
 
     def start(self):
         ''' Start the Bokeh Server application main loop.
@@ -126,23 +140,23 @@ class BokehTornado(TornadoApplication):
             session = next(iter(connection.subscribed_sessions))
             connection.unsubscribe_session(session)
 
-    def create_session_if_needed(self, application, sessionid):
-        # this is because empty sessionids would be "falsey" and
+    def create_session_if_needed(self, application, session_id):
+        # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
-        if len(sessionid) == 0:
+        if len(session_id) == 0:
             raise ProtocolError("Session ID must not be empty")
 
-        if sessionid not in self._sessions:
+        if session_id not in self._sessions:
             doc = application.create_document()
-            session = ServerSession(sessionid, doc)
-            self._sessions[sessionid] = session
+            session = ServerSession(session_id, doc)
+            self._sessions[session_id] = session
 
-    def get_session(self, sessionid):
-        if sessionid in self._sessions:
-            session = self._sessions[sessionid]
+    def get_session(self, session_id):
+        if session_id in self._sessions:
+            session = self._sessions[session_id]
             return session
         else:
-            raise ProtocolError("No such session " + sessionid)
+            raise ProtocolError("No such session " + session_id)
 
     def discard_session(self, session):
         if session.connection_count > 0:

@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 from tornado import gen
 
-from ..core.server_session import ServerSession
+from ..session import ServerSession
 from ..exceptions import ProtocolError
 
 class ServerHandler(object):
@@ -29,12 +29,12 @@ class ServerHandler(object):
         def handler_without_session(message, connection):
             if 'sessid' not in message.header:
                 raise ProtocolError("%s missing sessid header" % message)
-            sessionid = message.header['sessid']
-            if len(sessionid) == 0:
+            session_id = message.header['sessid']
+            if len(session_id) == 0:
                 raise ProtocolError("%s empty sessid header" % message)
 
-            connection.create_session_if_needed(sessionid)
-            session = connection.get_session(sessionid)
+            connection.create_session_if_needed(session_id)
+            session = connection.get_session(session_id)
             # keep this session alive and get notifications from it
             connection.subscribe_session(session)
             work = yield handler(message, connection, session)

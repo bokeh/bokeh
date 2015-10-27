@@ -5,19 +5,19 @@ import unittest
 import logging
 import bokeh.document as document
 from bokeh.application import Application
-from bokeh.spellings import FunctionHandler
+from bokeh.application.spellings import FunctionHandler
 from bokeh.client import ClientConnection
 from bokeh.server.server import Server
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
-from bokeh.server.core.server_session import ServerSession
+from bokeh.server.session import ServerSession
 from tornado.ioloop import IOLoop
 import pytest
 
-class AnotherModel(PlotObject):
+class AnotherModelInTestClientServer(PlotObject):
     bar = Int(1)
 
-class SomeModel(PlotObject):
+class SomeModelInTestClientServer(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
 
@@ -27,14 +27,17 @@ logging.basicConfig(level=logging.DEBUG)
 # and ensures the server unlistens
 class ManagedServerLoop(object):
     def __init__(self, application):
-        self._loop = IOLoop()
-        self._loop.make_current()
-        self._server = Server(application)
+        loop = IOLoop()
+        loop.make_current()
+        self._server = Server(application, io_loop=loop)
     def __exit__(self, type, value, traceback):
         self._server.unlisten()
-        self._loop.close()
+        self._server.io_loop.close()
     def __enter__(self):
         return self._server
+    @property
+    def io_loop(self):
+        return self.s_server.io_loop
 
 class TestClientServer(unittest.TestCase):
 
@@ -44,7 +47,7 @@ class TestClientServer(unittest.TestCase):
             # we don't have to start the server because it
             # uses the same main loop as the client, so
             # if we start either one it starts both
-            connection = ClientConnection()
+            connection = ClientConnection(io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
             connection.close()
@@ -54,7 +57,7 @@ class TestClientServer(unittest.TestCase):
     def test_disconnect_on_error(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
             # send a bogus message
@@ -67,13 +70,13 @@ class TestClientServer(unittest.TestCase):
     def test_push_document(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
             doc = document.Document()
-            doc.add_root(AnotherModel(bar=43))
-            doc.add_root(SomeModel(foo=42))
+            doc.add_root(AnotherModelInTestClientServer(bar=43))
+            doc.add_root(SomeModelInTestClientServer(foo=42))
 
             client_session = connection.push_session(doc, 'test_push_document')
             assert client_session.document == doc
@@ -98,13 +101,13 @@ class TestClientServer(unittest.TestCase):
     def test_pull_document(self):
         application = Application()
         def add_roots(doc):
-            doc.add_root(AnotherModel(bar=43))
-            doc.add_root(SomeModel(foo=42))
+            doc.add_root(AnotherModelInTestClientServer(bar=43))
+            doc.add_root(SomeModelInTestClientServer(foo=42))
         handler = FunctionHandler(add_roots)
         application.add(handler)
 
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
@@ -130,7 +133,7 @@ class TestClientServer(unittest.TestCase):
     def test_request_server_info(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
@@ -148,12 +151,12 @@ class TestClientServer(unittest.TestCase):
     def test_client_changes_go_to_server(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
             doc = document.Document()
-            client_root = SomeModel(foo=42)
+            client_root = SomeModelInTestClientServer(foo=42)
 
             client_session = connection.push_session(doc, 'test_client_changes_go_to_server')
             server_session = server.get_session(client_session.id)
@@ -192,7 +195,7 @@ class TestClientServer(unittest.TestCase):
     def test_server_changes_go_to_client(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url)
+            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
             connection.connect()
             assert connection.connected
 
@@ -202,7 +205,7 @@ class TestClientServer(unittest.TestCase):
             server_session = server.get_session(client_session.id)
 
             assert len(client_session.document.roots) == 0
-            server_root = SomeModel(foo=42)
+            server_root = SomeModelInTestClientServer(foo=42)
             server_session.document.add_root(server_root)
             def client_has_root():
                 return len(doc.roots) > 0
@@ -239,12 +242,12 @@ class TestClientServer(unittest.TestCase):
 def test_client_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:
-        connection = ClientConnection(url=server.ws_url)
+        connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
         connection.connect()
         assert connection.connected
 
         doc = document.Document()
-        client_root = SomeModel(foo=42)
+        client_root = SomeModelInTestClientServer(foo=42)
         doc.add_root(client_root)
 
         client_session = connection.push_session(doc, 'test_client_changes_do_not_boomerang')
@@ -288,12 +291,12 @@ def test_client_changes_do_not_boomerang(monkeypatch):
 def test_server_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:
-        connection = ClientConnection(url=server.ws_url)
+        connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
         connection.connect()
         assert connection.connected
 
         doc = document.Document()
-        client_root = SomeModel(foo=42)
+        client_root = SomeModelInTestClientServer(foo=42)
         doc.add_root(client_root)
 
         client_session = connection.push_session(doc, 'test_server_changes_do_not_boomerang')

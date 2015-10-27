@@ -44,6 +44,9 @@ class DataRange1d extends Range1d.Model
 
     @plot_bounds = {}
 
+  nonserializable_attribute_names: () ->
+    super().concat(['_auto_end', '_auto_start'])
+
   update: (bounds, dimension, plot_view) ->
     # TODO (bev)
     # check that renderers actually configured with this range

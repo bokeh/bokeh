@@ -14,7 +14,6 @@ from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
-from ..core.server_task import ServerTask
 from ..protocol import Protocol
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver
@@ -41,6 +40,13 @@ class WSHandler(WebSocketHandler):
 
     def initialize(self, bokeh_application, bokeh_websocket_path):
         pass
+
+    def check_origin(self, origin):
+        # Allow ANY site to open our websocket...
+        # this is to make the autoload embed work.
+        # Potentially, we should limit this somehow
+        # or make it configurable.
+        return True
 
     def open(self):
         ''' Initialize a connection to a client.

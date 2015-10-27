@@ -31,9 +31,11 @@ class DocHandler(RequestHandler):
         if session_id is None:
             session_id = str(uuid.uuid4())
         self.application.create_session_if_needed(self.bokeh_application, session_id)
-        session = self.application.get_session(session_id)
 
+        websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
         # TODO (havocp) we should add a "title" property to Document probably
-        page = server_html_page_for_session(session_id, self.application.resources, "Bokeh App", websocket_path=self.bokeh_websocket_path)
+        page = server_html_page_for_session(session_id, self.application.resources(self.request),
+                                            "Bokeh App", websocket_url=websocket_url)
 
+        self.set_header("Content-Type", 'text/html')
         self.write(page)

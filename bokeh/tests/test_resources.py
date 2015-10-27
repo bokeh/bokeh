@@ -106,8 +106,8 @@ class TestResources(unittest.TestCase):
 
     def test_get_cdn_urls(self):
         dev_version = "0.0.1dev"
-        result = _get_cdn_urls(dev_version)
-        url = result['js_files'][0]
+        result = _get_cdn_urls(["bokeh"], version=dev_version)
+        url = result['urls']('js')[0]
         self.assertIn('bokeh/dev', url)
 
     def test_cdn(self):
