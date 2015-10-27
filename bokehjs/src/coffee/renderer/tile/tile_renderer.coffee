@@ -84,6 +84,18 @@ class TileRendererView extends PlotWidget
       @_set_data()
       @_map_data()
       @map_initialized = true
+    
+    # brute force way of handling resize or responsive event -------------------------------------------------------------
+    if @height != @map_frame.get('height') or @width != @map_frame.get('width')
+      extent = @get_extent()
+      zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+      new_extent = @mget('tile_source').snap_to_zoom(extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+      @x_range.set({start:new_extent[0], end: new_extent[2]})
+      @y_range.set({start:new_extent[1], end: new_extent[3]})
+      @extent = new_extent
+      @height = @map_frame.get('height')
+      @width = @map_frame.get('width')
+      return
 
     @_update()
 
