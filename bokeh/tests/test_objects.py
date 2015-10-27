@@ -7,14 +7,15 @@ from six.moves import xrange
 import copy
 
 def large_plot(n):
-    from bokeh.models import (Plot, PlotContext, LinearAxis, Grid, GlyphRenderer,
+    from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
         ResetTool)
+    from bokeh.models.widgets.layouts import VBox
     from bokeh.models.glyphs import Line
 
-    context = PlotContext()
-    objects = set([context])
+    vbox = VBox()
+    objects = set([vbox])
 
     for i in xrange(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -39,10 +40,10 @@ def large_plot(n):
         reset = ResetTool(plot=plot)
         tools = [pan, wheel_zoom, box_zoom, box_select, box_selection, resize, previewsave, reset]
         plot.tools.append(tools)
-        context.children.append(plot)
+        vbox.children.append(plot)
         objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph, plot.tool_events] + tickers + tools)
 
-    return context, objects
+    return vbox, objects
 
 class TestViewable(unittest.TestCase):
 
@@ -74,8 +75,8 @@ class TestViewable(unittest.TestCase):
 class TestCollectPlotObjects(unittest.TestCase):
 
     def test_references_large(self):
-        context, objects = large_plot(500)
-        self.assertEqual(set(context.references()), objects)
+        root, objects = large_plot(500)
+        self.assertEqual(set(root.references()), objects)
 
 class TestPlotObject(unittest.TestCase):
 
@@ -84,17 +85,11 @@ class TestPlotObject(unittest.TestCase):
         self.pObjectClass = PlotObject
 
     def test_init(self):
-        oldmethod = self.pObjectClass.setup_events
-        self.pObjectClass.setup_events = Mock()
-        testObject = self.pObjectClass(id='test_id', _block_events=True)
-        self.assertFalse(testObject.setup_events.called)
+        testObject = self.pObjectClass(id='test_id')
         self.assertEqual(testObject._id, 'test_id')
 
         testObject2 = self.pObjectClass()
-        self.assertTrue(testObject2.setup_events.called)
         self.assertIsNot(testObject2._id, None)
-
-        self.pObjectClass.setup_events = oldmethod
 
     def test_ref(self):
         testObject = self.pObjectClass(id='test_id')
