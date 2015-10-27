@@ -20,7 +20,7 @@ from __future__ import absolute_import
 from six import iteritems
 from itertools import chain
 from ..builder import XYBuilder, create_and_build
-from ..glyphs import LineGlyph
+from ..glyphs import LineGlyph, PointGlyph
 from ..attributes import DashAttr, ColorAttr
 from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
@@ -101,6 +101,8 @@ class LineBuilder(XYBuilder):
     dimensions = ['y', 'x']
 
     column_selector = NumericalColumnsAssigner
+
+    glyph = LineGlyph
 
     @property
     def measures(self):
@@ -185,15 +187,20 @@ class LineBuilder(XYBuilder):
         dim_prop.set_data(self._data)
 
     def yield_renderers(self):
-        for group in self._data.groupby(**self.attributes):
-            glyph = LineGlyph(x=group.get_values(self.x.selection),
-                              y=group.get_values(self.y.selection),
-                              line_color=group['color'],
-                              dash=group['dash'])
 
+        for group in self._data.groupby(**self.attributes):
+            glyph = self.glyph(x=group.get_values(self.x.selection),
+                               y=group.get_values(self.y.selection),
+                               color=group['color'])
+
+            # dash=group['dash']
             # save reference to composite glyph
             self.add_glyph(group, glyph)
 
             # yield each renderer produced by composite glyph
             for renderer in glyph.renderers:
                 yield renderer
+
+
+class PointSeriesBuilder(LineBuilder):
+    glyph = PointGlyph

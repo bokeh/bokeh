@@ -88,10 +88,15 @@ class PointGlyph(XyGlyph):
     marker = String(default='circle')
     size = Float(default=8)
 
-    def __init__(self, x=None, y=None, line_color=None, fill_color=None,
+    def __init__(self, x=None, y=None, color=None, line_color=None, fill_color=None,
                  marker=None, size=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
+
+        if color:
+            line_color = color
+            fill_color = color
+
         kwargs['line_color'] = line_color or self.line_color
         kwargs['fill_color'] = fill_color or self.fill_color
         kwargs['marker'] = marker or self.marker
@@ -119,11 +124,11 @@ class LineGlyph(XyGlyph):
     width = Int(default=2)
     dash = Enum(DashPattern, default='solid')
 
-    def __init__(self, x=None, y=None, line_color=None,
+    def __init__(self, x=None, y=None, color=None, line_color=None,
                  width=None, dash=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
-        kwargs['line_color'] = line_color or self.line_color
+        kwargs['line_color'] = color or line_color or self.line_color
         kwargs['width'] = width or self.width
         kwargs['dash'] = dash or self.dash
         super(LineGlyph, self).__init__(**kwargs)

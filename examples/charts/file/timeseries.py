@@ -28,10 +28,14 @@ output_file("stocks_timeseries.html")
 
 tsline = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices')
+    title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Line)')
 
 tsstep = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='step',
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices')
+    title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Step)')
 
-show(vplot(tsline, tsstep))
+tspoint = TimeSeries(
+    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='point',
+    title="Timeseries", tools=TOOLS, ylabel='Stock Prices (Point)')
+
+show(vplot(tsline, tsstep, tspoint))

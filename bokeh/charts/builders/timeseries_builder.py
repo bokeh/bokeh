@@ -18,7 +18,7 @@ passing the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 from ..builder import create_and_build
-from .line_builder import LineBuilder
+from .line_builder import LineBuilder, PointSeriesBuilder
 from .step_builder import StepBuilder
 
 # -----------------------------------------------------------------------------
@@ -28,7 +28,9 @@ from .step_builder import StepBuilder
 BUILDER_TYPES = {
     'line': LineBuilder,
     'step': StepBuilder,
+    'point': PointSeriesBuilder
 }
+
 
 def TimeSeries(data=None, x=None, y=None, builder_type=LineBuilder, **kws):
     """ Create a line chart using :class:`TimeSeriesBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
