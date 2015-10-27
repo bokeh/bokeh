@@ -130,6 +130,7 @@ gulp.task "scripts:build", (cb) ->
       .bundle()
       .pipe(source(paths.coffee.bokehjs.destination.full))
       .pipe(buffer())
+      # .pipe(insert.prepend(license))
       .pipe(sourcemaps.init({loadMaps: true}))
       # This solves a conflict when requirejs is loaded on the page. Backbone
       # looks for `define` before looking for `module.exports`, which eats up
@@ -137,8 +138,7 @@ gulp.task "scripts:build", (cb) ->
       .pipe change (content) ->
         "(function() { var define = undefined; return #{content} })()"
       .pipe change (content) ->
-        "bokehRequire = #{content}"
-      .pipe(insert.prepend(license))
+        "bokehRequire = #{content} \n #{license}"
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
