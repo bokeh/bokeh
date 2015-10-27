@@ -7,11 +7,10 @@ class ServerConnection(object):
     ''' Wraps a websocket connection to a client.
     '''
 
-    def __init__(self, protocol, tornado_app, socket, application):
+    def __init__(self, protocol, socket, application_context):
         self._protocol = protocol
-        self._tornado_app = tornado_app
         self._socket = socket
-        self._application = application
+        self._application_context = application_context
         self._subscribed_sessions = set()
 
     @property
@@ -19,8 +18,8 @@ class ServerConnection(object):
         return self._subscribed_sessions
 
     @property
-    def application(self):
-        return self._application
+    def application_context(self):
+        return self._application_context
 
     def subscribe_session(self, session):
         """Keep alive the given session and get document change notifications from it"""
@@ -43,10 +42,10 @@ class ServerConnection(object):
         self._socket.send_message(msg)
 
     def create_session_if_needed(self, session_id):
-        return self._tornado_app.create_session_if_needed(self._application, session_id)
+        return self._application_context.create_session_if_needed(session_id)
 
     def get_session(self, session_id):
-        return self._tornado_app.get_session(session_id)
+        return self._application_context.get_session(session_id)
 
     @property
     def protocol(self):

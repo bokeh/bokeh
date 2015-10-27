@@ -18,7 +18,7 @@ class DocHandler(RequestHandler):
 
     '''
     def __init__(self, tornado_app, *args, **kw):
-        self.bokeh_application = kw['bokeh_application']
+        self.application_context = kw['application_context']
         self.bokeh_websocket_path = kw['bokeh_websocket_path']
         # Note: tornado_app is stored as self.application
         super(DocHandler, self).__init__(tornado_app, *args, **kw)
@@ -30,7 +30,7 @@ class DocHandler(RequestHandler):
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:
             session_id = str(uuid.uuid4())
-        self.application.create_session_if_needed(self.bokeh_application, session_id)
+        self.application_context.create_session_if_needed(session_id)
 
         websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
         # TODO (havocp) we should add a "title" property to Document probably

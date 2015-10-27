@@ -19,7 +19,7 @@ class AutoloadJsHandler(RequestHandler):
 
     '''
     def __init__(self, tornado_app, *args, **kw):
-        self.bokeh_application = kw['bokeh_application']
+        self.application_context = kw['application_context']
         self.bokeh_websocket_path = kw['bokeh_websocket_path']
         # Note: tornado_app is stored as self.application
         super(AutoloadJsHandler, self).__init__(tornado_app, *args, **kw)

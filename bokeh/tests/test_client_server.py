@@ -82,7 +82,7 @@ class TestClientServer(unittest.TestCase):
             assert client_session.document == doc
             assert len(client_session.document.roots) == 2
 
-            server_session = server.get_session(client_session.id)
+            server_session = server.get_session('/', client_session.id)
 
             assert len(server_session.document.roots) == 2
             results = {}
@@ -114,7 +114,7 @@ class TestClientServer(unittest.TestCase):
             client_session = connection.pull_session('test_pull_document')
             assert len(client_session.document.roots) == 2
 
-            server_session = server.get_session(client_session.id)
+            server_session = server.get_session('/', client_session.id)
             assert len(server_session.document.roots) == 2
 
             results = {}
@@ -159,7 +159,7 @@ class TestClientServer(unittest.TestCase):
             client_root = SomeModelInTestClientServer(foo=42)
 
             client_session = connection.push_session(doc, 'test_client_changes_go_to_server')
-            server_session = server.get_session(client_session.id)
+            server_session = server.get_session('/', client_session.id)
 
             assert len(server_session.document.roots) == 0
 
@@ -202,7 +202,7 @@ class TestClientServer(unittest.TestCase):
             doc = document.Document()
 
             client_session = connection.push_session(doc, 'test_server_changes_go_to_client')
-            server_session = server.get_session(client_session.id)
+            server_session = server.get_session('/', client_session.id)
 
             assert len(client_session.document.roots) == 0
             server_root = SomeModelInTestClientServer(foo=42)
@@ -251,7 +251,7 @@ def test_client_changes_do_not_boomerang(monkeypatch):
         doc.add_root(client_root)
 
         client_session = connection.push_session(doc, 'test_client_changes_do_not_boomerang')
-        server_session = server.get_session(client_session.id)
+        server_session = server.get_session('/', client_session.id)
 
         assert len(server_session.document.roots) == 1
         server_root = next(iter(server_session.document.roots))
@@ -300,7 +300,7 @@ def test_server_changes_do_not_boomerang(monkeypatch):
         doc.add_root(client_root)
 
         client_session = connection.push_session(doc, 'test_server_changes_do_not_boomerang')
-        server_session = server.get_session(client_session.id)
+        server_session = server.get_session('/', client_session.id)
 
         assert len(server_session.document.roots) == 1
         server_root = next(iter(server_session.document.roots))
