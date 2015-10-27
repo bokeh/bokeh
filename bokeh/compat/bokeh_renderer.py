@@ -117,7 +117,7 @@ class BokehRenderer(Renderer):
         self.plot.title = ax.get_title()
         # to avoid title conversion by draw_text later
         
-        #Make sure that that all information about the axes are passed to the properties
+        #Make sure that all information about the axes are passed to the properties
         if props.get('xscale', False):
             props['axes'][0]['scale'] = props['xscale']
             
