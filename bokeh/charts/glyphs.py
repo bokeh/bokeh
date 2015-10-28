@@ -427,13 +427,12 @@ class DotGlyph(Interval):
 
     def build_renderers(self):
         glyph_type = self.get_glyph()
-        print ("LLL", self.color, self.line_color)
         glyph = glyph_type(x='x', y='height',
                            line_color=self.line_color,
                            fill_color=self.color,
                            size=self.size,
-                        #    fill_alpha='fill_alpha',
-                        #    line_alpha='line_alpha'
+                           fill_alpha='fill_alpha',
+                           line_alpha='line_alpha'
                            )
         yield GlyphRenderer(glyph=glyph)
 
