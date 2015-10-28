@@ -129,10 +129,3 @@ class DotBuilder(BarBuilder):
                           'marker': MarkerAttr()}
 
     glyph = DotGlyph
-
-    def setup(self):
-        if self.ylabel is None:
-            self.ylabel = self.values.selected_title
-
-        if self.xlabel is None:
-            self.xlabel = title_from_columns(self.attributes['label'].columns)
