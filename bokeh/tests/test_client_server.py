@@ -176,7 +176,6 @@ class TestClientServer(unittest.TestCase):
             # has applied changes, since patches are sent
             # asynchronously. We use internal _loop_until API.
             def server_change_made():
-                print("server foo " + str(server_root.foo))
                 return server_root.foo == 57
             client_session._connection._loop_until(server_change_made)
             assert server_root.foo == 57
@@ -218,7 +217,6 @@ class TestClientServer(unittest.TestCase):
             # has applied changes, since patches are sent
             # asynchronously. We use internal _loop_until API.
             def client_change_made():
-                print("client foo " + str(client_root.foo))
                 return client_root.foo == 57
             client_session._connection._loop_until(client_change_made)
             assert client_root.foo == 57
@@ -316,7 +314,6 @@ def test_server_changes_do_not_boomerang(monkeypatch):
         # has applied changes, since patches are sent
         # asynchronously. We use internal _loop_until API.
         def client_change_made():
-            print("client foo " + str(client_root.foo))
             return client_root.foo == 57
         client_session._connection._loop_until(client_change_made)
         assert client_root.foo == 57
