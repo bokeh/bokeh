@@ -131,18 +131,14 @@ class BokehTornado(TornadoApplication):
     def executor(self):
         return self._executor
 
-    def new_connection(self, protocol, socket, application):
-        connection = ServerConnection(protocol, socket, application)
+    def new_connection(self, protocol, socket, application_context, session):
+        connection = ServerConnection(protocol, socket, application_context, session)
         self._clients.add(connection)
         return connection
 
     def client_lost(self, connection):
         self._clients.discard(connection)
-
-        # detach this connection from any sessions it was using
-        while connection.subscribed_sessions:
-            session = next(iter(connection.subscribed_sessions))
-            connection.unsubscribe_session(session)
+        connection.detach_session()
 
     def get_session(self, app_path, session_id):
         if app_path not in self._applications:

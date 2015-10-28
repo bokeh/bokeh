@@ -16,30 +16,13 @@ class ServerHandler(object):
 
     '''
 
-    def __init__(self, protocol):
+    def __init__(self):
         self._handlers = dict()
 
-        self._handlers['PULL-DOC-REQ'] = self._session_handler(ServerSession.pull)
-        self._handlers['PUSH-DOC'] = self._session_handler(ServerSession.push)
-        self._handlers['PATCH-DOC'] = self._session_handler(ServerSession.patch)
+        self._handlers['PULL-DOC-REQ'] = ServerSession.pull
+        self._handlers['PUSH-DOC'] = ServerSession.push
+        self._handlers['PATCH-DOC'] = ServerSession.patch
         self._handlers['SERVER-INFO-REQ'] = self._server_info_req
-
-    def _session_handler(self, handler):
-        @gen.coroutine
-        def handler_without_session(message, connection):
-            if 'sessid' not in message.header:
-                raise ProtocolError("%s missing sessid header" % message)
-            session_id = message.header['sessid']
-            if len(session_id) == 0:
-                raise ProtocolError("%s empty sessid header" % message)
-
-            connection.create_session_if_needed(session_id)
-            session = connection.get_session(session_id)
-            # keep this session alive and get notifications from it
-            connection.subscribe_session(session)
-            work = yield handler(message, connection, session)
-            raise gen.Return(work)
-        return handler_without_session
 
     @gen.coroutine
     def handle(self, message, connection):

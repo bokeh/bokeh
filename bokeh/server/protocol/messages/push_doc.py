@@ -26,11 +26,11 @@ class push_doc_1(Message):
         super(push_doc_1, self).__init__(header, metadata, content)
 
     @classmethod
-    def create(cls, session_id, document, **metadata):
+    def create(cls, document, **metadata):
         '''
 
         '''
-        header = cls.create_header(session_id=session_id)
+        header = cls.create_header()
 
         content = { 'doc' : document.to_json() }
 

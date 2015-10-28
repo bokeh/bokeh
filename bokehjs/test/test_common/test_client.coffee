@@ -13,7 +13,7 @@ global.WebSocket = require("websocket").w3cwebsocket
 
 HasProperties = utils.require "common/has_properties"
 {Document, ModelChangedEvent} = utils.require "common/document"
-{ClientConnection, ClientSession, DEFAULT_SERVER_WEBSOCKET_URL} = utils.require "common/client"
+{pull_session} = utils.require "common/client"
 Range1d = utils.require("range/range1d").Model
 
 # Promise works in a very annoying way, make it
@@ -30,6 +30,11 @@ promise_with_methods = () ->
     capture_reject(value)
   promise
 
+_previous_port = 5007
+next_port = () ->
+  _previous_port += 1
+  _previous_port
+
 # Launch server, wait for it to be alive, and then
 # run a test function that returns a Promise
 with_server = (f) ->
@@ -45,8 +50,9 @@ with_server = (f) ->
     pypath = "#{basedir}:#{oldpath}"
   else
     pypath = basedir
+  port = next_port()
   env = _.extend({}, process.env, { PYTHONPATH: pypath })
-  handle = child_process.spawn("python", ["-c", "import bokeh.command as command; command.main(['bokeh', 'serve'])"], {
+  handle = child_process.spawn("python", ["-c", "import bokeh.command as command; command.main(['bokeh', 'serve', '--port=#{port}'])"], {
     env: env,
     cwd: basedir
   })
@@ -68,6 +74,8 @@ with_server = (f) ->
     if all_done
       return
     try
+      # yay javascript, stick attributes on anything!
+      handle.url = "ws://localhost:#{port}/ws"
       v = f(handle)
       # note that "v" can be another promise OR a final value
       promise.resolve(v)
@@ -89,7 +97,7 @@ with_server = (f) ->
       setTimeout checkServer, 100
     else
       num_server_attempts = num_server_attempts + 1
-      client = net.connect(5006, 'localhost')
+      client = net.connect(port, 'localhost')
       client.on 'error', () ->
         client.destroy()
         client = null
@@ -109,61 +117,47 @@ describe "Client", ->
 
   it "should be able to connect", ->
     promise = with_server (server_process) ->
-      connection = new ClientConnection(DEFAULT_SERVER_WEBSOCKET_URL)
-      connection.connect().then(
-        (value) ->
-          console.log("Connection result #{value}")
-          connection.close()
+      pull_session(url=server_process.url).then(
+        (session) ->
+          console.log("Connection result #{session}")
+          session.close()
           "OK"
         (error) ->
           console.log("Connection error #{error}")
-          connection.close()
           throw error
       )
     expect(promise).eventually.to.equal("OK")
 
   it "should sync a document between two connections", ->
     promise = with_server (server_process) ->
-      connection1 = new ClientConnection(DEFAULT_SERVER_WEBSOCKET_URL)
-      added_root = connection1.connect().then(
-        (value) ->
-          connection1.pull_session().then(
-            (session) ->
-              root1 = new Range1d({start: 123, end: 456})
-              session.document.add_root(root1)
-              session.id
-            (error) ->
-              throw error
-          )
+      added_root = pull_session(url=server_process.url).then(
+        (session) ->
+          root1 = new Range1d({start: 123, end: 456})
+          session.document.add_root(root1)
+          session
         (error) ->
           throw error
       )
 
       added_root.then(
-        (session_id) ->
-          connection2 = new ClientConnection(DEFAULT_SERVER_WEBSOCKET_URL)
-          ok = connection2.connect().then(
-            (value) ->
-              connection2.pull_session(session_id).then(
-                (session) ->
-                  expect(session.document.roots().length).to.equal 1
-                  root = session.document.roots()[0]
-                  expect(root.get('start')).to.equal 123
-                  expect(root.get('end')).to.equal 456
-                  "OK"
-                (error) ->
-                  throw error
-              )
+        (session1) ->
+          ok = pull_session(url=server_process.url, session_id=session1.id).then(
+            (session2) ->
+              expect(session2.document.roots().length).to.equal 1
+              root = session2.document.roots()[0]
+              expect(root.get('start')).to.equal 123
+              expect(root.get('end')).to.equal 456
+              "OK"
             (error) ->
               throw error
           )
           ok.then(
             (value) ->
-              connection1.close()
-              connection2.close()
+              session1.close()
+              session2.close()
             (error) ->
-              connection1.close()
-              connection2.close()
+              session1.close()
+              session2.close()
           )
           ok
         (error) ->

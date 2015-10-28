@@ -5,7 +5,7 @@ base = require "../common/base"
 HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 {Document, RootAddedEvent, RootRemovedEvent} = require "../common/document"
-{ClientConnection} = require "../common/client"
+{pull_session} = require "../common/client"
 {Promise} = require "es6-promise"
 
 # Replace element with a view of model_id from document
@@ -45,37 +45,18 @@ add_document_static = (element, doc) ->
   _.delay(-> _render_document_to_element($(element), doc))
 
 _websocket_url = null
-_connection = null
-_get_connection = () ->
-  if _connection == null
-    if _websocket_url == null
-      throw new Error("set_websocket_url was not called")
-    _connection = new ClientConnection(_websocket_url)
-    _connection.connect().then(
-      (whatever) ->
-        _connection
-      (error) ->
-        logger.error("Failed to connect to Bokeh server #{error}")
-        throw error
-    )
-  else
-    Promise.resolve(_connection)
 
 set_websocket_url = (url) ->
-  if _connection != null
-    throw new Error("set_websocket_url called too late after we already opened websocket")
   _websocket_url = url
 
 # map from session id to promise of ClientSession
 _sessions = {}
 _get_session = (session_id) ->
+  if _websocket_url == null
+    throw new Error("set_websocket_url was not called")
+
   if session_id not of _sessions
-    _sessions[session_id] = _get_connection().then(
-      (connection) ->
-        connection.pull_session(session_id)
-      (error) ->
-        throw error
-    )
+    _sessions[session_id] = pull_session(_websocket_url, session_id)
 
   _sessions[session_id]
 

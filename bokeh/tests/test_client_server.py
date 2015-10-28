@@ -6,7 +6,7 @@ import logging
 import bokeh.document as document
 from bokeh.application import Application
 from bokeh.application.spellings import FunctionHandler
-from bokeh.client import ClientConnection
+from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.server.server import Server
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
@@ -47,38 +47,38 @@ class TestClientServer(unittest.TestCase):
             # we don't have to start the server because it
             # uses the same main loop as the client, so
             # if we start either one it starts both
-            connection = ClientConnection(io_loop = server.io_loop)
-            connection.connect()
-            assert connection.connected
-            connection.close()
-            connection.loop_until_closed()
-            assert not connection.connected
+            session = ClientSession(io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+            assert not session.connected
 
     def test_disconnect_on_error(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
-            connection.connect()
-            assert connection.connected
-            # send a bogus message
-            connection._socket.write_message(b"xx", binary=True)
+            session = ClientSession(url=server.ws_url, io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            # send a bogus message using private fields
+            session._connection._socket.write_message(b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
-            connection.loop_until_closed()
-            assert not connection.connected
+            session.loop_until_closed()
+            assert not session.connected
 
     def test_push_document(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
-            connection.connect()
-            assert connection.connected
-
             doc = document.Document()
             doc.add_root(AnotherModelInTestClientServer(bar=43))
             doc.add_root(SomeModelInTestClientServer(foo=42))
 
-            client_session = connection.push_session(doc, 'test_push_document')
+            client_session = push_session(doc,
+                                          session_id='test_push_document',
+                                          url=server.ws_url,
+                                          io_loop=server.io_loop)
+
             assert client_session.document == doc
             assert len(client_session.document.roots) == 2
 
@@ -94,9 +94,9 @@ class TestClientServer(unittest.TestCase):
             assert results['foo'] == 42
             assert results['bar'] == 43
 
-            connection.close()
-            connection.loop_until_closed()
-            assert not connection.connected
+            client_session.close()
+            client_session.loop_until_closed()
+            assert not client_session.connected
 
     def test_pull_document(self):
         application = Application()
@@ -107,11 +107,9 @@ class TestClientServer(unittest.TestCase):
         application.add(handler)
 
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
-            connection.connect()
-            assert connection.connected
-
-            client_session = connection.pull_session('test_pull_document')
+            client_session = pull_session(session_id='test_pull_document',
+                                          url=server.ws_url,
+                                          io_loop=server.io_loop)
             assert len(client_session.document.roots) == 2
 
             server_session = server.get_session('/', client_session.id)
@@ -126,45 +124,44 @@ class TestClientServer(unittest.TestCase):
             assert results['foo'] == 42
             assert results['bar'] == 43
 
-            connection.close()
-            connection.loop_until_closed()
-            assert not connection.connected
+            client_session.close()
+            client_session.loop_until_closed()
+            assert not client_session.connected
 
     def test_request_server_info(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
-            connection.connect()
-            assert connection.connected
+            session = ClientSession(url=server.ws_url, io_loop=server.io_loop)
+            session.connect()
+            assert session.connected
+            assert session.document is None
 
-            info = connection.request_server_info()
+            info = session.request_server_info()
 
             from bokeh import __version__
 
             assert info['version_info']['bokeh'] == __version__
             assert info['version_info']['server'] == __version__
 
-            connection.close()
-            connection.loop_until_closed()
-            assert not connection.connected
+            session.close()
+            session.loop_until_closed()
+            assert not session.connected
 
     def test_client_changes_go_to_server(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
-            connection.connect()
-            assert connection.connected
-
             doc = document.Document()
             client_root = SomeModelInTestClientServer(foo=42)
 
-            client_session = connection.push_session(doc, 'test_client_changes_go_to_server')
+            client_session = push_session(doc, session_id='test_client_changes_go_to_server',
+                                          url=server.ws_url,
+                                          io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
             assert len(server_session.document.roots) == 0
 
             doc.add_root(client_root)
-            connection.force_roundtrip() # be sure events have been handled on server
+            client_session.force_roundtrip() # be sure events have been handled on server
 
             assert len(server_session.document.roots) == 1
             server_root = next(iter(server_session.document.roots))
@@ -181,27 +178,26 @@ class TestClientServer(unittest.TestCase):
             def server_change_made():
                 print("server foo " + str(server_root.foo))
                 return server_root.foo == 57
-            connection._loop_until(server_change_made)
+            client_session._connection._loop_until(server_change_made)
             assert server_root.foo == 57
 
             doc.remove_root(client_root)
-            connection.force_roundtrip() # be sure events have been handled on server
+            client_session.force_roundtrip() # be sure events have been handled on server
             assert len(server_session.document.roots) == 0
 
-            connection.close()
-            connection.loop_until_closed()
-            assert not connection.connected
+            client_session.close()
+            client_session.loop_until_closed()
+            assert not client_session.connected
 
     def test_server_changes_go_to_client(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
-            connection.connect()
-            assert connection.connected
-
             doc = document.Document()
 
-            client_session = connection.push_session(doc, 'test_server_changes_go_to_client')
+            client_session = push_session(doc,
+                                          session_id='test_server_changes_go_to_client',
+                                          url=server.ws_url,
+                                          io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
             assert len(client_session.document.roots) == 0
@@ -209,7 +205,7 @@ class TestClientServer(unittest.TestCase):
             server_session.document.add_root(server_root)
             def client_has_root():
                 return len(doc.roots) > 0
-            connection._loop_until(client_has_root)
+            client_session._connection._loop_until(client_has_root)
             client_root = next(iter(client_session.document.roots))
 
             assert client_root.foo == 42
@@ -224,33 +220,32 @@ class TestClientServer(unittest.TestCase):
             def client_change_made():
                 print("client foo " + str(client_root.foo))
                 return client_root.foo == 57
-            connection._loop_until(client_change_made)
+            client_session._connection._loop_until(client_change_made)
             assert client_root.foo == 57
 
             server_session.document.remove_root(server_root)
             def client_lacks_root():
                 return len(doc.roots) == 0
-            connection._loop_until(client_lacks_root)
+            client_session._connection._loop_until(client_lacks_root)
             assert len(client_session.document.roots) == 0
 
-            connection.close()
-            connection.loop_until_closed()
-            assert not connection.connected
+            client_session.close()
+            client_session.loop_until_closed()
+            assert not client_session.connected
 
 # This isn't in the unittest.TestCase because per-test fixtures
 # don't work there (see note at bottom of https://pytest.org/latest/unittest.html#unittest-testcase)
 def test_client_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:
-        connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
-        connection.connect()
-        assert connection.connected
-
         doc = document.Document()
         client_root = SomeModelInTestClientServer(foo=42)
         doc.add_root(client_root)
 
-        client_session = connection.push_session(doc, 'test_client_changes_do_not_boomerang')
+        client_session = push_session(doc,
+                                      session_id='test_client_changes_do_not_boomerang',
+                                      url=server.ws_url,
+                                      io_loop=server.io_loop)
         server_session = server.get_session('/', client_session.id)
 
         assert len(server_session.document.roots) == 1
@@ -273,17 +268,17 @@ def test_client_changes_do_not_boomerang(monkeypatch):
         # boomerang yet
         def server_change_made():
             return server_root.foo == 57
-        connection._loop_until(server_change_made)
+        client_session._connection._loop_until(server_change_made)
         assert server_root.foo == 57
 
         # force a round trip to be sure we get the boomerang if we're going to
-        connection.force_roundtrip()
+        client_session.force_roundtrip()
 
         assert got_angry['result'] is None
 
-        connection.close()
-        connection.loop_until_closed()
-        assert not connection.connected
+        client_session.close()
+        client_session.loop_until_closed()
+        assert not client_session.connected
         server.unlisten() # clean up so next test can run
 
 # This isn't in the unittest.TestCase because per-test fixtures
@@ -291,15 +286,14 @@ def test_client_changes_do_not_boomerang(monkeypatch):
 def test_server_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:
-        connection = ClientConnection(url=server.ws_url, io_loop = server.io_loop)
-        connection.connect()
-        assert connection.connected
-
         doc = document.Document()
         client_root = SomeModelInTestClientServer(foo=42)
         doc.add_root(client_root)
 
-        client_session = connection.push_session(doc, 'test_server_changes_do_not_boomerang')
+        client_session = push_session(doc,
+                                      session_id='test_server_changes_do_not_boomerang',
+                                      url=server.ws_url,
+                                      io_loop=server.io_loop)
         server_session = server.get_session('/', client_session.id)
 
         assert len(server_session.document.roots) == 1
@@ -324,14 +318,14 @@ def test_server_changes_do_not_boomerang(monkeypatch):
         def client_change_made():
             print("client foo " + str(client_root.foo))
             return client_root.foo == 57
-        connection._loop_until(client_change_made)
+        client_session._connection._loop_until(client_change_made)
         assert client_root.foo == 57
 
         # force a round trip to be sure we get the boomerang if we're going to
-        connection.force_roundtrip()
+        client_session.force_roundtrip()
 
         assert got_angry['result'] is None
 
-        connection.close()
-        connection.loop_until_closed()
-        assert not connection.connected
+        client_session.close()
+        client_session.loop_until_closed()
+        assert not client_session.connected

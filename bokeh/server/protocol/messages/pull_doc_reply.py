@@ -26,11 +26,11 @@ class pull_doc_reply_1(Message):
         super(pull_doc_reply_1, self).__init__(header, metadata, content)
 
     @classmethod
-    def create(cls, request_id, session_id, document, **metadata):
+    def create(cls, request_id, document, **metadata):
         '''
 
         '''
-        header = cls.create_header(request_id=request_id, session_id=session_id)
+        header = cls.create_header(request_id=request_id)
 
         content = { 'doc' : document.to_json() }
 

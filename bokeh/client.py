@@ -24,6 +24,7 @@ from .document import Document, ModelChangedEvent, RootAddedEvent, RootRemovedEv
 DEFAULT_SESSION_ID = "default"
 
 class ClientConnection(object):
+    """ A Bokeh-private class used to implement ClientSession; use ClientSession to connect to the server."""
 
     class NOT_YET_CONNECTED(object):
         @gen.coroutine
@@ -65,12 +66,12 @@ class ClientConnection(object):
             else:
                 yield connection._next()
 
-    def __init__(self, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    def __init__(self, session, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
         '''
           Opens a websocket connection to the server.
         '''
         self._url = url
-        self._sessions = set()
+        self._session = session
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)
         self._socket = None
@@ -104,7 +105,7 @@ class ClientConnection(object):
         if isinstance(self._state, self.NOT_YET_CONNECTED):
             # we don't use self._transition_to_disconnected here
             # because _transition is a coroutine
-            self._tell_sessions_about_disconnect()
+            self._tell_session_about_disconnect()
             self._state = self.DISCONNECTED()
         else:
             def closed():
@@ -116,7 +117,7 @@ class ClientConnection(object):
         log.debug("Sent %r [%d bytes]", message, sent)
 
     def _send_patch_document(self, session_id, event):
-        msg = self._protocol.create('PATCH-DOC', session_id, [event])
+        msg = self._protocol.create('PATCH-DOC', [event])
         self.send_message(msg)
 
     def _send_message_wait_for_reply(self, message):
@@ -128,50 +129,40 @@ class ClientConnection(object):
         self._loop_until(have_reply_or_disconnected)
         return waiter.reply
 
-    def push_session(self, doc, session_id=DEFAULT_SESSION_ID):
-        ''' Create a session by pushing the given document to the server, overwriting any existing server-side doc
+    def push_doc(self, document):
+        ''' Push a document to the server, overwriting any existing server-side doc.
 
         Args:
-            doc : bokeh.document.Document
-                The Document to initialize the session with.
-
-            session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
-
+            document : bokeh.document.Document
+              the Document to push to the server
         Returns:
-            session :  a ClientSession with the given document and ID
+             The server reply
         '''
-        session = ClientSession(self, doc, session_id)
-        msg = self._protocol.create('PUSH-DOC', session.id, session.document)
+        msg = self._protocol.create('PUSH-DOC', document)
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
         elif reply.header['msgtype'] == 'ERROR':
             raise RuntimeError("Failed to push document: " + reply.content['text'])
         else:
-            return session
+            return reply
 
-    def pull_session(self, session_id=DEFAULT_SESSION_ID):
-        ''' Create a session by pulling the document from the given session on the server.
+    def pull_doc(self, document):
+        ''' Pull a document from the server, overwriting the passed-in document
         Args:
-            session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
-
+            document : bokeh.document.Document
+              The document to overwrite with server content.
         Returns:
-            session :  a ClientSession with the given ID
+            None
         '''
-        session_id = ClientSession._ensure_session_id(session_id)
-        msg = self._protocol.create('PULL-DOC-REQ', session_id)
+        msg = self._protocol.create('PULL-DOC-REQ')
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
         elif reply.header['msgtype'] == 'ERROR':
             raise RuntimeError("Failed to pull document: " + reply.content['text'])
         else:
-            doc = Document()
-            reply.push_to_document(doc)
-            session = ClientSession(self, doc, session_id)
-            return session
+            reply.push_to_document(document)
 
     def _send_request_server_info(self):
         msg = self._protocol.create('SERVER-INFO-REQ')
@@ -233,12 +224,12 @@ class ClientConnection(object):
 
     @gen.coroutine
     def _transition_to_disconnected(self):
-        self._tell_sessions_about_disconnect()
+        self._tell_session_about_disconnect()
         yield self._transition(self.DISCONNECTED())
 
     @gen.coroutine
     def _connect_async(self):
-        versioned_url = "%s?bokeh-protocol-version=1.0" % self._url
+        versioned_url = "%s?bokeh-protocol-version=1.0&bokeh-session-id=%s" % (self._url, self._session.id)
         request = HTTPRequest(versioned_url)
         self._socket = yield websocket_connect(request)
         yield self._transition(self.CONNECTED_BEFORE_ACK())
@@ -261,9 +252,8 @@ class ClientConnection(object):
             yield self._transition_to_disconnected()
         else:
             if message.msgtype == 'PATCH-DOC':
-                log.debug("Got PATCH-DOC, applying to %d sessions", len(self._sessions))
-                for session in self._sessions:
-                    session._handle_patch(message)
+                log.debug("Got PATCH-DOC, applying to session")
+                self._session._handle_patch(message)
             else:
                 log.debug("Ignoring %r", message)
             # we don't know about whatever message we got, ignore it.
@@ -288,46 +278,155 @@ class ClientConnection(object):
                 log.error("%r", e)
                 raise e
 
-    def _register_session(self, session):
-        if isinstance(self._state, self.DISCONNECTED):
-            # this is sketchy to do this synchronously
-            # http://blog.ometer.com/2011/07/24/callbacks-synchronous-and-asynchronous/
-            # but since our only caller is in this file
-            # we'll live with it
-            session._notify_disconnected()
-        else:
-            self._sessions.add(session)
+    def _tell_session_about_disconnect(self):
+        if self._session:
+            self._session._notify_disconnected()
 
-    def _tell_sessions_about_disconnect(self):
-        for session in self._sessions:
-            session._notify_disconnected()
-        self._sessions.clear()
+def push_session(document, session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    """Create a session by pushing the given document to the server, overwriting any existing server-side document.
+
+       session.document in the returned session will be your supplied document. While the
+       connection to the server is open, changes made on the server side will be applied
+       to this document, and changes made on the client side will be synced
+       to the server.
+
+       Args:
+            document : bokeh.document.Document
+                The document to be pushed and set as session.document
+            session_id : string, optional
+                The name of the session (omit to use 'default', None to use random unique id)
+            io_loop : tornado.ioloop.IOLoop, optional
+                The IOLoop to use for the websocket
+            url : str, optional
+                The websocket URL to connect to
+       Returns:
+            session : ClientSession
+                A new ClientSession connected to the server
+    """
+    session = ClientSession(session_id=session_id, io_loop=io_loop, url=url)
+    session.push(document)
+    return session
+
+def pull_session(session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    """Create a session by loading the current server-side document.
+
+       session.document will be a fresh document loaded from the server. While the
+       connection to the server is open, changes made on the server side will be
+       applied to this document, and changes made on the client side will be synced
+       to the server.
+
+       Args:
+            session_id : string, optional
+                The name of the session (omit to use 'default', None to use random unique id)
+            io_loop : tornado.ioloop.IOLoop, optional
+                The IOLoop to use for the websocket
+            url : str, optional
+                The websocket URL to connect to
+       Returns:
+            session : ClientSession
+                A new ClientSession connected to the server
+    """
+    session = ClientSession(session_id=session_id, io_loop=io_loop, url=url)
+    session.pull()
+    return session
 
 class ClientSession(object):
+    """Represents a websocket connection to a server-side session.
 
-    def __init__(self, connection, doc, session_id=DEFAULT_SESSION_ID):
+    Each server session stores a Document, which is kept in sync
+    with the document in this ClientSession instance.
+    Always call either pull() or push() immediately after
+    creating the session, if you construct a session by hand.
+
+    """
+
+    def __init__(self, session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
         '''
-          Attaches to a particular named session on the server.
+          A connection which attaches to a particular named session on the server.
+
+          Always call either pull() or push() immediately after creating the session
+          (until these are called session.document will be None).
+
+          The bokeh.client.push_session() and bokeh.client.pull_session() functions
+          will construct a ClientSession and push or pull in one step, so they are
+          a good way to obtain a ClientSession.
+
+          Args:
+            session_id : string, optional
+                The name of the session (omit to use 'default', None to use random unique id)
+            io_loop : tornado.ioloop.IOLoop, optional
+                The IOLoop to use for the websocket
+            url : str, optional
+                The websocket URL to connect to
         '''
-        self._connection = connection
-        self._document = doc
+        self._document = None
         self._id = self._ensure_session_id(session_id)
-        self._document.on_change(self._document_changed)
-        self._connected = True
-        # registering may remove the on_change above and
-        # set our disconnected flag as side effect
-        self._connection._register_session(self)
+
+        self._connection = ClientConnection(session=self, io_loop=io_loop, url=url)
+
         self._current_patch = None
 
+    def _attach_document(self, document):
+        self._document = document
+        self._document.on_change(self._document_changed)
+
+    def pull(self):
+        """ Pull the server's state and set it as session.document.
+
+            If this is called more than once, session.document will
+            be the same object instance but its contents will be overwritten.
+            Automatically calls connect() before pulling.
+        """
+        self.connect()
+        if self._document is None:
+            doc = Document()
+        else:
+            doc = self._document
+        self._connection.pull_doc(doc)
+        if self._document is None:
+            self._attach_document(doc)
+
+    def push(self, document=None):
+        """ Push the given document to the server and record it as session.document.
+
+            If this is called more than once, the Document has to be the same (or None
+            to mean "session.document").
+            Automatically calls connect() before pushing.
+
+        Args:
+            document : bokeh.document.Document, optional
+                The document which will be kept in sync with the server document.
+                None to use session.document or create a new document.
+        """
+        if self._document is None:
+            if document is None:
+                doc = Document()
+            else:
+                doc = document
+        else:
+            if document is None:
+                doc = self._document
+            else:
+                raise ValueError("Cannot push() a different document from existing session.document")
+
+        self.connect()
+        self._connection.push_doc(doc)
+        if self._document is None:
+            self._attach_document(doc)
 
     @classmethod
     def _ensure_session_id(cls, session_id=DEFAULT_SESSION_ID):
+        # if someone explicitly sets session_id=None that means make one up
         if session_id is None:
             session_id = str(uuid.uuid4())
         return session_id
 
     @property
     def document(self):
+        """bokeh.document.Document which will be kept in sync with the server document
+
+        This is initialized when pull() or push() succeeds. It will be None until then.
+        """
         return self._document
 
     @property
@@ -336,12 +435,34 @@ class ClientSession(object):
 
     @property
     def connected(self):
-        return self._connected
+        return self._connection.connected
+
+    def connect(self):
+        self._connection.connect()
+
+    def close(self, why="closed"):
+        self._connection.close(why)
+
+    def loop_until_closed(self):
+        self._connection.loop_until_closed()
+
+    def request_server_info(self):
+        '''
+        Ask for information about the server.
+
+        Returns:
+            A dictionary of server attributes.
+        '''
+        return self._connection.request_server_info()
+
+    def force_roundtrip(self):
+        ''' Used in unit testing to force a request/reply pair in order to avoid races '''
+        self._connection.force_roundtrip()
 
     def _notify_disconnected(self):
         '''Called by the ClientConnection we are using to notify us of disconnect'''
-        self._connected = False
-        self._document.remove_on_change(self._document_changed)
+        if self._document is not None:
+            self._document.remove_on_change(self._document_changed)
 
     def _document_changed(self, event):
         if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):

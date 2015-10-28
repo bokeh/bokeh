@@ -83,9 +83,7 @@ class Message
 
 message_handlers = {
   'PATCH-DOC' : (connection, message) ->
-    if not message.sessid()?
-      connection._close_bad_protocol("No session ID in PATCH-DOC")
-    connection._foreach_session_with_id message.sessid(), (session) ->
+    connection._for_session (session) ->
       session._handle_patch(message)
 
   'OK' : (connection, message) ->
@@ -97,10 +95,11 @@ message_handlers = {
 
 class ClientConnection
 
-  constructor : (url) ->
-    if not url?
-      url = DEFAULT_SERVER_WEBSOCKET_URL
-    @url = url
+  constructor : (@url, @id, @_on_have_session, @_on_close) ->
+    if not @url?
+      @url = DEFAULT_SERVER_WEBSOCKET_URL
+    if not @id?
+      @id = DEFAULT_SESSION_ID
     @socket = null
     @closed_permanently = false
     @_fragments = []
@@ -108,21 +107,12 @@ class ClientConnection
     @_current_handler = null
     @_pending_ack = null # null or [resolve,reject]
     @_pending_replies = {} # map reqid to [resolve,reject]
-    @_sessions = [] # can be multiple per session id
+    @session = null
     @_schedule_reconnect(0)
 
-  register_session : (session) ->
-    @_sessions.push(session)
-
-  unregister_session : (session) ->
-    i = @_sessions.indexOf(session)
-    if i >= 0
-      @_sessions.splice(i, 1)
-
-  _foreach_session_with_id : (id, f) ->
-     for s in @_sessions
-      if s.id == id
-        f(s)
+  _for_session : (f) ->
+    if @session != null
+      f(@session)
 
   connect : () ->
     if @closed_permanently
@@ -136,7 +126,7 @@ class ClientConnection
     @_current_handler = null
 
     try
-      versioned_url = "#{@url}?bokeh-protocol-version=1.0"
+      versioned_url = "#{@url}?bokeh-protocol-version=1.0&bokeh-session-id=#{@id}"
       if window.MozWebSocket?
         @socket = new MozWebSocket(versioned_url)
       else
@@ -156,9 +146,15 @@ class ClientConnection
       Promise.reject(error)
 
   close : () ->
-    @closed_permanently = true
-    if @socket?
-      @socket.close(1000, "close method called on ClientConnection")
+    if not @closed_permanently
+      @closed_permanently = true
+      if @socket?
+        @socket.close(1000, "close method called on ClientConnection")
+      @_for_session (session) ->
+        session._connection_closed()
+      if @_on_close?
+        @_on_close()
+        @_on_close = null
 
   _schedule_reconnect : (milliseconds) ->
     retry = () =>
@@ -170,9 +166,12 @@ class ClientConnection
     setTimeout retry, milliseconds
 
   send : (message) ->
-    if @socket == null
-      throw new Error("not connected so cannot send #{message}")
-    message.send(@socket)
+    try
+      if @socket == null
+        throw new Error("not connected so cannot send #{message}")
+      message.send(@socket)
+    catch e
+      logger.error("Error sending message ", e, message)
 
   send_with_reply : (message) ->
     promise = new Promise (resolve, reject) =>
@@ -189,8 +188,8 @@ class ClientConnection
         throw error
     )
 
-  _pull_doc_json : (session_id) ->
-    message = Message.create('PULL-DOC-REQ', { sessid: session_id })
+  _pull_doc_json : () ->
+    message = Message.create('PULL-DOC-REQ', {})
     promise = @send_with_reply(message)
     promise.then(
       (reply) ->
@@ -201,27 +200,35 @@ class ClientConnection
         throw error
     )
 
-  # return a promise containing a ClientSession
-  pull_session : (session_id) ->
-    if not session_id?
-      session_id = _.uniqueId()
-    @_pull_doc_json(session_id).then(
+  _repull_session_doc : () ->
+    if @session == null
+      logger.debug("Pulling session for first time")
+    else
+      logger.debug("Repulling session")
+    @_pull_doc_json().then(
       (doc_json) =>
-        doc = Document.from_json(doc_json)
-        new ClientSession(@, doc, session_id)
+        if @session == null
+          if @closed_permanently
+            logger.debug("Got new document after connection was already closed")
+          else
+            document = Document.from_json(doc_json)
+            @session = new ClientSession(@, document, @id)
+            logger.debug("Created a new session from new pulled doc")
+            if @_on_have_session?
+              @_on_have_session(@session)
+              @_on_have_session = null
+        else
+          @session.document.replace_with_json(doc_json)
+          logger.debug("Updated existing session with new pulled doc")
       (error) ->
+        # handling the error here is useless because we wouldn't
+        # get errors from the resolve handler above, so see
+        # the catch below instead
         throw error
-    )
-
-  _repull_session_id : (session_id) ->
-    logger.debug("Reloading session #{session_id}")
-    @_pull_doc_json(session_id).then(
-      (doc_json) =>
-        @_foreach_session_with_id session_id, (session) ->
-          session.document.replace_with_json(doc_json)
-      (error) ->
-        throw error
-    )
+    ).catch (error) ->
+      if console.trace?
+        console.trace(error)
+      logger.error("Failed to repull session #{error}")
 
   _on_open : (resolve, reject) ->
     logger.debug("Websocket connection is now open")
@@ -230,6 +237,12 @@ class ClientConnection
       @_awaiting_ack_handler(message)
 
   _on_message : (event) ->
+    try
+      @_on_message_unchecked(event)
+    catch e
+      logger.error("Error handling message ", e, event)
+
+  _on_message_unchecked : (event) ->
     if not @_current_handler?
       logger.error("got a message but haven't set _current_handler")
 
@@ -291,11 +304,7 @@ class ClientConnection
       # Reload any sessions
       # TODO (havocp) there's a race where we might get a PATCH before
       # we send and get a reply to our pulls.
-      session_ids = {}
-      for session in @_sessions
-        session_ids[session.id] = true
-      for id in Object.keys(session_ids)
-        @_repull_session_id(id)
+      @_repull_session_doc()
 
       if @_pending_ack?
         @_pending_ack[0](@)
@@ -316,16 +325,17 @@ class ClientConnection
 
 class ClientSession
 
-  constructor : (@connection, @document, @id) ->
+  constructor : (@_connection, @document, @id) ->
     @_current_patch = null
     # we save the bound function so we can remove it later
     @document_listener = (event) => @_document_changed(event)
     @document.on_change(@document_listener)
-    @connection.register_session(@)
 
   close : () ->
+    @_connection.close()
+
+  _connection_closed : () ->
     @document.remove_on_change(@document_listener)
-    @connection.unregister_session(@)
 
   _should_suppress_on_change : (patch, event) ->
     if event instanceof ModelChangedEvent
@@ -356,9 +366,10 @@ class ClientSession
     if event instanceof ModelChangedEvent and event.attr not of event.model.serializable_attributes()
       return
 
-    patch = Message.create('PATCH-DOC', { sessid: @id },
-      @document.create_json_patch([event]))
-    @connection.send(patch)
+    # TODO (havocp) the connection may be closed here, which will
+    # cause this send to throw an error - need to deal with it more cleanly.
+    patch = Message.create('PATCH-DOC', {}, @document.create_json_patch([event]))
+    @_connection.send(patch)
 
   _handle_patch : (message) ->
     @_current_patch = message
@@ -367,7 +378,34 @@ class ClientSession
     finally
       @_current_patch = null
 
+# Returns a promise of a ClientSession
+# The returned promise has a close() method
+# in case you want to close before getting a session;
+# session.close() works too once you have a session.
+pull_session = (url, session_id) ->
+  rejecter = null
+  connection = null
+  promise = new Promise (resolve, reject) ->
+    connection = new ClientConnection(url, session_id,
+      (session) ->
+        resolve(session)
+      () ->
+        # we rely on this as a no-op if we already resolved
+        reject(new Error("Connection was closed before we successfully pulled a session")))
+    connection.connect().then(
+      (whatever) ->
+      (error) ->
+        logger.error("Failed to connect to Bokeh server #{error}")
+        throw error
+    )
+
+  # add a "close" method to the promise... too weird?
+  promise.close = () ->
+    connection.close()
+  promise
+
 module.exports =
-  ClientConnection: ClientConnection
-  ClientSession: ClientSession
+  pull_session: pull_session
+  DEFAULT_SERVER_WEBSOCKET_URL: DEFAULT_SERVER_WEBSOCKET_URL
+  DEFAULT_SESSION_ID: DEFAULT_SESSION_ID
 

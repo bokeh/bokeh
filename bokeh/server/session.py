@@ -74,19 +74,21 @@ class ServerSession(object):
             if may_suppress and connection is self._current_patch_connection:
                 log.debug("Not sending notification back to client %r for a change it requested", connection)
             else:
-                connection.send_patch_document(self._id, event)
+                connection.send_patch_document(event)
 
     @classmethod
     @gen.coroutine
-    def pull(cls, message, connection, session):
+    def pull(cls, message, connection):
+        session = connection.session
         with (yield session._lock.acquire()):
             log.debug("Sending pull-doc-reply from session %r", session.id)
-            reply = connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], session.id, session.document)
+            reply = connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], session.document)
             raise gen.Return(reply)
 
     @classmethod
     @gen.coroutine
-    def push(cls, message, connection, session):
+    def push(cls, message, connection):
+        session = connection.session
         with (yield session._lock.acquire()):
             log.debug("pushing doc to session %r", session.id)
             message.push_to_document(session.document)
@@ -109,6 +111,6 @@ class ServerSession(object):
 
     @classmethod
     @gen.coroutine
-    def patch(cls, message, connection, session):
-        work = yield session._handle_patch(message, connection)
+    def patch(cls, message, connection):
+        work = yield connection.session._handle_patch(message, connection)
         raise gen.Return(work)
