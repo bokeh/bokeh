@@ -32,7 +32,7 @@ from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
-from .client import DEFAULT_SESSION_ID, ClientSession, ClientConnection
+from .client import DEFAULT_SESSION_ID, push_session
 from bokeh.resources import DEFAULT_SERVER_HTTP_URL, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
@@ -363,11 +363,9 @@ def _save_helper(obj, filename, resources, title):
 
 # this function exists mostly to be mocked in tests
 def _push_to_server(websocket_url, document, session_id):
-    connection = ClientConnection(url=websocket_url)
-    connection.connect()
-    session = connection.push_session(document, session_id=session_id)
-    connection.close()
-    connection.loop_until_closed()
+    session = push_session(document, session_id=session_id, url=websocket_url)
+    session.close()
+    session.loop_until_closed()
 
 def push(session_id=None, url=None, document=None, state=None):
     ''' Update the server with the data for the current document.
