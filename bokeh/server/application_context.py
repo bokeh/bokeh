@@ -7,6 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from .session import ServerSession
+from .exceptions import ProtocolError
 
 class ApplicationContext(object):
     ''' Server-side holder for bokeh.application.Application plus any associated data.
