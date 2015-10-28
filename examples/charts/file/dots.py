@@ -21,7 +21,7 @@ data = {
 }
 
 # x-axis labels pulled from the interpreter column, stacking labels from sample column
-dots = Dot(data, values='timing', label='interpreter', stack='sample', agg='mean',
+dots = Dot(data, values='timing', label='interpreter', group='sample', agg='mean',
           title="Python Interpreter Sampling", legend='top_right', width=600)
 
 show(dots)

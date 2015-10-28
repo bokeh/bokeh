@@ -248,7 +248,6 @@ class BarBuilder(Builder):
             glyph_kwargs = self.get_group_kwargs(group, attrs)
             group_kwargs = kwargs.copy()
             group_kwargs.update(glyph_kwargs)
-
             bg = self.glyph(label=self._get_label(group['label']),
                             values=group.data[self.values.selection].values,
                             agg=stats[self.agg](),

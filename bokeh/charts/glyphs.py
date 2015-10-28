@@ -413,6 +413,11 @@ class DotGlyph(Interval):
 
     marker = String(default='circle')
     size = Float(default=8)
+    stem = Bool(False, help="""
+    Whether to draw a stem from each do to the axis.
+    """)
+    stem_line_width = Float(default=1)
+    stem_color = String(default='black')
 
     def __init__(self, label, values, agg='sum', **kwargs):
         kwargs['end_agg'] = agg
@@ -426,6 +431,14 @@ class DotGlyph(Interval):
         return marker_types[self.marker]
 
     def build_renderers(self):
+        if self.stem:
+            yield GlyphRenderer(glyph=Segment(
+                x0='x', y0=0, x1='x', y1='height',
+                line_width=self.stem_line_width,
+                line_color=self.stem_color,
+                line_alpha='fill_alpha')
+            )
+
         glyph_type = self.get_glyph()
         glyph = glyph_type(x='x', y='height',
                            line_color=self.line_color,
@@ -435,6 +448,7 @@ class DotGlyph(Interval):
                            line_alpha='line_alpha'
                            )
         yield GlyphRenderer(glyph=glyph)
+
 
 
 class QuartileGlyph(Interval):

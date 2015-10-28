@@ -127,6 +127,10 @@ class DotBuilder(BarBuilder):
                           'line_color': ColorAttr(),
                           'stack': CatAttr(),
                           'group': CatAttr(),
-                          'marker': MarkerAttr()}
+                          'marker': MarkerAttr(),
+                          }
+    stem = Bool(False, help="""
+    Whether to draw a stem from each do to the axis.
+    """)
 
     glyph = DotGlyph
