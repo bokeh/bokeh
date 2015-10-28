@@ -47,7 +47,8 @@ class TestClientServer(unittest.TestCase):
             # we don't have to start the server because it
             # uses the same main loop as the client, so
             # if we start either one it starts both
-            session = ClientSession(io_loop = server.io_loop)
+            session = ClientSession(io_loop = server.io_loop,
+                                    url = server.ws_url)
             session.connect()
             assert session.connected
             session.close()
