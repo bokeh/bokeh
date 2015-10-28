@@ -362,12 +362,12 @@ def _save_helper(obj, filename, resources, title):
         f.write(decode_utf8(html))
 
 # this function exists mostly to be mocked in tests
-def _push_to_server(websocket_url, document, session_id):
-    session = push_session(document, session_id=session_id, url=websocket_url)
+def _push_to_server(websocket_url, document, session_id, io_loop):
+    session = push_session(document, session_id=session_id, url=websocket_url, io_loop=io_loop)
     session.close()
     session.loop_until_closed()
 
-def push(session_id=None, url=None, document=None, state=None):
+def push(session_id=None, url=None, document=None, state=None, io_loop=None):
     ''' Update the server with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -380,6 +380,10 @@ def push(session_id=None, url=None, document=None, state=None):
         url (str, optional) : a Bokeh server URL to push objects to
 
         document (Document, optional) : A :class:`bokeh.document.Document` to use
+
+        state (State, optional) : A state to use for any output_server() configuration of session or url
+
+        io_loop (tornado.ioloop.IOLoop, optional) : Tornado IOLoop to use for connecting to server
 
     Returns:
         None
@@ -406,7 +410,8 @@ def push(session_id=None, url=None, document=None, state=None):
     if not document:
         warnings.warn("No document to push")
 
-    _push_to_server(websocket_url=websocket_url_for_server_url(url), document=document, session_id=session_id)
+    _push_to_server(websocket_url=websocket_url_for_server_url(url), document=document,
+                    session_id=session_id, io_loop=io_loop)
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.

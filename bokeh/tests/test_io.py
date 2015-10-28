@@ -149,9 +149,6 @@ class Test_SaveHelper(DefaultStateTester):
 
 class TestPush(DefaultStateTester):
 
-    def _default_push_to_server_kwargs(self, document):
-        return  dict( websocket_url="ws://localhost:5006/ws", document=document, session_id="default")
-
     @patch('bokeh.io._push_to_server')
     def test_missing_output_server(self, mock_push_to_server):
         # set to None rather than mock objects,
@@ -163,7 +160,8 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(websocket_url="ws://localhost:5006/ws",
                                      document=io._state.document,
-                                     session_id="default"))
+                                     session_id="default",
+                                     io_loop=None))
 
     @patch('bokeh.io._push_to_server')
     def test_noargs(self, mock_push_to_server):
@@ -174,7 +172,8 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(websocket_url="wss://example.com/ws",
                                      document=io._state.document,
-                                     session_id="fakesessionid"))
+                                     session_id="fakesessionid",
+                                     io_loop=None))
 
     @patch('bokeh.io._push_to_server')
     def test_session_arg(self, mock_push_to_server):
@@ -186,7 +185,8 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(websocket_url="ws://localhost:5006/ws",
                                      document=io._state.document,
-                                     session_id="somesession"))
+                                     session_id="somesession",
+                                     io_loop=None))
 
     @patch('bokeh.io._push_to_server')
     def test_url_arg(self, mock_push_to_server):
@@ -198,7 +198,8 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(websocket_url="ws://example.com/ws",
                                      document=io._state.document,
-                                     session_id="default"))
+                                     session_id="default",
+                                     io_loop=None))
 
     @patch('bokeh.io._push_to_server')
     def test_document_arg(self, mock_push_to_server):
@@ -211,7 +212,8 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(websocket_url="ws://localhost:5006/ws",
                                      document=d,
-                                     session_id="default"))
+                                     session_id="default",
+                                     io_loop=None))
 
 
     @patch('bokeh.io._push_to_server')
@@ -221,11 +223,13 @@ class TestPush(DefaultStateTester):
         session_id = "all_args_session"
         # state should get ignored since we specified everything otherwise
         state = Mock()
-        io.push(document=d, url=url, state=state, session_id=session_id)
+        io_loop = Mock()
+        io.push(document=d, url=url, state=state, session_id=session_id, io_loop=io_loop)
         self._check_func_called(mock_push_to_server, (),
                                 dict(websocket_url="wss://example.com/foo/ws",
                                      document=d,
-                                     session_id="all_args_session"))
+                                     session_id="all_args_session",
+                                     io_loop=io_loop))
 
     @patch('bokeh.io._push_to_server')
     def test_state_arg(self, mock_push_to_server):
@@ -241,7 +245,8 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(websocket_url="wss://example.com/state/ws",
                                      document=d,
-                                     session_id="state_arg_session"))
+                                     session_id="state_arg_session",
+                                     io_loop=None))
 
 class TestShow(DefaultStateTester):
 
