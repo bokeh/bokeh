@@ -9,23 +9,19 @@ xyvalues = OrderedDict(
     jython=[22, 43, 10, 25, 26],
 )
 
-# any of the following commented are also valid Dot inputs
-#xyvalues = pd.DataFrame(xyvalues)
-#xyvalues = list(xyvalues.values())
-#xyvalues = np.array(list(xyvalues.values()))
-
 output_file("dots.html")
 
-# dots = Dot(
-#     xyvalues, cat=['lists','loops','dicts', 'gen exp', 'exceptions'],
-#     title="Dots Example", ylabel='Performance', legend=True
-# )
+from bokeh.charts import Bar, output_file, show, hplot
 
-from bokeh.sampledata.autompg import autompg as df
+# best support is with data in a format that is table-like
+data = {
+    'sample': ['1st', '2nd', '1st', '2nd', '1st', '2nd'],
+    'interpreter': ['python', 'python', 'pypy', 'pypy', 'jython', 'jython'],
+    'timing': [-2, 5, 12, 40, 22, 30]
+}
 
-df['neg_mpg'] = 0 - df['mpg']
+# x-axis labels pulled from the interpreter column, stacking labels from sample column
+dots = Dot(data, values='timing', label='interpreter', stack='sample', agg='mean',
+          title="Python Interpreter Sampling", legend='top_right', width=600)
 
-dots = Dot(df, label='cyl',  values='mpg', title="label='cyl'")
-
-df = df.set_index('cyl')
 show(dots)

@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the BoxPlot class which lets you build your BoxPlot plots just passing
+This is the Dot class which lets you build your Dot plots just passing
 the arguments to the Chart class and calling the proper functions.
 It also add a new chained stacked method.
 """
@@ -32,8 +32,9 @@ from ..attributes import ColorAttr, CatAttr, MarkerAttr
 #-----------------------------------------------------------------------------
 
 
-def Dot(data, label=None, values=None, color=None, stack=None, group=None, agg="sum", xscale="categorical", yscale="linear",
-        xgrid=False, ygrid=True, continuous_range=None, **kw):
+def Dot(data, label=None, values=None, color=None, stack=None, group=None,
+        agg="sum", xscale="categorical", yscale="linear", xgrid=False,
+        ygrid=True, continuous_range=None, **kw):
     """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builders.bar_builder.BarBuilder>`
     render the geometry from values, cat and stacked.
 
@@ -73,14 +74,14 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None, agg="
             }
 
             # x-axis labels pulled from the interpreter column, stacking labels from sample column
-            bar = Bar(data, values='timing', label='interpreter', stack='sample', agg='mean',
+            bar = Dot(data, values='timing', label='interpreter', stack='sample', agg='mean',
                       title="Python Interpreter Sampling", legend='top_right', width=400)
 
             # table-like data results in reconfiguration of the chart with no data manipulation
-            bar2 = Bar(data, values='timing', label=['interpreter', 'sample'],
+            bar2 = Dot(data, values='timing', label=['interpreter', 'sample'],
                        agg='mean', title="Python Interpreters", width=400)
 
-            output_file("stacked_bar.html")
+            output_file("Dot.html")
             show(hplot(bar, bar2))
 
     """
@@ -113,7 +114,7 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None, agg="
 
 
 class DotBuilder(BarBuilder):
-    """Produces Box Glyphs for groups of data.
+    """Produces Dot Glyphs for groups of data.
 
     Handles box plot options to produce one to many boxes,
     which are used to describe the distribution of a variable.
