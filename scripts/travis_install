@@ -39,6 +39,14 @@ BK_PKG_NAME=${BK_PKG_NAME/nightly/$VERSION}
 
 conda install --force --yes $BK_PKG_NAME
 
+DEPS_RUN=$(cat <<EOF | python -
+from conda_build.metadata import MetaData
+print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("requirements/run")]))
+EOF
+)
+
+conda install --yes $DEPS_RUN
+
 DEPS_TEST=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
 print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
