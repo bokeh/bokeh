@@ -1,7 +1,8 @@
+_ = require "underscore"
 base = require "./base"
 {logger} = require "./logging"
 
-load_models = (modelspecs) ->
+load_models = (modelspecs_or_id) ->
   # First we identify which model jsons correspond to new models,
   # and which ones are updates.
   # For new models we construct the models, add them
@@ -26,6 +27,18 @@ load_models = (modelspecs) ->
   # ####Returns
   #
   # * null
+
+  if _.isString(modelspecs_or_id)
+    element = document.getElementById(modelspecs_or_id)
+    if not element
+      throw new Error("element ##{modelspecs_or_id} not found")
+    if element.nodeName != "script" or element.getAttribute("type") != "text/x-bokeh"
+      throw new Error("element ##{modelspecs_or_id} must be a script with type='text/x-bokeh'")
+    modelspecs = JSON.parse(element.innerHTML)
+  else if _.isArray(modelspecs_or_id)
+    modelspecs = modelspecs_or_id
+  else
+    throw new Error("expected a string identifier or an array of objects")
 
   newspecs = []
   oldspecs = []
