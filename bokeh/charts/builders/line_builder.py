@@ -24,6 +24,7 @@ from ..glyphs import LineGlyph, PointGlyph
 from ..attributes import DashAttr, ColorAttr, MarkerAttr
 from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
+from ..operations import Stack, Dodge
 
 # -----------------------------------------------------------------------------
 # Classes and functions
@@ -201,6 +202,7 @@ class LineBuilder(XYBuilder):
 
             glyph = self.glyph(x=group.get_values(self.x.selection),
                                y=group.get_values(self.y.selection),
+                               stack=True,
                                **group_kwargs)
 
             # dash=group['dash']
@@ -210,6 +212,9 @@ class LineBuilder(XYBuilder):
             # yield each renderer produced by composite glyph
             for renderer in glyph.renderers:
                 yield renderer
+
+        Stack().apply(self.comp_glyphs)
+        Dodge().apply(self.comp_glyphs)
 
 
 class PointSeriesBuilder(LineBuilder):

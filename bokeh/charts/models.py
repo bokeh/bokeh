@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
+from six import iteritems
+
+from bokeh.models.glyphs import Glyph
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, Either, Float, Color, Instance, List,
-                              Any)
+                              Any, Dict, Bool)
 from .properties import ColumnLabel, Column
 
 
@@ -45,6 +48,7 @@ class CompositeGlyph(HasProps):
         glyph renderers. Simple glyphs part of the composite glyph might not use the
         column data source.""")
     renderers = List(Instance(GlyphRenderer))
+    glyphs = Dict(String, Instance(Glyph))
 
     operations = List(Any, help="""A list of chart operations that can be applied to
         manipulate their visual depiction.""")
@@ -130,6 +134,14 @@ class CompositeGlyph(HasProps):
 
     def apply_operations(self):
         pass
+
+    @classmethod
+    def glyph_properties(cls):
+        props = {}
+        for name, glyph in iteritems(cls.glyphs):
+            props[name] = glyph.class_properties(withbases=True)
+
+        return props
 
 
 class CollisionModifier(HasProps):

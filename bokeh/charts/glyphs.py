@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from collections import defaultdict
 
 import numpy as np
+import pandas as pd
 from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
@@ -158,6 +159,10 @@ class LineGlyph(XyGlyph):
 
 class AreaGlyph(LineGlyph):
 
+    # ToDo: should these be added to composite glyph?
+    stack = Bool(default=False)
+    dodge = Bool(default=False)
+
     def __init__(self, **kwargs):
         line_color = kwargs.get('line_color', None)
         fill_color = kwargs.get('fill_color', None)
@@ -203,6 +208,39 @@ class AreaGlyph(LineGlyph):
         )
         renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
         yield renderer
+
+    def __stack__(self, glyphs):
+
+        # ToDo: need to handle case of non-aligned indices, see pandas concat
+        # ToDo: need to address how to aggregate on an index when required
+        if self.stack:
+
+            # build a list of series
+            areas = []
+            for glyph in glyphs:
+                areas.append(pd.Series(glyph.source.data['y_values'],
+                                       index=glyph.source.data['x_values']))
+
+            # concat the list of indexed y values into dataframe
+            df = pd.concat(areas, axis=1)
+
+            # calculate stacked values along the rows
+            stacked_df = df.cumsum(axis=1)
+
+            # lower bounds of each area series are diff between stacked and orig values
+            lower_bounds = stacked_df - df
+
+            # reverse the df so the patch is drawn in correct order
+            lower_bounds = lower_bounds.iloc[::-1]
+
+            # concat the upper and lower bounds together
+            stacked_df = pd.concat([stacked_df, lower_bounds])
+
+            # update the data in the glyphs
+            for i, glyph in enumerate(glyphs):
+                glyph.source.data['x_values'] = stacked_df.index.values
+                glyph.source.data['y_values'] = stacked_df.ix[:, i].values
+
 
 
 class StepGlyph(LineGlyph):
