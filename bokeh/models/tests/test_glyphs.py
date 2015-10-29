@@ -466,7 +466,7 @@ def test_Asterisk():
 def test_Circle():
     marker = Circle()
     yield check_marker, marker
-    assert marker.radius == "radius"
+    assert marker.radius == None
     yield check_fill, marker
     yield check_line, marker
     yield (check_props, marker, [
