@@ -44,7 +44,7 @@ class DynamicImageView extends PlotWidget
       bounds : bounds
       cache_key : bounds.join(':')
 
-    image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], @map_frame.get('height'), @map_frame.get('width'))
+    image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.floor(@map_frame.get('height')), Math.floor(@map_frame.get('width')))
     return image
 
   render: (ctx, indices, args) ->
