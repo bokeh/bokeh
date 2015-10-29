@@ -336,18 +336,34 @@ def _get_save_args(state, filename, resources, title):
 
     return filename, resources, title
 
+def _ensure_in_document(obj):
+    # see if we are already in a doc
+    doc = obj.document
+    if doc is not None:
+        return
+    # see if some child of ours is in a doc, this is meant to
+    # handle a thing like:
+    #   p = figure()
+    #   box = HBox(children=[p])
+    #   show(box)
+    for r in obj.references():
+        if r.document is not None:
+            r.document.add_root(obj)
+            return
+    # just make up a doc
+    doc = Document()
+    doc.add_root(obj)
+
 def _save_helper(obj, filename, resources, title):
     remove_after = False
     if isinstance(obj, Component):
-        doc = obj.document
-        # Some historical scripts would save a model that
-        # wasn't in a document. We create a temporary document
-        # in order to do this, then discard it to avoid leaving
+        remove_after = obj.document is None
+        # Some historical scripts would save a model that wasn't
+        # in a document. We create a temporary document in order
+        # to deal with this, then discard it to avoid leaving
         # obj.document set when it wasn't before.
-        if doc is None:
-            doc = Document()
-            doc.add_root(obj)
-            remove_after = True
+        _ensure_in_document(obj)
+        doc = obj.document
     elif isinstance(obj, Document):
         doc = obj
     else:
