@@ -69,7 +69,7 @@ test:
     - icalendar
 
   commands:
-    - bokeh-server -h        [linux64 or osx]
+    - bokeh -h        [linux64 or osx]
 
   imports:
     - bokeh
