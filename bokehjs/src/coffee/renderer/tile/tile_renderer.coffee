@@ -202,19 +202,20 @@ class TileRendererView extends PlotWidget
         if tile? and tile.loaded == true
           cached.push(key)
         else
-          [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z)
-          parent_key = tile_source.tile_xyz_to_key(px, py, pz)
-          parent_tile = tile_source.tiles[parent_key]
-          if parent_tile? and parent_tile.loaded and parent_key not in parents
-            parents.push(parent_key)
-          if zooming_out
-            children = tile_source.children_by_tile_xyz(x, y, z)
-            for c in children
-              [cx, cy, cz, cbounds] = c
-              child_key = tile_source.tile_xyz_to_key(cx, cy, cz)
+          if @mget('render_parents')
+            [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z)
+            parent_key = tile_source.tile_xyz_to_key(px, py, pz)
+            parent_tile = tile_source.tiles[parent_key]
+            if parent_tile? and parent_tile.loaded and parent_key not in parents
+              parents.push(parent_key)
+            if zooming_out
+              children = tile_source.children_by_tile_xyz(x, y, z)
+              for c in children
+                [cx, cy, cz, cbounds] = c
+                child_key = tile_source.tile_xyz_to_key(cx, cy, cz)
 
-              if child_key of tile_source.tiles
-                children.push(child_key)
+                if child_key of tile_source.tiles
+                  children.push(child_key)
 
         if not tile?
           need_load.push(t)
@@ -250,6 +251,7 @@ class TileRenderer extends HasParent
       x_range_name: "default"
       y_range_name: "default"
       tile_source: new wmts.Model()
+      render_parents: true
     }
 
   display_defaults: ->

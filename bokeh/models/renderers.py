@@ -8,7 +8,7 @@ import logging
 
 from ..plot_object import PlotObject
 from ..properties import abstract
-from ..properties import String, Enum, Instance, Float
+from ..properties import String, Enum, Instance, Float, Bool
 from ..enums import Units, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from .. import validation
@@ -18,7 +18,6 @@ from .glyphs import Glyph
 from .tiles import TileSource
 
 logger = logging.getLogger(__name__)
-
 
 @abstract
 class Renderer(PlotObject):
@@ -46,6 +45,24 @@ class TileRenderer(Renderer):
     A particular (named) y-range to use for computing screen
     locations when rendering glyphs on the plot. If unset, use the
     default y-range.
+    """)
+
+    level = Enum(RenderLevel, default="underlay", help="""
+    Specifies the level in which to render the glyph.
+    """)
+
+    render_parents = Bool(default=True, help="""
+    Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
+    """)
+
+class DynamicImageRenderer(Renderer):
+
+    image_source = Instance(ImageSource, help="""
+    Image source to use when rendering on the plot.
+    """)
+
+    alpha = Float(1.0, help="""
+    tile opacity 0.0 - 1.0
     """)
 
     level = Enum(RenderLevel, default="underlay", help="""
