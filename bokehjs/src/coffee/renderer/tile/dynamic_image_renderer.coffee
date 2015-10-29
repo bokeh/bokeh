@@ -21,6 +21,7 @@ class DynamicImageView extends PlotWidget
     @x_mapper = this.map_frame.get('x_mappers')['default']
     @y_range = @map_plot.get('y_range')
     @y_mapper = this.map_frame.get('y_mappers')['default']
+    @lastImage = undefined
     @extent = @get_extent()
 
   _map_data: () ->
@@ -30,6 +31,7 @@ class DynamicImageView extends PlotWidget
     image_data = e.target.image_data
     image_data.img = e.target
     @mget('image_source').add_image(image_data)
+    @lastImage = image_data
     @request_render()
 
   _on_tile_error: (e) =>
@@ -44,7 +46,7 @@ class DynamicImageView extends PlotWidget
       bounds : bounds
       cache_key : bounds.join(':')
 
-    image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.floor(@map_frame.get('height')), Math.floor(@map_frame.get('width')))
+    image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.round(@map_frame.get('height')), Math.round(@map_frame.get('width')))
     return image
 
   render: (ctx, indices, args) ->
@@ -63,6 +65,7 @@ class DynamicImageView extends PlotWidget
     if image_obj?
       @_draw_image(extent.join(':'))
     else
+      @_draw_image(@lastImage.cache_key)
       @render_timer = setTimeout((=> @_create_image(extent)), 65)
 
   _draw_image: (image_key) ->
