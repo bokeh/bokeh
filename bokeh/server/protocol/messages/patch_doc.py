@@ -23,11 +23,11 @@ class patch_doc_1(Message):
         super(patch_doc_1, self).__init__(header, metadata, content)
 
     @classmethod
-    def create(cls, session_id, events, **metadata):
+    def create(cls, events, **metadata):
         '''
 
         '''
-        header = cls.create_header(session_id=session_id)
+        header = cls.create_header()
 
         if not events:
             raise ValueError("PATCH-DOC message requires at least one event")

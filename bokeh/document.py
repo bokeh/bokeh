@@ -12,6 +12,7 @@ from collections import defaultdict
 from bokeh.util.callback_manager import _check_callback
 from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
+from .validation import check_integrity
 from json import loads
 from bokeh.properties import ContainerProperty
 
@@ -457,3 +458,14 @@ class Document(object):
                 self.remove_root(root_obj)
             else:
                 raise RuntimeError("Unknown patch event " + repr(event))
+
+    def validate(self):
+        # logging.basicConfig is a no-op if there's already
+        # some logging configured. We want to make sure warnings
+        # go somewhere so configure here if nobody has.
+        logging.basicConfig(level=logging.INFO)
+        root_sets = []
+        for r in self.roots:
+            refs = r.references()
+            root_sets.append(refs)
+            check_integrity(refs)

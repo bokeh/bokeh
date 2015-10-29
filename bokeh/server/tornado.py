@@ -20,9 +20,9 @@ from bokeh.resources import Resources
 
 from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
-from .session import ServerSession
 from .connection import ServerConnection
 from .exceptions import ProtocolError
+from .application_context import ApplicationContext
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -41,6 +41,12 @@ class BokehTornado(TornadoApplication):
 
     def __init__(self, applications, io_loop=None, extra_patterns=None):
         self._resources = {}
+
+        # Wrap applications in ApplicationContext
+        self._applications = dict()
+        for k,v in applications.items():
+            self._applications[k] = ApplicationContext(v)
+
         extra_patterns = extra_patterns or []
         relative_patterns = []
         for key in applications:
@@ -49,7 +55,7 @@ class BokehTornado(TornadoApplication):
                     route = p[0]
                 else:
                     route = key + p[0]
-                relative_patterns.append((route, p[1], { "bokeh_application" : applications[key] }))
+                relative_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
         websocket_path = None
         for r in relative_patterns:
             if r[0].endswith("/ws"):
@@ -63,8 +69,6 @@ class BokehTornado(TornadoApplication):
         log.debug("Patterns are: %r", all_patterns)
         super(BokehTornado, self).__init__(all_patterns, **settings)
 
-        self._applications = applications
-        self._sessions = dict()
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
         if io_loop is None:
@@ -127,51 +131,23 @@ class BokehTornado(TornadoApplication):
     def executor(self):
         return self._executor
 
-    def new_connection(self, protocol, socket, application):
-        connection = ServerConnection(protocol, self, socket, application)
+    def new_connection(self, protocol, socket, application_context, session):
+        connection = ServerConnection(protocol, socket, application_context, session)
         self._clients.add(connection)
         return connection
 
     def client_lost(self, connection):
         self._clients.discard(connection)
+        connection.detach_session()
 
-        # detach this connection from any sessions it was using
-        while connection.subscribed_sessions:
-            session = next(iter(connection.subscribed_sessions))
-            connection.unsubscribe_session(session)
-
-    def create_session_if_needed(self, application, session_id):
-        # this is because empty session_ids would be "falsey" and
-        # potentially open up a way for clients to confuse us
-        if len(session_id) == 0:
-            raise ProtocolError("Session ID must not be empty")
-
-        if session_id not in self._sessions:
-            doc = application.create_document()
-            session = ServerSession(session_id, doc)
-            self._sessions[session_id] = session
-
-    def get_session(self, session_id):
-        if session_id in self._sessions:
-            session = self._sessions[session_id]
-            return session
-        else:
-            raise ProtocolError("No such session " + session_id)
-
-    def discard_session(self, session):
-        if session.connection_count > 0:
-            raise RuntimeError("Should not be discarding a session with open connections")
-        log.debug("Discarding session %r last in use %r seconds ago", session.id, session.seconds_since_last_unsubscribe)
-        del self._sessions[session.id]
+    def get_session(self, app_path, session_id):
+        if app_path not in self._applications:
+            raise ValueError("Application %s does not exist on this server" % app_path)
+        return self._applications[app_path].get_session(session_id)
 
     def cleanup_sessions(self):
-        to_discard = []
-        for session in self._sessions.values():
-            if session.connection_count == 0 and \
-               session.seconds_since_last_unsubscribe > self._unused_session_linger_seconds:
-                to_discard.append(session)
-        for session in to_discard:
-            self.discard_session(session)
+        for app in self._applications.values():
+            app.cleanup_sessions(self._unused_session_linger_seconds)
 
     def log_stats(self):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))

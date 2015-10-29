@@ -89,8 +89,8 @@ class Server(object):
         '''
         self._http.stop()
 
-    def get_session(self, session_id):
+    def get_session(self, app_path, session_id):
         '''Gets a session by name (session must already exist)'''
 
-        return self._tornado.get_session(session_id)
+        return self._tornado.get_session(app_path, session_id)
 

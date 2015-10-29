@@ -1,6 +1,7 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import unittest
+import sys
 
 class TestContents(unittest.TestCase):
 
@@ -19,7 +20,11 @@ class TestContents(unittest.TestCase):
 
     def test_license(self):
         import bokeh
-        bokeh.license()
+        try:
+            bokeh.license()
+        except Exception as e:
+            print("If LICENSE.txt does not exist in bokeh/ subdir, one way to fix this may be to run 'python setup.py develop'", file=sys.stderr)
+            raise e
 
 if __name__ == "__main__":
     unittest.main()

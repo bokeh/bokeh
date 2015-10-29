@@ -34,11 +34,11 @@ class WSHandler(WebSocketHandler):
         self.receiver = None
         self.handler = None
         self.connection = None
-        self.bokeh_application = kw['bokeh_application']
+        self.application_context = kw['application_context']
         # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
-    def initialize(self, bokeh_application, bokeh_websocket_path):
+    def initialize(self, application_context, bokeh_websocket_path):
         pass
 
     def check_origin(self, origin):
@@ -55,19 +55,27 @@ class WSHandler(WebSocketHandler):
         log.info('WebSocket connection opened')
 
         proto_version = self.get_argument("bokeh-protocol-version", default=None)
-        if not proto_version:
+        if proto_version is None:
             self.close()
-            raise ProtocolError("No protocol version specified")
+            raise ProtocolError("No bokeh-protocol-version specified")
+
+        session_id = self.get_argument("bokeh-session-id", default=None)
+        if session_id is None:
+            self.close()
+            raise ProtocolError("No bokeh-session-id specified")
 
         try:
+            self.application_context.create_session_if_needed(session_id)
+            session = self.application_context.get_session(session_id)
+
             protocol = Protocol(proto_version)
             self.receiver = Receiver(protocol)
             log.debug("Receiver created created for %r", protocol)
 
-            self.handler = ServerHandler(protocol)
+            self.handler = ServerHandler()
             log.debug("ServerHandler created created for %r", protocol)
 
-            self.connection = self.application.new_connection(protocol, self, self.bokeh_application)
+            self.connection = self.application.new_connection(protocol, self, self.application_context, session)
             log.info("ServerConnection created")
 
         except ProtocolError as e:

@@ -293,8 +293,8 @@ class HasProperties extends Backbone.Model
       # even though we are not in any collection yet
       if arg['type'] == this.type and arg['id'] == this.id
         return this
-      else if @_document
-        model = @_document.get_model_by_id(arg['id'])
+      else if @document
+        model = @document.get_model_by_id(arg['id'])
         if model == null
           throw new Error("#{@} refers to #{JSON.stringify(arg)} but it isn't in document #{@_document}")
         else

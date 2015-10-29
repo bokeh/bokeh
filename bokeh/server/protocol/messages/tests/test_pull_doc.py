@@ -24,15 +24,15 @@ class TestPullDocument(unittest.TestCase):
         return doc
 
     def test_create_req(self):
-        msg = Protocol("1.0").create("PULL-DOC-REQ", 'fakesession')
+        msg = Protocol("1.0").create("PULL-DOC-REQ")
 
     def test_create_reply(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', 'fakesession', sample)
+        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', sample)
 
     def test_create_reply_then_parse(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', 'fakesession', sample)
+        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', sample)
         copy = document.Document()
         msg.push_to_document(copy)
         assert len(sample.roots) == 2

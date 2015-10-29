@@ -139,11 +139,10 @@ class Message(object):
         return sent
 
     @classmethod
-    def create_header(cls, session_id=None, request_id=None):
+    def create_header(cls, request_id=None):
         ''' Return a message header fragment dict.
 
         Args:
-            session_id (str or None) : session ID the message relates to
             request_id (str or None) : message ID of the message this message replies to
 
         Returns:
@@ -154,8 +153,6 @@ class Message(object):
             'msgid'   : bkserial.make_id(),
             'msgtype' : cls.msgtype
         }
-        if session_id is not None:
-            header['sessid'] = session_id
         if request_id is not None:
             header['reqid'] = request_id
         return header

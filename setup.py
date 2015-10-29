@@ -86,7 +86,7 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 
 copy("LICENSE.txt", "bokeh/")
 
-package_data = ['LICENSE.txt']
+package_data = ['LICENSE.txt', 'themes/*.yaml']
 
 def package_path(path, filters=()):
     if not os.path.exists(path):
@@ -509,6 +509,9 @@ REQUIRES = [
         'tornado>=4.0.1',
     ]
 
+if sys.version_info[:2] == (2, 7):
+    REQUIRES.append('futures>=3.0.3')
+
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
 
@@ -530,6 +533,10 @@ setup(
     cmdclass=_cmdclass,
     packages=[
         'bokeh',
+        'bokeh.application',
+        'bokeh.application.tests',
+        'bokeh.application.spellings',
+        'bokeh.application.spellings.tests',
         'bokeh.models',
         'bokeh.models.tests',
         'bokeh.models.widgets',
@@ -541,24 +548,22 @@ setup(
         'bokeh._legacy_charts.builder',
         'bokeh._legacy_charts.builder.tests',
         'bokeh._legacy_charts.tests',
+        'bokeh.client',
+        'bokeh.command',
         'bokeh.compat',
         'bokeh.compat.mplexporter',
         'bokeh.compat.mplexporter.renderers',
         'bokeh.crossfilter',
         'bokeh.sampledata',
         'bokeh.server',
-        'bokeh.server.core',
-        'bokeh.server.core.tests',
         'bokeh.server.protocol',
         'bokeh.server.protocol.messages',
         'bokeh.server.protocol.messages.tests',
         'bokeh.server.protocol.tests',
-        'bokeh.server.storage',
-        'bokeh.server.storage.tests',
         'bokeh.server.tests',
         'bokeh.server.views',
-        'bokeh.server.views.tests',
         'bokeh.sphinxext',
+        'bokeh.themes',
         'bokeh.tests',
         'bokeh.transforms',
         'bokeh.util',
@@ -571,7 +576,7 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    #scripts=scripts,
+    scripts=['bin/bokeh'],
     zip_safe=False,
     install_requires=REQUIRES
 )

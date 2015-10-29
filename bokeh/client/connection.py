@@ -1,10 +1,6 @@
-'''
-
-'''
 from __future__ import absolute_import, print_function
 
 import logging
-import random
 
 log = logging.getLogger(__name__)
 
@@ -17,13 +13,9 @@ from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
 from bokeh.server.protocol.receiver import Receiver
 from bokeh.server.protocol import Protocol
 from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL
-import uuid
-
-from .document import Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
-
-DEFAULT_SESSION_ID = "default"
 
 class ClientConnection(object):
+    """ A Bokeh-private class used to implement ClientSession; use ClientSession to connect to the server."""
 
     class NOT_YET_CONNECTED(object):
         @gen.coroutine
@@ -65,12 +57,12 @@ class ClientConnection(object):
             else:
                 yield connection._next()
 
-    def __init__(self, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    def __init__(self, session, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
         '''
           Opens a websocket connection to the server.
         '''
         self._url = url
-        self._sessions = set()
+        self._session = session
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)
         self._socket = None
@@ -104,7 +96,7 @@ class ClientConnection(object):
         if isinstance(self._state, self.NOT_YET_CONNECTED):
             # we don't use self._transition_to_disconnected here
             # because _transition is a coroutine
-            self._tell_sessions_about_disconnect()
+            self._tell_session_about_disconnect()
             self._state = self.DISCONNECTED()
         else:
             def closed():
@@ -116,7 +108,7 @@ class ClientConnection(object):
         log.debug("Sent %r [%d bytes]", message, sent)
 
     def _send_patch_document(self, session_id, event):
-        msg = self._protocol.create('PATCH-DOC', session_id, [event])
+        msg = self._protocol.create('PATCH-DOC', [event])
         self.send_message(msg)
 
     def _send_message_wait_for_reply(self, message):
@@ -128,50 +120,40 @@ class ClientConnection(object):
         self._loop_until(have_reply_or_disconnected)
         return waiter.reply
 
-    def push_session(self, doc, session_id=DEFAULT_SESSION_ID):
-        ''' Create a session by pushing the given document to the server, overwriting any existing server-side doc
+    def push_doc(self, document):
+        ''' Push a document to the server, overwriting any existing server-side doc.
 
         Args:
-            doc : bokeh.document.Document
-                The Document to initialize the session with.
-
-            session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
-
+            document : bokeh.document.Document
+              the Document to push to the server
         Returns:
-            session :  a ClientSession with the given document and ID
+             The server reply
         '''
-        session = ClientSession(self, doc, session_id)
-        msg = self._protocol.create('PUSH-DOC', session.id, session.document)
+        msg = self._protocol.create('PUSH-DOC', document)
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
         elif reply.header['msgtype'] == 'ERROR':
             raise RuntimeError("Failed to push document: " + reply.content['text'])
         else:
-            return session
+            return reply
 
-    def pull_session(self, session_id=DEFAULT_SESSION_ID):
-        ''' Create a session by pulling the document from the given session on the server.
+    def pull_doc(self, document):
+        ''' Pull a document from the server, overwriting the passed-in document
         Args:
-            session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
-
+            document : bokeh.document.Document
+              The document to overwrite with server content.
         Returns:
-            session :  a ClientSession with the given ID
+            None
         '''
-        session_id = ClientSession._ensure_session_id(session_id)
-        msg = self._protocol.create('PULL-DOC-REQ', session_id)
+        msg = self._protocol.create('PULL-DOC-REQ')
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
         elif reply.header['msgtype'] == 'ERROR':
             raise RuntimeError("Failed to pull document: " + reply.content['text'])
         else:
-            doc = Document()
-            reply.push_to_document(doc)
-            session = ClientSession(self, doc, session_id)
-            return session
+            reply.push_to_document(document)
 
     def _send_request_server_info(self):
         msg = self._protocol.create('SERVER-INFO-REQ')
@@ -233,12 +215,12 @@ class ClientConnection(object):
 
     @gen.coroutine
     def _transition_to_disconnected(self):
-        self._tell_sessions_about_disconnect()
+        self._tell_session_about_disconnect()
         yield self._transition(self.DISCONNECTED())
 
     @gen.coroutine
     def _connect_async(self):
-        versioned_url = "%s?bokeh-protocol-version=1.0" % self._url
+        versioned_url = "%s?bokeh-protocol-version=1.0&bokeh-session-id=%s" % (self._url, self._session.id)
         request = HTTPRequest(versioned_url)
         self._socket = yield websocket_connect(request)
         yield self._transition(self.CONNECTED_BEFORE_ACK())
@@ -261,9 +243,8 @@ class ClientConnection(object):
             yield self._transition_to_disconnected()
         else:
             if message.msgtype == 'PATCH-DOC':
-                log.debug("Got PATCH-DOC, applying to %d sessions", len(self._sessions))
-                for session in self._sessions:
-                    session._handle_patch(message)
+                log.debug("Got PATCH-DOC, applying to session")
+                self._session._handle_patch(message)
             else:
                 log.debug("Ignoring %r", message)
             # we don't know about whatever message we got, ignore it.
@@ -288,75 +269,6 @@ class ClientConnection(object):
                 log.error("%r", e)
                 raise e
 
-    def _register_session(self, session):
-        if isinstance(self._state, self.DISCONNECTED):
-            # this is sketchy to do this synchronously
-            # http://blog.ometer.com/2011/07/24/callbacks-synchronous-and-asynchronous/
-            # but since our only caller is in this file
-            # we'll live with it
-            session._notify_disconnected()
-        else:
-            self._sessions.add(session)
-
-    def _tell_sessions_about_disconnect(self):
-        for session in self._sessions:
-            session._notify_disconnected()
-        self._sessions.clear()
-
-class ClientSession(object):
-
-    def __init__(self, connection, doc, session_id=DEFAULT_SESSION_ID):
-        '''
-          Attaches to a particular named session on the server.
-        '''
-        self._connection = connection
-        self._document = doc
-        self._id = self._ensure_session_id(session_id)
-        self._document.on_change(self._document_changed)
-        self._connected = True
-        # registering may remove the on_change above and
-        # set our disconnected flag as side effect
-        self._connection._register_session(self)
-        self._current_patch = None
-
-
-    @classmethod
-    def _ensure_session_id(cls, session_id=DEFAULT_SESSION_ID):
-        if session_id is None:
-            session_id = str(uuid.uuid4())
-        return session_id
-
-    @property
-    def document(self):
-        return self._document
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def connected(self):
-        return self._connected
-
-    def _notify_disconnected(self):
-        '''Called by the ClientConnection we are using to notify us of disconnect'''
-        self._connected = False
-        self._document.remove_on_change(self._document_changed)
-
-    def _document_changed(self, event):
-        if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):
-            log.debug("Not sending notification back to server for a change it requested")
-            return
-
-        # TODO (havocp): our "change sync" protocol is flawed
-        # because if both sides change the same attribute at the
-        # same time, they will each end up with the state of the
-        # other and their final states will differ.
-        self._connection._send_patch_document(self._id, event)
-
-    def _handle_patch(self, message):
-        self._current_patch = message
-        try:
-            message.apply_to_document(self.document)
-        finally:
-            self._current_patch = None
+    def _tell_session_about_disconnect(self):
+        if self._session:
+            self._session._notify_disconnected()

@@ -110,9 +110,9 @@ class ColumnDataSource(DataSource):
                 raw_data = self._data_from_df(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
+        super(ColumnDataSource, self).__init__(**kw)
         for name, data in raw_data.items():
             self.add(data, name)
-        super(ColumnDataSource, self).__init__(**kw)
 
     @staticmethod
     def _data_from_df(df):

@@ -5,16 +5,20 @@ from mock import Mock
 from six import add_metaclass
 from six.moves import xrange
 import copy
+from bokeh.properties import List, String
+from bokeh.plot_object import PlotObject
+from bokeh.property_containers import PropertyValueList
 
 def large_plot(n):
-    from bokeh.models import (Plot, PlotContext, LinearAxis, Grid, GlyphRenderer,
+    from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
         ResetTool)
+    from bokeh.models.widgets.layouts import VBox
     from bokeh.models.glyphs import Line
 
-    context = PlotContext()
-    objects = set([context])
+    vbox = VBox()
+    objects = set([vbox])
 
     for i in xrange(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -34,15 +38,16 @@ def large_plot(n):
         box_zoom = BoxZoomTool(plot=plot)
         box_select = BoxSelectTool(plot=plot)
         box_selection = BoxSelectionOverlay(tool=box_select)
+        plot.renderers.append(box_selection)
         resize = ResizeTool(plot=plot)
         previewsave = PreviewSaveTool(plot=plot)
         reset = ResetTool(plot=plot)
-        tools = [pan, wheel_zoom, box_zoom, box_select, box_selection, resize, previewsave, reset]
-        plot.tools.append(tools)
-        context.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph, plot.tool_events] + tickers + tools)
+        tools = [pan, wheel_zoom, box_zoom, box_select, resize, previewsave, reset]
+        plot.tools.extend(tools)
+        vbox.children.append(plot)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph, plot.tool_events, box_selection] + tickers + tools)
 
-    return context, objects
+    return vbox, objects
 
 class TestViewable(unittest.TestCase):
 
@@ -74,8 +79,8 @@ class TestViewable(unittest.TestCase):
 class TestCollectPlotObjects(unittest.TestCase):
 
     def test_references_large(self):
-        context, objects = large_plot(500)
-        self.assertEqual(set(context.references()), objects)
+        root, objects = large_plot(500)
+        self.assertEqual(set(root.references()), objects)
 
 class TestPlotObject(unittest.TestCase):
 
@@ -84,17 +89,11 @@ class TestPlotObject(unittest.TestCase):
         self.pObjectClass = PlotObject
 
     def test_init(self):
-        oldmethod = self.pObjectClass.setup_events
-        self.pObjectClass.setup_events = Mock()
-        testObject = self.pObjectClass(id='test_id', _block_events=True)
-        self.assertFalse(testObject.setup_events.called)
+        testObject = self.pObjectClass(id='test_id')
         self.assertEqual(testObject._id, 'test_id')
 
         testObject2 = self.pObjectClass()
-        self.assertTrue(testObject2.setup_events.called)
         self.assertIsNot(testObject2._id, None)
-
-        self.pObjectClass.setup_events = oldmethod
 
     def test_ref(self):
         testObject = self.pObjectClass(id='test_id')
@@ -155,6 +154,142 @@ class TestPlotObject(unittest.TestCase):
         v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
 
         self.assertEqual(v.references(), set([v, u1, u2, u3, u4, u5]))
+
+class HasListProp(PlotObject):
+    foo = List(String)
+    def __init__(self, **kwargs):
+        super(HasListProp, self).__init__(**kwargs)
+
+class TestContainerMutation(unittest.TestCase):
+
+    def _check_mutation(self, obj, attr, mutator, expected_event_old, expected_event_new):
+        result = dict(calls=[])
+        def record_trigger(attr, old, new_):
+            result['calls'].append((attr, old, new_))
+        obj.on_change(attr, record_trigger)
+        try:
+            actual_old = getattr(obj, attr)
+            self.assertEqual(expected_event_old, actual_old)
+            mutator(actual_old)
+            self.assertEqual(expected_event_new, getattr(obj, attr))
+        finally:
+            obj.remove_on_change(attr, record_trigger)
+        self.assertEqual(1, len(result['calls']))
+        call = result['calls'][0]
+        self.assertEqual(attr, call[0])
+        self.assertEqual(expected_event_old, call[1])
+        self.assertEqual(expected_event_new, call[2])
+
+    def test_assignment_maintains_owners(self):
+        obj = HasListProp()
+        old_list = obj.foo
+        self.assertTrue(isinstance(old_list, PropertyValueList))
+        self.assertEqual(1, len(old_list._owners))
+        obj.foo = ["a"]
+        new_list = obj.foo
+        self.assertTrue(isinstance(new_list, PropertyValueList))
+        self.assertIsNot(old_list, new_list)
+        self.assertEqual(0, len(old_list._owners))
+        self.assertEqual(1, len(new_list._owners))
+
+    def test_list_delitem(self):
+        obj = HasListProp(foo=["a", "b", "c"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            del x[1]
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a", "b", "c"],
+                             ["a", "c"])
+
+    def test_list_delslice(self):
+        obj = HasListProp(foo=["a", "b", "c", "d"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            del x[1:3]
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a", "b", "c", "d"],
+                             ["a", "d"])
+
+    def test_list_iadd(self):
+        obj = HasListProp(foo=["a"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            x += ["b"]
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a"],
+                             ["a", "b"])
+
+    def test_list_imul(self):
+        obj = HasListProp(foo=["a"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            x *= 3
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a"],
+                             ["a", "a", "a"])
+
+    def test_list_setitem(self):
+        obj = HasListProp(foo=["a"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            x[0] = "b"
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a"],
+                             ["b"])
+
+    def test_list_setslice(self):
+        obj = HasListProp(foo=["a", "b", "c", "d"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            x[1:3] = ["x"]
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a", "b", "c", "d"],
+                             ["a", "x", "d"])
+
+    def test_list_append(self):
+        obj = HasListProp()
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.append("bar"), [], ["bar"])
+
+    def test_list_extend(self):
+        obj = HasListProp()
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.extend(["x", "y"]), [], ["x", "y"])
+
+    def test_list_insert(self):
+        obj = HasListProp(foo=["a", "b"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.insert(1, "x"),
+                             ["a", "b"],
+                             ["a", "x", "b"])
+
+    def test_list_pop(self):
+        obj = HasListProp(foo=["a", "b"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.pop(),
+                             ["a", "b"],
+                             ["a"])
+
+    def test_list_remove(self):
+        obj = HasListProp(foo=["a", "b"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.remove("b"),
+                             ["a", "b"],
+                             ["a"])
+
+    def test_list_reverse(self):
+        obj = HasListProp(foo=["a", "b"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.reverse(),
+                             ["a", "b"],
+                             ["b", "a"])
+
+    def test_list_sort(self):
+        obj = HasListProp(foo=["b", "a"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.sort(),
+                             ["b", "a"],
+                             ["a", "b"])
 
 if __name__ == "__main__":
     unittest.main()

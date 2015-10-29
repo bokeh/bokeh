@@ -28,12 +28,12 @@ def check_border(annotation):
 
 def check_label(annotation):
     assert annotation.label_text_font == "Helvetica"
-    assert annotation.label_text_font_size == "12pt"
+    assert annotation.label_text_font_size == dict(value="10pt")
     assert annotation.label_text_font_style == FontStyle.normal
     assert annotation.label_text_color == "#444444"
     assert annotation.label_text_alpha == 1.0
     assert annotation.label_text_align == TextAlign.left
-    assert annotation.label_text_baseline == TextBaseline.bottom
+    assert annotation.label_text_baseline == TextBaseline.middle
 
 def check_props(annotation, *props):
     expected = set(sum((PROPS,) + props, []))
@@ -44,17 +44,17 @@ def check_props(annotation, *props):
     assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
 
 def check_fill(annotation):
-    assert annotation.fill_color == Color.gray
-    assert annotation.fill_alpha == 1.0
+    assert annotation.fill_color == '#fff9ba'
+    assert annotation.fill_alpha == 0.4
 
 def check_background(annotation):
-    assert annotation.background_fill_color == Color.gray
+    assert annotation.background_fill_color == '#ffffff'
     assert annotation.background_fill_alpha == 1.0
 
-def check_line(annotation):
-    assert annotation.line_color == Color.black
-    assert annotation.line_width == 1
-    assert annotation.line_alpha == 1.0
+def check_line(annotation, line_color='#cccccc', line_width=0.3, line_alpha=1.0):
+    assert annotation.line_color == line_color
+    assert annotation.line_width == line_width
+    assert annotation.line_alpha == line_alpha
     assert annotation.line_join == LineJoin.miter
     assert annotation.line_cap == LineCap.butt
     assert annotation.line_dash == []
@@ -102,7 +102,7 @@ def test_BoxAnnotation():
     assert box.x_range_name == 'default'
     assert box.y_range_name == 'default'
     assert box.level == 'annotation'
-    yield check_line, box
+    yield check_line, box, '#cccccc', 1, 0.3
     yield check_fill, box
     yield (check_props, box, [
         "plot",
@@ -129,7 +129,7 @@ def test_Span():
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
     assert line.render_mode == 'canvas'
-    yield check_line, line
+    yield check_line, line, 'black', 1.0
     yield (check_props, line, [
         "plot",
         "location",
