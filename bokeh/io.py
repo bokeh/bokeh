@@ -33,6 +33,7 @@ from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
 from .client import DEFAULT_SESSION_ID, push_session
+from .validation import check_integrity
 from bokeh.resources import DEFAULT_SERVER_HTTP_URL, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
@@ -275,7 +276,7 @@ def _show_server_with_state(obj, state, new, controller):
     controller.open(state.server_url + "?bokeh-session-id=" + _encode_query_param(state.session_id),
                     new=_new_param[new])
 
-def save(obj, filename=None, resources=None, title=None, state=None):
+def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -297,6 +298,8 @@ def save(obj, filename=None, resources=None, title=None, state=None):
             If None, use the default state title value, if there is one.
             Otherwise, use "Bokeh Plot"
 
+        validate (bool, optional) : True to check integrity of the models
+
     Returns:
         None
 
@@ -309,7 +312,7 @@ def save(obj, filename=None, resources=None, title=None, state=None):
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
 
-    _save_helper(obj, filename, resources, title)
+    _save_helper(obj, filename, resources, title, validate)
 
 def _get_save_args(state, filename, resources, title):
 
@@ -354,7 +357,7 @@ def _ensure_in_document(obj):
     doc = Document()
     doc.add_root(obj)
 
-def _save_helper(obj, filename, resources, title):
+def _save_helper(obj, filename, resources, title, validate):
     remove_after = False
     if isinstance(obj, Component):
         remove_after = obj.document is None
@@ -368,6 +371,9 @@ def _save_helper(obj, filename, resources, title):
         doc = obj
     else:
         raise RuntimeError("Unable to save object of type '%s'" % type(obj))
+
+    if validate:
+        doc.validate()
 
     html = standalone_html_page_for_models(doc, resources, title)
 
@@ -383,7 +389,7 @@ def _push_to_server(websocket_url, document, session_id, io_loop):
     session.close()
     session.loop_until_closed()
 
-def push(session_id=None, url=None, document=None, state=None, io_loop=None):
+def push(session_id=None, url=None, document=None, state=None, io_loop=None, validate=True):
     ''' Update the server with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -400,6 +406,8 @@ def push(session_id=None, url=None, document=None, state=None, io_loop=None):
         state (State, optional) : A state to use for any output_server() configuration of session or url
 
         io_loop (tornado.ioloop.IOLoop, optional) : Tornado IOLoop to use for connecting to server
+
+        validate (bool, optional) : True to check integrity of the document we are pushing
 
     Returns:
         None
@@ -425,6 +433,9 @@ def push(session_id=None, url=None, document=None, state=None, io_loop=None):
 
     if not document:
         warnings.warn("No document to push")
+
+    if validate:
+        document.validate()
 
     _push_to_server(websocket_url=websocket_url_for_server_url(url), document=document,
                     session_id=session_id, io_loop=io_loop)
