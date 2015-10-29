@@ -24,6 +24,7 @@ Bokeh.index             = require("./common/base").index
 # common
 Bokeh.Collections       = require("./common/base").Collections
 Bokeh.Config            = require("./common/base").Config
+Bokeh.Events            = require("./common/events").Events
 Bokeh.CartesianFrame    = require("./common/cartesian_frame")
 Bokeh.Canvas            = require("./common/canvas")
 Bokeh.GMapPlot          = require("./common/gmap_plot")
