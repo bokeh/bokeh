@@ -40,7 +40,7 @@ class DynamicImageView extends PlotWidget
     image.onload = @_on_tile_load
     image.onerror = @_on_tile_error
     image.alt = ''
-    image.tile_data =
+    image.image_data =
       bounds : bounds
       cache_key : bounds.join(':')
 
