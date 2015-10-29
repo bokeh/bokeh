@@ -32,7 +32,7 @@ load_models = (modelspecs_or_id) ->
     element = document.getElementById(modelspecs_or_id)
     if not element
       throw new Error("element ##{modelspecs_or_id} not found")
-    if element.nodeName != "script" or element.getAttribute("type") != "text/x-bokeh"
+    if element.nodeName.toLowerCase() != "script" or element.getAttribute("type") != "text/x-bokeh"
       throw new Error("element ##{modelspecs_or_id} must be a script with type='text/x-bokeh'")
     modelspecs = JSON.parse(element.innerHTML)
   else if _.isArray(modelspecs_or_id)
