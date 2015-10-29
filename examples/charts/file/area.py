@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from bokeh.charts import Area, show, output_file
+from bokeh.charts import Area, show, vplot, output_file
 
 # create some example data
 xyvalues = OrderedDict(
@@ -11,9 +11,19 @@ xyvalues = OrderedDict(
 
 output_file(filename="area.html")
 
-area = Area(
+area1 = Area(
     xyvalues, title="Responsive Area Chart",
     xlabel='time', ylabel='memory', legend="top_left"
 )
 
-show(area)
+area2 = Area(
+    xyvalues, title="Responsive Area Chart", stack=True,
+    xlabel='time', ylabel='memory', legend="top_left"
+)
+
+show(
+    vplot(
+        area1,
+        area2
+    )
+)

@@ -24,6 +24,7 @@ from ..glyphs import LineGlyph, PointGlyph
 from ..attributes import DashAttr, ColorAttr, MarkerAttr
 from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
+from ...properties import Bool
 from ..operations import Stack, Dodge
 
 # -----------------------------------------------------------------------------
@@ -95,6 +96,8 @@ class LineBuilder(XYBuilder):
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
     """
+
+    stack = Bool(default=False)
 
     default_attributes = {'color': ColorAttr(),
                           'dash': DashAttr(),
@@ -190,7 +193,15 @@ class LineBuilder(XYBuilder):
         # update our dimension with the updated data
         dim_prop.set_data(self._data)
 
+    def get_builder_attr(self):
+        attrs = self.class_properties()
+        return {attr: getattr(self, attr) for attr in attrs
+                if attr in self.glyph.class_properties()}
+
+
     def yield_renderers(self):
+
+        build_attr = self.get_builder_attr()
 
         # get the list of builder attributes and only pass them on if glyph supports
         attrs = list(self.attributes.keys())
@@ -199,10 +210,10 @@ class LineBuilder(XYBuilder):
         for group in self._data.groupby(**self.attributes):
 
             group_kwargs = self.get_group_kwargs(group, attrs)
+            group_kwargs.update(build_attr)
 
             glyph = self.glyph(x=group.get_values(self.x.selection),
                                y=group.get_values(self.y.selection),
-                               stack=True,
                                **group_kwargs)
 
             # dash=group['dash']
