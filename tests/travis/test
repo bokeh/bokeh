@@ -343,7 +343,7 @@ def test_example(example, flags):
         html_file = "%s.html" % no_ext
         url = 'file://' + html_file
     elif flags & Flags.server:
-        server_url = 'http://localhost:%d/bokeh/doc/%s/show'
+        server_url = 'http://localhost:%d/?bokeh-session-id=%s'
         url = server_url % (args.bokeh_port, basename(no_ext))
     elif flags & Flags.notebook:
         notebook_url = 'http://localhost:%d/notebooks/%s'
