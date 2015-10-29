@@ -22,7 +22,7 @@ class ImageURLView extends Glyph.View
         continue
 
       if need_load[i]
-        img = new Image()
+        img = new window.Image()
         img.onload = do (img, i) =>
           return () =>
             @loaded[i] = true
