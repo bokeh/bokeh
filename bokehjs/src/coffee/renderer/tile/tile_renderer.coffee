@@ -197,20 +197,19 @@ class TileRendererView extends PlotWidget
           cached.push(key)
 
         else
+          if @mget('render_parents')
+            [px, py, pz] = @mget('tile_source').get_closest_parent_by_tile_xyz(x, y, z)
+            parent_key = @mget('tile_source').tile_xyz_to_key(px, py, pz)
+            if parent_key of @mget('tile_source').tiles and parent_key not in parents
+              parents.push(parent_key)
 
-          [px, py, pz] = @mget('tile_source').get_closest_parent_by_tile_xyz(x, y, z)
-          parent_key = @mget('tile_source').tile_xyz_to_key(px, py, pz)
-          if parent_key of @mget('tile_source').tiles and parent_key not in parents
-            parents.push(parent_key)
-
-          if zooming_out
-            children = @mget('tile_source').children_by_tile_xyz(x, y, z)
-            for c in children
-              [cx, cy, cz, cbounds] = c
-              child_key = @mget('tile_source').tile_xyz_to_key(cx, cy, cz)
-              if child_key of @mget('tile_source').tiles
-                children.push(child_key)
-
+            if zooming_out
+              children = @mget('tile_source').children_by_tile_xyz(x, y, z)
+              for c in children
+                [cx, cy, cz, cbounds] = c
+                child_key = @mget('tile_source').tile_xyz_to_key(cx, cy, cz)
+                if child_key of @mget('tile_source').tiles
+                  children.push(child_key)
           need_load.push(t)
 
     # draw stand-in parents ----------
@@ -243,6 +242,7 @@ class TileRenderer extends HasParent
       alpha: 1.0
       x_range_name: "default"
       y_range_name: "default"
+      render_parents: true
       tile_source: new wmts.Model()
     }
 
