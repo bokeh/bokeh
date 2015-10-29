@@ -65,7 +65,8 @@ class DynamicImageView extends PlotWidget
     if image_obj?
       @_draw_image(extent.join(':'))
     else
-      @_draw_image(@lastImage.cache_key)
+      if @lastImage?
+        @_draw_image(@lastImage.cache_key)
       @render_timer = setTimeout((=> @_create_image(extent)), 65)
 
   _draw_image: (image_key) ->
