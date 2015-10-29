@@ -84,7 +84,15 @@ class CompositeGlyph(HasProps):
             this method would be called after data is added.
         """
         if self.renderers is not None:
-            self.source = self.build_source()
+            source = self.build_source()
+            if isinstance(source, dict):
+                source = ColumnDataSource(source)
+
+            if not isinstance(source, ColumnDataSource) and source is not None:
+                raise TypeError('build_source must return dict or ColumnDataSource.')
+            else:
+                self.source = source
+
             self._set_sources()
 
     def build_renderers(self):

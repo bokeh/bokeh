@@ -7,7 +7,7 @@ from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.enums import DashPattern
-from bokeh.models.glyphs import Rect, Segment, Line
+from bokeh.models.glyphs import Rect, Segment, Line, Patch
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,
@@ -143,7 +143,8 @@ class LineGlyph(XyGlyph):
             data = dict(x_values=self.x, y_values=y)
         else:
             data = dict(x_values=self.x, y_values=self.y)
-        return ColumnDataSource(data)
+
+        return data
 
     def build_renderers(self):
         """Yield a `GlyphRenderer` for the group of data."""
@@ -153,6 +154,36 @@ class LineGlyph(XyGlyph):
                      line_width=self.width,
                      line_dash=self.dash)
         yield GlyphRenderer(glyph=glyph)
+
+
+class AreaGlyph(LineGlyph):
+
+    def build_source(self):
+        data = super(AreaGlyph, self).build_source()
+        x = data['x_values'].values
+        y = data['y_values'].values
+
+        # add base of area by starting and ending at 0
+        y0 = np.insert(y, 0, 0)
+        y0 = np.append(y0, 0)
+
+        # make sure y is same length as x
+        x0 = np.insert(x, 0, x[0])
+        x0 = np.append(x0, x0[-1])
+
+        data['x_values'] = x0
+        data['y_values'] = y0
+
+        return data
+
+    def build_renderers(self):
+
+        # parse all series. We exclude the first attr as it's the x values
+        # added for the index
+        glyph = Patch(
+            x='x_values', y='y_values', fill_alpha=0.9)
+        renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
+        yield renderer
 
 
 class StepGlyph(LineGlyph):
@@ -629,7 +660,7 @@ class HistogramGlyph(AggregateGlyph):
 
     def build_source(self):
         # No need to build source, since composite glyphs handle this
-        pass
+        return None
 
     def build_renderers(self):
         """Yield a bar glyph for each bin."""
