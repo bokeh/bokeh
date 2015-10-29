@@ -66,6 +66,14 @@ class CallbackManager(object):
 
             _callbacks.append(callback)
 
+    def remove_on_change(self, attr, *callbacks):
+        ''' Remove a callback from this object '''
+        if len(callbacks) == 0:
+            raise ValueError("remove_on_change takes an attribute name and one or more callbacks, got only one parameter")
+        _callbacks = self._callbacks.setdefault(attr, [])
+        for callback in callbacks:
+            _callbacks.remove(callback)
+
     def trigger(self, attr, old, new):
         ''' Trigger callbacks for ``attr`` on this object.
 
