@@ -21,10 +21,9 @@ from __future__ import absolute_import
 
 from ..builder import create_and_build
 from ...models import Range1d
-from ...properties import Bool, String
+from ...properties import Bool, Float
 from .bar_builder import BarBuilder
 from ..glyphs import DotGlyph
-from ..utils import title_from_columns
 from ..attributes import ColorAttr, CatAttr, MarkerAttr
 
 #-----------------------------------------------------------------------------
@@ -116,10 +115,12 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None,
 class DotBuilder(BarBuilder):
     """Produces Dot Glyphs for groups of data.
 
-    Handles box plot options to produce one to many boxes,
-    which are used to describe the distribution of a variable.
+    Handles dot plot options to produce one to many dots,
+    which are used to describe the values of aggregated groups of data.
 
     """
+
+    line_alpha = Float(default=1.0)
 
     # ToDo: Support easier adding of one attr without reimplementation
     default_attributes = {'label': CatAttr(),

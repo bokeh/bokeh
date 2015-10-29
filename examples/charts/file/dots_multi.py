@@ -10,7 +10,7 @@ dot_plot = Dot(df, label='cyl', title="label='cyl'")
 
 dot_plot2 = Dot(df, label='cyl', title="label='cyl' dot_width=0.4")
 
-dot_plot3 = Dot(df, label='cyl', values='mpg', agg='mean',
+dot_plot3 = Dot(df, label='cyl', values='mpg', agg='mean', stem=True,
                 title="label='cyl' values='mpg' agg='mean'")
 
 dot_plot4 = Dot(df, label='cyl', title="label='cyl' color='DimGray'", color='dimgray')

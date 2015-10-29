@@ -328,8 +328,10 @@ class Interval(AggregateGlyph):
         color = [self.color]
         fill_alpha = [self.fill_alpha]
         line_color = [self.line_color]
+        line_alpha = [self.line_alpha]
         return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color,
-                                     fill_alpha=fill_alpha, line_color=line_color))
+                                     fill_alpha=fill_alpha, line_color=line_color,
+                                     line_alpha=line_alpha))
 
     @property
     def x_max(self):
