@@ -33,7 +33,7 @@ class DynamicImageView extends PlotWidget
     @mget('image_source').add_image(image_data)
     @lastImage = image_data
 
-    if @get_extent() == image_data.bounds
+    if @get_extent().join(':') == image_data.cache_key
       @request_render()
 
   _on_tile_error: (e) =>
