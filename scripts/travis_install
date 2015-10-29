@@ -45,8 +45,6 @@ print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("
 EOF
 )
 
-conda install --yes $DEPS_RUN
-
 DEPS_TEST=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
 print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
@@ -57,6 +55,7 @@ DEPS_FLAG=`conda list pytest --json | python -c 'import sys,json; data=json.load
 
 if [ ! $DEPS_FLAG == *"pytest"* ]; then
 
+    conda install --yes $DEPS_RUN
     conda install --yes $DEPS_TEST
 
     conda install --yes nodejs
