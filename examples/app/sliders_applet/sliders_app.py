@@ -55,8 +55,6 @@ plot.line('x', 'y', source=source,
           line_alpha=0.6
 )
 
-plot = plot
-
 inputs = VBoxForm(
     children=[
         text, offset, amplitude, phase, freq
