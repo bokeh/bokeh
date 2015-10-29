@@ -344,7 +344,7 @@ def _save_helper(obj, filename, resources, title):
         # wasn't in a document. We create a temporary document
         # in order to do this, then discard it to avoid leaving
         # obj.document set when it wasn't before.
-        if not doc:
+        if doc is None:
             doc = Document()
             doc.add_root(obj)
             remove_after = True
