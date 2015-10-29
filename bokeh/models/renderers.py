@@ -16,6 +16,7 @@ from .. import validation
 from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
 from .tiles import TileSource
+from .images import ImageSource
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,20 @@ class TileRenderer(Renderer):
     A particular (named) y-range to use for computing screen
     locations when rendering glyphs on the plot. If unset, use the
     default y-range.
+    """)
+
+    level = Enum(RenderLevel, default="underlay", help="""
+    Specifies the level in which to render the glyph.
+    """)
+
+class DynamicImageRenderer(Renderer):
+
+    image_source = Instance(ImageSource, help="""
+    Image source to use when rendering on the plot.
+    """)
+
+    alpha = Float(1.0, help="""
+    tile opacity 0.0 - 1.0
     """)
 
     level = Enum(RenderLevel, default="underlay", help="""
