@@ -509,6 +509,9 @@ REQUIRES = [
         'tornado>=4.0.1',
     ]
 
+if sys.version_info[:2] == (2, 7):
+    REQUIRES.append('futures>=3.0.3')
+
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
 
