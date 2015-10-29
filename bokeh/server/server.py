@@ -6,6 +6,8 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
+import sys
+
 from tornado.httpserver import HTTPServer
 
 from .tornado import BokehTornado
@@ -38,8 +40,12 @@ class Server(object):
             self._port = kwargs['port']
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
-        self._http.bind(self._port)
-        self._http.start(1)
+        try:
+            self._http.bind(self._port)
+            self._http.start(1)
+        except OSError:
+            log.critical("Cannot start bokeh server, port %s already in use" % self._port)
+            sys.exit(1)
 
     # TODO this is broken, it's only used by test_client_server.py so fix that then remove this
     @property
