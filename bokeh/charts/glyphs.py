@@ -158,6 +158,22 @@ class LineGlyph(XyGlyph):
 
 class AreaGlyph(LineGlyph):
 
+    def __init__(self, **kwargs):
+        line_color = kwargs.get('line_color', None)
+        fill_color = kwargs.get('fill_color', None)
+        color = kwargs.get('color', None)
+
+        if color is not None:
+            # apply color to line and fill
+            kwargs['fill_color'] = color
+            kwargs['line_color'] = color
+        elif line_color is not None and fill_color is None:
+            # apply line color to fill color by default
+            kwargs['fill_color'] = line_color
+
+        super(AreaGlyph, self).__init__(**kwargs)
+        self.setup()
+
     def build_source(self):
         data = super(AreaGlyph, self).build_source()
         x = data['x_values'].values
@@ -181,7 +197,10 @@ class AreaGlyph(LineGlyph):
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
         glyph = Patch(
-            x='x_values', y='y_values', fill_alpha=0.9)
+            x='x_values', y='y_values',
+            fill_alpha=0.9, fill_color=self.fill_color,
+            line_color=self.line_color
+        )
         renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
         yield renderer
 
