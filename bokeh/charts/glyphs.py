@@ -372,6 +372,8 @@ class Interval(AggregateGlyph):
 
     label_value = Either(String, Float, Datetime, Bool, default=None)
 
+    glyphs = {'Interval': Rect()}
+
     def __init__(self, label, values, **kwargs):
         if not isinstance(label, str):
             label_value = label

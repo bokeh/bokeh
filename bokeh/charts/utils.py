@@ -380,3 +380,25 @@ def gen_column_names(n):
                                                  DEFAULT_COLUMN_NAMES))]
         col_names.extend(labels)
         return col_names
+
+
+class ChartHelp(object):
+    """Builds, formats, and displays help for the chart function"""
+    def __init__(self, *builders):
+        self.builders = builders
+
+    def __repr__(self):
+        help_str = ''
+        for builder in self.builders:
+            help_str += builder.generate_help()
+
+        return help_str
+
+
+def help(*builders):
+    """Adds a ChartHelp object to the help attribute of the function."""
+    def add_help(f):
+        f.help = ChartHelp(*builders)
+        return f
+
+    return add_help

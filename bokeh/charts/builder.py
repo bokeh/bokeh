@@ -187,6 +187,8 @@ class Builder(HasProps):
     """
     column_selector = OrderedAssigner
 
+    comp_glyph_types = List(Instance(CompositeGlyph))
+
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
 
@@ -462,6 +464,14 @@ class Builder(HasProps):
         chart.add_scales('y', self.yscale)
 
         return chart
+
+    @classmethod
+    def generate_help(cls):
+        help_str = ''
+        for comp_glyph in cls.comp_glyph_types:
+            help_str += str(comp_glyph.glyph_properties())
+
+        return help_str
 
 
 class XYBuilder(Builder):

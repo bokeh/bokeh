@@ -28,90 +28,11 @@ from ..operations import Stack, Dodge
 from ...enums import Aggregation
 from ..stats import stats
 from ...models.sources import ColumnDataSource
+from ..utils import help
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-
-
-def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="sum", xscale="categorical", yscale="linear",
-        xgrid=False, ygrid=True, continuous_range=None, **kw):
-    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builders.bar_builder.BarBuilder>`
-    render the geometry from values, cat and stacked.
-
-    Args:
-        data (:ref:`userguide_charts_data_types`): the data
-            source for the chart.
-        values (str, optional): iterable 2d representing the data series
-            values matrix.
-        label (list(str) or str, optional): list of string representing the categories.
-            (Defaults to None)
-        stack (list(str) or str, optional): columns to use for stacking.
-            (Defaults to False, so grouping is assumed)
-        group (list(str) or str, optional): columns to use for grouping.
-        agg (str): how to aggregate the `values`. (Defaults to 'sum', or only label is
-            provided, then performs a `count`)
-        continuous_range(Range1d, optional): Custom continuous_range to be
-            used. (Defaults to None)
-
-    In addition to the parameters specific to this chart,
-    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
-
-    Returns:
-        :class:`Chart`: includes glyph renderers that generate bars
-
-    Examples:
-
-        .. bokeh-plot::
-            :source-position: above
-
-            from bokeh.charts import Bar, output_file, show, hplot
-
-            # best support is with data in a format that is table-like
-            data = {
-                'sample': ['1st', '2nd', '1st', '2nd', '1st', '2nd'],
-                'interpreter': ['python', 'python', 'pypy', 'pypy', 'jython', 'jython'],
-                'timing': [-2, 5, 12, 40, 22, 30]
-            }
-
-            # x-axis labels pulled from the interpreter column, stacking labels from sample column
-            bar = Bar(data, values='timing', label='interpreter', stack='sample', agg='mean',
-                      title="Python Interpreter Sampling", legend='top_right', width=400)
-
-            # table-like data results in reconfiguration of the chart with no data manipulation
-            bar2 = Bar(data, values='timing', label=['interpreter', 'sample'],
-                       agg='mean', title="Python Interpreters", width=400)
-
-            output_file("stacked_bar.html")
-            show(hplot(bar, bar2))
-
-    """
-    if continuous_range and not isinstance(continuous_range, Range1d):
-        raise ValueError(
-            "continuous_range must be an instance of bokeh.models.ranges.Range1d"
-        )
-
-    if label is not None and values is None:
-        kw['label_only'] = True
-        if (agg == 'sum') or (agg == 'mean'):
-            agg = 'count'
-            values = label
-
-    # The continuous_range is the y_range (until we implement HBar charts)
-    y_range = continuous_range
-    kw['label'] = label
-    kw['values'] = values
-    kw['color'] = color
-    kw['stack'] = stack
-    kw['group'] = group
-    kw['agg'] = agg
-    kw['xscale'] = xscale
-    kw['yscale'] = yscale
-    kw['xgrid'] = xgrid
-    kw['ygrid'] = ygrid
-    kw['y_range'] = y_range
-
-    return create_and_build(BarBuilder, data, **kw)
 
 
 class BarBuilder(Builder):
@@ -152,6 +73,7 @@ class BarBuilder(Builder):
     fill_alpha = Float(default=0.8)
 
     glyph = BarGlyph
+    comp_glyph_types = [BarGlyph]
     label_attributes = ['stack', 'group']
 
     label_only = Bool(False)
@@ -271,3 +193,85 @@ class BarBuilder(Builder):
         for renderer in self.comp_glyphs:
             for sub_renderer in renderer.renderers:
                 yield sub_renderer
+
+
+@help(BarBuilder)
+def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="sum",
+        xscale="categorical", yscale="linear",
+        xgrid=False, ygrid=True, continuous_range=None, **kw):
+    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builders.bar_builder.BarBuilder>`
+    render the geometry from values, cat and stacked.
+
+    Args:
+        data (:ref:`userguide_charts_data_types`): the data
+            source for the chart.
+        values (str, optional): iterable 2d representing the data series
+            values matrix.
+        label (list(str) or str, optional): list of string representing the categories.
+            (Defaults to None)
+        stack (list(str) or str, optional): columns to use for stacking.
+            (Defaults to False, so grouping is assumed)
+        group (list(str) or str, optional): columns to use for grouping.
+        agg (str): how to aggregate the `values`. (Defaults to 'sum', or only label is
+            provided, then performs a `count`)
+        continuous_range(Range1d, optional): Custom continuous_range to be
+            used. (Defaults to None)
+
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
+
+    Returns:
+        :class:`Chart`: includes glyph renderers that generate bars
+
+    Examples:
+
+        .. bokeh-plot::
+            :source-position: above
+
+            from bokeh.charts import Bar, output_file, show, hplot
+
+            # best support is with data in a format that is table-like
+            data = {
+                'sample': ['1st', '2nd', '1st', '2nd', '1st', '2nd'],
+                'interpreter': ['python', 'python', 'pypy', 'pypy', 'jython', 'jython'],
+                'timing': [-2, 5, 12, 40, 22, 30]
+            }
+
+            # x-axis labels pulled from the interpreter column, stacking labels from sample column
+            bar = Bar(data, values='timing', label='interpreter', stack='sample', agg='mean',
+                      title="Python Interpreter Sampling", legend='top_right', width=400)
+
+            # table-like data results in reconfiguration of the chart with no data manipulation
+            bar2 = Bar(data, values='timing', label=['interpreter', 'sample'],
+                       agg='mean', title="Python Interpreters", width=400)
+
+            output_file("stacked_bar.html")
+            show(hplot(bar, bar2))
+
+    """
+    if continuous_range and not isinstance(continuous_range, Range1d):
+        raise ValueError(
+            "continuous_range must be an instance of bokeh.models.ranges.Range1d"
+        )
+
+    if label is not None and values is None:
+        kw['label_only'] = True
+        if (agg == 'sum') or (agg == 'mean'):
+            agg = 'count'
+            values = label
+
+    # The continuous_range is the y_range (until we implement HBar charts)
+    y_range = continuous_range
+    kw['label'] = label
+    kw['values'] = values
+    kw['color'] = color
+    kw['stack'] = stack
+    kw['group'] = group
+    kw['agg'] = agg
+    kw['xscale'] = xscale
+    kw['yscale'] = yscale
+    kw['xgrid'] = xgrid
+    kw['ygrid'] = ygrid
+    kw['y_range'] = y_range
+
+    return create_and_build(BarBuilder, data, **kw)
