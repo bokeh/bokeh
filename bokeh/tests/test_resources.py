@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 
 import bokeh.resources as resources
 from bokeh.resources import _get_cdn_urls
+
+pytestmark = pytest.mark.unit
 
 WRAPPER = """Bokeh.$(function() {
     foo

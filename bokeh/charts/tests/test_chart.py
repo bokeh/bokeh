@@ -29,6 +29,8 @@ from bokeh.models.tools import (
     BoxZoomTool, HelpTool, LassoSelectTool, PanTool, PreviewSaveTool, ResetTool,
     ResizeTool, WheelZoomTool)
 
+pytestmark = pytest.mark.unit
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------

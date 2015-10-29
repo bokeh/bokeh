@@ -15,6 +15,7 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
+import pytest
 import unittest
 
 import numpy as np
@@ -25,6 +26,8 @@ from bokeh._legacy_charts import Area
 from bokeh.models import DataRange1d, Range1d
 
 from ._utils import create_chart
+
+pytestmark = pytest.mark.unit
 
 #-----------------------------------------------------------------------------
 # Classes and functions

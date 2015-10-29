@@ -1,10 +1,15 @@
 from __future__ import absolute_import
+
+import pytest
 import unittest
 
 from bokeh.models import (
     LinearAxis, PanTool, BoxZoomTool, LassoSelectTool, ResetTool, ResizeTool)
 
 import bokeh.plotting as plt
+
+pytestmark = pytest.mark.unit
+
 
 class TestFigure(unittest.TestCase):
 

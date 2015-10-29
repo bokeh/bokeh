@@ -7,6 +7,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
 import tempfile
 
 from bokeh.session import TestSession as Session
@@ -14,6 +15,8 @@ from bokeh.session import TestSession as Session
 from bokeh.server.app import bokeh_app, app
 from bokeh.server.models import user
 from bokeh.util.testing import FlaskClientTestCase
+
+pytestmark = pytest.mark.unit
 
 
 class TestMultiUserAuth(FlaskClientTestCase):

@@ -15,6 +15,7 @@
 
 from __future__ import absolute_import
 
+import pytest
 import unittest
 from mock import patch
 
@@ -27,6 +28,8 @@ from bokeh.models.ranges import FactorRange
 from bokeh.models.tools import (
     BoxZoomTool, HelpTool, LassoSelectTool, PanTool, PreviewSaveTool, ResetTool,
     ResizeTool, WheelZoomTool)
+
+pytestmark = pytest.mark.unit
 
 #-----------------------------------------------------------------------------
 # Classes and functions

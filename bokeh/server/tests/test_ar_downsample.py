@@ -21,6 +21,7 @@ from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.ranges import Range1d
 from bokeh.util.testing import FlaskClientTestCase
 
+pytestmark = pytest.mark.unit
 
 def sort_init_first(_, a, b):
     if "_init_" in a:

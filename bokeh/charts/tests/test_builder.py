@@ -19,6 +19,8 @@ import pytest
 
 from bokeh.charts._builder import Builder
 
+pytestmark = pytest.mark.unit
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -31,4 +33,3 @@ def builder():
 
 def test_empty_builder(builder):
     assert builder.xlabel is None
-

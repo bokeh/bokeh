@@ -1,10 +1,14 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 import sys
 import platform
 
 import bokeh.util.testing as testing
+
+pytestmark = pytest.mark.unit
+
 
 class _CaptureString():
     value = ""

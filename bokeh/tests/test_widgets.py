@@ -1,8 +1,10 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 import inspect
 
+pytestmark = pytest.mark.unit
 
 def get_prop_set(class_object):
     # all this does is get a list of every property implemented by the object that is not present in the baseclasses of said object

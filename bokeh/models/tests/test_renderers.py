@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 
 from bokeh.plotting import figure
 from bokeh.models.ranges import DataRange1d
 
+pytestmark = pytest.mark.unit
 
 class TestGlyphRenderer(unittest.TestCase):
     def test_warning_about_colons_in_column_labels_for_axis(self):

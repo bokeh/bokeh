@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 
 import bokeh.document as document
@@ -7,6 +8,8 @@ from bokeh.exceptions import DataIntegrityException
 from bokeh.models import PlotContext
 from bokeh.plotting import figure
 import bokeh.protocol as protocol
+
+pytestmark = pytest.mark.unit
 
 json_objs = [
     {'attributes': { u'doc': u'foo', u'children': [], u'id': u'bar' }, 'type': u'PlotContext'}

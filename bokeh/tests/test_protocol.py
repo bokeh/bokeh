@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 from unittest import skipIf
 
@@ -10,6 +11,8 @@ try:
     is_pandas = True
 except ImportError as e:
     is_pandas = False
+
+pytestmark = pytest.mark.unit
 
 
 class TestBokehJSONEncoder(unittest.TestCase):

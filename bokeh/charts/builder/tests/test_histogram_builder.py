@@ -14,7 +14,11 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh.charts.builder.histogram_builder import HistogramBuilder
+
+pytestmark = pytest.mark.unit
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -25,4 +29,3 @@ def test_supported_input(test_data):
     hist_builder = HistogramBuilder(test_data.auto_data.mpg.values)
     hist_builder.create()
     assert len(hist_builder.comp_glyphs) > 0
-

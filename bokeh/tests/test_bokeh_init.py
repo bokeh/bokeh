@@ -1,6 +1,10 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
+
+pytestmark = pytest.mark.unit
+
 
 class TestContents(unittest.TestCase):
 

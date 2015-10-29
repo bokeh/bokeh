@@ -1,9 +1,13 @@
 from __future__ import  absolute_import
 
+import pytest
+
 from bokeh.models.annotations import Legend, BoxAnnotation, Span
 from bokeh.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
+
+pytestmark = pytest.mark.unit
 
 FILL = ["fill_color", "fill_alpha"]
 BACKGROUND = ['background_fill_color', 'background_fill_alpha']

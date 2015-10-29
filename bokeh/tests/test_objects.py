@@ -1,10 +1,14 @@
 from __future__ import absolute_import
+
+import pytest
 import unittest
 
 from mock import Mock
 from six import add_metaclass
 from six.moves import xrange
 import copy
+
+pytestmark = pytest.mark.unit
 
 def large_plot(n):
     from bokeh.models import (Plot, PlotContext, LinearAxis, Grid, GlyphRenderer,

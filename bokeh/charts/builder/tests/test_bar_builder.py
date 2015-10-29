@@ -14,8 +14,12 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh.charts.builder.bar_builder import BarBuilder
 from bokeh.charts.stats import CountDistinct
+
+pytestmark = pytest.mark.unit
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -27,4 +31,3 @@ def test_cat_list_input(test_data):
     bar_builder = BarBuilder(test_data.cat_list)
     bar_builder.create()
     assert len(bar_builder.comp_glyphs) == num_items
-

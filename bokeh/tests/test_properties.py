@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+
+import pytest
 import unittest
 import numpy as np
 
@@ -6,6 +8,8 @@ from bokeh.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle)
+
+pytestmark = pytest.mark.unit
 
 
 class Basictest(unittest.TestCase):

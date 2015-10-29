@@ -19,6 +19,8 @@ import pytest
 
 from bokeh.charts._data_source import ChartDataSource
 
+pytestmark = pytest.mark.unit
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh.models.glyphs import (
     AnnularWedge, Annulus, Arc,
     Bezier,
@@ -36,6 +38,8 @@ from bokeh.enums import (
     DashPattern,
     ButtonType, MapType,
     NamedColor as Color, NamedIcon)
+
+pytestmark = pytest.mark.unit
 
 # fool flake8
 (   LineJoin, LineDash, LineCap,

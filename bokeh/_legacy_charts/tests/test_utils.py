@@ -15,9 +15,12 @@
 
 from __future__ import absolute_import
 
+import pytest
 import unittest
 
 from bokeh._legacy_charts.utils import chunk
+
+pytestmark = pytest.mark.unit
 
 #-----------------------------------------------------------------------------
 # Classes and functions
