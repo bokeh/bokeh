@@ -6,6 +6,11 @@ PLOT_JS template.
 :type plot_js: str
 
 #}
+{%- if all_models -%}
+<script id="{{ all_models_id }}" type="text/x-bokeh">
+    {{ all_models|indent(4) }}
+</script>
+{% endif -%}
 <script type="text/javascript">
     {{ plot_js }}
 </script>

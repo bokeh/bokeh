@@ -189,8 +189,11 @@ def _get_js(custom_models, all_models, plots):
 
 
 def _get_script(custom_models, all_models, plots):
-    js = _get_js(custom_models, all_models, plots)
+    all_models_id = str(uuid.uuid4())
+    js = _get_js(custom_models, all_models_id, plots)
     script = PLOT_SCRIPT.render(
+        all_models_id = all_models_id,
+        all_models=serialize_json(all_models),
         plot_js=js,
     )
     return script
