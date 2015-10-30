@@ -32,7 +32,7 @@ from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
-from .client import DEFAULT_SESSION_ID, push_session
+from .client import DEFAULT_SESSION_ID, push_session, show_session
 from .validation import check_integrity
 from bokeh.resources import DEFAULT_SERVER_HTTP_URL, websocket_url_for_server_url
 
@@ -262,19 +262,10 @@ def _show_notebook_with_state(obj, state):
     else:
         publish_display_data({'text/html': notebook_div(obj)})
 
-def _encode_query_param(s):
-    try:
-        import urllib
-        return urllib.quote_plus(s)
-    except:
-        # python 3
-        import urllib.parse as parse
-        return parse.quote_plus(s)
-
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
-    controller.open(state.server_url + "?bokeh-session-id=" + _encode_query_param(state.session_id),
-                    new=_new_param[new])
+    show_session(session_id=state.session_id, server_url=state.server_url,
+                 new=new, controller=controller)
 
 def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
     ''' Save an HTML file with the data for the current document.

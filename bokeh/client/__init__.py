@@ -3,4 +3,4 @@
 '''
 from __future__ import absolute_import
 
-from .session import ClientSession, pull_session, push_session, DEFAULT_SESSION_ID
+from .session import ClientSession, pull_session, push_session, show_session, DEFAULT_SESSION_ID

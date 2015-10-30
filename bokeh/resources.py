@@ -39,6 +39,17 @@ def websocket_url_for_server_url(url):
     else:
         return reprotocoled + "/ws"
 
+def server_url_for_websocket_url(url):
+    if url.startswith("ws:"):
+        reprotocoled = "http" + url[2:]
+    elif url.startswith("wss:"):
+        reprotocoled = "https" + url[3:]
+    else:
+        raise ValueError("URL has non-websocket protocol " + url)
+    if not reprotocoled.endswith("/ws"):
+        raise ValueError("websocket URL does not end in /ws")
+    return reprotocoled[:-2]
+
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
