@@ -74,6 +74,9 @@ class DynamicImageView extends PlotWidget
   _draw_image: (image_key) ->
     image_obj = @mget('image_source').images[image_key]
     if image_obj?
+      @map_canvas.save()
+      @_set_rect()
+      @map_canvas.globalAlpha = @mget('alpha')
       [sxmin, symin] = @plot_view.frame.map_to_screen([image_obj.bounds[0]], [image_obj.bounds[3]], @plot_view.canvas)
       [sxmax, symax] = @plot_view.frame.map_to_screen([image_obj.bounds[2]], [image_obj.bounds[1]], @plot_view.canvas)
       sxmin = sxmin[0]
@@ -85,6 +88,7 @@ class DynamicImageView extends PlotWidget
       sx = sxmin
       sy = symin
       @map_canvas.drawImage(image_obj.img, sx, sy, sw, sh)
+      @map_canvas.restore()
 
   _set_rect:() ->
     outline_width = @plot_view.outline_props.width.value()
@@ -94,14 +98,6 @@ class DynamicImageView extends PlotWidget
     h = @map_frame.get('height') - outline_width
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
-
-  _render_images: (image_keys) ->
-    @map_canvas.save()
-    @_set_rect()
-    @map_canvas.globalAlpha = @mget('alpha')
-    for image_key in image_keys
-      @_draw_tile(image_key)
-    @map_canvas.restore()
 
 class DynamicImageRenderer extends HasParent
   default_view: DynamicImageView
