@@ -21,6 +21,9 @@ text_defaults:
   text_baseline: "bottom"
 
 attrs:
+  AnnularWedge:
+    direction: 'anticlock'
+
   Axis:
     axis_line_color: 'black'
     axis_line_width: 1

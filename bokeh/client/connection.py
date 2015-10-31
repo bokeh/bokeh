@@ -77,6 +77,10 @@ class ClientConnection(object):
         self._server_info = None
 
     @property
+    def url(self):
+        return self._url
+
+    @property
     def connected(self):
         """True if we've connected the websocket and exchanged initial handshake messages."""
         return isinstance(self._state, self.CONNECTED_AFTER_ACK)

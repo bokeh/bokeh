@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 from .connection import ClientConnection
 
-from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL
+from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL, DEFAULT_SERVER_HTTP_URL, server_url_for_websocket_url
 from bokeh.document import Document
 import uuid
 
@@ -62,6 +62,61 @@ def pull_session(session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER
     session = ClientSession(session_id=session_id, io_loop=io_loop, url=url)
     session.pull()
     return session
+
+def _encode_query_param(s):
+    try:
+        import urllib
+        return urllib.quote_plus(s)
+    except:
+        # python 3
+        import urllib.parse as parse
+        return parse.quote_plus(s)
+
+_new_param = {'tab': 2, 'window': 1}
+
+def show_session(session_id=None, server_url=None,
+                 session=None, browser=None, new="tab", controller=None):
+        """ Open a browser displaying a session document.
+
+        Args:
+
+        session_id (str, optional) : session ID to open (default: DEFAULT_SESSION_ID)
+
+        server_url (str, optional) : server base URL to open the session on (default: DEFAULT_HTTP_SERVER_URL)
+
+        session (ClientSession, optional) : session to get session ID and server URL from
+            If you specify this, you don't need to specify session_id and server_url
+
+        browser (str, optional) : browser to show with (default: None)
+            For systems that support it, the **browser** argument allows
+            specifying which browser to display in, e.g. "safari", "firefox",
+            "opera", "windows-default" (see the ``webbrowser`` module
+            documentation in the standard lib for more details).
+
+        new (str, optional) : new file output mode (default: "tab")
+            For file-based output, opens or raises the browser window
+            showing the current output file.  If **new** is 'tab', then
+            opens a new tab. If **new** is 'window', then opens a new window.
+        """
+
+        if session_id is None:
+            if session is not None:
+                session_id = session.id
+            else:
+                session_id = DEFAULT_SESSION_ID
+
+        if server_url is None:
+            if session is not None:
+                server_url = server_url_for_websocket_url(session._connection.url)
+            else:
+                server_url = DEFAULT_SERVER_HTTP_URL
+
+        if controller is None:
+            import bokeh.browserlib as browserlib
+            controller = browserlib.get_browser_controller(browser=browser)
+
+        controller.open(server_url + "?bokeh-session-id=" + _encode_query_param(session_id),
+                        new=_new_param[new])
 
 class ClientSession(object):
     """Represents a websocket connection to a server-side session.
@@ -146,6 +201,25 @@ class ClientSession(object):
         self._connection.push_doc(doc)
         if self._document is None:
             self._attach_document(doc)
+
+
+    def show(self, browser=None, new="tab"):
+        """ Open a browser displaying this session.
+
+        Args:
+
+        browser (str, optional) : browser to show with (default: None)
+            For systems that support it, the **browser** argument allows
+            specifying which browser to display in, e.g. "safari", "firefox",
+            "opera", "windows-default" (see the ``webbrowser`` module
+            documentation in the standard lib for more details).
+
+        new (str, optional) : new file output mode (default: "tab")
+            For file-based output, opens or raises the browser window
+            showing the current output file.  If **new** is 'tab', then
+            opens a new tab. If **new** is 'window', then opens a new window.
+"""
+        show_session(session=self)
 
     @classmethod
     def _ensure_session_id(cls, session_id=DEFAULT_SESSION_ID):
