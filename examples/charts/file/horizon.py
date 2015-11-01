@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh._legacy_charts import Horizon, output_file, show
+from bokeh.charts import Horizon, output_file, show
 
 # read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -25,7 +25,7 @@ xyvalues = OrderedDict(
 output_file("horizon.html")
 
 hp = Horizon(
-    xyvalues, index='Date',
+    xyvalues, x='Date', y=['AAPL', 'MSFT', 'IBM'],
     title="horizon plot using stock inputs",
     width=800, height=300
 )

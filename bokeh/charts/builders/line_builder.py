@@ -122,23 +122,29 @@ class LineBuilder(XYBuilder):
     def measure_input(self):
         return isinstance(self.y.selection, list) or isinstance(self.x.selection, list)
 
+    @property
+    def stack_flags(self):
+        # Check if we stack measurements and by which attributes
+        # This happens if we used the same series labels for dimensions as attributes
+        return {k: self.attr_measurement(k) for k in list(
+            self.attributes.keys())}
+
+    def get_id_cols(self, stack_flags):
+
+        # collect the other columns used as identifiers, that aren't a measurement name
+        id_cols = [self.attributes[attr].columns
+                   for attr, stack in iteritems(stack_flags) if not stack and
+                   self.attributes[attr].columns != self.measures and
+                   self.attributes[attr].columns is not None]
+        return list(chain.from_iterable(id_cols))
+
     def setup(self):
         """Handle input options that require transforming data and/or user selections."""
 
         # handle special case of inputs as measures
         if self.measure_input:
-
-            # Check if we stack measurements and by which attributes
-            # This happens if we used the same series labels for dimensions as attributes
-            stack_flags = {k: self.attr_measurement(k) for k in list(
-                           self.attributes.keys())}
-
-            # collect the other columns used as identifiers, that aren't a measurement name
-            id_cols = [self.attributes[attr].columns
-                       for attr, stack in iteritems(stack_flags) if not stack and
-                       self.attributes[attr].columns != self.measures and
-                       self.attributes[attr].columns is not None]
-            id_cols = list(chain.from_iterable(id_cols))
+            stack_flags = self.stack_flags
+            id_cols = self.get_id_cols(stack_flags)
 
             # if we have measures input, we need to stack by something, set default
             if all(attr is False for attr in list(stack_flags.values())):

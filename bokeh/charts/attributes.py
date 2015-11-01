@@ -225,6 +225,14 @@ class DashAttr(AttrSpec):
         super(DashAttr, self).__init__(**kwargs)
 
 
+class IdAttr(AttrSpec):
+    """An attribute specification for mapping unique data values to line dashes."""
+    name = 'id'
+
+    def _setup_iterable(self):
+        return iter(range(0, len(self.items)))
+
+
 class CatAttr(AttrSpec):
     """An attribute specification for mapping unique data values to labels.
 

@@ -163,6 +163,8 @@ class AreaGlyph(LineGlyph):
     stack = Bool(default=False)
     dodge = Bool(default=False)
 
+    base = Float(default=0.0, help="""Lower bound of area.""")
+
     def __init__(self, **kwargs):
         line_color = kwargs.get('line_color', None)
         fill_color = kwargs.get('fill_color', None)
@@ -185,8 +187,8 @@ class AreaGlyph(LineGlyph):
         y = data['y_values'].values
 
         # add base of area by starting and ending at 0
-        y0 = np.insert(y, 0, 0)
-        y0 = np.append(y0, 0)
+        y0 = np.insert(y, 0, self.base)
+        y0 = np.append(y0, self.base)
 
         # make sure y is same length as x
         x0 = np.insert(x, 0, x[0])
@@ -240,6 +242,34 @@ class AreaGlyph(LineGlyph):
             for i, glyph in enumerate(glyphs):
                 glyph.source.data['x_values'] = stacked_df.index.values
                 glyph.source.data['y_values'] = stacked_df.ix[:, i].values
+
+
+class HorizonGlyph(AreaGlyph):
+
+    folds = Int(default=3, help="""The count of times the data is overlapped.""")
+    hor_max = Float()
+    hor_min = Float()
+    series_num = Int(default=0)
+    series_count = Int()
+    splits = List(Float)
+    origin = Float()
+    fold_height = Float()
+    bins = List(Float)
+    bin_num = Int()
+
+    series_max = Float(help="""Required to be set by builder.""")
+
+    def __init__(self, bins=None, **kwargs):
+        series_num = kwargs.get('series_num')
+        kwargs['bin_num'] = kwargs.get('bin_num')
+        kwargs['fill_alpha'] = 1.0 * (kwargs['bin_num']/self.folds)
+        if bins is not None:
+            if series_num > 0:
+                kwargs['base'] = bins[series_num - 1]
+            else:
+                kwargs['base'] = 0
+
+        super(HorizonGlyph, self).__init__(**kwargs)
 
 
 
