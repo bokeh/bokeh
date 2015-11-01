@@ -12,7 +12,6 @@ class LogMapper extends HasProperties
   map_to_target: (x) ->
     [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
 
-    intermediate = 0
     result = 0
 
     if inter_scale == 0
@@ -30,7 +29,6 @@ class LogMapper extends HasProperties
   v_map_to_target: (xs) ->
     [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
 
-    intermediate = new Float64Array(xs.length)
     result = new Float64Array(xs.length)
 
     if inter_scale == 0
@@ -56,12 +54,12 @@ class LogMapper extends HasProperties
     return intermediate
 
   v_map_from_target: (xprimes) ->
+    result = new Float64Array(xprimes.length)
     [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
     intermediate = xprimes.map (i) -> (i - offset) / scale
-    intermediate = intermediate.map (i) ->
-      Math.exp(inter_scale * i + inter_offset)
-
-    return intermediate
+    for x, idx in xprimes
+      result[idx] = Math.exp(inter_scale * intermediate[idx] + inter_offset)
+    return result
 
   _get_safe_scale: (orig_start, orig_end) ->
     if orig_start < 0
