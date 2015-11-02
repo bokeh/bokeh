@@ -97,7 +97,7 @@ class LineBuilder(XYBuilder):
     And finally add the needed lines taking the references from the source.
     """
 
-    series = List(String, help="""Names that represent the items being plotted.""")
+    series_names = List(String, help="""Names that represent the items being plotted.""")
     stack = Bool(default=False)
 
     default_attributes = {'color': ColorAttr(),
@@ -174,7 +174,7 @@ class LineBuilder(XYBuilder):
                                       cols == self.x.selection))
 
     def set_series(self):
-        self.series = self._data.df['series'].drop_duplicates().tolist()
+        self.series_names = self._data.df['series'].drop_duplicates().tolist()
 
     def _stack_measures(self, ids, var_name='series'):
         """Stack data and keep the ids columns.

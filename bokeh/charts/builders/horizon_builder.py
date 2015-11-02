@@ -23,7 +23,7 @@ import pandas as pd
 from bokeh.charts.builder import create_and_build
 from bokeh.charts.glyphs import HorizonGlyph
 from .line_builder import LineBuilder
-from ...properties import Float, Int, List, string_types
+from ...properties import Float, Int, List, string_types, String
 from ..attributes import ColorAttr, DashAttr, MarkerAttr, IdAttr
 from ...models.sources import ColumnDataSource
 from ...models.axes import CategoricalAxis
@@ -34,7 +34,7 @@ from ...models.ranges import FactorRange
 #-----------------------------------------------------------------------------
 
 
-def Horizon(data=None, x=None, y=None, **kws):
+def Horizon(data=None, x=None, y=None, series=None, **kws):
     """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builders.scatter_builder.ScatterBuilder>`
     to render the geometry from values.
 
@@ -79,12 +79,12 @@ def Horizon(data=None, x=None, y=None, **kws):
     kws['tools'] = tools
 
     chart = create_and_build(HorizonBuilder, data, **kws)
-    
+
     # Hide numerical axis
     chart.left[0].visible = False
 
     # Add the series names to the y axis
-    chart.extra_y_ranges = {"series": FactorRange(factors=chart._builders[0]._series)}
+    chart.extra_y_ranges = {"series": FactorRange(factors=chart._builders[0].series_names)}
     chart.add_layout(CategoricalAxis(y_range_name="series"), 'left')
     return chart
 
@@ -105,12 +105,24 @@ class HorizonBuilder(LineBuilder):
     series_count = Int()
     num_folds = Int(default=3)
     bins = List(Float)
-
+    series_column = String()
     default_attributes = {'bin_num': IdAttr(sort=True, ascending=True),
                           'color': ColorAttr(sort=False),
                           'dash': DashAttr(),
                           'marker': MarkerAttr(),
-                          'series_num': IdAttr(sort=False)}
+                          'series': IdAttr(sort=False)}
+
+    def setup(self):
+        super(HorizonBuilder, self).setup()
+
+        # collect series names and columns selected to color by
+        if self.attributes['series'].columns is None:
+            self.series_column = self.attributes['color'].columns[0]
+        else:
+            self.series_column = self.attributes['series'].columns
+
+        self.series_max = self.y.data.max()
+        self.series_count = len(self.series_names)
 
     def process_data(self):
         super(HorizonBuilder, self).process_data()
@@ -120,12 +132,6 @@ class HorizonBuilder(LineBuilder):
 
         # add zero to end temporarily so initial bin starts at 0
         values[len(values)] = 0
-
-        # collect
-        series_cols = self.attributes['color'].columns[0]
-        series = self.series
-        self.series_max = values.max()
-        self.series_count = len(series)
 
         bin_idx, bin_array = pd.cut(values, bins=self.num_folds, labels=False,
                                     retbins=True)
@@ -141,7 +147,7 @@ class HorizonBuilder(LineBuilder):
             temp_vals = values.copy() - (idx * self.bins[0])
             temp_vals[bin_idx > idx] = self.bins[0]
             temp_vals[bin_idx < idx] = 0
-            new_col = series_cols + '_bin' + str(idx)
+            new_col = self.series_column + '_bin' + str(idx)
             df[new_col] = temp_vals
             new_cols.append(new_col)
 
@@ -151,14 +157,18 @@ class HorizonBuilder(LineBuilder):
         id_cols = self.get_id_cols(self.stack_flags)
         self._stack_measures(ids=id_cols, var_name='horizon_bin')
 
+        # must shift all but first series values up so they don't overlap
         df = self._data.df
-        for idx, serie in enumerate(series[1:]):
-            df.ix[df.ix[:, series_cols] == serie, 'value'] += ((idx + 1) *
-                                                                  self.bins[0])
+        for idx, serie in enumerate(self.series_names[1:]):
+            df.ix[df.ix[:, self.series_column] == serie, 'value'] += ((idx + 1) *
+                                                                      self.bins[0])
 
-        self.attributes['bin_num'].setup(data=ColumnDataSource(self._data.df),
-                                                               columns='horizon_bin')
-        self.attributes['series_num'].setup(data=ColumnDataSource(self._data.df),
-                                            columns=series_cols)
-        self.attributes['color'].setup(data=ColumnDataSource(self._data.df),
-                                       columns='#006400')
+        ds = ColumnDataSource(self._data.df)
+        self.attributes['bin_num'].setup(data=ds, columns='horizon_bin')
+        self.attributes['series'].setup(data=ds, columns=self.series_column)
+        self.attributes['color'].setup(data=ds, columns='#006400')
+
+    def set_ranges(self):
+        super(HorizonBuilder, self).set_ranges()
+        self.y_range.start = 0
+        self.y_range.end = self.series_max

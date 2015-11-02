@@ -248,7 +248,7 @@ class HorizonGlyph(AreaGlyph):
     num_folds = Int(default=3, help="""The count of times the data is overlapped.""")
     hor_max = Float()
     hor_min = Float()
-    series_num = Int(default=0)
+    series = Int(default=0)
     series_count = Int()
     splits = List(Float)
     origin = Float()
@@ -259,7 +259,7 @@ class HorizonGlyph(AreaGlyph):
     series_max = Float(help="""Required to be set by builder.""")
 
     def __init__(self, bins=None, **kwargs):
-        series_num = kwargs.get('series_num')
+        series_num = kwargs.get('series')
         kwargs['fill_alpha'] = 1.0/self.num_folds
         if bins is not None:
             if series_num > 0:
