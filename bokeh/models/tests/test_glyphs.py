@@ -100,7 +100,7 @@ def test_AnnularWedge():
     assert glyph.outer_radius == "outer_radius"
     assert glyph.start_angle == "start_angle"
     assert glyph.end_angle == "end_angle"
-    assert glyph.direction == "clock"
+    assert glyph.direction == "anticlock"
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
