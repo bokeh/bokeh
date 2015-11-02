@@ -132,7 +132,7 @@ class DataTables(object):
             df = df[df["drv"] == self.drive_filter]
         if self.class_filter:
             df = df[df["class"] == self.class_filter]
-        self.source.data = ColumnDataSource.from_df(df)
+        self.source.data = ColumnDataSource.parse_df(df)
         self.session.store_document(self.document)
 
     def run(self, do_view=False, poll_interval=0.5):
