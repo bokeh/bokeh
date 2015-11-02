@@ -27,6 +27,7 @@ class DynamicImageView extends PlotWidget
   _on_tile_load: (e) =>
     image_data = e.target.image_data
     image_data.img = e.target
+    image_data.loaded = true
     @mget('image_source').add_image(image_data)
     @lastImage = image_data
 
@@ -34,7 +35,7 @@ class DynamicImageView extends PlotWidget
       @request_render()
 
   _on_tile_error: (e) =>
-    return ''
+    @mget('image_source').remove_image(image_data)
 
   _create_image: (bounds) ->
     image = new Image()
@@ -43,8 +44,10 @@ class DynamicImageView extends PlotWidget
     image.alt = ''
     image.image_data =
       bounds : bounds
+      loaded : false
       cache_key : bounds.join(':')
 
+    @mget('image_source').add_image(image_data)
     image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.get('height')), Math.ceil(@map_frame.get('width')))
     return image
 
@@ -61,8 +64,13 @@ class DynamicImageView extends PlotWidget
       clearTimeout(@render_timer)
 
     image_obj = @mget('image_source').images[extent.join(':')]
-    if image_obj?
+    if image_obj? and image_obj.image_data.loaded
       @_draw_image(extent.join(':'))
+      return
+
+    if @lastImage?
+      @_draw_image(@lastImage.cache_key)
+
     else
       if @lastImage?
         @_draw_image(@lastImage.cache_key)
