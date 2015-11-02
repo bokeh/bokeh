@@ -366,7 +366,7 @@ def _save_helper(obj, filename, resources, title, validate):
     if validate:
         doc.validate()
 
-    html = standalone_html_page_for_models(doc, resources, title)
+    html = standalone_html_page_for_models(obj, resources, title)
 
     if remove_after:
         doc.remove_root(obj)
