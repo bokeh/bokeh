@@ -29,6 +29,7 @@ from .embed import notebook_div, standalone_html_page_for_models, autoload_serve
 from .models import Component
 from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox, VBoxForm
+from .plot_object import _ModelInDocument
 from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
@@ -238,7 +239,6 @@ def show(obj, browser=None, new="tab"):
     _show_with_state(obj, _state, browser, new)
 
 def _show_with_state(obj, state, browser, new):
-
     controller = browserlib.get_browser_controller(browser=browser)
 
     if state.notebook:
@@ -330,49 +330,22 @@ def _get_save_args(state, filename, resources, title):
 
     return filename, resources, title
 
-def _ensure_in_document(obj):
-    # see if we are already in a doc
-    doc = obj.document
-    if doc is not None:
-        return
-    # see if some child of ours is in a doc, this is meant to
-    # handle a thing like:
-    #   p = figure()
-    #   box = HBox(children=[p])
-    #   show(box)
-    for r in obj.references():
-        if r.document is not None:
-            r.document.add_root(obj)
-            return
-    # just make up a doc
-    doc = Document()
-    doc.add_root(obj)
-
 def _save_helper(obj, filename, resources, title, validate):
-    remove_after = False
-    if isinstance(obj, Component):
-        remove_after = obj.document is None
-        # Some historical scripts would save a model that wasn't
-        # in a document. We create a temporary document in order
-        # to deal with this, then discard it to avoid leaving
-        # obj.document set when it wasn't before.
-        _ensure_in_document(obj)
-        doc = obj.document
-    elif isinstance(obj, Document):
-        doc = obj
-    else:
-        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
+    with _ModelInDocument(obj):
+        if isinstance(obj, Component):
+            doc = obj.document
+        elif isinstance(obj, Document):
+            doc = obj
+        else:
+            raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-    if validate:
-        doc.validate()
+        if validate:
+            doc.validate()
 
-    html = standalone_html_page_for_models(obj, resources, title)
+        html = standalone_html_page_for_models(obj, resources, title)
 
-    if remove_after:
-        doc.remove_root(obj)
-
-    with io.open(filename, "w", encoding="utf-8") as f:
-        f.write(decode_utf8(html))
+        with io.open(filename, "w", encoding="utf-8") as f:
+            f.write(decode_utf8(html))
 
 # this function exists mostly to be mocked in tests
 def _push_to_server(websocket_url, document, session_id, io_loop):

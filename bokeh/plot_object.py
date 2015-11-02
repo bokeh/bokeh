@@ -283,3 +283,57 @@ class PlotObject(HasProps, CallbackManager):
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
+
+def _ensure_in_document(obj, precedent):
+    from .document import Document
+
+    # see if we are already in a doc
+    if obj.document is None:
+        # see if some child of ours is in a doc, this is meant to
+        # handle a thing like:
+        #   p = figure()
+        #   box = HBox(children=[p])
+        #   show(box)
+        for r in obj.references():
+            if r.document is not None:
+                r.document.add_root(obj)
+
+    if obj.document is None:
+        # try to use a doc we are already using for other models
+        if precedent is not None:
+            precedent.add_root(obj)
+
+    if obj.document is None:
+        # oh well - just make up a doc
+        doc = Document()
+        doc.add_root(obj)
+
+class _ModelInDocument(object):
+    # 'models' can be a single PlotObject, a single Document, or a list of either
+    def __init__(self, models):
+        from .document import Document
+
+        self._precedent = None
+        self._to_remove_after = []
+        if not isinstance(models, list):
+            models = [models]
+        for model in models:
+            if isinstance(model, PlotObject):
+                if model.document is None:
+                    self._to_remove_after.append(model)
+                elif self._precedent is None:
+                    # this model's doc will be used for any that lack a doc
+                    self._precedent = model.document
+                elif isinstance(model, Document):
+                    if self._precedent is None:
+                        self._precedent = model
+
+    def __exit__(self, type, value, traceback):
+        for model in self._to_remove_after:
+            model.document.remove_root(model)
+
+    def __enter__(self):
+        for model in self._to_remove_after:
+            _ensure_in_document(model, self._precedent)
+            if self._precedent is None:
+                self._precedent = model.document
