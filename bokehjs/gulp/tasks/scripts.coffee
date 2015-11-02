@@ -138,7 +138,7 @@ gulp.task "scripts:build", (cb) ->
         "(function() { var define = undefined; return #{content} })()"
       .pipe change (content) ->
         "bokehRequire = #{content}"
-      .pipe(insert.prepend(license))
+      .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
@@ -160,7 +160,7 @@ gulp.task "scripts:build", (cb) ->
       # our backbone.
       .pipe change (content) ->
         "(function() { var define = undefined; return #{content} })()"
-      .pipe(insert.prepend(license))
+      .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
@@ -174,6 +174,7 @@ gulp.task "scripts:minify", ->
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(sourcemaps.init({loadMaps: true}))
       .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
+      .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
   es.merge.apply(null, tasks)
