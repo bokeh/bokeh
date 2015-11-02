@@ -85,10 +85,10 @@ class HorizonBuilder(LineBuilder):
     num_folds = Int(default=3)
     bins = List(Float)
 
-    default_attributes = {'color': ColorAttr(sort=False),
+    default_attributes = {'bin_num': IdAttr(sort=True, ascending=True),
+                          'color': ColorAttr(sort=False),
                           'dash': DashAttr(),
                           'marker': MarkerAttr(),
-                          'bin_num': IdAttr(sort=False),
                           'series_num': IdAttr(sort=False)}
 
     def process_data(self):
@@ -97,8 +97,10 @@ class HorizonBuilder(LineBuilder):
         df = self._data.df
         values = self.y.data.copy()
 
-        # add zero to end temporarily so initial bin includes it
+        # add zero to end temporarily so initial bin starts at 0
         values[len(values)] = 0
+
+        # collect
         series_cols = self.attributes['color'].columns[0]
         series = [item[0] for item in self.attributes['color']._items]
         self.series_max = values.max()
@@ -112,8 +114,8 @@ class HorizonBuilder(LineBuilder):
         values = values[:-1]
         bin_idx = bin_idx[:-1]
 
+        # create clipped representation of each band
         new_cols = []
-        #norm_values = ((values - 0) / (self.series_max - 0)) * self.bins[0]
         for idx, bin in enumerate(self.bins):
             temp_vals = values.copy() - (idx * self.bins[0])
             temp_vals[bin_idx > idx] = self.bins[0]
@@ -134,10 +136,9 @@ class HorizonBuilder(LineBuilder):
             df.ix[df.ix[:, series_cols] == serie, 'value'] += ((idx + 1) *
                                                                   self.bins[0])
 
-        # norm_values = norm_values + (bin_idx * self.bins[0])
-
-
         self.attributes['bin_num'].setup(data=ColumnDataSource(self._data.df),
                                                                columns='variable_')
         self.attributes['series_num'].setup(data=ColumnDataSource(self._data.df),
                                             columns=series_cols)
+        self.attributes['color'].setup(data=ColumnDataSource(self._data.df),
+                                       columns='#006400')

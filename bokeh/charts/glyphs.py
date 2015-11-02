@@ -205,7 +205,7 @@ class AreaGlyph(LineGlyph):
         # added for the index
         glyph = Patch(
             x='x_values', y='y_values',
-            fill_alpha=0.9, fill_color=self.fill_color,
+            fill_alpha=self.fill_alpha, fill_color=self.fill_color,
             line_color=self.line_color
         )
         renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
@@ -245,8 +245,7 @@ class AreaGlyph(LineGlyph):
 
 
 class HorizonGlyph(AreaGlyph):
-
-    folds = Int(default=3, help="""The count of times the data is overlapped.""")
+    num_folds = Int(default=3, help="""The count of times the data is overlapped.""")
     hor_max = Float()
     hor_min = Float()
     series_num = Int(default=0)
@@ -261,8 +260,7 @@ class HorizonGlyph(AreaGlyph):
 
     def __init__(self, bins=None, **kwargs):
         series_num = kwargs.get('series_num')
-        kwargs['bin_num'] = kwargs.get('bin_num')
-        kwargs['fill_alpha'] = 1.0 * (kwargs['bin_num']/self.folds)
+        kwargs['fill_alpha'] = 1.0/self.num_folds
         if bins is not None:
             if series_num > 0:
                 kwargs['base'] = bins[series_num - 1]
