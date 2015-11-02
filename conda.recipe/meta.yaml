@@ -64,6 +64,7 @@ test:
     - ipython-notebook
     - matplotlib
     - sympy
+    - scikit-learn
     - ggplot
     - seaborn
     - icalendar
