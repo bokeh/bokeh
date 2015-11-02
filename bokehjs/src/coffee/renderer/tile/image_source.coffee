@@ -34,10 +34,11 @@ class ImageSource extends HasProperties
       result_str = result_str.replace('{'+key+'}', value.toString())
     return result_str
 
-  get_images_by_extent: (xmin, ymin, xmax, ymax) ->
-
   add_image: (image_obj) ->
     @images[image_obj.cache_key] = image_obj
+
+  remove_image: (image_obj) ->
+    delete @images[image_obj.cache_key]
 
   get_image_url: (xmin, ymin, xmax, ymax, height, width) ->
     image_url = @string_lookup_replace(@get('url'), @get('extra_url_vars'))
