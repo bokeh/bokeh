@@ -8,9 +8,6 @@ ImagePool = require "./image_pool"
 
 class TileRendererView extends PlotWidget
   
-  bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @request_render)
-
   get_extent: () ->
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
 
