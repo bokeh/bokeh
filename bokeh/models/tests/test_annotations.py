@@ -7,8 +7,6 @@ from bokeh.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
 
-pytestmark = pytest.mark.unit
-
 FILL = ["fill_color", "fill_alpha"]
 BACKGROUND = ['background_fill_color', 'background_fill_alpha']
 BORDER = ["border_line_color", "border_line_width", "border_line_alpha",
@@ -21,6 +19,7 @@ LABEL = ["label_text_font", "label_text_font_size", "label_text_font_style",
     "label_text_baseline"]
 PROPS = ["session", "name", "tags"]
 
+@pytest.mark.unit
 def check_border(annotation):
     assert annotation.border_line_color == Color.black
     assert annotation.border_line_width == 1
@@ -30,6 +29,7 @@ def check_border(annotation):
     assert annotation.border_line_dash == []
     assert annotation.border_line_dash_offset == 0
 
+@pytest.mark.unit
 def check_label(annotation):
     assert annotation.label_text_font == "Helvetica"
     assert annotation.label_text_font_size == "12pt"
@@ -39,6 +39,7 @@ def check_label(annotation):
     assert annotation.label_text_align == TextAlign.left
     assert annotation.label_text_baseline == TextBaseline.bottom
 
+@pytest.mark.unit
 def check_props(annotation, *props):
     expected = set(sum((PROPS,) + props, []))
     found = set(annotation.properties())
@@ -47,14 +48,17 @@ def check_props(annotation, *props):
     assert len(missing) == 0, "Properties missing: {0}".format(", ".join(sorted(missing)))
     assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
 
+@pytest.mark.unit
 def check_fill(annotation):
     assert annotation.fill_color == Color.gray
     assert annotation.fill_alpha == 1.0
 
+@pytest.mark.unit
 def check_background(annotation):
     assert annotation.background_fill_color == Color.gray
     assert annotation.background_fill_alpha == 1.0
 
+@pytest.mark.unit
 def check_line(annotation):
     assert annotation.line_color == Color.black
     assert annotation.line_width == 1

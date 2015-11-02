@@ -24,7 +24,7 @@ To run the just the python unit tests, run the command:
 
 .. code-block:: sh
 
-    py.test -m 'not (js or examples or integration)'
+    py.test -m unit
 
 To run just the examples, run the command:
 

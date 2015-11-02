@@ -61,6 +61,7 @@ PROPS = ["session", "name", "tags"]
 GLYPH = ["visible"]
 MARKER = ["x", "y", "size", "angle"]
 
+@pytest.mark.unit
 def check_props(glyph, *props):
     expected = set(sum((PROPS, GLYPH) + props, []))
     found = set(glyph.properties())
@@ -69,10 +70,12 @@ def check_props(glyph, *props):
     assert len(missing) == 0, "Properties missing: {0}".format(", ".join(sorted(missing)))
     assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
 
+@pytest.mark.unit
 def check_fill(glyph):
     assert glyph.fill_color == Color.gray
     assert glyph.fill_alpha == 1.0
 
+@pytest.mark.unit
 def check_line(glyph):
     assert glyph.line_color == Color.black
     assert glyph.line_width == 1
@@ -82,6 +85,7 @@ def check_line(glyph):
     assert glyph.line_dash == []
     assert glyph.line_dash_offset == 0
 
+@pytest.mark.unit
 def check_text(glyph):
     assert glyph.text_font == "Helvetica"
     assert glyph.text_font_size == "12pt"
@@ -91,6 +95,7 @@ def check_text(glyph):
     assert glyph.text_align == TextAlign.left
     assert glyph.text_baseline == TextBaseline.bottom
 
+@pytest.mark.unit
 def check_marker(marker):
     assert marker.x == "x"
     assert marker.y == "y"
