@@ -52,10 +52,10 @@ from copy import copy
 from warnings import warn
 import inspect
 import logging
+import numbers
 logger = logging.getLogger(__name__)
 
-from six import integer_types, string_types, add_metaclass, iteritems
-import numpy as np
+from six import string_types, add_metaclass, iteritems
 
 from . import enums
 from .util.string import nice_join
@@ -104,7 +104,14 @@ def value(val):
     '''
     return dict(value=val)
 
-bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
+bokeh_bool_types = (bool,)
+try:
+    import numpy as np
+    bokeh_bool_types += (np.bool8,)
+except ImportError:
+    pass
+
+bokeh_integer_types = (numbers.Integral,)
 
 # used to indicate properties that are not set (vs null, None, etc)
 class _NotSet(object):
@@ -252,6 +259,18 @@ class Include(object):
         self.help = help
         self.use_prefix = use_prefix
 
+_EXAMPLE_TEMPLATE = """
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../%(path)s
+        :source-position: none
+
+    *source:* `%(path)s <https://github.com/bokeh/bokeh/tree/master/%(path)s>`_
+
+"""
+
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
         names = set()
@@ -337,6 +356,11 @@ class MetaHasProps(type):
         class_dict["__container_props__"] = container_names
         if dataspecs:
             class_dict["_dataspecs"] = dataspecs
+
+        if "__example__" in class_dict:
+            path = class_dict["__example__"]
+            class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
+
         return type.__new__(cls, class_name, bases, class_dict)
 
 def accumulate_from_subclasses(cls, propname):
@@ -500,7 +524,7 @@ class PrimitiveProperty(Property):
 
 class Bool(PrimitiveProperty):
     """ Boolean type property. """
-    _underlying_type = (bool, np.bool_)
+    _underlying_type = bokeh_bool_types
 
 class Int(PrimitiveProperty):
     """ Signed integer type property. """
@@ -508,11 +532,11 @@ class Int(PrimitiveProperty):
 
 class Float(PrimitiveProperty):
     """ Floating point type property. """
-    _underlying_type = (float, ) + bokeh_integer_types
+    _underlying_type = (numbers.Real,)
 
 class Complex(PrimitiveProperty):
     """ Complex floating point type property. """
-    _underlying_type = (complex, float) + bokeh_integer_types
+    _underlying_type = (numbers.Complex,)
 
 class String(PrimitiveProperty):
     """ String type property. """
@@ -646,6 +670,7 @@ class Array(Seq):
         return isinstance(value, np.ndarray)
 
     def _new_instance(self, value):
+        import numpy as np
         return np.array(value)
 
 
@@ -1046,7 +1071,14 @@ class Datetime(Property):
     def validate(self, value):
         super(Datetime, self).validate(value)
 
-        if (isinstance(value, (datetime.datetime, datetime.date, np.datetime64))):
+        datetime_types = (datetime.datetime, datetime.date)
+        try:
+            import numpy as np
+            datetime_types += (np.datetime64,)
+        except ImportError:
+            pass
+
+        if (isinstance(value, datetime_types)):
             return
         try:
             import pandas

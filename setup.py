@@ -17,6 +17,7 @@ from __future__ import print_function
 # Stdlib imports
 import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
+from shutil import copy
 
 try:
     import colorama
@@ -83,8 +84,9 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 # Classes and functions
 # -----------------------------------------------------------------------------
 
-package_data = []
+copy("LICENSE.txt", "bokeh/")
 
+package_data = ['LICENSE.txt']
 
 def package_path(path, filters=()):
     if not os.path.exists(path):
@@ -97,12 +99,11 @@ def package_path(path, filters=()):
             for f in files:
                 if not filters or f.endswith(filters):
                     package_data.append(join(path, f))
+
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # And this is an intended PR to fix it: https://github.com/pypa/virtualenv/pull/508
 # Workaround to fix our issue: https://github.com/bokeh/bokeh/issues/378
-
-
 def getsitepackages():
     """Returns a list containing all global site-packages directories
     (and possibly site-python)."""
@@ -288,15 +289,18 @@ def build_js():
     print()
     print("Build artifact sizes:")
     try:
-        blddir = join("bokehjs", "build")
-        bkjs_size = os.stat(join(blddir, "js", "bokeh.js")).st_size / 2**10
-        bkjs_min_size = os.stat(join(blddir, "js", "bokeh.min.js")).st_size / 2**10
-        bkcss_size = os.stat(join(blddir, "css", "bokeh.css")).st_size / 2**10
-        bkcss_min_size = os.stat(join(blddir, "css", "bokeh.min.css")).st_size / 2**10
-        print("  - bokeh.js      : %6.1f KB" % bkjs_size)
-        print("  - bokeh.css     : %6.1f KB" % bkcss_size)
-        print("  - bokeh.min.js  : %6.1f KB" % bkjs_min_size)
-        print("  - bokeh.min.css : %6.1f KB" % bkcss_min_size)
+        def size(*path):
+            return os.stat(join("bokehjs", "build", *path)).st_size / 2**10
+
+        print("  - bokeh.js              : %6.1f KB" % size("js", "bokeh.js"))
+        print("  - bokeh.css             : %6.1f KB" % size("css", "bokeh.css"))
+        print("  - bokeh.min.js          : %6.1f KB" % size("js", "bokeh.min.js"))
+        print("  - bokeh.min.css         : %6.1f KB" % size("css", "bokeh.min.css"))
+
+        print("  - bokeh-widgets.js      : %6.1f KB" % size("js", "bokeh-widgets.js"))
+        print("  - bokeh-widgets.css     : %6.1f KB" % size("css", "bokeh-widgets.css"))
+        print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
+        print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
 
@@ -511,6 +515,18 @@ REQUIRES = [
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
 
+# Horrible hack: workaround to allow creation of bdist_whell on pip installation
+# Why, for God's sake, is pip forcing the generation of wheels when installing a package?
+
+try:
+    from wheel.bdist_wheel import bdist_wheel
+except ImportError as e:
+    # pip is not claiming for bdist_wheel when wheel is not installed
+    bdist_wheel = None
+
+if bdist_wheel is not None:
+    _cmdclass["bdist_wheel"] = bdist_wheel
+
 setup(
     name='bokeh',
     version=_version,
@@ -521,8 +537,8 @@ setup(
         'bokeh.models.tests',
         'bokeh.models.widgets',
         'bokeh.charts',
-        'bokeh.charts.builder',
-        'bokeh.charts.builder.tests',
+        'bokeh.charts.builders',
+        'bokeh.charts.builders.tests',
         'bokeh.charts.tests',
         'bokeh._legacy_charts',
         'bokeh._legacy_charts.builder',

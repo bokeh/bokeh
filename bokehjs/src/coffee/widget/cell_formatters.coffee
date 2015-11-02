@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-Numeral = require "../../vendor/numeral.js-1.5.3/numeral.js"
+Numeral = require "numeral"
 HasProperties = require "../common/has_properties"
 
 class CellFormatter extends HasProperties

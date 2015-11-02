@@ -1,11 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-  $2 = undefined
-else
-  $1 = require "jquery-ui/autocomplete"
-  $2 = require "jquery-ui/spinner"
+$1 = require "jquery-ui/autocomplete"
+$2 = require "jquery-ui/spinner"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 

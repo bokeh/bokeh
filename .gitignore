@@ -60,6 +60,8 @@
 ./.shelf
 # coverage reports
 .coverage
+# ipython files
+**/.ipynb_checkpoints
 
 # Logs and databases #
 ######################
@@ -101,4 +103,5 @@ win-64
 /record.txt
 /__conda_version__.txt
 /bokeh/__conda_version__.py
+/bokeh/LICENSE.txt
 /examples/refs

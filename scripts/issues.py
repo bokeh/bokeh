@@ -283,13 +283,13 @@ def issue_line(issue):
 def generate_changelog(issues, after, heading, rtag=False):
     """Prints out changelog."""
     relevent = relevant_issues(issues, after)
-    relevent = sorted(relevent, key=ISSUES_SORT_KEY)
+    relevent = sorted(relevent, key=ISSUES_BY_SECTION)
 
     def write(func, endofline="", append=""):
         func(heading + '\n' + '-' * 20 + endofline)
         for section, issue_group in groupby(relevent, key=ISSUES_BY_SECTION):
             func('  * {}:'.format(section) + endofline)
-            for issue in issue_group:
+            for issue in reversed(list(issue_group)):
                 func('    - {}'.format(issue_line(issue)) + endofline)
         func(endofline + append)
 

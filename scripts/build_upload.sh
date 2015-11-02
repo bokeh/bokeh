@@ -143,15 +143,29 @@ id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 -d'{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'$username'","apiKey":"'$key'"}}}' \
 -H"Content-type:application/json" | python -c 'import sys,json; data=json.loads(sys.stdin.read()); print([i["endpoints"][0]["tenantId"] for i in data["access"]["serviceCatalog"] if i["name"] == "cloudFiles"][0])'`
 
-# push the js and css files
+# push the main js
 curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
 "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.js";
 curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
 "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.min.js";
+
+# push the widgets js files
+curl -XPUT -T bokehjs/build/js/bokeh-widgets.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" \
+-H "Origin: https://mycloud.rackspace.com" "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-widgets-$complete_version.js";
+curl -XPUT -T bokehjs/build/js/bokeh-widgets.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" \
+-H "Origin: https://mycloud.rackspace.com" "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-widgets-$complete_version.min.js";
+
+# push the css files
 curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
 "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.css";
 curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
 "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-$complete_version.min.css";
+
+# push the widgets css files
+curl -XPUT -T bokehjs/build/css/bokeh-widgets.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-widgets-$complete_version.css";
+curl -XPUT -T bokehjs/build/css/bokeh-widgets.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh-widgets-$complete_version.min.css";
 
 echo "I'm done uploading to Rackspace"
 

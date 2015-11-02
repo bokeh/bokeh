@@ -1,5 +1,5 @@
-''' This module provides functions for embedding Bokeh plots in various
-different ways.
+''' Provide functions to embed Bokeh models (e.g., plots, widget, layouts)
+in various different ways.
 
 There are a number of different combinations of options when embedding
 Bokeh plots. The data for the plot can be contained in the document,
@@ -13,6 +13,7 @@ these different cases.
 
 from __future__ import absolute_import
 
+import re
 import uuid
 from warnings import warn
 
@@ -20,7 +21,7 @@ from .protocol import serialize_json
 from .resources import Resources
 from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, JS_RESOURCES, CSS_RESOURCES
+    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT
 )
 from .util.string import encode_utf8
 
@@ -42,25 +43,28 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     An example can be found in examples/embed/embed_multiple.py
 
-    .. note:: The returned components assume that BokehJS resources
-              are **already loaded**.
+    .. note::
+        The returned components assume that BokehJS resources are
+        **already loaded**.
 
     Args:
-        plot_objects : PlotObject|list|dict|tuple
+        plot_objects (PlotObject|list|dict|tuple) :
             A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
 
         resources :
             Deprecated argument
 
-        wrap_script : boolean, optional
-            If True, the returned javascript is wrapped in a script tag. (default: True)
+        wrap_script (boolean, optional) :
+            If True, the returned javascript is wrapped in a script tag.
+            (default: True)
 
-        wrap_plot_info : boolean, optional
-            If True, then a set of divs are returned.
-            If set to False, then dictionaries are returned that can be used to manually
-            build your own divs. (default: True)
+        wrap_plot_info (boolean, optional) : If True, returns ``<div>`` strings.
+            Otherwise, return dicts that can be used to build your own divs.
+            (default: True)
 
-            If False, the returned dictionary contains the following information::
+            If False, the returned dictionary contains the following information:
+
+            .. code-block:: python
 
                 {
                     'modelid':  'The plots id, which can be used in the Bokeh.index',
@@ -69,38 +73,45 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
                 }
 
     Returns:
-        (script, div[s]) :  UTF-8 encoded
+        UTF-8 encoded *(script, div[s])* or *(raw_script, plot_info[s])*
 
-            The output depends on the input as follows::
+    Examples:
 
-                components(plot)
-                # => (script, plot_div)
+        With default wrapping parameter values:
 
-                components((plot1, plot2))
-                # => (script, (plot1_div, plot2_div))
+        .. code-block:: python
 
-                components({"Plot 1": plot1, "Plot 2": plot2})
-                # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
+            components(plot)
+            # => (script, plot_div)
 
-        (raw_script, plot_info[s]) : UTF-8 encoded
+            components((plot1, plot2))
+            # => (script, (plot1_div, plot2_div))
 
-            The output depends on the input as follows::
+            components({"Plot 1": plot1, "Plot 2": plot2})
+            # => (script, {"Plot 1": plot1_div, "Plot 2": plot2_div})
 
-                components(plot, wrap_script=False, wrap_plot_info=False)
-                # => (javascript, plot_dict)
+    Examples:
 
-                components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
-                # => (javascript, (plot1_dict, plot2_dict))
+        With wrapping parameters set to ``False``:
 
-                components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
-                # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
+        .. code-block:: python
+
+            components(plot, wrap_script=False, wrap_plot_info=False)
+            # => (javascript, plot_dict)
+
+            components((plot1, plot2), wrap_script=False, wrap_plot_info=False)
+            # => (javascript, (plot1_dict, plot2_dict))
+
+            components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
+            # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
+
     '''
-    all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
+    custom_models, all_models, plots, plot_info, divs = _get_components(plot_objects, resources)
 
     if wrap_script:
-        script = _get_script(all_models, plots)
+        script = _get_script(custom_models, all_models, plots)
     else:
-        script = _get_js(all_models, plots)
+        script = _get_js(custom_models, all_models, plots)
     script = encode_utf8(script)
 
     if wrap_plot_info:
@@ -112,6 +123,7 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 def _get_components(plot_objects, resources=None):
     plot_objects = _check_components_input(plot_objects, resources)
 
+    custom_models = {}
     all_models = dict()
     plots = []
 
@@ -119,7 +131,7 @@ def _get_components(plot_objects, resources=None):
         divs = []
         for idx, plot_object in enumerate(plot_objects):
             elementid = str(uuid.uuid4())
-            _append_plot(all_models, plots, plot_object, elementid)
+            _append_plot(custom_models, all_models, plots, plot_object, elementid)
             divs = _append_div(elementid, divs)
         if len(divs) == 1:
             divs = divs[0]
@@ -133,10 +145,10 @@ def _get_components(plot_objects, resources=None):
         plot_info = {}
         for key in plot_objects.keys():
             elementid = str(uuid.uuid4())
-            plot_info[key] = _append_plot(all_models, plots, plot_objects[key], elementid)
+            plot_info[key] = _append_plot(custom_models, all_models, plots, plot_objects[key], elementid)
             divs = _append_div(elementid, divs, key)
 
-    return list(all_models.values()), plots, plot_info, divs
+    return custom_models, list(all_models.values()), plots, plot_info, divs
 
 
 def _check_components_input(plot_objects, resources=None):
@@ -167,26 +179,65 @@ def _check_components_input(plot_objects, resources=None):
     return plot_objects
 
 
-def _get_js(all_models, plots):
+def _get_js(custom_models, all_models, plots):
     js = PLOT_JS.render(
+        custom_models=custom_models,
         all_models=serialize_json(all_models),
         plots=plots
     )
     return _wrap_in_function(js)
 
 
-def _get_script(all_models, plots):
-    js = _get_js(all_models, plots)
+def _get_script(custom_models, all_models, plots):
+    js = _get_js(custom_models, all_models, plots)
     script = PLOT_SCRIPT.render(
         plot_js=js,
     )
     return script
 
 
-def _append_plot(all_models, plots, plot_object, elementid):
+def _escape_code(code):
+    """ Escape JS/CS source code, so that it can be embbeded in a JS string.
+
+    This is based on https://github.com/joliss/js-string-escape.
+    """
+    def escape(match):
+        ch = match.group(0)
+
+        if ch == '"' or ch == "'" or ch == '\\':
+            return '\\' + ch
+        elif ch == '\n':
+            return '\\n'
+        elif ch == '\r':
+            return '\\r'
+        elif ch == '\u2028':
+            return '\\u2028'
+        elif ch == '\u2029':
+            return '\\u2029'
+
+    return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
+
+def _extract_custom_models(plot_object):
+    custom_models = {}
+
+    for obj in plot_object.references():
+        impl = getattr(obj.__class__, "__implementation__", None)
+
+        if impl is not None:
+            name = obj.__class__.__name__
+            impl = "['%s', {}]" % _escape_code(impl)
+            custom_models[name] = impl
+
+    return custom_models
+
+def _append_plot(custom_models, all_models, plots, plot_object, elementid):
     ref = plot_object.ref
+
+    custom_models.update(_extract_custom_models(plot_object))
+
     for item in plot_object.dump():
         all_models[item['id']] = item
+
     plot_info = {
         'modelid': ref["id"],
         'elementid': elementid,
@@ -218,14 +269,13 @@ def notebook_div(plot_object):
 
     Args:
         plot_object (PlotObject) : Bokeh object to render
-            typically a Plot or PlotContext
 
     Returns:
-        div : UTF-8 encoded HTML text
+        UTF-8 encoded HTML text for a ``<div>``
 
     .. note::
-        Assumes ``bokeh.load_notebook()`` or the equivalent has already
-        been executed.
+        Assumes :func:`~bokeh.util.notebook.load_notebook` or the equivalent
+        has already been executed.
 
     '''
     ref = plot_object.ref
@@ -238,6 +288,7 @@ def notebook_div(plot_object):
     }]
 
     js = PLOT_JS.render(
+        custom_models = _extract_custom_models(plot_object),
         all_models = serialize_json(plot_object.dump()),
         plots = plots
     )
@@ -252,7 +303,13 @@ def notebook_div(plot_object):
     return encode_utf8(html)
 
 
-def file_html(plot_object, resources, title, js_resources=None, css_resources=None, template=FILE, template_variables=None):
+def file_html(plot_object,
+              resources,
+              title,
+              js_resources=None,
+              css_resources=None,
+              template=FILE,
+              template_variables={}):
     ''' Return an HTML document that embeds a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -270,12 +327,15 @@ def file_html(plot_object, resources, title, js_resources=None, css_resources=No
             title, js_resources, css_resources, plot_script, plot_div
 
     Returns:
-        html : standalone HTML document with embedded plot
+        UTF-8 encoded HTML
 
     '''
     from .document import Document
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
+
+    from .models.widgets import Widget
+    use_widgets = any(isinstance(obj, Widget) for obj in plot_object.references())
 
     if resources:
         if js_resources:
@@ -290,26 +350,27 @@ def file_html(plot_object, resources, title, js_resources=None, css_resources=No
     if js_resources:
         if not css_resources:
             warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_js = JS_RESOURCES.render(js_raw=js_resources.js_raw, js_files=js_resources.js_files)
+        js_resources = js_resources.use_widgets(use_widgets)
+        bokeh_js = js_resources.render_js()
 
     bokeh_css = ''
     if css_resources:
         if not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
+        css_resources = css_resources.use_widgets(use_widgets)
+        bokeh_css = css_resources.render_css()
 
     script, div = components(plot_object)
-    template_variables_full = \
-        template_variables.copy() if template_variables is not None else {}
-    template_variables_full.update(
-        {
-            'title': title,
-            'bokeh_js': bokeh_js,
-            'bokeh_css': bokeh_css,
-            'plot_script': script,
-            'plot_div': div,
-        }
-    )
+
+    template_variables_full = template_variables.copy()
+    template_variables_full.update(dict(
+        title       = title,
+        bokeh_js    = bokeh_js,
+        bokeh_css   = bokeh_css,
+        plot_script = script,
+        plot_div    = div,
+    ))
+
     html = template.render(template_variables_full)
     return encode_utf8(html)
 

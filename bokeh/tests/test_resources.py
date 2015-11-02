@@ -34,7 +34,7 @@ def test_js_resources_inline_has_no_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.js_raw) == 2
+    assert len(r.js_raw) == 3
     assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
     assert hasattr(r, 'css_raw') is False
     assert r.messages == []
@@ -52,7 +52,7 @@ def test_inline_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.css_raw) == 1
+    assert len(r.css_raw) == 2
     assert hasattr(r, 'js_raw') is False
     assert r.messages == []
 
@@ -81,15 +81,15 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "inline")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(len(r.js_raw), 2)
+        self.assertEqual(len(r.js_raw), 3)
         self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW)
-        self.assertEqual(len(r.css_raw), 1)
+        self.assertEqual(len(r.css_raw), 2)
         self.assertEqual(r.messages, [])
 
     def test_get_cdn_urls(self):
         dev_version = "0.0.1dev"
-        result = _get_cdn_urls(dev_version)
-        url = result['js_files'][0]
+        result = _get_cdn_urls(["bokeh"], version=dev_version)
+        url = result['urls']('js')[0]
         self.assertIn('bokeh/dev', url)
 
     def test_cdn(self):

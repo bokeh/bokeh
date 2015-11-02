@@ -33,9 +33,11 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.napoleon',
     'sphinxcontrib.autohttp.flask',
+    'sphinx.ext.intersphinx',
     'bokeh.sphinxext.bokeh_autodoc',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
+    'bokeh.sphinxext.bokeh_jinja',
     'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
@@ -335,3 +337,8 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+# intersphinx settings
+intersphinx_mapping = {'python': ('https://docs.python.org/', None),
+                       'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
+                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
