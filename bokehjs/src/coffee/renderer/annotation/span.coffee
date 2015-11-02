@@ -40,7 +40,6 @@ class SpanView extends PlotWidget
       width = @mget('line_width')
       height = frame.get('height')
 
-    debugger;
     if @mget("render_mode") == "css"
       @$el.css({
         'top': stop,

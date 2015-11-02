@@ -24,7 +24,7 @@ from .templates import (
 )
 from .util.string import encode_utf8
 
-from .plot_object import PlotObject
+from .plot_object import PlotObject, _ModelInDocument
 from ._json_encoder import serialize_json
 from .resources import DEFAULT_SERVER_HTTP_URL
 from .client import DEFAULT_SESSION_ID
@@ -129,8 +129,10 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     # 2) Do our rendering
 
-    (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
-    custom_models = _extract_custom_models(plot_objects)
+    with _ModelInDocument(plot_objects):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
+        custom_models = _extract_custom_models(plot_objects)
+
     script = _script_for_render_items(docs_json, render_items, custom_models=custom_models,
                                       websocket_url=None, wrap_script=wrap_script)
     script = encode_utf8(script)
@@ -212,8 +214,10 @@ def notebook_div(plot_object):
     '''
     plot_object = _check_one_plot_object(plot_object)
 
-    (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
-    custom_models = _extract_custom_models([plot_object])
+    with _ModelInDocument(plot_object):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
+        custom_models = _extract_custom_models([plot_object])
+
     script = _script_for_render_items(docs_json, render_items,
                                       custom_models=custom_models,
                                       websocket_url=None)
@@ -272,13 +276,15 @@ def file_html(plot_objects,
     '''
     plot_objects = _check_plot_objects(plot_objects)
 
-    (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
-    custom_models = _extract_custom_models(plot_objects)
-    return _html_page_for_render_items(resources, docs_json, render_items, title,
-                                       custom_models=custom_models, websocket_url=None,
-                                       js_resources=js_resources, css_resources=css_resources,
-                                       template=template, template_variables=template_variables,
-                                       use_widgets=_use_widgets(plot_objects))
+    with _ModelInDocument(plot_objects):
+
+        (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
+        custom_models = _extract_custom_models(plot_objects)
+        return _html_page_for_render_items(resources, docs_json, render_items, title,
+                                           custom_models=custom_models, websocket_url=None,
+                                           js_resources=js_resources, css_resources=css_resources,
+                                           template=template, template_variables=template_variables,
+                                           use_widgets=_use_widgets(plot_objects))
 
 # TODO rename this "standalone"?
 def autoload_static(plot_object, resources, script_path):
@@ -310,35 +316,37 @@ def autoload_static(plot_object, resources, script_path):
 
     plot_object = _check_one_plot_object(plot_object)
 
-    (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
-    item = render_items[0]
+    with _ModelInDocument(plot_object):
 
-    model_id = ""
-    if 'modelid' in item:
-        model_id = item['modelid']
-    doc_id = ""
-    if 'docid' in item:
-        doc_id = item['docid']
+        (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
+        item = render_items[0]
 
-    js = AUTOLOAD_JS.render(
-        docs_json = serialize_json(docs_json),
-        # TODO we should load all the JS files, but the code
-        # in AUTOLOAD_JS isn't smart enough to deal with it.
-        js_url = resources.js_files[0],
-        css_files = resources.css_files,
-        elementid = item['elementid'],
-        websocket_url = None
-    )
+        model_id = ""
+        if 'modelid' in item:
+            model_id = item['modelid']
+        doc_id = ""
+        if 'docid' in item:
+            doc_id = item['docid']
 
-    tag = AUTOLOAD_TAG.render(
-        src_path = script_path,
-        elementid = item['elementid'],
-        modelid = model_id,
-        docid = doc_id,
-        loglevel = resources.log_level
-    )
+        js = AUTOLOAD_JS.render(
+            docs_json = serialize_json(docs_json),
+            # TODO we should load all the JS files, but the code
+            # in AUTOLOAD_JS isn't smart enough to deal with it.
+            js_url = resources.js_files[0],
+            css_files = resources.css_files,
+            elementid = item['elementid'],
+            websocket_url = None
+        )
 
-    return encode_utf8(js), encode_utf8(tag)
+        tag = AUTOLOAD_TAG.render(
+            src_path = script_path,
+            elementid = item['elementid'],
+            modelid = model_id,
+            docid = doc_id,
+            loglevel = resources.log_level
+        )
+
+        return encode_utf8(js), encode_utf8(tag)
 
 def autoload_server(plot_object, app_path="/", session_id=DEFAULT_SESSION_ID, url="default", loglevel="info"):
     ''' Return a script tag that can be used to embed Bokeh Plots from
