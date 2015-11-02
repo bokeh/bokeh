@@ -92,30 +92,31 @@ class UIEvents extends Backbone.Model
     tm = @get('tool_manager')
     base_event_type = event_type.split(":")[0]
     gestures = tm.get('gestures')
-    active = gestures[base_event_type].active
-    @_trigger_event(event_type, active, e)
+    active_tool = gestures[base_event_type].active
+    if active_tool?
+      @_trigger_event(event_type, active_tool, e)
 
-  _trigger_event: (event_type, active, e)->
-    if active?
+  _trigger_event: (event_type, active_tool, e)->
+    if active_tool.get('active') == true
       if event_type == 'scroll'
         e.preventDefault()
         e.stopPropagation()
-      @trigger("#{event_type}:#{active.id}", e)
+      @trigger("#{event_type}:#{active_tool.id}", e)
 
   _bokify_hammer: (e) ->
-    if e.pointerType == "mouse"
-      offset = $(e.target).offset()
-      left = offset.left ? 0
-      top = offset.top ? 0
-      e.bokeh = {
-        sx: e.srcEvent.pageX - left
-        sy: e.srcEvent.pageY - top
-      }
+    if e.pointerType == 'mouse'
+      x = e.srcEvent.pageX
+      y = e.srcEvent.pageY
     else
-      e.bokeh = {
-        sx: e.center.x
-        sy: e.center.y
-      }
+      x = e.center.x
+      y = e.center.y
+    offset = $(e.target).offset()
+    left = offset.left ? 0
+    top = offset.top ? 0
+    e.bokeh = {
+      sx: x - left
+      sy: y - top
+    }
 
   _bokify_jq: (e) ->
     offset = $(e.currentTarget).offset()

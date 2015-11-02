@@ -30,7 +30,7 @@ Support
 -------
 
 Only a subset of Bokeh's objects are capable of rendering in WebGL.
-Currently this is limited to circle and square marker glyphs. We plan
+Currently this is limited to the line, circle marker, and square marker. We plan
 to extend the support to more markers, lines, and other objects such
 as maps. You can safely combine multiple glyphs in a plot, of which
 some are rendered in WebGL, and some are not.
@@ -50,8 +50,8 @@ Notes
 * Making a selections of markers on Internet Explorer will reduce the size
   of the markers to 1 pixel (looks like a bug in IE).
 
-Example
--------
+Examples
+--------
 
 
 .. bokeh-plot::
@@ -89,4 +89,23 @@ Example
     
     p = figure(webgl=True)
     p.scatter(x,y, alpha=0.1)
+    show(p)
+
+
+.. bokeh-plot::
+    :source-position: above
+
+    import numpy as np
+    
+    from bokeh.plotting import figure, show, output_file
+    
+    N = 10000
+    
+    x = np.linspace(0, 10*np.pi, N)
+    y = np.cos(x) + np.sin(2*x+1.25) + np.random.normal(0, 0.001, (N, ))
+    
+    output_file("line10k.html", title="line10k.py example")
+    
+    p = figure(title="A line consisting of 10k points", webgl=True)
+    p.line(x, y, color="#22aa22", line_width=3)
     show(p)
