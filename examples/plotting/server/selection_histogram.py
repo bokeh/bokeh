@@ -55,9 +55,6 @@ ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785", alpha=0.1, line_color=None, name="hhist2")
 ph.xgrid.grid_line_color = None
 
-ph_source = ph.select(dict(name="hhist"))[0].data_source
-ph_source2 = ph.select(dict(name="hhist2"))[0].data_source
-
 # create the vertical histogram
 vhist, vedges = np.histogram(y, bins=20)
 vzeros = np.zeros(len(vedges)-1)
@@ -75,8 +72,10 @@ pv.ygrid.grid_line_color = None
 
 session = push_session(curdoc())
 layout = vplot(hplot(p, pv), hplot(ph, Paragraph()))
+session.show(layout)
 
-session.show()
+ph_source = ph.select(dict(name="hhist"))[0].data_source
+ph_source2 = ph.select(dict(name="hhist2"))[0].data_source
 
 pv_source = pv.select(dict(name="vhist"))[0].data_source
 pv_source2 = pv.select(dict(name="vhist2"))[0].data_source

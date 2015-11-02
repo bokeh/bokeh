@@ -26,6 +26,9 @@ p = figure()
 p.line(x, y, color="#3333ee", name="sin")
 p.line([0,4*np.pi], [-1, 1], color="#ee3333")
 
+# Open a session which will keep our local doc in sync with server
+session = push_session(curdoc())
+
 def play_handler():
     print("button_handler: start click")
     global play
@@ -47,8 +50,6 @@ button_stop.on_click(stop_handler)
 controls = hplot(button_start, button_stop)
 layout = vplot(controls, p)
 
-# Open a session which will keep our local doc in sync with server
-session = push_session(curdoc())
 # Open the session in a browser
 session.show(layout)
 
@@ -66,19 +67,25 @@ def should_play():
             time.sleep(0.05)
 
 def background_thread(ds):
-    """Plot animation, update data if play is True, otherwise stop"""
+    # """Plot animation, update data if play is True, otherwise stop"""
     try:
         while True:
+            print ("IN!!!")
             for i in np.hstack((np.linspace(1, -1, 100), np.linspace(-1, 1, 100))):
                 if should_play():
                     ds.data["y"] = y * i
+                    # TODO this is a Bokeh bug workaround: Document
+                    # doesn't notice that we assigned to 'ds.data'
+                    ds.trigger('data', ds.data, ds.data)
                 time.sleep(0.05)
     except:
         logger.exception("An error occurred")
         raise
 
 # spin up a background thread with animation
-Thread(target=background_thread, args=(ds,)).start()
+# Thread(target=background_thread, args=(ds,)).start()
+
+
 
 # endlessly poll to check widgets
 # cursession().poll_document(curdoc(), 0.05)
