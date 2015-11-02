@@ -104,19 +104,19 @@ class UIEvents extends Backbone.Model
       @trigger("#{event_type}:#{active_tool.id}", e)
 
   _bokify_hammer: (e) ->
-    if e.pointerType == "mouse"
-      offset = $(e.target).offset()
-      left = offset.left ? 0
-      top = offset.top ? 0
-      e.bokeh = {
-        sx: e.srcEvent.pageX - left
-        sy: e.srcEvent.pageY - top
-      }
+    if e.pointerType == 'mouse'
+      x = e.srcEvent.pageX
+      y = e.srcEvent.pageY
     else
-      e.bokeh = {
-        sx: e.center.x
-        sy: e.center.y
-      }
+      x = e.center.x
+      y = e.center.y
+    offset = $(e.target).offset()
+    left = offset.left ? 0
+    top = offset.top ? 0
+    e.bokeh = {
+      sx: x - left
+      sy: y - top
+    }
 
   _bokify_jq: (e) ->
     offset = $(e.currentTarget).offset()
