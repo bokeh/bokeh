@@ -23,7 +23,7 @@ import pandas as pd
 from bokeh.charts.builder import create_and_build
 from bokeh.charts.glyphs import HorizonGlyph
 from .line_builder import LineBuilder
-from ...properties import Float, Int, List
+from ...properties import Float, Int, List, string_types
 from ..attributes import ColorAttr, DashAttr, MarkerAttr, IdAttr
 from ...models.sources import ColumnDataSource
 from ...models.axes import CategoricalAxis
@@ -67,7 +67,19 @@ def Horizon(data=None, x=None, y=None, **kws):
     """
     kws['x'] = x
     kws['y'] = y
+
+    tools = kws.get('tools', True)
+    if tools == True:
+        tools = "save,resize,reset"
+    elif isinstance(tools, string_types):
+        tools = tools.replace('pan', '')
+        tools = tools.replace('wheel_zoom', '')
+        tools = tools.replace('box_zoom', '')
+        tools = tools.replace(',,', ',')
+    kws['tools'] = tools
+
     chart = create_and_build(HorizonBuilder, data, **kws)
+    
     # Hide numerical axis
     chart.left[0].visible = False
 
