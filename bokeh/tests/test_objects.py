@@ -5,8 +5,9 @@ from mock import Mock
 from six import add_metaclass
 from six.moves import xrange
 import copy
-from bokeh.properties import List, String
-from bokeh.plot_object import PlotObject
+from bokeh.properties import List, String, Instance
+from bokeh.plot_object import PlotObject, _ModelInDocument
+from bokeh.document import Document
 from bokeh.property_containers import PropertyValueList
 
 def large_plot(n):
@@ -154,6 +155,78 @@ class TestPlotObject(unittest.TestCase):
         v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
 
         self.assertEqual(v.references(), set([v, u1, u2, u3, u4, u5]))
+
+class SomeModelInTestObjects(PlotObject):
+    child = Instance(PlotObject)
+
+class TestModelInDocument(unittest.TestCase):
+    def test_single_plot_object(self):
+        p = PlotObject()
+        self.assertIs(p.document, None)
+        with _ModelInDocument(p):
+            self.assertIsNot(p.document, None)
+        self.assertIs(p.document, None)
+
+    def test_list_of_plot_object(self):
+        p1 = PlotObject()
+        p2 = PlotObject()
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        with _ModelInDocument([p1, p2]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+
+    def test_uses_precedent(self):
+        # it's deliberate that the doc is on p2, so _ModelInDocument
+        # has to be smart about looking for a doc anywhere in the list
+        # before it starts inventing new documents
+        doc = Document()
+        p1 = PlotObject()
+        p2 = PlotObject()
+        doc.add_root(p2)
+        self.assertIs(p1.document, None)
+        self.assertIsNot(p2.document, None)
+        with _ModelInDocument([p1, p2]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+            self.assertIs(p1.document, doc)
+            self.assertIs(p2.document, doc)
+        self.assertIs(p1.document, None)
+        self.assertIsNot(p2.document, None)
+
+    def test_uses_doc_precedent(self):
+        doc = Document()
+        p1 = PlotObject()
+        p2 = PlotObject()
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        with _ModelInDocument([p1, p2, doc]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+            self.assertIs(p1.document, doc)
+            self.assertIs(p2.document, doc)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+
+    def test_uses_precedent_from_child(self):
+        doc = Document()
+        p1 = PlotObject()
+        p2 = SomeModelInTestObjects(child=PlotObject())
+        doc.add_root(p2.child)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        self.assertIs(p2.child.document, doc)
+        with _ModelInDocument([p1, p2]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+            self.assertIs(p1.document, doc)
+            self.assertIs(p2.document, doc)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        self.assertIsNot(p2.child.document, None)
+        self.assertIs(p2.child.document, doc)
 
 class HasListProp(PlotObject):
     foo = List(String)
