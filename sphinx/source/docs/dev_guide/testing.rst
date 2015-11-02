@@ -20,7 +20,7 @@ and integration tests) from the top level directory by executing:
 .. note::
     Currently this script does not support Windows.
 
-To run the just the python unit tests, run the command:
+To run just the python unit tests, run the command:
 
 .. code-block:: sh
 
