@@ -24,8 +24,10 @@ from bokeh.charts.builder import create_and_build
 from bokeh.charts.glyphs import HorizonGlyph
 from .line_builder import LineBuilder
 from ...properties import Float, Int, List
-from ..attributes import ColorAttr, DashAttr, MarkerAttr, CatAttr, IdAttr
+from ..attributes import ColorAttr, DashAttr, MarkerAttr, IdAttr
 from ...models.sources import ColumnDataSource
+from ...models.axes import CategoricalAxis
+from ...models.ranges import FactorRange
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -65,7 +67,14 @@ def Horizon(data=None, x=None, y=None, **kws):
     """
     kws['x'] = x
     kws['y'] = y
-    return create_and_build(HorizonBuilder, data, **kws)
+    chart = create_and_build(HorizonBuilder, data, **kws)
+    # Hide numerical axis
+    chart.left[0].visible = False
+
+    # Add the series names to the y axis
+    chart.extra_y_ranges = {"series": FactorRange(factors=chart._builders[0]._series)}
+    chart.add_layout(CategoricalAxis(y_range_name="series"), 'left')
+    return chart
 
 
 class HorizonBuilder(LineBuilder):
@@ -102,12 +111,12 @@ class HorizonBuilder(LineBuilder):
 
         # collect
         series_cols = self.attributes['color'].columns[0]
-        series = [item[0] for item in self.attributes['color']._items]
+        series = self.series
         self.series_max = values.max()
         self.series_count = len(series)
 
         bin_idx, bin_array = pd.cut(values, bins=self.num_folds, labels=False,
-                              retbins=True)
+                                    retbins=True)
         self.bins = bin_array.tolist()[1:]
 
         # remove dummy value to force binning from 0
@@ -128,8 +137,7 @@ class HorizonBuilder(LineBuilder):
         self._data['y'] = new_cols
 
         id_cols = self.get_id_cols(self.stack_flags)
-        self._stack_measures(ids=id_cols)
-
+        self._stack_measures(ids=id_cols, var_name='horizon_bin')
 
         df = self._data.df
         for idx, serie in enumerate(series[1:]):
@@ -137,7 +145,7 @@ class HorizonBuilder(LineBuilder):
                                                                   self.bins[0])
 
         self.attributes['bin_num'].setup(data=ColumnDataSource(self._data.df),
-                                                               columns='variable_')
+                                                               columns='horizon_bin')
         self.attributes['series_num'].setup(data=ColumnDataSource(self._data.df),
                                             columns=series_cols)
         self.attributes['color'].setup(data=ColumnDataSource(self._data.df),

@@ -24,7 +24,7 @@ from ..glyphs import LineGlyph, PointGlyph
 from ..attributes import DashAttr, ColorAttr, MarkerAttr
 from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
-from ...properties import Bool
+from ...properties import Bool, String, List
 from ..operations import Stack, Dodge
 
 # -----------------------------------------------------------------------------
@@ -97,6 +97,7 @@ class LineBuilder(XYBuilder):
     And finally add the needed lines taking the references from the source.
     """
 
+    series = List(String, help="""Names that represent the items being plotted.""")
     stack = Bool(default=False)
 
     default_attributes = {'color': ColorAttr(),
@@ -158,7 +159,7 @@ class LineBuilder(XYBuilder):
             for attr_name, stack_flag in iteritems(stack_flags):
                 if stack_flags[attr_name]:
                     default_attr = self.attributes[attr_name]
-                    default_attr.setup(columns='variable', data=source)
+                    default_attr.setup(columns='series', data=source)
 
         # Handle when to use special column names
         if self.x.selection is None and self.y.selection is not None:
@@ -172,7 +173,10 @@ class LineBuilder(XYBuilder):
         return (cols is not None and (cols == self.y.selection or
                                       cols == self.x.selection))
 
-    def _stack_measures(self, ids):
+    def set_series(self):
+        self.series = self._data.df['series'].drop_duplicates().tolist()
+
+    def _stack_measures(self, ids, var_name='series'):
         """Stack data and keep the ids columns.
 
         Args:
@@ -194,10 +198,13 @@ class LineBuilder(XYBuilder):
         dim_prop = getattr(self, dim)
 
         # transform our data by stacking the measurements into one column
-        self._data.stack_measures(measures=dim_prop.selection, ids=ids)
+        self._data.stack_measures(measures=dim_prop.selection, ids=ids,
+                                  var_name=var_name)
 
         # update our dimension with the updated data
         dim_prop.set_data(self._data)
+
+        self.set_series()
 
     def get_builder_attr(self):
         attrs = self.class_properties()
