@@ -28,7 +28,6 @@ class DynamicImageView extends PlotWidget
     image_data = e.target.image_data
     image_data.img = e.target
     image_data.loaded = true
-    @mget('image_source').add_image(image_data)
     @lastImage = image_data
 
     if @get_extent().join(':') == image_data.cache_key
@@ -47,7 +46,7 @@ class DynamicImageView extends PlotWidget
       loaded : false
       cache_key : bounds.join(':')
 
-    @mget('image_source').add_image(image_data)
+    @mget('image_source').add_image(image.image_data)
     image.src = @mget('image_source').get_image_url(bounds[0], bounds[1], bounds[2], bounds[3], Math.ceil(@map_frame.get('height')), Math.ceil(@map_frame.get('width')))
     return image
 
@@ -60,7 +59,7 @@ class DynamicImageView extends PlotWidget
 
     extent = @get_extent()
 
-    if @render_timer?
+    if @render_timer
       clearTimeout(@render_timer)
 
     image_obj = @mget('image_source').images[extent.join(':')]
