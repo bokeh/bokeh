@@ -21,7 +21,7 @@ import pytest
 
 import numpy as np
 
-from bokeh.charts._chart import Chart
+from bokeh.charts.chart import Chart
 from bokeh.models import (
     ColumnDataSource, Grid, GlyphRenderer, LinearAxis, Range1d, Ticker)
 from bokeh.models.ranges import FactorRange

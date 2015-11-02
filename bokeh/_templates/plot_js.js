@@ -12,11 +12,13 @@ corresponding PLOT_DIV.
 :type elementid: str
 
 #}
+{%- if custom_models -%}
 Bokeh.Collections.register_models({
   {% for name, impl in custom_models.items() -%}
     "{{ name }}": {{ impl }},
   {%- endfor %}
 });
+{% endif -%}
 var all_models = {{ all_models }};
 Bokeh.load_models(all_models);
 var plots = {{ plots }};

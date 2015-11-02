@@ -14,32 +14,57 @@ useful for charts ecosystem.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function
 
-from six import iteritems
-from copy import copy
-from collections import OrderedDict
 import itertools
-from math import cos, sin
 import json
-import pandas as pd
+from collections import OrderedDict, defaultdict
+from copy import copy
+from math import cos, sin
+
 from pandas.io.json import json_normalize
+from six import iteritems
 
 from ..browserlib import view
 from ..document import Document
 from ..embed import file_html
-from ..models import GlyphRenderer
 from ..models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..resources import INLINE
 from ..session import Session
 from ..util.notebook import publish_display_data
+from ..plotting_helpers import DEFAULT_PALETTE
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-# TODO: (bev) this should go in a plotting utils one level up
-DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+
+DEFAULT_COLUMN_NAMES = 'abcdefghijklmnopqrstuvwxyz'
+
+
+# map between distinct set of marker names and marker classes
+marker_types = OrderedDict(
+    [
+        ("circle", Circle),
+        ("square", Square),
+        ("triangle", Triangle),
+        ("diamond", Diamond),
+        ("inverted_triangle", InvertedTriangle),
+        ("asterisk", Asterisk),
+        ("cross", Cross),
+        ("x", X),
+        ("circle_cross", CircleCross),
+        ("circle_x", CircleX),
+        ("square_x", SquareX),
+        ("square_cross", SquareCross),
+        ("diamond_cross", DiamondCross),
+    ]
+)
+
+
+def take(n, iterable):
+    """Return first n items of the iterable as a list."""
+    return itertools.islice(iterable, n)
 
 
 def cycle_colors(chunk, palette=DEFAULT_PALETTE):
@@ -61,70 +86,6 @@ def cycle_colors(chunk, palette=DEFAULT_PALETTE):
 
     return colors
 
-marker_types = OrderedDict(
-    [
-        ("circle", Circle),
-        ("square", Square),
-        ("triangle", Triangle),
-        ("diamond", Diamond),
-        ("inverted_triangle", InvertedTriangle),
-        ("asterisk", Asterisk),
-        ("cross", Cross),
-        ("x", X),
-        ("circle_cross", CircleCross),
-        ("circle_x", CircleX),
-        ("square_x", SquareX),
-        ("square_cross", SquareCross),
-        ("diamond_cross", DiamondCross),
-    ]
-)
-
-
-# TODO: (bev) this should go in a plotting utils one level up
-def make_scatter(source, x, y, markertype, color, line_color=None,
-                 size=10, fill_alpha=0.2, line_alpha=1.0):
-    """Create a marker glyph and appends it to the renderers list.
-
-    Args:
-        source (obj): datasource object containing markers references.
-        x (str or list[float]) : values or field names of line ``x`` coordinates
-        y (str or list[float]) : values or field names of line ``y`` coordinates
-        markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
-        color (str): color of the points
-        size (int) : size of the scatter marker
-        fill_alpha(float) : alpha value of the fill color
-        line_alpha(float) : alpha value of the line color
-
-    Return:
-        scatter: Marker Glyph instance
-    """
-    if line_color is None:
-        line_color = color
-
-    g = itertools.cycle(marker_types.keys())
-    if isinstance(markertype, int):
-        for i in range(markertype):
-            shape = next(g)
-    else:
-        shape = markertype
-    glyph = marker_types[shape](
-        x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
-        line_color=line_color, line_alpha=line_alpha
-    )
-
-    return GlyphRenderer(data_source=source, glyph=glyph)
-
-
-def chunk(l, n):
-    """Yield successive n-sized chunks from l.
-
-    Args:
-        l (list: the incomming list to be chunked
-        n (int): lenght of you chucks
-    """
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
-
 
 def polar_to_cartesian(r, start_angles, end_angles):
     """Translate polar coordinates to cartesian.
@@ -145,6 +106,8 @@ def polar_to_cartesian(r, start_angles, end_angles):
 
     return zip(*points)
 
+
+# ToDo: Reconsider whether to utilize this, vice Chart
 # TODO: Experimental implementation. This should really be a shared
 #       pattern between plotting/charts and other bokeh interfaces.
 #       This will probably be part of the future charts re-design
@@ -235,7 +198,11 @@ def show(obj, title='test', filename=False, server=False, notebook=False, **kws)
 
 
 def ordered_set(iterable):
-    """Creates an ordered list from strings, tuples or other hashable items."""
+    """Creates an ordered list from strings, tuples or other hashable items.
+
+    Returns:
+        list of unique and ordered values
+    """
 
     mmap = {}
     ord_set = []
@@ -249,44 +216,125 @@ def ordered_set(iterable):
 
 
 def collect_attribute_columns(**specs):
-    """Collect list of unique and ordered columns across attribute specifications."""
-    selected_specs = {spec_name: spec for spec_name, spec in iteritems(specs) if spec.columns}
-    return ordered_set(list(itertools.chain.from_iterable([spec.columns for spec in selected_specs.values()])))
+    """Collect list of unique and ordered columns across attribute specifications.
+
+    Args:
+        specs (dict): attribute name, :class:`AttrSpec` mapping
+
+    Returns:
+        list of columns in order as they appear in attr spec and without duplicates
+    """
+
+    # filter down to only the specs with columns assigned to them
+    selected_specs = {spec_name: spec for spec_name, spec in iteritems(specs)
+                      if spec.columns}
+
+    # all columns used in selections of attribute specifications
+    spec_cols = list(itertools.chain.from_iterable([spec.columns
+                                                    for spec in selected_specs.values()]))
+
+    # return a list of unique columns in order as they appear
+    return ordered_set(spec_cols)
 
 
-def df_from_json(data, **kwargs):
-    """Attempt to produce row oriented data from hierarchical json/dict-like data."""
+def df_from_json(data, rename=True, **kwargs):
+    """Attempt to produce :class:`pandas.DataFrame` from hierarchical json-like data.
 
+    This utility wraps the :func:`pandas.io.json.json_normalize` function and by
+    default will try to rename the columns produced by it.
+
+    Args:
+        data (str or list(dict) or dict(list(dict))): a path to json data or loaded json
+            data. This function will look into the data and try to parse it correctly
+            based on common structures of json data.
+        rename (bool, optional: try to rename column hierarchy to the base name. So
+            medals.bronze would end up being bronze. This will only rename to the base
+            column name if the name is unique, and only if the pandas json parser
+            produced columns that have a '.' in the column name.
+        **kwargs: any kwarg supported by :func:`pandas.io.json.json_normalize`
+
+    Returns:
+        a parsed pandas dataframe from the json data, unless the path does not exist,
+            the input data is nether a list or dict. In that case, it will return `None`.
+    """
+    parsed = None
     if isinstance(data, str):
         with open(data) as data_file:
             data = json.load(data_file)
 
     if isinstance(data, list):
-        return json_normalize(data, kwargs)
+        parsed = json_normalize(data)
+
     elif isinstance(data, dict):
         for k, v in iteritems(data):
             if isinstance(v, list):
-                return json_normalize(v)
+                parsed = json_normalize(v)
+
+    # try to rename the columns if configured to
+    if rename and parsed is not None:
+        parsed = denormalize_column_names(parsed)
+
+    return parsed
 
 
-def nested_dict_iter(nested):
-    for key, value in iteritems(nested):
-        if isinstance(value, dict):
-            for inner_key, inner_value in nested_dict_iter(value):
-                yield inner_key, inner_value
-        elif isinstance(value, list):
-            for item in value:
-                for k, v in nested_dict_iter(item):
-                    yield k, v
-        else:
-            yield key, value
+def denormalize_column_names(parsed_data):
+    """Attempts to remove the column hierarchy if possible when parsing from json.
+
+    Args:
+        parsed_data (:class:`pandas.DataFrame`): df parsed from json data using
+            :func:`pandas.io.json.json_normalize`.
+
+    Returns:
+        dataframe with updated column names
+    """
+    cols = parsed_data.columns.tolist()
+    base_columns = defaultdict(list)
+    for col in cols:
+        if '.' in col:
+            # get last split of '.' to get primary column name
+            base_columns[col].append(col.split('.')[-1])
+
+    rename = {}
+    # only rename columns if they don't overlap another base column name
+    for col, new_cols in iteritems(base_columns):
+        if len(new_cols) == 1:
+            rename[col] = new_cols[0]
+
+    if len(list(rename.keys())) > 0:
+        return parsed_data.rename(columns=rename)
+    else:
+        return parsed_data
 
 
 def get_index(data):
-    return pd.Series(data.index.values)
+    """A generic function to return the index from values.
+
+    Should be used to abstract away from specific types of data.
+
+    Args:
+        data (:class:`pandas.Series`, :class:`pandas.DataFrame`): a data source to
+            return or derive an index for.
+
+    Returns:
+        a pandas index
+    """
+    return data.index
 
 
 def get_unity(data, value=1):
+    """Returns a column of ones with the same length as input data.
+
+    Useful for charts that need this special data type when no input is provided
+    for one of the dimensions.
+
+    Args:
+        data (:class:`pandas.DataFrame`): the data to add constant column to.
+        value (str, int, object): a valid value for a dataframe, used as constant value
+            for each row.
+
+    Returns:
+        a copy of `data` with a column of '_charts_ones' added to it
+    """
     data_copy = data.copy()
     data_copy['_charts_ones'] = value
     return data_copy['_charts_ones']
@@ -308,3 +356,27 @@ def title_from_columns(cols):
         return str(', '.join(cols_title).title()).title()
     else:
         return None
+
+
+def gen_column_names(n):
+    """Produces list of unique column names of length n.
+
+    Args:
+        n (int): count of column names to provide
+
+    Returns:
+        list(str) of length `n`
+    """
+    col_names = list(DEFAULT_COLUMN_NAMES)
+
+    # a-z
+    if n < len(col_names):
+        return list(take(n, col_names))
+    # a-z and aa-zz (500+ columns)
+    else:
+        n_left = n - len(col_names)
+        labels = [''.join(item) for item in
+                  take(n_left, itertools.product(DEFAULT_COLUMN_NAMES,
+                                                 DEFAULT_COLUMN_NAMES))]
+        col_names.extend(labels)
+        return col_names

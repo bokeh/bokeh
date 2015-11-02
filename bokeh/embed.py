@@ -21,7 +21,7 @@ from .protocol import serialize_json
 from .resources import Resources
 from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
-    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, JS_RESOURCES, CSS_RESOURCES
+    NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT
 )
 from .util.string import encode_utf8
 
@@ -309,7 +309,7 @@ def file_html(plot_object,
               js_resources=None,
               css_resources=None,
               template=FILE,
-              template_variables=None):
+              template_variables={}):
     ''' Return an HTML document that embeds a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -334,6 +334,9 @@ def file_html(plot_object,
     if not isinstance(plot_object, (PlotObject, Document)):
         raise ValueError('plot_object must be a single PlotObject')
 
+    from .models.widgets import Widget
+    use_widgets = any(isinstance(obj, Widget) for obj in plot_object.references())
+
     if resources:
         if js_resources:
             warn('Both resources and js_resources provided. resources will override js_resources.')
@@ -347,26 +350,27 @@ def file_html(plot_object,
     if js_resources:
         if not css_resources:
             warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_js = JS_RESOURCES.render(js_raw=js_resources.js_raw, js_files=js_resources.js_files)
+        js_resources = js_resources.use_widgets(use_widgets)
+        bokeh_js = js_resources.render_js()
 
     bokeh_css = ''
     if css_resources:
         if not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
-        bokeh_css = CSS_RESOURCES.render(css_raw=css_resources.css_raw, css_files=css_resources.css_files)
+        css_resources = css_resources.use_widgets(use_widgets)
+        bokeh_css = css_resources.render_css()
 
     script, div = components(plot_object)
-    template_variables_full = \
-        template_variables.copy() if template_variables is not None else {}
-    template_variables_full.update(
-        {
-            'title': title,
-            'bokeh_js': bokeh_js,
-            'bokeh_css': bokeh_css,
-            'plot_script': script,
-            'plot_div': div,
-        }
-    )
+
+    template_variables_full = template_variables.copy()
+    template_variables_full.update(dict(
+        title       = title,
+        bokeh_js    = bokeh_js,
+        bokeh_css   = bokeh_css,
+        plot_script = script,
+        plot_div    = div,
+    ))
+
     html = template.render(template_variables_full)
     return encode_utf8(html)
 
