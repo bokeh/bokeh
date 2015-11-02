@@ -1,5 +1,6 @@
 _ = require "underscore"
 Glyph = require "./glyph"
+{logger} = require "../../common/logging"
 
 class ImageURLView extends Glyph.View
 
@@ -25,12 +26,17 @@ class ImageURLView extends Glyph.View
       if isNaN(sx[i]+sy[i]+angle[i])
         continue
 
+      if @retry_attempts[i] == -1
+        return
+
       if need_load[i]
         img = new Image()
         img.onerror = do (i, img, url) =>
           return () =>
             if @retry_attempts[i] > 0
               setTimeout((-> img.src = url[i]), @mget('retry_timeout'))
+            else
+              logger.warn("ImageURL has exhausted retry_attempts and failed to load image")
             @retry_attempts[i] -= 1
 
         img.onload = do (i, img) =>
