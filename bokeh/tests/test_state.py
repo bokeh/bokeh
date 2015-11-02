@@ -8,11 +8,15 @@
 from __future__ import absolute_import
 
 from mock import patch
+import pytest
 import unittest
 
 from bokeh.document import Document
 
 import bokeh.state as state
+
+pytestmark = pytest.mark.unit
+
 
 class TestState(unittest.TestCase):
 

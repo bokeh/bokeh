@@ -11,6 +11,7 @@ from __future__ import absolute_import
 import pytest
 from bokeh.charts.builders.line_builder import LineBuilder
 
+pytestmark = pytest.mark.unit
 
 @pytest.fixture
 def line_builder_array(test_data):

@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import mock
+import pytest
 import unittest
 
 import bs4
@@ -11,6 +12,8 @@ from bokeh.plotting import figure
 from bokeh.session import Session
 from jinja2 import Template
 from six import string_types
+
+pytestmark = pytest.mark.unit
 
 _embed_test_plot = None
 

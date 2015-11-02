@@ -15,10 +15,13 @@
 
 from __future__ import absolute_import
 
+import pytest
+
+pytestmark = pytest.mark.unit
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-
 
 def test_ordered_set():
     pass

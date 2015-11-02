@@ -14,12 +14,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh.charts.builders.scatter_builder import ScatterBuilder
+
+pytestmark = pytest.mark.unit
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-
 
 def test_list_input(test_data):
     scatter0 = ScatterBuilder(x=test_data.list_data[0])

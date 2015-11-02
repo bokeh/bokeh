@@ -15,6 +15,7 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
+import pytest
 import unittest
 from mock import patch
 
@@ -25,6 +26,8 @@ import pandas as pd
 from bokeh._legacy_charts import Histogram
 
 from ._utils import create_chart
+
+pytestmark = pytest.mark.unit
 
 #-----------------------------------------------------------------------------
 # Classes and functions

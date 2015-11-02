@@ -16,6 +16,7 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 import datetime
+import pytest
 import unittest
 
 from numpy.testing import assert_array_equal
@@ -24,6 +25,8 @@ import pandas as pd
 from bokeh._legacy_charts import Horizon
 
 from ._utils import create_chart
+
+pytestmark = pytest.mark.unit
 
 #-----------------------------------------------------------------------------
 # Classes and functions

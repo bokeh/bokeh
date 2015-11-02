@@ -1,5 +1,9 @@
 from __future__ import absolute_import
+
+import pytest
 import unittest
+
+pytestmark = pytest.mark.unit
 
 
 class TestRange1d(unittest.TestCase):
@@ -29,7 +33,6 @@ class TestFactorRange(unittest.TestCase):
         assert factorRange
         factorRange = self.factorRange(factors=[1, 2, 3, 4, 5])
         assert factorRange
-
 
 
 if __name__ == "__main__":

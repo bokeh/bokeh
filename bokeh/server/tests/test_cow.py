@@ -7,6 +7,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh.exceptions import AuthenticationException
 from bokeh.models.plots import Plot
 from bokeh.session import TestSession as Session
@@ -19,6 +21,8 @@ from bokeh.server.serverbb import BokehServerTransaction
 from bokeh.server.views.bbauth import handle_auth_error
 from bokeh.server.views.main import _makedoc
 from bokeh.util.testing import FlaskClientTestCase
+
+pytestmark = pytest.mark.unit
 
 
 class AuthTestCase(FlaskClientTestCase):

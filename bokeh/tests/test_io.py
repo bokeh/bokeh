@@ -8,9 +8,13 @@
 
 from __future__ import absolute_import
 from mock import patch, Mock
+import pytest
 import unittest
 
 import bokeh.io as io
+
+pytestmark = pytest.mark.unit
+
 
 class TestDefaultState(unittest.TestCase):
 
@@ -145,7 +149,7 @@ class Test_GetSaveArgs(DefaultStateTester):
         filename, resources, title = io._get_save_args(io._state, "filename", "resources", None)
         self.assertEqual(title, "Bokeh Plot")
         self.assertTrue(mock_warn.called)
-        self.assertEqual(mock_warn.call_args[0], ("save() called but no title was supplied and output_file(...) " 
+        self.assertEqual(mock_warn.call_args[0], ("save() called but no title was supplied and output_file(...) "
                                                   "was never called, using default title 'Bokeh Plot'",))
         self.assertEqual(mock_warn.call_args[1], {})
 

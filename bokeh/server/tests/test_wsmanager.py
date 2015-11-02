@@ -7,11 +7,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh import protocol
 from bokeh import session
 
 from bokeh.server.app import bokeh_app
 from bokeh.util.testing import BokehServerTestCase
+
+pytestmark = pytest.mark.unit
 
 ws_address = "ws://localhost:5006/bokeh/sub"
 

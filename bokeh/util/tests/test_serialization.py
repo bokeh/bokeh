@@ -1,8 +1,12 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 
 from bokeh.util.serialization import get_json, json_apply, make_id, urljoin, traverse_data
+
+pytestmark = pytest.mark.unit
+
 
 class DummyRequestCallable():
     def json(self):

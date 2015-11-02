@@ -7,11 +7,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh.exceptions import UnauthorizedException
 
 from bokeh.server.app import bokeh_app
 from bokeh.server.models import user
 from bokeh.util.testing import BokehServerTestCase
+
+pytestmark = pytest.mark.unit
 
 
 class TestUser(BokehServerTestCase):

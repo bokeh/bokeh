@@ -9,12 +9,14 @@
 from __future__ import absolute_import
 
 from mock import patch
+import pytest
 import unittest
 
 from bokeh.plotting import figure
 from bokeh.models import GlyphRenderer
 from bokeh.models.tools import PanTool
 
+pytestmark = pytest.mark.unit
 
 class TestPlotSelect(unittest.TestCase):
 

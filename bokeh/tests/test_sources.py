@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 from unittest import skipIf
 import warnings
@@ -11,6 +12,9 @@ except ImportError as e:
     is_pandas = False
 
 from bokeh.models.sources import DataSource, ColumnDataSource, ServerDataSource
+
+pytestmark = pytest.mark.unit
+
 
 class TestColumnDataSourcs(unittest.TestCase):
 

@@ -1,8 +1,12 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 
 import bokeh.colors as colors
+
+pytestmark = pytest.mark.unit
+
 
 class TestColor(unittest.TestCase):
 

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import pytest
 import unittest
 
 import bokeh.query as query
@@ -9,6 +10,8 @@ from bokeh.models import (
     LogAxis, PanTool, Plot, PreviewSaveTool, Range1d, ResetTool, ResizeTool, Tool, WheelZoomTool,
 )
 from bokeh.models.glyphs import Glyph, Circle, Line, Rect
+
+pytestmark = pytest.mark.unit
 
 def large_plot():
     source = ColumnDataSource(data=dict(x=[0, 1], y=[0, 1]))
