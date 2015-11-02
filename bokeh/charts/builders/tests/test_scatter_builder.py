@@ -14,6 +14,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh.charts.builders.scatter_builder import ScatterBuilder
 
 pytestmark = pytest.mark.unit

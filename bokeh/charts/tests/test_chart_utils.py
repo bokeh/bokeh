@@ -16,9 +16,6 @@
 from __future__ import absolute_import
 
 import pytest
-import unittest
-
-from bokeh.charts.utils import chunk
 
 pytestmark = pytest.mark.unit
 

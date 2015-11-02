@@ -14,6 +14,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
+import pytest
+
 from bokeh.charts.builders.histogram_builder import HistogramBuilder
 
 pytestmark = pytest.mark.unit
