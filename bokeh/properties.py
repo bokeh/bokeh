@@ -1259,8 +1259,8 @@ class DistanceSpec(UnitsSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(DistanceSpec, self).__set__(obj, value)
@@ -1273,8 +1273,8 @@ class ScreenDistanceSpec(NumberSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(ScreenDistanceSpec, self).__set__(obj, value)
@@ -1287,8 +1287,8 @@ class DataDistanceSpec(NumberSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(DataDistanceSpec, self).__set__(obj, value)

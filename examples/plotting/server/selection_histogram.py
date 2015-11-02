@@ -5,9 +5,9 @@ import numpy as np
 
 from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
 from bokeh.plotting import (
-    curdoc, cursession, figure, output_server, show, hplot, vplot
+    curdoc, figure, output_server, show, hplot, vplot
 )
-
+from bokeh.client import push_session
 # create three normal population samples with different parameters
 N1 = 2000
 N2 = 5000
@@ -73,11 +73,16 @@ pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785", alpha=0.1, line_color=None, name="vhist2")
 pv.ygrid.grid_line_color = None
 
+session = push_session(curdoc())
+layout = vplot(hplot(p, pv), hplot(ph, Paragraph()))
+
+session.show()
+
 pv_source = pv.select(dict(name="vhist"))[0].data_source
 pv_source2 = pv.select(dict(name="vhist2"))[0].data_source
 
 # set up callbacks
-def on_selection_change(obj, attr, old, new):
+def on_selection_change(attr, old, new):
     inds = np.array(new['1d']['indices'])
     if len(inds) == 0 or len(inds) == len(x):
         hhist = hzeros
@@ -96,12 +101,12 @@ def on_selection_change(obj, attr, old, new):
     pv_source.data["right"] = vhist
     ph_source2.data["top"] = -hhist2
     pv_source2.data["right"] = -vhist2
+    ph_source.trigger('data', ph_source.data, ph_source.data)
+    ph_source2.trigger('data', ph_source2.data, ph_source2.data)
 
-    cursession().store_objects(ph_source, pv_source, ph_source2, pv_source2)
 
 scatter_ds.on_change('selected', on_selection_change)
 
-layout = vplot(hplot(p, pv), hplot(ph, Paragraph()))
-show(layout)
 
-cursession().poll_document(curdoc(), 0.05)
+
+session.loop_until_closed()

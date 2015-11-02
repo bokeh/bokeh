@@ -9,8 +9,9 @@ import time
 
 import numpy as np
 
-from bokeh.plotting import cursession, figure, show, output_server
+from bokeh.plotting import figure, show, output_server, curdoc
 from bokeh.models import GlyphRenderer
+from bokeh.client import push_session
 
 x = np.linspace(0, 4*np.pi, 200)
 y = np.sin(x)
@@ -20,7 +21,10 @@ output_server("simple_stream")
 p = figure(title="Simple streaming example")
 p.line(x,y, color="#2222aa", line_width=2)
 
-show(p)
+# Open a session which will keep our local doc in sync with server
+session = push_session(curdoc())
+# Open the session in a browser
+session.show()
 
 ds = p.select({"type": GlyphRenderer})[0].data_source
 while True:
@@ -28,5 +32,8 @@ while True:
     newx = np.hstack([oldx, [oldx[-1] + 4*np.pi/200]])
     ds.data["x"] = newx
     ds.data["y"] = np.sin(newx)
-    cursession().store_objects(ds)
-    time.sleep(0.5)
+
+    # TODO this is a Bokeh bug workaround: Document
+    # doesn't notice that we assigned to 'ds.data'
+    ds.trigger('data', ds.data, ds.data)
+    time.sleep(0.10)
