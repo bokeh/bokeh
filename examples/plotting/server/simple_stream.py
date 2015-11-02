@@ -33,7 +33,4 @@ while True:
     ds.data["x"] = newx
     ds.data["y"] = np.sin(newx)
 
-    # TODO this is a Bokeh bug workaround: Document
-    # doesn't notice that we assigned to 'ds.data'
-    ds.trigger('data', ds.data, ds.data)
     time.sleep(0.10)

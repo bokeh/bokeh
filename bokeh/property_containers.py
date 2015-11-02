@@ -102,6 +102,54 @@ class PropertyValueList(PropertyValueContainer, list):
     def sort(self, **kwargs):
         return super(PropertyValueList, self).sort(**kwargs)
 
+class PropertyValueDict(PropertyValueContainer, dict):
+    """A list that is the value of a property, and has change notification"""
+
+    def __init__(self, *args, **kwargs):
+        return super(PropertyValueDict, self).__init__(*args, **kwargs)
+
+    def _saved_copy(self):
+        return dict(self)
+
+    # delete x['y']
+    @notify_owner
+    def __delattr__(self, y):
+        return super(PropertyValueDict, self).__delattr__(y)
+
+    # delete x[y]
+    @notify_owner
+    def __delitem__(self, y):
+        return super(PropertyValueDict, self).__delitem__(y)
+
+    # x['i'] = y
+    @notify_owner
+    def __setattr__(self, i, y):
+        return super(PropertyValueDict, self).__setattr__(i, y)
+
+    # x[i] = y
+    @notify_owner
+    def __setitem__(self, i, y):
+        return super(PropertyValueDict, self).__setitem__(i, y)
+
+    @notify_owner
+    def clear(self):
+        return super(PropertyValueDict, self).clear()
+
+    @notify_owner
+    def pop(self, *args):
+        return super(PropertyValueDict, self).pop(*args)
+
+    @notify_owner
+    def popitem(self):
+        return super(PropertyValueDict, self).popitem()
+
+    @notify_owner
+    def setdefault(self, *args):
+        return super(PropertyValueDict, self).setdefault(*args)
+
+    @notify_owner
+    def update(self, *args, **kwargs):
+        return super(PropertyValueDict, self).update(*args, **kwargs)
 
 # TODO (havocp) wrap set
-# TODO (havocp) wrap dict
+

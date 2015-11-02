@@ -45,14 +45,9 @@ while True:
 
     rmin = ds.data["inner_radius"]
     rmin = roll(rmin, 1)
-    ds.data["inner_radius"] = rmin
-
     rmax = ds.data["outer_radius"]
     rmax = roll(rmax, -1)
-    ds.data["outer_radius"] = rmax
 
-    # TODO this is a Bokeh bug workaround: Document
-    # doesn't notice that we assigned to 'ds.data'
-    ds.trigger('data', ds.data, ds.data)
+    ds.data.update(inner_radius=rmin, outer_radius=rmax)
 
     time.sleep(.10)

@@ -101,9 +101,6 @@ def on_selection_change(attr, old, new):
     pv_source.data["right"] = vhist
     ph_source2.data["top"] = -hhist2
     pv_source2.data["right"] = -vhist2
-    ph_source.trigger('data', ph_source.data, ph_source.data)
-    ph_source2.trigger('data', ph_source2.data, ph_source2.data)
-
 
 scatter_ds.on_change('selected', on_selection_change)
 

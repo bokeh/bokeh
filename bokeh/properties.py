@@ -59,7 +59,7 @@ from six import string_types, add_metaclass, iteritems
 
 from . import enums
 from .util.string import nice_join
-from .property_containers import PropertyValueList, PropertyValueContainer
+from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 
 def field(name):
     ''' Convenience function do explicitly mark a field specification for
@@ -215,6 +215,11 @@ class Property(object):
                 return value
             else:
                 return PropertyValueList(value)
+        elif isinstance(value, dict):
+            if isinstance(value, PropertyValueDict):
+                return value
+            else:
+                return PropertyValueDict(value)
         else:
             return value
 

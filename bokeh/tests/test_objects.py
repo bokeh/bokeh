@@ -5,10 +5,10 @@ from mock import Mock
 from six import add_metaclass
 from six.moves import xrange
 import copy
-from bokeh.properties import List, String, Instance
+from bokeh.properties import List, String, Instance, Dict, Any, Int
 from bokeh.plot_object import PlotObject, _ModelInDocument
 from bokeh.document import Document
-from bokeh.property_containers import PropertyValueList
+from bokeh.property_containers import PropertyValueList, PropertyValueDict
 
 def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
@@ -228,11 +228,6 @@ class TestModelInDocument(unittest.TestCase):
         self.assertIsNot(p2.child.document, None)
         self.assertIs(p2.child.document, doc)
 
-class HasListProp(PlotObject):
-    foo = List(String)
-    def __init__(self, **kwargs):
-        super(HasListProp, self).__init__(**kwargs)
-
 class TestContainerMutation(unittest.TestCase):
 
     def _check_mutation(self, obj, attr, mutator, expected_event_old, expected_event_new):
@@ -252,6 +247,14 @@ class TestContainerMutation(unittest.TestCase):
         self.assertEqual(attr, call[0])
         self.assertEqual(expected_event_old, call[1])
         self.assertEqual(expected_event_new, call[2])
+
+
+class HasListProp(PlotObject):
+    foo = List(String)
+    def __init__(self, **kwargs):
+        super(HasListProp, self).__init__(**kwargs)
+
+class TestListMutation(TestContainerMutation):
 
     def test_assignment_maintains_owners(self):
         obj = HasListProp()
@@ -363,6 +366,119 @@ class TestContainerMutation(unittest.TestCase):
         self._check_mutation(obj, 'foo', lambda x: x.sort(),
                              ["b", "a"],
                              ["a", "b"])
+
+
+class HasStringDictProp(PlotObject):
+    foo = Dict(String, Any)
+    def __init__(self, **kwargs):
+        super(HasStringDictProp, self).__init__(**kwargs)
+
+class HasIntDictProp(PlotObject):
+    foo = Dict(Int, Any)
+    def __init__(self, **kwargs):
+        super(HasIntDictProp, self).__init__(**kwargs)
+
+class TestDictMutation(TestContainerMutation):
+
+    def test_assignment_maintains_owners(self):
+        obj = HasStringDictProp()
+        old_dict = obj.foo
+        self.assertTrue(isinstance(old_dict, PropertyValueDict))
+        self.assertEqual(1, len(old_dict._owners))
+        obj.foo = dict(a=1)
+        new_dict = obj.foo
+        self.assertTrue(isinstance(new_dict, PropertyValueDict))
+        self.assertIsNot(old_dict, new_dict)
+        self.assertEqual(0, len(old_dict._owners))
+        self.assertEqual(1, len(new_dict._owners))
+
+    def test_dict_delattr(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            del x['b']
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, c=3))
+
+    def test_dict_delitem(self):
+        obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            del x[1]
+        self._check_mutation(obj, 'foo', mutate,
+                             { 1 : "a", 2 : "b", 3 : "c" },
+                             { 2 : "b", 3 : "c" })
+
+    def test_dict_setattr(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x['b'] = 42
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, b=42, c=3))
+
+    def test_dict_setitem(self):
+        obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x[2] = "bar"
+        self._check_mutation(obj, 'foo', mutate,
+                             { 1 : "a", 2 : "b", 3 : "c" },
+                             { 1 : "a", 2 : "bar", 3 : "c" })
+
+    def test_dict_clear(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x.clear()
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict())
+
+    def test_dict_pop(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x.pop('b')
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, c=3))
+
+    def test_dict_pop_default_works(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        self.assertEqual(42, obj.foo.pop('z', 42))
+
+    def test_dict_popitem_works(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        i = obj.foo.popitem()
+        self.assertTrue(i == ('a', 1) or i == ('b', 2) or i == ('c', 3))
+        # we don't _check_mutation since the end value is nondeterministic
+
+    def test_dict_setdefault(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            b = x.setdefault('b', 43)
+            self.assertEqual(2, b)
+            z = x.setdefault('z', 44)
+            self.assertEqual(44, z)
+
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, b=2, c=3, z=44))
+
+    def test_dict_update(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x.update(dict(b=7, c=8))
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, b=7, c=8))
 
 if __name__ == "__main__":
     unittest.main()

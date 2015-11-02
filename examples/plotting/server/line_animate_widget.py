@@ -72,9 +72,6 @@ def background_thread(ds):
             for i in np.hstack((np.linspace(1, -1, 100), np.linspace(-1, 1, 100))):
                 if should_play():
                     ds.data["y"] = y * i
-                    # TODO this is a Bokeh bug workaround: Document
-                    # doesn't notice that we assigned to 'ds.data'
-                    ds.trigger('data', ds.data, ds.data)
                 time.sleep(0.05)
     except:
         logger.exception("An error occurred")
