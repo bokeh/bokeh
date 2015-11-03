@@ -23,7 +23,7 @@ import pandas as pd
 from bokeh.charts.builder import create_and_build
 from bokeh.charts.glyphs import HorizonGlyph
 from .line_builder import LineBuilder
-from ...properties import Float, Int, List, string_types, String
+from ...properties import Float, Int, List, string_types, String, Color
 from ..attributes import ColorAttr, DashAttr, MarkerAttr, IdAttr
 from ...models.sources import ColumnDataSource
 from ...models.axes import CategoricalAxis
@@ -103,15 +103,28 @@ class HorizonBuilder(LineBuilder):
     glyph = HorizonGlyph
     series_max = Float()
     series_count = Int()
-    num_folds = Int(default=3)
     bins = List(Float)
     series_column = String()
     fold_height = Float()
+    graph_ratio = Float()
+    positive_color = '#006400'
     default_attributes = {'bin_num': IdAttr(sort=True, ascending=True),
                           'color': ColorAttr(sort=False),
                           'dash': DashAttr(),
                           'marker': MarkerAttr(),
                           'series': IdAttr(sort=False)}
+
+    pos_color = Color("#006400", help="""
+    The color of the positive folds. (default: "#006400")
+    """)
+
+    neg_color = Color("#6495ed", help="""
+    The color of the negative folds. (default: "#6495ed")
+    """)
+
+    num_folds = Int(3, help="""
+    The number of folds stacked on top of each other. (default: 3)
+    """)
 
     def setup(self):
         super(HorizonBuilder, self).setup()
@@ -129,13 +142,14 @@ class HorizonBuilder(LineBuilder):
         super(HorizonBuilder, self).process_data()
 
         # calculate group attributes, useful for each horizon glyph
-        self.fold_height = self.y.max/self.num_folds
+        self.fold_height = max(self.y.max, abs(self.y.min))/self.num_folds
         self.bins = [bin_id * self.fold_height for bin_id in range(self.num_folds + 1)]
+        self.graph_ratio = self.num_folds / len(self.series_names)
 
         # manually set attributes to have constant color
         ds = ColumnDataSource(self._data.df)
         self.attributes['series'].setup(data=ds, columns=self.series_column)
-        self.attributes['color'].setup(data=ds, columns='#006400')
+        self.attributes['color'].setup(data=ds, columns=self.pos_color)
 
     def set_ranges(self):
         super(HorizonBuilder, self).set_ranges()

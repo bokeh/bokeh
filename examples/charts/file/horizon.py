@@ -15,11 +15,13 @@ IBM = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 
+shift = 30
+
 xyvalues = OrderedDict(
-    AAPL=AAPL['Adj Close'],
+    AAPL=AAPL['Adj Close'] - shift,
     Date=AAPL['Date'],
-    MSFT=MSFT['Adj Close'],
-    IBM=IBM['Adj Close'],
+    MSFT=MSFT['Adj Close'] - shift,
+    IBM=IBM['Adj Close'] - shift,
 )
 
 output_file("horizon.html")

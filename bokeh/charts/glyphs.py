@@ -247,55 +247,83 @@ class HorizonGlyph(AreaGlyph):
     fold_height = Float()
     bins = List(Float)
     bin_num = Int()
+    graph_ratio = Float()
+
+    pos_color = Color("#006400")
+    neg_color = Color("#6495ed")
+    line_color = Color()
 
     series_max = Float(help="""Required to be set by builder.""")
 
     def __init__(self, bins=None, **kwargs):
-        series_num = kwargs.get('series')
         kwargs['fill_alpha'] = 1.0/self.num_folds
-        if bins is not None:
-            if series_num > 0:
-                kwargs['base'] = bins[series_num]
-            else:
-                kwargs['base'] = 0
 
         if bins is not None:
+            kwargs['hor_max'] = max(bins)
             kwargs['bins'] = bins
+
+            kwargs['base'] = kwargs['series'] * kwargs['hor_max'] / kwargs['series_count']
 
         super(HorizonGlyph, self).__init__(**kwargs)
 
     def build_source(self):
-        data = super(HorizonGlyph, self).build_source()
+        data = {}
 
-        bin_idx, bin_array = pd.cut(self.y, bins=self.bins, labels=False,
-                                    retbins=True)
+        pos_y = self.y.copy()
+        pos_y[pos_y < 0] = 0
+        xs, ys = self._build_dims(self.x, pos_y)
+        colors = [self.pos_color] * len(ys)
+
+        if self.y.min() < 0:
+            neg_y = self.y.copy()
+            neg_y[neg_y > 0] = 0
+            neg_y = abs(neg_y)
+            neg_xs, neg_ys = self._build_dims(self.x, neg_y)
+
+            xs += neg_xs
+            ys += neg_ys
+            colors += ([self.neg_color] * len(neg_ys))
 
         # create clipped representation of each band
-        ys = []
-        for idx, bin in enumerate(self.bins[0:-1]):
-            temp_vals = self.y.copy() - (idx * self.bins[1])
-            temp_vals[bin_idx > idx] = self.bins[1]
-            temp_vals[bin_idx < idx] = 0
-
-            # shift values up based on index of series
-            temp_vals += self.series * self.fold_height
-            ys.append(temp_vals)
-
-        xs, ys = map(list, zip(*[generate_patch_base(self.x, y, base=self.base) for
-                                 y in ys]))
-
         data['x_values'] = xs
         data['y_values'] = ys
+        data['fill_color'] = colors
+        data['line_color'] = colors
 
         return data
+
+    def _build_dims(self, x, y):
+
+        bin_idx, bin_array = pd.cut(y, bins=self.bins, labels=False,
+                                    retbins=True, include_lowest=True)
+
+        xs, ys = [], []
+        for idx, bin in enumerate(self.bins[0:-1]):
+            temp_vals = y.copy() - (idx * self.bins[1])
+            temp_vals[bin_idx > idx] = self.bins[1] * self.graph_ratio
+            temp_vals[bin_idx < idx] = 0
+            temp_vals[bin_idx == idx] *= self.graph_ratio
+
+            # shift values up based on index of series
+            temp_vals += self.base
+            val_idx = temp_vals > 0
+            if pd.Series.any(val_idx):
+                ys.append(temp_vals[val_idx])
+                xs.append(x[val_idx])
+
+        if len(ys) > 0:
+            xs, ys = map(list, zip(*[generate_patch_base(x, y, base=self.base) for
+                                     x, y in zip(xs, ys)]))
+
+        return xs, ys
 
     def build_renderers(self):
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
         glyph = Patches(
             xs='x_values', ys='y_values',
-            fill_alpha=self.fill_alpha, fill_color=self.fill_color,
-            line_color=self.line_color
+            fill_alpha=self.fill_alpha, fill_color='fill_color',
+            line_color='line_color'
         )
         renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
         yield renderer
