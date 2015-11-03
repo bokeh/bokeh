@@ -24,7 +24,7 @@ class DynamicImageView extends PlotWidget
   _map_data: () ->
     @initial_extent = @get_extent()
 
-  _on_tile_load: (e) =>
+  _on_image_load: (e) =>
     image_data = e.target.image_data
     image_data.img = e.target
     image_data.loaded = true
@@ -33,13 +33,15 @@ class DynamicImageView extends PlotWidget
     if @get_extent().join(':') == image_data.cache_key
       @request_render()
 
-  _on_tile_error: (e) =>
+  _on_image_error: (e) =>
+    logger.error('Error loading image: #{e.target.src}')
+    image_data = e.target.image_data
     @mget('image_source').remove_image(image_data)
 
   _create_image: (bounds) ->
     image = new Image()
-    image.onload = @_on_tile_load
-    image.onerror = @_on_tile_error
+    image.onload = @_on_image_load
+    image.onerror = @_on_image_error
     image.alt = ''
     image.image_data =
       bounds : bounds
@@ -71,7 +73,7 @@ class DynamicImageView extends PlotWidget
       @_draw_image(@lastImage.cache_key)
 
     if not image_obj?
-      @render_timer = setTimeout((=> @_create_image(extent)), 65)
+      @render_timer = setTimeout((=> @_create_image(extent)), 125)
 
   _draw_image: (image_key) ->
     image_obj = @mget('image_source').images[image_key]
