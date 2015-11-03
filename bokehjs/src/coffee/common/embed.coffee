@@ -8,12 +8,17 @@ HasProperties = require "./has_properties"
 {pull_session} = require "./client"
 {Promise} = require "es6-promise"
 
+_create_view = (model) ->
+  view = new model.default_view({model : model})
+  base.index[model.id] = view
+  view
+
 # Replace element with a view of model_id from document
 add_model_static = (element, model_id, doc) ->
   model = doc.get_model_by_id(model_id)
   if not model?
     throw new Error("Model #{model_id} was not in document #{doc}")
-  view = new model.default_view({model : model})
+  view = _create_view(model)
   _.delay(-> $(element).replaceWith(view.$el))
 
 _render_document_to_element = (element, document) ->
@@ -22,7 +27,7 @@ _render_document_to_element = (element, document) ->
   # the views we create.
   views = {}
   render_model = (model) ->
-    view = new model.default_view(model : model)
+    view = _create_view(model)
     views[model.id] = view
     $(element).append(view.$el)
   unrender_model = (model) ->
@@ -30,6 +35,7 @@ _render_document_to_element = (element, document) ->
       view = views[model.id]
       $(element).remove(view.$el)
       delete views[model.id]
+      delete base.index[model.id]
 
   for model in document.roots()
     render_model(model)
@@ -79,7 +85,7 @@ add_model_from_session = (element, model_id, session_id) ->
       model = session.document.get_model_by_id(model_id)
       if not model?
         throw new Error("Did not find model #{model_id} in session")
-      view = new model.default_view({model : model})
+      view = _create_view(model)
       $(element).replaceWith(view.$el)
     (error) ->
       logger.error("Failed to load Bokeh session " + session_id + ": " + error)
