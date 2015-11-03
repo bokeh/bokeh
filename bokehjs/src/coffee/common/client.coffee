@@ -95,11 +95,17 @@ message_handlers = {
 
 class ClientConnection
 
+  @_connection_count : 0
+
   constructor : (@url, @id, @_on_have_session_hook, @_on_closed_permanently_hook) ->
+    @_number = ClientConnection._connection_count
+    ClientConnection._connection_count = @_number + 1
     if not @url?
       @url = DEFAULT_SERVER_WEBSOCKET_URL
     if not @id?
       @id = DEFAULT_SESSION_ID
+
+    logger.debug("Creating websocket #{@_number} to '#{@url}' session '#{@id}'")
     @socket = null
     @closed_permanently = false
     @_fragments = []
@@ -147,9 +153,10 @@ class ClientConnection
 
   close : () ->
     if not @closed_permanently
+      logger.debug("Permanently closing websocket connection #{@_number}")
       @closed_permanently = true
       if @socket?
-        @socket.close(1000, "close method called on ClientConnection")
+        @socket.close(1000, "close method called on ClientConnection #{@_number}")
       @_for_session (session) ->
         session._connection_closed()
       if @_on_closed_permanently_hook?
@@ -161,7 +168,7 @@ class ClientConnection
       if @closed_permanently
         return
       else
-        logger.debug("Attempting to reconnect websocket")
+        logger.debug("Attempting to reconnect websocket #{@_number}")
         @connect()
     setTimeout retry, milliseconds
 
@@ -231,7 +238,7 @@ class ClientConnection
       logger.error("Failed to repull session #{error}")
 
   _on_open : (resolve, reject) ->
-    logger.debug("Websocket connection is now open")
+    logger.debug("Websocket connection #{@_number} is now open")
     @_pending_ack = [resolve, reject]
     @_current_handler = (message) =>
       @_awaiting_ack_handler(message)
@@ -268,7 +275,7 @@ class ClientConnection
       @_current_handler(msg)
 
   _on_close : (event) ->
-    logger.info("Lost websocket connection, #{event.code} (#{event.reason})")
+    logger.info("Lost websocket #{@_number} connection, #{event.code} (#{event.reason})")
     @socket = null
 
     if @_pending_ack?
@@ -288,7 +295,7 @@ class ClientConnection
       @_schedule_reconnect(2000)
 
   _on_error : (reject) ->
-    logger.debug("Websocket error")
+    logger.debug("Websocket error on socket  #{@_number}")
     reject(new Error("Could not open websocket"))
 
   _close_bad_protocol : (detail) ->
