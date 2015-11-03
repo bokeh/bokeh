@@ -23,6 +23,7 @@ label_props = dict(label_text_font_size='40pt',
 versicolor_label = Label(text='Versicolor', x=5.3, y=1.1, label_text_color='green', **label_props)
 virginica_label = Label(text='Virginica', x=4.4, y=2.2, label_text_color='blue', **label_props)
 
-p.renderers.extend([versicolor_label, virginica_label])
+p.add_layout(versicolor_label)
+p.add_layout(virginica_label)
 
 show(p)
