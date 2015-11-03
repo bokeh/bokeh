@@ -400,7 +400,7 @@ Text can be appended to the plot with a variety of customizable properties
 using the Label annotation.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_label.py
-=======
+
 .. _userguide_plotting_spans:
 
 Spans
