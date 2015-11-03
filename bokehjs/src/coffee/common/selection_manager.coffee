@@ -64,8 +64,8 @@ class SelectionManager extends HasProperties
     return @selectors[rview.model.id]
 
   _save_indices: (indices) ->
-    @get('source').save({
+    @get('source').set({
       "selected": indices
-    }, {patch: true})
+    })
 
 module.exports = SelectionManager
