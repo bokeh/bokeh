@@ -20,6 +20,10 @@ class DataRange1d extends Range1d.Model
     @set('_end', end)
 
   initialize: (attrs, options) ->
+    # TODO this is broken; start/end are serializable attributes
+    # that need to be synced with the server, so they can't be 'virtual'
+    # properties with the current implementation of HasProperties
+    # (they don't have change notification this way)
     @register_property('start', @_get_start, true)
     @register_setter('start', @_set_start)
     @add_dependencies('start', this, [
@@ -45,7 +49,7 @@ class DataRange1d extends Range1d.Model
     @plot_bounds = {}
 
   nonserializable_attribute_names: () ->
-    super().concat(['_auto_end', '_auto_start'])
+    super().concat(['_auto_end', '_auto_start', '_start', '_end'])
 
   update: (bounds, dimension, plot_view) ->
     # TODO (bev)

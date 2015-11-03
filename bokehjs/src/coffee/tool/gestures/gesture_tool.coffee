@@ -11,6 +11,9 @@ class GestureToolView extends ButtonTool.View
 
 class GestureTool extends ButtonTool.Model
 
+  nonserializable_attribute_names: () ->
+    super().concat(['overlay'])
+
   defaults: () ->
     return _.extend({}, super(), {
       event_type: @event_type
