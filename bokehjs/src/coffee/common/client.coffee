@@ -95,7 +95,7 @@ message_handlers = {
 
 class ClientConnection
 
-  constructor : (@url, @id, @_on_have_session, @_on_close) ->
+  constructor : (@url, @id, @_on_have_session_hook, @_on_closed_permanently_hook) ->
     if not @url?
       @url = DEFAULT_SERVER_WEBSOCKET_URL
     if not @id?
@@ -152,9 +152,9 @@ class ClientConnection
         @socket.close(1000, "close method called on ClientConnection")
       @_for_session (session) ->
         session._connection_closed()
-      if @_on_close?
-        @_on_close()
-        @_on_close = null
+      if @_on_closed_permanently_hook?
+        @_on_closed_permanently_hook()
+        @_on_closed_permanently_hook = null
 
   _schedule_reconnect : (milliseconds) ->
     retry = () =>
@@ -214,9 +214,9 @@ class ClientConnection
             document = Document.from_json(doc_json)
             @session = new ClientSession(@, document, @id)
             logger.debug("Created a new session from new pulled doc")
-            if @_on_have_session?
-              @_on_have_session(@session)
-              @_on_have_session = null
+            if @_on_have_session_hook?
+              @_on_have_session_hook(@session)
+              @_on_have_session_hook = null
         else
           @session.document.replace_with_json(doc_json)
           logger.debug("Updated existing session with new pulled doc")
