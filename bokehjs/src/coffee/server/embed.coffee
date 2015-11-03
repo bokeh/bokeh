@@ -115,13 +115,14 @@ embed_items = (docs_json, render_items, websocket_url) ->
     docs[docid]= Document.from_json(docs_json[docid])
 
   for item in render_items
-    elem = $('#' + item['elementid']);
+    element_id = item['elementid']
+    elem = $('#' + element_id);
     if elem.length == 0
-      throw new Error("Error rendering Bokeh model: could not find tag with id: #{item['element_id']}")
+      throw new Error("Error rendering Bokeh model: could not find tag with id: #{element_id}")
     if elem.length > 1
-      throw new Error("Error rendering Bokeh model: found too many tags with id: #{item['element_id']}")
+      throw new Error("Error rendering Bokeh model: found too many tags with id: #{element_id}")
     if not document.body.contains(elem[0])
-      throw new Error("Error rendering Bokeh model: element with id '#{item['elementid']}' must be under <body>")
+      throw new Error("Error rendering Bokeh model: element with id '#{element_id}' must be under <body>")
 
     if elem.prop("tagName") == "SCRIPT"
       fill_render_item_from_script_tag(elem, item)
@@ -136,14 +137,14 @@ embed_items = (docs_json, render_items, websocket_url) ->
       else if item.sessionid?
         promise = add_model_from_session(elem, item.modelid, item.sessionid)
       else
-        throw new Error("Error rendering Bokeh model #{item['modelid']} to element #{item['elementid']}: no document ID or session ID specified")
+        throw new Error("Error rendering Bokeh model #{item['modelid']} to element #{element_id}: no document ID or session ID specified")
     else
       if item.docid?
          add_document_static(elem, docs[item.docid])
       else if item.sessionid?
          promise = add_document_from_session(elem, item.sessionid)
       else
-        throw new Error("Error rendering Bokeh document to element #{item['elementid']}: no document ID or session ID specified")
+        throw new Error("Error rendering Bokeh document to element #{element_id}: no document ID or session ID specified")
 
     if promise != null
       promise.then(
