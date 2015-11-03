@@ -45,6 +45,8 @@ Bokeh.PlotWidget    = require("./common/plot_widget")
 Bokeh.Random        = require("./common/random")
 Bokeh.SVGColors     = require("./common/svg_colors")
 
+Bokeh.embed             = require("./common/embed")
+
 # mappers
 Bokeh.LinearMapper      = require("./mapper/linear_mapper")
 Bokeh.LogMapper         = require("./mapper/log_mapper")
@@ -74,9 +76,6 @@ Bokeh.LogAxis         = require("./renderer/guide/log_axis")
 # overlays
 Bokeh.BoxSelection  = require("./renderer/overlay/box_selection")
 Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
-
-# server tools
-Bokeh.embed       = require("./server/embed")
 
 # data sources
 Bokeh.ColumnDataSource = require("./source/column_data_source")
