@@ -136,15 +136,18 @@ class TileRendererView extends PlotWidget
     @map_canvas.restore()
 
   _prefetch_tiles: () =>
+    tile_source = @mget('tile_source')
     extent = @get_extent()
-    zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+    h = @map_frame.get('height')
+    w = @map_frame.get('width')
+    zoom_level = @mget('tile_source').get_level_by_extent(extent, h, w)
     tiles = @mget('tile_source').get_tiles_by_extent(extent, zoom_level)
     for t in [0..Math.min(10, tiles.length)] by 1
       [x, y, z, bounds] = t
       children = @mget('tile_source').children_by_tile_xyz(x, y, z)
       for c in children
         [cx, cy, cz, cbounds] = c
-        if @mget('tile_source').tile_xyz_to_key(cx, cy, cz) of @mget('tile_source').tiles
+        if tile_source.tile_xyz_to_key(cx, cy, cz) of tile_source.tiles
           continue
         else
           @_create_tile(cx, cy, cz, cbounds, true)
@@ -155,15 +158,19 @@ class TileRendererView extends PlotWidget
       @_create_tile(x, y, z, bounds)
 
   _update: () =>
-    min_zoom = @mget('tile_source').get('min_zoom')
-    max_zoom = @mget('tile_source').get('max_zoom')
+    tile_source = @mget('tile_source')
 
-    @mget('tile_source').update()
+    min_zoom = tile_source.get('min_zoom')
+    max_zoom = tile_source.get('max_zoom')
+
+    tile_source.update()
     extent = @get_extent()
     zooming_out = @extent[2] - @extent[0] < extent[2] - extent[0]
-
-    zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+    h = @map_frame.get('height')
+    w = @map_frame.get('width')
+    zoom_level = tile_source.get_level_by_extent(extent, h, w)
     snap_back = false
+
     if zoom_level < min_zoom
       extent = @extent
       zoom_level = min_zoom
@@ -181,8 +188,7 @@ class TileRendererView extends PlotWidget
       @extent = extent
 
     @extent = extent
-    tiles = @mget('tile_source').get_tiles_by_extent(extent, zoom_level)
-
+    tiles = tile_source.get_tiles_by_extent(extent, zoom_level)
     parents = []
     need_load = []
     cached = []
@@ -191,25 +197,23 @@ class TileRendererView extends PlotWidget
     for t in tiles
       [x, y, z, bounds] = t
       if @_is_valid_tile(x, y, z)
-        key = @mget('tile_source').tile_xyz_to_key(x, y, z)
-        tile = @mget('tile_source').tiles[key]
+        key = tile_source.tile_xyz_to_key(x, y, z)
+        tile = tile_source.tiles[key]
         if tile? and tile.loaded == true
           cached.push(key)
-
         else
-          [px, py, pz] = @mget('tile_source').get_closest_parent_by_tile_xyz(x, y, z)
-          parent_key = @mget('tile_source').tile_xyz_to_key(px, py, pz)
-          parent_tile = @mget('tile_source').tiles[parent_key]
+          [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z)
+          parent_key = tile_source.tile_xyz_to_key(px, py, pz)
+          parent_tile = tile_source.tiles[parent_key]
           if parent_tile? and parent_tile.loaded and parent_key not in parents
             parents.push(parent_key)
-
           if zooming_out
-            children = @mget('tile_source').children_by_tile_xyz(x, y, z)
+            children = tile_source.children_by_tile_xyz(x, y, z)
             for c in children
               [cx, cy, cz, cbounds] = c
-              child_key = @mget('tile_source').tile_xyz_to_key(cx, cy, cz)
+              child_key = tile_source.tile_xyz_to_key(cx, cy, cz)
 
-              if child_key of @mget('tile_source').tiles
+              if child_key of tile_source.tiles
                 children.push(child_key)
 
         if not tile?
@@ -222,7 +226,7 @@ class TileRendererView extends PlotWidget
     # draw cached ----------
     @_render_tiles(cached)
     for t in cached
-      @mget('tile_source').tiles[t].current = true
+      tile_source.tiles[t].current = true
 
     # fetch missing -------
     if @render_timer?
