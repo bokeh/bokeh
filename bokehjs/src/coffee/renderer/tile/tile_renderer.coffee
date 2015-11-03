@@ -73,7 +73,7 @@ class TileRendererView extends PlotWidget
       x_coord : bounds[0]
       y_coord : bounds[3]
 
-    @mget('tile_source').tiles[tile.tile_data.cache_key] = tile_data
+    @mget('tile_source').tiles[tile.tile_data.cache_key] = tile.tile_data
     tile.src = @mget('tile_source').get_image_url(x, y, z)
     return tile
 
