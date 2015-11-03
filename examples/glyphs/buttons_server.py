@@ -10,7 +10,6 @@ from bokeh.models.widgets import (
     CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,
 )
-from bokeh.models import Plot
 from bokeh.client import push_session
 
 def button_handler():
