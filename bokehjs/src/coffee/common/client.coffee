@@ -224,7 +224,18 @@ class ClientConnection
             logger.debug("Got new document after connection was already closed")
           else
             document = Document.from_json(doc_json)
+
+            # Constructing models changes some of their attributes, we deal with that
+            # here. This happens when models set attributes during construction
+            # or initialization.
+            patch = Document._compute_patch_since_json(doc_json, document)
+            if patch.events.length > 0
+              logger.debug("Sending #{patch.events.length} changes from model construction back to server")
+              patch_message = Message.create('PATCH-DOC', {}, patch)
+              @send(patch_message)
+
             @session = new ClientSession(@, document, @id)
+
             logger.debug("Created a new session from new pulled doc")
             if @_on_have_session_hook?
               @_on_have_session_hook(@session)

@@ -233,6 +233,98 @@ class Document
       if was_new
         instance.initialize(attrs)
 
+  @_event_for_attribute_change: (changed_obj, key, new_value, doc, value_refs) ->
+      changed_model = doc.get_model_by_id(changed_obj.id)
+      if not changed_model.attribute_is_serializable(key)
+        return null
+
+      event = {
+        'kind' : 'ModelChanged',
+        'model' : { id: changed_obj.id, type: changed_obj.type },
+        'attr' : key,
+        'new' : new_value
+      }
+      HasProperties._json_record_references(doc, new_value, value_refs, true) # true = recurse
+      event
+
+  @_events_to_sync_objects: (from_obj, to_obj, to_doc, value_refs) ->
+    from_keys = Object.keys(from_obj.attributes)
+    to_keys = Object.keys(to_obj.attributes)
+    removed = _.difference(from_keys, to_keys)
+    added = _.difference(to_keys, from_keys)
+    shared = _.intersection(from_keys, to_keys)
+
+    events = []
+    for key in removed
+      # we don't really have a "remove" event - not sure this ever happens even -
+      # but treat it as equivalent to setting to null
+      events.push(Document._event_for_attribute_change(from_obj, key, null, to_doc, value_refs))
+    for key in added
+      new_value = to_obj.attributes[key]
+      events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
+    for key in shared
+      old_value = from_obj.attributes[key]
+      new_value = to_obj.attributes[key]
+      if old_value == null and new_value == null
+        ;# do nothing
+      else if old_value == null or new_value == null
+        events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
+      else
+        if not _.isEqual(old_value, new_value)
+          events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
+
+    _.filter(events, (e) -> e != null)
+
+  # we use this to detect changes during document deserialization
+  # (in model constructors and initializers)
+  @_compute_patch_since_json: (from_json, to_doc) ->
+    to_json = to_doc.to_json()
+
+    refs = (json) ->
+      result = {}
+      for obj in json['roots']['references']
+        result[obj.id] = obj
+      result
+
+    from_references = refs(from_json)
+    from_roots = {}
+    from_root_ids = []
+    for r in from_json['roots']['root_ids']
+      from_roots[r] = from_references[r]
+      from_root_ids.push(r)
+
+    to_references = refs(to_json)
+    to_roots = {}
+    to_root_ids = []
+    for r in to_json['roots']['root_ids']
+      to_roots[r] = to_references[r]
+      to_root_ids.push(r)
+
+    from_root_ids.sort()
+    to_root_ids.sort()
+
+    if _.difference(from_root_ids, to_root_ids).length > 0
+      # this would arise if someone does add_root/remove_root during
+      # document deserialization, hopefully they won't ever do so.
+      throw new Error("Not implemented: computing add/remove of document roots")
+
+    value_refs = {}
+    events = []
+
+    for id, model of to_doc._all_models
+      if id of from_references
+        update_model_events = Document._events_to_sync_objects(
+          from_references[id],
+          to_references[id],
+          to_doc,
+          value_refs)
+        events = events.concat(update_model_events)
+
+    {
+      'events' : events,
+      'references' : Document._references_json(_.values(value_refs))
+    }
+
   to_json_string : () ->
     JSON.stringify(@to_json())
 
@@ -310,6 +402,7 @@ class Document
           'attr' : event.attr,
           'new' : value_json
         }
+
         json_events.push(json_event)
       else if event instanceof RootAddedEvent
         HasProperties._value_record_references(event.model, references, true)

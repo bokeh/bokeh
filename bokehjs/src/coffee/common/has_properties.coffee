@@ -395,9 +395,25 @@ class HasProperties extends Backbone.Model
       return {}
     HasProperties._value_to_json("attributes", @serializable_attributes(), @)
 
+  # this is like _value_record_references but expects to find refs
+  # instead of models, and takes a doc to look up the refs in
+  @_json_record_references: (doc, v, result, recurse) ->
+    if v is null
+      ;
+    else if HasProperties._is_ref(v)
+      if v.id not of result
+        model = doc.get_model_by_id(v.id)
+        HasProperties._value_record_references(model, result, recurse)
+    else if _.isArray(v)
+      for elem in v
+        HasProperties._json_record_references(doc, elem, result, recurse)
+    else if _.isObject(v)
+      for own k, elem of v
+        HasProperties._json_record_references(doc, elem, result, recurse)
+
   # add all references from 'v' to 'result', if recurse
-  # is true then descend into HasProperties, if false only
-  # descend into non-HasProperties
+  # is true then descend into refs, if false only
+  # descend into non-refs
   @_value_record_references: (v, result, recurse) ->
     if v is null
       ;
