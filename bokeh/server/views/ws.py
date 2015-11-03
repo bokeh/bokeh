@@ -104,10 +104,10 @@ class WSHandler(WebSocketHandler):
 
         if message:
 
-            log.debug("Received message: %r", message)
+            #log.debug("Received message: %r", message)
             work = yield self._handle(message)
 
-            log.debug("work from message %r was %r", message, work)
+            #log.debug("work from message %r was %r", message, work)
 
             if work:
                 yield self._schedule(work)
@@ -127,8 +127,8 @@ class WSHandler(WebSocketHandler):
             # on_close() is / will be called anyway
             log.warn("Failed sending message as connection was closed")
             pass
-        else:
-            log.debug("Sent %r [%d bytes]", message, sent)
+        #else:
+        #    log.debug("Sent %r [%d bytes]", message, sent)
 
     def on_close(self):
         ''' Clean up when the connection is closed.
