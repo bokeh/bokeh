@@ -18,8 +18,6 @@ functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import
 
-import pandas as pd
-
 from bokeh.charts.builder import create_and_build
 from bokeh.charts.glyphs import HorizonGlyph
 from .line_builder import LineBuilder
