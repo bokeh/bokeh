@@ -500,7 +500,9 @@ class Plot extends HasParent
       elts = @get(side)
       for r in elts
         if r.get('location') ? 'auto' == 'auto'
-          r.set('location', side, {'silent' : true})
+          r.set('layout_location', side, { silent: true })
+        else
+          r.set('layout_location', r.get('location'), { silent: true })
         if r.initialize_layout?
           r.initialize_layout(solver)
         solver.add_constraint(
