@@ -15,7 +15,7 @@ def _with_temp_file(func):
 
 def _with_script_contents(contents, func):
     def with_file_object(f):
-        f.write(contents)
+        f.write(contents.encode("UTF-8"))
         f.flush()
         func(f.name)
     _with_temp_file(with_file_object)

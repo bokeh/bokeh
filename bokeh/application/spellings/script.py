@@ -5,6 +5,7 @@ import uuid
 import os
 import sys
 from bokeh.io import set_curdoc, curdoc
+import codecs
 
 class ScriptHandler(SpellingHandler):
     """Run a script which modifies a Document"""
@@ -18,7 +19,7 @@ class ScriptHandler(SpellingHandler):
         self._code = None
         if 'filename' in kwargs:
             src_path = kwargs['filename']
-            source = open(src_path, 'r').read()
+            source = codecs.open(src_path, 'r', 'UTF-8').read()
             try:
                 nodes = ast.parse(source, src_path)
                 self._code = compile(nodes, filename=src_path, mode='exec')
@@ -26,7 +27,7 @@ class ScriptHandler(SpellingHandler):
                 self._failed = True
                 self._error = ("Invalid syntax in \"%s\" on line %d:\n%s" % (os.path.basename(e.filename), e.lineno, e.text))
                 import traceback
-                self._error_detail = traceback.format_exc(e)
+                self._error_detail = traceback.format_exc()
 
             self._path = src_path
         else:
@@ -85,7 +86,7 @@ class ScriptHandler(SpellingHandler):
         except Exception as e:
             self._failed = True
             import traceback
-            self._error_detail = traceback.format_exc(e)
+            self._error_detail = traceback.format_exc()
 
             exc_type, exc_value, exc_traceback = sys.exc_info()
             filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
