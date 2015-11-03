@@ -1,3 +1,4 @@
+_ = require "underscore"
 MercatorTileSource = require('./mercator_tile_source')
 
 class BBoxTileSource extends MercatorTileSource
