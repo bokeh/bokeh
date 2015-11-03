@@ -6,7 +6,7 @@ log = logging.getLogger(__name__)
 
 from tornado import gen
 from tornado.httpclient import HTTPRequest
-from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.ioloop import IOLoop
 from tornado.websocket import websocket_connect
 
 from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError

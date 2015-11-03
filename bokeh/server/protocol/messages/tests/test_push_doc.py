@@ -25,7 +25,7 @@ class TestPushDocument(unittest.TestCase):
 
     def test_create(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PUSH-DOC", sample)
+        Protocol("1.0").create("PUSH-DOC", sample)
 
     def test_create_then_parse(self):
         sample = self._sample_doc()

@@ -7,7 +7,6 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
-from bokeh.document import ModelChangedEvent, RootAddedEvent, RootRemovedEvent
 import time
 
 def current_time():

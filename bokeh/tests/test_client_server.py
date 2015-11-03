@@ -10,9 +10,7 @@ from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.server.server import Server
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
-from bokeh.server.session import ServerSession
 from tornado.ioloop import IOLoop
-import pytest
 
 class AnotherModelInTestClientServer(PlotObject):
     bar = Int(1)

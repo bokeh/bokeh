@@ -3,12 +3,11 @@
 '''
 from __future__ import absolute_import, print_function
 
-from tornado.concurrent import return_future
 from tornado.escape import json_decode, json_encode
 
 import bokeh.util.serialization as bkserial
 
-from ..exceptions import MessageError
+from ..exceptions import MessageError, ProtocolError
 
 
 class Message(object):

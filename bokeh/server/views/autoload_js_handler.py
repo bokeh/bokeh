@@ -6,9 +6,6 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
-import uuid
-
-from tornado import gen
 from tornado.web import RequestHandler
 
 from bokeh.templates import AUTOLOAD_JS

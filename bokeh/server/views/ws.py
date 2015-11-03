@@ -122,13 +122,10 @@ class WSHandler(WebSocketHandler):
 
         '''
         try:
-            sent = message.send(self)
+            message.send(self)
         except WebSocketClosedError:
             # on_close() is / will be called anyway
             log.warn("Failed sending message as connection was closed")
-            pass
-        #else:
-        #    log.debug("Sent %r [%d bytes]", message, sent)
 
     def on_close(self):
         ''' Clean up when the connection is closed.
@@ -164,8 +161,8 @@ class WSHandler(WebSocketHandler):
         if isinstance(work, Message):
             self.send_message(work)
 
-        elif isinstance(work, ServerTask):
-            work = yield work(self.application.executor)
+        # elif isinstance(work, ServerTask):
+        #     work = yield work(self.application.executor)
 
         else:
             self._internal_error("expected a Message or Task")

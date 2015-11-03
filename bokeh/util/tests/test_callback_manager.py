@@ -10,7 +10,7 @@ class _Good(object):
         self.last_old = None
         self.last_new = None
     def __call__(self, name, old, new):
-        self.method(obj, name, old, new)
+        self.method(name, old, new)
     def method(self, name, old, new):
         self.last_name = name
         self.last_old = old

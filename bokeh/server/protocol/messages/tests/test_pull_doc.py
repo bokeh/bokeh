@@ -24,11 +24,11 @@ class TestPullDocument(unittest.TestCase):
         return doc
 
     def test_create_req(self):
-        msg = Protocol("1.0").create("PULL-DOC-REQ")
+        Protocol("1.0").create("PULL-DOC-REQ")
 
     def test_create_reply(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', sample)
+        Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', sample)
 
     def test_create_reply_then_parse(self):
         sample = self._sample_doc()

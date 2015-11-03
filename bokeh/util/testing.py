@@ -1,11 +1,6 @@
 """ Functions to help with testing Bokeh and reporting issues.
 """
 from __future__ import absolute_import, print_function
-import mock
-import threading
-import time
-import uuid
-import unittest
 
 def skipIfPy3(message):
     """ unittest decoractor to skip a test for Python 3

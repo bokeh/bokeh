@@ -3,7 +3,6 @@ from __future__ import absolute_import, print_function
 from .handler import SpellingHandler
 from .script import ScriptHandler
 import os
-import sys
 
 class DirectoryHandler(SpellingHandler):
     """Load an application directory which modifies a Document"""

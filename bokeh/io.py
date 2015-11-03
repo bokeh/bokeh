@@ -34,7 +34,6 @@ from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
 from .client import DEFAULT_SESSION_ID, push_session, show_session
-from .validation import check_integrity
 from bokeh.resources import DEFAULT_SERVER_HTTP_URL, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------

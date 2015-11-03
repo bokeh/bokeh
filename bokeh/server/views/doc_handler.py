@@ -6,12 +6,14 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
+import hashlib
 import random
+import time
 
-from tornado import gen
 from tornado.web import RequestHandler
 
 from bokeh.embed import server_html_page_for_session
+from bokeh.settings import settings
 
 # Use the system PRNG for session id generation (if possible)
 # NOTE: secure random string generation implementation is adapted

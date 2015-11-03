@@ -34,7 +34,7 @@ the above usage yields the output:
 from __future__ import absolute_import, print_function
 
 import importlib
-import json
+# import json
 
 from docutils import nodes
 from docutils.statemachine import ViewList
@@ -86,7 +86,7 @@ class BokehModelDirective(Directive):
         if type(model) != Viewable:
             pass
 
-        model_obj = model()
+        # model_obj = model()
 
         model_json = "" #json.dumps(
         #     json.loads(serialize_json(model_obj.dump(changed_only=False, validate=False))),

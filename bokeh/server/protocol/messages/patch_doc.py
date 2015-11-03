@@ -4,9 +4,8 @@
 from __future__ import absolute_import
 
 from bokeh.plot_object import PlotObject
-from bokeh.document import Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
+from bokeh.document import ModelChangedEvent, RootAddedEvent, RootRemovedEvent
 from json import loads
-from ...exceptions import ProtocolError
 from ..message import Message
 from . import register
 

@@ -1,15 +1,12 @@
 from __future__ import absolute_import
 
-import pytest
-
-from bokeh.server.exceptions import ProtocolError, ValidationError
 from bokeh.server.protocol import receiver, Protocol
-from bokeh.util.string import decode_utf8, encode_utf8
+from bokeh.util.string import decode_utf8
 
 _proto = Protocol("1.0")
 
 def test_creation():
-    r = receiver.Receiver(None)
+    receiver.Receiver(None)
 
 def test_validation_success():
     msg = _proto.create('ACK')

@@ -10,7 +10,6 @@ from .query import find
 from . import themes
 from .util.callback_manager import CallbackManager
 from .util.serialization import make_id
-from .validation import check_integrity
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -178,7 +177,11 @@ class PlotObject(HasProps, CallbackManager):
 
     @classmethod
     def _visit_immediate_value_references(cls, value, visitor):
-        ''' Visit all references to another PlotObject without recursing into any of the child PlotObject; may visit the same PlotObject more than once if it's referenced more than once. Does not visit the passed-in value.'''
+        ''' Visit all references to another PlotObject without recursing into any
+        of the child PlotObject; may visit the same PlotObject more than once if
+        it's referenced more than once. Does not visit the passed-in value.
+
+        '''
         if isinstance(value, HasProps):
             for attr in value.properties_with_refs():
                 child = getattr(value, attr)

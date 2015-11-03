@@ -8,7 +8,6 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-from collections import defaultdict
 from bokeh.util.callback_manager import _check_callback
 from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
@@ -247,7 +246,7 @@ class Document(object):
                 return initialized
             elif isinstance(v, dict) and 'id' in v:
                 if v['id'] not in references:
-                   raise ValueError("Nothing in references dict for %r property %r for %r" % (v, prop_name, instance))
+                    raise ValueError("Nothing in references dict for %r property %r for %r" % (v, prop_name, instance))
                 return references[v['id']]
             else:
                 raise ValueError("Do not know how to initialize %r" % (v))
@@ -457,7 +456,7 @@ class Document(object):
                 root_obj = references[root_id]
                 self.remove_root(root_obj)
             else:
-                raise RuntimeError("Unknown patch event " + repr(event))
+                raise RuntimeError("Unknown patch event " + repr(event_json))
 
     def validate(self):
         # logging.basicConfig is a no-op if there's already

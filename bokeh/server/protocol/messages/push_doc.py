@@ -3,9 +3,6 @@
 '''
 from __future__ import absolute_import, print_function
 
-from bokeh.plot_object import PlotObject
-from bokeh.document import Document
-from json import loads
 from ...exceptions import ProtocolError
 from ..message import Message
 from . import register

@@ -21,7 +21,6 @@ from bokeh.resources import Resources
 from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
-from .exceptions import ProtocolError
 from .application_context import ApplicationContext
 
 class BokehTornado(TornadoApplication):

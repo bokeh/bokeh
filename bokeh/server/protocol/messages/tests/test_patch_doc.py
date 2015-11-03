@@ -27,7 +27,7 @@ class TestPatchDocument(unittest.TestCase):
         sample = self._sample_doc()
         obj = next(iter(sample.roots))
         event = document.ModelChangedEvent(sample, obj, 'foo', obj.foo, 42)
-        msg = Protocol("1.0").create("PATCH-DOC", [event])
+        Protocol("1.0").create("PATCH-DOC", [event])
 
     def test_create_then_apply_model_changed(self):
         sample = self._sample_doc()

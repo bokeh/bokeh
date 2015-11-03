@@ -17,7 +17,6 @@ import re
 import uuid
 from warnings import warn
 
-from .resources import Resources
 from .templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
     NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
@@ -476,7 +475,9 @@ def _check_plot_objects(plot_objects, allow_dict=False):
 
     if not input_type_valid:
         if allow_dict:
-            raise ValueError('Input must be a PlotObject, a Document, a Sequence of PlotObjects and Document, or a dictionary from string to PlotObject and Document')
+            raise ValueError(
+                'Input must be a PlotObject, a Document, a Sequence of PlotObjects and Document, or a dictionary from string to PlotObject and Document'
+            )
         else:
             raise ValueError('Input must be a PlotObject, a Document, or a Sequence of PlotObjects and Document')
 

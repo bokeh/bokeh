@@ -7,7 +7,7 @@ from __future__ import absolute_import
 import six
 from tornado.concurrent import return_future
 
-from ..exceptions import MessageError, ProtocolError, ValidationError
+from ..exceptions import ValidationError
 
 import logging
 log = logging.getLogger(__name__)

@@ -45,7 +45,9 @@ class ScriptHandler(SpellingHandler):
 
     def _make_io_complainer(self, name):
         def complainer(*args, **kwargs):
-            print("%s: Warning: call to %s() should not be needed in scripts run by the 'bokeh' command, try running this with 'python' or remove the call to %s(). Ignoring %s() call." % (self._path, name, name, name),
+            print("%s: Warning: call to %s() should not be needed in scripts run by the 'bokeh'" +
+                  " command, try running this with 'python' or remove the call to %s(). Ignoring" +
+                  " %s() call." % (self._path, name, name, name),
                   file=sys.stderr)
         return complainer
 
