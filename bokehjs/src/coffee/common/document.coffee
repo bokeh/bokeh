@@ -289,6 +289,9 @@ class Document
         console.log("Cannot create a patch using events from a different document, event had ", event.document, " we are ", @)
         throw new Error("Cannot create a patch using events from a different document")
       if event instanceof ModelChangedEvent
+        if event.attr == 'id'
+          console.log("'id' field is immutable and should never be in a ModelChangedEvent ", event)
+          throw new Error("'id' field should never change, whatever code just set it is wrong")
         value = event.new_
         value_json = HasProperties._value_to_json('new_', value, event.model)
         value_refs = {}
