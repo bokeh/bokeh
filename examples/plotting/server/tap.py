@@ -17,7 +17,7 @@ N = len(x)
 inds = [str(i) for i in np.arange(N)]
 radii = np.random.random(size=N)*0.4 + 1.7
 colors = [
-    "#%02x%02x%02x" % (r, g, 150) for r, g in zip(np.floor(50+2*x), np.floor(30+2*y))
+    "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
 ]
 
 foo = list(itertools.permutations("abcdef"))[:N]
