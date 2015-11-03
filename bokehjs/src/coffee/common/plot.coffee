@@ -536,7 +536,8 @@ class Plot extends HasParent
   ]
 
   nonserializable_attribute_names: () ->
-    super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame'])
+    super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame',
+    'min_size'])
 
   defaults: ->
     return _.extend {}, super(), {
