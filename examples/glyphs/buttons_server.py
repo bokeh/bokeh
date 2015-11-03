@@ -3,7 +3,7 @@ from __future__ import print_function
 from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.plotting import curdoc
-# from bokeh.session import Session
+
 from bokeh.models.widgets import (
     VBox, Icon,
     Button, Toggle, Dropdown,
