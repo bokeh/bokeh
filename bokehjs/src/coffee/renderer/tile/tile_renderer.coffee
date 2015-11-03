@@ -7,7 +7,7 @@ ImagePool = require "./image_pool"
 {logger} = require "../../common/logging"
 
 class TileRendererView extends PlotWidget
-  
+
   get_extent: () ->
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
 
@@ -35,13 +35,13 @@ class TileRendererView extends PlotWidget
     tile_data = e.target.tile_data
     tile_data.img = e.target
     tile_data.current = true
-    @mget('tile_source').tiles[tile_data.cache_key] = tile_data
+    tile_data.loaded = true
     @request_render()
 
   _on_tile_cache_load: (e) =>
     tile_data = e.target.tile_data
     tile_data.img = e.target
-    @mget('tile_source').tiles[tile_data.cache_key] = tile_data
+    tile_data.loaded = true
 
   _on_tile_error: (e) =>
     return ''
@@ -63,15 +63,17 @@ class TileRendererView extends PlotWidget
 
     tile.onerror = @_on_tile_error
     tile.alt = ''
-    
+
     tile.tile_data =
       tile_coords : [x, y, z]
       quadkey : @mget('tile_source').tile_xyz_to_quadkey(x, y, z)
       cache_key : @mget('tile_source').tile_xyz_to_key(x, y, z)
       bounds : bounds
+      loaded : false
       x_coord : bounds[0]
       y_coord : bounds[3]
 
+    @mget('tile_source').tiles[tile.tile_data.cache_key] = tile_data
     tile.src = @mget('tile_source').get_image_url(x, y, z)
     return tile
 
@@ -81,7 +83,7 @@ class TileRendererView extends PlotWidget
       @_set_data()
       @_map_data()
       @map_initialized = true
-    
+
     # brute force way of handling resize or responsive event -------------------------------------------------------------
     if @height != @map_frame.get('height') or @width != @map_frame.get('width')
       extent = @get_extent()
@@ -190,14 +192,15 @@ class TileRendererView extends PlotWidget
       [x, y, z, bounds] = t
       if @_is_valid_tile(x, y, z)
         key = @mget('tile_source').tile_xyz_to_key(x, y, z)
-        if key of @mget('tile_source').tiles
+        tile = @mget('tile_source').tiles[key]
+        if tile? and tile.loaded == true
           cached.push(key)
 
         else
-
           [px, py, pz] = @mget('tile_source').get_closest_parent_by_tile_xyz(x, y, z)
           parent_key = @mget('tile_source').tile_xyz_to_key(px, py, pz)
-          if parent_key of @mget('tile_source').tiles and parent_key not in parents
+          parent_tile = @mget('tile_source').tiles[parent_key]
+          if parent_tile? and parent_tile.loaded and parent_key not in parents
             parents.push(parent_key)
 
           if zooming_out
@@ -205,9 +208,11 @@ class TileRendererView extends PlotWidget
             for c in children
               [cx, cy, cz, cbounds] = c
               child_key = @mget('tile_source').tile_xyz_to_key(cx, cy, cz)
+
               if child_key of @mget('tile_source').tiles
                 children.push(child_key)
 
+        if not tile?
           need_load.push(t)
 
     # draw stand-in parents ----------
