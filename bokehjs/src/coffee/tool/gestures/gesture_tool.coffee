@@ -12,7 +12,7 @@ class GestureToolView extends ButtonTool.View
 class GestureTool extends ButtonTool.Model
 
   nonserializable_attribute_names: () ->
-    super().concat(['overlay'])
+    super().concat(['overlay', 'event_type', 'default_order'])
 
   defaults: () ->
     return _.extend({}, super(), {
