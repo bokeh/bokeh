@@ -23,7 +23,7 @@ import pandas as pd
 from bokeh.charts.builder import create_and_build
 from bokeh.charts.glyphs import HorizonGlyph
 from .line_builder import LineBuilder
-from ...properties import Float, Int, List, string_types, String, Color
+from ...properties import Float, Int, List, string_types, String, Color, Bool
 from ..attributes import ColorAttr, DashAttr, MarkerAttr, IdAttr
 from ...models.sources import ColumnDataSource
 from ...models.axes import CategoricalAxis
@@ -125,6 +125,8 @@ class HorizonBuilder(LineBuilder):
     num_folds = Int(3, help="""
     The number of folds stacked on top of each other. (default: 3)
     """)
+
+    flip_neg = Bool(default=True)
 
     def setup(self):
         super(HorizonBuilder, self).setup()

@@ -252,6 +252,7 @@ class HorizonGlyph(AreaGlyph):
     pos_color = Color("#006400")
     neg_color = Color("#6495ed")
     line_color = Color()
+    flip_neg = Bool(default=True)
 
     series_max = Float(help="""Required to be set by builder.""")
 
@@ -278,7 +279,7 @@ class HorizonGlyph(AreaGlyph):
             neg_y = self.y.copy()
             neg_y[neg_y > 0] = 0
             neg_y = abs(neg_y)
-            neg_xs, neg_ys = self._build_dims(self.x, neg_y)
+            neg_xs, neg_ys = self._build_dims(self.x, neg_y, self.flip_neg)
 
             xs += neg_xs
             ys += neg_ys
@@ -292,27 +293,33 @@ class HorizonGlyph(AreaGlyph):
 
         return data
 
-    def _build_dims(self, x, y):
+    def _build_dims(self, x, y, flip=False):
 
         bin_idx, bin_array = pd.cut(y, bins=self.bins, labels=False,
                                     retbins=True, include_lowest=True)
 
         xs, ys = [], []
         for idx, bin in enumerate(self.bins[0:-1]):
-            temp_vals = y.copy() - (idx * self.bins[1])
-            temp_vals[bin_idx > idx] = self.bins[1] * self.graph_ratio
+            temp_vals = y.copy() - (idx * self.fold_height)
+            temp_vals[bin_idx > idx] = self.fold_height * self.graph_ratio
             temp_vals[bin_idx < idx] = 0
             temp_vals[bin_idx == idx] *= self.graph_ratio
+
+            if flip:
+                temp_vals = (self.fold_height * self.graph_ratio) - temp_vals
+                base = self.base + (self.fold_height * self.graph_ratio)
+            else:
+                base = self.base
 
             # shift values up based on index of series
             temp_vals += self.base
             val_idx = temp_vals > 0
             if pd.Series.any(val_idx):
-                ys.append(temp_vals[val_idx])
-                xs.append(x[val_idx])
+                ys.append(temp_vals)
+                xs.append(x)
 
         if len(ys) > 0:
-            xs, ys = map(list, zip(*[generate_patch_base(x, y, base=self.base) for
+            xs, ys = map(list, zip(*[generate_patch_base(x, y, base=base) for
                                      x, y in zip(xs, ys)]))
 
         return xs, ys

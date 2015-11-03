@@ -384,17 +384,20 @@ def gen_column_names(n):
 
 
 def generate_patch_base(x, y, base=0.0):
-    """
+    """ Adds base to the start and end of y, and extends x to match the length.
 
     Args:
-        x (`pandas.Series`):
-        y (`pandas.Series`):
-        base (float):
+        x (`pandas.Series`): x values for the area chart
+        y (`pandas.Series`): y values for the area chart
+        base (float): the flat side of the area glyph
+
+    Returns:
+        x, y: tuple containing padded x and y as `numpy.ndarray`
     """
     x = x.values
     y = y.values
 
-    # add base of area by starting and ending at 0
+    # add base of area by starting and ending at base
     y0 = np.insert(y, 0, base)
     y0 = np.append(y0, base)
 
@@ -403,7 +406,6 @@ def generate_patch_base(x, y, base=0.0):
     x0 = np.append(x0, x0[-1])
 
     return x0, y0
-
 
 
 class ChartHelp(object):
