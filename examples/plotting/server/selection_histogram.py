@@ -27,8 +27,6 @@ y = np.concatenate((y1, y2, y3))
 
 all_inds = np.arange(len(x1) + len(x2) + len(x3))
 
-output_server("selection_histogram")
-
 TOOLS="pan,wheel_zoom,box_select,lasso_select"
 
 # create the scatter plot
