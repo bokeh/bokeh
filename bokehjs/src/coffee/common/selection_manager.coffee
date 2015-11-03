@@ -11,7 +11,7 @@ class SelectionManager extends HasProperties
     super(attrs, options)
     @selectors = {}
 
-  serializable_in_document: false
+  serializable_in_document: () -> false
 
   set_selection: (indices) ->
     @_save_indices(indices)

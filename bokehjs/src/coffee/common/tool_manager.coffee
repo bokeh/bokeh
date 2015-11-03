@@ -69,7 +69,7 @@ class ToolManager extends HasProperties
     super(attrs, options)
     @_init_tools()
 
-  serializable_in_document: false
+  serializable_in_document: () -> false
 
   _init_tools: () ->
     gestures = @get('gestures')

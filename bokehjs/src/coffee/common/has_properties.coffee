@@ -316,7 +316,7 @@ class HasProperties extends Backbone.Model
 
   # TODO remove this, for now it's just to help find nonserializable_attribute_names we
   # need to add.
-  serializable_in_document: true
+  serializable_in_document: () -> true
 
   # returns a list of those names which should not be included
   # in the Document and should not go to the server. Subtypes
@@ -363,16 +363,16 @@ class HasProperties extends Backbone.Model
     else if _.isArray(value)
       ref_array = []
       for v, i in value
-        if v instanceof HasProperties and not v.serializable_in_document
-          console.log("NEED TO ADD #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because array contains a nonserializable type #{v.constructor.name} under index #{i}")
+        if v instanceof HasProperties and not v.serializable_in_document()
+          console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because array contains a nonserializable type #{v.constructor.name} under index #{i}")
         else
           ref_array.push(HasProperties._value_to_json(i, v, value))
       ref_array
     else if _.isObject(value)
       ref_obj = {}
       for own subkey of value
-        if value[subkey] instanceof HasProperties and not value[subkey].serializable_in_document
-          console.log("NEED TO ADD #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because value of type #{value.constructor.name} contains a nonserializable type #{value[subkey].constructor.name} under #{subkey}")
+        if value[subkey] instanceof HasProperties and not value[subkey].serializable_in_document()
+          console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because value of type #{value.constructor.name} contains a nonserializable type #{value[subkey].constructor.name} under #{subkey}")
         else
           ref_obj[subkey] = HasProperties._value_to_json(subkey, value[subkey], value)
       ref_obj
@@ -388,8 +388,8 @@ class HasProperties extends Backbone.Model
     # warnings anymore
     fail = false
     for own key, value of @serializable_attributes()
-      if value instanceof HasProperties and not value.serializable_in_document
-        console.log("NEED TO ADD #{key} to nonserializable_attribute_names of #{@.constructor.name} because value #{value.constructor.name} is not serializable")
+      if value instanceof HasProperties and not value.serializable_in_document()
+        console.log("May need to add #{key} to nonserializable_attribute_names of #{@.constructor.name} because value #{value.constructor.name} is not serializable")
         fail = true
     if fail
       return {}
@@ -420,13 +420,23 @@ class HasProperties extends Backbone.Model
     else if v instanceof HasProperties
       if v.id not of result
         result[v.id] = v
-        for key of v.serializable_attributes()
-          HasProperties._value_record_references(v.attributes[key], result, recurse)
+        attrs = v.serializable_attributes()
+        for key of attrs
+          value = attrs[key]
+          if value instanceof HasProperties and not value.serializable_in_document()
+            console.log("May need to add #{key} to nonserializable_attribute_names of #{v.constructor.name} because value #{value.constructor.name} is not serializable")
+          HasProperties._value_record_references(value, result, recurse)
     else if _.isArray(v)
       for elem in v
+        if elem instanceof HasProperties and not elem.serializable_in_document()
+          console.log("Array contains nonserializable item, we shouldn't traverse this property ", elem)
+          throw new Error("Trying to record refs for array with nonserializable item")
         HasProperties._value_record_references(elem, result, recurse)
     else if _.isObject(v)
       for own k, elem of v
+        if elem instanceof HasProperties and not elem.serializable_in_document()
+          console.log("Dict contains nonserializable item under #{k}, we shouldn't traverse this property ", elem)
+          throw new Error("Trying to record refs for dict with nonserializable item")
         HasProperties._value_record_references(elem, result, recurse)
 
   # Get models that are immediately referenced by our properties
@@ -461,12 +471,12 @@ class HasProperties extends Backbone.Model
 
     # TODO remove serializable_in_document and these checks once we aren't seeing these
     # warnings anymore
-    if old instanceof HasProperties and not old.serializable_in_document
-      console.log("NEED TO ADD #{attr} to nonserializable_attribute_names of #{@constructor.name} because old value #{old.constructor.name} is not serializable")
+    if old instanceof HasProperties and not old.serializable_in_document()
+      console.log("May need to add #{attr} to nonserializable_attribute_names of #{@constructor.name} because old value #{old.constructor.name} is not serializable")
       return
 
-    if new_ instanceof HasProperties and not new_.serializable_in_document
-      console.log("NEED TO ADD #{attr} to nonserializable_attribute_names of #{@constructor.name} because new value #{new_.constructor.name} is not serializable")
+    if new_ instanceof HasProperties and not new_.serializable_in_document()
+      console.log("May need to add #{attr} to nonserializable_attribute_names of #{@constructor.name} because new value #{new_.constructor.name} is not serializable")
       return
 
     if new_ instanceof HasProperties and @document != null

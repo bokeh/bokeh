@@ -64,6 +64,9 @@ class SelectTool extends GestureTool.Model
       logger.debug(" - #{r.type} #{r.id}")
     return null
 
+  nonserializable_attribute_names: () ->
+    super().concat(['multi_select_modifier'])
+
   defaults: () ->
     return _.extend({}, super(), {
       renderers: []

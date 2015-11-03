@@ -49,7 +49,8 @@ class DataRange1d extends Range1d.Model
     @plot_bounds = {}
 
   nonserializable_attribute_names: () ->
-    super().concat(['_auto_end', '_auto_start', '_start', '_end'])
+    super().concat(['_auto_end', '_auto_start', '_start', '_end',
+      'flipped', 'sources', 'default_span', 'plots'])
 
   update: (bounds, dimension, plot_view) ->
     # TODO (bev)

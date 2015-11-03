@@ -541,6 +541,12 @@ class Plot extends HasParent
     super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame',
     'min_size'])
 
+  serializable_attributes: () ->
+    attrs = super()
+    if 'renderers' of attrs
+      attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
+    attrs
+
   defaults: ->
     return _.extend {}, super(), {
       renderers: [],
