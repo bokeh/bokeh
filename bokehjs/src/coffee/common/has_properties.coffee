@@ -325,17 +325,23 @@ class HasProperties extends Backbone.Model
   nonserializable_attribute_names: () ->
     []
 
-  # dict of attributes that should be serialized to the server. We
-  # sometimes stick things in attributes that aren't part of the
-  # Document's models, subtypes that do that have to remove their
-  # extra attributes here.
-  serializable_attributes: () ->
+  _get_nonserializable_dict: () ->
     if not @constructor._nonserializable_names_cache?
       names = {}
       for n in @nonserializable_attribute_names()
         names[n] = true
       @constructor._nonserializable_names_cache = names
-    nonserializable = @constructor._nonserializable_names_cache
+    @constructor._nonserializable_names_cache
+
+  attribute_is_serializable: (attr) ->
+    (attr not of @_get_nonserializable_dict()) and (attr of @attributes)
+
+  # dict of attributes that should be serialized to the server. We
+  # sometimes stick things in attributes that aren't part of the
+  # Document's models, subtypes that do that have to remove their
+  # extra attributes here.
+  serializable_attributes: () ->
+    nonserializable = @_get_nonserializable_dict()
     attrs = {}
     for k, v of @attributes
       if k not of nonserializable
@@ -434,7 +440,7 @@ class HasProperties extends Backbone.Model
           c.detach_document()
 
   _tell_document_about_change: (attr, old, new_) ->
-    if attr not of @serializable_attributes()
+    if not @attribute_is_serializable(attr)
       return
 
     # TODO remove serializable_in_document and these checks once we aren't seeing these
