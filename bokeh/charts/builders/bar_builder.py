@@ -102,12 +102,21 @@ class BarBuilder(Builder):
         else:
             pass
 
+        # try to infer grouping vs stacking labels
         if (self.attributes['label'].columns is None and
             self.values.selection is not None and
                 self.glyph == BarGlyph):
-            self._data['label'] = 'index'
+
+            if self.attributes['stack'].columns is not None:
+                special_column = 'unity'
+            else:
+                special_column = 'index'
+
+            self._data['label'] = special_column
             self.attributes['label'].setup(data=ColumnDataSource(self._data.df),
-                                           columns='index')
+                                           columns=special_column)
+
+            self.xlabel = ''
 
         if self.xlabel is None:
             if self.attributes['label'].columns is not None:
@@ -130,13 +139,15 @@ class BarBuilder(Builder):
             x_items = ''
         x_labels = []
 
-        # Items are identified by tuples. If the tuple has a single value, we unpack it
+        # Items are identified by tuples. If the tuple has a single value,
+        # we unpack it
         for item in x_items:
             item = self._get_label(item)
 
             x_labels.append(str(item))
 
         self.x_range = FactorRange(factors=x_labels)
+
         y_shift = abs(0.1 * ((self.min_height + self.max_height) / 2))
 
         if self.min_height < 0:
@@ -274,4 +285,10 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     kw['ygrid'] = ygrid
     kw['y_range'] = y_range
 
-    return create_and_build(BarBuilder, data, **kw)
+    chart = create_and_build(BarBuilder, data, **kw)
+
+    # hide x labels if there is a single value, implying stacking only
+    if len(chart.x_range.factors) == 1:
+        chart.below[0].visible = False
+
+    return chart
