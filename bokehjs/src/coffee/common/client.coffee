@@ -388,9 +388,14 @@ pull_session = (url, session_id) ->
   promise = new Promise (resolve, reject) ->
     connection = new ClientConnection(url, session_id,
       (session) ->
-        resolve(session)
+        try
+          resolve(session)
+        catch e
+          logger.error("Promise handler threw an error, closing session #{error}")
+          session.close()
+          throw e
       () ->
-        # we rely on this as a no-op if we already resolved
+        # we rely on reject() as a no-op if we already resolved
         reject(new Error("Connection was closed before we successfully pulled a session")))
     connection.connect().then(
       (whatever) ->
