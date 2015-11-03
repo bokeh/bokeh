@@ -118,7 +118,7 @@ embed_items = (docs_json, render_items, websocket_url) ->
 
   docs = {}
   for docid of docs_json
-    docs[docid]= Document.from_json(docs_json[docid])
+    docs[docid] = Document.from_json(docs_json[docid])
 
   for item in render_items
     element_id = item['elementid']
