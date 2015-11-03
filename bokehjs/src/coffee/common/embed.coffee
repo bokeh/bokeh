@@ -1,11 +1,11 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-base = require "../common/base"
-HasProperties = require "../common/has_properties"
-{logger} = require "../common/logging"
-{Document, RootAddedEvent, RootRemovedEvent} = require "../common/document"
-{pull_session} = require "../common/client"
+base = require "./base"
+HasProperties = require "./has_properties"
+{logger} = require "./logging"
+{Document, RootAddedEvent, RootRemovedEvent} = require "./document"
+{pull_session} = require "./client"
 {Promise} = require "es6-promise"
 
 # Replace element with a view of model_id from document
