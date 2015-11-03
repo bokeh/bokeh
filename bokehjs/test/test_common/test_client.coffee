@@ -137,30 +137,34 @@ describe "Client", ->
           session
         (error) ->
           throw error
-      )
+      ).catch (error) ->
+        throw error
 
       added_root.then(
         (session1) ->
           ok = pull_session(url=server_process.url, session_id=session1.id).then(
             (session2) ->
-              expect(session2.document.roots().length).to.equal 1
-              root = session2.document.roots()[0]
-              expect(root.get('start')).to.equal 123
-              expect(root.get('end')).to.equal 456
+              try
+                expect(session2.document.roots().length).to.equal 1
+                root = session2.document.roots()[0]
+                expect(root.get('start')).to.equal 123
+                expect(root.get('end')).to.equal 456
+              catch e
+                console.log("Exception was ", e)
+                throw e
+              finally
+                session1.close()
+                session2.close()
               "OK"
             (error) ->
+              session1.close()
               throw error
           )
-          ok.then(
-            (value) ->
-              session1.close()
-              session2.close()
-            (error) ->
-              session1.close()
-              session2.close()
-          )
-          ok
+          # es6 promises would swallow the test errors otherwise
+          ok.catch (error) ->
+            throw error
         (error) ->
           throw error
-      )
+      ).catch (error) ->
+          throw error
     expect(promise).eventually.to.equal("OK")
