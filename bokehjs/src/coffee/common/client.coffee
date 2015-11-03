@@ -165,7 +165,12 @@ class ClientConnection
 
   _schedule_reconnect : (milliseconds) ->
     retry = () =>
-      if @closed_permanently
+      # TODO "true or" below until we fix reconnection to repull
+      # the document when required. Otherwise, we get a lot of
+      # confusing errors that are causing trouble when debugging.
+      if true or @closed_permanently
+        if not @closed_permanently
+          logger.info("Bokeh client #{@_number} never reconnects for now; connection to server lost")
         return
       else
         logger.debug("Attempting to reconnect websocket #{@_number}")
