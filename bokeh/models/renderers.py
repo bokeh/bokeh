@@ -55,20 +55,6 @@ class TileRenderer(Renderer):
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
-class DynamicImageRenderer(Renderer):
-
-    image_source = Instance(ImageSource, help="""
-    Image source to use when rendering on the plot.
-    """)
-
-    alpha = Float(1.0, help="""
-    tile opacity 0.0 - 1.0
-    """)
-
-    level = Enum(RenderLevel, default="underlay", help="""
-    Specifies the level in which to render the glyph.
-    """)
-
 class GlyphRenderer(Renderer):
     """
 
