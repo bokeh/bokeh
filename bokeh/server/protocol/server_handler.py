@@ -38,6 +38,7 @@ class ServerHandler(object):
             work = yield handler(message, connection)
         except Exception as e:
             log.error("error handling message %r: %r", message, e)
+            log.debug("  message header %r content %r", message.header, message.content)
             work = connection.error(message, repr(e))
         raise gen.Return(work)
 
