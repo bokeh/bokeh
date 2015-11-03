@@ -50,6 +50,9 @@ class AbstractTicker extends HasProperties
   initialize: (attrs, options) ->
     super(attrs, options)
 
+  nonserializable_attribute_names: () ->
+    super().concat(['toString_properties'])
+
   set: (key, value, options) ->
     # hack; we can't send Infinity from JSON, so here we change null
     # to Infinity
