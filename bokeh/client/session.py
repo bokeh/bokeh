@@ -166,6 +166,9 @@ class ClientSession(object):
             Automatically calls connect() before pulling.
         """
         self.connect()
+        if not self._connection.connected:
+            raise IOError("Cannot pull session document because we failed to connect to the server")
+
         if self._document is None:
             doc = Document()
         else:
@@ -198,6 +201,8 @@ class ClientSession(object):
                 raise ValueError("Cannot push() a different document from existing session.document")
 
         self.connect()
+        if not self._connection.connected:
+            raise IOError("Cannot push session document because we failed to connect to the server")
         self._connection.push_doc(doc)
         if self._document is None:
             self._attach_document(doc)

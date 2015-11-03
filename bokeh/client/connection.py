@@ -108,8 +108,11 @@ class ClientConnection(object):
             self._loop_until(closed)
 
     def send_message(self, message):
-        sent = message.send(self._socket)
-        log.debug("Sent %r [%d bytes]", message, sent)
+        if self._socket is None:
+            log.info("We're disconnected, so not sending message %r", message)
+        else:
+            sent = message.send(self._socket)
+            log.debug("Sent %r [%d bytes]", message, sent)
 
     def _send_patch_document(self, session_id, event):
         msg = self._protocol.create('PATCH-DOC', [event])
@@ -211,6 +214,7 @@ class ClientConnection(object):
             log.debug("Running state " + self._state.__class__.__name__)
             yield self._state.run(self)
 
+
     @gen.coroutine
     def _transition(self, new_state):
         log.debug("transitioning to state " + new_state.__class__.__name__)
@@ -226,8 +230,16 @@ class ClientConnection(object):
     def _connect_async(self):
         versioned_url = "%s?bokeh-protocol-version=1.0&bokeh-session-id=%s" % (self._url, self._session.id)
         request = HTTPRequest(versioned_url)
-        self._socket = yield websocket_connect(request)
-        yield self._transition(self.CONNECTED_BEFORE_ACK())
+        try:
+            self._socket = yield websocket_connect(request)
+        except Exception as e:
+            log.info("Failed to connect to server: %r", e)
+
+        if self._socket is None:
+            yield self._transition_to_disconnected()
+        else:
+            yield self._transition(self.CONNECTED_BEFORE_ACK())
+
 
     @gen.coroutine
     def _wait_for_ack(self):
@@ -257,8 +269,16 @@ class ClientConnection(object):
     @gen.coroutine
     def _pop_message(self):
         while True:
+            if self._socket is None:
+                raise gen.Return(None)
+
             # log.debug("Waiting for fragment...")
-            fragment = yield self._socket.read_message()
+            fragment = None
+            try:
+                fragment = yield self._socket.read_message()
+            except Exception as e:
+                # this happens on close, so debug level since it's "normal"
+                log.debug("Error reading from socket %r", e)
             # log.debug("... got fragment %r", fragment)
             if fragment is None:
                 # XXX Tornado doesn't give us the code and reason
