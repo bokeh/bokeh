@@ -106,6 +106,7 @@ class HorizonBuilder(LineBuilder):
     num_folds = Int(default=3)
     bins = List(Float)
     series_column = String()
+    fold_height = Float()
     default_attributes = {'bin_num': IdAttr(sort=True, ascending=True),
                           'color': ColorAttr(sort=False),
                           'dash': DashAttr(),
@@ -127,44 +128,12 @@ class HorizonBuilder(LineBuilder):
     def process_data(self):
         super(HorizonBuilder, self).process_data()
 
-        df = self._data.df
-        values = self.y.data.copy()
+        # calculate group attributes, useful for each horizon glyph
+        self.fold_height = self.y.max/self.num_folds
+        self.bins = [bin_id * self.fold_height for bin_id in range(self.num_folds + 1)]
 
-        # add zero to end temporarily so initial bin starts at 0
-        values[len(values)] = 0
-
-        bin_idx, bin_array = pd.cut(values, bins=self.num_folds, labels=False,
-                                    retbins=True)
-        self.bins = bin_array.tolist()[1:]
-
-        # remove dummy value to force binning from 0
-        values = values[:-1]
-        bin_idx = bin_idx[:-1]
-
-        # create clipped representation of each band
-        new_cols = []
-        for idx, bin in enumerate(self.bins):
-            temp_vals = values.copy() - (idx * self.bins[0])
-            temp_vals[bin_idx > idx] = self.bins[0]
-            temp_vals[bin_idx < idx] = 0
-            new_col = self.series_column + '_bin' + str(idx)
-            df[new_col] = temp_vals
-            new_cols.append(new_col)
-
-        self.y.selection = new_cols
-        self._data['y'] = new_cols
-
-        id_cols = self.get_id_cols(self.stack_flags)
-        self._stack_measures(ids=id_cols, var_name='horizon_bin')
-
-        # must shift all but first series values up so they don't overlap
-        df = self._data.df
-        for idx, serie in enumerate(self.series_names[1:]):
-            df.ix[df.ix[:, self.series_column] == serie, 'value'] += ((idx + 1) *
-                                                                      self.bins[0])
-
+        # manually set attributes to have constant color
         ds = ColumnDataSource(self._data.df)
-        self.attributes['bin_num'].setup(data=ds, columns='horizon_bin')
         self.attributes['series'].setup(data=ds, columns=self.series_column)
         self.attributes['color'].setup(data=ds, columns='#006400')
 

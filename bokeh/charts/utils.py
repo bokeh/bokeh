@@ -21,6 +21,7 @@ from copy import copy
 from math import cos, sin
 
 from pandas.io.json import json_normalize
+import numpy as np
 from six import iteritems
 
 from ..browserlib import view
@@ -380,6 +381,29 @@ def gen_column_names(n):
                                                  DEFAULT_COLUMN_NAMES))]
         col_names.extend(labels)
         return col_names
+
+
+def generate_patch_base(x, y, base=0.0):
+    """
+
+    Args:
+        x (`pandas.Series`):
+        y (`pandas.Series`):
+        base (float):
+    """
+    x = x.values
+    y = y.values
+
+    # add base of area by starting and ending at 0
+    y0 = np.insert(y, 0, base)
+    y0 = np.append(y0, base)
+
+    # make sure y is same length as x
+    x0 = np.insert(x, 0, x[0])
+    x0 = np.append(x0, x0[-1])
+
+    return x0, y0
+
 
 
 class ChartHelp(object):

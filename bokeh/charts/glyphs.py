@@ -8,7 +8,7 @@ from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.enums import DashPattern
-from bokeh.models.glyphs import Rect, Segment, Line, Patch
+from bokeh.models.glyphs import Rect, Segment, Line, Patch, Patches
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,
@@ -16,7 +16,7 @@ from bokeh.properties import (Float, String, Datetime, Bool, Instance,
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
-from .utils import marker_types
+from .utils import marker_types, generate_patch_base
 
 
 class NestedCompositeGlyph(CompositeGlyph):
@@ -183,16 +183,8 @@ class AreaGlyph(LineGlyph):
 
     def build_source(self):
         data = super(AreaGlyph, self).build_source()
-        x = data['x_values'].values
-        y = data['y_values'].values
 
-        # add base of area by starting and ending at 0
-        y0 = np.insert(y, 0, self.base)
-        y0 = np.append(y0, self.base)
-
-        # make sure y is same length as x
-        x0 = np.insert(x, 0, x[0])
-        x0 = np.append(x0, x0[-1])
+        x0, y0 = generate_patch_base(data['x_values'], data['y_values'])
 
         data['x_values'] = x0
         data['y_values'] = y0
@@ -263,12 +255,69 @@ class HorizonGlyph(AreaGlyph):
         kwargs['fill_alpha'] = 1.0/self.num_folds
         if bins is not None:
             if series_num > 0:
-                kwargs['base'] = bins[series_num - 1]
+                kwargs['base'] = bins[series_num]
             else:
                 kwargs['base'] = 0
 
+        if bins is not None:
+            kwargs['bins'] = bins
+
         super(HorizonGlyph, self).__init__(**kwargs)
 
+    def build_source(self):
+        data = super(HorizonGlyph, self).build_source()
+
+        bin_idx, bin_array = pd.cut(self.y, bins=self.bins, labels=False,
+                                    retbins=True)
+
+        # create clipped representation of each band
+        ys = []
+        for idx, bin in enumerate(self.bins[0:-1]):
+            temp_vals = self.y.copy() - (idx * self.bins[1])
+            temp_vals[bin_idx > idx] = self.bins[1]
+            temp_vals[bin_idx < idx] = 0
+
+            # shift values up based on index of series
+            temp_vals += self.series * self.fold_height
+            ys.append(temp_vals)
+
+        xs, ys = map(list, zip(*[generate_patch_base(self.x, y, base=self.base) for
+                                 y in ys]))
+
+        data['x_values'] = xs
+        data['y_values'] = ys
+
+        return data
+
+    def build_renderers(self):
+        # parse all series. We exclude the first attr as it's the x values
+        # added for the index
+        glyph = Patches(
+            xs='x_values', ys='y_values',
+            fill_alpha=self.fill_alpha, fill_color=self.fill_color,
+            line_color=self.line_color
+        )
+        renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
+        yield renderer
+
+    def get_nested_extent(self, col, func):
+        return func([func(arr) for arr in self.source.data[col]])
+
+    @property
+    def x_max(self):
+        return self.get_nested_extent('x_values', max)
+
+    @property
+    def x_min(self):
+        return self.get_nested_extent('x_values', min)
+
+    @property
+    def y_max(self):
+        return self.get_nested_extent('y_values', max)
+
+    @property
+    def y_min(self):
+        return self.get_nested_extent('y_values', min)
 
 
 class StepGlyph(LineGlyph):
