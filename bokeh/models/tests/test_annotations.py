@@ -91,13 +91,13 @@ def test_Legend():
 def test_BoxAnnotation():
     box = BoxAnnotation()
     assert box.plot is None
-    assert box.left == 'auto'
+    assert box.left == None
     assert box.left_units == 'data'
-    assert box.right == 'auto'
+    assert box.right == None
     assert box.right_units == 'data'
-    assert box.bottom == 'auto'
+    assert box.bottom == None
     assert box.bottom_units == 'data'
-    assert box.top == 'auto'
+    assert box.top == None
     assert box.top_units == 'data'
     assert box.x_range_name == 'default'
     assert box.y_range_name == 'default'
