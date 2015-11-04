@@ -151,5 +151,3 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def update(self, *args, **kwargs):
         return super(PropertyValueDict, self).update(*args, **kwargs)
 
-# TODO (havocp) wrap set
-
