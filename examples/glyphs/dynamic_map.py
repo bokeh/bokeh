@@ -12,13 +12,15 @@ from bokeh.models import Range1d
 from bokeh.models import WheelZoomTool, ResizeTool, PanTool, BoxZoomTool
 from bokeh.models import ImageSource
 
-output_file("dynamic_map.html", title="Dynamic Map Example")
-service_url = 'http://raster.nationalmap.gov/arcgis/rest/services/LandCover/USGS_EROS_LandCover_NLCD/MapServer/export?'
-service_url += 'bbox={XMIN},{YMIN},{XMAX},{YMAX}&bboxSR=102008&size={HEIGHT}%2C{WIDTH}&imageSR=102008&format=png&transparent=false&f=image'
+title = 'Dynamic Map: National Land Cover Dataset'
 
-# set to roughly full extent of web mercator projection
-x_range = Range1d(start=-20000000, end=20000000)
-y_range = Range1d(start=-20000000, end=20000000)
+output_file("dynamic_map.html", title=title)
+service_url = 'http://raster.nationalmap.gov/arcgis/rest/services/LandCover/USGS_EROS_LandCover_NLCD/MapServer/export?'
+service_url += 'bbox={XMIN},{YMIN},{XMAX},{YMAX}&bboxSR=102008&size={HEIGHT}%2C{WIDTH}&imageSR=102008&format=png&transparent=true&f=image'
+
+# set to roughly full extent of US in Albers Equal-Area Conic projection
+x_range = Range1d(start=-3700000, end=2700000)
+y_range = Range1d(start=-2100000, end=4300000)
 
 # create tile source from templated url
 image_source_options = {}
@@ -26,7 +28,8 @@ image_source_options['url'] = service_url
 image_source = ImageSource(**image_source_options)
 
 # instantiate plot and add tile source
-p = Plot(x_range=x_range, y_range=y_range, plot_height=800, plot_width=800)
+p = Plot(x_range=x_range, y_range=y_range, plot_height=700, plot_width=700, title=title)
+p.background_fill = "black"
 p.add_tools(ResizeTool(), WheelZoomTool(), PanTool(), BoxZoomTool())
 
 tile_renderer_options = {}
@@ -38,6 +41,6 @@ doc.add(p)
 if __name__ == "__main__":
     filename = "dynamic_map.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Dynamic Map Example"))
+        f.write(file_html(doc, INLINE, title))
     print("Wrote %s" % filename)
     view(filename)
