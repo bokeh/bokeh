@@ -21,6 +21,8 @@ class TileRendererView extends PlotWidget
     @y_range = @map_plot.get('y_range')
     @y_mapper = this.map_frame.get('y_mappers')['default']
     @extent = @get_extent()
+    @_last_height = undefined
+    @_last_width = undefined
 
   _map_data: () ->
     @initial_extent = @get_extent()
@@ -76,6 +78,20 @@ class TileRendererView extends PlotWidget
     @mget('tile_source').tiles[tile.tile_data.cache_key] = tile.tile_data
     tile.src = @mget('tile_source').get_image_url(x, y, z)
     return tile
+  
+  _enforce_aspect_ratio: () ->
+    # brute force way of handling resize or responsive event -------------------------------------------------------------
+    if @_last_height != @map_frame.get('height') or @_last_width != @map_frame.get('width')
+      extent = @get_extent()
+      zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+      new_extent = @mget('tile_source').snap_to_zoom(extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+      @x_range.set({start:new_extent[0], end: new_extent[2]})
+      @y_range.set({start:new_extent[1], end: new_extent[3]})
+      @extent = new_extent
+      @_last_height = @map_frame.get('height')
+      @_last_width = @map_frame.get('width')
+      return true
+    return false
 
   render: (ctx, indices, args) ->
 
@@ -83,21 +99,11 @@ class TileRendererView extends PlotWidget
       @_set_data()
       @_map_data()
       @map_initialized = true
-
-    # brute force way of handling resize or responsive event -------------------------------------------------------------
-    if @height != @map_frame.get('height') or @width != @map_frame.get('width')
-      extent = @get_extent()
-      zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
-      new_extent = @mget('tile_source').snap_to_zoom(extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
-      @x_range.set({start:new_extent[0], end: new_extent[2]})
-      @y_range.set({start:new_extent[1], end: new_extent[3]})
-      @extent = new_extent
-      @height = @map_frame.get('height')
-      @width = @map_frame.get('width')
+      
+    if @_enforce_aspect_ratio()
       return
 
     @_update()
-
     if @prefetch_timer?
       clearTimeout(@prefetch_timer)
 
