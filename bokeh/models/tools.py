@@ -288,7 +288,7 @@ class BoxSelectTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    select_every_mousemove = Bool(True, help="""
+    select_every_mousemove = Bool(False, help="""
     An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
     """)
