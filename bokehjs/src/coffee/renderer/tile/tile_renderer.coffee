@@ -84,6 +84,18 @@ class TileRendererView extends PlotWidget
       @_set_data()
       @_map_data()
       @map_initialized = true
+    
+    # brute force way of handling resize or responsive event -------------------------------------------------------------
+    if @height != @map_frame.get('height') or @width != @map_frame.get('width')
+      extent = @get_extent()
+      zoom_level = @mget('tile_source').get_level_by_extent(extent, @map_frame.get('height'), @map_frame.get('width'))
+      new_extent = @mget('tile_source').snap_to_zoom(extent, @map_frame.get('height'), @map_frame.get('width'), zoom_level)
+      @x_range.set({start:new_extent[0], end: new_extent[2]})
+      @y_range.set({start:new_extent[1], end: new_extent[3]})
+      @extent = new_extent
+      @height = @map_frame.get('height')
+      @width = @map_frame.get('width')
+      return
 
     @_update()
 
@@ -185,20 +197,19 @@ class TileRendererView extends PlotWidget
           cached.push(key)
 
         else
+          if @mget('render_parents')
+            [px, py, pz] = @mget('tile_source').get_closest_parent_by_tile_xyz(x, y, z)
+            parent_key = @mget('tile_source').tile_xyz_to_key(px, py, pz)
+            if parent_key of @mget('tile_source').tiles and parent_key not in parents
+              parents.push(parent_key)
 
-          [px, py, pz] = @mget('tile_source').get_closest_parent_by_tile_xyz(x, y, z)
-          parent_key = @mget('tile_source').tile_xyz_to_key(px, py, pz)
-          if parent_key of @mget('tile_source').tiles and parent_key not in parents
-            parents.push(parent_key)
-
-          if zooming_out
-            children = @mget('tile_source').children_by_tile_xyz(x, y, z)
-            for c in children
-              [cx, cy, cz, cbounds] = c
-              child_key = @mget('tile_source').tile_xyz_to_key(cx, cy, cz)
-              if child_key of @mget('tile_source').tiles
-                children.push(child_key)
-
+            if zooming_out
+              children = @mget('tile_source').children_by_tile_xyz(x, y, z)
+              for c in children
+                [cx, cy, cz, cbounds] = c
+                child_key = @mget('tile_source').tile_xyz_to_key(cx, cy, cz)
+                if child_key of @mget('tile_source').tiles
+                  children.push(child_key)
           need_load.push(t)
 
     # draw stand-in parents ----------
@@ -231,6 +242,7 @@ class TileRenderer extends HasParent
       alpha: 1.0
       x_range_name: "default"
       y_range_name: "default"
+      render_parents: true
       tile_source: new wmts.Model()
     }
 

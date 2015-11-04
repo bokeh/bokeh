@@ -18,7 +18,7 @@ from .. import validation
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, GlyphRenderer, TileRenderer
+from .renderers import Renderer, GlyphRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
@@ -239,6 +239,23 @@ class Plot(Component):
         tile_renderer = TileRenderer(tile_source=tile_source, **kw)
         self.renderers.append(tile_renderer)
         return tile_renderer
+
+    def add_dynamic_image(self, image_source, **kw):
+        '''Adds new DynamicImageRenderer into the Plot.renderers
+
+        Args:
+            image_source (ImageSource) : a image source instance which contain image configuration 
+
+        Keyword Arguments:
+            Additional keyword arguments are passed on as-is to the dynamic image renderer
+
+        Returns:
+            DynamicImageRenderer : DynamicImageRenderer
+
+        '''
+        image_renderer = DynamicImageRenderer(image_source=image_source, **kw)
+        self.renderers.append(image_renderer)
+        return image_renderer
 
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
