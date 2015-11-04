@@ -65,7 +65,7 @@ class ColumnAssigner(HasProps):
             self._df = df
         super(ColumnAssigner, self).__init__(**properties)
 
-    def get_assignment(self):
+    def get_assignment(self, selections=None):
         raise NotImplementedError('You must return map between each dim and selection.')
 
 
@@ -75,20 +75,40 @@ class OrderedAssigner(ColumnAssigner):
     This is the default column assigner for the :class:`Builder`.
     """
 
-    def get_assignment(self):
+    def get_assignment(self, selections=None):
         """Get a mapping between dimension and selection when none are provided."""
-        dims = [dim for dim in self.dims if dim not in self.attrs]
-        return {dim: sel for dim, sel in
-                zip(dims, self._df.columns.tolist())}
+        if selections is not None and len(list(selections.keys())) == 0:
+            dims = [dim for dim in self.dims if dim not in self.attrs]
+            return {dim: sel for dim, sel in
+                    zip(dims, self._df.columns.tolist())}
+        else:
+            return selections
 
 
 class NumericalColumnsAssigner(ColumnAssigner):
     """Assigns all numerical columns to the y dimension."""
 
-    def get_assignment(self):
+    def get_assignment(self, selections=None):
+        if isinstance(selections, dict):
+            x = selections.get('x')
+            y = selections.get('y')
+        else:
+            x = None
+            y = None
+
         # filter down to only the numerical columns
         df = self._df._get_numeric_data()
-        return {'y': df.columns.tolist()}
+        num_cols = df.columns.tolist()
+
+        if x is not None and y is None:
+            y = [col for col in num_cols if col not in list(x)]
+        elif x is None:
+            x = 'index'
+
+            if y is None:
+                y = num_cols
+
+        return {'x': x, 'y': y}
 
 
 class DataOperator(HasProps):
@@ -300,17 +320,16 @@ class ChartDataSource(object):
                 raise ValueError('selections input must be provided as: \
                                  dict(dimension: column) or None')
 
+        else:
+            # provide opportunity for column assigner to apply custom logic
+            select_map = self.column_assigner.get_assignment(selections=select_map)
+
         # make sure each dimension is represented in the selection map
         for dim in self._dims:
             if dim not in select_map:
                 select_map[dim] = None
 
-        # # make sure we have enough dimensions as required either way
-        # unmatched = list(set(self._required_dims) - set(select_map.keys()))
-        # if len(unmatched) > 0:
-        #     raise ValueError('You must provide all required columns assigned to dimensions, no match for: %s'
-        #                      % ', '.join(unmatched))
-        # else:
+
         return select_map
 
     def apply_operations(self):
