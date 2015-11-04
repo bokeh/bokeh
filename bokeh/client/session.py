@@ -167,7 +167,7 @@ class ClientSession(object):
         """
         self.connect()
         if not self._connection.connected:
-            raise IOError("Cannot pull session document because we failed to connect to the server")
+            raise IOError("Cannot pull session document because we failed to connect to the server (to start the server, try the 'bokeh serve' command)")
 
         if self._document is None:
             doc = Document()
@@ -202,7 +202,7 @@ class ClientSession(object):
 
         self.connect()
         if not self._connection.connected:
-            raise IOError("Cannot push session document because we failed to connect to the server")
+            raise IOError("Cannot push session document because we failed to connect to the server (to start the server, try the 'bokeh serve' command)")
         self._connection.push_doc(doc)
         if self._document is None:
             self._attach_document(doc)
