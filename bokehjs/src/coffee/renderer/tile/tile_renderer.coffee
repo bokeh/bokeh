@@ -235,9 +235,6 @@ class TileRendererView extends PlotWidget
 
     @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
 
-    # prune cached tiles
-    #@tile_source.prune_tiles()
-
 class TileRenderer extends HasParent
   default_view: TileRendererView
   type: 'TileRenderer'
