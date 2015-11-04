@@ -72,6 +72,7 @@ def download(progress=True):
         (s3, 'gapminder_life_expectancy.csv'),
         (s3, 'gapminder_regions.csv'),
         (s3, 'world_cities.zip'),
+        (s3, 'airports.json'),
     ]
 
     for base_url, file_name in files:

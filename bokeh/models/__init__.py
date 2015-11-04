@@ -17,5 +17,6 @@ from .ranges import *
 from .renderers import *
 from .sources import *
 from .tickers import *
+from .tiles import *
 from .tools import *
 from .widgets import *

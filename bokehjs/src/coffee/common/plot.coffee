@@ -123,7 +123,8 @@ class PlotView extends ContinuumView
     if @mget('responsive')
       throttled_resize = _.throttle(@resize, 100)
       $(window).on("resize", throttled_resize)
-      $(@resize)
+      # Just need to wait a small delay so container has a width
+      _.delay(@resize, 10)
 
     @unpause()
 
@@ -499,7 +500,9 @@ class Plot extends HasParent
       elts = @get(side)
       for r in elts
         if r.get('location') ? 'auto' == 'auto'
-          r.set('location', side, {'silent' : true})
+          r.set('layout_location', side, { silent: true })
+        else
+          r.set('layout_location', r.get('location'), { silent: true })
         if r.initialize_layout?
           r.initialize_layout(solver)
         solver.add_constraint(
@@ -533,6 +536,16 @@ class Plot extends HasParent
     'min_border_left'
     'min_border_right'
   ]
+
+  nonserializable_attribute_names: () ->
+    super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame',
+    'min_size'])
+
+  serializable_attributes: () ->
+    attrs = super()
+    if 'renderers' of attrs
+      attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
+    attrs
 
   defaults: ->
     return _.extend {}, super(), {

@@ -38,7 +38,6 @@ class SliderView extends ContinuumView
     logger.debug("slide value = #{value}")
     @$( "##{ @mget('id') }" ).val( ui.value )
     @mset('value', value)
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class Slider extends HasParent

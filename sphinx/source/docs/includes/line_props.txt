@@ -23,7 +23,16 @@
     - ``'square'`` |square_cap|
 
 ``line_dash``
-    array of integer pixel distances that describe the on-off pattern of dashing to use
+    a line style to use
+
+    - ``'solid'``
+    - ``'dashed'``
+    - ``'dotted'``
+    - ``'dotdash'``
+    - ``'dashdot'``
+    - an array of integer pixel distances that describe the on-off pattern of dashing to use
+    - a string of spaced integers matching the regular expression '^(\\d+(\\s+\\d+)*)?$'
+      that describe the on-off pattern of dashing to use
 
 ``line_dash_offset``
     the distance in pixels into the ``line_dash`` that the pattern should start from

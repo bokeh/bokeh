@@ -3,15 +3,6 @@ _ = require "underscore"
 Backbone = require "backbone"
 {logger} = require "./logging"
 
-_is_ref = (arg) ->
-  if _.isObject(arg)
-    keys = _.keys(arg).sort()
-    if keys.length==2
-      return keys[0]=='id' and keys[1]=='type'
-    if keys.length==3
-      return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
-  return false
-
 class HasProperties extends Backbone.Model
   # Our property system
   # we support python style computed properties, with getters
@@ -36,6 +27,8 @@ class HasProperties extends Backbone.Model
     return data
 
   constructor : (attributes, options) ->
+    @document = null
+
     ## straight from backbone.js
     attrs = attributes || {}
     if not options
@@ -137,7 +130,12 @@ class HasProperties extends Backbone.Model
       for key in toremove
         delete attrs[key]
     if not _.isEmpty(attrs)
+      old = {}
+      for key, value of attrs
+        old[key] = @get(key, resolve_refs=false)
       super(attrs, options)
+      for key, value of attrs
+        @_tell_document_about_change(key, old[key], @get(key, resolve_refs=false))
 
   convert_to_ref: (value) =>
     # converts value into a refrence if necessary
@@ -270,6 +268,18 @@ class HasProperties extends Backbone.Model
     'type': this.type
     'id': this.id
 
+  @_is_ref: (arg) ->
+    if _.isObject(arg)
+      keys = _.keys(arg).sort()
+      if keys.length==2
+        return keys[0]=='id' and keys[1]=='type'
+      if keys.length==3
+        return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
+    return false
+
+  # TODO (havocp) I suspect any use of this is broken, because
+  # if we're in a Document we should have already resolved refs,
+  # and if we aren't in a Document we can't resolve refs.
   resolve_ref: (arg) =>
     # ### method: HasProperties::resolve_ref
     # converts references into an objects, leaving non-references alone
@@ -278,13 +288,19 @@ class HasProperties extends Backbone.Model
       return arg
     if _.isArray(arg)
       return (@resolve_ref(x) for x in arg)
-    if _is_ref(arg)
+    if HasProperties._is_ref(arg)
       # this way we can reference ourselves
       # even though we are not in any collection yet
       if arg['type'] == this.type and arg['id'] == this.id
         return this
+      else if @document
+        model = @document.get_model_by_id(arg['id'])
+        if model == null
+          throw new Error("#{@} refers to #{JSON.stringify(arg)} but it isn't in document #{@_document}")
+        else
+          return model
       else
-        return @get_base().Collections(arg['type']).get(arg['id'])
+        throw new Error("#{@} Cannot resolve ref #{JSON.stringify(arg)} when not in a Document")
     return arg
 
   get_base: ()->
@@ -292,47 +308,182 @@ class HasProperties extends Backbone.Model
       @_base = require('./base')
     return @_base
 
-  url: () ->
-    # ### method HasProperties::url
-    # model where our API processes this model
-    doc = @get('doc')
-    if not doc?
-      logger.error("unset 'doc' in #{@}")
-
-    url = @get_base().Config.prefix + "bokeh/bb/" + doc + "/" + @type + "/"
-    if (@isNew())
-      return url
-    return url + @get('id') + "/"
-
   sync: (method, model, options) ->
-    # this should be fixed via monkey patching when extended by an
-    # environment that implements the model backend,
-    # to enable normal beaviour, add this line
-    #
-    # HasProperties.prototype.sync = Backbone.sync
+    # make this a no-op, we sync the whole document never individual models
     return options.success(model.attributes, null, {})
 
   defaults: -> {}
 
-  rpc: (funcname, args, kwargs) =>
-    prefix = @get_base().Config.prefix
-    doc = @get('doc')
-    if not doc?
-      throw new Error("Unset 'doc' in " + this)
-    id = @get('id')
-    type = @type
-    url = "#{prefix}bokeh/bb/rpc/#{doc}/#{type}/#{id}/#{funcname}/"
-    data =
-      args: args
-      kwargs: kwargs
-    resp = $.ajax(
-      type: 'POST'
-      url: url,
-      data: JSON.stringify(data)
-      contentType: 'application/json'
-      xhrFields:
-        withCredentials: true
-    )
-    return resp
+  # TODO remove this, for now it's just to help find nonserializable_attribute_names we
+  # need to add.
+  serializable_in_document: () -> true
+
+  # returns a list of those names which should not be included
+  # in the Document and should not go to the server. Subtypes
+  # should override this. The result will be cached on the class,
+  # so this only gets called one time on one instance.
+  nonserializable_attribute_names: () ->
+    []
+
+  _get_nonserializable_dict: () ->
+    if not @constructor._nonserializable_names_cache?
+      names = {}
+      for n in @nonserializable_attribute_names()
+        names[n] = true
+      @constructor._nonserializable_names_cache = names
+    @constructor._nonserializable_names_cache
+
+  attribute_is_serializable: (attr) ->
+    (attr not of @_get_nonserializable_dict()) and (attr of @attributes)
+
+  # dict of attributes that should be serialized to the server. We
+  # sometimes stick things in attributes that aren't part of the
+  # Document's models, subtypes that do that have to remove their
+  # extra attributes here.
+  serializable_attributes: () ->
+    nonserializable = @_get_nonserializable_dict()
+    attrs = {}
+    for k, v of @attributes
+      if k not of nonserializable
+        attrs[k] = v
+    attrs
+
+  # JSON serialization requires special measures to deal with cycles,
+  # which means objects can't be serialized independently but only
+  # as a whole object graph. This catches mistakes where we accidentally
+  # try to serialize an object in the wrong place (for example if
+  # we leave an object instead of a ref in a message we try to send
+  # over the websocket, or if we try to use Backbone's sync stuff)
+  toJSON: (options) ->
+    throw new Error("bug: toJSON should not be called on #{@}, models require special serialization measures")
+
+  @_value_to_json: (key, value, optional_parent_object) ->
+    if value instanceof HasProperties
+      value.ref()
+    else if _.isArray(value)
+      ref_array = []
+      for v, i in value
+        if v instanceof HasProperties and not v.serializable_in_document()
+          console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because array contains a nonserializable type #{v.constructor.name} under index #{i}")
+        else
+          ref_array.push(HasProperties._value_to_json(i, v, value))
+      ref_array
+    else if _.isObject(value)
+      ref_obj = {}
+      for own subkey of value
+        if value[subkey] instanceof HasProperties and not value[subkey].serializable_in_document()
+          console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because value of type #{value.constructor.name} contains a nonserializable type #{value[subkey].constructor.name} under #{subkey}")
+        else
+          ref_obj[subkey] = HasProperties._value_to_json(subkey, value[subkey], value)
+      ref_obj
+    else
+      value
+
+  # Convert attributes to "shallow" JSON (values which are themselves models
+  # are included as just references)
+  # TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
+  # backbone will have implemented a toJSON already that we may need to override
+  attributes_as_json: () ->
+    # TODO remove serializable_in_document and this check once we aren't seeing these
+    # warnings anymore
+    fail = false
+    for own key, value of @serializable_attributes()
+      if value instanceof HasProperties and not value.serializable_in_document()
+        console.log("May need to add #{key} to nonserializable_attribute_names of #{@.constructor.name} because value #{value.constructor.name} is not serializable")
+        fail = true
+    if fail
+      return {}
+    HasProperties._value_to_json("attributes", @serializable_attributes(), @)
+
+  # this is like _value_record_references but expects to find refs
+  # instead of models, and takes a doc to look up the refs in
+  @_json_record_references: (doc, v, result, recurse) ->
+    if v is null
+      ;
+    else if HasProperties._is_ref(v)
+      if v.id not of result
+        model = doc.get_model_by_id(v.id)
+        HasProperties._value_record_references(model, result, recurse)
+    else if _.isArray(v)
+      for elem in v
+        HasProperties._json_record_references(doc, elem, result, recurse)
+    else if _.isObject(v)
+      for own k, elem of v
+        HasProperties._json_record_references(doc, elem, result, recurse)
+
+  # add all references from 'v' to 'result', if recurse
+  # is true then descend into refs, if false only
+  # descend into non-refs
+  @_value_record_references: (v, result, recurse) ->
+    if v is null
+      ;
+    else if v instanceof HasProperties
+      if v.id not of result
+        result[v.id] = v
+        attrs = v.serializable_attributes()
+        for key of attrs
+          value = attrs[key]
+          if value instanceof HasProperties and not value.serializable_in_document()
+            console.log("May need to add #{key} to nonserializable_attribute_names of #{v.constructor.name} because value #{value.constructor.name} is not serializable")
+          HasProperties._value_record_references(value, result, recurse)
+    else if _.isArray(v)
+      for elem in v
+        if elem instanceof HasProperties and not elem.serializable_in_document()
+          console.log("Array contains nonserializable item, we shouldn't traverse this property ", elem)
+          throw new Error("Trying to record refs for array with nonserializable item")
+        HasProperties._value_record_references(elem, result, recurse)
+    else if _.isObject(v)
+      for own k, elem of v
+        if elem instanceof HasProperties and not elem.serializable_in_document()
+          console.log("Dict contains nonserializable item under #{k}, we shouldn't traverse this property ", elem)
+          throw new Error("Trying to record refs for dict with nonserializable item")
+        HasProperties._value_record_references(elem, result, recurse)
+
+  # Get models that are immediately referenced by our properties
+  # (do not recurse, do not include ourselves)
+  _immediate_references: () ->
+    result = {}
+    HasProperties._value_record_references(@, result, false) # false = no recurse
+    delete result[@id]
+    _.values(result)
+
+  attach_document: (doc) ->
+    if @document != null and @document != doc
+      throw new Error("Models must be owned by only a single document")
+    first_attach = @document == null
+    @document = doc
+    if doc != null
+      doc._notify_attach(@)
+      if first_attach
+        for c in @_immediate_references()
+          c.attach_document(doc)
+
+  detach_document: () ->
+    if @document != null
+      if @document._notify_detach(@) == 0
+        @document = null
+        for c in @_immediate_references()
+          c.detach_document()
+
+  _tell_document_about_change: (attr, old, new_) ->
+    if not @attribute_is_serializable(attr)
+      return
+
+    # TODO remove serializable_in_document and these checks once we aren't seeing these
+    # warnings anymore
+    if old instanceof HasProperties and not old.serializable_in_document()
+      console.log("May need to add #{attr} to nonserializable_attribute_names of #{@constructor.name} because old value #{old.constructor.name} is not serializable")
+      return
+
+    if new_ instanceof HasProperties and not new_.serializable_in_document()
+      console.log("May need to add #{attr} to nonserializable_attribute_names of #{@constructor.name} because new value #{new_.constructor.name} is not serializable")
+      return
+
+    if new_ instanceof HasProperties and @document != null
+      new_.attach_document(@document)
+    if old instanceof HasProperties
+      old.detach_document()
+    if @document != null
+      @document._notify_change(@, attr, old, new_)
 
 module.exports = HasProperties

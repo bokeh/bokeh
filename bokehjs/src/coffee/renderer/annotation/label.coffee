@@ -88,8 +88,8 @@ class Label extends HasParent
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'glyph'
-      label_text_font: "helvetica"
+      level: 'annotation'
+      label_text_font: "Helvetica"
       label_text_font_size: "10pt"
       label_text_font_style: "normal"
       label_text_color: "#444444"

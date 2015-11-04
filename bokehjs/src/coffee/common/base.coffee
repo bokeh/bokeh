@@ -22,8 +22,6 @@ locations =
   GMapPlot:                 require './gmap_plot'
   GeoJSPlot:                require './geojs_plot'
   GridPlot:                 require './grid_plot'
-  PlotContext:              require './plot_context'
-  PlotList:                 require './plot_context'
   Canvas:                   require './canvas'
   LayoutBox:                require './layout_box'
   CartesianFrame:           require './cartesian_frame'
@@ -47,6 +45,13 @@ locations =
   Legend:                   require '../renderer/annotation/legend'
   Span:                     require '../renderer/annotation/span'
   Tooltip:                  require '../renderer/annotation/tooltip'
+
+  TileRenderer:             require '../renderer/tile/tile_renderer'
+  TileSource:               require '../renderer/tile/tile_source'
+  TMSTileSource:            require '../renderer/tile/tms_tile_source'
+  WMTSTileSource:           require '../renderer/tile/wmts_tile_source'
+  QUADKEYTileSource:        require '../renderer/tile/quadkey_tile_source'
+  BBoxTileSource:           require '../renderer/tile/bbox_tile_source'
 
   GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 
@@ -238,6 +243,10 @@ Collections.register_models = (specs) ->
   for own name, impl of specs
     Collections.register_model(name, impl)
 
+# "index" is a map from the toplevel model IDs rendered by
+# embed.coffee, to the view objects for those models.  It doesn't
+# contain all views, only those explicitly rendered to an element
+# by embed.coffee.
 index = {}
 
 module.exports =

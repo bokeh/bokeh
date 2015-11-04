@@ -41,7 +41,6 @@ class SelectToolView extends GestureTool.View
         geoms = [g]
 
       tool_events.set("geometries", geoms)
-      tool_events.save()
     return null
 
 class SelectTool extends GestureTool.Model
@@ -64,6 +63,9 @@ class SelectTool extends GestureTool.Model
     for r in renderers
       logger.debug(" - #{r.type} #{r.id}")
     return null
+
+  nonserializable_attribute_names: () ->
+    super().concat(['multi_select_modifier'])
 
   defaults: () ->
     return _.extend({}, super(), {

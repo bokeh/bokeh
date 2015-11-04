@@ -17,6 +17,15 @@ class Property extends HasProperties
 
     @_init()
 
+  serializable_in_document: () ->
+    if @get('obj')?
+      result = @get('obj').serializable_in_document()
+      if not result
+        console.log("  'obj' field of #{@.constructor.name} has a nonserializable value of type #{@get('obj').constructor.name}")
+      result
+    else
+      true
+
   _init: () ->
 
     attr_value = @obj.get(@attr)

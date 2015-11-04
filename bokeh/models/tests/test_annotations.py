@@ -12,12 +12,12 @@ TEXT_PROPS = ["text_font", "text_font_size", "text_font_style", "text_color",
     "text_alpha", "text_align", "text_baseline"]
 PROPS = ["session", "name", "tags"]
 
-def check_line_properties_defaults(annotation, prefix=None):
+def check_line_properties_defaults(annotation, prefix=None, line_color="#cccccc", line_width=1.0, line_alpha=1.0):
     if prefix is None:
         prefix = ''
-    assert getattr(annotation, prefix + 'line_color') == Color.black
-    assert getattr(annotation, prefix + 'line_width') == 1
-    assert getattr(annotation, prefix + 'line_alpha') == 1.0
+    assert getattr(annotation, prefix + 'line_color') == line_color
+    assert getattr(annotation, prefix + 'line_width') == line_width
+    assert getattr(annotation, prefix + 'line_alpha') == line_alpha
     assert getattr(annotation, prefix + 'line_join') == LineJoin.miter
     assert getattr(annotation, prefix + 'line_cap') == LineCap.butt
     assert getattr(annotation, prefix + 'line_dash') == []
@@ -27,18 +27,18 @@ def check_text_properties_defaults(annotation, prefix=None):
     if prefix is None:
         prefix = ''
     assert getattr(annotation, prefix + 'text_font') == "Helvetica"
-    assert getattr(annotation, prefix + 'text_font_size') == "12pt"
+    assert getattr(annotation, prefix + 'text_font_size') == dict(value="10pt")
     assert getattr(annotation, prefix + 'text_font_style') == FontStyle.normal
     assert getattr(annotation, prefix + 'text_color') == "#444444"
     assert getattr(annotation, prefix + 'text_alpha') == 1.0
     assert getattr(annotation, prefix + 'text_align') == TextAlign.left
-    assert getattr(annotation, prefix + 'text_baseline') == TextBaseline.bottom
+    assert getattr(annotation, prefix + 'text_baseline') == TextBaseline.middle
 
-def check_fill_properties_defaults(annotation, prefix=None):
+def check_fill_properties_defaults(annotation, prefix=None, fill_color='#ffffff', fill_alpha=1.0):
     if prefix is None:
         prefix = ''
-    assert getattr(annotation, prefix + 'fill_color') == Color.gray
-    assert getattr(annotation, prefix + 'fill_alpha') == 1.0
+    assert getattr(annotation, prefix + 'fill_color') == fill_color
+    assert getattr(annotation, prefix + 'fill_alpha') == fill_alpha
 
 def check_correct_properties_present(annotation, *props):
     expected = set(sum((PROPS,) + props, []))
@@ -65,7 +65,7 @@ def test_Legend():
     assert legend.legend_padding == 10
     assert legend.legend_spacing == 3
     assert legend.legends == []
-    yield check_line_properties_defaults, legend, 'border_'
+    yield check_line_properties_defaults, legend, 'border_', "black", 1.0
     yield check_text_properties_defaults, legend, 'label_'
     yield check_fill_properties_defaults, legend, 'background_'
     yield (check_correct_properties_present, legend, [
@@ -88,19 +88,19 @@ def test_Legend():
 def test_BoxAnnotation():
     box = BoxAnnotation()
     assert box.plot is None
-    assert box.left == 'auto'
+    assert box.left == None
     assert box.left_units == 'data'
-    assert box.right == 'auto'
+    assert box.right == None
     assert box.right_units == 'data'
-    assert box.bottom == 'auto'
+    assert box.bottom == None
     assert box.bottom_units == 'data'
-    assert box.top == 'auto'
+    assert box.top == None
     assert box.top_units == 'data'
     assert box.x_range_name == 'default'
     assert box.y_range_name == 'default'
     assert box.level == 'annotation'
-    yield check_line_properties_defaults, box
-    yield check_fill_properties_defaults, box
+    yield check_line_properties_defaults, box, None, "#cccccc", 1.0, 0.3
+    yield check_fill_properties_defaults, box, None, "#fff9ba", 0.4
     yield (check_correct_properties_present, box, [
             "plot",
             "left",
@@ -132,10 +132,10 @@ def test_Label():
     assert label.angle_units == 'rad'
     assert label.x_range_name == 'default'
     assert label.y_range_name == 'default'
-    assert label.level == 'overlay'
-    yield check_line_properties_defaults, label, 'border_'
+    assert label.level == 'annotation'
+    yield check_line_properties_defaults, label, 'border_', "#cccccc", 1, 0.0
     yield check_text_properties_defaults, label, 'label_'
-    yield check_fill_properties_defaults, label, 'background_'
+    yield check_fill_properties_defaults, label, 'background_', '#fff9ba', 0.0
     yield (check_correct_properties_present, label, [
             "plot",
             "x",
@@ -166,7 +166,7 @@ def test_Span():
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
     assert line.render_mode == 'canvas'
-    yield check_line_properties_defaults, line
+    yield check_line_properties_defaults, line, None, 'black', 1.0
     yield (check_correct_properties_present, line, [
             "plot",
             "location",

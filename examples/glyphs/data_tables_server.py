@@ -3,22 +3,20 @@ from __future__ import print_function
 from bokeh.browserlib import view
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
 from bokeh.models.widgets import (
-    Select, DataTable, TableColumn, StringFormatter,
+    Select, DataTable, TableColumn, StringFormatter, HBox, VBox,
     NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
-from bokeh.io import vplot, hplot
+# from bokeh.io import vplot, hplot
 from bokeh.document import Document
-from bokeh.session import Session
+from bokeh.plotting import curdoc
+from bokeh.client import push_session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
+
 
 
 class DataTables(object):
 
     def __init__(self):
         self.document = Document()
-        self.session = Session()
-        self.session.use_doc('data_tables_server')
-        self.session.load_document(self.document)
-
         self.manufacturer_filter = None
         self.model_filter = None
         self.transmission_filter = None
@@ -28,8 +26,8 @@ class DataTables(object):
         self.source = ColumnDataSource()
         self.update_data()
 
-        self.document.add(self.create())
-        self.session.store_document(self.document)
+        self.document.add((self.create()))
+        self.session = push_session(self.document)
 
     def create(self):
         manufacturers = sorted(mpg["manufacturer"].unique())
@@ -94,29 +92,31 @@ class DataTables(object):
         plot.add_tools(cty_hover_tool, hwy_hover_tool, select_tool)
 
 
-        controls = vplot(manufacturer_select, model_select, transmission_select, drive_select, class_select)
-        top_panel = hplot(controls, plot)
-        layout = vplot(top_panel, data_table)
+        controls = VBox(children=[
+            manufacturer_select, model_select, transmission_select,
+             drive_select, class_select])
+        top_panel = HBox(children=[controls, plot])
+        layout = VBox(children=[top_panel, data_table])
 
         return layout
 
-    def on_manufacturer_change(self, obj, attr, _, value):
+    def on_manufacturer_change(self, attr, _, value):
         self.manufacturer_filter = None if value == "All" else value
         self.update_data()
 
-    def on_model_change(self, obj, attr, _, value):
+    def on_model_change(self, attr, _, value):
         self.model_filter = None if value == "All" else value
         self.update_data()
 
-    def on_transmission_change(self, obj, attr, _, value):
+    def on_transmission_change(self, attr, _, value):
         self.transmission_filter = None if value == "All" else value
         self.update_data()
 
-    def on_drive_change(self, obj, attr, _, value):
+    def on_drive_change(self, attr, _, value):
         self.drive_filter = None if value == "All" else value
         self.update_data()
 
-    def on_class_change(self, obj, attr, _, value):
+    def on_class_change(self, attr, _, value):
         self.class_filter = None if value == "All" else value
         self.update_data()
 
@@ -133,14 +133,12 @@ class DataTables(object):
         if self.class_filter:
             df = df[df["class"] == self.class_filter]
         self.source.data = ColumnDataSource.from_df(df)
-        self.session.store_document(self.document)
 
     def run(self, do_view=False, poll_interval=0.5):
-        link = self.session.object_link(self.document.context)
-        print("Please visit %s to see the plots" % link)
-        if do_view: view(link)
-        print("\npress ctrl-C to exit")
-        self.session.poll_document(self.document)
+        if do_view:
+            self.session.show()
+
+        self.session.loop_until_closed()
 
 if __name__ == "__main__":
     data_tables = DataTables()
