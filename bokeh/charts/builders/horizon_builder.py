@@ -22,7 +22,7 @@ from bokeh.charts.builder import create_and_build
 from bokeh.charts.glyphs import HorizonGlyph
 from .line_builder import LineBuilder
 from ...properties import Float, Int, List, string_types, String, Color, Bool
-from ..attributes import ColorAttr, DashAttr, MarkerAttr, IdAttr
+from ..attributes import ColorAttr, IdAttr
 from ...models.sources import ColumnDataSource
 from ...models.axes import CategoricalAxis
 from ...models.ranges import FactorRange, DataRange1d

@@ -77,7 +77,7 @@ class OrderedAssigner(ColumnAssigner):
 
     def get_assignment(self, selections=None):
         """Get a mapping between dimension and selection when none are provided."""
-        if selections is not None and len(list(selections.keys())) == 0:
+        if selections is None or len(list(selections.keys())) == 0:
             dims = [dim for dim in self.dims if dim not in self.attrs]
             return {dim: sel for dim, sel in
                     zip(dims, self._df.columns.tolist())}
