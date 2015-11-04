@@ -63,10 +63,13 @@ class ToolManagerView extends Backbone.View
     return @
 
 class ToolManager extends HasProperties
+  type: 'ToolManager'
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @_init_tools()
+
+  serializable_in_document: () -> false
 
   _init_tools: () ->
     gestures = @get('gestures')

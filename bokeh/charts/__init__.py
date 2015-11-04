@@ -21,11 +21,11 @@ from .builders.boxplot_builder import BoxPlot
 # easy access to required bokeh components
 from ..models import ColumnDataSource
 from ..io import (
-    curdoc, cursession, output_file, output_notebook, output_server, push,
+    curdoc, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, vplot, hplot)
 
 # Silence pyflakes
-(curdoc, cursession, output_file, output_notebook, output_server, push,
+(curdoc, output_file, output_notebook, output_server, push,
  reset_output, save, show, gridplot, vplot, hplot, ColumnDataSource,
  DEFAULT_PALETTE)
 

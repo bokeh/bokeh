@@ -30,7 +30,6 @@ from ..models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..resources import INLINE
-from ..session import Session
 from ..util.notebook import publish_display_data
 from ..plotting_helpers import DEFAULT_PALETTE
 
@@ -126,10 +125,10 @@ class Figure(object):
         self.doc.hold(True)
         self._plots = []
 
-        if self.server:
-            self.session = Session()
-            self.session.use_doc(self.server)
-            self.session.load_document(self.doc)
+        # if self.server:
+        #     self.session = Session()
+        #     self.session.use_doc(self.server)
+        #     self.session.load_document(self.doc)
 
         if self.children:
             from bokeh.models import VBox

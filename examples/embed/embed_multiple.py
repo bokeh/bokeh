@@ -1,6 +1,7 @@
 from bokeh.plotting import figure
 from bokeh.models import Range1d
 from bokeh.embed import components
+from bokeh.resources import INLINE
 from jinja2 import Template
 import webbrowser
 import os
@@ -46,8 +47,8 @@ template = Template('''<!DOCTYPE html>
         <meta charset="utf-8">
         <title>Bokeh Scatter Plots</title>
         <style> div{float: left;} </style>
-        <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css" />
-        <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
+        {{ js_resources }}
+        {{ css_resources }}
         {{ script }}
     </head>
     <body>
@@ -58,8 +59,18 @@ template = Template('''<!DOCTYPE html>
 </html>
 ''')
 
+js_resources = INLINE.render_js()
+css_resources = INLINE.render_css()
+
 html_file = 'embed_multiple.html'
+
+html = template.render(js_resources=js_resources,
+                       css_resources=css_resources,
+                       script=script,
+                       div=div)
+
 with open(html_file, 'w') as textfile:
-    textfile.write(template.render(script=script, div=div))
+    textfile.write(html)
+
 url = 'file:{}'.format(six.moves.urllib.request.pathname2url(os.path.abspath(html_file)))
 webbrowser.open(url)
