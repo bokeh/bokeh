@@ -9,11 +9,16 @@ y = (2*np.random.normal(size=137) + x**2)
 xx = np.hstack([-1*x[::-1], x])
 yy = np.hstack([-1*y[::-1], y])
 
-xyvalues = OrderedDict(x=xx, y=yy, y2=yy, y3=yy, y4=yy, y5=yy)
+xyvalues = OrderedDict([('x', xx),
+                        ('y', yy),
+                        ('y2', yy),
+                        ('y3', yy),
+                        ('y4', yy),
+                        ('y5', yy)])
 
 output_file("horizon_folds.html")
 
-hp = Horizon(xyvalues, x='x', y=['y4', 'y3', 'y', 'y2', 'y5'], title="test horizon",
+hp = Horizon(xyvalues, x='x', title="test horizon",
              ylabel='Random')
 
 show(hp)
