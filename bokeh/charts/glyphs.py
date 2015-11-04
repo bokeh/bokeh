@@ -238,43 +238,62 @@ class AreaGlyph(LineGlyph):
 
 class HorizonGlyph(AreaGlyph):
     num_folds = Int(default=3, help="""The count of times the data is overlapped.""")
-    hor_max = Float()
-    hor_min = Float()
-    series = Int(default=0)
+
+    series = Int(default=0, help="""The id of the series as the order it will appear,
+    starting from 0.""")
+
     series_count = Int()
-    splits = List(Float)
-    origin = Float()
-    fold_height = Float()
-    bins = List(Float)
-    bin_num = Int()
-    graph_ratio = Float()
 
-    pos_color = Color("#006400")
-    neg_color = Color("#6495ed")
-    line_color = Color()
-    flip_neg = Bool(default=True)
+    fold_height = Float(help="""The height of one fold.""")
 
-    series_max = Float(help="""Required to be set by builder.""")
+    bins = List(Float, help="""The binedges calculated from the number of folds,
+    and the maximum value of the entire source data.""")
+
+    graph_ratio = Float(help="""Scales heights of each series based on number of folds
+    and the number of total series being plotted.
+    """)
+
+    pos_color = Color("#006400", help="""The color used for positive values.""")
+    neg_color = Color("#6495ed", help="""The color used for negative values.""")
+
+    line_color = Color(help="""The color used for the area outline. This is by default
+    set to the same color as the positive or negative color.
+    """)
+
+    flip_neg = Bool(default=True, help="""When True, the negative values will be
+    plotted as their absolute value, then their individual axes is flipped. If False,
+    then the negative values will still be taken as their absolute value, but the base
+    of their shape will start from the same origin as the positive values.
+    """)
 
     def __init__(self, bins=None, **kwargs):
-        kwargs['fill_alpha'] = 1.0/self.num_folds
+
+        # fill alpha depends on how many folds will be layered
+        kwargs['fill_alpha'] = 1.0/kwargs['num_folds']
 
         if bins is not None:
-            kwargs['hor_max'] = max(bins)
             kwargs['bins'] = bins
 
-            kwargs['base'] = kwargs['series'] * kwargs['hor_max'] / kwargs['series_count']
+            # each series is shifted up to a synthetic y-axis
+            kwargs['base'] = kwargs['series'] * max(bins) / kwargs['series_count']
+            kwargs['graph_ratio'] = kwargs['num_folds']/kwargs['series_count']
 
         super(HorizonGlyph, self).__init__(**kwargs)
 
     def build_source(self):
         data = {}
 
+        # Build columns for the positive values
         pos_y = self.y.copy()
         pos_y[pos_y < 0] = 0
         xs, ys = self._build_dims(self.x, pos_y)
-        colors = [self.pos_color] * len(ys)
 
+        # list of positive colors and alphas
+        colors = [self.pos_color] * len(ys)
+        alphas = [(bin_idx * self.fill_alpha) for bin_idx in
+                  range(0, len(self.bins))]
+
+        # If we have negative values at all, add the values for those as well
         if self.y.min() < 0:
             neg_y = self.y.copy()
             neg_y[neg_y > 0] = 0
@@ -284,27 +303,50 @@ class HorizonGlyph(AreaGlyph):
             xs += neg_xs
             ys += neg_ys
             colors += ([self.neg_color] * len(neg_ys))
+            alphas += alphas
 
         # create clipped representation of each band
         data['x_values'] = xs
         data['y_values'] = ys
         data['fill_color'] = colors
+        data['fill_alpha'] = colors
         data['line_color'] = colors
 
         return data
 
     def _build_dims(self, x, y, flip=False):
+        """ Creates values needed to plot each fold of the horizon glyph.
 
-        bin_idx, bin_array = pd.cut(y, bins=self.bins, labels=False,
-                                    retbins=True, include_lowest=True)
+        Bins the data based on the binning passed into the glyph, then copies and clips
+        the values for each bin.
+
+        Args:
+            x (`pandas.Series`): array of x values
+            y (`pandas.Series`): array of y values
+            flip (bool): whether to flip values, used when handling negative values
+
+        Returns:
+            tuple(list(`numpy.ndarray`), list(`numpy.ndarray`)): returns a list of
+                arrays for the x values and list of arrays for the y values. The data
+                has been folded and transformed so the patches glyph presents the data
+                in a way that looks like an area chart.
+        """
+
+        # assign bins to each y value
+        bin_idx = pd.cut(y, bins=self.bins, labels=False, include_lowest=True)
 
         xs, ys = [], []
         for idx, bin in enumerate(self.bins[0:-1]):
+
+            # subtract off values associated with lower bins, to get into this bin
             temp_vals = y.copy() - (idx * self.fold_height)
+
+            # clip the values between the fold range and zero
             temp_vals[bin_idx > idx] = self.fold_height * self.graph_ratio
             temp_vals[bin_idx < idx] = 0
-            temp_vals[bin_idx == idx] *= self.graph_ratio
+            temp_vals[bin_idx == idx] = self.graph_ratio * temp_vals[bin_idx == idx]
 
+            # if flipping, we must start the values from the top of each fold's range
             if flip:
                 temp_vals = (self.fold_height * self.graph_ratio) - temp_vals
                 base = self.base + (self.fold_height * self.graph_ratio)
@@ -318,6 +360,7 @@ class HorizonGlyph(AreaGlyph):
                 ys.append(temp_vals)
                 xs.append(x)
 
+        # transform clipped data so it always starts and ends at its base value
         if len(ys) > 0:
             xs, ys = map(list, zip(*[generate_patch_base(x, y, base=base) for
                                      x, y in zip(xs, ys)]))

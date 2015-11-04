@@ -25,7 +25,7 @@ from ...properties import Float, Int, List, string_types, String, Color, Bool
 from ..attributes import ColorAttr, DashAttr, MarkerAttr, IdAttr
 from ...models.sources import ColumnDataSource
 from ...models.axes import CategoricalAxis
-from ...models.ranges import FactorRange
+from ...models.ranges import FactorRange, DataRange1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -65,6 +65,7 @@ def Horizon(data=None, x=None, y=None, series=None, **kws):
     """
     kws['x'] = x
     kws['y'] = y
+    kws['series'] = series
 
     tools = kws.get('tools', True)
     if tools == True:
@@ -88,30 +89,19 @@ def Horizon(data=None, x=None, y=None, series=None, **kws):
 
 
 class HorizonBuilder(LineBuilder):
-    """This is the Scatter class and it is in charge of plotting
-    Scatter charts in an easy and intuitive way.
+    """Produces glyph renderers representing a horizon chart from many input types.
 
-    Essentially, we provide a way to ingest the data, make the proper
-    calculations and push the references into a source object.
-    We additionally make calculations for the ranges. And finally add
-    the needed glyphs (markers) taking the references from the source.
+    The builder handles ingesting the data, deriving settings when not provided,
+    building the renderers, then setting ranges, and modifying the chart as needed.
 
     """
 
+    # class configuration
     glyph = HorizonGlyph
-    series_max = Float()
-    series_count = Int()
-    bins = List(Float)
-    series_column = String()
-    fold_height = Float()
-    graph_ratio = Float()
-    positive_color = '#006400'
-    default_attributes = {'bin_num': IdAttr(sort=True, ascending=True),
-                          'color': ColorAttr(sort=False),
-                          'dash': DashAttr(),
-                          'marker': MarkerAttr(),
+    default_attributes = {'color': ColorAttr(sort=False),
                           'series': IdAttr(sort=False)}
 
+    # primary input properties
     pos_color = Color("#006400", help="""
     The color of the positive folds. (default: "#006400")
     """)
@@ -124,7 +114,18 @@ class HorizonBuilder(LineBuilder):
     The number of folds stacked on top of each other. (default: 3)
     """)
 
-    flip_neg = Bool(default=True)
+    flip_neg = Bool(default=True, help="""When True, the negative values will be
+    plotted as their absolute value, then their individual axes is flipped. If False,
+    then the negative values will still be taken as their absolute value, but the base
+    of their shape will start from the same origin as the positive values.
+    """)
+
+    # derived properties
+    series_count = Int(help="""Count of the unique series names.""")
+    bins = List(Float, help="""The binedges calculated from the number of folds,
+    and the maximum value of the entire source data.""")
+    series_column = String(help="""The column that contains the series names.""")
+    fold_height = Float(help="""The size of the bin.""")
 
     def setup(self):
         super(HorizonBuilder, self).setup()
@@ -133,9 +134,11 @@ class HorizonBuilder(LineBuilder):
         if self.attributes['series'].columns is None:
             self.series_column = self.attributes['color'].columns[0]
         else:
-            self.series_column = self.attributes['series'].columns
+            self.series_column = self.attributes['series'].columns[0]
 
-        self.series_max = self.y.data.max()
+        if len(self.series_names) == 0:
+            self.set_series(self.series_column)
+
         self.series_count = len(self.series_names)
 
     def process_data(self):
@@ -144,7 +147,6 @@ class HorizonBuilder(LineBuilder):
         # calculate group attributes, useful for each horizon glyph
         self.fold_height = max(self.y.max, abs(self.y.min))/self.num_folds
         self.bins = [bin_id * self.fold_height for bin_id in range(self.num_folds + 1)]
-        self.graph_ratio = self.num_folds / len(self.series_names)
 
         # manually set attributes to have constant color
         ds = ColumnDataSource(self._data.df)
@@ -153,5 +155,6 @@ class HorizonBuilder(LineBuilder):
 
     def set_ranges(self):
         super(HorizonBuilder, self).set_ranges()
+        self.x_range = DataRange1d(range_padding=0)
         self.y_range.start = 0
-        self.y_range.end = self.series_max
+        self.y_range.end = self.y.max

@@ -173,8 +173,10 @@ class LineBuilder(XYBuilder):
         return (cols is not None and (cols == self.y.selection or
                                       cols == self.x.selection))
 
-    def set_series(self):
-        self.series_names = self._data.df['series'].drop_duplicates().tolist()
+    def set_series(self, col_name):
+        series = self._data.df[col_name].drop_duplicates().tolist()
+        series = [str(item) for item in series]
+        self.series_names = series
 
     def _stack_measures(self, ids, var_name='series'):
         """Stack data and keep the ids columns.
@@ -204,7 +206,7 @@ class LineBuilder(XYBuilder):
         # update our dimension with the updated data
         dim_prop.set_data(self._data)
 
-        self.set_series()
+        self.set_series('series')
 
     def get_builder_attr(self):
         attrs = self.class_properties()

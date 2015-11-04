@@ -95,6 +95,7 @@ class NumericalColumnsAssigner(ColumnAssigner):
         else:
             x = None
             y = None
+            selections = {}
 
         # filter down to only the numerical columns
         df = self._df._get_numeric_data()
@@ -108,7 +109,9 @@ class NumericalColumnsAssigner(ColumnAssigner):
             if y is None:
                 y = num_cols
 
-        return {'x': x, 'y': y}
+        selections['x'] = x
+        selections['y'] = y
+        return selections
 
 
 class DataOperator(HasProps):
@@ -328,7 +331,6 @@ class ChartDataSource(object):
         for dim in self._dims:
             if dim not in select_map:
                 select_map[dim] = None
-
 
         return select_map
 
