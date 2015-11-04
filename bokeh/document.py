@@ -13,7 +13,6 @@ from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
 from .validation import check_integrity
 from json import loads
-from bokeh.properties import ContainerProperty
 
 class DocumentChangedEvent(object):
     def __init__(self, document):
