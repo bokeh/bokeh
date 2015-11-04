@@ -235,42 +235,6 @@ class Document(object):
         return references
 
     @classmethod
-    def _compute_object_property_initializer(cls, instance, prop_name, json_value, references):
-        def initialize_value(v):
-            if v is None:
-                return v
-            elif isinstance(v, list):
-                initialized = []
-                for elem in v:
-                    initialized.append(initialize_value(elem))
-                return initialized
-            elif isinstance(v, dict) and 'id' in v:
-                if v['id'] not in references:
-                    raise ValueError("Nothing in references dict for %r property %r for %r" % (v, prop_name, instance))
-                return references[v['id']]
-            else:
-                raise ValueError("Do not know how to initialize %r" % (v))
-
-        prop = instance.lookup(prop_name)
-        if isinstance(prop, ContainerProperty):
-            if json_value is None:
-                return json_value
-            elif isinstance(json_value, list):
-                initialized = []
-                for elem in json_value:
-                    initialized.append(initialize_value(elem))
-                return initialized
-            elif isinstance(json_value, dict):
-                initialized = {}
-                for key, value in json_value.items():
-                    initialized[key] = initialize_value(value)
-                return initialized
-            else:
-                raise ValueError("Do not know how to initialize container %r %r" % (prop, json_value))
-        else:
-            return initialize_value(json_value)
-
-    @classmethod
     def _initialize_references_json(cls, references_json, references):
         '''Given a JSON representation of the models in a graph and new model objects, set the properties on the models from the JSON'''
 
@@ -283,7 +247,8 @@ class Document(object):
             # replace references with actual instances in obj_attrs
             for p in instance.properties_with_refs():
                 if p in obj_attrs:
-                    obj_attrs[p] = cls._compute_object_property_initializer(instance, p, obj_attrs[p], references)
+                    prop = instance.lookup(p)
+                    obj_attrs[p] = prop.from_json(obj_attrs[p], models=references)
 
             # set all properties on the instance
             remove = []
@@ -295,8 +260,6 @@ class Document(object):
                 del obj_attrs[key]
             instance.update(**obj_attrs)
 
-    # TODO (havocp) there are other overlapping old serialization
-    # functions in the codebase, we don't need all of these probably.
     def to_json_string(self):
         ''' Convert the document to a JSON string. '''
 
@@ -441,7 +404,8 @@ class Document(object):
                 attr = event_json['attr']
                 value = event_json['new']
                 if attr in patched_obj.properties_with_refs():
-                    value = self._compute_object_property_initializer(patched_obj, attr, value, references)
+                    prop = patched_obj.lookup(attr)
+                    value = prop.from_json(value, models=references)
                 if attr in patched_obj.properties():
                     #logger.debug("Patching attribute %s of %r", attr, patched_obj)
                     patched_obj.update(** { attr : value })

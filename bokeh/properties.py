@@ -858,7 +858,7 @@ class Instance(Property):
                     if model is not None:
                         return model
                     else:
-                        raise DeserializationError("%s failed to deserilize reference to %s" % (self, json))
+                        raise DeserializationError("%s failed to deserialize reference to %s" % (self, json))
             else:
                 attrs = {}
 
