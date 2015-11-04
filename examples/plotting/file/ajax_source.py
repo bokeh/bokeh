@@ -28,6 +28,7 @@ show(p)
 # web frameworks that makes it's easy and concise to do so
 #########################################################
 
+
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
                 automatic_options=True):
@@ -51,7 +52,6 @@ def crossdomain(origin=None, methods=None, headers=None,
         max_age = max_age.total_seconds()
 
     def get_methods():
-        return methods
         options_resp = current_app.make_default_options_response()
         return options_resp.headers['allow']
 
@@ -75,7 +75,7 @@ def crossdomain(origin=None, methods=None, headers=None,
             )
             if headers is not None:
                 h['Access-Control-Allow-Headers'] = headers
-            elif requested_headers :
+            elif requested_headers:
                 h['Access-Control-Allow-Headers'] = requested_headers
             return resp
         f.provide_automatic_options = False
@@ -85,10 +85,12 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 app = Flask(__name__)
 
+
 @app.route('/data', methods=['GET', 'OPTIONS', 'POST'])
 @crossdomain(origin="*", methods=['GET', 'POST'], headers=None)
 def hello_world():
     return jsonify(x=np.random.random(5).tolist(), y=np.random.random(5).tolist())
 
-if __name__ ==  "__main__":
+
+if __name__ == "__main__":
     app.run(port=5050)
