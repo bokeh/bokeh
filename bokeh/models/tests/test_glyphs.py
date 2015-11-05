@@ -228,8 +228,8 @@ def test_ImageRGBA():
     assert glyph.y == "y"
     assert glyph.dw == "dw"
     assert glyph.dh == "dh"
-    assert glyph.rows == "rows"
-    assert glyph.cols == "cols"
+    assert glyph.rows == None
+    assert glyph.cols == None
     assert glyph.dilate == False
     yield (check_props, glyph, [
         "image",
