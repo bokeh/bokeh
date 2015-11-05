@@ -53,7 +53,7 @@ FILL = ["fill_color", "fill_alpha"]
 LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "line_dash", "line_dash_offset"]
 TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_alpha", "text_align", "text_baseline"]
 
-PROPS = ["session", "name", "tags"]
+PROPS = ["name", "tags"]
 GLYPH = ["visible"]
 MARKER = ["x", "y", "size", "angle"]
 
