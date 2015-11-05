@@ -26,7 +26,6 @@ class TextInputView extends ContinuumView
     value = @$('input').val()
     logger.debug("widget/text_input: value = #{value}")
     @mset('value', value)
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class TextInput extends HasParent

@@ -34,7 +34,7 @@ the above usage yields the output:
 from __future__ import absolute_import, print_function
 
 import importlib
-import json
+# import json
 
 from docutils import nodes
 from docutils.statemachine import ViewList
@@ -45,7 +45,6 @@ from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
 from bokeh.plot_object import Viewable
-from bokeh.protocol import serialize_json
 
 
 MODEL_TEMPLATE = jinja2.Template(u"""
@@ -87,14 +86,14 @@ class BokehModelDirective(Directive):
         if type(model) != Viewable:
             pass
 
-        model_obj = model()
+        # model_obj = model()
 
-        model_json = json.dumps(
-            json.loads(serialize_json(model_obj.dump(changed_only=False, validate=False))),
-            sort_keys=True,
-            indent=2,
-            separators=(',', ': ')
-        )
+        model_json = "" #json.dumps(
+        #     json.loads(serialize_json(model_obj.dump(changed_only=False, validate=False))),
+        #     sort_keys=True,
+        #     indent=2,
+        #     separators=(',', ': ')
+        # )
 
         rst_text = MODEL_TEMPLATE.render(
             model_path=model_path,

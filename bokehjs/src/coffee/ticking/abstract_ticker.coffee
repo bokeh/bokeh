@@ -47,6 +47,21 @@ DEFAULT_DESIRED_NUM_TICKS = 6
 class AbstractTicker extends HasProperties
   type: 'AbstractTicker'
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+
+  nonserializable_attribute_names: () ->
+    super().concat(['toString_properties'])
+
+  set: (key, value, options) ->
+    # hack; we can't send Infinity from JSON, so here we change null
+    # to Infinity
+    if key == 'max_interval' and value == null
+      value = Infinity
+    else if _.isObject(key) and 'max_interval' of key and key['max_interval'] == null
+      key['max_interval'] = Infinity
+    super(key, value, options)
+
   # Generates a nice series of ticks for a given range.
   get_ticks: (data_low, data_high, range, {desired_n_ticks}) ->
     return @get_ticks_no_defaults(data_low, data_high, @get('desired_num_ticks'))
