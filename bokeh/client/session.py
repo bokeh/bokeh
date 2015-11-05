@@ -153,10 +153,15 @@ class ClientSession(object):
         self._connection = ClientConnection(session=self, io_loop=io_loop, url=url)
 
         self._current_patch = None
+        self._callbacks = []
 
     def _attach_document(self, document):
         self._document = document
         self._document.on_change(self._document_changed)
+
+    def add_periodic_callback(self, cb, callback_time):
+        from tornado import ioloop
+        self._callbacks.append(ioloop.PeriodicCallback(cb, callback_time, io_loop=self._connection._loop))
 
     def pull(self):
         """ Pull the server's state and set it as session.document.
@@ -256,6 +261,7 @@ class ClientSession(object):
         self._connection.close(why)
 
     def loop_until_closed(self):
+        [cb.start() for cb in self._callbacks]
         self._connection.loop_until_closed()
 
     def request_server_info(self):
