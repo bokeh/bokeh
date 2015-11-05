@@ -192,7 +192,7 @@ class Plot(Component):
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
-        This function will take care of creating and configurinf a Glyph object,
+        This function will take care of creating and configuring a Glyph object,
         and then add it to the plot's list of renderers.
 
         Args:
@@ -205,7 +205,7 @@ class Plot(Component):
             Glyph initializer.
 
         Returns:
-            glyph : Glyph
+            Glyph
 
         '''
         if glyph is not None:
@@ -227,7 +227,7 @@ class Plot(Component):
         '''Adds new TileRenderer into the Plot.renderers
 
         Args:
-            tile_source (TileSource) : a tile source instance which contain tileset configuration 
+            tile_source (TileSource) : a tile source instance which contain tileset configuration
 
         Keyword Arguments:
             Additional keyword arguments are passed on as-is to the tile renderer
