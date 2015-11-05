@@ -53,28 +53,6 @@ def _select_helper(args, kwargs):
         selector = kwargs
     return selector
 
-
-class PlotContext(PlotObject):
-    """ A container for multiple plot objects.
-
-    ``PlotContext`` objects are a source of confusion. Their purpose
-    is to collect together different top-level objects (e.g., ``Plot``
-    or layout widgets). The reason for this is that different plots may
-    need to share ranges or data sources between them. A ``PlotContext``
-    is a container in which such sharing can occur between the contained
-    objects.
-    """
-
-    children = List(Instance(PlotObject), help="""
-    A list of top level objects in this ``PlotContext`` container.
-    """)
-
-# TODO (bev) : is this used anywhere?
-class PlotList(PlotContext):
-    # just like plot context, except plot context has special meaning
-    # everywhere, so plotlist is the generic one
-    pass
-
 class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
 

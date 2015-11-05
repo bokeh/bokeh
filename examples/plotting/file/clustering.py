@@ -15,7 +15,7 @@ from sklearn import cluster, datasets
 from sklearn.neighbors import kneighbors_graph
 from sklearn.preprocessing import StandardScaler
 
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import Figure, show, output_file
 from bokeh.models import HBox, VBox
 
 N = 50000
@@ -56,7 +56,7 @@ for i_dataset, dataset in enumerate([noisy_circles, noisy_moons, blobs1, blobs2]
         y_pred = algorithm.predict(X)
     
     # Plot
-    p = figure(webgl=True, title=name, plot_width=PLOT_SIZE, plot_height=PLOT_SIZE)
+    p = Figure(webgl=True, title=name, plot_width=PLOT_SIZE, plot_height=PLOT_SIZE)
     p.scatter(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), alpha=0.1,)
     plots.append(p)
 

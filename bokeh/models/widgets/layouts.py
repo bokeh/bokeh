@@ -10,7 +10,7 @@ import copy
 from ...properties import abstract
 from ...properties import Int, Instance, List, String, Dict, Either
 from ...util.functions import cached_property, arg_filter
-from ...validation.warnings import EMPTY_LAYOUT
+from ...validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
 from ... import validation
 
 from ..component import Component
@@ -54,6 +54,17 @@ class BaseBox(Layout):
         from itertools import chain
         if not list(chain(self.children)):
             return str(self)
+
+    @validation.warning(BOTH_CHILD_AND_ROOT)
+    def _check_child_is_also_root(self):
+        problems = []
+        for c in self.children:
+            if c.document is not None and c in c.document.roots:
+                problems.append(str(c))
+        if problems:
+            return ", ".join(problems)
+        else:
+            return None
 
     children = List(Instance(Component), help="""
     The list of children, which can be other widgets (including layouts)

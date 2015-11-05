@@ -14,7 +14,6 @@ Reference Guide
    reference/palettes
    reference/resources_embedding
    reference/plot_objects
-   reference/rest_api
    reference/bokehjs
    reference/sphinxext
 
