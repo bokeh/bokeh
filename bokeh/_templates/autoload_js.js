@@ -41,7 +41,7 @@ calls it with the rendered model.
       s.async = true;
       s.onreadystatechange = s.onload = function() {
         window._bokeh_is_loading--;
-        if (window._bokeh_is_loading===0) {
+        if (window._bokeh_is_loading === 0) {
           console.log("Bokeh: all BokehJS libraries loaded");
           {%- for file in css_files %}
           console.log("Bokeh: injecting CSS: {{ file }}");
@@ -80,7 +80,7 @@ calls it with the rendered model.
 
   var render_items = [{ 'elementid' : "{{ elementid }}" }];
 
-  if (typeof(Bokeh) !== "undefined") {
+  if (typeof(window._bokeh_is_loading) !== undefined && window._bokeh_is_loading == 0) {
     console.log("Bokeh: BokehJS loaded, going straight to plotting");
     Bokeh.embed.embed_items(docs_json, render_items, websocket_url);
   } else {
