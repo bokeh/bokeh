@@ -35,13 +35,13 @@ calls it with the rendered model.
     console.log("Bokeh: BokehJS not loaded, scheduling load and callback at", new Date());
     window._bokeh_is_loading = js_urls.length;
     for (i = 0; i < js_urls.length; i++) {
-      url = js_urls[i];
+      var url = js_urls[i];
       var s = document.createElement('script');
       s.src = url;
       s.async = true;
       s.onreadystatechange = s.onload = function() {
         window._bokeh_is_loading--;
-        if (window._bokeh_is_loading==0) {
+        if (window._bokeh_is_loading===0) {
           console.log("Bokeh: all BokehJS libraries loaded");
           {%- for file in css_files %}
           console.log("Bokeh: injecting CSS: {{ file }}");
