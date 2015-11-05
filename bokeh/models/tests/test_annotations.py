@@ -1,8 +1,7 @@
 from __future__ import  absolute_import
 
 from bokeh.models.annotations import Legend, BoxAnnotation, Label, Span
-from bokeh.enums import (
-    NamedColor as LineJoin, LineCap, FontStyle, TextAlign, TextBaseline)
+from bokeh.enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 
 FILL_PROPS = ["fill_color", "fill_alpha"]
 LINE_PROPS = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
