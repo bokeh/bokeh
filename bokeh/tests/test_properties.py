@@ -993,7 +993,7 @@ def test_HasProps_clone():
     from bokeh.models import Plot
     p1 = Plot(plot_width=1000)
     c1 = p1.changed_properties()
-    p2 = p1.clone()
+    p2 = p1._clone()
     c2 = p2.changed_properties()
     assert c1 == c2
 
