@@ -48,6 +48,7 @@ calls it with the rendered model.
           Bokeh.embed.inject_css("{{ file }}");
           {%- endfor %}
           window._bokeh_onload_callbacks.forEach(function(callback){callback()});
+          delete window._bokeh_onload_callbacks
         }
       };
       s.onerror = function() {
