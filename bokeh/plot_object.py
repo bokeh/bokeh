@@ -5,7 +5,7 @@ logger = logging.getLogger(__file__)
 
 from six import add_metaclass, iteritems
 
-from .properties import Any, HasProps, List, MetaHasProps, Instance, String
+from .properties import Any, HasProps, List, MetaHasProps, String
 from .query import find
 from . import themes
 from .util.callback_manager import CallbackManager
