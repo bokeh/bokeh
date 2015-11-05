@@ -460,7 +460,7 @@ class HasProps(object):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def clone(self):
+    def _clone(self):
         """ Returns a duplicate of this object with all its properties
         set appropriately.  Values which are containers are shallow-copied.
         """
