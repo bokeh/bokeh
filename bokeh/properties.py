@@ -59,6 +59,7 @@ from six import string_types, add_metaclass, iteritems
 
 from . import enums
 from .util.string import nice_join
+from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 
 def field(name):
     ''' Convenience function do explicitly mark a field specification for
@@ -196,7 +197,7 @@ class Property(object):
 
     def _get(self, obj):
         if not hasattr(obj, self._name):
-            setattr(obj, self._name, self.default)
+            self._set_default(obj, self.default)
         return getattr(obj, self._name)
 
     def __get__(self, obj, owner=None):
@@ -207,7 +208,22 @@ class Property(object):
         else:
             raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def __set__(self, obj, value):
+    @classmethod
+    def _wrap_container(cls, value):
+        if isinstance(value, list):
+            if isinstance(value, PropertyValueList):
+                return value
+            else:
+                return PropertyValueList(value)
+        elif isinstance(value, dict):
+            if isinstance(value, PropertyValueDict):
+                return value
+            else:
+                return PropertyValueDict(value)
+        else:
+            return value
+
+    def _prepare_value(self, value):
         try:
             self.validate(value)
         except ValueError as e:
@@ -220,17 +236,60 @@ class Property(object):
         else:
             value = self.transform(value)
 
-        old = self.__get__(obj)
+        return self._wrap_container(value)
+
+    def _mark_dirty_and_trigger(self, obj, old, value):
+        obj._dirty = True
+        if hasattr(obj, 'trigger'):
+            obj.trigger(self.name, old, value)
+
+    # set a default, so no 'old' or notification
+    def _set_default(self, obj, value):
+        value = self._wrap_container(value)
+        if isinstance(value, PropertyValueContainer):
+            value._register_owner(obj, self)
+        setattr(obj, self._name, value)
+
+    def _real_set(self, obj, old, value):
         obj._changed_vars.add(self.name)
+
         if self._name in obj.__dict__ and self.matches(value, old):
             return
-        setattr(obj, self._name, value)
-        obj._dirty = True
-        if hasattr(obj, '_trigger'):
-            if hasattr(obj, '_block_callbacks') and obj._block_callbacks:
-                obj._callback_queue.append((self.name, old, value))
-            else:
-                obj._trigger(self.name, old, value)
+
+        # "old" is the logical old value, but it may not be
+        # the actual current attribute value if our value
+        # was mutated behind our back and we got _notify_mutated
+        old_attr_value = self.__get__(obj)
+
+        if old_attr_value is not value:
+            if isinstance(old_attr_value, PropertyValueContainer):
+                old_attr_value._unregister_owner(obj, self)
+            if isinstance(value, PropertyValueContainer):
+                value._register_owner(obj, self)
+
+            setattr(obj, self._name, value)
+
+        # for notification purposes, "old" should be the logical old
+        self._mark_dirty_and_trigger(obj, old, value)
+
+    def __set__(self, obj, value):
+        value = self._prepare_value(value)
+        old = self.__get__(obj)
+        self._real_set(obj, old, value)
+
+    # called when a container is mutated "behind our back" and
+    # we detect it with our collection wrappers. In this case,
+    # somewhat weirdly, "old" is a copy and the new "value"
+    # should already be set unless we change it due to
+    # validation.
+    def _notify_mutated(self, obj, old):
+        value = self.__get__(obj)
+
+        # re-validate because the contents of 'old' have changed,
+        # in some cases this could give us a new object for the value
+        value = self._prepare_value(value)
+
+        self._real_set(obj, old, value)
 
     def __delete__(self, obj):
         if hasattr(obj, self._name):
@@ -403,7 +462,7 @@ class HasProps(object):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def clone(self):
+    def _clone(self):
         """ Returns a duplicate of this object with all its properties
         set appropriately.  Values which are containers are shallow-copied.
         """
@@ -635,7 +694,14 @@ class Seq(ContainerProperty):
 
         if value is not None:
             if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
-                raise ValueError("expected an element of %s, got %r" % (self, value))
+                if self._is_seq(value):
+                    invalid = []
+                    for item in value:
+                        if not self.item_type.is_valid(item):
+                            invalid.append(item)
+                    raise ValueError("expected an element of %s, got seq with invalid items %r" % (self, invalid))
+                else:
+                    raise ValueError("expected an element of %s, got %r" % (self, value))
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
@@ -794,7 +860,7 @@ class Instance(Property):
                     if model is not None:
                         return model
                     else:
-                        raise DeserializationError("%s failed to deserilize reference to %s" % (self, json))
+                        raise DeserializationError("%s failed to deserialize reference to %s" % (self, json))
             else:
                 attrs = {}
 
@@ -1200,8 +1266,8 @@ class DistanceSpec(UnitsSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(DistanceSpec, self).__set__(obj, value)
@@ -1214,8 +1280,8 @@ class ScreenDistanceSpec(NumberSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(ScreenDistanceSpec, self).__set__(obj, value)
@@ -1228,8 +1294,8 @@ class DataDistanceSpec(NumberSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(DataDistanceSpec, self).__set__(obj, value)

@@ -30,7 +30,7 @@ class AbstractGroup(Widget):
             None
 
         """
-        self.on_change('active', lambda obj, attr, old, new: handler(new))
+        self.on_change('active', lambda attr, old, new: handler(new))
 
 @abstract
 class ButtonGroup(AbstractGroup):

@@ -15,7 +15,7 @@ file. The file is located at:
 
     http://quantquote.com/files/quantquote_daily_sp500_83986.zip
 
-A python script is included in the applet's directory to collect and extract 
+A python script is included in the applet's directory to collect and extract
 the data, which can be run directly from the directory:
 
     python stock_data.py
@@ -51,26 +51,8 @@ Bokeh Server
 To view this applet directly from a bokeh server, you simply need to
 run a bokeh-server and point it at the stock example script:
 
-    bokeh-server --script stock_app.py
+    bokeh serve stock_app.py
 
 Now navigate to the following URL in a browser:
 
-    http://localhost:5006/bokeh/stocks
-
-Flask Application
------------------
-
-To embed this applet into a Flask application, first you need to run
-a bokeh-server and point it at the stock example script. In this
-directory, execute the command:
-
-    bokeh-server --script stock_app.py
-
-Next you need to run the flask server that embeds the stock applet:
-
-    python flask_server.py
-
-Now you can see the stock correlation applet by navigating to the following
-URL in a browser:
-
-    http://localhost:5050/
+    http://localhost:5006/stocks

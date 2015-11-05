@@ -11,13 +11,11 @@ from bokeh.models import (
     SingleIntervalTicker
 )
 from bokeh.sampledata.population import load_population
-from bokeh.session import Session
 from bokeh.models.widgets import Select, HBox, VBox
+from bokeh.client import push_session
 
 document = Document()
-session = Session()
-session.use_doc('population_server')
-session.load_document(document)
+session = push_session(document)
 
 df = load_population()
 revision = 2012
@@ -114,19 +112,18 @@ def update_population():
 def update_data():
     update_population()
     update_pyramid()
-    session.store_document(document)
 
-def on_year_change(obj, attr, old, new):
+def on_year_change(attr, old, new):
     global year
     year = int(new)
     update_data()
 
-def on_location_change(obj, attr, old, new):
+def on_location_change(attr, old, new):
     global location
     location = new
     update_data()
 
-def layout():
+def create_layout():
     year_select = Select(title="Year:", value="2010", options=years)
     location_select = Select(title="Location:", value="World", options=locations)
 
@@ -138,12 +135,12 @@ def layout():
 
     return layout
 
-document.add(layout())
+layout = create_layout()
 update_data()
 
+document.add(layout)
+session.show(layout)
+
 if __name__ == "__main__":
-    link = session.object_link(document.context)
-    print("Please visit %s to see the plots" % link)
-    view(link)
     print("\npress ctrl-C to exit")
-    session.poll_document(document)
+    session.loop_until_closed()
