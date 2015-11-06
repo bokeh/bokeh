@@ -11,6 +11,8 @@ from mock import patch, Mock
 import unittest
 
 import bokeh.io as io
+from bokeh.resources import Resources
+from bokeh.document import Document
 
 class TestDefaultState(unittest.TestCase):
 
@@ -22,21 +24,10 @@ class testCurdoc(unittest.TestCase):
     def test(self):
         self.assertEqual(io.curdoc(), io._state.document)
 
-    @patch('bokeh.io.logger')
-    @patch('flask.request')
-    def test_with_request(self, mock_request, mock_logger):
-        mock_request.bokeh_server_document = "FOO"
-        self.assertEqual(io.curdoc(), "FOO")
-        self.assertTrue(io.logger.debug.called)
-        self.assertEqual(
-            io.logger.debug.call_args[0],
-            ("curdoc() returning Document from flask request context",)
-        )
-
-class testCursession(unittest.TestCase):
+class testCurstate(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(io.cursession(), io._state.session)
+        self.assertEqual(io.curstate(), io._state)
 
 class DefaultStateTester(unittest.TestCase):
 
@@ -66,27 +57,31 @@ class testOutputFile(DefaultStateTester):
 
 class TestOutputNotebook(DefaultStateTester):
 
-    def test_noarg(self):
-        default_kwargs = dict(url=None, docname=None, session=None, name=None)
+    @patch('bokeh.io.load_notebook')
+    def test_noarg(self, mock_load_notebook):
+        default_load_notebook_args = (None, False, False)
         io.output_notebook()
-        self._check_func_called(io._state.output_notebook, (), default_kwargs)
+        self._check_func_called(io._state.output_notebook, (), {})
+        self._check_func_called(mock_load_notebook, default_load_notebook_args, {})
 
-    def test_args(self):
-        kwargs = dict(url="url", docname="docname", session="session", name="name")
-        io.output_notebook(**kwargs)
-        self._check_func_called(io._state.output_notebook, (), kwargs)
+    @patch('bokeh.io.load_notebook')
+    def test_args(self, mock_load_notebook):
+        load_notebook_args = (Resources(), True, True)
+        io.output_notebook(*load_notebook_args)
+        self._check_func_called(io._state.output_notebook, (), {})
+        self._check_func_called(mock_load_notebook, load_notebook_args, {})
 
 class TestOutputServer(DefaultStateTester):
 
     def test_noarg(self):
-        default_kwargs = dict(session=None, url="default", name=None, clear=True)
-        io.output_server("docname")
-        self._check_func_called(io._state.output_server, ("docname",), default_kwargs)
+        default_kwargs = dict(session_id="default", url="default", autopush=False)
+        io.output_server()
+        self._check_func_called(io._state.output_server, (), default_kwargs)
 
     def test_args(self):
-        kwargs = dict(session="session", url="url", name="name", clear="clear")
-        io.output_server("docname", **kwargs)
-        self._check_func_called(io._state.output_server, ("docname",), kwargs)
+        kwargs = dict(session_id="foo", url="http://example.com", autopush=True)
+        io.output_server(**kwargs)
+        self._check_func_called(io._state.output_server, (), kwargs)
 
 class TestSave(DefaultStateTester):
     pass
@@ -154,35 +149,104 @@ class Test_SaveHelper(DefaultStateTester):
 
 class TestPush(DefaultStateTester):
 
-    def _check_doc_store(self, sess, doc):
-        self._check_func_called(sess.store_document, (doc,), {})
-
-    @patch('warnings.warn')
-    def test_missing_session(self, mock_warn):
-        io._state.session = None
+    @patch('bokeh.io._push_to_server')
+    def test_missing_output_server(self, mock_push_to_server):
+        # set to None rather than mock objects,
+        # this simulates never calling output_server
+        io._state.session_id = None
+        io._state.server_url = None
+        io._state.document = Document()
         io.push()
-        self.assertTrue(mock_warn.called)
-        self.assertEqual(mock_warn.call_args[0], ("push() called but no session was supplied and output_server(...) "
-                                                  "was never called, nothing pushed",))
-        self.assertEqual(mock_warn.call_args[1], {})
+        self._check_func_called(mock_push_to_server, (),
+                                dict(websocket_url="ws://localhost:5006/ws",
+                                     document=io._state.document,
+                                     session_id="default",
+                                     io_loop=None))
 
-    def test_noargs(self):
+    @patch('bokeh.io._push_to_server')
+    def test_noargs(self, mock_push_to_server):
+        # this simulates having called output_server with these params
+        io._state.session_id = "fakesessionid"
+        io._state.server_url = "https://example.com/"
         io.push()
-        self._check_doc_store(io._state.session, io._state.document)
+        self._check_func_called(mock_push_to_server, (),
+                                dict(websocket_url="wss://example.com/ws",
+                                     document=io._state.document,
+                                     session_id="fakesessionid",
+                                     io_loop=None))
 
-    def test_session_arg(self):
-        sess = Mock()
-        io.push(session=sess)
-        self._check_doc_store(sess, io._state.document)
+    @patch('bokeh.io._push_to_server')
+    def test_session_arg(self, mock_push_to_server):
+        # set to None rather than mock objects,
+        # this simulates never calling output_server
+        io._state.session_id = None
+        io._state.server_url = None
+        io.push(session_id="somesession")
+        self._check_func_called(mock_push_to_server, (),
+                                dict(websocket_url="ws://localhost:5006/ws",
+                                     document=io._state.document,
+                                     session_id="somesession",
+                                     io_loop=None))
 
-    def test_document_arg(self):
-        io.push(document="foo")
-        self._check_doc_store(io._state.session, "foo")
+    @patch('bokeh.io._push_to_server')
+    def test_url_arg(self, mock_push_to_server):
+        # set to None rather than mock objects,
+        # this simulates never calling output_server
+        io._state.session_id = None
+        io._state.server_url = None
+        io.push(url="http://example.com/")
+        self._check_func_called(mock_push_to_server, (),
+                                dict(websocket_url="ws://example.com/ws",
+                                     document=io._state.document,
+                                     session_id="default",
+                                     io_loop=None))
 
-    def test_session_document_args(self):
-        sess = Mock()
-        io.push(document="foo", session=sess)
-        self._check_doc_store(sess, "foo")
+    @patch('bokeh.io._push_to_server')
+    def test_document_arg(self, mock_push_to_server):
+        # set to None rather than mock objects,
+        # this simulates never calling output_server
+        io._state.session_id = None
+        io._state.server_url = None
+        d = Document()
+        io.push(document=d)
+        self._check_func_called(mock_push_to_server, (),
+                                dict(websocket_url="ws://localhost:5006/ws",
+                                     document=d,
+                                     session_id="default",
+                                     io_loop=None))
+
+
+    @patch('bokeh.io._push_to_server')
+    def test_all_args(self, mock_push_to_server):
+        d = Document()
+        url = "https://example.com/foo"
+        session_id = "all_args_session"
+        # state should get ignored since we specified everything otherwise
+        state = Mock()
+        io_loop = Mock()
+        io.push(document=d, url=url, state=state, session_id=session_id, io_loop=io_loop)
+        self._check_func_called(mock_push_to_server, (),
+                                dict(websocket_url="wss://example.com/foo/ws",
+                                     document=d,
+                                     session_id="all_args_session",
+                                     io_loop=io_loop))
+
+    @patch('bokeh.io._push_to_server')
+    def test_state_arg(self, mock_push_to_server):
+        d = Document()
+        url = "https://example.com/state"
+        session_id = "state_arg_session"
+        # state should get ignored since we specified everything otherwise
+        state = Mock()
+        state.document = d
+        state.server_url = url
+        state.session_id = session_id
+        io.push(state=state)
+        self._check_func_called(mock_push_to_server, (),
+                                dict(websocket_url="wss://example.com/state/ws",
+                                     document=d,
+                                     session_id="state_arg_session",
+                                     io_loop=None))
 
 class TestShow(DefaultStateTester):
 
@@ -243,7 +307,8 @@ class Test_ShowWithState(DefaultStateTester):
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
-        s._session = Mock
+        s._session_id = "fakesession"
+        s._server_url = "http://example.com"
         io._show_with_state("obj", s, "browser", "new")
         self.assertFalse(mock__show_notebook_with_state.called)
         self._check_func_called(mock__show_server_with_state, ("obj", s, "new", "controller"), {})
@@ -274,7 +339,7 @@ class Test_ShowNotebookWithState(DefaultStateTester):
     @patch('bokeh.io.push')
     def test_with_server(self, mock_push, mock_autoload_server, mock_publish_display_data):
         s = io.State()
-        s._session = Mock()
+        s._session_id = "fakesession"
         mock_autoload_server.return_value = "snippet"
 
         io._show_notebook_with_state("obj", s)
@@ -296,17 +361,17 @@ class Test_ShowServerWithState(DefaultStateTester):
     @patch('bokeh.io.push')
     def test(self, mock_push):
         s = io.State()
-        s._session = Mock()
-        s._session.object_link.return_value = "link"
+        s._session_id = "thesession"
+        s._server_url = "http://example.com"
         controller = Mock()
 
         io._show_server_with_state("obj", s, "window", controller)
         self._check_func_called(mock_push, (), {"state": s})
-        self._check_func_called(controller.open, ("link",), {"new": 1})
+        self._check_func_called(controller.open, ("http://example.com?bokeh-session-id=thesession",), {"new": 1})
 
         io._show_server_with_state("obj", s, "tab", controller)
         self._check_func_called(mock_push, (), {"state": s})
-        self._check_func_called(controller.open, ("link",), {"new": 2})
+        self._check_func_called(controller.open, ("http://example.com?bokeh-session-id=thesession",), {"new": 2})
 
 class TestResetOutput(DefaultStateTester):
 

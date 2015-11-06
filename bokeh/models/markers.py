@@ -67,7 +67,7 @@ class Circle(Marker):
     # functions derived from this class
     _args = ('x', 'y')
 
-    radius = DistanceSpec("radius", help="""
+    radius = DistanceSpec(None, help="""
     The radius values for circle markers (in "data space" units, by default).
 
     .. note::

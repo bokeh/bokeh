@@ -80,7 +80,7 @@ def check_line(glyph):
 
 def check_text(glyph):
     assert glyph.text_font == "Helvetica"
-    assert glyph.text_font_size == "12pt"
+    assert glyph.text_font_size == dict(value="12pt")
     assert glyph.text_font_style == FontStyle.normal
     assert glyph.text_color == "#444444"
     assert glyph.text_alpha == 1.0
@@ -100,7 +100,7 @@ def test_AnnularWedge():
     assert glyph.outer_radius == "outer_radius"
     assert glyph.start_angle == "start_angle"
     assert glyph.end_angle == "end_angle"
-    assert glyph.direction == "clock"
+    assert glyph.direction == "anticlock"
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
@@ -228,8 +228,8 @@ def test_ImageRGBA():
     assert glyph.y == "y"
     assert glyph.dw == "dw"
     assert glyph.dh == "dh"
-    assert glyph.rows == "rows"
-    assert glyph.cols == "cols"
+    assert glyph.rows == None
+    assert glyph.cols == None
     assert glyph.dilate == False
     yield (check_props, glyph, [
         "image",
@@ -296,7 +296,7 @@ def test_Oval():
     assert glyph.y == "y"
     assert glyph.width == "width"
     assert glyph.height == "height"
-    assert glyph.angle == "angle"
+    assert glyph.angle == 0
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
@@ -387,7 +387,7 @@ def test_Rect():
     assert glyph.y == "y"
     assert glyph.width == "width"
     assert glyph.height == "height"
-    assert glyph.angle == "angle"
+    assert glyph.angle == 0
     assert glyph.dilate == False
     yield check_fill, glyph
     yield check_line, glyph
@@ -441,7 +441,7 @@ def test_Wedge():
     assert glyph.radius == "radius"
     assert glyph.start_angle == "start_angle"
     assert glyph.end_angle == "end_angle"
-    assert glyph.direction == "clock"
+    assert glyph.direction == "anticlock"
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
@@ -466,7 +466,7 @@ def test_Asterisk():
 def test_Circle():
     marker = Circle()
     yield check_marker, marker
-    assert marker.radius == "radius"
+    assert marker.radius == None
     yield check_fill, marker
     yield check_line, marker
     yield (check_props, marker, [

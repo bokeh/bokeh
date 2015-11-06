@@ -15,7 +15,7 @@ area = Area(
     xyvalues, title="Responsive Area Chart",
     xlabel='time', ylabel='memory',
     stacked=True, legend="top_left",
-    responsive=True
+    width=400, height=400
 )
 
 show(area)

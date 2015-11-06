@@ -30,7 +30,8 @@ requirements:
     # server
     - flask
     - pyzmq
-    - tornado >=4.0
+    - tornado >=4.0.1
+    - futures        [py27]
 
 test:
   requires:
@@ -69,7 +70,7 @@ test:
     - icalendar
 
   commands:
-    - bokeh-server -h        [linux64 or osx]
+    - bokeh -h        [linux64 or osx]
 
   imports:
     - bokeh

@@ -24,6 +24,7 @@ Bokeh.index             = require("./common/base").index
 # common
 Bokeh.Collections       = require("./common/base").Collections
 Bokeh.Config            = require("./common/base").Config
+Bokeh.Document          = require("./common/document").Document
 Bokeh.CartesianFrame    = require("./common/cartesian_frame")
 Bokeh.Canvas            = require("./common/canvas")
 Bokeh.GMapPlot          = require("./common/gmap_plot")
@@ -39,13 +40,12 @@ Bokeh.Selector          = require("./common/selector")
 Bokeh.ToolEvents        = require("./common/tool_events")
 
 Bokeh.build_views   = require("./common/build_views")
-Bokeh.bulk_save     = require("./common/bulk_save")
 Bokeh.ContinuumView = require("./common/continuum_view")
-Bokeh.load_models   = require("./common/load_models")
-Bokeh.PlotContext   = require("./common/plot_context")
 Bokeh.PlotWidget    = require("./common/plot_widget")
 Bokeh.Random        = require("./common/random")
 Bokeh.SVGColors     = require("./common/svg_colors")
+
+Bokeh.embed             = require("./common/embed")
 
 # mappers
 Bokeh.LinearMapper      = require("./mapper/linear_mapper")
@@ -76,10 +76,6 @@ Bokeh.LogAxis         = require("./renderer/guide/log_axis")
 # overlays
 Bokeh.BoxSelection  = require("./renderer/overlay/box_selection")
 Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
-
-# server tools
-Bokeh.embed       = require("./server/embed")
-Bokeh.serverutils = require("./server/serverutils")
 
 # data sources
 Bokeh.ColumnDataSource = require("./source/column_data_source")

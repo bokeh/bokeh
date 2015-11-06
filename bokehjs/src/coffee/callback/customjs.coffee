@@ -18,7 +18,7 @@ class CustomJS extends HasProperties
     @get('func')(@get('values')..., cb_obj, cb_data, require)
 
   _make_values: () ->
-    _.map(_.values(@get("args")), @resolve_ref)
+    _.values(@get("args"))
 
   _make_func: () ->
     code = @get("code")
@@ -27,6 +27,8 @@ class CustomJS extends HasProperties
       when "javascript"   then code
       when "coffeescript" then coffee.compile(code, {bare: true, shiftLine: true})
 
+    # this relies on _.keys(args) and _.values(args) returning keys and values
+    # in the same order
     new Function(_.keys(@get("args"))..., "cb_obj", "cb_data", "require", code)
 
   defaults: ->
