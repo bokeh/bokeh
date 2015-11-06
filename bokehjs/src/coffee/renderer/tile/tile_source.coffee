@@ -13,7 +13,6 @@ class TileSource extends HasProperties
     @normalize_case()
 
   defaults: =>
-    console.warn("TILE SOURCE DEFAULT CALLED")
     return _.extend {}, super(), {
       url : ''
       tile_size : 256
@@ -28,7 +27,6 @@ class TileSource extends HasProperties
   }
 
   constructor: (options={}) ->
-    console.warn("TILE SOURCE CONSTRUCTOR CALLED")
     super
     @utils = new tile_utils.ProjectionUtils()
     @pool = new ImagePool()
