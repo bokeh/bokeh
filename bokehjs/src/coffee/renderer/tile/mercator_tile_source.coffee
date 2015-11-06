@@ -4,30 +4,25 @@ TileSource = require "./tile_source"
 class MercatorTileSource extends TileSource
 
   type: 'MercatorTileSource'
-  
-  defaults: =>
-    return _.extend {}, super(), {
-      tile_size : 256
-      max_zoom : 30
-      min_zoom : 0
-      extra_url_vars : {}
-      full_extent : [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
-      x_origin_offset : 20037508.34
-      y_origin_offset : 20037508.34
-      initial_resolution : undefined
-      resolutions : undefined
-    }
 
-  constructor: ->
-    super
+  initialize: (options) ->
 
-    # compensation for not knowing how to do computed default properties
-    # warning: order matters here...
+    super(options)
+
     if not @get('initial_resolution')?
-      @set('initial_resolution', 2 * Math.PI * 6378137 / @get('tile_size'))
+      @set('initial_resolution', 2 * Math.PI * 6378137 / @get('tile_size'), {silent: true})
 
     if not @get('resolutions')?
-      @set('resolutions', (@get_resolution(z) for z in [0..50]))
+      @set('resolutions', (@get_resolution(z) for z in [0..30]), {silent: true})
+
+    if not @get('full_extent')?
+      @set('full_extent',[-20037508.34, -20037508.34, 20037508.34, 20037508.34], {silent: true})
+
+    if not @get('x_origin_offset')?
+      @set('x_origin_offset',20037508.34, {silent: true})
+
+    if not @get('y_origin_offset')?
+      @set('y_origin_offset',20037508.34, {silent: true})
 
   retain_children:(reference_tile) ->
     quadkey = reference_tile.quadkey

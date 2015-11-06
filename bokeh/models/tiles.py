@@ -26,11 +26,11 @@ class TileSource(PlotObject):
     the maximum zoom level for the tile layer. This is the most "zoomed-in" level.
     """)
 
-    x_origin_offset = Float(default=20037508.34, help="""
+    x_origin_offset = Float(default=None, help="""
     x offset in plot coordinates
     """)
 
-    y_origin_offset = Float(default=20037508.34, help="""
+    y_origin_offset = Float(default=None, help="""
     y offset in plot coordinates
     """)
 
@@ -39,7 +39,7 @@ class TileSource(PlotObject):
     These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)
 
-    initial_resolution = Float(default=1.0, help="""
+    initial_resolution = Float(default=None, help="""
     resolution (plot_units / pixels) of minimum zoom level of tileset projection.
     """)
 
