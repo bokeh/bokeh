@@ -28,7 +28,7 @@ from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
 from ..properties import (HasProps, Instance, List, String, Property,
-                          Either, Dict)
+                          Either, Dict, Color)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -112,6 +112,10 @@ class Builder(HasProps):
 
     xscale = String()
     yscale = String()
+
+    palette = List(Color, help="""Optional input to override the default palette used
+        by any color attribute.
+        """)
 
     # Dimension Configuration
     dimensions = List(String, help="""The dimension
@@ -265,6 +269,8 @@ class Builder(HasProps):
         """
         source = ColumnDataSource(data.df)
         attr_names = self.default_attributes.keys()
+        custom_palette = kws.get('palette')
+
         for attr_name in attr_names:
 
             attr = kws.pop(attr_name, None)
@@ -275,11 +281,22 @@ class Builder(HasProps):
 
             # if we are given columns, use those
             elif isinstance(attr, str) or isinstance(attr, list):
-                self.attributes[attr_name] = self.default_attributes[attr_name].clone()
+                self.attributes[attr_name] = self.default_attributes[attr_name].__class__()
+
+                # override palette if available
+                if isinstance(self.attributes[attr_name], ColorAttr):
+                    if custom_palette is not None:
+                        self.attributes[attr_name] = ColorAttr(palette=custom_palette)
+
                 self.attributes[attr_name].setup(data=source, columns=attr)
 
             else:
-                self.attributes[attr_name] = self.default_attributes[attr_name].clone()
+                # override palette if available
+                if (isinstance(self.default_attributes[attr_name], ColorAttr) and
+                        custom_palette is not None):
+                    self.attributes[attr_name] = ColorAttr(palette=custom_palette)
+                else:
+                    self.attributes[attr_name] = self.default_attributes[attr_name].__class__()
 
         # make sure all have access to data source
         for attr_name in attr_names:
