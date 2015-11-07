@@ -17,3 +17,8 @@ def test_explicit_bin_count(ds):
 def test_auto_bin_count(ds):
     b = Bins(source=ds, column='mpg')
     assert len(b.bins) == 12
+
+
+def test_ndbin_simple(ds):
+    b = Bins(source=ds, column='cyl', dimensions=['mpg', 'displ'])
+    assert len(b.bins) > 0

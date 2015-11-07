@@ -74,10 +74,16 @@ class Stat(HasProps):
         self.update()
         self.calculate()
 
-    def get_data(self):
+    def get_data(self, column=None):
         """Returns the available columnlabel/source values or column values."""
-        if self.source is not None and self.column is not None:
-            return pd.Series(self.source._data[self.column])
+        if self.source is not None and (self.column is not None or column is not None):
+            if column is not None:
+                col = column
+            else:
+                col = self.column
+
+            return pd.Series(self.source.data[col])
+
         elif self.values is not None:
             return self.values
         else:
@@ -147,21 +153,40 @@ class Quantile(Stat):
 
 class Bin(Stat):
     """Represents a single bin of data values and attributes of the bin."""
-    label = String()
-    start = Float()
-    stop = Float()
+    label = Either(String, List(String))
+    start = Either(Float, List(Float))
+    stop = Either(Float, List(Float))
 
     start_label = String()
     stop_label = String()
 
-    center = Float()
+    center = Either(Float, List(Float))
 
     stat = Instance(Stat, default=Count())
 
-    def __init__(self, bin_label, values, **properties):
+    def __init__(self, bin_label, values=None, source=None, **properties):
+        if isinstance(bin_label, tuple):
+            bin_label = list(bin_label)
+        else:
+            bin_label = [bin_label]
         properties['label'] = bin_label
-        properties['start'], properties['stop'] = self.binstr_to_list(bin_label)
-        properties['center'] = (properties['start'] + properties['stop'])/2.0
+
+        bounds = self.process_bounds(bin_label)
+
+        starts, stops = zip(*bounds)
+        centers = [(start + stop)/2.0 for start, stop in zip(starts, stops)]
+        if len(starts) == 1:
+            starts = starts[0]
+            stops = stops[0]
+            centers = centers[0]
+        else:
+            starts = list(starts)
+            stops = list(stops)
+            centers = list(centers)
+
+        properties['start'] = starts
+        properties['stop'] = stops
+        properties['center'] = centers
         properties['values'] = values
         super(Bin, self).__init__(**properties)
 
@@ -171,7 +196,14 @@ class Bin(Stat):
         value_chunks = bins.split(',')
         value_chunks = [val.replace('[', '').replace(']', '').replace('(', '').replace(')', '') for val in value_chunks]
         bin_values = [float(value) for value in value_chunks]
+
         return bin_values[0], bin_values[1]
+
+    def process_bounds(self, bin_label):
+        if isinstance(bin_label, list):
+            return [self.binstr_to_list(dim) for dim in bin_label]
+        else:
+            return [self.binstr_to_list(bin_label)]
 
     def update(self):
         self.stat.set_data(self.values)
@@ -180,23 +212,21 @@ class Bin(Stat):
         self.value = self.stat.value
 
 
-class Bins(Stat):
+class BinStats(Stat):
     """A set of many individual Bin stats.
 
     Bin counts using: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
     """
     bin_count = Either(Int, Float)
     bin_width = Float(default=None, help='Use Freedman-Diaconis rule if None.')
-    bins = List(Instance(Bin))
     q1 = Quantile(interval=0.25)
     q3 = Quantile(interval=0.75)
     labels = List(String)
 
-    def __init__(self, values=None, column=None, bins=None, **properties):
+    def __init__(self, values=None, column=None, **properties):
         properties['values'] = values
-        properties['column'] = column
-        properties['bins'] = bins
-        super(Bins, self).__init__(**properties)
+        properties['column'] = column or 'values'
+        super(BinStats, self).__init__(**properties)
 
     def update(self):
         values = self.get_data()
@@ -205,20 +235,89 @@ class Bins(Stat):
         if self.bin_count is None:
             self.calc_num_bins(values)
 
-    def calculate(self):
-        binned, bin_edges = pd.cut(self.get_data(), self.bin_count,
-                                   retbins=True, precision=0)
-
-        df = pd.DataFrame(dict(values=self.get_data(), bins=binned))
-        bins = []
-        for name, group in df.groupby('bins'):
-            bins.append(Bin(bin_label=name, values=group['values']))
-        self.bins = bins
-
     def calc_num_bins(self, values):
         iqr = self.q3.value - self.q1.value
         self.bin_width = 2 * iqr * (len(values) ** -(1. / 3.))
-        self.bin_count = np.ceil((values.max() - values.min())/self.bin_width)
+        self.bin_count = int(np.ceil((values.max() - values.min())/self.bin_width))
+
+    def calculate(self):
+        pass
+
+
+class Bins(Stat):
+    dimensions = List(ColumnLabel)
+    stats = List(Instance(BinStats), default=[])
+    bins = List(Instance(Bin))
+    stat = Instance(Stat, default=Count())
+    bin_count = List(Int, default=[])
+
+    def __init__(self, values=None, column=None, dimensions=None, bins=None,
+                 stat='count', **properties):
+        if isinstance(stat, str):
+            stat = stats[stat]()
+
+        bin_count = properties.get('bin_count')
+        if bin_count is not None and not isinstance(bin_count, list):
+            properties['bin_count'] = [bin_count]
+        else:
+            properties['bin_count'] = []
+
+        properties['dimensions'] = dimensions or []
+        properties['column'] = column
+        properties['bins'] = bins
+        properties['stat'] = stat
+        properties['values'] = values
+        super(Bins, self).__init__(**properties)
+
+    def _get_stat(self, idx):
+        stat_kwargs = {}
+        if self.source is not None:
+            stat_kwargs['source'] = self.source
+
+            if len(self.dimensions) > 0:
+                stat_kwargs['column'] = self.dimensions[idx]
+            else:
+                stat_kwargs['column'] = self.column
+        else:
+            stat_kwargs['values'] = self.values
+
+        if len(self.bin_count) > 0:
+            stat_kwargs['bin_count'] = self.bin_count[idx]
+
+        return BinStats(**stat_kwargs)
+
+    def update(self):
+        self.stats = [self._get_stat(idx) for idx in range(0, len(self.dimensions))]
+        if len(self.stats) == 0:
+            self.stats = [self._get_stat(0)]
+
+        if len(self.stats) > 0:
+            for stat in self.stats:
+                stat.update()
+
+    def calculate(self):
+
+        values = self.get_data()
+        data = {'values': values}
+        bin_cols = []
+        bins = []
+
+        # if we aren't binning by different column, we bin the values array instead
+
+        for stat in self.stats:
+            binned, _ = pd.cut(stat.get_data(), stat.bin_count,
+                               retbins=True, precision=0)
+            bin_col = stat.column + '_bin'
+            data[bin_col] = binned
+            bin_cols.append(bin_col)
+
+        df = pd.DataFrame(data)
+
+        # ToDo: should each bin have access to the dimension values?
+        for name, group in df.groupby(bin_cols):
+            bins.append(Bin(bin_label=name, values=group['values'], stat=self.stat))
+
+        self.bins = bins
 
 
 def bin(values=None, column=None, bins=None, labels=None):

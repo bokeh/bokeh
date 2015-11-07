@@ -623,6 +623,10 @@ class ChartDataSource(object):
     def df(self):
         return self._data
 
+    @property
+    def source(self):
+        return ColumnDataSource(self.df)
+
     @staticmethod
     def _collect_dimensions(**kwargs):
         """Returns dimensions by name from kwargs.
