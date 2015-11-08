@@ -251,6 +251,15 @@ class Bins(Stat):
     stat = Instance(Stat, default=Count())
     bin_count = List(Int, default=[])
 
+    bin_values = Bool(default=False)
+
+    value_stat = Instance(BinStats)
+    value_bins = List(Instance(Bin))
+
+    value_labels = List(String)
+
+    _df = None
+
     def __init__(self, values=None, column=None, dimensions=None, bins=None,
                  stat='count', **properties):
         if isinstance(stat, str):
@@ -281,7 +290,7 @@ class Bins(Stat):
         else:
             stat_kwargs['values'] = self.values
 
-        if len(self.bin_count) > 0:
+        if len(self.bin_count) > idx:
             stat_kwargs['bin_count'] = self.bin_count[idx]
 
         return BinStats(**stat_kwargs)
@@ -311,14 +320,16 @@ class Bins(Stat):
             data[bin_col] = binned
             bin_cols.append(bin_col)
 
-        df = pd.DataFrame(data)
+        self._df = pd.DataFrame(data)
 
         # ToDo: should each bin have access to the dimension values?
-        for name, group in df.groupby(bin_cols):
+        for name, group in self._df.groupby(bin_cols):
             bins.append(Bin(bin_label=name, values=group['values'], stat=self.stat))
 
         self.bins = bins
 
+    def __getitem__(self, item):
+        return self.bins[item]
 
 def bin(values=None, column=None, bins=None, labels=None):
     """Specify binning or bins to be used for column or values."""

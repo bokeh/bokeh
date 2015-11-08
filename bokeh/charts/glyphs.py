@@ -898,3 +898,55 @@ class HistogramGlyph(AggregateGlyph):
     @property
     def y_min(self):
         return 0.0
+
+
+class HeatmapGlyph(XyGlyph):
+
+    bins = Instance(Bins)
+    column = String()
+    stat = String()
+
+    glyph_name = String()
+    glyphs = {'rect': Rect}
+
+    width = Float()
+    height = Float()
+
+    def __init__(self, x, y, column=None, stat='count', glyph='rect', width=1,
+                 height=1, **kwargs):
+        kwargs['x'] = x
+        kwargs['y'] = y
+        kwargs['column'] = column
+        kwargs['stat'] = stat
+        kwargs['glyph_name'] = glyph
+        kwargs['height'] = height
+        kwargs['width'] = width
+        super(XyGlyph, self).__init__(**kwargs)
+        self.setup()
+
+    def build_source(self):
+        return {'x': self.x, 'y': self.y}
+
+    def build_renderers(self):
+        glyph_class = self.glyphs[self.glyph_name]
+        glyph = glyph_class(x='x', y='y', height=self.height, width=self.width,
+                            fill_color=self.fill_color, dilate=True)
+        yield GlyphRenderer(glyph=glyph)
+
+    @property
+    def x_max(self):
+        return max(self.source._data['x']) + self.width / 2.0
+
+    @property
+    def x_min(self):
+        return min(self.source._data['x']) - self.width / 2.0
+
+    @property
+    def y_max(self):
+        return max(self.source._data['y']) + self.height / 2.0
+
+    @property
+    def y_min(self):
+        return min(self.source._data['y']) - self.height / 2.0
+
+

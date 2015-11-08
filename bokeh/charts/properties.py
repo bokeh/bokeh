@@ -164,7 +164,11 @@ class Dimension(HasProps):
         return len(self.data.index)
 
     def set_data(self, data):
-        """Set data property so that builders has access to configuration metadata."""
+        """Set data property so that builders has access to configuration metadata.
+
+        Args:
+            data (`ChartDataSource`): the data source associated with the chart
+        """
         self.selection = data[self.name]
         self._chart_source = data
         self._data = data.df

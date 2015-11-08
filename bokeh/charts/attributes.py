@@ -6,6 +6,8 @@ from itertools import cycle
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.charts.properties import ColumnLabel
 from bokeh.charts.utils import marker_types
+from bokeh.charts.data_source import ChartDataSource
+from bokeh.charts.stats import Bins
 from bokeh.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
@@ -68,6 +70,8 @@ class AttrSpec(HasProps):
         A boolean flag to tell the attribute specification how to sort `items` if the
         `sort` property is set to `True`. The default setting for `ascending` is `True`.
         """)
+
+    bins = Instance(Bins)
 
     def __init__(self, columns=None, df=None, iterable=None, default=None,
                  items=None, **properties):
@@ -190,12 +194,28 @@ class ColorAttr(AttrSpec):
     """
     name = 'color'
     iterable = List(Color, default=DEFAULT_PALETTE)
+    bin = Bool(default=False)
 
     def __init__(self, **kwargs):
         iterable = kwargs.pop('palette', None)
         if iterable is not None:
             kwargs['iterable'] = iterable
         super(ColorAttr, self).__init__(**kwargs)
+
+    def _generate_items(self, df, columns):
+        """Produce list of unique tuples that identify each item."""
+        if not self.bin:
+            super(ColorAttr, self)._generate_items(df, columns)
+        else:
+            if len(columns) == 1 and ChartDataSource.is_number(df[columns[0]]):
+                if self.sort:
+                    df = df.sort(columns=columns, ascending=self.ascending)
+                self.bins = Bins(source=ColumnDataSource(df), column=columns[0],
+                                 bin_count=len(self.iterable))
+                self.items = [bin.label[0] for bin in self.bins]
+            else:
+                raise ValueError('Binned colors can only be created for one column of \
+                                 numerical data.')
 
 
 class MarkerAttr(AttrSpec):
@@ -266,7 +286,7 @@ to the Chart.
 """
 
 
-def color(columns=None, palette=None, **kwargs):
+def color(columns=None, palette=None, bin=False, **kwargs):
     """Produces a ColorAttr specification for coloring groups of data based on columns.
 
     Args:
@@ -282,6 +302,7 @@ def color(columns=None, palette=None, **kwargs):
         kwargs['palette'] = palette
 
     kwargs['columns'] = columns
+    kwargs['bin'] = bin
     return ColorAttr(**kwargs)
 
 

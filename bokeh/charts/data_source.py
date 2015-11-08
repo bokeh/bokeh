@@ -18,10 +18,10 @@ import pandas as pd
 from six import iteritems
 from six.moves import zip
 
-from .properties import ColumnLabel
+from .properties import ColumnLabel, Column
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
-from ..properties import bokeh_integer_types, Datetime, List, HasProps, String
+from ..properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
 
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -777,8 +777,11 @@ class ChartDataSource(object):
         Returns:
             bool
         """
-        numbers = (float,) + bokeh_integer_types
-        return isinstance(value, numbers)
+        if isinstance(value, pd.Series):
+            return Column(Float).is_valid(value)
+        else:
+            numbers = (float,) + bokeh_integer_types
+            return isinstance(value, numbers)
 
     @staticmethod
     def is_datetime(value):
