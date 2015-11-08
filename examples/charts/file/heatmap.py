@@ -3,7 +3,7 @@ import pandas as pd
 
 from bokeh.charts import HeatMap, output_file, show, vplot
 from bokeh.sampledata.autompg import autompg as df
-from bokeh.palettes import Blues9 as palette
+from bokeh.palettes import RdYlGn6
 from bokeh.sampledata.unemployment1948 import data
 
 # pandas magic
@@ -39,6 +39,8 @@ hm1 = HeatMap(df, 'mpg', 'displ', 'cyl')
 
 hm2 = HeatMap(df, 'mpg', 'displ', 'cyl', spacing_ratio=0.9)
 
+hm3 = HeatMap(df, 'mpg', 'displ', 'cyl', palette=RdYlGn6)
+
 output_file("heatmap.html")
 
-show(vplot(hm1, hm2))
+show(vplot(hm1, hm2, hm3))
