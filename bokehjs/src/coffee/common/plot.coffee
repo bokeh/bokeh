@@ -389,20 +389,32 @@ class PlotView extends ContinuumView
   resize: () =>
     @resize_width_height(true, false)
   
-  resize_width_height: (use_width, use_height) =>
+  resize_width_height: (use_width, use_height, maintain_ar=true) =>
     # Resize plot based on available width and/or height
     
     # kiwi.js falls over if we try and resize too small.
-    # min_size is currently set in defaults to 100, we can make this
+    # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
     
-    w_h = get_size_for_available_space(use_width, use_height,
-                                       @.el.clientWidth, @.el.parentNode.clientHeight - 50,  # -50 for x ticks
-                                       @canvas.get('width') / @canvas.get('height'),
-                                       @mget('min_size'))
-    if w_h?
-      @canvas._set_dims(w_h)
+    avail_width = @.el.clientWidth
+    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
+    min_size = @mget('min_size')
+        
+    if maintain_ar is false
+      # Just change width and/or height; aspect ratio will change
+      if use_width and use_height
+        @canvas._set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
+      else if use_width
+        @canvas._set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
+      else if use_height
+        @canvas._set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
+    else
+      # Find best size to fill space while maintaining aspect ratio
+      ar = @canvas.get('width') / @canvas.get('height')
+      w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
+      if w_h?
+        @canvas._set_dims(w_h)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()

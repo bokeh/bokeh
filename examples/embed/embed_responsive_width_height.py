@@ -40,14 +40,14 @@ template = Template('''<!DOCTYPE html>
     {{ plot_div.red }}
     {{ plot_script }}
     <script>
-    // Set things up to resize the plot on a window resize. The (true, true)
-    // in resize_width_height() means to take both available width and height
-    // into account.
+    // Set things up to resize the plot on a window resize. You can play with
+    // the arguments of resize_width_height() to change the plot's behavior.
     var plot_resize_setup = function () {
         var plotid = Object.keys(Bokeh.index)[0]; // assume we have just one plot
         var plot = Bokeh.index[plotid];
         var plotresizer = function() {
-            plot.resize_width_height(true, true);  
+            // arguments: use width, use height, maintain aspect ratio
+            plot.resize_width_height(true, true, true);
         };
         window.addEventListener('resize', plotresizer);
         plotresizer();
