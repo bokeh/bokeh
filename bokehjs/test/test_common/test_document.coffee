@@ -80,6 +80,12 @@ describe "Document", ->
     d.add_root(new AnotherModel())
     expect(d.roots().length).to.equal 1
 
+  it "has working set_title", ->
+    d = new Document()
+    expect(d.title()).to.equal "Bokeh App"
+    d.set_title("Foo")
+    expect(d.title()).to.equal "Foo"
+
   it "tracks all_models", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
@@ -116,6 +122,7 @@ describe "Document", ->
   # TODO(havocp) test_change_notification
   # TODO(havocp) test_change_notification_removal
   # TODO(havocp) test_notification_of_roots
+  # TODO(havocp) test_notification_of_title
   # TODO(havocp) test_clear
 
   it "can serialize with one model in it", ->
@@ -124,12 +131,14 @@ describe "Document", ->
     root1 = new SomeModel()
     d.add_root(root1)
     expect(d.roots().length).to.equal 1
+    d.set_title("Foo")
 
     json = d.to_json_string()
     copy = Document.from_json_string(json)
 
     expect(copy.roots().length).to.equal 1
     expect(copy.roots()[0]).to.be.an.instanceof(SomeModel)
+    expect(copy.title()).to.equal "Foo"
 
   # TODO copy the following tests from test_document.py here
   # TODO(havocp) test_serialization_more_models

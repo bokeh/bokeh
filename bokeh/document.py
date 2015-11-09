@@ -14,6 +14,8 @@ from .plot_object import PlotObject
 from .validation import check_integrity
 from json import loads
 
+DEFAULT_TITLE = "Bokeh App"
+
 class DocumentChangedEvent(object):
     def __init__(self, document):
         self.document = document
@@ -25,6 +27,11 @@ class ModelChangedEvent(DocumentChangedEvent):
         self.attr = attr
         self.old = old
         self.new = new
+
+class TitleChangedEvent(DocumentChangedEvent):
+    def __init__(self, document, title):
+        super(TitleChangedEvent, self).__init__(document)
+        self.title = title
 
 class RootAddedEvent(DocumentChangedEvent):
     def __init__(self, document, model):
@@ -38,8 +45,11 @@ class RootRemovedEvent(DocumentChangedEvent):
 
 class Document(object):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._roots = set()
+        self._title = DEFAULT_TITLE
+        if 'title' in kwargs:
+            self._title = kwargs['title']
 
         # TODO (bev) add vars, stores
 
@@ -48,7 +58,7 @@ class Document(object):
         self._callbacks = []
 
     def clear(self):
-        ''' Remove all content from the document (including roots, vars, stores) '''
+        ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
         self._push_all_models_freeze()
         try:
             while len(self._roots) > 0:
@@ -81,7 +91,8 @@ class Document(object):
             raise RuntimeError("_all_models still had stuff in it: %r" % (self._all_models))
         for r in roots:
             dest_doc.add_root(r)
-        # TODO other fields of doc
+
+        dest_doc.title = self.title
 
     def _push_all_models_freeze(self):
         self._all_models_freeze_count += 1
@@ -115,6 +126,18 @@ class Document(object):
     @property
     def roots(self):
         return set(self._roots)
+
+    @property
+    def title(self):
+        return self._title
+
+    @title.setter
+    def title(self, title):
+        if title is None:
+            raise ValueError("Document title may not be None")
+        if self._title != title:
+            self._title = title
+            self._trigger_on_change(TitleChangedEvent(self, title))
 
     def add_root(self, model):
         ''' Add a model as a root model to this Document.
@@ -269,6 +292,7 @@ class Document(object):
         root_references = self._all_models.values()
 
         json = {
+            'title' : self.title,
             'roots' : {
                 'root_ids' : root_ids,
                 'references' : self._references_json(root_references)
@@ -305,6 +329,8 @@ class Document(object):
         doc = Document()
         for r in root_ids:
             doc.add_root(references[r])
+
+        doc.title = json['title']
 
         return doc
 
@@ -361,6 +387,9 @@ class Document(object):
             elif isinstance(event, RootRemovedEvent):
                 json_events.append({ 'kind' : 'RootRemoved',
                                      'model' : event.model.ref })
+            elif isinstance(event, TitleChangedEvent):
+                json_events.append({ 'kind' : 'TitleChanged',
+                                     'title' : event.title })
 
         json = {
             'events' : json_events,
@@ -418,6 +447,8 @@ class Document(object):
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
                 self.remove_root(root_obj)
+            elif event_json['kind'] == 'TitleChanged':
+                self.title = event_json['title']
             else:
                 raise RuntimeError("Unknown patch event " + repr(event_json))
 

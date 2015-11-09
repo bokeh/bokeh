@@ -386,6 +386,10 @@ class ClientSession
         for event_json in patch.content['events']
           if event_json['kind'] == 'RootRemoved' and event_json['model']['id'] == event.model.id
             return true
+    else if event instanceof TitleChangedEvent
+        for event_json in patch.content['events']
+          if event_json['kind'] == 'TitleChanged' and event_json['title'] == event.title
+            return true
 
     return false
 

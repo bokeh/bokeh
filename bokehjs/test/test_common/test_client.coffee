@@ -148,7 +148,8 @@ describe "Client", ->
         (session) ->
           root1 = new Range1d({start: 123, end: 456})
           session.document.add_root(root1)
-          session
+          session.document.set_title("Hello Title")
+          session.force_roundtrip().then((ignored) -> session)
         (error) ->
           throw error
       ).catch (error) ->
@@ -163,6 +164,7 @@ describe "Client", ->
                 root = session2.document.roots()[0]
                 expect(root.get('start')).to.equal 123
                 expect(root.get('end')).to.equal 456
+                expect(session2.document.title()).to.equal "Hello Title"
               catch e
                 console.log("Exception was ", e)
                 throw e
