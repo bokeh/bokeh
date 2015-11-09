@@ -448,7 +448,6 @@ class HasProps(object):
 
     def __setattr__(self, name, value):
         props = sorted(self.properties())
-        # deprecated = self.__class__.__dict__.get('__deprecated_attributes__', [])
         deprecated = getattr(self, '__deprecated_attributes__', [])
 
         if name.startswith("_") or name in props or name in deprecated:
