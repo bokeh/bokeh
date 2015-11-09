@@ -1,3 +1,8 @@
+# The plot server must be running
+#
+# Source of inspiration for example:
+# https://www.youtube.com/watch?v=LznjC4Lo7lE
+
 import time
 
 import numpy as np
@@ -16,15 +21,15 @@ base_x = x + shift
 output_server("simple_stream")
 
 period = np.pi/2.
-palette = ['blue', 'red', 'green', 'black']
+palette = ['#08519c', '#3182bd', '#6baed6', '#bdd7e7']
 
 def new_source():
     return dict(curve=CDS(), lines=CDS(), circle_point=CDS(), circleds=CDS())
 
 def create_circle_glyphs(p, color, sources):
     p.circle('x', 'y', size=1., line_color=color, color=None, source=sources['circleds'])
-    p.circle('x', 'y', size=10, line_color=color, color=color, source=sources['circle_point'])
-    p.line('radius_x', 'radius_y', line_color=color, color=color, source=sources['lines'])
+    p.circle('x', 'y', size=5, line_color=color, color=color, source=sources['circle_point'])
+    p.line('radius_x', 'radius_y', line_color=color, color=color, alpha=0.5, source=sources['lines'])
 
 def create_plot(foos, title='', r = 1, y_range=None, period = np.pi/2., cfoos=None):
     if y_range is None:
@@ -32,6 +37,8 @@ def create_plot(foos, title='', r = 1, y_range=None, period = np.pi/2., cfoos=No
 
     # create new figure
     p = figure(title=title, width=800, height=300, x_range=[-2.5, 9], y_range=y_range)
+    p.xgrid.bounds = (-2, 2)
+    p.xaxis.bounds = (-2, 2)
 
     _sources = []
     cx, cy = 0, 0
@@ -112,6 +119,9 @@ def create_centric_plot(foos, title='', r = 1, y_range=None, period = np.pi/2., 
         y_range=[-2, 2]
 
     p = figure(title=title, width=800, height=300, x_range=[-1.5, 10.5], y_range=y_range)
+    p.xgrid.bounds = (-2, 2)
+    p.xaxis.bounds = (-2, 2)
+
     _sources = []
     for i, foo in enumerate(foos):
         sources = new_source()
@@ -181,6 +191,6 @@ def cb():
         gind = 0
 
 # Add the callback function to bokeh server session
-session.add_periodic_callback(cb, 1)
+session.add_periodic_callback(cb, .05)
 # Start the session loop
 session.loop_until_closed()
