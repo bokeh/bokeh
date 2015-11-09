@@ -10,6 +10,8 @@ from .query import find
 from . import themes
 from .util.callback_manager import CallbackManager
 from .util.serialization import make_id
+from ._json_encoder import serialize_json
+from json import loads
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -227,17 +229,11 @@ class PlotObject(HasProps, CallbackManager):
         """Returns all ``PlotObjects`` that this object has references to. """
         return set(self.collect_plot_objects(self))
 
-    #---------------------------------------------------------------------
-    # View Model connection methods
-    #
-    # Whereas a rich client rendering framework can maintain view state
-    # alongside model state, we need an explicit send/receive protocol for
-    # communicating with a set of view models that reside on the front end.
-    # Many of the calls one would expect in a rich client map instead to
-    # batched updates on the M-VM-V approach.
-    #---------------------------------------------------------------------
     def vm_props(self, changed_only=True):
         """ Returns the ViewModel-related properties of this object.
+
+            In the future this method may always return all properties,
+            ignoring the changed_only argument.
 
         Args:
             changed_only (bool, optional) : whether to return only properties
@@ -260,8 +256,18 @@ class PlotObject(HasProps, CallbackManager):
         return props
 
     def vm_serialize(self, changed_only=True):
-        """ Returns a dictionary of the attributes of this object, in
+        """Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
+
+        This method does not convert "Bokeh types" into "plain JSON types,"
+        for example each child PlotObject will still be a PlotObject, rather
+        than turning into a reference, numpy isn't handled, etc.
+
+        This method should be considered "private" or "protected",
+        for use internal to Bokeh; use to_json() instead because
+        it gives you only plain JSON-compatible types. Also, the
+        changed_only functionality may not be supported in the
+        future.
 
         Args:
             changed_only (bool, optional) : whether to include only attributes
@@ -278,6 +284,53 @@ class PlotObject(HasProps, CallbackManager):
 
         return attrs
 
+    def to_json(self):
+        """Returns a dictionary of the attributes of this object,
+           containing only "JSON types" (string, number, boolean,
+           none, dict, list).
+
+        References to other objects are serialized as "refs" (just
+        the object ID and type info), so the deserializer will
+        need to separately have the full attributes of those
+        other objects.
+
+        There's no corresponding from_json() because to
+        deserialize an object is normally done in the context of a
+        Document (since the Document can resolve references).
+
+        For most purposes it's best to serialize and deserialize
+        entire documents.
+
+        Args:
+            None
+
+        """
+        return loads(self.to_json_string())
+
+    def to_json_string(self):
+        """Returns a JSON string encoding the attributes of this object.
+
+        References to other objects are serialized as references
+        (just the object ID and type info), so the deserializer
+        will need to separately have the full attributes of those
+        other objects.
+
+        There's no corresponding from_json_string() because to
+        deserialize an object is normally done in the context of a
+        Document (since the Document can resolve references).
+
+        For most purposes it's best to serialize and deserialize
+        entire documents.
+
+        Args:
+            None
+
+        """
+        # we sort_keys to simplify the test suite by making the returned
+        # string deterministic. serialize_json "fixes" the JSON from
+        # vm_serialize by converting all types into plain JSON types
+        # (it converts PlotObject into refs, for example).
+        return serialize_json(self.vm_serialize(changed_only=False), sort_keys=True)
 
     def update(self, **kwargs):
         for k,v in kwargs.items():
