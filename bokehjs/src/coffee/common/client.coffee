@@ -360,6 +360,14 @@ class ClientSession
   _connection_closed : () ->
     @document.remove_on_change(@document_listener)
 
+  request_server_info : () ->
+    message = Message.create('SERVER-INFO-REQ', {})
+    promise = @_connection.send_with_reply(message)
+    promise.then((reply) -> reply.content)
+
+  force_roundtrip : () ->
+    @request_server_info()
+
   _should_suppress_on_change : (patch, event) ->
     if event instanceof ModelChangedEvent
       for event_json in patch.content['events']

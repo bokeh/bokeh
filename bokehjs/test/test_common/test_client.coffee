@@ -128,6 +128,20 @@ describe "Client", ->
       )
     expect(promise).eventually.to.equal("OK")
 
+  it "should get server info", ->
+    promise = with_server (server_process) ->
+      pull_session(url=server_process.url).then(
+        (session) ->
+          console.log("Connection result #{session}")
+          session.request_server_info().then(
+            (info) ->
+              console.log("Server info ", info)
+              expect(info).to.have.property('version_info')
+              "OK"
+          )
+      )
+    expect(promise).eventually.to.equal("OK")
+
   it "should sync a document between two connections", ->
     promise = with_server (server_process) ->
       added_root = pull_session(url=server_process.url).then(
