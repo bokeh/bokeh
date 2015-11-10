@@ -41,7 +41,7 @@ class ServerSession(object):
         self._callbacks = {}
 
         for cb in self._document.session_callbacks:
-            self.add_periodic_callback(cb)
+            self._add_periodic_callback(cb)
 
     @property
     def document(self):
@@ -68,7 +68,7 @@ class ServerSession(object):
     def seconds_since_last_unsubscribe(self):
         return current_time() - self._last_unsubscribe_time
 
-    def add_periodic_callback(self, callback):
+    def _add_periodic_callback(self, callback):
         ''' Add callback so it can be invoked on a session periodically accordingly to period.
 
         NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
@@ -80,7 +80,7 @@ class ServerSession(object):
         )
         cb.start()
 
-    def remove_periodic_callback(self, callback):
+    def _remove_periodic_callback(self, callback):
         ''' Remove a callback added earlier with add_periodic_callback()
 
             Throws an error if the callback wasn't added
@@ -93,11 +93,11 @@ class ServerSession(object):
                        self._current_patch.should_suppress_on_change(event)
 
         if isinstance(event, PeriodicCallbackAdded):
-            self.add_periodic_callback(event.callback)
+            self._add_periodic_callback(event.callback)
             return
 
         if isinstance(event, PeriodicCallbackRemoved):
-            self.remove_periodic_callback(event.callback)
+            self._remove_periodic_callback(event.callback)
             return
 
         # TODO (havocp): our "change sync" protocol is flawed

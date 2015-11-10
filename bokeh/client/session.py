@@ -159,7 +159,10 @@ class ClientSession(object):
         self._document = document
         self._document.on_change(self._document_changed)
 
-    def add_periodic_callback(self, callback):
+        for cb in self._document.session_callbacks:
+            self._add_periodic_callback(cb)
+
+    def _add_periodic_callback(self, callback):
         ''' Add callback so it can be invoked on a session periodically accordingly to period.
 
         NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
@@ -171,7 +174,7 @@ class ClientSession(object):
         )
         cb.start()
 
-    def remove_periodic_callback(self, callback):
+    def _remove_periodic_callback(self, callback):
         ''' Remove a callback added earlier with add_periodic_callback()
 
             Throws an error if the callback wasn't added
@@ -303,11 +306,11 @@ class ClientSession(object):
             return
 
         if isinstance(event, PeriodicCallbackAdded):
-            self.add_periodic_callback(event.callback)
+            self._add_periodic_callback(event.callback)
             return
 
         if isinstance(event, PeriodicCallbackRemoved):
-            self.remove_periodic_callback(event.callback)
+            self._remove_periodic_callback(event.callback)
             return
 
         # TODO (havocp): our "change sync" protocol is flawed

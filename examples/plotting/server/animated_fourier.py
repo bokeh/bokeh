@@ -189,7 +189,7 @@ def cb():
 
     if gind >= 99:
         gind = 0
-        curdoc().remove_periodic_callback(cb)
+        # curdoc().remove_periodic_callback(cb)
 
 # Add the callback function to bokeh server session
 curdoc().add_periodic_callback(cb, .05)
