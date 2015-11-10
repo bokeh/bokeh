@@ -8,6 +8,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
+import uuid
 from bokeh.util.callback_manager import _check_callback
 from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
@@ -36,6 +37,42 @@ class RootRemovedEvent(DocumentChangedEvent):
         super(RootRemovedEvent, self).__init__(document)
         self.model = model
 
+class PeriodicCallbackAdded(DocumentChangedEvent):
+    def __init__(self, document, callback):
+        super(PeriodicCallbackAdded, self).__init__(document)
+        self.callback = callback
+
+class PeriodicCallbackRemoved(DocumentChangedEvent):
+    def __init__(self, document, callback):
+        super(PeriodicCallbackRemoved, self).__init__(document)
+        self.callback = callback
+
+class PeriodicCallback(object):
+    def __init__(self, document, callback, period, id=None):
+        if id is None:
+            self._id = str(uuid.uuid4())
+        else:
+            self._id = id
+
+        self._document = document
+        self._period = period
+        self._callback = callback
+
+    @property
+    def period(self):
+        return self._period
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def callback(self):
+        return self._callback
+
+    def remove(self):
+        self.document.remove_periodic_callback(self)
+
 class Document(object):
 
     def __init__(self):
@@ -46,6 +83,7 @@ class Document(object):
         self._all_models_freeze_count = 0
         self._all_models = dict()
         self._callbacks = []
+        self._session_callbacks = {}
 
     def clear(self):
         ''' Remove all content from the document (including roots, vars, stores) '''
@@ -431,3 +469,26 @@ class Document(object):
             refs = r.references()
             root_sets.append(refs)
             check_integrity(refs)
+
+    def add_periodic_callback(self, callback, period, id=None):
+        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+
+        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+
+        '''
+        # create the new callback object
+        cb = PeriodicCallback(self, callback, period, id)
+        self._session_callbacks[callback] = cb
+        # emit event so the session is notified of the new callback
+        self._trigger_on_change(PeriodicCallbackAdded(self, cb))
+        return cb
+
+    def remove_periodic_callback(self, callback):
+        ''' Remove a callback added earlier with add_periodic_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        cb = self._session_callbacks.pop(callback)
+        # emit event so the session is notified and can remove the callback
+        self._trigger_on_change(PeriodicCallbackRemoved(self, cb))
