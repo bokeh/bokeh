@@ -366,7 +366,7 @@ class ClientSession
     promise.then((reply) -> reply.content)
 
   force_roundtrip : () ->
-    @request_server_info()
+    @request_server_info().then((ignored) -> undefined)
 
   _should_suppress_on_change : (patch, event) ->
     if event instanceof ModelChangedEvent
