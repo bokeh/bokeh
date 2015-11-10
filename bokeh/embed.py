@@ -261,7 +261,8 @@ def file_html(plot_objects,
         plot_objects (PlotObject or Document or list) : Bokeh object or objects to render
             typically a PlotObject or Document
         resources (Resources) : a resource configuration for BokehJS assets
-        title (str, optional) : a title for the HTML document ``<title>`` tags or None to take from document
+        title (str, optional) : a title for the HTML document ``<title>`` tags or None. (default: None)
+            If None, attempt to automatically find the Document title from the given plot objects.
         template (Template, optional) : HTML document template (default: FILE)
             A Jinja2 Template, see bokeh.templates.FILE for the required
             template parameters

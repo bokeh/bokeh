@@ -47,9 +47,8 @@ class Document(object):
 
     def __init__(self, **kwargs):
         self._roots = set()
-        self._title = DEFAULT_TITLE
-        if 'title' in kwargs:
-            self._title = kwargs['title']
+        # use _title directly because we don't need to trigger an event
+        self._title = kwargs.pop('title', DEFAULT_TITLE)
 
         # TODO (bev) add vars, stores
 
