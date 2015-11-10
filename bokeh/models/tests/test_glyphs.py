@@ -80,7 +80,7 @@ def check_line(glyph):
 
 def check_text(glyph):
     assert glyph.text_font == "Helvetica"
-    assert glyph.text_font_size == dict(value="12pt")
+    assert glyph.text_font_size == ["12pt"]
     assert glyph.text_font_style == FontStyle.normal
     assert glyph.text_color == "#444444"
     assert glyph.text_alpha == 1.0
