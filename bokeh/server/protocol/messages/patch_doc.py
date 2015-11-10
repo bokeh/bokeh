@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from bokeh.plot_object import PlotObject
-from bokeh.document import ModelChangedEvent, RootAddedEvent, RootRemovedEvent
+from bokeh.document import ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent
 from json import loads
 from ..message import Message
 from . import register
@@ -65,6 +65,11 @@ class patch_doc_1(Message):
             for event_json in self.content['events']:
                 if event_json['kind'] == 'RootRemoved' and \
                    event_json['model']['id'] == event.model._id:
+                    return True
+        elif isinstance(event, TitleChangedEvent):
+            for event_json in self.content['events']:
+                if event_json['kind'] == 'TitleChanged' and \
+                   event_json['title'] == event.title:
                     return True
         else:
             raise RuntimeError("should_suppress_on_change needs to handle " + repr(event))

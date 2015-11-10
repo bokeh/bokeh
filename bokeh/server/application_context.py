@@ -34,6 +34,8 @@ class ApplicationContext(object):
             session = ServerSession(session_id, doc)
             self._sessions[session_id] = session
 
+        return self._sessions[session_id]
+
     def get_session(self, session_id):
         if session_id in self._sessions:
             session = self._sessions[session_id]
