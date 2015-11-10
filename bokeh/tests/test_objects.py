@@ -175,7 +175,10 @@ class TestPlotObject(unittest.TestCase):
                            "foo" : 42,
                            "bar" : "world" },
                          json)
-        self.assertEqual('{"bar": "world", "child": {"id": "%s", "type": "SomeModelToJson"}, "foo": 42, "id": "%s", "name": null, "tags": []}' % (child_obj._id, obj._id),
+        self.assertEqual(('{"bar": "world", ' +
+                          '"child": {"id": "%s", "type": "SomeModelToJson"}, ' +
+                          '"foo": 42, "id": "%s", "name": null, "tags": []}') %
+                         (child_obj._id, obj._id),
                          json_string)
 
 class SomeModelInTestObjects(PlotObject):
