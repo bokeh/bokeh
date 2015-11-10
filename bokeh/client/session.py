@@ -159,10 +159,6 @@ class ClientSession(object):
         self._document = document
         self._document.on_change(self._document_changed)
 
-    def add_periodic_callback(self, cb, callback_time):
-        from tornado import ioloop
-        self._callbacks.append(ioloop.PeriodicCallback(cb, callback_time, io_loop=self._connection._loop))
-
     def add_periodic_callback(self, callback):
         ''' Add callback so it can be invoked on a session periodically accordingly to period.
 
