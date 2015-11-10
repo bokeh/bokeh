@@ -7,7 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
-from bokeh.document import PeriodicCallbackAdded, PeriodicCallbackRemoved
+from bokeh.document import SessionCallbackAdded, SessionCallbackRemoved
 
 import time
 
@@ -92,11 +92,11 @@ class ServerSession(object):
         may_suppress = self._current_patch is not None and \
                        self._current_patch.should_suppress_on_change(event)
 
-        if isinstance(event, PeriodicCallbackAdded):
+        if isinstance(event, SessionCallbackAdded):
             self._add_periodic_callback(event.callback)
             return
 
-        if isinstance(event, PeriodicCallbackRemoved):
+        if isinstance(event, SessionCallbackRemoved):
             self._remove_periodic_callback(event.callback)
             return
 

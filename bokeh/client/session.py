@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 from .connection import ClientConnection
 
 from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL, DEFAULT_SERVER_HTTP_URL, server_url_for_websocket_url
-from bokeh.document import Document, PeriodicCallbackAdded, PeriodicCallbackRemoved
+from bokeh.document import Document, SessionCallbackAdded, SessionCallbackRemoved
 import uuid
 
 DEFAULT_SESSION_ID = "default"
@@ -305,11 +305,11 @@ class ClientSession(object):
             log.debug("Not sending notification back to server for a change it requested")
             return
 
-        if isinstance(event, PeriodicCallbackAdded):
+        if isinstance(event, SessionCallbackAdded):
             self._add_periodic_callback(event.callback)
             return
 
-        if isinstance(event, PeriodicCallbackRemoved):
+        if isinstance(event, SessionCallbackRemoved):
             self._remove_periodic_callback(event.callback)
             return
 

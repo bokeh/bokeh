@@ -37,14 +37,14 @@ class RootRemovedEvent(DocumentChangedEvent):
         super(RootRemovedEvent, self).__init__(document)
         self.model = model
 
-class PeriodicCallbackAdded(DocumentChangedEvent):
+class SessionCallbackAdded(DocumentChangedEvent):
     def __init__(self, document, callback):
-        super(PeriodicCallbackAdded, self).__init__(document)
+        super(SessionCallbackAdded, self).__init__(document)
         self.callback = callback
 
-class PeriodicCallbackRemoved(DocumentChangedEvent):
+class SessionCallbackRemoved(DocumentChangedEvent):
     def __init__(self, document, callback):
-        super(PeriodicCallbackRemoved, self).__init__(document)
+        super(SessionCallbackRemoved, self).__init__(document)
         self.callback = callback
 
 class PeriodicCallback(object):
@@ -484,7 +484,7 @@ class Document(object):
         cb = PeriodicCallback(self, callback, period, id)
         self._session_callbacks[callback] = cb
         # emit event so the session is notified of the new callback
-        self._trigger_on_change(PeriodicCallbackAdded(self, cb))
+        self._trigger_on_change(SessionCallbackAdded(self, cb))
         return cb
 
     def remove_periodic_callback(self, callback):
@@ -495,4 +495,4 @@ class Document(object):
         '''
         cb = self._session_callbacks.pop(callback)
         # emit event so the session is notified and can remove the callback
-        self._trigger_on_change(PeriodicCallbackRemoved(self, cb))
+        self._trigger_on_change(SessionCallbackRemoved(self, cb))
