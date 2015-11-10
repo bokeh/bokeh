@@ -193,5 +193,6 @@ def cb():
 
 # Add the callback function to bokeh server session
 curdoc().add_periodic_callback(cb, .05)
+
 # Start the session loop
 session.loop_until_closed()

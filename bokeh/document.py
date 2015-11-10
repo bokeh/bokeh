@@ -470,6 +470,10 @@ class Document(object):
             root_sets.append(refs)
             check_integrity(refs)
 
+    @property
+    def session_callbacks(self):
+        return self._session_callbacks.values()
+
     def add_periodic_callback(self, callback, period, id=None):
         ''' Add callback so it can be invoked on a session periodically accordingly to period.
 
