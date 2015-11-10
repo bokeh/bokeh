@@ -14,7 +14,7 @@ from .plot_object import PlotObject
 from .validation import check_integrity
 from json import loads
 
-DEFAULT_TITLE = "Bokeh App"
+DEFAULT_TITLE = "Bokeh Application"
 
 class DocumentChangedEvent(object):
     def __init__(self, document):

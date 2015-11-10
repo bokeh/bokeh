@@ -82,7 +82,7 @@ describe "Document", ->
 
   it "has working set_title", ->
     d = new Document()
-    expect(d.title()).to.equal "Bokeh App"
+    expect(d.title()).to.equal "Bokeh Application"
     d.set_title("Foo")
     expect(d.title()).to.equal "Foo"
 

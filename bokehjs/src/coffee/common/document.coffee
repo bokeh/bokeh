@@ -22,7 +22,7 @@ class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
 
-DEFAULT_TITLE = "Bokeh App"
+DEFAULT_TITLE = "Bokeh Application"
 
 # This class should match the API of the Python Document class
 # as much as possible.
