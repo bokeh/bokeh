@@ -45,7 +45,9 @@ def large_plot(n):
         tools = [pan, wheel_zoom, box_zoom, box_select, resize, previewsave, reset]
         plot.tools.extend(tools)
         vbox.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph, plot.tool_events, box_selection] + tickers + tools)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
+                        renderer, glyph, plot.tool_events, box_selection] +
+                        tickers + tools)
 
     return vbox, objects
 

@@ -260,14 +260,19 @@ def file_html(plot_objects,
     Args:
         plot_objects (PlotObject or Document or list) : Bokeh object or objects to render
             typically a PlotObject or Document
-        resources (Resources) : a resource configuration for BokehJS assets
+        resources (Resources) : a resource configuration for Bokeh JS & CSS assets. Pass ``None`` if
+            using js_resources of css_resources manually.
         title (str) : a title for the HTML document ``<title>`` tags
+        js_resources (JSResources, optional): custom JS Resources (default: ``None``), if
+            resources is also provided, resources will override js_resources.
+        css_resources (CSSResources, optional): custom CSS Resources (default: ``None``), if
+            resources is also provided, resources will override css_resources.
         template (Template, optional) : HTML document template (default: FILE)
             A Jinja2 Template, see bokeh.templates.FILE for the required
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
-            title, js_resources, css_resources, plot_script, plot_div
+            title, bokeh_js, bokeh_css, plot_script, plot_div
 
     Returns:
         UTF-8 encoded HTML
