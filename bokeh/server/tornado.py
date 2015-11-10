@@ -39,9 +39,6 @@ class BokehTornado(TornadoApplication):
     '''
 
     def __init__(self, applications, io_loop=None, extra_patterns=None):
-
-        self._clients = set()
-        self._executor = ProcessPoolExecutor(max_workers=4)
         if io_loop is None:
             io_loop = IOLoop.current()
         self._loop = io_loop
@@ -75,6 +72,8 @@ class BokehTornado(TornadoApplication):
         log.debug("Patterns are: %r", all_patterns)
         super(BokehTornado, self).__init__(all_patterns, **settings)
 
+        self._clients = set()
+        self._executor = ProcessPoolExecutor(max_workers=4)
         self._loop.add_callback(self._start_async)
         self._stats_job = PeriodicCallback(self.log_stats, 15.0 * 1000, io_loop=self._loop)
         self._stats_job.start()
