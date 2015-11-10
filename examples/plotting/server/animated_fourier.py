@@ -18,8 +18,6 @@ newx = x = np.linspace(0, 2*np.pi, 100)
 shift = 2.2
 base_x = x + shift
 
-output_server("simple_stream")
-
 period = np.pi/2.
 palette = ['#08519c', '#3182bd', '#6baed6', '#bdd7e7']
 
@@ -189,7 +187,6 @@ def cb():
 
     if gind >= 99:
         gind = 0
-        # curdoc().remove_periodic_callback(cb)
 
 # Add the callback function to bokeh server session
 curdoc().add_periodic_callback(cb, .05)
