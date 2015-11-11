@@ -1,2 +1,2 @@
 [run]
-omit = *tests/*, *__init__.py, *sphinxext/*, 
+omit = *tests/*, *sphinxext/*, *compat/mplexporter/*
