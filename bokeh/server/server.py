@@ -94,4 +94,3 @@ class Server(object):
         '''Gets a session by name (session must already exist)'''
 
         return self._tornado.get_session(app_path, session_id)
-
