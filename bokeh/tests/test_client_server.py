@@ -8,9 +8,10 @@ from bokeh.application import Application
 from bokeh.application.spellings import FunctionHandler
 from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.server.server import Server
+from bokeh.server.session import ServerSession
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
-from tornado.ioloop import IOLoop
+from tornado.ioloop import IOLoop, PeriodicCallback
 
 class AnotherModelInTestClientServer(PlotObject):
     bar = Int(1)
@@ -270,6 +271,45 @@ class TestClientServer(unittest.TestCase):
 
             # Clean up global IO state
             reset_output()
+
+    def test_client_session_callback(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = ClientSession(session_id='test_client_session_callback',
+                                          url=server.ws_url,
+                                          io_loop=server.io_loop)
+            server_session = ServerSession('test_server_session_callback',
+                                            doc, server.io_loop)
+            client_session._attach_document(doc)
+
+            assert len(server_session._callbacks) == len(client_session._callbacks) == 0
+
+            def cb(): pass
+            callback = doc.add_periodic_callback(cb, 1, 'abc')
+            server_session2 = ServerSession('test_server_session_callback',
+                                            doc, server.io_loop)
+
+            assert server_session2._callbacks
+            assert len(server_session._callbacks) == len(client_session._callbacks) == 1
+
+            started_callbacks = []
+            for ss in [server_session, client_session, server_session2]:
+                iocb = ss._callbacks[callback.id]
+                assert isinstance(iocb, PeriodicCallback)
+                assert iocb.callback == cb
+                assert iocb.callback_time == 1
+                assert iocb.io_loop == server.io_loop
+                assert iocb.is_running()
+                started_callbacks.append(iocb)
+
+            callback = doc.remove_periodic_callback(cb)
+            assert len(server_session._callbacks) == len(client_session._callbacks) == \
+                len(server_session._callbacks) == 0
+
+            for iocb in started_callbacks:
+                assert not iocb.is_running()
 
 # This isn't in the unittest.TestCase because per-test fixtures
 # don't work there (see note at bottom of https://pytest.org/latest/unittest.html#unittest-testcase)

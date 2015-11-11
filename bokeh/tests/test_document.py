@@ -189,6 +189,32 @@ class TestDocument(unittest.TestCase):
         assert isinstance(events[3], document.RootRemovedEvent)
         assert events[3].model == m2
 
+    def test_add_periodic_callback(self):
+        d = document.Document()
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        assert len(d.session_callbacks) == 0
+        assert not events
+
+        def cb(): pass
+
+        callback = d.add_periodic_callback(cb, 1, 'abc')
+        assert len(d.session_callbacks) == len(events) == 1
+        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert callback == d.session_callbacks[0] == events[0].callback
+        assert callback.id == 'abc'
+        assert callback.period == 1
+        assert callback.callback == cb
+
+        callback = d.remove_periodic_callback(cb)
+        assert len(d.session_callbacks) == 0
+        assert len(events) == 2
+        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert isinstance(events[1], document.SessionCallbackRemoved)
+
     def test_clear(self):
         d = document.Document()
         assert not d.roots
