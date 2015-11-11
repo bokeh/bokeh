@@ -115,6 +115,12 @@ with_server = (f) ->
 
 describe "Client", ->
 
+  # It takes time to spin up the server so without this things get
+  # flaky on Travis. Lengthen if we keep getting Travis failures.
+  # The default (at least when this comment was written) was
+  # 2000ms.
+  @timeout(7500)
+
   it "should be able to connect", ->
     promise = with_server (server_process) ->
       pull_session(url=server_process.url).then(
