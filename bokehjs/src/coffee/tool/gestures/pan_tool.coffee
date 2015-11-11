@@ -104,6 +104,9 @@ class PanTool extends GestureTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
+  nonserializable_attribute_names: () ->
+    super().concat(['level', 'default_order', 'event_type'])
+
   defaults: () ->
     return _.extend({}, super(), {
       dimensions: ["width", "height"]

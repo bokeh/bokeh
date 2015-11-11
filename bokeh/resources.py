@@ -23,6 +23,35 @@ from .settings import settings
 from .util.paths import bokehjsdir
 from .templates import JS_RESOURCES, CSS_RESOURCES
 
+DEFAULT_SERVER_HOST = "localhost"
+DEFAULT_SERVER_PORT = 5006
+DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
+
+def websocket_url_for_server_url(url):
+    if url.startswith("http:"):
+        reprotocoled = "ws" + url[4:]
+    elif url.startswith("https:"):
+        reprotocoled = "wss" + url[5:]
+    else:
+        raise ValueError("URL has unknown protocol " + url)
+    if reprotocoled.endswith("/"):
+        return reprotocoled + "ws"
+    else:
+        return reprotocoled + "/ws"
+
+def server_url_for_websocket_url(url):
+    if url.startswith("ws:"):
+        reprotocoled = "http" + url[2:]
+    elif url.startswith("wss:"):
+        reprotocoled = "https" + url[3:]
+    else:
+        raise ValueError("URL has non-websocket protocol " + url)
+    if not reprotocoled.endswith("/ws"):
+        raise ValueError("websocket URL does not end in /ws")
+    return reprotocoled[:-2]
+
+DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
+
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
 def _cdn_base_url():
@@ -78,7 +107,7 @@ def _get_server_urls(components, root_url, minified=True):
 
 class BaseResources(object):
     _default_root_dir = "."
-    _default_root_url = "http://127.0.0.1:5006/"
+    _default_root_url = DEFAULT_SERVER_HTTP_URL
 
     logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
