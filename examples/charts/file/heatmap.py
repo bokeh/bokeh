@@ -1,7 +1,7 @@
 
 import pandas as pd
 
-from bokeh.charts import HeatMap, output_file, show, vplot
+from bokeh.charts import HeatMap, bin, output_file, show, vplot
 from bokeh.sampledata.autompg import autompg as df
 from bokeh.palettes import RdYlGn6
 from bokeh.sampledata.unemployment1948 import data
@@ -35,11 +35,17 @@ from bokeh.sampledata.unemployment1948 import data
 #     height=400, width=1000
 # )
 
-hm1 = HeatMap(df, 'mpg', 'displ', 'cyl')
+hm1 = HeatMap(df, bin(x='mpg', y='displ', values='cyl'))
 
-hm2 = HeatMap(df, 'mpg', 'displ', 'cyl', spacing_ratio=0.9)
+hm2 = HeatMap(df, bin(x='mpg', y='displ', values='cyl', stat='mean'))
 
-hm3 = HeatMap(df, 'mpg', 'displ', 'cyl', palette=RdYlGn6)
+hm3 = HeatMap(df, bin(y='displ', x='mpg', values='cyl', stat='mean'))
+
+#hm2 = HeatMap(df, 'mpg', 'displ', 'cyl', spacing_ratio=0.9)
+
+#hm3 = HeatMap(df, 'mpg', 'displ', 'cyl', palette=RdYlGn6)
+
+#hm4 = HeatMap(df, x='cyl', y='displ', values='mpg')
 
 output_file("heatmap.html")
 

@@ -73,6 +73,8 @@ class AttrSpec(HasProps):
 
     bins = Instance(Bins)
 
+    stat = String(default='count')
+
     def __init__(self, columns=None, df=None, iterable=None, default=None,
                  items=None, **properties):
         """Create a lazy evaluated attribute specification.
@@ -202,20 +204,37 @@ class ColorAttr(AttrSpec):
             kwargs['iterable'] = iterable
         super(ColorAttr, self).__init__(**kwargs)
 
+    # def setup(self, data=None, columns=None, bins=None):
+    #     if bins is not None:
+    #         self.bins = bins
+    #     super(ColorAttr, self).setup(data, columns)
+
     def _generate_items(self, df, columns):
         """Produce list of unique tuples that identify each item."""
         if not self.bin:
             super(ColorAttr, self)._generate_items(df, columns)
         else:
+
             if len(columns) == 1 and ChartDataSource.is_number(df[columns[0]]):
                 if self.sort:
                     df = df.sort(columns=columns, ascending=self.ascending)
                 self.bins = Bins(source=ColumnDataSource(df), column=columns[0],
-                                 bin_count=len(self.iterable))
+                                 bin_count=len(self.iterable), aggregate=False)
+
                 self.items = [bin.label[0] for bin in self.bins]
             else:
                 raise ValueError('Binned colors can only be created for one column of \
                                  numerical data.')
+
+    def add_bin_labels(self, data):
+        col = self.columns[0]
+        # save original values into new column
+        data._data[col + '_values'] = data._data[col]
+
+        for bin in self.bins:
+            # set all rows associated to each bin to the bin label being mapped to colors
+            data._data.ix[data._data[col + '_values'].isin(bin.values),
+                          col] = bin.label[0]
 
 
 class MarkerAttr(AttrSpec):

@@ -19,6 +19,7 @@ from six import iteritems
 from six.moves import zip
 
 from .properties import ColumnLabel, Column
+from .stats import Stat, Bins
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
 from ..properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
@@ -284,6 +285,7 @@ class ChartDataSource(object):
         self.attrs = kwargs.pop('attrs', [])
         self._data = df
         self._dims = dims
+        self.operations = []
         self._required_dims = required_dims
         self.column_assigner = column_assigner(df=df, dims=list(self._dims),
                                                attrs=self.attrs)
@@ -337,9 +339,20 @@ class ChartDataSource(object):
     def apply_operations(self):
         """Applies each data operation."""
         # ToDo: Handle order of operation application, see GoG pg. 71
+
         for dim, select in iteritems(self._selections):
             if isinstance(select, DataOperator):
                 self._data = select.apply(self)
+
+            # handle any stat operations to derive and aggregate data
+            if isinstance(select, Stat):
+                if isinstance(select, Bins):
+                    self._data = select.apply(self)
+                else:
+                    raise TypeError('Stat input of %s for %s is not supported.' %
+                                    (select.__class__, dim))
+
+            self.operations.append(select)
 
     def setup_derived_columns(self):
         """Attempt to add special case columns to the DataFrame for the builder."""

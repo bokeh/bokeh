@@ -930,7 +930,8 @@ class HeatmapGlyph(XyGlyph):
     def build_renderers(self):
         glyph_class = self.glyphs[self.glyph_name]
         glyph = glyph_class(x='x', y='y', height=self.height, width=self.width,
-                            fill_color=self.fill_color, dilate=True)
+                            fill_color=self.fill_color, line_color=self.line_color,
+                            dilate=True)
         yield GlyphRenderer(glyph=glyph)
 
     @property

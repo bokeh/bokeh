@@ -26,7 +26,7 @@ from ..attributes import ColorAttr
 from ...models import HoverTool
 from ..glyphs import HeatmapGlyph
 from ...models.sources import ColumnDataSource
-from ...properties import Float
+from ...properties import Float, String
 
 from bokeh.palettes import Blues6
 
@@ -35,8 +35,8 @@ from bokeh.palettes import Blues6
 #-----------------------------------------------------------------------------
 
 
-def HeatMap(data, x, y, values, stat='count', xscale="categorical", yscale="categorical",
-            xgrid=False, ygrid=False, **kw):
+def HeatMap(data, x=None, y=None, values=None, stat='count', xscale="categorical",
+            yscale="categorical", xgrid=False, ygrid=False, **kw):
     """ Create a HeatMap chart using :class:`HeatMapBuilder <bokeh.charts.builder.heatmap_builder.HeatMapBuilder>`
     to render the geometry from values.
 
@@ -101,8 +101,9 @@ class HeatMapBuilder(XYBuilder):
 
     values = Dimension('values')
 
-    dimensions = ['x', 'y']
-    req_dimensions = [['x', 'y']]
+    dimensions = ['x', 'y', 'values']
+    req_dimensions = [['x', 'y'],
+                      ['x', 'y', 'values']]
 
     default_attributes = {'color': ColorAttr(bin=True, palette=Blues6)}
 
@@ -110,6 +111,8 @@ class HeatMapBuilder(XYBuilder):
     bin_height = Float()
 
     spacing_ratio = Float(default=1.0)
+
+    stat = String(default='sum')
 
     _bins = []
 
@@ -121,44 +124,17 @@ class HeatMapBuilder(XYBuilder):
         the rect glyph inside the ``_yield_renderers`` method.
 
         """
-        dims = [self.x.selection, self.y.selection]
-        value_dim = self.attributes['color'].columns[0]
+        for op in self._data.operations:
+            if isinstance(op, Bins):
+                self.bin_width = op.get_dim_width('x')
+                self.bin_height = op.get_dim_width('y')
+                self._bins = op
 
-        binned = True
-        if binned:
-            self._bins = Bins(source=self._data.source, dimensions=dims,
-                              column=self.attributes['color'].columns[0],
-                              bin_count=len(self.attributes['color'].iterable))
-
-            """
-            x column: center of x bins
-            y column: center of y bins
-            color column: [xy0_values, xy1_values, xyN_values]
-            """
-            data = {
-                dims[0]: [bin.center[0] for bin in self._bins],
-                dims[1]: [bin.center[1] for bin in self._bins],
-                value_dim: [bin.value for bin in self._bins]
-            }
-
-            self.bin_width = self._bins[0].stop[0] - self._bins[0].start[0]
-            self.bin_height = self._bins[0].stop[1] - self._bins[0].start[1]
-        else:
-            pass
-
-        df = pd.DataFrame(data)
-        self._data._data = df
-        self.x.set_data(self._data)
-        self.y.set_data(self._data)
-
-        self.attributes['color'].setup(data=ColumnDataSource(df), columns=value_dim)
-
-        data[value_dim] = self.attributes['color'].bins._df[value_dim + '_bin']
-
-        df = pd.DataFrame(data)
-        self._data._data = df
-        self.x.set_data(self._data)
-        self.y.set_data(self._data)
+        # if we have values specified but color attribute not setup, do so
+        if self.attributes['color'].columns is None and self.values.selection is not None:
+            self.attributes['color'].setup(data=self._data.source,
+                                           columns=self.values.selection)
+            self.attributes['color'].add_bin_labels(self._data)
 
     def yield_renderers(self):
         """Use the rect glyphs to display the categorical heatmap.
