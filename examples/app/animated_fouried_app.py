@@ -191,7 +191,9 @@ def cb():
 
     if gind >= 99:
         gind = 0
-        # curdoc().remove_periodic_callback(cb)
 
-# Add the callback function to bokeh server session
+# Add the callback function to the document. This will add the
+# callback to the client session main loop (when running the example)
+# with bokeh server. The main loop will then call the callback every
+# 0.5 seconds.
 curdoc().add_periodic_callback(cb, .05)
