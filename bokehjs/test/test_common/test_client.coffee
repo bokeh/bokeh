@@ -35,6 +35,8 @@ next_port = () ->
   _previous_port += 1
   _previous_port
 
+server_timeout_millis = 7500
+
 # Launch server, wait for it to be alive, and then
 # run a test function that returns a Promise
 with_server = (f) ->
@@ -90,7 +92,7 @@ with_server = (f) ->
       if client?
         client.destroy()
         client = null
-    else if num_server_attempts > 10
+    else if num_server_attempts > (server_timeout_millis / 100)
       promise.reject(new Error("Failed to connect to the server"))
     else if client != null
       # still waiting on a client we already have...
@@ -119,7 +121,7 @@ describe "Client", ->
   # flaky on Travis. Lengthen if we keep getting Travis failures.
   # The default (at least when this comment was written) was
   # 2000ms.
-  @timeout(7500)
+  @timeout(server_timeout_millis)
 
   it "should be able to connect", ->
     promise = with_server (server_process) ->
