@@ -86,7 +86,8 @@ class Stat(HasProps):
                 col = self.column
 
             return pd.Series(self.source.data[col])
-
+        elif self.values is None and self.source is not None:
+            return pd.Series(self.source.to_df().index)
         elif self.values is not None:
             return self.values
         else:
@@ -303,10 +304,14 @@ class Bins(Stat):
 
             if len(self.dimensions.keys()) > 0:
                 stat_kwargs['column'] = self.dimensions[dim]
-            else:
+            elif self.column is not None:
                 stat_kwargs['column'] = self.column
-        else:
+            else:
+                stat_kwargs['column'] = 'values'
+        elif self.values is not None:
             stat_kwargs['values'] = self.values
+        else:
+            raise ValueError('Could not identify bin stat for %s' % dim)
 
         #if list(self.dimensions.keys()):
         #    stat_kwargs['bin_count'] = self.bin_count[idx]

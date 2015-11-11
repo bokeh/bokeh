@@ -35,7 +35,7 @@ from bokeh.sampledata.unemployment1948 import data
 #     height=400, width=1000
 # )
 
-hm1 = HeatMap(df, bin(x='mpg', y='displ', values='cyl'))
+hm1 = HeatMap(df, bin(x='mpg', y='displ'))
 
 hm2 = HeatMap(df, bin(x='mpg', y='displ', values='cyl', stat='mean'))
 
