@@ -33,6 +33,7 @@ a serialized version of the model looks like.
    models/renderers
    models/sources
    models/tickers
+   models/tiles
    models/tools
    models/widgets.widget
    models/widgets.buttons

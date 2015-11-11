@@ -37,16 +37,19 @@ class HasParent extends HasProperties
     super(attrs, options)
     @_parent = HasProperties.prototype.get.apply(this, ['parent'])
 
-  get: (attr) ->
+  nonserializable_attribute_names: () ->
+    super().concat(['parent'])
+
+  get: (attr, resolve_refs=true) ->
     if not @_display_defaults
       @_display_defaults = @display_defaults()
     if attr == 'parent'
       return @_parent
-    val = super(attr)
+    val = super(attr, resolve_refs)
     if not _.isUndefined(val)
       return val
     if @_parent and _.indexOf(@_parent.parent_properties, attr) >= 0
-      val = @_parent.get(attr)
+      val = @_parent.get(attr, resolve_refs)
       if not _.isUndefined(val)
         return val
     return @_display_defaults[attr]

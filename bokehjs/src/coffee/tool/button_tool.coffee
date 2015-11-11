@@ -37,6 +37,9 @@ class ButtonTool extends Tool.Model
     super(attrs, options)
     @register_property('tooltip', () ->@get('tool_name'))
 
+  nonserializable_attribute_names: () ->
+    super().concat(['icon'])
+
   defaults: () ->
     return _.extend({}, super(), {
       active: false

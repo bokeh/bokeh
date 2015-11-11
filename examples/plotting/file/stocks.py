@@ -7,11 +7,11 @@ output_file("stocks.html", title="stocks.py example")
 
 p1 = figure(x_axis_type = "datetime")
 
-p1.line(np.array(AAPL['date'], 'M64'), AAPL['adj_close'], color='#A6CEE3', legend='AAPL')
-p1.line(np.array(FB['date'], 'M64'), FB['adj_close'], color='#1F78B4', legend='FB')
-p1.line(np.array(GOOG['date'], 'M64'), GOOG['adj_close'], color='#B2DF8A', legend='GOOG')
-p1.line(np.array(IBM['date'], 'M64'), IBM['adj_close'], color='#33A02C', legend='IBM')
-p1.line(np.array(MSFT['date'], 'M64'), MSFT['adj_close'], color='#FB9A99', legend='MSFT')
+p1.line(np.array(AAPL['date'], dtype=np.datetime64), AAPL['adj_close'], color='#A6CEE3', legend='AAPL')
+p1.line(np.array(FB['date'], dtype=np.datetime64), FB['adj_close'], color='#1F78B4', legend='FB')
+p1.line(np.array(GOOG['date'], dtype=np.datetime64), GOOG['adj_close'], color='#B2DF8A', legend='GOOG')
+p1.line(np.array(IBM['date'], dtype=np.datetime64), IBM['adj_close'], color='#33A02C', legend='IBM')
+p1.line(np.array(MSFT['date'], dtype=np.datetime64), MSFT['adj_close'], color='#FB9A99', legend='MSFT')
 
 p1.title = "Stock Closing Prices"
 p1.grid.grid_line_alpha=0.3
