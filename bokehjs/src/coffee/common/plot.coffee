@@ -360,6 +360,10 @@ class PlotView extends ContinuumView
     # @$el.find('canvas').attr('data-hash', ctx.hash());
 
   resize: () =>
+    @resize_width_height(true, false)
+  
+  resize_width_height: (use_width, use_height) =>
+    # Resize plot based on available width and/or height
     canvas_height = @canvas.get('height')
     canvas_width = @canvas.get('width')
     # Calculating this each time means that we play nicely with resize tool
@@ -370,14 +374,29 @@ class PlotView extends ContinuumView
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
     min_size = @mget('min_size')
-    new_width = Math.max(@.el.clientWidth, min_size)
-    new_height = parseInt(new_width / aspect_ratio)
-
-    if new_height < min_size
-      new_height = 100
-      new_width = new_height * aspect_ratio  # Preserves the aspect ratio
-
-    @canvas._set_dims([new_width, new_height])
+    
+    if use_width
+      new_width1 = Math.max(@.el.clientWidth, min_size)
+      new_height1 = parseInt(new_width1 / aspect_ratio)
+    if use_height
+      new_height2 = Math.max(@.el.parentNode.clientHeight - 50, min_size)  # -50 for x ticks
+      new_width2 = parseInt(new_height2 * aspect_ratio)
+    
+    if (not use_height) and (not use_width)
+      # remain same size
+    else if use_height and use_width
+      if new_width2 < new_width1 and new_width2 > min_size
+        @canvas._set_dims([new_width2, new_height2])
+      else
+        @canvas._set_dims([new_width1, new_height1])
+    else if use_height and new_width2 > min_size
+      @canvas._set_dims([new_width2, new_height2])
+    else if use_width and new_width1 > min_size
+      @canvas._set_dims([new_width1, new_height1])
+    else if aspect_ratio < 1
+      @canvas._set_dims([min_size, min_size / aspect_ratio])
+    else
+      @canvas._set_dims([min_size * aspect_ratio, min_size])
     return null
 
   _render_levels: (ctx, levels, clip_region) ->

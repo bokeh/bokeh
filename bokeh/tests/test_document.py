@@ -26,6 +26,12 @@ class TestDocument(unittest.TestCase):
         assert len(d.roots) == 1
         assert next(iter(d.roots)).document == d
 
+    def test_set_title(self):
+        d = document.Document()
+        assert d.title == document.DEFAULT_TITLE
+        d.title = "Foo"
+        assert d.title == "Foo"
+
     def test_all_models(self):
         d = document.Document()
         assert not d.roots
@@ -189,8 +195,26 @@ class TestDocument(unittest.TestCase):
         assert isinstance(events[3], document.RootRemovedEvent)
         assert events[3].model == m2
 
+    def test_notification_of_title(self):
+        d = document.Document()
+        assert not d.roots
+        assert d.title == document.DEFAULT_TITLE
+
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        d.title = "Foo"
+        assert d.title == "Foo"
+        assert len(events) == 1
+        assert isinstance(events[0], document.TitleChangedEvent)
+        assert events[0].document is d
+        assert events[0].title == "Foo"
+
     def test_add_periodic_callback(self):
         d = document.Document()
+
         events = []
         def listener(event):
             events.append(event)
@@ -218,12 +242,16 @@ class TestDocument(unittest.TestCase):
     def test_clear(self):
         d = document.Document()
         assert not d.roots
+        assert d.title == document.DEFAULT_TITLE
         d.add_root(AnotherModelInTestDocument())
         d.add_root(AnotherModelInTestDocument())
+        d.title = "Foo"
         assert len(d.roots) == 2
+        assert d.title == "Foo"
         d.clear()
         assert not d.roots
         assert not d._all_models
+        assert d.title == "Foo" # do not reset title
 
     def test_serialization_one_model(self):
         d = document.Document()
@@ -231,11 +259,13 @@ class TestDocument(unittest.TestCase):
         assert len(d._all_models) == 0
         root1 = SomeModelInTestDocument()
         d.add_root(root1)
+        d.title = "Foo"
 
         json = d.to_json_string()
         copy = document.Document.from_json_string(json)
 
         assert len(copy.roots) == 1
+        assert copy.title == "Foo"
 
     def test_serialization_more_models(self):
         d = document.Document()
