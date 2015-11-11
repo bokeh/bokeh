@@ -105,10 +105,11 @@ class HeatMapBuilder(XYBuilder):
     req_dimensions = [['x', 'y'],
                       ['x', 'y', 'values']]
 
-    default_attributes = {'color': ColorAttr(bin=True, palette=Blues6)}
+    default_attributes = {'color': ColorAttr(bin=True, palette=Blues6,
+                                             sort=True, ascending=False)}
 
-    bin_width = Float()
-    bin_height = Float()
+    bin_width = Float(default=1.0)
+    bin_height = Float(default=1.0)
 
     spacing_ratio = Float(default=1.0)
 
@@ -134,7 +135,7 @@ class HeatMapBuilder(XYBuilder):
         if self.attributes['color'].columns is None:
             self.attributes['color'].setup(data=self._data.source,
                                            columns=self.values.selection or 'values')
-            self.attributes['color'].add_bin_labels(self._data)
+        self.attributes['color'].add_bin_labels(self._data)
 
     def yield_renderers(self):
         """Use the rect glyphs to display the categorical heatmap.

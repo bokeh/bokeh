@@ -16,6 +16,7 @@ from bokeh.properties import (Float, String, Datetime, Bool, Instance,
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
+from .data_source import ChartDataSource
 from .utils import marker_types, generate_patch_base
 
 
@@ -936,18 +937,26 @@ class HeatmapGlyph(XyGlyph):
 
     @property
     def x_max(self):
-        return max(self.source._data['x']) + self.width / 2.0
+        return self.get_data_range('x')[1] + self.width / 2.0
 
     @property
     def x_min(self):
-        return min(self.source._data['x']) - self.width / 2.0
+        return self.get_data_range('x')[0] - self.width / 2.0
 
     @property
     def y_max(self):
-        return max(self.source._data['y']) + self.height / 2.0
+        return self.get_data_range('y')[1] + self.height / 2.0
 
     @property
     def y_min(self):
-        return min(self.source._data['y']) - self.height / 2.0
+        return self.get_data_range('y')[0] - self.height / 2.0
+
+    def get_data_range(self, col):
+        data = self.source.data[col]
+        if ChartDataSource.is_number(data):
+            return min(data), max(data)
+        else:
+            return 1, len(data.drop_duplicates())
+
 
 
