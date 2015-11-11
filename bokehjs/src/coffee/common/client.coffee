@@ -360,6 +360,29 @@ class ClientSession
   _connection_closed : () ->
     @document.remove_on_change(@document_listener)
 
+  # Sends a request to the server for info about the
+  # server, such as its Bokeh version. Returns a promise,
+  # the value of the promise is a free-form dictionary
+  # of server details.
+  request_server_info : () ->
+    message = Message.create('SERVER-INFO-REQ', {})
+    promise = @_connection.send_with_reply(message)
+    promise.then((reply) -> reply.content)
+
+  # Sends some request to the server (no guarantee about which
+  # one) and returns a promise which is completed when the server
+  # replies. The purpose of this is that if you wait for the
+  # promise to be completed, you know the server has processed the
+  # request. This is useful when writing tests because once the
+  # server has processed this request it should also have
+  # processed any events or requests you sent previously, which
+  # means you can check for the results of that processing without
+  # a race condition. (This assumes the server processes events in
+  # sequence, which it mostly has to semantically - reordering
+  # events might change the final state.)
+  force_roundtrip : () ->
+    @request_server_info().then((ignored) -> undefined)
+
   _should_suppress_on_change : (patch, event) ->
     if event instanceof ModelChangedEvent
       for event_json in patch.content['events']
@@ -377,6 +400,10 @@ class ClientSession
     else if event instanceof RootRemovedEvent
         for event_json in patch.content['events']
           if event_json['kind'] == 'RootRemoved' and event_json['model']['id'] == event.model.id
+            return true
+    else if event instanceof TitleChangedEvent
+        for event_json in patch.content['events']
+          if event_json['kind'] == 'TitleChanged' and event_json['title'] == event.title
             return true
 
     return false

@@ -168,7 +168,14 @@ class TestClientServer(unittest.TestCase):
             assert client_root.foo == 42
             assert server_root.foo == 42
 
-            # Now modify the client document
+            # Now try setting title
+            assert server_session.document.title == document.DEFAULT_TITLE
+            doc.title = "Client Title"
+            client_session.force_roundtrip() # be sure events have been handled on server
+
+            assert server_session.document.title == "Client Title"
+
+            # Now modify an attribute on a client model
             client_root.foo = 57
 
             # there is no great way to block until the server
@@ -200,6 +207,7 @@ class TestClientServer(unittest.TestCase):
 
             assert len(client_session.document.roots) == 0
             server_root = SomeModelInTestClientServer(foo=42)
+
             server_session.document.add_root(server_root)
             def client_has_root():
                 return len(doc.roots) > 0
@@ -209,7 +217,15 @@ class TestClientServer(unittest.TestCase):
             assert client_root.foo == 42
             assert server_root.foo == 42
 
-            # Now modify the server document
+            # Now try setting title on server side
+            server_session.document.title = "Server Title"
+            def client_title_set():
+                return client_session.document.title != document.DEFAULT_TITLE
+            client_session._connection._loop_until(client_title_set)
+
+            assert client_session.document.title == "Server Title"
+
+            # Now modify a model within the server document
             server_root.foo = 57
 
             # there is no great way to block until the server
