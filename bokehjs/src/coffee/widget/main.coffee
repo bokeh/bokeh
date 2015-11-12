@@ -37,3 +37,6 @@ locations = {
 
 {Collections} = require('../common/base')
 Collections.register_plugin('widgets', locations)
+
+module.exports =
+  locations: locations
