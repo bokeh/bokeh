@@ -422,7 +422,7 @@ class MetaHasProps(type):
 
         return type.__new__(cls, class_name, bases, class_dict)
 
-def accumulate_from_subclasses(cls, propname):
+def accumulate_from_superclasses(cls, propname):
     s = set()
     for c in inspect.getmro(cls):
         if issubclass(c, HasProps):
@@ -477,7 +477,7 @@ class HasProps(object):
         pull together the full list of properties.
         """
         if not hasattr(cls, "__cached_allprops_with_refs"):
-            s = accumulate_from_subclasses(cls, "__properties_with_refs__")
+            s = accumulate_from_superclasses(cls, "__properties_with_refs__")
             cls.__cached_allprops_with_refs = s
         return cls.__cached_allprops_with_refs
 
@@ -486,7 +486,7 @@ class HasProps(object):
         """ Returns a list of properties that are containers
         """
         if not hasattr(cls, "__cached_allprops_containers"):
-            s = accumulate_from_subclasses(cls, "__container_props__")
+            s = accumulate_from_superclasses(cls, "__container_props__")
             cls.__cached_allprops_containers = s
         return cls.__cached_allprops_containers
 
@@ -544,7 +544,7 @@ class HasProps(object):
     @classmethod
     def class_properties(cls, withbases=True):
         if withbases:
-            return accumulate_from_subclasses(cls, "__properties__")
+            return accumulate_from_superclasses(cls, "__properties__")
         else:
             return set(cls.__properties__)
 
