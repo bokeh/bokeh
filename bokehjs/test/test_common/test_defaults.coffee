@@ -19,26 +19,33 @@ get_defaults = (name) ->
   core_defaults.get_defaults(name) or widget_defaults.get_defaults(name)
 
 check_matching_defaults = (name, python_defaults, coffee_defaults) ->
-  failures = []
+  different = []
+  python_missing = []
+  coffee_missing = []
   for k, v of coffee_defaults
     if k == 'id'
       continue
     if k of python_defaults
       py_v = python_defaults[k]
       if not _.isEqual(py_v, v)
-        failures.push("#{name}.#{k}: coffee defaults to #{JSON.stringify(v)} but python defaults to #{JSON.stringify(py_v)}")
+        different.push("#{name}.#{k}: coffee defaults to #{JSON.stringify(v)} but python defaults to #{JSON.stringify(py_v)}")
     else
-      failures.push("#{name}.#{k}: coffee defaults to #{JSON.stringify(v)} but python has no such property")
+      python_missing.push("#{name}.#{k}: coffee defaults to #{JSON.stringify(v)} but python has no such property")
   for k, v of python_defaults
     if k not of coffee_defaults
-      failures.push("#{name}.#{k}: python defaults to #{JSON.stringify(v)} but coffee has no such property")
+      coffee_missing.push("#{name}.#{k}: python defaults to #{JSON.stringify(v)} but coffee has no such property")
 
-  if failures.length > 0
-    console.error("#{name}: defaults are out of sync between Python and CoffeeScript")
-    for f in failures
-      console.error("    #{f}")
+  complain = (failures, message) ->
+    if failures.length > 0
+      console.error(message)
+      for f in failures
+        console.error("    #{f}")
 
-  failures.length == 0
+  complain(different, "#{name}: defaults are out of sync between Python and CoffeeScript")
+  complain(python_missing, "#{name}: python is missing some properties found in CoffeeScript")
+  complain(coffee_missing, "#{name}: coffee is missing some properties found in Python")
+
+  different.length == 0 and python_missing.length == 0 and coffee_missing.length == 0
 
 strip_ids = (value) ->
   if _.isArray(value)
