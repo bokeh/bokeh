@@ -4,7 +4,7 @@ import unittest
 
 import bokeh.document as document
 from bokeh.plot_object import PlotObject
-from bokeh.properties import Int, Instance
+from bokeh.properties import Int, Instance, String
 
 class AnotherModelInTestDocument(PlotObject):
     bar = Int(1)
@@ -12,6 +12,9 @@ class AnotherModelInTestDocument(PlotObject):
 class SomeModelInTestDocument(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
+
+class ModelThatOverridesName(PlotObject):
+    name = String()
 
 class TestDocument(unittest.TestCase):
 
@@ -62,6 +65,38 @@ class TestDocument(unittest.TestCase):
         assert d.get_model_by_id(m._id) == m
         assert d.get_model_by_id(m2._id) == m2
         assert d.get_model_by_id("not a valid ID") is None
+
+    def test_get_model_by_name(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        m = SomeModelInTestDocument(name="foo")
+        m2 = AnotherModelInTestDocument(name="bar")
+        m.child = m2
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert len(d._all_models) == 2
+        assert len(d._all_models_by_name) == 2
+        assert d.get_model_by_name(m.name) == m
+        assert d.get_model_by_name(m2.name) == m2
+        assert d.get_model_by_name("not a valid name") is None
+
+    def test_get_model_by_changed_name(self):
+        d = document.Document()
+        m = SomeModelInTestDocument(name="foo")
+        d.add_root(m)
+        assert d.get_model_by_name("foo") == m
+        m.name = "bar"
+        assert d.get_model_by_name("foo") == None
+        assert d.get_model_by_name("bar") == m
+
+    def test_cannot_get_name_overriding_model_by_name(self):
+        d = document.Document()
+        m = ModelThatOverridesName(name="foo")
+        d.add_root(m)
+        assert d.get_model_by_name("foo") == None
+        m.name = "bar"
+        assert d.get_model_by_name("bar") == None
 
     def test_all_models_with_multiple_references(self):
         d = document.Document()

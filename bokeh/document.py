@@ -91,6 +91,7 @@ class Document(object):
 
         self._all_models_freeze_count = 0
         self._all_models = dict()
+        self._all_models_by_name = dict()
         self._callbacks = []
         self._session_callbacks = {}
 
@@ -144,6 +145,10 @@ class Document(object):
         if self._all_models_freeze_count == 0:
             self._recompute_all_models()
 
+    @classmethod
+    def _naughty_model_overrides_name(cls, model):
+        return getattr(model.__class__, 'name') != getattr(PlotObject, 'name')
+
     def _recompute_all_models(self):
         new_all_models_set = set()
         for r in self.roots:
@@ -152,13 +157,17 @@ class Document(object):
         to_detach = old_all_models_set - new_all_models_set
         to_attach = new_all_models_set - old_all_models_set
         recomputed = {}
+        recomputed_by_name = {}
         for m in new_all_models_set:
             recomputed[m._id] = m
+            if m.name is not None and not self._naughty_model_overrides_name(m):
+                recomputed_by_name[m.name] = m
         for d in to_detach:
             d._detach_document()
         for a in to_attach:
             a._attach_document(self)
         self._all_models = recomputed
+        self._all_models_by_name = recomputed_by_name
 
     @property
     def roots(self):
@@ -229,6 +238,10 @@ class Document(object):
         ''' Get the model object for the given ID or None if not found'''
         return self._all_models.get(model_id, None)
 
+    def get_model_by_name(self, name):
+        ''' Get the model object for the given name or None if not found'''
+        return self._all_models_by_name.get(name, None)
+
     def on_change(self, *callbacks):
         ''' Invoke callback if the document or any PlotObject reachable from its roots changes.
 
@@ -257,6 +270,12 @@ class Document(object):
     def _notify_change(self, model, attr, old, new):
         ''' Called by PlotObject when it changes
         '''
+        # if name changes, update by-name index
+        if attr == 'name':
+            if not self._naughty_model_overrides_name(model):
+                if self._all_models_by_name.get(old, None) == model:
+                    del self._all_models_by_name[old]
+                self._all_models_by_name[new] = model
         self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new))
 
     @classmethod
