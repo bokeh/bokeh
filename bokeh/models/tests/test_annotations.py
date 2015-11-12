@@ -15,7 +15,7 @@ LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
 LABEL = ["label_text_font", "label_text_font_size", "label_text_font_style",
     "label_text_color", "label_text_alpha", "label_text_align",
     "label_text_baseline"]
-PROPS = ["session", "name", "tags"]
+PROPS = ["name", "tags"]
 
 def check_border(annotation):
     assert annotation.border_line_color == Color.black
