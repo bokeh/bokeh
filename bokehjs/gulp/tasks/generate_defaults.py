@@ -2,7 +2,7 @@ from bokeh.plot_object import PlotObject
 import bokeh.models as models
 import inspect
 from bokeh._json_encoder import serialize_json
-from json import loads, dumps
+from json import loads
 import codecs
 import sys
 import os
@@ -47,16 +47,23 @@ for leaf in leaves(all_tree, plot_object_class):
     if vm_name in all_json:
         continue
     defaults = {}
-    for name in klass.__properties__:
+    for name in klass.class_properties():
         prop = getattr(klass, name)
         default = prop.default
         if isinstance(default, PlotObject):
             ref = default.ref
-            attrs = loads(serialize_json(default.vm_serialize(changed_only=False), sort_keys=True))
-            del attrs['id']
+            raw_attrs = default.vm_serialize(changed_only=False)
+            del raw_attrs['id']
+            for (k, v) in raw_attrs.items():
+                # we can't serialize Infinity ... this hack is also in PlotObject.
+                if isinstance(v, float) and v == float('inf'):
+                    raw_attrs[k] = None
+            attrs = loads(serialize_json(raw_attrs, sort_keys=True))
             del ref['id']
             ref['attributes'] = attrs
             default = ref
+        elif isinstance(default, float) and default == float('inf'):
+            default = None
         defaults[name] = default
     all_json[vm_name] = defaults
 
