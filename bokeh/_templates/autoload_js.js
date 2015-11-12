@@ -8,7 +8,7 @@ calls it with the rendered model.
 :param elementid: the unique id for the script tag
 :type elementid: str
 
-:param websocket_url: path to use to open websocket, or null if we aren't using a server
+:param websocket_url: path to use to open websocket, or null if we are not using a server
 :type websocket_url: str
 
 :param docs_json: embedded JSON serialization of documents
@@ -38,7 +38,7 @@ calls it with the rendered model.
       var url = js_urls[i];
       var s = document.createElement('script');
       s.src = url;
-      s.async = true;
+      s.async = false;
       s.onreadystatechange = s.onload = function() {
         window._bokeh_is_loading--;
         if (window._bokeh_is_loading === 0) {
