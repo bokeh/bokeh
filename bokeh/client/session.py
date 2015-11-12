@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 from .connection import ClientConnection
 
 from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL, DEFAULT_SERVER_HTTP_URL, server_url_for_websocket_url
-from bokeh.document import Document
+from bokeh.document import Document, SessionCallbackAdded, SessionCallbackRemoved
 import uuid
 
 DEFAULT_SESSION_ID = "default"
@@ -153,10 +153,34 @@ class ClientSession(object):
         self._connection = ClientConnection(session=self, io_loop=io_loop, url=url)
 
         self._current_patch = None
+        self._callbacks = {}
 
     def _attach_document(self, document):
         self._document = document
         self._document.on_change(self._document_changed)
+
+        for cb in self._document.session_callbacks:
+            self._add_periodic_callback(cb)
+
+    def _add_periodic_callback(self, callback):
+        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+
+        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+
+        '''
+        from tornado import ioloop
+        cb = self._callbacks[callback.id] = ioloop.PeriodicCallback(
+            callback.callback, callback.period, io_loop=self._connection._loop
+        )
+        cb.start()
+
+    def _remove_periodic_callback(self, callback):
+        ''' Remove a callback added earlier with add_periodic_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._callbacks.pop(callback.id).stop()
 
     def pull(self):
         """ Pull the server's state and set it as session.document.
@@ -279,6 +303,14 @@ class ClientSession(object):
     def _document_changed(self, event):
         if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):
             log.debug("Not sending notification back to server for a change it requested")
+            return
+
+        if isinstance(event, SessionCallbackAdded):
+            self._add_periodic_callback(event.callback)
+            return
+
+        if isinstance(event, SessionCallbackRemoved):
+            self._remove_periodic_callback(event.callback)
             return
 
         # TODO (havocp): our "change sync" protocol is flawed

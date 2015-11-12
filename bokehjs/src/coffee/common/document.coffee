@@ -10,6 +10,10 @@ class ModelChangedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @attr, @old, @new_) ->
     super @document
 
+class TitleChangedEvent extends DocumentChangedEvent
+  constructor : (@document, @title) ->
+    super @document
+
 class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
@@ -18,11 +22,14 @@ class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
 
+DEFAULT_TITLE = "Bokeh Application"
+
 # This class should match the API of the Python Document class
 # as much as possible.
 class Document
 
   constructor : () ->
+    @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
     @_all_model_counts = {}
@@ -38,6 +45,7 @@ class Document
       r = @_roots[0]
       @remove_root(r)
       dest_doc.add_root(r)
+    dest_doc.set_title(@_title)
     # TODO other fields of doc
 
   roots : () ->
@@ -59,6 +67,14 @@ class Document
 
     model.detach_document()
     @_trigger_on_change(new RootRemovedEvent(@, model))
+
+  title : () ->
+    @_title
+
+  set_title : (title) ->
+    if title != @_title
+      @_title = title
+      @_trigger_on_change(new TitleChangedEvent(@, title))
 
   get_model_by_id : (model_id) ->
     if model_id of @_all_models
@@ -345,6 +361,7 @@ class Document
         v
 
     {
+      'title' : @_title
       'roots' : {
         'root_ids' : root_ids,
         'references' : Document._references_json(root_references)
@@ -370,6 +387,8 @@ class Document
     doc = new Document()
     for r in root_ids
       doc.add_root(references[r])
+
+    doc.set_title(json['title'])
 
     doc
 
@@ -424,6 +443,12 @@ class Document
           'model' : event.model.ref()
         }
         json_events.push(json_event)
+      else if event instanceof TitleChangedEvent
+        json_event = {
+          'kind' : 'TitleChanged',
+          'title' : event.title
+        }
+        json_events.push(json_event)
 
     {
       'events' : json_events,
@@ -476,6 +501,8 @@ class Document
         root_id = event_json['model']['id']
         root_obj = references[root_id]
         @remove_root(root_obj)
+      else if event_json['kind'] == 'TitleChanged'
+        @set_title(event_json['title'])
       else
         throw new Error("Unknown patch event " + JSON.stringify(event_json))
 
@@ -483,6 +510,7 @@ module.exports = {
   Document : Document
   DocumentChangedEvent : DocumentChangedEvent
   ModelChangedEvent : ModelChangedEvent
-  RootAddedEvent : RootAddedEvent,
+  TitleChangedEvent : TitleChangedEvent
+  RootAddedEvent : RootAddedEvent
   RootRemovedEvent : RootRemovedEvent
 }
