@@ -422,7 +422,7 @@ class MetaHasProps(type):
 
         return type.__new__(cls, class_name, bases, class_dict)
 
-def accumulate_from_superclasses(cls, propname):
+def accumulate_from_superclasses(cls, propname, check_collisions=False):
     cachename = "__cached_all" + propname
     # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
     # classes, and the cache must be separate for each class
@@ -430,7 +430,14 @@ def accumulate_from_superclasses(cls, propname):
         s = set()
         for c in inspect.getmro(cls):
             if issubclass(c, HasProps):
-                s.update(getattr(c, propname))
+                base = getattr(c, propname)
+                if check_collisions:
+                    intersection = s.intersection(base)
+                    if len(intersection) > 0:
+                        warn('Properties %r were defined in two classes, one of them %r, as part of defining %r' %
+                             (intersection, c, cls),
+                             RuntimeWarning, stacklevel=6)
+                s.update(base)
         setattr(cls, cachename, s)
     return cls.__dict__[cachename]
 
@@ -501,7 +508,7 @@ class HasProps(object):
         traverse the class hierarchy and pull together the full
         list of properties.
         """
-        return accumulate_from_superclasses(cls, "__properties__")
+        return accumulate_from_superclasses(cls, "__properties__", check_collisions=True)
 
     @classmethod
     def dataspecs(cls):
