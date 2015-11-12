@@ -423,11 +423,16 @@ class MetaHasProps(type):
         return type.__new__(cls, class_name, bases, class_dict)
 
 def accumulate_from_superclasses(cls, propname):
-    s = set()
-    for c in inspect.getmro(cls):
-        if issubclass(c, HasProps):
-            s.update(getattr(c, propname))
-    return s
+    cachename = "__cached_all" + propname
+    # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
+    # classes, and the cache must be separate for each class
+    if cachename not in cls.__dict__:
+        s = set()
+        for c in inspect.getmro(cls):
+            if issubclass(c, HasProps):
+                s.update(getattr(c, propname))
+        setattr(cls, cachename, s)
+    return cls.__dict__[cachename]
 
 def abstract(cls):
     """ A phony decorator to mark abstract base classes. """
@@ -482,19 +487,13 @@ class HasProps(object):
         have references. We traverse the class hierarchy and
         pull together the full list of properties.
         """
-        if not hasattr(cls, "__cached_allprops_with_refs"):
-            s = accumulate_from_superclasses(cls, "__properties_with_refs__")
-            cls.__cached_allprops_with_refs = s
-        return cls.__cached_allprops_with_refs
+        return accumulate_from_superclasses(cls, "__properties_with_refs__")
 
     @classmethod
     def properties_containers(cls):
         """ Returns a list of properties that are containers
         """
-        if not hasattr(cls, "__cached_allprops_containers"):
-            s = accumulate_from_superclasses(cls, "__container_props__")
-            cls.__cached_allprops_containers = s
-        return cls.__cached_allprops_containers
+        return accumulate_from_superclasses(cls, "__container_props__")
 
     @classmethod
     def properties(cls):
@@ -502,10 +501,7 @@ class HasProps(object):
         traverse the class hierarchy and pull together the full
         list of properties.
         """
-        if not hasattr(cls, "__cached_allprops"):
-            s = cls.class_properties()
-            cls.__cached_allprops = s
-        return cls.__cached_allprops
+        return accumulate_from_superclasses(cls, "__properties__")
 
     @classmethod
     def dataspecs(cls):
@@ -550,7 +546,7 @@ class HasProps(object):
     @classmethod
     def class_properties(cls, withbases=True):
         if withbases:
-            return accumulate_from_superclasses(cls, "__properties__")
+            return cls.properties()
         else:
             return set(cls.__properties__)
 
