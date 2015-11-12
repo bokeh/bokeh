@@ -91,6 +91,10 @@ class PlotObject(HasProps, CallbackManager):
         '''This should only be called by the Document implementation to unset the document field'''
         self._document = None
 
+    def _naughty_model_overrides_name(self):
+        '''This should only be called by the Document implementation to work around broken models that override the name field with something unrelated'''
+        return getattr(self.__class__, 'name') != getattr(PlotObject, 'name')
+
     @property
     def document(self):
         return self._document

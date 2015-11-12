@@ -145,10 +145,6 @@ class Document(object):
         if self._all_models_freeze_count == 0:
             self._recompute_all_models()
 
-    @classmethod
-    def _naughty_model_overrides_name(cls, model):
-        return getattr(model.__class__, 'name') != getattr(PlotObject, 'name')
-
     def _recompute_all_models(self):
         new_all_models_set = set()
         for r in self.roots:
@@ -160,7 +156,7 @@ class Document(object):
         recomputed_by_name = {}
         for m in new_all_models_set:
             recomputed[m._id] = m
-            if m.name is not None and not self._naughty_model_overrides_name(m):
+            if m.name is not None and not m._naughty_model_overrides_name():
                 recomputed_by_name[m.name] = m
         for d in to_detach:
             d._detach_document()
@@ -272,7 +268,7 @@ class Document(object):
         '''
         # if name changes, update by-name index
         if attr == 'name':
-            if not self._naughty_model_overrides_name(model):
+            if not model._naughty_model_overrides_name():
                 if self._all_models_by_name.get(old, None) == model:
                     del self._all_models_by_name[old]
                 self._all_models_by_name[new] = model
