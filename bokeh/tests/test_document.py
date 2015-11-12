@@ -5,6 +5,7 @@ import unittest
 import bokeh.document as document
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance, String
+from mock import patch, Mock
 
 class AnotherModelInTestDocument(PlotObject):
     bar = Int(1)
@@ -432,6 +433,25 @@ class TestDocument(unittest.TestCase):
         y = np.sin(x)
         p1.scatter(x,y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
         assert len(d.roots) == 1
+
+    @patch('bokeh.validation.check.logger')
+    def test_validate_duplicate_names(self, check_logger):
+        d = document.Document()
+        m = SomeModelInTestDocument(name="foo")
+        m2 = AnotherModelInTestDocument(name="bar")
+        m.child = m2
+        d.add_root(m)
+        d.validate()
+        self.assertFalse(check_logger.error.called)
+
+        m3 = SomeModelInTestDocument(name="bar")
+        d.add_root(m3)
+        d.validate()
+        self.assertTrue(check_logger.error.called)
+        error_args = check_logger.error.call_args[0]
+        self.assertEqual(1, len(error_args))
+        self.assertTrue(error_args[0].startswith("W-1005 (DUPLICATE_NAMES)"))
+        self.assertEqual(dict(), check_logger.error.call_args[1])
 
     # TODO test serialize/deserialize with list-and-dict-valued properties
 
