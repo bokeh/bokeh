@@ -447,9 +447,15 @@ class HasProps(object):
             setattr(self, name, value)
 
     def __setattr__(self, name, value):
+        # self.properties() below can be expensive so avoid it
+        # if we're just setting a private underscore field
+        if name.startswith("_"):
+            super(HasProps, self).__setattr__(name, value)
+            return
+
         props = sorted(self.properties())
 
-        if name.startswith("_") or name in props:
+        if name in props:
             super(HasProps, self).__setattr__(name, value)
         else:
             matches, text = difflib.get_close_matches(name.lower(), props), "similar"
