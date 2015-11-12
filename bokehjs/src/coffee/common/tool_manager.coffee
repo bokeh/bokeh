@@ -1,10 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  # TODO Make work
-  $$1 = undefined
-else
-  $$1 = require "bootstrap/dropdown"
+$$1 = require "bootstrap/dropdown"
 Backbone = require "backbone"
 ActionTool = require "../tool/actions/action_tool"
 HelpTool = require "../tool/actions/help_tool"
@@ -67,10 +63,13 @@ class ToolManagerView extends Backbone.View
     return @
 
 class ToolManager extends HasProperties
+  type: 'ToolManager'
 
   initialize: (attrs, options) ->
     super(attrs, options)
     @_init_tools()
+
+  serializable_in_document: () -> false
 
   _init_tools: () ->
     gestures = @get('gestures')
@@ -107,26 +106,23 @@ class ToolManager extends HasProperties
       if tools.length == 0
         continue
       gestures[et].tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
-      gestures[et].tools[0].set('active', true)
+      if et not in ['pinch', 'scroll']
+        gestures[et].tools[0].set('active', true)
 
   _active_change: (tool) =>
-    et = tool.get('event_type')
-
-    active = tool.get('active')
-    if not active
-      return null
-
+    event_type = tool.get('event_type')
     gestures = @get('gestures')
-    prev = gestures[et].active
-    if prev?
-      logger.debug("ToolManager: deactivating tool: #{prev.type} (#{prev.id})
-                    for event type '#{et}'")
-      prev.set('active', false)
 
-    gestures[et].active = tool
+    # Toggle between tools of the same type by deactivating any active ones
+    currently_active_tool = gestures[event_type].active
+    if currently_active_tool? and currently_active_tool != tool
+      logger.debug("ToolManager: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
+      currently_active_tool.set('active', false)
+
+    # Update the gestures with the new active tool
+    gestures[event_type].active = tool
     @set('gestures', gestures)
-    logger.debug("ToolManager: activating tool: #{tool.type} (#{tool.id}) for
-                  event type '#{et}'")
+    logger.debug("ToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
   defaults: () ->

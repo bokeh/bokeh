@@ -8,82 +8,141 @@
     :local:
     :depth: 2
 
-Chart Functions
----------------
+Chart Options
+-------------
+
+See the options available as input to all Charts in
+:ref:`userguide_charts_defaults`. Each of these can
+be set at a global level with the shared defaults
+object, or can be passed as kwargs to each Chart.
+
+.. _bokeh_charts_charts:
+
+Charts
+------
 
 .. automodule:: bokeh.charts
 
-    .. autofunction:: Area
     .. autofunction:: Bar
     .. autofunction:: BoxPlot
-    .. autofunction:: Donut
-    .. autofunction:: Dot
-    .. autofunction:: HeatMap
     .. autofunction:: Histogram
-    .. autofunction:: Horizon
     .. autofunction:: Line
     .. autofunction:: Scatter
-    .. autofunction:: Step
-    .. autofunction:: TimeSeries
 
-Helper Classes
---------------
+.. _bokeh_charts_functions:
 
-.. autoclass:: bokeh.charts.Chart
-    :members:
-    :undoc-members:
+Chart Functions
+---------------
 
-.. autoclass:: bokeh.charts.DataAdapter
-    :members:
-    :undoc-members:
+Data Operations
+~~~~~~~~~~~~~~~
+
+.. autofunction:: bokeh.charts.blend
+
+.. _bokeh_charts_attr_gen:
+
+Attribute Generators
+~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: bokeh.charts.color
+.. autofunction:: bokeh.charts.marker
+.. autofunction:: bokeh.charts.cat
 
 .. _bokeh_dot_charts_builders:
 
 Builders
 --------
 
-.. autoclass:: bokeh.charts.builder.area_builder.AreaBuilder
+.. autoclass:: bokeh.charts.builders.bar_builder.BarBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.bar_builder.BarBuilder
+.. autoclass:: bokeh.charts.builders.boxplot_builder.BoxPlotBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.boxplot_builder.BoxPlotBuilder
+.. autoclass:: bokeh.charts.builders.histogram_builder.HistogramBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.donut_builder.DonutBuilder
+.. autoclass:: bokeh.charts.builders.line_builder.LineBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.dot_builder.DotBuilder
+.. autoclass:: bokeh.charts.builders.scatter_builder.ScatterBuilder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.heatmap_builder.HeatMapBuilder
+.. _bokeh_charts_helper_classes:
+
+Helper Classes
+--------------
+
+.. _bokeh_charts_core:
+
+Core Classes
+~~~~~~~~~~~~
+
+.. autoclass:: bokeh.charts.Chart
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.histogram_builder.HistogramBuilder
+    .. automethod:: bokeh.charts.Chart.__init__
+
+.. autoclass:: bokeh.charts.builder.Builder
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.horizon_builder.HorizonBuilder
+    .. automethod:: bokeh.charts.builder.Builder.__init__
 
-.. autoclass:: bokeh.charts.builder.line_builder.LineBuilder
+.. autoclass:: bokeh.charts.data_source.ChartDataSource
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.scatter_builder.ScatterBuilder
+    .. automethod:: bokeh.charts.data_source.ChartDataSource.__init__
+
+.. autoclass:: bokeh.charts.data_source.DataGroup
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.step_builder.StepBuilder
+    .. automethod:: bokeh.charts.data_source.DataGroup.__init__
+
+.. autoclass:: bokeh.charts.models.CompositeGlyph
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builder.timeseries_builder.TimeSeriesBuilder
+    .. automethod:: bokeh.charts.models.CompositeGlyph.__init__
+
+.. _bokeh_charts_attr_specs:
+
+Attribute Specs
+~~~~~~~~~~~~~~~
+
+.. autoclass:: bokeh.charts.attributes.AttrSpec
     :members:
     :undoc-members:
+
+    .. automethod:: bokeh.charts.attributes.AttrSpec.__init__
+
+.. autoclass:: bokeh.charts.attributes.ColorAttr
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.attributes.MarkerAttr
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.attributes.DashAttr
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.attributes.CatAttr
+    :members:
+    :undoc-members:
+
+Utilities
+---------
+
+.. autofunction:: bokeh.charts.utils.df_from_json
+
+

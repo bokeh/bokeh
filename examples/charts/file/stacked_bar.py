@@ -1,31 +1,24 @@
-from collections import OrderedDict
-
-import pandas as pd
-
 from bokeh.charts import Bar, output_file, show
+from bokeh.charts.operations import blend
+from bokeh.charts.attributes import cat, color
+from bokeh.charts.utils import df_from_json
 from bokeh.sampledata.olympics2014 import data
 
-df = pd.io.json.json_normalize(data['data'])
+# utilize utility to make it easy to get json/dict data converted to a dataframe
+df = df_from_json(data)
 
-# filter by countries with at least one medal and sort
-df = df[df['medals.total'] > 0]
-df = df.sort("medals.total", ascending=False)
+# filter by countries with at least one medal and sort by total medals
+df = df[df['total'] > 0]
+df = df.sort("total", ascending=False)
 
-# get the countries and we group the data by medal type
-countries = df.abbr.values.tolist()
-gold = df['medals.gold'].astype(float).values
-silver = df['medals.silver'].astype(float).values
-bronze = df['medals.bronze'].astype(float).values
-
-# build a dict containing the grouped data
-medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
-
-# any of the following commented are also alid Bar inputs
-#medals = pd.DataFrame(medals)
-#medals = list(medals.values())
+bar = Bar(df,
+          values=blend('bronze', 'silver', 'gold', name='medals', labels_name='medal'),
+          label=cat(columns='abbr', sort=False),
+          stack=cat(columns='medal', sort=False),
+          color=color(columns='medal', palette=['SaddleBrown', 'Silver', 'Goldenrod'],
+                      sort=False),
+          legend='top_right',
+          title="Medals per Country, Sorted by Total Medals")
 
 output_file("stacked_bar.html")
-
-bar = Bar(medals, countries, title="Stacked bars", stacked=True)
-
 show(bar)

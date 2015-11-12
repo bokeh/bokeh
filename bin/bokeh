@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import bokeh.command as command
+import sys
+
+command.main(sys.argv)

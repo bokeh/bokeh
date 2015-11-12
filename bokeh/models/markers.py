@@ -7,8 +7,10 @@ from __future__ import absolute_import
 from .glyphs import Glyph
 from ..enums import enumeration
 from ..mixins import FillProps, LineProps
+from ..properties import abstract
 from ..properties import DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
 
+@abstract
 class Marker(Glyph):
     """ Base class for glyphs that are simple markers with line and
     fill properties, located at an (x, y) location with a specified
@@ -22,6 +24,10 @@ class Marker(Glyph):
 
     """
 
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'size', 'angle')
+
     x = NumberSpec("x", help="""
     The x-axis coordinates for the center of the markers.
     """)
@@ -31,8 +37,7 @@ class Marker(Glyph):
     """)
 
     size = ScreenDistanceSpec(default=4, help="""
-    The size (diameter) values for the markers. Interpreted as
-    "screen space" units by default.
+    The size (diameter) values for the markers in screen space units.
     """)
 
     angle = NumberSpec("angle", help="""
@@ -48,34 +53,22 @@ class Marker(Glyph):
     """)
 
 class Asterisk(Marker):
-    """ Render asterisk '*' markers.
+    """ Render asterisk '*' markers. """
 
-    Example
-    -------
+    __example__ = "tests/glyphs/Asterisk.py"
 
-    .. bokeh-plot:: ../tests/glyphs/Asterisk.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/Asterisk.py``
-
-    """
 
 class Circle(Marker):
-    """ Render circle markers.
+    """ Render circle markers. """
 
-    Example
-    -------
+    __example__ = "tests/glyphs/Circle.py"
 
-    .. bokeh-plot:: ../tests/glyphs/Circle.py
-        :source-position: none
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y')
 
-    *source:* ``tests/glyphs/Circle.py``
-
-    """
-
-    radius = DistanceSpec("radius", help="""
-    The radius values for circle markers. Interpreted in
-    "data space" units by default.
+    radius = DistanceSpec(None, help="""
+    The radius values for circle markers (in "data space" units, by default).
 
     .. note::
         Circle markers are slightly unusual in that they support specifying
@@ -85,11 +78,11 @@ class Circle(Marker):
     .. warning::
         Note that ``Circle`` glyphs are always drawn as circles on the screen,
         even in cases where the data space aspect ratio is not 1-1. In all
-        cases where radius or size units are specified as "data", the
-        "distance" for the radius is measured along the horizontal axis.
-        If the aspect ratio is very large or small, the drawn circles may
-        appear much larger or smaller than expected. See :bokeh-issue:`626`
-        for more information.
+        cases where radius values are specified, the "distance" for the radius
+        is measured along the dimension specified by ``radius_dimension``. If
+        the aspect ratio is very large or small, the drawn circles may appear
+        much larger or smaller than expected. See :bokeh-issue:`626` for more
+        information.
 
     """)
 
@@ -102,144 +95,57 @@ class Circle(Marker):
     """)
 
 class CircleCross(Marker):
-    """ Render circle markers with a '+' cross through the center.
+    """ Render circle markers with a '+' cross through the center. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/CircleCross.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/CircleCross.py``
-
-    """
+    __example__ = "tests/glyphs/CircleCross.py"
 
 class CircleX(Marker):
-    """ Render circle markers with an 'X' cross through the center.
+    """ Render circle markers with an 'X' cross through the center. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/CircleX.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/CircleX.py``
-
-    """
+    __example__ = "tests/glyphs/CircleX.py"
 
 class Cross(Marker):
-    """ Render '+' cross markers.
+    """ Render '+' cross markers. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Cross.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/Cross.py``
-
-    """
+    __example__ = "tests/glyphs/Cross.py"
 
 class Diamond(Marker):
-    """ Render diamond markers.
+    """ Render diamond markers. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Diamond.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/Diamond.py``
-
-    """
+    __example__ = "tests/glyphs/Diamond.py"
 
 class DiamondCross(Marker):
-    """ Render diamond markers with a '+' cross through the center.
+    """ Render diamond markers with a '+' cross through the center. """
 
-    Example
-    -------
+    __example__ = "tests/glyphs/DiamondCross.py"
 
-    .. bokeh-plot:: ../tests/glyphs/DiamondCross.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/DiamondCross.py``
-
-    """
 
 class InvertedTriangle(Marker):
-    """ Render upside-down triangle markers.
+    """ Render upside-down triangle markers. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/InvertedTriangle.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/InvertedTriangle.py``
-
-    """
+    __example__ = "tests/glyphs/InvertedTriangle.py"
 
 class Square(Marker):
-    """ Render a square marker, optionally rotated.
+    """ Render a square marker, optionally rotated. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Square.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/Square.py``
-
-    """
+    __example__ = "tests/glyphs/Square.py"
 
 class SquareCross(Marker):
-    """ Render square markers with a '+' cross through the center.
+    """ Render square markers with a '+' cross through the center. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/SquareCross.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/SquareCross.py``
-
-    """
+    __example__ = "tests/glyphs/SquareCross.py"
 
 class SquareX(Marker):
-    """ Render square markers with an 'X' cross through the center.
+    """ Render square markers with an 'X' cross through the center. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/SquareX.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/SquareX.py``
-
-    """
+    __example__ = "tests/glyphs/SquareX.py"
 
 class Triangle(Marker):
-    """ Render triangle markers.
+    """ Render triangle markers. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/Triangle.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/Triangle.py``
-
-    """
+    __example__ = "tests/glyphs/Triangle.py"
 
 class X(Marker):
-    """ Render a 'X' cross markers.
+    """ Render a 'X' cross markers. """
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../tests/glyphs/X.py
-        :source-position: none
-
-    *source:* ``tests/glyphs/X.py``
-
-    """
+    __example__ = "tests/glyphs/X.py"

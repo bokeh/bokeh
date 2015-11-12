@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from bokeh.charts import Step, show, output_file
+from bokeh._legacy_charts import Step, show, output_file
 
 xyvalues = OrderedDict(
     python=[2, 3, 7, 5, 26, 81, 44, 93, 94, 105, 66, 67, 90, 83],

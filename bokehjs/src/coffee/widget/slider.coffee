@@ -1,4 +1,5 @@
 _ = require "underscore"
+$2 = require "jquery-ui/slider"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
@@ -37,7 +38,6 @@ class SliderView extends ContinuumView
     logger.debug("slide value = #{value}")
     @$( "##{ @mget('id') }" ).val( ui.value )
     @mset('value', value)
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class Slider extends HasParent

@@ -32,10 +32,11 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.napoleon',
-    'sphinxcontrib.autohttp.flask',
+    'sphinx.ext.intersphinx',
     'bokeh.sphinxext.bokeh_autodoc',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
+    'bokeh.sphinxext.bokeh_jinja',
     'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
@@ -161,7 +162,7 @@ html_theme_options = {
 
     # Fix navigation bar to top of page?
     # Values: "true" (default) or "false"
-    'navbar_fixed_top': "true",
+    'navbar_fixed_top': "false",
 
     # Location of link to source.
     # Options are "nav" (default), "footer" or anything else to exclude.
@@ -335,3 +336,8 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+# intersphinx settings
+intersphinx_mapping = {'python': ('https://docs.python.org/', None),
+                       'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
+                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}

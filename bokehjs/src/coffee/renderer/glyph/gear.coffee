@@ -1,9 +1,6 @@
 _ = require "underscore"
 Glyph = require "./glyph"
-if global._bokehTest?
-  GearUtils = undefined  # TODO Make work
-else
-  GearUtils = require "gear_utils"
+GearUtils = require "gear_utils"
 Bezier = require "../../util/bezier"
 
 class GearView extends Glyph.View
@@ -118,8 +115,8 @@ class GearView extends Glyph.View
 class Gear extends Glyph.Model
   default_view: GearView
   type: 'Gear'
-  angles: ['module']
-  fields: ['angle', 'internal:bool', 'pressure_angle', 'shaft_size', 'teeth']
+  angles: ['angle']
+  fields: ['module', 'internal:bool', 'pressure_angle', 'shaft_size', 'teeth']
 
   defaults: ->
     return _.extend {}, super(), {

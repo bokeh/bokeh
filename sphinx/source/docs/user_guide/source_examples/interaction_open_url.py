@@ -16,6 +16,6 @@ p.circle('x', 'y', color='color', size=20, source=source)
 
 url = "http://www.colors.commutercreative.com/@color/"
 taptool = p.select(type=TapTool)
-taptool.action = OpenURL(url=url)
+taptool.callback = OpenURL(url=url)
 
 show(p)

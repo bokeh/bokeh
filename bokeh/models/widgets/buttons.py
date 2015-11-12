@@ -3,12 +3,14 @@
 """
 from __future__ import absolute_import
 
+from ...properties import abstract
 from ...properties import Bool, Int, String, Enum, Instance, List, Tuple
 from ...enums import ButtonType
-from ..actions import Callback
-from ..widget import Widget
+from ..callbacks import Callback
+from .widget import Widget
 from .icons import AbstractIcon
 
+@abstract
 class AbstractButton(Widget):
     """ A base class that defines common properties for all
     button types. ``AbstractButton`` is not generally useful to
@@ -51,7 +53,7 @@ class Button(AbstractButton):
             None
 
         """
-        self.on_change('clicks', lambda obj, attr, old, new: handler())
+        self.on_change('clicks', lambda attr, old, new: handler())
 
 class Toggle(AbstractButton):
     """ A two-state toggle button.
@@ -73,24 +75,24 @@ class Toggle(AbstractButton):
             None
 
         """
-        self.on_change('active', lambda obj, attr, old, new: handler(new))
+        self.on_change('active', lambda attr, old, new: handler(new))
 
 class Dropdown(AbstractButton):
     """ A dropdown button.
 
     """
 
-    action = String(help="""
+    value = String(help="""
     A private property used to trigger ``on_click`` event handler.
     """)
 
-    default_action = String(help="""
-    The default action, otherwise the first item in ``menu`` will be used.
+    default_value = String(help="""
+    The default value, otherwise the first item in ``menu`` will be used.
     """)
 
     menu = List(Tuple(String, String), help="""
     Button's dropdown menu consisting of entries containing item's text and
-    action name. Use ``None`` as a menu separator.
+    value name. Use ``None`` as a menu separator.
     """)
 
     def on_click(self, handler):
@@ -103,7 +105,4 @@ class Dropdown(AbstractButton):
             None
 
         """
-        self.on_change('action', lambda obj, attr, old, new: handler(new))
-
-
-
+        self.on_change('value', lambda attr, old, new: handler(new))

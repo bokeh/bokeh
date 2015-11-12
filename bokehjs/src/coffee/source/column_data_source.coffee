@@ -15,6 +15,9 @@ class ColumnDataSource extends HasProperties
       @get('callback')?.execute(@)
     )
 
+  nonserializable_attribute_names: () ->
+    super().concat(['selection_manager'])
+
   get_column: (colname) ->
     return @get('data')[colname] ? null
 

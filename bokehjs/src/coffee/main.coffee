@@ -1,15 +1,13 @@
 Bokeh = {}
 Bokeh.require = require
-Bokeh.version = '0.9.2'
+Bokeh.version = '0.10.0'
 
 # binding the libs that bokeh uses so others can reference them
 Bokeh._                 = require("underscore")
 Bokeh.$                 = require("jquery")
 
-require "jquery-ui"
 Bokeh.Backbone          = require("backbone")
 Bokeh.Backbone.$        = Bokeh.$
-Bokeh.Backbone.$.ui     = Bokeh.$.ui
 
 # set up logger
 logging = require("./common/logging")
@@ -26,6 +24,7 @@ Bokeh.index             = require("./common/base").index
 # common
 Bokeh.Collections       = require("./common/base").Collections
 Bokeh.Config            = require("./common/base").Config
+Bokeh.Document          = require("./common/document").Document
 Bokeh.CartesianFrame    = require("./common/cartesian_frame")
 Bokeh.Canvas            = require("./common/canvas")
 Bokeh.GMapPlot          = require("./common/gmap_plot")
@@ -41,13 +40,12 @@ Bokeh.Selector          = require("./common/selector")
 Bokeh.ToolEvents        = require("./common/tool_events")
 
 Bokeh.build_views   = require("./common/build_views")
-Bokeh.bulk_save     = require("./common/bulk_save")
 Bokeh.ContinuumView = require("./common/continuum_view")
-Bokeh.load_models   = require("./common/load_models")
-Bokeh.PlotContext   = require("./common/plot_context")
 Bokeh.PlotWidget    = require("./common/plot_widget")
 Bokeh.Random        = require("./common/random")
 Bokeh.SVGColors     = require("./common/svg_colors")
+
+Bokeh.embed             = require("./common/embed")
 
 # mappers
 Bokeh.LinearMapper      = require("./mapper/linear_mapper")
@@ -78,10 +76,6 @@ Bokeh.LogAxis         = require("./renderer/guide/log_axis")
 # overlays
 Bokeh.BoxSelection  = require("./renderer/overlay/box_selection")
 Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
-
-# server tools
-Bokeh.embed       = require("./server/embed")
-Bokeh.serverutils = require("./server/serverutils")
 
 # data sources
 Bokeh.ColumnDataSource = require("./source/column_data_source")
@@ -122,12 +116,6 @@ Bokeh.WheelZoomTool          = require("./tool/gestures/wheel_zoom_tool")
 Bokeh.InspectTool            = require("./tool/inspectors/inspect_tool")
 Bokeh.HoverTool              = require("./tool/inspectors/hover_tool")
 Bokeh.CrosshairTool          = require("./tool/inspectors/crosshair_tool")
-
-# widgets
-Bokeh.HBox           = require("./widget/hbox")
-Bokeh.VBox           = require("./widget/vbox")
-Bokeh.TextInput      = require("./widget/text_input")
-#Bokeh.CrossFilter    = require("./widget/crossfilter")
 
 # Add the jquery plugin
 require("./api/plugin")

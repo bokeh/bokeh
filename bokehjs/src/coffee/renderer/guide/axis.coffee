@@ -1,5 +1,5 @@
 _ = require "underscore"
-kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
+kiwi = require "kiwi"
 HasParent = require "../../common/has_parent"
 LayoutBox = require "../../common/layout_box"
 {logger} = require "../../common/logging"
@@ -239,7 +239,7 @@ class AxisView extends PlotWidget
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
     dim = @mget('dimension')
-    side = @mget('location')
+    side = @mget('layout_location')
     orient = @mget('major_label_orientation')
 
     if _.isString(orient)
@@ -274,7 +274,7 @@ class AxisView extends PlotWidget
     [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
     [nx, ny] = @mget('normals')
     [xoff, yoff]  = @mget('offsets')
-    side = @mget('location')
+    side = @mget('layout_location')
     orient = 'parallel'
 
     angle = _angle_lookup[side][orient]
@@ -311,12 +311,15 @@ class Axis extends HasParent
     @add_dependencies('rule_coords', this, ['computed_bounds', 'side'])
 
     @register_property('tick_coords', @_tick_coords, false)
-    @add_dependencies('tick_coords', this, ['computed_bounds', 'location'])
+    @add_dependencies('tick_coords', this, ['computed_bounds', 'layout_location'])
 
     @register_property('ranges', @_ranges, true)
     @register_property('normals', (() -> @_normals), true)
     @register_property('dimension', (() -> @_dim), true)
     @register_property('offsets', @_offsets, true)
+
+  nonserializable_attribute_names: () ->
+    super().concat(['layout_location'])
 
   initialize_layout: (solver) ->
     panel = new LayoutBox.Model({solver: solver})
@@ -331,7 +334,7 @@ class Axis extends HasParent
     @_width = panel._width
     @_height = panel._height
 
-    side = @get('location')
+    side = @get('layout_location')
     if side == "above"
       @_dim = 0
       @_normals = [0, -1]
@@ -372,7 +375,7 @@ class Axis extends HasParent
     solver.add_constraint(@_size_constraint)
 
   _offsets: () ->
-    side = @get('location')
+    side = @get('layout_location')
     [xoff, yoff] = [0, 0]
     frame = @get('plot').get('frame')
 
@@ -493,7 +496,7 @@ class Axis extends HasParent
   _get_loc: (cross_range) ->
     cstart = cross_range.get('start')
     cend = cross_range.get('end')
-    side = @get('location')
+    side = @get('layout_location')
 
     if side == 'left' or side == 'below'
       loc = 'start'
@@ -511,7 +514,7 @@ class Axis extends HasParent
     ctx = view.plot_view.canvas_view.ctx
 
     coords = @get('tick_coords').major
-    side = @get('location')
+    side = @get('layout_location')
     orient = @get('major_label_orientation')
 
     labels = @get('formatter').format(coords[dim])
@@ -552,7 +555,7 @@ class Axis extends HasParent
   _axis_label_extent: (view) ->
     extent = 0
 
-    side = @get('location')
+    side = @get('layout_location')
     orient = 'parallel'
     ctx = view.plot_view.canvas_view.ctx
 
@@ -576,6 +579,7 @@ class Axis extends HasParent
 
   defaults: ->
     return _.extend {}, super(), {
+      location: "auto"
       x_range_name: "default"
       y_range_name: "default"
     }

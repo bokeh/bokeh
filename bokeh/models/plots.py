@@ -11,16 +11,17 @@ from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..query import find
 from ..util.string import nice_join
-from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS, EMPTY_LAYOUT
+from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+    EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..validation.errors import REQUIRED_RANGE
 from .. import validation
 
 from .glyphs import Glyph
-from .ranges import Range, Range1d
-from .renderers import Renderer, GlyphRenderer
+from .ranges import Range, Range1d, FactorRange
+from .renderers import Renderer, GlyphRenderer, TileRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
-from .widget import Widget
+from .component import Component
 
 def _select_helper(args, kwargs):
     """
@@ -52,29 +53,7 @@ def _select_helper(args, kwargs):
         selector = kwargs
     return selector
 
-
-class PlotContext(PlotObject):
-    """ A container for multiple plot objects.
-
-    ``PlotContext`` objects are a source of confusion. Their purpose
-    is to collect together different top-level objects (e.g., ``Plot``
-    or layout widgets). The reason for this is that different plots may
-    need to share ranges or data sources between them. A ``PlotContext``
-    is a container in which such sharing can occur between the contained
-    objects.
-    """
-
-    children = List(Instance(PlotObject), help="""
-    A list of top level objects in this ``PlotContext`` container.
-    """)
-
-# TODO (bev) : is this used anywhere?
-class PlotList(PlotContext):
-    # just like plot context, except plot context has special meaning
-    # everywhere, so plotlist is the generic one
-    pass
-
-class Plot(Widget):
+class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
     """
@@ -244,6 +223,23 @@ class Plot(Widget):
         self.renderers.append(g)
         return g
 
+    def add_tile(self, tile_source, **kw):
+        '''Adds new TileRenderer into the Plot.renderers
+
+        Args:
+            tile_source (TileSource) : a tile source instance which contain tileset configuration 
+
+        Keyword Arguments:
+            Additional keyword arguments are passed on as-is to the tile renderer
+
+        Returns:
+            TileRenderer : TileRenderer
+
+        '''
+        tile_renderer = TileRenderer(tile_source=tile_source, **kw)
+        self.renderers.append(tile_renderer)
+        return tile_renderer
+
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
         missing = []
@@ -261,6 +257,28 @@ class Plot(Widget):
     def _check_no_glyph_renderers(self):
         if len(self.select(GlyphRenderer)) == 0:
             return str(self)
+
+    @validation.warning(MALFORMED_CATEGORY_LABEL)
+    def _check_colon_in_category_label(self):
+        if not self.x_range: return
+        if not self.y_range: return
+
+        broken = []
+
+        for range_name in ['x_range', 'y_range']:
+            category_range = getattr(self, range_name)
+            if not isinstance(category_range, FactorRange): continue
+
+            for value in category_range.factors:
+                if not isinstance(value, string_types): break
+                if ':' in value:
+                    broken.append((range_name, value))
+                    break
+
+        if broken:
+            field_msg = ' '.join('[range:%s] [first_value: %s]' % (field, value)
+                                 for field, value in broken)
+            return '%s [renderer: %s]' % (field_msg, self)
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -434,6 +452,7 @@ class Plot(Widget):
     be made equal (the left or right padding amount, whichever is larger).
     """)
 
+
     v_symmetry = Bool(False, help="""
     Whether the total vertical padding on both sides of the plot will
     be made equal (the top or bottom padding amount, whichever is larger).
@@ -460,6 +479,22 @@ class Plot(Widget):
     ``lod_timeout`` ms. If no interactive tool events have happened,
     level-of-detail mode is disabled.
     """)
+
+    webgl = Bool(False, help="""
+    Whether WebGL is enabled for this plot. If True, the glyphs that
+    support this will render via WebGL instead of the 2D canvas.
+    """)
+
+    responsive = Bool(False, help="""
+    If True, the plot will automatically resize based on the size of its container. The
+    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height`` will
+    act only to set the initial aspect ratio.
+    .. warning::
+
+       The responsive setting is known not to work with HBox layout and may not work
+       in combination with other widgets or layouts.
+    """)
+
 
 class GridPlot(Plot):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.

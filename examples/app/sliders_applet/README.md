@@ -1,15 +1,13 @@
 
-This example shows how to create a simple applet in Bokeh, which can
-be viewed directly on a bokeh-server.
+This example shows how to create a simple server application in Bokeh.
 
 Running
 =======
 
-To view this applet directly from a bokeh server, you simply need to
-run a bokeh-server and point it at the stock example script:
+To run this application, use this command:
 
-    bokeh-server --script sliders_app.py
+    bokeh serve sliders_app.py
 
 Now navigate to the following URL in a browser:
 
-    http://localhost:5006/bokeh/sliders
+    http://localhost:5006/sliders_app

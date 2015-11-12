@@ -9,8 +9,10 @@ Release Notes
 =============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
+    releases/0.10.0
+    releases/0.9.3
     releases/0.9.2
     releases/0.9.1
     releases/0.9.0
@@ -37,15 +39,10 @@ Release Notes
 Roadmap
 =======
 
-0.10.0 Goals (Summer 2015)
+0.11.0 Goals (Summer 2015)
 
-* Colorbar, subplots on single canvas
-* Annotation improvements
-* Bokeh Server Deployment automation and instructions
-* Headless output of static SVG, PNG, etc
-* Better support for maps and projections
-* Bokeh command line tool
-* CSS styling and React integration
+* Tornado Server with examples and documentation
+* Extensible model system
 
 Long-term TODO List
 -------------------
@@ -65,7 +62,6 @@ Core Plotting
   - better grid plots
   - improved annotations and legends
 
-* Line and patch point hit testing
 * Python -> JS function reflection
 
   - animation

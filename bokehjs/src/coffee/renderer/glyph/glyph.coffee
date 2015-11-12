@@ -2,11 +2,13 @@ _ = require "underscore"
 rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
+{arrayMax} = require "../../common/mathutils"
 HasParent = require "../../common/has_parent"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
-
+proj4 = require "proj4"
+toProjection = proj4.defs('GOOGLE')
 
 class GlyphView extends ContinuumView
 
@@ -14,6 +16,11 @@ class GlyphView extends ContinuumView
     super(options)
 
     @renderer = options.renderer
+
+    # Init gl
+    ctx = @renderer.plot_view.canvas_view.ctx
+    if ctx.glcanvas?
+      @_init_gl(ctx.glcanvas.gl)
 
     for name, func of properties.factories
       @[name] = {}
@@ -23,12 +30,40 @@ class GlyphView extends ContinuumView
 
     return @
 
-  render: (ctx, indicies, data) ->
+  render: (ctx, indices, data) ->
+
     if @mget("visible")
       ctx.beginPath();
-      @_render(ctx, indicies, data)
+
+      if @glglyph?
+        if @_render_gl(ctx, indices, data)
+          return
+
+      @_render(ctx, indices, data)
+  
+  _render_gl: (ctx, indices, mainglyph) ->
+    # Get transform
+    wx = wy = 1  # Weights to scale our vectors
+    [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
+    # Try again, but with weighs so we're looking at ~100 in screen coordinates
+    wx = 100 / Math.min(Math.max(Math.abs(dx[1] - dx[0]), 1e-12), 1e12)
+    wy = 100 / Math.min(Math.max(Math.abs(dy[1] - dy[0]), 1e-12), 1e12)
+    [dx, dy] = @renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
+    # Test how linear it is
+    if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
+        Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
+      return false 
+    
+    trans = 
+        width: ctx.glcanvas.width, height: ctx.glcanvas.height, 
+        dx: dx, dy: dy, sx: (dx[1]-dx[0])/wx, sy: (dy[1]-dy[0])/wy
+    @glglyph.draw(indices, mainglyph, trans)
+    return true  # success
 
   map_data: () ->
+    
+    # todo: if using gl, skip this (when is this called?)
+    
     # map all the coordinate fields
     for [xname, yname] in @model.coords
       sxname = "s#{xname}"
@@ -44,10 +79,34 @@ class GlyphView extends ContinuumView
 
     @_map_data()
 
+  project_xy: (x, y) ->
+    merc_x_s = []
+    merc_y_s = []
+    for i in [0...x.length]
+      [merc_x, merc_y] = proj4(toProjection, [x[i], y[i]])
+      merc_x_s[i] = merc_x
+      merc_y_s[i] = merc_y
+    return [merc_x_s, merc_y_s]
+
+  project_xsys: (xs, ys) ->
+    merc_xs_s = []
+    merc_ys_s = []
+    for i in [0...xs.length]
+      [merc_x_s, merc_y_s] = @project_xy(xs[i], ys[i])
+      merc_xs_s[i] = merc_x_s
+      merc_ys_s[i] = merc_y_s
+    return [merc_xs_s, merc_ys_s]
+
   set_data: (source) ->
     # set all the coordinate fields
     for name, prop of @coords
       @[name] = prop.array(source)
+
+    if @renderer.plot_model.use_map
+      if @x?
+        [@x, @y] = @project_xy(@x, @y)
+      if @xs?
+        [@xs, @ys] = @project_xsys(@xs, @ys)
 
     # set any angles (will be in radian units at this point)
     for name, prop of @angles
@@ -56,11 +115,14 @@ class GlyphView extends ContinuumView
     # set any distances as well as their max
     for name, prop of @distances
       @[name] = prop.array(source)
-      @["max_#{name}"] = Math.max.apply(null, @[name])
+      @["max_#{name}"] = arrayMax(@[name])
 
     # set any misc fields
     for name, prop of @fields
       @[name] = prop.array(source)
+
+    if @glglyph?
+      @glglyph.set_data_changed(@x.length)
 
     @_set_data()
 
@@ -70,6 +132,9 @@ class GlyphView extends ContinuumView
     # finally, warm the visual properties cache
     for name, prop of @visuals
       prop.warm_cache(source)
+    
+    if @glglyph?
+      @glglyph.set_visuals_changed()
 
   bounds: () ->
     if not @index?
@@ -86,6 +151,7 @@ class GlyphView extends ContinuumView
   scy: (i) -> return @sy[i]
 
   # any additional customization can happen here
+  _init_gl: () -> false
   _set_data: () -> null
   _map_data: () -> null
   _mask_data: (inds) -> inds

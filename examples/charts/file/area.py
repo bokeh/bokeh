@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from bokeh.charts import Area, show, output_file
+from bokeh._legacy_charts import Area, show, output_file
 
 # create some example data
 xyvalues = OrderedDict(
@@ -12,9 +12,10 @@ xyvalues = OrderedDict(
 output_file(filename="area.html")
 
 area = Area(
-    xyvalues, title="Area Chart",
+    xyvalues, title="Responsive Area Chart",
     xlabel='time', ylabel='memory',
-    stacked=True, legend="top_left"
-).legend("top_left")
+    stacked=True, legend="top_left",
+    width=400, height=400
+)
 
 show(area)

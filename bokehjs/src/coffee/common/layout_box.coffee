@@ -1,10 +1,7 @@
 _ = require "underscore"
-if global._bokehTest?
-  kiwi = {}  # TODO Make work
-else
-  kiwi = require "kiwi"
-  {Variable, Expression, Constraint, Operator } = kiwi
-  {Eq, Le, Ge} = Operator
+kiwi = require "kiwi"
+{Variable, Expression, Constraint, Operator } = kiwi
+{Eq, Le, Ge} = Operator
 HasProperties = require "./has_properties"
 Range1d = require "../range/range1d"
 
@@ -69,6 +66,8 @@ class LayoutBox extends HasProperties
       , true)
     @register_setter('aspect', @_set_aspect)
     @add_dependencies('aspect', this, ['width', 'height'])
+
+  serializable_in_document: () -> false
 
   contains: (vx, vy) ->
     return (

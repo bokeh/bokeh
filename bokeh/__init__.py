@@ -10,7 +10,7 @@ and data applications.
 For full documentation, please visit: http://bokeh.pydata.org
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 # configure Bokeh version
 from .util.version import __version__; __version__
@@ -24,4 +24,19 @@ del logconfig
 # module as transitive imports
 
 from . import sampledata; sampledata
-from .util.testing import runtests as test; test
+
+
+def test(args=None):
+    from .util.testing import runtests
+    return runtests(args)
+
+def license():
+    ''' Print the Bokeh license to the console.
+
+    Returns:
+        None
+
+    '''
+    from os.path import join
+    with open(join(__path__[0], 'LICENSE.txt')) as lic:
+        print(lic.read())

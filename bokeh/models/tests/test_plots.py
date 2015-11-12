@@ -66,6 +66,9 @@ class TestPlotSelect(unittest.TestCase):
         )
 
 
+def test_responsive_property_is_false_by_default():
+    plot = figure()
+    assert plot.responsive is False
 
 
 if __name__ == '__main__':

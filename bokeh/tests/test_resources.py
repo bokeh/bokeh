@@ -2,8 +2,15 @@ from __future__ import absolute_import
 
 import unittest
 
+import os
+
 import bokeh.resources as resources
-from bokeh.resources import _get_cdn_urls
+from bokeh.resources import _get_cdn_urls, websocket_url_for_server_url
+
+
+# if BOKEH_RESOURCES is set many tests in this file fail
+if os.environ.get("BOKEH_RESOURCES"):
+    raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
 WRAPPER = """Bokeh.$(function() {
     foo
@@ -19,9 +26,56 @@ Bokeh.set_log_level("info");
 
 LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 
-DEFAULT_JOG_JS_RAW = 'Bokeh.set_log_level("info");'
+DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
+
+
+## Test JSResources
+
+def test_js_resources_default_mode_is_inline():
+    r = resources.JSResources()
+    assert r.mode == "inline"
+
+
+def test_js_resources_inline_has_no_css_resources():
+    r = resources.JSResources(mode="inline")
+    assert r.mode == "inline"
+    assert r.dev is False
+
+    assert len(r.js_raw) == 3
+    assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
+    assert hasattr(r, 'css_raw') is False
+    assert r.messages == []
+
+
+## Test CSSResources
+
+def test_css_resources_default_mode_is_inline():
+    r = resources.CSSResources()
+    assert r.mode == "inline"
+
+
+def test_inline_css_resources():
+    r = resources.CSSResources(mode="inline")
+    assert r.mode == "inline"
+    assert r.dev is False
+
+    assert len(r.css_raw) == 2
+    assert hasattr(r, 'js_raw') is False
+    assert r.messages == []
+
 
 class TestResources(unittest.TestCase):
+
+    def test_websocket_url(self):
+        self.assertEqual("ws://example.com:4000/ws", websocket_url_for_server_url("http://example.com:4000"))
+        # with trailing / on original url
+        self.assertEqual("ws://example.com:4000/ws", websocket_url_for_server_url("http://example.com:4000/"))
+        # with https
+        self.assertEqual("wss://example.com:4000/ws", websocket_url_for_server_url("https://example.com:4000"))
+        # with a path
+        self.assertEqual("wss://example.com:4000/bar/ws", websocket_url_for_server_url("https://example.com:4000/bar"))
+        # with path with trailing slash
+        self.assertEqual("wss://example.com:4000/bar/ws", websocket_url_for_server_url("https://example.com:4000/bar/"))
 
     def test_basic(self):
         r = resources.Resources()
@@ -45,15 +99,15 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "inline")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(len(r.js_raw), 2)
-        self.assertEqual(r.js_raw[-1], DEFAULT_JOG_JS_RAW)
-        self.assertEqual(len(r.css_raw), 1)
+        self.assertEqual(len(r.js_raw), 3)
+        self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW)
+        self.assertEqual(len(r.css_raw), 2)
         self.assertEqual(r.messages, [])
 
     def test_get_cdn_urls(self):
         dev_version = "0.0.1dev"
-        result = _get_cdn_urls(dev_version)
-        url = result['js_files'][0]
+        result = _get_cdn_urls(["bokeh"], version=dev_version)
+        url = result['urls']('js')[0]
         self.assertIn('bokeh/dev', url)
 
     def test_cdn(self):
@@ -62,7 +116,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "cdn")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -78,13 +132,13 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "server")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
         r = resources.Resources(mode="server", root_url="http://foo/")
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -99,7 +153,7 @@ class TestResources(unittest.TestCase):
 
         r = resources.Resources(mode="server-dev", root_url="http://foo/")
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -108,7 +162,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "relative")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -117,7 +171,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "relative")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -126,7 +180,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "absolute")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -135,7 +189,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "absolute")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(r.js_raw, [DEFAULT_JOG_JS_RAW])
+        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 

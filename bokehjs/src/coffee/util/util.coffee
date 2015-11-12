@@ -1,6 +1,6 @@
 _  = require "underscore"
 SPrintf = require "sprintf"
-Numeral = require "../../vendor/numeral.js-1.5.3/numeral.js"
+Numeral = require "numeral"
 
 _format_number = (number) ->
   if _.isNumber(number)
@@ -39,5 +39,19 @@ replace_placeholders = (string, data_source, i, special_vars={}) ->
 
   return string
 
-module.exports =
+get_indices = (data_source) ->
+  selected = data_source.get("selected")
+
+  if selected['0d'].flag
+    selected['0d'].indices
+  else if selected['1d'].indices.length > 0
+    selected['1d'].indices
+  else if selected['2d'].indices.length > 0
+    selected['2d'].indices
+  else
+    []
+
+module.exports = {
   replace_placeholders: replace_placeholders
+  get_indices: get_indices
+}

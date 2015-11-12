@@ -23,11 +23,13 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
+from ..properties import abstract, Float, Color
+from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
+                          Dict, Tuple)
 from ..enums import Dimension
 
 from .renderers import Renderer
-from .actions import Action, Callback
+from .callbacks import Callback
 
 
 class ToolEvents(PlotObject):
@@ -38,6 +40,7 @@ class ToolEvents(PlotObject):
     geometries = List(Dict(String, Any))
 
 
+@abstract
 class Tool(PlotObject):
     """ A base class for all interactive tool types. ``Tool`` is
     not generally useful to instantiate on its own.
@@ -174,7 +177,7 @@ class TapTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    action = Instance(Action, help="""
+    callback = Instance(Callback, help="""
     A client-side action specification, like opening a URL, showing
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
     """)
@@ -208,6 +211,31 @@ class CrosshairTool(Tool):
     only a vertical line will be drawn.
     """)
 
+    line_color = Color(default="black", help="""
+    A color to use to stroke paths with.
+
+    Acceptable values are:
+
+    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
+    - a 3-tuple of integers (r,g,b) between 0 and 255
+    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
+
+    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
+
+    """)
+
+    line_width = Float(default=1, help="""
+    Stroke width in units of pixels.
+    """)
+
+    line_alpha = Float(default=1.0, help="""
+    An alpha value to use to stroke paths with.
+
+    Acceptable values are floating point numbers between 0 (transparent)
+    and 1 (opaque).
+
+    """)
 
 class BoxZoomTool(Tool):
     """ *toolbar icon*: |box_zoom_icon|
@@ -260,9 +288,9 @@ class BoxSelectTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    select_every_mousemove = Bool(True, help="""
-    An explicit list of renderers to hit test again. If unset,
-    defaults to all renderers on a plot.
+    select_every_mousemove = Bool(False, help="""
+    Whether a selection computation should happen on every mouse
+    event, or only once, when the selection region is completed. Default: False
     """)
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
@@ -330,7 +358,7 @@ class LassoSelectTool(Tool):
 
     select_every_mousemove = Bool(True, help="""
     Whether a selection computation should happen on every mouse
-    event, or only once, when the selection region is completed.
+    event, or only once, when the selection region is completed. Default: True
     """)
 
 

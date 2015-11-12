@@ -1,9 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $1 = require "jqrangeslider/jQDateRangeSlider"
+$1 = require "jqrangeslider/jQDateRangeSlider"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 
@@ -39,7 +36,6 @@ class DateRangeSliderView extends ContinuumView
 
     @$el.on "userValuesChanged", (event, data) =>
       @mset('value', [data.values.min, data.values.max])
-      @model.save()
       @mget('callback')?.execute(@model)
 
     return @

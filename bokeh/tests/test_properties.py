@@ -210,6 +210,19 @@ class TestColorSpec(unittest.TestCase):
         self.assertEqual(f.col, "forestgreen")
         self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
 
+    def test_case_insensitive_named_value(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+
+        f.col = "RED"
+        self.assertEqual(f.col, "RED")
+        self.assertDictEqual(desc.to_dict(f), {"value": "RED"})
+        f.col = "ForestGreen"
+        self.assertEqual(f.col, "ForestGreen")
+        self.assertDictEqual(desc.to_dict(f), {"value": "ForestGreen"})
+
     def test_named_value_set_none(self):
         class Foo(HasProps):
             col = ColorSpec("colorfield")
@@ -389,6 +402,38 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
 
+        try:
+            import numpy as np
+            self.assertTrue(prop.is_valid(np.bool8(False)))
+            self.assertTrue(prop.is_valid(np.bool8(True)))
+            self.assertFalse(prop.is_valid(np.int8(0)))
+            self.assertFalse(prop.is_valid(np.int8(1)))
+            self.assertFalse(prop.is_valid(np.int16(0)))
+            self.assertFalse(prop.is_valid(np.int16(1)))
+            self.assertFalse(prop.is_valid(np.int32(0)))
+            self.assertFalse(prop.is_valid(np.int32(1)))
+            self.assertFalse(prop.is_valid(np.int64(0)))
+            self.assertFalse(prop.is_valid(np.int64(1)))
+            self.assertFalse(prop.is_valid(np.uint8(0)))
+            self.assertFalse(prop.is_valid(np.uint8(1)))
+            self.assertFalse(prop.is_valid(np.uint16(0)))
+            self.assertFalse(prop.is_valid(np.uint16(1)))
+            self.assertFalse(prop.is_valid(np.uint32(0)))
+            self.assertFalse(prop.is_valid(np.uint32(1)))
+            self.assertFalse(prop.is_valid(np.uint64(0)))
+            self.assertFalse(prop.is_valid(np.uint64(1)))
+            self.assertFalse(prop.is_valid(np.float16(0)))
+            self.assertFalse(prop.is_valid(np.float16(1)))
+            self.assertFalse(prop.is_valid(np.float32(0)))
+            self.assertFalse(prop.is_valid(np.float32(1)))
+            self.assertFalse(prop.is_valid(np.float64(0)))
+            self.assertFalse(prop.is_valid(np.float64(1)))
+            self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
+            self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+            self.assertFalse(prop.is_valid(np.complex256(1.0+1.0j)))
+        except ImportError:
+            pass
+
     def test_Int(self):
         prop = Int()
 
@@ -405,6 +450,38 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid([]))
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
+
+        try:
+            import numpy as np
+            # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
+            # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
+            self.assertTrue(prop.is_valid(np.int8(0)))
+            self.assertTrue(prop.is_valid(np.int8(1)))
+            self.assertTrue(prop.is_valid(np.int16(0)))
+            self.assertTrue(prop.is_valid(np.int16(1)))
+            self.assertTrue(prop.is_valid(np.int32(0)))
+            self.assertTrue(prop.is_valid(np.int32(1)))
+            self.assertTrue(prop.is_valid(np.int64(0)))
+            self.assertTrue(prop.is_valid(np.int64(1)))
+            self.assertTrue(prop.is_valid(np.uint8(0)))
+            self.assertTrue(prop.is_valid(np.uint8(1)))
+            self.assertTrue(prop.is_valid(np.uint16(0)))
+            self.assertTrue(prop.is_valid(np.uint16(1)))
+            self.assertTrue(prop.is_valid(np.uint32(0)))
+            self.assertTrue(prop.is_valid(np.uint32(1)))
+            self.assertTrue(prop.is_valid(np.uint64(0)))
+            self.assertTrue(prop.is_valid(np.uint64(1)))
+            self.assertFalse(prop.is_valid(np.float16(0)))
+            self.assertFalse(prop.is_valid(np.float16(1)))
+            self.assertFalse(prop.is_valid(np.float32(0)))
+            self.assertFalse(prop.is_valid(np.float32(1)))
+            self.assertFalse(prop.is_valid(np.float64(0)))
+            self.assertFalse(prop.is_valid(np.float64(1)))
+            self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
+            self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+            self.assertFalse(prop.is_valid(np.complex256(1.0+1.0j)))
+        except ImportError:
+            pass
 
     def test_Float(self):
         prop = Float()
@@ -423,6 +500,38 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
 
+        try:
+            import numpy as np
+            # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
+            # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
+            self.assertTrue(prop.is_valid(np.int8(0)))
+            self.assertTrue(prop.is_valid(np.int8(1)))
+            self.assertTrue(prop.is_valid(np.int16(0)))
+            self.assertTrue(prop.is_valid(np.int16(1)))
+            self.assertTrue(prop.is_valid(np.int32(0)))
+            self.assertTrue(prop.is_valid(np.int32(1)))
+            self.assertTrue(prop.is_valid(np.int64(0)))
+            self.assertTrue(prop.is_valid(np.int64(1)))
+            self.assertTrue(prop.is_valid(np.uint8(0)))
+            self.assertTrue(prop.is_valid(np.uint8(1)))
+            self.assertTrue(prop.is_valid(np.uint16(0)))
+            self.assertTrue(prop.is_valid(np.uint16(1)))
+            self.assertTrue(prop.is_valid(np.uint32(0)))
+            self.assertTrue(prop.is_valid(np.uint32(1)))
+            self.assertTrue(prop.is_valid(np.uint64(0)))
+            self.assertTrue(prop.is_valid(np.uint64(1)))
+            self.assertTrue(prop.is_valid(np.float16(0)))
+            self.assertTrue(prop.is_valid(np.float16(1)))
+            self.assertTrue(prop.is_valid(np.float32(0)))
+            self.assertTrue(prop.is_valid(np.float32(1)))
+            self.assertTrue(prop.is_valid(np.float64(0)))
+            self.assertTrue(prop.is_valid(np.float64(1)))
+            self.assertFalse(prop.is_valid(np.complex64(1.0+1.0j)))
+            self.assertFalse(prop.is_valid(np.complex128(1.0+1.0j)))
+            self.assertFalse(prop.is_valid(np.complex256(1.0+1.0j)))
+        except ImportError:
+            pass
+
     def test_Complex(self):
         prop = Complex()
 
@@ -439,6 +548,38 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid([]))
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
+
+        try:
+            import numpy as np
+            # TODO: self.assertFalse(prop.is_valid(np.bool8(False)))
+            # TODO: self.assertFalse(prop.is_valid(np.bool8(True)))
+            self.assertTrue(prop.is_valid(np.int8(0)))
+            self.assertTrue(prop.is_valid(np.int8(1)))
+            self.assertTrue(prop.is_valid(np.int16(0)))
+            self.assertTrue(prop.is_valid(np.int16(1)))
+            self.assertTrue(prop.is_valid(np.int32(0)))
+            self.assertTrue(prop.is_valid(np.int32(1)))
+            self.assertTrue(prop.is_valid(np.int64(0)))
+            self.assertTrue(prop.is_valid(np.int64(1)))
+            self.assertTrue(prop.is_valid(np.uint8(0)))
+            self.assertTrue(prop.is_valid(np.uint8(1)))
+            self.assertTrue(prop.is_valid(np.uint16(0)))
+            self.assertTrue(prop.is_valid(np.uint16(1)))
+            self.assertTrue(prop.is_valid(np.uint32(0)))
+            self.assertTrue(prop.is_valid(np.uint32(1)))
+            self.assertTrue(prop.is_valid(np.uint64(0)))
+            self.assertTrue(prop.is_valid(np.uint64(1)))
+            self.assertTrue(prop.is_valid(np.float16(0)))
+            self.assertTrue(prop.is_valid(np.float16(1)))
+            self.assertTrue(prop.is_valid(np.float32(0)))
+            self.assertTrue(prop.is_valid(np.float32(1)))
+            self.assertTrue(prop.is_valid(np.float64(0)))
+            self.assertTrue(prop.is_valid(np.float64(1)))
+            self.assertTrue(prop.is_valid(np.complex64(1.0+1.0j)))
+            self.assertTrue(prop.is_valid(np.complex128(1.0+1.0j)))
+            self.assertTrue(prop.is_valid(np.complex256(1.0+1.0j)))
+        except ImportError:
+            pass
 
     def test_String(self):
         prop = String()
@@ -710,6 +851,13 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(" round"))
         self.assertFalse(prop.is_valid(" bevel"))
 
+        from bokeh.enums import NamedColor
+        prop = Enum(NamedColor)
+
+        self.assertTrue(prop.is_valid("red"))
+        self.assertTrue(prop.is_valid("Red"))
+        self.assertTrue(prop.is_valid("RED"))
+
     def test_Color(self):
         prop = Color()
 
@@ -744,7 +892,7 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid("#00AaFff"))
 
         self.assertTrue(prop.is_valid("blue"))
-        self.assertFalse(prop.is_valid("BLUE"))
+        self.assertTrue(prop.is_valid("BLUE"))
         self.assertFalse(prop.is_valid("foobar"))
 
     def test_Align(self):
@@ -845,7 +993,7 @@ def test_HasProps_clone():
     from bokeh.models import Plot
     p1 = Plot(plot_width=1000)
     c1 = p1.changed_properties()
-    p2 = p1.clone()
+    p2 = p1._clone()
     c2 = p2.changed_properties()
     assert c1 == c2
 

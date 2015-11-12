@@ -1,9 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $1 = require "bootstrap/button"
+$1 = require "bootstrap/button"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -38,7 +35,6 @@ class RadioButtonGroupView extends ContinuumView
   change_input: () ->
     active = (i for radio, i in @$("input") when radio.checked)
     @mset('active', active[0])
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class RadioButtonGroup extends HasParent

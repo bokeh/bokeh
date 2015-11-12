@@ -158,11 +158,12 @@ class BokehPlotDirective(Directive):
             else:
                 app.verbose("using existing temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
 
-        # TODO (bev) verify that this is always the correct thing
-        rst_source = self.state_machine.node.document['source']
+        # get the name of the source file we are currently processing
+        rst_source = self.state_machine.document['source']
         rst_dir = dirname(rst_source)
         rst_filename = basename(rst_source)
 
+        # use the source file name to construct a friendly target_id
         target_id = "%s.bokeh-plot-%d" % (rst_filename, env.new_serialno('bokeh-plot'))
         target_node = nodes.target('', '', ids=[target_id])
         result = [target_node]

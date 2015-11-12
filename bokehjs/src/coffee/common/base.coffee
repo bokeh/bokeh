@@ -2,6 +2,10 @@ _ = require "underscore"
 Collection = require "./collection"
 window = {location: {href: "local"}} unless window?
 
+coffee = require "coffee-script"
+
+{logger} = require "./logging"
+
 # add some useful functions to underscore
 require("./custom").monkey_patch()
 
@@ -18,8 +22,6 @@ locations =
   GMapPlot:                 require './gmap_plot'
   GeoJSPlot:                require './geojs_plot'
   GridPlot:                 require './grid_plot'
-  PlotContext:              require './plot_context'
-  PlotList:                 require './plot_context'
   Canvas:                   require './canvas'
   LayoutBox:                require './layout_box'
   CartesianFrame:           require './cartesian_frame'
@@ -27,21 +29,29 @@ locations =
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
 
-  Callback:                 require '../action/callback'
-  OpenURL:                  require '../action/open_url'
+  CustomJS:                 require '../callback/customjs'
+  OpenURL:                  require '../callback/open_url'
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
   LinearMapper:             require '../mapper/linear_mapper'
+  LogMapper:                require '../mapper/log_mapper'
 
   DataRange1d:              require '../range/data_range1d'
   FactorRange:              require '../range/factor_range'
   Range1d:                  require '../range/range1d'
 
-  BoxAnnotation:             require '../renderer/annotation/box_annotation'
+  BoxAnnotation:            require '../renderer/annotation/box_annotation'
   Legend:                   require '../renderer/annotation/legend'
   Span:                     require '../renderer/annotation/span'
   Tooltip:                  require '../renderer/annotation/tooltip'
+
+  TileRenderer:             require '../renderer/tile/tile_renderer'
+  TileSource:               require '../renderer/tile/tile_source'
+  TMSTileSource:            require '../renderer/tile/tms_tile_source'
+  WMTSTileSource:           require '../renderer/tile/wmts_tile_source'
+  QUADKEYTileSource:        require '../renderer/tile/quadkey_tile_source'
+  BBoxTileSource:           require '../renderer/tile/bbox_tile_source'
 
   GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 
@@ -135,45 +145,9 @@ locations =
   HoverTool:                require '../tool/inspectors/hover_tool'
   InspectTool:              require '../tool/inspectors/inspect_tool'
 
-  editors:                  [require('../widget/cell_editors'), "Editor"]
-  formatters:               [require('../widget/cell_formatters'), "Formatter"]
-
-  TableColumn:              require '../widget/table_column'
-  DataTable:                require '../widget/data_table'
-  Paragraph:                require '../widget/paragraph'
-  HBox:                     require '../widget/hbox'
-  VBox:                     require '../widget/vbox'
-  VBoxForm:                 require '../widget/vboxform'
-  TextInput:                require '../widget/text_input'
-  AutocompleteInput:        require '../widget/autocomplete_input'
-  PreText:                  require '../widget/pretext'
-  Select:                   require '../widget/selectbox'
-  Slider:                   require '../widget/slider'
-  CrossFilter:              require '../widget/crossfilter'
-  MultiSelect:              require '../widget/multiselect'
-  DateRangeSlider:          require '../widget/date_range_slider'
-  DatePicker:               require '../widget/date_picker'
-  Panel:                    require '../widget/panel'
-  Tabs:                     require '../widget/tabs'
-  Dialog:                   require '../widget/dialog'
-  Icon:                     require '../widget/icon'
-  Button:                   require '../widget/button'
-  Toggle:                   require '../widget/toggle'
-  Dropdown:                 require '../widget/dropdown'
-  CheckboxGroup:            require '../widget/checkbox_group'
-  RadioGroup:               require '../widget/radio_group'
-  CheckboxButtonGroup:      require '../widget/checkbox_button_group'
-  RadioButtonGroup:         require '../widget/radio_button_group'
-  SimpleApp:                require '../widget/simpleapp'
-
-  AppHBox:                  require '../widget/layouts/apphbox'
-  AppVBox:                  require '../widget/layouts/appvbox'
-  AppVBoxForm:              require '../widget/layouts/appvboxform'
-
   ar_transforms:            [require '../ar/transforms']
 
 collection_overrides = {}
-
 
 make_collection = (model) ->
   class C extends Collection
@@ -193,16 +167,26 @@ make_cache = (locations) ->
       result[name] = spec
   return result
 
-_mod_cache = null
+_mod_cache = null # XXX: do NOT access directly outside _get_mod_cache()
 
-Collections = (typename) ->
+_get_mod_cache = () ->
   if not _mod_cache?
     _mod_cache = make_cache(locations)
+  _mod_cache
+
+Collections = (typename) ->
+  mod_cache = _get_mod_cache()
 
   if collection_overrides[typename]
     return collection_overrides[typename]
 
-  mod = _mod_cache[typename]
+  mod = mod_cache[typename]
+
+  if not mod?
+    throw new Error("Module `#{typename}' does not exists. The problem may be two fold. Either
+                     a model was requested that's available in an extra bundle, e.g. a widget,
+                     or a custom model was requested, but it wasn't registered before first
+                     usage.")
 
   if not mod.Collection?
     mod.Collection = make_collection(mod.Model)
@@ -212,6 +196,57 @@ Collections = (typename) ->
 Collections.register = (name, collection) ->
   collection_overrides[name] = collection
 
+# XXX: this refers to the 4th and 5th arguments of the outer function of this module,
+# which is provided by browserify during # compilation. Only first three arguments
+# are named, i.e require, module and exports, so the next ones we have to retrieve
+# like this. `modules` is the set of all modules known to bokehjs upon compilation
+# and # extended with module registration mechanism. `cache` is an internal thing of
+# browserify, but we have to manage it here as well, to all module re-registration.
+browserify = {
+  modules: arguments[4]
+  cache: arguments[5]
+}
+
+Collections.register_plugin = (plugin, locations) ->
+  logger.info("Registering plugin: #{plugin}")
+  Collections.register_locations locations, errorFn = (name) ->
+    throw new Error("#{name} was already registered, attempted to re-register in #{plugin}")
+
+Collections.register_locations = (locations, force=false, errorFn=null) ->
+  mod_cache = _get_mod_cache()
+  cache = make_cache(locations)
+
+  for own name, module of cache
+    if force or not mod_cache.hasOwnProperty(name)
+      mod_cache[name] = module
+    else
+      errorFn?(name)
+
+Collections.register_model = (name, mod) ->
+  logger.info("Registering model: #{name}")
+
+  compile = (code) ->
+    body = coffee.compile(code, {bare: true, shiftLine: true})
+    new Function("require", "module", "exports", body)
+
+  mod_cache = _get_mod_cache()
+
+  mod_name = "custom/#{name.toLowerCase()}"
+  [impl, deps] = mod
+  delete browserify.cache[mod_name]
+  browserify.modules[mod_name] = [compile(impl), deps]
+  _locations = {}
+  _locations[name] = require(mod_name)
+  Collections.register_locations(_locations, force=true)
+
+Collections.register_models = (specs) ->
+  for own name, impl of specs
+    Collections.register_model(name, impl)
+
+# "index" is a map from the toplevel model IDs rendered by
+# embed.coffee, to the view objects for those models.  It doesn't
+# contain all views, only those explicitly rendered to an element
+# by embed.coffee.
 index = {}
 
 module.exports =

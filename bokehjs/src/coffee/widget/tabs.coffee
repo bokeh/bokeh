@@ -1,9 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $1 = require "bootstrap/tab"
+$1 = require "bootstrap/tab"
 build_views = require "../common/build_views"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
@@ -15,6 +12,7 @@ class TabsView extends ContinuumView
     super(options)
     @views = {}
     @render()
+    @listenTo @model, 'change', this.render
 
   render: () ->
     for own key, val of @views
@@ -32,9 +30,17 @@ class TabsView extends ContinuumView
       active: (i) -> if i == active then 'bk-bs-active' else ''
     }))
 
+    that = this
     html.find("> li > a").click (event) ->
       event.preventDefault()
       $(this).tab('show')
+      panelId = $(this).attr('href').replace('#tab-','')
+      tabs = that.model.get('tabs')
+      panelIdx = _.indexOf(tabs, _.find(tabs, (panel) ->
+        return panel.id == panelId
+      ))
+      that.model.set('active', panelIdx)
+      that.model.get('callback')?.execute(that.model)
 
     $panels = html.children(".bk-bs-tab-pane")
 

@@ -1,9 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $1 = require "bootstrap/button"
+$1 = require "bootstrap/button"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -38,7 +35,6 @@ class CheckboxButtonGroupView extends ContinuumView
   change_input: () ->
     active = (i for checkbox, i in @$("input") when checkbox.checked)
     @mset('active', active)
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class CheckboxButtonGroup extends HasParent

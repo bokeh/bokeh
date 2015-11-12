@@ -52,13 +52,14 @@ from copy import copy
 from warnings import warn
 import inspect
 import logging
+import numbers
 logger = logging.getLogger(__name__)
 
-from six import integer_types, string_types, add_metaclass, iteritems
-import numpy as np
+from six import string_types, add_metaclass, iteritems
 
 from . import enums
 from .util.string import nice_join
+from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 
 def field(name):
     ''' Convenience function do explicitly mark a field specification for
@@ -104,7 +105,14 @@ def value(val):
     '''
     return dict(value=val)
 
-bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
+bokeh_bool_types = (bool,)
+try:
+    import numpy as np
+    bokeh_bool_types += (np.bool8,)
+except ImportError:
+    pass
+
+bokeh_integer_types = (numbers.Integral,)
 
 # used to indicate properties that are not set (vs null, None, etc)
 class _NotSet(object):
@@ -189,7 +197,7 @@ class Property(object):
 
     def _get(self, obj):
         if not hasattr(obj, self._name):
-            setattr(obj, self._name, self.default)
+            self._set_default(obj, self.default)
         return getattr(obj, self._name)
 
     def __get__(self, obj, owner=None):
@@ -200,7 +208,22 @@ class Property(object):
         else:
             raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def __set__(self, obj, value):
+    @classmethod
+    def _wrap_container(cls, value):
+        if isinstance(value, list):
+            if isinstance(value, PropertyValueList):
+                return value
+            else:
+                return PropertyValueList(value)
+        elif isinstance(value, dict):
+            if isinstance(value, PropertyValueDict):
+                return value
+            else:
+                return PropertyValueDict(value)
+        else:
+            return value
+
+    def _prepare_value(self, value):
         try:
             self.validate(value)
         except ValueError as e:
@@ -213,17 +236,60 @@ class Property(object):
         else:
             value = self.transform(value)
 
-        old = self.__get__(obj)
+        return self._wrap_container(value)
+
+    def _mark_dirty_and_trigger(self, obj, old, value):
+        obj._dirty = True
+        if hasattr(obj, 'trigger'):
+            obj.trigger(self.name, old, value)
+
+    # set a default, so no 'old' or notification
+    def _set_default(self, obj, value):
+        value = self._wrap_container(value)
+        if isinstance(value, PropertyValueContainer):
+            value._register_owner(obj, self)
+        setattr(obj, self._name, value)
+
+    def _real_set(self, obj, old, value):
         obj._changed_vars.add(self.name)
+
         if self._name in obj.__dict__ and self.matches(value, old):
             return
-        setattr(obj, self._name, value)
-        obj._dirty = True
-        if hasattr(obj, '_trigger'):
-            if hasattr(obj, '_block_callbacks') and obj._block_callbacks:
-                obj._callback_queue.append((self.name, old, value))
-            else:
-                obj._trigger(self.name, old, value)
+
+        # "old" is the logical old value, but it may not be
+        # the actual current attribute value if our value
+        # was mutated behind our back and we got _notify_mutated
+        old_attr_value = self.__get__(obj)
+
+        if old_attr_value is not value:
+            if isinstance(old_attr_value, PropertyValueContainer):
+                old_attr_value._unregister_owner(obj, self)
+            if isinstance(value, PropertyValueContainer):
+                value._register_owner(obj, self)
+
+            setattr(obj, self._name, value)
+
+        # for notification purposes, "old" should be the logical old
+        self._mark_dirty_and_trigger(obj, old, value)
+
+    def __set__(self, obj, value):
+        value = self._prepare_value(value)
+        old = self.__get__(obj)
+        self._real_set(obj, old, value)
+
+    # called when a container is mutated "behind our back" and
+    # we detect it with our collection wrappers. In this case,
+    # somewhat weirdly, "old" is a copy and the new "value"
+    # should already be set unless we change it due to
+    # validation.
+    def _notify_mutated(self, obj, old):
+        value = self.__get__(obj)
+
+        # re-validate because the contents of 'old' have changed,
+        # in some cases this could give us a new object for the value
+        value = self._prepare_value(value)
+
+        self._real_set(obj, old, value)
 
     def __delete__(self, obj):
         if hasattr(obj, self._name):
@@ -251,6 +317,18 @@ class Include(object):
         self.delegate = delegate
         self.help = help
         self.use_prefix = use_prefix
+
+_EXAMPLE_TEMPLATE = """
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../%(path)s
+        :source-position: none
+
+    *source:* `%(path)s <https://github.com/bokeh/bokeh/tree/master/%(path)s>`_
+
+"""
 
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
@@ -337,6 +415,11 @@ class MetaHasProps(type):
         class_dict["__container_props__"] = container_names
         if dataspecs:
             class_dict["_dataspecs"] = dataspecs
+
+        if "__example__" in class_dict:
+            path = class_dict["__example__"]
+            class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
+
         return type.__new__(cls, class_name, bases, class_dict)
 
 def accumulate_from_subclasses(cls, propname):
@@ -345,6 +428,13 @@ def accumulate_from_subclasses(cls, propname):
         if issubclass(c, HasProps):
             s.update(getattr(c, propname))
     return s
+
+def abstract(cls):
+    """ A phony decorator to mark abstract base classes. """
+    if not issubclass(cls, HasProps):
+        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
+
+    return cls
 
 @add_metaclass(MetaHasProps)
 class HasProps(object):
@@ -370,7 +460,7 @@ class HasProps(object):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def clone(self):
+    def _clone(self):
         """ Returns a duplicate of this object with all its properties
         set appropriately.  Values which are containers are shallow-copied.
         """
@@ -493,7 +583,7 @@ class PrimitiveProperty(Property):
 
 class Bool(PrimitiveProperty):
     """ Boolean type property. """
-    _underlying_type = (bool,)
+    _underlying_type = bokeh_bool_types
 
 class Int(PrimitiveProperty):
     """ Signed integer type property. """
@@ -501,11 +591,11 @@ class Int(PrimitiveProperty):
 
 class Float(PrimitiveProperty):
     """ Floating point type property. """
-    _underlying_type = (float, ) + bokeh_integer_types
+    _underlying_type = (numbers.Real,)
 
 class Complex(PrimitiveProperty):
     """ Complex floating point type property. """
-    _underlying_type = (complex, float) + bokeh_integer_types
+    _underlying_type = (numbers.Complex,)
 
 class String(PrimitiveProperty):
     """ String type property. """
@@ -602,7 +692,14 @@ class Seq(ContainerProperty):
 
         if value is not None:
             if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
-                raise ValueError("expected an element of %s, got %r" % (self, value))
+                if self._is_seq(value):
+                    invalid = []
+                    for item in value:
+                        if not self.item_type.is_valid(item):
+                            invalid.append(item)
+                    raise ValueError("expected an element of %s, got seq with invalid items %r" % (self, invalid))
+                else:
+                    raise ValueError("expected an element of %s, got %r" % (self, value))
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
@@ -639,7 +736,9 @@ class Array(Seq):
         return isinstance(value, np.ndarray)
 
     def _new_instance(self, value):
+        import numpy as np
         return np.array(value)
+
 
 class Dict(ContainerProperty):
     """ Python dict type property.
@@ -759,7 +858,7 @@ class Instance(Property):
                     if model is not None:
                         return model
                     else:
-                        raise DeserializationError("%s failed to deserilize reference to %s" % (self, json))
+                        raise DeserializationError("%s failed to deserialize reference to %s" % (self, json))
             else:
                 attrs = {}
 
@@ -861,7 +960,7 @@ class Either(ParameterizedProperty):
     def __or__(self, other):
         return self.__class__(*(self.type_params + [other]), default=self._default, help=self.help)
 
-class Enum(Property):
+class Enum(String):
     """ An Enum with a list of allowed values. The first value in the list is
     the default value, unless a default is provided with the "default" keyword
     argument.
@@ -870,16 +969,21 @@ class Enum(Property):
         if not (not values and isinstance(enum, enums.Enumeration)):
             enum = enums.enumeration(enum, *values)
 
-        self.allowed_values = enum._values
+        self._enum = enum
 
         default = kwargs.get("default", enum._default)
         help = kwargs.get("help")
+
         super(Enum, self).__init__(default=default, help=help)
+
+    @property
+    def allowed_values(self):
+        return self._enum._values
 
     def validate(self, value):
         super(Enum, self).validate(value)
 
-        if not (value is None or value in self.allowed_values):
+        if not (value is None or value in self._enum):
             raise ValueError("invalid value for %s: %r; allowed values are %s" % (self.name, value, nice_join(self.allowed_values)))
 
     def __str__(self):
@@ -1033,7 +1137,14 @@ class Datetime(Property):
     def validate(self, value):
         super(Datetime, self).validate(value)
 
-        if (isinstance(value, (datetime.datetime, datetime.date, np.datetime64))):
+        datetime_types = (datetime.datetime, datetime.date)
+        try:
+            import numpy as np
+            datetime_types += (np.datetime64,)
+        except ImportError:
+            pass
+
+        if (isinstance(value, datetime_types)):
             return
         try:
             import pandas
@@ -1153,8 +1264,8 @@ class DistanceSpec(UnitsSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(DistanceSpec, self).__set__(obj, value)
@@ -1167,8 +1278,8 @@ class ScreenDistanceSpec(NumberSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(ScreenDistanceSpec, self).__set__(obj, value)
@@ -1181,8 +1292,8 @@ class DataDistanceSpec(NumberSpec):
 
     def __set__(self, obj, value):
         try:
-            if value < 0:
-                raise ValueError("Distances must be non-negative")
+            if value is not None and value < 0:
+                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         super(DataDistanceSpec, self).__set__(obj, value)
@@ -1197,7 +1308,7 @@ class ColorSpec(DataSpec):
         well-formed hexadecimal color value.
         """
         return isinstance(arg, string_types) and \
-               ((len(arg) == 7 and arg[0] == "#") or arg in enums.NamedColor._values)
+               ((len(arg) == 7 and arg[0] == "#") or arg in enums.NamedColor)
 
     @classmethod
     def is_color_tuple(cls, val):

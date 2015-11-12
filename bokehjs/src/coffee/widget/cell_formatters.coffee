@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-Numeral = require "../../vendor/numeral.js-1.5.3/numeral.js"
+Numeral = require "numeral"
 HasProperties = require "../common/has_properties"
 
 class CellFormatter extends HasProperties
@@ -93,6 +93,20 @@ class DateFormatter extends CellFormatter
     date = $.datepicker.formatDate(@getFormat(), new Date(value))
     return super(row, cell, date, columnDef, dataContext)
 
+class HTMLTemplateFormatter extends CellFormatter
+  type: 'HTMLTemplateFormatter'
+  formatterDefaults:
+    template: '<%= value %>'
+
+  format: (row, cell, value, columnDef, dataContext) ->
+    template = @get("template")
+    if value == null
+      return ""
+    else
+      dataContext = _.extend({}, dataContext, {value: value})
+      compiled_template = _.template(template)
+      return compiled_template(dataContext)
+
 module.exports =
   String:
     Model: StringFormatter
@@ -105,3 +119,6 @@ module.exports =
 
   Date:
     Model: DateFormatter
+
+  HTMLTemplate:
+    Model: HTMLTemplateFormatter

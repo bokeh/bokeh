@@ -1,8 +1,5 @@
 _ = require "underscore"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-else
-  $1 = require "jquery-ui/autocomplete"
+$1 = require "jquery-ui/autocomplete"
 TextInput = require "./text_input"
 
 class AutocompleteInputView extends TextInput.View

@@ -1,15 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
-if global._bokehTest?
-  $1 = undefined  # TODO Make work
-  SlickGrid = undefined
-  RowSelectionModel = undefined
-  CheckboxSelectColumn = undefined
-else
-  $1 = require "jquery-ui/sortable"
-  SlickGrid = require "slick_grid/slick.grid"
-  RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
-  CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
+$1 = require "jquery-ui/sortable"
+SlickGrid = require "slick_grid/slick.grid"
+RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
+CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
 ContinuumView = require "../common/continuum_view"
 HasProperties= require "../common/has_properties"
 DOMUtil = require "../util/dom_util"
@@ -27,26 +21,28 @@ class DataProvider
 
   getLength: () -> @source.get_length()
 
-  getItem: (index) ->
-    item = {index: index}
+  getItem: (offset) ->
+    item = {}
     for field in @fields
-      item[field] = @data[field][index]
+      item[field] = @data[field][offset]
     return item
 
-  _setItem: (index, item) ->
+  _setItem: (offset, item) ->
     for field, value of item
-      @data[field][index] = value
+      @data[field][offset] = value
     return
 
-  setItem: (index, item) ->
-    @_setItem(index, item)
+  setItem: (offset, item) ->
+    @_setItem(offset, item)
     @updateSource()
 
   getField: (index, field) ->
-    return @data[field][index]
+    offset = @data["index"].indexOf(index)
+    return @data[field][offset]
 
   _setField: (index, field, value) ->
-    @data[field][index] = value
+    offset = @data["index"].indexOf(index)
+    @data[field][offset] = value
     return
 
   setField: (index, field, value) ->

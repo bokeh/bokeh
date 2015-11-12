@@ -2,7 +2,7 @@
 how BokehJS code and CSS resources should be located, loaded, and embedded in
 Bokeh documents.
 
-Also provides some pre-configured Resources objects:
+Also provides some pre-configured Resources objects.
 
 Attributes:
     CDN : load minified BokehJS from CDN
@@ -14,14 +14,45 @@ from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger(__name__)
-from os.path import join, relpath, splitext
+from os.path import join, relpath
 import re
-
-import six
+import copy
 
 from . import __version__
 from .settings import settings
 from .util.paths import bokehjsdir
+from .templates import JS_RESOURCES, CSS_RESOURCES
+
+DEFAULT_SERVER_HOST = "localhost"
+DEFAULT_SERVER_PORT = 5006
+DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
+
+
+def websocket_url_for_server_url(url):
+    if url.startswith("http:"):
+        reprotocoled = "ws" + url[4:]
+    elif url.startswith("https:"):
+        reprotocoled = "wss" + url[5:]
+    else:
+        raise ValueError("URL has unknown protocol " + url)
+    if reprotocoled.endswith("/"):
+        return reprotocoled + "ws"
+    else:
+        return reprotocoled + "/ws"
+
+
+def server_url_for_websocket_url(url):
+    if url.startswith("ws:"):
+        reprotocoled = "http" + url[2:]
+    elif url.startswith("wss:"):
+        reprotocoled = "https" + url[3:]
+    else:
+        raise ValueError("URL has non-websocket protocol " + url)
+    if not reprotocoled.endswith("/ws"):
+        raise ValueError("websocket URL does not end in /ws")
+    return reprotocoled[:-2]
+
+DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
@@ -29,7 +60,8 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 def _cdn_base_url():
     return "http://cdn.pydata.org"
 
-def _get_cdn_urls(version=None, minified=True):
+
+def _get_cdn_urls(components, version=None, minified=True):
     if version is None:
         if settings.docs_cdn():
             version = settings.docs_cdn()
@@ -49,10 +81,12 @@ def _get_cdn_urls(version=None, minified=True):
     if version.endswith(('dev', 'rc')):
         logger.debug("Getting CDN URL for local dev version will not produce usable URL")
 
+    def mk_url(comp, kind):
+        return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
+
     result = {
-        'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
-        'css_files' : ['%s/%s/bokeh-%s%s.css' % (base_url, container, version, _min)],
-        'messages'  : [],
+        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
+        'messages' : [],
     }
 
     if len(__version__.split('-')) > 1:
@@ -64,93 +98,35 @@ def _get_cdn_urls(version=None, minified=True):
 
     return result
 
-def _get_server_urls(root_url, minified=True):
+
+def _get_server_urls(components, root_url, minified=True):
     _min = ".min" if minified else ""
-    result = {
-        'js_files'  : ['%sbokehjs/static/js/bokeh%s.js' % (root_url, _min)],
-        'css_files' : ['%sbokehjs/static/css/bokeh%s.css' % (root_url, _min)],
-        'messages'  : [],
+
+    def mk_url(comp, kind):
+        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, kind, comp, _min, kind)
+
+    return {
+        'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
+        'messages' : [],
     }
-    return result
 
 
-def _inline(paths):
-    strings = []
-    for path in paths:
-        begin = "/* BEGIN %s */" % path
-        middle = open(path, 'rb').read().decode("utf-8")
-        end = "/* END %s */" % path
-        strings.append(begin + '\n' + middle + '\n' + end)
-    return strings
-
-
-class Resources(object):
-    ''' The Resources class encapsulates information relating to loading or
-    embedding BokehJS code and CSS.
-
-    Args:
-        mode (str) : how should BokehJS be included in output
-
-            See below for descriptions of available modes
-
-        version (str, optional) : what version of BokejJS to load
-
-            Only valid with the ``'cdn'`` mode
-
-        root_dir (str, optional) : root directory for loading BokehJS resources
-
-            Only valid with ``'relative'`` and ``'relative-dev'`` modes
-
-        minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
-
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from
-
-            Only valid with ``'server'`` and ``'server-dev'`` modes
-
-    The following **mode** values are available for configuring a Resource object:
-
-    * ``'inline'`` configure to provide entire BokehJS code and CSS inline
-    * ``'cdn'`` configure to load BokehJS code and CS from ``http://cdn.pydata.org``
-    * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-minified JS
-    * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified JS
-    * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified JS
-
-    Once configured, a Resource object exposes the following public attributes:
-
-    Attributes:
-        logo_url : location of the BokehJS logo image
-        js_raw : any raw JS that needs to be placed inside ``<script>`` tags
-        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        js_files : URLs of any JS files that need to be loaded by ``<script>`` tags
-        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
-        messages : any informational messages concering this configuration
-
-    These attributes are often useful as template parameters when embedding
-    Bokeh plots.
-
-    '''
-
-    _default_js_files = ["js/bokeh.js"]
-    _default_css_files = ["css/bokeh.css"]
-
-    _default_js_files_dev = ['js/bokeh.js']
-    _default_css_files_dev = ['css/bokeh.css']
-
+class BaseResources(object):
     _default_root_dir = "."
-    _default_root_url = "http://127.0.0.1:5006/"
+    _default_root_url = DEFAULT_SERVER_HTTP_URL
 
-    logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
+    logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None):
+        self.components = ["bokeh", "bokeh-widgets"]
+
         self.mode = settings.resources(mode)
         self.root_dir = settings.rootdir(root_dir)
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
         self.log_level = settings.log_level(log_level)
+
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
@@ -172,36 +148,13 @@ class Resources(object):
         if self.dev:
             self.mode = self.mode[:-4]
 
-        js_paths = self._js_paths(dev=self.dev, minified=self.minified)
-        css_paths = self._css_paths(dev=self.dev, minified=self.minified)
-        base_url = join(bokehjsdir(self.dev), "js")
-
-        self._js_raw = []
-        self._css_raw = []
-        self.js_files = []
-        self.css_files = []
         self.messages = []
 
-        if self.mode == "inline":
-            self._js_raw = lambda: _inline(js_paths)
-            self._css_raw = lambda: _inline(css_paths)
-        elif self.mode == "relative":
-            root_dir = self.root_dir or self._default_root_dir
-            self.js_files = [ relpath(p, root_dir) for p in js_paths ]
-            self.css_files = [ relpath(p, root_dir) for p in css_paths ]
-            base_url = relpath(base_url, root_dir)
-        elif self.mode == "absolute":
-            self.js_files = list(js_paths)
-            self.css_files = list(css_paths)
-        elif self.mode == "cdn":
-            cdn = _get_cdn_urls(self.version, self.minified)
-            self.js_files = list(cdn['js_files'])
-            self.css_files = list(cdn['css_files'])
+        if self.mode == "cdn":
+            cdn = self._cdn_urls()
             self.messages.extend(cdn['messages'])
         elif self.mode == "server":
-            server = _get_server_urls(self.root_url, self.minified)
-            self.js_files = list(server['js_files'])
-            self.css_files = list(server['css_files'])
+            server = self._server_urls()
             self.messages.extend(server['messages'])
 
     @property
@@ -217,19 +170,6 @@ class Resources(object):
             raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
         self._log_level = level
 
-
-    @property
-    def js_raw(self):
-        if six.callable(self._js_raw):
-            self._js_raw = self._js_raw()
-        return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
-
-    @property
-    def css_raw(self):
-        if six.callable(self._css_raw):
-            self._css_raw = self._css_raw()
-        return self._css_raw
-
     @property
     def root_url(self):
         if self._root_url:
@@ -237,21 +177,241 @@ class Resources(object):
         else:
             return self._default_root_url
 
-    def _file_paths(self, files, minified):
-        if minified:
-            files = [ root + ".min" + ext for (root, ext) in map(splitext, files) ]
-        return [ join(bokehjsdir(self.dev), file) for file in files ]
+    def _file_paths(self, kind):
+        bokehjs_dir = bokehjsdir(self.dev)
+        minified = ".min" if not self.dev and self.minified else ""
+        files = [ "%s%s.%s" % (component, minified, kind) for component in self.components ]
+        paths = [ join(bokehjs_dir, kind, file) for file in files ]
+        return paths
 
-    def _js_paths(self, minified=True, dev=False):
-        files = self._default_js_files_dev if self.dev else self._default_js_files
-        return self._file_paths(files, False if dev else minified)
+    def _cdn_urls(self):
+        return _get_cdn_urls(self.components, self.version, self.minified)
 
-    def _css_paths(self, minified=True, dev=False):
-        files = self._default_css_files_dev if self.dev else self._default_css_files
-        return self._file_paths(files, False if dev else minified)
+    def _server_urls(self):
+        return _get_server_urls(self.components, self.root_url, self.minified)
+
+    def _resolve(self, kind):
+        paths = self._file_paths(kind)
+        files, raw = [], []
+
+        if self.mode == "inline":
+            raw = [ self._inline(path) for path in paths ]
+        elif self.mode == "relative":
+            root_dir = self.root_dir or self._default_root_dir
+            files = [ relpath(path, root_dir) for path in paths ]
+        elif self.mode == "absolute":
+            files = list(paths)
+        elif self.mode == "cdn":
+            cdn = self._cdn_urls()
+            files = list(cdn['urls'](kind))
+        elif self.mode == "server":
+            server = self._server_urls()
+            files = list(server['urls'](kind))
+
+        return (files, raw)
+
+    def _inline(self, path):
+        begin = "/* BEGIN %s */" % path
+        middle = open(path, 'rb').read().decode("utf-8")
+        end = "/* END %s */" % path
+        return "%s\n%s\n%s" % (begin, middle, end)
+
+    def _use_component(self, component, use):
+        obj = copy.deepcopy(self)
+
+        if use:
+            if component not in obj.components:
+                try:
+                    i = obj.components.index("bokeh")
+                except ValueError:
+                    i = 0
+
+                obj.components.insert(i, component)
+        else:
+            try:
+                obj.components.remove(component)
+            except ValueError:
+                pass
+
+        return obj
+
+    def use_widgets(self, use):
+        return self._use_component("bokeh-widgets", use)
+
+
+class JSResources(BaseResources):
+    ''' The Resources class encapsulates information relating to loading or embedding Bokeh Javascript.
+
+    Args:
+        mode (str) : how should Bokeh JS be included in output
+
+            See below for descriptions of available modes
+
+        version (str, optional) : what version of Bokeh JS to load
+
+            Only valid with the ``'cdn'`` mode
+
+        root_dir (str, optional) : root directory for loading Bokeh JS assets
+
+            Only valid with ``'relative'`` and ``'relative-dev'`` modes
+
+        minified (bool, optional) : whether JavaScript should be minified or not (default: True)
+
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
+
+            Only valid with ``'server'`` and ``'server-dev'`` modes
+
+    The following **mode** values are available for configuring a Resource object:
+
+    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``http://cdn.pydata.org``
+    * ``'server'`` configure to load from a Bokeh Server
+    * ``'server-dev'`` same as ``server`` but supports non-minified assets
+    * ``'relative'`` configure to load relative to the given directory
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
+    * ``'absolute'`` configure to load from the installed Bokeh library static directory
+    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
+
+    Once configured, a Resource object exposes the following public attributes:
+
+    Attributes:
+        logo_url : location of the BokehJS logo image
+        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
+        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
+        messages : any informational messages concering this configuration
+
+    These attributes are often useful as template parameters when embedding
+    Bokeh plots.
+
+    '''
 
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
+
+    @property
+    def js_files(self):
+        files, _ = self._resolve('js')
+        return files
+
+    @property
+    def js_raw(self):
+        _, raw = self._resolve('js')
+        return raw + ['Bokeh.set_log_level("%s");' % self.log_level]
+
+    def render_js(self):
+        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
+
+
+class CSSResources(BaseResources):
+    ''' The CSSResources class encapsulates information relating to loading or embedding Bokeh client-side CSS.
+
+    Args:
+        mode (str) : how should Bokeh CSS be included in output
+
+            See below for descriptions of available modes
+
+        version (str, optional) : what version of Bokeh CSS to load
+
+            Only valid with the ``'cdn'`` mode
+
+        root_dir (str, optional) : root directory for loading BokehJS resources
+
+            Only valid with ``'relative'`` and ``'relative-dev'`` modes
+
+        minified (bool, optional) : whether CSS should be minified or not (default: True)
+
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
+
+            Only valid with ``'server'`` and ``'server-dev'`` modes
+
+    The following **mode** values are available for configuring a Resource object:
+
+    * ``'inline'`` configure to provide entire BokehJS code and CSS inline
+    * ``'cdn'`` configure to load Bokeh CSS from ``http://cdn.pydata.org``
+    * ``'server'`` configure to load from a Bokeh Server
+    * ``'server-dev'`` same as ``server`` but supports non-minified CSS
+    * ``'relative'`` configure to load relative to the given directory
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified CSS
+    * ``'absolute'`` configure to load from the installed Bokeh library static directory
+    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified CSS
+
+    Once configured, a Resource object exposes the following public attributes:
+
+    Attributes:
+        logo_url : location of the BokehJS logo image
+        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
+        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
+        messages : any informational messages concering this configuration
+
+    These attributes are often useful as template parameters when embedding Bokeh plots.
+
+    '''
+
+    @property
+    def css_files(self):
+        files, _ = self._resolve('css')
+        return files
+
+    @property
+    def css_raw(self):
+        _, raw = self._resolve('css')
+        return raw
+
+    def render_css(self):
+        return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
+
+
+class Resources(JSResources, CSSResources):
+    ''' The Resources class encapsulates information relating to loading or
+    embedding Bokeh Javascript and CSS.
+
+    Args:
+        mode (str) : how should Bokeh JS and CSS be included in output
+
+            See below for descriptions of available modes
+
+        version (str, optional) : what version of Bokeh JS and CSS to load
+
+            Only valid with the ``'cdn'`` mode
+
+        root_dir (str, optional) : root directory for loading Bokeh JS and CSS assets
+
+            Only valid with ``'relative'`` and ``'relative-dev'`` modes
+
+        minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
+
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
+
+            Only valid with ``'server'`` and ``'server-dev'`` modes
+
+    The following **mode** values are available for configuring a Resource object:
+
+    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``http://cdn.pydata.org``
+    * ``'server'`` configure to load from a Bokeh Server
+    * ``'server-dev'`` same as ``server`` but supports non-minified assets
+    * ``'relative'`` configure to load relative to the given directory
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
+    * ``'absolute'`` configure to load from the installed Bokeh library static directory
+    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
+
+    Once configured, a Resource object exposes the following public attributes:
+
+    Attributes:
+        logo_url : location of the BokehJS logo image
+        js_raw : any raw JS that needs to be placed inside ``<script>`` tags
+        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
+        js_files : URLs of any JS files that need to be loaded by ``<script>`` tags
+        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
+        messages : any informational messages concering this configuration
+
+    These attributes are often useful as template parameters when embedding
+    Bokeh plots.
+
+    '''
+
+    def render(self):
+        return "%s\n%s" % (self.render_css(), self.render_js())
 
 CDN = Resources(mode="cdn")
 

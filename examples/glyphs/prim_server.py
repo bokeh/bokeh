@@ -6,14 +6,13 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.models.glyphs import *
 from bokeh.models import (
-    Plot, Range1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool
+    Plot, Range1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool,
+    VBox
 )
-from bokeh.session import Session
+from bokeh.client import push_session
 
 document = Document()
-session = Session()
-session.use_doc('prim_server')
-session.load_document(document)
+session = push_session(document)
 
 x = np.arange(1,6)
 y = np.arange(5, 0, -1)
@@ -22,6 +21,8 @@ source = ColumnDataSource(data=dict(x=x,y=y))
 
 xdr = Range1d(start=0, end=10)
 ydr = Range1d(start=0, end=10)
+
+children = []
 
 def make_plot(name, glyph):
     plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
@@ -39,8 +40,7 @@ def make_plot(name, glyph):
 
     plot.add_tools(PanTool(), WheelZoomTool())
 
-    document.add(plot)
-    session.store_document(document)
+    children.append(plot)
 
 make_plot('annular_wedge', AnnularWedge(x="x", y="y", inner_radius=0.2, outer_radius=0.5, start_angle=0.8, end_angle=3.8))
 make_plot('annulus', Annulus(x="x", y="y", inner_radius=0.2, outer_radius=0.5))
@@ -52,6 +52,6 @@ make_plot('rect', Rect(x="x", y="y", width=0.5, height=0.8, angle=-0.6))
 make_plot('text', Text(x="x", y="y", text={"value":"foo"}, angle=0.6))
 make_plot('wedge', Wedge(x="x", y="y", radius=0.5, start_angle=0.9, end_angle=3.2))
 
-link = session.object_link(document.context)
-print("please visit %s to see plots" % link)
-view(link)
+layout = VBox(children=children)
+document.add(layout)
+session.show(layout)

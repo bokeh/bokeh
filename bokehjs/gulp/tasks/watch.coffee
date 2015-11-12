@@ -7,5 +7,5 @@ paths = require "../paths"
 gulp.task "watch", ->
   gulp.watch "#{paths.coffee.watchSources}", ->
     runSequence("scripts:build")
-  gulp.watch "#{paths.css.watchSources}", ->
+  gulp.watch "#{paths.less.watchSources}", ->
     runSequence("styles:build")

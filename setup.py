@@ -17,6 +17,7 @@ from __future__ import print_function
 # Stdlib imports
 import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
+from shutil import copy
 
 try:
     import colorama
@@ -83,8 +84,9 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 # Classes and functions
 # -----------------------------------------------------------------------------
 
-package_data = []
+copy("LICENSE.txt", "bokeh/")
 
+package_data = ['LICENSE.txt', 'themes/*.yaml']
 
 def package_path(path, filters=()):
     if not os.path.exists(path):
@@ -97,12 +99,11 @@ def package_path(path, filters=()):
             for f in files:
                 if not filters or f.endswith(filters):
                     package_data.append(join(path, f))
+
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # And this is an intended PR to fix it: https://github.com/pypa/virtualenv/pull/508
 # Workaround to fix our issue: https://github.com/bokeh/bokeh/issues/378
-
-
 def getsitepackages():
     """Returns a list containing all global site-packages directories
     (and possibly site-python)."""
@@ -288,15 +289,18 @@ def build_js():
     print()
     print("Build artifact sizes:")
     try:
-        blddir = join("bokehjs", "build")
-        bkjs_size = os.stat(join(blddir, "js", "bokeh.js")).st_size / 2**10
-        bkjs_min_size = os.stat(join(blddir, "js", "bokeh.min.js")).st_size / 2**10
-        bkcss_size = os.stat(join(blddir, "css", "bokeh.css")).st_size / 2**10
-        bkcss_min_size = os.stat(join(blddir, "css", "bokeh.min.css")).st_size / 2**10
-        print("  - bokeh.js      : %6.1f KB" % bkjs_size)
-        print("  - bokeh.css     : %6.1f KB" % bkcss_size)
-        print("  - bokeh.min.js  : %6.1f KB" % bkjs_min_size)
-        print("  - bokeh.min.css : %6.1f KB" % bkcss_min_size)
+        def size(*path):
+            return os.stat(join("bokehjs", "build", *path)).st_size / 2**10
+
+        print("  - bokeh.js              : %6.1f KB" % size("js", "bokeh.js"))
+        print("  - bokeh.css             : %6.1f KB" % size("css", "bokeh.css"))
+        print("  - bokeh.min.js          : %6.1f KB" % size("js", "bokeh.min.js"))
+        print("  - bokeh.min.css         : %6.1f KB" % size("css", "bokeh.min.css"))
+
+        print("  - bokeh-widgets.js      : %6.1f KB" % size("js", "bokeh-widgets.js"))
+        print("  - bokeh-widgets.css     : %6.1f KB" % size("css", "bokeh-widgets.css"))
+        print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
+        print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
 
@@ -332,7 +336,16 @@ Please build BokehJS by running setup.py with the `--build_js` option.
 
 def clean():
     print("Removing prior-built items...", end=" ")
-    dir_util.remove_tree('build/lib/bokeh')
+
+    build_dir = 'build/lib/bokeh'
+    if os.path.exists(build_dir):
+        dir_util.remove_tree(build_dir)
+
+    for root, dirs, files in os.walk('.'):
+        for item in files:
+            if item.endswith('.pyc'):
+                os.remove(os.path.join(root, item))
+
     print("Done")
 
 
@@ -434,13 +447,8 @@ if jsinstall:
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
-package_path(join(SERVER, 'templates'))
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
-package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
-package_path(join(SERVER, 'tests', 'config'))
-package_path(join(SERVER, 'tests', 'data'))
-scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
     site_packages = site.USER_SITE
@@ -489,46 +497,35 @@ elif '--help' in sys.argv:
 print()
 
 REQUIRES = [
-        'Flask>=0.10.1',
-        'Jinja2>=2.7',
-        'MarkupSafe>=0.18',
-        'Werkzeug>=0.9.1',
-        'greenlet>=0.4.1',
-        'itsdangerous>=0.21',
-        'python-dateutil>=2.1',
-        'requests>=1.2.3',
         'six>=1.5.2',
-        'pygments>=1.6',
-        'pystache>=0.5.3',
-        'markdown>=2.3.1',
+        'requests>=1.2.3',
         'PyYAML>=3.10',
+        'python-dateutil>=2.1',
+        'Jinja2>=2.7',
+        'numpy>=1.7.1',
+        'pandas>=0.11.0',
+        'Flask>=0.10.1',
         'pyzmq>=14.3.1',
         'tornado>=4.0.1',
-        # cli
-        # 'click>=3.3',
-        # tests
-        # 'pytest'
-        # 'mock>=1.0.1',
-        'colorama>=0.2.7'
     ]
 
-if sys.version_info[:2] == (2, 6):
-    REQUIRES.append('argparse>=1.1')
-
-# if sys.platform != "win32":
-#     REQUIRES.append('redis>=2.7.6')
-
-if platform.python_implementation() != "PyPy":
-    # You need to install PyPy's fork of NumPy to make it work:
-    # pip install git+https://bitbucket.org/pypy/numpy.git
-    # Also pandas is not yet working with PyPy .
-    REQUIRES.extend([
-        'numpy>=1.7.1',
-        'pandas>=0.11.0'
-    ])
+if sys.version_info[:2] == (2, 7):
+    REQUIRES.append('futures>=3.0.3')
 
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
+
+# Horrible hack: workaround to allow creation of bdist_whell on pip installation
+# Why, for God's sake, is pip forcing the generation of wheels when installing a package?
+
+try:
+    from wheel.bdist_wheel import bdist_wheel
+except ImportError as e:
+    # pip is not claiming for bdist_wheel when wheel is not installed
+    bdist_wheel = None
+
+if bdist_wheel is not None:
+    _cmdclass["bdist_wheel"] = bdist_wheel
 
 setup(
     name='bokeh',
@@ -536,25 +533,37 @@ setup(
     cmdclass=_cmdclass,
     packages=[
         'bokeh',
+        'bokeh.application',
+        'bokeh.application.tests',
+        'bokeh.application.spellings',
+        'bokeh.application.spellings.tests',
         'bokeh.models',
         'bokeh.models.tests',
         'bokeh.models.widgets',
         'bokeh.charts',
-        'bokeh.charts.builder',
-        'bokeh.charts.builder.tests',
+        'bokeh.charts.builders',
+        'bokeh.charts.builders.tests',
         'bokeh.charts.tests',
+        'bokeh._legacy_charts',
+        'bokeh._legacy_charts.builder',
+        'bokeh._legacy_charts.builder.tests',
+        'bokeh._legacy_charts.tests',
+        'bokeh.client',
+        'bokeh.command',
         'bokeh.compat',
         'bokeh.compat.mplexporter',
         'bokeh.compat.mplexporter.renderers',
         'bokeh.crossfilter',
         'bokeh.sampledata',
         'bokeh.server',
-        'bokeh.server.models',
-        'bokeh.server.views',
-        'bokeh.server.blaze',
-        'bokeh.server.utils',
+        'bokeh.server.protocol',
+        'bokeh.server.protocol.messages',
+        'bokeh.server.protocol.messages.tests',
+        'bokeh.server.protocol.tests',
         'bokeh.server.tests',
+        'bokeh.server.views',
         'bokeh.sphinxext',
+        'bokeh.themes',
         'bokeh.tests',
         'bokeh.transforms',
         'bokeh.util',
@@ -567,7 +576,7 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=scripts,
+    scripts=['bin/bokeh'],
     zip_safe=False,
     install_requires=REQUIRES
 )

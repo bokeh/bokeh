@@ -39,11 +39,11 @@ Contents
    docs/gallery.rst
    docs/user_guide.rst
    docs/tutorials.rst
-   docs/dev_guide.rst
    docs/contributing.rst
    docs/faq.rst
    docs/release_notes.rst
    docs/reference.rst
+   docs/dev_guide.rst
 
 
 .. _technicalvision:
@@ -127,7 +127,7 @@ development or embedding Bokeh in your applications, please contact
 `pwang@continuum.io <pwang email_>`_.
 
 To donate funds to support the development of Bokeh, please contact
-`info@pydata.org <info email_>`_.
+`info@numfocus.org <info email_>`_.
 
 .. _thanks:
 
@@ -193,14 +193,10 @@ Indices and tables
 .. _Bokeh SO: http://stackoverflow.com/questions/tagged/bokeh
 .. _Continuum Analytics: http://continuum.io
 .. _DARPA: http://www.darpa.mil
-.. _info email: mailto:info@pydata.org
+.. _info email: mailto:info@numfocus.org
 .. _Numba: http://numba.pydata.org
 .. _pwang email: mailto:pwang@continuum.io
 .. _Twitter: http://twitter.com/BokehPlots
 .. _Vine: https://vine.co/bokehplots
 .. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw
 .. _XDATA: http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx
-
-
-
-

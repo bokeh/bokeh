@@ -19,9 +19,9 @@ a serialized version of the model looks like.
 .. toctree::
    :maxdepth: 2
 
-   models/actions
    models/annotations
    models/axes
+   models/callbacks
    models/formatters
    models/glyphs
    models/grids
@@ -33,8 +33,9 @@ a serialized version of the model looks like.
    models/renderers
    models/sources
    models/tickers
+   models/tiles
    models/tools
-   models/widget
+   models/widgets.widget
    models/widgets.buttons
    models/widgets.dialogs
    models/widgets.groups

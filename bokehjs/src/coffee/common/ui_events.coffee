@@ -1,20 +1,18 @@
 $ = require "jquery"
 Backbone = require "backbone"
-if global._bokehTest?
-  # TODO Make sure these are set properly
-  {Hammer, mousewhweel} = global._bokehTest
-else
-  Hammer = require "hammerjs"
-  mousewheel = require("jquery-mousewheel")($)
+Hammer = require "hammerjs"
+mousewheel = require("jquery-mousewheel")($)
 {logger} = require "./logging"
 
 class UIEvents extends Backbone.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
+    @_hammer_element()
 
+
+  _hammer_element: ->
     hit_area = @get('hit_area')
-
     @hammer = new Hammer(hit_area[0])
 
     # This is to be able to distinguish double taps from single taps
@@ -47,6 +45,7 @@ class UIEvents extends Backbone.Model
     hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
     $(document).keydown((e) => @_key_down(e))
     $(document).keyup((e) => @_key_up(e))
+
 
   register_tool: (tool_view) ->
     et = tool_view.mget('event_type')
@@ -93,24 +92,31 @@ class UIEvents extends Backbone.Model
     tm = @get('tool_manager')
     base_event_type = event_type.split(":")[0]
     gestures = tm.get('gestures')
-    active = gestures[base_event_type].active
-    if active?
-      @trigger("#{event_type}:#{active.id}", e)
+    active_tool = gestures[base_event_type].active
+    if active_tool?
+      @_trigger_event(event_type, active_tool, e)
+
+  _trigger_event: (event_type, active_tool, e)->
+    if active_tool.get('active') == true
+      if event_type == 'scroll'
+        e.preventDefault()
+        e.stopPropagation()
+      @trigger("#{event_type}:#{active_tool.id}", e)
 
   _bokify_hammer: (e) ->
-    if e.pointerType == "mouse"
-      offset = $(e.target).offset()
-      left = offset.left ? 0
-      top = offset.top ? 0
-      e.bokeh = {
-        sx: e.srcEvent.pageX - left
-        sy: e.srcEvent.pageY - top
-      }
+    if e.pointerType == 'mouse'
+      x = e.srcEvent.pageX
+      y = e.srcEvent.pageY
     else
-      e.bokeh = {
-        sx: e.center.x
-        sy: e.center.y
-      }
+      x = e.center.x
+      y = e.center.y
+    offset = $(e.target).offset()
+    left = offset.left ? 0
+    top = offset.top ? 0
+    e.bokeh = {
+      sx: x - left
+      sy: y - top
+    }
 
   _bokify_jq: (e) ->
     offset = $(e.currentTarget).offset()
@@ -192,8 +198,6 @@ class UIEvents extends Backbone.Model
     @_bokify_jq(e)
     e.bokeh.delta = delta
     @_trigger('scroll', e)
-    e.preventDefault()
-    e.stopPropagation()
 
   _key_down: (e) ->
     # NOTE: keydown event triggered unconditionally
