@@ -175,7 +175,8 @@ class Property(object):
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception as e:
-            logger.debug("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
+            # if we cannot compare (e.g. arrays) just punt return False for match
+            pass
         return False
 
     def from_json(self, json, models=None):
