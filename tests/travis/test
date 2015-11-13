@@ -29,7 +29,7 @@ colorama.init()
 use_server = True
 
 try:
-    import IPython
+    import notebook
 except ImportError:
     use_notebook = False
 else:
@@ -54,8 +54,8 @@ parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
 parser.add_argument("-p", "--bokeh-port", type=int, default=5006,
                     help="port on which Bokeh server resides")
-parser.add_argument("-n", "--ipython-port", type=int, default=6007,
-                    help="port on which IPython Notebook server resides")
+parser.add_argument("-n", "--notebook-port", type=int, default=6007,
+                    help="port on which Jupyter Notebook server resides")
 parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
 parser.add_argument("-t", "--timeout", type=int, default=default_timeout,
@@ -114,7 +114,7 @@ def ok(msg=None):
 write("%s Using configuration:" % green(">>>"))
 write("%s patterns      = %s" % (green("---"), args.patterns))
 write("%s bokeh-port    = %s" % (green("---"), args.bokeh_port))
-write("%s ipython-port  = %s" % (green("---"), args.ipython_port))
+write("%s notebook-port  = %s" % (green("---"), args.notebook_port))
 write("%s phantomjs     = %s" % (green("---"), args.phantomjs))
 write("%s timeout       = %s" % (green("---"), args.timeout))
 write("%s verbose       = %s" % (green("---"), args.verbose))
@@ -347,7 +347,7 @@ def test_example(example, flags):
         url = server_url % (args.bokeh_port, basename(no_ext))
     elif flags & Flags.notebook:
         notebook_url = 'http://localhost:%d/notebooks/%s'
-        url = notebook_url % (args.ipython_port, url_path)
+        url = notebook_url % (args.notebook_port, url_path)
     else:
         raise ValueError("invalid example type: %s" % example_type(flags))
 
@@ -528,51 +528,35 @@ def deal_with_output_cells(example):
 
     return True
 
-def create_ipython_profile():
-    create = ["ipython", "profile", "create", "bokeh_test"]
-    try:
-        subprocess.check_call(create)
-    except OSError:
-        write("Failed to run: %s" % " ".join(create))
-        sys.exit(1)
-
-def locate_ipython_profile():
-    locate = ["ipython", "locate", "profile", "bokeh_test"]
-
-    try:
-        loc = subprocess.check_output(locate)
-        write("bokeh_test profile found.")
-    except CalledProcessError:
-        write("bokeh_test profile not found. Creating one...")
-        create_ipython_profile()
-        loc = subprocess.check_output(locate)
+def create_custom_js():
+    from jupyter_core import paths
+    config_dir = paths.jupyter_config_dir()
 
     body = """
-$([IPython.events]).on('status_started.Kernel', function(){
-  IPython.notebook.execute_all_cells();
+require(["base/js/namespace", "base/js/events"], function (IPython, events) {
+ events.on("kernel_ready.Kernel", function () {
+   IPython.notebook.execute_all_cells();
+ });
 });
 """
 
-    customjs = join(loc[:-1].decode("utf-8"), "static", "custom", "custom.js")
+    customjs = join(config_dir, "custom", "custom.js")
     open(customjs, "w").write(body)
 
-    return loc
-
-def start_ipython_notebook():
-    located_profile = locate_ipython_profile()
+def start_jupyter_notebook():
+    located_profile = create_custom_js()
 
     notebook_dir = split(example_dir)[0]
 
-    cmd = ["ipython", "notebook"]
-    argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port,
+    cmd = ["jupyter", "notebook"]
+    argv = ["--no-browser", "--port=%s" % args.notebook_port,
             "--notebook-dir=%s" % notebook_dir]
 
-    if located_profile:
-        try:
-            proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)
-        except OSError:
-            write("Failed to run: %s" % " ".join(cmd + argv))
-            sys.exit(1)
+    try:
+        proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)
+    except OSError:
+        write("Failed to run: %s" % " ".join(cmd + argv))
+        sys.exit(1)
 
     return proc
 
@@ -585,7 +569,7 @@ need_notebook = any(flags & Flags.notebook for _, flags in selected_examples)
 
 bokeh_server = start_bokeh_server() if use_server and need_server else None
 
-ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook else None
+jupyter_notebook = start_jupyter_notebook() if use_notebook and need_notebook else None
 
 run_examples = 0
 fail_examples = []
@@ -602,8 +586,8 @@ try:
             skip(example, "requested to skip")
         elif flags & Flags.server and not bokeh_server:
             skip(example, "bokeh server is not available")
-        elif flags & Flags.notebook and not ipython_notebook:
-            skip(example, "ipython notebook is not available")
+        elif flags & Flags.notebook and not jupyter_notebook:
+            skip(example, "jupyter notebook is not available")
         else:
             write("%s Testing %s ..." % (green(">>>"), example))
             result = False
@@ -693,9 +677,9 @@ finally:
         write("Shutting down bokeh-server ...")
         bokeh_server.kill()
 
-    if ipython_notebook is not None:
-        write("Shutting down ipython-notebook ...")
-        ipython_notebook.kill()
+    if jupyter_notebook is not None:
+        write("Shutting down jupyter-notebook ...")
+        jupyter_notebook.kill()
 
 num_examples = len(selected_examples)
 
