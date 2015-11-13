@@ -5,7 +5,7 @@ import unittest
 import bokeh.document as document
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance, String
-from mock import patch, Mock
+from mock import patch
 
 class AnotherModelInTestDocument(PlotObject):
     bar = Int(1)
