@@ -37,8 +37,6 @@ p2 = figure(x_axis_type="datetime")
 
 p2.circle('dates', 'adj_close', size=4, color='darkgrey', alpha=0.2, legend='close', source=cds)
 p2.line('dates', 'avg', color='navy', legend='avg', source=cds)
-# p2.circle(aapl_dates, aapl, size=4, color='darkgrey', alpha=0.2, legend='close')
-# p2.line(aapl_dates, aapl_avg, color='navy', legend='avg')
 
 p2.title = "AAPL One-Month Average"
 p2.grid.grid_line_alpha=0
@@ -66,14 +64,14 @@ def get_change_datasource_cb(data, stockname):
             else:
                 r.glyph.line_width = 1
 
-        if stockname == 'MSFT':
-            register_callbacks()
     return cb
 
 def register_callbacks():
     for i, (callback, stockname) in enumerate([(FB, 'FB'), (GOOG, 'GOOG'), (IBM, 'IBM'), (MSFT, 'MSFT'), (AAPL, 'AAPL')]):
         cb = get_change_datasource_cb(callback, stockname)
         curdoc().add_timeout_callback(cb, (i+1)*5)
+
+
 
 register_callbacks()
 
