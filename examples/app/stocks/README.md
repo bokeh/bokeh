@@ -36,6 +36,7 @@ clicking on it, or by executing this command from the command line:
     unzip quantquote_daily_sp500_83986.zip
 
 This should leave a "quantquote_daily_sp500_83986" subdirectory in this directory.
+
 Move the 'daily' directory by executing this command from the command line:
 
     mv quantquote_daily_sp500_83986/daily .
@@ -49,9 +50,14 @@ Bokeh Server
 ------------
 
 To view this applet directly from a bokeh server, you simply need to
-run a bokeh-server and point it at the stock example script:
+run a bokeh server and point it at the stock example directory. For example,
+from this directory, you can run:
 
-    bokeh serve stock_app.py
+    bokeh serve .
+
+Or from one directory level up, you can run:
+
+    bokeh serve stocks
 
 Now navigate to the following URL in a browser:
 

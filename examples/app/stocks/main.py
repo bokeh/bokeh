@@ -1,5 +1,5 @@
 from functools import lru_cache
-from os.path import join
+from os.path import dirname, join
 
 import pandas as pd
 
@@ -10,7 +10,7 @@ from bokeh.models.widgets import HBox, VBox, PreText, Select
 
 from bokeh.io import curdoc
 
-DATA_DIR = 'daily'
+DATA_DIR = join(dirname(__file__), 'daily')
 
 DEFAULT_TICKERS = ['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
 
