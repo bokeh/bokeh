@@ -185,7 +185,7 @@ class ClientSession(object):
     def _add_timeout_callback(self, callback):
         ''' Add callback so it can be invoked on a session after timeout
 
-        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+        NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
 
         '''
         cb = self._connection._loop.call_later(callback.timeout, callback.callback)

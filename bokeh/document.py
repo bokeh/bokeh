@@ -73,7 +73,7 @@ class SessionCallback(object):
         return self._callback
 
     def remove(self):
-        self.document.remove_periodic_callback(self)
+        self.document._remove_session_callback(self)
 
 class PeriodicCallback(SessionCallback):
     def __init__(self, document, callback, period, id=None):
@@ -84,9 +84,6 @@ class PeriodicCallback(SessionCallback):
     def period(self):
         return self._period
 
-    def remove(self):
-        self.document.remove_periodic_callback(self)
-
 class TimeoutCallback(SessionCallback):
     def __init__(self, document, callback, timeout, id=None):
         super(TimeoutCallback, self).__init__(document, callback, id)
@@ -95,9 +92,6 @@ class TimeoutCallback(SessionCallback):
     @property
     def timeout(self):
         return self._timeout
-
-    def remove(self):
-        self.document.remove_periodic_callback(self)
 
 class Document(object):
 
@@ -542,7 +536,7 @@ class Document(object):
             Throws an error if the callback wasn't added
 
         '''
-        self.remove_session_callback(callback)
+        self._remove_session_callback(callback)
 
     def add_timeout_callback(self, callback, timeout, id=None):
         ''' Add callback so it can be invoked on a session periodically accordingly to period.
@@ -563,10 +557,10 @@ class Document(object):
             Throws an error if the callback wasn't added
 
         '''
-        self.remove_session_callback(callback)
+        self._remove_session_callback(callback)
 
 
-    def remove_session_callback(self, callback):
+    def _remove_session_callback(self, callback):
         ''' Remove a callback added earlier with add_periodic_callback()
         or add_timeout_callback()
 
