@@ -32,6 +32,7 @@ class Document
     @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
+    @_all_models_by_name = {}
     @_all_model_counts = {}
     @_callbacks = []
 
@@ -82,6 +83,12 @@ class Document
     else
       null
 
+  get_model_by_name : (name) ->
+    if name of @_all_models_by_name
+      @_all_models_by_name[name]
+    else
+      null
+
   on_change : (callback) ->
     if callback in @_callbacks
       return
@@ -98,6 +105,10 @@ class Document
 
   # called by the model
   _notify_change : (model, attr, old, new_) ->
+    if attr == 'name'
+      if old of @_all_models_by_name and @_all_models_by_name[old] == model
+        delete @_all_models_by_name[old]
+      @_all_models_by_name[new_] = model
     @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_))
 
   # called by the model on attach
@@ -111,6 +122,9 @@ class Document
     else
       @_all_model_counts[model.id] = 1
     @_all_models[model.id] = model
+    name = model.get('name')
+    if name != null
+      @_all_models_by_name[name] = model
 
   # called by the model on detach
   _notify_detach : (model) ->
@@ -119,6 +133,9 @@ class Document
     if attach_count == 0
       delete @_all_models[model.id]
       delete @_all_model_counts[model.id]
+      name = model.get('name')
+      if name in @_all_models_by_name and @_all_models_by_name[name] == model
+        delete @_all_models_by_name[name]
     attach_count
 
   @_references_json : (references) ->
