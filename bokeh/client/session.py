@@ -188,8 +188,8 @@ class ClientSession(object):
         NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
 
         '''
-        self._connection._loop.call_later(callback.timeout, callback.callback)
-        self._callbacks[callback.id] = callback
+        cb = self._connection._loop.call_later(callback.timeout, callback.callback)
+        self._callbacks[callback.id] = cb
 
     def _remove_timeout_callback(self, callback):
         ''' Remove a callback added earlier with _add_timeout_callback()
@@ -197,7 +197,8 @@ class ClientSession(object):
             Throws an error if the callback wasn't added
 
         '''
-        self._callbacks.pop(callback.id)
+        cb = self._callbacks.pop(callback.id)
+        self._connection._loop.remove_timeout(cb)
 
     def pull(self):
         """ Pull the server's state and set it as session.document.
