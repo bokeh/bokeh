@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 from .connection import ClientConnection
 
 from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL, DEFAULT_SERVER_HTTP_URL, server_url_for_websocket_url
-from bokeh.document import Document, SessionCallbackAdded, SessionCallbackRemoved
+from bokeh.document import Document, SessionCallbackAdded, SessionCallbackRemoved, PeriodicCallback, TimeoutCallback
 import uuid
 
 DEFAULT_SESSION_ID = "default"
@@ -182,6 +182,23 @@ class ClientSession(object):
         '''
         self._callbacks.pop(callback.id).stop()
 
+    def _add_timeout_callback(self, callback):
+        ''' Add callback so it can be invoked on a session after timeout
+
+        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+
+        '''
+        self._connection._loop.call_later(callback.timeout, callback.callback)
+        self._callbacks[callback.id] = callback
+
+    def _remove_periodic_callback(self, callback):
+        ''' Remove a callback added earlier with _add_timeout_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._callbacks.pop(callback.id)
+
     def pull(self):
         """ Pull the server's state and set it as session.document.
 
@@ -306,11 +323,23 @@ class ClientSession(object):
             return
 
         if isinstance(event, SessionCallbackAdded):
-            self._add_periodic_callback(event.callback)
+            if isinstance(event.callback, PeriodicCallback):
+                self._add_periodic_callback(event.callback)
+            elif isinstance(event.callback, TimeoutCallback):
+                self._add_timeout_callback(event.callback)
+            else:
+                raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+
             return
 
-        if isinstance(event, SessionCallbackRemoved):
-            self._remove_periodic_callback(event.callback)
+        elif isinstance(event, SessionCallbackRemoved):
+            if isinstance(event.callback, PeriodicCallback):
+                self._remove_periodic_callback(event.callback)
+            elif isinstance(event.callback, TimeoutCallback):
+                self._remove_timeout_callback(event.callback)
+            else:
+                raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+
             return
 
         # TODO (havocp): our "change sync" protocol is flawed
