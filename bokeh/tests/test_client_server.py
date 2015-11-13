@@ -288,7 +288,7 @@ class TestClientServer(unittest.TestCase):
             # Clean up global IO state
             reset_output()
 
-    def test_client_session_callback(self):
+    def test_session_periodic_callback(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
