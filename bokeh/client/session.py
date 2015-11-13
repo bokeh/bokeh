@@ -191,7 +191,7 @@ class ClientSession(object):
         self._connection._loop.call_later(callback.timeout, callback.callback)
         self._callbacks[callback.id] = callback
 
-    def _remove_periodic_callback(self, callback):
+    def _remove_timeout_callback(self, callback):
         ''' Remove a callback added earlier with _add_timeout_callback()
 
             Throws an error if the callback wasn't added
