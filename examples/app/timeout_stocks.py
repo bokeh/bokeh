@@ -6,7 +6,6 @@ import numpy as np
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import figure, curdoc, hplot
 from bokeh.models.sources import ColumnDataSource
-from bokeh.client import push_session
 
 p1 = figure(x_axis_type = "datetime")
 
@@ -30,15 +29,14 @@ window = np.ones(window_size)/float(window_size)
 aapl_avg = np.convolve(aapl, window, 'same')
 
 cds = ColumnDataSource(
-    {'dates': np.array(AAPL['date'], dtype=np.datetime64), 'adj_close': AAPL['adj_close'],
+    {'dates': np.array(AAPL['date'], dtype=np.datetime64),
+    'adj_close': AAPL['adj_close'],
     'avg': aapl_avg}
     )
 p2 = figure(x_axis_type="datetime")
 
 p2.circle('dates', 'adj_close', size=4, color='darkgrey', alpha=0.2, legend='close', source=cds)
 p2.line('dates', 'avg', color='navy', legend='avg', source=cds)
-# p2.circle(aapl_dates, aapl, size=4, color='darkgrey', alpha=0.2, legend='close')
-# p2.line(aapl_dates, aapl_avg, color='navy', legend='avg')
 
 p2.title = "AAPL One-Month Average"
 p2.grid.grid_line_alpha=0
@@ -47,11 +45,8 @@ p2.yaxis.axis_label = 'Price'
 p2.ygrid.band_fill_color="olive"
 p2.ygrid.band_fill_alpha = 0.1
 
-# Open a session which will keep our local doc in sync with server
-# session = push_session(curdoc())
-# Open the session in a browser
+# create the application layout
 layout = hplot(p1,p2)
-# session.show(layout)
 
 def get_change_datasource_cb(data, stockname):
     def cb():
@@ -74,6 +69,3 @@ def register_callbacks():
         curdoc().add_timeout_callback(cb, (i+1)*5)
 
 register_callbacks()
-
-# Start the session loop
-# session.loop_until_closed()
