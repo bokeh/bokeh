@@ -1,20 +1,17 @@
-# The plot server must be running
+# This example requires the bokeh server command
 #
-# Source of inspiration for example:
-# https://www.youtube.com/watch?v=LznjC4Lo7lE
+# This example was inspired by the video:
+#
+#     https://www.youtube.com/watch?v=LznjC4Lo7lE
 #
 # Run the example with:
 #
-# >> bokeh serve animated_fouried_app.py
-
-import time
+#     bokeh serve fouried_animated.py
 
 import numpy as np
 
-from bokeh.plotting import figure, show, output_server, curdoc
-from bokeh.io import vplot, hplot
-from bokeh.models import GlyphRenderer
-from bokeh.client import push_session
+from bokeh.plotting import figure
+from bokeh.io import vplot
 from bokeh.models.sources import ColumnDataSource as CDS
 from collections import OrderedDict
 

@@ -6,7 +6,7 @@ run with `bokeh serve sliders_app.py`
 import numpy as np
 
 from bokeh.plotting import Figure
-from bokeh.models import Plot, ColumnDataSource
+from bokeh.models import ColumnDataSource
 from bokeh.models.widgets import HBox, Slider, TextInput, VBoxForm
 from bokeh.io import curdoc
 
