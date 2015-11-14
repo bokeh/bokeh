@@ -358,11 +358,11 @@ class ImageRGBA(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    rows = NumberSpec("rows", help="""
+    rows = NumberSpec(None, help="""
     The numbers of rows in the images
     """)
 
-    cols = NumberSpec("cols", help="""
+    cols = NumberSpec(None, help="""
     The numbers of columns in the images
     """)
 

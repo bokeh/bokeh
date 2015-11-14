@@ -8,11 +8,14 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
+import uuid
 from bokeh.util.callback_manager import _check_callback
 from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
 from .validation import check_integrity
 from json import loads
+
+DEFAULT_TITLE = "Bokeh Application"
 
 class DocumentChangedEvent(object):
     def __init__(self, document):
@@ -26,6 +29,11 @@ class ModelChangedEvent(DocumentChangedEvent):
         self.old = old
         self.new = new
 
+class TitleChangedEvent(DocumentChangedEvent):
+    def __init__(self, document, title):
+        super(TitleChangedEvent, self).__init__(document)
+        self.title = title
+
 class RootAddedEvent(DocumentChangedEvent):
     def __init__(self, document, model):
         super(RootAddedEvent, self).__init__(document)
@@ -36,19 +44,58 @@ class RootRemovedEvent(DocumentChangedEvent):
         super(RootRemovedEvent, self).__init__(document)
         self.model = model
 
+class SessionCallbackAdded(DocumentChangedEvent):
+    def __init__(self, document, callback):
+        super(SessionCallbackAdded, self).__init__(document)
+        self.callback = callback
+
+class SessionCallbackRemoved(DocumentChangedEvent):
+    def __init__(self, document, callback):
+        super(SessionCallbackRemoved, self).__init__(document)
+        self.callback = callback
+
+class PeriodicCallback(object):
+    def __init__(self, document, callback, period, id=None):
+        if id is None:
+            self._id = str(uuid.uuid4())
+        else:
+            self._id = id
+
+        self._document = document
+        self._period = period
+        self._callback = callback
+
+    @property
+    def period(self):
+        return self._period
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def callback(self):
+        return self._callback
+
+    def remove(self):
+        self.document.remove_periodic_callback(self)
+
 class Document(object):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._roots = set()
+        # use _title directly because we don't need to trigger an event
+        self._title = kwargs.pop('title', DEFAULT_TITLE)
 
         # TODO (bev) add vars, stores
 
         self._all_models_freeze_count = 0
         self._all_models = dict()
         self._callbacks = []
+        self._session_callbacks = {}
 
     def clear(self):
-        ''' Remove all content from the document (including roots, vars, stores) '''
+        ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
         self._push_all_models_freeze()
         try:
             while len(self._roots) > 0:
@@ -81,7 +128,8 @@ class Document(object):
             raise RuntimeError("_all_models still had stuff in it: %r" % (self._all_models))
         for r in roots:
             dest_doc.add_root(r)
-        # TODO other fields of doc
+
+        dest_doc.title = self.title
 
     def _push_all_models_freeze(self):
         self._all_models_freeze_count += 1
@@ -115,6 +163,18 @@ class Document(object):
     @property
     def roots(self):
         return set(self._roots)
+
+    @property
+    def title(self):
+        return self._title
+
+    @title.setter
+    def title(self, title):
+        if title is None:
+            raise ValueError("Document title may not be None")
+        if self._title != title:
+            self._title = title
+            self._trigger_on_change(TitleChangedEvent(self, title))
 
     def add_root(self, model):
         ''' Add a model as a root model to this Document.
@@ -269,6 +329,7 @@ class Document(object):
         root_references = self._all_models.values()
 
         json = {
+            'title' : self.title,
             'roots' : {
                 'root_ids' : root_ids,
                 'references' : self._references_json(root_references)
@@ -305,6 +366,8 @@ class Document(object):
         doc = Document()
         for r in root_ids:
             doc.add_root(references[r])
+
+        doc.title = json['title']
 
         return doc
 
@@ -361,6 +424,9 @@ class Document(object):
             elif isinstance(event, RootRemovedEvent):
                 json_events.append({ 'kind' : 'RootRemoved',
                                      'model' : event.model.ref })
+            elif isinstance(event, TitleChangedEvent):
+                json_events.append({ 'kind' : 'TitleChanged',
+                                     'title' : event.title })
 
         json = {
             'events' : json_events,
@@ -418,6 +484,8 @@ class Document(object):
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
                 self.remove_root(root_obj)
+            elif event_json['kind'] == 'TitleChanged':
+                self.title = event_json['title']
             else:
                 raise RuntimeError("Unknown patch event " + repr(event_json))
 
@@ -431,3 +499,30 @@ class Document(object):
             refs = r.references()
             root_sets.append(refs)
             check_integrity(refs)
+
+    @property
+    def session_callbacks(self):
+        return list(self._session_callbacks.values())
+
+    def add_periodic_callback(self, callback, period, id=None):
+        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+
+        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+
+        '''
+        # create the new callback object
+        cb = PeriodicCallback(self, callback, period, id)
+        self._session_callbacks[callback] = cb
+        # emit event so the session is notified of the new callback
+        self._trigger_on_change(SessionCallbackAdded(self, cb))
+        return cb
+
+    def remove_periodic_callback(self, callback):
+        ''' Remove a callback added earlier with add_periodic_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        cb = self._session_callbacks.pop(callback)
+        # emit event so the session is notified and can remove the callback
+        self._trigger_on_change(SessionCallbackRemoved(self, cb))

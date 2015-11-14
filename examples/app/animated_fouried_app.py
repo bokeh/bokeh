@@ -2,6 +2,10 @@
 #
 # Source of inspiration for example:
 # https://www.youtube.com/watch?v=LznjC4Lo7lE
+#
+# Run the example with:
+#
+# >> bokeh serve animated_fouried_app.py
 
 import time
 
@@ -168,10 +172,10 @@ for k, p in fourier.items():
     )
 
 # Open a session which will keep our local doc in sync with server
-session = push_session(curdoc())
+# session = push_session(curdoc())
 # Open the session in a browser
 layout = vplot(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fourier.values()])
-session.show(layout)
+curdoc().add(layout)
 
 gind = 0
 def cb():
@@ -193,6 +197,3 @@ def cb():
 # with bokeh server. The main loop will then call the callback every
 # 0.5 seconds.
 curdoc().add_periodic_callback(cb, .05)
-
-# Start the session loop
-session.loop_until_closed()

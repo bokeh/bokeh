@@ -35,6 +35,8 @@ next_port = () ->
   _previous_port += 1
   _previous_port
 
+server_timeout_millis = 7500
+
 # Launch server, wait for it to be alive, and then
 # run a test function that returns a Promise
 with_server = (f) ->
@@ -90,7 +92,7 @@ with_server = (f) ->
       if client?
         client.destroy()
         client = null
-    else if num_server_attempts > 10
+    else if num_server_attempts > (server_timeout_millis / 100)
       promise.reject(new Error("Failed to connect to the server"))
     else if client != null
       # still waiting on a client we already have...
@@ -115,6 +117,12 @@ with_server = (f) ->
 
 describe "Client", ->
 
+  # It takes time to spin up the server so without this things get
+  # flaky on Travis. Lengthen if we keep getting Travis failures.
+  # The default (at least when this comment was written) was
+  # 2000ms.
+  @timeout(server_timeout_millis)
+
   it "should be able to connect", ->
     promise = with_server (server_process) ->
       pull_session(url=server_process.url).then(
@@ -128,13 +136,28 @@ describe "Client", ->
       )
     expect(promise).eventually.to.equal("OK")
 
+  it "should get server info", ->
+    promise = with_server (server_process) ->
+      pull_session(url=server_process.url).then(
+        (session) ->
+          console.log("Connection result #{session}")
+          session.request_server_info().then(
+            (info) ->
+              console.log("Server info ", info)
+              expect(info).to.have.property('version_info')
+              "OK"
+          )
+      )
+    expect(promise).eventually.to.equal("OK")
+
   it "should sync a document between two connections", ->
     promise = with_server (server_process) ->
       added_root = pull_session(url=server_process.url).then(
         (session) ->
           root1 = new Range1d({start: 123, end: 456})
           session.document.add_root(root1)
-          session
+          session.document.set_title("Hello Title")
+          session.force_roundtrip().then((ignored) -> session)
         (error) ->
           throw error
       ).catch (error) ->
@@ -149,6 +172,7 @@ describe "Client", ->
                 root = session2.document.roots()[0]
                 expect(root.get('start')).to.equal 123
                 expect(root.get('end')).to.equal 456
+                expect(session2.document.title()).to.equal "Hello Title"
               catch e
                 console.log("Exception was ", e)
                 throw e
