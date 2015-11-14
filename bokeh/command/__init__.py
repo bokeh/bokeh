@@ -51,7 +51,7 @@ class ApplicationsSubcommand(Subcommand):
                 handler = ScriptHandler(filename=file)
 
             if handler.failed:
-                die("Error running application handler %r: %s %s " % (handler, handler.error, handler.error_detail))
+                die("Error loading %s:\n\n%s\n%s " % (file, handler.error, handler.error_detail))
 
             application = Application()
             application.add(handler)
