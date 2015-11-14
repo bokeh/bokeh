@@ -58,27 +58,34 @@ page.open(url, function(status) {
         document.body.bgColor = 'white';
     });
 
-    // TODO: get notified when Bokeh finished rendering
-    window.setTimeout(function() {
-        if (png !== undefined) {
-            page.render(png);
-        }
-
-        console.log(JSON.stringify({
-            status: status,
-            errors: errors,
-            messages: messages,
-            resources: resources,
-        }));
-
-        phantom.exit();
-    }, timer());
+    if (tpe === 'notebook') {
+        require(["base/js/namespace", "base/js/events"], function (IPython, events) {
+            events.on("kernel_idle.Kernel", function () {
+                var finished = (Object.keys(IPython.notebook.kernel._msg_callbacks).length == 0);
+                if (finished === true) {
+                    render(status);
+                }
+            });
+        });
+    } else {
+        // TODO: get notified when Bokeh finished rendering
+        window.setTimeout(function() {
+            render(status);
+        }, 1000);
+    }
 });
 
-function timer() {
-    if (tpe === 'notebook') {
-        return timeout * 1000;
-    } else {
-        return 1000;
+function render(status) {
+    if (png !== undefined) {
+        page.render(png);
     }
+
+    console.log(JSON.stringify({
+        status: status,
+        errors: errors,
+        messages: messages,
+        resources: resources,
+    }));
+
+    phantom.exit();
 }
