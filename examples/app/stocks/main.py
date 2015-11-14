@@ -5,7 +5,7 @@ on the plots to update the summary and histograms accordingly.
 
 .. note::
     Running this example requires downloading sample data. See
-    the included `README` for more information.
+    the included `README`_ for more information.
 
 Use the ``bokeh serve`` command to run the example by executing:
 
