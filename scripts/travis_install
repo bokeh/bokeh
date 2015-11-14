@@ -39,7 +39,7 @@ BK_PKG_NAME=${BK_PKG_NAME/nightly/$VERSION}
 
 conda install --force --yes $BK_PKG_NAME
 
-conda install pip
+conda install --yes pip
 pip install flexx
 
 DEPS_RUN=$(cat <<EOF | python -
