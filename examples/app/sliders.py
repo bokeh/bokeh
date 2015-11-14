@@ -1,8 +1,19 @@
-"""
-This file demonstrates a bokeh server application, which you can
-run with `bokeh serve sliders_app.py`
-"""
+''' Present an interactive function explorer with slider widgets.
 
+Scrub the sliders to change the properties of the ``sin`` curve, or
+type into the title text box to update the title of the plot.
+
+Use the ``bokeh serve`` command to run the example by executing:
+
+    bokeh serve sliders.py
+
+at your command prompt. Then navigate to the URL
+
+    http://localhost:5006/sliders
+
+in your browser.
+
+'''
 import numpy as np
 
 from bokeh.plotting import Figure

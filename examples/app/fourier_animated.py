@@ -1,16 +1,23 @@
-# This example requires the bokeh server command
-#
-# This example was inspired by the video:
-#
-#     https://www.youtube.com/watch?v=LznjC4Lo7lE
-#
-# Run the example with:
-#
-#     bokeh serve fouried_animated.py
+''' Show a streaming, updating representation of Fourier Series.
 
+The example was inspired by `this video`_.
+
+Use the ``bokeh serve`` command to run the example by executing:
+
+    bokeh serve fouried_animated.py
+
+at your command prompt. Then navigate to the URL
+
+    http://localhost:5006/fourier_animated
+
+in your browser.
+
+.. _this video: https://www.youtube.com/watch?v=LznjC4Lo7lE
+
+'''
 import numpy as np
 
-from bokeh.plotting import figure
+from bokeh.plotting import curdoc, figure
 from bokeh.io import vplot
 from bokeh.models.sources import ColumnDataSource as CDS
 from collections import OrderedDict
@@ -175,7 +182,7 @@ layout = vplot(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fou
 curdoc().add(layout)
 
 gind = 0
-def cb():
+def work():
     global gind
     global newx
     oldx = np.delete(newx, 0)
@@ -189,8 +196,6 @@ def cb():
     if gind >= 99:
         gind = 0
 
-# Add the callback function to the document. This will add the
-# callback to the client session main loop (when running the example)
-# with bokeh server. The main loop will then call the callback every
-# 0.5 seconds.
-curdoc().add_periodic_callback(cb, .05)
+# Add the work function as a periodic call back to the document that will
+# be executed every 100 milliseconds.
+curdoc().add_periodic_callback(work, 100)

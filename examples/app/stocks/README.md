@@ -1,47 +1,31 @@
-This example shows how to create a simple applet in Bokeh, which can
-be viewed in two different ways:
-
-* running directly on a bokeh-server
-* embedded into a separate Flask application
-
-You will need to first download some sample data, then follow the
-instructions for running the example.
+Create a simple stocks correlation dashboard.
 
 Sample Data
 ===========
 
 To run the stocks applet example, you first need to download a sample data
-file. The file is located at:
+file. A python script is included in the applet's directory to collect and extract the data, which can be run directly from the directory:
+
+    python download_sample_data.py
+
+This should be all that is necessary.
+
+In case the above script does not work, the file can be downloaded
+manually from this location:
 
     http://quantquote.com/files/quantquote_daily_sp500_83986.zip
 
-A python script is included in the applet's directory to collect and extract
-the data, which can be run directly from the directory:
-
-    python stock_data.py
-
-You can use a browser to download the file, or depending on your system you
-may be able to use curl:
-
-    curl -O http://quantquote.com/files/quantquote_daily_sp500_83986.zip
-
-or wget:
-
-    wget http://quantquote.com/files/quantquote_daily_sp500_83986.zip
-
-from the command line. Once the file is downloaded you should move it
-to this directory, and unzip it. You may be able to unzip the file by
-clicking on it, or by executing this command from the command line:
+Once the file is downloaded, move it to this directory and unzip it.
+You may be able to unzip the file by clicking on it, or by executing
+this command from the command line:
 
     unzip quantquote_daily_sp500_83986.zip
 
-This should leave a "quantquote_daily_sp500_83986" subdirectory in this directory.
-
-Move the 'daily' directory by executing this command from the command line:
+This will leave a 'quantquote_daily_sp500_83986' subdirectory in this
+directory. Finally, move the 'daily' directory by executing this command
+from the command line:
 
     mv quantquote_daily_sp500_83986/daily .
-
-Now you can safely remove the empty "quantquote_daily_sp500_83986" directory.
 
 Running
 =======
