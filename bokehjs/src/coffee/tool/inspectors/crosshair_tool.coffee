@@ -68,6 +68,9 @@ class CrosshairTool extends InspectTool.Model
 
     ast = @display_defaults
 
+  nonserializable_attribute_names: () ->
+    super().concat(['location_units', 'render_mode', 'spans'])
+
   defaults: () ->
     return _.extend({}, super(), {
       dimensions: ["width", "height"]

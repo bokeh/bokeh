@@ -53,7 +53,7 @@ class Button(AbstractButton):
             None
 
         """
-        self.on_change('clicks', lambda obj, attr, old, new: handler())
+        self.on_change('clicks', lambda attr, old, new: handler())
 
 class Toggle(AbstractButton):
     """ A two-state toggle button.
@@ -75,7 +75,7 @@ class Toggle(AbstractButton):
             None
 
         """
-        self.on_change('active', lambda obj, attr, old, new: handler(new))
+        self.on_change('active', lambda attr, old, new: handler(new))
 
 class Dropdown(AbstractButton):
     """ A dropdown button.
@@ -105,7 +105,4 @@ class Dropdown(AbstractButton):
             None
 
         """
-        self.on_change('value', lambda obj, attr, old, new: handler(new))
-
-
-
+        self.on_change('value', lambda attr, old, new: handler(new))

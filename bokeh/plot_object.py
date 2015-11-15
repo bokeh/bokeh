@@ -5,11 +5,11 @@ logger = logging.getLogger(__file__)
 
 from six import add_metaclass, iteritems
 
-from .properties import Any, HasProps, List, MetaHasProps, Instance, String
+from .properties import Any, HasProps, List, MetaHasProps, String
 from .query import find
-from .exceptions import DataIntegrityException
-from .util.serialization import dump, make_id
-from .validation import check_integrity
+from . import themes
+from .util.callback_manager import CallbackManager
+from .util.serialization import make_id
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -63,35 +63,49 @@ class Viewable(MetaHasProps):
             raise KeyError("View model name '%s' not found" % view_model_name)
 
 @add_metaclass(Viewable)
-class PlotObject(HasProps):
+class PlotObject(HasProps, CallbackManager):
     """ Base class for all plot-related objects """
 
-    session = Instance(".session.Session")
     name = String()
     tags = List(Any)
 
     def __init__(self, **kwargs):
-        # Eventually should use our own memo instead of storing
-        # an attribute on the class
-        if "id" in kwargs:
-            self._id = kwargs.pop("id")
-        else:
-            self._id = make_id()
+        self._id = kwargs.pop("id", make_id())
+        self._document = None
+        # kwargs may assign to properties, so we need
+        # to chain up here after we already initialize
+        # some of our fields.
+        props = dict()
+        for cls in self.__class__.__mro__[-2::-1]:
+            props.update(themes.default['attrs'].get(cls.__name__, {}))
+        props.update(kwargs)
+        super(PlotObject, self).__init__(**props)
 
-        self._dirty = True
-        self._callbacks_dirty = False
-        self._callbacks = {}
-        self._callback_queue = []
-        self._block_callbacks = False
+    def _attach_document(self, doc):
+        '''This should only be called by the Document implementation to set the document field'''
+        if self._document is not None and self._document is not doc:
+            raise RuntimeError("PlotObjects must be owned by only a single document, %r is already in a doc" % (self))
+        self._document = doc
 
-        block_events = kwargs.pop('_block_events', False)
+    def _detach_document(self):
+        '''This should only be called by the Document implementation to unset the document field'''
+        self._document = None
 
-        if not block_events:
-            super(PlotObject, self).__init__(**kwargs)
-            self.setup_events()
-        else:
-            self._block_callbacks = True
-            super(PlotObject, self).__init__(**kwargs)
+    @property
+    def document(self):
+        return self._document
+
+    def trigger(self, attr, old, new):
+        dirty = { 'count' : 0 }
+        def mark_dirty(obj):
+            dirty['count'] += 1
+        if self._document is not None:
+            self._visit_value_and_its_immediate_references(new, mark_dirty)
+            self._visit_value_and_its_immediate_references(old, mark_dirty)
+            if dirty['count'] > 0:
+                self._document._invalidate_all_models()
+        # chain up to invoke callbacks
+        super(PlotObject, self).trigger(attr, old, new)
 
     @property
     def ref(self):
@@ -107,9 +121,6 @@ class PlotObject(HasProps):
                 'type': self.__view_model__,
                 'id': self._id,
             }
-
-    def setup_events(self):
-        pass
 
     def select(self, selector):
         ''' Query this object and all of its references for objects that
@@ -136,7 +147,7 @@ class PlotObject(HasProps):
         '''
         result = list(self.select(selector))
         if len(result) > 1:
-            raise DataIntegrityException("found more than one object matching %s" % selector)
+            raise ValueError("found more than one object matching %s" % selector)
         if len(result) == 0:
             return None
         return result[0]
@@ -157,74 +168,58 @@ class PlotObject(HasProps):
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    @classmethod
-    def load_json(cls, attrs, instance=None):
-        """Loads all json into a instance of cls, EXCEPT any references
-        which are handled in finalize
-        """
-        if 'id' not in attrs:
-            raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
-        _id = attrs.pop('id')
-
-        if not instance:
-            instance = cls(id=_id, _block_events=True)
-
-        ref_props = {}
-        for p in instance.properties_with_refs():
-            if p in attrs:
-                ref_props[p] = attrs.pop(p)
-        instance._ref_props = ref_props
-
-        instance.update(**attrs)
-        return instance
-
     def layout(self, side, plot):
         try:
             return self in getattr(plot, side)
         except:
             return []
 
-    def finalize(self, models):
-        """Convert any references into instances
-        models is a dict of id->model mappings
-        """
-        attrs = {}
+    @classmethod
+    def _visit_immediate_value_references(cls, value, visitor):
+        ''' Visit all references to another PlotObject without recursing into any
+        of the child PlotObject; may visit the same PlotObject more than once if
+        it's referenced more than once. Does not visit the passed-in value.
 
-        for name, json in iteritems(getattr(self, "_ref_props", {})):
-            prop = self.__class__.lookup(name)
-            attrs[name] = prop.from_json(json, models=models)
-
-        return attrs
+        '''
+        if isinstance(value, HasProps):
+            for attr in value.properties_with_refs():
+                child = getattr(value, attr)
+                cls._visit_value_and_its_immediate_references(child, visitor)
+        else:
+            cls._visit_value_and_its_immediate_references(value, visitor)
 
     @classmethod
-    def collect_plot_objects(cls, *input_objs):
-        """ Iterate over ``input_objs`` and descend through their structure
+    def _visit_value_and_its_immediate_references(cls, obj, visitor):
+        if isinstance(obj, PlotObject):
+            visitor(obj)
+        elif isinstance(obj, HasProps):
+            # this isn't a PlotObject, so recurse into it
+            cls._visit_immediate_value_references(obj, visitor)
+        elif isinstance(obj, (list, tuple)):
+            for item in obj:
+                cls._visit_value_and_its_immediate_references(item, visitor)
+        elif isinstance(obj, dict):
+            for key, value in iteritems(obj):
+                cls._visit_value_and_its_immediate_references(key, visitor)
+                cls._visit_value_and_its_immediate_references(value, visitor)
+
+    @classmethod
+    def collect_plot_objects(cls, *input_values):
+        """ Iterate over ``input_values`` and descend through their structure
         collecting all nested ``PlotObjects`` on the go. The resulting list
         is duplicate-free based on objects' identifiers.
         """
         ids = set([])
         objs = []
 
-        def descend_props(obj):
-            for attr in obj.properties_with_refs():
-                descend(getattr(obj, attr))
+        def collect_one(obj):
+            if obj._id not in ids:
+                ids.add(obj._id)
+                cls._visit_immediate_value_references(obj, collect_one)
+                objs.append(obj)
 
-        def descend(obj):
-            if isinstance(obj, PlotObject):
-                if obj._id not in ids:
-                    ids.add(obj._id)
-                    descend_props(obj)
-                    objs.append(obj)
-            elif isinstance(obj, HasProps):
-                descend_props(obj)
-            elif isinstance(obj, (list, tuple)):
-                for item in obj:
-                    descend(item)
-            elif isinstance(obj, dict):
-                for key, value in iteritems(obj):
-                    descend(key); descend(value)
-
-        descend(input_objs)
+        for value in input_values:
+            cls._visit_value_and_its_immediate_references(value, collect_one)
         return objs
 
     def references(self):
@@ -252,7 +247,6 @@ class PlotObject(HasProps):
             props = self.changed_properties_with_values()
         else:
             props = self.properties_with_values()
-        props.pop("session", None)
 
         # XXX: For dataspecs, getattr() returns a meaningless value
         # from serialization point of view. This should be handled in
@@ -274,21 +268,14 @@ class PlotObject(HasProps):
         """
         attrs = self.vm_props(changed_only)
         attrs['id'] = self._id
+        for (k, v) in attrs.items():
+            # we can't serialize Infinity, we send it as None and the
+            # other side has to fix it up.
+            if isinstance(v, float) and v == float('inf'):
+                attrs[k] = None
+
         return attrs
 
-    def dump(self, docid=None, changed_only=True, validate=True):
-        """convert all references to json
-
-        Args:
-            changed_only (bool, optional) : whether to dump only attributes
-                that have had their values changed at some point (default: True)
-            validate (bool, optional) : whether to perform integrity checks on
-                the object graph (default: True)
-        """
-        models = self.references()
-        if validate:
-            check_integrity(models)
-        return dump(models, docid=docid, changed_only=changed_only)
 
     def update(self, **kwargs):
         for k,v in kwargs.items():
@@ -298,23 +285,59 @@ class PlotObject(HasProps):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
 
-    def on_change(self, attrname, obj, callbackname=None):
-        """when attrname of self changes, call callbackname
-        on obj
-        """
-        callbacks = self._callbacks.setdefault(attrname, [])
-        callback = dict(obj=obj, callbackname=callbackname)
-        if callback not in callbacks:
-            callbacks.append(callback)
-        self._callbacks_dirty = True
+def _find_some_document(models):
+    from .document import Document
 
-    def _trigger(self, attrname, old, new):
-        """attrname of self changed.  So call all callbacks
-        """
-        callbacks = self._callbacks.get(attrname)
-        if callbacks:
-            for callback in callbacks:
-                obj = callback.get('obj')
-                callbackname = callback.get('callbackname')
-                fn = obj if callbackname is None else getattr(obj, callbackname)
-                fn(self, attrname, old, new)
+    # First try the easy stuff...
+    doc = None
+    for model in models:
+        if isinstance(model, Document):
+            doc = model
+            break
+        elif isinstance(model, PlotObject):
+            if model.document is not None:
+                doc = model.document
+                break
+
+    # Now look in children of models
+    if doc is None:
+        for model in models:
+            if isinstance(model, PlotObject):
+                # see if some child of ours is in a doc, this is meant to
+                # handle a thing like:
+                #   p = figure()
+                #   box = HBox(children=[p])
+                #   show(box)
+                for r in model.references():
+                    if r.document is not None:
+                        doc = r.document
+                        break
+
+    return doc
+
+class _ModelInDocument(object):
+    # 'models' can be a single PlotObject, a single Document, or a list of either
+    def __init__(self, models):
+        from .document import Document
+
+        self._to_remove_after = []
+        if not isinstance(models, list):
+            models = [models]
+
+        self._doc = _find_some_document(models)
+        if self._doc is None:
+            # oh well - just make up a doc
+            self._doc = Document()
+
+        for model in models:
+            if isinstance(model, PlotObject):
+                if model.document is None:
+                    self._to_remove_after.append(model)
+
+    def __exit__(self, type, value, traceback):
+        for model in self._to_remove_after:
+            model.document.remove_root(model)
+
+    def __enter__(self):
+        for model in self._to_remove_after:
+            self._doc.add_root(model)

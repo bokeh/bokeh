@@ -46,6 +46,9 @@ class InspectTool extends Tool.Model
     for r in renderers
       logger.debug(" - #{r.type} #{r.id}")
 
+  nonserializable_attribute_names: () ->
+    super().concat(['names', 'renderers', 'event_type', 'inner_only'])
+
   bind_bokeh_events: () ->
     super()
     @listenTo(events, 'move', @_inspect)
