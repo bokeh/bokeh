@@ -1,5 +1,5 @@
 import pytest
-from bokeh.models.source import (
+from bokeh.models.sources import (
     DataSource,
     ServerDataSource,
     GeoJSONDataSource,
