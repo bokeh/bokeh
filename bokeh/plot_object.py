@@ -5,7 +5,7 @@ logger = logging.getLogger(__file__)
 
 from six import add_metaclass, iteritems
 
-from .properties import Any, HasProps, List, MetaHasProps, Instance, String
+from .properties import Any, HasProps, List, MetaHasProps, String
 from .query import find
 from . import themes
 from .util.callback_manager import CallbackManager
@@ -66,7 +66,6 @@ class Viewable(MetaHasProps):
 class PlotObject(HasProps, CallbackManager):
     """ Base class for all plot-related objects """
 
-    session = Instance(".session.Session")
     name = String()
     tags = List(Any)
 
@@ -248,7 +247,6 @@ class PlotObject(HasProps, CallbackManager):
             props = self.changed_properties_with_values()
         else:
             props = self.properties_with_values()
-        props.pop("session", None)
 
         # XXX: For dataspecs, getattr() returns a meaningless value
         # from serialization point of view. This should be handled in

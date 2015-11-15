@@ -336,9 +336,7 @@ def autoload_static(plot_object, resources, script_path):
 
         js = AUTOLOAD_JS.render(
             docs_json = serialize_json(docs_json),
-            # TODO we should load all the JS files, but the code
-            # in AUTOLOAD_JS isn't smart enough to deal with it.
-            js_url = resources.js_files[0],
+            js_urls = resources.js_files,
             css_files = resources.css_files,
             elementid = item['elementid'],
             websocket_url = None

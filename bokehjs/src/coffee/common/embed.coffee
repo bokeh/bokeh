@@ -3,7 +3,7 @@ _ = require "underscore"
 Backbone = require "backbone"
 base = require "./base"
 HasProperties = require "./has_properties"
-{logger} = require "./logging"
+{logger, set_log_level} = require "./logging"
 {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
 {pull_session} = require "./client"
 {Promise} = require "es6-promise"
@@ -107,7 +107,7 @@ fill_render_item_from_script_tag = (script, item) ->
   # length checks are because we put all the attributes on the tag
   # but sometimes set them to empty string
   if info.bokehLogLevel? and info.bokehLogLevel.length > 0
-    Bokeh.set_log_level(info['bokehLoglevel'])
+    set_log_level(info.bokehLogLevel)
   if info.bokehDocId? and info.bokehDocId.length > 0
     item['docid'] = info.bokehDocId
   if info.bokehModelId? and info.bokehModelId.length > 0
