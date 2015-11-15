@@ -17,9 +17,11 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
+from ..utils import get_index
 from ..builder import XYBuilder, create_and_build
 from ..stats import Bins
 from ..properties import Dimension
+from ..operations import Aggregate
 from ..attributes import ColorAttr
 from ...models import HoverTool
 from ..glyphs import HeatmapGlyph
@@ -105,6 +107,8 @@ class HeatMapBuilder(XYBuilder):
     default_attributes = {'color': ColorAttr(bin=True, palette=Blues6,
                                              sort=True, ascending=False)}
 
+    agg_column = String()
+
     bin_width = Float(default=1.0)
     bin_height = Float(default=1.0)
 
@@ -124,17 +128,21 @@ class HeatMapBuilder(XYBuilder):
         """
         for op in self._data.operations:
             if isinstance(op, Bins):
-                self.bin_width = op.get_dim_width('x')
-                self.bin_height = op.get_dim_width('y')
+                if op.centers_column == self.x.selection:
+                    self.bin_width = op.get_width()
+                else:
+                    self.bin_height = op.get_width()
                 self._bins = op
 
-        # if we have values specified but color attribute not setup, do so
-        if self.values.selection is None:
-            self.values.selection = 'values'
+        agg = Aggregate(dimensions=[self.x.selection, self.y.selection],
+                        columns=self.values.selection, stat=self.stat)
+        self._data._data = agg.apply(self._data._data)
+        self.agg_column = agg.agg_column
 
         if self.attributes['color'].columns is None:
             self.attributes['color'].setup(data=self._data.source,
-                                           columns=self.values.selection)
+                                           columns=self.values.selection or
+                                                   self.agg_column)
         self.attributes['color'].add_bin_labels(self._data)
 
     def yield_renderers(self):
@@ -146,8 +154,7 @@ class HeatMapBuilder(XYBuilder):
 
             glyph = HeatmapGlyph(x=group.get_values(self.x.selection),
                                  y=group.get_values(self.y.selection),
-                                 values=group.get_values(self.values.selection +
-                                                         '_values'),
+                                 values=group.get_values(self.agg_column),
                                  width=self.bin_width * self.spacing_ratio,
                                  height=self.bin_height * self.spacing_ratio,
                                  line_color=group['color'],

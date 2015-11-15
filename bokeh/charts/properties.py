@@ -89,7 +89,7 @@ class ColumnLabel(Either):
                 else:
                     raise ValueError("Not a valid column selection.")
             else:
-                if value not in self.columns:
+                if value not in self.columns and value not in special_columns:
                     raise ValueError("Column provided is not in the list of valid columns: %s" % self.columns)
 
     def __str__(self):

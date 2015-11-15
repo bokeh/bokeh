@@ -10,9 +10,11 @@ from __future__ import absolute_import
 
 from copy import copy
 
-from bokeh.properties import String
+from bokeh.properties import String, List, Instance
 from .data_source import DataOperator
 from .models import CollisionModifier
+from .properties import ColumnLabel
+from .stats import Stat, Count, stats
 
 
 class Stack(CollisionModifier):
@@ -82,6 +84,49 @@ class Blend(DataOperator):
         data_copy.stack_measures(measures=self.columns, value_name=self.name,
                                  var_name=self.labels_name)
         return data_copy._data
+
+
+class Aggregate(DataOperator):
+
+    dimensions = List(ColumnLabel)
+    stat = Instance(Stat, default=Count())
+    agg_column = String()
+
+    def __init__(self, **properties):
+        stat = properties.pop('stat')
+        if stat is not None and isinstance(stat, str):
+            properties['stat'] = stats[stat]()
+        super(Aggregate, self).__init__(**properties)
+
+    def apply(self, data):
+        data_copy = copy(data)
+        if self.columns is None:
+            self.stat = stats['count']()
+
+        stat = self.stat
+
+        agg_name = ''
+        if self.columns is not None:
+            agg_name += self.columns[0] + '_'
+        agg_name += self.stat.__class__.__name__
+        self.agg_column = agg_name
+
+        # Add agg value to each row of group
+        def stat_func(group):
+            stat.set_data(group)
+            group[agg_name] = stat.value
+            return group
+
+        # create groupby
+        gb = data_copy.groupby(self.dimensions)
+
+        # apply stat function to groups
+        if isinstance(stat, Count):
+            agg = gb.apply(stat_func)
+        else:
+            agg = gb[self.columns[0]].apply(stat_func)
+
+        return agg
 
 
 def stack(renderers=None, columns=None):

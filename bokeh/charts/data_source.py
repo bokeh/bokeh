@@ -340,6 +340,7 @@ class ChartDataSource(object):
         """Applies each data operation."""
         # ToDo: Handle order of operation application, see GoG pg. 71
 
+        selections = self._selections.copy()
         for dim, select in iteritems(self._selections):
             if isinstance(select, DataOperator):
                 self._data = select.apply(self)
@@ -348,11 +349,14 @@ class ChartDataSource(object):
             if isinstance(select, Stat):
                 if isinstance(select, Bins):
                     self._data = select.apply(self)
+                    selections[dim] = select.centers_column
                 else:
                     raise TypeError('Stat input of %s for %s is not supported.' %
                                     (select.__class__, dim))
 
             self.operations.append(select)
+
+        self._selections = selections
 
     def setup_derived_columns(self):
         """Attempt to add special case columns to the DataFrame for the builder."""

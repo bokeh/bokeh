@@ -268,12 +268,8 @@ class Bins(Stat):
     inspected for their metadata. The bins provide easy access to consistent labeling,
     bounds, and values.
     """
-    dimensions = Dict(String, ColumnLabel, help="""
-        A mapping between dimensions name (e.g., 'x') and the column
-        that the dimension is associated with (e.g., 'mpg').
-        """)
 
-    stats = Dict(String, Instance(BinStats), default={}, help="""
+    bin_stat = Instance(BinStats, help="""
         A mapping between each dimension and associated binning calculations.
         """)
 
@@ -287,36 +283,24 @@ class Bins(Stat):
         The statistical operation to be used on the values in each bin.
         """)
 
-    bin_count = List(Int, default=[], help="""
+    bin_count = Int(help="""
         An optional list of the number of bins to use for each dimension. If a single
         value is provided, then the same number of bins will be used for each.
         """)
+
+    bin_column = String()
+    centers_column = String()
 
     aggregate = Bool(default=True)
 
     bin_values = Bool(default=False)
 
-    value_stat = Instance(BinStats)
-    value_bins = List(Instance(Bin))
-
-    value_labels = List(String)
-
-    dim_labels = List(String)
-
-    _df = None
-
-    def __init__(self, values=None, column=None, dimensions=None, bins=None,
+    def __init__(self, values=None, column=None, bins=None,
                  stat='count', source=None, **properties):
+
         if isinstance(stat, str):
             stat = stats[stat]()
 
-        bin_count = properties.get('bin_count')
-        if bin_count is not None and not isinstance(bin_count, list):
-            properties['bin_count'] = [bin_count]
-        else:
-            properties['bin_count'] = []
-
-        properties['dimensions'] = dimensions
         properties['column'] = column
         properties['bins'] = bins
         properties['stat'] = stat
@@ -325,121 +309,74 @@ class Bins(Stat):
 
         super(Bins, self).__init__(**properties)
 
-    def _get_stat(self, dim):
+    def _get_stat(self):
         stat_kwargs = {}
 
         if self.source is not None:
             stat_kwargs['source'] = self.source
+            stat_kwargs['column'] = self.column
 
-            if len(self.dimensions.keys()) > 0:
-                stat_kwargs['column'] = self.dimensions[dim]
-            elif self.column is not None:
-                stat_kwargs['column'] = self.column
-            else:
-                stat_kwargs['column'] = 'values'
         elif self.values is not None:
             stat_kwargs['values'] = self.values
+
         else:
             raise ValueError('Could not identify bin stat for %s' % dim)
 
-        # ToDo: handle multiple bin count inputs for each dimension
-        if len(self.bin_count) == 1:
-           stat_kwargs['bin_count'] = self.bin_count[0]
+        stat_kwargs['bin_count'] = self.bin_count
 
         return BinStats(**stat_kwargs)
 
     def update(self):
-        self.stats = {dim: self._get_stat(dim) for dim in self.dimensions}
-        if len(list(self.stats.keys())) == 0:
-            self.stats = {'values': self._get_stat('values')}
-
-        if len(list(self.stats.keys())) > 0:
-            for stat in self.stats.values():
-                stat.update()
+        self.bin_stat = self._get_stat()
+        self.bin_stat.update()
 
     def calculate(self):
 
-        values = self.get_data()
         if self.column is not None:
             val_col = self.column
         else:
             val_col = 'values'
 
-        # if we are aggregating, we replace existing columns, otherwise add bins as new
-        if self.aggregate:
-            bin_str = ''
-        else:
-            bin_str = '_bin'
+        bin_str = '_bin'
+        self.bin_column = self.column + bin_str
+        bin_models = []
 
-        data = {val_col: values}
-        bin_cols = []
-        bins = []
+        binned, _ = pd.cut(self.bin_stat.get_data(), self.bin_stat.bin_count,
+                           retbins=True, precision=0)
 
-        # if we aren't binning by different column, we bin the values array instead
-        for stat in self.stats.values():
-            binned, _ = pd.cut(stat.get_data(), stat.bin_count,
-                               retbins=True, precision=0)
-            bin_col = stat.column
-            data[bin_col + bin_str] = binned
-            if not self.aggregate:
-                data[bin_col] = stat.get_data()
-            bin_cols.append(bin_col + bin_str)
+        # add bin column to data source
+        self.source.add(binned.tolist(), name=self.bin_column)
 
-        self._df = pd.DataFrame(data)
+        for name, group in self.source.to_df().groupby(self.bin_column):
+            bin_models.append(Bin(bin_label=name, values=group[val_col], stat=self.stat))
 
-        # ToDo: should each bin have access to the dimension values?
-        for name, group in self._df.groupby(bin_cols):
-            bins.append(Bin(bin_label=name, values=group[val_col], stat=self.stat))
+        self.bins = bin_models
 
-        if self.aggregate:
-            data = {}
+        centers = binned.copy()
+        centers = centers.astype(str)
+        for bin in self.bins:
+            centers[binned == bin.label] = bin.center
 
-            if len(bin_cols) == 1:
-                data[bin_cols[0]] = [bin.center for bin in bins]
-            else:
-                # build up data based on number of bin_cols/dims and if we are only using values
-                for idx, bin_col in enumerate(bin_cols):
-                    data[bin_col] = [bin.center[idx] for bin in bins]
-
-            if val_col in data:
-                val_col = 'values'
-
-            data[val_col] = [bin.value for bin in bins]
-
-            self._df = pd.DataFrame(data)
-
-        self.bins = bins
+        self.centers_column = self.column + '_center'
+        self.source.add(centers.tolist(), name=self.centers_column)
 
     def __getitem__(self, item):
         return self.bins[item]
 
     def apply(self, data):
         self.set_data(data.source)
-        self.dim_labels = list(data._dims)
+        return self.source.to_df()
 
-        for dim in data._dims:
-            if dim in self.dimensions:
-                data[dim] = self.dimensions[dim]
-
-        if self.column is not None:
-            data['values'] = self.column
-
-        return self._df
-
-    def get_dim_width(self, dim):
-
-        dims = list(self.dimensions.keys())
-        idx = dims.index(dim)
-
-        return self.bins[0].stop[idx] - self.bins[0].start[idx]
+    def get_width(self):
+        return self.bins[0].stop - self.bins[0].start
 
     def sort(self, ascending=True):
-        if self.bins is not None and len(self.bins) > 0:
+        if self.bins is not None:
             self.bins = list(sorted(self.bins, key=lambda x: x.center,
                                     reverse=~ascending))
 
 
-def bins(data, values=None, column=None, dimensions=None, bins=None, labels=None,
+def bins(data, values=None, column=None, bins=None, labels=None,
          **kwargs):
     """Specify binning or bins to be used for column or values."""
 
@@ -449,8 +386,7 @@ def bins(data, values=None, column=None, dimensions=None, bins=None, labels=None
     else:
         column = None
 
-    return Bins(values=values, column=column, bin_count=bins,
-                dimensions=dimensions, **kwargs)
+    return Bins(values=values, column=column, bin_count=bins, **kwargs)
 
 
 stats = {

@@ -45,12 +45,12 @@ fruits['year'] = [str(yr) for yr in fruits['year']]
 
 hm1 = HeatMap(df, x=bins('mpg'), y=bins('displ'))
 
-hm2 = HeatMap(df, bins(x='mpg', y='displ', values='cyl', stat='mean'))
-
-hm3 = HeatMap(df, bins(y='displ', x='mpg', values='cyl', stat='mean'),
-              spacing_ratio=0.9)
-
-hm4 = HeatMap(fruits, y='year', x='fruit', values='fruit_count')
+# hm2 = HeatMap(df, bins(x='mpg', y='displ', values='cyl', stat='mean'))
+#
+# hm3 = HeatMap(df, bins(y='displ', x='mpg', values='cyl', stat='mean'),
+#               spacing_ratio=0.9)
+#
+# hm4 = HeatMap(fruits, y='year', x='fruit', values='fruit_count')
 
 #hm3 = HeatMap(df, 'mpg', 'displ', 'cyl', palette=RdYlGn6)
 
@@ -58,4 +58,5 @@ hm4 = HeatMap(fruits, y='year', x='fruit', values='fruit_count')
 
 output_file("heatmap.html")
 
-show(vplot(hm1, hm2, hm3, hm4))
+#show(vplot(hm1, hm2, hm3, hm4))
+show(vplot(hm1))
