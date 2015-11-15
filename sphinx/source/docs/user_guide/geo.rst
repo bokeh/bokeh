@@ -25,9 +25,9 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
     from bokeh.io import output_file, show
     from bokeh.models import GeoJSONDataSource
     from bokeh.plotting import figure 
-    from bokeh.sampledata import sample_geojson
+    from bokeh.sampledata.sample_geojson import geojson
     
-    geo_source = GeoJSONDataSource(geojson=sample_geojson)
+    geo_source = GeoJSONDataSource(geojson=geojson)
 
     p = figure()
     p.circle(alpha=0.9, source=geo_source)
