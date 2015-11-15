@@ -217,7 +217,7 @@ class Bin(Stat):
 
 
 class BinStats(Stat):
-    """A set of many individual Bin stats.
+    """A set of statistical calculations for binning values.
 
     Bin counts using: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
     """
@@ -240,20 +240,58 @@ class BinStats(Stat):
             self.calc_num_bins(values)
 
     def calc_num_bins(self, values):
+        """Calculate optimal number of bins using IQR.
+
+        From: http://stats.stackexchange.com/questions/114490/optimal-bin-width-for-two-dimensional-histogram
+
+        """
         iqr = self.q3.value - self.q1.value
-        self.bin_width = 2 * iqr * (len(values) ** -(1. / 3.))
-        self.bin_count = int(np.ceil((values.max() - values.min())/self.bin_width))
+
+        if iqr == 0:
+            self.bin_width = np.sqrt(values.size)
+        else:
+            self.bin_width = 2 * iqr * (len(values) ** -(1. / 3.))
+
+        self.bin_count = int(np.ceil((values.max() - values.min()) / self.bin_width))
+
+        if self.bin_count == 1:
+            self.bin_count = 3
 
     def calculate(self):
         pass
 
 
 class Bins(Stat):
-    dimensions = Dict(String, ColumnLabel)
-    stats = Dict(String, Instance(BinStats), default={})
-    bins = List(Instance(Bin))
-    stat = Instance(Stat, default=Count())
-    bin_count = List(Int, default=[])
+    """Bins and aggregates dimensions for plotting.
+
+    Takes the inputs and produces a list of bins that can be iterated over and
+    inspected for their metadata. The bins provide easy access to consistent labeling,
+    bounds, and values.
+    """
+    dimensions = Dict(String, ColumnLabel, help="""
+        A mapping between dimensions name (e.g., 'x') and the column
+        that the dimension is associated with (e.g., 'mpg').
+        """)
+
+    stats = Dict(String, Instance(BinStats), default={}, help="""
+        A mapping between each dimension and associated binning calculations.
+        """)
+
+    bins = List(Instance(Bin), help="""
+        A list of the `Bin` instances that were produced as result of the inputs.
+        Iterating over `Bins` will iterate over this list. Each `Bin` can be inspected
+        for metadata about the bin and the values associated with it.
+        """)
+
+    stat = Instance(Stat, default=Count(), help="""
+        The statistical operation to be used on the values in each bin.
+        """)
+
+    bin_count = List(Int, default=[], help="""
+        An optional list of the number of bins to use for each dimension. If a single
+        value is provided, then the same number of bins will be used for each.
+        """)
+
     aggregate = Bool(default=True)
 
     bin_values = Bool(default=False)
@@ -271,15 +309,6 @@ class Bins(Stat):
                  stat='count', source=None, **properties):
         if isinstance(stat, str):
             stat = stats[stat]()
-
-        # explicit dimensions are handled as extra kwargs
-        if dimensions is None:
-            dimensions = properties.copy()
-            for dim, col in iteritems(properties):
-                if not isinstance(col, str):
-                    dimensions.pop(dim)
-            for dim in list(dimensions.keys()):
-                properties.pop(dim)
 
         bin_count = properties.get('bin_count')
         if bin_count is not None and not isinstance(bin_count, list):
@@ -313,8 +342,9 @@ class Bins(Stat):
         else:
             raise ValueError('Could not identify bin stat for %s' % dim)
 
-        #if list(self.dimensions.keys()):
-        #    stat_kwargs['bin_count'] = self.bin_count[idx]
+        # ToDo: handle multiple bin count inputs for each dimension
+        if len(self.bin_count) == 1:
+           stat_kwargs['bin_count'] = self.bin_count[0]
 
         return BinStats(**stat_kwargs)
 
@@ -403,11 +433,18 @@ class Bins(Stat):
 
         return self.bins[0].stop[idx] - self.bins[0].start[idx]
 
-def bin(values=None, column=None, dimensions=None, bins=None, labels=None, **kwargs):
+    def sort(self, ascending=True):
+        if self.bins is not None and len(self.bins) > 0:
+            self.bins = list(sorted(self.bins, key=lambda x: x.center,
+                                    reverse=~ascending))
+
+
+def bins(data, values=None, column=None, dimensions=None, bins=None, labels=None,
+         **kwargs):
     """Specify binning or bins to be used for column or values."""
 
-    if isinstance(values, str):
-        column = values
+    if isinstance(data, str):
+        column = data
         values = None
     else:
         column = None

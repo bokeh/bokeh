@@ -10,7 +10,7 @@ from .chart import Chart
 # operations and attributes for users to input into Charts
 from .attributes import color, marker, cat
 from .operations import stack, blend
-from .stats import bin
+from .stats import bins
 
 # builders
 from .builders.line_builder import Line

@@ -913,10 +913,11 @@ class HeatmapGlyph(XyGlyph):
     width = Float()
     height = Float()
 
-    def __init__(self, x, y, column=None, stat='count', glyph='rect', width=1,
+    def __init__(self, x, y, values, column=None, stat='count', glyph='rect', width=1,
                  height=1, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
+        kwargs['values'] = values
         kwargs['column'] = column
         kwargs['stat'] = stat
         kwargs['glyph_name'] = glyph
@@ -926,7 +927,7 @@ class HeatmapGlyph(XyGlyph):
         self.setup()
 
     def build_source(self):
-        return {'x': self.x, 'y': self.y}
+        return {'x': self.x, 'y': self.y, 'values': self.values}
 
     def build_renderers(self):
         glyph_class = self.glyphs[self.glyph_name]

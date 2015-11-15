@@ -71,9 +71,12 @@ class AttrSpec(HasProps):
         `sort` property is set to `True`. The default setting for `ascending` is `True`.
         """)
 
-    bins = Instance(Bins)
-
-    stat = String(default='count')
+    bins = Instance(Bins, help="""
+        If an attribute spec is binning data, so that we can map one value in the
+        `iterable` to one value in `items`, then this attribute will contain an instance
+        of the Bins stat. This is used to create unique labels for each bin, which is
+        then used for `items` instead of the actual unique values in `columns`.
+        """)
 
     def __init__(self, columns=None, df=None, iterable=None, default=None,
                  items=None, **properties):
@@ -215,12 +218,10 @@ class ColorAttr(AttrSpec):
                 self.bins = Bins(source=ColumnDataSource(df), column=columns[0],
                                  bin_count=len(self.iterable), aggregate=False)
 
-                items = [bin.label[0] for bin in self.bins]
                 if self.sort:
-                    items = sorted(items)
-                    if not self.ascending:
-                        items = reversed(items)
-                self.items = list(items)
+                    self.bins.sort(ascending=self.ascending)
+
+                self.items = [bin.label[0] for bin in self.bins]
             else:
                 raise ValueError('Binned colors can only be created for one column of \
                                  numerical data.')

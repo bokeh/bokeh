@@ -17,15 +17,12 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
-import pandas as pd
-
 from ..builder import XYBuilder, create_and_build
 from ..stats import Bins
 from ..properties import Dimension
 from ..attributes import ColorAttr
 from ...models import HoverTool
 from ..glyphs import HeatmapGlyph
-from ...models.sources import ColumnDataSource
 from ...properties import Float, String
 
 from bokeh.palettes import Blues6
@@ -78,12 +75,12 @@ def HeatMap(data, x=None, y=None, values=None, stat='count', xscale="categorical
     """
     kw['x'] = x
     kw['y'] = y
-    kw['color'] = values
+    kw['values'] = values
     chart = create_and_build(
         HeatMapBuilder, data, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw
     )
-    chart.add_tools(HoverTool(tooltips=[("value", "@rate")]))
+    chart.add_tools(HoverTool(tooltips=[(stat, "@values")]))
     return chart
 
 
@@ -132,9 +129,12 @@ class HeatMapBuilder(XYBuilder):
                 self._bins = op
 
         # if we have values specified but color attribute not setup, do so
+        if self.values.selection is None:
+            self.values.selection = 'values'
+
         if self.attributes['color'].columns is None:
             self.attributes['color'].setup(data=self._data.source,
-                                           columns=self.values.selection or 'values')
+                                           columns=self.values.selection)
         self.attributes['color'].add_bin_labels(self._data)
 
     def yield_renderers(self):
@@ -146,10 +146,13 @@ class HeatMapBuilder(XYBuilder):
 
             glyph = HeatmapGlyph(x=group.get_values(self.x.selection),
                                  y=group.get_values(self.y.selection),
+                                 values=group.get_values(self.values.selection +
+                                                         '_values'),
                                  width=self.bin_width * self.spacing_ratio,
                                  height=self.bin_height * self.spacing_ratio,
                                  line_color=group['color'],
-                                 fill_color=group['color'])
+                                 fill_color=group['color'],
+                                 label=group.label)
 
             self.add_glyph(group, glyph)
 
