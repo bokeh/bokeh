@@ -1,2 +1,2 @@
 [run]
-omit = *tests/*, *sphinxext/*, *compat/mplexporter/*
+omit = *tests/*, *sphinxext/*, *compat/mplexporter/*, *sampledata/*,
