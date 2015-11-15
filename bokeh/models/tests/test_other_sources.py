@@ -1,3 +1,4 @@
+import json
 import pytest
 from bokeh.models.sources import (
     DataSource,
@@ -26,11 +27,12 @@ def point_geojson():
 
 @pytest.fixture
 def point_data():
-    return {
+    data = {
         'x': [125.6],
         'y': [10.1],
         'name': ["Dinagat Islands"]
     }
+    return data.copy()
 
 
 def test_geojson_datasource_populates_data_on_initialization(point_geojson, point_data):
@@ -45,7 +47,7 @@ def test_geojson_datasource_geojson_to_data_converts_point_feature(point_geojson
 
 def test_geojson_datasource_data_to_geojson_converts_back_to_point_feature(point_geojson, point_data):
     geojson = GeoJSONDataSource.data_to_geojson(point_data)
-    assert geojson == point_geojson
+    assert json.loads(geojson) == json.loads(point_geojson)
 
 
 def test_geojson_datasource_when_column_is_added_to_data_its_converted_into_geojson(point_geojson, point_data):

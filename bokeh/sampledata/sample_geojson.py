@@ -8,7 +8,8 @@ for demonstration purposes only, it is not kept up to date.
 
 from __future__ import absolute_import
 
-import json
 from os.path import dirname, join
 
-geojson = json.load(open(join(dirname(__file__), 'sample_geojson.geojson')))
+filename = join(dirname(__file__), 'sample_geojson.geojson')
+with open(filename, 'r') as f:
+    geojson = f.read()
