@@ -5,7 +5,9 @@ var argv = require("yargs").argv;
 var jsdom = require("jsdom");
 var htmlparser2 = require("htmlparser2");
 
-var all_models;
+var docs_json = {};
+var render_items = [];
+
 var file = argv._[0];
 var ext = path.extname(file);
 var basename = path.basename(file, ext);
@@ -40,14 +42,14 @@ switch (ext) {
         throw new Error("no 'text/x-bokeh' sections found");
         break;
       case 1:
-        all_models = JSON.parse(all_texts[0]);
+        docs_json = JSON.parse(all_texts[0]);
         break;
       default:
         throw new Error("too many 'text/x-bokeh' sections");
     }
     break;
   case ".json":
-    all_models = require(file);
+    docs_json = require(file);
     break;
   default:
     throw new Error("expected an HTML or JSON file");
@@ -64,6 +66,7 @@ global.bokehRequire = require("./build/js/bokeh.js").bokehRequire;
 require("./build/js/bokeh-widgets.js");
 
 var Bokeh = global.window.Bokeh;
+Bokeh.set_log_level("debug");
 
 var head = document.getElementsByTagName('head')[0];
 var link = document.createElement('link');
@@ -71,23 +74,23 @@ link.rel = 'stylesheet';
 link.href = './build/css/bokeh.css';
 head.appendChild(link);
 
-Bokeh.set_log_level("debug");
-Bokeh.load_models(all_models);
+Bokeh.Events.on("render:done", function(plot_view) {
+  var nodeCanvas = plot_view.canvas_view.canvas[0]._nodeCanvas;
+  var name = basename + "-" + plot_view.model.id + ".png";
+  var outfile = path.join(dirname, name)
+  Bokeh.logger.info("writing " + outfile);
+  var out = fs.createWriteStream(outfile);
+  nodeCanvas.pngStream().on('data', function(chunk) { out.write(chunk); });
+});
 
-Bokeh.Collections("PlotContext").each(function(model) {
+
+Object.keys(docs_json).forEach(function(docid) {
   var el = document.createElement("div");
+  var elementid = uuid.v4();
+  el.setAttribute("id", elementid);
   el.setAttribute("class", "plotdiv");
   document.body.appendChild(el);
-
-  Bokeh.Events.on("render:done", function(plot_view) {
-    var nodeCanvas = plot_view.canvas_view.canvas[0]._nodeCanvas;
-    var name = basename + "-" + plot_view.model.id + ".png";
-    var outfile = path.join(dirname, name)
-    Bokeh.logger.info("writing " + outfile);
-    var out = fs.createWriteStream(outfile);
-    nodeCanvas.pngStream().on('data', function(chunk) { out.write(chunk); });
-  });
-
-  var view = new model.default_view({model: model, el: el});
-  Bokeh.index[model.id] = view;
+  render_items.push({"docid": docid, "elementid": elementid, "modelid": null});
 });
+
+Bokeh.embed.embed_items(docs_json, render_items, null);
