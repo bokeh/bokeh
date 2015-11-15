@@ -532,13 +532,7 @@ def create_custom_js():
     from jupyter_core import paths
     config_dir = paths.jupyter_config_dir()
 
-    body = """
-require(["base/js/namespace", "base/js/events"], function (IPython, events) {
- events.on("kernel_ready.Kernel", function () {
-   IPython.notebook.execute_all_cells();
- });
-});
-"""
+    body = ""
 
     custom = join(config_dir, "custom")
     if not exists(custom):

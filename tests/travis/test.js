@@ -60,11 +60,14 @@ page.open(url, function(status) {
 
     if (tpe === 'notebook') {
         require(["base/js/namespace", "base/js/events"], function (IPython, events) {
-            events.on("kernel_idle.Kernel", function () {
-                var finished = (Object.keys(IPython.notebook.kernel._msg_callbacks).length == 0);
-                if (finished === true) {
-                    render(status);
-                }
+            events.on("kernel_ready.Kernel", function () {
+                IPython.notebook.execute_all_cells();
+                events.on("kernel_idle.Kernel", function () {
+                    var finished = (Object.keys(IPython.notebook.kernel._msg_callbacks).length == 0);
+                    if (finished === true) {
+                        render(status);
+                    }
+                });
             });
         });
     } else {
