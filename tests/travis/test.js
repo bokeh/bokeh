@@ -59,10 +59,12 @@ page.open(url, function(status) {
     });
 
     if (tpe === 'notebook') {
-        window.addEventListener('finished', function () { render(status); }, false);
+        page.onLoadStarted = function(status) {
+          window.addEventListener('finished', function () { render(status); }, false);
+        };
     } else {
         // TODO: get notified when Bokeh finished rendering
-        window.setTimeout(function() {
+        window.setTimeout(function(status) {
             render(status);
         }, 1000);
     }
