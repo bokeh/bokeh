@@ -228,7 +228,7 @@ class TestAutoloadStatic(unittest.TestCase):
             'async',
             'id',
             'data-bokeh-doc-id']))
-        self.assertEqual(attrs['async'], 'true')
+        self.assertEqual(attrs['async'], 'false')
         self.assertEqual(attrs['data-bokeh-doc-id'], 'uuid')
         self.assertEqual(attrs['data-bokeh-model-id'], str(_embed_test_plot._id))
         self.assertEqual(attrs['src'], 'some/path')
