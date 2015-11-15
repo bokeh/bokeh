@@ -174,7 +174,7 @@ class Property(object):
                 return new == old
         except (KeyboardInterrupt, SystemExit):
             raise
-        except Exception as e:
+        except Exception:
             # if we cannot compare (e.g. arrays) just punt return False for match
             pass
         return False
