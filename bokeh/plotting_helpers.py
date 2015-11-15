@@ -133,8 +133,10 @@ def _update_legend(plot, legend_name, glyph_renderer):
     legends = plot.select(type=Legend)
     if not legends:
         legend = Legend(plot=plot)
-        plot.renderers.append(legend)
-        plot._dirty = True
+        # this awkward syntax is needed to go through Property.__set__ and
+        # therefore trigger a change event. With improvements to Property
+        # we might be able to use a more natural append() or +=
+        plot.renderers = plot.renderers + [legend]
     elif len(legends) == 1:
         legend = legends[0]
     else:
@@ -455,11 +457,13 @@ def _glyph_function(glyphclass, extra_docs=None):
             _update_legend(self, legend_name, glyph_renderer)
 
         for tool in self.select(type=BoxSelectTool):
-            tool.renderers.append(glyph_renderer)
-            tool._dirty = True
+            # this awkward syntax is needed to go through Property.__set__ and
+            # therefore trigger a change event. With improvements to Property
+            # we might be able to use a more natural append() or +=
+            tool.renderers = tool.renderers + [glyph_renderer]
 
-        self.renderers.append(glyph_renderer)
-        self._dirty = True
+        # awkward syntax for same reason mentioned above
+        self.renderers = self.renderers + [glyph_renderer]
         return glyph_renderer
 
     func.__name__ = glyphclass.__view_model__

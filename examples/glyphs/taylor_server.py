@@ -7,13 +7,12 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend
-from bokeh.session import Session
 from bokeh.models.widgets import Slider, TextInput, HBox, VBox, Dialog
 
+from bokeh.client import push_session
+
 document = Document()
-session = Session()
-session.use_doc('taylor_server')
-session.load_document(document)
+session = push_session(document)
 
 xs = sy.Symbol('x')
 expr = sy.exp(-xs)*sy.sin(xs)
@@ -45,8 +44,6 @@ def update_data():
     source.data = dict(x=x, fy=fy, ty=ty)
     slider.value = order
 
-    session.store_document(document)
-
 source = ColumnDataSource(data=dict(x=[], fy=[], ty=[]))
 
 xdr = DataRange1d()
@@ -74,19 +71,18 @@ ygrid = Grid(dimension=1, ticker=yaxis.ticker)
 legend = Legend(orientation="bottom_left")
 plot.add_layout(legend)
 
-def on_slider_value_change(obj, attr, old, new):
+def on_slider_value_change(attr, old, new):
     global order
     order = int(new)
     update_data()
 
-def on_text_value_change(obj, attr, old, new):
+def on_text_value_change(attr, old, new):
     try:
         global expr
         expr = sy.sympify(new, dict(x=xs))
     except (sy.SympifyError, TypeError, ValueError) as exception:
         dialog.content = str(exception)
         dialog.visible = True
-        session.store_objects(dialog)
     else:
         update_data()
 
@@ -100,13 +96,10 @@ text.on_change('value', on_text_value_change)
 
 inputs = HBox(children=[slider, text])
 layout = VBox(children=[inputs, plot, dialog])
-
-document.add(layout)
 update_data()
+document.add(layout)
+session.show(layout)
 
 if __name__ == "__main__":
-    link = session.object_link(document.context)
-    print("Please visit %s to see the plots" % link)
-    view(link)
     print("\npress ctrl-C to exit")
-    session.poll_document(document)
+    session.loop_until_closed()

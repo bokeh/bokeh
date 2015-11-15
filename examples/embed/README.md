@@ -35,19 +35,6 @@ or if you are using python 3, run:
 and use the links provided when you run the scripts.
 
 ---
-### Publishing
-
-Publishing needs the server to run in multi-user mode:
-    
-    bokeh-server --multi-user
-
-Then run:
-
-    python publishing.py
-
-Open the file `publishing.html` in your browser - you will see it is animated.
-
----
 
 ### Bokeh plots in an online slideshow
 

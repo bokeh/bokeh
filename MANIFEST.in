@@ -1,6 +1,7 @@
 global-exclude .git*
 include LICENSE.txt
 include versioneer.py
+include bokeh/themes/*.yaml
 recursive-include examples *.py *.ipynb *.md
 prune examples/charts/.ipynb_checkpoints
 prune examples/compat/mpl/.ipynb_checkpoints

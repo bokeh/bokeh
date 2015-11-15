@@ -16,10 +16,13 @@ import scipy.special
 
 from bokeh.embed import autoload_server
 from bokeh.models import GlyphRenderer
-from bokeh.plotting import cursession, figure, output_server, push
+from bokeh.plotting import figure, output_server, push, curdoc
+from bokeh.client import push_session
 
 from flask import Flask, render_template
 app = Flask(__name__)
+
+session = push_session(curdoc())
 
 @app.route('/')
 def render_plot():
@@ -30,16 +33,16 @@ def render_plot():
     a non-blocking update.
     """
     dist_plot, dist_session = distribution()
-    dist_tag = autoload_server(dist_plot, dist_session)
+    dist_tag = autoload_server(dist_plot)
 
     anim_plot, anim_session = animated()
-    anim_tag = autoload_server(anim_plot, anim_session)
+    anim_tag = autoload_server(anim_plot)
     # for update_animation as target we need to pass the anim_plot and anim_session as args
     thread = Thread(target=update_animation, args=(anim_plot, anim_session))
     thread.start()
 
     pop = Population()
-    pop_tag = autoload_server(pop.layout, pop.session)
+    pop_tag = autoload_server(pop.layout)
     # for update_population as target we need to pass the pop instance as args
     thread = Thread(target=update_population, args=(pop,))
     thread.start()
@@ -79,9 +82,7 @@ def distribution():
     p.ygrid[0].grid_line_color = "white"
     p.ygrid[0].grid_line_width = 3
 
-    push()
-
-    return p, cursession()
+    return p, session
 
 
 def animated():
@@ -110,9 +111,7 @@ def animated():
         line_color="black",
     )
 
-    push()
-
-    return p, cursession()
+    return p, session
 
 
 def update_animation(plot, session):
@@ -132,7 +131,6 @@ def update_animation(plot, session):
         rmax = roll(rmax, -1)
         ds.data["outer_radius"] = rmax
 
-        cursession().store_objects(ds)
         time.sleep(0.1)
 
 
@@ -144,13 +142,14 @@ class Population(object):
     def __init__(self):
         from bokeh.models import ColumnDataSource
         from bokeh.document import Document
-        from bokeh.session import Session
+        # from bokeh.session import Session
         from bokeh.sampledata.population import load_population
 
-        self.document = Document()
-        self.session = Session()
-        self.session.use_doc('population_reveal')
-        self.session.load_document(self.document)
+        self.document = curdoc() #Document()
+        self.session = session
+        # self.session = Session()
+        # self.session.use_doc('population_reveal')
+        # self.session.load_document(self.document)
 
         self.df = load_population()
         self.source_pyramid = ColumnDataSource(data=dict())
@@ -194,11 +193,11 @@ class Population(object):
         self.plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph],
                                                  Female=[female_quad_glyph])))
 
-    def on_year_change(self, obj, attr, old, new):
+    def on_year_change(self, attr, old, new):
         self.year = int(new)
         self.update_pyramid()
 
-    def on_location_change(self, obj, attr, old, new):
+    def on_location_change(self, attr, old, new):
         self.location = new
         self.update_pyramid()
 
@@ -237,13 +236,12 @@ class Population(object):
             male=male_percent,
             female=female_percent,
         )
-        self.session.store_document(self.document)
 
 
 def update_population(plot):
     while True:
-        plot.session.load_document(plot.document)
         time.sleep(0.1)
 
 if __name__ == '__main__':
+    print "STARTED"
     app.run(debug=True)

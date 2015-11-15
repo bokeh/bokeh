@@ -36,7 +36,6 @@ class ButtonView extends ContinuumView
 
   change_input: () ->
     @mset('clicks', @mget('clicks') + 1)
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class Button extends HasParent

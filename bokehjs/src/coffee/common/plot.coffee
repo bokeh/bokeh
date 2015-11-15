@@ -123,7 +123,8 @@ class PlotView extends ContinuumView
     if @mget('responsive')
       throttled_resize = _.throttle(@resize, 100)
       $(window).on("resize", throttled_resize)
-      $(@resize)
+      # Just need to wait a small delay so container has a width
+      _.delay(@resize, 10)
 
     @unpause()
 
@@ -359,6 +360,10 @@ class PlotView extends ContinuumView
     # @$el.find('canvas').attr('data-hash', ctx.hash());
 
   resize: () =>
+    @resize_width_height(true, false)
+  
+  resize_width_height: (use_width, use_height) =>
+    # Resize plot based on available width and/or height
     canvas_height = @canvas.get('height')
     canvas_width = @canvas.get('width')
     # Calculating this each time means that we play nicely with resize tool
@@ -369,14 +374,29 @@ class PlotView extends ContinuumView
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
     min_size = @mget('min_size')
-    new_width = Math.max(@.el.clientWidth, min_size)
-    new_height = parseInt(new_width / aspect_ratio)
-
-    if new_height < min_size
-      new_height = 100
-      new_width = new_height * aspect_ratio  # Preserves the aspect ratio
-
-    @canvas._set_dims([new_width, new_height])
+    
+    if use_width
+      new_width1 = Math.max(@.el.clientWidth, min_size)
+      new_height1 = parseInt(new_width1 / aspect_ratio)
+    if use_height
+      new_height2 = Math.max(@.el.parentNode.clientHeight - 50, min_size)  # -50 for x ticks
+      new_width2 = parseInt(new_height2 * aspect_ratio)
+    
+    if (not use_height) and (not use_width)
+      # remain same size
+    else if use_height and use_width
+      if new_width2 < new_width1 and new_width2 > min_size
+        @canvas._set_dims([new_width2, new_height2])
+      else
+        @canvas._set_dims([new_width1, new_height1])
+    else if use_height and new_width2 > min_size
+      @canvas._set_dims([new_width2, new_height2])
+    else if use_width and new_width1 > min_size
+      @canvas._set_dims([new_width1, new_height1])
+    else if aspect_ratio < 1
+      @canvas._set_dims([min_size, min_size / aspect_ratio])
+    else
+      @canvas._set_dims([min_size * aspect_ratio, min_size])
     return null
 
   _render_levels: (ctx, levels, clip_region) ->
@@ -499,7 +519,9 @@ class Plot extends HasParent
       elts = @get(side)
       for r in elts
         if r.get('location') ? 'auto' == 'auto'
-          r.set('location', side, {'silent' : true})
+          r.set('layout_location', side, { silent: true })
+        else
+          r.set('layout_location', r.get('location'), { silent: true })
         if r.initialize_layout?
           r.initialize_layout(solver)
         solver.add_constraint(
@@ -533,6 +555,16 @@ class Plot extends HasParent
     'min_border_left'
     'min_border_right'
   ]
+
+  nonserializable_attribute_names: () ->
+    super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame',
+    'min_size'])
+
+  serializable_attributes: () ->
+    attrs = super()
+    if 'renderers' of attrs
+      attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
+    attrs
 
   defaults: ->
     return _.extend {}, super(), {
