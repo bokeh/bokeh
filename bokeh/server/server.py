@@ -94,3 +94,33 @@ class Server(object):
         '''Gets a session by name (session must already exist)'''
 
         return self._tornado.get_session(app_path, session_id)
+
+    def show(self, app_path, browser=None, new='tab'):
+        ''' Opens an app in a browser window or tab.
+
+            Needless to say you could call this on your local desktop but
+            should not call it when running the server on an actual server.
+
+        Args:
+            app_path (str) : the app path to open
+                The part of the URL after the hostname:port, with leading slash.
+
+            browser (str, optional) : browser to show with (default: None)
+                For systems that support it, the **browser** argument allows
+                specifying which browser to display in, e.g. "safari", "firefox",
+                "opera", "windows-default" (see the ``webbrowser`` module
+                documentation in the standard lib for more details).
+
+            new (str, optional) : window or tab (default: "tab")
+                If ``new`` is 'tab', then opens a new tab.
+                If ``new`` is 'window', then opens a new window.
+
+        Returns:
+            None
+        '''
+        if not app_path.startswith("/"):
+            raise ValueError("app_path must start with a /")
+        from bokeh.browserlib import view
+        url = "http://localhost:%d%s" % (self.port, app_path)
+        view(url, browser=browser, new=new)
+

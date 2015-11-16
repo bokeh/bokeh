@@ -79,6 +79,7 @@ class Serve(ApplicationsSubcommand):
         super(Serve, self).__init__(**kwargs)
         self.parser.add_argument('--port', metavar='PORT', type=int, help="Port to listen on", default=-1)
         self.parser.add_argument('--develop', action='store_true', help="Enable develop-time features that should not be used in production")
+        self.parser.add_argument('--show', action='store_true', help="Open server app(s) in a browser")
         self.port = 5006
         self.develop_mode = False
         self.server = None
@@ -95,6 +96,15 @@ class Serve(ApplicationsSubcommand):
         logging.basicConfig(level=logging.DEBUG)
 
         server = Server(applications, port=self.port)
+
+        if args.show:
+            # we have to defer opening in browser until
+            # we start up the server
+            def show_callback():
+                for route in applications.keys():
+                    server.show(route)
+            server.io_loop.add_callback(show_callback)
+
         if self.develop_mode:
             log.info("Using develop mode (do not enable --develop in production)")
         log.info("Starting Bokeh server on port %d with apps at %r", server.port, sorted(applications.keys()))
