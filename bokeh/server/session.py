@@ -39,6 +39,42 @@ def _needs_document_lock(func):
         raise gen.Return(result)
     return _needs_document_lock_wrapper
 
+class _AsyncPeriodic(object):
+    """Like ioloop.PeriodicCallback except the 'func' is async and
+        returns a Future, and we wait for func to finish each time
+        before we call it again.  Plain ioloop.PeriodicCallback
+        can "pile up" invocations if they are taking too long.
+
+    """
+    def __init__(self, func, period, io_loop):
+        self._func = func
+        self._loop = io_loop
+        self._period = period
+        self._handle = None
+        self._last_start_time = None
+
+    def _step(self):
+        ''' Invoke async _func() and re-schedule next invocation '''
+        future = self._func()
+        def on_done(future):
+            now = self._loop.time()
+            duration = now - self._last_start_time
+            self._last_start_time = now
+            next_period = max(self._period - duration, 0)
+            self._handle = self._loop.call_later(next_period, self._step)
+            if future.exception() is not None:
+                log.error("Error thrown from periodic callback: %r", future.exception())
+        self._loop.add_future(future, on_done)
+
+    def start(self):
+        self._last_start_time = self._loop.time()
+        self._handle = self._loop.call_later(self._period, self._step)
+
+    def stop(self):
+        if self._handle is not None:
+            self._loop.remove_timeout(self._handle)
+            self._handle = None
+
 class ServerSession(object):
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
 
@@ -108,8 +144,7 @@ class ServerSession(object):
         NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
 
         '''
-        from tornado import ioloop
-        cb = self._callbacks[callback.id] = ioloop.PeriodicCallback(
+        cb = self._callbacks[callback.id] = _AsyncPeriodic(
             self._wrap_document_callback(callback.callback), callback.period, io_loop=self._loop
         )
         cb.start()
