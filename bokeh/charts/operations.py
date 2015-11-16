@@ -96,6 +96,9 @@ class Aggregate(DataOperator):
         stat = properties.pop('stat')
         if stat is not None and isinstance(stat, str):
             properties['stat'] = stats[stat]()
+        col = properties.pop('columns')
+        if col is not None:
+            properties['columns'] = [col]
         super(Aggregate, self).__init__(**properties)
 
     def apply(self, data):
@@ -111,9 +114,14 @@ class Aggregate(DataOperator):
         agg_name += self.stat.__class__.__name__
         self.agg_column = agg_name
 
+        if self.columns is None:
+            col = data_copy.columns[0]
+        else:
+            col = self.columns[0]
+
         # Add agg value to each row of group
         def stat_func(group):
-            stat.set_data(group)
+            stat.set_data(group[col])
             group[agg_name] = stat.value
             return group
 
@@ -121,10 +129,7 @@ class Aggregate(DataOperator):
         gb = data_copy.groupby(self.dimensions)
 
         # apply stat function to groups
-        if isinstance(stat, Count):
-            agg = gb.apply(stat_func)
-        else:
-            agg = gb[self.columns[0]].apply(stat_func)
+        agg = gb.apply(stat_func)
 
         return agg
 
