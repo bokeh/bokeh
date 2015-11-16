@@ -7,11 +7,11 @@ from os.path import join, dirname, pardir
 from unittest import TestCase, skipIf
 
 try:
-    import IPython
+    import notebook
 except ImportError:
-    is_IPython = False
+    is_notebook = False
 else:
-    is_IPython = True
+    is_notebook = True
 
 @pytest.mark.examples
 class TestExamples(TestCase):
@@ -21,7 +21,7 @@ class TestExamples(TestCase):
         proc = subprocess.Popen(["python", script])
         self.assertEqual(proc.wait(), 0, "examples do *NOT* work properly")
 
-    @skipIf(not is_IPython, "IPython is required to run this test")
+    @skipIf(not is_notebook, "Jupyter notebook is required to run this test")
     def test_nbexecuter(self):
         from . import nbexecuter
         example_dir = join(dirname(__file__), pardir, pardir, 'examples')
