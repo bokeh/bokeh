@@ -16,11 +16,10 @@ from __future__ import absolute_import
 
 import numpy as np
 import pandas as pd
-from six import iteritems
 
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, Float, Either, String, Date, Datetime, Int,
-                              Bool, List, Instance, Dict)
+                              Bool, List, Instance)
 from .properties import Column, EitherColumn, ColumnLabel
 
 
@@ -303,7 +302,7 @@ class Bins(Stat):
         if isinstance(stat, str):
             stat = stats[stat]()
 
-        properties['column'] = column
+        properties['column'] = column or 'vals'
         properties['bins'] = bins
         properties['stat'] = stat
         properties['values'] = values
@@ -321,9 +320,6 @@ class Bins(Stat):
         elif self.values is not None:
             stat_kwargs['values'] = self.values
 
-        else:
-            raise ValueError('Could not identify bin stat for %s' % dim)
-
         stat_kwargs['bin_count'] = self.bin_count
 
         return BinStats(**stat_kwargs)
@@ -334,11 +330,6 @@ class Bins(Stat):
 
     def calculate(self):
 
-        if self.column is not None:
-            val_col = self.column
-        else:
-            val_col = 'values'
-
         bin_str = '_bin'
         self.bin_column = self.column + bin_str
         bin_models = []
@@ -348,11 +339,16 @@ class Bins(Stat):
 
         self.bin_width = np.round(bin_bounds[2] - bin_bounds[1], 1)
 
-        # add bin column to data source
-        self.source.add(binned.tolist(), name=self.bin_column)
+        if self.source is not None:
+            # add bin column to data source
+            self.source.add(binned.tolist(), name=self.bin_column)
+            df = self.source.to_df()
+        else:
+            df = pd.DataFrame({self.column: self.values, self.bin_column: binned})
 
-        for name, group in self.source.to_df().groupby(self.bin_column):
-            bin_models.append(Bin(bin_label=name, values=group[val_col], stat=self.stat))
+        for name, group in df.groupby(self.bin_column):
+            bin_models.append(Bin(bin_label=name, values=group[self.bin_column],
+                                  stat=self.stat))
 
         self.bins = bin_models
 
@@ -362,7 +358,10 @@ class Bins(Stat):
             centers[binned == bin.label] = bin.center
 
         self.centers_column = self.column + '_center'
-        self.source.add(centers.tolist(), name=self.centers_column)
+        if self.source is not None:
+            self.source.add(centers.tolist(), name=self.centers_column)
+        else:
+            df[self.centers_column] = centers
 
     def __getitem__(self, item):
         return self.bins[item]

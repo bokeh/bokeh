@@ -17,7 +17,6 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
-from ..utils import get_index
 from ..builder import XYBuilder, create_and_build
 from ..stats import Bins
 from ..properties import Dimension

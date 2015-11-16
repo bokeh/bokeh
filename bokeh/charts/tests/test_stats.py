@@ -3,6 +3,8 @@ import pytest
 from bokeh.charts.stats import Bins
 from bokeh.models import ColumnDataSource
 
+import pandas as pd
+
 
 @pytest.fixture
 def ds(test_data):
@@ -19,6 +21,6 @@ def test_auto_bin_count(ds):
     assert len(b.bins) == 12
 
 
-def test_ndbin_simple(ds):
-    b = Bins(source=ds, column='cyl', dimensions=['mpg', 'displ'])
-    assert len(b.bins) > 0
+def test_bin_labeling(ds):
+    Bins(source=ds, column='cyl', bin_count=2)
+    assert len(pd.Series(ds.data['cyl_bin']).drop_duplicates()) == 2
