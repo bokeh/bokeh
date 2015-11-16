@@ -556,13 +556,14 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
         f.write(body)
 
 def start_jupyter_notebook():
-    located_profile = create_custom_js()
+    #First create the customjs to run the notebook
+    create_custom_js()
 
     notebook_dir = split(example_dir)[0]
 
     cmd = ["jupyter", "notebook"]
     argv = ["--no-browser", "--port=%s" % args.notebook_port,
-            "--notebook-dir=%s" % notebook_dir]
+            "--notebook-dir=%s" % notebook_dir, "--debug"]
 
     try:
         proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)
