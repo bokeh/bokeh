@@ -61,8 +61,7 @@ test:
     - pillow
 
     # examples
-    - ipython
-    - ipython-notebook
+    - jupyter
     - matplotlib
     - sympy
     - ggplot
