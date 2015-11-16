@@ -58,32 +58,27 @@ page.open(url, function(status) {
         document.body.bgColor = 'white';
     });
 
-    if (tpe === 'notebook') {
-        //page.onLoadStarted(function() {
-            //window.addEventListener('finished', function () { render(status); }, false);
-        //});
-        window.setTimeout(function() {
-            render(status);
-        }, 20000);
-    } else {
-        // TODO: get notified when Bokeh finished rendering
-        window.setTimeout(function() {
-            render(status);
-        }, 1000);
-    }
+    // TODO: get notified when Bokeh finished rendering
+    window.setTimeout(function() {
+        if (png !== undefined) {
+            page.render(png);
+        }
+
+        console.log(JSON.stringify({
+            status: status,
+            errors: errors,
+            messages: messages,
+            resources: resources,
+        }));
+
+        phantom.exit();
+    }, timer());
 });
 
-function render(status) {
-    if (png !== undefined) {
-        page.render(png);
+function timer() {
+    if (tpe === 'notebook') {
+        return timeout * 1000;
+    } else {
+        return 1000;
     }
-
-    console.log(JSON.stringify({
-        status: status,
-        errors: errors,
-        messages: messages,
-        resources: resources,
-    }));
-
-    phantom.exit();
 }

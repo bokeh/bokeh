@@ -532,20 +532,7 @@ def create_custom_js():
     from jupyter_core import paths
     config_dir = paths.jupyter_config_dir()
 
-    body = """
-require(["base/js/namespace", "base/js/events"], function (IPython, events) {
-    events.on("kernel_ready.Kernel", function () {
-        IPython.notebook.execute_all_cells();
-        events.on("kernel_idle.Kernel", function () {
-            var finished = (Object.keys(IPython.notebook.kernel._msg_callbacks).length == 0);
-            if (finished === true) {
-                var event = new Event('finished');
-                window.dispatchEvent(event);
-            }
-        });
-    });
-});
-"""
+    body = ""
 
     custom = join(config_dir, "custom")
     if not exists(custom):
@@ -563,7 +550,7 @@ def start_jupyter_notebook():
 
     cmd = ["jupyter", "notebook"]
     argv = ["--no-browser", "--port=%s" % args.notebook_port,
-            "--notebook-dir=%s" % notebook_dir, "--debug"]
+            "--notebook-dir=%s" % notebook_dir]
 
     try:
         proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)
