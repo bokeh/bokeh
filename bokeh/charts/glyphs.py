@@ -915,9 +915,12 @@ class HeatmapGlyph(XyGlyph):
 
     def __init__(self, x, y, values, column=None, stat='count', glyph='rect', width=1,
                  height=1, **kwargs):
-        kwargs['x'] = x
-        kwargs['y'] = y
-        kwargs['values'] = values
+        df = pd.DataFrame(dict(x_vals=x, y_vals=y, values_vals=values))
+        df.drop_duplicates(inplace=True)
+
+        kwargs['x'] = df.x_vals
+        kwargs['y'] = df.y_vals
+        kwargs['values'] = df.values_vals
         kwargs['column'] = column
         kwargs['stat'] = stat
         kwargs['glyph_name'] = glyph

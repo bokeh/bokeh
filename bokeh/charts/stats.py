@@ -295,6 +295,8 @@ class Bins(Stat):
 
     bin_values = Bool(default=False)
 
+    bin_width = Float()
+
     def __init__(self, values=None, column=None, bins=None,
                  stat='count', source=None, **properties):
 
@@ -341,8 +343,10 @@ class Bins(Stat):
         self.bin_column = self.column + bin_str
         bin_models = []
 
-        binned, _ = pd.cut(self.bin_stat.get_data(), self.bin_stat.bin_count,
-                           retbins=True, precision=0)
+        binned, bin_bounds = pd.cut(self.bin_stat.get_data(), self.bin_stat.bin_count,
+                                    retbins=True, include_lowest=True, precision=0)
+
+        self.bin_width = np.round(bin_bounds[2] - bin_bounds[1], 1)
 
         # add bin column to data source
         self.source.add(binned.tolist(), name=self.bin_column)
@@ -367,16 +371,13 @@ class Bins(Stat):
         self.set_data(data.source)
         return self.source.to_df()
 
-    def get_width(self):
-        return self.bins[0].stop - self.bins[0].start
-
     def sort(self, ascending=True):
         if self.bins is not None:
             self.bins = list(sorted(self.bins, key=lambda x: x.center,
                                     reverse=~ascending))
 
 
-def bins(data, values=None, column=None, bins=None, labels=None,
+def bins(data, values=None, column=None, bin_count=None, labels=None,
          **kwargs):
     """Specify binning or bins to be used for column or values."""
 
@@ -386,7 +387,7 @@ def bins(data, values=None, column=None, bins=None, labels=None,
     else:
         column = None
 
-    return Bins(values=values, column=column, bin_count=bins, **kwargs)
+    return Bins(values=values, column=column, bin_count=bin_count, **kwargs)
 
 
 stats = {
