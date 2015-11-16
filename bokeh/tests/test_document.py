@@ -76,7 +76,7 @@ class TestDocument(unittest.TestCase):
         d.add_root(m)
         assert len(d.roots) == 1
         assert len(d._all_models) == 2
-        assert len(d._all_models_by_name) == 2
+        assert len(d._all_models_by_name._dict) == 2
         assert d.get_model_by_name(m.name) == m
         assert d.get_model_by_name(m2.name) == m2
         assert d.get_model_by_name("not a valid name") is None
@@ -97,6 +97,22 @@ class TestDocument(unittest.TestCase):
         assert d.get_model_by_name("foo") == None
         m.name = "bar"
         assert d.get_model_by_name("bar") == None
+
+    def test_cannot_get_model_with_duplicate_name(self):
+        d = document.Document()
+        m = SomeModelInTestDocument(name="foo")
+        m2 = SomeModelInTestDocument(name="foo")
+        d.add_root(m)
+        d.add_root(m2)
+        got_error = False
+        try:
+            d.get_model_by_name("foo")
+        except ValueError as e:
+            got_error = True
+            assert 'Multiple models' in repr(e)
+        assert got_error
+        d.remove_root(m)
+        assert d.get_model_by_name("foo") == m2
 
     def test_all_models_with_multiple_references(self):
         d = document.Document()

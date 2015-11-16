@@ -136,6 +136,20 @@ describe "Document", ->
     expect(d.get_model_by_name("foo")).to.equal(null)
     expect(d.get_model_by_name("bar")).to.equal(m)
 
+  it "throws on get_model_by_name with duplicate name", ->
+    d = new Document()
+    m = new SomeModel({ name : "foo" })
+    m2 = new AnotherModel({ name : "foo" })
+    d.add_root(m)
+    d.add_root(m2)
+    got_error = false
+    try
+      d.get_model_by_name('foo')
+    catch e
+      got_error = true
+      expect(e.message).to.include('Multiple models')
+    expect(got_error).to.equal(true)
+
   # TODO copy the following tests from test_document.py here
   # TODO(havocp) test_all_models_with_multiple_references
   # TODO(havocp) test_all_models_with_cycles

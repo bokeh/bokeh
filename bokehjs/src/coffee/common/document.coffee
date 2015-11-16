@@ -24,6 +24,50 @@ class RootRemovedEvent extends DocumentChangedEvent
 
 DEFAULT_TITLE = "Bokeh Application"
 
+class _MultiValuedDict
+    constructor : () ->
+      @_dict = {}
+
+    _existing: (key) ->
+      if key of @_dict
+        return @_dict[key]
+      else
+        return null
+
+    add_value: (key, value) ->
+      if value == null
+        throw new Error("Can't put null in this dict")
+      if _.isArray(value)
+        throw new Error("Can't put arrays in this dict")
+      existing = @_existing(key)
+      if existing == null
+        @_dict[key] = value
+      else if _.isArray(existing)
+        existing.push(value)
+      else
+        @_dict[key] = [existing, value]
+
+    remove_value: (key, value) ->
+      existing = @_existing(key)
+      if _.isArray(existing)
+        new_array = _.without(existing, value)
+        if new_array.length > 0
+          @_dict[key] = new_array
+        else
+          delete @_dict[key]
+      else if _.isEqual(existing, value)
+        delete @_dict[key]
+
+    get_one: (key, duplicate_error) ->
+      existing = @_existing(key)
+      if _.isArray(existing)
+        if existing.length == 1
+          return existing[0]
+        else
+          throw new Error(duplicate_error)
+      else
+        return existing
+
 # This class should match the API of the Python Document class
 # as much as possible.
 class Document
@@ -32,7 +76,7 @@ class Document
     @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
-    @_all_models_by_name = {}
+    @_all_models_by_name = new _MultiValuedDict()
     @_all_model_counts = {}
     @_callbacks = []
 
@@ -84,10 +128,7 @@ class Document
       null
 
   get_model_by_name : (name) ->
-    if name of @_all_models_by_name
-      @_all_models_by_name[name]
-    else
-      null
+    @_all_models_by_name.get_one(name, "Multiple models are named '#{name}'")
 
   on_change : (callback) ->
     if callback in @_callbacks
@@ -106,9 +147,9 @@ class Document
   # called by the model
   _notify_change : (model, attr, old, new_) ->
     if attr == 'name'
-      if old of @_all_models_by_name and @_all_models_by_name[old] == model
-        delete @_all_models_by_name[old]
-      @_all_models_by_name[new_] = model
+      @_all_models_by_name.remove_value(old, model)
+      if new_ != null
+        @_all_models_by_name.add_value(new_, model)
     @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_))
 
   # called by the model on attach
@@ -124,7 +165,7 @@ class Document
     @_all_models[model.id] = model
     name = model.get('name')
     if name != null
-      @_all_models_by_name[name] = model
+      @_all_models_by_name.add_value(name, model)
 
   # called by the model on detach
   _notify_detach : (model) ->
@@ -134,8 +175,8 @@ class Document
       delete @_all_models[model.id]
       delete @_all_model_counts[model.id]
       name = model.get('name')
-      if name in @_all_models_by_name and @_all_models_by_name[name] == model
-        delete @_all_models_by_name[name]
+      if name != null
+        @_all_models_by_name.remove_value(name, model)
     attach_count
 
   @_references_json : (references) ->

@@ -80,6 +80,48 @@ class PeriodicCallback(object):
     def remove(self):
         self.document.remove_periodic_callback(self)
 
+class _MultiValuedDict(object):
+    """
+    This is to store a mapping from keys to multiple values, while avoiding
+    the overhead of always having a collection as the value.
+    """
+    def __init__(self):
+        self._dict = dict()
+
+    def add_value(self, key, value):
+        if value is None:
+            raise ValueError("Can't put None in this dict")
+        if isinstance(value, set):
+            raise ValueError("Can't put sets in this dict")
+        existing = self._dict.get(key, None)
+        if existing is None:
+            self._dict[key] = value
+        elif isinstance(existing, set):
+            existing.add(value)
+        else:
+            self._dict[key] = set([existing, value])
+
+    def remove_value(self, key, value):
+        existing = self._dict.get(key, None)
+        if isinstance(existing, set):
+            existing.discard(value)
+            if len(existing) == 0:
+                del self._dict[key]
+        elif existing == value:
+            del self._dict[key]
+        else:
+            pass
+
+    def get_one(self, k, duplicate_error):
+        existing = self._dict.get(k, None)
+        if isinstance(existing, set):
+            if len(existing) == 1:
+                return next(iter(existing))
+            else:
+                raise ValueError(duplicate_error)
+        else:
+            return existing
+
 class Document(object):
 
     def __init__(self, **kwargs):
@@ -91,7 +133,7 @@ class Document(object):
 
         self._all_models_freeze_count = 0
         self._all_models = dict()
-        self._all_models_by_name = dict()
+        self._all_models_by_name = _MultiValuedDict()
         self._callbacks = []
         self._session_callbacks = {}
 
@@ -153,11 +195,11 @@ class Document(object):
         to_detach = old_all_models_set - new_all_models_set
         to_attach = new_all_models_set - old_all_models_set
         recomputed = {}
-        recomputed_by_name = {}
+        recomputed_by_name = _MultiValuedDict()
         for m in new_all_models_set:
             recomputed[m._id] = m
             if m.name is not None and not m._naughty_model_overrides_name():
-                recomputed_by_name[m.name] = m
+                recomputed_by_name.add_value(m.name, m)
         for d in to_detach:
             d._detach_document()
         for a in to_attach:
@@ -236,7 +278,7 @@ class Document(object):
 
     def get_model_by_name(self, name):
         ''' Get the model object for the given name or None if not found'''
-        return self._all_models_by_name.get(name, None)
+        return self._all_models_by_name.get_one(name, "Multiple models are named '%s'" % name)
 
     def on_change(self, *callbacks):
         ''' Invoke callback if the document or any PlotObject reachable from its roots changes.
@@ -269,9 +311,10 @@ class Document(object):
         # if name changes, update by-name index
         if attr == 'name':
             if not model._naughty_model_overrides_name():
-                if self._all_models_by_name.get(old, None) == model:
-                    del self._all_models_by_name[old]
-                self._all_models_by_name[new] = model
+                self._all_models_by_name.remove_value(old, model)
+                if new is not None:
+                    self._all_models_by_name.add_value(new, model)
+
         self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new))
 
     @classmethod
