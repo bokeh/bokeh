@@ -112,16 +112,14 @@ class Server(object):
                 documentation in the standard lib for more details).
 
             new (str, optional) : window or tab (default: "tab")
-                If **new** is 'tab', then opens a new tab.
-                If **new** is 'window', then opens a new window.
+                If ``new`` is 'tab', then opens a new tab.
+                If ``new`` is 'window', then opens a new window.
 
         Returns:
             None
         '''
         if not app_path.startswith("/"):
             raise ValueError("app_path must start with a /")
-        # this is a local import because in most production servers we probably
-        # don't want to load the browser stuff
         from bokeh.browserlib import view
         url = "http://localhost:%d%s" % (self.port, app_path)
         view(url, browser=browser, new=new)
