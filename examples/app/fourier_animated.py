@@ -4,7 +4,7 @@ The example was inspired by `this video`_.
 
 Use the ``bokeh serve`` command to run the example by executing:
 
-    bokeh serve fouried_animated.py
+    bokeh serve fourier_animated.py
 
 at your command prompt. Then navigate to the URL
 
