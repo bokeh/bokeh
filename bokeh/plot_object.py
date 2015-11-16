@@ -232,6 +232,7 @@ class PlotObject(HasProps, CallbackManager):
     def vm_props(self, changed_only=True):
         """ Returns the ViewModel-related properties of this object.
 
+        .. note::
             In the future this method may always return all properties,
             ignoring the changed_only argument.
 
@@ -256,7 +257,7 @@ class PlotObject(HasProps, CallbackManager):
         return props
 
     def vm_serialize(self, changed_only=True):
-        """Returns a dictionary of the attributes of this object, in
+        """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
 
         This method does not convert "Bokeh types" into "plain JSON types,"
@@ -285,9 +286,9 @@ class PlotObject(HasProps, CallbackManager):
         return attrs
 
     def to_json(self):
-        """Returns a dictionary of the attributes of this object,
-           containing only "JSON types" (string, number, boolean,
-           none, dict, list).
+        """ Returns a dictionary of the attributes of this object,
+        containing only "JSON types" (string, number, boolean,
+        none, dict, list).
 
         References to other objects are serialized as "refs" (just
         the object ID and type info), so the deserializer will
