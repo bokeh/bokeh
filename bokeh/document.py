@@ -54,20 +54,15 @@ class SessionCallbackRemoved(DocumentChangedEvent):
         super(SessionCallbackRemoved, self).__init__(document)
         self.callback = callback
 
-class PeriodicCallback(object):
-    def __init__(self, document, callback, period, id=None):
+class SessionCallback(object):
+    def __init__(self, document, callback, id=None):
         if id is None:
             self._id = str(uuid.uuid4())
         else:
             self._id = id
 
         self._document = document
-        self._period = period
         self._callback = callback
-
-    @property
-    def period(self):
-        return self._period
 
     @property
     def id(self):
@@ -78,7 +73,25 @@ class PeriodicCallback(object):
         return self._callback
 
     def remove(self):
-        self.document.remove_periodic_callback(self)
+        self.document._remove_session_callback(self)
+
+class PeriodicCallback(SessionCallback):
+    def __init__(self, document, callback, period, id=None):
+        super(PeriodicCallback, self).__init__(document, callback, id)
+        self._period = period
+
+    @property
+    def period(self):
+        return self._period
+
+class TimeoutCallback(SessionCallback):
+    def __init__(self, document, callback, timeout, id=None):
+        super(TimeoutCallback, self).__init__(document, callback, id)
+        self._timeout = timeout
+
+    @property
+    def timeout(self):
+        return self._timeout
 
 class Document(object):
 
@@ -519,6 +532,37 @@ class Document(object):
 
     def remove_periodic_callback(self, callback):
         ''' Remove a callback added earlier with add_periodic_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._remove_session_callback(callback)
+
+    def add_timeout_callback(self, callback, timeout, id=None):
+        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+
+        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+
+        '''
+        # create the new callback object
+        cb = TimeoutCallback(self, callback, timeout, id)
+        self._session_callbacks[callback] = cb
+        # emit event so the session is notified of the new callback
+        self._trigger_on_change(SessionCallbackAdded(self, cb))
+        return cb
+
+    def remove_timeout_callback(self, callback):
+        ''' Remove a callback added earlier with add_timeout_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._remove_session_callback(callback)
+
+
+    def _remove_session_callback(self, callback):
+        ''' Remove a callback added earlier with add_periodic_callback()
+        or add_timeout_callback()
 
             Throws an error if the callback wasn't added
 
