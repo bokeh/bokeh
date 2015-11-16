@@ -1,9 +1,29 @@
 var fs = require("fs");
 var path = require("path");
 var uuid = require("uuid");
-var argv = require("yargs").argv;
+var yargs = require("yargs");
 var jsdom = require("jsdom");
 var htmlparser2 = require("htmlparser2");
+
+var argv = yargs
+  .options({
+    l: {
+      alias: 'log-level',
+      type: 'string',
+      choices: ['debug', 'info', 'warn', 'error', 'fatal', 'none'],
+      default: 'info',
+    },
+    js: {
+      type: 'string',
+      default: path.join(__dirname, 'build/js'),
+    },
+    css: {
+      type: 'string',
+      default: path.join(__dirname, 'build/css'),
+    },
+  })
+  .help('h').alias('h', 'help')
+  .argv;
 
 function readStdin() {
   var stdin = process.stdin;
@@ -78,17 +98,22 @@ function render(docs_json, file) {
   global.window.Canvas = require("canvas");
   global.window.Image = global.window.Canvas.Image;
 
-  global.bokehRequire = require("./build/js/bokeh.js").bokehRequire;
-  require("./build/js/bokeh-widgets.js");
+  global.bokehRequire = require(path.join(argv.js, "bokeh.js")).bokehRequire;
+  require(path.join(argv.js, "bokeh-widgets.js"));
 
   var Bokeh = global.window.Bokeh;
-  Bokeh.set_log_level("debug");
+  Bokeh.set_log_level(argv.logLevel);
 
-  var head = document.getElementsByTagName('head')[0];
-  var link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = './build/css/bokeh.css';
-  head.appendChild(link);
+  function insertCSS(href) {
+    var head = document.getElementsByTagName('head')[0];
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    head.appendChild(link);
+  }
+
+  insertCSS(path.join(argv.css, "bokeh.js"));
+  insertCSS(path.join(argv.css, "bokeh-widgets.js"));
 
   function outPath(file) {
     if (file) {
@@ -106,7 +131,7 @@ function render(docs_json, file) {
 
   Bokeh.Events.on("render:done", function(plot_view) {
     var nodeCanvas = plot_view.canvas_view.canvas[0]._nodeCanvas;
-    var outFile = outPath(file)(plot_view.model.id)
+    var outFile = outPath(file)(plot_view.model.id);
     Bokeh.logger.info("writing " + outFile);
     var out = fs.createWriteStream(outFile);
     nodeCanvas.pngStream().on('data', function(chunk) { out.write(chunk); });
