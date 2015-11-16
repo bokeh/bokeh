@@ -286,20 +286,23 @@ class Builder(HasProps):
 
             # if we are given columns, use those
             elif isinstance(attr, str) or isinstance(attr, list):
+                attributes[attr_name] = self.default_attributes[attr_name]._clone()
 
                 # override palette if available
-                if (isinstance(self.default_attributes[attr_name], ColorAttr) and
-                        custom_palette is not None):
-                    self.attributes[attr_name] = self.default_attributes[attr_name]._clone()
-                    self.attributes[attr_name].iterable = custom_palette
-                else:
-                    self.attributes[attr_name] = self.default_attributes[attr_name]._clone()
+                if isinstance(self.attributes[attr_name], ColorAttr):
+                    if custom_palette is not None:
+                        attributes[attr_name].iterable = custom_palette
 
                 attributes[attr_name].setup(data=source, columns=attr)
 
-            # otherwise, make use of the default attribute configuration
             else:
-                attributes[attr_name] = self.default_attributes[attr_name]._clone()
+                # override palette if available
+                if (isinstance(self.default_attributes[attr_name], ColorAttr) and
+                        custom_palette is not None):
+                    attributes[attr_name] = self.default_attributes[attr_name]._clone()
+                    attributes[attr_name].iterable = custom_palette
+                else:
+                    attributes[attr_name] = self.default_attributes[attr_name]._clone()
 
         # make sure all have access to data source
         for attr_name in attr_names:
