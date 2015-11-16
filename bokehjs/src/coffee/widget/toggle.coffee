@@ -38,7 +38,6 @@ class ToggleView extends ContinuumView
 
   change_input: () ->
     @mset('active', @$el.hasClass("bk-bs-active"))
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class Toggle extends HasParent

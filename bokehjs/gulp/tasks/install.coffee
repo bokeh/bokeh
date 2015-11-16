@@ -15,7 +15,9 @@ handleOutput = (data) ->
     .forEach outputLine
 
 gulp.task "install", ->
-  setup = spawn "python", ["../setup.py", "--install_js"]  # installs js and css
+  # installs js and css
+  # note: sets cwd as parent dir so that LICENSE.txt is accessible to setup.py 
+  setup = spawn "python", ["setup.py", "--install_js"], {cwd: "../"}
   for output in ["stdout", "stderr"]
     setup[output].setEncoding "utf8"
     setup[output].on "data", handleOutput

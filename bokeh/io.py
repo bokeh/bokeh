@@ -25,13 +25,16 @@ import io, itertools, os, warnings
 # Bokeh imports
 from . import browserlib
 from .document import Document
-from .embed import notebook_div, file_html, autoload_server
+from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models import Component
 from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox, VBoxForm
+from .plot_object import _ModelInDocument
 from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
+from .client import DEFAULT_SESSION_ID, push_session, show_session
+from bokeh.resources import DEFAULT_SERVER_HTTP_URL, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,8 +53,13 @@ _state = State()
 #-----------------------------------------------------------------------------
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
-    ''' Configure the default output state to generate output saved
+    '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
+
+    Does not change the current Document from curdoc(). File,
+    server, and notebook output may be active at the same time, so
+    this does not clear the effects of output_server() or
+    output_notebook().
 
     Args:
         filename (str) : a filename for saving the HTML document
@@ -93,24 +101,15 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
         root_dir=root_dir
     )
 
-def output_notebook(url=None, docname=None, session=None, name=None,
-                    resources=None, verbose=False, hide_banner=False):
+def output_notebook(resources=None, verbose=False, hide_banner=False):
     ''' Configure the default output state to generate output in
     Jupyter/IPython notebook cells when :func:`show` is called.
 
+    If output_server() has also been called, the notebook cells
+    are loaded from the configured server; otherwise, Bokeh pushes
+    HTML to the notebook directly.
+
     Args:
-        url (str, optional) : URL of the Bokeh server (default: "default")
-            If "default", then ``session.DEFAULT_SERVER_URL`` is used.
-
-        docname (str) : Name of document to push on Bokeh server (default: None)
-            Any existing documents with the same name will be overwritten.
-
-        session (Session, optional) : An explicit session to use (default: None)
-            If None, a new default session is created.
-
-        name (str, optional) : A name for the session (default: None)
-            If None, the server URL is used as the name
-
         resources (Resource, optional) :
             How and where to load BokehJS from (default: INLINE)
 
@@ -129,30 +128,49 @@ def output_notebook(url=None, docname=None, session=None, name=None,
 
     '''
     load_notebook(resources, verbose, hide_banner)
-    _state.output_notebook(
-        url=url, docname=docname, session=session, name=name
-    )
+    _state.output_notebook()
 
-def output_server(docname, session=None, url="default", name=None, clear=True):
-    ''' Configure the default output state to generate output that gets
-    pushed to a bokeh-server when :func:`show` or :func:`push` is called.
+def output_server(session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
+    """Store Bokeh plots and objects on a Bokeh server.
+
+    File, server, and notebook output may be active at the
+    same time, so this does not clear the effects of
+    output_file() or output_notebook(). output_server()
+    changes the behavior of output_notebook(), so the notebook
+    will load output cells from the server rather than
+    receiving them as inline HTML.
 
     Args:
-        docname (str) : Name of document to push on Bokeh server
-            Any existing documents with the same name will be overwritten.
+        session_id (str, optional) : Name of session to push on Bokeh server (default: "default")
+            Any existing session with the same name will be overwritten.
 
-        session (Session, optional) : An explicit session to use (default: None)
-            If None, a new default session is created.
+        url (str, optional) : base URL of the Bokeh server (default: "default")
+            If "default" use the default localhost URL.
 
-        url (str, optional) : URL of the Bokeh server (default: "default")
-            If "default", then ``session.DEFAULT_SERVER_URL`` is used.
+        autopush (bool, optional) : whether to automatically push (default: False)
+            If True, then Bokeh plotting APIs may opt to automatically
+            push the document more frequently (e.g., after any plotting
+            command). If False, then the document is only pushed upon calling
+            :func:`show` or :func:`push`.
 
-        name (str, optional) : A name for the session (default: None)
-            If None, the server URL is used as the name
+    Returns:
+        None
 
-        clear (bool, optional) : Whether to clear the document (default: True)
-            If True, an existing server document will be cleared of any
-            existing objects.
+    .. warning::
+        Calling this function will replace any existing server-side document in the named session.
+
+    """
+
+    _state.output_server(session_id=session_id, url=url, autopush=autopush)
+
+def set_curdoc(doc):
+    '''Configure the current document (returned by curdoc()).
+
+    This is the document we will save or push according to
+    output_file(), output_server(), etc. configuration.
+
+    Args:
+        doc (Document) : Document we will output.
 
     Returns:
         None
@@ -162,12 +180,10 @@ def output_server(docname, session=None, url="default", name=None, clear=True):
         session or the top of a script.
 
     .. warning::
-        Calling this function will replace any existing default session.
+        Calling this function will replace any existing document.
 
     '''
-    _state.output_server(
-        docname, session=session, url=url, name=name, clear=clear
-    )
+    _state.document = doc
 
 def curdoc():
     ''' Return the document for the current default state.
@@ -175,31 +191,16 @@ def curdoc():
     Returns:
         doc : the current default document object.
 
-    .. note::
-        When using this API form within the server (e.g. in a Bokeh app), the
-        appropriate document from the request context is returned, rather than
-        the standard default global state. Doing so allows the same code using
-        curdoc() to function correctly whether it is being run inside a server
-        or not.
-
     '''
-    try:
-        from flask import request
-        doc = request.bokeh_server_document
-        logger.debug("curdoc() returning Document from flask request context")
-        return doc
+    return _state.document
 
-    except (ImportError, RuntimeError, AttributeError):
-        return _state.document
-
-def cursession():
-    ''' Return the session for the current default state, if there is one.
+def curstate():
+    ''' Return the current State object
 
     Returns:
-        the current default Session object (or None)
-
+      state : the current default State object
     '''
-    return _state.session
+    return _state
 
 def show(obj, browser=None, new="tab"):
     ''' Immediately display a plot object.
@@ -237,13 +238,12 @@ def show(obj, browser=None, new="tab"):
     _show_with_state(obj, _state, browser, new)
 
 def _show_with_state(obj, state, browser, new):
-
     controller = browserlib.get_browser_controller(browser=browser)
 
     if state.notebook:
         _show_notebook_with_state(obj, state)
 
-    elif state.session:
+    elif state.session_id and state.server_url:
         _show_server_with_state(obj, state, new, controller)
 
     if state.file:
@@ -254,18 +254,19 @@ def _show_file_with_state(obj, state, new, controller):
     controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
 
 def _show_notebook_with_state(obj, state):
-    if state.session:
+    if state.session_id:
         push(state=state)
-        snippet = autoload_server(obj, state.session)
+        snippet = autoload_server(obj, session_id=state.session_id, url=state.server_url)
         publish_display_data({'text/html': snippet})
     else:
         publish_display_data({'text/html': notebook_div(obj)})
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
-    controller.open(state.session.object_link(state.document.context), new=_new_param[new])
+    show_session(session_id=state.session_id, server_url=state.server_url,
+                 new=new, controller=controller)
 
-def save(obj, filename=None, resources=None, title=None, state=None):
+def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -273,7 +274,7 @@ def save(obj, filename=None, resources=None, title=None, state=None):
     are not provided.
 
     Args:
-        obj (Document or Component object) : a plot object to save
+        obj (Document or model object) : a plot object to save
 
         filename (str, optional) : filename to save document under (default: None)
             If None, use the default state configuration, otherwise raise a
@@ -287,6 +288,8 @@ def save(obj, filename=None, resources=None, title=None, state=None):
             If None, use the default state title value, if there is one.
             Otherwise, use "Bokeh Plot"
 
+        validate (bool, optional) : True to check integrity of the models
+
     Returns:
         None
 
@@ -299,7 +302,7 @@ def save(obj, filename=None, resources=None, title=None, state=None):
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
 
-    _save_helper(obj, filename, resources, title)
+    _save_helper(obj, filename, resources, title, validate)
 
 def _get_save_args(state, filename, resources, title):
 
@@ -326,30 +329,48 @@ def _get_save_args(state, filename, resources, title):
 
     return filename, resources, title
 
-def _save_helper(obj, filename, resources, title):
-    if isinstance(obj, Component):
-        doc = Document()
-        doc.add(obj)
-    elif isinstance(obj, Document):
-        doc = obj
-    else:
-        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
+def _save_helper(obj, filename, resources, title, validate):
+    with _ModelInDocument(obj):
+        if isinstance(obj, Component):
+            doc = obj.document
+        elif isinstance(obj, Document):
+            doc = obj
+        else:
+            raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-    html = file_html(doc, resources, title)
-    with io.open(filename, "w", encoding="utf-8") as f:
-        f.write(decode_utf8(html))
+        if validate:
+            doc.validate()
 
-def push(session=None, document=None, state=None):
+        html = standalone_html_page_for_models(obj, resources, title)
+
+        with io.open(filename, "w", encoding="utf-8") as f:
+            f.write(decode_utf8(html))
+
+# this function exists mostly to be mocked in tests
+def _push_to_server(websocket_url, document, session_id, io_loop):
+    session = push_session(document, session_id=session_id, url=websocket_url, io_loop=io_loop)
+    session.close()
+    session.loop_until_closed()
+
+def push(session_id=None, url=None, document=None, state=None, io_loop=None, validate=True):
     ''' Update the server with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
-    :class:`State` object) for ``session`` or ``document`` if they are not
+    :class:`State` object) for ``session_id``, ``url``, or ``document`` if they are not
     provided.
 
     Args:
-        session (Session, optional) : a Bokeh server session to push objects to
+        session_id (str, optional) : a Bokeh server session ID to push objects to
+
+        url (str, optional) : a Bokeh server URL to push objects to
 
         document (Document, optional) : A :class:`bokeh.document.Document` to use
+
+        state (State, optional) : A state to use for any output_server() configuration of session or url
+
+        io_loop (tornado.ioloop.IOLoop, optional) : Tornado IOLoop to use for connecting to server
+
+        validate (bool, optional) : True to check integrity of the document we are pushing
 
     Returns:
         None
@@ -358,17 +379,29 @@ def push(session=None, document=None, state=None):
     if state is None:
         state = _state
 
-    if not session:
-        session = state.session
+    if not session_id:
+        session_id = state.session_id
+
+    if not session_id:
+        session_id = DEFAULT_SESSION_ID
+
+    if not url:
+        url = state.server_url
+
+    if not url:
+        url = DEFAULT_SERVER_HTTP_URL
 
     if not document:
         document = state.document
 
-    if not session:
-        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
-        return
+    if not document:
+        warnings.warn("No document to push")
 
-    return session.store_document(document)
+    if validate:
+        document.validate()
+
+    _push_to_server(websocket_url=websocket_url_for_server_url(url), document=document,
+                    session_id=session_id, io_loop=io_loop)
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
@@ -379,16 +412,16 @@ def reset_output(state=None):
     '''
     _state.reset()
 
-def _deduplicate_plots(plot, subplots):
+def _remove_roots(subplots):
     doc = _state.document
-    doc.context.children = list(set(doc.context.children) - set(subplots))
-    doc.add(plot)
-    doc._current_plot = plot # TODO (bev) don't use private attrs
+    for sub in subplots:
+        if sub in doc.roots:
+            doc.remove_root(sub)
 
 def _push_or_save(obj):
-    if _state.session and _state.document.autostore:
+    if _state.session_id and _state.autopush:
         push()
-    if _state.file and _state.file['autosave']:
+    if _state.file and _state.autosave:
         save(obj)
 
 def gridplot(plot_arrangement, **kwargs):
@@ -404,9 +437,10 @@ def gridplot(plot_arrangement, **kwargs):
         grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
 
     '''
-    grid = GridPlot(children=plot_arrangement, **kwargs)
     subplots = itertools.chain.from_iterable(plot_arrangement)
-    _deduplicate_plots(grid, subplots)
+    _remove_roots(subplots)
+    grid = GridPlot(children=plot_arrangement, **kwargs)
+    curdoc().add_root(grid)
     _push_or_save(grid)
     return grid
 
@@ -414,8 +448,9 @@ def hplot(*children, **kwargs):
     ''' Generate a layout that arranges several subplots horizontally.
 
     '''
+    _remove_roots(children)
     layout = HBox(children=list(children), **kwargs)
-    _deduplicate_plots(layout, children)
+    curdoc().add_root(layout)
     _push_or_save(layout)
     return layout
 
@@ -423,8 +458,9 @@ def vplot(*children, **kwargs):
     ''' Generate a layout that arranges several subplots vertically.
 
     '''
+    _remove_roots(children)
     layout = VBox(children=list(children), **kwargs)
-    _deduplicate_plots(layout, children)
+    curdoc().add_root(layout)
     _push_or_save(layout)
     return layout
 
@@ -433,5 +469,6 @@ def vform(*children, **kwargs):
 
     '''
     layout = VBoxForm(children=list(children), **kwargs)
+    curdoc().add_root(layout)
     _push_or_save(layout)
     return layout

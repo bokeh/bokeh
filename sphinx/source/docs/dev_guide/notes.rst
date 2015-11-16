@@ -20,6 +20,9 @@ There are several environment variables that can be useful for developers:
 * ``BOKEH_DOCS_CDN`` --- What version of BokehJS to use when building sphinx
     docs locally.
 
+    .. note::
+        Set to ``"local"`` to use a locally built dev version of BokehJS.
+
 * ``BOKEH_DOCS_VERSION`` --- What version of Bokeh to show when building sphinx
     docs locally. Useful for re-deployment purposes.
 
