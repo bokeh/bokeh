@@ -7,6 +7,8 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
+from bokeh.document import SessionCallbackAdded, SessionCallbackRemoved, PeriodicCallback, TimeoutCallback
+
 import time
 
 def current_time():
@@ -22,19 +24,27 @@ class ServerSession(object):
 
     '''
 
-    def __init__(self, session_id, document):
+    def __init__(self, session_id, document, io_loop=None):
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
             raise ValueError("Sessions must have a document")
         self._id = session_id
         self._document = document
+        self._loop = io_loop
         self._subscribed_connections = set()
         self._last_unsubscribe_time = current_time()
         self._lock = locks.Lock()
         self._current_patch = None
         self._current_patch_connection = None
         self._document.on_change(self._document_changed)
+        self._callbacks = {}
+
+        for cb in self._document.session_callbacks:
+            if isinstance(cb, PeriodicCallback):
+                self._add_periodic_callback(cb)
+            elif isinstance(cb, TimeoutCallback):
+                self._add_timeout_callback(cb)
 
     @property
     def document(self):
@@ -61,9 +71,67 @@ class ServerSession(object):
     def seconds_since_last_unsubscribe(self):
         return current_time() - self._last_unsubscribe_time
 
+    def _add_periodic_callback(self, callback):
+        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+
+        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+
+        '''
+        from tornado import ioloop
+        cb = self._callbacks[callback.id] = ioloop.PeriodicCallback(
+            callback.callback, callback.period, io_loop=self._loop
+        )
+        cb.start()
+
+    def _remove_periodic_callback(self, callback):
+        ''' Remove a callback added earlier with add_periodic_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._callbacks.pop(callback.id).stop()
+
+    def _add_timeout_callback(self, callback):
+        ''' Add callback so it can be invoked on a session after timeout
+
+        NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+
+        '''
+        cb = self._loop.call_later(callback.timeout, callback.callback)
+        self._callbacks[callback.id] = cb
+
+    def _remove_timeout_callback(self, callback):
+        ''' Remove a callback added earlier with _add_timeout_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        cb = self._callbacks.pop(callback.id)
+        self._loop.remove_timeout(cb)
+
     def _document_changed(self, event):
         may_suppress = self._current_patch is not None and \
                        self._current_patch.should_suppress_on_change(event)
+
+        if isinstance(event, SessionCallbackAdded):
+            if isinstance(event.callback, PeriodicCallback):
+                self._add_periodic_callback(event.callback)
+            elif isinstance(event.callback, TimeoutCallback):
+                self._add_timeout_callback(event.callback)
+            else:
+                raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+
+            return
+
+        elif isinstance(event, SessionCallbackRemoved):
+            if isinstance(event.callback, PeriodicCallback):
+                self._remove_periodic_callback(event.callback)
+            elif isinstance(event.callback, TimeoutCallback):
+                self._remove_timeout_callback(event.callback)
+            else:
+                raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+
+            return
 
         # TODO (havocp): our "change sync" protocol is flawed
         # because if both sides change the same attribute at the

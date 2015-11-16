@@ -422,12 +422,24 @@ class MetaHasProps(type):
 
         return type.__new__(cls, class_name, bases, class_dict)
 
-def accumulate_from_subclasses(cls, propname):
-    s = set()
-    for c in inspect.getmro(cls):
-        if issubclass(c, HasProps):
-            s.update(getattr(c, propname))
-    return s
+def accumulate_from_superclasses(cls, propname, check_collisions=False):
+    cachename = "__cached_all" + propname
+    # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
+    # classes, and the cache must be separate for each class
+    if cachename not in cls.__dict__:
+        s = set()
+        for c in inspect.getmro(cls):
+            if issubclass(c, HasProps):
+                base = getattr(c, propname)
+                if check_collisions:
+                    intersection = s.intersection(base)
+                    if len(intersection) > 0:
+                        warn('Properties %r were defined in two classes, one of them %r, as part of defining %r' %
+                             (intersection, c, cls),
+                             RuntimeWarning, stacklevel=6)
+                s.update(base)
+        setattr(cls, cachename, s)
+    return cls.__dict__[cachename]
 
 def abstract(cls):
     """ A phony decorator to mark abstract base classes. """
@@ -447,9 +459,15 @@ class HasProps(object):
             setattr(self, name, value)
 
     def __setattr__(self, name, value):
+        # self.properties() below can be expensive so avoid it
+        # if we're just setting a private underscore field
+        if name.startswith("_"):
+            super(HasProps, self).__setattr__(name, value)
+            return
+
         props = sorted(self.properties())
 
-        if name.startswith("_") or name in props:
+        if name in props:
             super(HasProps, self).__setattr__(name, value)
         else:
             matches, text = difflib.get_close_matches(name.lower(), props), "similar"
@@ -476,19 +494,13 @@ class HasProps(object):
         have references. We traverse the class hierarchy and
         pull together the full list of properties.
         """
-        if not hasattr(cls, "__cached_allprops_with_refs"):
-            s = accumulate_from_subclasses(cls, "__properties_with_refs__")
-            cls.__cached_allprops_with_refs = s
-        return cls.__cached_allprops_with_refs
+        return accumulate_from_superclasses(cls, "__properties_with_refs__")
 
     @classmethod
     def properties_containers(cls):
         """ Returns a list of properties that are containers
         """
-        if not hasattr(cls, "__cached_allprops_containers"):
-            s = accumulate_from_subclasses(cls, "__container_props__")
-            cls.__cached_allprops_containers = s
-        return cls.__cached_allprops_containers
+        return accumulate_from_superclasses(cls, "__container_props__")
 
     @classmethod
     def properties(cls):
@@ -496,10 +508,7 @@ class HasProps(object):
         traverse the class hierarchy and pull together the full
         list of properties.
         """
-        if not hasattr(cls, "__cached_allprops"):
-            s = cls.class_properties()
-            cls.__cached_allprops = s
-        return cls.__cached_allprops
+        return accumulate_from_superclasses(cls, "__properties__", check_collisions=True)
 
     @classmethod
     def dataspecs(cls):
@@ -544,7 +553,7 @@ class HasProps(object):
     @classmethod
     def class_properties(cls, withbases=True):
         if withbases:
-            return accumulate_from_subclasses(cls, "__properties__")
+            return cls.properties()
         else:
             return set(cls.__properties__)
 
