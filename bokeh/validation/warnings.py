@@ -15,9 +15,6 @@
 1004 : *BOTH_CHILD_AND_ROOT*
     Each component can be rendered in only one place, can't be both a root and in a layout.
 
-1005 : *DUPLICATE_NAMES*
-    Each model's name field should be either None or a unique name.
-
 9999 : *EXT*
     Indicates that a custom warning check has failed.
 
@@ -29,7 +26,6 @@ codes = {
     1002: ("EMPTY_LAYOUT",              "Layout has no children"),
     1003: ("MALFORMED_CATEGORY_LABEL",  "Category labels cannot contain colons"),
     1004: ("BOTH_CHILD_AND_ROOT",       "Models should not be a document root if they are in a layout box"),
-    1005: ("DUPLICATE_NAMES",           "Two models have the same name field"),
     9999: ("EXT",                       "Custom extension reports warning"),
 }
 

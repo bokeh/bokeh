@@ -10,8 +10,6 @@ from .query import find
 from . import themes
 from .util.callback_manager import CallbackManager
 from .util.serialization import make_id
-from .validation import warning
-from .validation.warnings import DUPLICATE_NAMES
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -286,15 +284,6 @@ class PlotObject(HasProps, CallbackManager):
     def update(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
-
-    @warning(DUPLICATE_NAMES)
-    def _check_duplicate_names(self):
-        if self.name is not None and \
-           self.document is not None and \
-           not self._naughty_model_overrides_name():
-            other = self.document.get_model_by_name(self.name)
-            if other != self:
-                return ("Both named '%s': %r and %r" % (self.name, self, other))
 
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
