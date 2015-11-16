@@ -209,7 +209,10 @@ class TestClientServer(unittest.TestCase):
             assert len(client_session.document.roots) == 0
             server_root = SomeModelInTestClientServer(foo=42)
 
-            server_session.document.add_root(server_root)
+            def do_add_server_root():
+                server_session.document.add_root(server_root)
+            server_session.with_document_locked(do_add_server_root)
+
             def client_has_root():
                 return len(doc.roots) > 0
             client_session._connection._loop_until(client_has_root)
@@ -219,7 +222,10 @@ class TestClientServer(unittest.TestCase):
             assert server_root.foo == 42
 
             # Now try setting title on server side
-            server_session.document.title = "Server Title"
+            def do_set_server_title():
+                server_session.document.title = "Server Title"
+            server_session.with_document_locked(do_set_server_title)
+
             def client_title_set():
                 return client_session.document.title != document.DEFAULT_TITLE
             client_session._connection._loop_until(client_title_set)
@@ -227,7 +233,9 @@ class TestClientServer(unittest.TestCase):
             assert client_session.document.title == "Server Title"
 
             # Now modify a model within the server document
-            server_root.foo = 57
+            def do_set_property_on_server():
+                server_root.foo = 57
+            server_session.with_document_locked(do_set_property_on_server)
 
             # there is no great way to block until the server
             # has applied changes, since patches are sent
@@ -237,7 +245,10 @@ class TestClientServer(unittest.TestCase):
             client_session._connection._loop_until(client_change_made)
             assert client_root.foo == 57
 
-            server_session.document.remove_root(server_root)
+            def do_remove_server_root():
+                server_session.document.remove_root(server_root)
+            server_session.with_document_locked(do_remove_server_root)
+
             def client_lacks_root():
                 return len(doc.roots) == 0
             client_session._connection._loop_until(client_lacks_root)
@@ -316,7 +327,6 @@ class TestClientServer(unittest.TestCase):
             for ss in [server_session, client_session, server_session2]:
                 iocb = ss._callbacks[callback.id]
                 assert isinstance(iocb, PeriodicCallback)
-                assert iocb.callback == cb
                 assert iocb.callback_time == 1
                 assert iocb.io_loop == server.io_loop
                 assert iocb.is_running()
@@ -449,7 +459,9 @@ def test_server_changes_do_not_boomerang(monkeypatch):
         monkeypatch.setattr(server_session, '_handle_patch', get_angry)
 
         # Now modify the server document
-        server_root.foo = 57
+        def do_set_foo_property():
+            server_root.foo = 57
+        server_session.with_document_locked(do_set_foo_property)
 
         # there is no great way to block until the server
         # has applied changes, since patches are sent
