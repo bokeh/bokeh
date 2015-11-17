@@ -29,9 +29,9 @@ class TestExamples(TestCase):
         example_dir = join(dirname(__file__), pardir, pardir, 'examples')
         example_nbconverted = join(example_dir, "glyphs", "glyph.ipynb")
 
-        kernel_name = '2.7'
+        kernel_name = 'python2'
         pyver = os.environ.get('TRAVIS_PYTHON_VERSION')
         if pyver in ['3.4', '3.5']:
-            kernel_name = pyver
+            kernel_name = 'python3'
 
         nbexecuter.main(example_nbconverted, kernel_name)
