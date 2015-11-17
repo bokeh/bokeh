@@ -28,7 +28,7 @@ def check_border(annotation):
 
 def check_label(annotation):
     assert annotation.label_text_font == "Helvetica"
-    assert annotation.label_text_font_size == dict(value="10pt")
+    assert annotation.label_text_font_size == {"value": "10pt"}
     assert annotation.label_text_font_style == FontStyle.normal
     assert annotation.label_text_color == "#444444"
     assert annotation.label_text_alpha == 1.0

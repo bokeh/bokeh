@@ -11,7 +11,7 @@ from bokeh.server.server import Server
 from bokeh.server.session import ServerSession
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance
-from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 
 class AnotherModelInTestClientServer(PlotObject):
     bar = Int(1)
@@ -288,7 +288,7 @@ class TestClientServer(unittest.TestCase):
             # Clean up global IO state
             reset_output()
 
-    def test_client_session_callback(self):
+    def test_session_periodic_callback(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -329,6 +329,48 @@ class TestClientServer(unittest.TestCase):
 
             for iocb in started_callbacks:
                 assert not iocb.is_running()
+
+    def test_session_timeout_callback(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = ClientSession(session_id='test_client_session_callback',
+                                          url=server.ws_url,
+                                          io_loop=server.io_loop)
+            server_session = ServerSession('test_server_session_callback',
+                                            doc, server.io_loop)
+            client_session._attach_document(doc)
+
+            assert len(server_session._callbacks) == 0
+            assert len(client_session._callbacks) == 0
+
+            def cb(): pass
+
+            x = server.io_loop.time()
+            callback = doc.add_timeout_callback(cb, 10, 'abc')
+            server_session2 = ServerSession('test_server_session_callback',
+                                            doc, server.io_loop)
+
+            assert server_session2._callbacks
+            assert len(server_session._callbacks) == 1
+            assert len(client_session._callbacks) == 1
+
+            started_callbacks = []
+            for ss in [server_session, client_session, server_session2]:
+                iocb = ss._callbacks[callback.id]
+                assert isinstance(iocb, _Timeout)
+
+                # check that the callback deadline is 10 seconds later from
+                # when we called add_timeout_callback (using int to avoid
+                # ms differences between the x definition and the call)
+                assert int(iocb.deadline) == int(x + 10)
+                started_callbacks.append(iocb)
+
+            callback = doc.remove_periodic_callback(cb)
+            assert len(server_session._callbacks) == 0
+            assert len(client_session._callbacks) == 0
+            assert len(server_session._callbacks) == 0
 
 # This isn't in the unittest.TestCase because per-test fixtures
 # don't work there (see note at bottom of https://pytest.org/latest/unittest.html#unittest-testcase)
