@@ -6,9 +6,14 @@ from ..properties import (Any, Dict, Float, String, Int)
 class TileSource(PlotObject):
     """ A base class for all tile source types. ``TileSource`` is
     not generally useful to instantiate on its own. In general, tile sources are used as a required input for ``TileRenderer``.
+
+     Subclasses should have these properties as well:
+     x_origin_offset = Float
+     y_origin_offset = Float
+     initial_resolution = Float
     """
 
-    _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
+    _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'extra_url_vars')
 
     url = String("", help="""
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
@@ -31,14 +36,11 @@ class TileSource(PlotObject):
     These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)
 
-    # Subclasses should have these properties as well:
-    # x_origin_offset = Float
-    # y_origin_offset = Float
-    # initial_resolution = Float
-
 class MercatorTileSource(TileSource):
     """``MercatorTileSource`` is not generally useful to instantiate on its own, but is the parent class of mercator tile services (e.g. ``WMTSTileSource``).
     """
+
+    _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
     x_origin_offset = Float(default=20037508.34, help="""
     x offset in plot coordinates
