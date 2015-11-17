@@ -209,7 +209,7 @@ class Document(object):
         recomputed_by_name = _MultiValuedDict()
         for m in new_all_models_set:
             recomputed[m._id] = m
-            if m.name is not None and not m._naughty_model_overrides_name():
+            if m.name is not None:
                 recomputed_by_name.add_value(m.name, m)
         for d in to_detach:
             d._detach_document()
@@ -379,10 +379,9 @@ class Document(object):
         '''
         # if name changes, update by-name index
         if attr == 'name':
-            if not model._naughty_model_overrides_name():
-                self._all_models_by_name.remove_value(old, model)
-                if new is not None:
-                    self._all_models_by_name.add_value(new, model)
+            self._all_models_by_name.remove_value(old, model)
+            if new is not None:
+                self._all_models_by_name.add_value(new, model)
 
         self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new))
 
