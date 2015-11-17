@@ -44,12 +44,12 @@ class MercatorTileSource(TileSource):
     x offset in plot coordinates
     """)
 
-    y_origin_offset = Float(default=20037408.34, help="""
+    y_origin_offset = Float(default=20037508.34, help="""
     y offset in plot coordinates
     """)
 
     initial_resolution = Float(default=156543.03392804097, help="""
-    resolution (plot_units / pixels) of minimum zoom level of tileset projection.
+    resolution (plot_units / pixels) of minimum zoom level of tileset projection. None to auto-compute.
     """)
 
 class TMSTileSource(MercatorTileSource):
