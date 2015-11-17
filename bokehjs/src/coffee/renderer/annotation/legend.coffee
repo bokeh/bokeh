@@ -120,6 +120,7 @@ class Legend extends HasParent
   defaults: ->
     return _.extend {}, super(), {
       legends: []
+      plot: null
     }
 
   display_defaults: ->
