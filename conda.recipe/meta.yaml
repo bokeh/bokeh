@@ -55,8 +55,6 @@ test:
     - abstract-rendering        [not win]
     - beautiful-soup
     - websocket-client
-    - blaze
-    - multiuserblazeserver
     - scipy
     - pillow
 
