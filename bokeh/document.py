@@ -120,7 +120,7 @@ class _MultiValuedDict(object):
             if len(existing) == 1:
                 return next(iter(existing))
             else:
-                raise ValueError(duplicate_error)
+                raise ValueError(duplicate_error + (": %r" % (existing)))
         else:
             return existing
 
@@ -328,7 +328,7 @@ class Document(object):
         '''
         result = list(self.select(selector))
         if len(result) > 1:
-            raise ValueError("Found more than one model matching %s" % selector)
+            raise ValueError("Found more than one model matching %s: %r" % (selector, result))
         if len(result) == 0:
             return None
         return result[0]
