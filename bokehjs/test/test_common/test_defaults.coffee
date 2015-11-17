@@ -97,6 +97,18 @@ describe "Defaults", ->
       instance = new coll.model({}, {'silent' : true, 'defer_initialization' : true})
       attrs = instance.attributes_as_json()
       strip_ids(attrs)
+      # merge in display_defaults() which aren't in the main
+      # attributes, the overall setup here is sketchy right now
+      # because python never leaves these things unset. We need an
+      # "inherit" value, like in CSS, perhaps.
+      # But at least we can check that display_defaults() matches
+      # what Python sends.
+      if 'display_defaults' of instance
+        display = instance.display_defaults()
+        for k of display
+          if k of attrs
+            console.error("#{name}.#{k}: property present in both CoffeeScript attrs and display_defaults()")
+        attrs = _.extend({}, display, attrs)
       if not check_matching_defaults(name, get_defaults(name), attrs)
         fail_count = fail_count + 1
     expect(fail_count).to.equal 0
