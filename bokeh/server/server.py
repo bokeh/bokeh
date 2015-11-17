@@ -98,8 +98,8 @@ class Server(object):
     def show(self, app_path, browser=None, new='tab'):
         ''' Opens an app in a browser window or tab.
 
-            Needless to say you could call this on your local desktop but
-            should not call it when running the server on an actual server.
+            Useful for testing server applications on your local desktop but
+            should not call when running bokeh-server on an actual server.
 
         Args:
             app_path (str) : the app path to open
