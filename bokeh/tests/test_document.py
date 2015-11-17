@@ -165,6 +165,7 @@ class TestDocument(unittest.TestCase):
         except ValueError as e:
             got_error = True
             assert 'Found more than one' in repr(e)
+        assert got_error
 
         # select_one() on object
         assert None == root3.select_one(dict(name='a'))
