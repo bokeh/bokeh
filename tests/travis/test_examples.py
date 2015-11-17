@@ -1,7 +1,8 @@
 from __future__ import absolute_import, print_function
 
-import subprocess
+import os
 import pytest
+import subprocess
 
 from os.path import join, dirname, pardir
 from unittest import TestCase, skipIf
@@ -24,6 +25,13 @@ class TestExamples(TestCase):
     @skipIf(not is_notebook, "Jupyter notebook is required to run this test")
     def test_nbexecuter(self):
         from . import nbexecuter
+
         example_dir = join(dirname(__file__), pardir, pardir, 'examples')
         example_nbconverted = join(example_dir, "glyphs", "glyph.ipynb")
-        nbexecuter.main(example_nbconverted)
+
+        kernel_name = 'python2'
+        pyver = os.environ.get('TRAVIS_PYTHON_VERSION')
+        if pyver in ['3.4', '3.5']:
+            kernel_name = 'python3'
+
+        nbexecuter.main(example_nbconverted, kernel_name)
