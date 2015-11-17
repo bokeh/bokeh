@@ -43,7 +43,23 @@ class TileSource(PlotObject):
     resolution (plot_units / pixels) of minimum zoom level of tileset projection.
     """)
 
-class TMSTileSource(TileSource):
+class MercatorTileSource(TileSource):
+    """``MercatorTileSource`` is not generally useful to instantiate on its own, but is the parent class of mercator tile services (e.g. ``WMTSTileSource``).
+    """
+
+    x_origin_offset = Float(default=20037508.34, help="""
+    x offset in plot coordinates
+    """)
+
+    y_origin_offset = Float(default=20037408.34, help="""
+    y offset in plot coordinates
+    """)
+
+    initial_resolution = Float(default=156543.03392804097, help="""
+    resolution (plot_units / pixels) of minimum zoom level of tileset projection.
+    """)
+
+class TMSTileSource(MercatorTileSource):
     """
     The TMSTileSource contains tile config info and provides urls for tiles based on a templated url (ex. http://your.tms.server.host/{Z}/{X}/{Y}.png).
     The defining feature of TMS is the tile-origin in located at the bottom-left.
@@ -52,7 +68,7 @@ class TMSTileSource(TileSource):
     """
     pass
 
-class WMTSTileSource(TileSource):
+class WMTSTileSource(MercatorTileSource):
     """
     The ``WMTSTileSource`` behaves much like ``TMSTileSource`` but has its tile-origin in the top-left.
     This is the most common used tile source for web mapping applications.
@@ -62,7 +78,7 @@ class WMTSTileSource(TileSource):
     """
     pass
 
-class QUADKEYTileSource(TileSource):
+class QUADKEYTileSource(MercatorTileSource):
     """
     The QUADKEYTileSource has the same tile origin as the WMTSTileSource but requests tiles using a `quadkey` argument instead of X,Y,Z.
 
@@ -70,7 +86,7 @@ class QUADKEYTileSource(TileSource):
     """
     pass
 
-class BBoxTileSource(TileSource):
+class BBoxTileSource(MercatorTileSource):
     """
     The BBoxTileSource has the same default tile origin as the WMTSTileSource but requested tiles use a {XMIN}, {YMIN}, {XMAX}, {YMAX}.
 
