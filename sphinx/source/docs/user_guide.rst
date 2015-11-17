@@ -43,10 +43,6 @@ topic:
     Create more sophisticated interactions including widgets or linked
     panning and selection.
 
-.. :ref:`userguide_server`
-..     Deploy the Bokeh Server to build and publish sophisticated data
-..     applications.
-
 :ref:`userguide_embed`
     Embed static or server-based Bokeh plots and widgets into HTML documents
     in a variety of ways.
@@ -54,8 +50,15 @@ topic:
 :ref:`userguide_webgl`
     Improve performance for large datasets by using WebGL.
 
+:ref:`userguide_geo`
+    Working with geographical data - Google Maps, GeoJSON, Tile Rendering.
+
 :ref:`userguide_info`
     See where to go next for more information and examples.
+
+.. :ref:`userguide_server`
+..     Deploy the Bokeh Server to build and publish sophisticated data
+..     applications.
 
 The examples in the user guide are written to be as minimal as possible,
 while illustrating how to accomplish a single task within Bokeh. With a
@@ -80,6 +83,7 @@ perfectly well with almost any array or table-like data structure.
     user_guide/interaction
     user_guide/embed
     user_guide/webgl
+    user_guide/geo
     user_guide/info
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
