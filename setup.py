@@ -565,7 +565,6 @@ setup(
         'bokeh.sphinxext',
         'bokeh.themes',
         'bokeh.tests',
-        'bokeh.transforms',
         'bokeh.util',
         'bokeh.util.tests',
         'bokeh.validation',
