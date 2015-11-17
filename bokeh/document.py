@@ -13,7 +13,9 @@ from bokeh.util.callback_manager import _check_callback
 from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
 from .validation import check_integrity
+from .query import find
 from json import loads
+from six import string_types
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -121,6 +123,15 @@ class _MultiValuedDict(object):
                 raise ValueError(duplicate_error)
         else:
             return existing
+
+    def get_all(self, k):
+        existing = self._dict.get(k, None)
+        if existing is None:
+            return []
+        elif isinstance(existing, set):
+            return list(existing)
+        else:
+            return [existing]
 
 class Document(object):
 
@@ -278,7 +289,65 @@ class Document(object):
 
     def get_model_by_name(self, name):
         ''' Get the model object for the given name or None if not found'''
-        return self._all_models_by_name.get_one(name, "Multiple models are named '%s'" % name)
+        return self._all_models_by_name.get_one(name, "Found more than one model named '%s'" % name)
+
+    def _is_single_string_selector(self, selector, field):
+        if len(selector) != 1:
+            return False
+        if field not in selector:
+            return False
+        return isinstance(selector[field], string_types)
+
+    def select(self, selector):
+        ''' Query this document for objects that match the given selector.
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            seq[PlotObject]
+
+        '''
+        if self._is_single_string_selector(selector, 'name'):
+            # special-case optimization for by-name query
+            return self._all_models_by_name.get_all(selector['name'])
+        else:
+            return find(self._all_models.values(), selector)
+
+    def select_one(self, selector):
+        ''' Query this document for objects that match the given selector.
+        Raises an error if more than one object is found.  Returns
+        single matching object, or None if nothing is found
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            PlotObject
+
+        '''
+        result = list(self.select(selector))
+        if len(result) > 1:
+            raise ValueError("Found more than one model matching %s" % selector)
+        if len(result) == 0:
+            return None
+        return result[0]
+
+    def set_select(self, selector, updates):
+        ''' Update objects that match a given selector with the specified
+        attribute/value updates.
+
+        Args:
+            selector (JSON-like) :
+            updates (dict) :
+
+        Returns:
+            None
+
+        '''
+        for obj in self.select(selector):
+            for key, val in updates.items():
+                setattr(obj, key, val)
 
     def on_change(self, *callbacks):
         ''' Invoke callback if the document or any PlotObject reachable from its roots changes.
