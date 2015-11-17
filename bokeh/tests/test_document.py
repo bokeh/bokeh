@@ -90,6 +90,22 @@ class TestDocument(unittest.TestCase):
         assert d.get_model_by_name("foo") == None
         assert d.get_model_by_name("bar") == m
 
+    def test_get_model_by_changed_from_none_name(self):
+        d = document.Document()
+        m = SomeModelInTestDocument(name=None)
+        d.add_root(m)
+        assert d.get_model_by_name("bar") == None
+        m.name = "bar"
+        assert d.get_model_by_name("bar") == m
+
+    def test_get_model_by_changed_to_none_name(self):
+        d = document.Document()
+        m = SomeModelInTestDocument(name="bar")
+        d.add_root(m)
+        assert d.get_model_by_name("bar") == m
+        m.name = None
+        assert d.get_model_by_name("bar") == None
+
     def test_can_get_name_overriding_model_by_name(self):
         d = document.Document()
         m = ModelThatOverridesName(name="foo")

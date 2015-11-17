@@ -91,6 +91,8 @@ class _MultiValuedDict(object):
         self._dict = dict()
 
     def add_value(self, key, value):
+        if key is None:
+            raise ValueError("Key is None")
         if value is None:
             raise ValueError("Can't put None in this dict")
         if isinstance(value, set):
@@ -104,6 +106,8 @@ class _MultiValuedDict(object):
             self._dict[key] = set([existing, value])
 
     def remove_value(self, key, value):
+        if key is None:
+            raise ValueError("Key is None")
         existing = self._dict.get(key, None)
         if isinstance(existing, set):
             existing.discard(value)
@@ -379,7 +383,8 @@ class Document(object):
         '''
         # if name changes, update by-name index
         if attr == 'name':
-            self._all_models_by_name.remove_value(old, model)
+            if old is not None:
+                self._all_models_by_name.remove_value(old, model)
             if new is not None:
                 self._all_models_by_name.add_value(new, model)
 
