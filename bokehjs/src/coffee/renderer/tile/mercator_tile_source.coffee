@@ -10,19 +10,19 @@ class MercatorTileSource extends TileSource
     super(options)
 
     if not @get('initial_resolution')?
-      @set('initial_resolution', 2 * Math.PI * 6378137 / @get('tile_size'), {silent: true})
+      @set('initial_resolution', 2 * Math.PI * 6378137 / @get('tile_size'))
 
     if not @get('resolutions')?
-      @set('resolutions', (@get_resolution(z) for z in [0..30]), {silent: true})
+      @set('resolutions', (@get_resolution(z) for z in [0..30]))
 
     if not @get('full_extent')?
-      @set('full_extent',[-20037508.34, -20037508.34, 20037508.34, 20037508.34], {silent: true})
+      @set('full_extent',[-20037508.34, -20037508.34, 20037508.34, 20037508.34])
 
     if not @get('x_origin_offset')?
-      @set('x_origin_offset',20037508.34, {silent: true})
+      @set('x_origin_offset',20037508.34)
 
     if not @get('y_origin_offset')?
-      @set('y_origin_offset',20037508.34, {silent: true})
+      @set('y_origin_offset',20037508.34)
 
   retain_children:(reference_tile) ->
     quadkey = reference_tile.quadkey
