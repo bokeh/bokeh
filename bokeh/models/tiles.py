@@ -26,22 +26,15 @@ class TileSource(PlotObject):
     the maximum zoom level for the tile layer. This is the most "zoomed-in" level.
     """)
 
-    x_origin_offset = Float(default=None, help="""
-    x offset in plot coordinates
-    """)
-
-    y_origin_offset = Float(default=None, help="""
-    y offset in plot coordinates
-    """)
-
     extra_url_vars = Dict(String, Any(String, Int), help="""
     A dictionary that maps url variable template keys to values.
     These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)
 
-    initial_resolution = Float(default=None, help="""
-    resolution (plot_units / pixels) of minimum zoom level of tileset projection.
-    """)
+    # Subclasses should have these properties as well:
+    # x_origin_offset = Float
+    # y_origin_offset = Float
+    # initial_resolution = Float
 
 class MercatorTileSource(TileSource):
     """``MercatorTileSource`` is not generally useful to instantiate on its own, but is the parent class of mercator tile services (e.g. ``WMTSTileSource``).
