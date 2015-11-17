@@ -312,7 +312,10 @@ class HasProperties extends Backbone.Model
     # make this a no-op, we sync the whole document never individual models
     return options.success(model.attributes, null, {})
 
-  defaults: -> {}
+  defaults: -> {
+    'name' : null,
+    'tags' : []
+    }
 
   # TODO remove this, for now it's just to help find nonserializable_attribute_names we
   # need to add.
