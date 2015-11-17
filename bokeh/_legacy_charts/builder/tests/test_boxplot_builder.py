@@ -19,7 +19,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
-import blaze
+
 from bokeh._legacy_charts import BoxPlot
 
 from ._utils import create_chart
@@ -43,7 +43,6 @@ class TestBoxPlot(unittest.TestCase):
         ])
         groups = ['bronze', 'silver', 'gold']
         xyvaluesdf = pd.DataFrame(xyvalues)
-        xyvaluesbl = blaze.Data(xyvaluesdf)
         exptected_datarect = {
             'colors': ['#f22c40', '#5ab738', '#407ee7'],
             'groups': ['bronze', 'silver', 'gold'],
@@ -67,7 +66,7 @@ class TestBoxPlot(unittest.TestCase):
              'upper': [8.5, 8.5, 11.5]
         }
 
-        for i, _xy in enumerate([xyvalues, xyvaluesdf, xyvaluesbl]):
+        for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
             self.assertEqual(sorted(builder._groups), sorted(groups))
