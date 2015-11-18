@@ -27,7 +27,7 @@ from .plot_object import PlotObject, _ModelInDocument
 from ._json_encoder import serialize_json
 from .resources import DEFAULT_SERVER_HTTP_URL
 from .client import DEFAULT_SESSION_ID
-from .document import Document
+from .document import Document, DEFAULT_TITLE
 from collections import Sequence
 from six import string_types
 
@@ -244,7 +244,7 @@ def _use_widgets(plot_objects):
 
 def file_html(plot_objects,
               resources,
-              title,
+              title=None,
               js_resources=None,
               css_resources=None,
               template=FILE,
@@ -260,14 +260,20 @@ def file_html(plot_objects,
     Args:
         plot_objects (PlotObject or Document or list) : Bokeh object or objects to render
             typically a PlotObject or Document
-        resources (Resources) : a resource configuration for BokehJS assets
-        title (str) : a title for the HTML document ``<title>`` tags
+        resources (Resources) : a resource configuration for Bokeh JS & CSS assets. Pass ``None`` if
+            using js_resources of css_resources manually.
+        title (str, optional) : a title for the HTML document ``<title>`` tags or None. (default: None)
+            If None, attempt to automatically find the Document title from the given plot objects.
+        js_resources (JSResources, optional): custom JS Resources (default: ``None``), if
+            resources is also provided, resources will override js_resources.
+        css_resources (CSSResources, optional): custom CSS Resources (default: ``None``), if
+            resources is also provided, resources will override css_resources.
         template (Template, optional) : HTML document template (default: FILE)
             A Jinja2 Template, see bokeh.templates.FILE for the required
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
-            title, js_resources, css_resources, plot_script, plot_div
+            title, bokeh_js, bokeh_css, plot_script, plot_div
 
     Returns:
         UTF-8 encoded HTML
@@ -278,8 +284,9 @@ def file_html(plot_objects,
     with _ModelInDocument(plot_objects):
 
         (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
+        title = _title_from_plot_objects(plot_objects, title)
         custom_models = _extract_custom_models(plot_objects)
-        return _html_page_for_render_items(resources, docs_json, render_items, title,
+        return _html_page_for_render_items(resources, docs_json, render_items, title=title,
                                            custom_models=custom_models, websocket_url=None,
                                            js_resources=js_resources, css_resources=css_resources,
                                            template=template, template_variables=template_variables,
@@ -329,9 +336,7 @@ def autoload_static(plot_object, resources, script_path):
 
         js = AUTOLOAD_JS.render(
             docs_json = serialize_json(docs_json),
-            # TODO we should load all the JS files, but the code
-            # in AUTOLOAD_JS isn't smart enough to deal with it.
-            js_url = resources.js_files[0],
+            js_urls = resources.js_files,
             css_files = resources.css_files,
             elementid = item['elementid'],
             websocket_url = None
@@ -418,6 +423,9 @@ def _script_for_render_items(docs_json, render_items, websocket_url,
 def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url,
                                 custom_models, js_resources=None, css_resources=None,
                                 template=FILE, template_variables={}, use_widgets=True):
+    if title is None:
+        title = DEFAULT_TITLE
+
     if resources:
         if js_resources:
             warn('Both resources and js_resources provided. resources will override js_resources.')
@@ -492,6 +500,25 @@ def _check_one_plot_object(plot_object):
 def _div_for_render_item(item):
     return PLOT_DIV.render(elementid=item['elementid'])
 
+# come up with our best title
+def _title_from_plot_objects(plot_objects, title):
+    # use override title
+    if title is not None:
+        return title
+
+    # use title from any listed document
+    for p in plot_objects:
+        if isinstance(p, Document):
+            return p.title
+
+    # use title from any model's document
+    for p in plot_objects:
+        if p.document is not None:
+            return p.document.title
+
+    # use default title
+    return DEFAULT_TITLE
+
 def _standalone_docs_json_and_render_items(plot_objects):
     plot_objects = _check_plot_objects(plot_objects)
 
@@ -547,7 +574,7 @@ def standalone_html_page_for_models(plot_objects, resources, title):
         plot_objects (PlotObject or Document) : Bokeh object to render
             typically a PlotObject or a Document
         resources (Resources) : a resource configuration for BokehJS assets
-        title (str) : a title for the HTML document ``<title>`` tags
+        title (str) : a title for the HTML document ``<title>`` tags or None to use the document title
 
     Returns:
         UTF-8 encoded HTML
@@ -576,7 +603,8 @@ def server_html_page_for_session(session_id, resources, title, websocket_url):
     elementid = str(uuid.uuid4())
     render_items = [{
         'sessionid' : session_id,
-        'elementid' : elementid
+        'elementid' : elementid,
+        'use_for_title' : True
         # no 'modelid' implies the entire session document
     }]
 

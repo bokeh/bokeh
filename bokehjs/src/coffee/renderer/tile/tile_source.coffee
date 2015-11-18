@@ -10,6 +10,7 @@ class TileSource extends HasProperties
 
   initialize: (options) ->
     super(options)
+    @normalize_case()
 
   defaults: =>
     return _.extend {}, super(), {
@@ -18,11 +19,6 @@ class TileSource extends HasProperties
       max_zoom : 30
       min_zoom : 0
       extra_url_vars : {}
-      full_extent : null
-      x_origin_offset : null
-      y_origin_offset : null
-      initial_resolution : null
-      resolutions: null
   }
 
   constructor: (options={}) ->
@@ -31,7 +27,6 @@ class TileSource extends HasProperties
     @pool = new ImagePool()
     @tiles = {}
     @normalize_case()
-
 
   string_lookup_replace: (str, lookup) ->
     result_str = str
