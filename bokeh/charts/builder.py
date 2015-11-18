@@ -291,7 +291,7 @@ class Builder(HasProps):
                 attributes[attr_name] = self.default_attributes[attr_name]._clone()
 
                 # override palette if available
-                if isinstance(self.attributes[attr_name], ColorAttr):
+                if isinstance(attributes[attr_name], ColorAttr):
                     if custom_palette is not None:
                         attributes[attr_name].iterable = custom_palette
 
