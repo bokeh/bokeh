@@ -39,13 +39,23 @@ class Server(object):
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
             self._port = kwargs['port']
+        self._address = None
+        if 'address' in kwargs:
+            self._address = kwargs['address']
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
         try:
-            self._http.bind(self._port)
+            self._http.bind(self._port, address=self._address)
             self._http.start(1)
-        except OSError:
-            log.critical("Cannot start bokeh server, port %s already in use" % self._port)
+        except OSError as e:
+            import errno
+            if e.errno == errno.EADDRINUSE:
+                log.critical("Cannot start Bokeh server, port %s is already in use", self._port)
+            elif e.errno == errno.EADDRNOTAVAIL:
+                log.critical("Cannot start Bokeh server, address '%s' not available", self._address)
+            else:
+                codename = errno.errorcode[e.errno]
+                log.critical("Cannot start Bokeh server, %s %r", codename, e)
             sys.exit(1)
 
     # TODO this is broken, it's only used by test_client_server.py so fix that then remove this
@@ -56,6 +66,10 @@ class Server(object):
     @property
     def port(self):
         return self._port
+
+    @property
+    def address(self):
+        return self._address
 
     @property
     def io_loop(self):
