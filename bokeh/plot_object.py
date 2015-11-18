@@ -149,7 +149,7 @@ class PlotObject(HasProps, CallbackManager):
         '''
         result = list(self.select(selector))
         if len(result) > 1:
-            raise ValueError("found more than one object matching %s" % selector)
+            raise ValueError("Found more than one object matching %s: %r" % (selector, result))
         if len(result) == 0:
             return None
         return result[0]
