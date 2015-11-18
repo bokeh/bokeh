@@ -319,6 +319,20 @@ class Document(object):
                 del obj_attrs[key]
             instance.update(**obj_attrs)
 
+    def _collect_custom_models(self):
+        custom_models = {}
+
+        for obj in self.roots:
+            for ref in obj.references():
+                impl = getattr(ref.__class__, "__implementation__", None)
+                if impl is not None:
+                    name = ref.__class__.__name__
+
+                    if name not in custom_models:
+                        custom_models[name] = {'impl': impl, 'deps': {}}
+
+        return custom_models
+
     def to_json_string(self):
         ''' Convert the document to a JSON string. '''
 
@@ -335,6 +349,10 @@ class Document(object):
                 'references' : self._references_json(root_references)
             }
         }
+
+        custom_models = self._collect_custom_models()
+        if custom_models:
+            json['models'] = custom_models
 
         return serialize_json(json)
 

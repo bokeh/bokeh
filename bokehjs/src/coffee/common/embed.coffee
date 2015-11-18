@@ -1,7 +1,7 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-base = require "./base"
+{index} = require "./base"
 HasProperties = require "./has_properties"
 {logger, set_log_level} = require "./logging"
 {Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
@@ -10,7 +10,7 @@ HasProperties = require "./has_properties"
 
 _create_view = (model) ->
   view = new model.default_view({model : model})
-  base.index[model.id] = view
+  index[model.id] = view
   view
 
 # Replace element with a view of model_id from document
@@ -35,7 +35,7 @@ _render_document_to_element = (element, document, use_for_title) ->
       view = views[model.id]
       $(element).remove(view.$el)
       delete views[model.id]
-      delete base.index[model.id]
+      delete index[model.id]
 
   for model in document.roots()
     render_model(model)
@@ -155,7 +155,7 @@ embed_items = (docs_json_or_id, render_items, websocket_url) ->
 
     use_for_title = item.use_for_title? and item.use_for_title
 
-    promise = null;
+    promise = null
     if item.modelid?
       if item.docid?
         add_model_static(elem, item.modelid, docs[item.docid])

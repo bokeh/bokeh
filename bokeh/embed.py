@@ -13,7 +13,6 @@ these different cases.
 
 from __future__ import absolute_import
 
-import re
 import uuid
 from warnings import warn
 
@@ -130,10 +129,8 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     with _ModelInDocument(plot_objects):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
-        custom_models = _extract_custom_models(plot_objects)
 
-    script = _script_for_render_items(docs_json, render_items, custom_models=custom_models,
-                                      websocket_url=None, wrap_script=wrap_script)
+    script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
     script = encode_utf8(script)
 
     if wrap_plot_info:
@@ -152,47 +149,6 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
         return script, result
     else:
         return script, tuple(results)
-
-def _escape_code(code):
-    """ Escape JS/CS source code, so that it can be embbeded in a JS string.
-
-    This is based on https://github.com/joliss/js-string-escape.
-    """
-    def escape(match):
-        ch = match.group(0)
-
-        if ch == '"' or ch == "'" or ch == '\\':
-            return '\\' + ch
-        elif ch == '\n':
-            return '\\n'
-        elif ch == '\r':
-            return '\\r'
-        elif ch == '\u2028':
-            return '\\u2028'
-        elif ch == '\u2029':
-            return '\\u2029'
-
-    return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
-
-def _extract_custom_models(plot_objects):
-    custom_models = {}
-
-    def extract_from_model(model):
-        for r in model.references():
-            impl = getattr(r.__class__, "__implementation__", None)
-            if impl is not None:
-                name = r.__class__.__name__
-                impl = "['%s', {}]" % _escape_code(impl)
-                custom_models[name] = impl
-
-    for o in plot_objects:
-        if isinstance(o, Document):
-            for r in o.roots:
-                extract_from_model(r)
-        else:
-            extract_from_model(o)
-
-    return custom_models
 
 def notebook_div(plot_object):
     ''' Return HTML for a div that will display a Bokeh plot in an
@@ -215,11 +171,8 @@ def notebook_div(plot_object):
 
     with _ModelInDocument(plot_object):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
-        custom_models = _extract_custom_models([plot_object])
 
-    script = _script_for_render_items(docs_json, render_items,
-                                      custom_models=custom_models,
-                                      websocket_url=None)
+    script = _script_for_render_items(docs_json, render_items, websocket_url=None)
 
     item = render_items[0]
 
@@ -285,9 +238,8 @@ def file_html(plot_objects,
 
         (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
         title = _title_from_plot_objects(plot_objects, title)
-        custom_models = _extract_custom_models(plot_objects)
         return _html_page_for_render_items(resources, docs_json, render_items, title=title,
-                                           custom_models=custom_models, websocket_url=None,
+                                           websocket_url=None,
                                            js_resources=js_resources, css_resources=css_resources,
                                            template=template, template_variables=template_variables,
                                            use_widgets=_use_widgets(plot_objects))
@@ -400,17 +352,10 @@ def autoload_server(plot_object, app_path="/", session_id=DEFAULT_SESSION_ID, ur
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, websocket_url,
-                             custom_models, wrap_script=True):
-    # this avoids emitting the "register custom models" code at all
-    # just to register an empty set
-    if (custom_models is not None) and len(custom_models) == 0:
-        custom_models = None
-
+def _script_for_render_items(docs_json, render_items, websocket_url, wrap_script=True):
     def plot_js(docs_json):
         return _wrap_in_function(
             DOC_JS.render(
-                custom_models=custom_models,
                 websocket_url=websocket_url,
                 docs_json=serialize_json(docs_json),
                 render_items=serialize_json(render_items),
@@ -424,7 +369,7 @@ def _script_for_render_items(docs_json, render_items, websocket_url,
         return plot_js(docs_json)
 
 def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url,
-                                custom_models, js_resources=None, css_resources=None,
+                                js_resources=None, css_resources=None,
                                 template=FILE, template_variables={}, use_widgets=True):
     if title is None:
         title = DEFAULT_TITLE
@@ -452,7 +397,7 @@ def _html_page_for_render_items(resources, docs_json, render_items, title, webso
         css_resources = css_resources.use_widgets(use_widgets)
         bokeh_css = css_resources.render_css()
 
-    script = _script_for_render_items(docs_json, render_items, websocket_url, custom_models)
+    script = _script_for_render_items(docs_json, render_items, websocket_url)
 
     template_variables_full = template_variables.copy()
 
@@ -600,7 +545,7 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
             })
 
     return _html_page_for_render_items(resources, {}, render_items, title,
-                                       websocket_url=websocket_url, custom_models=None)
+                                       websocket_url=websocket_url)
 
 def server_html_page_for_session(session_id, resources, title, websocket_url):
     elementid = str(uuid.uuid4())
@@ -612,4 +557,4 @@ def server_html_page_for_session(session_id, resources, title, websocket_url):
     }]
 
     return _html_page_for_render_items(resources, {}, render_items, title,
-                                       websocket_url=websocket_url, custom_models=None)
+                                       websocket_url=websocket_url)
