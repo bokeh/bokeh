@@ -1,5 +1,5 @@
 _ = require "underscore"
-Numeral = require "numeral"
+Numbro = require "numbro"
 HasProperties = require "../common/has_properties"
 
 class NumeralTickFormatter extends HasProperties
@@ -13,7 +13,7 @@ class NumeralTickFormatter extends HasProperties
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil
 
-    labels = ( Numeral.format(tick, format, language, rounding) for tick in ticks )
+    labels = ( Numbro.format(tick, format, language, rounding) for tick in ticks )
     return labels
 
   defaults: () ->
