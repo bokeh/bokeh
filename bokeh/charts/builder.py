@@ -28,7 +28,7 @@ from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
 from ..properties import (HasProps, Instance, List, String, Property,
-                          Either, Dict, Color)
+                          Either, Dict, Color, Bool)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -192,6 +192,8 @@ class Builder(HasProps):
     column_selector = OrderedAssigner
 
     comp_glyph_types = List(Instance(CompositeGlyph))
+
+    sort_dim = Dict(String, Bool, default={})
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -559,10 +561,13 @@ class XYBuilder(Builder):
         values = dim_ref.data
         dtype = dim_ref.dtype.name
 
+        sort = self.sort_dim.get(dim)
+
         # object data or single value
         if dtype == 'object':
             factors = values.drop_duplicates()
-            factors.sort(inplace=True)
+            if sort:
+                factors.sort(inplace=True)
             setattr(self, dim + 'scale', 'categorical')
             return FactorRange(factors=factors.tolist())
         elif 'datetime' in dtype:

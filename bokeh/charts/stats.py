@@ -347,7 +347,7 @@ class Bins(Stat):
             df = pd.DataFrame({self.column: self.values, self.bin_column: binned})
 
         for name, group in df.groupby(self.bin_column):
-            bin_models.append(Bin(bin_label=name, values=group[self.bin_column],
+            bin_models.append(Bin(bin_label=name, values=group[self.column],
                                   stat=self.stat))
 
         self.bins = bin_models

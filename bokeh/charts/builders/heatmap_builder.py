@@ -34,7 +34,8 @@ from bokeh.palettes import Blues6
 
 
 def HeatMap(data, x=None, y=None, values=None, stat='count', xscale="categorical",
-            yscale="categorical", xgrid=False, ygrid=False, hover_tool=True, **kw):
+            yscale="categorical", xgrid=False, ygrid=False, hover_tool=True,
+            hover_text=None, **kw):
     """ Create a HeatMap chart using :class:`HeatMapBuilder <bokeh.charts.builder.heatmap_builder.HeatMapBuilder>`
     to render the geometry from values.
 
@@ -84,11 +85,14 @@ def HeatMap(data, x=None, y=None, values=None, stat='count', xscale="categorical
     )
 
     # set stat name for non-agg data
-    if stat is None:
-        stat = 'value'
+    if hover_text is None:
+        if stat is None:
+            hover_text = 'value'
+        else:
+            hover_text = stat
 
     if hover_tool:
-        chart.add_tools(HoverTool(tooltips=[(stat, "@values")]))
+        chart.add_tools(HoverTool(tooltips=[(hover_text, "@values")]))
     return chart
 
 
@@ -118,7 +122,7 @@ class HeatMapBuilder(XYBuilder):
     bin_width = Float(default=1.0)
     bin_height = Float(default=1.0)
 
-    spacing_ratio = Float(default=1.0)
+    spacing_ratio = Float(default=0.95)
 
     stat = String(default='sum')
 
