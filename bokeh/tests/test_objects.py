@@ -45,7 +45,9 @@ def large_plot(n):
         tools = [pan, wheel_zoom, box_zoom, box_select, resize, previewsave, reset]
         plot.tools.extend(tools)
         vbox.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph, plot.tool_events, box_selection] + tickers + tools)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
+                        renderer, glyph, plot.tool_events, box_selection] +
+                        tickers + tools)
 
     return vbox, objects
 
@@ -81,6 +83,11 @@ class TestCollectPlotObjects(unittest.TestCase):
     def test_references_large(self):
         root, objects = large_plot(500)
         self.assertEqual(set(root.references()), objects)
+
+class SomeModelToJson(PlotObject):
+    child = Instance(PlotObject)
+    foo = Int()
+    bar = String()
 
 class TestPlotObject(unittest.TestCase):
 
@@ -154,6 +161,25 @@ class TestPlotObject(unittest.TestCase):
         v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
 
         self.assertEqual(v.references(), set([v, u1, u2, u3, u4, u5]))
+
+    def test_to_json(self):
+        child_obj = SomeModelToJson(foo=57, bar="hello")
+        obj = SomeModelToJson(child=child_obj,
+                              foo=42, bar="world")
+        json = obj.to_json()
+        json_string = obj.to_json_string()
+        self.assertEqual({ "child" : { "id" : child_obj._id, "type" : "SomeModelToJson" },
+                           "id" : obj._id,
+                           "name" : None,
+                           "tags" : [],
+                           "foo" : 42,
+                           "bar" : "world" },
+                         json)
+        self.assertEqual(('{"bar": "world", ' +
+                          '"child": {"id": "%s", "type": "SomeModelToJson"}, ' +
+                          '"foo": 42, "id": "%s", "name": null, "tags": []}') %
+                         (child_obj._id, obj._id),
+                         json_string)
 
 class SomeModelInTestObjects(PlotObject):
     child = Instance(PlotObject)

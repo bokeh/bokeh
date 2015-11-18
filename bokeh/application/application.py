@@ -22,8 +22,7 @@ class Application(object):
             # and build a composite error display.
             h.modify_document(doc)
             if h.failed:
-                # TODO (havocp) this could be formatted a lot more nicely
-                log.error("Error running application handler %r: %r %r ", h, h.error, h.error_detail)
+                log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
 
         # A future server setting could make it configurable whether to do this,
         # since it has some performance impact probably. Let's see if we need to.
