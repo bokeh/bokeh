@@ -318,17 +318,3 @@ class BlazeDataSource(RemoteSource):
         return from_tree(self.expr, {':leaf' : d})
 
 
-class ServerDataSource(BlazeDataSource):
-    """ A data source that referes to data located on a Bokeh server.
-
-    The data from the server is loaded on-demand by the client.
-    """
-    # Paramters of data transformation operations
-    # The 'Any' is used to pass primtives around.
-    # TODO: (jc) Find/create a property type for 'any primitive/atomic value'
-    transform = Dict(String,Either(Instance(PlotObject), Any), help="""
-    Paramters of the data transformation operations.
-
-    The associated valuse is minimally a tag that says which downsample routine
-    to use.  For some downsamplers, parameters are passed this way too.
-    """)
