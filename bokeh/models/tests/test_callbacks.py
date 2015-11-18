@@ -25,6 +25,7 @@ def test_js_callback():
 def test_py_callback():
     
     slider = Slider()
+    foo = None  # fool pyflakes
     
     @CustomJS
     def cb(x=slider):
