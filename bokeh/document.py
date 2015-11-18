@@ -15,6 +15,7 @@ from bokeh._json_encoder import serialize_json
 from .model import Model
 from .validation import check_integrity
 from .query import find
+from .deprecate import deprecated
 from json import loads
 from six import string_types
 
