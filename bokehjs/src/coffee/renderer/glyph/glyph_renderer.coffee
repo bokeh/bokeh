@@ -56,9 +56,6 @@ class GlyphRendererView extends PlotWidget
 
   have_selection_glyphs: () -> true
 
-  #TODO: There are glyph sub-type-vs-resample_op concordance issues...
-  setup_server_data: () ->
-
   # TODO (bev) arg is a quick-fix to allow some hinting for things like
   # partial data updates (especially useful on expensive set_data calls
   # for image, e.g.)

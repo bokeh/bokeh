@@ -3,9 +3,9 @@ from __future__ import absolute_import, print_function
 import unittest
 
 import bokeh.document as document
-from bokeh.plot_object import PlotObject
-from bokeh.properties import Int, Instance
 from bokeh.io import curdoc
+from bokeh.plot_object import PlotObject
+from bokeh.properties import Int, Instance, String
 
 class AnotherModelInTestDocument(PlotObject):
     bar = Int(1)
@@ -13,6 +13,9 @@ class AnotherModelInTestDocument(PlotObject):
 class SomeModelInTestDocument(PlotObject):
     foo = Int(2)
     child = Instance(PlotObject)
+
+class ModelThatOverridesName(PlotObject):
+    name = String()
 
 class TestDocument(unittest.TestCase):
 
@@ -63,6 +66,128 @@ class TestDocument(unittest.TestCase):
         assert d.get_model_by_id(m._id) == m
         assert d.get_model_by_id(m2._id) == m2
         assert d.get_model_by_id("not a valid ID") is None
+
+    def test_get_model_by_name(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        m = SomeModelInTestDocument(name="foo")
+        m2 = AnotherModelInTestDocument(name="bar")
+        m.child = m2
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert len(d._all_models) == 2
+        assert len(d._all_models_by_name._dict) == 2
+        assert d.get_model_by_name(m.name) == m
+        assert d.get_model_by_name(m2.name) == m2
+        assert d.get_model_by_name("not a valid name") is None
+
+    def test_get_model_by_changed_name(self):
+        d = document.Document()
+        m = SomeModelInTestDocument(name="foo")
+        d.add_root(m)
+        assert d.get_model_by_name("foo") == m
+        m.name = "bar"
+        assert d.get_model_by_name("foo") == None
+        assert d.get_model_by_name("bar") == m
+
+    def test_get_model_by_changed_from_none_name(self):
+        d = document.Document()
+        m = SomeModelInTestDocument(name=None)
+        d.add_root(m)
+        assert d.get_model_by_name("bar") == None
+        m.name = "bar"
+        assert d.get_model_by_name("bar") == m
+
+    def test_get_model_by_changed_to_none_name(self):
+        d = document.Document()
+        m = SomeModelInTestDocument(name="bar")
+        d.add_root(m)
+        assert d.get_model_by_name("bar") == m
+        m.name = None
+        assert d.get_model_by_name("bar") == None
+
+    def test_can_get_name_overriding_model_by_name(self):
+        d = document.Document()
+        m = ModelThatOverridesName(name="foo")
+        d.add_root(m)
+        assert d.get_model_by_name("foo") == m
+        m.name = "bar"
+        assert d.get_model_by_name("bar") == m
+
+    def test_cannot_get_model_with_duplicate_name(self):
+        d = document.Document()
+        m = SomeModelInTestDocument(name="foo")
+        m2 = SomeModelInTestDocument(name="foo")
+        d.add_root(m)
+        d.add_root(m2)
+        got_error = False
+        try:
+            d.get_model_by_name("foo")
+        except ValueError as e:
+            got_error = True
+            assert 'Found more than one' in repr(e)
+        assert got_error
+        d.remove_root(m)
+        assert d.get_model_by_name("foo") == m2
+
+    def test_select(self):
+        # we aren't trying to replace test_query here, only test
+        # our wrappers around it, so no need to try every kind of
+        # query
+        d = document.Document()
+        root1 = SomeModelInTestDocument(foo=42, name='a')
+        child1 = SomeModelInTestDocument(foo=43, name='b')
+        root2 = SomeModelInTestDocument(foo=44, name='c')
+        root3 = SomeModelInTestDocument(foo=44, name='d')
+        child3 = SomeModelInTestDocument(foo=45, name='c')
+        root1.child = child1
+        root3.child = child3
+        d.add_root(root1)
+        d.add_root(root2)
+        d.add_root(root3)
+
+        # select()
+        assert set([root1]) == set(d.select(dict(foo=42)))
+        assert set([root1]) == set(d.select(dict(name='a')))
+        assert set([root2, child3])  == set(d.select(dict(name='c')))
+        assert set()  == set(d.select(dict(name='nope')))
+
+        # select() on object
+        assert set() == set(root3.select(dict(name='a')))
+        assert set([child3]) == set(root3.select(dict(name='c')))
+
+        # select_one()
+        assert root3 == d.select_one(dict(name='d'))
+        assert None == d.select_one(dict(name='nope'))
+        got_error = False
+        try:
+            d.select_one(dict(name='c'))
+        except ValueError as e:
+            got_error = True
+            assert 'Found more than one' in repr(e)
+        assert got_error
+
+        # select_one() on object
+        assert None == root3.select_one(dict(name='a'))
+        assert child3 == root3.select_one(dict(name='c'))
+
+        # set_select()
+        d.set_select(dict(foo=44), dict(name='c'))
+        assert set([root2, child3, root3])  == set(d.select(dict(name='c')))
+
+        # set_select() on object
+        root3.set_select(dict(name='c'), dict(foo=57))
+        assert set([child3, root3]) == set(d.select(dict(foo=57)))
+        assert set([child3, root3]) == set(root3.select(dict(foo=57)))
+
+    def test_is_single_string_selector(self):
+        d = document.Document()
+        # this is an implementation detail but just ensuring it works
+        assert d._is_single_string_selector(dict(foo='c'), 'foo')
+        assert d._is_single_string_selector(dict(foo=u'c'), 'foo')
+        assert not d._is_single_string_selector(dict(foo='c', bar='d'), 'foo')
+        assert not d._is_single_string_selector(dict(foo=42), 'foo')
 
     def test_all_models_with_multiple_references(self):
         d = document.Document()
@@ -358,6 +483,12 @@ class TestDocument(unittest.TestCase):
 
         some_root = next(iter(copy.roots))
         assert some_root.child.foo == 44
+
+    def test_serialization_has_version(self):
+        from bokeh import __version__
+        d = document.Document()
+        json = d.to_json()
+        assert json['version'] == __version__
 
     def test_patch_integer_property(self):
         d = document.Document()
