@@ -5,14 +5,12 @@ class Population(object):
 
     def __init__(self):
         from bokeh.document import Document
-        from bokeh.session import Session
+        from bokeh.client import push_session
         from bokeh.models import ColumnDataSource
         from bokeh.sampledata.population import load_population
 
         self.document = Document()
-        self.session = Session()
-        self.session.use_doc('population')
-        self.session.load_document(self.document)
+        self.session = push_session(self.document)
 
         self.df = load_population()
         self.source_pyramid = ColumnDataSource(data=dict())
@@ -20,7 +18,7 @@ class Population(object):
     def render(self):
         self.pyramid_plot()
         self.create_layout()
-        self.document.add(self.layout)
+        self.document.add_root(self.layout)
         self.update_pyramid()
 
     def pyramid_plot(self):
@@ -55,11 +53,11 @@ class Population(object):
         self.plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph],
                                                  Female=[female_quad_glyph])))
 
-    def on_year_change(self, obj, attr, old, new):
+    def on_year_change(self, attr, old, new):
         self.year = int(new)
         self.update_pyramid()
 
-    def on_location_change(self, obj, attr, old, new):
+    def on_location_change(self, attr, old, new):
         self.location = new
         self.update_pyramid()
 
@@ -98,14 +96,14 @@ class Population(object):
             male=male_percent,
             female=female_percent,
         )
-        self.session.store_document(self.document)
+        # self.session.store_document(self.document)
 
 import bokeh.embed as embed
 
 pop = Population()
 pop.render()
 
-tag = embed.autoload_server(pop.layout, pop.session)
+tag = embed.autoload_server(pop.layout)
 
 html = """
 <html>
@@ -131,16 +129,16 @@ in this directory, then navigate to
 
 import time
 
-link = pop.session.object_link(pop.document.context)
-print("""You can also go to
-
-    %s
-
-to see the plots on the Bokeh server directly""" % link)
+# link = pop.session.object_link(pop.document.context)
+# print("""You can also go to
+#
+#     %s
+#
+# to see the plots on the Bokeh server directly""" % link)
 
 try:
     while True:
-        pop.session.load_document(pop.document)
+        # pop.session.load_document(pop.document)
         time.sleep(0.1)
 except KeyboardInterrupt:
     print()

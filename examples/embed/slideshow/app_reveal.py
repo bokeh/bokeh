@@ -160,7 +160,7 @@ class Population(object):
     def _render(self):
         self.pyramid_plot()
         self.create_layout()
-        self.document.add(self.layout)
+        self.document.add_root(self.layout)
         self.update_pyramid()
 
     def pyramid_plot(self):
