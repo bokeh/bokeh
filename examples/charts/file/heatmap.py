@@ -3,13 +3,13 @@ import pandas as pd
 
 from bokeh.charts import HeatMap, bins, output_file, show, vplot
 from bokeh.sampledata.autompg import autompg
-from bokeh.palettes import RdYlGn6
+from bokeh.palettes import RdYlGn6, RdYlGn9
 from bokeh.sampledata.unemployment1948 import data
 
 # setup data sources
 del data['Annual']
 data['Year'] = data['Year'].astype(str)
-unempl = pd.melt(data, id_vars=['Year'])
+unempl = pd.melt(data, var_name='Month', value_name='Unemployment', id_vars=['Year'])
 
 fruits = {'fruit': ['apples', 'apples', 'apples', 'apples', 'apples',
                     'pears', 'pears', 'pears', 'pears', 'pears',
@@ -34,11 +34,17 @@ hm5 = HeatMap(autompg, y=bins('displ'), x=bins('mpg'), values='cyl', stat='mean'
 hm6 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), stat='mean', values='cyl',
               palette=RdYlGn6)
 
-hm7 = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None)
+hm7 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), stat='mean', values='cyl',
+              palette=RdYlGn9)
 
-hm8 = HeatMap(unempl, x='Year', y='variable', values='value', stat=None,
+hm8 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), values='cyl',
+              stat='mean', legend='top_right')
+
+hm9 = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None)
+
+hm10 = HeatMap(unempl, x='Year', y='Month', values='Unemployment', stat=None,
               sort_dim={'x': False}, width=1000)
 
 output_file("heatmap.html")
 
-show(vplot(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8))
+show(vplot(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8, hm9, hm10))

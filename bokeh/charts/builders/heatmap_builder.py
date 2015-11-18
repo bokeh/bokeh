@@ -87,12 +87,17 @@ def HeatMap(data, x=None, y=None, values=None, stat='count', xscale="categorical
     # set stat name for non-agg data
     if hover_text is None:
         if stat is None:
-            hover_text = 'value'
+            if isinstance(values, str):
+                hover_text = values
+            else:
+                hover_text = 'value'
         else:
             hover_text = stat
+            if isinstance(values, str):
+                hover_text = '%s of %s' % (hover_text, values)
 
     if hover_tool:
-        chart.add_tools(HoverTool(tooltips=[(hover_text, "@values")]))
+        chart.add_tools(HoverTool(tooltips=[(hover_text.title(), "@values")]))
     return chart
 
 

@@ -344,6 +344,7 @@ class ChartDataSource(object):
         for dim, select in iteritems(self._selections):
             if isinstance(select, DataOperator):
                 self._data = select.apply(self)
+                selections[dim] = select.name
 
             # handle any stat operations to derive and aggregate data
             if isinstance(select, Stat):

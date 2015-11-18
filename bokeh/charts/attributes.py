@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from copy import copy
 from itertools import cycle
+import pandas as pd
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.charts.properties import ColumnLabel
@@ -241,6 +242,8 @@ class ColorAttr(AttrSpec):
             data._data.ix[data._data[col + '_values'].isin(bin.values),
                           col] = bin.label[0]
 
+        data._data[col] = pd.Categorical(data._data[col], categories=list(self.items),
+                                         ordered=self.sort)
 
 class MarkerAttr(AttrSpec):
     """An attribute specification for mapping unique data values to markers."""
