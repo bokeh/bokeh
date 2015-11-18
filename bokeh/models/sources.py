@@ -254,6 +254,14 @@ class ColumnDataSource(DataSource):
         if len(lengths) > 1:
             return str(self)
 
+
+class GeoJSONDataSource(DataSource):
+    geojson = String(help="""
+    A string of GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
+    only process a FeatureCollection of Points.
+    """)
+
+
 @abstract
 class RemoteSource(DataSource):
     data_url = String(help="""
