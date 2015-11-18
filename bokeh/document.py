@@ -10,6 +10,7 @@ logger = logging.getLogger(__file__)
 
 import uuid
 from bokeh.util.callback_manager import _check_callback
+from bokeh.util.version import __version__, __base_version__
 from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
 from .validation import check_integrity
@@ -346,6 +347,10 @@ class Document(object):
             'roots' : {
                 'root_ids' : root_ids,
                 'references' : self._references_json(root_references)
+            },
+            'version' : {
+                'full' : __version__,
+                'base' : __base_version__
             }
         }
 

@@ -320,6 +320,14 @@ class TestDocument(unittest.TestCase):
         some_root = next(iter(copy.roots))
         assert some_root.child.foo == 44
 
+    def test_serialization_has_version(self):
+        from bokeh import __version__
+        from bokeh import __base_version__
+        d = document.Document()
+        json = d.to_json()
+        assert json['version']['base'] == __base_version__
+        assert json['version']['full'] == __version__
+
     def test_patch_integer_property(self):
         d = document.Document()
         assert not d.roots
