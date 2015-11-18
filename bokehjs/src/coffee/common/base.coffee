@@ -103,6 +103,7 @@ locations =
   ServerDataSource:         require '../source/server_data_source'
   BlazeDataSource:          require '../source/blaze_data_source'
   AjaxDataSource:           require '../source/ajax_data_source'
+  GeoJSONDataSource:        require '../source/geojson_data_source'
 
   AbstractTicker:           require '../ticking/abstract_ticker'
   AdaptiveTicker:           require '../ticking/adaptive_ticker'
