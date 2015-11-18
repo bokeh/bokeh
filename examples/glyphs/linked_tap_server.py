@@ -71,7 +71,7 @@ reset.on_click(on_reset_click)
 vbox = VBox(children=[reset], width=150)
 hbox = HBox(children=[vbox, plot1, plot2])
 
-document.add(hbox)
+document.add_root(hbox)
 session.show(hbox)
 
 if __name__ == "__main__":

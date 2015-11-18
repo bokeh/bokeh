@@ -26,7 +26,7 @@ class DataTables(object):
         self.source = ColumnDataSource()
         self.update_data()
 
-        self.document.add((self.create()))
+        self.document.add_root((self.create()))
         self.session = push_session(self.document)
 
     def create(self):
