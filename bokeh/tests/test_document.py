@@ -322,11 +322,9 @@ class TestDocument(unittest.TestCase):
 
     def test_serialization_has_version(self):
         from bokeh import __version__
-        from bokeh import __base_version__
         d = document.Document()
         json = d.to_json()
-        assert json['version']['base'] == __base_version__
-        assert json['version']['full'] == __version__
+        assert json['version'] == __version__
 
     def test_patch_integer_property(self):
         d = document.Document()
