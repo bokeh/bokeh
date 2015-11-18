@@ -7,6 +7,9 @@ var htmlparser2 = require("htmlparser2");
 
 var argv = yargs
   .options({
+    filename: {
+      type: 'string',
+    },
     l: {
       alias: 'log-level',
       type: 'string',
@@ -81,7 +84,7 @@ function readFile(file) {
       }
       break;
     case ".json":
-      docs_json = require(file);
+      docs_json = require(path.resolve(file));
       break;
     default:
       throw new Error("expected an HTML or JSON file");
@@ -116,15 +119,21 @@ function render(docs_json, file) {
   insertCSS(path.join(argv.css, "bokeh-widgets.js"));
 
   function outPath(file) {
+    if (argv.filename) {
+      file = argv.filename;
+    }
+
     if (file) {
-      var basename = path.basename(file, path.extname(file));
+      var extname = path.extname(file);
+      var basename = path.basename(file, extname);
       var dirname = path.dirname(file);
     } else {
+      var extname = ".png"
       var basename = "stdin";
       var dirname = __dirname;
     }
     return function(id) {
-      var name = basename + (id ? "-" + id : "") + ".png";
+      var name = basename + (id ? "-" + id : "") + extname;
       return path.join(dirname, name);
     };
   }
