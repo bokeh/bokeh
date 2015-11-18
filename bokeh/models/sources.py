@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import HasProps, abstract
-from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
+from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
