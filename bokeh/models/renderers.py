@@ -69,6 +69,10 @@ class DynamicImageRenderer(Renderer):
     Specifies the level in which to render the glyph.
     """)
 
+    render_parents = Bool(default=True, help="""
+    Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
+    """)
+
 class GlyphRenderer(Renderer):
     """
 

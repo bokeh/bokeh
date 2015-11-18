@@ -103,7 +103,6 @@ locations =
   PolySelection:            require '../renderer/overlay/poly_selection'
 
   ColumnDataSource:         require '../source/column_data_source'
-  ServerDataSource:         require '../source/server_data_source'
   BlazeDataSource:          require '../source/blaze_data_source'
   AjaxDataSource:           require '../source/ajax_data_source'
 

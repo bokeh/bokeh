@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import HasProps, abstract
-from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
+from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
@@ -318,17 +318,3 @@ class BlazeDataSource(RemoteSource):
         return from_tree(self.expr, {':leaf' : d})
 
 
-class ServerDataSource(BlazeDataSource):
-    """ A data source that referes to data located on a Bokeh server.
-
-    The data from the server is loaded on-demand by the client.
-    """
-    # Paramters of data transformation operations
-    # The 'Any' is used to pass primtives around.
-    # TODO: (jc) Find/create a property type for 'any primitive/atomic value'
-    transform = Dict(String,Either(Instance(PlotObject), Any), help="""
-    Paramters of the data transformation operations.
-
-    The associated valuse is minimally a tag that says which downsample routine
-    to use.  For some downsamplers, parameters are passed this way too.
-    """)

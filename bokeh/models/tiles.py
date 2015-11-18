@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from ..plot_object import PlotObject
-
-from ..properties import (Any, Dict, Float, String, Int)
+from ..properties import (Any, Dict, Float, String, Int, Bool)
 
 class TileSource(PlotObject):
     """ A base class for all tile source types. ``TileSource`` is
@@ -87,4 +86,6 @@ class BBoxTileSource(MercatorTileSource):
 
     Example url: http://your.custom.tile.serivce?bbox={XMIN},{YMIN},{XMAX},{YMAX}
     """
-    pass
+    use_latlon = Bool(default=False, help="""
+    Flag which indicates option to output {XMIN},{YMIN},{XMAX},{YMAX} in meters or latitude and longitude.
+    """)
