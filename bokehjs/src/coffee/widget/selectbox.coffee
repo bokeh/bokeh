@@ -14,7 +14,6 @@ class SelectView extends ContinuumView
     value = @$('select').val()
     logger.debug("selectbox: value = #{value}")
     @mset('value', value)
-    @model.save()
     @mget('callback')?.execute(@model)
 
   initialize: (options) ->

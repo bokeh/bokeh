@@ -21,6 +21,9 @@ class ToolView extends PlotWidget
 
 class Tool extends HasProperties
 
+  nonserializable_attribute_names: () ->
+    super().concat(['active', 'level', 'tool_name'])
+
   # TODO (bev) The following "dim" functions should probably
   # go in a helper util module, or something. Would be best
   # as a mixin but no MI built into CoffeeScript

@@ -1,20 +1,24 @@
 from __future__ import absolute_import
 import unittest
 
-from mock import Mock
 from six import add_metaclass
 from six.moves import xrange
 import copy
+from bokeh.properties import List, String, Instance, Dict, Any, Int
+from bokeh.plot_object import PlotObject, _ModelInDocument
+from bokeh.document import Document
+from bokeh.property_containers import PropertyValueList, PropertyValueDict
 
 def large_plot(n):
-    from bokeh.models import (Plot, PlotContext, LinearAxis, Grid, GlyphRenderer,
+    from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
         ResetTool)
+    from bokeh.models.widgets.layouts import VBox
     from bokeh.models.glyphs import Line
 
-    context = PlotContext()
-    objects = set([context])
+    vbox = VBox()
+    objects = set([vbox])
 
     for i in xrange(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -34,15 +38,18 @@ def large_plot(n):
         box_zoom = BoxZoomTool(plot=plot)
         box_select = BoxSelectTool(plot=plot)
         box_selection = BoxSelectionOverlay(tool=box_select)
+        plot.renderers.append(box_selection)
         resize = ResizeTool(plot=plot)
         previewsave = PreviewSaveTool(plot=plot)
         reset = ResetTool(plot=plot)
-        tools = [pan, wheel_zoom, box_zoom, box_select, box_selection, resize, previewsave, reset]
-        plot.tools.append(tools)
-        context.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph, plot.tool_events] + tickers + tools)
+        tools = [pan, wheel_zoom, box_zoom, box_select, resize, previewsave, reset]
+        plot.tools.extend(tools)
+        vbox.children.append(plot)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
+                        renderer, glyph, plot.tool_events, box_selection] +
+                        tickers + tools)
 
-    return context, objects
+    return vbox, objects
 
 class TestViewable(unittest.TestCase):
 
@@ -74,8 +81,13 @@ class TestViewable(unittest.TestCase):
 class TestCollectPlotObjects(unittest.TestCase):
 
     def test_references_large(self):
-        context, objects = large_plot(500)
-        self.assertEqual(set(context.references()), objects)
+        root, objects = large_plot(500)
+        self.assertEqual(set(root.references()), objects)
+
+class SomeModelToJson(PlotObject):
+    child = Instance(PlotObject)
+    foo = Int()
+    bar = String()
 
 class TestPlotObject(unittest.TestCase):
 
@@ -84,33 +96,15 @@ class TestPlotObject(unittest.TestCase):
         self.pObjectClass = PlotObject
 
     def test_init(self):
-        oldmethod = self.pObjectClass.setup_events
-        self.pObjectClass.setup_events = Mock()
-        testObject = self.pObjectClass(id='test_id', _block_events=True)
-        self.assertFalse(testObject.setup_events.called)
+        testObject = self.pObjectClass(id='test_id')
         self.assertEqual(testObject._id, 'test_id')
 
         testObject2 = self.pObjectClass()
-        self.assertTrue(testObject2.setup_events.called)
         self.assertIsNot(testObject2._id, None)
-
-        self.pObjectClass.setup_events = oldmethod
 
     def test_ref(self):
         testObject = self.pObjectClass(id='test_id')
         self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.ref)
-
-    def test_load_json(self):
-        cls = self.pObjectClass.get_class("Plot")
-        obj = cls.load_json({'id': 'test_id', 'min_border': 100})
-        self.assertEqual(obj._id, 'test_id')
-        self.assertEqual(obj.title, '')
-        self.assertEqual(obj.min_border, 100)
-
-        obj.load_json({'id': 'test_id', 'title': 'xyz'}, instance=obj)
-        self.assertEqual(obj._id, 'test_id')
-        self.assertEqual(obj.title, 'xyz')
-        self.assertEqual(obj.min_border, 100)
 
     def test_references_by_ref_by_value(self):
         from bokeh.properties import HasProps, Instance, Int
@@ -167,6 +161,349 @@ class TestPlotObject(unittest.TestCase):
         v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
 
         self.assertEqual(v.references(), set([v, u1, u2, u3, u4, u5]))
+
+    def test_to_json(self):
+        child_obj = SomeModelToJson(foo=57, bar="hello")
+        obj = SomeModelToJson(child=child_obj,
+                              foo=42, bar="world")
+        json = obj.to_json()
+        json_string = obj.to_json_string()
+        self.assertEqual({ "child" : { "id" : child_obj._id, "type" : "SomeModelToJson" },
+                           "id" : obj._id,
+                           "name" : None,
+                           "tags" : [],
+                           "foo" : 42,
+                           "bar" : "world" },
+                         json)
+        self.assertEqual(('{"bar": "world", ' +
+                          '"child": {"id": "%s", "type": "SomeModelToJson"}, ' +
+                          '"foo": 42, "id": "%s", "name": null, "tags": []}') %
+                         (child_obj._id, obj._id),
+                         json_string)
+
+class SomeModelInTestObjects(PlotObject):
+    child = Instance(PlotObject)
+
+class TestModelInDocument(unittest.TestCase):
+    def test_single_plot_object(self):
+        p = PlotObject()
+        self.assertIs(p.document, None)
+        with _ModelInDocument(p):
+            self.assertIsNot(p.document, None)
+        self.assertIs(p.document, None)
+
+    def test_list_of_plot_object(self):
+        p1 = PlotObject()
+        p2 = PlotObject()
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        with _ModelInDocument([p1, p2]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+
+    def test_uses_precedent(self):
+        # it's deliberate that the doc is on p2, so _ModelInDocument
+        # has to be smart about looking for a doc anywhere in the list
+        # before it starts inventing new documents
+        doc = Document()
+        p1 = PlotObject()
+        p2 = PlotObject()
+        doc.add_root(p2)
+        self.assertIs(p1.document, None)
+        self.assertIsNot(p2.document, None)
+        with _ModelInDocument([p1, p2]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+            self.assertIs(p1.document, doc)
+            self.assertIs(p2.document, doc)
+        self.assertIs(p1.document, None)
+        self.assertIsNot(p2.document, None)
+
+    def test_uses_doc_precedent(self):
+        doc = Document()
+        p1 = PlotObject()
+        p2 = PlotObject()
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        with _ModelInDocument([p1, p2, doc]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+            self.assertIs(p1.document, doc)
+            self.assertIs(p2.document, doc)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+
+    def test_uses_precedent_from_child(self):
+        doc = Document()
+        p1 = PlotObject()
+        p2 = SomeModelInTestObjects(child=PlotObject())
+        doc.add_root(p2.child)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        self.assertIs(p2.child.document, doc)
+        with _ModelInDocument([p1, p2]):
+            self.assertIsNot(p1.document, None)
+            self.assertIsNot(p2.document, None)
+            self.assertIs(p1.document, doc)
+            self.assertIs(p2.document, doc)
+        self.assertIs(p1.document, None)
+        self.assertIs(p2.document, None)
+        self.assertIsNot(p2.child.document, None)
+        self.assertIs(p2.child.document, doc)
+
+class TestContainerMutation(unittest.TestCase):
+
+    def _check_mutation(self, obj, attr, mutator, expected_event_old, expected_event_new):
+        result = dict(calls=[])
+        def record_trigger(attr, old, new_):
+            result['calls'].append((attr, old, new_))
+        obj.on_change(attr, record_trigger)
+        try:
+            actual_old = getattr(obj, attr)
+            self.assertEqual(expected_event_old, actual_old)
+            mutator(actual_old)
+            self.assertEqual(expected_event_new, getattr(obj, attr))
+        finally:
+            obj.remove_on_change(attr, record_trigger)
+        self.assertEqual(1, len(result['calls']))
+        call = result['calls'][0]
+        self.assertEqual(attr, call[0])
+        self.assertEqual(expected_event_old, call[1])
+        self.assertEqual(expected_event_new, call[2])
+
+
+class HasListProp(PlotObject):
+    foo = List(String)
+    def __init__(self, **kwargs):
+        super(HasListProp, self).__init__(**kwargs)
+
+class TestListMutation(TestContainerMutation):
+
+    def test_assignment_maintains_owners(self):
+        obj = HasListProp()
+        old_list = obj.foo
+        self.assertTrue(isinstance(old_list, PropertyValueList))
+        self.assertEqual(1, len(old_list._owners))
+        obj.foo = ["a"]
+        new_list = obj.foo
+        self.assertTrue(isinstance(new_list, PropertyValueList))
+        self.assertIsNot(old_list, new_list)
+        self.assertEqual(0, len(old_list._owners))
+        self.assertEqual(1, len(new_list._owners))
+
+    def test_list_delitem(self):
+        obj = HasListProp(foo=["a", "b", "c"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            del x[1]
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a", "b", "c"],
+                             ["a", "c"])
+
+    def test_list_delslice(self):
+        obj = HasListProp(foo=["a", "b", "c", "d"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            del x[1:3]
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a", "b", "c", "d"],
+                             ["a", "d"])
+
+    def test_list_iadd(self):
+        obj = HasListProp(foo=["a"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            x += ["b"]
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a"],
+                             ["a", "b"])
+
+    def test_list_imul(self):
+        obj = HasListProp(foo=["a"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            x *= 3
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a"],
+                             ["a", "a", "a"])
+
+    def test_list_setitem(self):
+        obj = HasListProp(foo=["a"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            x[0] = "b"
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a"],
+                             ["b"])
+
+    def test_list_setslice(self):
+        obj = HasListProp(foo=["a", "b", "c", "d"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        def mutate(x):
+            x[1:3] = ["x"]
+        self._check_mutation(obj, 'foo', mutate,
+                             ["a", "b", "c", "d"],
+                             ["a", "x", "d"])
+
+    def test_list_append(self):
+        obj = HasListProp()
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.append("bar"), [], ["bar"])
+
+    def test_list_extend(self):
+        obj = HasListProp()
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.extend(["x", "y"]), [], ["x", "y"])
+
+    def test_list_insert(self):
+        obj = HasListProp(foo=["a", "b"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.insert(1, "x"),
+                             ["a", "b"],
+                             ["a", "x", "b"])
+
+    def test_list_pop(self):
+        obj = HasListProp(foo=["a", "b"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.pop(),
+                             ["a", "b"],
+                             ["a"])
+
+    def test_list_remove(self):
+        obj = HasListProp(foo=["a", "b"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.remove("b"),
+                             ["a", "b"],
+                             ["a"])
+
+    def test_list_reverse(self):
+        obj = HasListProp(foo=["a", "b"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.reverse(),
+                             ["a", "b"],
+                             ["b", "a"])
+
+    def test_list_sort(self):
+        obj = HasListProp(foo=["b", "a"])
+        self.assertTrue(isinstance(obj.foo, PropertyValueList))
+        self._check_mutation(obj, 'foo', lambda x: x.sort(),
+                             ["b", "a"],
+                             ["a", "b"])
+
+
+class HasStringDictProp(PlotObject):
+    foo = Dict(String, Any)
+    def __init__(self, **kwargs):
+        super(HasStringDictProp, self).__init__(**kwargs)
+
+class HasIntDictProp(PlotObject):
+    foo = Dict(Int, Any)
+    def __init__(self, **kwargs):
+        super(HasIntDictProp, self).__init__(**kwargs)
+
+class TestDictMutation(TestContainerMutation):
+
+    def test_assignment_maintains_owners(self):
+        obj = HasStringDictProp()
+        old_dict = obj.foo
+        self.assertTrue(isinstance(old_dict, PropertyValueDict))
+        self.assertEqual(1, len(old_dict._owners))
+        obj.foo = dict(a=1)
+        new_dict = obj.foo
+        self.assertTrue(isinstance(new_dict, PropertyValueDict))
+        self.assertIsNot(old_dict, new_dict)
+        self.assertEqual(0, len(old_dict._owners))
+        self.assertEqual(1, len(new_dict._owners))
+
+    def test_dict_delattr(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            del x['b']
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, c=3))
+
+    def test_dict_delitem(self):
+        obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            del x[1]
+        self._check_mutation(obj, 'foo', mutate,
+                             { 1 : "a", 2 : "b", 3 : "c" },
+                             { 2 : "b", 3 : "c" })
+
+    def test_dict_setattr(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x['b'] = 42
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, b=42, c=3))
+
+    def test_dict_setitem(self):
+        obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x[2] = "bar"
+        self._check_mutation(obj, 'foo', mutate,
+                             { 1 : "a", 2 : "b", 3 : "c" },
+                             { 1 : "a", 2 : "bar", 3 : "c" })
+
+    def test_dict_clear(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x.clear()
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict())
+
+    def test_dict_pop(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x.pop('b')
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, c=3))
+
+    def test_dict_pop_default_works(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        self.assertEqual(42, obj.foo.pop('z', 42))
+
+    def test_dict_popitem_works(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        i = obj.foo.popitem()
+        self.assertTrue(i == ('a', 1) or i == ('b', 2) or i == ('c', 3))
+        # we don't _check_mutation since the end value is nondeterministic
+
+    def test_dict_setdefault(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            b = x.setdefault('b', 43)
+            self.assertEqual(2, b)
+            z = x.setdefault('z', 44)
+            self.assertEqual(44, z)
+
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, b=2, c=3, z=44))
+
+    def test_dict_update(self):
+        obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
+        self.assertTrue(isinstance(obj.foo, PropertyValueDict))
+        def mutate(x):
+            x.update(dict(b=7, c=8))
+        self._check_mutation(obj, 'foo', mutate,
+                             dict(a=1, b=2, c=3),
+                             dict(a=1, b=7, c=8))
 
 if __name__ == "__main__":
     unittest.main()

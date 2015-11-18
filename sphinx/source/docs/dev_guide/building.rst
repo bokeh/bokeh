@@ -198,6 +198,7 @@ Testing dependencies include the following additional libraries:
 * mock
 * coverage
 * websocket-client
+* pytest-selenium >= 1.0
 
 .. This comment is just here to fix a weird Sphinx formatting bug
 

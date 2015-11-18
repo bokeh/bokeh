@@ -127,7 +127,7 @@ development or embedding Bokeh in your applications, please contact
 `pwang@continuum.io <pwang email_>`_.
 
 To donate funds to support the development of Bokeh, please contact
-`info@pydata.org <info email_>`_.
+`info@numfocus.org <info email_>`_.
 
 .. _thanks:
 
@@ -193,7 +193,7 @@ Indices and tables
 .. _Bokeh SO: http://stackoverflow.com/questions/tagged/bokeh
 .. _Continuum Analytics: http://continuum.io
 .. _DARPA: http://www.darpa.mil
-.. _info email: mailto:info@pydata.org
+.. _info email: mailto:info@numfocus.org
 .. _Numba: http://numba.pydata.org
 .. _pwang email: mailto:pwang@continuum.io
 .. _Twitter: http://twitter.com/BokehPlots

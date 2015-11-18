@@ -90,7 +90,7 @@ class BoxAnnotation(Annotation):
 
     """
 
-    left = Either(Auto, NumberSpec("left"), help="""
+    left = Either(Auto, NumberSpec("left"), default=None, help="""
     The x-coordinates of the left edge of the box annotation.
     """)
 
@@ -99,7 +99,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    right = Either(Auto, NumberSpec("right"), help="""
+    right = Either(Auto, NumberSpec("right"), default=None, help="""
     The x-coordinates of the right edge of the box annotation.
     """)
 
@@ -108,7 +108,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    bottom = Either(Auto, NumberSpec("bottom"), help="""
+    bottom = Either(Auto, NumberSpec("bottom"), default=None, help="""
     The y-coordinates of the bottom edge of the box annotation.
     """)
 
@@ -117,7 +117,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    top = Either(Auto, NumberSpec("top"), help="""
+    top = Either(Auto, NumberSpec("top"), default=None, help="""
     The y-coordinates of the top edge of the box annotation.
     """)
 

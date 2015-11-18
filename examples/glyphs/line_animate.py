@@ -11,12 +11,10 @@ from bokeh.models import (
     Plot, DataRange1d, LinearAxis, Range1d,
     ColumnDataSource, PanTool, WheelZoomTool
 )
-from bokeh.session import Session
+from bokeh.client import push_session
 
 document = Document()
-session = Session()
-session.use_doc('line_animate')
-session.load_document(document)
+session = push_session(document)
 
 x = linspace(-6*pi, 6*pi, 1000)
 y = sin(x)
@@ -38,16 +36,10 @@ plot.add_layout(LinearAxis(), 'left')
 plot.add_tools(PanTool(), WheelZoomTool())
 
 document.add(plot)
-session.store_document(document)
-
-link = session.object_link(document.context)
-print("please visit %s to see plots" % link)
-view(link)
-
 print("\nanimating... press ctrl-C to stop")
+session.show(plot)
 
 while True:
     for i in linspace(-2*pi, 2*pi, 50):
         source.data['x'] = x + i
-        session.store_objects(source)
-        time.sleep(0.05)
+        time.sleep(0.1)

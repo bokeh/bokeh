@@ -1,18 +1,11 @@
 _ = Bokeh._
 
 find_glyph_renderer = (index_item) ->
-    for key, r of index_item.renderers
-        data_source = r.model.get('data_source')
-        if data_source?
-            return r.model
-    return null
-
-get_plot_id = (id) ->
-    item = Bokeh.$('#' + id + ' > .plotdiv')
-    if item.length is 1
-        return item[0].id
-    return null
-
+  for key, r of index_item.get('renderers')
+      data_source = r.get('data_source')
+      if data_source?
+          return r
+  return null
 
 class SpectrogramApp
 
@@ -33,18 +26,20 @@ class SpectrogramApp
       @pause_button.prop('checked', true)
     )
 
+    models = {}
     for key in @keys
-        item = Bokeh.index[key]
-        item_id = item.el.id
-        @freq_slider = item if item_id is get_plot_id('freq-slider')
-        @gain_slider = item if item_id is get_plot_id('gain-slider')
-        @spectrogram = item if item_id is get_plot_id('spectrogram')
-        @signal = item if item_id is get_plot_id('signal')
-        @spectrum = item if item_id is get_plot_id('spectrum')
-        @equalizer = item if item_id is get_plot_id('equalizer')
+      item = Bokeh.index[key]
+      models[item.model.get('name')] = item.model
 
-    @freq_slider.model.on("change:value", @update_freq)
-    @gain_slider.model.on("change:value", @update_gain)
+    @freq_slider = models['freq']
+    @gain_slider = models['gain']
+    @spectrogram = models['spectrogram']
+    @signal = models['signal']
+    @spectrum = models['spectrum']
+    @equalizer = models['eq']
+
+    @freq_slider.on("change:value", @update_freq)
+    @gain_slider.on("change:value", @update_gain)
 
     config = Bokeh.$.ajax('http://localhost:5000/params', {
       type: 'GET'
@@ -55,13 +50,13 @@ class SpectrogramApp
     ).then(@request_data)
 
   update_freq: () =>
-    freq = @freq_slider.model.get('value')
+    freq = @freq_slider.get('value')
     console.log("setting upper freq range:", freq)
     @spectrogram_plot.set_yrange(0, freq)
     @power_plot.set_xrange(0, freq*0.001)
 
   update_gain: () =>
-    @gain = @gain_slider.model.get('value')
+    @gain = @gain_slider.get('value')
     console.log("setting gain value:", @gain)
 
   _config: (data) ->

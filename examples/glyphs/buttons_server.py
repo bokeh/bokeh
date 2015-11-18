@@ -2,50 +2,39 @@ from __future__ import print_function
 
 from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.session import Session
+from bokeh.plotting import curdoc
+
 from bokeh.models.widgets import (
     VBox, Icon,
     Button, Toggle, Dropdown,
     CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,
 )
-
-document = Document()
-session = Session()
-session.use_doc('buttons_server')
-session.load_document(document)
+from bokeh.client import push_session
 
 def button_handler():
     print("button_handler: click")
-    session.store_document(document)
 
 def toggle_handler(active):
     print("toggle_handler: %s" % active)
-    session.store_document(document)
 
 def dropdown_handler(value):
     print("dropdown_handler: %s" % value)
-    session.store_document(document)
 
 def split_handler(value):
     print("split_handler: %s" % value)
-    session.store_document(document)
 
 def checkbox_group_handler(active):
     print("checkbox_group_handler: %s" % active)
-    session.store_document(document)
 
 def radio_group_handler(active):
     print("radio_group_handler: %s" % active)
-    session.store_document(document)
 
 def checkbox_button_group_handler(active):
     print("checkbox_button_group_handler: %s" % active)
-    session.store_document(document)
 
 def radio_button_group_handler(active):
     print("radio_button_group_handler: %s" % active)
-    session.store_document(document)
 
 button = Button(label="Push button", icon=Icon(name="check"), type="primary")
 button.on_click(button_handler)
@@ -75,12 +64,10 @@ radio_button_group.on_click(radio_button_group_handler)
 
 vbox = VBox(children=[button, toggle, dropdown, split, checkbox_group, radio_group, checkbox_button_group, radio_button_group])
 
+document = Document()
 document.add(vbox)
-session.store_document(document)
+session = push_session(document)
+session.show()
 
 if __name__ == "__main__":
-    link = session.object_link(document.context)
-    print("Please visit %s to see the plots" % link)
-    view(link)
-    print("\npress ctrl-C to exit")
-    session.poll_document(document)
+    session.loop_until_closed()

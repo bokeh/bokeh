@@ -288,9 +288,9 @@ class BoxSelectTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    select_every_mousemove = Bool(True, help="""
-    An explicit list of renderers to hit test again. If unset,
-    defaults to all renderers on a plot.
+    select_every_mousemove = Bool(False, help="""
+    Whether a selection computation should happen on every mouse
+    event, or only once, when the selection region is completed. Default: False
     """)
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
@@ -358,7 +358,7 @@ class LassoSelectTool(Tool):
 
     select_every_mousemove = Bool(True, help="""
     Whether a selection computation should happen on every mouse
-    event, or only once, when the selection region is completed.
+    event, or only once, when the selection region is completed. Default: True
     """)
 
 

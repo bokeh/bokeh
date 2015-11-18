@@ -2,7 +2,7 @@
 how BokehJS code and CSS resources should be located, loaded, and embedded in
 Bokeh documents.
 
-Also provides some pre-configured Resources objects:
+Also provides some pre-configured Resources objects.
 
 Attributes:
     CDN : load minified BokehJS from CDN
@@ -23,10 +23,43 @@ from .settings import settings
 from .util.paths import bokehjsdir
 from .templates import JS_RESOURCES, CSS_RESOURCES
 
+DEFAULT_SERVER_HOST = "localhost"
+DEFAULT_SERVER_PORT = 5006
+DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
+
+
+def websocket_url_for_server_url(url):
+    if url.startswith("http:"):
+        reprotocoled = "ws" + url[4:]
+    elif url.startswith("https:"):
+        reprotocoled = "wss" + url[5:]
+    else:
+        raise ValueError("URL has unknown protocol " + url)
+    if reprotocoled.endswith("/"):
+        return reprotocoled + "ws"
+    else:
+        return reprotocoled + "/ws"
+
+
+def server_url_for_websocket_url(url):
+    if url.startswith("ws:"):
+        reprotocoled = "http" + url[2:]
+    elif url.startswith("wss:"):
+        reprotocoled = "https" + url[3:]
+    else:
+        raise ValueError("URL has non-websocket protocol " + url)
+    if not reprotocoled.endswith("/ws"):
+        raise ValueError("websocket URL does not end in /ws")
+    return reprotocoled[:-2]
+
+DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
+
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
+
 
 def _cdn_base_url():
     return "http://cdn.pydata.org"
+
 
 def _get_cdn_urls(components, version=None, minified=True):
     if version is None:
@@ -65,6 +98,7 @@ def _get_cdn_urls(components, version=None, minified=True):
 
     return result
 
+
 def _get_server_urls(components, root_url, minified=True):
     _min = ".min" if minified else ""
 
@@ -76,9 +110,10 @@ def _get_server_urls(components, root_url, minified=True):
         'messages' : [],
     }
 
+
 class BaseResources(object):
     _default_root_dir = "."
-    _default_root_url = "http://127.0.0.1:5006/"
+    _default_root_url = DEFAULT_SERVER_HTTP_URL
 
     logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
@@ -203,7 +238,52 @@ class BaseResources(object):
     def use_widgets(self, use):
         return self._use_component("bokeh-widgets", use)
 
+
 class JSResources(BaseResources):
+    ''' The Resources class encapsulates information relating to loading or embedding Bokeh Javascript.
+
+    Args:
+        mode (str) : how should Bokeh JS be included in output
+
+            See below for descriptions of available modes
+
+        version (str, optional) : what version of Bokeh JS to load
+
+            Only valid with the ``'cdn'`` mode
+
+        root_dir (str, optional) : root directory for loading Bokeh JS assets
+
+            Only valid with ``'relative'`` and ``'relative-dev'`` modes
+
+        minified (bool, optional) : whether JavaScript should be minified or not (default: True)
+
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
+
+            Only valid with ``'server'`` and ``'server-dev'`` modes
+
+    The following **mode** values are available for configuring a Resource object:
+
+    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``http://cdn.pydata.org``
+    * ``'server'`` configure to load from a Bokeh Server
+    * ``'server-dev'`` same as ``server`` but supports non-minified assets
+    * ``'relative'`` configure to load relative to the given directory
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
+    * ``'absolute'`` configure to load from the installed Bokeh library static directory
+    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
+
+    Once configured, a Resource object exposes the following public attributes:
+
+    Attributes:
+        logo_url : location of the BokehJS logo image
+        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
+        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
+        messages : any informational messages concering this configuration
+
+    These attributes are often useful as template parameters when embedding
+    Bokeh plots.
+
+    '''
 
     def _autoload_path(self, elementid):
         return self.root_url + "bokeh/autoload.js/%s" % elementid
@@ -221,7 +301,51 @@ class JSResources(BaseResources):
     def render_js(self):
         return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
 
+
 class CSSResources(BaseResources):
+    ''' The CSSResources class encapsulates information relating to loading or embedding Bokeh client-side CSS.
+
+    Args:
+        mode (str) : how should Bokeh CSS be included in output
+
+            See below for descriptions of available modes
+
+        version (str, optional) : what version of Bokeh CSS to load
+
+            Only valid with the ``'cdn'`` mode
+
+        root_dir (str, optional) : root directory for loading BokehJS resources
+
+            Only valid with ``'relative'`` and ``'relative-dev'`` modes
+
+        minified (bool, optional) : whether CSS should be minified or not (default: True)
+
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
+
+            Only valid with ``'server'`` and ``'server-dev'`` modes
+
+    The following **mode** values are available for configuring a Resource object:
+
+    * ``'inline'`` configure to provide entire BokehJS code and CSS inline
+    * ``'cdn'`` configure to load Bokeh CSS from ``http://cdn.pydata.org``
+    * ``'server'`` configure to load from a Bokeh Server
+    * ``'server-dev'`` same as ``server`` but supports non-minified CSS
+    * ``'relative'`` configure to load relative to the given directory
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified CSS
+    * ``'absolute'`` configure to load from the installed Bokeh library static directory
+    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified CSS
+
+    Once configured, a Resource object exposes the following public attributes:
+
+    Attributes:
+        logo_url : location of the BokehJS logo image
+        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
+        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
+        messages : any informational messages concering this configuration
+
+    These attributes are often useful as template parameters when embedding Bokeh plots.
+
+    '''
 
     @property
     def css_files(self):
@@ -236,20 +360,21 @@ class CSSResources(BaseResources):
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
 
+
 class Resources(JSResources, CSSResources):
     ''' The Resources class encapsulates information relating to loading or
-    embedding BokehJS code and CSS.
+    embedding Bokeh Javascript and CSS.
 
     Args:
-        mode (str) : how should BokehJS be included in output
+        mode (str) : how should Bokeh JS and CSS be included in output
 
             See below for descriptions of available modes
 
-        version (str, optional) : what version of BokejJS to load
+        version (str, optional) : what version of Bokeh JS and CSS to load
 
             Only valid with the ``'cdn'`` mode
 
-        root_dir (str, optional) : root directory for loading BokehJS resources
+        root_dir (str, optional) : root directory for loading Bokeh JS and CSS assets
 
             Only valid with ``'relative'`` and ``'relative-dev'`` modes
 
@@ -261,14 +386,14 @@ class Resources(JSResources, CSSResources):
 
     The following **mode** values are available for configuring a Resource object:
 
-    * ``'inline'`` configure to provide entire BokehJS code and CSS inline
-    * ``'cdn'`` configure to load BokehJS code and CS from ``http://cdn.pydata.org``
+    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``http://cdn.pydata.org``
     * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-minified JS
+    * ``'server-dev'`` same as ``server`` but supports non-minified assets
     * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified JS
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
     * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified JS
+    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
 
     Once configured, a Resource object exposes the following public attributes:
 

@@ -2,9 +2,10 @@
 
 from __future__ import print_function
 
-from bokeh.plotting import cursession, figure, output_server, show, push
+from bokeh.plotting import figure, output_server, show, curdoc
 from bokeh.models import GlyphRenderer
 import bokeh.embed as embed
+from bokeh.client import push_session
 
 import time
 from numpy import pi, cos, sin, linspace, roll
@@ -19,10 +20,10 @@ rmax = r_base + sin(r_x) + 1
 colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
           "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
-output_server("animated")
+# Open a session which will keep our local doc in sync with server
+session = push_session(curdoc())
 
 p = figure(x_range=[-11, 11], y_range=[-11, 11])
-
 p.annular_wedge(
     0, 0, rmin, rmax, theta[:-1], theta[1:],
     inner_radius_units="data",
@@ -31,9 +32,7 @@ p.annular_wedge(
     line_color="black",
 )
 
-push()
-
-tag = embed.autoload_server(p, cursession())
+tag = embed.autoload_server(p)
 html = """
 <html>
   <head></head>
@@ -69,5 +68,4 @@ while True:
     rmax = roll(rmax, -1)
     ds.data["outer_radius"] = rmax
 
-    cursession().store_objects(ds)
     time.sleep(0.1)

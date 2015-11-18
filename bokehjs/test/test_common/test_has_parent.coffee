@@ -19,7 +19,7 @@ describe "has_parent module", ->
       testprop: 'aassddff'
     child = Collections('TestParent').create
       id: 'first'
-      parent: parent.ref()
+      parent: parent
 
     expect(parent.get "testprop").to.equal "aassddff"
     expect(parent.get "testprop").to.equal child.get("testprop")
@@ -29,7 +29,7 @@ describe "has_parent module", ->
       id: "parent"
     child = Collections("TestParent").create
       id: "child"
-      parent: parent.ref()
+      parent: parent
 
     expect(parent.get "testprop").to.equal "defaulttestprop"
     expect(parent.get "testprop").to.equal child.get("testprop")
