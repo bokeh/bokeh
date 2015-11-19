@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 import unittest
 
 import bokeh.document as document
+from bokeh.io import curdoc
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Int, Instance, String
 
@@ -254,8 +255,11 @@ class TestDocument(unittest.TestCase):
         d.add_root(m)
         assert len(d.roots) == 1
         assert m.bar == 1
+        assert curdoc() is not d
         events = []
+        curdoc_from_listener = []
         def listener(event):
+            curdoc_from_listener.append(curdoc())
             events.append(event)
         d.on_change(listener)
         m.bar = 42
@@ -267,6 +271,8 @@ class TestDocument(unittest.TestCase):
         assert event.attr == 'bar'
         assert event.old == 1
         assert event.new == 42
+        assert len(curdoc_from_listener) == 1
+        assert curdoc_from_listener[0] is d
 
     def test_change_notification_removal(self):
         d = document.Document()
@@ -356,7 +362,6 @@ class TestDocument(unittest.TestCase):
         assert callback == d.session_callbacks[0] == events[0].callback
         assert callback.id == 'abc'
         assert callback.period == 1
-        assert callback.callback == cb
 
         callback = d.remove_periodic_callback(cb)
         assert len(d.session_callbacks) == 0
@@ -383,13 +388,47 @@ class TestDocument(unittest.TestCase):
         assert callback == d.session_callbacks[0] == events[0].callback
         assert callback.id == 'abc'
         assert callback.timeout == 1
-        assert callback.callback == cb
 
         callback = d.remove_timeout_callback(cb)
         assert len(d.session_callbacks) == 0
         assert len(events) == 2
         assert isinstance(events[0], document.SessionCallbackAdded)
         assert isinstance(events[1], document.SessionCallbackRemoved)
+
+    def test_periodic_callback_gets_curdoc(self):
+        d = document.Document()
+        assert curdoc() is not d
+        curdoc_from_cb = []
+        def cb():
+            curdoc_from_cb.append(curdoc())
+        callback = d.add_periodic_callback(cb, 1)
+        callback.callback()
+        assert len(curdoc_from_cb) == 1
+        assert curdoc_from_cb[0] is d
+
+    def test_timeout_callback_gets_curdoc(self):
+        d = document.Document()
+        assert curdoc() is not d
+        curdoc_from_cb = []
+        def cb():
+            curdoc_from_cb.append(curdoc())
+        callback = d.add_timeout_callback(cb, 1)
+        callback.callback()
+        assert len(curdoc_from_cb) == 1
+        assert curdoc_from_cb[0] is d
+
+    def test_model_callback_gets_curdoc(self):
+        d = document.Document()
+        m = AnotherModelInTestDocument(bar=42)
+        d.add_root(m)
+        assert curdoc() is not d
+        curdoc_from_cb = []
+        def cb(attr, old, new):
+            curdoc_from_cb.append(curdoc())
+        m.on_change('bar', cb)
+        m.bar = 43
+        assert len(curdoc_from_cb) == 1
+        assert curdoc_from_cb[0] is d
 
     def test_clear(self):
         d = document.Document()

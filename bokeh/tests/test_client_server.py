@@ -316,7 +316,6 @@ class TestClientServer(unittest.TestCase):
             for ss in [server_session, client_session, server_session2]:
                 iocb = ss._callbacks[callback.id]
                 assert isinstance(iocb, PeriodicCallback)
-                assert iocb.callback == cb
                 assert iocb.callback_time == 1
                 assert iocb.io_loop == server.io_loop
                 assert iocb.is_running()

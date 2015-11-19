@@ -78,6 +78,7 @@ class ScriptHandler(SpellingHandler):
         self._module_name = 'bk_script_' + str(uuid.uuid4()).replace('-', '')
         self._module = ModuleType(self._module_name)
         self._module.__dict__['__file__'] = abspath(self._path)
+        old_doc = curdoc()
         set_curdoc(doc)
         old_io = self._monkeypatch_io()
         try:
@@ -97,3 +98,4 @@ class ScriptHandler(SpellingHandler):
             self._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
         finally:
             self._unmonkeypatch_io(old_io)
+            set_curdoc(old_doc)

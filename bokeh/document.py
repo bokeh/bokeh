@@ -388,9 +388,28 @@ class Document(object):
         for callback in callbacks:
             self._callbacks.remove(callback)
 
+    def _with_self_as_curdoc(self, f):
+        from bokeh.io import set_curdoc, curdoc
+        old_doc = curdoc()
+        try:
+            set_curdoc(self)
+            f()
+        finally:
+            set_curdoc(old_doc)
+
+    def _wrap_with_self_as_curdoc(self, f):
+        doc = self
+        def wrapper(*args, **kwargs):
+            def invoke():
+                f(*args, **kwargs)
+            doc._with_self_as_curdoc(invoke)
+        return wrapper
+
     def _trigger_on_change(self, event):
-        for cb in self._callbacks:
-            cb(event)
+        def invoke_callbacks():
+            for cb in self._callbacks:
+                cb(event)
+        self._with_self_as_curdoc(invoke_callbacks)
 
     def _notify_change(self, model, attr, old, new):
         ''' Called by PlotObject when it changes
@@ -657,7 +676,7 @@ class Document(object):
 
         '''
         # create the new callback object
-        cb = PeriodicCallback(self, callback, period, id)
+        cb = PeriodicCallback(self, self._wrap_with_self_as_curdoc(callback), period, id)
         self._session_callbacks[callback] = cb
         # emit event so the session is notified of the new callback
         self._trigger_on_change(SessionCallbackAdded(self, cb))
@@ -678,7 +697,7 @@ class Document(object):
 
         '''
         # create the new callback object
-        cb = TimeoutCallback(self, callback, timeout, id)
+        cb = TimeoutCallback(self, self._wrap_with_self_as_curdoc(callback), timeout, id)
         self._session_callbacks[callback] = cb
         # emit event so the session is notified of the new callback
         self._trigger_on_change(SessionCallbackAdded(self, cb))
