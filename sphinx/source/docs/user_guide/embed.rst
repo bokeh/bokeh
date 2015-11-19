@@ -129,9 +129,9 @@ For example, to use version ``0.10.0``:
     You must provide the closing `</script>` tag. This is required by all
     browsers and the page will typically not render without it.
 
-The |components| function takes either a single PlotObject, a list/tuple of
-PlotObjects, or a dictionary of keys and PlotObjects. Each returns
-a corresponding data structure of script and div pairs.
+The |components| function takes either a single Bokeh Model a list/tuple of
+Models, or a dictionary of keys and Models. Each returns a corresponding
+data structure of script and div pairs.
 
 The following illustrates how different input types correlate to outputs:
 
@@ -185,7 +185,7 @@ Here's an example of how you would use the multiple plot generator:
     p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, plot_width=300, plot_height=300)
     p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
 
-    # plots can be a single PlotObject, a list/tuple, or even a dictionary
+    # plots can be a single Bokeh Model, a list/tuple, or even a dictionary
     plots = {'Red': p1, 'Blue': p2, 'Green': p3}
 
     script, div = components(plots)
