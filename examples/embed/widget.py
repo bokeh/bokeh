@@ -129,16 +129,8 @@ in this directory, then navigate to
 
 import time
 
-# link = pop.session.object_link(pop.document.context)
-# print("""You can also go to
-#
-#     %s
-#
-# to see the plots on the Bokeh server directly""" % link)
-
 try:
     while True:
-        # pop.session.load_document(pop.document)
         time.sleep(0.1)
 except KeyboardInterrupt:
     print()
