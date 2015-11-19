@@ -5,12 +5,10 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 
-from bokeh.plotting import output_file
-
 from bokeh.models import Plot
 from bokeh.models import Range1d
 from bokeh.models import WheelZoomTool, ResizeTool, PanTool, BoxZoomTool
-from bokeh.models import ImageSource,WMTSTileSource
+from bokeh.models import ImageSource, WMTSTileSource
 
 # create plot object
 title = 'Dynamic Map: National Land Cover Dataset'
@@ -26,7 +24,7 @@ tile_options['url'] = 'http://tile.stamen.com/toner/{Z}/{X}/{Y}.png'
 tile_source = WMTSTileSource(**tile_options)
 p.add_tile(tile_source)
 
-# add dynamic data layer 
+# add dynamic data layer
 service_url = 'http://raster.nationalmap.gov/arcgis/rest/services/LandCover/USGS_EROS_LandCover_NLCD/MapServer/export?'
 service_url += 'bbox={XMIN},{YMIN},{XMAX},{YMAX}&bboxSR=102100&size={HEIGHT}%2C{WIDTH}&imageSR=102100&format=png32&transparent=true&f=image'
 image_source_options = {}
