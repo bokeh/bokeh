@@ -96,7 +96,6 @@ class Population(object):
             male=male_percent,
             female=female_percent,
         )
-        # self.session.store_document(self.document)
 
 import bokeh.embed as embed
 
