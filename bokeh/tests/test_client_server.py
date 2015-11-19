@@ -9,16 +9,16 @@ from bokeh.application.spellings import FunctionHandler
 from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.server.server import Server
 from bokeh.server.session import ServerSession
-from bokeh.plot_object import PlotObject
+from bokeh.plot_object import Model
 from bokeh.properties import Int, Instance
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 
-class AnotherModelInTestClientServer(PlotObject):
+class AnotherModelInTestClientServer(Model):
     bar = Int(1)
 
-class SomeModelInTestClientServer(PlotObject):
+class SomeModelInTestClientServer(Model):
     foo = Int(2)
-    child = Instance(PlotObject)
+    child = Instance(Model)
 
 logging.basicConfig(level=logging.DEBUG)
 

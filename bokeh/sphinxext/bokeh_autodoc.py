@@ -10,7 +10,7 @@ from __future__ import absolute_import, print_function
 from six import class_types
 from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter
 
-from bokeh.plot_object import PlotObject
+from bokeh.plot_object import Model
 from bokeh.properties import Property
 
 def _add_directive_header(self, sig):
@@ -43,7 +43,7 @@ class ModelDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, class_types) and issubclass(member, PlotObject)
+        return isinstance(member, class_types) and issubclass(member, Model)
 
     add_directive_header = _add_directive_header
 

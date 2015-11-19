@@ -2,13 +2,13 @@
 
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..plot_object import Model
 from ..properties import abstract
 from ..properties import Dict, Instance, String, Enum
 from ..enums import ScriptingLanguage
 
 @abstract
-class Callback(PlotObject):
+class Callback(Model):
     """ Base class for interactive callback. ``Callback`` is generally
     not useful to instantiate on its own."""
 
@@ -25,7 +25,7 @@ class OpenURL(Callback):
 class CustomJS(Callback):
     """ Execute a JavaScript function. """
 
-    args = Dict(String, Instance(PlotObject), help="""
+    args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made
     available to the callback code snippet as the values of named
     parameters to the callback.

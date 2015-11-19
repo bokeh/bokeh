@@ -61,7 +61,7 @@ class BokehJSONEncoder(json.JSONEncoder):
 
     def default(self, obj):
         #argh! local import!
-        from .plot_object import PlotObject
+        from .plot_object import Model
         from .properties import HasProps
         from .colors import Color
         ## array types
@@ -69,7 +69,7 @@ class BokehJSONEncoder(json.JSONEncoder):
             return transform_series(obj)
         elif isinstance(obj, np.ndarray):
             return transform_array(obj)
-        elif isinstance(obj, PlotObject):
+        elif isinstance(obj, Model):
             return obj.ref
         elif isinstance(obj, HasProps):
             return obj.changed_properties_with_values()

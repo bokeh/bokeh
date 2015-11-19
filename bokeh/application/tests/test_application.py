@@ -4,15 +4,15 @@ import unittest
 
 from bokeh.application.spellings import FunctionHandler
 from bokeh.application import Application
-from bokeh.plot_object import PlotObject
+from bokeh.plot_object import Model
 from bokeh.properties import Int, Instance
 
-class AnotherModelInTestApplication(PlotObject):
+class AnotherModelInTestApplication(Model):
     bar = Int(1)
 
-class SomeModelInTestApplication(PlotObject):
+class SomeModelInTestApplication(Model):
     foo = Int(2)
-    child = Instance(PlotObject)
+    child = Instance(Model)
 
 class TestApplication(unittest.TestCase):
 

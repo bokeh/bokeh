@@ -22,7 +22,7 @@ always be active regardless of what other tools are currently active.
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..plot_object import Model
 from ..properties import abstract, Float, Color
 from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
                           Dict, Tuple)
@@ -32,7 +32,7 @@ from .renderers import Renderer
 from .callbacks import Callback
 
 
-class ToolEvents(PlotObject):
+class ToolEvents(Model):
     """
 
     """
@@ -41,7 +41,7 @@ class ToolEvents(PlotObject):
 
 
 @abstract
-class Tool(PlotObject):
+class Tool(Model):
     """ A base class for all interactive tool types. ``Tool`` is
     not generally useful to instantiate on its own.
 

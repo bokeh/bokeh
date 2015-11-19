@@ -18,7 +18,7 @@ Examples
 
 For the following definition of ``bokeh.sphinxext.sample.Bar``::
 
-    class Bar(PlotObject):
+    class Bar(Model):
         ''' This is a Bar model. '''
         thing = List(Int, help="doc for thing")
 

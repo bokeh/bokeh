@@ -4,17 +4,17 @@ import unittest
 
 import bokeh.document as document
 from bokeh.io import curdoc
-from bokeh.plot_object import PlotObject
+from bokeh.plot_object import Model
 from bokeh.properties import Int, Instance, String
 
-class AnotherModelInTestDocument(PlotObject):
+class AnotherModelInTestDocument(Model):
     bar = Int(1)
 
-class SomeModelInTestDocument(PlotObject):
+class SomeModelInTestDocument(Model):
     foo = Int(2)
-    child = Instance(PlotObject)
+    child = Instance(Model)
 
-class ModelThatOverridesName(PlotObject):
+class ModelThatOverridesName(Model):
     name = String()
 
 class TestDocument(unittest.TestCase):

@@ -5,19 +5,19 @@ from __future__ import absolute_import
 
 from ...properties import abstract
 from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
-from ...plot_object import PlotObject
+from ...plot_object import Model
 from ...enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
 from .widget import Widget
 
 @abstract
-class CellFormatter(PlotObject):
+class CellFormatter(Model):
     """ Abstract base class for data table's cell formatters.
 
     """
 
 @abstract
-class CellEditor(PlotObject):
+class CellEditor(Model):
     """ Abstract base class for data table's cell editors.
 
     """
@@ -275,7 +275,7 @@ class DateEditor(CellEditor):
 
     """
 
-class TableColumn(PlotObject):
+class TableColumn(Model):
     """ Table column widget.
 
     """

@@ -3,16 +3,16 @@ from __future__ import absolute_import, print_function
 import unittest
 
 import bokeh.document as document
-from bokeh.plot_object import PlotObject
+from bokeh.plot_object import Model
 from bokeh.properties import Int, Instance
 from bokeh.server.protocol import Protocol
 
-class AnotherModelInTestPatchDoc(PlotObject):
+class AnotherModelInTestPatchDoc(Model):
     bar = Int(1)
 
-class SomeModelInTestPatchDoc(PlotObject):
+class SomeModelInTestPatchDoc(Model):
     foo = Int(2)
-    child = Instance(PlotObject)
+    child = Instance(Model)
 
 class TestPatchDocument(unittest.TestCase):
 
@@ -72,7 +72,7 @@ class TestPatchDocument(unittest.TestCase):
         assert not msg.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'bar', root.foo, 43))
         assert not msg.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'foo', root.foo, 43))
 
-        # PlotObject property changed
+        # Model property changed
         event2 = document.ModelChangedEvent(sample, root, 'child', root.child, new_child)
         msg2 = Protocol("1.0").create("PATCH-DOC", [event2])
         assert msg2.should_suppress_on_change(event2)
@@ -80,7 +80,7 @@ class TestPatchDocument(unittest.TestCase):
         assert not msg2.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'blah', root.child, new_child))
         assert not msg2.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'child', other_root.child, new_child))
 
-        # PlotObject property changed to None
+        # Model property changed to None
         event3 = document.ModelChangedEvent(sample, root, 'child', root.child, None)
         msg3 = Protocol("1.0").create("PATCH-DOC", [event3])
         assert msg3.should_suppress_on_change(event3)
@@ -88,7 +88,7 @@ class TestPatchDocument(unittest.TestCase):
         assert not msg3.should_suppress_on_change(document.ModelChangedEvent(sample, root, 'blah', root.child, None))
         assert not msg3.should_suppress_on_change(document.ModelChangedEvent(sample, other_root, 'child', other_root.child, None))
 
-        # PlotObject property changed from None
+        # Model property changed from None
         event4 = document.ModelChangedEvent(sample, other_root, 'child', other_root.child, None)
         msg4 = Protocol("1.0").create("PATCH-DOC", [event4])
         assert msg4.should_suppress_on_change(event4)

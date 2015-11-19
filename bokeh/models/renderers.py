@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 import logging
 
-from ..plot_object import PlotObject
+from ..plot_object import Model
 from ..properties import abstract
 from ..properties import String, Enum, Instance, Float
 from ..enums import Units, RenderLevel
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @abstract
-class Renderer(PlotObject):
+class Renderer(Model):
     """ A base class for renderer types. ``Renderer`` is not
     generally useful to instantiate on its own.
 

@@ -23,7 +23,7 @@ from .templates import (
 )
 from .util.string import encode_utf8
 
-from .plot_object import PlotObject, _ModelInDocument
+from .plot_object import Model, _ModelInDocument
 from ._json_encoder import serialize_json
 from .resources import DEFAULT_SERVER_HTTP_URL
 from .client import DEFAULT_SESSION_ID
@@ -48,8 +48,8 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
         **already loaded**.
 
     Args:
-        plot_objects (PlotObject|list|dict|tuple) :
-            A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
+        plot_objects (Model|list|dict|tuple) :
+            A single Model, a list/tuple of Models, or a dictionary of keys and Models.
 
         resources :
             Deprecated argument
@@ -113,7 +113,7 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     # 1) Convert single items and dicts into list
 
-    was_single_object = isinstance(plot_objects, PlotObject) or isinstance(plot_objects, Document)
+    was_single_object = isinstance(plot_objects, Model) or isinstance(plot_objects, Document)
     # converts single to list
     plot_objects = _check_plot_objects(plot_objects, allow_dict=True)
     # now convert dict to list, saving keys in the same order
@@ -201,7 +201,7 @@ def notebook_div(plot_object):
     The data for the plot is stored directly in the returned HTML.
 
     Args:
-        plot_object (PlotObject) : Bokeh object to render
+        plot_object (Model) : Bokeh object to render
 
     Returns:
         UTF-8 encoded HTML text for a ``<div>``
@@ -249,7 +249,7 @@ def file_html(plot_objects,
               css_resources=None,
               template=FILE,
               template_variables={}):
-    '''Return an HTML document that embeds Bokeh PlotObject or Document objects.
+    '''Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML.
 
@@ -258,8 +258,8 @@ def file_html(plot_objects,
     customizing the jinja2 template.
 
     Args:
-        plot_objects (PlotObject or Document or list) : Bokeh object or objects to render
-            typically a PlotObject or Document
+        plot_objects (Model or Document or list) : Bokeh object or objects to render
+            typically a Model or Document
         resources (Resources) : a resource configuration for Bokeh JS & CSS assets. Pass ``None`` if
             using js_resources of css_resources manually.
         title (str, optional) : a title for the HTML document ``<title>`` tags or None. (default: None)
@@ -300,7 +300,7 @@ def autoload_static(plot_object, resources, script_path):
     The data for the plot is stored directly in the returned JavaScript code.
 
     Args:
-        plot_object (PlotObject or Document) :
+        plot_object (Model or Document) :
         resources (Resources) :
         script_path (str) :
 
@@ -359,7 +359,7 @@ def autoload_server(plot_object, app_path="/", session_id=DEFAULT_SESSION_ID, ur
     The data for the plot is stored on the Bokeh Server.
 
     Args:
-        plot_object (PlotObject) : the object to render from the session, or None for entire document
+        plot_object (Model) : the object to render from the session, or None for entire document
         app_path (str, optional) : the server path to the app we want to load
         session_id (str, optional) : server session ID
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
@@ -468,33 +468,33 @@ def _check_plot_objects(plot_objects, allow_dict=False):
     input_type_valid = False
 
     # Check for single item
-    if isinstance(plot_objects, (PlotObject, Document)):
+    if isinstance(plot_objects, (Model, Document)):
         plot_objects = [plot_objects]
 
     # Check for sequence
-    if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
+    if isinstance(plot_objects, Sequence) and all(isinstance(x, (Model, Document)) for x in plot_objects):
         input_type_valid = True
 
     if allow_dict:
         if isinstance(plot_objects, dict) and \
            all(isinstance(x, string_types) for x in plot_objects.keys()) and \
-           all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
+           all(isinstance(x, (Model, Document)) for x in plot_objects.values()):
             input_type_valid = True
 
     if not input_type_valid:
         if allow_dict:
             raise ValueError(
-                'Input must be a PlotObject, a Document, a Sequence of PlotObjects and Document, or a dictionary from string to PlotObject and Document'
+                'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
             )
         else:
-            raise ValueError('Input must be a PlotObject, a Document, or a Sequence of PlotObjects and Document')
+            raise ValueError('Input must be a Model, a Document, or a Sequence of Models and Document')
 
     return plot_objects
 
 def _check_one_plot_object(plot_object):
     plot_objects = _check_plot_objects(plot_object)
     if len(plot_objects) != 1:
-        raise ValueError("Input must be exactly one PlotObject or Document")
+        raise ValueError("Input must be exactly one Model or Document")
     return plot_objects[0]
 
 def _div_for_render_item(item):
@@ -530,7 +530,7 @@ def _standalone_docs_json_and_render_items(plot_objects):
             doc = p
         else:
             if p.document is None:
-                raise ValueError("To render a PlotObject as HTML it must be part of a Document")
+                raise ValueError("To render a Model as HTML it must be part of a Document")
             doc = p.document
             modelid = p._id
         docid = None
@@ -571,8 +571,8 @@ def standalone_html_page_for_models(plot_objects, resources, title):
     or may have to load JS and CSS from different files.
 
     Args:
-        plot_objects (PlotObject or Document) : Bokeh object to render
-            typically a PlotObject or a Document
+        plot_objects (Model or Document) : Bokeh object to render
+            typically a Model or a Document
         resources (Resources) : a resource configuration for BokehJS assets
         title (str) : a title for the HTML document ``<title>`` tags or None to use the document title
 

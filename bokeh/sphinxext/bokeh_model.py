@@ -18,7 +18,7 @@ Examples
 
 For the following definition of ``bokeh.sphinxext.sample.Foo``::
 
-    class Foo(PlotObject):
+    class Foo(Model):
         ''' This is a Foo model. '''
         index = Either(Auto, Enum('abc', 'def', 'xzy'), help="doc for index")
         value = Tuple(Float, Float, help="doc for value")
