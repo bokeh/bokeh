@@ -278,6 +278,10 @@ Below is a an example that shows both methods of setting the range:
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_figure_range.py
     :source-position: above
 
+Ranges can also accept a min and max property that allow you to specify the
+edges of the plot that you do not want the user to be able to pan/zoom beyond.
+By default, Bokeh will set these to the max and min of your data.
+
 .. _userguide_plotting_axis_types:
 
 Specifying Axis Types

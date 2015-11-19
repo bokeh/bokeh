@@ -42,6 +42,11 @@ class Range1d(Range):
     The end of the range.
     """)
 
+    min = Either(Float, Datetime, Int, help="""
+    The minimum value that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
+    """)
+
     def __init__(self, *args, **kwargs):
         if args and ('start' in kwargs or 'end' in kwargs):
             raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
