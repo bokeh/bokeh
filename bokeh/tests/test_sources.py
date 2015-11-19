@@ -10,7 +10,7 @@ try:
 except ImportError as e:
     is_pandas = False
 
-from bokeh.models.sources import DataSource, ColumnDataSource, ServerDataSource
+from bokeh.models.sources import DataSource, ColumnDataSource
 
 class TestColumnDataSourcs(unittest.TestCase):
 
@@ -86,12 +86,6 @@ class TestColumnDataSourcs(unittest.TestCase):
             self.assertEquals(len(w), 1)
             self.assertEquals(w[0].category, UserWarning)
             self.assertEquals(str(w[0].message), "Unable to find column 'foo' in data source")
-
-class TestServerDataSources(unittest.TestCase):
-
-    def test_basic(self):
-        ds = ServerDataSource()
-        self.assertTrue(isinstance(ds, DataSource))
 
 if __name__ == "__main__":
     unittest.main()

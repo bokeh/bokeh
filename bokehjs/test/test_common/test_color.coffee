@@ -25,9 +25,9 @@ describe "color module", ->
     expect(color.color2rgba('#fff')).to.eql [1, 1, 1, 1]    
 
   it "should turn known css color names to tuples", ->
-	  expect(color.color2rgba('red')).to.eql [1, 0, 0, 1]
-	  expect(color.color2rgba('yellow')).to.eql [1, 1, 0, 1]
-	  expect(color.color2rgba('gray')).to.eql halfgray
+    expect(color.color2rgba('red')).to.eql [1, 0, 0, 1]
+    expect(color.color2rgba('yellow')).to.eql [1, 1, 0, 1]
+    expect(color.color2rgba('gray')).to.eql halfgray
 
   it "should turn known rgb() colors to tuples", ->
     expect(color.color2rgba('rgb(0, 0, 0)')).to.eql [0, 0, 0, 1] 

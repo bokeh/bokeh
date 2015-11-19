@@ -86,9 +86,13 @@ class CallbackManager(object):
             None
 
         '''
+        def invoke():
+            callbacks = self._callbacks.get(attr)
+            if callbacks:
+                for callback in callbacks:
+                    callback(attr, old, new)
         if hasattr(self, '_document') and self._document is not None:
             self._document._notify_change(self, attr, old, new)
-        callbacks = self._callbacks.get(attr)
-        if callbacks:
-            for callback in callbacks:
-                callback(attr, old, new)
+            self._document._with_self_as_curdoc(invoke)
+        else:
+            invoke()
