@@ -28,7 +28,7 @@ from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
 from ..properties import (HasProps, Instance, List, String, Property,
-                          Either, Dict, Color, Bool)
+                          Either, Dict, Color, Bool, Tuple)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -194,6 +194,14 @@ class Builder(HasProps):
     comp_glyph_types = List(Instance(CompositeGlyph))
 
     sort_dim = Dict(String, Bool, default={})
+
+    sort_legend = List(Tuple(String, Bool), help="""
+        List of tuples to use for sorting the legend, in order that they should be
+        used for sorting. This sorting can be different than the sorting used for the
+        rest of the chart. For example, you might want to sort only on the column
+        assigned to the color attribute, or sort it descending. The order of each tuple
+        is (Column, Ascending).
+        """)
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -545,6 +553,15 @@ class XYBuilder(Builder):
             else:
                 select = ['']
             self.ylabel = ', '.join(select)
+
+        # sort the legend if we are told to
+        if len(self.sort_legend) > 0:
+            for attr, asc in self.sort_legend:
+                if len(self.attributes[attr].columns) > 0:
+                    item_order = self.attributes[attr].items
+                    self._legends = list(sorted(self._legends, key=lambda leg:
+                                                item_order.index(leg[0]),
+                                                reverse=~asc))
 
     def _get_range(self, dim, start, end):
         """Create a :class:`Range` for the :class:`Chart`.

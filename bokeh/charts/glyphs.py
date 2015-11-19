@@ -901,8 +901,10 @@ class HistogramGlyph(AggregateGlyph):
         return 0.0
 
 
-class HeatmapGlyph(XyGlyph):
+class BinGlyph(XyGlyph):
+    """Represents a group of data that was aggregated and is represented by a glyph.
 
+    """
     bins = Instance(Bins)
     column = String()
     stat = String()
