@@ -92,7 +92,7 @@ for y in yattrs:
 grid = GridPlot(children=plots, title="iris_splom")
 
 doc = Document()
-doc.add(grid)
+doc.add_root(grid)
 
 if __name__ == "__main__":
     filename = "iris_splom.html"
