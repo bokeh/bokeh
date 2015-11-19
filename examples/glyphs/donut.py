@@ -107,7 +107,7 @@ glyph = Text(x="x", y="y", text="text", text_align="center", text_baseline="midd
 plot.add_glyph(text_source, glyph)
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "donut.html"

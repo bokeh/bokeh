@@ -103,7 +103,7 @@ hover = HoverTool(tooltips=tooltips, renderers=[medal])
 plot.add_tools(hover)
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "sprint.html"
