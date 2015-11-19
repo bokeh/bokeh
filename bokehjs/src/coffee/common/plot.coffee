@@ -32,6 +32,33 @@ properties = require "./properties"
 
 global_gl_canvas = null
 
+get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
+    # client_width and height represent the available size
+    
+    if use_width
+      new_width1 = Math.max(client_width, min_size)
+      new_height1 = parseInt(new_width1 / aspect_ratio)
+      if new_height1 < min_size
+        new_height1 = min_size
+        new_width1 = parseInt(new_height1 * aspect_ratio)
+    if use_height
+      new_height2 = Math.max(client_height, min_size)
+      new_width2 = parseInt(new_height2 * aspect_ratio)
+      if new_width2 < min_size
+        new_width2 = min_size
+        new_height2 = parseInt(new_width2 / aspect_ratio)
+    
+    if (not use_height) and (not use_width)
+      return null  # remain same size
+    else if use_height and use_width
+      if new_width1 < new_width2
+        return [new_width1, new_height1]
+      else
+        return [new_width2, new_height2]
+    else if use_height
+     return [new_width2, new_height2]
+    else
+      return [new_width1, new_height1]
 
 class PlotView extends ContinuumView
   className: "bk-plot"
@@ -362,42 +389,32 @@ class PlotView extends ContinuumView
   resize: () =>
     @resize_width_height(true, false)
   
-  resize_width_height: (use_width, use_height) =>
+  resize_width_height: (use_width, use_height, maintain_ar=true) =>
     # Resize plot based on available width and/or height
-    canvas_height = @canvas.get('height')
-    canvas_width = @canvas.get('width')
-    # Calculating this each time means that we play nicely with resize tool
-    aspect_ratio = canvas_width / canvas_height
-
+    
     # kiwi.js falls over if we try and resize too small.
-    # min_size is currently set in defaults to 100, we can make this
+    # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
+    
+    avail_width = @.el.clientWidth
+    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
-    
-    if use_width
-      new_width1 = Math.max(@.el.clientWidth, min_size)
-      new_height1 = parseInt(new_width1 / aspect_ratio)
-    if use_height
-      new_height2 = Math.max(@.el.parentNode.clientHeight - 50, min_size)  # -50 for x ticks
-      new_width2 = parseInt(new_height2 * aspect_ratio)
-    
-    if (not use_height) and (not use_width)
-      # remain same size
-    else if use_height and use_width
-      if new_width2 < new_width1 and new_width2 > min_size
-        @canvas._set_dims([new_width2, new_height2])
-      else
-        @canvas._set_dims([new_width1, new_height1])
-    else if use_height and new_width2 > min_size
-      @canvas._set_dims([new_width2, new_height2])
-    else if use_width and new_width1 > min_size
-      @canvas._set_dims([new_width1, new_height1])
-    else if aspect_ratio < 1
-      @canvas._set_dims([min_size, min_size / aspect_ratio])
+        
+    if maintain_ar is false
+      # Just change width and/or height; aspect ratio will change
+      if use_width and use_height
+        @canvas._set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
+      else if use_width
+        @canvas._set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
+      else if use_height
+        @canvas._set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
     else
-      @canvas._set_dims([min_size * aspect_ratio, min_size])
-    return null
+      # Find best size to fill space while maintaining aspect ratio
+      ar = @canvas.get('width') / @canvas.get('height')
+      w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
+      if w_h?
+        @canvas._set_dims(w_h)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -589,7 +606,7 @@ class Plot extends HasParent
       lod_timeout: 500
       webgl: false
       responsive: false
-      min_size: 100
+      min_size: 120
     }
 
   display_defaults: ->
@@ -618,5 +635,6 @@ class Plot extends HasParent
     }
 
 module.exports =
+  get_size_for_available_space: get_size_for_available_space
   Model: Plot
   View: PlotView
