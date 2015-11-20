@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from ..plot_object import PlotObject
-from ..properties import (Any, Dict, String, Int)
+from ..properties import (Any, Dict, String)
 
 class ImageSource(PlotObject):
     """ A base class for all image source types. """
@@ -11,7 +11,7 @@ class ImageSource(PlotObject):
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
     """)
 
-    extra_url_vars = Dict(String, Any(String, Int), help="""
+    extra_url_vars = Dict(String, Any, help="""
     A dictionary that maps url variable template keys to values.
     These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)

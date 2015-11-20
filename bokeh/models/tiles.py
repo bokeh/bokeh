@@ -30,7 +30,7 @@ class TileSource(PlotObject):
     the maximum zoom level for the tile layer. This is the most "zoomed-in" level.
     """)
 
-    extra_url_vars = Dict(String, Any(String, Int), help="""
+    extra_url_vars = Dict(String, Any, help="""
     A dictionary that maps url variable template keys to values.
     These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)
