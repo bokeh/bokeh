@@ -12,6 +12,7 @@ import time
 
 from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
+from tornado.concurrent import Future
 
 from ..exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol import Protocol
@@ -83,8 +84,16 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise e
 
+        def on_ack_sent(future):
+            e = future.exception()
+            if e is not None:
+                # this isn't really an error (unless we have a
+                # bug), it just means a client disconnected
+                # immediately, most likely.
+                log.debug("Failed to send ack %r", e)
+
         msg = self.connection.protocol.create('ACK')
-        self.send_message(msg)
+        self.application.io_loop.add_future(self.send_message(msg), on_ack_sent)
 
     @gen.coroutine
     def on_message(self, fragment):
@@ -114,6 +123,7 @@ class WSHandler(WebSocketHandler):
 
         raise gen.Return(None)
 
+    @gen.coroutine
     def send_message(self, message):
         ''' Send a Bokeh Server protocol message to the connected client.
 
@@ -122,10 +132,21 @@ class WSHandler(WebSocketHandler):
 
         '''
         try:
-            message.send(self)
+            yield message.send(self)
         except WebSocketClosedError:
             # on_close() is / will be called anyway
             log.warn("Failed sending message as connection was closed")
+        raise gen.Return(None)
+
+    def write_message(self, message, binary=False):
+        ''' Override parent write_message with a version that consistently returns Future across Tornado versions '''
+        future = super(WSHandler, self).write_message(message, binary)
+        if future is None:
+            # tornado >= 4.3 gives us a Future, simulate that
+            # with this fake Future on < 4.3
+            future = Future()
+            future.set_result(None)
+        return future
 
     def on_close(self):
         ''' Clean up when the connection is closed.
@@ -159,14 +180,9 @@ class WSHandler(WebSocketHandler):
     @gen.coroutine
     def _schedule(self, work):
         if isinstance(work, Message):
-            self.send_message(work)
-
-        # elif isinstance(work, ServerTask):
-        #     work = yield work(self.application.executor)
-
+            yield self.send_message(work)
         else:
-            self._internal_error("expected a Message or Task")
-            raise gen.Return(None)
+            self._internal_error("expected a Message")
 
         raise gen.Return(None)
 
