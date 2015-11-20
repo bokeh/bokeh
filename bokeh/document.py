@@ -12,7 +12,7 @@ import uuid
 from bokeh.util.callback_manager import _check_callback
 from bokeh.util.version import __version__
 from bokeh._json_encoder import serialize_json
-from .plot_object import Model
+from .model import Model
 from .validation import check_integrity
 from .query import find
 from json import loads
@@ -570,7 +570,7 @@ class Document(object):
                 # remote could need, even though it could be inefficient.
                 # If it turns out we need to fix this we could probably
                 # do it by adding some complexity.
-                value_refs = set(Model.collect_plot_objects(value))
+                value_refs = set(Model.collect_models(value))
 
                 # we know we don't want a whole new copy of the obj we're patching
                 # unless it's also the new value

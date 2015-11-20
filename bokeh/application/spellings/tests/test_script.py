@@ -22,7 +22,7 @@ def _with_script_contents(contents, func):
 
 script_adds_two_roots = """
 from bokeh.io import curdoc
-from bokeh.plot_object import Model
+from bokeh.model import Model
 from bokeh.properties import Int, Instance
 
 class AnotherModelInTestScript(Model):

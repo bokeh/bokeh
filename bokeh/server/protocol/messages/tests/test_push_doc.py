@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function
 import unittest
 
 import bokeh.document as document
-from bokeh.plot_object import Model
+from bokeh.model import Model
 from bokeh.properties import Int, Instance
 from bokeh.server.protocol import Protocol
 

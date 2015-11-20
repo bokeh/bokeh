@@ -5,7 +5,7 @@ import unittest
 from bokeh.application.spellings import FunctionHandler
 from bokeh.document import Document
 
-from bokeh.plot_object import Model
+from bokeh.model import Model
 from bokeh.properties import Int, Instance
 
 class AnotherModelInTestFunction(Model):

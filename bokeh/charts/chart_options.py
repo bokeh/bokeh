@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------------
 
 from ..enums import enumeration, Orientation
-from ..plot_object import Model
+from ..model import Model
 from ..properties import Auto, Bool, Either, Enum, Int, String
 
 #-----------------------------------------------------------------------------

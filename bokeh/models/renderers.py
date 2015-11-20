@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 import logging
 
-from ..plot_object import Model
+from ..model import Model
 from ..properties import abstract
 from ..properties import String, Enum, Instance, Float
 from ..enums import Units, RenderLevel

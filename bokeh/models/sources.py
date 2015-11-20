@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ..plot_object import Model
+from ..model import Model
 from ..properties import HasProps, abstract
 from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum
 from ..validation.errors import COLUMN_LENGTHS

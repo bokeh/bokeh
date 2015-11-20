@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 
-from ..plot_object import Model
+from ..model import Model
 from ..properties import abstract
 from ..properties import Dict, Instance, String, Enum
 from ..enums import ScriptingLanguage

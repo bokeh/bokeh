@@ -858,7 +858,7 @@ class Instance(Property):
         if json is None:
             return None
         elif isinstance(json, dict):
-            from .plot_object import Model
+            from .model import Model
             if issubclass(self.instance_type, Model):
                 if models is None:
                     raise DeserializationError("%s can't deserialize without models" % self)

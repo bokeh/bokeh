@@ -43,7 +43,7 @@ import jinja2
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
-from bokeh.plot_object import Viewable
+from bokeh.model import Viewable
 import bokeh.properties
 
 

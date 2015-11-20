@@ -7,7 +7,7 @@ from __future__ import absolute_import
 
 from ..enums import Direction, Anchor
 from ..mixins import FillProps, LineProps, TextProps
-from ..plot_object import Model
+from ..model import Model
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, NumberSpec, StringSpec)
 from .. import themes

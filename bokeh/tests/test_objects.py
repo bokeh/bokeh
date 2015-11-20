@@ -5,7 +5,7 @@ from six import add_metaclass
 from six.moves import xrange
 import copy
 from bokeh.properties import List, String, Instance, Dict, Any, Int
-from bokeh.plot_object import Model, _ModelInDocument
+from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
 from bokeh.property_containers import PropertyValueList, PropertyValueDict
 
@@ -54,7 +54,7 @@ def large_plot(n):
 class TestViewable(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.plot_object import Viewable
+        from bokeh.model import Viewable
         self.viewable = Viewable
         self.old_map = copy.copy(self.viewable.model_class_reverse_map)
 
@@ -185,14 +185,14 @@ class SomeModelInTestObjects(Model):
     child = Instance(Model)
 
 class TestModelInDocument(unittest.TestCase):
-    def test_single_plot_object(self):
+    def test_single_model(self):
         p = Model()
         self.assertIs(p.document, None)
         with _ModelInDocument(p):
             self.assertIsNot(p.document, None)
         self.assertIs(p.document, None)
 
-    def test_list_of_plot_object(self):
+    def test_list_of_model(self):
         p1 = Model()
         p2 = Model()
         self.assertIs(p1.document, None)

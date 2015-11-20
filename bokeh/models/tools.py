@@ -22,7 +22,7 @@ always be active regardless of what other tools are currently active.
 """
 from __future__ import absolute_import
 
-from ..plot_object import Model
+from ..model import Model
 from ..properties import abstract, Float, Color
 from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
                           Dict, Tuple)

@@ -10,7 +10,7 @@ from __future__ import absolute_import, print_function
 from six import class_types
 from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter
 
-from bokeh.plot_object import Model
+from bokeh.model import Model
 from bokeh.properties import Property
 
 def _add_directive_header(self, sig):

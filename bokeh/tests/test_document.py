@@ -4,7 +4,7 @@ import unittest
 
 import bokeh.document as document
 from bokeh.io import curdoc
-from bokeh.plot_object import Model
+from bokeh.model import Model
 from bokeh.properties import Int, Instance, String
 
 class AnotherModelInTestDocument(Model):

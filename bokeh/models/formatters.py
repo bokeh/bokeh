@@ -5,7 +5,7 @@ labels on Bokeh plot axes.
 from __future__ import absolute_import
 
 from .tickers import Ticker
-from ..plot_object import Model
+from ..model import Model
 from ..properties import abstract
 from ..properties import Bool, Int, String, Enum, Auto, List, Dict, Either, Instance
 from ..enums import DatetimeUnits, RoundingFunction, NumeralLanguage

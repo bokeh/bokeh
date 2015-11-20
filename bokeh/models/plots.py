@@ -7,7 +7,7 @@ from six import string_types
 
 from ..enums import Location
 from ..mixins import LineProps, TextProps
-from ..plot_object import Model
+from ..model import Model
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..query import find
 from ..util.string import nice_join

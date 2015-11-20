@@ -206,7 +206,7 @@ class Model(HasProps, CallbackManager):
                 cls._visit_value_and_its_immediate_references(value, visitor)
 
     @classmethod
-    def collect_plot_objects(cls, *input_values):
+    def collect_models(cls, *input_values):
         """ Iterate over ``input_values`` and descend through their structure
         collecting all nested ``Models`` on the go. The resulting list
         is duplicate-free based on objects' identifiers.
@@ -226,7 +226,7 @@ class Model(HasProps, CallbackManager):
 
     def references(self):
         """Returns all ``Models`` that this object has references to. """
-        return set(self.collect_plot_objects(self))
+        return set(self.collect_models(self))
 
     def vm_props(self, changed_only=True):
         """ Returns the ViewModel-related properties of this object.

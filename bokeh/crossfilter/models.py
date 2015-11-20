@@ -15,7 +15,7 @@ from .plotting import make_histogram_source, make_histogram, cross, hide_axes
 from .plugins import CrossScatterPlugin, CrossBarPlugin, CrossLinePlugin
 
 # bokeh plotting functions
-from ..plot_object import Model
+from ..model import Model
 from ..properties import Dict, Enum, Instance, List, String, Any, Int
 
 logger = logging.getLogger(__name__)
