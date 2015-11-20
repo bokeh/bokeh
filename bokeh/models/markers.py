@@ -28,11 +28,11 @@ class Marker(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'size', 'angle')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-axis coordinates for the center of the markers.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-axis coordinates for the center of the markers.
     """)
 
@@ -40,7 +40,7 @@ class Marker(Glyph):
     The size (diameter) values for the markers in screen space units.
     """)
 
-    angle = NumberSpec("angle", help="""
+    angle = NumberSpec(0.0, help="""
     The angles to rotate the markers.
     """)
 

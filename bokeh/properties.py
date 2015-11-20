@@ -1215,7 +1215,7 @@ class DataSpec(Either):
         return "%s(%r)" % (self.__class__.__name__, val)
 
 class NumberSpec(DataSpec):
-    def __init__(self, default, help=None):
+    def __init__(self, default=None, help=None):
         super(NumberSpec, self).__init__(Float, default=default, help=help)
 
 class StringSpec(DataSpec):
