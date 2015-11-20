@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import HasProps, abstract
 from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum
 from ..validation.errors import COLUMN_LENGTHS
@@ -10,7 +10,7 @@ from .callbacks import Callback
 from bokeh.deprecate import deprecated
 
 @abstract
-class DataSource(PlotObject):
+class DataSource(Model):
     """ A base class for data source types. ``DataSource`` is
     not generally useful to instantiate on its own.
 

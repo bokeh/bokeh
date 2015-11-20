@@ -4,6 +4,7 @@
 from __future__ import absolute_import, print_function
 
 from tornado.escape import json_decode, json_encode
+from tornado import gen
 
 import bokeh.util.serialization as bkserial
 
@@ -119,6 +120,7 @@ class Message(object):
             raise ProtocolError("too many buffers received expecting " + str(self.header['num_buffers']))
         self._buffers.append((buf_header, buf_payload))
 
+    @gen.coroutine
     def write_buffers(self, conn):
         ''' Write any buffer headers and payloads to the given connection.
 
@@ -132,10 +134,10 @@ class Message(object):
         '''
         sent = 0
         for header, payload in self._buffers:
-            conn.write_message(header)
-            conn.write_message(payload, binary=True)
+            yield conn.write_message(header)
+            yield conn.write_message(payload, binary=True)
             sent += (len(header) + len(payload))
-        return sent
+        raise gen.Return(sent)
 
     @classmethod
     def create_header(cls, request_id=None):
@@ -156,6 +158,7 @@ class Message(object):
             header['reqid'] = request_id
         return header
 
+    @gen.coroutine
     def send(self, conn):
         ''' Send the message on the given connection.
 
@@ -168,18 +171,18 @@ class Message(object):
         '''
         sent = 0
 
-        conn.write_message(self.header_json)
+        yield conn.write_message(self.header_json)
         sent += len(self.header_json)
 
-        conn.write_message(self.metadata_json)
+        yield conn.write_message(self.metadata_json)
         sent += len(self.metadata_json)
 
-        conn.write_message(self.content_json)
+        yield conn.write_message(self.content_json)
         sent += len(self.content_json)
 
-        sent += self.write_buffers(conn)
+        sent += yield self.write_buffers(conn)
 
-        return sent
+        raise gen.Return(sent)
 
     @property
     def complete(self):

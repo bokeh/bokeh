@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------------
 
 from ..enums import enumeration, Orientation
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import Auto, Bool, Either, Enum, Int, String
 
 #-----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ from ..properties import Auto, Bool, Either, Enum, Int, String
 Scale = enumeration('linear', 'categorical', 'datetime')
 
 
-class ChartOptions(PlotObject):
+class ChartOptions(Model):
     """Contains the default properties for :class:`Chart <bokeh.charts._chart.Chart`.
 
     Each of the ChartOptions properties can be passed into a Chart as kwargs.

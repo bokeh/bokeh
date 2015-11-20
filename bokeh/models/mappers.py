@@ -3,14 +3,14 @@
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import abstract
 from ..properties import Float, Color, Enum, Seq
 from ..enums import Palette
 from .. import palettes
 
 @abstract
-class ColorMapper(PlotObject):
+class ColorMapper(Model):
     """ Base class for color mapper types. `ColorMapper`` is not
     generally useful to instantiate on its own.
 

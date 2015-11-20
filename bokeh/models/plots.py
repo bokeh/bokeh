@@ -8,7 +8,7 @@ import warnings
 
 from ..enums import Location
 from ..mixins import LineProps, TextProps, FillProps
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include)
 from ..query import find
@@ -46,7 +46,7 @@ def _select_helper(args, kwargs):
             selector = arg
         elif isinstance(arg, string_types):
             selector = dict(name=arg)
-        elif issubclass(arg, PlotObject):
+        elif issubclass(arg, Model):
             selector = {"type" : arg}
         else:
             raise RuntimeError("Selector must be a dictionary, string or plot object.")
@@ -93,13 +93,13 @@ class Plot(Component):
             name (str) : the name to query on
 
         Also queries on just type can be made simply by supplying the
-        ``PlotObject`` subclass as the single parameter:
+        ``Model`` subclass as the single parameter:
 
         Args:
-            type (PlotObject) : the type to query on
+            type (Model) : the type to query on
 
         Returns:
-            seq[PlotObject]
+            seq[Model]
 
         Examples:
 
@@ -580,8 +580,7 @@ class GridPlot(Plot):
         match the given selector. See Plot.select for detailed usage infomation.
 
         Returns:
-            seq[bject]
-
+            seq[Model]
         '''
 
         selector = _select_helper(args, kwargs)
