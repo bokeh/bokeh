@@ -7,6 +7,7 @@ widget_defaults = utils.require "widget/defaults"
 
 {Collections} = utils.require "common/base"
 HasProperties = utils.require "common/has_properties"
+properties = utils.require "common/properties"
 Bokeh = utils.require "main"
 # for side-effect of loading widgets into locations, as well as to get 'widget_locations'
 widget_locations = (utils.require "widget/main").locations
@@ -18,6 +19,12 @@ all_view_model_names = all_view_model_names.concat(widget_defaults.all_view_mode
 get_defaults = (name) ->
   core_defaults.get_defaults(name) or widget_defaults.get_defaults(name)
 
+safe_stringify = (v) ->
+  try
+    "#{JSON.stringify(v)}"
+  catch e
+    "#{v}"
+
 check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   different = []
   python_missing = []
@@ -28,12 +35,12 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
     if k of python_defaults
       py_v = python_defaults[k]
       if not _.isEqual(py_v, v)
-        different.push("#{name}.#{k}: coffee defaults to #{JSON.stringify(v)} but python defaults to #{JSON.stringify(py_v)}")
+        different.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python defaults to #{safe_stringify(py_v)}")
     else
-      python_missing.push("#{name}.#{k}: coffee defaults to #{JSON.stringify(v)} but python has no such property")
+      python_missing.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python has no such property")
   for k, v of python_defaults
     if k not of coffee_defaults
-      coffee_missing.push("#{name}.#{k}: python defaults to #{JSON.stringify(v)} but coffee has no such property")
+      coffee_missing.push("#{name}.#{k}: python defaults to #{safe_stringify(v)} but coffee has no such property")
 
   complain = (failures, message) ->
     if failures.length > 0
@@ -103,12 +110,49 @@ describe "Defaults", ->
       # "inherit" value, like in CSS, perhaps.
       # But at least we can check that display_defaults() matches
       # what Python sends.
+      display_specs = [ 'line_color', 'line_width', 'line_alpha', 'fill_color', 'fill_alpha',
+                        'text_font_size', 'text_color', 'text_alpha' ]
+      display_attr_is_spec = (name) ->
+        for s in display_specs
+          if name.endsWith(s) # gratuitous ES6
+            return true
+        return false
       if 'display_defaults' of instance
         display = instance.display_defaults()
-        for k of display
+        for k in Object.keys(display)
           if k of attrs
             console.error("#{name}.#{k}: property present in both CoffeeScript attrs and display_defaults()")
+
+          if display_attr_is_spec(k)
+            orig = display[k]
+            if not (_.isObject(orig) and ('field' of orig or 'value' of orig))
+              # convert to 'spec dict' format
+              display[k] = { 'value' : display[k] }
+
         attrs = _.extend({}, display, attrs)
+
+      # Merge in "factory" attrs, which don't go in attributes
+      # in the actual code, but for our current purpose
+      # let's pretend they do because they do "in effect"
+      # and we probably want to put them there eventually
+      for prop_kind, func of properties.factories
+        if prop_kind == 'visuals' # visuals is the display_defaults() case above
+          continue
+        if prop_kind of instance
+          props_of_this_kind = func(instance)
+          prop_values = {}
+          for p, v of props_of_this_kind
+            if v.field?
+              prop_values[p] = { 'field' : v.field }
+            else if v.fixed_value?
+              prop_values[p] = { 'value' : v.fixed_value }
+            else
+              n = v.value()
+              if isNaN(n) # fudge NaN a little
+                n = null
+              prop_values[p] = { 'value' : n }
+          _.extend(attrs, prop_values)
+
       if not check_matching_defaults(name, get_defaults(name), attrs)
         fail_count = fail_count + 1
     expect(fail_count).to.equal 0

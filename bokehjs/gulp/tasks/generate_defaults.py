@@ -1,5 +1,6 @@
 from bokeh.plot_object import PlotObject
 import bokeh.models as models
+from bokeh.properties import DataSpec
 import inspect
 from bokeh._json_encoder import serialize_json
 from json import loads
@@ -49,7 +50,18 @@ for leaf in leaves(all_tree, plot_object_class):
     defaults = {}
     for name in klass.class_properties():
         prop = getattr(klass, name)
-        default = prop.default
+        if isinstance(prop, DataSpec):
+            # the dict is what we really send on the wire to the
+            # client, prop.default is usually a string which
+            # becomes dict(field=string)
+            fake_obj = PlotObject()
+            if hasattr(prop, '_units_type'):
+                units = prop._units_type
+                units.name = prop.name+"_units"
+                setattr(fake_obj.__class__, units.name, units)
+            default = prop.to_dict(fake_obj)
+        else:
+            default = prop.default
         if isinstance(default, PlotObject):
             ref = default.ref
             raw_attrs = default.vm_serialize(changed_only=False)
