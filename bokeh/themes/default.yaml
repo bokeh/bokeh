@@ -162,8 +162,10 @@ attrs:
     angle: 0.0
 
   Plot:
-    background_fill: "#ffffff"
-    border_fill: "#ffffff"
+    background_fill_color: "#ffffff"
+    background_fill_alpha: 1.0
+    border_fill_color: "#ffffff"
+    border_fill_alpha: 1.0
     min_border: 40
     title_text_font: "Helvetica"
     title_text_font_size: { "value" : "20pt" }

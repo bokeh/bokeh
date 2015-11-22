@@ -3,7 +3,7 @@
 '''
 from __future__ import absolute_import
 
-from bokeh.plot_object import PlotObject
+from bokeh.model import Model
 from bokeh.document import ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent
 from json import loads
 from ..message import Message
@@ -50,7 +50,7 @@ class patch_doc_1(Message):
                    event_json['model']['id'] == event.model._id and \
                    event_json['attr'] == event.attr:
                     patch_new = event_json['new']
-                    if isinstance(event.new, PlotObject):
+                    if isinstance(event.new, Model):
                         if patch_new is not None and 'id' in patch_new and patch_new['id'] == event.new._id:
                             return True
                     else:

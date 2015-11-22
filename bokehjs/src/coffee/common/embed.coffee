@@ -55,25 +55,22 @@ _render_document_to_element = (element, document, use_for_title) ->
 add_document_static = (element, doc, use_for_title) ->
   _.delay(-> _render_document_to_element($(element), doc, use_for_title))
 
-_websocket_url = null
-
-set_websocket_url = (url) ->
-  _websocket_url = url
-
-# map from session id to promise of ClientSession
+# map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
-_get_session = (session_id) ->
-  if _websocket_url == null
-    throw new Error("set_websocket_url was not called")
+_get_session = (websocket_url, session_id) ->
+  if not websocket_url? or websocket_url == null
+    throw new Error("Missing websocket_url")
+  if websocket_url not of _sessions
+    _sessions[websocket_url] = {}
+  subsessions = _sessions[websocket_url]
+  if session_id not of subsessions
+    subsessions[session_id] = pull_session(websocket_url, session_id)
 
-  if session_id not of _sessions
-    _sessions[session_id] = pull_session(_websocket_url, session_id)
-
-  _sessions[session_id]
+  subsessions[session_id]
 
 # Fill element with the roots from session_id
-add_document_from_session = (element, session_id, use_for_title) ->
-  promise = _get_session(session_id)
+add_document_from_session = (element, websocket_url, session_id, use_for_title) ->
+  promise = _get_session(websocket_url, session_id)
   promise.then(
     (session) ->
       _render_document_to_element(element, session.document, use_for_title)
@@ -83,8 +80,8 @@ add_document_from_session = (element, session_id, use_for_title) ->
   )
 
 # Replace element with a view of model_id from the given session
-add_model_from_session = (element, model_id, session_id) ->
-  promise = _get_session(session_id)
+add_model_from_session = (element, websocket_url, model_id, session_id) ->
+  promise = _get_session(websocket_url, session_id)
   promise.then(
     (session) ->
       model = session.document.get_model_by_id(model_id)
@@ -130,9 +127,6 @@ embed_items = (docs_json_or_id, render_items, websocket_url) ->
   else
     throw new Error("expected a string identifier or an object")
 
-  if websocket_url?
-    set_websocket_url(websocket_url)
-
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
@@ -160,14 +154,14 @@ embed_items = (docs_json_or_id, render_items, websocket_url) ->
       if item.docid?
         add_model_static(elem, item.modelid, docs[item.docid])
       else if item.sessionid?
-        promise = add_model_from_session(elem, item.modelid, item.sessionid)
+        promise = add_model_from_session(elem, websocket_url, item.modelid, item.sessionid)
       else
         throw new Error("Error rendering Bokeh model #{item['modelid']} to element #{element_id}: no document ID or session ID specified")
     else
       if item.docid?
          add_document_static(elem, docs[item.docid], use_for_title)
       else if item.sessionid?
-         promise = add_document_from_session(elem, item.sessionid, use_for_title)
+         promise = add_document_from_session(elem, websocket_url, item.sessionid, use_for_title)
       else
         throw new Error("Error rendering Bokeh document to element #{element_id}: no document ID or session ID specified")
 

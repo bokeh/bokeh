@@ -18,7 +18,7 @@ Examples
 
 For the following definition of ``bokeh.sphinxext.sample.Bar``::
 
-    class Bar(PlotObject):
+    class Bar(Model):
         ''' This is a Bar model. '''
         thing = List(Int, help="doc for thing")
 
@@ -43,7 +43,7 @@ import jinja2
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
-from bokeh.plot_object import Viewable
+from bokeh.model import Viewable
 import bokeh.properties
 
 
