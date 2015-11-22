@@ -19,6 +19,8 @@ class Range1d extends HasProperties
     return _.extend {}, super(), {
       start: 0
       end: 1
+      limit_min: null
+      limit_max: null
     }
 
 module.exports =

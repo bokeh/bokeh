@@ -42,8 +42,13 @@ class Range1d(Range):
     The end of the range.
     """)
 
-    min = Either(Float, Datetime, Int, help="""
+    limit_min = Either(Float, Datetime, Int, help="""
     The minimum value that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
+    """)
+
+    limit_max = Either(Float, Datetime, Int, help="""
+    The max value that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
     """)
 
