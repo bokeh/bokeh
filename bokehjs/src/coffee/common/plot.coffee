@@ -194,31 +194,33 @@ class PlotView extends ContinuumView
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
-  _update_single_range: (rng, range_info) ->
+  _update_single_range: (rng, range_info, is_panning) ->
       # Prevent range from going outside limits
-      # Also ensure that range keeps the same delta when bounds are hit.
+      # Also ensure that range keeps the same delta when panning
       if rng.get('bound_lower')?
         if rng.get('bound_lower') >= range_info['start']
           range_info['start'] = rng.get('bound_lower')
-          range_info['end'] = rng.get('end')
+          if is_panning?
+            range_info['end'] = rng.get('end')
       if rng.get('bound_upper')?
         if rng.get('bound_upper') <= range_info['end']
           range_info['end'] = rng.get('bound_upper')
-          range_info['start'] = rng.get('start')
+          if is_panning?
+            range_info['start'] = rng.get('start')
 
       # Update the range if necessary
       if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
         rng.set(range_info)
         rng.get('callback')?.execute(@model)
 
-  update_range: (range_info) ->
+  update_range: (range_info, is_panning) ->
     if not range_info?
       range_info = @initial_range_info
     @pause()
     for name, rng of @frame.get('x_ranges')
-      @_update_single_range(rng, range_info.xrs[name])
+      @_update_single_range(rng, range_info.xrs[name], is_panning)
     for name, rng of @frame.get('y_ranges')
-      @_update_single_range(rng, range_info.yrs[name])
+      @_update_single_range(rng, range_info.yrs[name], is_panning)
     @unpause()
 
   build_levels: () ->
