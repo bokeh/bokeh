@@ -48,6 +48,9 @@ class AjaxDataSource extends RemoteDataSource.RemoteDataSource
   defaults: ->
     return _.extend {}, super(), {
       mode: 'replace'
+      method: 'POST'
+      max_size: null
+      if_modified: false
     }
 
 class AjaxDataSources extends Backbone.Collection

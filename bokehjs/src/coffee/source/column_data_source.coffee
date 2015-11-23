@@ -45,6 +45,7 @@ class ColumnDataSource extends HasProperties
       data: {}
       selection_manager: new SelectionManager({'source':@})
       selected: hittest.create_hit_test_result()
+      callback: null
     }
 
 module.exports =
