@@ -111,7 +111,8 @@ doc.add_root(sample_gear())
 classical = classical_gear(5, 52, 24)
 epicyclic = epicyclic_gear(5, 24, 12)
 
-doc.add_root(classical, epicyclic)
+doc.add_root(classical)
+doc.add_root(epicyclic)
 
 if __name__ == "__main__":
     filename = "gears.html"
