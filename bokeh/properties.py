@@ -124,13 +124,14 @@ class DeserializationError(Exception):
 class Property(object):
     """ Base class for all type properties. """
 
-    def __init__(self, default=None, help=None):
+    def __init__(self, default=None, help=None, serialized=True):
         """ This is how the descriptor is created in the class declaration """
         if isinstance(default, types.FunctionType): # aka. lazy value
             self.validate(default())
         else:
             self.validate(default)
 
+        self._serialized = serialized
         self._default = default
         self.__doc__ = help
         self.alternatives = []
@@ -153,6 +154,14 @@ class Property(object):
             value = self._default()
             self.validate(value)
             return value
+
+    @property
+    def serialized(self):
+        """True if the property should be serialized when serializing an object.
+        This would be False for a "virtual" or "convenience" property that duplicates
+        information already available in other properties, for example.
+        """
+        return self._serialized
 
     @classmethod
     def autocreate(cls, name=None):
@@ -544,13 +553,13 @@ class HasProps(object):
         self._changed_vars = set()
 
     def properties_with_values(self):
-        return dict([ (attr, getattr(self, attr)) for attr in self.properties() ])
+        return dict([ (attr, getattr(self, attr)) for attr in self.properties() if self.lookup(attr).serialized ])
 
     def changed_properties(self):
         return self.changed_vars()
 
     def changed_properties_with_values(self):
-        return dict([ (attr, getattr(self, attr)) for attr in self.changed_properties() ])
+        return dict([ (attr, getattr(self, attr)) for attr in self.changed_properties() if self.lookup(attr).serialized ])
 
     @classmethod
     def class_properties(cls, withbases=True):
@@ -1249,6 +1258,7 @@ class UnitsSpec(NumberSpec):
         self._units_type = self._validate_type_param(units_type)
         self._units_type.validate(units_default)
         self._units_type._default = units_default
+        self._units_type._serialized = False
 
     def to_dict(self, obj):
         d = super(UnitsSpec, self).to_dict(obj)
