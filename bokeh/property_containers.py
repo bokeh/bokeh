@@ -111,20 +111,10 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def _saved_copy(self):
         return dict(self)
 
-    # delete x['y']
-    @notify_owner
-    def __delattr__(self, y):
-        return super(PropertyValueDict, self).__delattr__(y)
-
     # delete x[y]
     @notify_owner
     def __delitem__(self, y):
         return super(PropertyValueDict, self).__delitem__(y)
-
-    # x['i'] = y
-    @notify_owner
-    def __setattr__(self, i, y):
-        return super(PropertyValueDict, self).__setattr__(i, y)
 
     # x[i] = y
     @notify_owner

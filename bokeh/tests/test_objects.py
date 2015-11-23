@@ -427,7 +427,7 @@ class TestDictMutation(TestContainerMutation):
         self.assertEqual(0, len(old_dict._owners))
         self.assertEqual(1, len(new_dict._owners))
 
-    def test_dict_delattr(self):
+    def test_dict_delitem_string(self):
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         self.assertTrue(isinstance(obj.foo, PropertyValueDict))
         def mutate(x):
@@ -436,7 +436,7 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict(a=1, c=3))
 
-    def test_dict_delitem(self):
+    def test_dict_delitem_int(self):
         obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
         self.assertTrue(isinstance(obj.foo, PropertyValueDict))
         def mutate(x):
@@ -445,7 +445,7 @@ class TestDictMutation(TestContainerMutation):
                              { 1 : "a", 2 : "b", 3 : "c" },
                              { 2 : "b", 3 : "c" })
 
-    def test_dict_setattr(self):
+    def test_dict_setitem_string(self):
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         self.assertTrue(isinstance(obj.foo, PropertyValueDict))
         def mutate(x):
@@ -454,7 +454,7 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict(a=1, b=42, c=3))
 
-    def test_dict_setitem(self):
+    def test_dict_setitem_int(self):
         obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
         self.assertTrue(isinstance(obj.foo, PropertyValueDict))
         def mutate(x):
