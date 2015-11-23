@@ -157,7 +157,8 @@ class ClientSession(object):
 
     def _attach_document(self, document):
         self._document = document
-        self._register_listener(self._document)
+        self._document.subscribe(self)
+        # self._register_listener(self._document)
 
         for cb in self._document.session_callbacks:
             self._add_periodic_callback(cb)
@@ -337,5 +338,5 @@ class ClientSession(object):
         finally:
             self._current_patch = None
 
-    def _register_listener(self, document):
-        document.on_change(lambda event: event.dispatch(self))
+    # def _register_listener(self, document):
+    #     document.on_change(lambda event: event.dispatch(self))

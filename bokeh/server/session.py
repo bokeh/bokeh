@@ -37,7 +37,8 @@ class ServerSession(object):
         self._lock = locks.Lock()
         self._current_patch = None
         self._current_patch_connection = None
-        self._register_listener(self._document)
+        self._document.subscribe(self)
+        # self._register_listener(self._document)
         self._callbacks = {}
 
         for cb in self._document.session_callbacks:
@@ -123,8 +124,8 @@ class ServerSession(object):
             else:
                 connection.send_patch_document(event)
 
-    def _register_listener(self, document):
-        document.on_change(lambda event: event.dispatch(self))
+    # def _register_listener(self, document):
+    #     document.on_change(lambda event: event.dispatch(self))
 
     @classmethod
     @gen.coroutine

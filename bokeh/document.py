@@ -178,6 +178,7 @@ class Document(object):
         self._all_models = dict()
         self._all_models_by_name = _MultiValuedDict()
         self._callbacks = []
+        self._subscribers = []
         self._session_callbacks = {}
 
     def clear(self):
@@ -393,6 +394,12 @@ class Document(object):
 
             self._callbacks.append(callback)
 
+    def subscribe(self, subscriber):
+        if subscriber in self._subscribers:
+            return
+
+        self._subscribers.append(subscriber)
+
     def remove_on_change(self, *callbacks):
         ''' Remove a callback added earlier with on_change()
 
@@ -423,6 +430,9 @@ class Document(object):
         def invoke_callbacks():
             for cb in self._callbacks:
                 cb(event)
+            for subscriber in self._subscribers:
+                event.dispatch(subscriber)
+
         self._with_self_as_curdoc(invoke_callbacks)
 
     def _notify_change(self, model, attr, old, new):
