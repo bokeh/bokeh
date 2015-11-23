@@ -8,7 +8,7 @@ from bokeh.plotting import figure, show, output_file, vplot
 output_file('histogram.html')
 
 p1 = figure(title="Normal Distribution (μ=0, σ=0.5)",tools="save",
-       background_fill="#E8DDCB")
+       background_fill_color="#E8DDCB")
 
 mu, sigma = 0, 0.5
 
@@ -32,7 +32,7 @@ p1.yaxis.axis_label = 'Pr(x)'
 
 
 p2 = figure(title="Log Normal Distribution (μ=0, σ=0.5)", tools="save",
-       background_fill="#E8DDCB")
+       background_fill_color="#E8DDCB")
 
 mu, sigma = 0, 0.5
 
@@ -55,7 +55,7 @@ p2.yaxis.axis_label = 'Pr(x)'
 
 
 p3 = figure(title="Gamma Distribution (k=1, θ=2)", tools="save",
-       background_fill="#E8DDCB")
+       background_fill_color="#E8DDCB")
 
 k, theta = 1.0, 2.0
 
@@ -78,7 +78,7 @@ p3.yaxis.axis_label = 'Pr(x)'
 
 
 p4 = figure(title="Beta Distribution (α=2, β=2)", tools="save",
-       background_fill="#E8DDCB")
+       background_fill_color="#E8DDCB")
 
 alpha, beta = 2.0, 2.0
 
@@ -100,7 +100,7 @@ p4.yaxis.axis_label = 'Pr(x)'
 
 
 p5 = figure(title="Weibull Distribution (λ=1, k=1.25)", tools="save",
-       background_fill="#E8DDCB")
+       background_fill_color="#E8DDCB")
 
 lam, k = 1, 1.25
 

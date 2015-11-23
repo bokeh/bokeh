@@ -88,6 +88,71 @@ class Basictest(unittest.TestCase):
         f.x = 13
         self.assertEqual(f.x, 13)
 
+    def test_accurate_properties_sets(self):
+        class Base(HasProps):
+            num = Int(12)
+            container = List(String)
+            child = Instance(HasProps)
+
+        class Mixin(HasProps):
+            mixin_num = Int(12)
+            mixin_container = List(String)
+            mixin_child = Instance(HasProps)
+
+        class Sub(Base, Mixin):
+            sub_num = Int(12)
+            sub_container = List(String)
+            sub_child = Instance(HasProps)
+
+        b = Base()
+        self.assertEqual(set(["child"]),
+                         b.properties_with_refs())
+        self.assertEqual(set(["container"]),
+                         b.properties_containers())
+        self.assertEqual(set(["num", "container", "child"]),
+                         b.properties())
+        self.assertEqual(set(["num", "container", "child"]),
+                         b.class_properties(withbases=True))
+        self.assertEqual(set(["num", "container", "child"]),
+                         b.class_properties(withbases=False))
+
+        m = Mixin()
+        self.assertEqual(set(["mixin_child"]),
+                         m.properties_with_refs())
+        self.assertEqual(set(["mixin_container"]),
+                         m.properties_containers())
+        self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
+                         m.properties())
+        self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
+                         m.class_properties(withbases=True))
+        self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
+                         m.class_properties(withbases=False))
+
+        s = Sub()
+        self.assertEqual(set(["child", "sub_child", "mixin_child"]),
+                         s.properties_with_refs())
+        self.assertEqual(set(["container", "sub_container", "mixin_container"]),
+                         s.properties_containers())
+        self.assertEqual(set(["num", "container", "child",
+                              "mixin_num", "mixin_container", "mixin_child",
+                              "sub_num", "sub_container", "sub_child"]),
+                         s.properties())
+        self.assertEqual(set(["num", "container", "child",
+                              "mixin_num", "mixin_container", "mixin_child",
+                              "sub_num", "sub_container", "sub_child"]),
+                         s.class_properties(withbases=True))
+        self.assertEqual(set(["sub_num", "sub_container", "sub_child"]),
+                         s.class_properties(withbases=False))
+
+        # verify caching
+        self.assertIs(s.properties_with_refs(), s.properties_with_refs())
+        self.assertIs(s.properties_containers(), s.properties_containers())
+        self.assertIs(s.properties(), s.properties())
+        self.assertIs(s.class_properties(withbases=True), s.class_properties(withbases=True))
+        # this one isn't cached because we store it as a list __properties__ and wrap it
+        # in a new set every time
+        #self.assertIs(s.class_properties(withbases=False), s.class_properties(withbases=False))
+
     # def test_kwargs_init(self):
     #     class Foo(HasProps):
     #         x = String

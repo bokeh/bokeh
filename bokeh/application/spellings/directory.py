@@ -34,11 +34,14 @@ class DirectoryHandler(SpellingHandler):
             return
         self._mainpy_handler.modify_document(doc)
 
+    @property
     def failed(self):
         return self._mainpy_handler.failed
 
+    @property
     def error(self):
         return self._mainpy_handler.error
 
+    @property
     def error_detail(self):
         return self._mainpy_handler.error_detail
