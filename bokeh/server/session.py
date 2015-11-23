@@ -37,7 +37,7 @@ class ServerSession(object):
         self._lock = locks.Lock()
         self._current_patch = None
         self._current_patch_connection = None
-        self._document.on_change(self._document_changed)
+        self._register_listener(self._document)
         self._callbacks = {}
 
         for cb in self._document.session_callbacks:
@@ -113,26 +113,6 @@ class ServerSession(object):
         may_suppress = self._current_patch is not None and \
                        self._current_patch.should_suppress_on_change(event)
 
-        if isinstance(event, SessionCallbackAdded):
-            if isinstance(event.callback, PeriodicCallback):
-                self._add_periodic_callback(event.callback)
-            elif isinstance(event.callback, TimeoutCallback):
-                self._add_timeout_callback(event.callback)
-            else:
-                raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
-
-            return
-
-        elif isinstance(event, SessionCallbackRemoved):
-            if isinstance(event.callback, PeriodicCallback):
-                self._remove_periodic_callback(event.callback)
-            elif isinstance(event.callback, TimeoutCallback):
-                self._remove_timeout_callback(event.callback)
-            else:
-                raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
-
-            return
-
         # TODO (havocp): our "change sync" protocol is flawed
         # because if both sides change the same attribute at the
         # same time, they will each end up with the state of the
@@ -142,6 +122,9 @@ class ServerSession(object):
                 pass #log.debug("Not sending notification back to client %r for a change it requested", connection)
             else:
                 connection.send_patch_document(event)
+
+    def _register_listener(self, document):
+        document.on_change(lambda event: event.dispatch(self))
 
     @classmethod
     @gen.coroutine
