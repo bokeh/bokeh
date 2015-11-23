@@ -8,23 +8,12 @@
  *
  * http://api.jqueryui.com/autocomplete/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget",
-			"./position",
-			"./menu"
-		], factory );
-	} else {
-
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
+var $ = require("jquery");
+require("./core");
+require("./widget");
+require("./position");
+require("./menu");
 
 $.widget( "ui.autocomplete", {
 	version: "1.11.2",
@@ -622,7 +611,3 @@ $.widget( "ui.autocomplete", $.ui.autocomplete, {
 		$( "<div>" ).text( message ).appendTo( this.liveRegion );
 	}
 });
-
-return $.ui.autocomplete;
-
-}));

@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/highlight-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.highlight = function( o, done ) {
+$.effects.effect.highlight = function( o, done ) {
 	var elem = $( this ),
 		props = [ "backgroundImage", "backgroundColor", "opacity" ],
 		mode = $.effects.setMode( elem, o.mode || "show" ),
@@ -56,5 +45,3 @@ return $.effects.effect.highlight = function( o, done ) {
 			}
 		});
 };
-
-}));

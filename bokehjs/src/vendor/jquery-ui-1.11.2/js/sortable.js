@@ -8,24 +8,13 @@
  *
  * http://api.jqueryui.com/sortable/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./mouse",
-			"./widget"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./mouse");
+require("./widget");
 
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
-
-return $.widget("ui.sortable", $.ui.mouse, {
+$.widget("ui.sortable", $.ui.mouse, {
 	version: "1.11.2",
 	widgetEventPrefix: "sort",
 	ready: false,
@@ -1300,5 +1289,3 @@ return $.widget("ui.sortable", $.ui.mouse, {
 	}
 
 });
-
-}));

@@ -8,23 +8,12 @@
  *
  * http://api.jqueryui.com/tabs/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./widget");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.widget( "ui.tabs", {
+$.widget( "ui.tabs", {
 	version: "1.11.2",
 	delay: 300,
 	options: {
@@ -876,5 +865,3 @@ return $.widget( "ui.tabs", {
 		return this.element.find( this._sanitizeSelector( "#" + id ) );
 	}
 });
-
-}));

@@ -8,28 +8,17 @@
  *
  * http://api.jqueryui.com/dialog/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget",
-			"./button",
-			"./draggable",
-			"./mouse",
-			"./position",
-			"./resizable"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./widget");
+require("./button");
+require("./draggable");
+require("./mouse");
+require("./position");
+require("./resizable");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.widget( "ui.dialog", {
+$.widget( "ui.dialog", {
 	version: "1.11.2",
 	options: {
 		appendTo: "body",
@@ -871,5 +860,3 @@ return $.widget( "ui.dialog", {
 		}
 	}
 });
-
-}));

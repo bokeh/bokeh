@@ -8,23 +8,12 @@
  *
  * http://api.jqueryui.com/accordion/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./widget");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.widget( "ui.accordion", {
+$.widget( "ui.accordion", {
 	version: "1.11.2",
 	options: {
 		active: 0,
@@ -580,5 +569,3 @@ return $.widget( "ui.accordion", {
 		this._trigger( "activate", null, data );
 	}
 });
-
-}));

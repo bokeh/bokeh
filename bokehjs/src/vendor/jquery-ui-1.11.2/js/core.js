@@ -8,17 +8,8 @@
  *
  * http://api.jqueryui.com/category/ui-core/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define( [ "jquery" ], factory );
-	} else {
-
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
+var $ = require("jquery");
 
 // $.ui might exist from components with no dependencies, e.g., $.ui.position
 $.ui = $.ui || {};
@@ -300,5 +291,3 @@ $.ui.plugin = {
 		}
 	}
 };
-
-}));

@@ -8,24 +8,13 @@
  *
  * http://api.jqueryui.com/tooltip/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget",
-			"./position"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./widget");
+require("./position");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.widget( "ui.tooltip", {
+$.widget( "ui.tooltip", {
 	version: "1.11.2",
 	options: {
 		content: function() {
@@ -457,5 +446,3 @@ return $.widget( "ui.tooltip", {
 		this.liveRegion.remove();
 	}
 });
-
-}));

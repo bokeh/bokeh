@@ -8,20 +8,9 @@
  *
  * http://api.jqueryui.com/datepicker/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core"
-		], factory );
-	} else {
-
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
+var $ = require("jquery");
+require("./core");
 
 $.extend($.ui, { datepicker: { version: "1.11.2" } });
 
@@ -2074,7 +2063,3 @@ $.datepicker = new Datepicker(); // singleton instance
 $.datepicker.initialized = false;
 $.datepicker.uuid = new Date().getTime();
 $.datepicker.version = "1.11.2";
-
-return $.datepicker;
-
-}));

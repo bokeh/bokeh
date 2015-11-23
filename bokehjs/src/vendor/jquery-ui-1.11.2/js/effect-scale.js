@@ -8,23 +8,12 @@
  *
  * http://api.jqueryui.com/scale-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect",
-			"./effect-size"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
+require("./effect-size");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.scale = function( o, done ) {
+$.effects.effect.scale = function( o, done ) {
 
 	// Create element
 	var el = $( this ),
@@ -85,5 +74,3 @@ return $.effects.effect.scale = function( o, done ) {
 	el.effect( options );
 
 };
-
-}));

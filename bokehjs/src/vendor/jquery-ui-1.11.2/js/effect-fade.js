@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/fade-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.fade = function( o, done ) {
+$.effects.effect.fade = function( o, done ) {
 	var el = $( this ),
 		mode = $.effects.setMode( el, o.mode || "toggle" );
 
@@ -36,5 +25,3 @@ return $.effects.effect.fade = function( o, done ) {
 		complete: done
 	});
 };
-
-}));

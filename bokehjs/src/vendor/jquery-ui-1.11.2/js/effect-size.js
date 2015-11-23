@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/size-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.size = function( o, done ) {
+$.effects.effect.size = function( o, done ) {
 
 	// Create element
 	var original, baseline, factor,
@@ -229,5 +218,3 @@ return $.effects.effect.size = function( o, done ) {
 	});
 
 };
-
-}));

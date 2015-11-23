@@ -8,23 +8,12 @@
  *
  * http://api.jqueryui.com/puff-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect",
-			"./effect-scale"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
+require("./effect-scale");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.puff = function( o, done ) {
+$.effects.effect.puff = function( o, done ) {
 	var elem = $( this ),
 		mode = $.effects.setMode( elem, o.mode || "hide" ),
 		hide = mode === "hide",
@@ -56,5 +45,3 @@ return $.effects.effect.puff = function( o, done ) {
 
 	elem.effect( o );
 };
-
-}));

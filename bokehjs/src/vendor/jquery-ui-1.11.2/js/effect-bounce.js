@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/bounce-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.bounce = function( o, done ) {
+$.effects.effect.bounce = function( o, done ) {
 	var el = $( this ),
 		props = [ "position", "top", "bottom", "left", "right", "height", "width" ],
 
@@ -119,5 +108,3 @@ return $.effects.effect.bounce = function( o, done ) {
 	el.dequeue();
 
 };
-
-}));

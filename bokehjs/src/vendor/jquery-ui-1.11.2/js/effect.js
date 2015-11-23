@@ -8,23 +8,14 @@
  *
  * http://api.jqueryui.com/category/effects-core/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define( [ "jquery" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
+var $ = require("jquery");
 
 var dataSpace = "bk-ui-effects-",
 
-	// Create a local jQuery because jQuery Color relies on it and the
-	// global may not exist with AMD and a custom build (#10199)
-	jQuery = $;
+// Create a local jQuery because jQuery Color relies on it and the
+// global may not exist with AMD and a custom build (#10199)
+var jQuery = $;
 
 $.effects = {
 	effect: {}
@@ -1295,7 +1286,3 @@ $.each( baseEasings, function( name, easeIn ) {
 });
 
 })();
-
-return $.effects;
-
-}));

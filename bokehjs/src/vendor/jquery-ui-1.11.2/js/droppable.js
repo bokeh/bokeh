@@ -8,23 +8,12 @@
  *
  * http://api.jqueryui.com/droppable/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget",
-			"./mouse",
-			"./draggable"
-		], factory );
-	} else {
-
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
+var $ = require("jquery");
+require("./core");
+require("./widget");
+require("./mouse");
+require("./draggable");
 
 $.widget( "ui.droppable", {
 	version: "1.11.2",
@@ -407,7 +396,3 @@ $.ui.ddmanager = {
 		}
 	}
 };
-
-return $.ui.droppable;
-
-}));

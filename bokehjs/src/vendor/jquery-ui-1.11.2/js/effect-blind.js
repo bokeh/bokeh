@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/blind-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.blind = function( o, done ) {
+$.effects.effect.blind = function( o, done ) {
 	// Create element
 	var el = $( this ),
 		rvertical = /up|down|vertical/,
@@ -86,5 +75,3 @@ return $.effects.effect.blind = function( o, done ) {
 		}
 	});
 };
-
-}));

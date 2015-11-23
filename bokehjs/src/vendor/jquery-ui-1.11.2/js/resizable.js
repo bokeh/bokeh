@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/resizable/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./mouse",
-			"./widget"
-		], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
+var $ = require("jquery");
+require("./core");
+require("./mouse");
+require("./widget");
 
 $.widget("ui.resizable", $.ui.mouse, {
 	version: "1.11.2",
@@ -1173,7 +1162,3 @@ $.ui.plugin.add("resizable", "grid", {
 	}
 
 });
-
-return $.ui.resizable;
-
-}));

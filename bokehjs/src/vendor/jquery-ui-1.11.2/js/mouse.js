@@ -8,27 +8,16 @@
  *
  * http://api.jqueryui.com/mouse/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./widget"
-		], factory );
-	} else {
-
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
+var $ = require("jquery");
+require("./widget");
 
 var mouseHandled = false;
 $( document ).mouseup( function() {
 	mouseHandled = false;
 });
 
-return $.widget("ui.mouse", {
+$.widget("ui.mouse", {
 	version: "1.11.2",
 	options: {
 		cancel: "input,textarea,button,select,option",
@@ -195,5 +184,3 @@ return $.widget("ui.mouse", {
 	_mouseStop: function(/* event */) {},
 	_mouseCapture: function(/* event */) { return true; }
 });
-
-}));

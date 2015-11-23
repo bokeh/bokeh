@@ -8,25 +8,14 @@
  *
  * http://api.jqueryui.com/selectmenu
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget",
-			"./position",
-			"./menu"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./widget");
+require("./position");
+require("./menu");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.widget( "ui.selectmenu", {
+$.widget( "ui.selectmenu", {
 	version: "1.11.2",
 	defaultElement: "<select>",
 	options: {
@@ -612,5 +601,3 @@ return $.widget( "ui.selectmenu", {
 		this.label.attr( "for", this.ids.element );
 	}
 });
-
-}));

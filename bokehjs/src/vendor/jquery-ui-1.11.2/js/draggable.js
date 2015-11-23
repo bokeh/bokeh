@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/draggable/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./mouse",
-			"./widget"
-		], factory );
-	} else {
-
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
+var $ = require("jquery");
+require("./core");
+require("./mouse");
+require("./widget");
 
 $.widget("ui.draggable", $.ui.mouse, {
 	version: "1.11.2",
@@ -1122,7 +1111,3 @@ $.ui.plugin.add("draggable", "zIndex", {
 		}
 	}
 });
-
-return $.ui.draggable;
-
-}));

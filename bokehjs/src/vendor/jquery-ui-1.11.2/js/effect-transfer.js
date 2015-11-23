@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/transfer-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.transfer = function( o, done ) {
+$.effects.effect.transfer = function( o, done ) {
 	var elem = $( this ),
 		target = $( o.to ),
 		targetFixed = target.css( "position" ) === "fixed",
@@ -53,5 +42,3 @@ return $.effects.effect.transfer = function( o, done ) {
 				done();
 			});
 };
-
-}));

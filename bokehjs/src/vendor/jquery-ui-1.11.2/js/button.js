@@ -8,21 +8,10 @@
  *
  * http://api.jqueryui.com/button/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget"
-		], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
+var $ = require("jquery");
+require("./core");
+require("./widget");
 
 var lastActive,
 	baseClasses = "bk-ui-button bk-ui-widget bk-ui-state-default bk-ui-corner-all",
@@ -405,7 +394,3 @@ $.widget( "ui.buttonset", {
 			.button( "destroy" );
 	}
 });
-
-return $.ui.button;
-
-}));

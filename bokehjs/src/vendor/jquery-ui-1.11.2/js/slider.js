@@ -8,24 +8,13 @@
  *
  * http://api.jqueryui.com/slider/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./mouse",
-			"./widget"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./mouse");
+require("./widget");
 
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
-
-return $.widget( "ui.slider", $.ui.mouse, {
+$.widget( "ui.slider", $.ui.mouse, {
 	version: "1.11.2",
 	widgetEventPrefix: "slide",
 
@@ -695,5 +684,3 @@ return $.widget( "ui.slider", $.ui.mouse, {
 		}
 	}
 });
-
-}));

@@ -8,17 +8,9 @@
  *
  * http://api.jqueryui.com/position/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define( [ "jquery" ], factory );
-	} else {
+var $ = require("jquery");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
 (function() {
 
 $.ui = $.ui || {};
@@ -511,7 +503,3 @@ $.ui.position = {
 })();
 
 })();
-
-return $.ui.position;
-
-}));

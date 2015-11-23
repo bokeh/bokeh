@@ -8,17 +8,8 @@
  *
  * http://api.jqueryui.com/jQuery.widget/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define( [ "jquery" ], factory );
-	} else {
-
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
+var $ = require("jquery");
 
 var widget_uuid = 0,
 	widget_slice = Array.prototype.slice;
@@ -551,7 +542,3 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 		}
 	};
 });
-
-return $.widget;
-
-}));

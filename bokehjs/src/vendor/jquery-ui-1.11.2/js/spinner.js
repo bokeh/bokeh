@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/spinner/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget",
-			"./button"
-		], factory );
-	} else {
-
-		// Browser globals
-		factory( require("jquery") );
-	}
-}(function( $ ) {
+var $ = require("jquery");
+require("./core");
+require("./widget");
+require("./button");
 
 function spinner_modifier( fn ) {
 	return function() {
@@ -36,7 +25,7 @@ function spinner_modifier( fn ) {
 	};
 }
 
-return $.widget( "ui.spinner", {
+$.widget( "ui.spinner", {
 	version: "1.11.2",
 	defaultElement: "<input>",
 	widgetEventPrefix: "spin",
@@ -510,5 +499,3 @@ return $.widget( "ui.spinner", {
 		return this.uiSpinner;
 	}
 });
-
-}));

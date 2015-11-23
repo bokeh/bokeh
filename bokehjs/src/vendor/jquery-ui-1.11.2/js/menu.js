@@ -8,24 +8,13 @@
  *
  * http://api.jqueryui.com/menu/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget",
-			"./position"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./widget");
+require("./position");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.widget( "ui.menu", {
+$.widget( "ui.menu", {
 	version: "1.11.2",
 	defaultElement: "<ul>",
 	delay: 300,
@@ -642,5 +631,3 @@ return $.widget( "ui.menu", {
 			});
 	}
 });
-
-}));

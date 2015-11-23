@@ -8,23 +8,12 @@
  *
  * http://api.jqueryui.com/progressbar/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./core",
-			"./widget"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./core");
+require("./widget");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.widget( "ui.progressbar", {
+$.widget( "ui.progressbar", {
 	version: "1.11.2",
 	options: {
 		max: 100,
@@ -155,5 +144,3 @@ return $.widget( "ui.progressbar", {
 		}
 	}
 });
-
-}));

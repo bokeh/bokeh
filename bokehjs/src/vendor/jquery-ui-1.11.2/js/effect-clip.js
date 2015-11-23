@@ -8,22 +8,11 @@
  *
  * http://api.jqueryui.com/clip-effect/
  */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
 
-		// AMD. Register as an anonymous module.
-		define([
-			"jquery",
-			"./effect"
-		], factory );
-	} else {
+var $ = require("jquery");
+require("./effect");
 
-		// Browser globals
-		factory( jQuery );
-	}
-}(function( $ ) {
-
-return $.effects.effect.clip = function( o, done ) {
+$.effects.effect.clip = function( o, done ) {
 	// Create element
 	var el = $( this ),
 		props = [ "position", "top", "bottom", "left", "right", "height", "width" ],
@@ -73,5 +62,3 @@ return $.effects.effect.clip = function( o, done ) {
 	});
 
 };
-
-}));
