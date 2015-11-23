@@ -82,7 +82,7 @@ class DataRange(Range):
 
 class DataRange1d(DataRange):
     """ An auto-fitting range in a continuous scalar dimension.
-
+    The upper and lower bounds are set to the min and max of the data.
     """
 
     range_padding = Float(0.1, help="""
@@ -99,6 +99,19 @@ class DataRange1d(DataRange):
     An explicitly supplied range end. If provided, will override
     automatically computed end value.
     """)
+
+    bound_lower = Float(help="""
+    The minimum value that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data. If not provided, will
+    default to the min of the data.
+    """)
+
+    bound_upper = Float(help="""
+    The max value that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data. If not provided, will default to the
+    max of the data.
+    """)
+
 
 class FactorRange(Range):
     """ A range in a categorical dimension.
@@ -127,6 +140,16 @@ class FactorRange(Range):
     factors = Either(List(String), List(Int), help="""
     A list of string or integer factors (categories) to comprise
     this categorical range.
+    """)
+
+    bound_lower = Either(String, Int, help="""
+    The minimum value that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
+    """)
+
+    bound_upper = Either(String, Int, help="""
+    The max value that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
     """)
 
     def __init__(self, *args, **kwargs):

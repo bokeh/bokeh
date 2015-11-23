@@ -91,8 +91,15 @@ class DataRange1d extends Range1d.Model
     if @get('flipped')
       sgn = -1
 
-    @set('_auto_start', center-sgn*span/2.0)
-    @set('_auto_end', center+sgn*span/2.0)
+    start = center-sgn*span/2.0
+    end = center+sgn*span/2.0
+    @set('_auto_start', start)
+    @set('_auto_end', end)
+
+    if not @get('bound_lower')?
+      @set('bound_lower', start)
+    if not @get('bound_upper')?
+      @set('bound_upper', end)
 
   defaults: ->
     return _.extend {}, super(), {
@@ -101,6 +108,8 @@ class DataRange1d extends Range1d.Model
       range_padding: 0.1
       default_span: 2
       flipped: false
+      bound_lower: null
+      bound_upper: null
     }
 
 module.exports =

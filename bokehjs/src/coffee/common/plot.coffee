@@ -197,11 +197,11 @@ class PlotView extends ContinuumView
   _update_single_range: (rng, range_info) ->
       # Prevent range from going outside limits
       # Also ensure that range keeps the same delta when bounds are hit.
-      if not _.isNull(rng.get('bound_lower'))
+      if rng.get('bound_lower')?
         if rng.get('bound_lower') >= range_info['start']
           range_info['start'] = rng.get('bound_lower')
           range_info['end'] = rng.get('end')
-      if not _.isNull(rng.get('bound_upper'))
+      if rng.get('bound_upper')?
         if rng.get('bound_upper') <= range_info['end']
           range_info['end'] = rng.get('bound_upper')
           range_info['start'] = rng.get('start')

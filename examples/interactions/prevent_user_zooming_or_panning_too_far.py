@@ -8,8 +8,8 @@ from bokeh.models import Range1d
 output_file('prevent_user_zooming_or_panning_too_far.html', mode='relative-dev')
 
 ## Plot where limits are manually set
-x_range = Range1d(0, 3, bound_lower=-2, bound_upper=5)
-y_range = Range1d(0, 3, bound_lower=-4, bound_upper=10)
+x_range = Range1d(0, 3, bound_lower=-1, bound_upper=3.5)
+y_range = Range1d(0, 3, bound_lower=-0.5, bound_upper=4)
 plot_range = figure(
     tools='pan, wheel_zoom, reset', x_range=x_range, y_range=y_range
 )
@@ -21,7 +21,7 @@ x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
 colors = ["#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50 + 2 * x, 30 + 2 * y)]
-plot_datarange = figure(tools='pan, box_zoom, reset')
+plot_datarange = figure(tools='pan, box_zoom, wheel_zoom, reset')
 plot_datarange.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
 ## Chart where limits are manually set on a categorical range (compare to plots in charts)
