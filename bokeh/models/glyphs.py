@@ -50,19 +50,19 @@ class AnnularWedge(Glyph):
     The y-coordinates of the center of the annular wedges.
     """)
 
-    inner_radius = DistanceSpec("inner_radius", help="""
+    inner_radius = DistanceSpec(help="""
     The inner radii of the annular wedges.
     """)
 
-    outer_radius = DistanceSpec("outer_radius", help="""
+    outer_radius = DistanceSpec(help="""
     The outer radii of the annular wedges.
     """)
 
-    start_angle = AngleSpec("start_angle", help="""
+    start_angle = AngleSpec(help="""
     The angles to start the annular wedges, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec("end_angle", help="""
+    end_angle = AngleSpec(help="""
     The angles to end the annular wedges, as measured from the horizontal.
     """)
 
@@ -95,11 +95,11 @@ class Annulus(Glyph):
     The y-coordinates of the center of the annuli.
     """)
 
-    inner_radius = DistanceSpec("inner_radius", help="""
+    inner_radius = DistanceSpec(help="""
     The inner radii of the annuli.
     """)
 
-    outer_radius = DistanceSpec("outer_radius", help="""
+    outer_radius = DistanceSpec(help="""
     The outer radii of the annuli.
     """)
 
@@ -128,15 +128,15 @@ class Arc(Glyph):
     The y-coordinates of the center of the arcs.
     """)
 
-    radius = DistanceSpec("radius", help="""
+    radius = DistanceSpec(help="""
     Radius of the arc.
     """)
 
-    start_angle = AngleSpec("start_angle", help="""
+    start_angle = AngleSpec(help="""
     The angles to start the arcs, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec("end_angle", help="""
+    end_angle = AngleSpec(help="""
     The angles to end the arcs, as measured from the horizontal.
     """)
 
@@ -304,7 +304,7 @@ class Image(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    dw = DistanceSpec("dw", help="""
+    dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -312,7 +312,7 @@ class Image(Glyph):
         That number is fixed by the image itself.
     """)
 
-    dh = DistanceSpec("dh", help="""
+    dh = DistanceSpec(help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -366,7 +366,7 @@ class ImageRGBA(Glyph):
     The numbers of columns in the images
     """)
 
-    dw = DistanceSpec("dw", help="""
+    dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -374,7 +374,7 @@ class ImageRGBA(Glyph):
         That number is fixed by the image itself.
     """)
 
-    dh = DistanceSpec("dh", help="""
+    dh = DistanceSpec(help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -419,7 +419,7 @@ class ImageURL(Glyph):
     """)
 
     # TODO: (bev) rename to "dw" for consistency
-    w = DistanceSpec("w", help="""
+    w = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -431,7 +431,7 @@ class ImageURL(Glyph):
     """)
 
     # TODO: (bev) rename to "dh" for consistency
-    h = DistanceSpec("h", help="""
+    h = DistanceSpec(help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -538,15 +538,15 @@ class Oval(Glyph):
     The y-coordinates of the centers of the ovals.
     """)
 
-    width = DistanceSpec("width", help="""
+    width = DistanceSpec(help="""
     The overall widths of each oval.
     """)
 
-    height = DistanceSpec("height", help="""
+    height = DistanceSpec(help="""
     The overall height of each oval.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(help="""
     The angle the ovals are rotated from horizontal. [rad]
     """)
 
@@ -726,11 +726,11 @@ class Ray(Glyph):
     The y-coordinates to start the rays.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(help="""
     The angles in radians to extend the rays, as measured from the horizontal.
     """)
 
-    length = DistanceSpec("length", help="""
+    length = DistanceSpec(help="""
     The length to extend the ray. Note that this ``length`` defaults
     to screen units.
     """)
@@ -756,15 +756,15 @@ class Rect(Glyph):
     The y-coordinates of the centers of the rectangles.
     """)
 
-    width = DistanceSpec("width", help="""
+    width = DistanceSpec(help="""
     The overall widths of the rectangles.
     """)
 
-    height = DistanceSpec("height", help="""
+    height = DistanceSpec(help="""
     The overall heights of the rectangles.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(help="""
     The angles to rotate the rectangles, as measured from the horizontal.
     """)
 
@@ -875,15 +875,15 @@ class Wedge(Glyph):
     The y-coordinates of the points of the wedges.
     """)
 
-    radius = DistanceSpec("radius", help="""
+    radius = DistanceSpec(help="""
     Radii of the wedges.
     """)
 
-    start_angle = AngleSpec("start_angle", help="""
+    start_angle = AngleSpec(help="""
     The angles to start the wedges, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec("end_angle", help="""
+    end_angle = AngleSpec(help="""
     The angles to end the wedges, as measured from the horizontal.
     """)
 
