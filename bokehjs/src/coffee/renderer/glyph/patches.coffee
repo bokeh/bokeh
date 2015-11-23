@@ -53,9 +53,15 @@ class PatchesView extends Glyph.View
         ys = yss[i][j]
         if xs.length == 0
           continue
+        if not _.isArray(xs[0])
+          xs_array = xs
+          ys_array = ys
+        if _.isArray(xs[0])
+          xs_array = _.flatten(xs)
+          ys_array = _.flatten(ys)
         pts.push([
-          _.min(xs), _.min(ys),
-          _.max(xs), _.max(ys),
+          _.min(xs_array), _.min(ys_array),
+          _.max(xs_array), _.max(ys_array),
           {'i': i}
         ])
     index.load(pts)
@@ -70,6 +76,43 @@ class PatchesView extends Glyph.View
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
+  _render_polygon_with_hole: (ctx, sx_arrays, sy_arrays) ->
+    sx = sx_arrays[0]
+    sy = sy_arrays[0]
+    @_render_filled_polygon(ctx, sx, sy)
+
+  _render_filled_polygon: (ctx, sx, sy) ->
+    for j in [0...sx.length]
+      if j == 0
+        ctx.beginPath()
+        ctx.moveTo(sx[j], sy[j])
+        continue
+      else if isNaN(sx[j] + sy[j])
+        ctx.closePath()
+        ctx.fill()
+        ctx.beginPath()
+        continue
+      else
+        ctx.lineTo(sx[j], sy[j])
+    ctx.closePath()
+    ctx.fill()
+
+  _render_stroked_polygon: (ctx, sx, sy) ->
+    for j in [0...sx.length]
+      if j == 0
+        ctx.beginPath()
+        ctx.moveTo(sx[j], sy[j])
+        continue
+      else if isNaN(sx[j] + sy[j])
+        ctx.closePath()
+        ctx.stroke()
+        ctx.beginPath()
+        continue
+      else
+        ctx.lineTo(sx[j], sy[j])
+    ctx.closePath()
+    ctx.stroke()
+
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
     # This is the earliest we can build them, and only build them once
@@ -81,40 +124,19 @@ class PatchesView extends Glyph.View
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
 
-        for j in [0...sx.length]
-          if j == 0
-            ctx.beginPath()
-            ctx.moveTo(sx[j], sy[j])
-            continue
-          else if isNaN(sx[j] + sy[j])
-            ctx.closePath()
-            ctx.fill()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(sx[j], sy[j])
-
-        ctx.closePath()
-        ctx.fill()
+        if _.isNumber(sx[0])
+          console.log('no hole')
+          @_render_filled_polygon(ctx, sx, sy)
+        else
+          console.log('has hole')
+          @_render_polygon_with_hole(ctx, sx, sy)
 
       if @visuals.line.do_stroke
         @visuals.line.set_vectorize(ctx, i)
 
-        for j in [0...sx.length]
-          if j == 0
-            ctx.beginPath()
-            ctx.moveTo(sx[j], sy[j])
-            continue
-          else if isNaN(sx[j] + sy[j])
-            ctx.closePath()
-            ctx.stroke()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(sx[j], sy[j])
+        if _.isNumber(sx[0])
+          @_render_stroked_polygon(ctx, sx, sy)
 
-        ctx.closePath()
-        ctx.stroke()
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
