@@ -467,8 +467,9 @@ class HasProps(object):
             return
 
         props = sorted(self.properties())
+        deprecated = getattr(self, '__deprecated_attributes__', [])
 
-        if name in props:
+        if name in props or name in deprecated:
             super(HasProps, self).__setattr__(name, value)
         else:
             matches, text = difflib.get_close_matches(name.lower(), props), "similar"
@@ -858,8 +859,8 @@ class Instance(Property):
         if json is None:
             return None
         elif isinstance(json, dict):
-            from .plot_object import PlotObject
-            if issubclass(self.instance_type, PlotObject):
+            from .model import Model
+            if issubclass(self.instance_type, Model):
                 if models is None:
                     raise DeserializationError("%s can't deserialize without models" % self)
                 else:

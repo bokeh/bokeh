@@ -127,6 +127,21 @@ class TestFigure(unittest.TestCase):
         for i, _type in enumerate(expected):
             self.assertIsInstance(fig.tools[i], _type)
 
+    def test_plot_fill_props(self):
+        p = plt.figure(background_fill_color='red',
+                       background_fill_alpha=0.5,
+                       border_fill_color='blue',
+                       border_fill_alpha=0.8)
+        self.assertEqual(p.background_fill_color, 'red')
+        self.assertEqual(p.background_fill_alpha, 0.5)
+        self.assertEqual(p.border_fill_color, 'blue')
+        self.assertEqual(p.border_fill_alpha, 0.8)
+
+        p.background_fill_color = 'green'
+        p.border_fill_color = 'yellow'
+        self.assertEqual(p.background_fill_color, 'green')
+        self.assertEqual(p.border_fill_color, 'yellow')
+
 class TestMarkers(unittest.TestCase):
 
     def check_each_color_input(self, rgbs, func):
