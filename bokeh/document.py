@@ -24,6 +24,10 @@ class DocumentChangedEvent(object):
     def __init__(self, document):
         self.document = document
 
+    def dispatch(self, receiver):
+        if hasattr(receiver, '_document_changed'):
+          receiver._document_changed(self)
+
 class ModelChangedEvent(DocumentChangedEvent):
     def __init__(self, document, model, attr, old, new):
         super(ModelChangedEvent, self).__init__(document)
@@ -52,10 +56,20 @@ class SessionCallbackAdded(DocumentChangedEvent):
         super(SessionCallbackAdded, self).__init__(document)
         self.callback = callback
 
+    def dispatch(self, receiver):
+        super(SessionCallbackAdded, self).dispatch(receiver)
+        if hasattr(receiver, '_session_callback_added'):
+          receiver._session_callback_added(self)
+
 class SessionCallbackRemoved(DocumentChangedEvent):
     def __init__(self, document, callback):
         super(SessionCallbackRemoved, self).__init__(document)
         self.callback = callback
+
+    def dispatch(self, receiver):
+        super(SessionCallbackAdded, self).dispatch(receiver)
+        if hasattr(receiver, '_session_callback_removed'):
+          receiver._session_callback_added(self)
 
 class SessionCallback(object):
     def __init__(self, document, callback, id=None):

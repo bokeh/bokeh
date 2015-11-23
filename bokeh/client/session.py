@@ -319,10 +319,11 @@ class ClientSession(object):
             self._document.remove_on_change(self._document_changed)
 
     def _document_changed(self, event):
+
         if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):
             log.debug("Not sending notification back to server for a change it requested")
             return
-
+            
         if isinstance(event, SessionCallbackAdded):
             if isinstance(event.callback, PeriodicCallback):
                 self._add_periodic_callback(event.callback)
