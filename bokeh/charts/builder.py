@@ -41,11 +41,11 @@ def create_and_build(builder_class, *data, **kws):
     Returns:
         :class:`Chart`
     """
-    if isinstance(builder_class.dimensions, Property):
-        raise NotImplementedError('Each builder must specify its dimensions.')
+    if getattr(builder_class, 'dimensions') is None:
+        raise NotImplementedError('Each builder must specify its dimensions, %s does not.' % builder_class.__name__)
 
-    if isinstance(builder_class.default_attributes, Property):
-        raise NotImplementedError('Each builder must specify its dimensions.')
+    if getattr(builder_class, 'default_attributes') is None:
+        raise NotImplementedError('Each builder must specify its default_attributes, %s does not.' % builder_class.__name__)
 
     builder_props = set(builder_class.properties())
 
@@ -114,24 +114,31 @@ class Builder(HasProps):
     yscale = String()
 
     # Dimension Configuration
-    dimensions = List(String, help="""The dimension
-        labels that drive the position of the glyphs. Subclasses should implement this
-        so that the Builder base class knows which dimensions it needs to operate on.
-        An example for a builder working with cartesian x and y coordinates would be
-        dimensions = ['x', 'y']. You should then instantiate the x and y dimensions as
-        attributes of the subclass of builder using the
-        :class:`Dimension <bokeh.charts.properties.Dimension>` class. One for x,
-        as x = Dimension(...), and one as y = Dimension(...).
-        """)
 
-    req_dimensions = Either(List(String), List(List(String)), List(Dict(String, String)),
-                            help="""
-        The dimension labels that must exist to produce the glyphs. This specifies what
-        are the valid configurations for the chart, with the option of specifying the
-        type of the columns. The :class:`~bokeh.charts.data_source.ChartDataSource` will
-        inspect this property of your subclass of Builder and use this to fill in any
-        required dimensions if no keyword arguments are used.
-        """)
+    """
+    The dimension labels that drive the position of the
+    glyphs. Subclasses should implement this so that the Builder
+    base class knows which dimensions it needs to operate on.
+    An example for a builder working with cartesian x and y
+    coordinates would be dimensions = ['x', 'y']. You should
+    then instantiate the x and y dimensions as attributes of the
+    subclass of builder using the :class:`Dimension
+    <bokeh.charts.properties.Dimension>` class. One for x, as x
+    = Dimension(...), and one as y = Dimension(...).
+    """
+    dimensions = None # None because it MUST be overridden
+
+    """
+    The dimension labels that must exist to produce the
+    glyphs. This specifies what are the valid configurations for
+    the chart, with the option of specifying the type of the
+    columns. The
+    :class:`~bokeh.charts.data_source.ChartDataSource` will
+    inspect this property of your subclass of Builder and use
+    this to fill in any required dimensions if no keyword
+    arguments are used.
+    """
+    req_dimensions = []
 
     # Attribute Configuration
     attributes = Dict(String, Instance(AttrSpec), help="""
@@ -147,17 +154,21 @@ class Builder(HasProps):
         the subclass of :class:`~bokeh.charts.builder.Builder`.
         """)
 
-    default_attributes = Dict(String, Instance(AttrSpec), help="""
-        The default attribute specs used to group data. This is where the subclass of
-        Builder should specify what the default attributes are that will yield
-        attribute values to each group of data, and any specific configuration. For
-        example, the :class:`ColorAttr` utilizes a default palette for assigning color
-        based on groups of data. If the user doesn't assign a column of the data to the
-        associated attribute spec, then the default attrspec is used, which will yield
-        a constant color value for each group of data. This is by default the first
-        color in the default palette, but can be customized by setting the default color
-        in the ColorAttr.
-        """)
+    """
+    The default attribute specs used to group data. This is
+    where the subclass of Builder should specify what the
+    default attributes are that will yield attribute values to
+    each group of data, and any specific configuration. For
+    example, the :class:`ColorAttr` utilizes a default palette
+    for assigning color based on groups of data. If the user
+    doesn't assign a column of the data to the associated
+    attribute spec, then the default attrspec is used, which
+    will yield a constant color value for each group of
+    data. This is by default the first color in the default
+    palette, but can be customized by setting the default color
+    in the ColorAttr.
+    """
+    default_attributes = None # None because it MUST be overridden
 
     # Derived properties (created by Builder at runtime)
     attribute_columns = List(ColumnLabel, help="""
@@ -178,7 +189,9 @@ class Builder(HasProps):
         """)
 
     labels = List(String, help="""Represents the unique labels to be used for legends.""")
-    label_attributes = List(String, help="""List of attributes to use for legends.""")
+
+    """List of attributes to use for legends."""
+    label_attributes = []
 
     """
     Used to assign columns to dimensions when no selections have been provided. The
