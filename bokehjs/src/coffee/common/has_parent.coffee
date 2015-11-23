@@ -40,9 +40,12 @@ class HasParent extends HasProperties
   nonserializable_attribute_names: () ->
     super().concat(['parent'])
 
+  _display_defaults_cached: () ->
+    if not @constructor._display_defaults_cache?
+      @constructor._display_defaults_cache = @display_defaults()
+    @constructor._display_defaults_cache
+
   get: (attr, resolve_refs=true) ->
-    if not @_display_defaults
-      @_display_defaults = @display_defaults()
     if attr == 'parent'
       return @_parent
     val = super(attr, resolve_refs)
@@ -52,7 +55,7 @@ class HasParent extends HasProperties
       val = @_parent.get(attr, resolve_refs)
       if not _.isUndefined(val)
         return val
-    return @_display_defaults[attr]
+    return @_display_defaults_cached()[attr]
 
   display_defaults: () ->
     return {}

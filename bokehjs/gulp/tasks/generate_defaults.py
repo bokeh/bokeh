@@ -1,4 +1,4 @@
-from bokeh.plot_object import PlotObject
+from bokeh.model import Model
 import bokeh.models as models
 from bokeh.properties import DataSpec
 import inspect
@@ -12,7 +12,7 @@ dest_dir = sys.argv[1]
 
 classes = [member for name, member in inspect.getmembers(models) if inspect.isclass(member)]
 
-plot_object_class = next(klass for klass in classes if klass.__name__ == 'PlotObject')
+model_class = next(klass for klass in classes if klass.__name__ == 'Model')
 widget_class = next(klass for klass in classes if klass.__name__ == 'Widget')
 
 # getclasstree returns a list which contains [ (class, parentClass), [(subClassOfClass, class), ...]]
@@ -42,7 +42,7 @@ def leaves(tree, underneath):
             return [leaf] + leaves(tail, underneath)
 
 all_json = {}
-for leaf in leaves(all_tree, plot_object_class):
+for leaf in leaves(all_tree, model_class):
     klass = leaf[0]
     vm_name = klass.__view_model__
     if vm_name in all_json:
@@ -54,7 +54,7 @@ for leaf in leaves(all_tree, plot_object_class):
             # the dict is what we really send on the wire to the
             # client, prop.default is usually a string which
             # becomes dict(field=string)
-            fake_obj = PlotObject()
+            fake_obj = Model()
             if hasattr(prop, '_units_type'):
                 units = prop._units_type
                 units.name = prop.name+"_units"
@@ -62,12 +62,12 @@ for leaf in leaves(all_tree, plot_object_class):
             default = prop.to_dict(fake_obj)
         else:
             default = prop.default
-        if isinstance(default, PlotObject):
+        if isinstance(default, Model):
             ref = default.ref
             raw_attrs = default.vm_serialize(changed_only=False)
             del raw_attrs['id']
             for (k, v) in raw_attrs.items():
-                # we can't serialize Infinity ... this hack is also in PlotObject.
+                # we can't serialize Infinity ... this hack is also in Model.
                 if isinstance(v, float) and v == float('inf'):
                     raw_attrs[k] = None
             attrs = loads(serialize_json(raw_attrs, sort_keys=True))

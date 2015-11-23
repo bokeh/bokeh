@@ -53,20 +53,24 @@ class BokehTornado(TornadoApplication):
         extra_patterns = extra_patterns or []
         relative_patterns = []
         for key in applications:
+            app_patterns = []
             for p in per_app_patterns:
                 if key == "/":
                     route = p[0]
                 else:
                     route = key + p[0]
-                relative_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
-        websocket_path = None
-        for r in relative_patterns:
-            if r[0].endswith("/ws"):
-                websocket_path = r[0]
-        if not websocket_path:
-            raise RuntimeError("Couldn't find websocket path")
-        for r in relative_patterns:
-            r[2]["bokeh_websocket_path"] = websocket_path
+                app_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
+
+            websocket_path = None
+            for r in app_patterns:
+                if r[0].endswith("/ws"):
+                    websocket_path = r[0]
+            if not websocket_path:
+                raise RuntimeError("Couldn't find websocket path")
+            for r in app_patterns:
+                r[2]["bokeh_websocket_path"] = websocket_path
+
+            relative_patterns.extend(app_patterns)
 
         all_patterns = extra_patterns + relative_patterns + toplevel_patterns
         log.debug("Patterns are: %r", all_patterns)

@@ -64,7 +64,7 @@ def distribution():
     output_server("distribution_reveal")
 
     p = figure(title="Interactive plots",
-               background_fill="#E5E5E5")
+               background_fill_color="#E5E5E5")
     p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
            fill_color="#333333", line_color="#E5E5E5", line_width=3)
 

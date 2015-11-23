@@ -116,6 +116,40 @@ describe "Document", ->
     expect(d.get_model_by_id(m2.id)).to.equal(m2)
     expect(d.get_model_by_id("invalidid")).to.equal(null)
 
+  it "lets us get_model_by_name", ->
+    d = new Document()
+    m = new SomeModel({ name : "foo" })
+    m2 = new AnotherModel({ name : "bar" })
+    m.set({ child: m2 })
+    d.add_root(m)
+    expect(d.get_model_by_name(m.get('name'))).to.equal(m)
+    expect(d.get_model_by_name(m2.get('name'))).to.equal(m2)
+    expect(d.get_model_by_name("invalidid")).to.equal(null)
+
+  it "lets us get_model_by_name after changing name", ->
+    d = new Document()
+    m = new SomeModel({ name : "foo" })
+    d.add_root(m)
+    expect(d.get_model_by_name("foo")).to.equal(m)
+    expect(d.get_model_by_name("bar")).to.equal(null)
+    m.set({ name : "bar" })
+    expect(d.get_model_by_name("foo")).to.equal(null)
+    expect(d.get_model_by_name("bar")).to.equal(m)
+
+  it "throws on get_model_by_name with duplicate name", ->
+    d = new Document()
+    m = new SomeModel({ name : "foo" })
+    m2 = new AnotherModel({ name : "foo" })
+    d.add_root(m)
+    d.add_root(m2)
+    got_error = false
+    try
+      d.get_model_by_name('foo')
+    catch e
+      got_error = true
+      expect(e.message).to.include('Multiple models')
+    expect(got_error).to.equal(true)
+
   # TODO copy the following tests from test_document.py here
   # TODO(havocp) test_all_models_with_multiple_references
   # TODO(havocp) test_all_models_with_cycles
@@ -236,6 +270,7 @@ describe "Document", ->
 
     patch = Document._compute_patch_since_json(JSON.parse(json), copy)
 
+    expect(root1.get('name')).to.equal undefined
     expect(root1.get('list_prop')).to.equal undefined
     expect(root1.get('dict_prop')).to.equal undefined
     expect(root1.get('obj_prop')).to.equal undefined
@@ -248,6 +283,7 @@ describe "Document", ->
     d.apply_json_patch(patch)
     expect(root1.get('name')).to.equal null
     expect(root1.get('tags').length).to.equal 0
+
     expect(root1.get('list_prop').length).to.equal 1
     expect(Object.keys(root1.get('dict_prop')).length).to.equal 1
     expect(root1.get('obj_prop')).to.be.an.instanceof(ModelWithConstructTimeChanges)
