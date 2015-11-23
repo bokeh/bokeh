@@ -24,13 +24,15 @@ colors = ["#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50 + 2 * x, 30
 plot_datarange = figure(tools='pan, box_zoom, wheel_zoom, reset')
 plot_datarange.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
-## Chart where limits are manually set on a categorical range (compare to plots in charts)
+## Chart where limits are set on a categorical range (see compared to heatmap in charts)
 data = pd.DataFrame(
-    {'apples':[4,5,8,12,4], 'pears':[6,5,4,8,7], 'bananas':[1,2,4,8,12]},
+    {'apples': [4, 5, 8, 12, 4], 'pears': [6, 5, 4, 8, 7], 'bananas': [1, 2, 4, 8, 12]},
     index=['2009', '2010', '2011', '2012', '2013']
 )
 plot_cat = HeatMap(data)
-plot_cat.x_range.bound_lower = '2009'
-plot_cat.y_range.bound_upper = 'pears'
+plot_cat.x_range.bound_lower = 'apples'
+plot_cat.x_range.bound_upper = 'pears'
+plot_cat.y_range.bound_lower = '2009'
+plot_cat.y_range.bound_upper = '2013'
 
 show(vplot(plot_range, plot_datarange, plot_cat))
