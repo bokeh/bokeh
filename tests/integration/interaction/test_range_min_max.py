@@ -10,7 +10,7 @@ pytestmark = pytest.mark.integration
 
 
 def make_pan_plot_with_callback(range_min=None, range_max=None):
-    x_range = Range1d(0, 3, limit_min=range_min, limit_max=range_max)
+    x_range = Range1d(0, 3, bound_lower=range_min, bound_upper=range_max)
     x_callback = CustomJS(args=dict(x_range=x_range), code="""
         window.get_x_range_start = function() {
             return x_range.get('start');
@@ -21,7 +21,7 @@ def make_pan_plot_with_callback(range_min=None, range_max=None):
     """)
     x_range.callback = x_callback
 
-    y_range = Range1d(0, 3, limit_min=range_min, limit_max=range_max)
+    y_range = Range1d(0, 3, bound_lower=range_min, bound_upper=range_max)
     y_callback = CustomJS(args=dict(y_range=y_range), code="""
         window.get_y_range_start = function() {
             return y_range.get('start');
@@ -43,7 +43,7 @@ def make_pan_plot_with_callback(range_min=None, range_max=None):
 def pan_plot(selenium, pan_x=None, pan_y=None):
     canvas = selenium.find_element_by_tag_name('canvas')
     actions = ActionChains(selenium)
-    actions.move_to_element_with_offset(canvas, 100, 100)
+    actions.move_to_element_with_offset(canvas, 200, 200)
     actions.click_and_hold()
     actions.move_by_offset(pan_x, pan_y)
     actions.release()
