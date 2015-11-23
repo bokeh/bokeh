@@ -68,7 +68,7 @@ p = figure(plot_width=width, plot_height=height, title="",
     x_axis_type=None, y_axis_type=None,
     x_range=[-420, 420], y_range=[-420, 420],
     min_border=0, outline_line_color="black",
-    background_fill="#f0e1d2", border_fill="#f0e1d2")
+    background_fill_color="#f0e1d2", border_fill_color="#f0e1d2")
 
 p.line(x+1, y+1, alpha=0)
 

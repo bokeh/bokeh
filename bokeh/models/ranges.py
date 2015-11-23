@@ -5,14 +5,14 @@ and with options for "auto sizing".
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import abstract
 from ..properties import Int, Float, String, Datetime, Instance, List, Either
 from .callbacks import Callback
 from .renderers import Renderer
 
 @abstract
-class Range(PlotObject):
+class Range(Model):
     """ A base class for all range types. ``Range`` is not generally
     useful to instantiate on its own.
 

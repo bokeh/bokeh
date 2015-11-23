@@ -116,6 +116,8 @@ class PlotView extends ContinuumView
 
     @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
     @title_props = new properties.Text({obj: @model, prefix: 'title_'})
+    @background_props = new properties.Fill({obj: @model, prefix: 'background_'})
+    @border_props = new properties.Fill({obj: @model, prefix: 'border_'})
 
     @renderers = {}
     @tools = {}
@@ -455,11 +457,13 @@ class PlotView extends ContinuumView
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.fillStyle = @mget('border_fill')
+    @border_props.set_value(ctx)
     ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
                  @canvas_view.mget('canvas_height')) # TODO
-    ctx.fillStyle = @mget('background_fill')
-    ctx.fillRect.apply(ctx, frame_box)
+    ctx.clearRect(frame_box...)
+
+    @background_props.set_value(ctx)
+    ctx.fillRect(frame_box...)
 
 class Plot extends HasParent
   type: 'Plot'
@@ -625,8 +629,10 @@ class Plot extends HasParent
   display_defaults: ->
     return _.extend {}, super(), {
       hidpi: true,
-      background_fill: "#fff",
-      border_fill: "#fff",
+      background_fill_color: "#fff",
+      background_fill_alpha: 1.0,
+      border_fill_color: "#fff",
+      border_fill_alpha: 1.0
       min_border: 40,
 
       title_standoff: 8,

@@ -199,8 +199,8 @@ color of the title text, use ``title_text_color``:
 Background
 ~~~~~~~~~~
 
-The background fill color is controlled by the ``background_fill`` property
-of the |Plot| object:
+The background fill style is controlled by the ``background_fill_color`` and
+``background_fill_alpha`` properties of the |Plot| object:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_background_fill.py
     :source-position: above
@@ -210,9 +210,9 @@ of the |Plot| object:
 Border
 ~~~~~~
 
-The border fill color is controlled by the ``border_fill`` property
-of the |Plot| object. You can also set the minimum border on each side
-(in screen units) with the properties
+The border fill style is controlled by the ``border_fill_color`` and
+``border_fill_alpha`` properties of the |Plot| object. You can also set the
+minimum border on each side (in screen units) with the properties
 
 ``min_border_left``
 
