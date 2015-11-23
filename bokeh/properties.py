@@ -1266,11 +1266,11 @@ class UnitsSpec(NumberSpec):
         return "%s(%r, units_default=%r)" % (self.__class__.__name__, val, self._units_type._default)
 
 class AngleSpec(UnitsSpec):
-    def __init__(self, default, units_default="rad", help=None):
+    def __init__(self, default=None, units_default="rad", help=None):
         super(AngleSpec, self).__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
 class DistanceSpec(UnitsSpec):
-    def __init__(self, default, units_default="data", help=None):
+    def __init__(self, default=None, units_default="data", help=None):
         super(DistanceSpec, self).__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
     def __set__(self, obj, value):
