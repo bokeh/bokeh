@@ -66,7 +66,7 @@ class AnnularWedge(Glyph):
     The angles to end the annular wedges, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default=Direction.anticlock, help="""
     Which direction to stroke between the start and end angles.
     """)
 
