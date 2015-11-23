@@ -65,19 +65,19 @@ class XyGlyph(CompositeGlyph):
 
     @property
     def x_max(self):
-        return max(self.source._data['x_values'])
+        return max(self.source.data['x_values'])
 
     @property
     def x_min(self):
-        return min(self.source._data['x_values'])
+        return min(self.source.data['x_values'])
 
     @property
     def y_max(self):
-        return max(self.source._data['y_values'])
+        return max(self.source.data['y_values'])
 
     @property
     def y_min(self):
-        return min(self.source._data['y_values'])
+        return min(self.source.data['y_values'])
 
 
 class PointGlyph(XyGlyph):
