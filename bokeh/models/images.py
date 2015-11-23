@@ -1,8 +1,8 @@
 from __future__ import absolute_import
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import (Any, Dict, String)
 
-class ImageSource(PlotObject):
+class ImageSource(Model):
     """ A base class for all image source types. """
 
     _args = ('url', 'extra_url_vars')
