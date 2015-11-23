@@ -1,8 +1,9 @@
 from __future__ import absolute_import
-from ..plot_object import PlotObject
+from ..model import Model
+
 from ..properties import (Any, Dict, Float, String, Int, Bool)
 
-class TileSource(PlotObject):
+class TileSource(Model):
     """ A base class for all tile source types. ``TileSource`` is
     not generally useful to instantiate on its own. In general, tile sources are used as a required input for ``TileRenderer``.
 

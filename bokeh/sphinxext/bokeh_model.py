@@ -18,7 +18,7 @@ Examples
 
 For the following definition of ``bokeh.sphinxext.sample.Foo``::
 
-    class Foo(PlotObject):
+    class Foo(Model):
         ''' This is a Foo model. '''
         index = Either(Auto, Enum('abc', 'def', 'xzy'), help="doc for index")
         value = Tuple(Float, Float, help="doc for value")
@@ -45,7 +45,7 @@ from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
 from bokeh._json_encoder import serialize_json
-from bokeh.plot_object import Viewable
+from bokeh.model import Viewable
 
 
 MODEL_TEMPLATE = jinja2.Template(u"""
