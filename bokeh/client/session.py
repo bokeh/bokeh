@@ -157,7 +157,7 @@ class ClientSession(object):
 
     def _attach_document(self, document):
         self._document = document
-        self._document.subscribe(self)
+        self._document.on_change_dispatch_to(self)
         # self._register_listener(self._document)
 
         for cb in self._document.session_callbacks:

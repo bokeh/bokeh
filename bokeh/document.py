@@ -15,6 +15,7 @@ from bokeh._json_encoder import serialize_json
 from .plot_object import PlotObject
 from .validation import check_integrity
 from .query import find
+from .deprecate import deprecated
 from json import loads
 from six import string_types
 
@@ -23,10 +24,6 @@ DEFAULT_TITLE = "Bokeh Application"
 class DocumentChangedEvent(object):
     def __init__(self, document):
         self.document = document
-
-    def dispatch(self, receiver):
-        if hasattr(receiver, '_document_changed'):
-          receiver._document_changed(self)
 
 class ModelChangedEvent(DocumentChangedEvent):
     def __init__(self, document, model, attr, old, new):
@@ -56,20 +53,10 @@ class SessionCallbackAdded(DocumentChangedEvent):
         super(SessionCallbackAdded, self).__init__(document)
         self.callback = callback
 
-    def dispatch(self, receiver):
-        super(SessionCallbackAdded, self).dispatch(receiver)
-        if hasattr(receiver, '_session_callback_added'):
-          receiver._session_callback_added(self)
-
 class SessionCallbackRemoved(DocumentChangedEvent):
     def __init__(self, document, callback):
         super(SessionCallbackRemoved, self).__init__(document)
         self.callback = callback
-
-    def dispatch(self, receiver):
-        super(SessionCallbackAdded, self).dispatch(receiver)
-        if hasattr(receiver, '_session_callback_removed'):
-          receiver._session_callback_added(self)
 
 class SessionCallback(object):
     def __init__(self, document, callback, id=None):
@@ -178,7 +165,6 @@ class Document(object):
         self._all_models = dict()
         self._all_models_by_name = _MultiValuedDict()
         self._callbacks = []
-        self._subscribers = []
         self._session_callbacks = {}
 
     def clear(self):
@@ -284,9 +270,7 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-    # TODO (havocp) should probably drop either this or add_root.
-    # this is the backward compatible one but perhaps a tad unclear
-    # if we also allow adding other things besides roots.
+    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
         .. warning::
@@ -394,12 +378,6 @@ class Document(object):
 
             self._callbacks.append(callback)
 
-    def subscribe(self, subscriber):
-        if subscriber in self._subscribers:
-            return
-
-        self._subscribers.append(subscriber)
-
     def remove_on_change(self, *callbacks):
         ''' Remove a callback added earlier with on_change()
 
@@ -430,9 +408,6 @@ class Document(object):
         def invoke_callbacks():
             for cb in self._callbacks:
                 cb(event)
-            for subscriber in self._subscribers:
-                event.dispatch(subscriber)
-
         self._with_self_as_curdoc(invoke_callbacks)
 
     def _notify_change(self, model, attr, old, new):
@@ -746,3 +721,6 @@ class Document(object):
         cb = self._session_callbacks.pop(callback)
         # emit event so the session is notified and can remove the callback
         self._trigger_on_change(SessionCallbackRemoved(self, cb))
+
+    def on_change_dispatch_to(self, receiver):
+     self.on_change(lambda event: event.dispatch(receiver))

@@ -37,7 +37,7 @@ class ServerSession(object):
         self._lock = locks.Lock()
         self._current_patch = None
         self._current_patch_connection = None
-        self._document.subscribe(self)
+        self._document.on_change_dispatch_to(self)
         # self._register_listener(self._document)
         self._callbacks = {}
 
