@@ -1,16 +1,6 @@
 /* Finnish initialisation for the jQuery UI date picker plugin. */
 /* Written by Harri Kilpiö (harrikilpio@gmail.com). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['fi'] = {
 	closeText: 'Sulje',
@@ -31,7 +21,3 @@ datepicker.regional['fi'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['fi']);
-
-return datepicker.regional['fi'];
-
-}));

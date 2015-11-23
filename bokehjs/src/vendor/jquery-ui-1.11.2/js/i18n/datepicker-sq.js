@@ -1,16 +1,6 @@
 /* Albanian initialisation for the jQuery UI date picker plugin. */
 /* Written by Flakron Bytyqi (flakron@gmail.com). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['sq'] = {
 	closeText: 'mbylle',
@@ -31,7 +21,3 @@ datepicker.regional['sq'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['sq']);
-
-return datepicker.regional['sq'];
-
-}));

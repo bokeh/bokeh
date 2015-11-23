@@ -1,16 +1,6 @@
 /* Inicialización en español para la extensión 'UI date picker' para jQuery. */
 /* Traducido por Vester (xvester@gmail.com). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['es'] = {
 	closeText: 'Cerrar',
@@ -31,7 +21,3 @@ datepicker.regional['es'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['es']);
-
-return datepicker.regional['es'];
-
-}));

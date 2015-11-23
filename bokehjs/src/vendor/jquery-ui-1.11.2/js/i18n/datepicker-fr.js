@@ -2,17 +2,7 @@
 /* Written by Keith Wood (kbwood{at}iinet.com.au),
 			  Stéphane Nahmani (sholby@sholby.net),
 			  Stéphane Raimbault <stephane.raimbault@gmail.com> */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['fr'] = {
 	closeText: 'Fermer',
@@ -33,7 +23,3 @@ datepicker.regional['fr'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['fr']);
-
-return datepicker.regional['fr'];
-
-}));

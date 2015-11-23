@@ -1,16 +1,6 @@
 /* Chinese initialisation for the jQuery UI date picker plugin. */
 /* Written by Ressol (ressol@gmail.com). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['zh-TW'] = {
 	closeText: '關閉',
@@ -31,7 +21,3 @@ datepicker.regional['zh-TW'] = {
 	showMonthAfterYear: true,
 	yearSuffix: '年'};
 datepicker.setDefaults(datepicker.regional['zh-TW']);
-
-return datepicker.regional['zh-TW'];
-
-}));

@@ -1,16 +1,6 @@
 /* Bosnian i18n for the jQuery UI date picker plugin. */
 /* Written by Kenan Konjo. */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['bs'] = {
 	closeText: 'Zatvori',
@@ -31,7 +21,3 @@ datepicker.regional['bs'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['bs']);
-
-return datepicker.regional['bs'];
-
-}));

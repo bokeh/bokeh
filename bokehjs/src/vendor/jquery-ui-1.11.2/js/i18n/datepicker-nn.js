@@ -1,16 +1,6 @@
 /* Norwegian Nynorsk initialisation for the jQuery UI date picker plugin. */
 /* Written by Bjørn Johansen (post@bjornjohansen.no). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['nn'] = {
 	closeText: 'Lukk',
@@ -30,7 +20,3 @@ datepicker.regional['nn'] = {
 	yearSuffix: ''
 };
 datepicker.setDefaults(datepicker.regional['nn']);
-
-return datepicker.regional['nn'];
-
-}));

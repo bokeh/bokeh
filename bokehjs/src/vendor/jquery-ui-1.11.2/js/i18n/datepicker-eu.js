@@ -1,15 +1,5 @@
 /* Karrikas-ek itzulia (karrikas@karrikas.com) */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['eu'] = {
 	closeText: 'Egina',
@@ -30,7 +20,3 @@ datepicker.regional['eu'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['eu']);
-
-return datepicker.regional['eu'];
-
-}));

@@ -1,16 +1,6 @@
 /* Bulgarian initialisation for the jQuery UI date picker plugin. */
 /* Written by Stoyan Kyosev (http://svest.org). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['bg'] = {
 	closeText: 'затвори',
@@ -32,7 +22,3 @@ datepicker.regional['bg'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['bg']);
-
-return datepicker.regional['bg'];
-
-}));

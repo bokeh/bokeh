@@ -1,16 +1,6 @@
 /* Vietnamese initialisation for the jQuery UI date picker plugin. */
 /* Translated by Le Thanh Huy (lthanhhuy@cit.ctu.edu.vn). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['vi'] = {
 	closeText: 'Đóng',
@@ -31,7 +21,3 @@ datepicker.regional['vi'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['vi']);
-
-return datepicker.regional['vi'];
-
-}));

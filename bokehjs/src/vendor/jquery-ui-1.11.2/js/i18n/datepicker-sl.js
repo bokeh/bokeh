@@ -1,17 +1,7 @@
 /* Slovenian initialisation for the jQuery UI date picker plugin. */
 /* Written by Jaka Jancar (jaka@kubje.org). */
 /* c = č, s = š z = ž C = Č S = Š Z = Ž */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['sl'] = {
 	closeText: 'Zapri',
@@ -32,7 +22,3 @@ datepicker.regional['sl'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['sl']);
-
-return datepicker.regional['sl'];
-
-}));

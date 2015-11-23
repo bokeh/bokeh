@@ -1,16 +1,6 @@
 /* Danish initialisation for the jQuery UI date picker plugin. */
 /* Written by Jan Christensen ( deletestuff@gmail.com). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['da'] = {
 	closeText: 'Luk',
@@ -31,7 +21,3 @@ datepicker.regional['da'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['da']);
-
-return datepicker.regional['da'];
-
-}));

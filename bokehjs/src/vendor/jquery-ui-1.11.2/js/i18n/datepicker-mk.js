@@ -1,16 +1,6 @@
 /* Macedonian i18n for the jQuery UI date picker plugin. */
 /* Written by Stojce Slavkovski. */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['mk'] = {
 	closeText: 'Затвори',
@@ -31,7 +21,3 @@ datepicker.regional['mk'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['mk']);
-
-return datepicker.regional['mk'];
-
-}));

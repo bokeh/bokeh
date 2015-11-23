@@ -1,16 +1,6 @@
 /* Brazilian initialisation for the jQuery UI date picker plugin. */
 /* Written by Leonildo Costa Silva (leocsilva@gmail.com). */
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "../datepicker" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery.datepicker );
-	}
-}(function( datepicker ) {
+var datepicker = require("../datepicker");
 
 datepicker.regional['pt-BR'] = {
 	closeText: 'Fechar',
@@ -31,7 +21,3 @@ datepicker.regional['pt-BR'] = {
 	showMonthAfterYear: false,
 	yearSuffix: ''};
 datepicker.setDefaults(datepicker.regional['pt-BR']);
-
-return datepicker.regional['pt-BR'];
-
-}));
