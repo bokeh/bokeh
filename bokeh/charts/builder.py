@@ -236,12 +236,15 @@ class Builder(HasProps):
                 getattr(getattr(self, dim), 'set_data')(data)
 
             # handle input attrs and ensure attrs have access to data
-            self._setup_attrs(data, kws)
+            attributes = self._setup_attrs(data, kws)
 
             # remove inputs handled by dimensions and chart attributes
             for dim in dims:
                 kws.pop(dim, None)
+        else:
+            attributes = dict()
 
+        kws['attributes'] = attributes
         super(Builder, self).__init__(**kws)
 
         # collect unique columns used for attributes
@@ -263,25 +266,28 @@ class Builder(HasProps):
         """
         source = ColumnDataSource(data.df)
         attr_names = self.default_attributes.keys()
+        attributes = dict()
         for attr_name in attr_names:
 
             attr = kws.pop(attr_name, None)
 
             # if given an attribute use it
             if isinstance(attr, AttrSpec):
-                self.attributes[attr_name] = attr
+                attributes[attr_name] = attr
 
             # if we are given columns, use those
             elif isinstance(attr, str) or isinstance(attr, list):
-                self.attributes[attr_name] = self.default_attributes[attr_name].clone()
-                self.attributes[attr_name].setup(data=source, columns=attr)
+                attributes[attr_name] = self.default_attributes[attr_name]._clone()
+                attributes[attr_name].setup(data=source, columns=attr)
 
             else:
-                self.attributes[attr_name] = self.default_attributes[attr_name].clone()
+                attributes[attr_name] = self.default_attributes[attr_name]._clone()
 
         # make sure all have access to data source
         for attr_name in attr_names:
-            self.attributes[attr_name].data = source
+            attributes[attr_name].data = source
+
+        return attributes
 
     def setup(self):
         """Perform any initial pre-processing, attribute config.

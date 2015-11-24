@@ -35,7 +35,6 @@ class CheckboxGroupView extends ContinuumView
   change_input: () ->
     active = (i for checkbox, i in @$("input") when checkbox.checked)
     @mset('active', active)
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class CheckboxGroup extends HasParent

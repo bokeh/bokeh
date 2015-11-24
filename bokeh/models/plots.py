@@ -4,11 +4,13 @@
 from __future__ import absolute_import
 
 from six import string_types
+import warnings
 
 from ..enums import Location
-from ..mixins import LineProps, TextProps
-from ..plot_object import PlotObject
-from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
+from ..mixins import LineProps, TextProps, FillProps
+from ..model import Model
+from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+    List, Dict, Include)
 from ..query import find
 from ..util.string import nice_join
 from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
@@ -44,7 +46,7 @@ def _select_helper(args, kwargs):
             selector = arg
         elif isinstance(arg, string_types):
             selector = dict(name=arg)
-        elif issubclass(arg, PlotObject):
+        elif issubclass(arg, Model):
             selector = {"type" : arg}
         else:
             raise RuntimeError("Selector must be a dictionary, string or plot object.")
@@ -52,28 +54,6 @@ def _select_helper(args, kwargs):
     else:
         selector = kwargs
     return selector
-
-
-class PlotContext(PlotObject):
-    """ A container for multiple plot objects.
-
-    ``PlotContext`` objects are a source of confusion. Their purpose
-    is to collect together different top-level objects (e.g., ``Plot``
-    or layout widgets). The reason for this is that different plots may
-    need to share ranges or data sources between them. A ``PlotContext``
-    is a container in which such sharing can occur between the contained
-    objects.
-    """
-
-    children = List(Instance(PlotObject), help="""
-    A list of top level objects in this ``PlotContext`` container.
-    """)
-
-# TODO (bev) : is this used anywhere?
-class PlotList(PlotContext):
-    # just like plot context, except plot context has special meaning
-    # everywhere, so plotlist is the generic one
-    pass
 
 class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
@@ -83,6 +63,13 @@ class Plot(Component):
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
+
+        if "border_fill" in kwargs and "border_fill_color" in kwargs:
+            raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
+
+        if "background_fill" in kwargs and "background_fill_color" in kwargs:
+            raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
+
         super(Plot, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
@@ -106,13 +93,13 @@ class Plot(Component):
             name (str) : the name to query on
 
         Also queries on just type can be made simply by supplying the
-        ``PlotObject`` subclass as the single parameter:
+        ``Model`` subclass as the single parameter:
 
         Args:
-            type (PlotObject) : the type to query on
+            type (Model) : the type to query on
 
         Returns:
-            seq[PlotObject]
+            seq[Model]
 
         Examples:
 
@@ -214,7 +201,7 @@ class Plot(Component):
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
-        This function will take care of creating and configurinf a Glyph object,
+        This function will take care of creating and configuring a Glyph object,
         and then add it to the plot's list of renderers.
 
         Args:
@@ -227,7 +214,7 @@ class Plot(Component):
             Glyph initializer.
 
         Returns:
-            glyph : Glyph
+            Glyph
 
         '''
         if glyph is not None:
@@ -249,7 +236,7 @@ class Plot(Component):
         '''Adds new TileRenderer into the Plot.renderers
 
         Args:
-            tile_source (TileSource) : a tile source instance which contain tileset configuration 
+            tile_source (TileSource) : a tile source instance which contain tileset configuration
 
         Keyword Arguments:
             Additional keyword arguments are passed on as-is to the tile renderer
@@ -301,6 +288,8 @@ class Plot(Component):
             field_msg = ' '.join('[range:%s] [first_value: %s]' % (field, value)
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
+
+    __deprecated_attributes__ = ('background_fill', 'border_fill')
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -415,12 +404,48 @@ class Plot(Component):
 
     """)
 
-    background_fill = Color("white", help="""
+    @property
+    def background_fill(self):
+        warnings.warn(
+            """
+            Glyph property 'background_fill' will be deprecated in Bokeh
+            0.12.0. Use 'background_fill_color' instead.
+            """)
+        return self.background_fill_color
 
+    @background_fill.setter
+    def background_fill(self, color):
+        warnings.warn(
+            """
+            Glyph property 'background_fill' will be deprecated in Bokeh
+            0.12.0. Use 'background_fill_color' instead.
+            """)
+        self.background_fill_color = color
+
+    @property
+    def border_fill(self):
+        warnings.warn(
+            """
+            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
+            Use 'border_fill_color' instead.
+            """)
+        return self.border_fill_color
+
+    @border_fill.setter
+    def border_fill(self, color):
+        warnings.warn(
+            """
+            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
+            Use 'border_fill_color' instead.
+            """)
+        self.border_fill_color = color
+
+    background_props = Include(FillProps, help="""
+    The %s for the plot background style.
     """)
 
-    border_fill = Color("white", help="""
-
+    border_props = Include(FillProps, help="""
+    The %s for the plot border style.
     """)
 
     min_border_top = Int(50, help="""
@@ -555,8 +580,7 @@ class GridPlot(Plot):
         match the given selector. See Plot.select for detailed usage infomation.
 
         Returns:
-            seq[PlotObject]
-
+            seq[Model]
         '''
 
         selector = _select_helper(args, kwargs)

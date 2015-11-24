@@ -57,7 +57,6 @@ class DropdownView extends ContinuumView
 
   change_input: (value) ->
     @mset('value', value)
-    @model.save()
     @mget('callback')?.execute(@model)
 
 class Dropdown extends HasParent

@@ -123,13 +123,14 @@ def make_spectrogram():
     spec_source = ColumnDataSource(data=dict(image=[], x=[]))
     spec = figure(
         title=None, plot_width=990, plot_height=300, min_border_left=80,
-        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ], border_fill= "#d4e7e4", **plot_kw)
+        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ],
+        border_fill_color= "#d4e7e4", name='spectrogram', **plot_kw)
     spec.image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
         cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH,
-        source=spec_source, dilate=True, name="spectrogram")
+        source=spec_source, dilate=True)
     spec.grid.grid_line_color = None
-    spec.background_fill="#024768"
+    spec.background_fill_color="#024768"
     spec.axis.major_label_text_font = "Georgia"
     spec.axis.major_label_text_font_size = "8pt"
     spec.axis.major_label_text_color = "#231f20"
@@ -138,11 +139,11 @@ def make_spectrogram():
     spectrum = figure(
         title=None, plot_width=600, plot_height=220,
         y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ*0.001],
-        y_axis_type="log", background_fill="#f2f7f6", border_fill= "#d4e7e4",
-        **plot_kw)
+        y_axis_type="log", background_fill_color="#f2f7f6",
+        border_fill_color= "#d4e7e4", name="spectrum", **plot_kw)
     spectrum.line(
         x="x", y="y", line_color="#024768",
-        source=spectrum_source, name="spectrum")
+        source=spectrum_source)
     spectrum.xgrid.grid_line_dash=[2, 2]
     spectrum.xaxis.axis_label = "Frequency (kHz)"
     spectrum.axis.axis_label_text_font = "Georgia"
@@ -155,11 +156,12 @@ def make_spectrogram():
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = figure(
-        title=None, plot_width=600, plot_height=220, background_fill="#f2f7f6",
-        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], border_fill= "#d4e7e4",**plot_kw)
+        title=None, plot_width=600, plot_height=220, background_fill_color="#f2f7f6",
+        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], border_fill_color= "#d4e7e4",
+        name="signal", **plot_kw)
     signal.line(
         x="x", y="y", line_color="#024768",
-        source=signal_source,  name="signal")
+        source=signal_source)
     signal.xgrid.grid_line_dash = [2, 2]
     signal.xaxis.axis_label = "Time (ms)"
     signal.axis.axis_label_text_font = "Georgia"
@@ -177,14 +179,14 @@ def make_spectrogram():
     eq = figure(
         title=None, plot_width=300, plot_height=300,
         x_axis_type=None, y_axis_type=None,
-        x_range=[-20, 20], y_range=[-20, 20], background_fill="#d4e7e4",
-        border_fill= "#d4e7e4",**plot_kw)
+        x_range=[-20, 20], y_range=[-20, 20], background_fill_color="#d4e7e4",
+        border_fill_color= "#d4e7e4", name="eq", **plot_kw)
     eq.outline_line_color = None
     eq.annular_wedge(
         x=0, y=0, fill_color="#024768", fill_alpha="fill_alpha", line_color=None,
         inner_radius="inner_radius", outer_radius="outer_radius",
         start_angle="start_angle", end_angle="end_angle",
-        source=radial_source, name="eq")
+        source=radial_source)
     eq.grid.grid_line_color = None
 
     return freq_slider, gain_slider, spectrum, signal, spec, eq

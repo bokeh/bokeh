@@ -32,6 +32,33 @@ properties = require "./properties"
 
 global_gl_canvas = null
 
+get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
+    # client_width and height represent the available size
+    
+    if use_width
+      new_width1 = Math.max(client_width, min_size)
+      new_height1 = parseInt(new_width1 / aspect_ratio)
+      if new_height1 < min_size
+        new_height1 = min_size
+        new_width1 = parseInt(new_height1 * aspect_ratio)
+    if use_height
+      new_height2 = Math.max(client_height, min_size)
+      new_width2 = parseInt(new_height2 * aspect_ratio)
+      if new_width2 < min_size
+        new_width2 = min_size
+        new_height2 = parseInt(new_width2 / aspect_ratio)
+    
+    if (not use_height) and (not use_width)
+      return null  # remain same size
+    else if use_height and use_width
+      if new_width1 < new_width2
+        return [new_width1, new_height1]
+      else
+        return [new_width2, new_height2]
+    else if use_height
+     return [new_width2, new_height2]
+    else
+      return [new_width1, new_height1]
 
 class PlotView extends ContinuumView
   className: "bk-plot"
@@ -89,6 +116,8 @@ class PlotView extends ContinuumView
 
     @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
     @title_props = new properties.Text({obj: @model, prefix: 'title_'})
+    @background_props = new properties.Fill({obj: @model, prefix: 'background_'})
+    @border_props = new properties.Fill({obj: @model, prefix: 'border_'})
 
     @renderers = {}
     @tools = {}
@@ -123,7 +152,8 @@ class PlotView extends ContinuumView
     if @mget('responsive')
       throttled_resize = _.throttle(@resize, 100)
       $(window).on("resize", throttled_resize)
-      $(@resize)
+      # Just need to wait a small delay so container has a width
+      _.delay(@resize, 10)
 
     @unpause()
 
@@ -359,25 +389,34 @@ class PlotView extends ContinuumView
     # @$el.find('canvas').attr('data-hash', ctx.hash());
 
   resize: () =>
-    canvas_height = @canvas.get('height')
-    canvas_width = @canvas.get('width')
-    # Calculating this each time means that we play nicely with resize tool
-    aspect_ratio = canvas_width / canvas_height
-
+    @resize_width_height(true, false)
+  
+  resize_width_height: (use_width, use_height, maintain_ar=true) =>
+    # Resize plot based on available width and/or height
+    
     # kiwi.js falls over if we try and resize too small.
-    # min_size is currently set in defaults to 100, we can make this
+    # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
+    
+    avail_width = @.el.clientWidth
+    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
-    new_width = Math.max(@.el.clientWidth, min_size)
-    new_height = parseInt(new_width / aspect_ratio)
-
-    if new_height < min_size
-      new_height = 100
-      new_width = new_height * aspect_ratio  # Preserves the aspect ratio
-
-    @canvas._set_dims([new_width, new_height])
-    return null
+        
+    if maintain_ar is false
+      # Just change width and/or height; aspect ratio will change
+      if use_width and use_height
+        @canvas._set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
+      else if use_width
+        @canvas._set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
+      else if use_height
+        @canvas._set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
+    else
+      # Find best size to fill space while maintaining aspect ratio
+      ar = @canvas.get('width') / @canvas.get('height')
+      w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
+      if w_h?
+        @canvas._set_dims(w_h)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -405,11 +444,13 @@ class PlotView extends ContinuumView
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.fillStyle = @mget('border_fill')
+    @border_props.set_value(ctx)
     ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
                  @canvas_view.mget('canvas_height')) # TODO
-    ctx.fillStyle = @mget('background_fill')
-    ctx.fillRect.apply(ctx, frame_box)
+    ctx.clearRect(frame_box...)
+
+    @background_props.set_value(ctx)
+    ctx.fillRect(frame_box...)
 
 class Plot extends HasParent
   type: 'Plot'
@@ -499,7 +540,9 @@ class Plot extends HasParent
       elts = @get(side)
       for r in elts
         if r.get('location') ? 'auto' == 'auto'
-          r.set('location', side, {'silent' : true})
+          r.set('layout_location', side, { silent: true })
+        else
+          r.set('layout_location', r.get('location'), { silent: true })
         if r.initialize_layout?
           r.initialize_layout(solver)
         solver.add_constraint(
@@ -534,6 +577,16 @@ class Plot extends HasParent
     'min_border_right'
   ]
 
+  nonserializable_attribute_names: () ->
+    super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame',
+    'min_size'])
+
+  serializable_attributes: () ->
+    attrs = super()
+    if 'renderers' of attrs
+      attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
+    attrs
+
   defaults: ->
     return _.extend {}, super(), {
       renderers: [],
@@ -557,14 +610,16 @@ class Plot extends HasParent
       lod_timeout: 500
       webgl: false
       responsive: false
-      min_size: 100
+      min_size: 120
     }
 
   display_defaults: ->
     return _.extend {}, super(), {
       hidpi: true,
-      background_fill: "#fff",
-      border_fill: "#fff",
+      background_fill_color: "#fff",
+      background_fill_alpha: 1.0,
+      border_fill_color: "#fff",
+      border_fill_alpha: 1.0
       min_border: 40,
 
       title_standoff: 8,
@@ -586,5 +641,6 @@ class Plot extends HasParent
     }
 
 module.exports =
+  get_size_for_available_space: get_size_for_available_space
   Model: Plot
   View: PlotView

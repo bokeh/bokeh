@@ -4,12 +4,12 @@ of plots.
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import abstract
 from ..properties import Int, Float, Seq, Instance
 
 @abstract
-class Ticker(PlotObject):
+class Ticker(Model):
     """ A base class for all ticker types. ``Ticker`` is
     not generally useful to instantiate on its own.
 
@@ -66,7 +66,7 @@ class AdaptiveTicker(Ticker):
     The smallest allowable interval between two adjacent ticks.
     """)
 
-    max_interval = Float(100.0, help="""
+    max_interval = Float(float('Inf'), help="""
     The largest allowable interval between two adjacent ticks.
     """)
 

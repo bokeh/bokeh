@@ -4,30 +4,20 @@ TileSource = require "./tile_source"
 class MercatorTileSource extends TileSource
 
   type: 'MercatorTileSource'
-  
-  defaults: =>
-    return _.extend {}, super(), {
-      tile_size : 256
-      max_zoom : 30
-      min_zoom : 0
-      extra_url_vars : {}
-      full_extent : [-20037508.34, -20037508.34, 20037508.34, 20037508.34]
-      x_origin_offset : 20037508.34
-      y_origin_offset : 20037508.34
-      initial_resolution : undefined
-      resolutions : undefined
-    }
 
-  constructor: ->
-    super
+  initialize: (options) ->
 
-    # compensation for not knowing how to do computed default properties
-    # warning: order matters here...
-    if not @get('initial_resolution')?
-      @set('initial_resolution', 2 * Math.PI * 6378137 / @get('tile_size'))
+    super(options)
 
-    if not @get('resolutions')?
-      @set('resolutions', (@get_resolution(z) for z in [0..50]))
+    @_resolutions = (@get_resolution(z) for z in [0..30])
+
+  _computed_initial_resolution: () ->
+    if @get('initial_resolution')?
+      @get('initial_resolution')
+    else
+      # TODO testing 2015-11-17, if this codepath is used it seems
+      # to use 100% cpu and wedge Chrome
+      2 * Math.PI * 6378137 / @get('tile_size')
 
   retain_children:(reference_tile) ->
     quadkey = reference_tile.quadkey
@@ -68,7 +58,7 @@ class MercatorTileSource extends TileSource
     return @quadkey_to_tile_xyz(parent_quad_key)
 
   get_resolution: (level) ->
-    return @get('initial_resolution') / Math.pow(2, level)
+    return @_computed_initial_resolution() / Math.pow(2, level)
 
   get_resolution_by_extent: (extent, height, width) ->
     x_rs = (extent[2] - extent[0]) / width
@@ -80,7 +70,7 @@ class MercatorTileSource extends TileSource
     y_rs = (extent[3] - extent[1]) / height
     resolution = Math.max(x_rs, y_rs)
     i = 0
-    for r in @get('resolutions')
+    for r in @_resolutions
       if resolution > r
         return 0 if i == 0
         return i - 1 if i > 0
@@ -90,14 +80,14 @@ class MercatorTileSource extends TileSource
     x_rs = (extent[2] - extent[0]) / width
     y_rs = (extent[3] - extent[1]) / height
     resolution = Math.max(x_rs, y_rs)
-    ress = @get('resolutions')
-    closest = @get('resolutions').reduce (previous, current) ->
+    ress = @_resolutions
+    closest = @_resolutions.reduce (previous, current) ->
       return current if (Math.abs(current - resolution) < Math.abs(previous - resolution))
       return previous
-    return @get('resolutions').indexOf(closest)
+    return @_resolutions.indexOf(closest)
 
   snap_to_zoom: (extent, height, width, level) ->
-    desired_res = @get('resolutions')[level]
+    desired_res = @_resolutions[level]
     desired_x_delta = width * desired_res
     desired_y_delta = height * desired_res
 
@@ -243,5 +233,12 @@ class MercatorTileSource extends TileSource
       if @tile_xyz_to_key(x, y, z) of @tiles
         return [x, y, z]
     return [0, 0, 0]
+
+  defaults: =>
+    return _.extend {}, super(), {
+      x_origin_offset : 20037508.34
+      y_origin_offset : 20037508.34
+      initial_resolution : 156543.03392804097
+    }
 
 module.exports = MercatorTileSource

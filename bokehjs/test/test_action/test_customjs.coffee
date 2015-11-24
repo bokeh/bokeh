@@ -3,6 +3,7 @@ utils = require "../utils"
 
 base = utils.require "common/base"
 {Collections} = base
+{Document} = utils.require "common/document"
 
 describe "customjs module", ->
 
@@ -17,14 +18,24 @@ describe "customjs module", ->
 
   describe "values property", ->
     rng = Collections('Range1d').create()
-    r = Collections('CustomJS').create({args: {foo: rng.ref()}})
+    r = Collections('CustomJS').create({args: {foo: rng }})
 
-    it "should return resolved refs of args values", ->
+    it "should contain the args values", ->
       expect(r.get('values')).to.be.deep.equal [rng]
+
+    it "should round-trip through document serialization", ->
+      d = new Document()
+      d.add_root(r)
+      json = d.to_json_string()
+      copy = Document.from_json_string(json)
+      r_copy = copy.get_model_by_id(r.id)
+      rng_copy = copy.get_model_by_id(rng.id)
+      expect(r.get('values')).to.be.deep.equal [rng]
+      expect(r_copy.get('values')).to.be.deep.equal [rng_copy]
 
     it "should update when args changes", ->
       rng2 = Collections('Range1d').create()
-      r.set('args', {foo: rng2.ref()})
+      r.set('args', {foo: rng2 })
       expect(r.get('values')).to.be.deep.equal [rng2]
 
   describe "func property", ->
@@ -65,3 +76,13 @@ describe "customjs module", ->
     it "should return cb_data with value of kwarg parameter to execute", ->
       r = Collections('CustomJS').create({code: "return cb_data"})
       expect(r.execute('foo', 'bar')).to.be.equal 'bar'
+
+    it "should execute the code with args parameters correctly mapped", ->
+      # the point of this test is that we shouldn't be relying on
+      # the definition order of keys in a JS object, though it
+      # is reliable in some JS runtimes
+      r = Collections('CustomJS').create({args: {
+          foo4: "foo4", foo5: "foo5", foo6: "foo6",
+          foo1: "foo1", foo2: "foo2", foo3: "foo3"
+        }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6"})
+      expect(r.execute()).to.be.equal "foo1foo2foo3foo4foo5foo6"

@@ -5,19 +5,19 @@ from __future__ import absolute_import
 
 from ...properties import abstract
 from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
-from ...plot_object import PlotObject
+from ...model import Model
 from ...enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
 from .widget import Widget
 
 @abstract
-class CellFormatter(PlotObject):
+class CellFormatter(Model):
     """ Abstract base class for data table's cell formatters.
 
     """
 
 @abstract
-class CellEditor(PlotObject):
+class CellEditor(Model):
     """ Abstract base class for data table's cell editors.
 
     """
@@ -193,6 +193,27 @@ class DateFormatter(CellFormatter):
         single quote
     """)
 
+class HTMLTemplateFormatter(CellFormatter):
+    """ HTML formatter using a template.
+    This uses Underscore's `template` method and syntax.  http://underscorejs.org/#template
+    The formatter has access other items in the row via the `dataContext` object passed to the formatter.
+    So, for example, if another column in the datasource was named `url`, the template could access it as:
+        '<a href="<%= url %>"><%= value %></a>'
+
+    To use a different set of template delimiters, pass the appropriate values for `evaluate`, `interpolate',
+    or `escape`.  See the Underscore `template` documentation for more information.  http://underscorejs.org/#template
+
+    Example: Simple HTML template to format the column value as code.
+        HTMLTemplateFormatter(template='<code><%= value %></code>')
+
+    Example: Use values from other columns (`manufacturer` and `model`) to build a hyperlink.
+        HTMLTemplateFormatter(template='<a href="https:/www.google.com/search?q=<%= manufacturer %>+<%= model %>" target="_blank"><%= value %></a>')
+
+    """
+    template = String('<%= value %>', help="""
+    Template string to be used by Underscore's template method.
+    """)
+
 class StringEditor(CellEditor):
     """ Basic string cell editor with auto-completion.
 
@@ -254,7 +275,7 @@ class DateEditor(CellEditor):
 
     """
 
-class TableColumn(PlotObject):
+class TableColumn(Model):
     """ Table column widget.
 
     """

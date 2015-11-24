@@ -110,6 +110,9 @@ class WheelZoomTool extends GestureTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
+  nonserializable_attribute_names: () ->
+    super().concat(['speed'])
+
   defaults: () ->
     return _.extend({}, super(), {
       dimensions: ["width", "height"]
