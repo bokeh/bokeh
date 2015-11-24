@@ -5,9 +5,9 @@ from bokeh._legacy_charts import HeatMap
 from bokeh.io import output_file, save, vplot
 from bokeh.models import Range1d, LinearAxis
 from bokeh.plotting import figure
-from bokeh.sampledata.stocks import AAPL
+from bokeh.sampledata.stocks import AAPL, GOOG
 
-output_file('prevent_user_zooming_or_panning_too_far.html')
+output_file('prevent_user_zooming_or_panning_too_far.html', mode='relative-dev')
 
 ## Plot where limits are manually set
 x_range = Range1d(0, 3, bound_lower=-1, bound_upper=3.5)
@@ -42,18 +42,20 @@ plot_cat.y_range.bound_lower = '2009'
 plot_cat.y_range.bound_upper = '2013'
 
 ## Plot with multiple ranges
-apple_x = np.array(AAPL['date'], dtype=np.datetime64)
+x = np.array(AAPL['date'], dtype=np.datetime64)
 apple_y = AAPL['adj_close']
+google_y = GOOG['adj_close']
 x_range = Range1d(
     start=date(2005, 1, 1), end=date(2008, 12, 31),
     bound_lower=date(2001, 1, 1), bound_upper=date(2010, 12, 31)
 )
 y_range = Range1d(start=50, end=150, bound_lower=10, bound_upper=190)
-y_range_extra = Range1d(start=50, end=150)
+y_range_extra = Range1d(start=300, end=700, bound_lower=200, bound_upper=1000)
 
 plot_extra = figure(x_axis_type="datetime", x_range=x_range, y_range=y_range)
-plot_extra.line(apple_x, apple_y, color='lightblue')
-plot_extra.extra_y_ranges = {'extra': y_range_extra}
-plot_extra.add_layout(LinearAxis(y_range_name="extra"), 'left')
+plot_extra.line(x, apple_y, color='lightblue')
+plot_extra.extra_y_ranges = {'goog': y_range_extra}
+plot_extra.line(x, google_y, color='pink', y_range_name='goog')
+plot_extra.add_layout(LinearAxis(y_range_name="goog", major_label_text_color='pink'), 'left')
 
 save(vplot(plot_range, plot_range_bad, plot_datarange, plot_cat, plot_extra))
