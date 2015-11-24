@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function
 
-class SpellingHandler(object):
-    """Subtypes of SpellingHandler describe a way to modify a Document."""
+class Handler(object):
+    """Subtypes of Handler describe a way to modify a Document."""
 
     def __init__(self, *args, **kwargs):
         self._failed = False

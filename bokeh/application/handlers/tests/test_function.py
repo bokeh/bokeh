@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 
 import unittest
 
-from bokeh.application.spellings import FunctionHandler
+from bokeh.application.handlers import FunctionHandler
 from bokeh.document import Document
 
 from bokeh.model import Model
