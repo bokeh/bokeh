@@ -12,7 +12,7 @@ import uuid
 from bokeh.util.callback_manager import _check_callback
 from bokeh.util.version import __version__
 from bokeh._json_encoder import serialize_json
-from .plot_object import PlotObject
+from .model import Model
 from .validation import check_integrity
 from .query import find
 from .deprecate import deprecated
@@ -291,7 +291,7 @@ class Document(object):
             This function should only be called on top level objects such
             as Plot, and Layout containers.
         Args:
-            *objects (PlotObject) : objects to add to the Document
+            *objects (Model) : objects to add to the Document
         Returns:
             None
         """
@@ -336,7 +336,7 @@ class Document(object):
             selector (JSON-like) :
 
         Returns:
-            seq[PlotObject]
+            seq[Model]
 
         '''
         if self._is_single_string_selector(selector, 'name'):
@@ -354,7 +354,7 @@ class Document(object):
             selector (JSON-like) :
 
         Returns:
-            PlotObject
+            Model
 
         '''
         result = list(self.select(selector))
@@ -381,7 +381,7 @@ class Document(object):
                 setattr(obj, key, val)
 
     def on_change(self, *callbacks):
-        ''' Invoke callback if the document or any PlotObject reachable from its roots changes.
+        ''' Invoke callback if the document or any Model reachable from its roots changes.
 
         '''
         for callback in callbacks:
@@ -429,7 +429,7 @@ class Document(object):
         self._with_self_as_curdoc(invoke_callbacks)
 
     def _notify_change(self, model, attr, old, new):
-        ''' Called by PlotObject when it changes
+        ''' Called by Model when it changes
         '''
         # if name changes, update by-name index
         if attr == 'name':
@@ -466,7 +466,7 @@ class Document(object):
             obj_id = obj['id']
             obj_type = obj.get('subtype', obj['type'])
 
-            cls = PlotObject.get_class(obj_type)
+            cls = Model.get_class(obj_type)
             instance = cls(id=obj_id, _block_events=True)
             if instance is None:
                 raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
@@ -587,7 +587,7 @@ class Document(object):
                 # remote could need, even though it could be inefficient.
                 # If it turns out we need to fix this we could probably
                 # do it by adding some complexity.
-                value_refs = set(PlotObject.collect_plot_objects(value))
+                value_refs = set(Model.collect_models(value))
 
                 # we know we don't want a whole new copy of the obj we're patching
                 # unless it's also the new value

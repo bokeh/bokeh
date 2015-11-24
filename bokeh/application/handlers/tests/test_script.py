@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 
 import unittest
 
-from bokeh.application.spellings import ScriptHandler
+from bokeh.application.handlers import ScriptHandler
 from bokeh.document import Document
 
 def _with_temp_file(func):
@@ -22,15 +22,15 @@ def _with_script_contents(contents, func):
 
 script_adds_two_roots = """
 from bokeh.io import curdoc
-from bokeh.plot_object import PlotObject
+from bokeh.model import Model
 from bokeh.properties import Int, Instance
 
-class AnotherModelInTestScript(PlotObject):
+class AnotherModelInTestScript(Model):
     bar = Int(1)
 
-class SomeModelInTestScript(PlotObject):
+class SomeModelInTestScript(Model):
     foo = Int(2)
-    child = Instance(PlotObject)
+    child = Instance(Model)
 
 curdoc().add_root(AnotherModelInTestScript())
 curdoc().add_root(SomeModelInTestScript())

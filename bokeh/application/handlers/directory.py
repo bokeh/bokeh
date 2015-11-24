@@ -1,10 +1,10 @@
 from __future__ import absolute_import, print_function
 
-from .handler import SpellingHandler
+from .handler import Handler
 from .script import ScriptHandler
 import os
 
-class DirectoryHandler(SpellingHandler):
+class DirectoryHandler(Handler):
     """Load an application directory which modifies a Document"""
 
     def __init__(self, *args, **kwargs):
