@@ -1,7 +1,6 @@
 import numpy as np
 
 from bokeh.plotting import figure, show, output_file, vplot
-from bokeh.models import Range1d
 
 N = 9
 
@@ -60,14 +59,20 @@ vplot = vplot()
 #p.patches([[1, 1.1, 2, 1.9], [3, 3.1, 4, 3.9], [5, 5.1, 6, 5.9]], [[1, 2, 2, 1], [3, 4, 4, 3], [5, 6, 6, 5]], color="#FB9A99")
 #vplot.children.append(p)
 
-p = figure(title="patches with holes 1", x_range=Range1d(0, 7), y_range=Range1d(0, 7))
-p.patches(xs=[[1, 1.1, 2, 1.9], [3, 3.1, 4, 3.9]],
-          ys=[[1, 2.0, 2, 1.0], [3, 4.0, 4, 3.0]], color="#FB9A99", line_color='blue')
+p = figure(title="patches with holes 1")
+p.patches(
+    xs=[[[1, 1.1, 2, 1.9], [1.8, 1.7, 1.2, 1.2]], [3, 3.1, 4, 3.9]],
+    ys=[[[1, 2.0, 2, 1.0], [1.1, 1.9, 1.9, 1.2]], [3, 4, 4, 3]],
+    fill_color=[None, 'pink'], line_color='blue'
+)
 vplot.children.append(p)
 
-p = figure(title="patches with holes 2", x_range=Range1d(0, 7), y_range=Range1d(0, 7))
-p.patches(xs=[[[1, 1.1, 2, 1.9], [1.8, 1.7, 1.2, 1.2]], [3, 3.1, 4, 3.9]],
-          ys=[[[1, 2.0, 2, 1.0], [1.1, 1.9, 1.9, 1.2]], [3, 4, 4, 3]], color="#FB9A99", line_color=None)
+p = figure(title="patches with holes 2", tools='tap')
+p.patches(
+    xs=[[[1, 1.1, 2, 1.9], [1.8, 1.7, 1.2, 1.2]], [3, 3.1, 4, 3.9], [[1, 1.1, 2, 1.9], [1.8, 1.7, 1.2, 1.2], np.NaN, [3, 3.1, 4, 3.9]]],
+    ys=[[[1, 2.0, 2, 1.0], [1.1, 1.9, 1.9, 1.2]], [3, 4.0, 4, 3.0], [[3, 4.0, 4, 3.0], [3.1, 3.9, 3.9, 3.2], np.NaN, [1, 2.0, 2, 1.0]]],
+    fill_color=['pink', 'orange', 'red'], line_color=None
+)
 vplot.children.append(p)
 
 #p = figure(title="quad")
