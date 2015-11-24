@@ -253,7 +253,6 @@ class Property(object):
         if hasattr(obj, 'trigger'):
             obj.trigger(self.name, old, value)
 
-    # set a default, so no 'old' or notification
     def _get_default(self, obj):
         # merely getting a default may force us to put it
         # in _property_values if we need to wrap the
