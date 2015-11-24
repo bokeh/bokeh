@@ -16,7 +16,7 @@ class LinearMapper extends HasProperties
 
   v_map_to_target: (xs) ->
     [scale, offset] = @get('mapper_state')
-    if _.isArray(xs[0])
+    if not _.isNumber(xs[0])
       result = []
       for arr, i in xs
         r = new Float64Array(arr.length)

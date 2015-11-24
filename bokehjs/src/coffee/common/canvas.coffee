@@ -140,16 +140,23 @@ class Canvas extends LayoutBox.Model
 
   # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
   v_vx_to_sx: (xx) ->
-    for x, idx in xx
-      xx[idx] = x
     return xx
 
   v_vy_to_sy: (yy) ->
     canvas_height = @get('height')
     # Note: +1 to account for 1px canvas dilation
-    for y, idx in yy
-      yy[idx] = canvas_height - (y + 1)
-    return yy
+    if not _.isNumber(yy[0])
+      result = []
+      for arr, i in yy
+        r = new Float64Array(arr.length)
+        for y, j in yy[i]
+          r[j] = canvas_height - (y + 1)
+        result[i] = r
+    else
+      result = new Float64Array(yy.length)
+      for y, idy in yy
+        result[idy] = canvas_height - (y + 1)
+    return result
 
   # transform underlying screen coordinates to view coordinates
   sx_to_vx: (x) ->
