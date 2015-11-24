@@ -11,7 +11,7 @@ from bokeh.models.glyphs import Rect, Segment, Line
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,
-                              List, Either, Int, Enum, Color)
+                              List, Either, Int, Enum, Color, Override)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
@@ -49,7 +49,7 @@ class XyGlyph(CompositeGlyph):
     """Composite glyph that plots in cartesian coordinates."""
     x = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
-    line_color = String(default=DEFAULT_PALETTE[0])
+    line_color = Override(default=DEFAULT_PALETTE[0])
     line_alpha = Float(default=1.0)
 
     def build_source(self):
@@ -84,7 +84,7 @@ class PointGlyph(XyGlyph):
     """A set of glyphs placed in x,y coordinates with the same attributes."""
 
     fill_color = Color(default=DEFAULT_PALETTE[1])
-    fill_alpha = Float(default=0.7)
+    fill_alpha = Override(default=0.7)
     marker = String(default='circle')
     size = Float(default=8)
 

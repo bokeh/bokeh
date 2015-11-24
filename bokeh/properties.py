@@ -137,16 +137,25 @@ class PropertyDescriptor(object):
     def __str__(self):
         return self.__class__.__name__
 
-    def raw_default(self):
-        """The raw_default() needs to be validated and transformed by prepare_value() before use."""
-        if not isinstance(self._default, types.FunctionType):
-            return copy(self._default)
+    @classmethod
+    def _copy_default(cls, default):
+        if not isinstance(default, types.FunctionType):
+            return copy(default)
         else:
-            return self._default()
+            return default()
+
+    def raw_default(self):
+        """The raw_default() needs to be validated and transformed by prepare_value() before use. Prefer prepared_default()."""
+        return self._copy_default(self._default)
 
     def prepared_default(self, obj, name):
         """The default transformed by prepare_value()."""
-        return self.prepare_value(obj, name, self.raw_default())
+        overrides = obj._overridden_defaults()
+        if name in overrides:
+            default = self._copy_default(overrides[name])
+        else:
+            default = self.raw_default()
+        return self.prepare_value(obj, name, default)
 
     @property
     def serialized(self):
@@ -355,6 +364,18 @@ class Include(object):
         self.help = help
         self.use_prefix = use_prefix
 
+class Override(object):
+    """ Override aspects of the PropertyDescriptor from a superclass. """
+
+    def __init__(self, **kwargs):
+        if len(kwargs) == 0:
+            raise ValueError("Override() doesn't override anything, needs keyword args")
+        self.default_overridden = 'default' in kwargs
+        if self.default_overridden:
+            self.default = kwargs.pop('default')
+        if len(kwargs) > 0:
+            raise ValueError("Unknown keyword args to Override: %r" % (kwargs))
+
 _EXAMPLE_TEMPLATE = """
 
     Example
@@ -413,6 +434,17 @@ class MetaHasProps(type):
         for tmp in removes:
             del class_dict[tmp]
 
+        # Now handle all the Override
+        overridden_defaults = {}
+        for name, prop in class_dict.items():
+            if not isinstance(prop, Override):
+                continue
+            if prop.default_overridden:
+                overridden_defaults[name] = prop.default
+
+        for name, default in overridden_defaults.items():
+            del class_dict[name]
+
         dataspecs = {}
         new_class_attrs = {}
 
@@ -446,6 +478,8 @@ class MetaHasProps(type):
         class_dict["__properties__"] = names
         class_dict["__properties_with_refs__"] = names_with_refs
         class_dict["__container_props__"] = container_names
+        if len(overridden_defaults) > 0:
+            class_dict["__overridden_defaults__"] = overridden_defaults
         if dataspecs:
             class_dict["_dataspecs"] = dataspecs
 
@@ -459,16 +493,9 @@ class MetaHasProps(type):
         if class_name == 'HasProps':
             return
         # Check for improperly overriding a Property attribute.
-        # Overriding makes no sense because the Property system
-        # doesn't know how to do anything intelligent about it. It
-        # could in theory make sense to tweak the default and the
-        # help in a subtype, if the property system were careful
-        # to always use the right override, but we don't have
-        # tests or specs to support that, and we should really
-        # have an API for it that doesn't "restate" the Property's
-        # type in the subclass. While those reasons to override
-        # could be OK in theory, and are merely unimplemented,
-        # historically code also tried changing the Property's
+        # Overriding makes no sense except through the Override
+        # class which can be used to tweak the default.
+        # Historically code also tried changing the Property's
         # type or changing from Property to non-Property: these
         # overrides are bad conceptually because the type of a
         # read-write propery is invariant.
@@ -477,13 +504,20 @@ class MetaHasProps(type):
             for b in bases:
                 if issubclass(b, HasProps) and n in b.properties():
                     warn(('Property "%s" in class %s was overridden by a class attribute ' + \
-                          '"%s" in class %s; it never makes sense to override a Property. ' + \
+                          '"%s" in class %s; it never makes sense to do this. ' + \
                           'Either %s.%s or %s.%s should be removed, or %s.%s should not ' + \
-                          'be a Property, depending on the intended effect.') %
+                          'be a Property, or use Override(), depending on the intended effect.') %
                          (n, b.__name__, n, class_name,
                           b.__name__, n,
                           class_name, n,
                           b.__name__, n),
+                         RuntimeWarning, stacklevel=2)
+
+        if "__overridden_defaults__" in cls.__dict__:
+            our_props = cls.properties()
+            for key in cls.__dict__["__overridden_defaults__"].keys():
+                if key not in our_props:
+                    warn(('Override() of %s in class %s does not override anything.') % (key, class_name),
                          RuntimeWarning, stacklevel=2)
 
 def accumulate_from_superclasses(cls, propname):
@@ -497,6 +531,21 @@ def accumulate_from_superclasses(cls, propname):
                 base = getattr(c, propname)
                 s.update(base)
         setattr(cls, cachename, s)
+    return cls.__dict__[cachename]
+
+def accumulate_dict_from_superclasses(cls, propname):
+    cachename = "__cached_all" + propname
+    # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
+    # classes, and the cache must be separate for each class
+    if cachename not in cls.__dict__:
+        d = dict()
+        for c in inspect.getmro(cls):
+            if issubclass(c, HasProps) and hasattr(c, propname):
+                base = getattr(c, propname)
+                for k,v in base.items():
+                    if k not in d:
+                        d[k] = v
+        setattr(cls, cachename, d)
     return cls.__dict__[cachename]
 
 def abstract(cls):
@@ -568,6 +617,11 @@ class HasProps(object):
         list of properties.
         """
         return accumulate_from_superclasses(cls, "__properties__")
+
+    @classmethod
+    def _overridden_defaults(cls):
+        """ Returns a dictionary of defaults that have been overridden; this is an implementation detail of PropertyDescriptor. """
+        return accumulate_dict_from_superclasses(cls, "__overridden_defaults__")
 
     @classmethod
     def dataspecs(cls):

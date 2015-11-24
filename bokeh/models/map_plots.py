@@ -83,10 +83,6 @@ class GMapPlot(MapPlot):
     def _check_no_glyph_renderers(self):
         pass
 
-    map_options = Instance(GMapOptions, help="""
-    Options for displaying the plot.
-    """)
-
 class GeoJSOptions(MapOptions):
     """ Options for GeoJSPlot objects.
 
@@ -113,7 +109,3 @@ class GeoJSPlot(MapPlot):
     @validation.warning(NO_GLYPH_RENDERERS)
     def _check_no_glyph_renderers(self):
         pass
-
-    map_options = Instance(GeoJSOptions, help="""
-    Options for displaying the plot.
-    """)

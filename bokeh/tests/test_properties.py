@@ -6,7 +6,7 @@ from bokeh.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec)
+    DistanceSpec, Override)
 
 
 class Basictest(unittest.TestCase):
@@ -250,6 +250,35 @@ class Basictest(unittest.TestCase):
         self.assertTrue('y' in o.properties_with_values(include_defaults=True))
         self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
         self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+    def test_override_defaults(self):
+        class FooBase(HasProps):
+            x = Int(12)
+
+        class FooSub(FooBase):
+            x = Override(default=14)
+
+        def func_default():
+            return 16
+
+        class FooSubSub(FooBase):
+            x = Override(default=func_default)
+
+        f_base = FooBase()
+        f_sub = FooSub()
+        f_sub_sub = FooSubSub()
+
+        self.assertEqual(f_base.x, 12)
+        self.assertEqual(f_sub.x, 14)
+        self.assertEqual(f_sub_sub.x, 16)
+
+        self.assertEqual(12, f_base.properties_with_values(include_defaults=True)['x'])
+        self.assertEqual(14, f_sub.properties_with_values(include_defaults=True)['x'])
+        self.assertEqual(16, f_sub_sub.properties_with_values(include_defaults=True)['x'])
+
+        self.assertFalse('x' in f_base.properties_with_values(include_defaults=False))
+        self.assertFalse('x' in f_sub.properties_with_values(include_defaults=False))
+        self.assertFalse('x' in f_sub_sub.properties_with_values(include_defaults=False))
 
     # def test_kwargs_init(self):
     #     class Foo(HasProps):

@@ -9,7 +9,7 @@ from bokeh.charts.utils import marker_types
 from bokeh.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
-                              Color, Bool)
+                              Color, Bool, Override)
 
 
 class AttrSpec(HasProps):
@@ -194,7 +194,7 @@ class ColorAttr(AttrSpec):
     .. note::
         Should be expanded to support more complex coloring options.
     """
-    name = 'color'
+    name = Override(default='color')
     iterable = List(Color, default=DEFAULT_PALETTE)
 
     def __init__(self, **kwargs):
@@ -206,7 +206,7 @@ class ColorAttr(AttrSpec):
 
 class MarkerAttr(AttrSpec):
     """An attribute specification for mapping unique data values to markers."""
-    name = 'marker'
+    name = Override(default='marker')
     iterable = List(String, default=list(marker_types.keys()))
 
     def __init__(self, **kwargs):
@@ -221,7 +221,7 @@ dashes = DashPattern._values
 
 class DashAttr(AttrSpec):
     """An attribute specification for mapping unique data values to line dashes."""
-    name = 'dash'
+    name = Override(default='dash')
     iterable = List(String, default=dashes)
 
     def __init__(self, **kwargs):
@@ -239,7 +239,7 @@ class CatAttr(AttrSpec):
         labels are used for one aspect of a chart (grouping) vs another (stacking or
         legend)
     """
-    name = 'nest'
+    name = Override(default='nest')
 
     def __init__(self, **kwargs):
         super(CatAttr, self).__init__(**kwargs)
