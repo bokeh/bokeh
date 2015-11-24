@@ -50,7 +50,7 @@ class ImageURLView extends Glyph.View
         continue
 
       if @retry_attempts[i] == -1
-        return
+        continue
 
       if not image[i]?
         continue
