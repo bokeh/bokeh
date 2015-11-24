@@ -332,7 +332,7 @@ _EXAMPLE_TEMPLATE = """
 """
 
 class MetaHasProps(type):
-    def __new__(cls, class_name, bases, class_dict):
+    def __new__(meta_cls, meta_class_name, bases, class_dict):
         names = set()
         names_with_refs = set()
         container_names = set()
@@ -421,9 +421,40 @@ class MetaHasProps(type):
             path = class_dict["__example__"]
             class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
 
-        return type.__new__(cls, class_name, bases, class_dict)
+        return type.__new__(meta_cls, meta_class_name, bases, class_dict)
 
-def accumulate_from_superclasses(cls, propname, check_collisions=False):
+    def __init__(cls, class_name, bases, nmspc):
+        if class_name == 'HasProps':
+            return
+        # Check for improperly overriding a Property attribute.
+        # Overriding makes no sense because the Property system
+        # doesn't know how to do anything intelligent about it. It
+        # could in theory make sense to tweak the default and the
+        # help in a subtype, if the property system were careful
+        # to always use the right override, but we don't have
+        # tests or specs to support that, and we should really
+        # have an API for it that doesn't "restate" the Property's
+        # type in the subclass. While those reasons to override
+        # could be OK in theory, and are merely unimplemented,
+        # historically code also tried changing the Property's
+        # type or changing from Property to non-Property: these
+        # overrides are bad conceptually because the type of a
+        # read-write propery is invariant.
+        cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
+        for n in cls_attrs:
+            for b in bases:
+                if issubclass(b, HasProps) and n in b.properties():
+                    warn(('Property "%s" in class %s was overridden by a class attribute ' + \
+                          '"%s" in class %s; it never makes sense to override a Property. ' + \
+                          'Either %s.%s or %s.%s should be removed, or %s.%s should not ' + \
+                          'be a Property, depending on the intended effect.') %
+                         (n, b.__name__, n, class_name,
+                          b.__name__, n,
+                          class_name, n,
+                          b.__name__, n),
+                         RuntimeWarning, stacklevel=2)
+
+def accumulate_from_superclasses(cls, propname):
     cachename = "__cached_all" + propname
     # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
     # classes, and the cache must be separate for each class
@@ -432,12 +463,6 @@ def accumulate_from_superclasses(cls, propname, check_collisions=False):
         for c in inspect.getmro(cls):
             if issubclass(c, HasProps):
                 base = getattr(c, propname)
-                if check_collisions:
-                    intersection = s.intersection(base)
-                    if len(intersection) > 0:
-                        warn('Properties %r were defined in two classes, one of them %r, as part of defining %r' %
-                             (intersection, c, cls),
-                             RuntimeWarning, stacklevel=6)
                 s.update(base)
         setattr(cls, cachename, s)
     return cls.__dict__[cachename]
@@ -510,7 +535,7 @@ class HasProps(object):
         traverse the class hierarchy and pull together the full
         list of properties.
         """
-        return accumulate_from_superclasses(cls, "__properties__", check_collisions=True)
+        return accumulate_from_superclasses(cls, "__properties__")
 
     @classmethod
     def dataspecs(cls):
