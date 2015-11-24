@@ -93,6 +93,7 @@ class TestModel(unittest.TestCase):
 
     def setUp(self):
         from bokeh.models import Model
+
         self.pObjectClass = Model
 
     def test_init(self):
@@ -101,6 +102,10 @@ class TestModel(unittest.TestCase):
 
         testObject2 = self.pObjectClass()
         self.assertIsNot(testObject2._id, None)
+
+        self.assertEqual(set(["name", "tags"]), testObject.properties())
+        self.assertDictEqual(dict(name=None, tags=[]), testObject.properties_with_values(include_defaults=True))
+        self.assertDictEqual(dict(), testObject.properties_with_values(include_defaults=False))
 
     def test_ref(self):
         testObject = self.pObjectClass(id='test_id')

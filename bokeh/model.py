@@ -29,13 +29,13 @@ class Viewable(MetaHasProps):
     # Mmmm.. metaclass inheritance.  On the one hand, it seems a little
     # overkill. On the other hand, this is exactly the sort of thing
     # it's meant for.
-    def __new__(cls, class_name, bases, class_dict):
+    def __new__(meta_cls, class_name, bases, class_dict):
         if "__view_model__" not in class_dict:
             class_dict["__view_model__"] = class_name
         class_dict["get_class"] = Viewable.get_class
 
         # Create the new class
-        newcls = super(Viewable,cls).__new__(cls, class_name, bases, class_dict)
+        newcls = super(Viewable, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
         entry = class_dict.get("__subtype__", class_dict["__view_model__"])
         # Add it to the reverse map, but check for duplicates first
         if entry in Viewable.model_class_reverse_map and not hasattr(newcls, "__implementation__"):

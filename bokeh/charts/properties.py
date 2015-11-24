@@ -31,7 +31,7 @@ class Column(Array):
     def _new_instance(self, value):
         return pd.Series(value)
 
-    def transform(self, value):
+    def transform(self, obj, name, value):
         if value is None:
             return None
 
@@ -40,7 +40,7 @@ class Column(Array):
         else:
             arr = value
 
-        trans_array = super(Column, self).transform(arr)
+        trans_array = super(Column, self).transform(obj, name, arr)
         try:
             return pd.Series(trans_array)
         except ValueError:

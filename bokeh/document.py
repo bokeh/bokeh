@@ -471,7 +471,7 @@ class Document(object):
             for p in instance.properties_with_refs():
                 if p in obj_attrs:
                     prop = instance.lookup(p)
-                    obj_attrs[p] = prop.from_json(obj_attrs[p], models=references)
+                    obj_attrs[p] = prop.descriptor.from_json(obj_attrs[p], models=references)
 
             # set all properties on the instance
             remove = []
@@ -635,7 +635,7 @@ class Document(object):
                 value = event_json['new']
                 if attr in patched_obj.properties_with_refs():
                     prop = patched_obj.lookup(attr)
-                    value = prop.from_json(value, models=references)
+                    value = prop.descriptor.from_json(value, models=references)
                 if attr in patched_obj.properties():
                     #logger.debug("Patching attribute %s of %r", attr, patched_obj)
                     patched_obj.update(** { attr : value })

@@ -24,11 +24,22 @@ class Basictest(unittest.TestCase):
         self.assert_(np.array_equal(np.array([1, 2, 3]), f.z))
         self.assertEqual(f.s, None)
 
+
+        self.assertEqual(set(["x", "y", "z", "s"]), f.properties())
+        with_defaults = f.properties_with_values(include_defaults=True)
+        del with_defaults['z'] # can't compare equality on the np array
+        self.assertDictEqual(dict(x=12, y="hello", s=None), with_defaults)
+        self.assertDictEqual(dict(),
+                             f.properties_with_values(include_defaults=False))
+
         f.x = 18
         self.assertEqual(f.x, 18)
 
         f.y = "bar"
         self.assertEqual(f.y, "bar")
+
+        self.assertDictEqual(dict(x=18, y="bar"),
+                             f.properties_with_values(include_defaults=False))
 
     def test_enum(self):
         class Foo(HasProps):
@@ -260,10 +271,10 @@ class TestNumberSpec(unittest.TestCase):
             x = NumberSpec("xfield")
         f = Foo()
         self.assertEqual(f.x, "xfield")
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"field": "xfield"})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", f), {"field": "xfield"})
         f.x = "my_x"
         self.assertEqual(f.x, "my_x")
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"field": "my_x"})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", f), {"field": "my_x"})
 
     def test_value(self):
         class Foo(HasProps):
@@ -272,25 +283,25 @@ class TestNumberSpec(unittest.TestCase):
         self.assertEqual(f.x, "xfield")
         f.x = 12
         self.assertEqual(f.x, 12)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 12})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", f), {"value": 12})
         f.x = 15
         self.assertEqual(f.x, 15)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 15})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", f), {"value": 15})
         f.x = dict(value=32)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 32})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", f), {"value": 32})
 
     def test_default(self):
         class Foo(HasProps):
             y = NumberSpec(default=12)
         f = Foo()
         self.assertEqual(f.y, 12)
-        self.assertDictEqual(Foo.__dict__["y"].to_dict(f), {"value": 12})
+        self.assertDictEqual(Foo.__dict__["y"].descriptor.to_dict("y", f), {"value": 12})
         f.y = "y1"
         self.assertEqual(f.y, "y1")
         # Once we set a concrete value, the default is ignored, because it is unused
         f.y = 32
         self.assertEqual(f.y, 32)
-        self.assertDictEqual(Foo.__dict__["y"].to_dict(f), {"value": 32})
+        self.assertDictEqual(Foo.__dict__["y"].descriptor.to_dict("y", f), {"value": 32})
 
     def test_multiple_instances(self):
         class Foo(HasProps):
@@ -302,11 +313,11 @@ class TestNumberSpec(unittest.TestCase):
         b.x = 14
         self.assertEqual(a.x, 13)
         self.assertEqual(b.x, 14)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13})
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"value": 14})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", a), {"value": 13})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", b), {"value": 14})
         b.x = {"field": "x3"}
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13})
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"field": "x3"})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", a), {"value": 13})
+        self.assertDictEqual(Foo.__dict__["x"].descriptor.to_dict("x", b), {"field": "x3"})
 
     def test_autocreate_no_parens(self):
         class Foo(HasProps):
@@ -394,10 +405,10 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertEqual(f.col, "colorfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "colorfield"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"field": "colorfield"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"field": "myfield"})
 
     def test_field_default(self):
         class Foo(HasProps):
@@ -405,10 +416,10 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertEqual(f.col, "red")
-        self.assertDictEqual(desc.to_dict(f), {"value": "red"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "red"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"field": "myfield"})
 
     def test_default_tuple(self):
         class Foo(HasProps):
@@ -416,7 +427,7 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertEqual(f.col, (128, 255, 124))
-        self.assertDictEqual(desc.to_dict(f), {"value": "rgb(128, 255, 124)"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "rgb(128, 255, 124)"})
 
     def test_fixed_value(self):
         class Foo(HasProps):
@@ -424,7 +435,7 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertEqual(f.col, "gray")
-        self.assertDictEqual(desc.to_dict(f), {"value": "gray"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "gray"})
 
     def test_named_value(self):
         class Foo(HasProps):
@@ -434,10 +445,10 @@ class TestColorSpec(unittest.TestCase):
 
         f.col = "red"
         self.assertEqual(f.col, "red")
-        self.assertDictEqual(desc.to_dict(f), {"value": "red"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "red"})
         f.col = "forestgreen"
         self.assertEqual(f.col, "forestgreen")
-        self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "forestgreen"})
 
     def test_case_insensitive_named_value(self):
         class Foo(HasProps):
@@ -447,10 +458,10 @@ class TestColorSpec(unittest.TestCase):
 
         f.col = "RED"
         self.assertEqual(f.col, "RED")
-        self.assertDictEqual(desc.to_dict(f), {"value": "RED"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "RED"})
         f.col = "ForestGreen"
         self.assertEqual(f.col, "ForestGreen")
-        self.assertDictEqual(desc.to_dict(f), {"value": "ForestGreen"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "ForestGreen"})
 
     def test_named_value_set_none(self):
         class Foo(HasProps):
@@ -458,14 +469,14 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = None
-        self.assertDictEqual(desc.to_dict(f), {"value": None})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": None})
 
     def test_named_value_unset(self):
         class Foo(HasProps):
             col = ColorSpec("colorfield")
         desc = Foo.__dict__["col"]
         f = Foo()
-        self.assertDictEqual(desc.to_dict(f), {"field": "colorfield"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"field": "colorfield"})
 
     def test_named_color_overriding_default(self):
         class Foo(HasProps):
@@ -474,10 +485,10 @@ class TestColorSpec(unittest.TestCase):
         f = Foo()
         f.col = "forestgreen"
         self.assertEqual(f.col, "forestgreen")
-        self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "forestgreen"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"field": "myfield"})
 
     def test_hex_value(self):
         class Foo(HasProps):
@@ -486,10 +497,10 @@ class TestColorSpec(unittest.TestCase):
         f = Foo()
         f.col = "#FF004A"
         self.assertEqual(f.col, "#FF004A")
-        self.assertDictEqual(desc.to_dict(f), {"value": "#FF004A"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "#FF004A"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"field": "myfield"})
 
     def test_tuple_value(self):
         class Foo(HasProps):
@@ -498,13 +509,13 @@ class TestColorSpec(unittest.TestCase):
         f = Foo()
         f.col = (128, 200, 255)
         self.assertEqual(f.col, (128, 200, 255))
-        self.assertDictEqual(desc.to_dict(f), {"value": "rgb(128, 200, 255)"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "rgb(128, 200, 255)"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"field": "myfield"})
         f.col = (100, 150, 200, 0.5)
         self.assertEqual(f.col, (100, 150, 200, 0.5))
-        self.assertDictEqual(desc.to_dict(f), {"value": "rgba(100, 150, 200, 0.5)"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"value": "rgba(100, 150, 200, 0.5)"})
 
     def test_set_dict(self):
         class Foo(HasProps):
@@ -516,7 +527,7 @@ class TestColorSpec(unittest.TestCase):
 
         f.col = "field2"
         self.assertEqual(f.col, "field2")
-        self.assertDictEqual(desc.to_dict(f), {"field": "field2"})
+        self.assertDictEqual(desc.descriptor.to_dict("col", f), {"field": "field2"})
 
 class TestDashPattern(unittest.TestCase):
 
