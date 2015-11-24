@@ -429,7 +429,7 @@ class Document(object):
         references_json = []
         for r in references:
             ref = r.ref
-            ref['attributes'] = r.vm_serialize(changed_only=False)
+            ref['attributes'] = r.vm_serialize(include_defaults=True)
             # 'id' is in 'ref' already
             # TODO (havocp) don't put this id here in the first place,
             # by fixing vm_serialize once we establish that other

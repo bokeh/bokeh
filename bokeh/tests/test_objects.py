@@ -166,8 +166,8 @@ class TestModel(unittest.TestCase):
         child_obj = SomeModelToJson(foo=57, bar="hello")
         obj = SomeModelToJson(child=child_obj,
                               foo=42, bar="world")
-        json = obj.to_json()
-        json_string = obj.to_json_string()
+        json = obj.to_json(include_defaults=True)
+        json_string = obj.to_json_string(include_defaults=True)
         self.assertEqual({ "child" : { "id" : child_obj._id, "type" : "SomeModelToJson" },
                            "id" : obj._id,
                            "name" : None,
@@ -185,7 +185,7 @@ class TestModel(unittest.TestCase):
         from bokeh.models import AnnularWedge
         self.maxDiff = None
         obj = AnnularWedge()
-        json = obj.to_json()
+        json = obj.to_json(include_defaults=True)
         self.assertTrue('start_angle' in json)
         self.assertTrue('start_angle_units' not in json)
         self.assertTrue('outer_radius' in json)
@@ -290,6 +290,21 @@ class HasListProp(Model):
         super(HasListProp, self).__init__(**kwargs)
 
 class TestListMutation(TestContainerMutation):
+
+    def test_whether_included_in_props_with_values(self):
+        obj = HasListProp()
+        self.assertFalse('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+        # simply reading the property creates a new wrapper, so be
+        # sure that doesn't count as replacing the default
+        foo = obj.foo
+        self.assertEqual(foo, foo) # this is to calm down flake's unused var warning
+        self.assertFalse('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+        # but changing the list should count as replacing the default
+        obj.foo.append("hello")
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
 
     def test_assignment_maintains_owners(self):
         obj = HasListProp()
@@ -414,6 +429,21 @@ class HasIntDictProp(Model):
         super(HasIntDictProp, self).__init__(**kwargs)
 
 class TestDictMutation(TestContainerMutation):
+
+    def test_whether_included_in_props_with_values(self):
+        obj = HasStringDictProp()
+        self.assertFalse('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+        # simply reading the property creates a new wrapper, so be
+        # sure that doesn't count as replacing the default
+        foo = obj.foo
+        self.assertEqual(foo, foo) # this is to calm down flake's unused var warning
+        self.assertFalse('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+        # but changing the dict should count as replacing the default
+        obj.foo['bar'] = 42
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
 
     def test_assignment_maintains_owners(self):
         obj = HasStringDictProp()

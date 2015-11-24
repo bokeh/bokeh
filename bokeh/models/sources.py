@@ -180,8 +180,8 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
-    def vm_serialize(self, changed_only=True):
-        attrs = super(ColumnDataSource, self).vm_serialize(changed_only=changed_only)
+    def vm_serialize(self, include_defaults):
+        attrs = super(ColumnDataSource, self).vm_serialize(include_defaults=include_defaults)
         if 'data' in attrs:
             attrs['data'] = transform_column_source_data(attrs['data'])
         return attrs

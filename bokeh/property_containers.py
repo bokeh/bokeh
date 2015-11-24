@@ -17,6 +17,9 @@ def notify_owner(func):
 class PropertyValueContainer(object):
     def __init__(self, *args, **kwargs):
         self._owners = set()
+        # this flag is set to True by HasProps when it wraps
+        # a default value
+        self._unmodified_default_value = False
         super(PropertyValueContainer, self).__init__(*args, **kwargs)
 
     def _register_owner(self, owner, prop):
@@ -26,6 +29,7 @@ class PropertyValueContainer(object):
         self._owners.discard((owner, prop))
 
     def _notify_owners(self, old):
+        self._unmodified_default_value = False
         for (owner, prop) in self._owners:
             prop._notify_mutated(owner, old)
 

@@ -165,29 +165,79 @@ class Basictest(unittest.TestCase):
         # non-serialized props are still in the list of props
         self.assertTrue('x' in o.properties())
         self.assertTrue('y' in o.properties())
-        self.assertTrue('x' not in o.changed_properties())
-        self.assertTrue('y' not in o.changed_properties())
 
         # but they aren't in the dict of props with values, since their
         # values are not important (already included in other values,
         # as with the _units properties)
-        self.assertTrue('x' not in o.properties_with_values())
-        self.assertTrue('y' in o.properties_with_values())
-        self.assertTrue('x' not in o.changed_properties_with_values())
-        self.assertTrue('y' not in o.changed_properties_with_values())
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
 
         o.x = 42
         o.y = 'world'
 
-        self.assertTrue('x' in o.properties())
-        self.assertTrue('y' in o.properties())
-        self.assertTrue('x' in o.changed_properties())
-        self.assertTrue('y' in o.changed_properties())
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=False))
 
-        self.assertTrue('x' not in o.properties_with_values())
-        self.assertTrue('y' in o.properties_with_values())
-        self.assertTrue('x' not in o.changed_properties_with_values())
-        self.assertTrue('y' in o.changed_properties_with_values())
+    def test_include_defaults(self):
+        class IncludeDefaultsTest(HasProps):
+            x = Int(12)
+            y = String("hello")
+
+        o = IncludeDefaultsTest()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, 'hello')
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+        o.x = 42
+        o.y = 'world'
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=False))
+
+    def test_include_defaults_with_kwargs(self):
+        class IncludeDefaultsKwargsTest(HasProps):
+            x = Int(12)
+            y = String("hello")
+
+        o = IncludeDefaultsKwargsTest(x=14, y="world")
+        self.assertEqual(o.x, 14)
+        self.assertEqual(o.y, 'world')
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=False))
+
+    def test_include_defaults_set_to_same(self):
+        class IncludeDefaultsSetToSameTest(HasProps):
+            x = Int(12)
+            y = String("hello")
+
+        o = IncludeDefaultsSetToSameTest()
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+        # this should no-op
+        o.x = 12
+        o.y = "hello"
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
 
     # def test_kwargs_init(self):
     #     class Foo(HasProps):
@@ -1093,9 +1143,9 @@ class TestProperties(unittest.TestCase):
 def test_HasProps_clone():
     from bokeh.models import Plot
     p1 = Plot(plot_width=1000)
-    c1 = p1.changed_properties()
+    c1 = p1.properties_with_values(include_defaults=False)
     p2 = p1._clone()
-    c2 = p2.changed_properties()
+    c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
 
 if __name__ == "__main__":

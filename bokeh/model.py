@@ -228,33 +228,7 @@ class Model(HasProps, CallbackManager):
         """Returns all ``Models`` that this object has references to. """
         return set(self.collect_models(self))
 
-    def vm_props(self, changed_only=True):
-        """ Returns the ViewModel-related properties of this object.
-
-        .. note::
-            In the future this method may always return all properties,
-            ignoring the changed_only argument.
-
-        Args:
-            changed_only (bool, optional) : whether to return only properties
-                that have had their values changed at some point (default: True)
-
-        """
-        if changed_only:
-            props = self.changed_properties_with_values()
-        else:
-            props = self.properties_with_values()
-
-        # XXX: For dataspecs, getattr() returns a meaningless value
-        # from serialization point of view. This should be handled in
-        # the properties module, but for now, fix serialized values here.
-        for attr, prop in iteritems(self.dataspecs_with_refs()):
-            if props.get(attr) is not None:
-                props[attr] = prop.to_dict(self)
-
-        return props
-
-    def vm_serialize(self, changed_only=True):
+    def vm_serialize(self, include_defaults):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
 
@@ -264,16 +238,16 @@ class Model(HasProps, CallbackManager):
 
         This method should be considered "private" or "protected",
         for use internal to Bokeh; use to_json() instead because
-        it gives you only plain JSON-compatible types. Also, the
-        changed_only functionality may not be supported in the
-        future.
+        it gives you only plain JSON-compatible types.
 
         Args:
-            changed_only (bool, optional) : whether to include only attributes
-                that have had their values changed at some point (default: True)
+            include_defaults (bool) : whether to include attributes
+                that haven't been changed from the default.
 
         """
-        attrs = self.vm_props(changed_only)
+        attrs = self.properties_with_values(include_defaults=include_defaults)
+        # we can get rid of vm_serialize by fixing all callers that expect 'id'
+        # to exist, and moving the 'inf' handling into _json_encoder.py, I think.
         attrs['id'] = self._id
         for (k, v) in attrs.items():
             # we can't serialize Infinity, we send it as None and the
@@ -283,7 +257,7 @@ class Model(HasProps, CallbackManager):
 
         return attrs
 
-    def to_json(self):
+    def to_json(self, include_defaults):
         """ Returns a dictionary of the attributes of this object,
         containing only "JSON types" (string, number, boolean,
         none, dict, list).
@@ -301,12 +275,13 @@ class Model(HasProps, CallbackManager):
         entire documents.
 
         Args:
-            None
+            include_defaults (bool) : whether to include attributes
+                that haven't been changed from the default
 
         """
-        return loads(self.to_json_string())
+        return loads(self.to_json_string(include_defaults=include_defaults))
 
-    def to_json_string(self):
+    def to_json_string(self, include_defaults):
         """Returns a JSON string encoding the attributes of this object.
 
         References to other objects are serialized as references
@@ -322,14 +297,15 @@ class Model(HasProps, CallbackManager):
         entire documents.
 
         Args:
-            None
+            include_defaults (bool) : whether to include attributes
+                that haven't been changed from the default
 
         """
         # we sort_keys to simplify the test suite by making the returned
         # string deterministic. serialize_json "fixes" the JSON from
         # vm_serialize by converting all types into plain JSON types
         # (it converts Model into refs, for example).
-        return serialize_json(self.vm_serialize(changed_only=False), sort_keys=True)
+        return serialize_json(self.vm_serialize(include_defaults=include_defaults), sort_keys=True)
 
     def update(self, **kwargs):
         for k,v in kwargs.items():

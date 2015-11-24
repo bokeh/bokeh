@@ -143,10 +143,6 @@ class Property(object):
         return self.__class__.__name__
 
     @property
-    def _name(self):
-        return "_" + self.name
-
-    @property
     def default(self):
         if not isinstance(self._default, types.FunctionType):
             return copy(self._default)
@@ -206,9 +202,14 @@ class Property(object):
             return True
 
     def _get(self, obj):
-        if not hasattr(obj, self._name):
-            self._set_default(obj, self.default)
-        return getattr(obj, self._name)
+        if not hasattr(obj, '_property_values'):
+            raise RuntimeError("Cannot get a property value '%s' from a %s instance before HasProps.__init__" %
+                               (self.name, obj.__class__.__name__))
+
+        if self.name not in obj._property_values:
+            return self._get_default(obj)
+        else:
+            return obj._property_values[self.name]
 
     def __get__(self, obj, owner=None):
         if obj is not None:
@@ -248,28 +249,41 @@ class Property(object):
 
         return self._wrap_container(value)
 
-    def _mark_dirty_and_trigger(self, obj, old, value):
-        obj._dirty = True
+    def _trigger(self, obj, old, value):
         if hasattr(obj, 'trigger'):
             obj.trigger(self.name, old, value)
 
     # set a default, so no 'old' or notification
-    def _set_default(self, obj, value):
-        value = self._wrap_container(value)
-        if isinstance(value, PropertyValueContainer):
-            value._register_owner(obj, self)
-        setattr(obj, self._name, value)
+    def _get_default(self, obj):
+        # merely getting a default may force us to put it
+        # in _property_values if we need to wrap the
+        # container. We later have to check _mutated_since_owned
+        # on these containers before we include them in non-default
+        # values.
+        default = self.default
+        wrapped_value = self._wrap_container(default)
+        if isinstance(wrapped_value, PropertyValueContainer):
+            wrapped_value._unmodified_default_value = True
+            wrapped_value._register_owner(obj, self)
+        if wrapped_value is not default:
+            obj._property_values[self.name] = wrapped_value
+
+        return wrapped_value
 
     def _real_set(self, obj, old, value):
-        obj._changed_vars.add(self.name)
-
-        if self._name in obj.__dict__ and self.matches(value, old):
+        unchanged = self.matches(value, old)
+        if unchanged:
             return
+
+        was_set = self.name in obj._property_values
 
         # "old" is the logical old value, but it may not be
         # the actual current attribute value if our value
-        # was mutated behind our back and we got _notify_mutated
-        old_attr_value = self.__get__(obj)
+        # was mutated behind our back and we got _notify_mutated.
+        if was_set:
+            old_attr_value = obj._property_values[self.name]
+        else:
+            old_attr_value = old
 
         if old_attr_value is not value:
             if isinstance(old_attr_value, PropertyValueContainer):
@@ -277,13 +291,18 @@ class Property(object):
             if isinstance(value, PropertyValueContainer):
                 value._register_owner(obj, self)
 
-            setattr(obj, self._name, value)
+            obj._property_values[self.name] = value
 
         # for notification purposes, "old" should be the logical old
-        self._mark_dirty_and_trigger(obj, old, value)
+        self._trigger(obj, old, value)
 
     def __set__(self, obj, value):
+        if not hasattr(obj, '_property_values'):
+            # Initial values should be passed in to __init__, not set directly
+            raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
+                               (self.name, obj.__class__.__name__))
         value = self._prepare_value(value)
+
         old = self.__get__(obj)
         self._real_set(obj, old, value)
 
@@ -302,8 +321,8 @@ class Property(object):
         self._real_set(obj, old, value)
 
     def __delete__(self, obj):
-        if hasattr(obj, self._name):
-            delattr(obj, self._name)
+        if self.name in obj._property_values:
+            del obj._property_values[self.name]
 
     @property
     def has_ref(self):
@@ -488,7 +507,7 @@ class HasProps(object):
 
     def __init__(self, **properties):
         super(HasProps, self).__init__()
-        self._changed_vars = set()
+        self._property_values = dict()
 
         for name, value in properties.items():
             setattr(self, name, value)
@@ -518,7 +537,7 @@ class HasProps(object):
         """ Returns a duplicate of this object with all its properties
         set appropriately.  Values which are containers are shallow-copied.
         """
-        return self.__class__(**self.changed_properties_with_values())
+        return self.__class__(**self._property_values)
 
     @classmethod
     def lookup(cls, name):
@@ -567,24 +586,35 @@ class HasProps(object):
                 dataspecs.update(c._dataspecs)
         return dataspecs
 
-    def changed_vars(self):
-        """ Returns which variables changed since the creation of the object,
-        or the last called to reset_changed_vars().
-        """
-        return set.union(self._changed_vars, self.properties_with_refs(),
-                         self.properties_containers())
+    def properties_with_values(self, include_defaults=True):
+        '''Get a dict from property names to the current values of those properties.
 
-    def reset_changed_vars(self):
-        self._changed_vars = set()
+        Args:
+           include_defaults (bool) : True to include properties that haven't been set.
 
-    def properties_with_values(self):
-        return dict([ (attr, getattr(self, attr)) for attr in self.properties() if self.lookup(attr).serialized ])
+        Returns:
+           dict : from property names to their values
+        '''
+        if include_defaults:
+            result = dict([ (attr, getattr(self, attr)) for attr in self.properties() if self.lookup(attr).serialized ])
+        else:
+            result = dict()
+            for k, v in self._property_values.items():
+                if isinstance(v, PropertyValueContainer) and v._unmodified_default_value:
+                    continue
+                if not self.lookup(k).serialized:
+                    continue
+                result[k] = v
 
-    def changed_properties(self):
-        return self.changed_vars()
+        # dataspecs have a non-canonicalized value (we don't force
+        # into dict format), so we have to clean it up here. This
+        # could probably be solved more cleanly by trying to fix
+        # up inside the dataspec Property itself.
+        for attr, prop in iteritems(self.dataspecs_with_refs()):
+            if result.get(attr) is not None:
+                result[attr] = prop.to_dict(self)
 
-    def changed_properties_with_values(self):
-        return dict([ (attr, getattr(self, attr)) for attr in self.changed_properties() if self.lookup(attr).serialized ])
+        return result
 
     @classmethod
     def class_properties(cls, withbases=True):
@@ -1225,7 +1255,7 @@ class DataSpec(Either):
         self._type = self._validate_type_param(typ)
 
     def to_dict(self, obj):
-        val = getattr(obj, self._name, self.default)
+        val = getattr(obj, self.name)
 
         # Check for None value
         if val is None:
@@ -1246,7 +1276,7 @@ class DataSpec(Either):
         return val
 
     def __str__(self):
-        val = getattr(self, self._name, self.default)
+        val = getattr(self, self.name)
         return "%s(%r)" % (self.__class__.__name__, val)
 
 class NumberSpec(DataSpec):
@@ -1297,7 +1327,7 @@ class UnitsSpec(NumberSpec):
         super(UnitsSpec, self).__set__(obj, value)
 
     def __str__(self):
-        val = getattr(self, self._name, self.default)
+        val = getattr(self, self.name)
         return "%s(%r, units_default=%r)" % (self.__class__.__name__, val, self._units_type._default)
 
 class AngleSpec(UnitsSpec):
@@ -1368,7 +1398,7 @@ class ColorSpec(DataSpec):
             return "rgba%r" % (colortuple,)
 
     def to_dict(self, obj):
-        val = getattr(obj, self._name, self.default)
+        val = getattr(obj, self.name)
 
         if val is None:
             return dict(value=None)
