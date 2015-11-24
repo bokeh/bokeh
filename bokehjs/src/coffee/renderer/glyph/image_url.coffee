@@ -14,17 +14,21 @@ class ImageURLView extends Glyph.View
     if not @image? or @image.length != @url.length
       @image = (null for img in @url)
 
-    @retry_attempts = (@mget('retry_attempts') for img in @url)
+    retry_attempts = @mget('retry_attempts')
+    retry_timeout = @mget('retry_timeout')
+
+    @retries = (retry_attempts for img in @url)
 
     for i in [0...@url.length]
       img = new Image()
       img.onerror = do (i, img) =>
         return () =>
-          if @retry_attempts[i] > 0
-            setTimeout((-> img.src = @url[i]), @mget('retry_timeout'))
+          if @retries[i] > 0
+            logger.trace("ImageURL failed to load #{@url[i]} image, retrying in #{retry_timeout} ms")
+            setTimeout((=> img.src = @url[i]), retry_timeout)
           else
-            logger.warn("ImageURL has exhausted retry_attempts and failed to load image")
-          @retry_attempts[i] -= 1
+            logger.warn("ImageURL unable to load #{@url[i]} image after #{retry_attempts} retries")
+          @retries[i] -= 1
       img.onload = do (img, i) =>
         return () =>
           @image[i] = img
@@ -49,7 +53,7 @@ class ImageURLView extends Glyph.View
       if isNaN(sx[i]+sy[i]+angle[i])
         continue
 
-      if @retry_attempts[i] == -1
+      if @retries[i] == -1
         continue
 
       if not image[i]?
