@@ -5,7 +5,8 @@ import numpy as np
 from bokeh.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
-    Enum, Color, Align, DashPattern, Size, Percent, Angle)
+    Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
+    DistanceSpec)
 
 
 class Basictest(unittest.TestCase):
@@ -307,6 +308,83 @@ class TestNumberSpec(unittest.TestCase):
         self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13})
         self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"field": "x3"})
 
+    def test_autocreate_no_parens(self):
+        class Foo(HasProps):
+            x = NumberSpec
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        a.x = 14
+        self.assertEqual(a.x, 14)
+
+class TestAngleSpec(unittest.TestCase):
+    def test_default_none(self):
+        class Foo(HasProps):
+            x = AngleSpec(None)
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        self.assertEqual(a.x_units, 'rad')
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+    def test_autocreate_no_parens(self):
+        class Foo(HasProps):
+            x = AngleSpec
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        self.assertEqual(a.x_units, 'rad')
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+    def test_default_value(self):
+        class Foo(HasProps):
+            x = AngleSpec(default=14)
+
+        a = Foo()
+
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+class TestDistanceSpec(unittest.TestCase):
+    def test_default_none(self):
+        class Foo(HasProps):
+            x = DistanceSpec(None)
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        self.assertEqual(a.x_units, 'data')
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'data')
+
+    def test_autocreate_no_parens(self):
+        class Foo(HasProps):
+            x = DistanceSpec
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        self.assertEqual(a.x_units, 'data')
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'data')
+
+    def test_default_value(self):
+        class Foo(HasProps):
+            x = DistanceSpec(default=14)
+
+        a = Foo()
+
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'data')
 
 class TestColorSpec(unittest.TestCase):
 

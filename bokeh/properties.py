@@ -407,31 +407,29 @@ class MetaHasProps(type):
 
         dataspecs = {}
         units_to_add = {}
+
+        def add_prop(prop, name):
+            prop.name = name
+            if prop.has_ref:
+                names_with_refs.add(name)
+            elif isinstance(prop, ContainerProperty):
+                container_names.add(name)
+            names.add(name)
+            if isinstance(prop, DataSpec):
+                dataspecs[name] = prop
+                if hasattr(prop, '_units_type'):
+                    units_to_add[name+"_units"] = prop._units_type
+
         for name, prop in class_dict.items():
             if isinstance(prop, Property):
-                prop.name = name
-                if prop.has_ref:
-                    names_with_refs.add(name)
-                elif isinstance(prop, ContainerProperty):
-                    container_names.add(name)
-                names.add(name)
-                if isinstance(prop, DataSpec):
-                    dataspecs[name] = prop
-                    if hasattr(prop, '_units_type'):
-                        units_to_add[name+"_units"] = prop._units_type
-
+                add_prop(prop, name)
             elif isinstance(prop, type) and issubclass(prop, Property):
                 # Support the user adding a property without using parens,
                 # i.e. using just the Property subclass instead of an
                 # instance of the subclass
                 newprop = prop.autocreate(name=name)
                 class_dict[name] = newprop
-                newprop.name = name
-                names.add(name)
-
-                # Process dataspecs
-                if issubclass(prop, DataSpec):
-                    dataspecs[name] = newprop
+                add_prop(newprop, name)
 
         for name, prop in units_to_add.items():
             prop.name = name
@@ -1279,7 +1277,7 @@ class DataSpec(Either):
         return "%s(%r)" % (self.__class__.__name__, val)
 
 class NumberSpec(DataSpec):
-    def __init__(self, default, help=None):
+    def __init__(self, default=None, help=None):
         super(NumberSpec, self).__init__(Float, default=default, help=help)
 
 class StringSpec(DataSpec):
@@ -1330,11 +1328,11 @@ class UnitsSpec(NumberSpec):
         return "%s(%r, units_default=%r)" % (self.__class__.__name__, val, self._units_type._default)
 
 class AngleSpec(UnitsSpec):
-    def __init__(self, default, units_default="rad", help=None):
+    def __init__(self, default=None, units_default="rad", help=None):
         super(AngleSpec, self).__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
 class DistanceSpec(UnitsSpec):
-    def __init__(self, default, units_default="data", help=None):
+    def __init__(self, default=None, units_default="data", help=None):
         super(DistanceSpec, self).__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
     def __set__(self, obj, value):
