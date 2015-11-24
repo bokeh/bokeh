@@ -11,6 +11,9 @@ class TileRendererView extends PlotWidget
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
 
+  initialize: () ->
+    super
+
   get_extent: () ->
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
 
@@ -24,6 +27,20 @@ class TileRendererView extends PlotWidget
     @y_range = @map_plot.get('y_range')
     @y_mapper = this.map_frame.get('y_mappers')['default']
     @extent = @get_extent()
+    @_add_attribution()
+
+  _add_attribution: () ->
+    if @mget('tile_source').get('attribution')?
+      div_check = Bokeh.$('.bk-canvas-overlays').children('#tile_attribution')
+      if div_check.length == 0
+        attribution_div = Bokeh.$('''<div id="tile-attribution">#{@mget('tile_source').get('attribution')}</div>''')
+        .appendTo('.bk-canvas-overlays')
+        .css('position', 'absolute')
+        .css('bottom', '0')
+        .css('right', '0')
+      else
+        attribution_div = Bokeh.$('#tile-attribution')
+        attribution_div.text += " | #{@mget('tile_source').get('attribution')}"
 
   _map_data: () ->
     @initial_extent = @get_extent()

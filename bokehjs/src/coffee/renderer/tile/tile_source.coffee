@@ -19,6 +19,7 @@ class TileSource extends HasProperties
       max_zoom : 30
       min_zoom : 0
       extra_url_vars : {}
+      attribution : ''
   }
 
   constructor: (options={}) ->

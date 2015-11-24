@@ -36,6 +36,10 @@ class TileSource(Model):
     These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)
 
+    attribution = String("", help="""
+    data provider attribution content.  This can include html content.
+    """)
+
 class MercatorTileSource(TileSource):
     """``MercatorTileSource`` is not generally useful to instantiate on its own, but is the parent class of mercator tile services (e.g. ``WMTSTileSource``).
     """
@@ -88,3 +92,15 @@ class BBoxTileSource(MercatorTileSource):
     Example url: http://your.custom.tile.serivce?bbox={XMIN},{YMIN},{XMAX},{YMAX}
     """
     pass
+
+# tile providers -----------------------------------------------------------------
+stamen_toner = WMTSTileSource(url='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png', attribution="""
+Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>
+""")
+
+stamen_toner_labels = WMTSTileSource(url='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png', attribution="""
+Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>
+""")
+
+stamen_toner_terrain = WMTSTileSource(url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png', attribution="""Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.
+""")
