@@ -7,7 +7,7 @@ import os
 from bokeh.settings import settings
 from bokeh.application import Application
 from bokeh.server.server import Server
-from bokeh.application.spellings import ScriptHandler, DirectoryHandler
+from bokeh.application.handlers import ScriptHandler, DirectoryHandler
 from bokeh.io import output_file, save, show
 
 import logging
@@ -50,6 +50,9 @@ class ApplicationsSubcommand(Subcommand):
             else:
                 handler = ScriptHandler(filename=file)
 
+            if handler.failed:
+                die("Error loading %s:\n\n%s\n%s " % (file, handler.error, handler.error_detail))
+
             application = Application()
             application.add(handler)
 
@@ -74,8 +77,10 @@ class Serve(ApplicationsSubcommand):
 
     def __init__(self, **kwargs):
         super(Serve, self).__init__(**kwargs)
-        self.parser.add_argument('--port', metavar='PORT', type=int, help="Port to listen on", default=-1)
         self.parser.add_argument('--develop', action='store_true', help="Enable develop-time features that should not be used in production")
+        self.parser.add_argument('--show', action='store_true', help="Open server app(s) in a browser")
+        self.parser.add_argument('--port', metavar='PORT', type=int, help="Port to listen on", default=-1)
+        self.parser.add_argument('--address', metavar='ADDRESS', type=str, help="Address to listen on", default=None)
         self.port = 5006
         self.develop_mode = False
         self.server = None
@@ -91,10 +96,25 @@ class Serve(ApplicationsSubcommand):
         # TODO make log level a command line option
         logging.basicConfig(level=logging.DEBUG)
 
-        server = Server(applications, port=self.port)
+        server = Server(applications, port=self.port, address=args.address)
+
+        if args.show:
+            # we have to defer opening in browser until
+            # we start up the server
+            def show_callback():
+                for route in applications.keys():
+                    server.show(route)
+            server.io_loop.add_callback(show_callback)
+
         if self.develop_mode:
             log.info("Using develop mode (do not enable --develop in production)")
-        log.info("Starting Bokeh server on port %d with apps at %r", server.port, sorted(applications.keys()))
+        address_string = ''
+        if server.address is not None and server.address != '':
+            address_string = ' address ' + server.address
+        log.info("Starting Bokeh server on port %d%s with applications at paths %r",
+                 server.port,
+                 address_string,
+                 sorted(applications.keys()))
         server.start()
 
 class Html(ApplicationsSubcommand):
