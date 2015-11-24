@@ -11,7 +11,7 @@
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py", "ajax_source.py", "choropleth.py", "iris_blend.py", 
-         "scatter10k.py", "clustering.py", "line10k.py", "python_calback.py"]
+         "scatter10k.py", "clustering.py", "line10k.py", "python_callback.py"]
 - path: "plotting/server"
   type: server
   skip: ["blaze_source.py", "image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py", "embedding_example.py", "abstractrender.py", "census.py"]

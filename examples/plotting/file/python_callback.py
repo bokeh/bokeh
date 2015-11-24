@@ -29,7 +29,7 @@ def callback(source=source):
     source.trigger('change')
 
 # Turn our function into a CustomJS object
-callback = CustomJS(callback)
+callback = CustomJS.from_py_func(callback)
 
 # uncomment the line below to see the generated JavaScript
 # print(callback.code)
