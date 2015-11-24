@@ -1,7 +1,7 @@
 import numpy as np
 from bokeh.plotting import figure, show, output_file, vplot
 
-output_file("patches_with_holes.html", title="patches_with_holes.py example", mode='relative-dev')
+output_file("patches_with_holes.html", title="patches_with_holes.py example")
 
 vplot = vplot()
 p = figure(title="patches with holes 1")
