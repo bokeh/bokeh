@@ -49,7 +49,7 @@ plot4 = make_plot(source, "x", "y4", "black")
 grid = GridPlot(children=[[plot1, plot2], [plot3, plot4]])
 
 doc = Document()
-doc.add(grid)
+doc.add_root(grid)
 
 if __name__ == "__main__":
     filename = "grid.html"

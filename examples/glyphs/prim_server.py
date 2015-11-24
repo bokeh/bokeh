@@ -53,5 +53,5 @@ make_plot('text', Text(x="x", y="y", text={"value":"foo"}, angle=0.6))
 make_plot('wedge', Wedge(x="x", y="y", radius=0.5, start_angle=0.9, end_angle=3.2))
 
 layout = VBox(children=children)
-document.add(layout)
+document.add_root(layout)
 session.show(layout)

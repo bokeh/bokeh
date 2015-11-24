@@ -60,7 +60,7 @@ plot.add_glyph(state_source, state_patches)
 plot.add_tools(ResizeTool())
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "choropleth.html"
