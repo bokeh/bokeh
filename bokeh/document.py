@@ -178,7 +178,7 @@ class Document(object):
         self._all_models_freeze_count = 0
         self._all_models = dict()
         self._all_models_by_name = _MultiValuedDict()
-        self._callbacks = []
+        self._callbacks = {}
         self._session_callbacks = {}
 
     def clear(self):
@@ -390,7 +390,11 @@ class Document(object):
 
             _check_callback(callback, ('event',))
 
-            self._callbacks.append(callback)
+            self._callbacks[callback] = callback
+
+    def on_change_dispatch_to(self, receiver):
+        if not receiver in self._callbacks:
+            self._callbacks[receiver] = lambda event: event.dispatch(receiver)
 
     def remove_on_change(self, *callbacks):
         ''' Remove a callback added earlier with on_change()
@@ -399,7 +403,7 @@ class Document(object):
 
         '''
         for callback in callbacks:
-            self._callbacks.remove(callback)
+            self._callbacks.pop(callback)
 
     def _with_self_as_curdoc(self, f):
         from bokeh.io import set_curdoc, curdoc
@@ -420,7 +424,7 @@ class Document(object):
 
     def _trigger_on_change(self, event):
         def invoke_callbacks():
-            for cb in self._callbacks:
+            for cb in self._callbacks.values():
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
 
@@ -735,6 +739,3 @@ class Document(object):
         cb = self._session_callbacks.pop(callback)
         # emit event so the session is notified and can remove the callback
         self._trigger_on_change(SessionCallbackRemoved(self, cb))
-
-    def on_change_dispatch_to(self, receiver):
-     self.on_change(lambda event: event.dispatch(receiver))

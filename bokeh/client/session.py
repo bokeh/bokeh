@@ -317,7 +317,7 @@ class ClientSession(object):
     def _notify_disconnected(self):
         '''Called by the ClientConnection we are using to notify us of disconnect'''
         if self._document is not None:
-            self._document.remove_on_change(self._document_changed)
+            self._document.remove_on_change(self)
 
     def _document_changed(self, event):
 
@@ -338,5 +338,18 @@ class ClientSession(object):
         finally:
             self._current_patch = None
 
-    # def _register_listener(self, document):
-    #     document.on_change(lambda event: event.dispatch(self))
+    def _session_callback_added(self, event):
+        if isinstance(event.callback, PeriodicCallback):
+            self._add_periodic_callback(event.callback)
+        elif isinstance(event.callback, TimeoutCallback):
+            self._add_timeout_callback(event.callback)
+        else:
+            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+
+    def _session_callback_removed(self, event):
+        if isinstance(event.callback, PeriodicCallback):
+            self._remove_periodic_callback(event.callback)
+        elif isinstance(event.callback, TimeoutCallback):
+            self._remove_timeout_callback(event.callback)
+        else:
+            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
