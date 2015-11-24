@@ -7,7 +7,7 @@ from bokeh.models import Range1d, LinearAxis
 from bokeh.plotting import figure
 from bokeh.sampledata.stocks import AAPL, GOOG
 
-output_file('prevent_user_zooming_or_panning_too_far.html', mode='relative-dev')
+output_file('prevent_user_zooming_or_panning_too_far.html')
 
 ## Plot where limits are manually set
 x_range = Range1d(0, 3, bound_lower=-1, bound_upper=3.5)
