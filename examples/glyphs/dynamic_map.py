@@ -7,7 +7,7 @@ from bokeh.resources import INLINE
 
 from bokeh.models import Plot
 from bokeh.models import Range1d
-from bokeh.models import WheelZoomTool, ResizeTool, PanTool, BoxZoomTool
+from bokeh.models import WheelZoomTool, PanTool
 from bokeh.models import ImageSource, WMTSTileSource
 
 # create plot object
@@ -16,7 +16,7 @@ x_range = Range1d(start=-15473429, end=2108550)
 y_range = Range1d(start=-6315661, end=7264686)
 p = Plot(x_range=x_range, y_range=y_range, plot_height=700, plot_width=700, title=title)
 p.background_fill = "black"
-p.add_tools(ResizeTool(), WheelZoomTool(), PanTool(), BoxZoomTool())
+p.add_tools(WheelZoomTool(), PanTool())
 
 # add base layer
 tile_options = {}
