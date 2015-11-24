@@ -97,6 +97,7 @@ class Population(object):
             female=female_percent,
         )
 
+
 import bokeh.embed as embed
 
 pop = Population()
