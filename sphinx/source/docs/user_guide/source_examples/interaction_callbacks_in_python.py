@@ -1,6 +1,6 @@
 from bokeh.io import vform
 from bokeh.models import CustomJS, ColumnDataSource, Slider
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import Figure, output_file, show
 
 output_file("callback.html")
 
@@ -9,10 +9,9 @@ y = x
 
 source = ColumnDataSource(data=dict(x=x, y=y))
 
-plot = figure(plot_width=400, plot_height=400)
+plot = Figure(plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-@CustomJS
 def callback(source=source):
     data = source.get('data')
     f = cb_obj.get('value')
@@ -21,7 +20,7 @@ def callback(source=source):
         y[i] = Math.pow(x[i], f)
     source.trigger('change');
 
-slider = Slider(start=0.1, end=4, value=1, step=.1, title="power", callback=callback)
+slider = Slider(start=0.1, end=4, value=1, step=.1, title="power", callback=CustomJS(callback))
 
 layout = vform(slider, plot)
 

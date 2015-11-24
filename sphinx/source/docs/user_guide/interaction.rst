@@ -297,15 +297,16 @@ CustomJS with a Python function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A CustomJS callback can also be implemented as a Python function, which
-is then transpiled to JavaScript using PyScript. This makes it easier
+is then translated to JavaScript using PyScript. This makes it easier
 for users to define client-side interactions without having to learn
 JavaScript. To use this functionality you need the Flexx library
-(install with ``pip install flexx``). Note that this functionality is
-currently only supported on Python 3.x.
+(install with ``conda install flexx`` or ``pip install flexx``).
+
+.. note::
+    This functionality is currently only supported on Python 3.x.
 
 For more information about the subset of Python that is supported in
-callbacks, see the `PyScript documentation
-<http://flexx.readthedocs.org/en/latest/pyscript/index.html>`_. 
+callbacks, see the `<PyScript documentation_>`_. 
 
 The code below demonstrates this. Unfortunately, the way that the docs
 are generated prevents PyScript from obtaining the Python source code,
@@ -313,3 +314,5 @@ which is why the resulting plot is not shown on this page.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_in_python.py
     :source-position: above
+
+.. _PyScript documentation: http://flexx.readthedocs.org/en/latest/pyscript/index.html

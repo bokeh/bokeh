@@ -18,7 +18,7 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 plot = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-@CustomJS
+
 def callback(source=source):
     data = source.get('data')
     A, B = amp.get('value'), offset.get('value')
@@ -26,7 +26,10 @@ def callback(source=source):
     x, y = data['x'], data['y']
     for i in range(len(x)):
         y[i] = B + A * Math.sin(k * x[i] + phi)
-    source.trigger('change') 
+    source.trigger('change')
+
+# Turn our function into a CustomJS object
+callback = CustomJS(callback)
 
 # uncomment the line below to see the generated JavaScript
 # print(callback.code)
