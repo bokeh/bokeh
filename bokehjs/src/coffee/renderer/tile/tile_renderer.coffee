@@ -253,7 +253,7 @@ class TileRenderer extends HasParent
       alpha: 1.0
       x_range_name: "default"
       y_range_name: "default"
-      tile_source: null
+      tile_source: new wmts.Model()
       render_parents: true
     }
 
