@@ -121,7 +121,25 @@ class _NotSet(object):
 class DeserializationError(Exception):
     pass
 
-class PropertyDescriptor(object):
+class PropertyGenerator(object):
+    """ Base class for objects that can generate Property instances. """
+    def __init__(self):
+        pass
+
+    @classmethod
+    def autocreate(cls):
+        """ Called by the metaclass to create a
+        new instance of this descriptor
+        if the user just assigned it to a property without trailing
+        parentheses.
+        """
+        return cls()
+
+    def make_properties(self, base_name):
+        """ Returns a list of Property instances. """
+        raise NotImplementedError("make_properties not implemented")
+
+class PropertyDescriptor(PropertyGenerator):
     """ Base class for a description of a property, not associated yet with an attribute name or a class."""
 
     def __init__(self, default=None, help=None, serialized=True):
@@ -136,6 +154,9 @@ class PropertyDescriptor(object):
 
     def __str__(self):
         return self.__class__.__name__
+
+    def make_properties(self, base_name):
+        return [ BasicProperty(descriptor=self, name=base_name) ]
 
     @classmethod
     def _copy_default(cls, default):
@@ -164,15 +185,6 @@ class PropertyDescriptor(object):
         information already available in other properties, for example.
         """
         return self._serialized
-
-    @classmethod
-    def autocreate(cls):
-        """ Called by the metaclass to create a
-        new instance of this descriptor
-        if the user just assigned it to a property without trailing
-        parentheses.
-        """
-        return cls()
 
     def matches(self, new, old):
         # XXX: originally this code warned about not being able to compare values, but that
@@ -252,12 +264,29 @@ class PropertyDescriptor(object):
         return Either(self, other)
 
 class Property(object):
+    """ A named attribute that can be read and written. """
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "Property(%s)" % (self.name)
+
+    def __get__(self, obj, owner=None):
+        raise NotImplementedError("Implement __get__")
+
+    def __set__(self, obj, value):
+        raise NotImplementedError("Implement __set__")
+
+    def __delete__(self, obj):
+        raise NotImplementedError("Implement __delete__")
+
+class BasicProperty(Property):
     """ A PropertyDescriptor associated with a class attribute name, so it can be read and written. """
 
     def __init__(self, descriptor, name):
-
+        super(BasicProperty, self).__init__(name)
         self.descriptor = descriptor
-        self.name = name
 
     def __str__(self):
         return "%s:%s" % (self.name, self.descriptor)
@@ -445,33 +474,49 @@ class MetaHasProps(type):
         for name, default in overridden_defaults.items():
             del class_dict[name]
 
-        dataspecs = {}
-        new_class_attrs = {}
-
-        def add_prop(descriptor, name):
-            prop = Property(descriptor=descriptor, name=name)
-            # overwrite the descriptor with the name-bound Property
-            new_class_attrs[name] = prop
-            if prop.descriptor.has_ref:
-                names_with_refs.add(name)
-            elif isinstance(prop.descriptor, ContainerProperty):
-                container_names.add(name)
-            names.add(name)
-            if isinstance(prop.descriptor, DataSpec):
-                dataspecs[name] = prop
-                if hasattr(prop.descriptor, '_units_type'):
-                    units_name = name + "_units"
-                    add_prop(prop.descriptor._units_type, units_name)
-
-        for name, descriptor in class_dict.items():
-            if isinstance(descriptor, PropertyDescriptor):
-                add_prop(descriptor, name)
-            elif isinstance(descriptor, type) and issubclass(descriptor, PropertyDescriptor):
+        generators = dict()
+        for name, generator in class_dict.items():
+            if isinstance(generator, PropertyGenerator):
+                generators[name] = generator
+            elif isinstance(generator, type) and issubclass(generator, PropertyGenerator):
                 # Support the user adding a property without using parens,
                 # i.e. using just the Property subclass instead of an
                 # instance of the subclass
-                newdescriptor = descriptor.autocreate()
-                add_prop(newdescriptor, name)
+                generators[name] = generator.autocreate()
+
+        dataspecs = {}
+        new_class_attrs = {}
+
+        def add_prop(prop):
+            name = prop.name
+            if name in new_class_attrs:
+                raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
+            new_class_attrs[name] = prop
+            if isinstance(prop, BasicProperty):
+                if prop.descriptor.has_ref:
+                    names_with_refs.add(name)
+                elif isinstance(prop.descriptor, ContainerProperty):
+                    container_names.add(name)
+                names.add(name)
+                if isinstance(prop.descriptor, DataSpec):
+                    dataspecs[name] = prop
+
+        for name, generator in generators.items():
+            props = generator.make_properties(name)
+            for prop in props:
+                if prop.name in generators:
+                    if generators[prop.name] is generator:
+                        # a generator can replace itself, this is the
+                        # standard case like `foo = Int()`
+                        add_prop(prop)
+                    else:
+                        # if a generator tries to overwrite another
+                        # generator that's been explicitly provided,
+                        # use the prop that was manually provided
+                        # and ignore this one.
+                        pass
+                else:
+                    add_prop(prop)
 
         class_dict.update(new_class_attrs)
 
@@ -1374,6 +1419,11 @@ class UnitsSpec(NumberSpec):
         # this is sort of a hack because we don't have a
         # serialized= kwarg on every PropertyDescriptor subtype
         self._units_type._serialized = False
+
+    def make_properties(self, base_name):
+        base = super(UnitsSpec, self).make_properties(base_name)
+        units_name = base_name + "_units"
+        return base + self._units_type.make_properties(units_name)
 
     def to_dict(self, name, obj):
         d = super(UnitsSpec, self).to_dict(name, obj)
