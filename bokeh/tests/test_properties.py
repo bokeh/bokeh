@@ -6,7 +6,7 @@ from bokeh.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
-    DistanceSpec, Override)
+    DistanceSpec, Override, Include)
 
 
 class Basictest(unittest.TestCase):
@@ -279,6 +279,44 @@ class Basictest(unittest.TestCase):
         self.assertFalse('x' in f_base.properties_with_values(include_defaults=False))
         self.assertFalse('x' in f_sub.properties_with_values(include_defaults=False))
         self.assertFalse('x' in f_sub_sub.properties_with_values(include_defaults=False))
+
+    def test_include_delegate(self):
+        class IsDelegate(HasProps):
+            x = Int(12)
+            y = String("hello")
+
+        class IncludesDelegateWithPrefix(HasProps):
+            z = Include(IsDelegate, use_prefix=True)
+            z_y = String("world") # override the Include
+
+        class IncludesDelegateWithoutPrefix(HasProps):
+            z = Include(IsDelegate, use_prefix=False)
+            y = String("world") # override the Include
+
+        o = IncludesDelegateWithoutPrefix()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, 'world')
+        self.assertFalse(hasattr(o, 'z'))
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+        o2 = IncludesDelegateWithPrefix()
+        self.assertEqual(o2.z_x, 12)
+        self.assertEqual(o2.z_y, 'world')
+        self.assertFalse(hasattr(o2, 'z'))
+        self.assertFalse(hasattr(o2, 'x'))
+        self.assertFalse(hasattr(o2, 'y'))
+
+        self.assertFalse('z' in o2.properties_with_values(include_defaults=True))
+        self.assertFalse('x' in o2.properties_with_values(include_defaults=True))
+        self.assertFalse('y' in o2.properties_with_values(include_defaults=True))
+        self.assertTrue('z_x' in o2.properties_with_values(include_defaults=True))
+        self.assertTrue('z_y' in o2.properties_with_values(include_defaults=True))
+        self.assertTrue('z_x' not in o2.properties_with_values(include_defaults=False))
+        self.assertTrue('z_y' not in o2.properties_with_values(include_defaults=False))
 
     # def test_kwargs_init(self):
     #     class Foo(HasProps):
