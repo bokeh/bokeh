@@ -715,11 +715,6 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         return result
 
-    @classmethod
-    def class_properties(cls, withbases=True):
-        """ Deprecated synonym for the properties() method, do not use."""
-        return cls.properties(with_bases=withbases)
-
     def set(self, **kwargs):
         """ Sets a number of properties at once """
         for kw in kwargs:
