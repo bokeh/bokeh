@@ -15,8 +15,9 @@ class ApplicationContext(object):
         data specific to an "instance" of the application.
     '''
 
-    def __init__(self, application):
+    def __init__(self, application, io_loop=None):
         self._application = application
+        self._loop = io_loop
         self._sessions = dict()
 
     @property
@@ -31,8 +32,10 @@ class ApplicationContext(object):
 
         if session_id not in self._sessions:
             doc = self._application.create_document()
-            session = ServerSession(session_id, doc)
+            session = ServerSession(session_id, doc, io_loop=self._loop)
             self._sessions[session_id] = session
+
+        return self._sessions[session_id]
 
     def get_session(self, session_id):
         if session_id in self._sessions:
@@ -55,5 +58,3 @@ class ApplicationContext(object):
                 to_discard.append(session)
         for session in to_discard:
             self.discard_session(session)
-
-

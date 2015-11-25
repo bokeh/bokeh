@@ -17,9 +17,6 @@ Generating output for Bokeh plots requires coordinating several things:
     Control how JavaScript and CSS for the client library BokehJS are
     included and used in the generated output.
 
-:class:`Sessions <bokeh.session>`
-    Create and manage persistent connections to a Bokeh server.
-
 It is certainly possible to handle the configuration of these objects
 manually, and several examples of this can be found in ``examples/glyphs``.
 When developing sophisticated applications, it may be necessary or

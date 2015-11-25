@@ -39,13 +39,23 @@ class Server(object):
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
             self._port = kwargs['port']
+        self._address = None
+        if 'address' in kwargs:
+            self._address = kwargs['address']
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
         try:
-            self._http.bind(self._port)
+            self._http.bind(self._port, address=self._address)
             self._http.start(1)
-        except OSError:
-            log.critical("Cannot start bokeh server, port %s already in use" % self._port)
+        except OSError as e:
+            import errno
+            if e.errno == errno.EADDRINUSE:
+                log.critical("Cannot start Bokeh server, port %s is already in use", self._port)
+            elif e.errno == errno.EADDRNOTAVAIL:
+                log.critical("Cannot start Bokeh server, address '%s' not available", self._address)
+            else:
+                codename = errno.errorcode[e.errno]
+                log.critical("Cannot start Bokeh server, %s %r", codename, e)
             sys.exit(1)
 
     # TODO this is broken, it's only used by test_client_server.py so fix that then remove this
@@ -56,6 +66,10 @@ class Server(object):
     @property
     def port(self):
         return self._port
+
+    @property
+    def address(self):
+        return self._address
 
     @property
     def io_loop(self):
@@ -94,4 +108,33 @@ class Server(object):
         '''Gets a session by name (session must already exist)'''
 
         return self._tornado.get_session(app_path, session_id)
+
+    def show(self, app_path, browser=None, new='tab'):
+        ''' Opens an app in a browser window or tab.
+
+            Useful for testing server applications on your local desktop but
+            should not call when running bokeh-server on an actual server.
+
+        Args:
+            app_path (str) : the app path to open
+                The part of the URL after the hostname:port, with leading slash.
+
+            browser (str, optional) : browser to show with (default: None)
+                For systems that support it, the **browser** argument allows
+                specifying which browser to display in, e.g. "safari", "firefox",
+                "opera", "windows-default" (see the ``webbrowser`` module
+                documentation in the standard lib for more details).
+
+            new (str, optional) : window or tab (default: "tab")
+                If ``new`` is 'tab', then opens a new tab.
+                If ``new`` is 'window', then opens a new window.
+
+        Returns:
+            None
+        '''
+        if not app_path.startswith("/"):
+            raise ValueError("app_path must start with a /")
+        from bokeh.browserlib import view
+        url = "http://localhost:%d%s" % (self.port, app_path)
+        view(url, browser=browser, new=new)
 

@@ -20,6 +20,7 @@ class Icon(AbstractIcon):
 
     """
 
+    # TODO this conflicts with Model.name and should be renamed
     name = Enum(NamedIcon, help="""
     What icon to use. See http://fortawesome.github.io/Font-Awesome/icons/
     for the list of available icons.

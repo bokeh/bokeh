@@ -5,7 +5,7 @@ from six import add_metaclass
 from six.moves import xrange
 import copy
 from bokeh.properties import List, String, Instance, Dict, Any, Int
-from bokeh.plot_object import PlotObject, _ModelInDocument
+from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
 from bokeh.property_containers import PropertyValueList, PropertyValueDict
 
@@ -45,14 +45,16 @@ def large_plot(n):
         tools = [pan, wheel_zoom, box_zoom, box_select, resize, previewsave, reset]
         plot.tools.extend(tools)
         vbox.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, glyph, plot.tool_events, box_selection] + tickers + tools)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
+                        renderer, glyph, plot.tool_events, box_selection] +
+                        tickers + tools)
 
     return vbox, objects
 
 class TestViewable(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.plot_object import Viewable
+        from bokeh.model import Viewable
         self.viewable = Viewable
         self.old_map = copy.copy(self.viewable.model_class_reverse_map)
 
@@ -76,17 +78,22 @@ class TestViewable(unittest.TestCase):
         self.assertTrue(hasattr(tclass, 'foo'))
         self.assertRaises(KeyError, self.viewable.get_class, 'Imaginary_Class')
 
-class TestCollectPlotObjects(unittest.TestCase):
+class TestCollectModels(unittest.TestCase):
 
     def test_references_large(self):
         root, objects = large_plot(500)
         self.assertEqual(set(root.references()), objects)
 
-class TestPlotObject(unittest.TestCase):
+class SomeModelToJson(Model):
+    child = Instance(Model)
+    foo = Int()
+    bar = String()
+
+class TestModel(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.models import PlotObject
-        self.pObjectClass = PlotObject
+        from bokeh.models import Model
+        self.pObjectClass = Model
 
     def test_init(self):
         testObject = self.pObjectClass(id='test_id')
@@ -97,7 +104,7 @@ class TestPlotObject(unittest.TestCase):
 
     def test_ref(self):
         testObject = self.pObjectClass(id='test_id')
-        self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.ref)
+        self.assertEqual({'type': 'Model', 'id': 'test_id'}, testObject.ref)
 
     def test_references_by_ref_by_value(self):
         from bokeh.properties import HasProps, Instance, Int
@@ -155,20 +162,39 @@ class TestPlotObject(unittest.TestCase):
 
         self.assertEqual(v.references(), set([v, u1, u2, u3, u4, u5]))
 
-class SomeModelInTestObjects(PlotObject):
-    child = Instance(PlotObject)
+    def test_to_json(self):
+        child_obj = SomeModelToJson(foo=57, bar="hello")
+        obj = SomeModelToJson(child=child_obj,
+                              foo=42, bar="world")
+        json = obj.to_json()
+        json_string = obj.to_json_string()
+        self.assertEqual({ "child" : { "id" : child_obj._id, "type" : "SomeModelToJson" },
+                           "id" : obj._id,
+                           "name" : None,
+                           "tags" : [],
+                           "foo" : 42,
+                           "bar" : "world" },
+                         json)
+        self.assertEqual(('{"bar": "world", ' +
+                          '"child": {"id": "%s", "type": "SomeModelToJson"}, ' +
+                          '"foo": 42, "id": "%s", "name": null, "tags": []}') %
+                         (child_obj._id, obj._id),
+                         json_string)
+
+class SomeModelInTestObjects(Model):
+    child = Instance(Model)
 
 class TestModelInDocument(unittest.TestCase):
-    def test_single_plot_object(self):
-        p = PlotObject()
+    def test_single_model(self):
+        p = Model()
         self.assertIs(p.document, None)
         with _ModelInDocument(p):
             self.assertIsNot(p.document, None)
         self.assertIs(p.document, None)
 
-    def test_list_of_plot_object(self):
-        p1 = PlotObject()
-        p2 = PlotObject()
+    def test_list_of_model(self):
+        p1 = Model()
+        p2 = Model()
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
         with _ModelInDocument([p1, p2]):
@@ -182,8 +208,8 @@ class TestModelInDocument(unittest.TestCase):
         # has to be smart about looking for a doc anywhere in the list
         # before it starts inventing new documents
         doc = Document()
-        p1 = PlotObject()
-        p2 = PlotObject()
+        p1 = Model()
+        p2 = Model()
         doc.add_root(p2)
         self.assertIs(p1.document, None)
         self.assertIsNot(p2.document, None)
@@ -197,8 +223,8 @@ class TestModelInDocument(unittest.TestCase):
 
     def test_uses_doc_precedent(self):
         doc = Document()
-        p1 = PlotObject()
-        p2 = PlotObject()
+        p1 = Model()
+        p2 = Model()
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
         with _ModelInDocument([p1, p2, doc]):
@@ -211,8 +237,8 @@ class TestModelInDocument(unittest.TestCase):
 
     def test_uses_precedent_from_child(self):
         doc = Document()
-        p1 = PlotObject()
-        p2 = SomeModelInTestObjects(child=PlotObject())
+        p1 = Model()
+        p2 = SomeModelInTestObjects(child=Model())
         doc.add_root(p2.child)
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
@@ -248,7 +274,7 @@ class TestContainerMutation(unittest.TestCase):
         self.assertEqual(expected_event_new, call[2])
 
 
-class HasListProp(PlotObject):
+class HasListProp(Model):
     foo = List(String)
     def __init__(self, **kwargs):
         super(HasListProp, self).__init__(**kwargs)
@@ -367,12 +393,12 @@ class TestListMutation(TestContainerMutation):
                              ["a", "b"])
 
 
-class HasStringDictProp(PlotObject):
+class HasStringDictProp(Model):
     foo = Dict(String, Any)
     def __init__(self, **kwargs):
         super(HasStringDictProp, self).__init__(**kwargs)
 
-class HasIntDictProp(PlotObject):
+class HasIntDictProp(Model):
     foo = Dict(Int, Any)
     def __init__(self, **kwargs):
         super(HasIntDictProp, self).__init__(**kwargs)
