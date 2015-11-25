@@ -193,7 +193,7 @@ class PropertyDescriptor(object):
     def from_json(self, json, models=None):
         return json
 
-    def transform(self, obj, name, value):
+    def transform(self, value):
         """Change the value into the canonical format for this property."""
         return value
 
@@ -235,7 +235,7 @@ class PropertyDescriptor(object):
             else:
                 raise e
         else:
-            value = self.transform(obj, name, value)
+            value = self.transform(value)
 
         return self._wrap_container(value)
 
@@ -1072,10 +1072,10 @@ class Either(ParameterizedPropertyDescriptor):
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
 
-    def transform(self, obj, name, value):
+    def transform(self, value):
         for param in self.type_params:
             try:
-                return param.transform(obj, name, value)
+                return param.transform(value)
             except ValueError:
                 pass
 
@@ -1192,8 +1192,8 @@ class DashPattern(Either):
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super(DashPattern, self).__init__(*types, default=default, help=help)
 
-    def transform(self, obj, name, value):
-        value = super(DashPattern, self).transform(obj, name, value)
+    def transform(self, value):
+        value = super(DashPattern, self).transform(value)
 
         if isinstance(value, string_types):
             try:
@@ -1249,8 +1249,8 @@ class Date(PropertyDescriptor):
         if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + bokeh_integer_types)):
             raise ValueError("expected a date, string or timestamp, got %r" % value)
 
-    def transform(self, obj, name, value):
-        value = super(Date, self).transform(obj, name, value)
+    def transform(self, value):
+        value = super(Date, self).transform(value)
 
         if isinstance(value, (float,) + bokeh_integer_types):
             try:
@@ -1291,8 +1291,8 @@ class Datetime(PropertyDescriptor):
 
         raise ValueError("Expected a datetime instance, got %r" % value)
 
-    def transform(self, obj, name, value):
-        value = super(Datetime, self).transform(obj, name, value)
+    def transform(self, value):
+        value = super(Datetime, self).transform(value)
         return value
         # Handled by serialization in protocol.py for now
 
@@ -1487,7 +1487,7 @@ class ColorSpec(DataSpec):
             else:
                 raise e
 
-    def transform(self, obj, name, value):
+    def transform(self, value):
 
         # Make sure that any tuple has either three integers, or three integers and one float
         if isinstance(value, tuple):
