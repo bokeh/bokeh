@@ -123,7 +123,25 @@ class _NotSet(object):
 class DeserializationError(Exception):
     pass
 
-class PropertyDescriptor(object):
+class PropertyGenerator(object):
+    """ Base class for objects that can generate Property instances. """
+    def __init__(self):
+        pass
+
+    @classmethod
+    def autocreate(cls):
+        """ Called by the metaclass to create a
+        new instance of this descriptor
+        if the user just assigned it to a property without trailing
+        parentheses.
+        """
+        return cls()
+
+    def make_properties(self, base_name):
+        """ Returns a list of Property instances. """
+        raise NotImplementedError("make_properties not implemented")
+
+class PropertyDescriptor(PropertyGenerator):
     """ Base class for a description of a property, not associated yet with an attribute name or a class."""
 
     def __init__(self, default=None, help=None, serialized=True):
@@ -139,6 +157,9 @@ class PropertyDescriptor(object):
     def __str__(self):
         return self.__class__.__name__
 
+    def make_properties(self, base_name):
+        return [ BasicProperty(descriptor=self, name=base_name) ]
+
     @classmethod
     def _copy_default(cls, default):
         if not isinstance(default, types.FunctionType):
@@ -150,14 +171,14 @@ class PropertyDescriptor(object):
         """The raw_default() needs to be validated and transformed by prepare_value() before use. Prefer prepared_default()."""
         return self._copy_default(self._default)
 
-    def prepared_default(self, obj, name):
+    def prepared_default(self, cls, name):
         """The default transformed by prepare_value()."""
-        overrides = obj._overridden_defaults()
+        overrides = cls._overridden_defaults()
         if name in overrides:
             default = self._copy_default(overrides[name])
         else:
             default = self.raw_default()
-        return self.prepare_value(obj, name, default)
+        return self.prepare_value(cls, name, default)
 
     @property
     def serialized(self):
@@ -166,15 +187,6 @@ class PropertyDescriptor(object):
         information already available in other properties, for example.
         """
         return self._serialized
-
-    @classmethod
-    def autocreate(cls):
-        """ Called by the metaclass to create a
-        new instance of this descriptor
-        if the user just assigned it to a property without trailing
-        parentheses.
-        """
-        return cls()
 
     def matches(self, new, old):
         # XXX: originally this code warned about not being able to compare values, but that
@@ -195,7 +207,7 @@ class PropertyDescriptor(object):
     def from_json(self, json, models=None):
         return json
 
-    def transform(self, obj, name, value):
+    def transform(self, value):
         """Change the value into the canonical format for this property."""
         return value
 
@@ -226,7 +238,7 @@ class PropertyDescriptor(object):
         else:
             return value
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         try:
             self.validate(value)
         except ValueError as e:
@@ -237,7 +249,7 @@ class PropertyDescriptor(object):
             else:
                 raise e
         else:
-            value = self.transform(obj, name, value)
+            value = self.transform(value)
 
         return self._wrap_container(value)
 
@@ -254,12 +266,29 @@ class PropertyDescriptor(object):
         return Either(self, other)
 
 class Property(object):
+    """ A named attribute that can be read and written. """
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "Property(%s)" % (self.name)
+
+    def __get__(self, obj, owner=None):
+        raise NotImplementedError("Implement __get__")
+
+    def __set__(self, obj, value):
+        raise NotImplementedError("Implement __set__")
+
+    def __delete__(self, obj):
+        raise NotImplementedError("Implement __delete__")
+
+class BasicProperty(Property):
     """ A PropertyDescriptor associated with a class attribute name, so it can be read and written. """
 
     def __init__(self, descriptor, name):
-
+        super(BasicProperty, self).__init__(name)
         self.descriptor = descriptor
-        self.name = name
 
     def __str__(self):
         return "%s:%s" % (self.name, self.descriptor)
@@ -290,7 +319,7 @@ class Property(object):
         # merely getting a default may force us to put it
         # in _property_values if we need to wrap the
         # container.
-        default = self.descriptor.prepared_default(obj, self.name)
+        default = self.descriptor.prepared_default(obj.__class__, self.name)
         if isinstance(default, PropertyValueContainer):
             default._unmodified_default_value = True
             default._register_owner(obj, self)
@@ -332,7 +361,7 @@ class Property(object):
             # Initial values should be passed in to __init__, not set directly
             raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
                                (self.name, obj.__class__.__name__))
-        value = self.descriptor.prepare_value(obj, self.name, value)
+        value = self.descriptor.prepare_value(obj.__class__, self.name, value)
 
         old = self.__get__(obj)
         self._real_set(obj, old, value)
@@ -347,7 +376,7 @@ class Property(object):
 
         # re-validate because the contents of 'old' have changed,
         # in some cases this could give us a new object for the value
-        value = self.descriptor.prepare_value(obj, self.name, value)
+        value = self.descriptor.prepare_value(obj.__class__, self.name, value)
 
         self._real_set(obj, old, value)
 
@@ -355,7 +384,7 @@ class Property(object):
         if self.name in obj._property_values:
             del obj._property_values[self.name]
 
-class Include(object):
+class Include(PropertyGenerator):
     """ Include other properties from mixin Models, with a given prefix. """
 
     def __init__(self, delegate, help="", use_prefix=True):
@@ -365,6 +394,30 @@ class Include(object):
         self.delegate = delegate
         self.help = help
         self.use_prefix = use_prefix
+
+    def make_properties(self, base_name):
+        props = []
+        delegate = self.delegate
+        if self.use_prefix:
+            prefix = re.sub("_props$", "", base_name) + "_"
+        else:
+            prefix = ""
+
+        # it would be better if we kept the original generators from
+        # the delegate and built our Include props from those, perhaps.
+        for subpropname in delegate.class_properties(withbases=False):
+            fullpropname = prefix + subpropname
+            subprop = delegate.lookup(subpropname)
+            if isinstance(subprop, BasicProperty):
+                descriptor = copy(subprop.descriptor)
+                if "%s" in self.help:
+                    doc = self.help % subpropname.replace('_', ' ')
+                else:
+                    doc = self.help
+                descriptor.__doc__ = doc
+                props += descriptor.make_properties(fullpropname)
+
+        return props
 
 class Override(object):
     """ Override aspects of the PropertyDescriptor from a superclass. """
@@ -396,39 +449,6 @@ class MetaHasProps(type):
         names_with_refs = set()
         container_names = set()
 
-        # First pre-process to handle all the Includes
-        includes = {}
-        removes = set()
-        for name, prop in class_dict.items():
-            if not isinstance(prop, Include):
-                continue
-
-            delegate = prop.delegate
-            if prop.use_prefix:
-                prefix = re.sub("_props$", "", name) + "_"
-            else:
-                prefix = ""
-
-            for subpropname in delegate.class_properties(withbases=False):
-                fullpropname = prefix + subpropname
-                subprop = copy(delegate.lookup(subpropname).descriptor)
-                if "%s" in prop.help:
-                    doc = prop.help % subpropname.replace('_', ' ')
-                else:
-                    doc = prop.help
-                includes[fullpropname] = subprop
-                subprop.__doc__ = doc
-            # Remove the name of the Include attribute itself
-            removes.add(name)
-
-        # Update the class dictionary, taking care not to overwrite values
-        # from the delegates that the subclass may have explicitly defined
-        for key, val in includes.items():
-            if key not in class_dict:
-                class_dict[key] = val
-        for tmp in removes:
-            del class_dict[tmp]
-
         # Now handle all the Override
         overridden_defaults = {}
         for name, prop in class_dict.items():
@@ -440,33 +460,54 @@ class MetaHasProps(type):
         for name, default in overridden_defaults.items():
             del class_dict[name]
 
-        dataspecs = {}
-        new_class_attrs = {}
-
-        def add_prop(descriptor, name):
-            prop = Property(descriptor=descriptor, name=name)
-            # overwrite the descriptor with the name-bound Property
-            new_class_attrs[name] = prop
-            if prop.descriptor.has_ref:
-                names_with_refs.add(name)
-            elif isinstance(prop.descriptor, ContainerProperty):
-                container_names.add(name)
-            names.add(name)
-            if isinstance(prop.descriptor, DataSpec):
-                dataspecs[name] = prop
-                if hasattr(prop.descriptor, '_units_type'):
-                    units_name = name + "_units"
-                    add_prop(prop.descriptor._units_type, units_name)
-
-        for name, descriptor in class_dict.items():
-            if isinstance(descriptor, PropertyDescriptor):
-                add_prop(descriptor, name)
-            elif isinstance(descriptor, type) and issubclass(descriptor, PropertyDescriptor):
+        generators = dict()
+        for name, generator in class_dict.items():
+            if isinstance(generator, PropertyGenerator):
+                generators[name] = generator
+            elif isinstance(generator, type) and issubclass(generator, PropertyGenerator):
                 # Support the user adding a property without using parens,
                 # i.e. using just the Property subclass instead of an
                 # instance of the subclass
-                newdescriptor = descriptor.autocreate()
-                add_prop(newdescriptor, name)
+                generators[name] = generator.autocreate()
+
+        dataspecs = {}
+        new_class_attrs = {}
+
+        def add_prop(prop):
+            name = prop.name
+            if name in new_class_attrs:
+                raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
+            new_class_attrs[name] = prop
+            if isinstance(prop, BasicProperty):
+                if prop.descriptor.has_ref:
+                    names_with_refs.add(name)
+                elif isinstance(prop.descriptor, ContainerProperty):
+                    container_names.add(name)
+                names.add(name)
+                if isinstance(prop.descriptor, DataSpec):
+                    dataspecs[name] = prop
+
+        for name, generator in generators.items():
+            props = generator.make_properties(name)
+            replaced_self = False
+            for prop in props:
+                if prop.name in generators:
+                    if generators[prop.name] is generator:
+                        # a generator can replace itself, this is the
+                        # standard case like `foo = Int()`
+                        replaced_self = True
+                        add_prop(prop)
+                    else:
+                        # if a generator tries to overwrite another
+                        # generator that's been explicitly provided,
+                        # use the prop that was manually provided
+                        # and ignore this one.
+                        pass
+                else:
+                    add_prop(prop)
+            # if we won't overwrite ourselves anyway, delete the generator
+            if not replaced_self:
+                del class_dict[name]
 
         class_dict.update(new_class_attrs)
 
@@ -495,17 +536,17 @@ class MetaHasProps(type):
         # overrides are bad conceptually because the type of a
         # read-write propery is invariant.
         cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
-        for n in cls_attrs:
-            for b in bases:
-                if issubclass(b, HasProps) and n in b.properties():
+        for attr in cls_attrs:
+            for base in bases:
+                if issubclass(base, HasProps) and attr in base.properties():
                     warn(('Property "%s" in class %s was overridden by a class attribute ' + \
                           '"%s" in class %s; it never makes sense to do this. ' + \
                           'Either %s.%s or %s.%s should be removed, or %s.%s should not ' + \
                           'be a Property, or use Override(), depending on the intended effect.') %
-                         (n, b.__name__, n, class_name,
-                          b.__name__, n,
-                          class_name, n,
-                          b.__name__, n),
+                         (attr, base.__name__, attr, class_name,
+                          base.__name__, attr,
+                          class_name, attr,
+                          base.__name__, attr),
                          RuntimeWarning, stacklevel=2)
 
         if "__overridden_defaults__" in cls.__dict__:
@@ -1066,10 +1107,10 @@ class Either(ParameterizedPropertyDescriptor):
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
 
-    def transform(self, obj, name, value):
+    def transform(self, value):
         for param in self.type_params:
             try:
-                return param.transform(obj, name, value)
+                return param.transform(value)
             except ValueError:
                 pass
 
@@ -1186,8 +1227,8 @@ class DashPattern(Either):
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super(DashPattern, self).__init__(*types, default=default, help=help)
 
-    def transform(self, obj, name, value):
-        value = super(DashPattern, self).transform(obj, name, value)
+    def transform(self, value):
+        value = super(DashPattern, self).transform(value)
 
         if isinstance(value, string_types):
             try:
@@ -1243,8 +1284,8 @@ class Date(PropertyDescriptor):
         if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + bokeh_integer_types)):
             raise ValueError("expected a date, string or timestamp, got %r" % value)
 
-    def transform(self, obj, name, value):
-        value = super(Date, self).transform(obj, name, value)
+    def transform(self, value):
+        value = super(Date, self).transform(value)
 
         if isinstance(value, (float,) + bokeh_integer_types):
             try:
@@ -1285,8 +1326,8 @@ class Datetime(PropertyDescriptor):
 
         raise ValueError("Expected a datetime instance, got %r" % value)
 
-    def transform(self, obj, name, value):
-        value = super(Datetime, self).transform(obj, name, value)
+    def transform(self, value):
+        value = super(Datetime, self).transform(value)
         return value
         # Handled by serialization in protocol.py for now
 
@@ -1338,25 +1379,25 @@ class StringSpec(DataSpec):
     def __init__(self, default, help=None):
         super(StringSpec, self).__init__(List(String), default=default, help=help)
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         if isinstance(value, list):
             if len(value) != 1:
                 raise TypeError("StringSpec convenience list values must have length 1")
             value = dict(value=value[0])
-        return super(StringSpec, self).prepare_value(obj, name, value)
+        return super(StringSpec, self).prepare_value(cls, name, value)
 
 class FontSizeSpec(DataSpec):
     def __init__(self, default, help=None):
         super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         if isinstance(value, string_types):
             warn('Setting a fixed font size value as a string %r is deprecated, '
                  'set with value(%r) or [%r] instead' % (value, value, value),
                  DeprecationWarning, stacklevel=2)
             if len(value) > 0 and value[0].isdigit():
                 value = dict(value=value)
-        return super(FontSizeSpec, self).prepare_value(obj, name, value)
+        return super(FontSizeSpec, self).prepare_value(cls, name, value)
 
 class UnitsSpec(NumberSpec):
     def __init__(self, default, units_type, units_default, help=None):
@@ -1369,16 +1410,21 @@ class UnitsSpec(NumberSpec):
         # serialized= kwarg on every PropertyDescriptor subtype
         self._units_type._serialized = False
 
+    def make_properties(self, base_name):
+        base = super(UnitsSpec, self).make_properties(base_name)
+        units_name = base_name + "_units"
+        return base + self._units_type.make_properties(units_name)
+
     def to_dict(self, name, obj):
         d = super(UnitsSpec, self).to_dict(name, obj)
         d["units"] = getattr(obj, name+"_units")
         return d
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         if isinstance(value, dict):
             units = value.pop("units", None)
             if units: setattr(obj, name+"_units", units)
-        return super(UnitsSpec, self).prepare_value(obj, name, value)
+        return super(UnitsSpec, self).prepare_value(cls, name, value)
 
     def __str__(self):
         return "%s(units_default=%r)" % (self.__class__.__name__, self._units_type._default)
@@ -1391,13 +1437,13 @@ class DistanceSpec(UnitsSpec):
     def __init__(self, default=None, units_default="data", help=None):
         super(DistanceSpec, self).__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         try:
             if value is not None and value < 0:
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(DistanceSpec, self).prepare_value(obj, name, value)
+        return super(DistanceSpec, self).prepare_value(cls, name, value)
 
 class ScreenDistanceSpec(NumberSpec):
     def to_dict(self, name, obj):
@@ -1405,13 +1451,13 @@ class ScreenDistanceSpec(NumberSpec):
         d["units"] = "screen"
         return d
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         try:
             if value is not None and value < 0:
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(ScreenDistanceSpec, self).prepare_value(obj, name, value)
+        return super(ScreenDistanceSpec, self).prepare_value(cls, name, value)
 
 class DataDistanceSpec(NumberSpec):
     def to_dict(self, name, obj):
@@ -1419,13 +1465,13 @@ class DataDistanceSpec(NumberSpec):
         d["units"] = "data"
         return d
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         try:
             if value is not None and value < 0:
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(DataDistanceSpec, self).prepare_value(obj, name, value)
+        return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
 class ColorSpec(DataSpec):
     def __init__(self, default, help=None):
@@ -1481,7 +1527,7 @@ class ColorSpec(DataSpec):
             else:
                 raise e
 
-    def transform(self, obj, name, value):
+    def transform(self, value):
 
         # Make sure that any tuple has either three integers, or three integers and one float
         if isinstance(value, tuple):
