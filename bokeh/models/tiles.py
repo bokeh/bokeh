@@ -37,7 +37,7 @@ class TileSource(Model):
     """)
 
     attribution = String("", help="""
-    data provider attribution content.  This can include html content.
+    data provider attribution content.  This can include HTML content.
     """)
 
 class MercatorTileSource(TileSource):
@@ -102,5 +102,5 @@ stamen_toner_labels = WMTSTileSource(url='http://tile.stamen.com/toner-labels/{Z
 Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>
 """)
 
-stamen_toner_terrain = WMTSTileSource(url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png', attribution="""Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.
+stamen_terrain = WMTSTileSource(url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png', attribution="""Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.
 """)
