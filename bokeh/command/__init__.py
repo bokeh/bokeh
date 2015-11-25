@@ -7,7 +7,7 @@ import os
 from bokeh.settings import settings
 from bokeh.application import Application
 from bokeh.server.server import Server
-from bokeh.application.spellings import ScriptHandler, DirectoryHandler
+from bokeh.application.handlers import ScriptHandler, DirectoryHandler
 from bokeh.io import output_file, save, show
 
 import logging

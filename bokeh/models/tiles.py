@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from ..model import Model
 
-from ..properties import (Any, Dict, Float, String, Int)
+from ..properties import (Any, Dict, Float, String, Int, Bool)
 
 class TileSource(Model):
     """ A base class for all tile source types. ``TileSource`` is
@@ -31,7 +31,7 @@ class TileSource(Model):
     the maximum zoom level for the tile layer. This is the most "zoomed-in" level.
     """)
 
-    extra_url_vars = Dict(String, Any(String, Int), help="""
+    extra_url_vars = Dict(String, Any, help="""
     A dictionary that maps url variable template keys to values.
     These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)
@@ -91,7 +91,9 @@ class BBoxTileSource(MercatorTileSource):
 
     Example url: http://your.custom.tile.serivce?bbox={XMIN},{YMIN},{XMAX},{YMAX}
     """
-    pass
+    use_latlon = Bool(default=False, help="""
+    Flag which indicates option to output {XMIN},{YMIN},{XMAX},{YMAX} in meters or latitude and longitude.
+    """)
 
 # tile providers -----------------------------------------------------------------
 stamen_toner = WMTSTileSource(url='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png', attribution="""
