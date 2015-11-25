@@ -110,7 +110,7 @@ class GlyphRendererView extends PlotWidget
     if !selected or selected.length == 0
       selected = []
     else
-      if selected['0d'].flag
+      if selected['0d'].glyph
         selected = indices
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
