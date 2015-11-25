@@ -34,8 +34,9 @@ class TileRendererView extends PlotWidget
       attribution_div = Bokeh.$('.tile-attribution')
       if attribution_div.length == 0
         attribution_div = document.createElement('div')
-        bottom_offset = @map_plot.get('min_border_bottom')
-        right_offset = @map_plot.get('min_border_right')
+        border_width = 1
+        bottom_offset = @map_plot.get('min_border_bottom') + border_width
+        right_offset = @map_plot.get('min_border_right') + border_width
         Bokeh.$(attribution_div)
           .addClass('tile-attribution')
           .html(attribution)
@@ -43,6 +44,10 @@ class TileRendererView extends PlotWidget
           .css('bottom', bottom_offset.toString() + 'px')
           .css('right', right_offset.toString() + 'px')
           .css('background-color', 'rgba(255,255,255,.8)')
+          .css('font-size', '9pt')
+          .css('font-family', 'sans-serif')
+          .css('padding-left', '2px')
+          .css('padding-right', '2px')
           .appendTo(Bokeh.$(".bk-canvas-overlays"))
       else
         attribution_div = attribution_div[0]
