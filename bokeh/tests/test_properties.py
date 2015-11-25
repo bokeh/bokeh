@@ -184,12 +184,12 @@ class Basictest(unittest.TestCase):
         self.assertEqual(set(["mixin_num"]), mixin.dataspecs())
         self.assertEqual(set(["num", "mixin_num", "sub_num"]), sub.dataspecs())
 
-        self.assertDictEqual(dict(num=base.lookup("num")), base.dataspecs_with_refs())
-        self.assertDictEqual(dict(mixin_num=mixin.lookup("mixin_num")), mixin.dataspecs_with_refs())
+        self.assertDictEqual(dict(num=base.lookup("num")), base.dataspecs_with_props())
+        self.assertDictEqual(dict(mixin_num=mixin.lookup("mixin_num")), mixin.dataspecs_with_props())
         self.assertDictEqual(dict(num=sub.lookup("num"),
                                   mixin_num=sub.lookup("mixin_num"),
                                   sub_num=sub.lookup("sub_num")),
-                             sub.dataspecs_with_refs())
+                             sub.dataspecs_with_props())
 
     def test_not_serialized(self):
         class NotSerialized(HasProps):

@@ -99,7 +99,7 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     return result
 
 def _process_sequence_literals(glyphclass, kwargs, source):
-    dataspecs = glyphclass.dataspecs_with_refs()
+    dataspecs = glyphclass.dataspecs_with_props()
     for var, val in kwargs.items():
 
         # ignore things that are not iterable

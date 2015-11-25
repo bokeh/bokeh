@@ -668,10 +668,10 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         """ Returns a set of the names of this object's dataspecs (and
         dataspec subclasses).  Traverses the class hierarchy.
         """
-        return set(cls.dataspecs_with_refs().keys())
+        return set(cls.dataspecs_with_props().keys())
 
     @classmethod
-    def dataspecs_with_refs(cls):
+    def dataspecs_with_props(cls):
         """ Returns a dict of dataspec names to dataspec properties. """
         return accumulate_dict_from_superclasses(cls, "__dataspecs__")
 
@@ -699,7 +699,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         # into dict format), so we have to clean it up here. This
         # could probably be solved more cleanly by trying to fix
         # up inside the dataspec Property itself.
-        for attr, prop in iteritems(self.dataspecs_with_refs()):
+        for attr, prop in iteritems(self.dataspecs_with_props()):
             if result.get(attr) is not None:
                 result[attr] = prop.descriptor.to_dict(prop.name, self)
 
