@@ -65,19 +65,19 @@ class XyGlyph(CompositeGlyph):
 
     @property
     def x_max(self):
-        return max(self.source._data['x_values'])
+        return max(self.source.data['x_values'])
 
     @property
     def x_min(self):
-        return min(self.source._data['x_values'])
+        return min(self.source.data['x_values'])
 
     @property
     def y_max(self):
-        return max(self.source._data['y_values'])
+        return max(self.source.data['y_values'])
 
     @property
     def y_min(self):
-        return min(self.source._data['y_values'])
+        return min(self.source.data['y_values'])
 
 
 class PointGlyph(XyGlyph):
@@ -92,10 +92,14 @@ class PointGlyph(XyGlyph):
                  marker=None, size=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
-        kwargs['line_color'] = line_color or self.line_color
-        kwargs['fill_color'] = fill_color or self.fill_color
-        kwargs['marker'] = marker or self.marker
-        kwargs['size'] = size or self.size
+        if line_color is not None:
+            kwargs['line_color'] = line_color
+        if fill_color is not None:
+            kwargs['fill_color'] = fill_color
+        if marker is not None:
+            kwargs['marker'] = marker
+        if size is not None:
+            kwargs['size'] = size
         super(PointGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -123,9 +127,12 @@ class LineGlyph(XyGlyph):
                  width=None, dash=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
-        kwargs['line_color'] = line_color or self.line_color
-        kwargs['width'] = width or self.width
-        kwargs['dash'] = dash or self.dash
+        if line_color is not None:
+            kwargs['line_color'] = line_color
+        if width is not None:
+            kwargs['width'] = width
+        if dash is not None:
+            kwargs['dash'] = dash
         super(LineGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -426,7 +433,7 @@ class BoxGlyph(AggregateGlyph):
     def __init__(self, label, values, outliers=True, **kwargs):
         width = kwargs.pop('width', None)
 
-        bar_color = kwargs.pop('color', None) or self.bar_color
+        bar_color = kwargs.pop('color', None) or kwargs.get('bar_color', None) or self.lookup('bar_color').default
 
         kwargs['outliers'] = kwargs.pop('outliers', None) or outliers
         kwargs['label'] = label
@@ -538,7 +545,8 @@ class HistogramGlyph(AggregateGlyph):
             kwargs['label'] = label
         kwargs['values'] = values
         kwargs['bin_count'] = bin_count
-        kwargs['color'] = color or self.color
+        if color is not None:
+            kwargs['color'] = color
 
         # remove width, since this is handled automatically
         kwargs.pop('width', None)
