@@ -153,6 +153,42 @@ class Basictest(unittest.TestCase):
         # in a new set every time
         #self.assertIs(s.class_properties(withbases=False), s.class_properties(withbases=False))
 
+    def test_not_serialized(self):
+        class NotSerialized(HasProps):
+            x = Int(12, serialized=False)
+            y = String("hello")
+
+        o = NotSerialized()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, 'hello')
+
+        # non-serialized props are still in the list of props
+        self.assertTrue('x' in o.properties())
+        self.assertTrue('y' in o.properties())
+        self.assertTrue('x' not in o.changed_properties())
+        self.assertTrue('y' not in o.changed_properties())
+
+        # but they aren't in the dict of props with values, since their
+        # values are not important (already included in other values,
+        # as with the _units properties)
+        self.assertTrue('x' not in o.properties_with_values())
+        self.assertTrue('y' in o.properties_with_values())
+        self.assertTrue('x' not in o.changed_properties_with_values())
+        self.assertTrue('y' not in o.changed_properties_with_values())
+
+        o.x = 42
+        o.y = 'world'
+
+        self.assertTrue('x' in o.properties())
+        self.assertTrue('y' in o.properties())
+        self.assertTrue('x' in o.changed_properties())
+        self.assertTrue('y' in o.changed_properties())
+
+        self.assertTrue('x' not in o.properties_with_values())
+        self.assertTrue('y' in o.properties_with_values())
+        self.assertTrue('x' not in o.changed_properties_with_values())
+        self.assertTrue('y' in o.changed_properties_with_values())
+
     # def test_kwargs_init(self):
     #     class Foo(HasProps):
     #         x = String

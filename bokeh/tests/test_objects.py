@@ -181,6 +181,16 @@ class TestModel(unittest.TestCase):
                          (child_obj._id, obj._id),
                          json_string)
 
+    def test_no_units_in_json(self):
+        from bokeh.models import AnnularWedge
+        self.maxDiff = None
+        obj = AnnularWedge()
+        json = obj.to_json()
+        self.assertTrue('start_angle' in json)
+        self.assertTrue('start_angle_units' not in json)
+        self.assertTrue('outer_radius' in json)
+        self.assertTrue('outer_radius_units' not in json)
+
 class SomeModelInTestObjects(Model):
     child = Instance(Model)
 
