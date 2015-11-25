@@ -148,14 +148,14 @@ class PropertyDescriptor(object):
         """The raw_default() needs to be validated and transformed by prepare_value() before use. Prefer prepared_default()."""
         return self._copy_default(self._default)
 
-    def prepared_default(self, obj, name):
+    def prepared_default(self, cls, name):
         """The default transformed by prepare_value()."""
-        overrides = obj._overridden_defaults()
+        overrides = cls._overridden_defaults()
         if name in overrides:
             default = self._copy_default(overrides[name])
         else:
             default = self.raw_default()
-        return self.prepare_value(obj, name, default)
+        return self.prepare_value(cls, name, default)
 
     @property
     def serialized(self):
@@ -224,7 +224,7 @@ class PropertyDescriptor(object):
         else:
             return value
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         try:
             self.validate(value)
         except ValueError as e:
@@ -288,7 +288,7 @@ class Property(object):
         # merely getting a default may force us to put it
         # in _property_values if we need to wrap the
         # container.
-        default = self.descriptor.prepared_default(obj, self.name)
+        default = self.descriptor.prepared_default(obj.__class__, self.name)
         if isinstance(default, PropertyValueContainer):
             default._unmodified_default_value = True
             default._register_owner(obj, self)
@@ -330,7 +330,7 @@ class Property(object):
             # Initial values should be passed in to __init__, not set directly
             raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
                                (self.name, obj.__class__.__name__))
-        value = self.descriptor.prepare_value(obj, self.name, value)
+        value = self.descriptor.prepare_value(obj.__class__, self.name, value)
 
         old = self.__get__(obj)
         self._real_set(obj, old, value)
@@ -345,7 +345,7 @@ class Property(object):
 
         # re-validate because the contents of 'old' have changed,
         # in some cases this could give us a new object for the value
-        value = self.descriptor.prepare_value(obj, self.name, value)
+        value = self.descriptor.prepare_value(obj.__class__, self.name, value)
 
         self._real_set(obj, old, value)
 
@@ -1344,25 +1344,25 @@ class StringSpec(DataSpec):
     def __init__(self, default, help=None):
         super(StringSpec, self).__init__(List(String), default=default, help=help)
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         if isinstance(value, list):
             if len(value) != 1:
                 raise TypeError("StringSpec convenience list values must have length 1")
             value = dict(value=value[0])
-        return super(StringSpec, self).prepare_value(obj, name, value)
+        return super(StringSpec, self).prepare_value(cls, name, value)
 
 class FontSizeSpec(DataSpec):
     def __init__(self, default, help=None):
         super(FontSizeSpec, self).__init__(List(String), default=default, help=help)
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         if isinstance(value, string_types):
             warn('Setting a fixed font size value as a string %r is deprecated, '
                  'set with value(%r) or [%r] instead' % (value, value, value),
                  DeprecationWarning, stacklevel=2)
             if len(value) > 0 and value[0].isdigit():
                 value = dict(value=value)
-        return super(FontSizeSpec, self).prepare_value(obj, name, value)
+        return super(FontSizeSpec, self).prepare_value(cls, name, value)
 
 class UnitsSpec(NumberSpec):
     def __init__(self, default, units_type, units_default, help=None):
@@ -1380,11 +1380,11 @@ class UnitsSpec(NumberSpec):
         d["units"] = getattr(obj, name+"_units")
         return d
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         if isinstance(value, dict):
             units = value.pop("units", None)
             if units: setattr(obj, name+"_units", units)
-        return super(UnitsSpec, self).prepare_value(obj, name, value)
+        return super(UnitsSpec, self).prepare_value(cls, name, value)
 
     def __str__(self):
         return "%s(units_default=%r)" % (self.__class__.__name__, self._units_type._default)
@@ -1397,13 +1397,13 @@ class DistanceSpec(UnitsSpec):
     def __init__(self, default=None, units_default="data", help=None):
         super(DistanceSpec, self).__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         try:
             if value is not None and value < 0:
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(DistanceSpec, self).prepare_value(obj, name, value)
+        return super(DistanceSpec, self).prepare_value(cls, name, value)
 
 class ScreenDistanceSpec(NumberSpec):
     def to_dict(self, name, obj):
@@ -1411,13 +1411,13 @@ class ScreenDistanceSpec(NumberSpec):
         d["units"] = "screen"
         return d
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         try:
             if value is not None and value < 0:
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(ScreenDistanceSpec, self).prepare_value(obj, name, value)
+        return super(ScreenDistanceSpec, self).prepare_value(cls, name, value)
 
 class DataDistanceSpec(NumberSpec):
     def to_dict(self, name, obj):
@@ -1425,13 +1425,13 @@ class DataDistanceSpec(NumberSpec):
         d["units"] = "data"
         return d
 
-    def prepare_value(self, obj, name, value):
+    def prepare_value(self, cls, name, value):
         try:
             if value is not None and value < 0:
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(DataDistanceSpec, self).prepare_value(obj, name, value)
+        return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
 class ColorSpec(DataSpec):
     def __init__(self, default, help=None):
