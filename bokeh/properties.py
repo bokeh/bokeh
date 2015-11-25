@@ -500,17 +500,17 @@ class MetaHasProps(type):
         # overrides are bad conceptually because the type of a
         # read-write propery is invariant.
         cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
-        for n in cls_attrs:
-            for b in bases:
-                if issubclass(b, HasProps) and n in b.properties():
+        for attr in cls_attrs:
+            for base in bases:
+                if issubclass(base, HasProps) and attr in base.properties():
                     warn(('Property "%s" in class %s was overridden by a class attribute ' + \
                           '"%s" in class %s; it never makes sense to do this. ' + \
                           'Either %s.%s or %s.%s should be removed, or %s.%s should not ' + \
                           'be a Property, or use Override(), depending on the intended effect.') %
-                         (n, b.__name__, n, class_name,
-                          b.__name__, n,
-                          class_name, n,
-                          b.__name__, n),
+                         (attr, base.__name__, attr, class_name,
+                          base.__name__, attr,
+                          class_name, attr,
+                          base.__name__, attr),
                          RuntimeWarning, stacklevel=2)
 
         if "__overridden_defaults__" in cls.__dict__:
