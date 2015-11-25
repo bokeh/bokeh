@@ -27,13 +27,13 @@ Bokeh server.
 
 .. _gallery_static_examples:
 
-Static Examples
-===============
+Locally Executing Examples
+==========================
 
-All of the static examples below are located in the
+All of the examples below are located in the
 `examples <https://github.com/bokeh/bokeh/tree/master/examples>`_
-subdirectory of your Bokeh checkout. By "static", we simply mean
-that no use is made of the Bokeh server. Static plots can still
+subdirectory of your Bokeh checkout. By "locally executing" we mean that 
+these examples make no use of the Bokeh server. These plots still
 have many interactive tools and features, including linked panning
 and brushing, and hover inspectors.
 
