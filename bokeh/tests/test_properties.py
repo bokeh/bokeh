@@ -124,9 +124,9 @@ class Basictest(unittest.TestCase):
         self.assertEqual(set(["num", "container", "child"]),
                          b.properties())
         self.assertEqual(set(["num", "container", "child"]),
-                         b.class_properties(withbases=True))
+                         b.properties(with_bases=True))
         self.assertEqual(set(["num", "container", "child"]),
-                         b.class_properties(withbases=False))
+                         b.properties(with_bases=False))
 
         m = Mixin()
         self.assertEqual(set(["mixin_child"]),
@@ -136,9 +136,9 @@ class Basictest(unittest.TestCase):
         self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
                          m.properties())
         self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
-                         m.class_properties(withbases=True))
+                         m.properties(with_bases=True))
         self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
-                         m.class_properties(withbases=False))
+                         m.properties(with_bases=False))
 
         s = Sub()
         self.assertEqual(set(["child", "sub_child", "mixin_child"]),
@@ -152,18 +152,18 @@ class Basictest(unittest.TestCase):
         self.assertEqual(set(["num", "container", "child",
                               "mixin_num", "mixin_container", "mixin_child",
                               "sub_num", "sub_container", "sub_child"]),
-                         s.class_properties(withbases=True))
+                         s.properties(with_bases=True))
         self.assertEqual(set(["sub_num", "sub_container", "sub_child"]),
-                         s.class_properties(withbases=False))
+                         s.properties(with_bases=False))
 
         # verify caching
         self.assertIs(s.properties_with_refs(), s.properties_with_refs())
         self.assertIs(s.properties_containers(), s.properties_containers())
         self.assertIs(s.properties(), s.properties())
-        self.assertIs(s.class_properties(withbases=True), s.class_properties(withbases=True))
+        self.assertIs(s.properties(with_bases=True), s.properties(with_bases=True))
         # this one isn't cached because we store it as a list __properties__ and wrap it
         # in a new set every time
-        #self.assertIs(s.class_properties(withbases=False), s.class_properties(withbases=False))
+        #self.assertIs(s.properties(with_bases=False), s.properties(with_bases=False))
 
     def test_accurate_dataspecs(self):
         class Base(HasProps):

@@ -405,7 +405,7 @@ class Include(PropertyGenerator):
 
         # it would be better if we kept the original generators from
         # the delegate and built our Include props from those, perhaps.
-        for subpropname in delegate.class_properties(withbases=False):
+        for subpropname in delegate.properties(with_bases=False):
             fullpropname = prefix + subpropname
             subprop = delegate.lookup(subpropname)
             if isinstance(subprop, BasicProperty):
@@ -648,12 +648,25 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         return accumulate_from_superclasses(cls, "__container_props__")
 
     @classmethod
-    def properties(cls):
-        """ Returns a set of the names of this object's properties. We
-        traverse the class hierarchy and pull together the full
-        list of properties.
+    def properties(cls, with_bases=True):
+        """Returns a set of the names of this object's properties. If
+        ``with_bases`` is True, we traverse the class hierarchy
+        and pull together the full list of properties; if False,
+        we only return the properties introduced in the class
+        itself.
+
+        Args:
+           with_bases (bool, optional) : True to include properties that haven't been set.
+              (default: True)
+
+        Returns:
+           a set of property names
+
         """
-        return accumulate_from_superclasses(cls, "__properties__")
+        if with_bases:
+            return accumulate_from_superclasses(cls, "__properties__")
+        else:
+            return set(cls.__properties__)
 
     @classmethod
     def _overridden_defaults(cls):
@@ -704,10 +717,8 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
     @classmethod
     def class_properties(cls, withbases=True):
-        if withbases:
-            return cls.properties()
-        else:
-            return set(cls.__properties__)
+        """ Deprecated synonym for the properties() method, do not use."""
+        return cls.properties(with_bases=withbases)
 
     def set(self, **kwargs):
         """ Sets a number of properties at once """

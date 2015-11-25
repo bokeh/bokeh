@@ -177,7 +177,7 @@ class SimpleApp(Widget):
             for widget_name in self.widget_list:
                 obj = self.objects.get(widget_name)
                 if obj:
-                    for attr in obj.class_properties():
+                    for attr in obj.properties():
                         obj.on_change(attr, self, name)
             return
         for selectors, func in self.update_registry[self.name]:
@@ -199,7 +199,7 @@ class SimpleApp(Widget):
                     if attrs:
                         toiter = attrs
                     else:
-                        toiter = obj.class_properties()
+                        toiter = obj.properties()
                     for attr in toiter:
                         obj.on_change(attr, self, name)
         self.set_debounce()
