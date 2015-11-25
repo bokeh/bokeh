@@ -27,20 +27,26 @@ class TileRendererView extends PlotWidget
     @y_range = @map_plot.get('y_range')
     @y_mapper = this.map_frame.get('y_mappers')['default']
     @extent = @get_extent()
-    @_add_attribution()
 
-  _add_attribution: () ->
-    if @mget('tile_source').get('attribution')?
-      div_check = Bokeh.$('.bk-canvas-overlays').children('#tile_attribution')
-      if div_check.length == 0
-        attribution_div = Bokeh.$('''<div id="tile-attribution">#{@mget('tile_source').get('attribution')}</div>''')
-        .appendTo('.bk-canvas-overlays')
-        .css('position', 'absolute')
-        .css('bottom', '0')
-        .css('right', '0')
+  _add_attribution: () =>
+    attribution = @mget('tile_source').get('attribution')
+    if attribution?
+      attribution_div = Bokeh.$('.tile-attribution')
+      if attribution_div.length == 0
+        attribution_div = document.createElement('div')
+        bottom_offset = @map_plot.get('min_border_bottom')
+        right_offset = @map_plot.get('min_border_right')
+        Bokeh.$(attribution_div)
+          .addClass('tile-attribution')
+          .html(attribution)
+          .css('position', 'absolute')
+          .css('bottom', bottom_offset.toString() + 'px')
+          .css('right', right_offset.toString() + 'px')
+          .css('background-color', 'rgba(255,255,255,.8)')
+          .appendTo(Bokeh.$(".bk-canvas-overlays"))
       else
-        attribution_div = Bokeh.$('#tile-attribution')
-        attribution_div.text += " | #{@mget('tile_source').get('attribution')}"
+        attribution_div = attribution_div[0]
+        Bokeh.$(attribution_div).html(attribution)
 
   _map_data: () ->
     @initial_extent = @get_extent()
@@ -108,6 +114,10 @@ class TileRendererView extends PlotWidget
       clearTimeout(@prefetch_timer)
 
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
+    
+    if not @attribution_added
+      setTimeout(@_add_attribution, 1000)
+      @attribution_added = true
 
   _draw_tile: (tile_key) ->
     tile_obj = @mget('tile_source').tiles[tile_key]
