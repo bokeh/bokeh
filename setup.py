@@ -444,7 +444,7 @@ if jsbuild:
 if jsinstall:
     install_js()
 
-sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
+sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojson')
 
 package_path(join(SERVER, 'static'))
 package_path(join(ROOT, 'bokeh', '_templates'))
