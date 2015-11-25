@@ -382,7 +382,7 @@ class BasicProperty(Property):
         if self.name in obj._property_values:
             del obj._property_values[self.name]
 
-class Include(object):
+class Include(PropertyGenerator):
     """ Include other properties from mixin Models, with a given prefix. """
 
     def __init__(self, delegate, help="", use_prefix=True):
@@ -392,6 +392,30 @@ class Include(object):
         self.delegate = delegate
         self.help = help
         self.use_prefix = use_prefix
+
+    def make_properties(self, base_name):
+        props = []
+        delegate = self.delegate
+        if self.use_prefix:
+            prefix = re.sub("_props$", "", base_name) + "_"
+        else:
+            prefix = ""
+
+        # it would be better if we kept the original generators from
+        # the delegate and built our Include props from those, perhaps.
+        for subpropname in delegate.class_properties(withbases=False):
+            fullpropname = prefix + subpropname
+            subprop = delegate.lookup(subpropname)
+            if isinstance(subprop, BasicProperty):
+                descriptor = copy(subprop.descriptor)
+                if "%s" in self.help:
+                    doc = self.help % subpropname.replace('_', ' ')
+                else:
+                    doc = self.help
+                descriptor.__doc__ = doc
+                props += descriptor.make_properties(fullpropname)
+
+        return props
 
 class Override(object):
     """ Override aspects of the PropertyDescriptor from a superclass. """
@@ -429,39 +453,6 @@ class MetaHasProps(type):
         names = set()
         names_with_refs = set()
         container_names = set()
-
-        # First pre-process to handle all the Includes
-        includes = {}
-        removes = set()
-        for name, prop in class_dict.items():
-            if not isinstance(prop, Include):
-                continue
-
-            delegate = prop.delegate
-            if prop.use_prefix:
-                prefix = re.sub("_props$", "", name) + "_"
-            else:
-                prefix = ""
-
-            for subpropname in delegate.class_properties(withbases=False):
-                fullpropname = prefix + subpropname
-                subprop = copy(delegate.lookup(subpropname).descriptor)
-                if "%s" in prop.help:
-                    doc = prop.help % subpropname.replace('_', ' ')
-                else:
-                    doc = prop.help
-                includes[fullpropname] = subprop
-                subprop.__doc__ = doc
-            # Remove the name of the Include attribute itself
-            removes.add(name)
-
-        # Update the class dictionary, taking care not to overwrite values
-        # from the delegates that the subclass may have explicitly defined
-        for key, val in includes.items():
-            if key not in class_dict:
-                class_dict[key] = val
-        for tmp in removes:
-            del class_dict[tmp]
 
         # Now handle all the Override
         overridden_defaults = {}
@@ -503,11 +494,13 @@ class MetaHasProps(type):
 
         for name, generator in generators.items():
             props = generator.make_properties(name)
+            replaced_self = False
             for prop in props:
                 if prop.name in generators:
                     if generators[prop.name] is generator:
                         # a generator can replace itself, this is the
                         # standard case like `foo = Int()`
+                        replaced_self = True
                         add_prop(prop)
                     else:
                         # if a generator tries to overwrite another
@@ -517,6 +510,9 @@ class MetaHasProps(type):
                         pass
                 else:
                     add_prop(prop)
+            # if we won't overwrite ourselves anyway, delete the generator
+            if not replaced_self:
+                del class_dict[name]
 
         class_dict.update(new_class_attrs)
 
