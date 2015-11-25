@@ -3,15 +3,17 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__file__)
 
-from six import add_metaclass, iteritems
+from json import loads
+
+from six import iteritems
 
 from .properties import Any, HasProps, List, MetaHasProps, String
 from .query import find
 from . import themes
 from .util.callback_manager import CallbackManager
+from .util.future import with_metaclass
 from .util.serialization import make_id
 from ._json_encoder import serialize_json
-from json import loads
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -64,8 +66,7 @@ class Viewable(MetaHasProps):
         else:
             raise KeyError("View model name '%s' not found" % view_model_name)
 
-@add_metaclass(Viewable)
-class Model(HasProps, CallbackManager):
+class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     """ Base class for all plot-related objects """
 
     name = String()

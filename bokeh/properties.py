@@ -41,23 +41,25 @@ to be understood by BokehJS.
 """
 from __future__ import absolute_import, print_function
 
-import re
-import types
-import difflib
-import datetime
-import dateutil.parser
-import collections
-from importlib import import_module
-from copy import copy
-from warnings import warn
-import inspect
 import logging
-import numbers
 logger = logging.getLogger(__name__)
 
-from six import string_types, add_metaclass, iteritems
+import collections
+from copy import copy
+import datetime
+import dateutil.parser
+import difflib
+from importlib import import_module
+import inspect
+import numbers
+import re
+import types
+from warnings import warn
+
+from six import string_types, iteritems
 
 from . import enums
+from .util.future import with_metaclass
 from .util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 
@@ -390,13 +392,6 @@ _EXAMPLE_TEMPLATE = """
 
 class MetaHasProps(type):
     def __new__(meta_cls, class_name, bases, class_dict):
-        # HACK for now - we get called twice for some weird reason.
-        # __new__ used to be idempotent before PropertyDescriptor
-        # had to be transformed into Property, so it was OK, but now
-        # it isn't ... I think. Anyway, on the second call just do this?
-        # we need to figure this out for real and clean it up.
-        if '__properties__' in class_dict:
-            return type.__new__(meta_cls, class_name, bases, class_dict)
         names = set()
         names_with_refs = set()
         container_names = set()
@@ -487,7 +482,7 @@ class MetaHasProps(type):
             path = class_dict["__example__"]
             class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
 
-        return type.__new__(meta_cls, class_name, bases, class_dict)
+        return super(MetaHasProps, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name, bases, nmspc):
         if class_name == 'HasProps':
@@ -555,8 +550,7 @@ def abstract(cls):
 
     return cls
 
-@add_metaclass(MetaHasProps)
-class HasProps(object):
+class HasProps(with_metaclass(MetaHasProps, object)):
 
     def __init__(self, **properties):
         super(HasProps, self).__init__()

@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 import unittest
 
-from six import add_metaclass
 from six.moves import xrange
 import copy
 from bokeh.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
 from bokeh.property_containers import PropertyValueList, PropertyValueDict
+from bokeh.util.future import with_metaclass
 
 def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
@@ -62,8 +62,7 @@ class TestViewable(unittest.TestCase):
         self.viewable.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        @add_metaclass(self.viewable)
-        class Test_Class():
+        class Test_Class(with_metaclass(self.viewable)):
             foo = 1
         return Test_Class
 

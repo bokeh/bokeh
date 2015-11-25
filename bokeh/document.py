@@ -8,15 +8,17 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-import uuid
-from bokeh.util.callback_manager import _check_callback
-from bokeh.util.version import __version__
-from bokeh._json_encoder import serialize_json
-from .model import Model
-from .validation import check_integrity
-from .query import find
 from json import loads
+import uuid
+
 from six import string_types
+
+from .model import Model
+from .query import find
+from .validation import check_integrity
+from .util.callback_manager import _check_callback
+from .util.version import __version__
+from._json_encoder import serialize_json
 
 DEFAULT_TITLE = "Bokeh Application"
 
