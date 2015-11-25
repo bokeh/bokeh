@@ -517,7 +517,7 @@ class MetaHasProps(type):
         if len(overridden_defaults) > 0:
             class_dict["__overridden_defaults__"] = overridden_defaults
         if dataspecs:
-            class_dict["_dataspecs"] = dataspecs
+            class_dict["__dataspecs__"] = dataspecs
 
         if "__example__" in class_dict:
             path = class_dict["__example__"]
@@ -563,7 +563,7 @@ def accumulate_from_superclasses(cls, propname):
     if cachename not in cls.__dict__:
         s = set()
         for c in inspect.getmro(cls):
-            if issubclass(c, HasProps):
+            if issubclass(c, HasProps) and hasattr(c, propname):
                 base = getattr(c, propname)
                 s.update(base)
         setattr(cls, cachename, s)
@@ -663,21 +663,12 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         """ Returns a set of the names of this object's dataspecs (and
         dataspec subclasses).  Traverses the class hierarchy.
         """
-        if not hasattr(cls, "__cached_dataspecs"):
-            dataspecs = set()
-            for c in reversed(inspect.getmro(cls)):
-                if hasattr(c, "_dataspecs"):
-                    dataspecs.update(c._dataspecs.keys())
-            cls.__cached_dataspecs = dataspecs
-        return cls.__cached_dataspecs
+        return set(cls.dataspecs_with_refs().keys())
 
     @classmethod
     def dataspecs_with_refs(cls):
-        dataspecs = {}
-        for c in reversed(inspect.getmro(cls)):
-            if hasattr(c, "_dataspecs"):
-                dataspecs.update(c._dataspecs)
-        return dataspecs
+        """ Returns a dict of dataspec names to dataspec properties. """
+        return accumulate_dict_from_superclasses(cls, "__dataspecs__")
 
     def properties_with_values(self, include_defaults=True):
         '''Get a dict from property names to the current values of those properties.

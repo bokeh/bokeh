@@ -165,6 +165,32 @@ class Basictest(unittest.TestCase):
         # in a new set every time
         #self.assertIs(s.class_properties(withbases=False), s.class_properties(withbases=False))
 
+    def test_accurate_dataspecs(self):
+        class Base(HasProps):
+            num = NumberSpec(12)
+            not_a_dataspec = Float(10)
+
+        class Mixin(HasProps):
+            mixin_num = NumberSpec(14)
+
+        class Sub(Base, Mixin):
+            sub_num = NumberSpec(16)
+
+        base = Base()
+        mixin = Mixin()
+        sub = Sub()
+
+        self.assertEqual(set(["num"]), base.dataspecs())
+        self.assertEqual(set(["mixin_num"]), mixin.dataspecs())
+        self.assertEqual(set(["num", "mixin_num", "sub_num"]), sub.dataspecs())
+
+        self.assertDictEqual(dict(num=base.lookup("num")), base.dataspecs_with_refs())
+        self.assertDictEqual(dict(mixin_num=mixin.lookup("mixin_num")), mixin.dataspecs_with_refs())
+        self.assertDictEqual(dict(num=sub.lookup("num"),
+                                  mixin_num=sub.lookup("mixin_num"),
+                                  sub_num=sub.lookup("sub_num")),
+                             sub.dataspecs_with_refs())
+
     def test_not_serialized(self):
         class NotSerialized(HasProps):
             x = Int(12, serialized=False)
