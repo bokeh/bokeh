@@ -119,6 +119,13 @@ where the built resources should be produced:
 
     gulp build --build-dir=/home/bokeh/mybuilddir
 
+For faster development turnaround, you can skip the very slow minification
+step of the build by issuing:
+
+.. code-block:: sh
+
+    gulp dev-build
+
 To direct Gulp to automatically watch the source tree for changes and
 trigger a recompile if any source file changes:
 
