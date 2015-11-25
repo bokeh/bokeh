@@ -478,12 +478,17 @@ class MetaHasProps(type):
             if name in new_class_attrs:
                 raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
             new_class_attrs[name] = prop
+            names.add(name)
             if isinstance(prop, BasicProperty):
+                # names_with_refs includes containers that have
+                # refs and container_names includes only
+                # containers that didn't have a ref
                 if prop.descriptor.has_ref:
                     names_with_refs.add(name)
                 elif isinstance(prop.descriptor, ContainerProperty):
                     container_names.add(name)
-                names.add(name)
+                # dataspecs can also be in names_with_refs or
+                # container_names above.
                 if isinstance(prop.descriptor, DataSpec):
                     dataspecs[name] = prop
 
@@ -641,7 +646,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
     @classmethod
     def properties_containers(cls):
-        """ Returns a list of properties that are containers
+        """ Returns a list of properties that are containers but do not have refs.
         """
         return accumulate_from_superclasses(cls, "__container_props__")
 
