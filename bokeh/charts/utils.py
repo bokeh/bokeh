@@ -464,9 +464,10 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean'):
         return start, end
 
     # group by each level
-    levels = []
+    levels_cols = []
     starts = []
     ends = []
+    levels = []
 
     for i in range(0, len(cat_cols)):
         level_cols = cat_cols[:i+1]
@@ -484,4 +485,24 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean'):
         starts.append(start_ends[0])
         ends.append(start_ends[1])
 
-    return pd.DataFrame(dict(start=pd.concat(starts), end=pd.concat(ends)))
+        # build array of constant value representing the level
+        this_level = start_ends[0].copy()
+        this_level[:] = i
+        levels_cols.append(this_level)
+
+    df = pd.DataFrame(dict(start=pd.concat(starts), end=pd.concat(ends),
+                           level=pd.concat(levels_cols)))
+
+    idx = df.index.copy().values
+
+    for i, val in enumerate(df.index):
+        if not isinstance(val, tuple):
+            val = (val, np.nan)
+        idx[i] = val
+
+    df.index = pd.MultiIndex.from_tuples(idx)
+    df.index.names = cat_cols
+
+    return df
+
+
