@@ -21,6 +21,7 @@ from copy import copy
 from math import cos, sin
 
 from pandas.io.json import json_normalize
+import pandas as pd
 import numpy as np
 from six import iteritems
 
@@ -427,3 +428,60 @@ def help(*builders):
         return f
 
     return add_help
+
+
+def cat_to_polar(df, cat_cols, agg_col=None, agg='mean'):
+    """Return start and end angles for each index in series.
+
+
+    """
+
+    if agg_col is None:
+        agg_col = cat_cols[0]
+        agg = 'count'
+
+    def calc_span_proportion(data):
+        """How much of the circle should be assigned."""
+        return data/data.sum()
+
+    def shift_series(s):
+        s0 = s.copy()
+        s0 = s0.shift(1)
+        s0.iloc[0] = 0.0
+        return s0
+
+    def create_start_end(levels):
+
+        rads = levels[0].copy()
+        for level in levels[1:]:
+            rads = rads * level
+
+        rads *= (2 * np.pi)
+
+        end = rads.cumsum()
+        start = shift_series(end)
+
+        return start, end
+
+    # group by each level
+    levels = []
+    starts = []
+    ends = []
+
+    for i in range(0, len(cat_cols)):
+        level_cols = cat_cols[:i+1]
+
+        gb = getattr(getattr(df.groupby(level_cols), agg_col), agg)()
+
+        # lower than top level, need to groupby next to lowest level
+        group_level = i - 1
+        if group_level >= 0:
+            levels.append(gb.groupby(level=group_level).apply(calc_span_proportion))
+        else:
+            levels.append(calc_span_proportion(gb))
+
+        start_ends = create_start_end(levels)
+        starts.append(start_ends[0])
+        ends.append(start_ends[1])
+
+    return pd.DataFrame(dict(start=pd.concat(starts), end=pd.concat(ends)))
