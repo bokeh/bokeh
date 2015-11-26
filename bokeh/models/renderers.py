@@ -8,7 +8,7 @@ import logging
 
 from ..model import Model
 from ..properties import abstract
-from ..properties import String, Enum, Instance, Float
+from ..properties import String, Enum, Instance, Float, Bool
 from ..enums import Units, RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from .. import validation
@@ -16,9 +16,9 @@ from .. import validation
 from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
 from .tiles import TileSource
+from .images import ImageSource
 
 logger = logging.getLogger(__name__)
-
 
 @abstract
 class Renderer(Model):
@@ -50,6 +50,27 @@ class TileRenderer(Renderer):
 
     level = Enum(RenderLevel, default="underlay", help="""
     Specifies the level in which to render the glyph.
+    """)
+    render_parents = Bool(default=True, help="""
+    Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
+    """)
+
+class DynamicImageRenderer(Renderer):
+
+    image_source = Instance(ImageSource, help="""
+    Image source to use when rendering on the plot.
+    """)
+
+    alpha = Float(1.0, help="""
+    tile opacity 0.0 - 1.0
+    """)
+
+    level = Enum(RenderLevel, default="underlay", help="""
+    Specifies the level in which to render the glyph.
+    """)
+
+    render_parents = Bool(default=True, help="""
+    Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
 class GlyphRenderer(Renderer):

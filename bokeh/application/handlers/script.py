@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function
 
-from .handler import SpellingHandler
+from .handler import Handler
 import uuid
 import os
 from os.path import abspath
@@ -9,7 +9,7 @@ from bokeh.io import set_curdoc, curdoc
 import codecs
 
 
-class ScriptHandler(SpellingHandler):
+class ScriptHandler(Handler):
     """Run a script which modifies a Document"""
 
     _io_functions = ['output_server', 'output_notebook', 'output_file',
