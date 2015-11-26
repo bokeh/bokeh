@@ -18,11 +18,11 @@ var argv = yargs
     },
     js: {
       type: 'string',
-      default: path.join(__dirname, 'build/js'),
+      default: path.join(__dirname, '../build/js'),
     },
     css: {
       type: 'string',
-      default: path.join(__dirname, 'build/css'),
+      default: path.join(__dirname, '../build/css'),
     },
   })
   .help('h').alias('h', 'help')

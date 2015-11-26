@@ -1,0 +1,14 @@
+{
+  "name": "bokehjs-node",
+  "version": "0.10.0",
+  "description": "node.js integration layer for bokehjs",
+  "devDependencies": {
+    "jsdom": "^7.0.2",
+    "canvas": "^1.3.0",
+    "location": "^0.0.1",
+    "navigator": "^1.0.1",
+    "htmlparser2": "^3.8.3",
+    "uuid": "^2.0.1",
+    "yargs": "^3.11.0"
+  }
+}

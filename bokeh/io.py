@@ -391,7 +391,7 @@ def savepng(obj, filename=None, state=None, validate=True):
         plot_objects = _check_plot_objects(plot_objects)
         (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
 
-        script = join(dirname(dirname(__file__)), "bokehjs", "render.js")
+        script = join(dirname(dirname(__file__)), "bokehjs", "node", "render.js")
         cmd = "node %s --filename=%s --log-level=%s" % (script, filename, resources.log_level)
 
         proc = Popen(cmd, stdin=PIPE, shell=True)

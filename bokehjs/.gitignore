@@ -1,5 +1,6 @@
 /build
 /node_modules
+/node/node_modules
 *~
 *.sw[opn]
 *.bak
