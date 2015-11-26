@@ -384,12 +384,11 @@ def savepng(obj, filename=None, state=None, validate=True):
 
         resources = Resources(mode="absolute-dev")
 
-        from .embed import _check_plot_objects, _standalone_docs_json_and_render_items
+        from .embed import _check_one_model, _standalone_docs_json_and_render_items
         from ._json_encoder import serialize_json
 
-        plot_objects = [obj]
-        plot_objects = _check_plot_objects(plot_objects)
-        (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
+        objs = _check_one_model(obj)
+        (docs_json, render_items) = _standalone_docs_json_and_render_items(objs)
 
         script = join(dirname(dirname(__file__)), "bokehjs", "node", "render.js")
         cmd = "node %s --filename=%s --log-level=%s" % (script, filename, resources.log_level)
