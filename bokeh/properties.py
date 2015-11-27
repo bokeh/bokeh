@@ -287,6 +287,14 @@ class Property(object):
         """ The default as computed for a certain class, ignoring any per-instance theming."""
         raise NotImplementedError("Implement class_default()")
 
+    def serializable_value(self, obj):
+        """Gets the value as it should be serialized, which differs from
+        the __get__ value occasionally when we allow the __get__
+        value to appear simpler for developer convenience.
+
+        """
+        return self.__get__(obj)
+
     @property
     def serialized(self):
         """ True if the property should be serialized when serializing an object.
@@ -723,7 +731,11 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         return accumulate_dict_from_superclasses(cls, "__dataspecs__")
 
     def properties_with_values(self, include_defaults=True):
-        '''Get a dict from property names to the current values of those properties.
+        ''' Get a dict from property names to the current values of those properties.
+        Non-serializable properties are skipped and property values are in "serialized"
+        format which may be slightly different from the values you would normally
+        read from the properties; the intent of this method is to return the information
+        needed to losslessly reconstitute the object instance.
 
         Args:
            include_defaults (bool) : True to include properties that haven't been set.
@@ -735,20 +747,15 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             result = dict([ (attr, getattr(self, attr)) for attr in self.properties() if self.lookup(attr).serialized ])
         else:
             result = dict()
-            for k, v in self._property_values.items():
+            for k in self._property_values.keys():
+                prop = self.lookup(k)
+                if not prop.serialized:
+                    continue
+
+                v = prop.serializable_value(self)
                 if isinstance(v, PropertyValueContainer) and v._unmodified_default_value:
                     continue
-                if not self.lookup(k).serialized:
-                    continue
                 result[k] = v
-
-        # dataspecs have a non-canonicalized value (we don't force
-        # into dict format), so we have to clean it up here. This
-        # could probably be solved more cleanly by trying to fix
-        # up inside the dataspec Property itself.
-        for attr, prop in iteritems(self.dataspecs_with_props()):
-            if result.get(attr) is not None:
-                result[attr] = prop.descriptor.to_dict(prop.name, self)
 
         return result
 
@@ -1381,12 +1388,21 @@ class RelativeDelta(Dict):
     def __str__(self):
         return self.__class__.__name__
 
+class DataSpecProperty(BasicProperty):
+    """ A Property with a DataSpec descriptor."""
+
+    def serializable_value(self, obj):
+        return self.descriptor.to_serializable(obj, self.name)
+
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
         super(DataSpec, self).__init__(String, Dict(String, Either(String, typ)), typ, default=default, help=help)
         self._type = self._validate_type_param(typ)
 
-    def to_dict(self, name, obj):
+    def make_properties(self, base_name):
+        return [ DataSpecProperty(descriptor=self, name=base_name) ]
+
+    def to_serializable(self, obj, name):
         val = getattr(obj, name)
 
         # Check for None value
@@ -1451,8 +1467,8 @@ class UnitsSpec(NumberSpec):
         units_name = base_name + "_units"
         return base + self._units_type.make_properties(units_name)
 
-    def to_dict(self, name, obj):
-        d = super(UnitsSpec, self).to_dict(name, obj)
+    def to_serializable(self, obj, name):
+        d = super(UnitsSpec, self).to_serializable(name, obj)
         d["units"] = getattr(obj, name+"_units")
         return d
 
@@ -1482,8 +1498,8 @@ class DistanceSpec(UnitsSpec):
         return super(DistanceSpec, self).prepare_value(cls, name, value)
 
 class ScreenDistanceSpec(NumberSpec):
-    def to_dict(self, name, obj):
-        d = super(ScreenDistanceSpec, self).to_dict(name, obj)
+    def to_serializable(self, obj, name):
+        d = super(ScreenDistanceSpec, self).to_serializable(name, obj)
         d["units"] = "screen"
         return d
 
@@ -1496,8 +1512,8 @@ class ScreenDistanceSpec(NumberSpec):
         return super(ScreenDistanceSpec, self).prepare_value(cls, name, value)
 
 class DataDistanceSpec(NumberSpec):
-    def to_dict(self, name, obj):
-        d = super(ScreenDistanceSpec, self).to_dict(name, obj)
+    def to_serializable(self, obj, name):
+        d = super(ScreenDistanceSpec, self).to_serializable(name, obj)
         d["units"] = "data"
         return d
 
@@ -1532,7 +1548,7 @@ class ColorSpec(DataSpec):
         else:
             return "rgba%r" % (colortuple,)
 
-    def to_dict(self, name, obj):
+    def to_serializable(self, obj, name):
         val = getattr(obj, name)
 
         if val is None:
