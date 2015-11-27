@@ -1470,7 +1470,7 @@ class UnitsSpec(NumberSpec):
         return base + self._units_type.make_properties(units_name)
 
     def to_serializable(self, obj, name):
-        d = super(UnitsSpec, self).to_serializable(name, obj)
+        d = super(UnitsSpec, self).to_serializable(obj, name)
         d["units"] = getattr(obj, name+"_units")
         return d
 
@@ -1501,7 +1501,7 @@ class DistanceSpec(UnitsSpec):
 
 class ScreenDistanceSpec(NumberSpec):
     def to_serializable(self, obj, name):
-        d = super(ScreenDistanceSpec, self).to_serializable(name, obj)
+        d = super(ScreenDistanceSpec, self).to_serializable(obj, name)
         d["units"] = "screen"
         return d
 
@@ -1515,7 +1515,7 @@ class ScreenDistanceSpec(NumberSpec):
 
 class DataDistanceSpec(NumberSpec):
     def to_serializable(self, obj, name):
-        d = super(ScreenDistanceSpec, self).to_serializable(name, obj)
+        d = super(ScreenDistanceSpec, self).to_serializable(obj, name)
         d["units"] = "data"
         return d
 
