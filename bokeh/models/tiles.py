@@ -37,7 +37,7 @@ class TileSource(Model):
     """)
 
     attribution = String("", help="""
-    data provider attribution content.  This can include HTML content.
+    Data provider attribution content. This can include HTML content.
     """)
 
 class MercatorTileSource(TileSource):
