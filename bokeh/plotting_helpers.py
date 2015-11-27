@@ -472,7 +472,7 @@ def _glyph_function(glyphclass, extra_docs=None):
     for arg in glyphclass._args:
         spec = getattr(glyphclass, arg)
         desc = " ".join(x.strip() for x in spec.__doc__.strip().split("\n\n")[0].split('\n'))
-        arglines.append(_arg_template % (arg, spec.__class__.__name__, desc, spec.descriptor.raw_default()))
+        arglines.append(_arg_template % (arg, spec.__class__.__name__, desc, spec.class_default(glyphclass)))
 
     kwlines = []
     kws = glyphclass.properties() - set(glyphclass._args)
@@ -485,7 +485,7 @@ def _glyph_function(glyphclass, extra_docs=None):
         else:
             typ = str(spec)
             desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, spec.descriptor.raw_default()))
+        kwlines.append(_arg_template % (kw, typ, desc, spec.class_default(glyphclass)))
 
     func.__doc__ = _doc_template  % (glyphclass.__name__, "\n".join(arglines), "\n".join(kwlines))
 

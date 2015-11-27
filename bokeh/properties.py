@@ -152,7 +152,7 @@ class PropertyDescriptor(PropertyGenerator):
         self.alternatives = []
 
         # "fail early" when a default is invalid
-        self.validate(self.raw_default())
+        self.validate(self._raw_default())
 
     def __str__(self):
         return self.__class__.__name__
@@ -167,7 +167,7 @@ class PropertyDescriptor(PropertyGenerator):
         else:
             return default()
 
-    def raw_default(self):
+    def _raw_default(self):
         """The raw_default() needs to be validated and transformed by prepare_value() before use. Prefer prepared_default()."""
         return self._copy_default(self._default)
 
@@ -177,7 +177,7 @@ class PropertyDescriptor(PropertyGenerator):
         if name in overrides:
             default = self._copy_default(overrides[name])
         else:
-            default = self.raw_default()
+            default = self._raw_default()
         return self.prepare_value(cls, name, default)
 
     @property
@@ -283,6 +283,28 @@ class Property(object):
     def __delete__(self, obj):
         raise NotImplementedError("Implement __delete__")
 
+    def class_default(self, cls):
+        """ The default as computed for a certain class, ignoring any per-instance theming."""
+        raise NotImplementedError("Implement class_default()")
+
+    @property
+    def serialized(self):
+        """ True if the property should be serialized when serializing an object.
+        This would be False for a "virtual" or "convenience" property that duplicates
+        information already available in other properties, for example.
+        """
+        raise NotImplementedError("Implement serialized()")
+
+    def from_json(self, json, models=None):
+        """ Convert from JSON-compatible values (list, dict, number, string, bool, None)
+        into a value for this property."""
+        raise NotImplementedError("Implement from_json()")
+
+    @property
+    def has_ref(self):
+        """ True if the property can refer to another HasProps instance."""
+        raise NotImplementedError("Implement has_ref()")
+
 class BasicProperty(Property):
     """ A PropertyDescriptor associated with a class attribute name, so it can be read and written. """
 
@@ -292,6 +314,20 @@ class BasicProperty(Property):
 
     def __str__(self):
         return "%s:%s" % (self.name, self.descriptor)
+
+    def class_default(self, cls):
+        return self.descriptor.prepared_default(cls, self.name)
+
+    @property
+    def serialized(self):
+        return self.descriptor.serialized
+
+    def from_json(self, json, models=None):
+        return self.descriptor.from_json(json, models)
+
+    @property
+    def has_ref(self):
+        return self.descriptor.has_ref
 
     def _get(self, obj):
         if not hasattr(obj, '_property_values'):
@@ -319,7 +355,7 @@ class BasicProperty(Property):
         # merely getting a default may force us to put it
         # in _property_values if we need to wrap the
         # container.
-        default = self.descriptor.prepared_default(obj.__class__, self.name)
+        default = self.class_default(obj.__class__)
         if isinstance(default, PropertyValueContainer):
             default._unmodified_default_value = True
             default._register_owner(obj, self)
@@ -479,10 +515,11 @@ class MetaHasProps(type):
                 raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
             new_class_attrs[name] = prop
             names.add(name)
-            if isinstance(prop, BasicProperty):
-                if prop.descriptor.has_ref:
-                    names_with_refs.add(name)
 
+            if prop.has_ref:
+                names_with_refs.add(name)
+
+            if isinstance(prop, BasicProperty):
                 if isinstance(prop.descriptor, ContainerProperty):
                     container_names.add(name)
 
@@ -695,13 +732,13 @@ class HasProps(with_metaclass(MetaHasProps, object)):
            dict : from property names to their values
         '''
         if include_defaults:
-            result = dict([ (attr, getattr(self, attr)) for attr in self.properties() if self.lookup(attr).descriptor.serialized ])
+            result = dict([ (attr, getattr(self, attr)) for attr in self.properties() if self.lookup(attr).serialized ])
         else:
             result = dict()
             for k, v in self._property_values.items():
                 if isinstance(v, PropertyValueContainer) and v._unmodified_default_value:
                     continue
-                if not self.lookup(k).descriptor.serialized:
+                if not self.lookup(k).serialized:
                     continue
                 result[k] = v
 
@@ -1092,7 +1129,7 @@ class Either(ParameterizedPropertyDescriptor):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         help = kwargs.get("help")
         def choose_default():
-            return self._type_params[0].raw_default()
+            return self._type_params[0]._raw_default()
         default = kwargs.get("default", choose_default)
         super(Either, self).__init__(default=default, help=help)
 
