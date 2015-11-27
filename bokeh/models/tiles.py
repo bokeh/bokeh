@@ -97,12 +97,9 @@ class BBoxTileSource(MercatorTileSource):
 
 # tile providers -----------------------------------------------------------------
 stamen_toner = WMTSTileSource(url='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png', attribution="""
-Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>
-""")
+Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>""")  # NOQA
 
 stamen_toner_labels = WMTSTileSource(url='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png', attribution="""
-Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>
-""")
+Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>""")  # NOQA
 
-stamen_terrain = WMTSTileSource(url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png', attribution="""Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.
-""")
+stamen_terrain = WMTSTileSource(url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png', attribution="""Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.""")  # NOQA
