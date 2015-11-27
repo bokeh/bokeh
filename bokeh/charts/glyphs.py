@@ -698,7 +698,6 @@ class DotGlyph(Interval):
         yield GlyphRenderer(glyph=glyph)
 
 
-
 class QuartileGlyph(Interval):
     """An interval that has start and end aggregations of quartiles."""
     def __init__(self, label, values, interval1, interval2, **kwargs):
