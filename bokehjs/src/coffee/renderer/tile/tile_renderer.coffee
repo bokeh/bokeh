@@ -64,6 +64,7 @@ class TileRendererView extends PlotWidget
     @y_range.set('start', new_extent[1])
     @x_range.set('end', new_extent[2])
     @y_range.set('end', new_extent[3])
+    @_add_attribution()
 
   _on_tile_load: (e) =>
     tile_data = e.target.tile_data
@@ -141,9 +142,6 @@ class TileRendererView extends PlotWidget
 
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
 
-    if not @attribution_added
-      setTimeout(@_add_attribution, 1000)
-      @attribution_added = true
 
   _draw_tile: (tile_key) ->
     tile_obj = @mget('tile_source').tiles[tile_key]
