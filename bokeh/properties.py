@@ -745,19 +745,22 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         Returns:
            dict : from property names to their values
         '''
+        result = dict()
         if include_defaults:
-            result = dict([ (attr, getattr(self, attr)) for attr in self.properties() if self.lookup(attr).serialized ])
+            keys = self.properties()
         else:
-            result = dict()
-            for k in self._property_values.keys():
-                prop = self.lookup(k)
-                if not prop.serialized:
-                    continue
+            keys = self._property_values.keys()
 
-                v = prop.serializable_value(self)
-                if isinstance(v, PropertyValueContainer) and v._unmodified_default_value:
+        for key in keys:
+            prop = self.lookup(key)
+            if not prop.serialized:
+                continue
+
+            value = prop.serializable_value(self)
+            if not include_defaults:
+                if isinstance(value, PropertyValueContainer) and value._unmodified_default_value:
                     continue
-                result[k] = v
+            result[key] = value
 
         return result
 

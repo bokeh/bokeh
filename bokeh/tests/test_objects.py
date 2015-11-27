@@ -195,6 +195,24 @@ class TestModel(unittest.TestCase):
         self.assertTrue('outer_radius' in json)
         self.assertTrue('outer_radius_units' not in json)
 
+    def test_dataspec_field_in_json(self):
+        from bokeh.models import AnnularWedge
+        obj = AnnularWedge()
+        obj.start_angle = "fieldname"
+        json = obj.to_json(include_defaults=True)
+        self.assertTrue('start_angle' in json)
+        self.assertTrue('start_angle_units' not in json)
+        self.assertDictEqual(dict(units='rad', field='fieldname'), json['start_angle'])
+
+    def test_dataspec_value_in_json(self):
+        from bokeh.models import AnnularWedge
+        obj = AnnularWedge()
+        obj.start_angle = 60
+        json = obj.to_json(include_defaults=True)
+        self.assertTrue('start_angle' in json)
+        self.assertTrue('start_angle_units' not in json)
+        self.assertDictEqual(dict(units='rad', value=60), json['start_angle'])
+
 class SomeModelInTestObjects(Model):
     child = Instance(Model)
 
