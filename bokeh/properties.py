@@ -319,6 +319,7 @@ class BasicProperty(Property):
     def __init__(self, descriptor, name):
         super(BasicProperty, self).__init__(name)
         self.descriptor = descriptor
+        self.__doc__ = self.descriptor.__doc__
 
     def __str__(self):
         return "%s:%s" % (self.name, self.descriptor)
