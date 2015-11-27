@@ -1,7 +1,12 @@
 _ = require "underscore"
 Glyph = require "./glyph"
+{logger} = require "../../common/logging"
 
 class ImageURLView extends Glyph.View
+
+  initialize: (options) ->
+    super(options)
+    @listenTo(@model, 'change:global_alpha', @renderer.request_render)
 
   _index_data: () ->
 
@@ -9,8 +14,21 @@ class ImageURLView extends Glyph.View
     if not @image? or @image.length != @url.length
       @image = (null for img in @url)
 
+    retry_attempts = @mget('retry_attempts')
+    retry_timeout = @mget('retry_timeout')
+
+    @retries = (retry_attempts for img in @url)
+
     for i in [0...@url.length]
       img = new window.Image()
+      img.onerror = do (i, img) =>
+        return () =>
+          if @retries[i] > 0
+            logger.trace("ImageURL failed to load #{@url[i]} image, retrying in #{retry_timeout} ms")
+            setTimeout((=> img.src = @url[i]), retry_timeout)
+          else
+            logger.warn("ImageURL unable to load #{@url[i]} image after #{retry_attempts} retries")
+          @retries[i] -= 1
       img.onload = do (img, i) =>
         return () =>
           @image[i] = img
@@ -33,6 +51,9 @@ class ImageURLView extends Glyph.View
 
     for i in indices
       if isNaN(sx[i]+sy[i]+angle[i])
+        continue
+
+      if @retries[i] == -1
         continue
 
       if not image[i]?
@@ -84,6 +105,8 @@ class ImageURL extends Glyph.Model
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
+      retry_attempts: 0
+      retry_timeout: 0
       global_alpha: 1.0
     }
 
