@@ -15,14 +15,12 @@ fig.background_fill = "black"
 fig.axis.visible = False
 
 # National Land Cover Dataset (http://www.mrlc.gov/nlcd2011.php)
-service_url = 'http://raster.nationalmap.gov/arcgis/rest/services/LandCover/USGS_EROS_LandCover_NLCD/MapServer/export?'
-service_url += 'bbox={XMIN},{YMIN},{XMAX},{YMAX}&bboxSR=102100&size={HEIGHT}%2C{WIDTH}&imageSR=102100&format=png32&transparent=true&f=image'
-image_source_options = {}
-image_source_options['url'] = service_url
-image_source = ImageSource(**image_source_options)
+service_url = 'http://raster.nationalmap.gov/arcgis/rest/services/LandCover/USGS_EROS_LandCover_NLCD/MapServer/export?\
+bbox={XMIN},{YMIN},{XMAX},{YMAX}&bboxSR=102100&size={HEIGHT}%2C{WIDTH}&imageSR=102100&format=png32&transparent=true&f=image'
+image_source = ImageSource(url=service_url)
 
 fig.add_tile(stamen_toner)
 fig.add_dynamic_image(image_source)
-fig.add_tile(stamen_toner_labels, **dict(render_parents=True))
+fig.add_tile(stamen_toner_labels, render_parents=True)
 
 show(fig)

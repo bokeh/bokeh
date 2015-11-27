@@ -1,4 +1,5 @@
 _ = require "underscore"
+$ = require "jquery"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
@@ -9,6 +10,7 @@ ImagePool = require "./image_pool"
 class TileRendererView extends PlotWidget
 
   initialize: () ->
+    @attributionEl = null
     super
 
   get_extent: () ->
@@ -29,28 +31,32 @@ class TileRendererView extends PlotWidget
 
   _add_attribution: () =>
     attribution = @mget('tile_source').get('attribution')
-    if attribution?
-      attribution_div = Bokeh.$('.tile-attribution')
-      if attribution_div.length == 0
-        attribution_div = document.createElement('div')
-        border_width = @map_plot.get('outline_line_width').value
-        bottom_offset = @map_plot.get('min_border_bottom') + border_width
-        right_offset = @map_frame.get('right') - @map_frame.get('width')
-        max_width = @map_frame.get('width') - border_width
-        Bokeh.$(attribution_div)
-          .addClass('tile-attribution')
-          .html(attribution)
-          .css('position', 'absolute')
-          .css('bottom', bottom_offset.toString() + 'px')
-          .css('right', right_offset.toString() + 'px')
-          .css('max-width', max_width.toString() + 'px')
-          .css('background-color', 'rgba(255,255,255,.8)')
-          .css('font-size', '9pt')
-          .css('font-family', 'sans-serif')
-          .appendTo(Bokeh.$(".bk-canvas-overlays"))
+
+    if _.isString(attribution) and attribution.length > 0
+      if @attributionEl?
+        @attributionEl.html(attribution)
       else
-        attribution_div = attribution_div[0]
-        Bokeh.$(attribution_div).html(attribution)
+        border_width = 1
+
+        bottom_offset = @map_plot.get('min_border_bottom') + border_width
+        right_offset = @map_plot.get('min_border_right') + border_width
+
+        @attributionEl = $('<div>')
+          .html(attribution)
+          .addClass('bk-tile-attribution')
+          .css({
+            'position': 'absolute'
+            'bottom': "#{bottom_offset}px"
+            'right': "#{right_offset}px"
+            'background-color': 'rgba(255,255,255,0.8)'
+            'font-size': '9pt'
+            'font-family': 'sans-serif'
+            'padding-left': '2px'
+            'padding-right': '2px'
+          })
+
+        overlays = @plot_view.$el.find('div.bk-canvas-overlays')
+        @attributionEl.appendTo(overlays)
 
   _map_data: () ->
     @initial_extent = @get_extent()
@@ -106,7 +112,7 @@ class TileRendererView extends PlotWidget
     @mget('tile_source').tiles[tile.tile_data.cache_key] = tile.tile_data
     tile.src = @mget('tile_source').get_image_url(x, y, z)
     return tile
-  
+
   _enforce_aspect_ratio: () ->
     # brute force way of handling resize or responsive event -------------------------------------------------------------
     if @_last_height != @map_frame.get('height') or @_last_width != @map_frame.get('width')
@@ -127,7 +133,7 @@ class TileRendererView extends PlotWidget
       @_set_data()
       @_map_data()
       @map_initialized = true
-      
+
     if @_enforce_aspect_ratio()
       return
 
@@ -136,7 +142,7 @@ class TileRendererView extends PlotWidget
       clearTimeout(@prefetch_timer)
 
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
-    
+
     if not @attribution_added
       setTimeout(@_add_attribution, 1000)
       @attribution_added = true
