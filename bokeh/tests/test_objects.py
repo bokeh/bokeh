@@ -94,6 +94,7 @@ class TestModel(unittest.TestCase):
         from bokeh.models import Model
 
         self.pObjectClass = Model
+        self.maxDiff = None
 
     def test_init(self):
         testObject = self.pObjectClass(id='test_id')
@@ -187,7 +188,6 @@ class TestModel(unittest.TestCase):
 
     def test_no_units_in_json(self):
         from bokeh.models import AnnularWedge
-        self.maxDiff = None
         obj = AnnularWedge()
         json = obj.to_json(include_defaults=True)
         self.assertTrue('start_angle' in json)
