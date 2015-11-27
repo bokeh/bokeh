@@ -36,11 +36,11 @@ class TileRendererView extends PlotWidget
       if @attributionEl?
         @attributionEl.html(attribution)
       else
-        border_width = 1
-
+        border_width = @map_plot.get('outline_line_width').value
         bottom_offset = @map_plot.get('min_border_bottom') + border_width
         right_offset = @map_plot.get('min_border_right') + border_width
-
+        right_offset = @map_plot.get('min_border_right') + border_width
+        max_width = @map_frame.get('width') - border_width
         @attributionEl = $('<div>')
           .html(attribution)
           .addClass('bk-tile-attribution')
@@ -48,11 +48,10 @@ class TileRendererView extends PlotWidget
             'position': 'absolute'
             'bottom': "#{bottom_offset}px"
             'right': "#{right_offset}px"
+            'max-width': "#{max_width}px"
             'background-color': 'rgba(255,255,255,0.8)'
             'font-size': '9pt'
             'font-family': 'sans-serif'
-            'padding-left': '2px'
-            'padding-right': '2px'
           })
 
         overlays = @plot_view.$el.find('div.bk-canvas-overlays')
