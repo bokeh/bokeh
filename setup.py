@@ -550,6 +550,7 @@ setup(
         'bokeh._legacy_charts.tests',
         'bokeh.client',
         'bokeh.command',
+        'bokeh.command.subcommands',
         'bokeh.compat',
         'bokeh.compat.mplexporter',
         'bokeh.compat.mplexporter.renderers',
