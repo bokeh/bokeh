@@ -12,22 +12,14 @@ class LogMapper extends HasProperties
   map_to_target: (x) ->
     [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
 
-    intermediate = 0
     result = 0
 
     if inter_scale == 0
       intermediate = 0
+
     else
-
-      try
-        intermediate = (Math.log(x) - inter_offset) / inter_scale
-
-        if isNaN(intermediate)
-          throw new Error "NaN"
-        if isFinite(intermediate) == false
-          throw new Error "Infinite"
-
-      catch error
+      intermediate = (Math.log(x) - inter_offset) / inter_scale
+      if isNaN(intermediate) or not isFinite(intermediate)
         intermediate = 0
 
     result = intermediate * scale + offset
@@ -37,34 +29,17 @@ class LogMapper extends HasProperties
   v_map_to_target: (xs) ->
     [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
 
-    intermediate = new Float64Array(xs.length)
     result = new Float64Array(xs.length)
 
     if inter_scale == 0
-      intermediate = xs.map (i) -> i * 0
+      intermediate = xs.map (i) -> 0
+
     else
+      intermediate = xs.map (i) -> (Math.log(i) - inter_offset) / inter_scale
 
-      try
-        mask1 = xs.map (i) -> i <= 0
-        mask2 = xs.map (i) -> isNaN(i)
-
-        mask = (mask1[i] | mask2[i] for i in [0...xs.length])
-
-        mask = mask.reduce (x, y) -> x || y
-
-        if mask == 1
-          xs[mask] = 1
-
-        intermediate = xs.map (i) -> (Math.log(i) - inter_offset) / inter_scale
-
-        for x, idx in intermediate
-          if isNaN(intermediate[idx])
-            throw new Error "NaN"
-          if isFinite(intermediate[idx]) == false
-            throw new Error "Infinite"
-
-      catch error
-        intermediate = xs.map (i) -> i * 0
+      for x, idx in intermediate
+        if isNaN(intermediate[idx]) or not isFinite(intermediate[idx])
+          intermediate[idx] = 0
 
     for x, idx in xs
       result[idx] = intermediate[idx] * scale + offset
@@ -79,12 +54,12 @@ class LogMapper extends HasProperties
     return intermediate
 
   v_map_from_target: (xprimes) ->
+    result = new Float64Array(xprimes.length)
     [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
     intermediate = xprimes.map (i) -> (i - offset) / scale
-    intermediate = intermediate.map (i) ->
-      Math.exp(inter_scale * i + inter_offset)
-
-    return intermediate
+    for x, idx in xprimes
+      result[idx] = Math.exp(inter_scale * intermediate[idx] + inter_offset)
+    return result
 
   _get_safe_scale: (orig_start, orig_end) ->
     if orig_start < 0
@@ -99,8 +74,7 @@ class LogMapper extends HasProperties
 
     if start == end
       if start == 0
-        start = 1
-        end = 10
+        [start, end] = [1, 10]
       else
         log_val = Math.log(start) / Math.log(10)
         start = Math.pow(10, Math.floor(log_val))
@@ -113,7 +87,6 @@ class LogMapper extends HasProperties
     return [start, end]
 
   _mapper_state: () ->
-
     source_start = @get('source_range').get('start')
     source_end   = @get('source_range').get('end')
     target_start = @get('target_range').get('start')
@@ -131,6 +104,7 @@ class LogMapper extends HasProperties
 
     scale = screen_range
     offset = target_start
+
     return [scale, offset, inter_scale, inter_offset]
 
 module.exports =

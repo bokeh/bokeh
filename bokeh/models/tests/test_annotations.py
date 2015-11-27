@@ -8,7 +8,7 @@ LINE_PROPS = ["line_color", "line_width", "line_alpha", "line_join", "line_cap",
     "line_dash", "line_dash_offset"]
 TEXT_PROPS = ["text_font", "text_font_size", "text_font_style", "text_color",
     "text_alpha", "text_align", "text_baseline"]
-PROPS = ["session", "name", "tags"]
+PROPS = ["name", "tags"]
 
 def check_line_properties_defaults(annotation, prefix=None, line_color="#cccccc", line_width=1.0, line_alpha=1.0):
     if prefix is None:

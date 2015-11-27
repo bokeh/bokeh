@@ -53,7 +53,7 @@ FILL = ["fill_color", "fill_alpha"]
 LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "line_dash", "line_dash_offset"]
 TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_alpha", "text_align", "text_baseline"]
 
-PROPS = ["session", "name", "tags"]
+PROPS = ["name", "tags"]
 GLYPH = ["visible"]
 MARKER = ["x", "y", "size", "angle"]
 
@@ -80,7 +80,7 @@ def check_line(glyph):
 
 def check_text(glyph):
     assert glyph.text_font == "Helvetica"
-    assert glyph.text_font_size == dict(value="12pt")
+    assert glyph.text_font_size == {"value": "12pt"}
     assert glyph.text_font_style == FontStyle.normal
     assert glyph.text_color == "#444444"
     assert glyph.text_alpha == 1.0
@@ -228,8 +228,8 @@ def test_ImageRGBA():
     assert glyph.y == "y"
     assert glyph.dw == "dw"
     assert glyph.dh == "dh"
-    assert glyph.rows == "rows"
-    assert glyph.cols == "cols"
+    assert glyph.rows == None
+    assert glyph.cols == None
     assert glyph.dilate == False
     yield (check_props, glyph, [
         "image",
@@ -254,6 +254,8 @@ def test_ImageURL():
     assert glyph.angle == 0
     assert glyph.dilate == False
     assert glyph.anchor == Anchor.top_left
+    assert glyph.retry_attempts == 0
+    assert glyph.retry_timeout == 0
     assert glyph.global_alpha == 1.0
     yield (check_props, glyph, [
         "url",
@@ -267,6 +269,8 @@ def test_ImageURL():
         "angle_units",
         "dilate",
         "anchor",
+        "retry_attempts",
+        "retry_timeout",
         "global_alpha",
     ])
 

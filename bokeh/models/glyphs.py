@@ -7,15 +7,15 @@ from __future__ import absolute_import
 
 from ..enums import Direction, Anchor
 from ..mixins import FillProps, LineProps, TextProps
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
-                          Include, Instance, NumberSpec, StringSpec)
+                          Include, Instance, Int, NumberSpec, StringSpec)
 from .. import themes
 
 from .mappers import LinearColorMapper
 
 @abstract
-class Glyph(PlotObject):
+class Glyph(Model):
     """ Base class for all glyph models. """
 
     def __init__(self, **kwargs):
@@ -358,11 +358,11 @@ class ImageRGBA(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    rows = NumberSpec("rows", help="""
+    rows = NumberSpec(None, help="""
     The numbers of rows in the images
     """)
 
-    cols = NumberSpec("cols", help="""
+    cols = NumberSpec(None, help="""
     The numbers of columns in the images
     """)
 
@@ -462,6 +462,16 @@ class ImageURL(Glyph):
     anchor = Enum(Anchor, help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
+    """)
+
+    retry_attempts = Int(0, help="""
+    Number of attempts to retry loading the images from the specified URL.
+    Default is zero.
+    """)
+
+    retry_timeout = Int(0, help="""
+    Timeout (in ms) between retry attempts to load the image from the
+    specified URL. Default is zero ms.
     """)
 
 class Line(Glyph):

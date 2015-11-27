@@ -5,11 +5,13 @@ logger = logging.getLogger(__file__)
 
 from six import add_metaclass, iteritems
 
-from .properties import Any, HasProps, List, MetaHasProps, Instance, String
+from .properties import Any, HasProps, List, MetaHasProps, String
 from .query import find
 from . import themes
 from .util.callback_manager import CallbackManager
 from .util.serialization import make_id
+from ._json_encoder import serialize_json
+from json import loads
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -63,10 +65,9 @@ class Viewable(MetaHasProps):
             raise KeyError("View model name '%s' not found" % view_model_name)
 
 @add_metaclass(Viewable)
-class PlotObject(HasProps, CallbackManager):
+class Model(HasProps, CallbackManager):
     """ Base class for all plot-related objects """
 
-    session = Instance(".session.Session")
     name = String()
     tags = List(Any)
 
@@ -80,12 +81,12 @@ class PlotObject(HasProps, CallbackManager):
         for cls in self.__class__.__mro__[-2::-1]:
             props.update(themes.default['attrs'].get(cls.__name__, {}))
         props.update(kwargs)
-        super(PlotObject, self).__init__(**props)
+        super(Model, self).__init__(**props)
 
     def _attach_document(self, doc):
         '''This should only be called by the Document implementation to set the document field'''
         if self._document is not None and self._document is not doc:
-            raise RuntimeError("PlotObjects must be owned by only a single document, %r is already in a doc" % (self))
+            raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
         self._document = doc
 
     def _detach_document(self):
@@ -106,7 +107,7 @@ class PlotObject(HasProps, CallbackManager):
             if dirty['count'] > 0:
                 self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(PlotObject, self).trigger(attr, old, new)
+        super(Model, self).trigger(attr, old, new)
 
     @property
     def ref(self):
@@ -131,7 +132,7 @@ class PlotObject(HasProps, CallbackManager):
             selector (JSON-like) :
 
         Returns:
-            seq[PlotObject]
+            seq[Model]
 
         '''
         return find(self.references(), selector)
@@ -144,11 +145,11 @@ class PlotObject(HasProps, CallbackManager):
             selector (JSON-like) :
 
         Returns:
-            PlotObject
+            Model
         '''
         result = list(self.select(selector))
         if len(result) > 1:
-            raise ValueError("found more than one object matching %s" % selector)
+            raise ValueError("Found more than one object matching %s: %r" % (selector, result))
         if len(result) == 0:
             return None
         return result[0]
@@ -177,8 +178,8 @@ class PlotObject(HasProps, CallbackManager):
 
     @classmethod
     def _visit_immediate_value_references(cls, value, visitor):
-        ''' Visit all references to another PlotObject without recursing into any
-        of the child PlotObject; may visit the same PlotObject more than once if
+        ''' Visit all references to another Model without recursing into any
+        of the child Model; may visit the same Model more than once if
         it's referenced more than once. Does not visit the passed-in value.
 
         '''
@@ -191,10 +192,10 @@ class PlotObject(HasProps, CallbackManager):
 
     @classmethod
     def _visit_value_and_its_immediate_references(cls, obj, visitor):
-        if isinstance(obj, PlotObject):
+        if isinstance(obj, Model):
             visitor(obj)
         elif isinstance(obj, HasProps):
-            # this isn't a PlotObject, so recurse into it
+            # this isn't a Model, so recurse into it
             cls._visit_immediate_value_references(obj, visitor)
         elif isinstance(obj, (list, tuple)):
             for item in obj:
@@ -205,9 +206,9 @@ class PlotObject(HasProps, CallbackManager):
                 cls._visit_value_and_its_immediate_references(value, visitor)
 
     @classmethod
-    def collect_plot_objects(cls, *input_values):
+    def collect_models(cls, *input_values):
         """ Iterate over ``input_values`` and descend through their structure
-        collecting all nested ``PlotObjects`` on the go. The resulting list
+        collecting all nested ``Models`` on the go. The resulting list
         is duplicate-free based on objects' identifiers.
         """
         ids = set([])
@@ -224,20 +225,15 @@ class PlotObject(HasProps, CallbackManager):
         return objs
 
     def references(self):
-        """Returns all ``PlotObjects`` that this object has references to. """
-        return set(self.collect_plot_objects(self))
+        """Returns all ``Models`` that this object has references to. """
+        return set(self.collect_models(self))
 
-    #---------------------------------------------------------------------
-    # View Model connection methods
-    #
-    # Whereas a rich client rendering framework can maintain view state
-    # alongside model state, we need an explicit send/receive protocol for
-    # communicating with a set of view models that reside on the front end.
-    # Many of the calls one would expect in a rich client map instead to
-    # batched updates on the M-VM-V approach.
-    #---------------------------------------------------------------------
     def vm_props(self, changed_only=True):
         """ Returns the ViewModel-related properties of this object.
+
+        .. note::
+            In the future this method may always return all properties,
+            ignoring the changed_only argument.
 
         Args:
             changed_only (bool, optional) : whether to return only properties
@@ -248,7 +244,6 @@ class PlotObject(HasProps, CallbackManager):
             props = self.changed_properties_with_values()
         else:
             props = self.properties_with_values()
-        props.pop("session", None)
 
         # XXX: For dataspecs, getattr() returns a meaningless value
         # from serialization point of view. This should be handled in
@@ -262,6 +257,16 @@ class PlotObject(HasProps, CallbackManager):
     def vm_serialize(self, changed_only=True):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
+
+        This method does not convert "Bokeh types" into "plain JSON types,"
+        for example each child Model will still be a Model, rather
+        than turning into a reference, numpy isn't handled, etc.
+
+        This method should be considered "private" or "protected",
+        for use internal to Bokeh; use to_json() instead because
+        it gives you only plain JSON-compatible types. Also, the
+        changed_only functionality may not be supported in the
+        future.
 
         Args:
             changed_only (bool, optional) : whether to include only attributes
@@ -278,6 +283,53 @@ class PlotObject(HasProps, CallbackManager):
 
         return attrs
 
+    def to_json(self):
+        """ Returns a dictionary of the attributes of this object,
+        containing only "JSON types" (string, number, boolean,
+        none, dict, list).
+
+        References to other objects are serialized as "refs" (just
+        the object ID and type info), so the deserializer will
+        need to separately have the full attributes of those
+        other objects.
+
+        There's no corresponding from_json() because to
+        deserialize an object is normally done in the context of a
+        Document (since the Document can resolve references).
+
+        For most purposes it's best to serialize and deserialize
+        entire documents.
+
+        Args:
+            None
+
+        """
+        return loads(self.to_json_string())
+
+    def to_json_string(self):
+        """Returns a JSON string encoding the attributes of this object.
+
+        References to other objects are serialized as references
+        (just the object ID and type info), so the deserializer
+        will need to separately have the full attributes of those
+        other objects.
+
+        There's no corresponding from_json_string() because to
+        deserialize an object is normally done in the context of a
+        Document (since the Document can resolve references).
+
+        For most purposes it's best to serialize and deserialize
+        entire documents.
+
+        Args:
+            None
+
+        """
+        # we sort_keys to simplify the test suite by making the returned
+        # string deterministic. serialize_json "fixes" the JSON from
+        # vm_serialize by converting all types into plain JSON types
+        # (it converts Model into refs, for example).
+        return serialize_json(self.vm_serialize(changed_only=False), sort_keys=True)
 
     def update(self, **kwargs):
         for k,v in kwargs.items():
@@ -296,7 +348,7 @@ def _find_some_document(models):
         if isinstance(model, Document):
             doc = model
             break
-        elif isinstance(model, PlotObject):
+        elif isinstance(model, Model):
             if model.document is not None:
                 doc = model.document
                 break
@@ -304,7 +356,7 @@ def _find_some_document(models):
     # Now look in children of models
     if doc is None:
         for model in models:
-            if isinstance(model, PlotObject):
+            if isinstance(model, Model):
                 # see if some child of ours is in a doc, this is meant to
                 # handle a thing like:
                 #   p = figure()
@@ -318,7 +370,7 @@ def _find_some_document(models):
     return doc
 
 class _ModelInDocument(object):
-    # 'models' can be a single PlotObject, a single Document, or a list of either
+    # 'models' can be a single Model, a single Document, or a list of either
     def __init__(self, models):
         from .document import Document
 
@@ -332,7 +384,7 @@ class _ModelInDocument(object):
             self._doc = Document()
 
         for model in models:
-            if isinstance(model, PlotObject):
+            if isinstance(model, Model):
                 if model.document is None:
                     self._to_remove_after.append(model)
 

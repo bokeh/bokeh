@@ -24,10 +24,3 @@ and reporting issues:
 .. automodule:: bokeh.document
     :members:
 
-.. _bokeh.session:
-
-``bokeh.session``
------------------
-
-.. automodule:: bokeh.session
-    :members:

@@ -35,6 +35,7 @@ locations =
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
   LinearMapper:             require '../mapper/linear_mapper'
+  LogMapper:                require '../mapper/log_mapper'
 
   DataRange1d:              require '../range/data_range1d'
   FactorRange:              require '../range/factor_range'
@@ -52,6 +53,9 @@ locations =
   WMTSTileSource:           require '../renderer/tile/wmts_tile_source'
   QUADKEYTileSource:        require '../renderer/tile/quadkey_tile_source'
   BBoxTileSource:           require '../renderer/tile/bbox_tile_source'
+
+  DynamicImageRenderer:     require '../renderer/tile/dynamic_image_renderer'
+  ImageSource:              require '../renderer/tile/image_source'
 
   GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 
@@ -100,7 +104,6 @@ locations =
   PolySelection:            require '../renderer/overlay/poly_selection'
 
   ColumnDataSource:         require '../source/column_data_source'
-  ServerDataSource:         require '../source/server_data_source'
   BlazeDataSource:          require '../source/blaze_data_source'
   AjaxDataSource:           require '../source/ajax_data_source'
 

@@ -37,9 +37,9 @@ ydr = DataRange1d()
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
-        x_range=xdr, y_range=ydr, background_fill="#efe8e2",
-        border_fill='white', title="", min_border=2, h_symmetry=False, v_symmetry=False,
-        plot_width=250, plot_height=250)
+        x_range=xdr, y_range=ydr, background_fill_color="#efe8e2",
+        border_fill_color='white', title="", min_border=2, h_symmetry=False, 
+        v_symmetry=False, plot_width=250, plot_height=250)
 
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     r = plot.add_glyph(source, circle)

@@ -17,9 +17,6 @@ Generating output for Bokeh plots requires coordinating several things:
     Control how JavaScript and CSS for the client library BokehJS are
     included and used in the generated output.
 
-:class:`Sessions <bokeh.session>`
-    Create and manage persistent connections to a Bokeh server.
-
 It is certainly possible to handle the configuration of these objects
 manually, and several examples of this can be found in ``examples/glyphs``.
 When developing sophisticated applications, it may be necessary or
@@ -153,7 +150,7 @@ class State(object):
         '''
         self._reset_with_doc(Document())
 
-    def output_file(self, filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
+    def output_file(self, filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
         """Output to a standalone HTML file.
 
         Does not change the current Document from curdoc(). File,
@@ -172,7 +169,7 @@ class State(object):
                 command). If False, then the file is only saved upon calling
                 :func:`show` or :func:`save`.
 
-            mode (str, optional) : how to include BokehJS (default: ``'inline'``)
+            mode (str, optional) : how to include BokehJS (default: ``'cdn'``)
                 One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
                 ``'absolute(-dev)'``. See :class:`bokeh.resources.Resources` for more details.
 

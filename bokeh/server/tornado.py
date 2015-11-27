@@ -39,30 +39,38 @@ class BokehTornado(TornadoApplication):
     '''
 
     def __init__(self, applications, io_loop=None, extra_patterns=None):
+        if io_loop is None:
+            io_loop = IOLoop.current()
+        self._loop = io_loop
+
         self._resources = {}
 
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v)
+            self._applications[k] = ApplicationContext(v, self._loop)
 
         extra_patterns = extra_patterns or []
         relative_patterns = []
         for key in applications:
+            app_patterns = []
             for p in per_app_patterns:
                 if key == "/":
                     route = p[0]
                 else:
                     route = key + p[0]
-                relative_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
-        websocket_path = None
-        for r in relative_patterns:
-            if r[0].endswith("/ws"):
-                websocket_path = r[0]
-        if not websocket_path:
-            raise RuntimeError("Couldn't find websocket path")
-        for r in relative_patterns:
-            r[2]["bokeh_websocket_path"] = websocket_path
+                app_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
+
+            websocket_path = None
+            for r in app_patterns:
+                if r[0].endswith("/ws"):
+                    websocket_path = r[0]
+            if not websocket_path:
+                raise RuntimeError("Couldn't find websocket path")
+            for r in app_patterns:
+                r[2]["bokeh_websocket_path"] = websocket_path
+
+            relative_patterns.extend(app_patterns)
 
         all_patterns = extra_patterns + relative_patterns + toplevel_patterns
         log.debug("Patterns are: %r", all_patterns)
@@ -70,9 +78,6 @@ class BokehTornado(TornadoApplication):
 
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
-        if io_loop is None:
-            io_loop = IOLoop.current()
-        self._loop = io_loop
         self._loop.add_callback(self._start_async)
         self._stats_job = PeriodicCallback(self.log_stats, 15.0 * 1000, io_loop=self._loop)
         self._stats_job.start()
@@ -190,4 +195,3 @@ class BokehTornado(TornadoApplication):
         log.debug("Shutdown: cleaning up")
         self._executor.shutdown(wait=False)
         self._clients.clear()
-
