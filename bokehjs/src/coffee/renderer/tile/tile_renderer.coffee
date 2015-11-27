@@ -38,8 +38,7 @@ class TileRendererView extends PlotWidget
       else
         border_width = @map_plot.get('outline_line_width').value
         bottom_offset = @map_plot.get('min_border_bottom') + border_width
-        right_offset = @map_plot.get('min_border_right') + border_width
-        right_offset = @map_plot.get('min_border_right') + border_width
+        right_offset = @map_frame.get('right') - @map_frame.get('width')
         max_width = @map_frame.get('width') - border_width
         @attributionEl = $('<div>')
           .html(attribution)
@@ -54,7 +53,7 @@ class TileRendererView extends PlotWidget
             'font-family': 'sans-serif'
           })
 
-        overlays = @plot_view.$el.find('div.bk-canvas-overlays')
+        overlays = @plot_view.$el.find('div.bk-canvas-events')
         @attributionEl.appendTo(overlays)
 
   _map_data: () ->
