@@ -5,8 +5,6 @@ from __future__ import print_function
 
 import json
 
-from bokeh.io import output_file, save, show
-
 from ..subcommand import Subcommand
 from ..util import build_applications
 
