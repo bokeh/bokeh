@@ -27,7 +27,7 @@ from ...models.glyphs import AnnularWedge
 from ...models.renderers import GlyphRenderer
 from ...models.ranges import Range1d
 from ..properties import Dimension
-from ...properties import String
+from ...properties import String, Instance, Float
 from ..utils import cat_to_polar
 
 #-----------------------------------------------------------------------------
@@ -112,8 +112,9 @@ class DonutBuilder(Builder):
 
     agg = String()
 
-    _source = None
-    _level_width = 0.5
+    chart_data = Instance(ColumnDataSource)
+    level_width = Float(default=0.5)
+    level_spacing = Float(default=0.0)
 
     def setup(self):
         if self.ylabel is None:
@@ -123,25 +124,37 @@ class DonutBuilder(Builder):
             self.xlabel = title_from_columns(self.attributes['label'].columns)
 
     def set_ranges(self):
-        rng = (max(self._source.data['level']) + 1.1) * self._level_width
+        rng = (max(self.chart_data.data['level']) + 1.1) * self.level_width
         self.x_range = Range1d(-rng, rng)
         self.y_range = Range1d(-rng, rng)
 
     def yield_renderers(self):
+
+        # produce polar ranges based on aggregation specification
         polar_data = cat_to_polar(self._data.df,
                                   cat_cols=self.attributes['label'].columns,
                                   agg_col=self.values.selection,
                                   agg=self.agg)
+
+        # add placeholder color column that will be assigned colors
         polar_data['color'] = ''
 
+        # sort the index to avoid performance warning (might alter chart)
+        polar_data.sortlevel(inplace=True)
+
+        # set the color based on the assigned color for the group
         for group in self._data.groupby(**self.attributes):
             polar_data.loc[group['stack'], 'color'] = group['color']
 
-        polar_data['inners'] = polar_data['level'] * self._level_width
-        polar_data['outers'] = polar_data['inners'] + self._level_width
+        # add columns for the inner and outer size of the wedge glyph
+        polar_data['inners'] = polar_data['level'] * self.level_width
+        polar_data['outers'] = polar_data['inners'] + self.level_width
+
+        # add spacing based on input settings
+        polar_data.ix[polar_data['level'] > 0, 'inners'] += self.level_spacing
 
         data = ColumnDataSource(polar_data)
-        self._source = data
+        self.chart_data = data
 
         glyph = AnnularWedge(x=0, y=0, inner_radius='inners', outer_radius='outers',
                         start_angle='start', end_angle='end', fill_color='color',

@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import Donut, show, output_file
+from bokeh.charts import Donut, show, output_file, vplot
 #from bokeh.sampledata.olympics2014 import data
 from bokeh.sampledata.autompg import autompg
 # throw the data into a pandas data frame
@@ -32,8 +32,15 @@ from bokeh.sampledata.autompg import autompg
 #
 output_file("donut.html")
 
-donut = Donut(autompg, label=['cyl', 'origin'],
-              values='displ', agg='mean',
-              color='cyl', stack='cyl')
+# nested donut chart for the provided labels, with colors assigned
+# by the first level
+d0 = Donut(autompg, label=['cyl', 'origin'],
+           values='displ', agg='mean',
+           color='cyl', stack='cyl')
 
-show(donut)
+# show altering the spacing in levels
+d1 = Donut(autompg, label=['cyl', 'origin'],
+           values='displ', agg='mean',
+           color='cyl', stack='cyl', level_spacing=0.15)
+
+show(vplot(d0, d1))
