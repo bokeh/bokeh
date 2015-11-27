@@ -1457,6 +1457,20 @@ class FontSizeSpec(DataSpec):
                 value = dict(value=value)
         return super(FontSizeSpec, self).prepare_value(cls, name, value)
 
+class UnitsSpecProperty(DataSpecProperty):
+    """ A Property that sets a matching `_units` property as a side effect."""
+
+    def __init__(self, descriptor, name, units_prop):
+        super(UnitsSpecProperty, self).__init__(descriptor, name)
+        self.units_prop = units_prop
+
+    def __set__(self, obj, value):
+        if isinstance(value, dict):
+            units = value.pop("units", None)
+            if units:
+                self.units_prop.__set__(obj, units)
+        super(UnitsSpecProperty, self).__set__(obj, value)
+
 class UnitsSpec(NumberSpec):
     def __init__(self, default, units_type, units_default, help=None):
         super(UnitsSpec, self).__init__(default=default, help=help)
@@ -1469,21 +1483,15 @@ class UnitsSpec(NumberSpec):
         self._units_type._serialized = False
 
     def make_properties(self, base_name):
-        base = super(UnitsSpec, self).make_properties(base_name)
         units_name = base_name + "_units"
-        return base + self._units_type.make_properties(units_name)
+        units_props = self._units_type.make_properties(units_name)
+        return units_props + [ UnitsSpecProperty(descriptor=self, name=base_name, units_prop=units_props[0]) ]
 
     def to_serializable(self, obj, name):
         d = super(UnitsSpec, self).to_serializable(obj, name)
         if d is not None:
             d["units"] = getattr(obj, name+"_units")
         return d
-
-    def prepare_value(self, cls, name, value):
-        if isinstance(value, dict):
-            units = value.pop("units", None)
-            if units: setattr(obj, name+"_units", units)
-        return super(UnitsSpec, self).prepare_value(cls, name, value)
 
     def __str__(self):
         return "%s(units_default=%r)" % (self.__class__.__name__, self._units_type._default)

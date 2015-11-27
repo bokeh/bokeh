@@ -458,6 +458,19 @@ class TestAngleSpec(unittest.TestCase):
         self.assertEqual(a.x, 14)
         self.assertEqual(a.x_units, 'rad')
 
+    def test_setting_dict_sets_units(self):
+        class Foo(HasProps):
+            x = AngleSpec(default=14)
+
+        a = Foo()
+
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+        a.x = { 'value' : 180, 'units' : 'deg' }
+        self.assertDictEqual(a.x, { 'value' : 180 })
+        self.assertEqual(a.x_units, 'deg')
+
 class TestDistanceSpec(unittest.TestCase):
     def test_default_none(self):
         class Foo(HasProps):
