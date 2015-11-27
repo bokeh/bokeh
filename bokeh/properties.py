@@ -168,7 +168,8 @@ class PropertyDescriptor(PropertyGenerator):
             return default()
 
     def _raw_default(self):
-        """The raw_default() needs to be validated and transformed by prepare_value() before use. Prefer prepared_default()."""
+        """The raw_default() needs to be validated and transformed by prepare_value()
+        before use. Prefer prepared_default()."""
         return self._copy_default(self._default)
 
     def prepared_default(self, cls, name):
