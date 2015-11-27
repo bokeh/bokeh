@@ -10,24 +10,12 @@ from ..mixins import FillProps, LineProps, TextProps
 from ..model import Model
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, Int, NumberSpec, StringSpec)
-from .. import themes
 
 from .mappers import LinearColorMapper
 
 @abstract
 class Glyph(Model):
     """ Base class for all glyph models. """
-
-    def __init__(self, **kwargs):
-        props = dict()
-        if hasattr(self.__class__, "line_alpha"):
-            props.update(themes.default['line_defaults'])
-        if hasattr(self.__class__, "fill_alpha"):
-            props.update(themes.default['fill_defaults'])
-        if hasattr(self.__class__, "text_alpha"):
-            props.update(themes.default['text_defaults'])
-        props.update(kwargs)
-        super(Glyph, self).__init__(**props)
 
     visible = Bool(True, help="""
     Whether the glyph should render or not.

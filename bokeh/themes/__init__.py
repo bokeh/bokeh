@@ -1,7 +1,12 @@
+''' Provides API for loading themes
+'''
+from __future__ import absolute_import
 
 from os.path import join
-import yaml
 
-default = yaml.load(open(join(__path__[0], "default.yaml")))
+from .theme import Theme
 
-del join, yaml
+default = Theme(filename=join(__path__[0], 'default.yaml'))
+
+del join
+
