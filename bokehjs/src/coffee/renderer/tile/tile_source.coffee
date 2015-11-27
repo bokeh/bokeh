@@ -49,7 +49,7 @@ class TileSource extends HasProperties
     @set('url', url)
 
   update: () ->
-    logger.info("Tile Cache Count: " + Object.keys(@tiles).length.toString())
+    logger.debug("TileSource: tile cache count: #{Object.keys(@tiles).length}")
     for key, tile of @tiles
       tile.current = false
       tile.retain = false
