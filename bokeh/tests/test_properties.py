@@ -382,6 +382,8 @@ class TestNumberSpec(unittest.TestCase):
         self.assertDictEqual(Foo.__dict__["x"].serializable_value(f), {"value": 15})
         f.x = dict(value=32)
         self.assertDictEqual(Foo.__dict__["x"].serializable_value(f), {"value": 32})
+        f.x = None
+        self.assertIs(Foo.__dict__["x"].serializable_value(f), None)
 
     def test_default(self):
         class Foo(HasProps):

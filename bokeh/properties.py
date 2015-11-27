@@ -1410,9 +1410,10 @@ class DataSpec(Either):
     def to_serializable(self, obj, name):
         val = getattr(obj, name)
 
-        # Check for None value
+        # Check for None value; this means "the whole thing is
+        # unset," not "the value is None."
         if val is None:
-            return dict(value=None)
+            return None
 
         # Check for spec type value
         try:
@@ -1474,7 +1475,8 @@ class UnitsSpec(NumberSpec):
 
     def to_serializable(self, obj, name):
         d = super(UnitsSpec, self).to_serializable(obj, name)
-        d["units"] = getattr(obj, name+"_units")
+        if d is not None:
+            d["units"] = getattr(obj, name+"_units")
         return d
 
     def prepare_value(self, cls, name, value):
