@@ -48,16 +48,6 @@ class AttrSpec(HasProps):
         found in `columns` and the attribute value that has been assigned.
         """)
 
-    # TODO it is not correct to define this here and then narrow
-    # its type in subclasses, because this definition here says
-    # that Any can be assigned to `iterable`, and in fact it can't
-    # be. The Any version should be copy-pasted or mixed-in to only
-    # those subtypes that actually support Any.
-    iterable = List(Any, default=None, help="""
-        The iterable of attribute values to assign to the distinct values found in
-        `columns` of `data`.
-        """)
-
     items = List(Any, default=None, help="""
         The attribute specification calculates this list of distinct values that are
         found in `columns` of `data`.
