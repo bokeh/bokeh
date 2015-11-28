@@ -30,6 +30,9 @@ def build_single_handler_application(path):
     Returns:
         Application
 
+    Raises:
+        RuntimeError
+
     '''
     path = os.path.abspath(path)
     if os.path.isdir(path):
@@ -38,7 +41,7 @@ def build_single_handler_application(path):
         handler = ScriptHandler(filename=path)
 
     if handler.failed:
-        die("Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail))
+        raise RuntimeError("Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail))
 
     application = Application(handler)
 
@@ -55,6 +58,9 @@ def build_single_handler_applications(paths):
     Returns:
         dict[str, Application]
 
+    Raises:
+        RuntimeError
+
     '''
     applications = {}
 
@@ -65,7 +71,7 @@ def build_single_handler_applications(paths):
 
         if not route:
             if '/' in applications:
-                die("Don't know the URL path to use for %s" % (path))
+                raise RuntimeError("Don't know the URL path to use for %s" % (path))
             route = '/'
         applications[route] = application
 

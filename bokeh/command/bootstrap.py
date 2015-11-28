@@ -44,4 +44,7 @@ def main(argv):
         subparser.set_defaults(invoke=subcommand.invoke)
 
     args = parser.parse_args(argv[1:])
-    args.invoke(args)
+    try:
+        args.invoke(args)
+    except Exception as e:
+        die(str(e))
