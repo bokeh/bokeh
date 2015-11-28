@@ -2,7 +2,12 @@
 line application.
 
 '''
+from abc import ABCMeta, abstractmethod
 
+# TODO (bev) change this after bokeh.util.future is merged
+from six import add_metaclass
+
+@add_metaclass(ABCMeta)
 class Subcommand(object):
     ''' Abstract base class for subcommands '''
 
@@ -14,11 +19,12 @@ class Subcommand(object):
         '''
         self.parser = parser
 
-    def func(self, args):
+    @abstractmethod
+    def invoke(self, args):
         ''' Takes over main program flow to perform the subcommand.
 
         Args:
             args (seq) : command line arguments for the subcommand to parse
 
         '''
-        raise NotImplementedError("Implement func(args)")
+        pass
