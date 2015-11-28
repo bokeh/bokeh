@@ -2,21 +2,17 @@
 
 """
 from __future__ import absolute_import
-from functools import wraps
-from six import string_types
+
 import logging
-import copy
+logger = logging.getLogger(__name__)
 
 from ...properties import abstract
-from ...properties import Int, Instance, List, String, Dict, Either
-from ...util.functions import cached_property, arg_filter
+from ...properties import Int, Instance, List
 from ...validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
 from ... import validation
 
 from ..component import Component
 from .widget import Widget
-
-logger= logging.getLogger(__name__)
 
 @abstract
 class Layout(Widget):
