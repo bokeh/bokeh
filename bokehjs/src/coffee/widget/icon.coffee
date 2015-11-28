@@ -14,7 +14,7 @@ class IconView extends ContinuumView
     @$el.empty()
 
     @$el.addClass("bk-fa")
-    @$el.addClass("bk-fa-" + @mget("name"))
+    @$el.addClass("bk-fa-" + @mget("icon_name"))
 
     size = @mget("size")
     if size? then @$el.css("font-size": size + "em")
@@ -33,7 +33,7 @@ class Icon extends HasParent
 
   defaults: ->
     return _.extend {}, super(), {
-      name: ""
+      icon_name: ""
       size: null
       flip: null
       spin: false
