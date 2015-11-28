@@ -42,7 +42,7 @@ class JSON(Subcommand):
             help="Sort JSON keys"
         )
 
-    def func(self, args):
+    def invoke(self, args):
         application = build_single_handler_application(args.file)
 
         doc = application.create_document()

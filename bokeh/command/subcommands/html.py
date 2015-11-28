@@ -35,7 +35,7 @@ class HTML(Subcommand):
             help="Open generated file(s) in a browser"
         )
 
-    def func(self, args):
+    def invoke(self, args):
         applications = build_single_handler_applications(args.files)
 
         for (route, app) in applications.items():

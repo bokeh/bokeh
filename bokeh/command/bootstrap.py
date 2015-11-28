@@ -41,7 +41,7 @@ def main(argv):
     for cls in subcommands:
         subparser = subs.add_parser(cls.name, help=cls.help)
         subcommand = cls(parser=subparser)
-        subparser.set_defaults(func=subcommand.func)
+        subparser.set_defaults(invoke=subcommand.invoke)
 
     args = parser.parse_args(argv[1:])
-    args.func(args)
+    args.invoke(args)

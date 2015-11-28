@@ -72,7 +72,7 @@ class Serve(Subcommand):
             help    = "One of: debug, info, warning, error, critical"
         )
 
-    def func(self, args):
+    def invoke(self, args):
         applications = build_single_handler_applications(args.files)
 
         log_level = getattr(logging, args.log_level.upper())
