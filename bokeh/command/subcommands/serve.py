@@ -63,11 +63,20 @@ class Serve(Subcommand):
             default=None
         )
 
+        self.parser.add_argument(
+            '--log-level',
+            metavar='LOG-LEVEL',
+            action  = 'store',
+            default = 'debug',
+            choices = ['debug', 'info', 'warning', 'error', 'critical'],
+            help    = "One of: debug, info, warning, error, critical"
+        )
+
     def func(self, args):
         applications = build_single_handler_applications(args.files)
 
-        # TODO make log level a command line option
-        logging.basicConfig(level=logging.DEBUG)
+        log_level = getattr(logging, args.log_level.upper())
+        logging.basicConfig(level=log_level)
 
         if len(applications) == 0:
             # create an empty application by default, typically used with output_server
