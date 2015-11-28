@@ -1,4 +1,4 @@
-''' Provides a base class for defining subcommands of the bokeh command
+''' Provides a base class for defining subcommands of the Bokeh command
 line application.
 
 '''
@@ -15,5 +15,10 @@ class Subcommand(object):
         self.parser = parser
 
     def func(self, args):
-        ''' Takes over main program flow to perform the subcommand. '''
+        ''' Takes over main program flow to perform the subcommand.
+
+        Args:
+            args (seq) : command line arguments for the subcommand to parse
+
+        '''
         raise NotImplementedError("Implement func(args)")

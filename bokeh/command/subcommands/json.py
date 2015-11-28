@@ -1,4 +1,5 @@
-'''
+''' Provide a subcommand to generate serialized JSON output from a Bokeh
+application.
 
 '''
 from __future__ import print_function
@@ -6,7 +7,7 @@ from __future__ import print_function
 import json
 
 from ..subcommand import Subcommand
-from ..util import build_applications
+from ..util import build_single_handler_application
 
 class JSON(Subcommand):
     ''' Subcommand to output applications as serialized JSON
@@ -42,8 +43,7 @@ class JSON(Subcommand):
         )
 
     def func(self, args):
-        # We know there is only one file
-        application = list(build_applications([args.file]).values())[0]
+        application = build_single_handler_application(args.file)
 
         doc = application.create_document()
         print(json.dumps(doc.to_json(), indent=args.indent, sort_keys=args.sort))

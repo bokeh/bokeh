@@ -1,10 +1,13 @@
-'''
+''' Provide a subcommand to generate standalone HTML files for specified
+Bokeh applications.
 
 '''
+from __future__ import absolute_import
+
 from bokeh.io import output_file, save, show
 
 from ..subcommand import Subcommand
-from ..util import build_applications
+from ..util import build_single_handler_applications
 
 class HTML(Subcommand):
     ''' Subcommand to output applications as standalone HTML files.
@@ -33,7 +36,7 @@ class HTML(Subcommand):
         )
 
     def func(self, args):
-        applications = build_applications(args.files)
+        applications = build_single_handler_applications(args.files)
 
         for (route, app) in applications.items():
             doc = app.create_document()

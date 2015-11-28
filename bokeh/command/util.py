@@ -1,4 +1,4 @@
-'''
+''' Provide utility functions for implementing the Bokeh command.
 
 '''
 from __future__ import print_function
@@ -10,34 +10,63 @@ from bokeh.application import Application
 from bokeh.application.handlers import ScriptHandler, DirectoryHandler
 
 def die(message):
+    ''' Print an error message and exit.
+
+    Args:
+        message (str) : error message to print
+
+    '''
     print(message, file=sys.stderr)
     sys.exit(1)
 
-def build_applications(files):
+def build_single_handler_application(path):
+    ''' Return a Bokeh application built using a single handler for a file
+    or directory.
+
+    Args:
+        path (str) : path to a file or directory for creating a Bokeh
+            application.
+
+    Returns:
+        Application
+
+    '''
+    path = os.path.abspath(path)
+    if os.path.isdir(path):
+        handler = DirectoryHandler(filename=path)
+    else:
+        handler = ScriptHandler(filename=path)
+
+    if handler.failed:
+        die("Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail))
+
+    application = Application(handler)
+
+    return application
+
+def build_single_handler_applications(paths):
+    ''' Return a dictionary mapping routes to Bokeh applications built using
+    single handlers, for specified files or directories.
+
+    Args:
+        path (seq[str]) : paths to files or directories for creating Bokeh
+            applications.
+
+    Returns:
+        dict[str, Application]
+
+    '''
     applications = {}
 
-    for file in files:
-        file = os.path.abspath(file)
-        if os.path.isdir(file):
-            handler = DirectoryHandler(filename=file)
-        else:
-            handler = ScriptHandler(filename=file)
+    for path in paths:
+        application = build_single_handler_application(path)
 
-        if handler.failed:
-            die("Error loading %s:\n\n%s\n%s " % (file, handler.error, handler.error_detail))
+        route = application.handlers[0].url_path()
 
-        application = Application()
-        application.add(handler)
-
-        route = handler.url_path()
         if not route:
             if '/' in applications:
-                die("Don't know the URL path to use for %s" % (file))
+                die("Don't know the URL path to use for %s" % (path))
             route = '/'
         applications[route] = application
-
-    if len(applications) == 0:
-        # create an empty application by default, used with output_server typically
-        applications['/'] = Application()
 
     return applications

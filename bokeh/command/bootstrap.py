@@ -1,6 +1,8 @@
-'''
+''' Provides a main function to run the ``bokeh`` command.
 
 '''
+from __future__ import absolute_import
+
 import argparse
 
 from bokeh.settings import settings
@@ -12,6 +14,15 @@ from .subcommands.serve import Serve
 subcommands = [Serve, HTML, JSON]
 
 def main(argv):
+    ''' Exectute the Bokeh command.
+
+    Args:
+        argv (seq[str]) : a list of command line arguments to process
+
+    Returns:
+        None
+
+    '''
     parser = argparse.ArgumentParser(prog=argv[0])
 
     # does this get set by anything other than BOKEH_VERSION env var?

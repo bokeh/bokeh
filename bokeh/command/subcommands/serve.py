@@ -1,13 +1,17 @@
-'''
+''' Provide a subcommand to run a bokeh server, optionally hosting specified
+Bokeh applications.
 
 '''
+from __future__ import absolute_import
+
 import logging
 log = logging.getLogger(__name__)
 
+from bokeh.application import Application
 from bokeh.server.server import Server
 
 from ..subcommand import Subcommand
-from ..util import build_applications
+from ..util import build_single_handler_applications
 
 DEFAULT_PORT = 5006
 
@@ -60,10 +64,14 @@ class Serve(Subcommand):
         )
 
     def func(self, args):
-        applications = build_applications(args.files)
+        applications = build_single_handler_applications(args.files)
 
         # TODO make log level a command line option
         logging.basicConfig(level=logging.DEBUG)
+
+        if len(applications) == 0:
+            # create an empty application by default, typically used with output_server
+            applications['/'] = Application()
 
         server = Server(applications, port=args.port, address=args.address)
 
