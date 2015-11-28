@@ -21,10 +21,6 @@ class InputWidget(Widget):
     Widget's label.
     """)
 
-    name = String(help="""
-    Widget's name.
-    """)
-
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the input's value changes.
     """)
