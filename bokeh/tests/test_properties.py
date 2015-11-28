@@ -29,8 +29,11 @@ class Basictest(unittest.TestCase):
         with_defaults = f.properties_with_values(include_defaults=True)
         del with_defaults['z'] # can't compare equality on the np array
         self.assertDictEqual(dict(x=12, y="hello", s=None), with_defaults)
-        self.assertDictEqual(dict(),
-                             f.properties_with_values(include_defaults=False))
+        without_defaults = f.properties_with_values(include_defaults=False)
+        # the Array is in here because it's mutable
+        self.assertTrue('z' in without_defaults)
+        del without_defaults['z']
+        self.assertDictEqual(dict(), without_defaults)
 
         f.x = 18
         self.assertEqual(f.x, 18)
@@ -38,8 +41,9 @@ class Basictest(unittest.TestCase):
         f.y = "bar"
         self.assertEqual(f.y, "bar")
 
-        self.assertDictEqual(dict(x=18, y="bar"),
-                             f.properties_with_values(include_defaults=False))
+        without_defaults = f.properties_with_values(include_defaults=False)
+        del without_defaults['z']
+        self.assertDictEqual(dict(x=18, y="bar"), without_defaults)
 
     def test_enum(self):
         class Foo(HasProps):
