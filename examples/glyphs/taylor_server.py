@@ -97,7 +97,7 @@ text.on_change('value', on_text_value_change)
 inputs = HBox(children=[slider, text])
 layout = VBox(children=[inputs, plot, dialog])
 update_data()
-document.add(layout)
+document.add_root(layout)
 session.show(layout)
 
 if __name__ == "__main__":
