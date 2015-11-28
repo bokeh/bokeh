@@ -6,10 +6,12 @@ from __future__ import absolute_import
 import argparse
 
 from bokeh.settings import settings
+from bokeh.util.string import nice_join
 
 from .subcommands.html import HTML
 from .subcommands.json import JSON
 from .subcommands.serve import Serve
+from .util import die
 
 subcommands = [Serve, HTML, JSON]
 
@@ -23,6 +25,9 @@ def main(argv):
         None
 
     '''
+    if len(argv) == 1:
+        die("ERROR: Must specify subcommand, one of: %s" % nice_join(x.name for x in subcommands))
+
     parser = argparse.ArgumentParser(prog=argv[0])
 
     # does this get set by anything other than BOKEH_VERSION env var?
@@ -38,6 +43,5 @@ def main(argv):
         subcommand = cls(parser=subparser)
         subparser.set_defaults(func=subcommand.func)
 
-    # TODO (bev) unhelpful error if no subcommand given
     args = parser.parse_args(argv[1:])
     args.func(args)
