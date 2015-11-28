@@ -4,8 +4,6 @@ application.
 '''
 from __future__ import print_function
 
-import json
-
 from ..subcommand import Subcommand
 from ..util import build_single_handler_application
 
@@ -40,4 +38,4 @@ class JSON(Subcommand):
         application = build_single_handler_application(args.file)
 
         doc = application.create_document()
-        print(json.dumps(doc.to_json(), indent=args.indent, sort_keys=True))
+        print(doc.to_json_string(indent=args.indent))
