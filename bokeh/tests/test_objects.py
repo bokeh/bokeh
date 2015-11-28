@@ -213,6 +213,64 @@ class TestModel(unittest.TestCase):
         self.assertTrue('start_angle_units' not in json)
         self.assertDictEqual(dict(units='rad', value=60), json['start_angle'])
 
+    def test_list_default(self):
+        class HasListDefault(Model):
+            value = List(String, default=["hello"])
+        obj = HasListDefault()
+        self.assertEqual(obj.value, obj.value)
+
+        # 'value' should not be included because we haven't modified it
+        self.assertFalse('value' in obj.properties_with_values(include_defaults=False))
+        # (but should be in include_defaults=True)
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=True))
+
+        obj.value.append("world")
+
+        # 'value' should now be included
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=False))
+
+    def test_dict_default(self):
+        class HasDictDefault(Model):
+            value = Dict(String, Int, default=dict(hello=42))
+        obj = HasDictDefault()
+        self.assertDictEqual(obj.value, obj.value)
+        self.assertDictEqual(dict(hello=42), obj.value)
+
+        # 'value' should not be included because we haven't modified it
+        self.assertFalse('value' in obj.properties_with_values(include_defaults=False))
+        # (but should be in include_defaults=True)
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=True))
+
+        obj.value['world'] = 57
+
+        # 'value' should now be included
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=False))
+        self.assertDictEqual(dict(hello=42, world=57), obj.value)
+
+    def test_func_default_with_counter(self):
+        counter = dict(value=0)
+        def next_value():
+            counter['value'] += 1
+            return counter['value']
+        class HasFuncDefaultInt(Model):
+            value = Int(default=next_value)
+        obj = HasFuncDefaultInt()
+        self.assertEqual(obj.value, obj.value)
+
+        # 'value' is a default, but it gets included as a
+        # non-default because it's unstable.
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=False))
+
+    def test_func_default_with_model(self):
+        class HasFuncDefaultModel(Model):
+            child = Instance(Model, lambda: Model())
+        obj = HasFuncDefaultModel()
+        self.assertEqual(obj.child._id, obj.child._id)
+
+        # 'child' is a default, but it gets included as a
+        # non-default because it's unstable.
+        self.assertTrue('child' in obj.properties_with_values(include_defaults=False))
+
 class SomeModelInTestObjects(Model):
     child = Instance(Model)
 

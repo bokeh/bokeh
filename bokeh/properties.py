@@ -158,6 +158,13 @@ class PropertyDescriptor(PropertyGenerator):
     def make_properties(self, base_name):
         return [ BasicProperty(descriptor=self, name=base_name) ]
 
+    def _has_stable_default(self):
+        """ True if we have a default that will be the same every time and is not mutable."""
+        if isinstance(self._default, types.FunctionType):
+            return False
+        else:
+            return True
+
     @classmethod
     def _copy_default(cls, default):
         if not isinstance(default, types.FunctionType):
@@ -360,16 +367,24 @@ class BasicProperty(Property):
             obj.trigger(self.name, old, value)
 
     def _get_default(self, obj):
-        # merely getting a default may force us to put it
-        # in _property_values if we need to wrap the
-        # container.
+        if self.name in obj._property_values:
+            # this shouldn't happen because we should have checked before _get_default()
+            raise RuntimeError("Bokeh internal error, does not handle the case of self.name already in _property_values")
+
+        # merely getting a default may force us to put it in
+        # _property_values if we need to wrap the container, if
+        # the default is a Model that may change out from
+        # underneath us, or if the default is generated anew each
+        # time by a function.
         default = self.class_default(obj.__class__)
-        if isinstance(default, PropertyValueContainer):
-            default._unmodified_default_value = True
-            default._register_owner(obj, self)
-            if self.name in obj._property_values:
-                # this shouldn't happen because we should have checked before _get_default()
-                raise RuntimeError("Bokeh internal error, does not handle the case of self.name already in _property_values")
+        if not self.descriptor._has_stable_default():
+            if isinstance(default, PropertyValueContainer):
+                # this is a special-case so we can avoid returning the container
+                # as a non-default or application-overridden value, when
+                # it has not been modified.
+                default._unmodified_default_value = True
+                default._register_owner(obj, self)
+
             obj._property_values[self.name] = default
 
         return default
@@ -880,7 +895,10 @@ class ParameterizedPropertyDescriptor(PropertyDescriptor):
 
 class ContainerProperty(ParameterizedPropertyDescriptor):
     """ Base class for Container-like type properties. """
-    pass
+
+    def _has_stable_default(self):
+        # all containers are mutable, so the default can be modified
+        return False
 
 class Seq(ContainerProperty):
     """ Sequence (list, tuple) type property.
@@ -1042,6 +1060,10 @@ class Instance(PropertyDescriptor):
             self._instance_type = getattr(import_module(module, "bokeh"), name)
 
         return self._instance_type
+
+    def _has_stable_default(self):
+        # because the instance value is mutable
+        return False
 
     @property
     def has_ref(self):
