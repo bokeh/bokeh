@@ -36,14 +36,8 @@ class JSON(Subcommand):
             default=None
         )
 
-        self.parser.add_argument(
-            '--sort',
-            action='store_true',
-            help="Sort JSON keys"
-        )
-
     def invoke(self, args):
         application = build_single_handler_application(args.file)
 
         doc = application.create_document()
-        print(json.dumps(doc.to_json(), indent=args.indent, sort_keys=args.sort))
+        print(json.dumps(doc.to_json(), indent=args.indent, sort_keys=True))
