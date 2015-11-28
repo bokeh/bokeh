@@ -125,8 +125,6 @@ class DeserializationError(Exception):
 
 class PropertyGenerator(object):
     """ Base class for objects that can generate Property instances. """
-    def __init__(self):
-        pass
 
     @classmethod
     def autocreate(cls):
