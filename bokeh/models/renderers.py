@@ -71,7 +71,9 @@ class GlyphRenderer(Renderer):
         if not self.data_source: return
         if isinstance(self.data_source, RemoteSource): return
         missing = set()
-        for name, item in self.glyph.vm_serialize(include_defaults=False).items():
+        specs = self.glyph.dataspecs()
+        for name, item in self.glyph.properties_with_values(include_defaults=False).items():
+            if name not in specs: continue
             if not isinstance(item, dict): continue
             if 'field' in item and item['field'] not in self.data_source.column_names:
                 missing.add(item['field'])

@@ -229,13 +229,14 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         """Returns all ``Models`` that this object has references to. """
         return set(self.collect_models(self))
 
-    def vm_serialize(self, include_defaults):
+    def _to_json_like(self, include_defaults):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
 
         This method does not convert "Bokeh types" into "plain JSON types,"
         for example each child Model will still be a Model, rather
         than turning into a reference, numpy isn't handled, etc.
+        That's what "json like" means.
 
         This method should be considered "private" or "protected",
         for use internal to Bokeh; use to_json() instead because
@@ -247,12 +248,13 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
 
         """
         attrs = self.properties_with_values(include_defaults=include_defaults)
-        # we can get rid of vm_serialize by fixing all callers that expect 'id'
-        # to exist, and moving the 'inf' handling into _json_encoder.py, I think.
-        attrs['id'] = self._id
+
         for (k, v) in attrs.items():
-            # we can't serialize Infinity, we send it as None and the
-            # other side has to fix it up.
+            # we can't serialize Infinity, we send it as None and
+            # the other side has to fix it up. This transformation
+            # can't be in our _json_encoder because the json
+            # module checks for inf before it calls the custom
+            # encoder.
             if isinstance(v, float) and v == float('inf'):
                 attrs[k] = None
 
@@ -302,11 +304,13 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
                 that haven't been changed from the default
 
         """
+        json_like = self._to_json_like(include_defaults=include_defaults)
+        json_like['id'] = self._id
         # we sort_keys to simplify the test suite by making the returned
         # string deterministic. serialize_json "fixes" the JSON from
-        # vm_serialize by converting all types into plain JSON types
+        # _to_json_like by converting all types into plain JSON types
         # (it converts Model into refs, for example).
-        return serialize_json(self.vm_serialize(include_defaults=include_defaults), sort_keys=True)
+        return serialize_json(json_like, sort_keys=True)
 
     def update(self, **kwargs):
         for k,v in kwargs.items():
