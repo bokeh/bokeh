@@ -8,6 +8,8 @@ HasProperties = require "./has_properties"
 {pull_session} = require "./client"
 {Promise} = require "es6-promise"
 
+documents = {}
+
 _create_view = (model) ->
   view = new model.default_view({model : model})
   base.index[model.id] = view
@@ -118,6 +120,7 @@ embed_items = (docs_json, render_items, websocket_url) ->
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
+    documents[docid] = docs[docid]
 
   for item in render_items
     element_id = item['elementid']
@@ -161,6 +164,17 @@ embed_items = (docs_json, render_items, websocket_url) ->
           console.log("Error rendering Bokeh items ", error)
       )
 
+handle_notebook_comms = (msg) ->
+  data = JSON.parse(msg.content.data)
+  doc = documents[data.docid]
+  if not doc?
+    throw "handle_notebooks_comms received unknown document id: #{data.docid}"
+  source = doc.get_model_by_id(data.source.id)
+  if not source?
+    throw "handle_notebooks_comms could not locate data source for id: #{data.source.id}"
+  source.set('data', data.source.data)
+
 module.exports =
   embed_items: embed_items
   inject_css: inject_css
+  handle_notebook_comms: handle_notebook_comms
