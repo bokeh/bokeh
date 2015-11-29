@@ -128,7 +128,7 @@ class DonutBuilder(Builder):
         self.x_range = Range1d(-rng, rng)
         self.y_range = Range1d(-rng, rng)
 
-    def yield_renderers(self):
+    def process_data(self):
 
         # produce polar ranges based on aggregation specification
         polar_data = cat_to_polar(self._data.df,
@@ -153,11 +153,12 @@ class DonutBuilder(Builder):
         # add spacing based on input settings
         polar_data.ix[polar_data['level'] > 0, 'inners'] += self.level_spacing
 
-        data = ColumnDataSource(polar_data)
-        self.chart_data = data
+        self.chart_data = ColumnDataSource(polar_data)
+
+    def yield_renderers(self):
 
         glyph = AnnularWedge(x=0, y=0, inner_radius='inners', outer_radius='outers',
                         start_angle='start', end_angle='end', fill_color='color',
                         fill_alpha=0.8)
 
-        yield GlyphRenderer(data_source=data, glyph=glyph)
+        yield GlyphRenderer(data_source=self.chart_data, glyph=glyph)
