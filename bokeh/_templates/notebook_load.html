@@ -27,6 +27,13 @@ Notebook according to a Resources object.
     {{ bokeh_js }}
     {{ bokeh_css }}
 
+    <script type="text/javascript">
+        var comm_manager=Jupyter.notebook.kernel.comm_manager
+        comm_manager.register_target('bokeh_notebook_comms', function(comm, msg){
+            comm.on_msg(Bokeh.embed.handle_notebook_comms)
+        })
+    </script>
+
     {%- if not hide_banner %}
     <div>
         <a href="http://bokeh.pydata.org" target="_blank" class="bk-logo bk-logo-small bk-logo-notebook"></a>
