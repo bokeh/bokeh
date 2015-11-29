@@ -20,15 +20,15 @@ It also add a new chained stacked method.
 from __future__ import absolute_import
 
 from ..builder import create_and_build, Builder
-from ..utils import title_from_columns
+from ..utils import (title_from_columns, build_wedge_source,
+                     create_wedge_text_source)
 from ..attributes import ColorAttr, CatAttr
 from ...models.sources import ColumnDataSource
-from ...models.glyphs import AnnularWedge
+from ...models.glyphs import AnnularWedge, Text
 from ...models.renderers import GlyphRenderer
 from ...models.ranges import Range1d
 from ..properties import Dimension
 from ...properties import String, Instance, Float
-from ..utils import cat_to_polar
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -113,6 +113,8 @@ class DonutBuilder(Builder):
     agg = String()
 
     chart_data = Instance(ColumnDataSource)
+    text_data = Instance(ColumnDataSource)
+
     level_width = Float(default=0.5)
     level_spacing = Float(default=0.0)
 
@@ -131,34 +133,33 @@ class DonutBuilder(Builder):
     def process_data(self):
 
         # produce polar ranges based on aggregation specification
-        polar_data = cat_to_polar(self._data.df,
-                                  cat_cols=self.attributes['label'].columns,
-                                  agg_col=self.values.selection,
-                                  agg=self.agg)
+        polar_data = build_wedge_source(self._data.df,
+                                        cat_cols=self.attributes['label'].columns,
+                                        agg_col=self.values.selection,
+                                        agg=self.agg,
+                                        level_width=self.level_width,
+                                        level_spacing=self.level_spacing)
 
         # add placeholder color column that will be assigned colors
         polar_data['color'] = ''
-
-        # sort the index to avoid performance warning (might alter chart)
-        polar_data.sortlevel(inplace=True)
 
         # set the color based on the assigned color for the group
         for group in self._data.groupby(**self.attributes):
             polar_data.loc[group['stack'], 'color'] = group['color']
 
-        # add columns for the inner and outer size of the wedge glyph
-        polar_data['inners'] = polar_data['level'] * self.level_width
-        polar_data['outers'] = polar_data['inners'] + self.level_width
-
-        # add spacing based on input settings
-        polar_data.ix[polar_data['level'] > 0, 'inners'] += self.level_spacing
-
         self.chart_data = ColumnDataSource(polar_data)
+
+        self.text_data = create_wedge_text_source(polar_data, text_col='index')
 
     def yield_renderers(self):
 
-        glyph = AnnularWedge(x=0, y=0, inner_radius='inners', outer_radius='outers',
-                        start_angle='start', end_angle='end', fill_color='color',
-                        fill_alpha=0.8)
+        aw = AnnularWedge(x=0, y=0, inner_radius='inners', outer_radius='outers',
+                          start_angle='start', end_angle='end', fill_color='color',
+                          fill_alpha=0.8)
 
-        yield GlyphRenderer(data_source=self.chart_data, glyph=glyph)
+        yield GlyphRenderer(data_source=self.chart_data, glyph=aw)
+
+        txt = Text(x="x", y="y", text="text", angle="text_angle",
+                   text_align="center", text_baseline="middle")
+
+        yield GlyphRenderer(data_source=self.text_data, glyph=txt)

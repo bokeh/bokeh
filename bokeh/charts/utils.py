@@ -103,7 +103,7 @@ def polar_to_cartesian(r, start_angles, end_angles):
     cartesian = lambda r, alpha: (r*cos(alpha), r*sin(alpha))
     points = []
 
-    for start, end in zip(start_angles, end_angles):
+    for r, start, end in zip(r, start_angles, end_angles):
         points.append(cartesian(r, (end + start)/2))
 
     return zip(*points)
@@ -431,9 +431,16 @@ def help(*builders):
     return add_help
 
 
-def cat_to_polar(df, cat_cols, agg_col=None, agg='mean'):
-    """Return start and end angles for each index in series.
+def build_wedge_source(df, cat_cols, agg_col=None, agg='mean', level_width=0.5,
+                       level_spacing=0.01):
+    df = cat_to_polar(df, cat_cols, agg_col, agg, level_width)
+    add_wedge_spacing(df, level_spacing)
+    df['centers'] = df['inners'] + (df['outers'] - df['inners']) / 2.0
+    return df
 
+
+def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
+    """Return start and end angles for each index in series.
 
     """
 
@@ -498,11 +505,18 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean'):
 
     for i, val in enumerate(df.index):
         if not isinstance(val, tuple):
-            val = (val, np.nan)
+            val = (val, '')
         idx[i] = val
 
     df.index = pd.MultiIndex.from_tuples(idx)
     df.index.names = cat_cols
+
+    # sort the index to avoid performance warning (might alter chart)
+    df.sortlevel(inplace=True)
+
+    inners, outers = calc_wedge_bounds(df['level'], level_width)
+    df['inners'] = inners
+    df['outers'] = outers
 
     return df
 
@@ -514,7 +528,7 @@ def add_text_label_from_index(df):
     which are separated and encoded into the index of the data. If there are
     3 levels (columns) used, then a 3 level multi-index is used. Level 0 will
     have each of the values of the first column, then NaNs for the next two. The
-    last non-NaN level is used for the label of that row.
+    last non-empty level is used for the label of that row.
     """
     text = []
     for idx in df.index:
@@ -522,9 +536,9 @@ def add_text_label_from_index(df):
         row_text = ''
 
         if isinstance(idx, tuple):
-            # the lowest, non-nan index is the label
+            # the lowest, non-empty index is the label
             for lev in reversed(idx):
-                if pd.notnull(lev) and row_text == '':
+                if lev is not '' and row_text == '':
                     row_text = str(lev)
         else:
             row_text = str(idx)
@@ -537,7 +551,7 @@ def add_text_label_from_index(df):
 
 
 def create_wedge_text_source(df, text_col, start_col='start', end_col='end',
-                             horizontal=True):
+                             center_col='centers'):
     """Generate `ColumnDataSource` for text representation of donut levels.
 
     Returns a data source with 3 columns, 'text', 'x', and 'y', where 'text'
@@ -549,11 +563,33 @@ def create_wedge_text_source(df, text_col, start_col='start', end_col='end',
     # else:
     #     cats = df[text_col]
 
-    x, y = polar_to_cartesian(0.7, df[start_col], df[end_col])
+    x, y = polar_to_cartesian(df[center_col], df[start_col], df[end_col])
 
     # extract text from the levels in index
     df = add_text_label_from_index(df)
-    text_source = ColumnDataSource(dict(text=df['text'], x=x, y=y))
-
+    df['text_angle'] = calc_text_angle(df['start'], df['end'])
+    df.ix[df.level == 0, 'text_angle'] = 0.0
+    text_source = ColumnDataSource(dict(text=df['text'], x=x, y=y,
+                                        text_angle=df['text_angle']))
     return text_source
 
+
+def calc_text_angle(start, end):
+    text_angle = (start + end) / 2.0
+    shift_angles = ((text_angle > (np.pi / 2)) & (text_angle < (3 * np.pi / 2)))
+    text_angle[shift_angles] = text_angle[shift_angles] + np.pi
+    return text_angle
+
+
+def calc_wedge_bounds(levels, level_width):
+
+    # add columns for the inner and outer size of the wedge glyph
+    inners = levels * level_width
+    outers = inners + level_width
+
+    return inners, outers
+
+
+def add_wedge_spacing(df, spacing):
+    # add spacing based on input settings
+    df.ix[df['level'] > 0, 'inners'] += spacing
