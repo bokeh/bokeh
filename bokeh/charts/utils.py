@@ -31,6 +31,7 @@ from ..embed import file_html
 from ..models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
+from ..models.sources import ColumnDataSource
 from ..resources import INLINE
 from ..util.notebook import publish_display_data
 from ..plotting_helpers import DEFAULT_PALETTE
@@ -505,4 +506,54 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean'):
 
     return df
 
+
+def add_text_label_from_index(df):
+    """Add column for text label, based on level-oriented index.
+
+    This is used for the donut chart, where there is a hierarchy of categories,
+    which are separated and encoded into the index of the data. If there are
+    3 levels (columns) used, then a 3 level multi-index is used. Level 0 will
+    have each of the values of the first column, then NaNs for the next two. The
+    last non-NaN level is used for the label of that row.
+    """
+    text = []
+    for idx in df.index:
+
+        row_text = ''
+
+        if isinstance(idx, tuple):
+            # the lowest, non-nan index is the label
+            for lev in reversed(idx):
+                if pd.notnull(lev) and row_text == '':
+                    row_text = str(lev)
+        else:
+            row_text = str(idx)
+
+        text.append(row_text)
+
+    df['text'] = text
+
+    return df
+
+
+def create_wedge_text_source(df, text_col, start_col='start', end_col='end',
+                             horizontal=True):
+    """Generate `ColumnDataSource` for text representation of donut levels.
+
+    Returns a data source with 3 columns, 'text', 'x', and 'y', where 'text'
+    is a derived label from the `~pandas.MultiIndex` provided in `df`.
+    """
+
+    # if text_col == 'index':
+    #     cats = pd.Series(df.index.values)
+    # else:
+    #     cats = df[text_col]
+
+    x, y = polar_to_cartesian(0.7, df[start_col], df[end_col])
+
+    # extract text from the levels in index
+    df = add_text_label_from_index(df)
+    text_source = ColumnDataSource(dict(text=df['text'], x=x, y=y))
+
+    return text_source
 
