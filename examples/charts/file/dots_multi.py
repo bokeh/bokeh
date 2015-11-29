@@ -36,7 +36,7 @@ df = df.set_index('cyl')
 dot_plot9 = Dot(df, values='mpg', agg='mean', legend='top_right', title='inferred labels')
 
 # collect and display
-output_file("dot_multi.html")
+output_file("dots_multi.html")
 
 show(
     vplot(

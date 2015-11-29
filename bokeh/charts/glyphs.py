@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from collections import defaultdict
 
@@ -277,7 +277,7 @@ class HorizonGlyph(AreaGlyph):
 
             # each series is shifted up to a synthetic y-axis
             kwargs['base'] = kwargs['series'] * max(bins) / kwargs['series_count']
-            kwargs['graph_ratio'] = kwargs['num_folds']/kwargs['series_count']
+            kwargs['graph_ratio'] = float(kwargs['num_folds'])/float(kwargs['series_count'])
 
         super(HorizonGlyph, self).__init__(**kwargs)
 
@@ -963,6 +963,3 @@ class BinGlyph(XyGlyph):
             return min(data), max(data)
         else:
             return 1, len(data.drop_duplicates())
-
-
-
