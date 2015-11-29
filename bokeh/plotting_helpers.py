@@ -437,6 +437,7 @@ def _glyph_function(glyphclass, extra_docs=None):
         # pop off all color values for the glyph or nonselection glyphs
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
         nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
+        hglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='hover_', default_alpha=1)
 
         # add the positional arguments as kwargs
         attributes = dict(zip(glyphclass._args, args))
@@ -446,12 +447,14 @@ def _glyph_function(glyphclass, extra_docs=None):
         _process_sequence_literals(glyphclass, kwargs, source)
         _process_sequence_literals(glyphclass, glyph_ca, source)
         _process_sequence_literals(glyphclass, nsglyph_ca, source)
+        _process_sequence_literals(glyphclass, hglyph_ca, source)
 
         # create the default and nonselection glyphs
         glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
         nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
+        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
 
-        glyph_renderer = GlyphRenderer(glyph=glyph, nonselection_glyph=nsglyph, **renderer_kws)
+        glyph_renderer = GlyphRenderer(glyph=glyph, nonselection_glyph=nsglyph, hover_glyph=hglyph, **renderer_kws)
 
         if legend_name:
             _update_legend(self, legend_name, glyph_renderer)

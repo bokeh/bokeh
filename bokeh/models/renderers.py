@@ -9,7 +9,7 @@ import logging
 from ..model import Model
 from ..properties import abstract
 from ..properties import String, Enum, Instance, Float, Bool
-from ..enums import Units, RenderLevel
+from ..enums import RenderLevel
 from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from .. import validation
 
@@ -115,9 +115,6 @@ class GlyphRenderer(Renderer):
     default -range.
     """)
 
-    # TODO: (bev) is this actually used?
-    units = Enum(Units)
-
     glyph = Instance(Glyph, help="""
     The glyph to render, in conjunction with the supplied data source
     and ranges.
@@ -131,6 +128,11 @@ class GlyphRenderer(Renderer):
     An optional glyph used for explicitly non-selected points
     (i.e., non-selected when there are other points that are selected,
     but not when no points at all are selected.)
+    """)
+
+    hover_glyph = Instance(Glyph, help="""
+    An optional glyph used for inspected points, e.g., those that are
+    being hovered over by a HoverTool.
     """)
 
     level = Enum(RenderLevel, default="glyph", help="""

@@ -10,6 +10,7 @@ class SelectionManager extends HasProperties
   initialize: (attrs, options) ->
     super(attrs, options)
     @selectors = {}
+    @insepctors = {}
 
   serializable_in_document: () -> false
 
@@ -25,12 +26,12 @@ class SelectionManager extends HasProperties
 
     indices = renderer_view.hit_test(geometry)
 
-    # if selection type is supported on the specific renderer
-    if !!indices
+    if indices?
       selector = @_get_selector(renderer_view)
       selector.update(indices, final, append)
 
-      @_save_indices(selector.get('indices'))
+      @get('source').set({ "selected": selector.get('indices') })
+
       source.trigger('select')
       source.trigger('select-' + renderer_view.mget('id'))
 
@@ -42,6 +43,11 @@ class SelectionManager extends HasProperties
     indices = renderer_view.hit_test(geometry)
 
     if indices?
+      inspector = @_get_inspector(renderer_view)
+      inspector.update(indices, true, false, true)
+
+      @get('source').set({ "inspected": inspector.get('indices')}, {"silent": true })
+
       source.trigger(
         'inspect', indices, tool, renderer_view, source, data
       )
@@ -63,9 +69,9 @@ class SelectionManager extends HasProperties
     _.setdefault(@selectors, rview.model.id, new Selector())
     return @selectors[rview.model.id]
 
-  _save_indices: (indices) ->
-    @get('source').set({
-      "selected": indices
-    })
+  _get_inspector: (rview) ->
+    _.setdefault(@insepctors, rview.model.id, new Selector())
+    return @insepctors[rview.model.id]
+
 
 module.exports = SelectionManager
