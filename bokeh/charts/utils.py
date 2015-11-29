@@ -550,8 +550,8 @@ def add_text_label_from_index(df):
     return df
 
 
-def create_wedge_text_source(df, text_col, start_col='start', end_col='end',
-                             center_col='centers'):
+def build_wedge_text_source(df, text_col, start_col='start', end_col='end',
+                            center_col='centers'):
     """Generate `ColumnDataSource` for text representation of donut levels.
 
     Returns a data source with 3 columns, 'text', 'x', and 'y', where 'text'
@@ -575,6 +575,7 @@ def create_wedge_text_source(df, text_col, start_col='start', end_col='end',
 
 
 def calc_text_angle(start, end):
+    """Produce a column of text angle values based on the bounds of the wedge."""
     text_angle = (start + end) / 2.0
     shift_angles = ((text_angle > (np.pi / 2)) & (text_angle < (3 * np.pi / 2)))
     text_angle[shift_angles] = text_angle[shift_angles] + np.pi
@@ -582,6 +583,7 @@ def calc_text_angle(start, end):
 
 
 def calc_wedge_bounds(levels, level_width):
+    """Calculate inner and outer radius bounds of the donut wedge based on levels."""
 
     # add columns for the inner and outer size of the wedge glyph
     inners = levels * level_width
@@ -591,5 +593,7 @@ def calc_wedge_bounds(levels, level_width):
 
 
 def add_wedge_spacing(df, spacing):
+    """Add spacing to the `inners` column of the provided data based on level."""
+
     # add spacing based on input settings
     df.ix[df['level'] > 0, 'inners'] += spacing

@@ -21,7 +21,7 @@ from __future__ import absolute_import
 
 from ..builder import create_and_build, Builder
 from ..utils import (title_from_columns, build_wedge_source,
-                     create_wedge_text_source)
+                     build_wedge_text_source)
 from ..attributes import ColorAttr, CatAttr
 from ...models.sources import ColumnDataSource
 from ...models.glyphs import AnnularWedge, Text
@@ -149,7 +149,7 @@ class DonutBuilder(Builder):
 
         self.chart_data = ColumnDataSource(polar_data)
 
-        self.text_data = create_wedge_text_source(polar_data, text_col='index')
+        self.text_data = build_wedge_text_source(polar_data, text_col='index')
 
     def yield_renderers(self):
 

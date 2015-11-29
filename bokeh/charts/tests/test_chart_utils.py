@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------------
 
 from __future__ import absolute_import
-from bokeh.charts.utils import cat_to_polar, create_wedge_text_source
+from bokeh.charts.utils import build_wedge_source, build_wedge_text_source
 
 import pytest
 from bokeh.models.sources import ColumnDataSource
@@ -23,10 +23,12 @@ from bokeh.models.sources import ColumnDataSource
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+
 @pytest.fixture
 def polar_cats(test_data):
     cat_cols = ['cyl', 'origin']
-    return cat_to_polar(test_data.auto_data, cat_cols, 'displ', 'mean')
+    return build_wedge_source(test_data.auto_data, cat_cols,
+                              'displ', 'mean')
 
 def test_ordered_set():
     pass
@@ -45,6 +47,7 @@ def test_title_from_columns():
 
 
 def test_cat_to_polor(test_data, polar_cats):
+    """Check known example for how many rows should exist based on columns."""
 
     # we expect back start and end angles for each group level
     level_0 = len(test_data.auto_data[['cyl']].drop_duplicates())
@@ -55,6 +58,8 @@ def test_cat_to_polor(test_data, polar_cats):
 
 
 def test_create_wedge_text(polar_cats):
-    text_data = create_wedge_text_source(polar_cats, text_col='index')
+    """Check for type of output and columns in output for wedge text source."""
+    text_data = build_wedge_text_source(polar_cats, text_col='index')
     assert isinstance(text_data, ColumnDataSource)
-    assert len(text_data.column_names) == 3
+    assert all(col in text_data.column_names for col in
+               ['x', 'y', 'text', 'text_angle']) is True
