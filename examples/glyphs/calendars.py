@@ -76,7 +76,7 @@ months = [ [ make_calendar(2014, 3*i + j + 1) for j in range(3) ] for i in range
 grid = GridPlot(title="Calendar 2014", toolbar_location=None, children=months)
 
 doc = Document()
-doc.add(grid)
+doc.add_root(grid)
 
 if __name__ == "__main__":
     filename = "calendars.html"

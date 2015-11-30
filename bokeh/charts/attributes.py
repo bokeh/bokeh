@@ -9,7 +9,7 @@ from bokeh.charts.utils import marker_types
 from bokeh.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
-                              Color, Bool)
+                              Color, Bool, Override)
 
 
 class AttrSpec(HasProps):
@@ -46,16 +46,6 @@ class AttrSpec(HasProps):
         Created by the attribute specification when `iterable` and `data` are
         available. The `attr_map` will include a mapping between the distinct value(s)
         found in `columns` and the attribute value that has been assigned.
-        """)
-
-    # TODO it is not correct to define this here and then narrow
-    # its type in subclasses, because this definition here says
-    # that Any can be assigned to `iterable`, and in fact it can't
-    # be. The Any version should be copy-pasted or mixed-in to only
-    # those subtypes that actually support Any.
-    iterable = List(Any, default=None, help="""
-        The iterable of attribute values to assign to the distinct values found in
-        `columns` of `data`.
         """)
 
     items = List(Any, default=None, help="""
@@ -194,7 +184,7 @@ class ColorAttr(AttrSpec):
     .. note::
         Should be expanded to support more complex coloring options.
     """
-    name = 'color'
+    name = Override(default='color')
     iterable = List(Color, default=DEFAULT_PALETTE)
 
     def __init__(self, **kwargs):
@@ -206,7 +196,7 @@ class ColorAttr(AttrSpec):
 
 class MarkerAttr(AttrSpec):
     """An attribute specification for mapping unique data values to markers."""
-    name = 'marker'
+    name = Override(default='marker')
     iterable = List(String, default=list(marker_types.keys()))
 
     def __init__(self, **kwargs):
@@ -221,7 +211,7 @@ dashes = DashPattern._values
 
 class DashAttr(AttrSpec):
     """An attribute specification for mapping unique data values to line dashes."""
-    name = 'dash'
+    name = Override(default='dash')
     iterable = List(String, default=dashes)
 
     def __init__(self, **kwargs):
@@ -239,7 +229,7 @@ class CatAttr(AttrSpec):
         labels are used for one aspect of a chart (grouping) vs another (stacking or
         legend)
     """
-    name = 'nest'
+    name = Override(default='nest')
 
     def __init__(self, **kwargs):
         super(CatAttr, self).__init__(**kwargs)

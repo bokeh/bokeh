@@ -183,7 +183,7 @@ hover = HoverTool(plot=plot, renderers=[rect_renderer], tooltips=tooltips)
 plot.tools.extend([tap, hover])
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "colors.html"

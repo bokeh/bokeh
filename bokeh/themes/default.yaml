@@ -85,7 +85,7 @@ attrs:
     line_dash_offset: 0
 
   GMapPlot:
-    border_fill: "#ffffff"
+    border_fill_color: "#ffffff"
 
   Grid:
     band_fill_color: null

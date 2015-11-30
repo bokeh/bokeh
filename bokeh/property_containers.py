@@ -17,6 +17,9 @@ def notify_owner(func):
 class PropertyValueContainer(object):
     def __init__(self, *args, **kwargs):
         self._owners = set()
+        # this flag is set to True by HasProps when it wraps
+        # a default value
+        self._unmodified_default_value = False
         super(PropertyValueContainer, self).__init__(*args, **kwargs)
 
     def _register_owner(self, owner, prop):
@@ -26,6 +29,7 @@ class PropertyValueContainer(object):
         self._owners.discard((owner, prop))
 
     def _notify_owners(self, old):
+        self._unmodified_default_value = False
         for (owner, prop) in self._owners:
             prop._notify_mutated(owner, old)
 
@@ -111,20 +115,10 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def _saved_copy(self):
         return dict(self)
 
-    # delete x['y']
-    @notify_owner
-    def __delattr__(self, y):
-        return super(PropertyValueDict, self).__delattr__(y)
-
     # delete x[y]
     @notify_owner
     def __delitem__(self, y):
         return super(PropertyValueDict, self).__delitem__(y)
-
-    # x['i'] = y
-    @notify_owner
-    def __setattr__(self, i, y):
-        return super(PropertyValueDict, self).__setattr__(i, y)
 
     # x[i] = y
     @notify_owner
