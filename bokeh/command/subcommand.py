@@ -4,11 +4,9 @@ line application.
 '''
 from abc import ABCMeta, abstractmethod
 
-# TODO (bev) change this after bokeh.util.future is merged
-from six import add_metaclass
+from bokeh.util.future import with_metaclass
 
-@add_metaclass(ABCMeta)
-class Subcommand(object):
+class Subcommand(with_metaclass(ABCMeta)):
     ''' Abstract base class for subcommands '''
 
     def __init__(self, parser):
