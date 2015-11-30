@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-import pytest
-
 import bokeh.command.subcommands as sc
 
 def test_all():

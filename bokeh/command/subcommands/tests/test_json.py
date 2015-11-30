@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-import pytest
-
 import bokeh.command.subcommands.json as scjson
 
 def test_create():

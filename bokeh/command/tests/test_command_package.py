@@ -1,8 +1,4 @@
 
-import re
-
-import pytest
-
 import bokeh.command as command
 
 def test_doc():
