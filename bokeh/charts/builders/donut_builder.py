@@ -28,7 +28,7 @@ from ...models.glyphs import AnnularWedge, Text
 from ...models.renderers import GlyphRenderer
 from ...models.ranges import Range1d
 from ..properties import Dimension
-from ...properties import String, Instance, Float, Color
+from ...properties import String, Instance, Float, Color, Either, List
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -120,17 +120,13 @@ class DonutBuilder(Builder):
     text_data = Instance(ColumnDataSource)
 
     level_width = Float(default=1.5)
-    level_spacing = Float(default=0.0)
+    level_spacing = Either(Float, List(Float), default=0.0)
     text_font_size = String(default='10pt')
     line_color = Color(default='White')
 
     def setup(self):
-        if self.ylabel is None:
-            self.ylabel = self.values.selected_title
 
-        if self.xlabel is None:
-            self.xlabel = title_from_columns(self.attributes['label'].columns)
-
+        # infer color specification and stacking
         if self.attributes['color'].columns is None:
             self.attributes['color'].setup(data=self._data.source,
                                            columns=self.attributes['label'].columns[0])

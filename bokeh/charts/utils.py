@@ -435,16 +435,49 @@ def help(*builders):
 def build_wedge_source(df, cat_cols, agg_col=None, agg='mean', level_width=0.5,
                        level_spacing=0.01):
     df = cat_to_polar(df, cat_cols, agg_col, agg, level_width)
-    add_wedge_spacing(df, level_spacing)
-    df['centers'] = df['inners'] + (df['outers'] - df['inners']) / 2.0
 
-    # scale level 0 text position towards outside of wedge
-    df.ix[df['level'] == 0, 'centers'] *= 1.5
+    add_wedge_spacing(df, level_spacing)
+    df['centers'] = df['outers'] - (df['outers'] - df['inners']) / 2.0
+
+    # scale level 0 text position towards outside of wedge if center is not a donut
+    if not isinstance(level_spacing, list):
+        df.ix[df['level'] == 0, 'centers'] *= 1.5
+
     return df
+
+
+def shift_series(s):
+    """Produces a copy of the provided series shifted by one, starting with 0."""
+    s0 = s.copy()
+    s0 = s0.shift(1)
+    s0.iloc[0] = 0.0
+    return s0
+
+
+def _create_start_end(levels):
+    """Produces wedge start and end values from list of dataframes for each level.
+
+    Returns:
+        start, end: two series describing starting and ending angles in radians
+
+    """
+    rads = levels[0].copy()
+    for level in levels[1:]:
+        rads = rads * level
+
+    rads *= (2 * np.pi)
+
+    end = rads.cumsum()
+    start = shift_series(end)
+
+    return start, end
 
 
 def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
     """Return start and end angles for each index in series.
+
+    Returns:
+        df: a `pandas.DataFrame` describing each aggregated wedge
 
     """
 
@@ -455,25 +488,6 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
     def calc_span_proportion(data):
         """How much of the circle should be assigned."""
         return data/data.sum()
-
-    def shift_series(s):
-        s0 = s.copy()
-        s0 = s0.shift(1)
-        s0.iloc[0] = 0.0
-        return s0
-
-    def create_start_end(levels):
-
-        rads = levels[0].copy()
-        for level in levels[1:]:
-            rads = rads * level
-
-        rads *= (2 * np.pi)
-
-        end = rads.cumsum()
-        start = shift_series(end)
-
-        return start, end
 
     # group by each level
     levels_cols = []
@@ -494,7 +508,7 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
         else:
             levels.append(calc_span_proportion(gb))
 
-        start_ends = create_start_end(levels)
+        start_ends = _create_start_end(levels)
         starts.append(start_ends[0])
         ends.append(start_ends[1])
         agg_values.append(gb)
@@ -565,12 +579,6 @@ def build_wedge_text_source(df, text_col, start_col='start', end_col='end',
     Returns a data source with 3 columns, 'text', 'x', and 'y', where 'text'
     is a derived label from the `~pandas.MultiIndex` provided in `df`.
     """
-
-    # if text_col == 'index':
-    #     cats = pd.Series(df.index.values)
-    # else:
-    #     cats = df[text_col]
-
     x, y = polar_to_cartesian(df[center_col], df[start_col], df[end_col])
 
     # extract text from the levels in index
@@ -604,7 +612,12 @@ def add_wedge_spacing(df, spacing):
     """Add spacing to the `inners` column of the provided data based on level."""
 
     # add spacing based on input settings
-    df.ix[df['level'] > 0, 'inners'] += spacing
+    if isinstance(spacing, list):
+        # add spacing for each level given in order received
+        for i, space in enumerate(spacing):
+            df.ix[df['level'] == i, 'inners'] += space
+    else:
+        df.ix[df['level'] > 0, 'inners'] += spacing
 
 
 def add_charts_hover(chart, use_hover, hover_text, values_col, agg_text=None):
