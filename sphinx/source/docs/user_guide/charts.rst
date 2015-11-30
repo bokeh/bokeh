@@ -1,7 +1,7 @@
 .. _userguide_charts:
 
-Using High-level Charts
-=======================
+Making High-level Charts
+========================
 
 .. contents::
     :local:
