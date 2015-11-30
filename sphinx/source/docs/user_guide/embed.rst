@@ -1,7 +1,7 @@
 .. _userguide_embed:
 
-Embedding Bokeh Plots
-=====================
+Embedding Plots and Apps
+========================
 
 .. contents::
     :local:
