@@ -18,22 +18,22 @@ class HTML(Subcommand):
 
     help = "Create standalone HTML files for one or more applications"
 
-    def __init__(self, **kwargs):
-        super(HTML, self).__init__(**kwargs)
+    args = (
 
-        self.parser.add_argument(
-            'files',
+        ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='+',
             help="The app directories or scripts to generate HTML for",
-            default=None
-        )
+            default=None,
+        )),
 
-        self.parser.add_argument(
-            '--show',
+        (
+            '--show', dict(
             action='store_true',
-            help="Open generated file(s) in a browser"
-        )
+            help="Open generated file(s) in a brows,er"
+        )),
+
+    )
 
     def invoke(self, args):
         applications = build_single_handler_applications(args.files)

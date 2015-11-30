@@ -7,15 +7,37 @@ from abc import ABCMeta, abstractmethod
 from bokeh.util.future import with_metaclass
 
 class Subcommand(with_metaclass(ABCMeta)):
-    ''' Abstract base class for subcommands '''
+    ''' Abstract base class for subcommands
+
+    Subclasses should implement an ``invoke(self, args)`` method that accepts
+    a set of argparse processed arguments as input.
+
+    Subclasses should also define the following class attributes:
+
+        * ``name`` a name for this subcommand
+        * ``help`` a help string for argparse to use for this subcommand
+        * ``args`` the parameters to pass to ``parser.add_argument``
+
+        The format of the ``args`` should be a sequence of tuples of the form:
+
+            ('argname', dict(
+                metavar='ARGNAME',
+                nargs='+',
+            ))
+
+    '''
 
     def __init__(self, parser):
         ''' Initialize the subcommand with its parser
 
-        The initializer can call parser.add_argument to add subcommand flags.
+        This method will automatically add all the arguments described in
+        ``self.args``. Subclasses can perform any additional customizations
+        on ``self.parser``.
 
         '''
         self.parser = parser
+        for arg in self.args:
+            self.parser.add_argument(arg[0], **arg[1])
 
     @abstractmethod
     def invoke(self, args):

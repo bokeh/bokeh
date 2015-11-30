@@ -16,23 +16,22 @@ class JSON(Subcommand):
 
     help = "Emit serialized JSON for one application"
 
-    def __init__(self, **kwargs):
-        super(JSON, self).__init__(**kwargs)
+    args = (
 
-        self.parser.add_argument(
-            'file',
+        ('file', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             help="The app directory or script to generate JSON for",
             default=None
-        )
+        )),
 
-        self.parser.add_argument(
-            '--indent',
+        ('--indent', dict(
             metavar='LEVEL',
             type=int,
             help="indentation to use when printing",
             default=None
-        )
+        )),
+
+    )
 
     def invoke(self, args):
         application = build_single_handler_application(args.file)

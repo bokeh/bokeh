@@ -9,11 +9,14 @@ log = logging.getLogger(__name__)
 
 from bokeh.application import Application
 from bokeh.server.server import Server
+from bokeh.util.string import nice_join
 
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications
 
 DEFAULT_PORT = 5006
+
+LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 
 class Serve(Subcommand):
     ''' Subcommand to launch the Bokeh server.
@@ -24,53 +27,48 @@ class Serve(Subcommand):
 
     help = "Run a Bokeh server hosting one or more applications"
 
-    def __init__(self, **kwargs):
-        super(Serve, self).__init__(**kwargs)
+    args = (
 
-        self.parser.add_argument(
-            'files',
+        ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='*',
             help="The app directories or scripts to serve (serve empty document if not specified)",
-            default=None
-        )
+            default=None,
+        )),
 
-        self.parser.add_argument(
-            '--develop',
+        ('--develop', dict(
             action='store_true',
-            help="Enable develop-time features that should not be used in production"
-        )
+            help="Enable develop-time features that should not be used in production",
+        )),
 
-        self.parser.add_argument(
-            '--show',
+        ('--show', dict(
             action='store_true',
-            help="Open server app(s) in a browser"
-        )
+            help="Open server app(s) in a browser",
+        )),
 
-        self.parser.add_argument(
-            '--port',
+        ('--port', dict(
             metavar='PORT',
             type=int,
             help="Port to listen on",
-            default=DEFAULT_PORT
-        )
+            default=DEFAULT_PORT,
+        )),
 
-        self.parser.add_argument(
-            '--address',
+        ('--address', dict(
             metavar='ADDRESS',
             type=str,
             help="Address to listen on",
-            default=None
-        )
+            default=None,
+        )),
 
-        self.parser.add_argument(
-            '--log-level',
+        ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
             default = 'debug',
-            choices = ['debug', 'info', 'warning', 'error', 'critical'],
-            help    = "One of: debug, info, warning, error, critical"
-        )
+            choices = LOGLEVELS,
+            help    = "One of: %s" % nice_join(LOGLEVELS),
+        )),
+
+    )
 
     def invoke(self, args):
         applications = build_single_handler_applications(args.files)
