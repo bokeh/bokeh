@@ -19,7 +19,9 @@ if (d0.glyph) {
     var color = d0.glyph.visuals.line.color.value();
     console.log('Toggled line', d0.glyph.id, color);
     d0.glyph.visuals.line.alpha.fixed_value = (alpha == 1) ? 0.5 : 1.0;
-    d0.glyph = false;  // Prevent the glyph from being selected.
+    // Make selected/unselected lines have normal appearance
+    d0.glyph['renderer'].selection_glyph = d0.glyph;
+    d0.glyph['renderer'].nonselection_glyph = d0.glyph;
 }
 """
 
