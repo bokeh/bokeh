@@ -417,7 +417,7 @@ class Document(object):
 
         '''
         for callback in callbacks:
-            self._callbacks.pop(callback)
+            del self._callbacks[callback]
 
     def _with_self_as_curdoc(self, f):
         from bokeh.io import set_curdoc, curdoc
