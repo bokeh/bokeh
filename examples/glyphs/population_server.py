@@ -138,7 +138,7 @@ def create_layout():
 layout = create_layout()
 update_data()
 
-document.add(layout)
+document.add_root(layout)
 session.show(layout)
 
 if __name__ == "__main__":

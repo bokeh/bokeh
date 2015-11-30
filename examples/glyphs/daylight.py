@@ -91,7 +91,7 @@ legend = Legend(legends=[("sunrise", [line1_glyph]), ("sunset", [line2_glyph])])
 plot.add_layout(legend)
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "daylight.html"

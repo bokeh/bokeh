@@ -65,7 +65,7 @@ radio_button_group.on_click(radio_button_group_handler)
 vbox = VBox(children=[button, toggle, dropdown, split, checkbox_group, radio_group, checkbox_button_group, radio_button_group])
 
 document = Document()
-document.add(vbox)
+document.add_root(vbox)
 session = push_session(document)
 session.show()
 
