@@ -43,9 +43,13 @@ topic:
     Create more sophisticated interactions including widgets or linked
     panning and selection.
 
-.. :ref:`userguide_server`
-..     Deploy the Bokeh Server to build and publish sophisticated data
-..     applications.
+:ref:`userguide_cli`
+    Quickly create and iterate on Bokeh applications with the ``bokeh``
+    command line tool.
+
+:ref:`userguide_server`
+    Deploy the Bokeh Server to build and publish sophisticated data
+    applications.
 
 :ref:`userguide_embed`
     Embed static or server-based Bokeh plots and widgets into HTML documents
@@ -78,6 +82,8 @@ perfectly well with almost any array or table-like data structure.
     user_guide/layout
     user_guide/notebook
     user_guide/interaction
+    user_guide/cli
+    user_guide/server
     user_guide/embed
     user_guide/webgl
     user_guide/info
