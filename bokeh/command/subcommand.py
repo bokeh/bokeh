@@ -36,7 +36,8 @@ class Subcommand(with_metaclass(ABCMeta)):
 
         '''
         self.parser = parser
-        for arg in self.args:
+        args = getattr(self, 'args', ())
+        for arg in args:
             self.parser.add_argument(arg[0], **arg[1])
 
     @abstractmethod
@@ -47,4 +48,4 @@ class Subcommand(with_metaclass(ABCMeta)):
             args (seq) : command line arguments for the subcommand to parse
 
         '''
-        pass
+        raise NotImplementedError("implement invoke()")

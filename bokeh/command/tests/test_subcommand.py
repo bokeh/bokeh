@@ -12,6 +12,11 @@ def test_is_abstract():
     with pytest.raises(TypeError):
         _Bad()
 
+def test_missing_args():
+    p = MagicMock()
+    obj = _Good(p)
+    p.add_argument.assert_not_called()
+
 def test_no_args():
     _Good.args = ()
     p = MagicMock()
@@ -29,3 +34,9 @@ def test_args():
     p = MagicMock()
     obj = _Good(p)
     p.call_count == 2
+
+def test_base_invoke():
+    with pytest.raises(NotImplementedError):
+        p = MagicMock()
+        obj = _Good(p)
+        super(_Good, obj).invoke("foo")
