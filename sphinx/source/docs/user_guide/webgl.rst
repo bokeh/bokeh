@@ -18,7 +18,9 @@ How to enable WebGL
 -------------------
 
 To enable WebGL, set the plot's ``webgl`` property to ``True``:
-    
+
+.. code-block:: python
+
     p = Plot(webgl=True)  # for the glyph API
     p = figure(webgl=True)  # for the plotting API
 

@@ -67,6 +67,7 @@ test:
     - ggplot
     - seaborn
     - icalendar
+    - flexx           [py3k]
 
   commands:
     - bokeh -h        [linux64 or osx]
