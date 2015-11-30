@@ -177,6 +177,9 @@ class ServerSession(object):
         self._loop.remove_timeout(cb)
 
     def _document_changed(self, event):
+        pass
+
+    def _document_patched(self, event):
         may_suppress = self._current_patch is not None and \
                        self._current_patch.should_suppress_on_change(event)
 
@@ -192,6 +195,9 @@ class ServerSession(object):
                 pass #log.debug("Not sending notification back to client %r for a change it requested", connection)
             else:
                 self._pending_writes.append(connection.send_patch_document(event))
+
+    def _document_model_changed(self, event):
+        pass
 
     @_needs_document_lock
     def _handle_pull(self, message, connection):

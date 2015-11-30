@@ -29,7 +29,16 @@ class DocumentChangedEvent(object):
         if hasattr(receiver, '_document_changed'):
             receiver._document_changed(self)
 
-class ModelChangedEvent(DocumentChangedEvent):
+class DocumentPatchedEvent(DocumentChangedEvent):
+    def __init__(self, document):
+        self.document = document
+
+    def dispatch(self, receiver):
+        super(DocumentPatchedEvent, self).dispatch(document)
+        if hasattr(receiver, '_document_patched'):
+            receiver._document_patched(self)
+
+class ModelChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, model, attr, old, new):
         super(ModelChangedEvent, self).__init__(document)
         self.model = model
@@ -37,17 +46,22 @@ class ModelChangedEvent(DocumentChangedEvent):
         self.old = old
         self.new = new
 
-class TitleChangedEvent(DocumentChangedEvent):
+    def dispatch(self, receiver):
+        super(ModelChangedEvent, self).dispatch(document)
+        if hasattr(receiver, '_document_model_changed'):
+            receiver._document_patched(self)
+
+class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
         super(TitleChangedEvent, self).__init__(document)
         self.title = title
 
-class RootAddedEvent(DocumentChangedEvent):
+class RootAddedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootAddedEvent, self).__init__(document)
         self.model = model
 
-class RootRemovedEvent(DocumentChangedEvent):
+class RootRemovedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootRemovedEvent, self).__init__(document)
         self.model = model
