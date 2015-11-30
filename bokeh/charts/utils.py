@@ -32,6 +32,7 @@ from ..models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..models.sources import ColumnDataSource
+from ..models.tools import HoverTool
 from ..resources import INLINE
 from ..util.notebook import publish_display_data
 from ..plotting_helpers import DEFAULT_PALETTE
@@ -436,6 +437,9 @@ def build_wedge_source(df, cat_cols, agg_col=None, agg='mean', level_width=0.5,
     df = cat_to_polar(df, cat_cols, agg_col, agg, level_width)
     add_wedge_spacing(df, level_spacing)
     df['centers'] = df['inners'] + (df['outers'] - df['inners']) / 2.0
+
+    # scale level 0 text position towards outside of wedge
+    df.ix[df['level'] == 0, 'centers'] *= 1.5
     return df
 
 
@@ -476,6 +480,7 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
     starts = []
     ends = []
     levels = []
+    agg_values = []
 
     for i in range(0, len(cat_cols)):
         level_cols = cat_cols[:i+1]
@@ -492,14 +497,17 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
         start_ends = create_start_end(levels)
         starts.append(start_ends[0])
         ends.append(start_ends[1])
+        agg_values.append(gb)
 
         # build array of constant value representing the level
         this_level = start_ends[0].copy()
         this_level[:] = i
         levels_cols.append(this_level)
 
-    df = pd.DataFrame(dict(start=pd.concat(starts), end=pd.concat(ends),
-                           level=pd.concat(levels_cols)))
+    df = pd.DataFrame({'start': pd.concat(starts),
+                       'end': pd.concat(ends),
+                       'level': pd.concat(levels_cols),
+                       'values': pd.concat(agg_values)})
 
     idx = df.index.copy().values
 
@@ -597,3 +605,22 @@ def add_wedge_spacing(df, spacing):
 
     # add spacing based on input settings
     df.ix[df['level'] > 0, 'inners'] += spacing
+
+
+def add_charts_hover(chart, use_hover, hover_text, values_col, agg_text=None):
+
+    if use_hover:
+        # configure the hover text based on input configuration
+        if hover_text is None:
+            if agg_text is None:
+                if isinstance(values_col, str):
+                    hover_text = values_col
+                else:
+                    hover_text = 'value'
+            else:
+                hover_text = agg_text
+                if isinstance(values_col, str):
+                    hover_text = '%s of %s' % (hover_text, values_col)
+
+        # add the tooltip
+        chart.add_tools(HoverTool(tooltips=[(hover_text.title(), "@values")]))

@@ -22,8 +22,8 @@ from ..stats import Bins
 from ..properties import Dimension
 from ..operations import Aggregate
 from ..attributes import ColorAttr
-from ...models import HoverTool
 from ..glyphs import BinGlyph
+from ..utils import add_charts_hover
 from ...properties import Float, String
 
 from bokeh.palettes import Blues6
@@ -86,21 +86,9 @@ def HeatMap(data, x=None, y=None, values=None, stat='count', xgrid=False, ygrid=
     kw['stat'] = stat
     chart = create_and_build(HeatMapBuilder, data, xgrid=xgrid, ygrid=ygrid, **kw)
 
-    if hover_tool:
-        # configure the hover text based on input configuration
-        if hover_text is None:
-            if stat is None:
-                if isinstance(values, str):
-                    hover_text = values
-                else:
-                    hover_text = 'value'
-            else:
-                hover_text = stat
-                if isinstance(values, str):
-                    hover_text = '%s of %s' % (hover_text, values)
+    add_charts_hover(chart, use_hover=hover_tool, hover_text=hover_text,
+                     values_col=values, agg_text=stat)
 
-        # add the tooltip
-        chart.add_tools(HoverTool(tooltips=[(hover_text.title(), "@values")]))
     return chart
 
 

@@ -21,14 +21,14 @@ from __future__ import absolute_import
 
 from ..builder import create_and_build, Builder
 from ..utils import (title_from_columns, build_wedge_source,
-                     build_wedge_text_source)
+                     build_wedge_text_source, add_charts_hover)
 from ..attributes import ColorAttr, CatAttr
 from ...models.sources import ColumnDataSource
 from ...models.glyphs import AnnularWedge, Text
 from ...models.renderers import GlyphRenderer
 from ...models.ranges import Range1d
 from ..properties import Dimension
-from ...properties import String, Instance, Float
+from ...properties import String, Instance, Float, Color
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -36,7 +36,8 @@ from ...properties import String, Instance, Float
 
 
 def Donut(data, label=None, values=None, xgrid=False,
-          ygrid=False, color=None, agg='sum', height=400, width=400, **kw):
+          ygrid=False, color=None, agg='sum', height=400, width=400,
+          hover_tool=True, hover_text=None, **kw):
     """ Create a Donut chart containing one or more layers from table-like data.
 
     Create a donut chart using :class:`DonutBuilder
@@ -90,6 +91,9 @@ def Donut(data, label=None, values=None, xgrid=False,
     chart.left[0].visible = False
     chart.below[0].visible = False
 
+    add_charts_hover(chart, use_hover=hover_tool, hover_text=hover_text,
+                     values_col=values, agg_text=agg)
+
     return chart
 
 
@@ -115,8 +119,10 @@ class DonutBuilder(Builder):
     chart_data = Instance(ColumnDataSource)
     text_data = Instance(ColumnDataSource)
 
-    level_width = Float(default=0.5)
+    level_width = Float(default=1.5)
     level_spacing = Float(default=0.0)
+    text_font_size = String(default='10pt')
+    line_color = Color(default='White')
 
     def setup(self):
         if self.ylabel is None:
@@ -124,6 +130,14 @@ class DonutBuilder(Builder):
 
         if self.xlabel is None:
             self.xlabel = title_from_columns(self.attributes['label'].columns)
+
+        if self.attributes['color'].columns is None:
+            self.attributes['color'].setup(data=self._data.source,
+                                           columns=self.attributes['label'].columns[0])
+
+        if self.attributes['stack'].columns is None:
+            self.attributes['stack'].setup(data=self._data.source,
+                                           columns=self.attributes['label'].columns[0])
 
     def set_ranges(self):
         rng = (max(self.chart_data.data['level']) + 1.1) * self.level_width
@@ -147,19 +161,20 @@ class DonutBuilder(Builder):
         for group in self._data.groupby(**self.attributes):
             polar_data.loc[group['stack'], 'color'] = group['color']
 
+        # create the source for the wedges and the text
         self.chart_data = ColumnDataSource(polar_data)
-
         self.text_data = build_wedge_text_source(polar_data, text_col='index')
 
     def yield_renderers(self):
 
         aw = AnnularWedge(x=0, y=0, inner_radius='inners', outer_radius='outers',
                           start_angle='start', end_angle='end', fill_color='color',
-                          fill_alpha=0.8)
+                          fill_alpha=0.8, line_color=self.line_color)
 
         yield GlyphRenderer(data_source=self.chart_data, glyph=aw)
 
         txt = Text(x="x", y="y", text="text", angle="text_angle",
-                   text_align="center", text_baseline="middle")
+                   text_align="center", text_baseline="middle",
+                   text_font_size=self.text_font_size)
 
         yield GlyphRenderer(data_source=self.text_data, glyph=txt)

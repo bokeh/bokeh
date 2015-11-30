@@ -3,8 +3,11 @@ from collections import OrderedDict
 import pandas as pd
 
 from bokeh.charts import Donut, show, output_file, vplot
+from bokeh.charts.utils import df_from_json
 #from bokeh.sampledata.olympics2014 import data
 from bokeh.sampledata.autompg import autompg
+import pandas as pd
+
 # throw the data into a pandas data frame
 # df = pd.io.json.json_normalize(data['data'])
 #
@@ -30,17 +33,30 @@ from bokeh.sampledata.autompg import autompg
 # #medals = np.array(list(medals.values()))
 # #medals = pd.DataFrame(medals)
 #
-output_file("donut.html")
+from bokeh.sampledata.olympics2014 import data
+
+# utilize utility to make it easy to get json/dict data converted to a dataframe
+df = df_from_json(data)
+
+# filter by countries with at least one medal and sort by total medals
+df = df[df['total'] > 8]
+df = df.sort("total", ascending=False)
+df = pd.melt(df, id_vars=['abbr'],
+             value_vars=['bronze', 'silver', 'gold'],
+             value_name='medal_count', var_name='medal')
+
+# original example
+d0 = Donut(df, label=['abbr', 'medal'], values='medal_count',
+           text_font_size='8pt', hover_text='medal_count')
 
 # nested donut chart for the provided labels, with colors assigned
 # by the first level
-d0 = Donut(autompg, label=['cyl', 'origin'],
-           values='displ', agg='mean',
-           color='cyl', stack='cyl')
+d1 = Donut(autompg, label=['cyl', 'origin'],
+           values='displ', agg='mean')
 
 # show altering the spacing in levels
-d1 = Donut(autompg, label=['cyl', 'origin'],
-           values='displ', agg='mean',
-           color='cyl', stack='cyl', level_spacing=0.15)
+d2 = Donut(autompg, label=['cyl', 'origin'],
+           values='displ', agg='mean', level_spacing=0.15)
 
-show(vplot(d0, d1))
+output_file("donut.html")
+show(vplot(d0, d1, d2))
