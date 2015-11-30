@@ -10,7 +10,7 @@ from __future__ import absolute_import
 
 from copy import copy
 
-from bokeh.properties import String, List, Instance
+from bokeh.properties import Override, String, List, Instance
 from .data_source import DataOperator
 from .models import CollisionModifier
 from .properties import ColumnLabel
@@ -22,8 +22,8 @@ class Stack(CollisionModifier):
 
     Useful for area or bar glyphs.
     """
-    name = 'stack'
-    method_name = '__stack__'
+    name = Override(default='stack')
+    method_name = Override(default='__stack__')
 
 
 class Dodge(CollisionModifier):
@@ -31,8 +31,8 @@ class Dodge(CollisionModifier):
 
     Useful for bar, box, or dot glyphs.
     """
-    name = 'dodge'
-    method_name = '__dodge__'
+    name = Override(default='dodge')
+    method_name = Override(default='__dodge__')
 
 
 class Blend(DataOperator):

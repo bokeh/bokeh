@@ -164,7 +164,7 @@ class BarBuilder(Builder):
 
     def get_extra_args(self):
         if self.__class__ is not BarBuilder:
-            attrs = self.class_properties(withbases=False)
+            attrs = self.properties(with_bases=False)
             return {attr: getattr(self, attr) for attr in attrs}
         else:
             return {}
