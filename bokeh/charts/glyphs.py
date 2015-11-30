@@ -83,7 +83,7 @@ class XyGlyph(CompositeGlyph):
 class PointGlyph(XyGlyph):
     """A set of glyphs placed in x,y coordinates with the same attributes."""
 
-    fill_color = Color(default=DEFAULT_PALETTE[1])
+    fill_color = Override(default=DEFAULT_PALETTE[1])
     fill_alpha = Override(default=0.7)
     marker = String(default='circle')
     size = Float(default=8)
@@ -96,6 +96,9 @@ class PointGlyph(XyGlyph):
         if color:
             line_color = color
             fill_color = color
+
+        kwargs['line_color'] = line_color
+        kwargs['fill_color'] = fill_color
 
         super(PointGlyph, self).__init__(**kwargs)
         self.setup()

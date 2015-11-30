@@ -27,8 +27,8 @@ from .utils import collect_attribute_columns
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
-from ..properties import (HasProps, Instance, List, String, Property,
-                          Either, Dict, Color, Bool, Tuple)
+from ..properties import (HasProps, Instance, List, String, Dict,
+                          Color, Bool, Tuple)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
