@@ -41,6 +41,7 @@ from docutils.statemachine import ViewList
 
 import jinja2
 
+from sphinx.errors import SphinxError
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
@@ -71,21 +72,23 @@ class BokehModelDirective(Directive):
     required_arguments = 1
 
     def run(self):
-
         model_path = self.arguments[0]
         module_name, model_name = model_path.rsplit(".", 1)
 
         try:
             module = importlib.import_module(module_name)
         except ImportError:
-            pass
+            raise SphinxError("Unable to generate reference docs for %s, couldn't import module '%s'" %
+                (model_path, module_name))
 
         model = getattr(module, model_name, None)
         if model is None:
-            pass
+            raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" %
+                (model_path, model_name, module_name))
 
         if type(model) != Viewable:
-            pass
+            raise SphinxError("Unable to generate reference docs for %s, model '%s' is not a subclass of Viewable" %
+                (model_path, model_name))
 
         model_obj = model()
 
