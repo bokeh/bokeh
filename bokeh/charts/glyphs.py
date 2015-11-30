@@ -97,13 +97,12 @@ class PointGlyph(XyGlyph):
 
         if color:
             line_color = color
-            if not fill_color:
-                fill_color = color
+            fill_color = color
 
-        kwargs['line_color'] = line_color or self.line_color
-        kwargs['fill_color'] = fill_color or self.fill_color
-        kwargs['marker'] = marker or self.marker
-        kwargs['size'] = size or self.size
+        # kwargs['line_color'] = line_color or self.line_color
+        # kwargs['fill_color'] = fill_color or self.fill_color
+        # kwargs['marker'] = marker or self.marker
+        # kwargs['size'] = size or self.size
         super(PointGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -132,9 +131,9 @@ class LineGlyph(XyGlyph):
         kwargs['x'] = x
         kwargs['y'] = y
 
-        kwargs['line_color'] = color or line_color or self.line_color
-        kwargs['width'] = width or self.width
-        kwargs['dash'] = dash or self.dash
+        # kwargs['line_color'] = color or line_color or self.line_color
+        # kwargs['width'] = width or self.width
+        # kwargs['dash'] = dash or self.dash
         super(LineGlyph, self).__init__(**kwargs)
         self.setup()
 
