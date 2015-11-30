@@ -34,6 +34,8 @@ locations =
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
+  SegmentedColorMapper:     require '../mapper/segmented_color_mapper'
+  LinearColorMapperReplacement:  require '../mapper/linear_color_mapper_replacement'
   LinearMapper:             require '../mapper/linear_mapper'
   LogMapper:                require '../mapper/log_mapper'
 
