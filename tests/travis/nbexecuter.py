@@ -1,128 +1,74 @@
 """
-Script for running notebooks and output nbconverted html files from the
-command line, by @damianavila
-To be replaced by IPython.nbconvert execute preprocessor in the future:
-https://github.com/ipython/ipython/pull/5639
+Script for running notebooks and output nbconverted html files
 """
-from __future__ import print_function
-
-import io
 import os
 import sys
+from traitlets import Unicode
+from traitlets.config import get_config
 
-from six import iteritems
+from nbconvert import HTMLExporter
+from nbformat import read
 
-try:
-    from queue import Empty
-except ImportError:
-    from Queue import Empty
+from nbconvert.preprocessors import ExecutePreprocessor
 
-from IPython.kernel import KernelManager
-from IPython.nbformat import read, NO_CONVERT, NotebookNode
-from IPython.nbconvert.exporters import HTMLExporter
 
-from bokeh.util.string import encode_utf8
+class BokehExecutePreprocessor(ExecutePreprocessor):
+    """
+    Executes all the cells in a notebook, with kernel_name trailet available.
+    """
 
-def run_cell(kc, cell):
-    iopub = kc.iopub_channel
-    shell = kc.shell_channel
+    kernel_name = Unicode("python", config=True,
+        help="The kernel to execute the cells with."
+    )
 
-    kc.execute(cell.source)
-    shell.get_msg(timeout=20)
+    def preprocess(self, nb, resources):
+        path = resources.get('metadata', {}).get('path', '')
+        if path == '':
+            path = None
 
-    outs = []
-
-    while True:
-        try:
-            msg = iopub.get_msg(timeout=0.2)
-        except Empty:
-            break
-
-        msg_type = msg['msg_type']
-
-        if msg_type in ('status', 'pyin'):
-            continue
-        elif msg_type == 'clear_output':
-            outs = []
-            continue
-
-        content = msg['content']
-        out = NotebookNode(output_type=msg_type)
-
-        if msg_type == 'stream':
-            out.stream = content['name']
-            out.text = content['data']
-        elif msg_type in ('display_data', 'execute_result'):
-            for mime, data in iteritems(content['data']):
-                attr = mime.split('/')[-1].lower()
-                # this gets most right, but fix svg+html, plain
-                attr = attr.replace('+xml', '').replace('plain', 'text')
-                setattr(out, attr, data)
-            if msg_type == 'execute_result':
-                out.prompt_number = content['execution_count']
-        elif msg_type == 'error':
-            out.ename = content['ename']
-            out.evalue = content['evalue']
-            out.traceback = content['traceback']
-        elif msg_type == 'execute_input':
-            pass
+        from jupyter_client.manager import start_new_kernel
+        if not self.kernel_name:
+            kernel_name = nb.metadata.get('kernelspec', {}).get('name', 'python')
         else:
-            print("unhandled iopub msg:", msg_type)
+            kernel_name = self.kernel_name
+        self.log.info("Executing notebook with kernel: %s" % kernel_name)
+        self.km, self.kc = start_new_kernel(
+            kernel_name=kernel_name,
+            extra_arguments=self.extra_arguments,
+            stderr=open(os.devnull, 'w'),
+            cwd=path)
+        self.kc.allow_stdin = False
 
-        outs.append(out)
-    return outs
-
-def test_notebook(nb):
-    km = KernelManager()
-    km.start_kernel(extra_arguments=[], stderr=open(os.devnull, 'w'))
-    kc = km.client()
-    kc.start_channels()
-    kc.kernel_info()
-
-    while True:
         try:
-            kc.iopub_channel.get_msg(timeout=1)
-        except Empty:
-            break
+            nb, resources = super(ExecutePreprocessor, self).preprocess(nb, resources)
+        finally:
+            self.kc.stop_channels()
+            self.km.shutdown_kernel(now=True)
 
-    errors = 0
-    cells = 0
-    for cell in nb.cells:
-        if cell.cell_type != 'code':
-            continue
-        cells += 1
-        try:
-            outs = run_cell(kc, cell)
-        except Exception as e:
-            print("failed to run cell: %r" % e)
-            print(cell.source)
-            errors += 1
-            continue
-        cell.outputs = outs
+        return nb, resources
 
-    if errors:
-        print("    %3i cells failed to complete" % errors)
-    if cells:
-        print("%i code cells from notebook %s" % (cells, nb.metadata.kernelspec.name))
 
-    kc.stop_channels()
-    km.shutdown_kernel()
-    del km
-
-def main(ipynb):
+def main(ipynb, kernel_name):
     print("running %s" % ipynb)
-    with io.open(ipynb, encoding='utf8') as f:
-        nb = read(f, NO_CONVERT)
-    test_notebook(nb)
-    base, ext = os.path.splitext(ipynb)
+    nb = read(ipynb, as_version=4)
+
+    config = get_config()
+    config.BokehExecutePreprocessor.kernel_name = kernel_name
+    print(config)
+    ep = BokehExecutePreprocessor(config=config)
+    ep.preprocess(nb, {'metadata': {'path': './'}})
 
     exportHtml = HTMLExporter()
     (body, resources) = exportHtml.from_notebook_node(nb)
 
     outfile = ipynb + ".html"
-    open(outfile, 'w').write(encode_utf8(body))
+    open(outfile, 'w').write(body)
     print("wrote %s" % outfile)
 
 if __name__ == '__main__':
-    for ipynb in sys.argv[1:]:
-        main(ipynb)
+    params = sys.argv[1:]
+    if len(params) > 2:
+        print("Provide the ipynb as the first param and the kernel_name as the \
+              seconda one")
+    else:
+        main(params[0], params[1])
