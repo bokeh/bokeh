@@ -7,10 +7,10 @@ import numpy as np
 from bokeh.plotting import output_file, show, figure, Figure
 from bokeh.models import TapTool, CustomJS
 
-# The use of the tap tool causes Bokehjs to "select" a line when it is
-# clicked on, which is not what we want in this example; we want to
-# toggle a visual property of the line ourselves. To work arount this,
-# we modify the selection_glyph and nonselection_glyph as well.
+# Normally, the use of the tap tool causes Bokehjs to "select" a line
+# when it is clicked on, which is not what we want in this example. To
+# deal with this, we modify the "selected" object to make it look as
+# if no glyph was clicked.
 
 code = """
 d0 = cb_obj.get("selected")["0d"];
@@ -18,9 +18,8 @@ if (d0.glyph) {
     var alpha = d0.glyph.visuals.line.alpha.value();
     var color = d0.glyph.visuals.line.color.value();
     console.log('Toggled line', d0.glyph.id, color);
-    alpha = (alpha == 1) ? 0.5 : 1.0;
-    var glyphs = [d0.glyph.renderer.glyph, d0.glyph.renderer.selection_glyph, d0.glyph.renderer.nonselection_glyph];
-    for (var i=0; i<glyphs.length; i++) glyphs[i].visuals.line.alpha.fixed_value = alpha;
+    d0.glyph.visuals.line.alpha.fixed_value = (alpha == 1) ? 0.5 : 1.0;
+    d0.glyph = false;  // Prevent the glyph from being selected.
 }
 """
 
