@@ -99,7 +99,7 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     return result
 
 def _process_sequence_literals(glyphclass, kwargs, source):
-    dataspecs = glyphclass.dataspecs_with_refs()
+    dataspecs = glyphclass.dataspecs_with_props()
     for var, val in kwargs.items():
 
         # ignore things that are not iterable
@@ -115,7 +115,7 @@ def _process_sequence_literals(glyphclass, kwargs, source):
         if isinstance(val, string_types): continue
 
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var], ColorSpec) and ColorSpec.is_color_tuple(val)):
+        if (isinstance(dataspecs[var].descriptor, ColorSpec) and ColorSpec.is_color_tuple(val)):
             continue
 
         if isinstance(val, np.ndarray) and val.ndim != 1:
@@ -475,7 +475,7 @@ def _glyph_function(glyphclass, extra_docs=None):
     for arg in glyphclass._args:
         spec = getattr(glyphclass, arg)
         desc = " ".join(x.strip() for x in spec.__doc__.strip().split("\n\n")[0].split('\n'))
-        arglines.append(_arg_template % (arg, spec.__class__.__name__, desc, spec.default))
+        arglines.append(_arg_template % (arg, spec.__class__.__name__, desc, spec.class_default(glyphclass)))
 
     kwlines = []
     kws = glyphclass.properties() - set(glyphclass._args)
@@ -488,7 +488,7 @@ def _glyph_function(glyphclass, extra_docs=None):
         else:
             typ = str(spec)
             desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, spec.default))
+        kwlines.append(_arg_template % (kw, typ, desc, spec.class_default(glyphclass)))
 
     func.__doc__ = _doc_template  % (glyphclass.__name__, "\n".join(arglines), "\n".join(kwlines))
 
