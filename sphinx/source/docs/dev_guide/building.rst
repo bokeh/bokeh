@@ -119,6 +119,13 @@ where the built resources should be produced:
 
     gulp build --build-dir=/home/bokeh/mybuilddir
 
+For faster development turnaround, you can skip the very slow minification
+step of the build by issuing:
+
+.. code-block:: sh
+
+    gulp dev-build
+
 To direct Gulp to automatically watch the source tree for changes and
 trigger a recompile if any source file changes:
 
@@ -254,26 +261,34 @@ in the root of the bokeh repository, similar to the following example:
 
     python bokeh-server --script path\to\<yourapp>.py
 
-Incremental Compilation
------------------------
+Developing Examples
+-------------------
 
-The processes described about result in building and using a full `bokeh.js`
-library. This could be considered "production" mode. It is also possible to
-run Bokeh code in a mode that utilizes ``require.js`` to serve up individual
-JavaScript modules separately. If this is done, then changes to BokehJS
-can be incrementally compiled (e.g. by running ``gulp watch`` in the
-``bokehjs`` directory), and the development iteration cycle shortened
-considerably.
+The processes described so far, discussed solely building BokehJS' components.
+When using them in the development repository, you must be cautious about which
+components are picked by Bokeh, especially when working on examples. Failing
+to do so, may result in you testing wrong version, specifically CDN version of
+BokehJS.
 
-For static examples, you can use the ``BOKEH_RESOURCES`` environement variable
-to indicate that BokehJS should be loaded from individual sources:
+In the case of statically generated HTML or IPython notebooks, you should set
+``BOKEH_DEV=true`` in the shell, e.g.:
+
+.. code-block:: sh
+
+    BOKEH_DEV=true python example.py
+
+This enables the development mode, which uses absolute paths to development
+(non-minified) BokeJS components, sets logging to ``debug``, makes generated
+HTML and JSON human-readable, etc. Alternatively you can enable each part of
+the development mode with a specific shell variable. For example, to configure
+Bokeh to use relative paths to development resources, issue:
 
 .. code-block:: sh
 
     BOKEH_RESOURCES=relative-dev python example.py
 
-For Bokeh server examples, simply add the ``--dev`` command line flag to the
-server invocation:
+For Bokeh server examples, add the ``--dev`` command line flag to the server
+invocation:
 
 .. code-block:: sh
 

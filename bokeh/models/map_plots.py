@@ -36,10 +36,6 @@ class MapPlot(Plot):
 
     """
 
-    map_options = Instance(MapOptions, help="""
-    Options for displaying the plot.
-    """)
-
 class GMapOptions(MapOptions):
     """ Options for GMapPlot objects.
 

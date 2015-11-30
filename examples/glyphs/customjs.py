@@ -41,7 +41,7 @@ tap = TapTool(renderers=[circle_renderer], callback=customjs)
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "customjs.html"

@@ -85,7 +85,7 @@ IV  = make_plot('IV',  'xiv',  'yiv')
 grid = GridPlot(children=[[I, II], [III, IV]])
 
 doc = Document()
-doc.add(grid)
+doc.add_root(grid)
 
 if __name__ == "__main__":
     filename = "anscombe.html"
