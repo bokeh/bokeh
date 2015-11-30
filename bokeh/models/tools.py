@@ -22,7 +22,7 @@ always be active regardless of what other tools are currently active.
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import abstract, Float, Color
 from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
                           Dict, Tuple)
@@ -32,7 +32,7 @@ from .renderers import Renderer
 from .callbacks import Callback
 
 
-class ToolEvents(PlotObject):
+class ToolEvents(Model):
     """
 
     """
@@ -41,7 +41,7 @@ class ToolEvents(PlotObject):
 
 
 @abstract
-class Tool(PlotObject):
+class Tool(Model):
     """ A base class for all interactive tool types. ``Tool`` is
     not generally useful to instantiate on its own.
 
@@ -288,9 +288,9 @@ class BoxSelectTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    select_every_mousemove = Bool(True, help="""
-    An explicit list of renderers to hit test again. If unset,
-    defaults to all renderers on a plot.
+    select_every_mousemove = Bool(False, help="""
+    Whether a selection computation should happen on every mouse
+    event, or only once, when the selection region is completed. Default: False
     """)
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
@@ -358,7 +358,7 @@ class LassoSelectTool(Tool):
 
     select_every_mousemove = Bool(True, help="""
     Whether a selection computation should happen on every mouse
-    event, or only once, when the selection region is completed.
+    event, or only once, when the selection region is completed. Default: True
     """)
 
 

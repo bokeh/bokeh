@@ -2,6 +2,12 @@ sudo: false
 
 language: python
 
+cache:
+    directories:
+        - $HOME/miniconda
+        - $HOME/.bokeh
+        - $HOME/build/bokeh/bokeh/bokehjs/node_modules
+
 python:
     - 2.7
     - 3.4
@@ -15,13 +21,11 @@ env:
         - secure: "AMKPTVrc2g8j5T40hQhdEGoiod+KCkbiseVSQRDPeeX1TvQoVjbrZenrWHyHEHKc1x3LavDuCBJ3sW9cLy+QF9sdudK/cc9+aG2Hax5dyapI0iaHlzvqYDO3aguQsZcu+pVEIVatoOSv25/282aPNtNXn403jmJvd0Qt8ch1jOw="
         - secure: "v9VkMz6cjFBZhlf6iiXSr0o2Eo/HKMMOseAxE6H+sr1vbPg19edGU+7+aAQrn09lE4oKU5JwZSzQ2KalJgrNTGrRrGyEtWGAcuS6oP17zg9LsutLGptNwyHBnCvB5aUPW7JSNs+kor7CmvZ8sVnUh810YSREjt2ZsjEG3ysZjVc="
         - secure: "OI9ErePcqSewA8ZheZq5YtNyeLA8UM1UGskcMEAmPMf9AisYasJaPoY8NeqLGDyMcg7TcXbFQBZv7jPEngZ3RZMsDajfC3p63WOBDS7PfurKTVWTXZ28Z6vzwa3riFIca3D0eVP6bt8KZrYMo7HvWQG3vzmTSxRjx4e2wHxciKo="
-
-matrix:
-    include:
-        - python: 2.7
-          env: BOKEH_DEFAULT_DIFF=FETCH_HEAD
-    exclude:
-        - python: 2.7
+    matrix:
+      - GROUP=js_tests
+      - GROUP=python_tests
+      - GROUP=integration_tests
+      - GROUP=examples_flake_docs
 
 branches:
   only:
@@ -33,6 +37,9 @@ branches:
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
+    # To actually run the examples you need to include the [ci enable examples] in your commit
+    # This allow you to quickly iterate on minimal changes and actually trigger the examples, on demand, when you need it
+    - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
     # Use xvfb to run tests that require firefox
     # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-%28e.g.-a-Web-browser%29
     - "export DISPLAY=:99.0"
@@ -44,13 +51,16 @@ install:
 script:
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
     # Eventually, we need to get rid of the generated stuff before packaging
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -m integration -rs; fi  # Run the integration tests
-    - if [[ -z "$TRAVIS_TAG" ]]; then py.test -s -m examples -rs; fi  # Run the examples
-    - ( cd sphinx; make all )
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == js_tests ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == python_tests ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration_tests ]]; then py.test -m integration -rs; fi  # Run the integration tests
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; fi # Add env variable for pdiff machinery
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples -rs; fi; fi # Run the examples
+    - echo "poor man logger"
+    - echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST
     # Flake/style testing (only needed on one machine)
-    - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs && $TRAVIS_PYTHON_VERSION == '3.4' ]]; then flake8 bokeh; fi
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_flake_docs ]]; then ( cd sphinx; make all ) ; fi #Run docs
 
 after_success:
     |

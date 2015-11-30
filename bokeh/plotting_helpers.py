@@ -20,6 +20,8 @@ from .properties import ColorSpec, Datetime
 from .util.string import nice_join
 import warnings
 
+DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+
 def get_default_color(plot=None):
     colors = [
       "#1f77b4",
@@ -131,8 +133,10 @@ def _update_legend(plot, legend_name, glyph_renderer):
     legends = plot.select(type=Legend)
     if not legends:
         legend = Legend(plot=plot)
-        plot.renderers.append(legend)
-        plot._dirty = True
+        # this awkward syntax is needed to go through Property.__set__ and
+        # therefore trigger a change event. With improvements to Property
+        # we might be able to use a more natural append() or +=
+        plot.renderers = plot.renderers + [legend]
     elif len(legends) == 1:
         legend = legends[0]
     else:
@@ -334,7 +338,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if arg in kw:
             setattr(plot, arg, kw.pop(arg))
 
-    fill_args = ["background_fill", "border_fill"]
+    fill_args = ["background_fill_color", "border_fill_color"]
     for arg in fill_args:
         if arg in kw:
             setattr(plot, arg, kw.pop(arg))
@@ -453,11 +457,13 @@ def _glyph_function(glyphclass, extra_docs=None):
             _update_legend(self, legend_name, glyph_renderer)
 
         for tool in self.select(type=BoxSelectTool):
-            tool.renderers.append(glyph_renderer)
-            tool._dirty = True
+            # this awkward syntax is needed to go through Property.__set__ and
+            # therefore trigger a change event. With improvements to Property
+            # we might be able to use a more natural append() or +=
+            tool.renderers = tool.renderers + [glyph_renderer]
 
-        self.renderers.append(glyph_renderer)
-        self._dirty = True
+        # awkward syntax for same reason mentioned above
+        self.renderers = self.renderers + [glyph_renderer]
         return glyph_renderer
 
     func.__name__ = glyphclass.__view_model__

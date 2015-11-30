@@ -17,6 +17,7 @@ from __future__ import print_function
 # Stdlib imports
 import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
+from shutil import copy
 
 try:
     import colorama
@@ -83,8 +84,9 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 # Classes and functions
 # -----------------------------------------------------------------------------
 
-package_data = []
+copy("LICENSE.txt", "bokeh/")
 
+package_data = ['LICENSE.txt', 'themes/*.yaml']
 
 def package_path(path, filters=()):
     if not os.path.exists(path):
@@ -97,12 +99,11 @@ def package_path(path, filters=()):
             for f in files:
                 if not filters or f.endswith(filters):
                     package_data.append(join(path, f))
+
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # And this is an intended PR to fix it: https://github.com/pypa/virtualenv/pull/508
 # Workaround to fix our issue: https://github.com/bokeh/bokeh/issues/378
-
-
 def getsitepackages():
     """Returns a list containing all global site-packages directories
     (and possibly site-python)."""
@@ -446,11 +447,8 @@ if jsinstall:
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
-package_path(join(SERVER, '_templates'))
 package_path(join(ROOT, 'bokeh', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
-package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
-scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
     site_packages = site.USER_SITE
@@ -511,6 +509,9 @@ REQUIRES = [
         'tornado>=4.0.1',
     ]
 
+if sys.version_info[:2] == (2, 7):
+    REQUIRES.append('futures>=3.0.3')
+
 _version = versioneer.get_version()
 _cmdclass = versioneer.get_cmdclass()
 
@@ -532,33 +533,38 @@ setup(
     cmdclass=_cmdclass,
     packages=[
         'bokeh',
+        'bokeh.application',
+        'bokeh.application.tests',
+        'bokeh.application.handlers',
+        'bokeh.application.handlers.tests',
         'bokeh.models',
         'bokeh.models.tests',
         'bokeh.models.widgets',
         'bokeh.charts',
-        'bokeh.charts.builder',
-        'bokeh.charts.builder.tests',
+        'bokeh.charts.builders',
+        'bokeh.charts.builders.tests',
         'bokeh.charts.tests',
         'bokeh._legacy_charts',
         'bokeh._legacy_charts.builder',
         'bokeh._legacy_charts.builder.tests',
         'bokeh._legacy_charts.tests',
+        'bokeh.client',
+        'bokeh.command',
         'bokeh.compat',
         'bokeh.compat.mplexporter',
         'bokeh.compat.mplexporter.renderers',
         'bokeh.crossfilter',
         'bokeh.sampledata',
         'bokeh.server',
-        'bokeh.server.models',
-        'bokeh.server.storage',
+        'bokeh.server.protocol',
+        'bokeh.server.protocol.messages',
+        'bokeh.server.protocol.messages.tests',
+        'bokeh.server.protocol.tests',
         'bokeh.server.tests',
-        'bokeh.server.utils',
         'bokeh.server.views',
-        'bokeh.server.websocket',
-        'bokeh.server.zmq',
         'bokeh.sphinxext',
+        'bokeh.themes',
         'bokeh.tests',
-        'bokeh.transforms',
         'bokeh.util',
         'bokeh.util.tests',
         'bokeh.validation',
@@ -569,7 +575,7 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=scripts,
+    scripts=['bin/bokeh'],
     zip_safe=False,
     install_requires=REQUIRES
 )

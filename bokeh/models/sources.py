@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import HasProps, abstract
-from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
+from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
@@ -10,16 +10,11 @@ from .callbacks import Callback
 from bokeh.deprecate import deprecated
 
 @abstract
-class DataSource(PlotObject):
+class DataSource(Model):
     """ A base class for data source types. ``DataSource`` is
     not generally useful to instantiate on its own.
 
     """
-
-    column_names = List(String, help="""
-    An list of names for all the columns in this DataSource.
-    """)
-
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'flag': False, 'indices': []},
         '1d': {'indices': []},
@@ -48,19 +43,6 @@ class DataSource(PlotObject):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-    def columns(self, *columns):
-        """ Returns a ColumnsRef object for a column or set of columns
-        on this data source.
-
-        Args:
-            *columns
-
-        Returns:
-            ColumnsRef
-
-        """
-        return ColumnsRef(source=self, columns=list(columns))
-
 class ColumnsRef(HasProps):
     """ A utility object to allow referring to a collection of columns
     from a specified data source, all together.
@@ -74,6 +56,7 @@ class ColumnsRef(HasProps):
     columns = List(String, help="""
     A list of column names to reference from ``source``.
     """)
+
 
 class ColumnDataSource(DataSource):
     """ Maps names of columns to sequences or arrays.
@@ -96,6 +79,10 @@ class ColumnDataSource(DataSource):
     Python lists or tuples, NumPy arrays, etc.
     """)
 
+    column_names = List(String, help="""
+    An list of names for all the columns in this DataSource.
+    """)
+
     def __init__(self, *args, **kw):
         """ If called with a single argument that is a dict or
         pandas.DataFrame, treat that implicitly as the "data" attribute.
@@ -110,9 +97,9 @@ class ColumnDataSource(DataSource):
                 raw_data = self._data_from_df(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
+        super(ColumnDataSource, self).__init__(**kw)
         for name, data in raw_data.items():
             self.add(data, name)
-        super(ColumnDataSource, self).__init__(**kw)
 
     @staticmethod
     def _data_from_df(df):
@@ -219,34 +206,49 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    def push_notebook(self):
-        """ Update date for a plot in the IPthon notebook in place.
 
-        This function can be be used to update data in plot data sources
-        in the IPython notebook, without having to use the Bokeh server.
+    def columns(self, *columns):
+        """ Returns a ColumnsRef object for a column or set of columns
+        on this data source.
+
+        Args:
+            *columns
 
         Returns:
-            None
-
-        .. warning::
-            The current implementation leaks memory in the IPython notebook,
-            due to accumulating JS code. This function typically works well
-            with light UI interactions, but should not be used for continuously
-            updating data. See :bokeh-issue:`1732` for more details and to
-            track progress on potential fixes.
+            ColumnsRef
 
         """
-        from IPython.core import display
-        from bokeh.protocol import serialize_json
-        id = self.ref['id']
-        model = self.ref['type']
-        json = serialize_json(self.vm_serialize())
-        js = """
-            var ds = Bokeh.Collections('{model}').get('{id}');
-            var data = {json};
-            ds.set(data);
-        """.format(model=model, id=id, json=json)
-        display.display_javascript(js, raw=True)
+        return ColumnsRef(source=self, columns=list(columns))
+
+
+    # def push_notebook(self):
+    #     """ Update date for a plot in the IPthon notebook in place.
+
+    #     This function can be be used to update data in plot data sources
+    #     in the IPython notebook, without having to use the Bokeh server.
+
+    #     Returns:
+    #         None
+
+    #     .. warning::
+    #         The current implementation leaks memory in the IPython notebook,
+    #         due to accumulating JS code. This function typically works well
+    #         with light UI interactions, but should not be used for continuously
+    #         updating data. See :bokeh-issue:`1732` for more details and to
+    #         track progress on potential fixes.
+
+    #     """
+    #     from IPython.core import display
+    #     from bokeh.protocol import serialize_json
+    #     id = self.ref['id']
+    #     model = self.ref['type']
+    #     json = serialize_json(self.vm_serialize())
+    #     js = """
+    #         var ds = Bokeh.Collections('{model}').get('{id}');
+    #         var data = {json};
+    #         ds.set(data);
+    #     """.format(model=model, id=id, json=json)
+    #     display.display_javascript(js, raw=True)
 
     @validation.error(COLUMN_LENGTHS)
     def _check_column_lengths(self):
@@ -318,17 +320,3 @@ class BlazeDataSource(RemoteSource):
         return from_tree(self.expr, {':leaf' : d})
 
 
-class ServerDataSource(BlazeDataSource):
-    """ A data source that referes to data located on a Bokeh server.
-
-    The data from the server is loaded on-demand by the client.
-    """
-    # Paramters of data transformation operations
-    # The 'Any' is used to pass primtives around.
-    # TODO: (jc) Find/create a property type for 'any primitive/atomic value'
-    transform = Dict(String,Either(Instance(PlotObject), Any), help="""
-    Paramters of the data transformation operations.
-
-    The associated valuse is minimally a tag that says which downsample routine
-    to use.  For some downsamplers, parameters are passed this way too.
-    """)

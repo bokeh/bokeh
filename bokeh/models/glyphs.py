@@ -7,17 +7,29 @@ from __future__ import absolute_import
 
 from ..enums import Direction, Anchor
 from ..mixins import FillProps, LineProps, TextProps
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
-                          Include, Instance, NumberSpec, StringSpec)
+                          Include, Instance, Int, NumberSpec, StringSpec)
+from .. import themes
 
 from .mappers import LinearColorMapper, ColorMapper
 
 @abstract
-class Glyph(PlotObject):
+class Glyph(Model):
     """ Base class for all glyph models. """
 
-    visible = Bool(help="""
+    def __init__(self, **kwargs):
+        props = dict()
+        if hasattr(self.__class__, "line_alpha"):
+            props.update(themes.default['line_defaults'])
+        if hasattr(self.__class__, "fill_alpha"):
+            props.update(themes.default['fill_defaults'])
+        if hasattr(self.__class__, "text_alpha"):
+            props.update(themes.default['text_defaults'])
+        props.update(kwargs)
+        super(Glyph, self).__init__(**props)
+
+    visible = Bool(True, help="""
     Whether the glyph should render or not.
     """)
 
@@ -228,7 +240,7 @@ class Gear(Glyph):
     How many teeth the gears have. [int]
     """)
 
-    pressure_angle = NumberSpec(default=20, help= """
+    pressure_angle = NumberSpec(default=20, help="""
     The complement of the angle between the direction that the teeth
     exert force on each other, and the line joining the centers of the
     two gears. [deg]
@@ -346,11 +358,11 @@ class ImageRGBA(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    rows = NumberSpec("rows", help="""
+    rows = NumberSpec(None, help="""
     The numbers of rows in the images
     """)
 
-    cols = NumberSpec("cols", help="""
+    cols = NumberSpec(None, help="""
     The numbers of columns in the images
     """)
 
@@ -450,6 +462,16 @@ class ImageURL(Glyph):
     anchor = Enum(Anchor, help="""
     What position of the image should be anchored at the `x`, `y`
     coordinates.
+    """)
+
+    retry_attempts = Int(0, help="""
+    Number of attempts to retry loading the images from the specified URL.
+    Default is zero.
+    """)
+
+    retry_timeout = Int(0, help="""
+    Timeout (in ms) between retry attempts to load the image from the
+    specified URL. Default is zero ms.
     """)
 
 class Line(Glyph):

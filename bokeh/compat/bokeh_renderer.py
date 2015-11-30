@@ -116,7 +116,14 @@ class BokehRenderer(Renderer):
         self.ax = ax
         self.plot.title = ax.get_title()
         # to avoid title conversion by draw_text later
-
+        
+        #Make sure that all information about the axes are passed to the properties
+        if props.get('xscale', False):
+            props['axes'][0]['scale'] = props['xscale']
+            
+        if props.get('yscale', False):
+            props['axes'][1]['scale'] = props['yscale']
+            
         # Add axis
         for props in props['axes']:
             if   props['position'] == "bottom" : location, dim, thing = "below", 0, ax.xaxis
@@ -135,10 +142,10 @@ class BokehRenderer(Renderer):
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
-        background_fill = ax.get_axis_bgcolor()
-        if background_fill == 'w':
-            background_fill = 'white'
-        self.plot.background_fill = background_fill
+        background_fill_color = ax.get_axis_bgcolor()
+        if background_fill_color == 'w':
+            background_fill_color = 'white'
+        self.plot.background_fill_color = background_fill_color
         if self.xkcd:
             self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
             self.plot.title_text_font_style = "bold"
@@ -312,7 +319,7 @@ class BokehRenderer(Renderer):
             laxis.major_tick_line_color = None
             laxis.minor_tick_line_color = None
             laxis.major_label_text_color = None
-        
+
         # To get the tick label format, we look at the first of the tick labels
         # and assume the rest are formatted similarly.
         ticklabels = ax.get_ticklabels()

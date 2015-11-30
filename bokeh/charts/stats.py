@@ -1,22 +1,47 @@
+""" Statistical methods used to define or modify position of glyphs.
+
+References:
+    Wilkinson L. The Grammer of Graphics, sections 7, 7.1
+
+Method Types:
+    - Bin: Partitions a space before statistical calculation
+    - Summary: Produces a single value comprising a statistical summary
+    - Region: Produces two values bounding an interval.
+    - Smooth: Produces values representing smoothed versions of the input data.
+    - Link: Produces edges from pairs of nodes in a graph.
+
+"""
+
 from __future__ import absolute_import
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from bokeh.properties import HasProps, Float, Either, String, Date, Datetime, Int, Bool, List, Instance
 from bokeh.models.sources import ColumnDataSource
-
-from ._properties import Column, EitherColumn, ColumnLabel
+from bokeh.properties import HasProps, Float, Either, String, Date, Datetime, Int, Bool, List, Instance
+from .properties import Column, EitherColumn, ColumnLabel
 
 
 class Stat(HasProps):
+    """Represents a statistical operation to summarize a column of data.
 
-    column = ColumnLabel()
-    source = ColumnDataSource()
+    Can be computed from either a ColumnLabel with a ColumnDataSource, *or*, a
+    discrete column of data.
+    """
 
+    # inputs
+    column = ColumnLabel(help="""A column to use for the stat calculation. Required
+        when providing a ColumnDataSource as input.""")
+    source = Instance(ColumnDataSource, help="""One option for providing the data
+        source for stat calculation.""")
     values = EitherColumn(Column(Float), Column(Int), Column(String),
-                  Column(Date), Column(Datetime), Column(Bool), default=None)
-    value = Float()
+                  Column(Date), Column(Datetime), Column(Bool), default=None, help="""
+                  Second option for providing values for stat calculation is by
+                  passing the actual column of data.""")
+
+    # output
+    value = Float(help="""The value calculated for the stat. Some stats could use
+        multiple properties to provide the calculation if required.""")
 
     def __init__(self, **properties):
         super(Stat, self).__init__(**properties)
@@ -33,7 +58,8 @@ class Stat(HasProps):
         if isinstance(data, pd.DataFrame):
             self.source = ColumnDataSource(data)
             if column is None:
-                raise ValueError('When providing a table of data, you must also provide a column label')
+                raise ValueError('When providing a table of data, '
+                                 'you must also provide a column label')
             else:
                 self.column = column
         else:
@@ -52,44 +78,40 @@ class Stat(HasProps):
 
     def calculate(self):
         """Return transformed value from column label/source or column-like data."""
-        raise NotImplementedError('You must implement the calculate method for each stat type.')
+        raise NotImplementedError('You must implement the calculate method '
+                                  'for each stat type.')
 
     def update(self):
+        """Perform any initial work before the actual calculation is performed."""
         pass
 
 
 class Sum(Stat):
-
     def calculate(self):
         self.value = self.get_data().sum()
 
 
 class Mean(Stat):
-
     def calculate(self):
         self.value = self.get_data().mean()
 
 
 class Count(Stat):
-
     def calculate(self):
         self.value = self.get_data().count()
 
 
 class CountDistinct(Stat):
-
     def calculate(self):
         self.value = self.get_data().nunique()
 
 
 class Median(Stat):
-
     def calculate(self):
         self.value = self.get_data().median()
 
 
 class StdDeviation(Stat):
-
     def calculate(self):
         self.value = self.get_data().std()
 
@@ -105,6 +127,11 @@ class Max(Stat):
 
 
 class Quantile(Stat):
+    """Produces the cutpoint that divides the input data by the interval.
+
+    Quartiles are a special case of quartiles that divide a dataset into four
+    equal-size groups. (https://en.wikipedia.org/wiki/Quantile)
+    """
     interval = Float(default=0.5)
 
     def calculate(self):
@@ -112,7 +139,7 @@ class Quantile(Stat):
 
 
 class Bin(Stat):
-
+    """Represents a single bin of data values and attributes of the bin."""
     label = String()
     start = Float()
     stop = Float()
@@ -133,6 +160,7 @@ class Bin(Stat):
 
     @staticmethod
     def binstr_to_list(bins):
+        """Produce a consistent display of a bin of data."""
         value_chunks = bins.split(',')
         value_chunks = [val.replace('[', '').replace(']', '').replace('(', '').replace(')', '') for val in value_chunks]
         bin_values = [float(value) for value in value_chunks]
@@ -171,7 +199,8 @@ class Bins(Stat):
             self.calc_num_bins(values)
 
     def calculate(self):
-        binned, bin_edges = pd.cut(self.get_data(), self.bin_count, retbins=True, precision=0)
+        binned, bin_edges = pd.cut(self.get_data(), self.bin_count,
+                                   retbins=True, precision=0)
 
         df = pd.DataFrame(dict(values=self.get_data(), bins=binned))
         bins = []

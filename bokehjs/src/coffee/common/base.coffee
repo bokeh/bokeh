@@ -22,8 +22,6 @@ locations =
   GMapPlot:                 require './gmap_plot'
   GeoJSPlot:                require './geojs_plot'
   GridPlot:                 require './grid_plot'
-  PlotContext:              require './plot_context'
-  PlotList:                 require './plot_context'
   Canvas:                   require './canvas'
   LayoutBox:                require './layout_box'
   CartesianFrame:           require './cartesian_frame'
@@ -39,6 +37,7 @@ locations =
   SegmentedColorMapper:     require '../mapper/segmented_color_mapper'
   LinearColorMapperReplacement:  require '../mapper/linear_color_mapper_replacement'
   LinearMapper:             require '../mapper/linear_mapper'
+  LogMapper:                require '../mapper/log_mapper'
 
   DataRange1d:              require '../range/data_range1d'
   FactorRange:              require '../range/factor_range'
@@ -48,6 +47,16 @@ locations =
   Legend:                   require '../renderer/annotation/legend'
   Span:                     require '../renderer/annotation/span'
   Tooltip:                  require '../renderer/annotation/tooltip'
+
+  TileRenderer:             require '../renderer/tile/tile_renderer'
+  TileSource:               require '../renderer/tile/tile_source'
+  TMSTileSource:            require '../renderer/tile/tms_tile_source'
+  WMTSTileSource:           require '../renderer/tile/wmts_tile_source'
+  QUADKEYTileSource:        require '../renderer/tile/quadkey_tile_source'
+  BBoxTileSource:           require '../renderer/tile/bbox_tile_source'
+
+  DynamicImageRenderer:     require '../renderer/tile/dynamic_image_renderer'
+  ImageSource:              require '../renderer/tile/image_source'
 
   GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 
@@ -96,7 +105,6 @@ locations =
   PolySelection:            require '../renderer/overlay/poly_selection'
 
   ColumnDataSource:         require '../source/column_data_source'
-  ServerDataSource:         require '../source/server_data_source'
   BlazeDataSource:          require '../source/blaze_data_source'
   AjaxDataSource:           require '../source/ajax_data_source'
 
@@ -239,6 +247,10 @@ Collections.register_models = (specs) ->
   for own name, impl of specs
     Collections.register_model(name, impl)
 
+# "index" is a map from the toplevel model IDs rendered by
+# embed.coffee, to the view objects for those models.  It doesn't
+# contain all views, only those explicitly rendered to an element
+# by embed.coffee.
 index = {}
 
 module.exports =

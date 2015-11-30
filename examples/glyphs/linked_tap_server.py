@@ -4,13 +4,12 @@ import numpy as np
 
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, Circle, VBox, HBox, Button, TapTool
 from bokeh.document import Document
-from bokeh.session import Session
 from bokeh.browserlib import view
+from bokeh.client import push_session
 
 document = Document()
-session = Session()
-session.use_doc('linked_tap_server')
-session.load_document(document)
+session = push_session(document)
+
 
 N = 9
 
@@ -31,18 +30,17 @@ plot2 = Plot(title="Plot2", x_range=xdr2, y_range=ydr2, plot_width=400, plot_hei
 plot2.tools.append(TapTool(plot=plot2))
 plot2.add_glyph(source2, Circle(x="x", y="y", size=20, fill_color="color"))
 
-def on_selection_change1(obj, attr, _, inds):
+def on_selection_change1(attr, _, inds):
     color = ["blue"]*N
     if inds['1d']['indices']:
         indices = inds['1d']['indices']
         for i in indices:
             color[i] = "red"
     source2.data["color"] = color
-    session.store_objects(source2)
 
 source1.on_change('selected', on_selection_change1)
 
-def on_selection_change2(obj, attr, _, inds):
+def on_selection_change2(attr, _, inds):
     inds = inds['1d']['indices']
     if inds:
         [index] = inds
@@ -51,7 +49,6 @@ def on_selection_change2(obj, attr, _, inds):
     else:
         size = [20]*N
     source1.data["size"] = size
-    session.store_objects(source1)
 
 source2.on_change('selected', on_selection_change2)
 
@@ -68,7 +65,6 @@ def on_reset_click():
         '1d': {'indices': []},
         '2d': {'indices': []}
     }
-    session.store_objects(source1, source2)
 
 reset.on_click(on_reset_click)
 
@@ -76,11 +72,8 @@ vbox = VBox(children=[reset], width=150)
 hbox = HBox(children=[vbox, plot1, plot2])
 
 document.add(hbox)
-session.store_document(document)
+session.show(hbox)
 
 if __name__ == "__main__":
-    link = session.object_link(document.context)
-    print("Please visit %s to see the plots" % link)
-    view(link)
     print("\npress ctrl-C to exit")
-    session.poll_document(document)
+    session.loop_until_closed()

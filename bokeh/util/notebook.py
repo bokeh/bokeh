@@ -30,20 +30,11 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     global _notebook_loaded
 
     from .. import __version__
-    from ..resources import INLINE
-    from ..templates import NOTEBOOK_LOAD, JS_RESOURCES, CSS_RESOURCES
+    from ..resources import CDN
+    from ..templates import NOTEBOOK_LOAD
 
     if resources is None:
-        resources = INLINE
-
-    bokeh_js = JS_RESOURCES.render(
-        js_raw=resources.js_raw,
-        js_files=resources.js_files,
-    )
-    bokeh_css = CSS_RESOURCES.render(
-        css_raw=resources.css_raw,
-        css_files=resources.css_files,
-    )
+        resources = CDN
 
     if resources.mode == 'inline':
         js_info = 'inline'
@@ -60,8 +51,8 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     _notebook_loaded = resources
 
     html = NOTEBOOK_LOAD.render(
-        bokeh_js=bokeh_js,
-        bokeh_css=bokeh_css,
+        bokeh_js=resources.render_js(),
+        bokeh_css=resources.render_css(),
         logo_url=resources.logo_url,
         verbose=verbose,
         js_info=js_info,

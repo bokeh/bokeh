@@ -9,6 +9,7 @@ from .component import *
 from .formatters import *
 from .glyphs import *
 from .grids import *
+from .images import *
 from .map_plots import *
 from .markers import *
 from .mappers import *
@@ -17,5 +18,6 @@ from .ranges import *
 from .renderers import *
 from .sources import *
 from .tickers import *
+from .tiles import *
 from .tools import *
 from .widgets import *
