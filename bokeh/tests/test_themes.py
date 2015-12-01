@@ -6,6 +6,7 @@ import tempfile
 
 from bokeh.document import Document
 from bokeh.model import Model
+from bokeh.mixins import FillProps, LineProps, TextProps
 from bokeh.properties import Int, Instance, String
 from bokeh.themes import default as default_theme
 from bokeh.themes import Theme
@@ -152,3 +153,45 @@ attrs:
         doc.theme = None
         self.assertIsNot(doc.theme, None)
         self.assertEqual('hello', obj.string)
+
+    def _compare_dict_to_model_class_defaults(self, props, model_class):
+        model = model_class()
+        for name, value in props.items():
+            property = model.lookup(name)
+            if property is None:
+                raise RuntimeError("Model %r has no property %s" % (model, name))
+            default = property.class_default(model_class)
+            if default != value:
+                print("%s.%s differs default %r theme %r" % (model_class.__name__, name, default, value))
+            else:
+                print("%s.%s default %r is identical in the theme" % (model_class.__name__, name, default))
+
+    def _compare_dict_to_model_defaults(self, props, model_name):
+        import bokeh.models as models
+        import bokeh.models.widgets as widgets
+
+        if hasattr(models, model_name):
+            self._compare_dict_to_model_class_defaults(props, getattr(models, model_name))
+        elif hasattr(widgets, model_name):
+            self._compare_dict_to_model_class_defaults(props, getattr(widgets, model_name))
+        else:
+            raise RuntimeError("Could not find class for " + model_name)
+
+    def test_default_theme_is_empty(self):
+        # this is kind of a silly test once we fix default.yaml to be empty :-)
+        # the point is to list all the things to fix.
+        doc = Document()
+
+        # before each assertion, we print out why it's going to fail.
+        for class_name, props in doc.theme._json['attrs'].items():
+            self._compare_dict_to_model_defaults(props, class_name)
+        self.assertEqual(0, len(doc.theme._json['attrs']))
+
+        self._compare_dict_to_model_class_defaults(doc.theme._fill_defaults, FillProps)
+        self.assertEqual(0, len(doc.theme._fill_defaults))
+
+        self._compare_dict_to_model_class_defaults(doc.theme._text_defaults, TextProps)
+        self.assertEqual(0, len(doc.theme._text_defaults))
+
+        self._compare_dict_to_model_class_defaults(doc.theme._line_defaults, LineProps)
+        self.assertEqual(0, len(doc.theme._line_defaults))

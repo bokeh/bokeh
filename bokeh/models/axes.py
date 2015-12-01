@@ -56,7 +56,7 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = String(help="""
+    axis_label = String(default='', help="""
     A text label for the axis, displayed parallel to the axis rule.
 
     .. note::
@@ -65,7 +65,7 @@ class Axis(GuideRenderer):
 
     """)
 
-    axis_label_standoff = Int(help="""
+    axis_label_standoff = Int(default=5, help="""
     The distance in pixels that the axis labels should be offset
     from the tick labels.
     """)
@@ -74,7 +74,13 @@ class Axis(GuideRenderer):
     The %s of the axis label.
     """)
 
-    major_label_standoff = Int(help="""
+    axis_label_text_align = Override(default="center")
+
+    axis_label_text_baseline = Override(default="alphabetic")
+
+    axis_label_text_font_size = Override(default={ 'value' : "16pt" })
+
+    major_label_standoff = Int(default=5, help="""
     The distance in pixels that the major tick labels should be
     offset from the associated ticks.
     """)
@@ -88,6 +94,12 @@ class Axis(GuideRenderer):
     The %s of the major tick labels.
     """)
 
+    major_label_text_align = Override(default="center")
+
+    major_label_text_baseline = Override(default="alphabetic")
+
+    major_label_text_font_size = Override(default={ 'value' : "10pt" })
+
     axis_props = Include(LineProps, help="""
     The %s of the axis line.
     """)
@@ -96,12 +108,12 @@ class Axis(GuideRenderer):
     The %s of the major ticks.
     """)
 
-    major_tick_in = Int(help="""
+    major_tick_in = Int(default=2, help="""
     The distance in pixels that major ticks should extend into the
     main plot area.
     """)
 
-    major_tick_out = Int(help="""
+    major_tick_out = Int(default=6, help="""
     The distance in pixels that major ticks should extend out of the
     main plot area.
     """)
@@ -110,12 +122,12 @@ class Axis(GuideRenderer):
     The %s of the minor ticks.
     """)
 
-    minor_tick_in = Int(help="""
+    minor_tick_in = Int(default=0, help="""
     The distance in pixels that minor ticks should extend into the
     main plot area.
     """)
 
-    minor_tick_out = Int(help="""
+    minor_tick_out = Int(default=4, help="""
     The distance in pixels that major ticks should extend out of the
     main plot area.
     """)

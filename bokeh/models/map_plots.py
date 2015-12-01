@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..properties import HasProps, abstract
-from ..properties import Enum, Float, Instance, Int, JSON
+from ..properties import Enum, Float, Instance, Int, JSON, Override
 from ..enums import MapType
 from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
 from ..validation.errors import REQUIRED_RANGE
@@ -82,6 +82,8 @@ class GMapPlot(MapPlot):
     map_options = Instance(GMapOptions, help="""
     Options for displaying the plot.
     """)
+
+    border_fill_color = Override(default="#ffffff")
 
 class GeoJSOptions(MapOptions):
     """ Options for GeoJSPlot objects.

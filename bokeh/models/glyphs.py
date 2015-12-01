@@ -54,7 +54,7 @@ class AnnularWedge(Glyph):
     The angles to end the annular wedges, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.
     """)
 
@@ -544,7 +544,7 @@ class Oval(Glyph):
     The overall height of each oval.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(default=0, help="""
     The angle the ovals are rotated from horizontal. [rad]
     """)
 
@@ -762,7 +762,7 @@ class Rect(Glyph):
     The overall heights of the rectangles.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(default=0.0, help="""
     The angles to rotate the rectangles, as measured from the horizontal.
     """)
 
@@ -885,7 +885,7 @@ class Wedge(Glyph):
     The angles to end the wedges, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.
     """)
 
