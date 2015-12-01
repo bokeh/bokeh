@@ -6,7 +6,7 @@ from os.path import join
 
 from .theme import Theme
 
-default = Theme(filename=join(__path__[0], 'default.yaml'))
+default = Theme(json={})
 
 del join
 
