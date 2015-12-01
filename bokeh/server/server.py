@@ -32,13 +32,8 @@ class Server(object):
         else:
             self._applications = applications
 
-        io_loop = None
-        if 'io_loop' in kwargs:
-            io_loop = kwargs['io_loop']
-
-        extra_patterns = None
-        if 'extra_patterns' in kwargs:
-            extra_patterns = kwargs['extra_patterns']
+        io_loop = kwargs.get('io_loop')
+        extra_patterns = kwargs.get('extra_patterns')
 
         self._tornado = BokehTornado(self._applications, io_loop=io_loop, extra_patterns=extra_patterns)
         self._http = HTTPServer(self._tornado)
