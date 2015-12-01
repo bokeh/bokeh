@@ -7,7 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
-from bokeh.document import SessionCallbackAdded, SessionCallbackRemoved, PeriodicCallback, TimeoutCallback
+from bokeh.document import PeriodicCallback, TimeoutCallback
 
 import time
 

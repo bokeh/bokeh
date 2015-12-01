@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 from .connection import ClientConnection
 
 from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL, DEFAULT_SERVER_HTTP_URL, server_url_for_websocket_url
-from bokeh.document import Document, SessionCallbackAdded, SessionCallbackRemoved, PeriodicCallback, TimeoutCallback
+from bokeh.document import Document, PeriodicCallback, TimeoutCallback
 import uuid
 
 DEFAULT_SESSION_ID = "default"
