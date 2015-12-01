@@ -183,7 +183,7 @@ class LineBuilder(XYBuilder):
 
         Args:
             ids (list(str)): the column names that describe the measures
-        
+
         """
         if isinstance(self.y.selection, list):
             dim = 'y'
@@ -209,9 +209,9 @@ class LineBuilder(XYBuilder):
         self.set_series('series')
 
     def get_builder_attr(self):
-        attrs = self.class_properties()
+        attrs = self.properties()
         return {attr: getattr(self, attr) for attr in attrs
-                if attr in self.glyph.class_properties()}
+                if attr in self.glyph.properties()}
 
 
     def yield_renderers(self):
@@ -220,7 +220,7 @@ class LineBuilder(XYBuilder):
 
         # get the list of builder attributes and only pass them on if glyph supports
         attrs = list(self.attributes.keys())
-        attrs = [attr for attr in attrs if attr in self.glyph.class_properties()]
+        attrs = [attr for attr in attrs if attr in self.glyph.properties()]
 
         for group in self._data.groupby(**self.attributes):
 

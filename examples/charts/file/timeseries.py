@@ -24,7 +24,7 @@ xyvalues = OrderedDict(
 
 TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 
-output_file("stocks_timeseries.html")
+output_file("timeseries.html")
 
 # line simple
 tsline = TimeSeries(

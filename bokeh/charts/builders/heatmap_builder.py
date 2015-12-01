@@ -142,10 +142,10 @@ class HeatMapBuilder(XYBuilder):
         for op in self._data.operations:
             if isinstance(op, Bins):
                 if op.centers_column == self.x.selection:
-                    if 'bin_width' not in self.changed_properties():
+                    if 'bin_width' not in self.properties_with_values(include_defaults=False):
                         self.bin_width = op.bin_width
                 else:
-                    if 'bin_height' not in self.changed_properties():
+                    if 'bin_height' not in self.properties_with_values(include_defaults=False):
                         self.bin_height = op.bin_width
 
     def process_data(self):

@@ -36,7 +36,7 @@ def checkbox_button_group_handler(active):
 def radio_button_group_handler(active):
     print("radio_button_group_handler: %s" % active)
 
-button = Button(label="Push button", icon=Icon(name="check"), type="primary")
+button = Button(label="Push button", icon=Icon(icon_name="check"), type="primary")
 button.on_click(button_handler)
 
 toggle = Toggle(label="Toggle button", type="success")

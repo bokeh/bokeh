@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from collections import defaultdict
 
@@ -12,7 +12,7 @@ from bokeh.models.glyphs import Rect, Segment, Line, Patch, Patches
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,
-                              List, Either, Int, Enum, Color)
+                              List, Either, Int, Enum, Color, Override)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
@@ -51,8 +51,6 @@ class XyGlyph(CompositeGlyph):
     """Composite glyph that plots in cartesian coordinates."""
     x = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
-    line_color = String(default=DEFAULT_PALETTE[0])
-    line_alpha = Float(default=1.0)
 
     def build_source(self):
         if self.x is None:
@@ -67,26 +65,26 @@ class XyGlyph(CompositeGlyph):
 
     @property
     def x_max(self):
-        return max(self.source._data['x_values'])
+        return max(self.source.data['x_values'])
 
     @property
     def x_min(self):
-        return min(self.source._data['x_values'])
+        return min(self.source.data['x_values'])
 
     @property
     def y_max(self):
-        return max(self.source._data['y_values'])
+        return max(self.source.data['y_values'])
 
     @property
     def y_min(self):
-        return min(self.source._data['y_values'])
+        return min(self.source.data['y_values'])
 
 
 class PointGlyph(XyGlyph):
     """A set of glyphs placed in x,y coordinates with the same attributes."""
 
-    fill_color = Color(default=DEFAULT_PALETTE[1])
-    fill_alpha = Float(default=0.7)
+    fill_color = Override(default=DEFAULT_PALETTE[1])
+    fill_alpha = Override(default=0.7)
     marker = String(default='circle')
     size = Float(default=8)
 
@@ -99,10 +97,9 @@ class PointGlyph(XyGlyph):
             line_color = color
             fill_color = color
 
-        kwargs['line_color'] = line_color or self.line_color
-        kwargs['fill_color'] = fill_color or self.fill_color
-        kwargs['marker'] = marker or self.marker
-        kwargs['size'] = size or self.size
+        kwargs['line_color'] = line_color
+        kwargs['fill_color'] = fill_color
+
         super(PointGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -130,9 +127,7 @@ class LineGlyph(XyGlyph):
                  width=None, dash=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
-        kwargs['line_color'] = color or line_color or self.line_color
-        kwargs['width'] = width or self.width
-        kwargs['dash'] = dash or self.dash
+
         super(LineGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -277,7 +272,7 @@ class HorizonGlyph(AreaGlyph):
 
             # each series is shifted up to a synthetic y-axis
             kwargs['base'] = kwargs['series'] * max(bins) / kwargs['series_count']
-            kwargs['graph_ratio'] = kwargs['num_folds']/kwargs['series_count']
+            kwargs['graph_ratio'] = float(kwargs['num_folds'])/float(kwargs['series_count'])
 
         super(HorizonGlyph, self).__init__(**kwargs)
 
@@ -748,7 +743,7 @@ class BoxGlyph(AggregateGlyph):
     def __init__(self, label, values, outliers=True, **kwargs):
         width = kwargs.pop('width', None)
 
-        bar_color = kwargs.pop('color', None) or self.bar_color
+        bar_color = kwargs.pop('color', None) or kwargs.get('bar_color', None) or self.lookup('bar_color').class_default()
 
         kwargs['outliers'] = kwargs.pop('outliers', None) or outliers
         kwargs['label'] = label
@@ -860,7 +855,8 @@ class HistogramGlyph(AggregateGlyph):
             kwargs['label'] = label
         kwargs['values'] = values
         kwargs['bin_count'] = bin_count
-        kwargs['color'] = color or self.color
+        if color is not None:
+            kwargs['color'] = color
 
         # remove width, since this is handled automatically
         kwargs.pop('width', None)
@@ -962,6 +958,3 @@ class BinGlyph(XyGlyph):
             return min(data), max(data)
         else:
             return 1, len(data.drop_duplicates())
-
-
-

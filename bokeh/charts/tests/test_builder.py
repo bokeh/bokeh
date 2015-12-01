@@ -18,6 +18,7 @@ from __future__ import absolute_import
 import pytest
 
 from bokeh.charts.builder import Builder
+from bokeh.charts.properties import Dimension
 from bokeh.charts.attributes import ColorAttr, DEFAULT_PALETTE
 
 #-----------------------------------------------------------------------------
@@ -32,6 +33,10 @@ CUSTOM_PALETTE = ['Red', 'Green', 'Blue']
 def test_builder():
     class TestBuilder(Builder):
         default_attributes = {'color': ColorAttr()}
+        x = Dimension('x')
+        y = Dimension('y')
+
+        dimensions = ['x', 'y']
 
     return TestBuilder
 
@@ -58,4 +63,3 @@ def test_default_color(simple_builder):
 
 def test_custom_color(custom_palette_builder):
     assert custom_palette_builder.attributes['color'].iterable == CUSTOM_PALETTE
-
