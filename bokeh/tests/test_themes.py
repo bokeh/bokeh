@@ -32,6 +32,16 @@ class TestThemes(unittest.TestCase):
         theme = Theme(json=dict())
         theme.apply_to_model(ThemedModel())
 
+    def test_construct_bad_attrs(self):
+        with self.assertRaises(ValueError) as manager:
+            theme = Theme(json=dict(attrs=42))
+        self.assertTrue("should be a dictionary of class names" in repr(manager.exception))
+
+    def test_construct_bad_class_props(self):
+        with self.assertRaises(ValueError) as manager:
+            theme = Theme(json=dict(attrs=dict(SomeClass=42)))
+        self.assertTrue("should be a dictionary of properties" in repr(manager.exception))
+
     def test_construct_nonempty_theme_from_file(self):
         with (tempfile.NamedTemporaryFile()) as file:
             # create and apply empty theme with no exception thrown

@@ -28,6 +28,13 @@ class Theme(object):
         if 'attrs' not in self._json:
             self._json['attrs'] = {}
 
+        if not isinstance(self._json['attrs'], dict):
+            raise ValueError("theme problem: attrs field should be a dictionary of class names, not %r" % (self._json['attrs']))
+
+        for key, value in self._json['attrs'].items():
+            if not isinstance(value, dict):
+                raise ValueError("theme problem: attrs.%s should be a dictionary of properties, not %r" % (key, value))
+
         self._line_defaults = self._json.get('line_defaults', _empty_dict)
         self._fill_defaults = self._json.get('fill_defaults', _empty_dict)
         self._text_defaults = self._json.get('text_defaults', _empty_dict)
