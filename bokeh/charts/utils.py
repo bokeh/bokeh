@@ -432,6 +432,26 @@ def help(*builders):
     return add_help
 
 
+def derive_aggregation(dim_cols, agg_col, agg):
+    """Produces consistent aggregation spec from optional column specification.
+
+    This utility provides some consistency to the flexible inputs that can be provided
+    to charts, such as not specifying dimensions to aggregate on, not specifying an
+    aggregation, and/or not specifying a column to aggregate on.
+    """
+    if dim_cols == 'index' or agg_col == 'index' or dim_cols == None:
+        agg = None
+        agg_col = None
+    elif agg_col is None:
+        if isinstance(dim_cols, list):
+            agg_col = dim_cols[0]
+        else:
+            agg_col = dim_cols
+        agg = 'count'
+
+    return agg_col, agg
+
+
 def build_wedge_source(df, cat_cols, agg_col=None, agg='mean', level_width=0.5,
                        level_spacing=0.01):
     df = cat_to_polar(df, cat_cols, agg_col, agg, level_width)
@@ -481,9 +501,7 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
 
     """
 
-    if agg_col is None:
-        agg_col = cat_cols[0]
-        agg = 'count'
+    agg_col, agg = derive_aggregation(cat_cols, agg_col, agg)
 
     def calc_span_proportion(data):
         """How much of the circle should be assigned."""
@@ -499,7 +517,11 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
     for i in range(0, len(cat_cols)):
         level_cols = cat_cols[:i+1]
 
-        gb = getattr(getattr(df.groupby(level_cols), agg_col), agg)()
+        if agg_col is not None and agg is not None:
+            gb = getattr(getattr(df.groupby(level_cols), agg_col), agg)()
+        else:
+            cols = [col for col in df.columns if col != 'index']
+            gb = df[cols[0]]
 
         # lower than top level, need to groupby next to lowest level
         group_level = i - 1
@@ -523,18 +545,19 @@ def cat_to_polar(df, cat_cols, agg_col=None, agg='mean', level_width=0.5):
                        'level': pd.concat(levels_cols),
                        'values': pd.concat(agg_values)})
 
-    idx = df.index.copy().values
+    if len(cat_cols) > 1:
+        idx = df.index.copy().values
 
-    for i, val in enumerate(df.index):
-        if not isinstance(val, tuple):
-            val = (val, '')
-        idx[i] = val
+        for i, val in enumerate(df.index):
+            if not isinstance(val, tuple):
+                val = (val, '')
+            idx[i] = val
 
-    df.index = pd.MultiIndex.from_tuples(idx)
-    df.index.names = cat_cols
+        df.index = pd.MultiIndex.from_tuples(idx)
+        df.index.names = cat_cols
 
-    # sort the index to avoid performance warning (might alter chart)
-    df.sortlevel(inplace=True)
+        # sort the index to avoid performance warning (might alter chart)
+        df.sortlevel(inplace=True)
 
     inners, outers = calc_wedge_bounds(df['level'], level_width)
     df['inners'] = inners
@@ -572,7 +595,7 @@ def add_text_label_from_index(df):
     return df
 
 
-def build_wedge_text_source(df, text_col, start_col='start', end_col='end',
+def build_wedge_text_source(df, start_col='start', end_col='end',
                             center_col='centers'):
     """Generate `ColumnDataSource` for text representation of donut levels.
 

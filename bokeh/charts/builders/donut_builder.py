@@ -20,8 +20,8 @@ It also add a new chained stacked method.
 from __future__ import absolute_import
 
 from ..builder import create_and_build, Builder
-from ..utils import (title_from_columns, build_wedge_source,
-                     build_wedge_text_source, add_charts_hover)
+from ..utils import (build_wedge_source, build_wedge_text_source,
+                     add_charts_hover, derive_aggregation)
 from ..attributes import ColorAttr, CatAttr
 from ...models.sources import ColumnDataSource
 from ...models.glyphs import AnnularWedge, Text
@@ -30,13 +30,15 @@ from ...models.ranges import Range1d
 from ..properties import Dimension
 from ...properties import String, Instance, Float, Color, Either, List
 
+import pandas as pd
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def Donut(data, label=None, values=None, xgrid=False,
-          ygrid=False, color=None, agg='sum', height=400, width=400,
+def Donut(data, label='index', values=None, xgrid=False,
+          ygrid=False, color=None, agg=None, height=400, width=400,
           hover_tool=True, hover_text=None, **kw):
     """ Create a Donut chart containing one or more layers from table-like data.
 
@@ -82,15 +84,18 @@ def Donut(data, label=None, values=None, xgrid=False,
     kw['color'] = color
     kw['xgrid'] = xgrid
     kw['ygrid'] = ygrid
-    kw['agg'] = agg
     kw['height'] = height
     kw['width'] = width
+
+    if agg is not None:
+        kw['agg'] = agg
 
     chart = create_and_build(DonutBuilder, data, **kw)
 
     chart.left[0].visible = False
     chart.below[0].visible = False
 
+    values, agg = derive_aggregation(dim_cols=label, agg_col=values, agg=agg)
     add_charts_hover(chart, use_hover=hover_tool, hover_text=hover_text,
                      values_col=values, agg_text=agg)
 
@@ -106,7 +111,6 @@ class DonutBuilder(Builder):
     """
 
     default_attributes = {'color': ColorAttr(),
-                          'group': CatAttr(),
                           'label': CatAttr(),
                           'stack': CatAttr()}
 
@@ -114,7 +118,7 @@ class DonutBuilder(Builder):
 
     values = Dimension('values')
 
-    agg = String()
+    agg = String(default='sum')
 
     chart_data = Instance(ColumnDataSource)
     text_data = Instance(ColumnDataSource)
@@ -125,6 +129,42 @@ class DonutBuilder(Builder):
     line_color = Color(default='White')
 
     def setup(self):
+
+        if self.attributes['label'].columns is None:
+            self.attributes['label'].setup(data=self._data.source,
+                                           columns=self._data.df.columns[0])
+
+        # handle input options where values were provided in simple or pre-aggregated
+        # format
+        if self.values.selection is None:
+
+            # identify data that was indexed by a groupby operation and setup data/label
+            # after this transformation, the rest of the chart is processed as if the
+            # inputs were provided as column labels
+            if not all([name is None for name in self._data.df.index.names]):
+                label_cols = list(self._data.df.index.names)
+                self._data._data.reset_index(inplace=True)
+                self.attributes['label'].setup(data=self._data.source,
+                                               columns=label_cols)
+
+                # find remaining column for pre-aggregated data
+                cols = [col for col in self._data.df.columns if col not in
+                        label_cols + ['index']]
+
+            # when there is 'index' selection for label, use remaining column as label
+            # if the remaining column is an object
+            elif self.attributes['label'].columns[0] == 'index':
+                cols = [col for col in self._data.df.columns if col not in ['index']]
+            else:
+                cols = self.attributes['label'].columns
+
+            # setup our selection
+            self.values.selection = cols[0]
+
+            if self._data.df[self.values.selection].dtype.name == 'object':
+                self.attributes['label'].setup(data=self._data.source,
+                                               columns=cols[0])
+                self.agg = 'count'
 
         # infer color specification and stacking
         if self.attributes['color'].columns is None:
@@ -159,7 +199,7 @@ class DonutBuilder(Builder):
 
         # create the source for the wedges and the text
         self.chart_data = ColumnDataSource(polar_data)
-        self.text_data = build_wedge_text_source(polar_data, text_col='index')
+        self.text_data = build_wedge_text_source(polar_data)
 
     def yield_renderers(self):
 
