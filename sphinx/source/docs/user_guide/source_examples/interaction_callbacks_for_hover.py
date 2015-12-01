@@ -1,6 +1,6 @@
 
 from bokeh.plotting import figure, output_file, show
-from bokeh.models import ColumnDataSource, Circle, HoverTool, CustomJS
+from bokeh.models import ColumnDataSource, HoverTool, CustomJS
 
 output_file("hover_callback.html")
 
