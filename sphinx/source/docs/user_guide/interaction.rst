@@ -265,13 +265,6 @@ The HoverTool has a callback which comes with two pieces of built-in data: the
 `index`, and the `geometry`. The `index` is the indices of any points that the
 hover tool is over.
 
-.. note::
-    Hovers are considered "inspections" and do not normally set the selection
-    on a data source. In an upcoming release, it will be possible to specify an
-    ``inspection_glyph`` that will update a glyphs appearance when it is
-    hovered over, without the need for any callback to set the selection as is
-    done below.
-
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_hover.py
     :source-position: above
 
