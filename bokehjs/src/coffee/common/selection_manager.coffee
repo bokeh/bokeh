@@ -10,7 +10,7 @@ class SelectionManager extends HasProperties
   initialize: (attrs, options) ->
     super(attrs, options)
     @selectors = {}
-    @insepctors = {}
+    @inspectors = {}
 
   serializable_in_document: () -> false
 
@@ -70,8 +70,8 @@ class SelectionManager extends HasProperties
     return @selectors[rview.model.id]
 
   _get_inspector: (rview) ->
-    _.setdefault(@insepctors, rview.model.id, new Selector())
-    return @insepctors[rview.model.id]
+    _.setdefault(@inspectors, rview.model.id, new Selector())
+    return @inspectors[rview.model.id]
 
 
 module.exports = SelectionManager
