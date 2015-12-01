@@ -11,16 +11,16 @@ class DirectoryHandler(Handler):
         super(DirectoryHandler, self).__init__(*args, **kwargs)
         # for now this is simply a wrapper around ScriptHandler
         # but the intent is to add more stuff over time of course
-        if 'filename' in kwargs:
-            src_path = kwargs['filename']
-            mainpy = os.path.join(src_path, 'main.py')
-            if not os.path.exists(mainpy):
-                raise ValueError("No 'main.py' in %s" % (src_path))
-            self._path = src_path
-            self._mainpy = mainpy
-            self._mainpy_handler = ScriptHandler(filename=self._mainpy)
-        else:
+        if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to ScriptHandler')
+
+        src_path = kwargs['filename']
+        mainpy = os.path.join(src_path, 'main.py')
+        if not os.path.exists(mainpy):
+            raise ValueError("No 'main.py' in %s" % (src_path))
+        self._path = src_path
+        self._mainpy = mainpy
+        self._mainpy_handler = ScriptHandler(filename=self._mainpy)
 
     def url_path(self):
         if self.failed:
