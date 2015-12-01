@@ -59,7 +59,7 @@ def test_cat_to_polor(test_data, polar_cats):
 
 def test_create_wedge_text(polar_cats):
     """Check for type of output and columns in output for wedge text source."""
-    text_data = build_wedge_text_source(polar_cats, text_col='index')
+    text_data = build_wedge_text_source(polar_cats)
     assert isinstance(text_data, ColumnDataSource)
     assert all(col in text_data.column_names for col in
                ['x', 'y', 'text', 'text_angle']) is True

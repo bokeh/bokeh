@@ -30,8 +30,6 @@ from ...models.ranges import Range1d
 from ..properties import Dimension
 from ...properties import String, Instance, Float, Color, Either, List
 
-import pandas as pd
-
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
