@@ -1,5 +1,5 @@
-from bokeh.plotting import figure, hplot, output_file, show
-from bokeh.models import  ColumnDataSource, HoverTool, CustomJS, Slider
+from bokeh.plotting import Figure, hplot, output_file, show
+from bokeh.models import ColumnDataSource, HoverTool, CustomJS, Slider
 from bokeh.io import vform
 import colorsys
 
@@ -43,9 +43,13 @@ source = ColumnDataSource(data=dict(x = x, y = y, color = [hex_color], text_colo
 tools1 = 'reset, save'
 
 # create first plot, as a rect() glyph and centered text label, with fill and text color taken from source
-p1 = figure(x_range=(-8, 8), y_range=(-4, 4), plot_width=600, plot_height=300, title=None, tools=tools1)
-color_block = p1.rect(x='x', y='y', width=18, height=10, fill_color='color', line_color = 'black', source=source)
-hex_code_text = p1.text('x', 'y', text='color', text_color='text_color', alpha=0.6667, text_font_size='36pt', text_baseline='middle', text_align='center', source=source)
+p1 = Figure(x_range=(-8, 8), y_range=(-4, 4), plot_width=600, plot_height=300,
+            title=None, tools=tools1)
+color_block = p1.rect(x='x', y='y', width=18, height=10, fill_color='color',
+                      line_color = 'black', source=source)
+hex_code_text = p1.text('x', 'y', text='color', text_color='text_color',
+                        alpha=0.6667, text_font_size='36pt', text_baseline='middle',
+                        text_align='center', source=source)
 
 # the callback function to update the color of the block and associated label text
 # NOTE: the JS functions for converting RGB to hex are taken from the excellent answer
@@ -97,7 +101,7 @@ crsource = ColumnDataSource(data=dict(x = crx, y = cry, crcolor = crcolor, RGBs 
 tools2 = 'reset, save, hover'
 
 # create second plot
-p2 = figure(x_range=(0,1000), y_range=(0,10), plot_width=600, plot_height=150, tools=tools2, title = 'hover over color')
+p2 = Figure(x_range=(0,1000), y_range=(0,10), plot_width=600, plot_height=150, tools=tools2, title = 'hover over color')
 color_range1 = p2.rect(x='x', y='y', width=1, height=10, color='crcolor', source=crsource)
 # set up hover tool to show color hex code and sample swatch
 hover = p2.select(dict(type=HoverTool))

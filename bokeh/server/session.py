@@ -29,11 +29,17 @@ def _needs_document_lock(func):
     def _needs_document_lock_wrapper(self, *args, **kwargs):
         with (yield self._lock.acquire()):
             if self._pending_writes is not None:
-                raise RuntimeError("internal class invariant violated: _pending_writes should be None if lock is not held")
+                raise RuntimeError("internal class invariant violated: _pending_writes " + \
+                                   "should be None if lock is not held")
             self._pending_writes = []
-            result = func(self, *args, **kwargs)
-            pending_writes = self._pending_writes
-            self._pending_writes = None
+            try:
+                result = func(self, *args, **kwargs)
+            finally:
+                # we want to be very sure we reset this or we'll
+                # keep hitting the RuntimeError above as soon as
+                # any callback goes wrong
+                pending_writes = self._pending_writes
+                self._pending_writes = None
             for p in pending_writes:
                 yield p
         raise gen.Return(result)

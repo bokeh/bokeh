@@ -33,6 +33,6 @@ plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 show(plot)

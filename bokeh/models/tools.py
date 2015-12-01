@@ -164,7 +164,7 @@ class TapTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
     """
 
     names = List(String, help="""
@@ -183,7 +183,7 @@ class TapTool(Tool):
     """)
 
     always_active = Bool(True, help="""
-    Whether the hover tool must be explicitly activated.
+    Whether the tap tool must be explicitly activated.
     """)
 
 
@@ -340,7 +340,7 @@ class LassoSelectTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
         :height: 18pt
@@ -378,7 +378,7 @@ class PolySelectTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
         :height: 18pt
