@@ -151,6 +151,9 @@ class GlyphRendererView extends PlotWidget
       nonselection_glyph = @nonselection_glyph
       selection_glyph = @selection_glyph
 
+    if @hover_glyph? and inspected.length
+      indices = _.without.bind(null, indices).apply(null, inspected)
+
     if not (selected.length and @have_selection_glyphs())
         trender = Date.now()
         glyph.render(ctx, indices, @glyph)
