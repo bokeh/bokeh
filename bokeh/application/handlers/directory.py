@@ -22,6 +22,12 @@ class DirectoryHandler(Handler):
         self._mainpy = mainpy
         self._mainpy_handler = ScriptHandler(filename=self._mainpy)
 
+        self._theme = None
+        themeyaml = os.path.join(src_path, 'theme.yaml')
+        if os.path.exists(themeyaml):
+            from bokeh.themes import Theme
+            self._theme = Theme(filename=themeyaml)
+
     def url_path(self):
         if self.failed:
             return None
@@ -32,6 +38,8 @@ class DirectoryHandler(Handler):
     def modify_document(self, doc):
         if self.failed:
             return
+        if self._theme is not None:
+            doc.theme = self._theme
         self._mainpy_handler.modify_document(doc)
 
     @property
