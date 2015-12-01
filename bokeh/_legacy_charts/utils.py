@@ -161,7 +161,7 @@ class Figure(object):
 
         if self.children:
             from bokeh.models import VBox
-            self.doc.add(VBox(children=self.children))
+            self.doc.add_root(VBox(children=self.children))
 
         self.plot = None
         for i, chart in enumerate(self.charts):

@@ -38,7 +38,7 @@ plot.add_layout(LinearAxis(y_range_name="foo"), 'left')
 plot.add_tools(PanTool(), WheelZoomTool())
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "twin_axis.html"
