@@ -318,7 +318,7 @@ class ClientSession(object):
         if self._document is not None:
             self._document.remove_on_change(self)
 
-    def _document_changed(self, event):
+    def _document_patched(self, event):
 
         if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):
             log.debug("Not sending notification back to server for a change it requested")

@@ -36,7 +36,7 @@ class DocumentPatchedEvent(DocumentChangedEvent):
         self.document = document
 
     def dispatch(self, receiver):
-        super(DocumentPatchedEvent, self).dispatch(document)
+        super(DocumentPatchedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_document_patched'):
             receiver._document_patched(self)
 
@@ -49,7 +49,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
         self.new = new
 
     def dispatch(self, receiver):
-        super(ModelChangedEvent, self).dispatch(document)
+        super(ModelChangedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_document_model_changed'):
             receiver._document_patched(self)
 
