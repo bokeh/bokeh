@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..properties import HasProps, abstract
-from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum
+from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
@@ -258,9 +258,9 @@ class ColumnDataSource(DataSource):
 
 
 class GeoJSONDataSource(DataSource):
-    geojson = String(help="""
-    A string of GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
-    only process a FeatureCollection of Points.
+    geojson = JSON(help="""
+    GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
+    only process a FeatureCollection or GeometryCollection.
     """)
 
 
