@@ -44,7 +44,7 @@ overlay = BoxSelectionOverlay(tool=box_select)
 plot.add_layout(overlay)
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "maps.html"

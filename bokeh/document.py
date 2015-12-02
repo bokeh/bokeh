@@ -8,15 +8,18 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-import uuid
-from bokeh.util.callback_manager import _check_callback
-from bokeh.util.version import __version__
-from bokeh._json_encoder import serialize_json
-from .model import Model
-from .validation import check_integrity
-from .query import find
 from json import loads
+import uuid
+
 from six import string_types
+
+from .model import Model
+from .query import find
+from .deprecate import deprecated
+from .validation import check_integrity
+from .util.callback_manager import _check_callback
+from .util.version import __version__
+from._json_encoder import serialize_json
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -269,9 +272,7 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-    # TODO (havocp) should probably drop either this or add_root.
-    # this is the backward compatible one but perhaps a tad unclear
-    # if we also allow adding other things besides roots.
+    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
         .. warning::
@@ -429,12 +430,7 @@ class Document(object):
         references_json = []
         for r in references:
             ref = r.ref
-            ref['attributes'] = r.vm_serialize(changed_only=False)
-            # 'id' is in 'ref' already
-            # TODO (havocp) don't put this id here in the first place,
-            # by fixing vm_serialize once we establish that other
-            # users of it don't exist anymore or whatever
-            del ref['attributes']['id']
+            ref['attributes'] = r._to_json_like(include_defaults=True)
             references_json.append(ref)
 
         return references_json
@@ -483,9 +479,17 @@ class Document(object):
                 del obj_attrs[key]
             instance.update(**obj_attrs)
 
-    def to_json_string(self):
-        ''' Convert the document to a JSON string. '''
+    def to_json_string(self, indent=None):
+        ''' Convert the document to a JSON string.
 
+        Args:
+            indent (int or None, optional) : number of spaces to indent, or
+                None to suppress all newlines and indentation (default: None)
+
+        Returns:
+            str
+
+        '''
         root_ids = []
         for r in self._roots:
             root_ids.append(r._id)
@@ -501,7 +505,7 @@ class Document(object):
             'version' : __version__
         }
 
-        return serialize_json(json)
+        return serialize_json(json, indent=indent, sort_keys=True)
 
     def to_json(self):
         ''' Convert the document to a JSON object. '''

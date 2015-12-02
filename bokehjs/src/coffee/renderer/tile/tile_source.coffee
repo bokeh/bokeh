@@ -49,8 +49,6 @@ class TileSource extends HasProperties
 
   update: () ->
     logger.info("Tile Cache Count: " + Object.keys(@tiles).length.toString())
-    logger.info("X_ORIGIN_OFFSET: " + @get('x_origin_offset').toString())
-    logger.info("Y_ORIGIN_OFFSET: " + @get('y_origin_offset').toString())
     for key, tile of @tiles
       tile.current = false
       tile.retain = false

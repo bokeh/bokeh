@@ -240,7 +240,7 @@ class LegacyChart(Plot):
 
         if not self._doc._current_plot == self:
             self._doc._current_plot = self
-            self._doc.add(self)
+            self._doc.add_root(self)
 
         if self._options.filename:
             if self._options.filename is True:
