@@ -7,8 +7,7 @@ import tempfile
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.mixins import FillProps, LineProps, TextProps
-from bokeh.properties import Int, Instance, String
-from bokeh.themes import default as default_theme
+from bokeh.properties import Int, String
 from bokeh.themes import Theme
 
 class ThemedModel(Model):
@@ -35,12 +34,12 @@ class TestThemes(unittest.TestCase):
 
     def test_construct_bad_attrs(self):
         with self.assertRaises(ValueError) as manager:
-            theme = Theme(json=dict(attrs=42))
+            Theme(json=dict(attrs=42))
         self.assertTrue("should be a dictionary of class names" in repr(manager.exception))
 
     def test_construct_bad_class_props(self):
         with self.assertRaises(ValueError) as manager:
-            theme = Theme(json=dict(attrs=dict(SomeClass=42)))
+            Theme(json=dict(attrs=dict(SomeClass=42)))
         self.assertTrue("should be a dictionary of properties" in repr(manager.exception))
 
     def test_construct_nonempty_theme_from_file(self):
