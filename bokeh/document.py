@@ -511,9 +511,17 @@ class Document(object):
                 del obj_attrs[key]
             instance.update(**obj_attrs)
 
-    def to_json_string(self):
-        ''' Convert the document to a JSON string. '''
+    def to_json_string(self, indent=None):
+        ''' Convert the document to a JSON string.
 
+        Args:
+            indent (int or None, optional) : number of spaces to indent, or
+                None to suppress all newlines and indentation (default: None)
+
+        Returns:
+            str
+
+        '''
         root_ids = []
         for r in self._roots:
             root_ids.append(r._id)
@@ -529,7 +537,7 @@ class Document(object):
             'version' : __version__
         }
 
-        return serialize_json(json)
+        return serialize_json(json, indent=indent, sort_keys=True)
 
     def to_json(self):
         ''' Convert the document to a JSON object. '''
