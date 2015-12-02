@@ -3,7 +3,7 @@ from bokeh.plotting import output_file
 from bokeh.plotting import show
 from bokeh.models import Range1d
 from bokeh.models import ImageSource
-from bokeh.models.tiles import stamen_toner, stamen_toner_labels
+from bokeh.tile_providers import STAMEN_TONER, STAMEN_TONER_LABELS
 
 output_file('dynamic_map.html')
 
@@ -19,8 +19,8 @@ service_url = 'http://raster.nationalmap.gov/arcgis/rest/services/LandCover/USGS
 bbox={XMIN},{YMIN},{XMAX},{YMAX}&bboxSR=102100&size={HEIGHT}%2C{WIDTH}&imageSR=102100&format=png32&transparent=true&f=image'
 image_source = ImageSource(url=service_url)
 
-fig.add_tile(stamen_toner)
+fig.add_tile(STAMEN_TONER)
 fig.add_dynamic_image(image_source)
-fig.add_tile(stamen_toner_labels, render_parents=True)
+fig.add_tile(STAMEN_TONER_LABELS, render_parents=False)
 
 show(fig)

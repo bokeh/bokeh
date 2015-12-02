@@ -1,4 +1,4 @@
-from .tiles import WMTTileSource
+from .models.tiles import WMTSTileSource
 
 STAMEN_TONER = WMTSTileSource(
     url='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png', 
