@@ -32,6 +32,18 @@ class TestThemes(unittest.TestCase):
         theme = Theme(json=dict())
         theme.apply_to_model(ThemedModel())
 
+    def test_construct_no_json_or_filename(self):
+        with self.assertRaises(ValueError) as manager:
+            Theme()
+        self.assertTrue("requires json or a filename" in repr(manager.exception))
+
+    def test_construct_json_and_filename(self):
+        with self.assertRaises(ValueError) as manager:
+            # we check "" and {} as falsey values, to try to trick
+            # our code into thinking they weren't provided.
+            Theme(filename="", json={})
+        self.assertTrue("not both" in repr(manager.exception))
+
     def test_construct_bad_attrs(self):
         with self.assertRaises(ValueError) as manager:
             Theme(json=dict(attrs=42))

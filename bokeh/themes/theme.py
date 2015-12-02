@@ -15,19 +15,23 @@ _empty_dict = dict()
 # any kind of setter, you could have to refactor some other code.
 class Theme(object):
     def __init__(self, filename=None, json=None):
+        if (filename is not None) and (json is not None):
+            raise ValueError("Theme should be constructed from a file or from json not both")
+
         if filename is not None:
-            if json is not None:
-                raise ValueError("Theme should be constructed from a file or from json not both")
             f = open(filename)
             try:
-                self._json = yaml.load(f)
+                json = yaml.load(f)
                 # empty docs result in None rather than {}, fix it.
-                if self._json is None:
-                    self._json = {}
+                if json is None:
+                    json = {}
             finally:
                 f.close()
-        elif json is not None:
-            self._json = json
+
+        if json is None:
+            raise ValueError("Theme requires json or a filename to construct")
+
+        self._json = json
 
         if 'attrs' not in self._json:
             self._json['attrs'] = {}
