@@ -552,6 +552,9 @@ def start_jupyter_notebook():
     #First create the customjs to run the notebook
     create_custom_js()
 
+    env = os.environ.copy()
+    env['BOKEH_RESOURCES'] = 'inline'
+
     notebook_dir = split(example_dir)[0]
 
     cmd = ["jupyter", "notebook"]
@@ -559,7 +562,7 @@ def start_jupyter_notebook():
             "--notebook-dir=%s" % notebook_dir]
 
     try:
-        proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)
+        proc = subprocess.Popen(cmd + argv, env=env, stdout=args.log_file, stderr=args.log_file)
     except OSError:
         write("Failed to run: %s" % " ".join(cmd + argv))
         sys.exit(1)
