@@ -56,6 +56,19 @@ describe "geojson_data_source module", ->
     it "add x,y,NaN to data", ->
       expected_data = {'x': [125.6], 'y': [10.1], 'z': [NaN], 'xs': [[]], 'ys': [[]], 'zs': [[]]}
       expect(geo.get("data")).to.be.deep.equal(expected_data)
+
+    it "updates data when geojson updates", ->
+      new_geojson = """{
+        "type": "GeometryCollection",
+        "geometries": [{
+          "type": "Point",
+          "coordinates": [125.6, 22]
+          }
+        ]
+      }"""
+      geo.set('geojson', new_geojson)
+      expected_data = {'x': [125.6], 'y': [22], 'z': [NaN], 'xs': [[]], 'ys': [[]], 'zs': [[]]}
+      expect(geo.get("data")).to.be.deep.equal(expected_data)
       
   describe "single xyz Point", ->
     geojson = """{
