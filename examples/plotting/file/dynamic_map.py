@@ -15,8 +15,17 @@ fig.background_fill = "black"
 fig.axis.visible = False
 
 # National Land Cover Dataset (http://www.mrlc.gov/nlcd2011.php)
-service_url = 'http://raster.nationalmap.gov/arcgis/rest/services/LandCover/USGS_EROS_LandCover_NLCD/MapServer/export?\
-bbox={XMIN},{YMIN},{XMAX},{YMAX}&bboxSR=102100&size={HEIGHT}%2C{WIDTH}&imageSR=102100&format=png32&transparent=true&f=image'
+service_url = (
+    "http://raster.nationalmap.gov/"
+    "arcgis/rest/services/LandCover/USGS_EROS_LandCover_NLCD/MapServer/export"
+    "?bbox={XMIN},{YMIN},{XMAX},{YMAX}"
+    "&bboxSR=102100"
+    "&size={HEIGHT}%2C{WIDTH}"
+    "&imageSR=102100"
+    "&format=png32"
+    "&transparent=true"
+    "&f=image"
+)
 image_source = ImageSource(url=service_url)
 
 fig.add_tile(STAMEN_TONER)
