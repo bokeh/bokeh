@@ -20,10 +20,6 @@ class TmpDir(object):
         return self._dir
 
 def _with_directory_contents(contents, func):
-    def with_file_object(f):
-        f.write(contents.encode("UTF-8"))
-        f.flush()
-        func(f.name)
     with (TmpDir(prefix="bokeh-directory-handler-test")) as dirname:
         for filename, file_content in contents.items():
             f = open(os.path.join(dirname, filename), 'w')
