@@ -11,9 +11,13 @@ x, y = subset.index.to_series(), subset['glucose']
 # Basic plot setup
 plot = figure(width=600, height=300, x_axis_type="datetime", tools="",
               toolbar_location=None, title='Hover over points')
+
 plot.line(x, y, line_dash="4 4", line_width=1, color='gray')
 
-cr = plot.circle(x, y, fill_color="grey", fill_alpha=0.05, line_color=None, size=20, hover_fill_color="firebrick", hover_alpha=0.3, hover_line_color="white")
+cr = plot.circle(x, y, size=20,
+                fill_color="grey", hover_fill_color="firebrick",
+                fill_alpha=0.05, hover_alpha=0.3,
+                line_color=None, hover_line_color="white")
 
 plot.add_tools(HoverTool(tooltips=None, renderers=[cr], mode='hline'))
 
