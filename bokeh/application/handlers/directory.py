@@ -12,7 +12,7 @@ class DirectoryHandler(Handler):
         # for now this is simply a wrapper around ScriptHandler
         # but the intent is to add more stuff over time of course
         if 'filename' not in kwargs:
-            raise ValueError('Must pass a filename to ScriptHandler')
+            raise ValueError('Must pass a filename to DirectoryHandler')
 
         src_path = kwargs['filename']
         mainpy = os.path.join(src_path, 'main.py')
