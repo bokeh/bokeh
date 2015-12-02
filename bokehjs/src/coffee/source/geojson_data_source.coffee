@@ -5,9 +5,12 @@ ColumnDataSource = require "./column_data_source"
 class GeoJSONDataSource extends ColumnDataSource.Model
 
   initialize: (options) ->
-    @set('geojson', JSON.parse(options.geojson))
-    @set('data', @geojson_to_column_data())
     super(options)
+    @register_property('parsed_geojson',
+        () -> JSON.parse(@get('geojson'))
+      , true)
+    @add_dependencies('parsed_geojson', this, ['geojson'])
+    @set('data', @geojson_to_column_data())
 
   _get_new_list_array: (length) ->
     array = new Array(length)
@@ -20,7 +23,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
     return nan_array
 
   geojson_to_column_data: () ->
-    geojson = @get('geojson')
+    geojson = @get('parsed_geojson')
 
     if geojson.type not in ['GeometryCollection', 'FeatureCollection']
       throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level')
