@@ -8,11 +8,33 @@ from tornado import gen
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
 from tornado.websocket import websocket_connect
+from tornado.concurrent import Future
 
 from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
 from bokeh.server.protocol.receiver import Receiver
 from bokeh.server.protocol import Protocol
 from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL
+
+class _WebSocketClientConnectionWrapper(object):
+    ''' Used for compat across Tornado versions '''
+
+    def __init__(self, socket):
+        self._socket = socket
+
+    def write_message(self, message, binary=False):
+        future = self._socket.write_message(message, binary)
+        if future is None:
+            # tornado >= 4.3 gives us a Future, simulate that
+            # with this fake Future on < 4.3
+            future = Future()
+            future.set_result(None)
+        return future
+
+    def close(self, code=None, reason=None):
+        return self._socket.close(code, reason)
+
+    def read_message(self, callback=None):
+        return self._socket.read_message(callback)
 
 class ClientConnection(object):
     """ A Bokeh-private class used to implement ClientSession; use ClientSession to connect to the server."""
@@ -107,12 +129,14 @@ class ClientConnection(object):
                 return isinstance(self._state, self.DISCONNECTED)
             self._loop_until(closed)
 
+    @gen.coroutine
     def send_message(self, message):
         if self._socket is None:
             log.info("We're disconnected, so not sending message %r", message)
         else:
-            sent = message.send(self._socket)
+            sent = yield message.send(self._socket)
             log.debug("Sent %r [%d bytes]", message, sent)
+        raise gen.Return(None)
 
     def _send_patch_document(self, session_id, event):
         msg = self._protocol.create('PATCH-DOC', [event])
@@ -121,10 +145,20 @@ class ClientConnection(object):
     def _send_message_wait_for_reply(self, message):
         waiter = self.WAITING_FOR_REPLY(message.header['msgid'])
         self._state = waiter
-        self.send_message(message)
+
+        send_result = []
+        def message_sent(future):
+            send_result.append(future)
+        self._loop.add_future(self.send_message(message), message_sent)
+
+        def have_send_result_or_disconnected():
+            return len(send_result) > 0 or self._state != waiter
+        self._loop_until(have_send_result_or_disconnected)
+
         def have_reply_or_disconnected():
             return self._state != waiter or waiter.reply is not None
         self._loop_until(have_reply_or_disconnected)
+
         return waiter.reply
 
     def push_doc(self, document):
@@ -231,7 +265,8 @@ class ClientConnection(object):
         versioned_url = "%s?bokeh-protocol-version=1.0&bokeh-session-id=%s" % (self._url, self._session.id)
         request = HTTPRequest(versioned_url)
         try:
-            self._socket = yield websocket_connect(request)
+            socket = yield websocket_connect(request)
+            self._socket = _WebSocketClientConnectionWrapper(socket)
         except Exception as e:
             log.info("Failed to connect to server: %r", e)
 

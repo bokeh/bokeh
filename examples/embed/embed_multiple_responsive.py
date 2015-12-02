@@ -31,11 +31,11 @@ template = Template('''<!DOCTYPE html>
     </head>
     <body>
     <h2>Resize the window to see some plots resizing</h2>
-    <h3>Red - pan with responsive</h3>
+    <h3>Red - pan tool, responsive</h3>
     {{ plot_div.red }}
-    <h3>Green - pan with resize & responsive (should maintain new aspect ratio)</h3>
+    <h3>Green - pan and resize tools, responsive (maintains new aspect ratio)</h3>
     {{ plot_div.green }}
-    <h3>Blue - pan no responsive</h3>
+    <h3>Blue - pan tool, not responsive</h3>
     {{ plot_div.blue }}
 
     {{ plot_script }}

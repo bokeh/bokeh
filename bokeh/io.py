@@ -29,7 +29,7 @@ from .embed import notebook_div, standalone_html_page_for_models, autoload_serve
 from .models import Component
 from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox, VBoxForm
-from .plot_object import _ModelInDocument
+from .model import _ModelInDocument
 from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
@@ -52,7 +52,7 @@ _state = State()
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
+def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
@@ -319,9 +319,9 @@ def _get_save_args(state, filename, resources, title):
         raise RuntimeError("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
 
     if resources is None:
-        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE")
-        from .resources import INLINE
-        resources = INLINE
+        warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
+        from .resources import CDN
+        resources = CDN
 
     if title is None:
         warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")

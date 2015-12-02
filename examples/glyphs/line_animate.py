@@ -35,7 +35,7 @@ plot.add_layout(LinearAxis(), 'left')
 
 plot.add_tools(PanTool(), WheelZoomTool())
 
-document.add(plot)
+document.add_root(plot)
 print("\nanimating... press ctrl-C to stop")
 session.show(plot)
 

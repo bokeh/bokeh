@@ -2,14 +2,17 @@ from __future__ import absolute_import
 
 from copy import copy
 from itertools import cycle
+import pandas as pd
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.charts.properties import ColumnLabel
 from bokeh.charts.utils import marker_types
+from bokeh.charts.data_source import ChartDataSource
+from bokeh.charts.stats import Bins
 from bokeh.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
-                              Color, Bool)
+                              Color, Bool, Override)
 
 
 class AttrSpec(HasProps):
@@ -48,11 +51,6 @@ class AttrSpec(HasProps):
         found in `columns` and the attribute value that has been assigned.
         """)
 
-    iterable = List(Any, default=None, help="""
-        The iterable of attribute values to assign to the distinct values found in
-        `columns` of `data`.
-        """)
-
     items = List(Any, default=None, help="""
         The attribute specification calculates this list of distinct values that are
         found in `columns` of `data`.
@@ -67,6 +65,13 @@ class AttrSpec(HasProps):
     ascending = Bool(default=True, help="""
         A boolean flag to tell the attribute specification how to sort `items` if the
         `sort` property is set to `True`. The default setting for `ascending` is `True`.
+        """)
+
+    bins = Instance(Bins, help="""
+        If an attribute spec is binning data, so that we can map one value in the
+        `iterable` to one value in `items`, then this attribute will contain an instance
+        of the Bins stat. This is used to create unique labels for each bin, which is
+        then used for `items` instead of the actual unique values in `columns`.
         """)
 
     def __init__(self, columns=None, df=None, iterable=None, default=None,
@@ -130,11 +135,10 @@ class AttrSpec(HasProps):
 
     def _generate_items(self, df, columns):
         """Produce list of unique tuples that identify each item."""
-        if self.items is None or len(self.items) == 0:
-            if self.sort:
-                df = df.sort(columns=columns, ascending=self.ascending)
-            items = df[columns].drop_duplicates()
-            self.items = [tuple(x) for x in items.to_records(index=False)]
+        if self.sort:
+            df = df.sort(columns=columns, ascending=self.ascending)
+        items = df[columns].drop_duplicates()
+        self.items = [tuple(x) for x in items.to_records(index=False)]
 
     def _create_attr_map(self, df, columns):
         """Creates map between unique values and available attributes."""
@@ -189,8 +193,9 @@ class ColorAttr(AttrSpec):
     .. note::
         Should be expanded to support more complex coloring options.
     """
-    name = 'color'
+    name = Override(default='color')
     iterable = List(Color, default=DEFAULT_PALETTE)
+    bin = Bool(default=False)
 
     def __init__(self, **kwargs):
         iterable = kwargs.pop('palette', None)
@@ -198,10 +203,41 @@ class ColorAttr(AttrSpec):
             kwargs['iterable'] = iterable
         super(ColorAttr, self).__init__(**kwargs)
 
+    def _generate_items(self, df, columns):
+        """Produce list of unique tuples that identify each item."""
+        if not self.bin:
+            super(ColorAttr, self)._generate_items(df, columns)
+        else:
+
+            if len(columns) == 1 and ChartDataSource.is_number(df[columns[0]]):
+
+                self.bins = Bins(source=ColumnDataSource(df), column=columns[0],
+                                 bin_count=len(self.iterable), aggregate=False)
+
+                if self.sort:
+                    self.bins.sort(ascending=self.ascending)
+
+                self.items = [bin.label[0] for bin in self.bins]
+            else:
+                raise ValueError('Binned colors can only be created for one column of \
+                                 numerical data.')
+
+    def add_bin_labels(self, data):
+        col = self.columns[0]
+        # save original values into new column
+        data._data[col + '_values'] = data._data[col]
+
+        for bin in self.bins:
+            # set all rows associated to each bin to the bin label being mapped to colors
+            data._data.ix[data._data[col + '_values'].isin(bin.values),
+                          col] = bin.label[0]
+
+        data._data[col] = pd.Categorical(data._data[col], categories=list(self.items),
+                                         ordered=self.sort)
 
 class MarkerAttr(AttrSpec):
     """An attribute specification for mapping unique data values to markers."""
-    name = 'marker'
+    name = Override(default='marker')
     iterable = List(String, default=list(marker_types.keys()))
 
     def __init__(self, **kwargs):
@@ -216,7 +252,7 @@ dashes = DashPattern._values
 
 class DashAttr(AttrSpec):
     """An attribute specification for mapping unique data values to line dashes."""
-    name = 'dash'
+    name = Override(default='dash')
     iterable = List(String, default=dashes)
 
     def __init__(self, **kwargs):
@@ -224,6 +260,14 @@ class DashAttr(AttrSpec):
         if iterable is not None:
             kwargs['iterable'] = iterable
         super(DashAttr, self).__init__(**kwargs)
+
+
+class IdAttr(AttrSpec):
+    """An attribute specification for mapping unique data values to line dashes."""
+    name = 'id'
+
+    def _setup_iterable(self):
+        return iter(range(0, len(self.items)))
 
 
 class CatAttr(AttrSpec):
@@ -234,7 +278,7 @@ class CatAttr(AttrSpec):
         labels are used for one aspect of a chart (grouping) vs another (stacking or
         legend)
     """
-    name = 'nest'
+    name = Override(default='nest')
 
     def __init__(self, **kwargs):
         super(CatAttr, self).__init__(**kwargs)
@@ -259,7 +303,7 @@ to the Chart.
 """
 
 
-def color(columns=None, palette=None, **kwargs):
+def color(columns=None, palette=None, bin=False, **kwargs):
     """Produces a ColorAttr specification for coloring groups of data based on columns.
 
     Args:
@@ -275,6 +319,7 @@ def color(columns=None, palette=None, **kwargs):
         kwargs['palette'] = palette
 
     kwargs['columns'] = columns
+    kwargs['bin'] = bin
     return ColorAttr(**kwargs)
 
 
