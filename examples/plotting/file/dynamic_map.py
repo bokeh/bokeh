@@ -11,7 +11,7 @@ title = 'Dynamic Map: National Land Cover Dataset'
 fig = figure(tools='wheel_zoom,pan', title=title)
 fig.x_range = Range1d(start=-15473429, end=2108550)
 fig.y_range = Range1d(start=-6315661, end=7264686)
-fig.background_fill = "black"
+fig.background_fill_color = "black"
 fig.axis.visible = False
 
 # National Land Cover Dataset (http://www.mrlc.gov/nlcd2011.php)
