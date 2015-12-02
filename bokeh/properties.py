@@ -322,9 +322,9 @@ class Property(object):
         """ True if the property can refer to another HasProps instance."""
         raise NotImplementedError("Implement has_ref()")
 
-    def possibly_rethemed(self, obj, old):
-        """ Called when the property may have been given a new value by a theme. """
-        raise NotImplementedError("Implement possibly_rethemed()")
+    def trigger_if_changed(self, obj, old):
+        """ Send a change event if the property's value is not equal to ``old``. """
+        raise NotImplementedError("Implement trigger_if_changed()")
 
 class BasicProperty(Property):
     """ A PropertyDescriptor associated with a class attribute name, so it can be read and written. """
@@ -457,7 +457,7 @@ class BasicProperty(Property):
             del obj._property_values[self.name]
 
 
-    def trigger_if_rethemed(self, obj, old):
+    def trigger_if_changed(self, obj, old):
         new_value = self.__get__(obj)
         if not self.descriptor.matches(old, new_value):
             self._trigger(obj, old, new_value)
@@ -844,7 +844,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         # Emit any change notifications that result
         for k, v in old_values.items():
             prop = self.lookup(k)
-            prop.trigger_if_rethemed(self, v)
+            prop.trigger_if_changed(self, v)
 
     def unapply_theme(self):
         self.apply_theme(property_values=dict())

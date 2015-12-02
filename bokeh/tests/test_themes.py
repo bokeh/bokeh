@@ -66,9 +66,14 @@ attrs:
             }
         })
         obj = ThemedModel()
+        changes = dict(calls=[])
         self.assertEqual('hello', obj.string)
+        def record_trigger(attr, old, new_):
+            changes['calls'].append((attr, old, new_))
+        obj.on_change('string', record_trigger)
         theme.apply_to_model(obj)
         self.assertEqual('w00t', obj.string)
+        self.assertEqual([('string', 'hello', 'w00t')], changes['calls'])
 
     def test_theming_a_model_via_base(self):
         theme = Theme(json={
@@ -79,9 +84,14 @@ attrs:
             }
         })
         obj = SubOfThemedModel()
+        changes = dict(calls=[])
+        def record_trigger(attr, old, new_):
+            changes['calls'].append((attr, old, new_))
+        obj.on_change('string', record_trigger)
         self.assertEqual('hello', obj.string)
         theme.apply_to_model(obj)
         self.assertEqual('w00t', obj.string)
+        self.assertEqual([('string', 'hello', 'w00t')], changes['calls'])
 
     def test_subclass_theme_used_rather_than_base(self):
         theme = Theme(json={
@@ -96,8 +106,13 @@ attrs:
         })
         obj = SubOfThemedModel()
         self.assertEqual('hello', obj.string)
+        changes = dict(calls=[])
+        def record_trigger(attr, old, new_):
+            changes['calls'].append((attr, old, new_))
+        obj.on_change('string', record_trigger)
         theme.apply_to_model(obj)
         self.assertEqual('bar', obj.string)
+        self.assertEqual([('string', 'hello', 'bar')], changes['calls'])
 
     def test_theming_a_document_after_adding_root(self):
         theme = Theme(json={
@@ -111,11 +126,17 @@ attrs:
         doc = Document()
         doc.add_root(obj)
         self.assertEqual('hello', obj.string)
+        changes = dict(calls=[])
+        def record_trigger(attr, old, new_):
+            changes['calls'].append((attr, old, new_))
+        obj.on_change('string', record_trigger)
         doc.theme = theme
         self.assertIs(doc.theme, theme)
         self.assertEqual('w00t', obj.string)
         doc.remove_root(obj)
         self.assertEqual('hello', obj.string)
+        self.assertEqual([('string', 'hello', 'w00t'),
+                          ('string', 'w00t', 'hello')], changes['calls'])
 
     def test_theming_a_document_before_adding_root(self):
         theme = Theme(json={
@@ -130,10 +151,16 @@ attrs:
         self.assertEqual('hello', obj.string)
         doc.theme = theme
         self.assertIs(doc.theme, theme)
+        changes = dict(calls=[])
+        def record_trigger(attr, old, new_):
+            changes['calls'].append((attr, old, new_))
+        obj.on_change('string', record_trigger)
         doc.add_root(obj)
         self.assertEqual('w00t', obj.string)
         doc.remove_root(obj)
         self.assertEqual('hello', obj.string)
+        self.assertEqual([('string', 'hello', 'w00t'),
+                          ('string', 'w00t', 'hello')], changes['calls'])
 
     def test_setting_document_theme_to_none(self):
         theme = Theme(json={
@@ -146,12 +173,18 @@ attrs:
         obj = ThemedModel()
         doc = Document()
         doc.add_root(obj)
+        changes = dict(calls=[])
+        def record_trigger(attr, old, new_):
+            changes['calls'].append((attr, old, new_))
+        obj.on_change('string', record_trigger)
         doc.theme = theme
         self.assertEqual('w00t', obj.string)
         # setting to None reverts to default theme
         doc.theme = None
         self.assertIsNot(doc.theme, None)
         self.assertEqual('hello', obj.string)
+        self.assertEqual([('string', 'hello', 'w00t'),
+                          ('string', 'w00t', 'hello')], changes['calls'])
 
     def _compare_dict_to_model_class_defaults(self, props, model_class):
         model = model_class()
