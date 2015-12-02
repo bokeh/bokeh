@@ -6,7 +6,11 @@ class GeoJSONDataSource extends ColumnDataSource.Model
 
   initialize: (options) ->
     super(options)
-    @set('data', @geojson_to_column_data())
+    @register_property('data', @geojson_to_column_data, true)
+    @add_dependencies('data', this, ['geojson'])
+    
+  nonserializable_attribute_names: () ->
+    super().concat(['data'])
 
   _get_new_list_array: (length) ->
     array = new Array(length)
