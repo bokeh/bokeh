@@ -9,6 +9,10 @@ from ..properties import HasProps
 # dicts in our caches.
 _empty_dict = dict()
 
+# Note: in DirectoryHandler and in general we assume this is an
+# immutable object, because we share it among sessions and we
+# don't monitor it for changes. If you make this mutable by adding
+# any kind of setter, you could have to refactor some other code.
 class Theme(object):
     def __init__(self, filename=None, json=None):
         if filename is not None:

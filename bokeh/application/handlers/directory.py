@@ -9,8 +9,6 @@ class DirectoryHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         super(DirectoryHandler, self).__init__(*args, **kwargs)
-        # for now this is simply a wrapper around ScriptHandler
-        # but the intent is to add more stuff over time of course
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to DirectoryHandler')
 
@@ -38,6 +36,8 @@ class DirectoryHandler(Handler):
     def modify_document(self, doc):
         if self.failed:
             return
+        # Note: we do NOT copy self._theme, which assumes the Theme
+        # class is immutable (has no setters)
         if self._theme is not None:
             doc.theme = self._theme
         self._mainpy_handler.modify_document(doc)
