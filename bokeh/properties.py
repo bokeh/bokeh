@@ -123,7 +123,7 @@ class _NotSet(object):
 class DeserializationError(Exception):
     pass
 
-class PropertyGenerator(object):
+class PropertyFactory(object):
     """ Base class for objects that can generate Property instances. """
 
     @classmethod
@@ -139,7 +139,7 @@ class PropertyGenerator(object):
         """ Returns a list of Property instances. """
         raise NotImplementedError("make_properties not implemented")
 
-class PropertyDescriptor(PropertyGenerator):
+class PropertyDescriptor(PropertyFactory):
     """ Base class for a description of a property, not associated yet with an attribute name or a class."""
 
     def __init__(self, default=None, help=None, serialized=True):
@@ -443,7 +443,7 @@ class BasicProperty(Property):
         if self.name in obj._property_values:
             del obj._property_values[self.name]
 
-class Include(PropertyGenerator):
+class Include(PropertyFactory):
     """ Include other properties from mixin Models, with a given prefix. """
 
     def __init__(self, delegate, help="", use_prefix=True):
@@ -521,9 +521,9 @@ class MetaHasProps(type):
 
         generators = dict()
         for name, generator in class_dict.items():
-            if isinstance(generator, PropertyGenerator):
+            if isinstance(generator, PropertyFactory):
                 generators[name] = generator
-            elif isinstance(generator, type) and issubclass(generator, PropertyGenerator):
+            elif isinstance(generator, type) and issubclass(generator, PropertyFactory):
                 # Support the user adding a property without using parens,
                 # i.e. using just the Property subclass instead of an
                 # instance of the subclass

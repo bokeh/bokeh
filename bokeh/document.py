@@ -15,6 +15,7 @@ from six import string_types
 
 from .model import Model
 from .query import find
+from .deprecate import deprecated
 from .validation import check_integrity
 from .util.callback_manager import _check_callback
 from .util.version import __version__
@@ -271,9 +272,7 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-    # TODO (havocp) should probably drop either this or add_root.
-    # this is the backward compatible one but perhaps a tad unclear
-    # if we also allow adding other things besides roots.
+    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
         .. warning::
@@ -480,9 +479,17 @@ class Document(object):
                 del obj_attrs[key]
             instance.update(**obj_attrs)
 
-    def to_json_string(self):
-        ''' Convert the document to a JSON string. '''
+    def to_json_string(self, indent=None):
+        ''' Convert the document to a JSON string.
 
+        Args:
+            indent (int or None, optional) : number of spaces to indent, or
+                None to suppress all newlines and indentation (default: None)
+
+        Returns:
+            str
+
+        '''
         root_ids = []
         for r in self._roots:
             root_ids.append(r._id)
@@ -498,7 +505,7 @@ class Document(object):
             'version' : __version__
         }
 
-        return serialize_json(json)
+        return serialize_json(json, indent=indent, sort_keys=True)
 
     def to_json(self):
         ''' Convert the document to a JSON object. '''

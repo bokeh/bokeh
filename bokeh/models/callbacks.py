@@ -2,7 +2,10 @@
 
 from __future__ import absolute_import
 
+import sys
+from types import FunctionType
 from ..model import Model
+
 from ..properties import abstract
 from ..properties import Dict, Instance, String, Enum
 from ..enums import ScriptingLanguage
@@ -24,6 +27,31 @@ class OpenURL(Callback):
 
 class CustomJS(Callback):
     """ Execute a JavaScript function. """
+    
+    @classmethod
+    def from_py_func(cls, func):
+        """ Create a CustomJS instance from a Python function. The
+        function is translated to Python using PyScript.
+        """
+        if not isinstance(func, FunctionType):
+            raise ValueError('CustomJS.from_py_func needs function object.')
+        try:
+            from flexx.pyscript import py2js
+        except ImportError:
+            if sys.version_info < (3, ):
+                raise RuntimeError('Using Python functions for CustomJS '
+                                    'is currently not supported on Python 2.x)')
+            else:
+                raise RuntimeError('To use Python functions for CustomJS, you need Flexx '
+                                   '("conda install -c bokeh flexx" or "pip install flexx")')
+        # Collect default values
+        default_values = func.__defaults__  # Python 2.6+
+        default_names = func.__code__.co_varnames[:len(default_values)]
+        args = dict(zip(default_names, default_values))
+        # Get JS code, we could rip out the function def, or just
+        # call the function. We do the latter.
+        code = py2js(func, 'cb') + 'cb(%s);\n' % ', '.join(default_names)
+        return cls(code=code, args=args, lang='javascript')
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made
