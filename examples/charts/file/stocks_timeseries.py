@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh._legacy_charts import TimeSeries, show, output_file
+from bokeh.charts import TimeSeries, show, output_file
 
 # read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -33,7 +33,7 @@ TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 output_file("stocks_timeseries.html")
 
 ts = TimeSeries(
-    xyvalues, index='Date', legend=True,
+    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
     title="Timeseries", tools=TOOLS, ylabel='Stock Prices')
 
 # usage with iterable index
@@ -42,4 +42,3 @@ ts = TimeSeries(
 #    title="timeseries, pd_input", ylabel='Stock Prices')
 
 show(ts)
-

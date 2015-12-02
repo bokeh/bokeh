@@ -21,6 +21,7 @@ from copy import copy
 from math import cos, sin
 
 from pandas.io.json import json_normalize
+import numpy as np
 from six import iteritems
 
 from ..browserlib import view
@@ -379,3 +380,50 @@ def gen_column_names(n):
                                                  DEFAULT_COLUMN_NAMES))]
         col_names.extend(labels)
         return col_names
+
+
+def generate_patch_base(x, y, base=0.0):
+    """ Adds base to the start and end of y, and extends x to match the length.
+
+    Args:
+        x (`pandas.Series`): x values for the area chart
+        y (`pandas.Series`): y values for the area chart
+        base (float): the flat side of the area glyph
+
+    Returns:
+        x, y: tuple containing padded x and y as `numpy.ndarray`
+    """
+    x = x.values
+    y = y.values
+
+    # add base of area by starting and ending at base
+    y0 = np.insert(y, 0, base)
+    y0 = np.append(y0, base)
+
+    # make sure y is same length as x
+    x0 = np.insert(x, 0, x[0])
+    x0 = np.append(x0, x0[-1])
+
+    return x0, y0
+
+
+class ChartHelp(object):
+    """Builds, formats, and displays help for the chart function"""
+    def __init__(self, *builders):
+        self.builders = builders
+
+    def __repr__(self):
+        help_str = ''
+        for builder in self.builders:
+            help_str += builder.generate_help()
+
+        return help_str
+
+
+def help(*builders):
+    """Adds a ChartHelp object to the help attribute of the function."""
+    def add_help(f):
+        f.help = ChartHelp(*builders)
+        return f
+
+    return add_help

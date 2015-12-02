@@ -18,10 +18,11 @@ import pandas as pd
 from six import iteritems
 from six.moves import zip
 
-from .properties import ColumnLabel
+from .properties import ColumnLabel, Column
+from .stats import Stat, Bins
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
-from ..properties import bokeh_integer_types, Datetime, List, HasProps, String
+from ..properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
 
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -65,7 +66,7 @@ class ColumnAssigner(HasProps):
             self._df = df
         super(ColumnAssigner, self).__init__(**properties)
 
-    def get_assignment(self):
+    def get_assignment(self, selections=None):
         raise NotImplementedError('You must return map between each dim and selection.')
 
 
@@ -75,20 +76,43 @@ class OrderedAssigner(ColumnAssigner):
     This is the default column assigner for the :class:`Builder`.
     """
 
-    def get_assignment(self):
+    def get_assignment(self, selections=None):
         """Get a mapping between dimension and selection when none are provided."""
-        dims = [dim for dim in self.dims if dim not in self.attrs]
-        return {dim: sel for dim, sel in
-                zip(dims, self._df.columns.tolist())}
+        if selections is None or len(list(selections.keys())) == 0:
+            dims = [dim for dim in self.dims if dim not in self.attrs]
+            return {dim: sel for dim, sel in
+                    zip(dims, self._df.columns.tolist())}
+        else:
+            return selections
 
 
 class NumericalColumnsAssigner(ColumnAssigner):
     """Assigns all numerical columns to the y dimension."""
 
-    def get_assignment(self):
+    def get_assignment(self, selections=None):
+        if isinstance(selections, dict):
+            x = selections.get('x')
+            y = selections.get('y')
+        else:
+            x = None
+            y = None
+            selections = {}
+
         # filter down to only the numerical columns
         df = self._df._get_numeric_data()
-        return {'y': df.columns.tolist()}
+        num_cols = df.columns.tolist()
+
+        if x is not None and y is None:
+            y = [col for col in num_cols if col not in list(x)]
+        elif x is None:
+            x = 'index'
+
+            if y is None:
+                y = num_cols
+
+        selections['x'] = x
+        selections['y'] = y
+        return selections
 
 
 class DataOperator(HasProps):
@@ -261,6 +285,7 @@ class ChartDataSource(object):
         self.attrs = kwargs.pop('attrs', [])
         self._data = df
         self._dims = dims
+        self.operations = []
         self._required_dims = required_dims
         self.column_assigner = column_assigner(df=df, dims=list(self._dims),
                                                attrs=self.attrs)
@@ -300,25 +325,39 @@ class ChartDataSource(object):
                 raise ValueError('selections input must be provided as: \
                                  dict(dimension: column) or None')
 
+        else:
+            # provide opportunity for column assigner to apply custom logic
+            select_map = self.column_assigner.get_assignment(selections=select_map)
+
         # make sure each dimension is represented in the selection map
         for dim in self._dims:
             if dim not in select_map:
                 select_map[dim] = None
 
-        # # make sure we have enough dimensions as required either way
-        # unmatched = list(set(self._required_dims) - set(select_map.keys()))
-        # if len(unmatched) > 0:
-        #     raise ValueError('You must provide all required columns assigned to dimensions, no match for: %s'
-        #                      % ', '.join(unmatched))
-        # else:
         return select_map
 
     def apply_operations(self):
         """Applies each data operation."""
         # ToDo: Handle order of operation application, see GoG pg. 71
+
+        selections = self._selections.copy()
         for dim, select in iteritems(self._selections):
             if isinstance(select, DataOperator):
                 self._data = select.apply(self)
+                selections[dim] = select.name
+
+            # handle any stat operations to derive and aggregate data
+            if isinstance(select, Stat):
+                if isinstance(select, Bins):
+                    self._data = select.apply(self)
+                    selections[dim] = select.centers_column
+                else:
+                    raise TypeError('Stat input of %s for %s is not supported.' %
+                                    (select.__class__, dim))
+
+            self.operations.append(select)
+
+        self._selections = selections
 
     def setup_derived_columns(self):
         """Attempt to add special case columns to the DataFrame for the builder."""
@@ -602,6 +641,10 @@ class ChartDataSource(object):
     def df(self):
         return self._data
 
+    @property
+    def source(self):
+        return ColumnDataSource(self.df)
+
     @staticmethod
     def _collect_dimensions(**kwargs):
         """Returns dimensions by name from kwargs.
@@ -752,8 +795,11 @@ class ChartDataSource(object):
         Returns:
             bool
         """
-        numbers = (float,) + bokeh_integer_types
-        return isinstance(value, numbers)
+        if isinstance(value, pd.Series):
+            return Column(Float).is_valid(value)
+        else:
+            numbers = (float,) + bokeh_integer_types
+            return isinstance(value, numbers)
 
     @staticmethod
     def is_datetime(value):

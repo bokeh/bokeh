@@ -27,7 +27,8 @@ from .utils import collect_attribute_columns
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
-from ..properties import (HasProps, Instance, List, String, Dict)
+from ..properties import (HasProps, Instance, List, String, Dict,
+                          Color, Bool, Tuple)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -111,6 +112,10 @@ class Builder(HasProps):
 
     xscale = String()
     yscale = String()
+
+    palette = List(Color, help="""Optional input to override the default palette used
+        by any color attribute.
+        """)
 
     # Dimension Configuration
 
@@ -199,6 +204,18 @@ class Builder(HasProps):
     """
     column_selector = OrderedAssigner
 
+    comp_glyph_types = List(Instance(CompositeGlyph))
+
+    sort_dim = Dict(String, Bool, default={})
+
+    sort_legend = List(Tuple(String, Bool), help="""
+        List of tuples to use for sorting the legend, in order that they should be
+        used for sorting. This sorting can be different than the sorting used for the
+        rest of the chart. For example, you might want to sort only on the column
+        assigned to the color attribute, or sort it descending. The order of each tuple
+        is (Column, Ascending).
+        """)
+
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
 
@@ -278,7 +295,10 @@ class Builder(HasProps):
         """
         source = ColumnDataSource(data.df)
         attr_names = self.default_attributes.keys()
+        custom_palette = kws.get('palette')
+
         attributes = dict()
+
         for attr_name in attr_names:
 
             attr = kws.pop(attr_name, None)
@@ -290,10 +310,22 @@ class Builder(HasProps):
             # if we are given columns, use those
             elif isinstance(attr, str) or isinstance(attr, list):
                 attributes[attr_name] = self.default_attributes[attr_name]._clone()
+
+                # override palette if available
+                if isinstance(attributes[attr_name], ColorAttr):
+                    if custom_palette is not None:
+                        attributes[attr_name].iterable = custom_palette
+
                 attributes[attr_name].setup(data=source, columns=attr)
 
             else:
-                attributes[attr_name] = self.default_attributes[attr_name]._clone()
+                # override palette if available
+                if (isinstance(self.default_attributes[attr_name], ColorAttr) and
+                        custom_palette is not None):
+                    attributes[attr_name] = self.default_attributes[attr_name]._clone()
+                    attributes[attr_name].iterable = custom_palette
+                else:
+                    attributes[attr_name] = self.default_attributes[attr_name]._clone()
 
         # make sure all have access to data source
         for attr_name in attr_names:
@@ -436,6 +468,14 @@ class Builder(HasProps):
 
         return str(raw_label)
 
+    def collect_attr_kwargs(self):
+        attrs = set(self.default_attributes.keys()) - set(
+            self.__class__.default_attributes.keys())
+        return attrs
+
+    def get_group_kwargs(self, group, attrs):
+        return {attr: group[attr] for attr in attrs}
+
     def create(self, chart=None):
         """Builds the renderers, adding them and other components to the chart.
 
@@ -472,6 +512,14 @@ class Builder(HasProps):
         chart.add_scales('y', self.yscale)
 
         return chart
+
+    @classmethod
+    def generate_help(cls):
+        help_str = ''
+        for comp_glyph in cls.comp_glyph_types:
+            help_str += str(comp_glyph.glyph_properties())
+
+        return help_str
 
 
 class XYBuilder(Builder):
@@ -519,6 +567,15 @@ class XYBuilder(Builder):
                 select = ['']
             self.ylabel = ', '.join(select)
 
+        # sort the legend if we are told to
+        if len(self.sort_legend) > 0:
+            for attr, asc in self.sort_legend:
+                if len(self.attributes[attr].columns) > 0:
+                    item_order = self.attributes[attr].items
+                    self._legends = list(sorted(self._legends, key=lambda leg:
+                                                item_order.index(leg[0]),
+                                                reverse=~asc))
+
     def _get_range(self, dim, start, end):
         """Create a :class:`Range` for the :class:`Chart`.
 
@@ -534,10 +591,13 @@ class XYBuilder(Builder):
         values = dim_ref.data
         dtype = dim_ref.dtype.name
 
+        sort = self.sort_dim.get(dim)
+
         # object data or single value
         if dtype == 'object':
             factors = values.drop_duplicates()
-            factors.sort(inplace=True)
+            if sort:
+                factors.sort(inplace=True)
             setattr(self, dim + 'scale', 'categorical')
             return FactorRange(factors=factors.tolist())
         elif 'datetime' in dtype:
