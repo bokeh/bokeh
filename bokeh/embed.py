@@ -538,7 +538,7 @@ def _standalone_docs_json_and_render_items(models):
             if docs_by_id[key] == doc:
                 docid = key
         if docid is None:
-            docid = str(uuid.uuid4())
+            docid = doc.id
             docs_by_id[docid] = doc
 
         elementid = str(uuid.uuid4())

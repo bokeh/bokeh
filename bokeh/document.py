@@ -160,6 +160,7 @@ class Document(object):
         self._roots = set()
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
+        self._id = str(uuid.uuid4())
 
         # TODO (bev) add vars, stores
 
@@ -246,6 +247,10 @@ class Document(object):
     @property
     def title(self):
         return self._title
+
+    @property
+    def id(self):
+        return self._id
 
     @title.setter
     def title(self, title):
@@ -498,6 +503,7 @@ class Document(object):
 
         json = {
             'title' : self.title,
+            'id' : self.id,
             'roots' : {
                 'root_ids' : root_ids,
                 'references' : self._references_json(root_references)
