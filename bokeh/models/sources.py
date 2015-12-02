@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import HasProps, abstract
 from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum
 from ..validation.errors import COLUMN_LENGTHS
@@ -10,7 +10,7 @@ from .callbacks import Callback
 from bokeh.deprecate import deprecated
 
 @abstract
-class DataSource(PlotObject):
+class DataSource(Model):
     """ A base class for data source types. ``DataSource`` is
     not generally useful to instantiate on its own.
 
@@ -180,8 +180,8 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
-    def vm_serialize(self, changed_only=True):
-        attrs = super(ColumnDataSource, self).vm_serialize(changed_only=changed_only)
+    def _to_json_like(self, include_defaults):
+        attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
         if 'data' in attrs:
             attrs['data'] = transform_column_source_data(attrs['data'])
         return attrs

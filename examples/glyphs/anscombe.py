@@ -53,7 +53,7 @@ def make_plot(title, xname, yname):
     plot = Plot(
         x_range=xdr, y_range=ydr,
         title=title, plot_width=400, plot_height=400,
-        border_fill='white', background_fill='#e9e0db'
+        border_fill_color='white', background_fill_color='#e9e0db'
     )
 
     xaxis = LinearAxis(axis_line_color=None)
@@ -85,7 +85,7 @@ IV  = make_plot('IV',  'xiv',  'yiv')
 grid = GridPlot(children=[[I, II], [III, IV]])
 
 doc = Document()
-doc.add(grid)
+doc.add_root(grid)
 
 if __name__ == "__main__":
     filename = "anscombe.html"

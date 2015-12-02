@@ -30,11 +30,11 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     global _notebook_loaded
 
     from .. import __version__
-    from ..resources import INLINE
+    from ..resources import CDN
     from ..templates import NOTEBOOK_LOAD
 
     if resources is None:
-        resources = INLINE
+        resources = CDN
 
     if resources.mode == 'inline':
         js_info = 'inline'

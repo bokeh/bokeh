@@ -48,7 +48,7 @@ points_glyph = Circle(**point_options)
 p.add_glyph(points_source, points_glyph)
 
 doc = Document()
-doc.add(p)
+doc.add_root(p)
 
 if __name__ == "__main__":
     filename = "airports_map.html"

@@ -35,8 +35,9 @@ class ServerConnection(object):
         return self.protocol.create('ERROR', message.header['msgid'], text)
 
     def send_patch_document(self, event):
+        """ Sends a PATCH-DOC message, returning a Future that's completed when it's written out. """
         msg = self.protocol.create('PATCH-DOC', [event])
-        self._socket.send_message(msg)
+        return self._socket.send_message(msg)
 
     @property
     def protocol(self):

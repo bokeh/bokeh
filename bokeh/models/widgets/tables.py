@@ -5,19 +5,19 @@ from __future__ import absolute_import
 
 from ...properties import abstract
 from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
-from ...plot_object import PlotObject
+from ...model import Model
 from ...enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
 from .widget import Widget
 
 @abstract
-class CellFormatter(PlotObject):
+class CellFormatter(Model):
     """ Abstract base class for data table's cell formatters.
 
     """
 
 @abstract
-class CellEditor(PlotObject):
+class CellEditor(Model):
     """ Abstract base class for data table's cell editors.
 
     """
@@ -275,7 +275,7 @@ class DateEditor(CellEditor):
 
     """
 
-class TableColumn(PlotObject):
+class TableColumn(Model):
     """ Table column widget.
 
     """
@@ -373,4 +373,10 @@ class DataTable(TableWidget):
 
     row_headers = Bool(True, help="""
     Enable or disable row headers, i.e. the index column.
+    """)
+
+    scroll_to_selection = Bool(True, help="""
+    Whenever a selection is made on the data source, scroll the selected
+    rows into the table's viewport if none of the selected rows are already
+    in the viewport.
     """)

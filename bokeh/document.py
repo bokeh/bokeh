@@ -8,15 +8,18 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-import uuid
-from bokeh.util.callback_manager import _check_callback
-from bokeh.util.version import __version__
-from bokeh._json_encoder import serialize_json
-from .plot_object import PlotObject
-from .validation import check_integrity
-from .query import find
 from json import loads
+import uuid
+
 from six import string_types
+
+from .model import Model
+from .query import find
+from .deprecate import deprecated
+from .validation import check_integrity
+from .util.callback_manager import _check_callback
+from .util.version import __version__
+from._json_encoder import serialize_json
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -269,16 +272,14 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-    # TODO (havocp) should probably drop either this or add_root.
-    # this is the backward compatible one but perhaps a tad unclear
-    # if we also allow adding other things besides roots.
+    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
         .. warning::
             This function should only be called on top level objects such
             as Plot, and Layout containers.
         Args:
-            *objects (PlotObject) : objects to add to the Document
+            *objects (Model) : objects to add to the Document
         Returns:
             None
         """
@@ -323,7 +324,7 @@ class Document(object):
             selector (JSON-like) :
 
         Returns:
-            seq[PlotObject]
+            seq[Model]
 
         '''
         if self._is_single_string_selector(selector, 'name'):
@@ -341,7 +342,7 @@ class Document(object):
             selector (JSON-like) :
 
         Returns:
-            PlotObject
+            Model
 
         '''
         result = list(self.select(selector))
@@ -368,7 +369,7 @@ class Document(object):
                 setattr(obj, key, val)
 
     def on_change(self, *callbacks):
-        ''' Invoke callback if the document or any PlotObject reachable from its roots changes.
+        ''' Invoke callback if the document or any Model reachable from its roots changes.
 
         '''
         for callback in callbacks:
@@ -412,7 +413,7 @@ class Document(object):
         self._with_self_as_curdoc(invoke_callbacks)
 
     def _notify_change(self, model, attr, old, new):
-        ''' Called by PlotObject when it changes
+        ''' Called by Model when it changes
         '''
         # if name changes, update by-name index
         if attr == 'name':
@@ -429,12 +430,7 @@ class Document(object):
         references_json = []
         for r in references:
             ref = r.ref
-            ref['attributes'] = r.vm_serialize(changed_only=False)
-            # 'id' is in 'ref' already
-            # TODO (havocp) don't put this id here in the first place,
-            # by fixing vm_serialize once we establish that other
-            # users of it don't exist anymore or whatever
-            del ref['attributes']['id']
+            ref['attributes'] = r._to_json_like(include_defaults=True)
             references_json.append(ref)
 
         return references_json
@@ -449,7 +445,7 @@ class Document(object):
             obj_id = obj['id']
             obj_type = obj.get('subtype', obj['type'])
 
-            cls = PlotObject.get_class(obj_type)
+            cls = Model.get_class(obj_type)
             instance = cls(id=obj_id, _block_events=True)
             if instance is None:
                 raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
@@ -483,9 +479,17 @@ class Document(object):
                 del obj_attrs[key]
             instance.update(**obj_attrs)
 
-    def to_json_string(self):
-        ''' Convert the document to a JSON string. '''
+    def to_json_string(self, indent=None):
+        ''' Convert the document to a JSON string.
 
+        Args:
+            indent (int or None, optional) : number of spaces to indent, or
+                None to suppress all newlines and indentation (default: None)
+
+        Returns:
+            str
+
+        '''
         root_ids = []
         for r in self._roots:
             root_ids.append(r._id)
@@ -501,7 +505,7 @@ class Document(object):
             'version' : __version__
         }
 
-        return serialize_json(json)
+        return serialize_json(json, indent=indent, sort_keys=True)
 
     def to_json(self):
         ''' Convert the document to a JSON object. '''
@@ -570,7 +574,7 @@ class Document(object):
                 # remote could need, even though it could be inefficient.
                 # If it turns out we need to fix this we could probably
                 # do it by adding some complexity.
-                value_refs = set(PlotObject.collect_plot_objects(value))
+                value_refs = set(Model.collect_models(value))
 
                 # we know we don't want a whole new copy of the obj we're patching
                 # unless it's also the new value

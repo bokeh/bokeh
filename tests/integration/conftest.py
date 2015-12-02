@@ -29,7 +29,7 @@ def output_file_url(request, base_url):
     filename = request.function.__name__ + '.html'
     file_path = request.fspath.dirpath().join(filename).strpath
 
-    output_file(file_path)
+    output_file(file_path, mode='inline')
 
     def fin():
         os.remove(file_path)
