@@ -684,7 +684,7 @@ class ChartDataSource(object):
         for i, array in enumerate(arrays):
             if isinstance(array, pd.Series):
                 name = array.name
-                if name not in column_names:
+                if name not in column_names and name is not None:
                     column_names[i] = name
 
         table = {column_name: array for column_name, array in zip(column_names, arrays)}
