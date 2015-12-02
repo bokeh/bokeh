@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 import unittest
 
-from six import add_metaclass
 from six.moves import xrange
 import copy
 from bokeh.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
 from bokeh.property_containers import PropertyValueList, PropertyValueDict
+from bokeh.util.future import with_metaclass
 
 def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
@@ -62,8 +62,7 @@ class TestViewable(unittest.TestCase):
         self.viewable.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        @add_metaclass(self.viewable)
-        class Test_Class():
+        class Test_Class(with_metaclass(self.viewable)):
             foo = 1
         return Test_Class
 
@@ -93,7 +92,9 @@ class TestModel(unittest.TestCase):
 
     def setUp(self):
         from bokeh.models import Model
+
         self.pObjectClass = Model
+        self.maxDiff = None
 
     def test_init(self):
         testObject = self.pObjectClass(id='test_id')
@@ -101,6 +102,10 @@ class TestModel(unittest.TestCase):
 
         testObject2 = self.pObjectClass()
         self.assertIsNot(testObject2._id, None)
+
+        self.assertEqual(set(["name", "tags"]), testObject.properties())
+        self.assertDictEqual(dict(name=None, tags=[]), testObject.properties_with_values(include_defaults=True))
+        self.assertDictEqual(dict(), testObject.properties_with_values(include_defaults=False))
 
     def test_ref(self):
         testObject = self.pObjectClass(id='test_id')
@@ -166,8 +171,8 @@ class TestModel(unittest.TestCase):
         child_obj = SomeModelToJson(foo=57, bar="hello")
         obj = SomeModelToJson(child=child_obj,
                               foo=42, bar="world")
-        json = obj.to_json()
-        json_string = obj.to_json_string()
+        json = obj.to_json(include_defaults=True)
+        json_string = obj.to_json_string(include_defaults=True)
         self.assertEqual({ "child" : { "id" : child_obj._id, "type" : "SomeModelToJson" },
                            "id" : obj._id,
                            "name" : None,
@@ -180,6 +185,91 @@ class TestModel(unittest.TestCase):
                           '"foo": 42, "id": "%s", "name": null, "tags": []}') %
                          (child_obj._id, obj._id),
                          json_string)
+
+    def test_no_units_in_json(self):
+        from bokeh.models import AnnularWedge
+        obj = AnnularWedge()
+        json = obj.to_json(include_defaults=True)
+        self.assertTrue('start_angle' in json)
+        self.assertTrue('start_angle_units' not in json)
+        self.assertTrue('outer_radius' in json)
+        self.assertTrue('outer_radius_units' not in json)
+
+    def test_dataspec_field_in_json(self):
+        from bokeh.models import AnnularWedge
+        obj = AnnularWedge()
+        obj.start_angle = "fieldname"
+        json = obj.to_json(include_defaults=True)
+        self.assertTrue('start_angle' in json)
+        self.assertTrue('start_angle_units' not in json)
+        self.assertDictEqual(dict(units='rad', field='fieldname'), json['start_angle'])
+
+    def test_dataspec_value_in_json(self):
+        from bokeh.models import AnnularWedge
+        obj = AnnularWedge()
+        obj.start_angle = 60
+        json = obj.to_json(include_defaults=True)
+        self.assertTrue('start_angle' in json)
+        self.assertTrue('start_angle_units' not in json)
+        self.assertDictEqual(dict(units='rad', value=60), json['start_angle'])
+
+    def test_list_default(self):
+        class HasListDefault(Model):
+            value = List(String, default=["hello"])
+        obj = HasListDefault()
+        self.assertEqual(obj.value, obj.value)
+
+        # 'value' should not be included because we haven't modified it
+        self.assertFalse('value' in obj.properties_with_values(include_defaults=False))
+        # (but should be in include_defaults=True)
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=True))
+
+        obj.value.append("world")
+
+        # 'value' should now be included
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=False))
+
+    def test_dict_default(self):
+        class HasDictDefault(Model):
+            value = Dict(String, Int, default=dict(hello=42))
+        obj = HasDictDefault()
+        self.assertDictEqual(obj.value, obj.value)
+        self.assertDictEqual(dict(hello=42), obj.value)
+
+        # 'value' should not be included because we haven't modified it
+        self.assertFalse('value' in obj.properties_with_values(include_defaults=False))
+        # (but should be in include_defaults=True)
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=True))
+
+        obj.value['world'] = 57
+
+        # 'value' should now be included
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=False))
+        self.assertDictEqual(dict(hello=42, world=57), obj.value)
+
+    def test_func_default_with_counter(self):
+        counter = dict(value=0)
+        def next_value():
+            counter['value'] += 1
+            return counter['value']
+        class HasFuncDefaultInt(Model):
+            value = Int(default=next_value)
+        obj = HasFuncDefaultInt()
+        self.assertEqual(obj.value, obj.value)
+
+        # 'value' is a default, but it gets included as a
+        # non-default because it's unstable.
+        self.assertTrue('value' in obj.properties_with_values(include_defaults=False))
+
+    def test_func_default_with_model(self):
+        class HasFuncDefaultModel(Model):
+            child = Instance(Model, lambda: Model())
+        obj = HasFuncDefaultModel()
+        self.assertEqual(obj.child._id, obj.child._id)
+
+        # 'child' is a default, but it gets included as a
+        # non-default because it's unstable.
+        self.assertTrue('child' in obj.properties_with_values(include_defaults=False))
 
 class SomeModelInTestObjects(Model):
     child = Instance(Model)
@@ -280,6 +370,21 @@ class HasListProp(Model):
         super(HasListProp, self).__init__(**kwargs)
 
 class TestListMutation(TestContainerMutation):
+
+    def test_whether_included_in_props_with_values(self):
+        obj = HasListProp()
+        self.assertFalse('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+        # simply reading the property creates a new wrapper, so be
+        # sure that doesn't count as replacing the default
+        foo = obj.foo
+        self.assertEqual(foo, foo) # this is to calm down flake's unused var warning
+        self.assertFalse('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+        # but changing the list should count as replacing the default
+        obj.foo.append("hello")
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
 
     def test_assignment_maintains_owners(self):
         obj = HasListProp()
@@ -405,6 +510,21 @@ class HasIntDictProp(Model):
 
 class TestDictMutation(TestContainerMutation):
 
+    def test_whether_included_in_props_with_values(self):
+        obj = HasStringDictProp()
+        self.assertFalse('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+        # simply reading the property creates a new wrapper, so be
+        # sure that doesn't count as replacing the default
+        foo = obj.foo
+        self.assertEqual(foo, foo) # this is to calm down flake's unused var warning
+        self.assertFalse('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+        # but changing the dict should count as replacing the default
+        obj.foo['bar'] = 42
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=False))
+        self.assertTrue('foo' in obj.properties_with_values(include_defaults=True))
+
     def test_assignment_maintains_owners(self):
         obj = HasStringDictProp()
         old_dict = obj.foo
@@ -417,7 +537,7 @@ class TestDictMutation(TestContainerMutation):
         self.assertEqual(0, len(old_dict._owners))
         self.assertEqual(1, len(new_dict._owners))
 
-    def test_dict_delattr(self):
+    def test_dict_delitem_string(self):
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         self.assertTrue(isinstance(obj.foo, PropertyValueDict))
         def mutate(x):
@@ -426,7 +546,7 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict(a=1, c=3))
 
-    def test_dict_delitem(self):
+    def test_dict_delitem_int(self):
         obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
         self.assertTrue(isinstance(obj.foo, PropertyValueDict))
         def mutate(x):
@@ -435,7 +555,7 @@ class TestDictMutation(TestContainerMutation):
                              { 1 : "a", 2 : "b", 3 : "c" },
                              { 2 : "b", 3 : "c" })
 
-    def test_dict_setattr(self):
+    def test_dict_setitem_string(self):
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         self.assertTrue(isinstance(obj.foo, PropertyValueDict))
         def mutate(x):
@@ -444,7 +564,7 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict(a=1, b=42, c=3))
 
-    def test_dict_setitem(self):
+    def test_dict_setitem_int(self):
         obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
         self.assertTrue(isinstance(obj.foo, PropertyValueDict))
         def mutate(x):

@@ -21,10 +21,6 @@ class InputWidget(Widget):
     Widget's label.
     """)
 
-    name = String(help="""
-    Widget's name.
-    """)
-
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the input's value changes.
     """)
@@ -92,10 +88,14 @@ class Select(InputWidget):
         kwargs['options'] = new_options
         return super(Select, self).create(*args, **kwargs)
 
-class MultiSelect(Select):
+class MultiSelect(InputWidget):
     """ Multi-select widget.
 
     """
+
+    options = List(Either(String, Dict(String, String)), help="""
+    Available selection options.
+    """)
 
     value = List(String, help="""
     Initial or selected values.

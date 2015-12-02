@@ -61,7 +61,7 @@ class TestAreaBuilder(unittest.TestCase):
             self.assertIsInstance(area.y_range, Range1d)
             assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
             assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
-            self.assertEqual(builder._source._data, builder._data)
+            self.assertEqual(builder._source.data, builder._data)
 
         data_keys = ['x', 'y_0', 'y_1', 'y_2']
         lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
@@ -81,4 +81,4 @@ class TestAreaBuilder(unittest.TestCase):
             self.assertIsInstance(area.y_range, Range1d)
             assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
             assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
-            self.assertEqual(builder._source._data, builder._data)
+            self.assertEqual(builder._source.data, builder._data)

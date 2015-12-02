@@ -37,7 +37,7 @@ preview_save = PreviewSaveTool()
 plot.add_tools(pan, wheel_zoom, preview_save)
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "line.html"

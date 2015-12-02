@@ -72,7 +72,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, Model):
             return obj.ref
         elif isinstance(obj, HasProps):
-            return obj.changed_properties_with_values()
+            return obj.properties_with_values(include_defaults=False)
         elif isinstance(obj, Color):
             return obj.to_css()
         else:

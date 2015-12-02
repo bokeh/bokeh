@@ -5,7 +5,8 @@ import numpy as np
 from bokeh.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
-    Enum, Color, Align, DashPattern, Size, Percent, Angle)
+    Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
+    DistanceSpec, Override, Include)
 
 
 class Basictest(unittest.TestCase):
@@ -23,11 +24,26 @@ class Basictest(unittest.TestCase):
         self.assert_(np.array_equal(np.array([1, 2, 3]), f.z))
         self.assertEqual(f.s, None)
 
+
+        self.assertEqual(set(["x", "y", "z", "s"]), f.properties())
+        with_defaults = f.properties_with_values(include_defaults=True)
+        del with_defaults['z'] # can't compare equality on the np array
+        self.assertDictEqual(dict(x=12, y="hello", s=None), with_defaults)
+        without_defaults = f.properties_with_values(include_defaults=False)
+        # the Array is in here because it's mutable
+        self.assertTrue('z' in without_defaults)
+        del without_defaults['z']
+        self.assertDictEqual(dict(), without_defaults)
+
         f.x = 18
         self.assertEqual(f.x, 18)
 
         f.y = "bar"
         self.assertEqual(f.y, "bar")
+
+        without_defaults = f.properties_with_values(include_defaults=False)
+        del without_defaults['z']
+        self.assertDictEqual(dict(x=18, y="bar"), without_defaults)
 
     def test_enum(self):
         class Foo(HasProps):
@@ -112,9 +128,9 @@ class Basictest(unittest.TestCase):
         self.assertEqual(set(["num", "container", "child"]),
                          b.properties())
         self.assertEqual(set(["num", "container", "child"]),
-                         b.class_properties(withbases=True))
+                         b.properties(with_bases=True))
         self.assertEqual(set(["num", "container", "child"]),
-                         b.class_properties(withbases=False))
+                         b.properties(with_bases=False))
 
         m = Mixin()
         self.assertEqual(set(["mixin_child"]),
@@ -124,9 +140,9 @@ class Basictest(unittest.TestCase):
         self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
                          m.properties())
         self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
-                         m.class_properties(withbases=True))
+                         m.properties(with_bases=True))
         self.assertEqual(set(["mixin_num", "mixin_container", "mixin_child"]),
-                         m.class_properties(withbases=False))
+                         m.properties(with_bases=False))
 
         s = Sub()
         self.assertEqual(set(["child", "sub_child", "mixin_child"]),
@@ -140,18 +156,197 @@ class Basictest(unittest.TestCase):
         self.assertEqual(set(["num", "container", "child",
                               "mixin_num", "mixin_container", "mixin_child",
                               "sub_num", "sub_container", "sub_child"]),
-                         s.class_properties(withbases=True))
+                         s.properties(with_bases=True))
         self.assertEqual(set(["sub_num", "sub_container", "sub_child"]),
-                         s.class_properties(withbases=False))
+                         s.properties(with_bases=False))
 
         # verify caching
         self.assertIs(s.properties_with_refs(), s.properties_with_refs())
         self.assertIs(s.properties_containers(), s.properties_containers())
         self.assertIs(s.properties(), s.properties())
-        self.assertIs(s.class_properties(withbases=True), s.class_properties(withbases=True))
+        self.assertIs(s.properties(with_bases=True), s.properties(with_bases=True))
         # this one isn't cached because we store it as a list __properties__ and wrap it
         # in a new set every time
-        #self.assertIs(s.class_properties(withbases=False), s.class_properties(withbases=False))
+        #self.assertIs(s.properties(with_bases=False), s.properties(with_bases=False))
+
+    def test_accurate_dataspecs(self):
+        class Base(HasProps):
+            num = NumberSpec(12)
+            not_a_dataspec = Float(10)
+
+        class Mixin(HasProps):
+            mixin_num = NumberSpec(14)
+
+        class Sub(Base, Mixin):
+            sub_num = NumberSpec(16)
+
+        base = Base()
+        mixin = Mixin()
+        sub = Sub()
+
+        self.assertEqual(set(["num"]), base.dataspecs())
+        self.assertEqual(set(["mixin_num"]), mixin.dataspecs())
+        self.assertEqual(set(["num", "mixin_num", "sub_num"]), sub.dataspecs())
+
+        self.assertDictEqual(dict(num=base.lookup("num")), base.dataspecs_with_props())
+        self.assertDictEqual(dict(mixin_num=mixin.lookup("mixin_num")), mixin.dataspecs_with_props())
+        self.assertDictEqual(dict(num=sub.lookup("num"),
+                                  mixin_num=sub.lookup("mixin_num"),
+                                  sub_num=sub.lookup("sub_num")),
+                             sub.dataspecs_with_props())
+
+    def test_not_serialized(self):
+        class NotSerialized(HasProps):
+            x = Int(12, serialized=False)
+            y = String("hello")
+
+        o = NotSerialized()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, 'hello')
+
+        # non-serialized props are still in the list of props
+        self.assertTrue('x' in o.properties())
+        self.assertTrue('y' in o.properties())
+
+        # but they aren't in the dict of props with values, since their
+        # values are not important (already included in other values,
+        # as with the _units properties)
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+        o.x = 42
+        o.y = 'world'
+
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=False))
+
+    def test_include_defaults(self):
+        class IncludeDefaultsTest(HasProps):
+            x = Int(12)
+            y = String("hello")
+
+        o = IncludeDefaultsTest()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, 'hello')
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+        o.x = 42
+        o.y = 'world'
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=False))
+
+    def test_include_defaults_with_kwargs(self):
+        class IncludeDefaultsKwargsTest(HasProps):
+            x = Int(12)
+            y = String("hello")
+
+        o = IncludeDefaultsKwargsTest(x=14, y="world")
+        self.assertEqual(o.x, 14)
+        self.assertEqual(o.y, 'world')
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=False))
+
+    def test_include_defaults_set_to_same(self):
+        class IncludeDefaultsSetToSameTest(HasProps):
+            x = Int(12)
+            y = String("hello")
+
+        o = IncludeDefaultsSetToSameTest()
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+        # this should no-op
+        o.x = 12
+        o.y = "hello"
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+    def test_override_defaults(self):
+        class FooBase(HasProps):
+            x = Int(12)
+
+        class FooSub(FooBase):
+            x = Override(default=14)
+
+        def func_default():
+            return 16
+
+        class FooSubSub(FooBase):
+            x = Override(default=func_default)
+
+        f_base = FooBase()
+        f_sub = FooSub()
+        f_sub_sub = FooSubSub()
+
+        self.assertEqual(f_base.x, 12)
+        self.assertEqual(f_sub.x, 14)
+        self.assertEqual(f_sub_sub.x, 16)
+
+        self.assertEqual(12, f_base.properties_with_values(include_defaults=True)['x'])
+        self.assertEqual(14, f_sub.properties_with_values(include_defaults=True)['x'])
+        self.assertEqual(16, f_sub_sub.properties_with_values(include_defaults=True)['x'])
+
+        self.assertFalse('x' in f_base.properties_with_values(include_defaults=False))
+        self.assertFalse('x' in f_sub.properties_with_values(include_defaults=False))
+        self.assertFalse('x' in f_sub_sub.properties_with_values(include_defaults=False))
+
+    def test_include_delegate(self):
+        class IsDelegate(HasProps):
+            x = Int(12)
+            y = String("hello")
+
+        class IncludesDelegateWithPrefix(HasProps):
+            z = Include(IsDelegate, use_prefix=True)
+            z_y = String("world") # override the Include
+
+        class IncludesDelegateWithoutPrefix(HasProps):
+            z = Include(IsDelegate, use_prefix=False)
+            y = String("world") # override the Include
+
+        o = IncludesDelegateWithoutPrefix()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, 'world')
+        self.assertFalse(hasattr(o, 'z'))
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+        o2 = IncludesDelegateWithPrefix()
+        self.assertEqual(o2.z_x, 12)
+        self.assertEqual(o2.z_y, 'world')
+        self.assertFalse(hasattr(o2, 'z'))
+        self.assertFalse(hasattr(o2, 'x'))
+        self.assertFalse(hasattr(o2, 'y'))
+
+        self.assertFalse('z' in o2.properties_with_values(include_defaults=True))
+        self.assertFalse('x' in o2.properties_with_values(include_defaults=True))
+        self.assertFalse('y' in o2.properties_with_values(include_defaults=True))
+        self.assertTrue('z_x' in o2.properties_with_values(include_defaults=True))
+        self.assertTrue('z_y' in o2.properties_with_values(include_defaults=True))
+        self.assertTrue('z_x' not in o2.properties_with_values(include_defaults=False))
+        self.assertTrue('z_y' not in o2.properties_with_values(include_defaults=False))
 
     # def test_kwargs_init(self):
     #     class Foo(HasProps):
@@ -173,10 +368,10 @@ class TestNumberSpec(unittest.TestCase):
             x = NumberSpec("xfield")
         f = Foo()
         self.assertEqual(f.x, "xfield")
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"field": "xfield"})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(f), {"field": "xfield"})
         f.x = "my_x"
         self.assertEqual(f.x, "my_x")
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"field": "my_x"})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(f), {"field": "my_x"})
 
     def test_value(self):
         class Foo(HasProps):
@@ -185,25 +380,27 @@ class TestNumberSpec(unittest.TestCase):
         self.assertEqual(f.x, "xfield")
         f.x = 12
         self.assertEqual(f.x, 12)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 12})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(f), {"value": 12})
         f.x = 15
         self.assertEqual(f.x, 15)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 15})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(f), {"value": 15})
         f.x = dict(value=32)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(f), {"value": 32})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(f), {"value": 32})
+        f.x = None
+        self.assertIs(Foo.__dict__["x"].serializable_value(f), None)
 
     def test_default(self):
         class Foo(HasProps):
             y = NumberSpec(default=12)
         f = Foo()
         self.assertEqual(f.y, 12)
-        self.assertDictEqual(Foo.__dict__["y"].to_dict(f), {"value": 12})
+        self.assertDictEqual(Foo.__dict__["y"].serializable_value(f), {"value": 12})
         f.y = "y1"
         self.assertEqual(f.y, "y1")
         # Once we set a concrete value, the default is ignored, because it is unused
         f.y = 32
         self.assertEqual(f.y, 32)
-        self.assertDictEqual(Foo.__dict__["y"].to_dict(f), {"value": 32})
+        self.assertDictEqual(Foo.__dict__["y"].serializable_value(f), {"value": 32})
 
     def test_multiple_instances(self):
         class Foo(HasProps):
@@ -215,12 +412,102 @@ class TestNumberSpec(unittest.TestCase):
         b.x = 14
         self.assertEqual(a.x, 13)
         self.assertEqual(b.x, 14)
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13})
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"value": 14})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(a), {"value": 13})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(b), {"value": 14})
         b.x = {"field": "x3"}
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(a), {"value": 13})
-        self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"field": "x3"})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(a), {"value": 13})
+        self.assertDictEqual(Foo.__dict__["x"].serializable_value(b), {"field": "x3"})
 
+    def test_autocreate_no_parens(self):
+        class Foo(HasProps):
+            x = NumberSpec
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        a.x = 14
+        self.assertEqual(a.x, 14)
+
+class TestAngleSpec(unittest.TestCase):
+    def test_default_none(self):
+        class Foo(HasProps):
+            x = AngleSpec(None)
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        self.assertEqual(a.x_units, 'rad')
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+    def test_autocreate_no_parens(self):
+        class Foo(HasProps):
+            x = AngleSpec
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        self.assertEqual(a.x_units, 'rad')
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+    def test_default_value(self):
+        class Foo(HasProps):
+            x = AngleSpec(default=14)
+
+        a = Foo()
+
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+    def test_setting_dict_sets_units(self):
+        class Foo(HasProps):
+            x = AngleSpec(default=14)
+
+        a = Foo()
+
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+        a.x = { 'value' : 180, 'units' : 'deg' }
+        self.assertDictEqual(a.x, { 'value' : 180 })
+        self.assertEqual(a.x_units, 'deg')
+
+class TestDistanceSpec(unittest.TestCase):
+    def test_default_none(self):
+        class Foo(HasProps):
+            x = DistanceSpec(None)
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        self.assertEqual(a.x_units, 'data')
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'data')
+
+    def test_autocreate_no_parens(self):
+        class Foo(HasProps):
+            x = DistanceSpec
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+        self.assertEqual(a.x_units, 'data')
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'data')
+
+    def test_default_value(self):
+        class Foo(HasProps):
+            x = DistanceSpec(default=14)
+
+        a = Foo()
+
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'data')
 
 class TestColorSpec(unittest.TestCase):
 
@@ -230,10 +517,10 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertEqual(f.col, "colorfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "colorfield"})
+        self.assertDictEqual(desc.serializable_value(f), {"field": "colorfield"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.serializable_value(f), {"field": "myfield"})
 
     def test_field_default(self):
         class Foo(HasProps):
@@ -241,10 +528,10 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertEqual(f.col, "red")
-        self.assertDictEqual(desc.to_dict(f), {"value": "red"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "red"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.serializable_value(f), {"field": "myfield"})
 
     def test_default_tuple(self):
         class Foo(HasProps):
@@ -252,7 +539,7 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertEqual(f.col, (128, 255, 124))
-        self.assertDictEqual(desc.to_dict(f), {"value": "rgb(128, 255, 124)"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "rgb(128, 255, 124)"})
 
     def test_fixed_value(self):
         class Foo(HasProps):
@@ -260,7 +547,7 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertEqual(f.col, "gray")
-        self.assertDictEqual(desc.to_dict(f), {"value": "gray"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "gray"})
 
     def test_named_value(self):
         class Foo(HasProps):
@@ -270,10 +557,10 @@ class TestColorSpec(unittest.TestCase):
 
         f.col = "red"
         self.assertEqual(f.col, "red")
-        self.assertDictEqual(desc.to_dict(f), {"value": "red"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "red"})
         f.col = "forestgreen"
         self.assertEqual(f.col, "forestgreen")
-        self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "forestgreen"})
 
     def test_case_insensitive_named_value(self):
         class Foo(HasProps):
@@ -283,10 +570,10 @@ class TestColorSpec(unittest.TestCase):
 
         f.col = "RED"
         self.assertEqual(f.col, "RED")
-        self.assertDictEqual(desc.to_dict(f), {"value": "RED"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "RED"})
         f.col = "ForestGreen"
         self.assertEqual(f.col, "ForestGreen")
-        self.assertDictEqual(desc.to_dict(f), {"value": "ForestGreen"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "ForestGreen"})
 
     def test_named_value_set_none(self):
         class Foo(HasProps):
@@ -294,14 +581,14 @@ class TestColorSpec(unittest.TestCase):
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = None
-        self.assertDictEqual(desc.to_dict(f), {"value": None})
+        self.assertDictEqual(desc.serializable_value(f), {"value": None})
 
     def test_named_value_unset(self):
         class Foo(HasProps):
             col = ColorSpec("colorfield")
         desc = Foo.__dict__["col"]
         f = Foo()
-        self.assertDictEqual(desc.to_dict(f), {"field": "colorfield"})
+        self.assertDictEqual(desc.serializable_value(f), {"field": "colorfield"})
 
     def test_named_color_overriding_default(self):
         class Foo(HasProps):
@@ -310,10 +597,10 @@ class TestColorSpec(unittest.TestCase):
         f = Foo()
         f.col = "forestgreen"
         self.assertEqual(f.col, "forestgreen")
-        self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "forestgreen"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.serializable_value(f), {"field": "myfield"})
 
     def test_hex_value(self):
         class Foo(HasProps):
@@ -322,10 +609,10 @@ class TestColorSpec(unittest.TestCase):
         f = Foo()
         f.col = "#FF004A"
         self.assertEqual(f.col, "#FF004A")
-        self.assertDictEqual(desc.to_dict(f), {"value": "#FF004A"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "#FF004A"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.serializable_value(f), {"field": "myfield"})
 
     def test_tuple_value(self):
         class Foo(HasProps):
@@ -334,13 +621,13 @@ class TestColorSpec(unittest.TestCase):
         f = Foo()
         f.col = (128, 200, 255)
         self.assertEqual(f.col, (128, 200, 255))
-        self.assertDictEqual(desc.to_dict(f), {"value": "rgb(128, 200, 255)"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "rgb(128, 200, 255)"})
         f.col = "myfield"
         self.assertEqual(f.col, "myfield")
-        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        self.assertDictEqual(desc.serializable_value(f), {"field": "myfield"})
         f.col = (100, 150, 200, 0.5)
         self.assertEqual(f.col, (100, 150, 200, 0.5))
-        self.assertDictEqual(desc.to_dict(f), {"value": "rgba(100, 150, 200, 0.5)"})
+        self.assertDictEqual(desc.serializable_value(f), {"value": "rgba(100, 150, 200, 0.5)"})
 
     def test_set_dict(self):
         class Foo(HasProps):
@@ -352,7 +639,7 @@ class TestColorSpec(unittest.TestCase):
 
         f.col = "field2"
         self.assertEqual(f.col, "field2")
-        self.assertDictEqual(desc.to_dict(f), {"field": "field2"})
+        self.assertDictEqual(desc.serializable_value(f), {"field": "field2"})
 
 class TestDashPattern(unittest.TestCase):
 
@@ -1057,9 +1344,9 @@ class TestProperties(unittest.TestCase):
 def test_HasProps_clone():
     from bokeh.models import Plot
     p1 = Plot(plot_width=1000)
-    c1 = p1.changed_properties()
+    c1 = p1.properties_with_values(include_defaults=False)
     p2 = p1._clone()
-    c2 = p2.changed_properties()
+    c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
 
 if __name__ == "__main__":
