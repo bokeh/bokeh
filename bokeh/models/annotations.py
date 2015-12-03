@@ -191,3 +191,38 @@ class Span(Annotation):
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the span.
     """)
+
+class Arrow(Annotation):
+    """ Render an arrow annotation.
+
+    """
+
+    xs = List(Float, help="""
+    The x coordinates for the arrow with the first element being the head
+    """)
+
+    ys = List(Float, help="""
+    The y coordinates for the arrow with the first element being the head
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the shades.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the shades.
+    """)
+
+    level = Enum(RenderLevel, default="annotation", help="""
+    Specifies the level in which to render the arrow.
+    """)

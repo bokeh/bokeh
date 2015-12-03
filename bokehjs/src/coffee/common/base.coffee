@@ -41,6 +41,7 @@ locations =
   FactorRange:              require '../range/factor_range'
   Range1d:                  require '../range/range1d'
 
+  Arrow:                    require '../renderer/annotation/arrow'
   BoxAnnotation:            require '../renderer/annotation/box_annotation'
   Legend:                   require '../renderer/annotation/legend'
   Span:                     require '../renderer/annotation/span'
