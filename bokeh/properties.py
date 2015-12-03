@@ -596,7 +596,7 @@ class MetaHasProps(type):
         # Historically code also tried changing the Property's
         # type or changing from Property to non-Property: these
         # overrides are bad conceptually because the type of a
-        # read-write propery is invariant.
+        # read-write property is invariant.
         cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
         for attr in cls_attrs:
             for base in bases:
@@ -952,7 +952,7 @@ class List(Seq):
     def __init__(self, item_type, default=[], help=None):
         # todo: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
-        # opional values. Also in Dict.
+        # optional values. Also in Dict.
         super(List, self).__init__(item_type, default=default, help=help)
 
     def _is_seq(self, value):

@@ -122,7 +122,7 @@ class Axis(GuideRenderer):
 
 @abstract
 class ContinuousAxis(Axis):
-    """ A base class for all numeric, non-categorica axes types.
+    """ A base class for all numeric, non-categorical axes types.
     ``ContinuousAxis`` is not generally useful to instantiate on its own.
 
     """

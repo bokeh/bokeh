@@ -1,5 +1,5 @@
 """ The document module provides the Document class, which is a container
-for all Bokeh objects that mustbe reflected to the client side BokehJS
+for all Bokeh objects that must be reflected to the client side BokehJS
 library.
 
 """

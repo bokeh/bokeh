@@ -27,7 +27,7 @@ from .component import Component
 
 def _select_helper(args, kwargs):
     """
-    Allow fexible selector syntax.
+    Allow flexible selector syntax.
     Returns:
         a dict
     """
@@ -594,7 +594,7 @@ class GridPlot(Plot):
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
-        match the given selector. See Plot.select for detailed usage infomation.
+        match the given selector. See Plot.select for detailed usage information.
 
         Returns:
             seq[Model]

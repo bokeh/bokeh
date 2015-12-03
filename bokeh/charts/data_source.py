@@ -140,7 +140,7 @@ class DataGroup(object):
     """
 
     def __init__(self, label, data, attr_specs):
-        """Create a DataGroup for the data, with a label and assoicated attributes.
+        """Create a DataGroup for the data, with a label and associated attributes.
 
         Args:
             label (str): the label for the group based on unique values of each column

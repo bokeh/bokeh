@@ -1,4 +1,4 @@
-""" Various kinds of lyaout widgets.
+""" Various kinds of layout widgets.
 
 """
 from __future__ import absolute_import
