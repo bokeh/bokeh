@@ -9,7 +9,7 @@ from ..enums import (Orientation, SpatialUnits, RenderLevel, Dimension,
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, NumberSpec, Either, Auto, Float)
+                          Include, NumberSpec, Either, Auto, Float, Override)
 
 from .renderers import Renderer, GlyphRenderer
 
@@ -40,9 +40,15 @@ class Legend(Annotation):
     The %s for the legend background style.
     """)
 
+    background_fill_color = Override(default="#ffffff")
+
     label_props = Include(TextProps, help="""
     The %s for the legend labels.
     """)
+
+    label_text_baseline = Override(default='middle')
+
+    label_text_font_size = Override(default={ 'value' : '10pt' })
 
     label_standoff = Int(15, help="""
     The distance (in pixels) to separate the label from its associated glyph.
@@ -144,9 +150,17 @@ class BoxAnnotation(Annotation):
     The %s values for the shades.
     """)
 
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the shades.
     """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
 
 class Span(Annotation):
     """ Render a horizontal or vertical line span.

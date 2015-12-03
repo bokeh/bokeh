@@ -40,7 +40,7 @@ class Marker(Glyph):
     The size (diameter) values for the markers in screen space units.
     """)
 
-    angle = NumberSpec(0.0, help="""
+    angle = NumberSpec(default=0.0, help="""
     The angles to rotate the markers.
     """)
 
