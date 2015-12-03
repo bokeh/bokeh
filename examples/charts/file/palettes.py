@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from bokeh._legacy_charts import Area, output_file, gridplot, show
+from bokeh.charts import Area, output_file, gridplot, show
 from bokeh.palettes import (Blues9, BrBG9, BuGn9, BuPu9, GnBu9, Greens9,
                             Greys9, OrRd9, Oranges9, PRGn9, PiYG9, PuBu9,
                             PuBuGn9, PuOr9, PuRd9, Purples9, RdBu9, RdGy9,
@@ -29,10 +29,10 @@ def create_area_chart(data, palette):
                           width=300,
                           xgrid=False,
                           ygrid=False,
-                          tools=None)
+                          tools="")
     return Area(data,
                 title=palette,
-                stacked=True,
+                stack=True,
                 palette=standard_palettes.get(palette),
                 **_chart_styling)
 
