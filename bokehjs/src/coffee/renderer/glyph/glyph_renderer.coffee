@@ -131,7 +131,7 @@ class GlyphRendererView extends PlotWidget
     if !inspected or inspected.length == 0
       inspected = []
     else
-      if inspected['0d'].flag
+      if inspected['0d'].glyph
         inspected = indices
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices
