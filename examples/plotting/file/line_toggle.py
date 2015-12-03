@@ -20,8 +20,8 @@ if (d0.glyph) {
     console.log('Toggled line', d0.glyph.id, color);
     d0.glyph.visuals.line.alpha.fixed_value = (alpha == 1) ? 0.5 : 1.0;
     // Make selected/unselected lines have normal appearance
-    d0.glyph['renderer'].selection_glyph = d0.glyph;
-    d0.glyph['renderer'].nonselection_glyph = d0.glyph;
+    d0.glyph['renderer'].selection_glyph = null;
+    d0.glyph['renderer'].nonselection_glyph = null;
 }
 """
 

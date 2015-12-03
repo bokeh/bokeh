@@ -59,7 +59,7 @@ class GlyphRendererView extends PlotWidget
         @request_render()
     )
 
-  have_selection_glyphs: () -> true
+  have_selection_glyphs: () -> @selection_glyph? && @nonselection_glyph?
 
   # TODO (bev) arg is a quick-fix to allow some hinting for things like
   # partial data updates (especially useful on expensive set_data calls
@@ -72,8 +72,9 @@ class GlyphRendererView extends PlotWidget
 
     @glyph.set_visuals(source)
     @decimated_glyph.set_visuals(source)
-    @selection_glyph.set_visuals(source)
-    @nonselection_glyph.set_visuals(source)
+    if @have_selection_glyphs()      
+      @selection_glyph.set_visuals(source)
+      @nonselection_glyph.set_visuals(source)
     if @hover_glyph?
       @hover_glyph.set_visuals(source)
 
