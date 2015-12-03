@@ -143,6 +143,26 @@ attrs:
 
     orientation: "top_right"
 
+  Label:
+    label_text_font: "Helvetica"
+    label_text_font_size: "10pt"
+    label_text_font_style: "normal"
+    label_text_color: "#444444"
+    label_text_alpha: 1.0
+    label_text_align: "left"
+    label_text_baseline: "middle"
+
+    background_fill_color: '#fff9ba'
+    background_fill_alpha: 0.0
+    
+    border_line_color: '#cccccc'
+    border_line_width: 1
+    border_line_alpha: 0.0
+    border_line_join: 'miter'
+    border_line_cap: 'butt'
+    border_line_dash: []
+    border_line_dash_offset: 0
+
   Marker:
     size: 4
     angle: 0

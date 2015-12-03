@@ -9,7 +9,7 @@ from ..enums import (Orientation, SpatialUnits, RenderLevel, Dimension,
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, NumberSpec, Either, Auto, Float)
+                          Include, Float, Either, Auto, AngleSpec, NumberSpec)
 
 from .renderers import Renderer, GlyphRenderer
 
@@ -86,7 +86,7 @@ class Legend(Annotation):
     )
 
 class BoxAnnotation(Annotation):
-    """ Render an annotation box "shade" thing
+    """ Render an annotation box onto the plot
 
     """
 
@@ -148,6 +148,70 @@ class BoxAnnotation(Annotation):
     The %s values for the shades.
     """)
 
+class Label(Annotation):
+    """ Render a label onto the plot
+    """
+
+    text = String(help="""
+    The text values to render.
+    """)
+
+    x = Float(help="""
+    The x-coordinates to locate the label anchors.
+    """)
+
+    x_offset = Float(help="""
+    The offset in the horizontal direction in "screen space" units
+    """)
+
+    x_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the x attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    y = Float(help="""
+    The y-coordinates to locate the label anchors.
+    """)
+
+    y_offset = Float(help="""
+    The offset in the vertical direction in "screen space" units
+    """)
+
+    y_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the y attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    angle = AngleSpec(default=0, help="""
+    The angles to rotate the label, in radians, as measured from the horizontal.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering labels on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering labels on the plot. If unset, use the default y-range.
+    """)
+
+    level = Enum(RenderLevel, default="annotation", help="""
+    Specifies the level in which to render the label.
+    """)
+
+    label_props = Include(TextProps, help="""
+    The %s values for the label.
+    """)
+
+    border_props = Include(LineProps, help="""
+    The %s values for the shades.
+    """)
+
+    background_props = Include(FillProps, help="""
+    The %s values for the shades.
+    """)
+
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
 
@@ -182,7 +246,6 @@ class Span(Annotation):
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the span is rendered as a canvas element or as an
     css element overlaid on the canvas. The default mode is "canvas".
-
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
         the render_mode is set to "css"
