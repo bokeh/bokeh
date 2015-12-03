@@ -57,7 +57,7 @@ def Line(data=None, x=None, y=None, **kws):
     .. note::
         This chart type differs on input types as compared to other charts,
         due to the way that line charts typically are plotting labeled series. For
-        example, a column for APPL stock prices over time. Another way this could be
+        example, a column for AAPL stock prices over time. Another way this could be
         plotted is to have a DataFrame with a column of `stock_label` and columns of
         `price`, which is the stacked format. Both should be supported, but the former
         is the expected one. Internally, the latter format is being derived.

@@ -60,7 +60,7 @@ class Logical(Bool):
             if isinstance(value, list):
                 value = np.array(value)
 
-            # If not a Bool, then look for psuedo-logical types
+            # If not a Bool, then look for pseudo-logical types
             if isinstance(value, np.ndarray):
                 values = np.unique(value)
                 if len(values) == 2:

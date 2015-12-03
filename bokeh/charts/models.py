@@ -24,7 +24,7 @@ class CompositeGlyph(HasProps):
     oriented data source level, segmenting and assigning
     attributes from a large selection, while the composite glyphs
     will typically be passed an array-like structures with
-    one or more singlular attributes to apply.
+    one or more singular attributes to apply.
 
     Another way to explain the concept is that the Builder
     operates as the groupby, as in pandas, while the

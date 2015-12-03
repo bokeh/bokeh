@@ -222,7 +222,7 @@ class ColumnDataSource(DataSource):
 
 
     # def push_notebook(self):
-    #     """ Update date for a plot in the IPthon notebook in place.
+    #     """ Update date for a plot in the IPython notebook in place.
 
     #     This function can be be used to update data in plot data sources
     #     in the IPython notebook, without having to use the Bokeh server.

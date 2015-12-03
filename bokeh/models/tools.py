@@ -110,7 +110,7 @@ class PreviewSaveTool(Tool):
 
     .. note::
         Work is ongoing to support headless (svg, png) image creation without
-        requireing user interaction. See  :bokeh-issue:`538` to track progress
+        requiring user interaction. See  :bokeh-issue:`538` to track progress
         or contribute.
 
     .. |save_icon| image:: /_images/icons/Save.png
@@ -122,7 +122,7 @@ class PreviewSaveTool(Tool):
 class ResetTool(Tool):
     """ *toolbar icon*: |reset_icon|
 
-    The reset tool is an action. When activated in teh toolbar, the tool
+    The reset tool is an action. When activated in the toolbar, the tool
     resets the data bounds of the plot to their values when the plot was
     initially created.
 
@@ -497,7 +497,7 @@ class HoverTool(Tool):
     .. note::
         The tooltips attribute can also be configured with a mapping type,
         e.g. ``dict`` or ``OrderedDict``. However, if a ``dict`` is used,
-        the visual presentation order is unpecified.
+        the visual presentation order is unspecified.
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 

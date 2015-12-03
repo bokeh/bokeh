@@ -277,8 +277,8 @@ class JSResources(BaseResources):
     Attributes:
         logo_url : location of the BokehJS logo image
         css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
-        messages : any informational messages concering this configuration
+        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
+        messages : any informational messages concerning this configuration
 
     These attributes are often useful as template parameters when embedding
     Bokeh plots.
@@ -340,8 +340,8 @@ class CSSResources(BaseResources):
     Attributes:
         logo_url : location of the BokehJS logo image
         css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
-        messages : any informational messages concering this configuration
+        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
+        messages : any informational messages concerning this configuration
 
     These attributes are often useful as template parameters when embedding Bokeh plots.
 
@@ -402,8 +402,8 @@ class Resources(JSResources, CSSResources):
         js_raw : any raw JS that needs to be placed inside ``<script>`` tags
         css_raw : any raw CSS that needs to be places inside ``<style>`` tags
         js_files : URLs of any JS files that need to be loaded by ``<script>`` tags
-        css_files : URLS od any CSS files that need to be loaed by ``<link>`` tags
-        messages : any informational messages concering this configuration
+        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
+        messages : any informational messages concerning this configuration
 
     These attributes are often useful as template parameters when embedding
     Bokeh plots.

@@ -7,7 +7,7 @@ from ..embed import notebook_div
 
 @abstract
 class Component(Model):
-    """ A base class for all embeddable models, i.e. plots and wigets. """
+    """ A base class for all embeddable models, i.e. plots and widgets. """
 
     disabled = Bool(False, help="""
     Whether the widget will be disabled when rendered. If ``True``,
