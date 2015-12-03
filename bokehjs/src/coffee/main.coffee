@@ -79,6 +79,7 @@ Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
 
 # data sources
 Bokeh.ColumnDataSource = require("./source/column_data_source")
+Bokeh.GeoJSONDataSource = require("./source/geojson_data_source")
 
 # tickers and tick formatters
 Bokeh.AbstractTicker           = require("./ticking/abstract_ticker")
