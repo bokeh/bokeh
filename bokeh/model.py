@@ -9,11 +9,11 @@ from six import iteritems
 
 from .properties import Any, HasProps, List, MetaHasProps, String
 from .query import find
-from . import themes
 from .util.callback_manager import CallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
 from ._json_encoder import serialize_json
+from .themes import default as default_theme
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -75,24 +75,20 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     def __init__(self, **kwargs):
         self._id = kwargs.pop("id", make_id())
         self._document = None
-        # kwargs may assign to properties, so we need
-        # to chain up here after we already initialize
-        # some of our fields.
-        props = dict()
-        for cls in self.__class__.__mro__[-2::-1]:
-            props.update(themes.default['attrs'].get(cls.__name__, {}))
-        props.update(kwargs)
-        super(Model, self).__init__(**props)
+        super(Model, self).__init__(**kwargs)
+        default_theme.apply_to_model(self)
 
     def _attach_document(self, doc):
         '''This should only be called by the Document implementation to set the document field'''
         if self._document is not None and self._document is not doc:
             raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
         self._document = doc
+        doc.theme.apply_to_model(self)
 
     def _detach_document(self):
         '''This should only be called by the Document implementation to unset the document field'''
         self._document = None
+        default_theme.apply_to_model(self)
 
     @property
     def document(self):

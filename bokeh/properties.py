@@ -173,13 +173,16 @@ class PropertyDescriptor(PropertyFactory):
             return default()
 
     def _raw_default(self):
-        """The raw_default() needs to be validated and transformed by prepare_value()
-        before use. Prefer prepared_default()."""
+        """ The raw_default() needs to be validated and transformed by prepare_value() before
+        use, and may also be replaced later by subclass overrides or by themes."""
         return self._copy_default(self._default)
 
-    def prepared_default(self, cls, name):
-        """The default transformed by prepare_value()."""
-        overrides = cls._overridden_defaults()
+    def themed_default(self, cls, name, theme_overrides):
+        """The default transformed by prepare_value() and the theme overrides."""
+        overrides = theme_overrides
+        if overrides is None or name not in overrides:
+            overrides = cls._overridden_defaults()
+
         if name in overrides:
             default = self._copy_default(overrides[name])
         else:
@@ -319,6 +322,10 @@ class Property(object):
         """ True if the property can refer to another HasProps instance."""
         raise NotImplementedError("Implement has_ref()")
 
+    def trigger_if_changed(self, obj, old):
+        """ Send a change event if the property's value is not equal to ``old``. """
+        raise NotImplementedError("Implement trigger_if_changed()")
+
 class BasicProperty(Property):
     """ A PropertyDescriptor associated with a class attribute name, so it can be read and written. """
 
@@ -331,7 +338,13 @@ class BasicProperty(Property):
         return "%s:%s" % (self.name, self.descriptor)
 
     def class_default(self, cls):
-        return self.descriptor.prepared_default(cls, self.name)
+        """Get the default value for a specific subtype of HasProps,
+        which may not be used for an individual instance."""
+        return self.descriptor.themed_default(cls, self.name, None)
+
+    def instance_default(self, obj):
+        """ Get the default value that will be used for a specific instance."""
+        return self.descriptor.themed_default(obj.__class__, self.name, obj.themed_values())
 
     @property
     def serialized(self):
@@ -376,7 +389,7 @@ class BasicProperty(Property):
         # the default is a Model that may change out from
         # underneath us, or if the default is generated anew each
         # time by a function.
-        default = self.class_default(obj.__class__)
+        default = self.instance_default(obj)
         if not self.descriptor._has_stable_default():
             if isinstance(default, PropertyValueContainer):
                 # this is a special-case so we can avoid returning the container
@@ -442,6 +455,12 @@ class BasicProperty(Property):
     def __delete__(self, obj):
         if self.name in obj._property_values:
             del obj._property_values[self.name]
+
+
+    def trigger_if_changed(self, obj, old):
+        new_value = self.__get__(obj)
+        if not self.descriptor.matches(old, new_value):
+            self._trigger(obj, old, new_value)
 
 class Include(PropertyFactory):
     """ Include other properties from mixin Models, with a given prefix. """
@@ -781,6 +800,54 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         """ Sets a number of properties at once """
         for kw in kwargs:
             setattr(self, kw, kwargs[kw])
+
+    def themed_values(self):
+        """ Get any theme-provided overrides as a dict from property name to value,
+        or None if no theme overrides any values for this instance. """
+        if hasattr(self, '__themed_values__'):
+            return getattr(self, '__themed_values__')
+        else:
+            return None
+
+    def apply_theme(self, property_values):
+        """ Apply a set of theme values which will be used rather than
+        defaults, but will not override application-set
+        values. The passed-in dictionary may be kept around as-is
+        and shared with other instances to save memory (so neither
+        the caller nor the HasProps instance should modify it).
+
+        """
+        old_dict = None
+        if hasattr(self, '__themed_values__'):
+            old_dict = getattr(self, '__themed_values__')
+
+        # if the same theme is set again, it should reuse the
+        # same dict
+        if old_dict is property_values:
+            return
+
+        removed = set()
+        # we're doing a little song-and-dance to avoid storing __themed_values__ or
+        # an empty dict, if there's no theme that applies to this HasProps instance.
+        if old_dict is not None:
+            removed.update(set(old_dict.keys()))
+        added = set(property_values.keys())
+        old_values = dict()
+        for k in added.union(removed):
+            old_values[k] = getattr(self, k)
+
+        if len(property_values) > 0:
+            setattr(self, '__themed_values__', property_values)
+        elif hasattr(self, '__themed_values__'):
+            delattr(self, '__themed_values__')
+
+        # Emit any change notifications that result
+        for k, v in old_values.items():
+            prop = self.lookup(k)
+            prop.trigger_if_changed(self, v)
+
+    def unapply_theme(self):
+        self.apply_theme(property_values=dict())
 
     def pprint_props(self, indent=0):
         """ Prints the properties of this object, nicely formatted """

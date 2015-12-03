@@ -19,7 +19,9 @@ from .deprecate import deprecated
 from .validation import check_integrity
 from .util.callback_manager import _check_callback
 from .util.version import __version__
-from._json_encoder import serialize_json
+from ._json_encoder import serialize_json
+from .themes import default as default_theme
+from .themes import Theme
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -186,6 +188,7 @@ class Document(object):
 
     def __init__(self, **kwargs):
         self._roots = set()
+        self._theme = kwargs.pop('theme', default_theme)
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
 
@@ -282,6 +285,28 @@ class Document(object):
         if self._title != title:
             self._title = title
             self._trigger_on_change(TitleChangedEvent(self, title))
+
+    @property
+    def theme(self):
+        """ Get the current Theme instance affecting models in this Document. Never returns None."""
+        return self._theme
+
+    @theme.setter
+    def theme(self, theme):
+        """ Set the current Theme instance affecting models in this Document.
+        Setting this to None sets the default theme. Changing theme may trigger
+        model change events on the models in the Document if the theme modifies
+        any model properties.
+        """
+        if theme is None:
+            theme = default_theme
+        if not isinstance(theme, Theme):
+            raise ValueError("Theme must be an instance of the Theme class")
+        if self._theme is theme:
+            return
+        self._theme = theme
+        for model in self._all_models.values():
+            self._theme.apply_to_model(model)
 
     def add_root(self, model):
         ''' Add a model as a root model to this Document.

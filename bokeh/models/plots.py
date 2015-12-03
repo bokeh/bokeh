@@ -10,7 +10,7 @@ from ..enums import Location
 from ..mixins import LineProps, TextProps, FillProps
 from ..model import Model
 from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include)
+    List, Dict, Include, Override)
 from ..query import find
 from ..util.string import nice_join
 from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
@@ -354,9 +354,17 @@ class Plot(Component):
     The %s for the plot title.
     """)
 
+    title_text_align = Override(default='center')
+
+    title_text_baseline = Override(default='alphabetic')
+
+    title_text_font_size = Override(default={ 'value' : '20pt' })
+
     outline_props = Include(LineProps, help="""
     The %s for the plot border outline.
     """)
+
+    outline_line_color = Override(default="#aaaaaa")
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
@@ -461,9 +469,13 @@ class Plot(Component):
     The %s for the plot background style.
     """)
 
+    background_fill_color = Override(default='#ffffff')
+
     border_props = Include(FillProps, help="""
     The %s for the plot border style.
     """)
+
+    border_fill_color = Override(default='#ffffff')
 
     min_border_top = Int(50, help="""
     Minimum size in pixels of the padding region above the top of the
@@ -505,7 +517,7 @@ class Plot(Component):
 
     """)
 
-    min_border = Int(50, help="""
+    min_border = Int(40, help="""
     A convenience property to set all all the ``min_X_border`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.

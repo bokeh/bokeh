@@ -317,13 +317,27 @@ class Basictest(unittest.TestCase):
 
         class IncludesDelegateWithPrefix(HasProps):
             z = Include(IsDelegate, use_prefix=True)
-            z_y = String("world") # override the Include
+            z_y = Int(57) # override the Include
 
         class IncludesDelegateWithoutPrefix(HasProps):
             z = Include(IsDelegate, use_prefix=False)
-            y = String("world") # override the Include
+            y = Int(42) # override the Include
+
+        class IncludesDelegateWithoutPrefixUsingOverride(HasProps):
+            z = Include(IsDelegate, use_prefix=False)
+            y = Override(default="world") # override the Include changing just the default
 
         o = IncludesDelegateWithoutPrefix()
+        self.assertEqual(o.x, 12)
+        self.assertEqual(o.y, 42)
+        self.assertFalse(hasattr(o, 'z'))
+
+        self.assertTrue('x' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('y' in o.properties_with_values(include_defaults=True))
+        self.assertTrue('x' not in o.properties_with_values(include_defaults=False))
+        self.assertTrue('y' not in o.properties_with_values(include_defaults=False))
+
+        o = IncludesDelegateWithoutPrefixUsingOverride()
         self.assertEqual(o.x, 12)
         self.assertEqual(o.y, 'world')
         self.assertFalse(hasattr(o, 'z'))
@@ -335,7 +349,7 @@ class Basictest(unittest.TestCase):
 
         o2 = IncludesDelegateWithPrefix()
         self.assertEqual(o2.z_x, 12)
-        self.assertEqual(o2.z_y, 'world')
+        self.assertEqual(o2.z_y, 57)
         self.assertFalse(hasattr(o2, 'z'))
         self.assertFalse(hasattr(o2, 'x'))
         self.assertFalse(hasattr(o2, 'y'))
