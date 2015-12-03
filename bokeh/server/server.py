@@ -31,10 +31,11 @@ class Server(object):
             self._applications = { '/' : applications }
         else:
             self._applications = applications
-        io_loop = None
-        if 'io_loop' in kwargs:
-            io_loop = kwargs['io_loop']
-        self._tornado = BokehTornado(self._applications, io_loop=io_loop)
+
+        io_loop = kwargs.get('io_loop')
+        extra_patterns = kwargs.get('extra_patterns')
+
+        self._tornado = BokehTornado(self._applications, io_loop=io_loop, extra_patterns=extra_patterns)
         self._http = HTTPServer(self._tornado)
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:

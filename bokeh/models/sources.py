@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..properties import HasProps, abstract
-from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum
+from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
 from ..util.serialization import transform_column_source_data
@@ -222,7 +222,7 @@ class ColumnDataSource(DataSource):
 
 
     # def push_notebook(self):
-    #     """ Update date for a plot in the IPthon notebook in place.
+    #     """ Update date for a plot in the IPython notebook in place.
 
     #     This function can be be used to update data in plot data sources
     #     in the IPython notebook, without having to use the Bokeh server.
@@ -255,6 +255,14 @@ class ColumnDataSource(DataSource):
         lengths = set(len(x) for x in self.data.values())
         if len(lengths) > 1:
             return str(self)
+
+
+class GeoJSONDataSource(DataSource):
+    geojson = JSON(help="""
+    GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
+    only process a FeatureCollection or GeometryCollection.
+    """)
+
 
 @abstract
 class RemoteSource(DataSource):

@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
-from bokeh.charts import Histogram
-from bokeh._legacy_charts import Area
+from bokeh.charts import Area, Histogram
 from bokeh.io import save
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg as df

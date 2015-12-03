@@ -1,4 +1,4 @@
-### Embed mutltiple
+### Embed multiple
 
 To run the example:
 
