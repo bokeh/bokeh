@@ -180,8 +180,8 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
-    def vm_serialize(self, changed_only=True):
-        attrs = super(ColumnDataSource, self).vm_serialize(changed_only=changed_only)
+    def _to_json_like(self, include_defaults):
+        attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
         if 'data' in attrs:
             attrs['data'] = transform_column_source_data(attrs['data'])
         return attrs
@@ -222,7 +222,7 @@ class ColumnDataSource(DataSource):
 
 
     # def push_notebook(self):
-    #     """ Update date for a plot in the IPthon notebook in place.
+    #     """ Update date for a plot in the IPython notebook in place.
 
     #     This function can be be used to update data in plot data sources
     #     in the IPython notebook, without having to use the Bokeh server.

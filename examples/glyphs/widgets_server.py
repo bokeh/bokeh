@@ -69,7 +69,7 @@ def make_layout():
     return vbox
 
 layout = make_layout()
-document.add(layout)
+document.add_root(layout)
 
 session.show(layout)
 

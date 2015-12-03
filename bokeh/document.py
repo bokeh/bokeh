@@ -1,5 +1,5 @@
 """ The document module provides the Document class, which is a container
-for all Bokeh objects that mustbe reflected to the client side BokehJS
+for all Bokeh objects that must be reflected to the client side BokehJS
 library.
 
 """
@@ -8,15 +8,18 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-import uuid
-from bokeh.util.callback_manager import _check_callback
-from bokeh.util.version import __version__
-from bokeh._json_encoder import serialize_json
-from .model import Model
-from .validation import check_integrity
-from .query import find
 from json import loads
+import uuid
+
 from six import string_types
+
+from .model import Model
+from .query import find
+from .deprecate import deprecated
+from .validation import check_integrity
+from .util.callback_manager import _check_callback
+from .util.version import __version__
+from._json_encoder import serialize_json
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -24,7 +27,20 @@ class DocumentChangedEvent(object):
     def __init__(self, document):
         self.document = document
 
-class ModelChangedEvent(DocumentChangedEvent):
+    def dispatch(self, receiver):
+        if hasattr(receiver, '_document_changed'):
+            receiver._document_changed(self)
+
+class DocumentPatchedEvent(DocumentChangedEvent):
+    def __init__(self, document):
+        self.document = document
+
+    def dispatch(self, receiver):
+        super(DocumentPatchedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_document_patched'):
+            receiver._document_patched(self)
+
+class ModelChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, model, attr, old, new):
         super(ModelChangedEvent, self).__init__(document)
         self.model = model
@@ -32,17 +48,22 @@ class ModelChangedEvent(DocumentChangedEvent):
         self.old = old
         self.new = new
 
-class TitleChangedEvent(DocumentChangedEvent):
+    def dispatch(self, receiver):
+        super(ModelChangedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_document_model_changed'):
+            receiver._document_patched(self)
+
+class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
         super(TitleChangedEvent, self).__init__(document)
         self.title = title
 
-class RootAddedEvent(DocumentChangedEvent):
+class RootAddedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootAddedEvent, self).__init__(document)
         self.model = model
 
-class RootRemovedEvent(DocumentChangedEvent):
+class RootRemovedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootRemovedEvent, self).__init__(document)
         self.model = model
@@ -52,10 +73,20 @@ class SessionCallbackAdded(DocumentChangedEvent):
         super(SessionCallbackAdded, self).__init__(document)
         self.callback = callback
 
+    def dispatch(self, receiver):
+        super(SessionCallbackAdded, self).dispatch(receiver)
+        if hasattr(receiver, '_session_callback_added'):
+            receiver._session_callback_added(self)
+
 class SessionCallbackRemoved(DocumentChangedEvent):
     def __init__(self, document, callback):
         super(SessionCallbackRemoved, self).__init__(document)
         self.callback = callback
+
+    def dispatch(self, receiver):
+        super(SessionCallbackRemoved, self).dispatch(receiver)
+        if hasattr(receiver, '_session_callback_removed'):
+            receiver._session_callback_removed(self)
 
 class SessionCallback(object):
     def __init__(self, document, callback, id=None):
@@ -163,7 +194,7 @@ class Document(object):
         self._all_models_freeze_count = 0
         self._all_models = dict()
         self._all_models_by_name = _MultiValuedDict()
-        self._callbacks = []
+        self._callbacks = {}
         self._session_callbacks = {}
 
     def clear(self):
@@ -269,9 +300,7 @@ class Document(object):
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-    # TODO (havocp) should probably drop either this or add_root.
-    # this is the backward compatible one but perhaps a tad unclear
-    # if we also allow adding other things besides roots.
+    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
         .. warning::
@@ -377,7 +406,11 @@ class Document(object):
 
             _check_callback(callback, ('event',))
 
-            self._callbacks.append(callback)
+            self._callbacks[callback] = callback
+
+    def on_change_dispatch_to(self, receiver):
+        if not receiver in self._callbacks:
+            self._callbacks[receiver] = lambda event: event.dispatch(receiver)
 
     def remove_on_change(self, *callbacks):
         ''' Remove a callback added earlier with on_change()
@@ -386,7 +419,7 @@ class Document(object):
 
         '''
         for callback in callbacks:
-            self._callbacks.remove(callback)
+            del self._callbacks[callback]
 
     def _with_self_as_curdoc(self, f):
         from bokeh.io import set_curdoc, curdoc
@@ -407,7 +440,7 @@ class Document(object):
 
     def _trigger_on_change(self, event):
         def invoke_callbacks():
-            for cb in self._callbacks:
+            for cb in self._callbacks.values():
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
 
@@ -429,12 +462,7 @@ class Document(object):
         references_json = []
         for r in references:
             ref = r.ref
-            ref['attributes'] = r.vm_serialize(changed_only=False)
-            # 'id' is in 'ref' already
-            # TODO (havocp) don't put this id here in the first place,
-            # by fixing vm_serialize once we establish that other
-            # users of it don't exist anymore or whatever
-            del ref['attributes']['id']
+            ref['attributes'] = r._to_json_like(include_defaults=True)
             references_json.append(ref)
 
         return references_json
@@ -483,9 +511,17 @@ class Document(object):
                 del obj_attrs[key]
             instance.update(**obj_attrs)
 
-    def to_json_string(self):
-        ''' Convert the document to a JSON string. '''
+    def to_json_string(self, indent=None):
+        ''' Convert the document to a JSON string.
 
+        Args:
+            indent (int or None, optional) : number of spaces to indent, or
+                None to suppress all newlines and indentation (default: None)
+
+        Returns:
+            str
+
+        '''
         root_ids = []
         for r in self._roots:
             root_ids.append(r._id)
@@ -501,7 +537,7 @@ class Document(object):
             'version' : __version__
         }
 
-        return serialize_json(json)
+        return serialize_json(json, indent=indent, sort_keys=True)
 
     def to_json(self):
         ''' Convert the document to a JSON object. '''

@@ -28,7 +28,7 @@ and let everybody know that you intend to work on it.
 
       `python -c "import bokeh; print(bokeh.print_versions())"`
 
-5. Include relevent browser information (if the issue is browser-related). Just saying that you 
+5. Include relevant browser information (if the issue is browser-related). Just saying that you
    use Chrome is generally not sufficient. We may ask you for additional information to 
    reproduce and fix the issue.
 6. Include relevant JavaScript console and/or `bokeh-server` logs. 

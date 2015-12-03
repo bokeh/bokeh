@@ -5,7 +5,8 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..properties import abstract
-from ..properties import Int, Float, String, Enum, Bool, Datetime, Auto, Instance, Tuple, Either, Include
+from ..properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
+                          Tuple, Either, Include, Override)
 from ..mixins import LineProps, TextProps
 from ..enums import Location
 
@@ -121,7 +122,7 @@ class Axis(GuideRenderer):
 
 @abstract
 class ContinuousAxis(Axis):
-    """ A base class for all numeric, non-categorica axes types.
+    """ A base class for all numeric, non-categorical axes types.
     ``ContinuousAxis`` is not generally useful to instantiate on its own.
 
     """
@@ -170,9 +171,7 @@ class DatetimeAxis(LinearAxis):
     default.
 
     """
-    axis_label = String("date", help="""
-    DateTime ``axis_label`` defaults to "date".
-    """)
+    axis_label = Override(default="date")
 
     # TODO: (bev) this should be an Enum, if it is exposed at all
     scale = String("time")
