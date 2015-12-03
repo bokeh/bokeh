@@ -148,9 +148,11 @@ describe "Defaults", ->
               prop_values[p] = { 'value' : v.fixed_value }
             else
               n = v.value()
-              if isNaN(n) # fudge NaN a little
-                n = null
-              prop_values[p] = { 'value' : n }
+              if isNaN(n) or n == null
+                prop_values[p] = null
+              else
+                prop_values[p] = { 'value' : n }
+
           _.extend(attrs, prop_values)
 
       if not check_matching_defaults(name, get_defaults(name), attrs)

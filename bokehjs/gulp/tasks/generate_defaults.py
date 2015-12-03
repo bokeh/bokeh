@@ -48,31 +48,14 @@ for leaf in leaves(all_tree, model_class):
     if vm_name in all_json:
         continue
     defaults = {}
-    for name in klass.class_properties():
-        prop = getattr(klass, name)
-        if isinstance(prop, DataSpec):
-            # the dict is what we really send on the wire to the
-            # client, prop.default is usually a string which
-            # becomes dict(field=string)
-            fake_obj = Model()
-            if hasattr(prop, '_units_type'):
-                units = prop._units_type
-                units.name = prop.name+"_units"
-                setattr(fake_obj.__class__, units.name, units)
-            default = prop.to_dict(fake_obj)
-        else:
-            default = prop.default
+    instance = klass()
+    for name, default in instance.properties_with_values().items():
         if isinstance(default, Model):
             ref = default.ref
-            raw_attrs = default.vm_serialize(changed_only=False)
-            del raw_attrs['id']
-            for (k, v) in raw_attrs.items():
-                # we can't serialize Infinity ... this hack is also in Model.
-                if isinstance(v, float) and v == float('inf'):
-                    raw_attrs[k] = None
+            raw_attrs = default._to_json_like(include_defaults=True)
             attrs = loads(serialize_json(raw_attrs, sort_keys=True))
-            del ref['id']
             ref['attributes'] = attrs
+            del ref['id'] # there's no way the ID will match coffee
             default = ref
         elif isinstance(default, float) and default == float('inf'):
             default = None
