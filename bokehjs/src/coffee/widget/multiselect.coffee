@@ -1,8 +1,8 @@
 _ = require "jquery"
 $ = require "underscore"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
 multiselecttemplate = require "./multiselecttemplate"
+InputWidget = require "./input_widget"
 
 class MultiSelectView extends ContinuumView
   tagName: "div"
@@ -38,7 +38,7 @@ class MultiSelectView extends ContinuumView
     @mset('value', @$('select').val(), {'silent': true})
     @mget('callback')?.execute(@model)
 
-class MultiSelect extends HasParent
+class MultiSelect extends InputWidget.Model
   type: "MultiSelect"
   default_view: MultiSelectView
 

@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 ContinuumView = require "../common/continuum_view"
-HasProperties = require "../common/has_properties"
+Widget = require "./widget"
 
 class PanelView extends ContinuumView
 
@@ -13,7 +13,7 @@ class PanelView extends ContinuumView
     @$el.empty()
     return @
 
-class Panel extends HasProperties
+class Panel extends Widget.Model
   type: "Panel"
   default_view: PanelView
 

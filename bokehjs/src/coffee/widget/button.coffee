@@ -1,7 +1,7 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+AbstractButton = require "./abstract_button"
 
 class ButtonView extends ContinuumView
   tagName: "button"
@@ -38,7 +38,7 @@ class ButtonView extends ContinuumView
     @mset('clicks', @mget('clicks') + 1)
     @mget('callback')?.execute(@model)
 
-class Button extends HasParent
+class Button extends AbstractButton.Model
   type: "Button"
   default_view: ButtonView
 
@@ -46,9 +46,6 @@ class Button extends HasParent
     return _.extend {}, super(), {
       clicks: 0
       label: "Button"
-      icon: null
-      type: "default"
-      disabled: false
     }
 
 module.exports =

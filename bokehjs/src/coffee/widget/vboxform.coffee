@@ -1,7 +1,7 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
 ContinuumView  = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+VBox = require "./vbox"
 
 class VBoxFormView extends ContinuumView
   tagName: "form"
@@ -25,7 +25,7 @@ class VBoxFormView extends ContinuumView
       @$el.append(@views[child.id].$el)
     return @
 
-class VBoxForm extends HasParent
+class VBoxForm extends VBox.Model
   type: "VBoxForm"
   default_view: VBoxFormView
 
