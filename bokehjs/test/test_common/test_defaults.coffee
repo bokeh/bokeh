@@ -20,10 +20,13 @@ get_defaults = (name) ->
   core_defaults.get_defaults(name) or widget_defaults.get_defaults(name)
 
 safe_stringify = (v) ->
-  try
-    "#{JSON.stringify(v)}"
-  catch e
-    "#{v}"
+  if v == Infinity
+    "Infinity"
+  else
+    try
+      "#{JSON.stringify(v)}"
+    catch e
+      "#{v}"
 
 check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   different = []
