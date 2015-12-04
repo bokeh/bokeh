@@ -40,11 +40,12 @@ class ColumnDataSource extends HasProperties
     # return the column names in this data source
     return _.keys(@get('data'))
 
-  defaults: =>
+  defaults: ->
     return _.extend {}, super(), {
       data: {}
       selection_manager: new SelectionManager({'source':@})
       selected: hittest.create_hit_test_result()
+      callback: null
     }
 
 module.exports =

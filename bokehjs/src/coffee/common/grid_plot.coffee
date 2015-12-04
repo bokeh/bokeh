@@ -326,7 +326,9 @@ class GridPlot extends HasProperties
   defaults: () ->
     return _.extend {}, super(), {
       children: [[]]
+      border_space: 0
       toolbar_location: "left"
+      disabled: false
     }
 
 module.exports =

@@ -50,6 +50,7 @@ class BoxAnnotation extends HasParent
 
   defaults: ->
     return _.extend {}, super(), {
+      plot: null
       x_range_name: "default"
       y_range_name: "default"
     }

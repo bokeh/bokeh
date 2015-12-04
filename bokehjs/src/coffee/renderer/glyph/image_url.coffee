@@ -108,6 +108,8 @@ class ImageURL extends Glyph.Model
       retry_attempts: 0
       retry_timeout: 0
       global_alpha: 1.0
+      anchor: "top_left"
+      dilate: false
     }
 
 module.exports =

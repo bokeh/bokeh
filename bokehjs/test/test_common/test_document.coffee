@@ -275,11 +275,15 @@ describe "Document", ->
     expect(root1.get('dict_prop')).to.equal undefined
     expect(root1.get('obj_prop')).to.equal undefined
     expect(root1.get('dict_of_list_prop')).to.equal undefined
+    expect(root1.get('name')).to.equal undefined
+    expect(root1.get('tags')).to.equal undefined
 
-    expect(patch.events.length).to.equal 5
+    expect(patch.events.length).to.equal 6
 
     d.apply_json_patch(patch)
     expect(root1.get('name')).to.equal null
+    expect(root1.get('tags').length).to.equal 0
+
     expect(root1.get('list_prop').length).to.equal 1
     expect(Object.keys(root1.get('dict_prop')).length).to.equal 1
     expect(root1.get('obj_prop')).to.be.an.instanceof(ModelWithConstructTimeChanges)

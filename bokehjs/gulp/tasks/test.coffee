@@ -6,6 +6,6 @@ utils = require "../utils"
 
 gulp.task "test", ->
   gulp.src "./test", read: false
-    .pipe mocha()
+    .pipe mocha({grep: 'Defaults'})
 
 utils.buildWatchTask "test", paths.test.watchSources

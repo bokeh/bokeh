@@ -96,7 +96,7 @@ class Grid extends HasParent
    _bounds: () ->
     [range, cross_range] = @get('ranges')
 
-    user_bounds = @get('bounds') ? 'auto'
+    user_bounds = @get('bounds')
     range_bounds = [range.get('min'), range.get('max')]
 
     if _.isArray(user_bounds)
@@ -158,6 +158,7 @@ class Grid extends HasParent
 
   defaults: ->
     return _.extend {}, super(), {
+      plot: null
       x_range_name: "default"
       y_range_name: "default"
     }
@@ -165,6 +166,9 @@ class Grid extends HasParent
   display_defaults: ->
     return _.extend {}, super(), {
       level: 'underlay'
+      bounds: 'auto'
+      dimension: 0
+      ticker: null
       band_fill_color: null
       band_fill_alpha: 0
       grid_line_color: '#cccccc'

@@ -281,7 +281,9 @@ def build_js():
     msg = proc.stdout.read().decode('ascii', errors='ignore')
     pat = re.compile(r"(\[.*\]) (.*)", re.DOTALL)
     for line in msg.strip().split("\n"):
-        stamp, txt = pat.match(line).groups()
+        m = pat.match(line)
+        if not m: continue # skip generate.py output lines
+        stamp, txt = m.groups()
         indented_msg += "   " + dim(green(stamp)) + " " + dim(txt) + "\n"
     msg = "\n".join(["    " + x for x in msg.split("\n")])
     print(BUILD_SUCCESS_MSG % indented_msg)

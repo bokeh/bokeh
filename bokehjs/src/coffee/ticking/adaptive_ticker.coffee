@@ -27,6 +27,10 @@ class AdaptiveTicker extends AbstractTicker.Model
   # and min_interval <= I <= max_interval.
   initialize: (attrs, options) ->
     super(attrs, options)
+
+    if not @get('max_interval')?
+      @set('max_interval', Infinity)
+
     prefix_mantissa =  _.last(@get('mantissas')) / @get('base')
     suffix_mantissa = _.first(@get('mantissas')) * @get('base')
     @extended_mantissas = _.flatten([prefix_mantissa, @get('mantissas'), suffix_mantissa])
@@ -60,7 +64,7 @@ class AdaptiveTicker extends AbstractTicker.Model
       base: 10.0,
       mantissas: [2, 5, 10]
       min_interval: 0.0,
-      max_interval: Infinity,
+      max_interval: null,
     }
 
 module.exports =

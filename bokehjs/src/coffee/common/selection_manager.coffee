@@ -15,8 +15,8 @@ class SelectionManager extends HasProperties
   serializable_in_document: () -> false
 
   set_selection: (indices) ->
-    @_save_indices(indices)
     source = @get('source')
+    source.set({ "selected": indices })
     source.trigger('select')
 
   select: (tool, renderer_view, geometry, final, append=false) ->
@@ -63,7 +63,7 @@ class SelectionManager extends HasProperties
     else
       for k, s of @selectors
         s.clear()
-    @_save_indices(hittest.create_hit_test_result())
+    @set_selection(hittest.create_hit_test_result())
 
   _get_selector: (rview) ->
     _.setdefault(@selectors, rview.model.id, new Selector())

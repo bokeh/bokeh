@@ -34,11 +34,11 @@ class Range1d(Range):
 
     """
 
-    start = Either(Float, Datetime, Int, help="""
+    start = Either(Float, Datetime, Int, default=0, help="""
     The start of the range.
     """)
 
-    end = Either(Float, Datetime, Int, help="""
+    end = Either(Float, Datetime, Int, default=1, help="""
     The end of the range.
     """)
 

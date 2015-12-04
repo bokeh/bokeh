@@ -80,6 +80,7 @@ class Span extends HasParent
 
   defaults: ->
     return _.extend {}, super(), {
+      plot: null
       x_range_name: "default"
       y_range_name: "default"
       render_mode: "canvas"
@@ -89,11 +90,15 @@ class Span extends HasParent
   display_defaults: ->
     return _.extend {}, super(), {
       level: 'annotation'
+      dimension: "width"
+      location: null
       line_color: 'black'
       line_width: 1
       line_alpha: 1.0
       line_dash: []
       line_dash_offset: 0
+      line_cap: "butt"
+      line_join: "miter"
     }
 
 module.exports =

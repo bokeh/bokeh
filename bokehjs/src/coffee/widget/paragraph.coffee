@@ -1,6 +1,6 @@
 _ = require "underscore"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+Markup = require "./markup"
 
 class ParagraphView extends ContinuumView
   tagName: "p"
@@ -18,7 +18,7 @@ class ParagraphView extends ContinuumView
     @$el.text(@mget('text'))
     return @
 
-class Paragraph extends HasParent
+class Paragraph extends Markup.Model
   type: "Paragraph"
   default_view: ParagraphView
 
