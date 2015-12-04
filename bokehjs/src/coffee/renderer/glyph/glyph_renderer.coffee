@@ -220,6 +220,10 @@ class GlyphRenderer extends HasParent
       x_range_name: "default"
       y_range_name: "default"
       data_source: null
+      glyph: null
+      hover_glyph: null
+      nonselection_glyph: null
+      selection_glyph: null
     }
 
   display_defaults: ->

@@ -253,7 +253,7 @@ class Plot(Component):
         '''Adds new DynamicImageRenderer into the Plot.renderers
 
         Args:
-            image_source (ImageSource) : a image source instance which contain image configuration 
+            image_source (ImageSource) : a image source instance which contain image configuration
 
         Keyword Arguments:
             Additional keyword arguments are passed on as-is to the dynamic image renderer
@@ -572,7 +572,7 @@ class Plot(Component):
     """)
 
 
-class GridPlot(Plot):
+class GridPlot(Component):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.
 
     """

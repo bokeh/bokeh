@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..properties import abstract
-from ..properties import Int, Float, Seq, Instance
+from ..properties import Int, Float, Seq, Instance, Override
 
 @abstract
 class Ticker(Model):
@@ -58,7 +58,7 @@ class AdaptiveTicker(Ticker):
     The multiplier to use for scaling mantissas.
     """)
 
-    mantissas = Seq(Float, [2, 5, 10], help="""
+    mantissas = Seq(Float, [1, 2, 5], help="""
     The acceptable list numbers to generate multiples of.
     """)
 
@@ -131,6 +131,7 @@ class LogTicker(AdaptiveTicker):
     """ Generate ticks on a log scale.
 
     """
+    mantissas = Override(default=[1, 5])
 
 class CategoricalTicker(Ticker):
     """ Generate ticks for categorical ranges.

@@ -98,6 +98,7 @@ class DataRange1d extends Range1d.Model
     return _.extend {}, super(), {
       plots: []
       sources: []
+      renderers: []
       range_padding: 0.1
       default_span: 2
       flipped: false
