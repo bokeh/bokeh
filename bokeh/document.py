@@ -1,5 +1,5 @@
 """ The document module provides the Document class, which is a container
-for all Bokeh objects that mustbe reflected to the client side BokehJS
+for all Bokeh objects that must be reflected to the client side BokehJS
 library.
 
 """
@@ -19,7 +19,9 @@ from .deprecate import deprecated
 from .validation import check_integrity
 from .util.callback_manager import _check_callback
 from .util.version import __version__
-from._json_encoder import serialize_json
+from ._json_encoder import serialize_json
+from .themes import default as default_theme
+from .themes import Theme
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -27,7 +29,20 @@ class DocumentChangedEvent(object):
     def __init__(self, document):
         self.document = document
 
-class ModelChangedEvent(DocumentChangedEvent):
+    def dispatch(self, receiver):
+        if hasattr(receiver, '_document_changed'):
+            receiver._document_changed(self)
+
+class DocumentPatchedEvent(DocumentChangedEvent):
+    def __init__(self, document):
+        self.document = document
+
+    def dispatch(self, receiver):
+        super(DocumentPatchedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_document_patched'):
+            receiver._document_patched(self)
+
+class ModelChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, model, attr, old, new):
         super(ModelChangedEvent, self).__init__(document)
         self.model = model
@@ -35,17 +50,22 @@ class ModelChangedEvent(DocumentChangedEvent):
         self.old = old
         self.new = new
 
-class TitleChangedEvent(DocumentChangedEvent):
+    def dispatch(self, receiver):
+        super(ModelChangedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_document_model_changed'):
+            receiver._document_patched(self)
+
+class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
         super(TitleChangedEvent, self).__init__(document)
         self.title = title
 
-class RootAddedEvent(DocumentChangedEvent):
+class RootAddedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootAddedEvent, self).__init__(document)
         self.model = model
 
-class RootRemovedEvent(DocumentChangedEvent):
+class RootRemovedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootRemovedEvent, self).__init__(document)
         self.model = model
@@ -55,10 +75,20 @@ class SessionCallbackAdded(DocumentChangedEvent):
         super(SessionCallbackAdded, self).__init__(document)
         self.callback = callback
 
+    def dispatch(self, receiver):
+        super(SessionCallbackAdded, self).dispatch(receiver)
+        if hasattr(receiver, '_session_callback_added'):
+            receiver._session_callback_added(self)
+
 class SessionCallbackRemoved(DocumentChangedEvent):
     def __init__(self, document, callback):
         super(SessionCallbackRemoved, self).__init__(document)
         self.callback = callback
+
+    def dispatch(self, receiver):
+        super(SessionCallbackRemoved, self).dispatch(receiver)
+        if hasattr(receiver, '_session_callback_removed'):
+            receiver._session_callback_removed(self)
 
 class SessionCallback(object):
     def __init__(self, document, callback, id=None):
@@ -158,6 +188,7 @@ class Document(object):
 
     def __init__(self, **kwargs):
         self._roots = set()
+        self._theme = kwargs.pop('theme', default_theme)
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
 
@@ -166,7 +197,7 @@ class Document(object):
         self._all_models_freeze_count = 0
         self._all_models = dict()
         self._all_models_by_name = _MultiValuedDict()
-        self._callbacks = []
+        self._callbacks = {}
         self._session_callbacks = {}
 
     def clear(self):
@@ -254,6 +285,28 @@ class Document(object):
         if self._title != title:
             self._title = title
             self._trigger_on_change(TitleChangedEvent(self, title))
+
+    @property
+    def theme(self):
+        """ Get the current Theme instance affecting models in this Document. Never returns None."""
+        return self._theme
+
+    @theme.setter
+    def theme(self, theme):
+        """ Set the current Theme instance affecting models in this Document.
+        Setting this to None sets the default theme. Changing theme may trigger
+        model change events on the models in the Document if the theme modifies
+        any model properties.
+        """
+        if theme is None:
+            theme = default_theme
+        if not isinstance(theme, Theme):
+            raise ValueError("Theme must be an instance of the Theme class")
+        if self._theme is theme:
+            return
+        self._theme = theme
+        for model in self._all_models.values():
+            self._theme.apply_to_model(model)
 
     def add_root(self, model):
         ''' Add a model as a root model to this Document.
@@ -378,7 +431,11 @@ class Document(object):
 
             _check_callback(callback, ('event',))
 
-            self._callbacks.append(callback)
+            self._callbacks[callback] = callback
+
+    def on_change_dispatch_to(self, receiver):
+        if not receiver in self._callbacks:
+            self._callbacks[receiver] = lambda event: event.dispatch(receiver)
 
     def remove_on_change(self, *callbacks):
         ''' Remove a callback added earlier with on_change()
@@ -387,7 +444,7 @@ class Document(object):
 
         '''
         for callback in callbacks:
-            self._callbacks.remove(callback)
+            del self._callbacks[callback]
 
     def _with_self_as_curdoc(self, f):
         from bokeh.io import set_curdoc, curdoc
@@ -408,7 +465,7 @@ class Document(object):
 
     def _trigger_on_change(self, event):
         def invoke_callbacks():
-            for cb in self._callbacks:
+            for cb in self._callbacks.values():
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
 

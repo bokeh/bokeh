@@ -12,7 +12,7 @@ from .util import die
 from . import subcommands
 
 def main(argv):
-    ''' Exectute the Bokeh command.
+    ''' Execute the Bokeh command.
 
     Args:
         argv (seq[str]) : a list of command line arguments to process

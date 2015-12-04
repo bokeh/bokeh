@@ -52,11 +52,7 @@ test:
     - pytest
     - pytest-cov ==1.8.1
     - pytest-selenium ==1.0b1
-    - abstract-rendering        [not win]
     - beautiful-soup
-    - websocket-client
-    - blaze
-    - multiuserblazeserver
     - scipy
     - pillow
 

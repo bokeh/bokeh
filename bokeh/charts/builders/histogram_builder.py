@@ -4,6 +4,9 @@ complex plot is a simple way.
 This is the Histogram class which lets you build your histograms just passing
 the arguments to the Chart class and calling the proper functions.
 """
+
+# ToDo: handle different aggregation types other than count with Bins
+
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
 #

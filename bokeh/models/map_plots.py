@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..properties import HasProps, abstract
-from ..properties import Enum, Float, Instance, Int, JSON
+from ..properties import Enum, Float, Instance, Int, JSON, Override
 from ..enums import MapType
 from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
 from ..validation.errors import REQUIRED_RANGE
@@ -83,33 +83,4 @@ class GMapPlot(MapPlot):
     Options for displaying the plot.
     """)
 
-class GeoJSOptions(MapOptions):
-    """ Options for GeoJSPlot objects.
-
-    """
-
-class GeoJSPlot(MapPlot):
-    """ A Bokeh Plot with a `GeoJS Map`_ displayed underneath.
-
-    .. warning::
-        GeoJSPlot support should be considered experimental, a subject
-        to revision or removal.
-
-    .. _GeoJS Map: https://github.com/OpenGeoscience/geojs
-
-    """
-
-    # TODO (bev) map plot might not have these
-    @validation.error(REQUIRED_RANGE)
-    def _check_required_range(self):
-        pass
-    @validation.warning(MISSING_RENDERERS)
-    def _check_missing_renderers(self):
-        pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
-        pass
-
-    map_options = Instance(GeoJSOptions, help="""
-    Options for displaying the plot.
-    """)
+    border_fill_color = Override(default="#ffffff")

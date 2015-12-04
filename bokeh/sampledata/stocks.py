@@ -1,5 +1,5 @@
 '''
-This module provides some recorded stock data for the follwing stocks: AAPL, FB, GOOG, IBM, MSFT.
+This module provides some recorded stock data for the following stocks: AAPL, FB, GOOG, IBM, MSFT.
 Each set of data is available as an attribute on the module (e.g., stocks.AAPL) and the value is
 a dictionary with the structure:
 
