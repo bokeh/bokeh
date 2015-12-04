@@ -4,8 +4,10 @@ callback interface to classes.
 '''
 from __future__ import absolute_import
 
-from inspect import formatargspec, getargspec, isfunction, ismethod
+from functools import partial
+from inspect import formatargspec, getfullargspec, isfunction, ismethod
 from types import FunctionType
+
 
 def _callback_argspec(callback):
     '''Bokeh-internal function to get argspec for a callable'''
@@ -13,12 +15,14 @@ def _callback_argspec(callback):
         raise ValueError("Callbacks must be callables")
 
     if isfunction(callback):
-        return getargspec(callback)
+        return getfullargspec(callback)
     elif ismethod(callback):
         # in this case the argspec will have 'self' in the args
-        return getargspec(callback)
+        return getfullargspec(callback)
+    elif isinstance(callback, partial):
+        return getfullargspec(callback)
     else:
-        return getargspec(callback.__call__)
+        return getfullargspec(callback.__call__)
 
 def _check_callback(callback, fargs):
     '''Bokeh-internal function to check callback signature'''
