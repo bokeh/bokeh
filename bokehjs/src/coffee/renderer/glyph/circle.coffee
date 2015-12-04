@@ -217,7 +217,7 @@ class Circle extends Glyph.Model
 
   display_defaults: ->
     return _.extend {}, super(), {
-      size: 4 # XXX: Circle should be a marker, then this wouldn't be necessary.
+      size: { value: 4, units: 'screen' } # XXX: Circle should be a marker, then this wouldn't be necessary.
     }
 
   defaults: ->
