@@ -35,9 +35,7 @@ class AutoloadJsHandler(RequestHandler):
 
         js = AUTOLOAD_JS.render(
             docs_json = None,
-            # TODO we should load all the JS files, but the code
-            # in AUTOLOAD_JS isn't smart enough to deal with it.
-            js_url = resources.js_files[0],
+            js_urls = resources.js_files,
             css_files = resources.css_files,
             elementid = element_id,
             websocket_url = websocket_url

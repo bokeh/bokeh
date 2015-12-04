@@ -199,8 +199,8 @@ color of the title text, use ``title_text_color``:
 Background
 ~~~~~~~~~~
 
-The background fill color is controlled by the ``background_fill`` property
-of the |Plot| object:
+The background fill style is controlled by the ``background_fill_color`` and
+``background_fill_alpha`` properties of the |Plot| object:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_background_fill.py
     :source-position: above
@@ -210,9 +210,9 @@ of the |Plot| object:
 Border
 ~~~~~~
 
-The border fill color is controlled by the ``border_fill`` property
-of the |Plot| object. You can also set the minimum border on each side
-(in screen units) with the properties
+The border fill style is controlled by the ``border_fill_color`` and
+``border_fill_alpha`` properties of the |Plot| object. You can also set the
+minimum border on each side (in screen units) with the properties
 
 ``min_border_left``
 
@@ -270,8 +270,8 @@ This is the object to set fill, line, or text property values for:
 
 .. _userguide_styling_selected_unselected_glyphs:
 
-Selected & Unselected Glyphs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Selected and Unselected Glyphs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The styling of selected and non-selected glyphs can be customized by
 setting the |selection_glyph| and/or |nonselection_glyph| attributes
@@ -282,15 +282,24 @@ of the |GlyphRenderer| either manually or by passing them to |add_glyph|.
 .. |selection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.selection_glyph`
 .. |nonselection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.nonselection_glyph`
 
-.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_selections.py
+The plot below demonstrates how to set these attributes using the
+|bokeh.plotting| interface. Click or tap circles on the plot to see the
+effect on the selected and nonselected glyphs. To clear the selection
+and restore the original state, click anywhere in the plot *outside* of a
+circle.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_selections_plotting_glyph.py
     :source-position: above
 
-Click/Tap to select circles on the plot above to see the effect on the nonselected glyphs.
+If you just need to set the color or alpha parameters of the selected or
+nonselected glyphs, this can be accomplished even more simply by providing
+color and alpha arguments to the glyph function, prefixed by ``"selection_"``
+or ``"nonselection_"``. The plot below demonstrates this technique:
 
-Click in the plot, but not on a circle, to see their original state (this
-is set by the original call ``p.circle()``).
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_selections_plotting_params.py
+    :source-position: above
 
-The same could be achieved with the models interface as follows:
+The same could also be achieved with the models interface as follows:
 
 .. code-block:: python
 
@@ -301,18 +310,30 @@ The same could be achieved with the models interface as follows:
     selected_circle = Circle(fill_alpha=1, fill_color="firebrick", line_color=None)
     nonselected_circle = Circle(fill_alpha=0.2, fill_color="blue", line_color="firebrick")
 
-    p.add_glyph(
-      source,
-      initial_circle,
-      selection_glyph=selected_circle,
-      nonselection_glyph=nonselected_circle
-    )
-
+    p.add_glyph(source,
+                initial_circle,
+                selection_glyph=selected_circle,
+                nonselection_glyph=nonselected_circle)
 
 .. note::
     Only the *visual* properties of ``selection_glyph`` and
-    ``nonselection_glyph`` are considered when renderering. Changing
+    ``nonselection_glyph``are considered when rendering. Changing
     positions, sizes, etc. will have no effect.
+
+Hover Inspections
+~~~~~~~~~~~~~~~~~
+
+Setting the highlight policy for glyphs that are hovered over is completely
+analogous to setting the ``selection_glyph`` or ``nonselection_glyph``, or
+by passing color or alpha parameters prefixed with ``"hover_"``. The example
+below demonstrates the latter method:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_glyph_hover.py
+    :source-position: above
+
+.. note::
+    Only the *visual* properties of ``hover_glyph`` are considered when
+    rendering. Changing positions, sizes, etc. will have no effect.
 
 .. _userguide_styling_axes:
 

@@ -103,7 +103,7 @@ def make_tabs(objs):
 layout = VBox(children=[Paragraph(text="Only Image and ImageRGBA glyphs are not demonstrated."), make_tabs(glyphs), make_tabs(markers)])
 
 doc = Document()
-doc.add(layout)
+doc.add_root(layout)
 
 if __name__ == "__main__":
     filename = "glyphs.html"

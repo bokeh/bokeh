@@ -4,11 +4,13 @@
 from __future__ import absolute_import
 
 from six import string_types
+import warnings
 
 from ..enums import Location
-from ..mixins import LineProps, TextProps
-from ..plot_object import PlotObject
-from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
+from ..mixins import LineProps, TextProps, FillProps
+from ..model import Model
+from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+    List, Dict, Include, Override)
 from ..query import find
 from ..util.string import nice_join
 from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
@@ -18,14 +20,14 @@ from .. import validation
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, GlyphRenderer, TileRenderer
+from .renderers import Renderer, GlyphRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
 
 def _select_helper(args, kwargs):
     """
-    Allow fexible selector syntax.
+    Allow flexible selector syntax.
     Returns:
         a dict
     """
@@ -44,7 +46,7 @@ def _select_helper(args, kwargs):
             selector = arg
         elif isinstance(arg, string_types):
             selector = dict(name=arg)
-        elif issubclass(arg, PlotObject):
+        elif issubclass(arg, Model):
             selector = {"type" : arg}
         else:
             raise RuntimeError("Selector must be a dictionary, string or plot object.")
@@ -61,6 +63,13 @@ class Plot(Component):
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
+
+        if "border_fill" in kwargs and "border_fill_color" in kwargs:
+            raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
+
+        if "background_fill" in kwargs and "background_fill_color" in kwargs:
+            raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
+
         super(Plot, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
@@ -84,13 +93,13 @@ class Plot(Component):
             name (str) : the name to query on
 
         Also queries on just type can be made simply by supplying the
-        ``PlotObject`` subclass as the single parameter:
+        ``Model`` subclass as the single parameter:
 
         Args:
-            type (PlotObject) : the type to query on
+            type (Model) : the type to query on
 
         Returns:
-            seq[PlotObject]
+            seq[Model]
 
         Examples:
 
@@ -240,6 +249,23 @@ class Plot(Component):
         self.renderers.append(tile_renderer)
         return tile_renderer
 
+    def add_dynamic_image(self, image_source, **kw):
+        '''Adds new DynamicImageRenderer into the Plot.renderers
+
+        Args:
+            image_source (ImageSource) : a image source instance which contain image configuration 
+
+        Keyword Arguments:
+            Additional keyword arguments are passed on as-is to the dynamic image renderer
+
+        Returns:
+            DynamicImageRenderer : DynamicImageRenderer
+
+        '''
+        image_renderer = DynamicImageRenderer(image_source=image_source, **kw)
+        self.renderers.append(image_renderer)
+        return image_renderer
+
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
         missing = []
@@ -279,6 +305,8 @@ class Plot(Component):
             field_msg = ' '.join('[range:%s] [first_value: %s]' % (field, value)
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
+
+    __deprecated_attributes__ = ('background_fill', 'border_fill')
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -326,9 +354,17 @@ class Plot(Component):
     The %s for the plot title.
     """)
 
+    title_text_align = Override(default='center')
+
+    title_text_baseline = Override(default='alphabetic')
+
+    title_text_font_size = Override(default={ 'value' : '20pt' })
+
     outline_props = Include(LineProps, help="""
     The %s for the plot border outline.
     """)
+
+    outline_line_color = Override(default="#aaaaaa")
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
@@ -393,13 +429,53 @@ class Plot(Component):
 
     """)
 
-    background_fill = Color("white", help="""
+    @property
+    def background_fill(self):
+        warnings.warn(
+            """
+            Glyph property 'background_fill' will be deprecated in Bokeh
+            0.12.0. Use 'background_fill_color' instead.
+            """)
+        return self.background_fill_color
 
+    @background_fill.setter
+    def background_fill(self, color):
+        warnings.warn(
+            """
+            Glyph property 'background_fill' will be deprecated in Bokeh
+            0.12.0. Use 'background_fill_color' instead.
+            """)
+        self.background_fill_color = color
+
+    @property
+    def border_fill(self):
+        warnings.warn(
+            """
+            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
+            Use 'border_fill_color' instead.
+            """)
+        return self.border_fill_color
+
+    @border_fill.setter
+    def border_fill(self, color):
+        warnings.warn(
+            """
+            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
+            Use 'border_fill_color' instead.
+            """)
+        self.border_fill_color = color
+
+    background_props = Include(FillProps, help="""
+    The %s for the plot background style.
     """)
 
-    border_fill = Color("white", help="""
+    background_fill_color = Override(default='#ffffff')
 
+    border_props = Include(FillProps, help="""
+    The %s for the plot border style.
     """)
+
+    border_fill_color = Override(default='#ffffff')
 
     min_border_top = Int(50, help="""
     Minimum size in pixels of the padding region above the top of the
@@ -441,7 +517,7 @@ class Plot(Component):
 
     """)
 
-    min_border = Int(50, help="""
+    min_border = Int(40, help="""
     A convenience property to set all all the ``min_X_border`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
@@ -530,11 +606,10 @@ class GridPlot(Plot):
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
-        match the given selector. See Plot.select for detailed usage infomation.
+        match the given selector. See Plot.select for detailed usage information.
 
         Returns:
-            seq[PlotObject]
-
+            seq[Model]
         '''
 
         selector = _select_helper(args, kwargs)

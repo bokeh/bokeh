@@ -20,10 +20,12 @@ from __future__ import absolute_import
 from six import iteritems
 from itertools import chain
 from ..builder import XYBuilder, create_and_build
-from ..glyphs import LineGlyph
-from ..attributes import DashAttr, ColorAttr
+from ..glyphs import LineGlyph, PointGlyph
+from ..attributes import DashAttr, ColorAttr, MarkerAttr
 from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
+from ...properties import Bool, String, List
+from ..operations import Stack, Dodge
 
 # -----------------------------------------------------------------------------
 # Classes and functions
@@ -55,7 +57,7 @@ def Line(data=None, x=None, y=None, **kws):
     .. note::
         This chart type differs on input types as compared to other charts,
         due to the way that line charts typically are plotting labeled series. For
-        example, a column for APPL stock prices over time. Another way this could be
+        example, a column for AAPL stock prices over time. Another way this could be
         plotted is to have a DataFrame with a column of `stock_label` and columns of
         `price`, which is the stacked format. Both should be supported, but the former
         is the expected one. Internally, the latter format is being derived.
@@ -95,12 +97,18 @@ class LineBuilder(XYBuilder):
     And finally add the needed lines taking the references from the source.
     """
 
+    series_names = List(String, help="""Names that represent the items being plotted.""")
+    stack = Bool(default=False)
+
     default_attributes = {'color': ColorAttr(),
-                          'dash': DashAttr()}
+                          'dash': DashAttr(),
+                          'marker': MarkerAttr()}
 
     dimensions = ['y', 'x']
 
     column_selector = NumericalColumnsAssigner
+
+    glyph = LineGlyph
 
     @property
     def measures(self):
@@ -115,22 +123,29 @@ class LineBuilder(XYBuilder):
     def measure_input(self):
         return isinstance(self.y.selection, list) or isinstance(self.x.selection, list)
 
+    @property
+    def stack_flags(self):
+        # Check if we stack measurements and by which attributes
+        # This happens if we used the same series labels for dimensions as attributes
+        return {k: self.attr_measurement(k) for k in list(
+            self.attributes.keys())}
+
+    def get_id_cols(self, stack_flags):
+
+        # collect the other columns used as identifiers, that aren't a measurement name
+        id_cols = [self.attributes[attr].columns
+                   for attr, stack in iteritems(stack_flags) if not stack and
+                   self.attributes[attr].columns != self.measures and
+                   self.attributes[attr].columns is not None]
+        return list(chain.from_iterable(id_cols))
+
     def setup(self):
         """Handle input options that require transforming data and/or user selections."""
 
         # handle special case of inputs as measures
         if self.measure_input:
-
-            # Check if we stack measurements and by which attributes
-            stack_flags = {'color': self.attr_measurement('color'),
-                           'dash': self.attr_measurement('dash')}
-
-            # collect the other columns used as identifiers, that aren't a measurement name
-            id_cols = [self.attributes[attr].columns
-                       for attr, stack in iteritems(stack_flags) if not stack and
-                       self.attributes[attr].columns != self.measures and
-                       self.attributes[attr].columns is not None]
-            id_cols = list(chain.from_iterable(id_cols))
+            stack_flags = self.stack_flags
+            id_cols = self.get_id_cols(stack_flags)
 
             # if we have measures input, we need to stack by something, set default
             if all(attr is False for attr in list(stack_flags.values())):
@@ -139,16 +154,12 @@ class LineBuilder(XYBuilder):
             # stack the measurement dimension while keeping id columns
             self._stack_measures(ids=id_cols)
 
-            # set the attributes to key off of the name of the stacked measurement, if stacked
-            if stack_flags['color']:
-                # color by the name of each variable
-                self.attributes['color'] = ColorAttr(columns='variable',
-                                                     data=ColumnDataSource(self._data.df))
-
-            if stack_flags['dash']:
-                # dash by the name of each variable
-                self.attributes['dash'] = DashAttr(columns='variable',
-                                                   data=ColumnDataSource(self._data.df))
+            # set the attributes to key off of the name of the stacked measurement
+            source = ColumnDataSource(self._data.df)
+            for attr_name, stack_flag in iteritems(stack_flags):
+                if stack_flags[attr_name]:
+                    default_attr = self.attributes[attr_name]
+                    default_attr.setup(columns='series', data=source)
 
         # Handle when to use special column names
         if self.x.selection is None and self.y.selection is not None:
@@ -162,8 +173,18 @@ class LineBuilder(XYBuilder):
         return (cols is not None and (cols == self.y.selection or
                                       cols == self.x.selection))
 
-    def _stack_measures(self, ids):
-        """Transform data so that id columns are kept and measures are stacked in single column."""
+    def set_series(self, col_name):
+        series = self._data.df[col_name].drop_duplicates().tolist()
+        series = [str(item) for item in series]
+        self.series_names = series
+
+    def _stack_measures(self, ids, var_name='series'):
+        """Stack data and keep the ids columns.
+
+        Args:
+            ids (list(str)): the column names that describe the measures
+
+        """
         if isinstance(self.y.selection, list):
             dim = 'y'
             if self.x.selection is not None:
@@ -179,21 +200,48 @@ class LineBuilder(XYBuilder):
         dim_prop = getattr(self, dim)
 
         # transform our data by stacking the measurements into one column
-        self._data.stack_measures(measures=dim_prop.selection, ids=ids)
+        self._data.stack_measures(measures=dim_prop.selection, ids=ids,
+                                  var_name=var_name)
 
         # update our dimension with the updated data
         dim_prop.set_data(self._data)
 
-    def yield_renderers(self):
-        for group in self._data.groupby(**self.attributes):
-            glyph = LineGlyph(x=group.get_values(self.x.selection),
-                              y=group.get_values(self.y.selection),
-                              line_color=group['color'],
-                              dash=group['dash'])
+        self.set_series('series')
 
+    def get_builder_attr(self):
+        attrs = self.properties()
+        return {attr: getattr(self, attr) for attr in attrs
+                if attr in self.glyph.properties()}
+
+
+    def yield_renderers(self):
+
+        build_attr = self.get_builder_attr()
+
+        # get the list of builder attributes and only pass them on if glyph supports
+        attrs = list(self.attributes.keys())
+        attrs = [attr for attr in attrs if attr in self.glyph.properties()]
+
+        for group in self._data.groupby(**self.attributes):
+
+            group_kwargs = self.get_group_kwargs(group, attrs)
+            group_kwargs.update(build_attr)
+
+            glyph = self.glyph(x=group.get_values(self.x.selection),
+                               y=group.get_values(self.y.selection),
+                               **group_kwargs)
+
+            # dash=group['dash']
             # save reference to composite glyph
             self.add_glyph(group, glyph)
 
             # yield each renderer produced by composite glyph
             for renderer in glyph.renderers:
                 yield renderer
+
+        Stack().apply(self.comp_glyphs)
+        Dodge().apply(self.comp_glyphs)
+
+
+class PointSeriesBuilder(LineBuilder):
+    glyph = PointGlyph

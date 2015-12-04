@@ -20,7 +20,6 @@ console.log('Bokeh: setting prefix to', Config.prefix)
 locations =
   Plot:                     require './plot'
   GMapPlot:                 require './gmap_plot'
-  GeoJSPlot:                require './geojs_plot'
   GridPlot:                 require './grid_plot'
   Canvas:                   require './canvas'
   LayoutBox:                require './layout_box'
@@ -52,6 +51,9 @@ locations =
   WMTSTileSource:           require '../renderer/tile/wmts_tile_source'
   QUADKEYTileSource:        require '../renderer/tile/quadkey_tile_source'
   BBoxTileSource:           require '../renderer/tile/bbox_tile_source'
+
+  DynamicImageRenderer:     require '../renderer/tile/dynamic_image_renderer'
+  ImageSource:              require '../renderer/tile/image_source'
 
   GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 
@@ -100,9 +102,9 @@ locations =
   PolySelection:            require '../renderer/overlay/poly_selection'
 
   ColumnDataSource:         require '../source/column_data_source'
-  ServerDataSource:         require '../source/server_data_source'
   BlazeDataSource:          require '../source/blaze_data_source'
   AjaxDataSource:           require '../source/ajax_data_source'
+  GeoJSONDataSource:        require '../source/geojson_data_source'
 
   AbstractTicker:           require '../ticking/abstract_ticker'
   AdaptiveTicker:           require '../ticking/adaptive_ticker'

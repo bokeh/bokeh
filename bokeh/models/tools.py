@@ -22,7 +22,7 @@ always be active regardless of what other tools are currently active.
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
+from ..model import Model
 from ..properties import abstract, Float, Color
 from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
                           Dict, Tuple)
@@ -32,7 +32,7 @@ from .renderers import Renderer
 from .callbacks import Callback
 
 
-class ToolEvents(PlotObject):
+class ToolEvents(Model):
     """
 
     """
@@ -41,7 +41,7 @@ class ToolEvents(PlotObject):
 
 
 @abstract
-class Tool(PlotObject):
+class Tool(Model):
     """ A base class for all interactive tool types. ``Tool`` is
     not generally useful to instantiate on its own.
 
@@ -110,7 +110,7 @@ class PreviewSaveTool(Tool):
 
     .. note::
         Work is ongoing to support headless (svg, png) image creation without
-        requireing user interaction. See  :bokeh-issue:`538` to track progress
+        requiring user interaction. See  :bokeh-issue:`538` to track progress
         or contribute.
 
     .. |save_icon| image:: /_images/icons/Save.png
@@ -122,7 +122,7 @@ class PreviewSaveTool(Tool):
 class ResetTool(Tool):
     """ *toolbar icon*: |reset_icon|
 
-    The reset tool is an action. When activated in teh toolbar, the tool
+    The reset tool is an action. When activated in the toolbar, the tool
     resets the data bounds of the plot to their values when the plot was
     initially created.
 
@@ -164,7 +164,7 @@ class TapTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
     """
 
     names = List(String, help="""
@@ -183,7 +183,7 @@ class TapTool(Tool):
     """)
 
     always_active = Bool(True, help="""
-    Whether the hover tool must be explicitly activated.
+    Whether the tap tool must be explicitly activated.
     """)
 
 
@@ -340,7 +340,7 @@ class LassoSelectTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
         :height: 18pt
@@ -378,7 +378,7 @@ class PolySelectTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
         :height: 18pt
@@ -497,7 +497,7 @@ class HoverTool(Tool):
     .. note::
         The tooltips attribute can also be configured with a mapping type,
         e.g. ``dict`` or ``OrderedDict``. However, if a ``dict`` is used,
-        the visual presentation order is unpecified.
+        the visual presentation order is unspecified.
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 

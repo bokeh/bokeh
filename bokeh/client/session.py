@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 from .connection import ClientConnection
 
 from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL, DEFAULT_SERVER_HTTP_URL, server_url_for_websocket_url
-from bokeh.document import Document, SessionCallbackAdded, SessionCallbackRemoved
+from bokeh.document import Document, PeriodicCallback, TimeoutCallback
 import uuid
 
 DEFAULT_SESSION_ID = "default"
@@ -157,7 +157,7 @@ class ClientSession(object):
 
     def _attach_document(self, document):
         self._document = document
-        self._document.on_change(self._document_changed)
+        self._document.on_change_dispatch_to(self)
 
         for cb in self._document.session_callbacks:
             self._add_periodic_callback(cb)
@@ -181,6 +181,24 @@ class ClientSession(object):
 
         '''
         self._callbacks.pop(callback.id).stop()
+
+    def _add_timeout_callback(self, callback):
+        ''' Add callback so it can be invoked on a session after timeout
+
+        NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+
+        '''
+        cb = self._connection._loop.call_later(callback.timeout, callback.callback)
+        self._callbacks[callback.id] = cb
+
+    def _remove_timeout_callback(self, callback):
+        ''' Remove a callback added earlier with _add_timeout_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        cb = self._callbacks.pop(callback.id)
+        self._connection._loop.remove_timeout(cb)
 
     def pull(self):
         """ Pull the server's state and set it as session.document.
@@ -298,19 +316,12 @@ class ClientSession(object):
     def _notify_disconnected(self):
         '''Called by the ClientConnection we are using to notify us of disconnect'''
         if self._document is not None:
-            self._document.remove_on_change(self._document_changed)
+            self._document.remove_on_change(self)
 
-    def _document_changed(self, event):
+    def _document_patched(self, event):
+
         if self._current_patch is not None and self._current_patch.should_suppress_on_change(event):
             log.debug("Not sending notification back to server for a change it requested")
-            return
-
-        if isinstance(event, SessionCallbackAdded):
-            self._add_periodic_callback(event.callback)
-            return
-
-        if isinstance(event, SessionCallbackRemoved):
-            self._remove_periodic_callback(event.callback)
             return
 
         # TODO (havocp): our "change sync" protocol is flawed
@@ -325,3 +336,19 @@ class ClientSession(object):
             message.apply_to_document(self.document)
         finally:
             self._current_patch = None
+
+    def _session_callback_added(self, event):
+        if isinstance(event.callback, PeriodicCallback):
+            self._add_periodic_callback(event.callback)
+        elif isinstance(event.callback, TimeoutCallback):
+            self._add_timeout_callback(event.callback)
+        else:
+            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+
+    def _session_callback_removed(self, event):
+        if isinstance(event.callback, PeriodicCallback):
+            self._remove_periodic_callback(event.callback)
+        elif isinstance(event.callback, TimeoutCallback):
+            self._remove_timeout_callback(event.callback)
+        else:
+            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)

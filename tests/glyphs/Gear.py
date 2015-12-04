@@ -60,6 +60,6 @@ doc = Document()
 
 epicyclic = epicyclic_gear(5, 24, 12)
 
-doc.add(epicyclic)
+doc.add_root(epicyclic)
 
 show(epicyclic)

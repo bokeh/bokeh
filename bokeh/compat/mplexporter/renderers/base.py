@@ -120,7 +120,7 @@ class Renderer(object):
 
     def open_legend(self, legend, props):
         """
-        Beging commands for a particular legend.
+        Begin commands for a particular legend.
 
         Parameters
         ----------

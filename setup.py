@@ -444,7 +444,7 @@ if jsbuild:
 if jsinstall:
     install_js()
 
-sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
+sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojson')
 
 package_path(join(SERVER, 'static'))
 package_path(join(ROOT, 'bokeh', '_templates'))
@@ -535,8 +535,8 @@ setup(
         'bokeh',
         'bokeh.application',
         'bokeh.application.tests',
-        'bokeh.application.spellings',
-        'bokeh.application.spellings.tests',
+        'bokeh.application.handlers',
+        'bokeh.application.handlers.tests',
         'bokeh.models',
         'bokeh.models.tests',
         'bokeh.models.widgets',
@@ -544,12 +544,11 @@ setup(
         'bokeh.charts.builders',
         'bokeh.charts.builders.tests',
         'bokeh.charts.tests',
-        'bokeh._legacy_charts',
-        'bokeh._legacy_charts.builder',
-        'bokeh._legacy_charts.builder.tests',
-        'bokeh._legacy_charts.tests',
         'bokeh.client',
         'bokeh.command',
+        'bokeh.command.tests',
+        'bokeh.command.subcommands',
+        'bokeh.command.subcommands.tests',
         'bokeh.compat',
         'bokeh.compat.mplexporter',
         'bokeh.compat.mplexporter.renderers',
@@ -565,7 +564,6 @@ setup(
         'bokeh.sphinxext',
         'bokeh.themes',
         'bokeh.tests',
-        'bokeh.transforms',
         'bokeh.util',
         'bokeh.util.tests',
         'bokeh.validation',
