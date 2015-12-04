@@ -313,7 +313,7 @@ class BlazeDataSource(RemoteSource):
         leaf = remote_blaze_obj._leaves()[0]
         blaze_client = leaf.data
         json_expr = to_tree(remote_blaze_obj, {leaf : ':leaf'})
-        self.data_url = blaze_client.url + "/compute.json"
+        self.data_url = blaze_client.url + "/compute"
         self.local = local
         self.expr = json_expr
 
@@ -323,7 +323,7 @@ class BlazeDataSource(RemoteSource):
         from blaze import Data
         # hacky - blaze urls have `compute.json` in it, but we need to strip it off
         # to feed it into the blaze client lib
-        c = Client(self.data_url.rsplit('compute.json', 1)[0])
+        c = Client(self.data_url.rsplit('compute', 1)[0])
         d = Data(c)
         return from_tree(self.expr, {':leaf' : d})
 
