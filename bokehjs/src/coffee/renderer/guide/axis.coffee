@@ -581,6 +581,7 @@ class Axis extends HasParent
     return _.extend {}, super(), {
       plot: null
       location: "auto"
+      bounds: "auto"
       x_range_name: "default"
       y_range_name: "default"
     }

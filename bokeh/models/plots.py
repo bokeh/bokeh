@@ -594,7 +594,7 @@ class GridPlot(Component):
         if not list(chain(self.children)):
             return str(self)
 
-    children = List(List(Instance(Plot)), help="""
+    children = List(List(Instance(Plot)), default=[[]], help="""
     An array of plots to display in a grid, given as a list of lists of
     Plot objects. To leave a position in the grid empty, pass None for
     that position in the ``children`` list.
@@ -602,6 +602,11 @@ class GridPlot(Component):
 
     border_space = Int(0, help="""
     Distance (in pixels) between adjacent plots.
+    """)
+
+    toolbar_location = Enum(Location, default="left", help="""
+    Where the toolbar will be located. If set to None, no toolbar
+    will be attached to the plot.
     """)
 
     def select(self, *args, **kwargs):

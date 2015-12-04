@@ -38,7 +38,7 @@ class FixedTicker(Ticker):
 
     """
 
-    ticks = Seq(Float, help="""
+    ticks = Seq(Float, default=[], help="""
     List of tick locations.
     """)
 
@@ -66,8 +66,11 @@ class AdaptiveTicker(Ticker):
     The smallest allowable interval between two adjacent ticks.
     """)
 
-    max_interval = Float(float('Inf'), help="""
+    max_interval = Float(help="""
     The largest allowable interval between two adjacent ticks.
+
+    .. note::
+        To specify an unbounded interval, set to ``None``.
     """)
 
 class CompositeTicker(Ticker):
@@ -79,7 +82,7 @@ class CompositeTicker(Ticker):
 
     """
 
-    tickers = Seq(Instance(Ticker), help="""
+    tickers = Seq(Instance(Ticker), default=[], help="""
     A list of Ticker objects to combine at different scales in order
     to generate tick values. The supplied tickers should be in order.
     Specifically, if S comes before T, then it should be the case that::

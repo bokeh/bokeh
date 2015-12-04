@@ -35,6 +35,11 @@ class CompositeTicker extends AbstractTicker.Model
       , true)
     @add_dependencies('max_interval', this, ['max_interval'])
 
+  defaults: () ->
+    return _.extend {}, super(), {
+      tickers: []
+    }
+
   get_best_ticker: (data_low, data_high, desired_n_ticks) ->
     data_range = data_high - data_low
     ideal_interval = @get_ideal_interval(data_low, data_high,
