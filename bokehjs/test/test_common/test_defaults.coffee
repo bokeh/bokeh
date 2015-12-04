@@ -153,6 +153,17 @@ describe "Defaults", ->
               else
                 prop_values[p] = { 'value' : n }
 
+            dict = prop_values[p]
+            if dict?
+              if v.units?
+                prop_values[p]['units'] = v.units
+              else
+                # properties.coffee hardcodes these units defaults
+                if prop_kind == 'distances' and 'units' not of dict
+                  dict['units'] = "data"
+                if prop_kind == 'angles' and 'units' not of dict
+                  dict['units'] = "rad"
+
           _.extend(attrs, prop_values)
 
       if not check_matching_defaults(name, get_defaults(name), attrs)
