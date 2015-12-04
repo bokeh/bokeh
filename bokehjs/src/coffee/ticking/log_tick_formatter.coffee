@@ -12,6 +12,11 @@ class LogTickFormatter extends HasProperties
     if not @get('ticker')?
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
 
+  defaults: ->
+    return _.extend {}, super(), {
+      ticker: null
+    }
+
   format: (ticks) ->
     if ticks.length == 0
       return []

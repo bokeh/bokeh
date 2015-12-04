@@ -25,6 +25,7 @@ class SingleIntervalTicker extends AbstractTicker.Model
   defaults: () ->
     return _.extend {}, super(), {
       toString_properties: ['interval']
+      interval: null
     }
 
 module.exports =

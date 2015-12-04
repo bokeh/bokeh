@@ -1,12 +1,20 @@
 $ = require "jquery"
 _ = require "underscore"
-Backbone = require "backbone"
+HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 RemoteDataSource = require "./remote_data_source"
 
 
 class BlazeDataSource extends RemoteDataSource.RemoteDataSource
   type: 'BlazeDataSource'
+
+  defaults: ->
+    return _.extend {}, super(), {
+      expr : {}
+      namespace : {}
+      local: null
+    }
+
   destroy : () ->
     if @interval?
       clearInterval(@interval)
@@ -41,12 +49,5 @@ class BlazeDataSource extends RemoteDataSource.RemoteDataSource
       return null
     )
 
-class BlazeDataSources extends Backbone.Collection
-  model: BlazeDataSource
-  defaults:
-    url : ""
-    expr : null
-
 module.exports =
   Model: BlazeDataSource
-  Collection: new BlazeDataSources()

@@ -1,8 +1,9 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Range = require "./range"
 
-class Range1d extends HasProperties
+class Range1d extends Range.Model
   type: 'Range1d'
+
   initialize: (attrs, options) ->
     super(attrs, options)
     @register_property('min',

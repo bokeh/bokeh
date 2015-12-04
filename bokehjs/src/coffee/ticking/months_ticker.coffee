@@ -64,6 +64,7 @@ class MonthsTicker extends SingleIntervalTicker.Model
   defaults: () ->
     return _.extend {}, super(), {
       toString_properties: ['months']
+      months: null
     }
 
 module.exports =
