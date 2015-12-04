@@ -122,12 +122,8 @@ describe "properties module", ->
     it "should be an instance of Numeric", ->
       expect(Properties.Angle.prototype).to.be.instanceof Properties.Numeric
 
-    it "should prefer to set units from a spec if possible", ->
-      prop = new Properties.Angle({obj: generate_obj({a: {value: 1, units: "deg"}, a_units: "rad"}), attr: 'a'})
-      expect(prop.units).to.be.equal "deg"
-
-    it "should otherwise set units from the object if possible", ->
-      prop = new Properties.Angle({obj: generate_obj({a: 1, a_units: "deg"}), attr: 'a'})
+    it "should set units from a spec", ->
+      prop = new Properties.Angle({obj: generate_obj({a: {value: 1, units: "deg"} }), attr: 'a'})
       expect(prop.units).to.be.equal "deg"
 
     it "should set units to 'rad' as a default", ->
@@ -142,11 +138,11 @@ describe "properties module", ->
     describe "transform", ->
 
       it "should convert degrees to radians and flip sign", ->
-        prop = new Properties.Angle({obj: generate_obj({a: 1, a_units: "deg"}), attr: 'a'})
+        prop = new Properties.Angle({obj: generate_obj({a: { value: 1, units: "deg"} }), attr: 'a'})
         expect(prop.transform [1, 2, 3]).to.be.deep.equal new Float64Array [-Math.PI/180.0, -2*Math.PI/180.0, -3*Math.PI/180.0]
 
       it "should pass radians with sign flipped", ->
-        prop = new Properties.Angle({obj: generate_obj({a: 1, a_units: "rad"}), attr: 'a'})
+        prop = new Properties.Angle({obj: generate_obj({a: { value: 1, units: "rad" } }), attr: 'a'})
         expect(prop.transform [1, 2, 3]).to.be.deep.equal new Float64Array [-1, -2, -3]
 
 
@@ -155,13 +151,9 @@ describe "properties module", ->
     it "should be an instance of Numeric", ->
       expect(Properties.Distance.prototype).to.be.instanceof Properties.Numeric
 
-    it "should prefer to set units from a spec if possible", ->
-      prop = new Properties.Distance({obj: generate_obj({a: {value: 1, units: "screen"}, a_units: "data"}), attr: 'a'})
+    it "should set units from a spec", ->
+      prop = new Properties.Distance({obj: generate_obj({a: {value: 1, units: "screen"} }), attr: 'a'})
       expect(prop.units).to.be.equal "screen"
-
-    it "should otherwise set units from the object if possible", ->
-      prop = new Properties.Distance({obj: generate_obj({a: 1, a_units: "data"}), attr: 'a'})
-      expect(prop.units).to.be.equal "data"
 
     it "should set units to 'data' as a default", ->
       prop = new Properties.Distance({obj: generate_obj({a: 1}), attr: 'a'})
