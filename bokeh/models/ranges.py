@@ -7,9 +7,10 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..properties import abstract
-from ..properties import Int, Float, String, Datetime, Instance, List, Either
+from ..properties import Int, Float, String, Datetime, Instance, List, Either, Auto, Tuple
 from .callbacks import Callback
 from .renderers import Renderer
+
 
 @abstract
 class Range(Model):
@@ -21,6 +22,7 @@ class Range(Model):
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the range is updated.
     """)
+
 
 class Range1d(Range):
     """ A fixed, closed range [start, end] in a continuous scalar
@@ -42,25 +44,49 @@ class Range1d(Range):
     The end of the range.
     """)
 
-    bound_lower = Either(Float, Datetime, Int, help="""
-    The minimum value that the range is allowed to go to - typically used to prevent
+    bounds = Either(
+        Auto,
+        Tuple(Float, Float),
+        Tuple(Datetime, Datetime),
+        Tuple(Int, Int),
+        help="""
+    The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
-    """)
 
-    bound_upper = Either(Float, Datetime, Int, help="""
-    The max value that the range is allowed to go to - typically used to prevent
-    the user from panning/zooming/etc away from the data.
+    By default, the bounds will be computed to the start and end of the Range.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
+    increasing or decreasing, the first item should be the minimum value of the range and the
+    second item should be the maximum. Setting min > max will result in a ValueError.
+
+    Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
+    want to constrain one end of the plot, you can set min or max to None.
+
+    Examples:
+
+        Range1d(0, 1)  # Increasing range, auto-bounded to 0 and 1 (Default behavior)
+        Range1d(0, 1, bounds=(-0.1, 1.1))  # Increasing range with bounds at -0.1 and 1.1
+        Range1d(1, 0, bounds=(-0.1, 1.1))  # Decreasing range with bounds at -0.1 and 1.1
+        Range1d(0, 1, bounds=(0, None))  # Increasing range bounded at minimum of 0, unbounded maximum
+        Range1d(start=0, end=1, bounds=None)  # Unbounded range
     """)
 
     def __init__(self, *args, **kwargs):
         if args and ('start' in kwargs or 'end' in kwargs):
             raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
-        elif args and len(args) != 2:
+        if args and len(args) != 2:
             raise ValueError('Only Range1d(start, end) acceptable when using positional arguments')
-        elif args:
+
+        if args:
             kwargs['start'] = args[0]
             kwargs['end'] = args[1]
+
         super(Range1d, self).__init__(**kwargs)
+
+        if self.bounds and self.bounds != 'auto':
+            if self.bounds[0] > self.bounds[1]:
+                raise ValueError('Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)')
+
 
 @abstract
 class DataRange(Range):
@@ -79,6 +105,7 @@ class DataRange(Range):
     An explicit list of renderers to autorange against. If unset,
     defaults to all renderers on a plot.
     """)
+
 
 class DataRange1d(DataRange):
     """ An auto-fitting range in a continuous scalar dimension.

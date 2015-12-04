@@ -13,12 +13,14 @@ def test_range1d_init_with_positional_arguments():
     range1d = Range1d(1, 2)
     assert range1d.start == 1
     assert range1d.end == 2
+    assert range1d.bounds == 'auto'
 
 
 def test_range1d_init_with_keyword_arguments():
     range1d = Range1d(start=1, end=2)
     assert range1d.start == 1
     assert range1d.end == 2
+    assert range1d.bounds == 'auto'
 
 
 def test_range1d_cannot_initialize_with_both_keyword_and_positional_arguments():
@@ -29,6 +31,24 @@ def test_range1d_cannot_initialize_with_both_keyword_and_positional_arguments():
 def test_range1d_cannot_initialize_with_three_positional_arguments():
     with pytest.raises(ValueError):
         Range1d(1, 2, 3)
+
+
+def test_range1d_with_max_bound_smaller_than_min_bounded_raises_valueerror():
+    with pytest.raises(ValueError):
+        Range1d(1, 2, bounds=(1, 0))
+    with pytest.raises(ValueError):
+        Range1d(1, 2, bounds=[1, 0])
+
+
+def test_range1d_bounds_with_text_rejected_as_the_correct_value_error():
+    with pytest.raises(ValueError) as e:
+        Range1d(1, 2, bounds="21")  # The string is indexable, so this may not fail properly
+    assert e.value.args[0].startswith('expected an element of either')
+
+
+def test_range1d_bounds_with_three_item_tuple_raises_valueerror():
+    with pytest.raises(ValueError):
+        Range1d(1, 2, bounds=(0, 1, 2))
 
 
 # ------------------------
