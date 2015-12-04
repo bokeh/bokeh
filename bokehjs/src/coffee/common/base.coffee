@@ -20,7 +20,6 @@ console.log('Bokeh: setting prefix to', Config.prefix)
 locations =
   Plot:                     require './plot'
   GMapPlot:                 require './gmap_plot'
-  GeoJSPlot:                require './geojs_plot'
   GridPlot:                 require './grid_plot'
   Canvas:                   require './canvas'
   LayoutBox:                require './layout_box'
