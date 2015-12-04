@@ -1,36 +1,55 @@
 from __future__ import absolute_import
-import unittest
+
+import pytest
+
+from bokeh.models import Range1d, FactorRange
 
 
-class TestRange1d(unittest.TestCase):
+# ------------------------
+# Range1d test
+# ------------------------
 
-    def setUp(self):
-        from bokeh.models.ranges import Range1d
-        self.range1d = Range1d
-
-    def test_init(self):
-        self.assertRaises(ValueError, self.range1d, 1, 2, start=1, end=2)
-        self.assertRaises(ValueError, self.range1d, 1, 2, 3)
-        range1d = self.range1d(1, 2)
-        assert range1d
-        range1d = self.range1d(start=1, end=2)
-        assert range1d
-
-class TestFactorRange(unittest.TestCase):
-
-    def setUp(self):
-        from bokeh.models.ranges import FactorRange
-        self.factorRange = FactorRange
-
-    def test_init(self):
-        self.assertRaises(ValueError, self.factorRange, [1, 2, 3], factors=[1, 2, 3])
-        self.assertRaises(ValueError, self.factorRange, [1, 2, 3, 4])
-        factorRange = self.factorRange(1, 2)
-        assert factorRange
-        factorRange = self.factorRange(factors=[1, 2, 3, 4, 5])
-        assert factorRange
+def test_range1d_init_with_positional_arguments():
+    range1d = Range1d(1, 2)
+    assert range1d.start == 1
+    assert range1d.end == 2
 
 
+def test_range1d_init_with_keyword_arguments():
+    range1d = Range1d(start=1, end=2)
+    assert range1d.start == 1
+    assert range1d.end == 2
 
-if __name__ == "__main__":
-    unittest.main()
+
+def test_range1d_cannot_initialize_with_both_keyword_and_positional_arguments():
+    with pytest.raises(ValueError):
+        Range1d(1, 2, start=1, end=2)
+
+
+def test_range1d_cannot_initialize_with_three_positional_arguments():
+    with pytest.raises(ValueError):
+        Range1d(1, 2, 3)
+
+
+# ------------------------
+# Factor range test
+# ------------------------
+
+def test_factorrange_init_with_positional_arguments():
+    factor_range = FactorRange(1, 2)
+    assert factor_range.factors == [1, 2]
+
+
+def test_factorrange_init_with_keyword_arguments():
+    factor_range = FactorRange(factors=[1, 2, 3, 4, 5])
+    assert factor_range.factors == [1, 2, 3, 4, 5]
+
+
+def test_factorrange_cannot_initialize_with_both_keyword_and_positional_arguments():
+    with pytest.raises(ValueError):
+        Range1d([1, 2, 3], factors=[1, 2, 3])
+
+
+def test_factorrange_cannot_initialize_with_list_as_positional_argument():
+    with pytest.raises(ValueError):
+        FactorRange([1, 2, 3, 4])
