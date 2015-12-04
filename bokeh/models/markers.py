@@ -8,7 +8,7 @@ from .glyphs import Glyph
 from ..enums import enumeration
 from ..mixins import FillProps, LineProps
 from ..properties import abstract
-from ..properties import DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
+from ..properties import DistanceSpec, Enum, Include, NumberSpec, AngleSpec, ScreenDistanceSpec
 
 @abstract
 class Marker(Glyph):
@@ -40,7 +40,7 @@ class Marker(Glyph):
     The size (diameter) values for the markers in screen space units.
     """)
 
-    angle = NumberSpec(default=0.0, help="""
+    angle = AngleSpec(default=0.0, help="""
     The angles to rotate the markers.
     """)
 

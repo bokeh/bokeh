@@ -55,7 +55,7 @@ TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_al
 
 PROPS = ["name", "tags"]
 GLYPH = ["visible"]
-MARKER = ["x", "y", "size", "angle"]
+MARKER = ["x", "y", "size", "angle", "angle_units"]
 
 def check_props(glyph, *props):
     expected = set(sum((PROPS, GLYPH) + props, []))
