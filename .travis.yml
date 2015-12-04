@@ -11,6 +11,7 @@ cache:
 python:
     - 2.7
     - 3.4
+    - 3.5
 
 env:
     global:
@@ -26,6 +27,19 @@ env:
       - GROUP=python_tests
       - GROUP=integration_tests
       - GROUP=examples_flake_docs
+
+matrix:
+    exclude:
+        - python: 2.7
+          env: GROUP=js_tests
+        - python: 2.7
+          env: GROUP=integration_tests
+        - python: 3.5
+          env: GROUP=js_tests
+        - python: 3.5
+          env: GROUP=integration_tests
+        - python: 3.5
+          env: examples_flake_docs
 
 branches:
   only:
