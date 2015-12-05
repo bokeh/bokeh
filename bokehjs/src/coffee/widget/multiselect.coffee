@@ -13,7 +13,7 @@ class MultiSelectView extends ContinuumView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change:value', @render_selection)
+    @listenTo(@model, 'change:value', () => @render_selection())
     @listenTo(@model, 'change:options', @render)
     @listenTo(@model, 'change:name', @render)
     @listenTo(@model, 'change:title', @render)
@@ -25,7 +25,7 @@ class MultiSelectView extends ContinuumView
     @render_selection()
     return @
 
-  render_selection: () =>
+  render_selection: () ->
     values = {}
     _.map(@mget('value'), (x) -> values[x] = true)
     @$('option').each((el) =>

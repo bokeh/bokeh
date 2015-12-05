@@ -66,19 +66,19 @@ class TileRendererView extends PlotWidget
     @y_range.set('end', new_extent[3])
     @_add_attribution()
 
-  _on_tile_load: (e) =>
+  _on_tile_load: (e) ->
     tile_data = e.target.tile_data
     tile_data.img = e.target
     tile_data.current = true
     tile_data.loaded = true
     @request_render()
 
-  _on_tile_cache_load: (e) =>
+  _on_tile_cache_load: (e) ->
     tile_data = e.target.tile_data
     tile_data.img = e.target
     tile_data.loaded = true
 
-  _on_tile_error: (e) =>
+  _on_tile_error: (e) ->
     return ''
 
   _is_valid_tile: (x, y, z) ->
@@ -92,11 +92,11 @@ class TileRendererView extends PlotWidget
     tile = @pool.pop()
 
     if cache_only
-      tile.onload = @_on_tile_cache_load
+      tile.onload = (e) => @_on_tile_cache_load(e)
     else
-      tile.onload = @_on_tile_load
+      tile.onload = (e) => @_on_tile_load(e)
 
-    tile.onerror = @_on_tile_error
+    tile.onerror = (e) => @_on_tile_error(e)
     tile.alt = ''
 
     tile.tile_data =

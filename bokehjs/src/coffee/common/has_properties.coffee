@@ -137,11 +137,11 @@ class HasProperties extends Backbone.Model
       for key, value of attrs
         @_tell_document_about_change(key, old[key], @get(key, resolve_refs=false))
 
-  convert_to_ref: (value) =>
+  convert_to_ref: (value) ->
     # converts value into a refrence if necessary
     # works vectorized
     if _.isArray(value)
-      return _.map(value, @convert_to_ref)
+      return _.map(value, (v) => @convert_to_ref(v))
     else
       if value instanceof HasProperties
         return value.ref()

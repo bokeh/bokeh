@@ -7,19 +7,21 @@ RemoteDataSource = require "./remote_data_source"
 #maybe generalize to ajax data source later?
 class AjaxDataSource extends RemoteDataSource.RemoteDataSource
   type: 'AjaxDataSource'
-  destroy : () =>
+  destroy : () ->
     if @interval?
       clearInterval(@interval)
 
-  setup : (plot_view, glyph) =>
+  setup : (plot_view, glyph) ->
     @pv = plot_view
     @get_data(@get('mode'))
     if @get('polling_interval')
-      @interval = setInterval(@get_data, @get('polling_interval'),
+      @interval = setInterval(((mode, max_size, if_modified) =>
+                                @get_data(mode, max_size, if_modified)),
+                              @get('polling_interval'),
                               @get('mode'), @get('max_size'),
                               @get('if_modified'))
 
-  get_data : (mode, max_size=0, if_modified=false) =>
+  get_data : (mode, max_size=0, if_modified=false) ->
     $.ajax(
       dataType: 'json'
       ifModified: if_modified
@@ -45,7 +47,7 @@ class AjaxDataSource extends RemoteDataSource.RemoteDataSource
     )
     return null
 
-  defaults: =>
+  defaults: ->
     return _.extend {}, super(), {
       mode: 'replace'
     }

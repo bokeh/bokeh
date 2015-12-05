@@ -32,7 +32,7 @@ properties = require "./properties"
 
 global_gl_canvas = null
 
-get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
+get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) ->
     # client_width and height represent the available size
     
     if use_width
@@ -74,12 +74,12 @@ class PlotView extends ContinuumView
     @is_paused = false
     @request_render()
 
-  request_render: () =>
+  request_render: () ->
     if not @is_paused
       @throttled_render(true)
     return
 
-  remove: () =>
+  remove: () ->
     super()
     # When this view is removed, also remove all of the tools.
     for id, tool_view of @tools
@@ -129,7 +129,7 @@ class PlotView extends ContinuumView
     @bind_bokeh_events()
 
     @model.add_constraints(@canvas.solver)
-    @listenTo(@canvas.solver, 'layout_update', @request_render)
+    @listenTo(@canvas.solver, 'layout_update', () => @request_render())
 
     @ui_event_bus = new UIEvents({
       tool_manager: @mget('tool_manager')
@@ -150,7 +150,7 @@ class PlotView extends ContinuumView
     @update_dataranges()
 
     if @mget('responsive')
-      throttled_resize = _.throttle(@resize, 100)
+      throttled_resize = _.throttle((() => @resize()), 100)
       $(window).on("resize", throttled_resize)
       # Just need to wait a small delay so container has a width
       _.delay(@resize, 10)
@@ -388,10 +388,10 @@ class PlotView extends ContinuumView
     # TODO - This should only be on in testing
     # @$el.find('canvas').attr('data-hash', ctx.hash());
 
-  resize: () =>
+  resize: () ->
     @resize_width_height(true, false)
   
-  resize_width_height: (use_width, use_height, maintain_ar=true) =>
+  resize_width_height: (use_width, use_height, maintain_ar=true) ->
     # Resize plot based on available width and/or height
     
     # kiwi.js falls over if we try and resize too small.

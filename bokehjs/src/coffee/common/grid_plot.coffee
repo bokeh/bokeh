@@ -130,7 +130,7 @@ class GridToolManager extends ToolManager.Model
 
 class GridViewState extends HasProperties
 
-  setup_layout_properties: () =>
+  setup_layout_properties: () ->
     @register_property('layout_heights', @layout_heights, false)
     @register_property('layout_widths', @layout_widths, false)
     for row in @get('viewstates')
@@ -141,7 +141,7 @@ class GridViewState extends HasProperties
   initialize: (attrs, options) ->
     super(attrs, options)
     @setup_layout_properties()
-    @listenTo(this, 'change:viewstates', @setup_layout_properties)
+    @listenTo(this, 'change:viewstates', () => @setup_layout_properties())
     calculateHeight = =>
       _.reduce @get("layout_heights"), ((x, y) -> x + y), 0
     @register_property('height', calculateHeight, false)
@@ -168,11 +168,11 @@ class GridViewState extends HasProperties
         return 0
       ))
 
-  layout_heights: () =>
+  layout_heights: () ->
     row_heights = (@maxdim('height',row) for row in @get('viewstates'))
     return row_heights
 
-  layout_widths: () =>
+  layout_widths: () ->
     num_cols = @get('viewstates')[0].length
     columns = ((row[n] for row in @get('viewstates')) for n in _.range(num_cols))
     col_widths = (@maxdim('width', col) for col in columns)
