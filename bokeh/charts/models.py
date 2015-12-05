@@ -39,7 +39,9 @@ class CompositeGlyph(HasProps):
     """
 
     # composite glyph inputs
-    label = String('None', help='Identifies the subset of data.')
+    label = Either(String, Dict(String, Any), default='None',
+                   help='Identifies the subset of data.')
+
     values = Either(Column(Float), Column(String), help="""Array-like values,
         which are used as the input to the composite glyph.""")
 
@@ -65,16 +67,6 @@ class CompositeGlyph(HasProps):
     right_buffer = Float(default=0.0)
     top_buffer = Float(default=0.0)
     bottom_buffer = Float(default=0.0)
-
-    def __init__(self, **kwargs):
-        label = kwargs.pop('label', None)
-
-        if label is not None:
-            if not isinstance(label, str):
-                label = str(label)
-            kwargs['label'] = label
-
-        super(CompositeGlyph, self).__init__(**kwargs)
 
     def setup(self):
         """Build renderers and data source and set sources on renderers."""

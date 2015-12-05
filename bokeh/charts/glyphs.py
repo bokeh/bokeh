@@ -10,7 +10,6 @@ from bokeh.charts import DEFAULT_PALETTE
 from bokeh.enums import DashPattern
 from bokeh.models.glyphs import Rect, Segment, Line, Patch, Patches
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,
                               List, Either, Int, Enum, Color, Override)
 from .models import CompositeGlyph
@@ -53,15 +52,23 @@ class XyGlyph(CompositeGlyph):
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
 
     def build_source(self):
+        labels = self._build_label_array(('x', 'y'))
+        str_labels = [str(label) for label in labels]
+
         if self.x is None:
-            x = [self.label] * len(self.y)
-            data = dict(x_values=x, y_values=self.y)
+            data = dict(x_values=str_labels, y_values=self.y)
         elif self.y is None:
-            y = [self.label] * len(self.x)
-            data = dict(x_values=self.x, y_values=y)
+            data = dict(x_values=self.x, y_values=str_labels)
         else:
             data = dict(x_values=self.x, y_values=self.y)
-        return ColumnDataSource(data)
+
+        data['index'] = labels
+        return data
+
+    def _build_label_array(self, props):
+        for prop in props:
+            if getattr(self, prop) is not None:
+                return [self.label] * len(getattr(self, prop))
 
     @property
     def x_max(self):
@@ -414,7 +421,7 @@ class StepGlyph(LineGlyph):
         ys[1::2] = y[:-1]
 
         data = dict(x_values=xs, y_values=ys)
-        return ColumnDataSource(data)
+        return data
 
 
 class AggregateGlyph(NestedCompositeGlyph):
@@ -570,9 +577,9 @@ class Interval(AggregateGlyph):
         fill_alpha = [self.fill_alpha]
         line_color = [self.line_color]
         line_alpha = [self.line_alpha]
-        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color,
-                                     fill_alpha=fill_alpha, line_color=line_color,
-                                     line_alpha=line_alpha))
+        return dict(x=x, y=y, width=width, height=height, color=color,
+                    fill_alpha=fill_alpha, line_color=line_color,
+                    line_alpha=line_alpha)
 
     @property
     def x_max(self):
@@ -799,7 +806,7 @@ class BoxGlyph(AggregateGlyph):
         x1s = [x_label, x_w1_label, x_label, x_w1_label]
         y1s = [self.q1, self.w0, self.w1, self.w1]
 
-        return ColumnDataSource(dict(x0s=x0s, y0s=y0s, x1s=x1s, y1s=y1s))
+        return dict(x0s=x0s, y0s=y0s, x1s=x1s, y1s=y1s)
 
     def _set_sources(self):
         """Set the column data source on the whisker glyphs."""

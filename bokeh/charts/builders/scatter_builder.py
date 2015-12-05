@@ -83,9 +83,12 @@ class ScatterBuilder(XYBuilder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
 
+        df = self._data.create_attr_data(**self.attributes)
+
         for group in self._data.groupby(**self.attributes):
 
-            glyph = PointGlyph(x=group.get_values(self.x.selection),
+            glyph = PointGlyph(label=group.label,
+                               x=group.get_values(self.x.selection),
                                y=group.get_values(self.y.selection),
                                line_color=group['color'],
                                fill_color=group['color'],

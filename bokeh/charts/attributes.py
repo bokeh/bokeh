@@ -51,7 +51,7 @@ class AttrSpec(HasProps):
         found in `columns` and the attribute value that has been assigned.
         """)
 
-    items = List(Any, default=None, help="""
+    items = Any(default=None, help="""
         The attribute specification calculates this list of distinct values that are
         found in `columns` of `data`.
         """)
@@ -124,6 +124,7 @@ class AttrSpec(HasProps):
             return (attr,)
         else:
             return attr
+        return list(attr.items())
 
     def _setup_default(self):
         """Stores the first value of iterable into `default` property."""
