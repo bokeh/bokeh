@@ -264,7 +264,8 @@ class DashAttr(AttrSpec):
 
 class IdAttr(AttrSpec):
     """An attribute specification for mapping unique data values to line dashes."""
-    name = 'id'
+    
+    name = Override(default='id')
 
     def _setup_iterable(self):
         return iter(range(0, len(self.items)))
