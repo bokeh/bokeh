@@ -57,9 +57,9 @@ class Range1d(Range):
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
     increasing or decreasing, the first item should be the minimum value of the range and the
-    second item should be the maximum. Setting min > max will result in a ValueError.
+    second item should be the maximum. Setting min > max will result in a ``ValueError``.
 
-    Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
+    Setting bounds to ``None`` will allow your plot to pan/zoom as far as you want. If you only
     want to constrain one end of the plot, you can set min or max to None.
 
     Examples:
@@ -127,17 +127,27 @@ class DataRange1d(DataRange):
     automatically computed end value.
     """)
 
-    bound_lower = Float(help="""
-    The minimum value that the range is allowed to go to - typically used to prevent
-    the user from panning/zooming/etc away from the data. If not provided, will
-    default to the min of the data.
+    bounds = Either(Auto, Tuple(Float, Float), help="""
+    The bounds that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
+
+    By default, the bounds will be computed to be the same as the start and end of the DataRange1d.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
+    increasing or decreasing, the first item should be the minimum value of the range and the
+    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+
+    Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
+    want to constrain one end of the plot, you can set min or max to
+    ``None`` e.g. ``DataRange1d(bounds=(None,12))``
     """)
 
-    bound_upper = Float(help="""
-    The max value that the range is allowed to go to - typically used to prevent
-    the user from panning/zooming/etc away from the data. If not provided, will default to the
-    max of the data.
-    """)
+    def __init__(self, *args, **kwargs):
+        super(DataRange1d, self).__init__(**kwargs)
+
+        if self.bounds and self.bounds != 'auto':
+            if self.bounds[0] > self.bounds[1]:
+                raise ValueError('Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)')
 
 
 class FactorRange(Range):

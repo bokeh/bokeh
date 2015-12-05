@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from bokeh.models import Range1d, FactorRange
+from bokeh.models import Range1d, DataRange1d, FactorRange
 
 
 # ------------------------
@@ -49,6 +49,26 @@ def test_range1d_bounds_with_text_rejected_as_the_correct_value_error():
 def test_range1d_bounds_with_three_item_tuple_raises_valueerror():
     with pytest.raises(ValueError):
         Range1d(1, 2, bounds=(0, 1, 2))
+
+
+# ------------------------
+# DataRange1d test
+# ------------------------
+
+def test_datarange1d_init_with_no_arguments():
+    datarange1d = DataRange1d()
+    assert datarange1d.start == None
+    assert datarange1d.end == None
+    assert datarange1d.bounds == 'auto'
+
+
+def test_datarange1d_init_with_bad_bounds():
+    with pytest.raises(ValueError):
+        DataRange1d(1, 2, bounds=(1, 0))
+    with pytest.raises(ValueError):
+        DataRange1d(1, 2, bounds=[1, 0])
+    with pytest.raises(ValueError):
+        Range1d(1, 2, bounds="21")
 
 
 # ------------------------
