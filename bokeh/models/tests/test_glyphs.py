@@ -254,6 +254,8 @@ def test_ImageURL():
     assert glyph.angle == 0
     assert glyph.dilate == False
     assert glyph.anchor == Anchor.top_left
+    assert glyph.retry_attempts == 0
+    assert glyph.retry_timeout == 0
     assert glyph.global_alpha == 1.0
     yield (check_props, glyph, [
         "url",
@@ -267,6 +269,8 @@ def test_ImageURL():
         "angle_units",
         "dilate",
         "anchor",
+        "retry_attempts",
+        "retry_timeout",
         "global_alpha",
     ])
 

@@ -13,14 +13,6 @@ the interface is geared to be extremely simple to use in conjunction with
 Pandas, by accepting a ``DataFrame`` and names of columns directly to specify
 data.
 
-.. warning::
-    This guide describes a new charts API introduced in release `0.10`.
-    Some older chart types have not yet been converted. However this new
-    API is such an important and dramatic improvement that it was decided
-    not to wait any longer to release it. All of the older charts are still
-    available in a ``bokeh._legacy_charts`` modules that will be removed
-    later, once all chart types are converted to the new API.
-
 Key Concepts
 ------------
 

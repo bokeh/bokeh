@@ -87,7 +87,7 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
         result[argname] = kwargs.pop(prefix + argname, color)
 
     # NOTE: text fill color should really always default to black, hard coding
-    # this here now untils the stylesheet solution exists
+    # this here now until the stylesheet solution exists
     if "text_color" in glyphclass.properties():
         result["text_color"] = kwargs.pop(prefix + "text_color", "black")
 
@@ -99,7 +99,7 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     return result
 
 def _process_sequence_literals(glyphclass, kwargs, source):
-    dataspecs = glyphclass.dataspecs_with_refs()
+    dataspecs = glyphclass.dataspecs_with_props()
     for var, val in kwargs.items():
 
         # ignore things that are not iterable
@@ -115,7 +115,7 @@ def _process_sequence_literals(glyphclass, kwargs, source):
         if isinstance(val, string_types): continue
 
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var], ColorSpec) and ColorSpec.is_color_tuple(val)):
+        if (isinstance(dataspecs[var].descriptor, ColorSpec) and ColorSpec.is_color_tuple(val)):
             continue
 
         if isinstance(val, np.ndarray) and val.ndim != 1:
@@ -125,6 +125,7 @@ def _process_sequence_literals(glyphclass, kwargs, source):
         kwargs[var] = var
 
 def _make_glyph(glyphclass, kws, extra):
+        if extra is None: return None
         kws = kws.copy()
         kws.update(extra)
         return glyphclass(**kws)
@@ -434,24 +435,40 @@ def _glyph_function(glyphclass, extra_docs=None):
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
 
-        # pop off all color values for the glyph or nonselection glyphs
-        glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
-        nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
-
         # add the positional arguments as kwargs
         attributes = dict(zip(glyphclass._args, args))
         kwargs.update(attributes)
 
-        # if there are any hardcoded data sequences, move them to the data source and update
+        # handle the main glyph, need to process literals
+        glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
         _process_sequence_literals(glyphclass, kwargs, source)
         _process_sequence_literals(glyphclass, glyph_ca, source)
-        _process_sequence_literals(glyphclass, nsglyph_ca, source)
 
-        # create the default and nonselection glyphs
+        # handle the nonselection glyph, we always set one
+        nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
+
+        # handle the selection glyph, if any properties were given
+        if any(x.startswith('selection_') for x in kwargs):
+            sglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='selection_')
+        else:
+            sglyph_ca = None
+
+        # handle the hover glyph, if any properties were given
+        if any(x.startswith('hover_') for x in kwargs):
+            hglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='hover_')
+        else:
+            hglyph_ca = None
+
         glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
         nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
+        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
+        sglyph = _make_glyph(glyphclass, kwargs, sglyph_ca)
 
-        glyph_renderer = GlyphRenderer(glyph=glyph, nonselection_glyph=nsglyph, **renderer_kws)
+        glyph_renderer = GlyphRenderer(glyph=glyph,
+                                       nonselection_glyph=nsglyph,
+                                       selection_glyph=sglyph,
+                                       hover_glyph=hglyph,
+                                       **renderer_kws)
 
         if legend_name:
             _update_legend(self, legend_name, glyph_renderer)
@@ -472,7 +489,7 @@ def _glyph_function(glyphclass, extra_docs=None):
     for arg in glyphclass._args:
         spec = getattr(glyphclass, arg)
         desc = " ".join(x.strip() for x in spec.__doc__.strip().split("\n\n")[0].split('\n'))
-        arglines.append(_arg_template % (arg, spec.__class__.__name__, desc, spec.default))
+        arglines.append(_arg_template % (arg, spec.__class__.__name__, desc, spec.class_default(glyphclass)))
 
     kwlines = []
     kws = glyphclass.properties() - set(glyphclass._args)
@@ -485,7 +502,7 @@ def _glyph_function(glyphclass, extra_docs=None):
         else:
             typ = str(spec)
             desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, spec.default))
+        kwlines.append(_arg_template % (kw, typ, desc, spec.class_default(glyphclass)))
 
     func.__doc__ = _doc_template  % (glyphclass.__name__, "\n".join(arglines), "\n".join(kwlines))
 

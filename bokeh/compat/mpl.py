@@ -44,7 +44,7 @@ def to_bokeh(fig=None, name=None, server=None, notebook=None, pd_obj=True, xkcd=
 
     server: str (default=None)
         Fully specified URL of bokeh plot server. Default bokeh plot server
-        URL is "http://localhost:5006" or simply "deault"
+        URL is "http://localhost:5006" or simply "default"
 
     notebook: bool (default=False)
         Return an output value from this function which represents an HTML
@@ -52,7 +52,7 @@ def to_bokeh(fig=None, name=None, server=None, notebook=None, pd_obj=True, xkcd=
         a bokeh plot server just specifying the URL.
 
     pd_obj: bool (default=True)
-        The implementation asumes you are plotting using the pandas.
+        The implementation assumes you are plotting using the pandas.
         You have the option to turn it off (False) to plot the datetime xaxis
         with other non-pandas interfaces.
 

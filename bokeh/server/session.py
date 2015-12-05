@@ -7,7 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
-from bokeh.document import SessionCallbackAdded, SessionCallbackRemoved, PeriodicCallback, TimeoutCallback
+from bokeh.document import PeriodicCallback, TimeoutCallback
 
 import time
 
@@ -29,11 +29,17 @@ def _needs_document_lock(func):
     def _needs_document_lock_wrapper(self, *args, **kwargs):
         with (yield self._lock.acquire()):
             if self._pending_writes is not None:
-                raise RuntimeError("internal class invariant violated: _pending_writes should be None if lock is not held")
+                raise RuntimeError("internal class invariant violated: _pending_writes " + \
+                                   "should be None if lock is not held")
             self._pending_writes = []
-            result = func(self, *args, **kwargs)
-            pending_writes = self._pending_writes
-            self._pending_writes = None
+            try:
+                result = func(self, *args, **kwargs)
+            finally:
+                # we want to be very sure we reset this or we'll
+                # keep hitting the RuntimeError above as soon as
+                # any callback goes wrong
+                pending_writes = self._pending_writes
+                self._pending_writes = None
             for p in pending_writes:
                 yield p
         raise gen.Return(result)
@@ -93,7 +99,7 @@ class ServerSession(object):
         self._lock = locks.Lock()
         self._current_patch = None
         self._current_patch_connection = None
-        self._document.on_change(self._document_changed)
+        self._document.on_change_dispatch_to(self)
         self._callbacks = {}
         self._pending_writes = None
 
@@ -175,29 +181,9 @@ class ServerSession(object):
         cb = self._callbacks.pop(callback.id)
         self._loop.remove_timeout(cb)
 
-    def _document_changed(self, event):
+    def _document_patched(self, event):
         may_suppress = self._current_patch is not None and \
                        self._current_patch.should_suppress_on_change(event)
-
-        if isinstance(event, SessionCallbackAdded):
-            if isinstance(event.callback, PeriodicCallback):
-                self._add_periodic_callback(event.callback)
-            elif isinstance(event.callback, TimeoutCallback):
-                self._add_timeout_callback(event.callback)
-            else:
-                raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
-
-            return
-
-        elif isinstance(event, SessionCallbackRemoved):
-            if isinstance(event.callback, PeriodicCallback):
-                self._remove_periodic_callback(event.callback)
-            elif isinstance(event.callback, TimeoutCallback):
-                self._remove_timeout_callback(event.callback)
-            else:
-                raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
-
-            return
 
         if self._pending_writes is None:
             raise RuntimeError("_pending_writes should be non-None when we have a document lock, and we should have the lock when the document changes")
@@ -216,6 +202,23 @@ class ServerSession(object):
     def _handle_pull(self, message, connection):
         log.debug("Sending pull-doc-reply from session %r", self.id)
         return connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], self.document)
+
+    def _session_callback_added(self, event):
+        if isinstance(event.callback, PeriodicCallback):
+            self._add_periodic_callback(event.callback)
+        elif isinstance(event.callback, TimeoutCallback):
+            self._add_timeout_callback(event.callback)
+        else:
+            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+
+    def _session_callback_removed(self, event):
+        if isinstance(event.callback, PeriodicCallback):
+            self._remove_periodic_callback(event.callback)
+        elif isinstance(event.callback, TimeoutCallback):
+            self._remove_timeout_callback(event.callback)
+        else:
+            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+
 
     @classmethod
     def pull(cls, message, connection):

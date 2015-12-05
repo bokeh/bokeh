@@ -10,7 +10,7 @@ from ..enums import Location
 from ..mixins import LineProps, TextProps, FillProps
 from ..model import Model
 from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include)
+    List, Dict, Include, Override)
 from ..query import find
 from ..util.string import nice_join
 from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
@@ -20,14 +20,14 @@ from .. import validation
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, GlyphRenderer, TileRenderer
+from .renderers import Renderer, GlyphRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
 
 def _select_helper(args, kwargs):
     """
-    Allow fexible selector syntax.
+    Allow flexible selector syntax.
     Returns:
         a dict
     """
@@ -249,6 +249,23 @@ class Plot(Component):
         self.renderers.append(tile_renderer)
         return tile_renderer
 
+    def add_dynamic_image(self, image_source, **kw):
+        '''Adds new DynamicImageRenderer into the Plot.renderers
+
+        Args:
+            image_source (ImageSource) : a image source instance which contain image configuration 
+
+        Keyword Arguments:
+            Additional keyword arguments are passed on as-is to the dynamic image renderer
+
+        Returns:
+            DynamicImageRenderer : DynamicImageRenderer
+
+        '''
+        image_renderer = DynamicImageRenderer(image_source=image_source, **kw)
+        self.renderers.append(image_renderer)
+        return image_renderer
+
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
         missing = []
@@ -337,9 +354,17 @@ class Plot(Component):
     The %s for the plot title.
     """)
 
+    title_text_align = Override(default='center')
+
+    title_text_baseline = Override(default='alphabetic')
+
+    title_text_font_size = Override(default={ 'value' : '20pt' })
+
     outline_props = Include(LineProps, help="""
     The %s for the plot border outline.
     """)
+
+    outline_line_color = Override(default="#aaaaaa")
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
@@ -444,9 +469,13 @@ class Plot(Component):
     The %s for the plot background style.
     """)
 
+    background_fill_color = Override(default='#ffffff')
+
     border_props = Include(FillProps, help="""
     The %s for the plot border style.
     """)
+
+    border_fill_color = Override(default='#ffffff')
 
     min_border_top = Int(50, help="""
     Minimum size in pixels of the padding region above the top of the
@@ -488,7 +517,7 @@ class Plot(Component):
 
     """)
 
-    min_border = Int(50, help="""
+    min_border = Int(40, help="""
     A convenience property to set all all the ``min_X_border`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
@@ -577,7 +606,7 @@ class GridPlot(Plot):
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
-        match the given selector. See Plot.select for detailed usage infomation.
+        match the given selector. See Plot.select for detailed usage information.
 
         Returns:
             seq[Model]

@@ -3,15 +3,17 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__file__)
 
-from six import add_metaclass, iteritems
+from json import loads
+
+from six import iteritems
 
 from .properties import Any, HasProps, List, MetaHasProps, String
 from .query import find
-from . import themes
 from .util.callback_manager import CallbackManager
+from .util.future import with_metaclass
 from .util.serialization import make_id
 from ._json_encoder import serialize_json
-from json import loads
+from .themes import default as default_theme
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -29,13 +31,13 @@ class Viewable(MetaHasProps):
     # Mmmm.. metaclass inheritance.  On the one hand, it seems a little
     # overkill. On the other hand, this is exactly the sort of thing
     # it's meant for.
-    def __new__(cls, class_name, bases, class_dict):
+    def __new__(meta_cls, class_name, bases, class_dict):
         if "__view_model__" not in class_dict:
             class_dict["__view_model__"] = class_name
         class_dict["get_class"] = Viewable.get_class
 
         # Create the new class
-        newcls = super(Viewable,cls).__new__(cls, class_name, bases, class_dict)
+        newcls = super(Viewable, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
         entry = class_dict.get("__subtype__", class_dict["__view_model__"])
         # Add it to the reverse map, but check for duplicates first
         if entry in Viewable.model_class_reverse_map and not hasattr(newcls, "__implementation__"):
@@ -64,8 +66,7 @@ class Viewable(MetaHasProps):
         else:
             raise KeyError("View model name '%s' not found" % view_model_name)
 
-@add_metaclass(Viewable)
-class Model(HasProps, CallbackManager):
+class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     """ Base class for all plot-related objects """
 
     name = String()
@@ -74,24 +75,20 @@ class Model(HasProps, CallbackManager):
     def __init__(self, **kwargs):
         self._id = kwargs.pop("id", make_id())
         self._document = None
-        # kwargs may assign to properties, so we need
-        # to chain up here after we already initialize
-        # some of our fields.
-        props = dict()
-        for cls in self.__class__.__mro__[-2::-1]:
-            props.update(themes.default['attrs'].get(cls.__name__, {}))
-        props.update(kwargs)
-        super(Model, self).__init__(**props)
+        super(Model, self).__init__(**kwargs)
+        default_theme.apply_to_model(self)
 
     def _attach_document(self, doc):
         '''This should only be called by the Document implementation to set the document field'''
         if self._document is not None and self._document is not doc:
             raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
         self._document = doc
+        doc.theme.apply_to_model(self)
 
     def _detach_document(self):
         '''This should only be called by the Document implementation to unset the document field'''
         self._document = None
+        default_theme.apply_to_model(self)
 
     @property
     def document(self):
@@ -228,62 +225,38 @@ class Model(HasProps, CallbackManager):
         """Returns all ``Models`` that this object has references to. """
         return set(self.collect_models(self))
 
-    def vm_props(self, changed_only=True):
-        """ Returns the ViewModel-related properties of this object.
-
-        .. note::
-            In the future this method may always return all properties,
-            ignoring the changed_only argument.
-
-        Args:
-            changed_only (bool, optional) : whether to return only properties
-                that have had their values changed at some point (default: True)
-
-        """
-        if changed_only:
-            props = self.changed_properties_with_values()
-        else:
-            props = self.properties_with_values()
-
-        # XXX: For dataspecs, getattr() returns a meaningless value
-        # from serialization point of view. This should be handled in
-        # the properties module, but for now, fix serialized values here.
-        for attr, prop in iteritems(self.dataspecs_with_refs()):
-            if props.get(attr) is not None:
-                props[attr] = prop.to_dict(self)
-
-        return props
-
-    def vm_serialize(self, changed_only=True):
+    def _to_json_like(self, include_defaults):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
 
         This method does not convert "Bokeh types" into "plain JSON types,"
         for example each child Model will still be a Model, rather
         than turning into a reference, numpy isn't handled, etc.
+        That's what "json like" means.
 
         This method should be considered "private" or "protected",
         for use internal to Bokeh; use to_json() instead because
-        it gives you only plain JSON-compatible types. Also, the
-        changed_only functionality may not be supported in the
-        future.
+        it gives you only plain JSON-compatible types.
 
         Args:
-            changed_only (bool, optional) : whether to include only attributes
-                that have had their values changed at some point (default: True)
+            include_defaults (bool) : whether to include attributes
+                that haven't been changed from the default.
 
         """
-        attrs = self.vm_props(changed_only)
-        attrs['id'] = self._id
+        attrs = self.properties_with_values(include_defaults=include_defaults)
+
         for (k, v) in attrs.items():
-            # we can't serialize Infinity, we send it as None and the
-            # other side has to fix it up.
+            # we can't serialize Infinity, we send it as None and
+            # the other side has to fix it up. This transformation
+            # can't be in our _json_encoder because the json
+            # module checks for inf before it calls the custom
+            # encoder.
             if isinstance(v, float) and v == float('inf'):
                 attrs[k] = None
 
         return attrs
 
-    def to_json(self):
+    def to_json(self, include_defaults):
         """ Returns a dictionary of the attributes of this object,
         containing only "JSON types" (string, number, boolean,
         none, dict, list).
@@ -301,12 +274,13 @@ class Model(HasProps, CallbackManager):
         entire documents.
 
         Args:
-            None
+            include_defaults (bool) : whether to include attributes
+                that haven't been changed from the default
 
         """
-        return loads(self.to_json_string())
+        return loads(self.to_json_string(include_defaults=include_defaults))
 
-    def to_json_string(self):
+    def to_json_string(self, include_defaults):
         """Returns a JSON string encoding the attributes of this object.
 
         References to other objects are serialized as references
@@ -322,14 +296,17 @@ class Model(HasProps, CallbackManager):
         entire documents.
 
         Args:
-            None
+            include_defaults (bool) : whether to include attributes
+                that haven't been changed from the default
 
         """
+        json_like = self._to_json_like(include_defaults=include_defaults)
+        json_like['id'] = self._id
         # we sort_keys to simplify the test suite by making the returned
         # string deterministic. serialize_json "fixes" the JSON from
-        # vm_serialize by converting all types into plain JSON types
+        # _to_json_like by converting all types into plain JSON types
         # (it converts Model into refs, for example).
-        return serialize_json(self.vm_serialize(changed_only=False), sort_keys=True)
+        return serialize_json(json_like, sort_keys=True)
 
     def update(self, **kwargs):
         for k,v in kwargs.items():
