@@ -1,5 +1,4 @@
 from __future__ import absolute_import, print_function
-import os
 import pytest
 
 from bokeh.io import output_file
@@ -10,11 +9,7 @@ from .webserver import SimpleWebServer
 def server(request):
     server = SimpleWebServer()
     server.start()
-
-    def stop_server():
-        server.stop()
-    request.addfinalizer(stop_server)
-
+    request.addfinalizer(server.stop)
     return server
 
 
@@ -27,12 +22,14 @@ def base_url(request, server):
 def output_file_url(request, base_url):
 
     filename = request.function.__name__ + '.html'
-    file_path = request.fspath.dirpath().join(filename).strpath
+    file_obj = request.fspath.dirpath().join(filename)
+    file_path = file_obj.strpath
 
     output_file(file_path, mode='inline')
 
-    def fin():
-        os.remove(file_path)
-    request.addfinalizer(fin)
+    def tearDown():
+        if file_obj.isfile():
+            file_obj.remove()
+    request.addfinalizer(tearDown)
 
     return '%s/%s' % (base_url, file_path)
