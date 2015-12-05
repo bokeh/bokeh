@@ -73,7 +73,7 @@ class BarBuilder(Builder):
     fill_alpha = Float(default=0.8)
 
     glyph = BarGlyph
-    comp_glyph_types = [BarGlyph]
+    comp_glyph_types = Override(default=[BarGlyph])
     label_attributes = ['stack', 'group']
 
     label_only = Bool(False)
