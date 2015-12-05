@@ -4,6 +4,12 @@ import pytest
 from bokeh.io import output_file
 from .webserver import SimpleWebServer
 
+@pytest.fixture
+def selenium(selenium):
+    # Give items a chance to load
+    selenium.implicitly_wait(10)
+    return selenium
+
 
 @pytest.fixture(scope='session', autouse=True)
 def server(request):
