@@ -179,15 +179,42 @@ class FactorRange(Range):
     this categorical range.
     """)
 
-    bound_lower = Either(String, Int, help="""
-    The minimum value that the range is allowed to go to - typically used to prevent
+    bounds = Either(Auto, List(String), List(Int), help="""
+    The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
+
+    Unlike Range1d and DataRange1d, factors do not have an order and so a min and max cannot be
+    provied in the same way. bounds accepts a list of factors, that constrain the displayed factors.
+
+    The plot is then constrained to not pan or zoom beyond the first and last item in the list of
+    factors. Providing None allows unlimited panning or zooming.
+
+    By default, bounds will be the same as factors and the plot will not be able to
+    pan or zoom beyond the first and last items in factors.
+
+    If you provide a list, then only the factors that are in that list will be displayed on the
+    plot and the plot will not pan or zoom outside the first and last items in the shortened
+    factors list. Note the order of factors is the defining order for your plot.
+
+    Values of bounds that are not in factors are acceptable and will simply have no impact
+    on the plot.
+
+    Examples
+    --------
+
+    Default behavior:
+        x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"])
+
+        The plot will display all the factors and you will not be able to pan left of apples or right
+        of pigs.
+
+    Constraining behavior:
+        x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"], bounds=["apples", "bananas", "peaches"])
+
+        The plot will display the chart with only the factors ["apples", "peaches", "bananas"] (in that order)
+        and the plot will not pan left of apples or right of bananas.
     """)
 
-    bound_upper = Either(String, Int, help="""
-    The max value that the range is allowed to go to - typically used to prevent
-    the user from panning/zooming/etc away from the data.
-    """)
 
     def __init__(self, *args, **kwargs):
         if args and "factors" in kwargs:

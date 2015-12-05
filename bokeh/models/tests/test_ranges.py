@@ -78,11 +78,19 @@ def test_datarange1d_init_with_bad_bounds():
 def test_factorrange_init_with_positional_arguments():
     factor_range = FactorRange(1, 2)
     assert factor_range.factors == [1, 2]
+    assert factor_range.bounds == 'auto'
 
 
 def test_factorrange_init_with_keyword_arguments():
     factor_range = FactorRange(factors=[1, 2, 3, 4, 5])
     assert factor_range.factors == [1, 2, 3, 4, 5]
+    assert factor_range.bounds == 'auto'
+
+
+def test_factorrange_with_bounds():
+    factor_range = FactorRange(factors=[1, 2, 3, 4, 5], bounds=[2, 6])
+    assert factor_range.factors == [1, 2, 3, 4, 5]
+    assert factor_range.bounds == [2, 6]
 
 
 def test_factorrange_cannot_initialize_with_both_keyword_and_positional_arguments():
