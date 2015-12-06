@@ -21,7 +21,7 @@ that Sphinx supplies, with the addition of one new option:
 
 heading : string
     A heading to put for the collapsible block. Clicking the heading
-    expands or collapes the block
+    expands or collapses the block
 
 Examples
 --------

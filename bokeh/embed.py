@@ -154,7 +154,7 @@ def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
         return script, tuple(results)
 
 def _escape_code(code):
-    """ Escape JS/CS source code, so that it can be embbeded in a JS string.
+    """ Escape JS/CS source code, so that it can be embedded in a JS string.
 
     This is based on https://github.com/joliss/js-string-escape.
     """

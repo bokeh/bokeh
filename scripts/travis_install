@@ -9,8 +9,6 @@ MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
 PINNED_PKGS=$(cat <<EOF
-ipython ==3.2.1
-ipython-notebook ==3.2.1
 EOF
 )
 
@@ -51,7 +49,7 @@ print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("
 EOF
 )
 
-DEPS_FLAG=`conda list pytest --json | python -c 'import sys,json; data=json.loads(sys.stdin.read()); print(data)'`
+DEPS_FLAG=`conda list -f pytest --json | python -c 'import sys,json; data=json.loads(sys.stdin.read()); print(data)'`
 
 if [ ! $DEPS_FLAG == *"pytest"* ]; then
 

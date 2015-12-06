@@ -313,7 +313,7 @@ with a default session:
     plot = figure()
     plot.circle([1,2], [3,4])
 
-    document.add(push)
+    document.add_root(plot)
     push(session, document)
 
     script = autoload_server(plot, session)

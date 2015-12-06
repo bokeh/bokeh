@@ -258,7 +258,7 @@ class BokehRenderer(Renderer):
         text = Text(x=x, y=y, text=[text])
 
         alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
-        # baseline not implemented in Bokeh, deafulting to bottom.
+        # baseline not implemented in Bokeh, defaulting to bottom.
         text.text_alpha = style['alpha']
         text.text_font_size = "%dpx" % style['fontsize']
         text.text_color = style['color']

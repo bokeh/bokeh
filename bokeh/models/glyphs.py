@@ -10,24 +10,12 @@ from ..mixins import FillProps, LineProps, TextProps
 from ..model import Model
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
                           Include, Instance, Int, NumberSpec, StringSpec)
-from .. import themes
 
 from .mappers import LinearColorMapper
 
 @abstract
 class Glyph(Model):
     """ Base class for all glyph models. """
-
-    def __init__(self, **kwargs):
-        props = dict()
-        if hasattr(self.__class__, "line_alpha"):
-            props.update(themes.default['line_defaults'])
-        if hasattr(self.__class__, "fill_alpha"):
-            props.update(themes.default['fill_defaults'])
-        if hasattr(self.__class__, "text_alpha"):
-            props.update(themes.default['text_defaults'])
-        props.update(kwargs)
-        super(Glyph, self).__init__(**props)
 
     visible = Bool(True, help="""
     Whether the glyph should render or not.
@@ -66,7 +54,7 @@ class AnnularWedge(Glyph):
     The angles to end the annular wedges, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.
     """)
 
@@ -556,7 +544,7 @@ class Oval(Glyph):
     The overall height of each oval.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(default=0, help="""
     The angle the ovals are rotated from horizontal. [rad]
     """)
 
@@ -774,7 +762,7 @@ class Rect(Glyph):
     The overall heights of the rectangles.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(default=0.0, help="""
     The angles to rotate the rectangles, as measured from the horizontal.
     """)
 
@@ -897,7 +885,7 @@ class Wedge(Glyph):
     The angles to end the wedges, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.
     """)
 

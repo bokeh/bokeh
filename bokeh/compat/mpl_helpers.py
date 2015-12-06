@@ -72,8 +72,8 @@ def get_props_cycled(col, prop, fx=lambda x: x):
 
     col: matplotlib collection object
     prop: property we want to get from matplotlib collection
-    fx: funtion (optional) to transform the elements from list obtained
-        after the property call. Deafults to identity function.
+    fx: function (optional) to transform the elements from list obtained
+        after the property call. Defaults to identity function.
     """
     n = len(col.get_paths())
     t_prop = [fx(x) for x in prop]

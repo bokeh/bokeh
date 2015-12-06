@@ -45,7 +45,6 @@ from sphinx.errors import SphinxError
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
-from bokeh._json_encoder import serialize_json
 from bokeh.model import Viewable
 
 
@@ -93,7 +92,7 @@ class BokehModelDirective(Directive):
         model_obj = model()
 
         model_json = json.dumps(
-            json.loads(serialize_json(model_obj.vm_serialize(False))),
+            model_obj.to_json(include_defaults=True),
             sort_keys=True,
             indent=2,
             separators=(',', ': ')

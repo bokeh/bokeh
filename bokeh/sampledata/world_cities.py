@@ -13,5 +13,5 @@ except (IOError, OSError):
 
 """
 The data in world_cities.csv was taken from the GeoNames cities5000.zip downloaded from http://www.geonames.org/export/
-on Tuesday September 15, 2015. Under cc-by licence (creative commons attributions license).
+on Tuesday September 15, 2015. Under cc-by license (creative commons attributions license).
 """

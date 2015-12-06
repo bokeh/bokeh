@@ -33,7 +33,7 @@ class BokehTornado(TornadoApplication):
         applications (dict of str : bokeh.application.Application) : map from paths to Application instances
             The application is used to create documents for each session.
         extra_patterns (seq[tuple]) : tuples of (str, http or websocket handler)
-            Use this argmument to add additional endpoints to custom deployments
+            Use this argument to add additional endpoints to custom deployments
             of the Bokeh Server.
 
     '''

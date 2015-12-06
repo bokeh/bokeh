@@ -20,7 +20,6 @@ console.log('Bokeh: setting prefix to', Config.prefix)
 locations =
   Plot:                     require './plot'
   GMapPlot:                 require './gmap_plot'
-  GeoJSPlot:                require './geojs_plot'
   GridPlot:                 require './grid_plot'
   Canvas:                   require './canvas'
   LayoutBox:                require './layout_box'
@@ -105,6 +104,7 @@ locations =
   ColumnDataSource:         require '../source/column_data_source'
   BlazeDataSource:          require '../source/blaze_data_source'
   AjaxDataSource:           require '../source/ajax_data_source'
+  GeoJSONDataSource:        require '../source/geojson_data_source'
 
   AbstractTicker:           require '../ticking/abstract_ticker'
   AdaptiveTicker:           require '../ticking/adaptive_ticker'

@@ -55,7 +55,7 @@ def match(obj, selector, context=None):
     Returns:
         bool : True if the object matches, False otherwise
 
-    There are two selector keys that are handled specially. The first
+    There are two selector keys that are handled especially. The first
     is 'type', which will do an isinstance check::
 
         >>> from bokeh.plotting import line

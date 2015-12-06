@@ -131,7 +131,7 @@ altitude = altitude_profile(data)
 layout = VBox(children=[altitude, trail])
 
 doc = Document()
-doc.add(layout)
+doc.add_root(layout)
 
 if __name__ == "__main__":
     filename = "trail.html"
