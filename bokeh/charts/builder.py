@@ -216,6 +216,8 @@ class Builder(HasProps):
         is (Column, Ascending).
         """)
 
+    source = Instance(ColumnDataSource)
+
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
 

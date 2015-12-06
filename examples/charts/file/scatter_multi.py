@@ -6,6 +6,7 @@ from bokeh.sampledata.iris import flowers
 from bokeh.charts import Scatter, output_file, show, vplot, hplot
 from bokeh.charts.operations import blend
 from bokeh.charts.utils import df_from_json
+from bokeh.models.tools import HoverTool
 import pandas as pd
 
 scatter0 = Scatter(
@@ -22,6 +23,7 @@ scatter2 = Scatter(
 scatter3 = Scatter(
     df, x='mpg', y='hp', color='origin', title="x='mpg', y='hp', color='origin'",
     xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
+scatter3.add_tools(HoverTool(tooltips=[('origin', "@origin")]))
 
 scatter4 = Scatter(
     df, x='mpg', y='hp', color='cyl', marker='origin', title="x='mpg', y='hp', color='cyl', marker='origin'",

@@ -52,7 +52,7 @@ class XyGlyph(CompositeGlyph):
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
 
     def build_source(self):
-        labels = self._build_label_array(('x', 'y'))
+        labels = self._build_label_array(('x', 'y'), self.label)
         str_labels = [str(label) for label in labels]
 
         if self.x is None:
@@ -62,13 +62,21 @@ class XyGlyph(CompositeGlyph):
         else:
             data = dict(x_values=self.x, y_values=self.y)
 
-        data['index'] = labels
+        data['chart_index'] = str_labels
+
+        if self.label is not None:
+            for col, val in iteritems(self.label):
+                data[col] = self._build_label_array(('x', 'y'), val)
+
         return data
 
-    def _build_label_array(self, props):
+    def _build_label_array(self, props, value):
         for prop in props:
             if getattr(self, prop) is not None:
-                return [self.label] * len(getattr(self, prop))
+                return [value] * len(getattr(self, prop))
+
+        if self.data is not None:
+            return [None] * len(self.data.index)
 
     @property
     def x_max(self):

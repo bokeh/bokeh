@@ -39,6 +39,8 @@ class CompositeGlyph(HasProps):
     """
 
     # composite glyph inputs
+    data = Any()
+    rows = Dict(String, Any)
     label = Either(String, Dict(String, Any), default='None',
                    help='Identifies the subset of data.')
 
@@ -81,14 +83,15 @@ class CompositeGlyph(HasProps):
             this method would be called after data is added.
         """
         if self.renderers is not None:
-            source = self.build_source()
-            if isinstance(source, dict):
-                source = ColumnDataSource(source)
+            data = self.build_source()
+            if isinstance(data, dict):
+                source = ColumnDataSource(data)
 
             if not isinstance(source, ColumnDataSource) and source is not None:
                 raise TypeError('build_source must return dict or ColumnDataSource.')
             else:
                 self.source = source
+                self.rows = data
 
             self._set_sources()
 

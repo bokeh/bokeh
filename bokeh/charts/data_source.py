@@ -196,6 +196,9 @@ class DataGroup(object):
 
         if self.label is not None:
             row.update(self.label)
+            row['chart_index'] = tuple(self.label.items())
+        else:
+            row['chart_index'] = None
         row.update(self.attr_specs)
         return row
 
@@ -523,9 +526,13 @@ class ChartDataSource(object):
             rows.append(group.to_dict())
 
         if no_index:
-            group = groups[0]
-            for attr in group.attributes:
-                df[attr] = group[attr]
+            attr_data = pd.DataFrame.from_records([groups[0].to_dict()])
+            df['join_column'] = 'join_value'
+            attr_data['join_column'] = 'join_value'
+
+            df = pd.merge(df, attr_data, on='join_column')
+            del df['join_column']
+
         else:
             attr_data = pd.DataFrame.from_records(rows)
             cols = list(groups[0].label.keys())
