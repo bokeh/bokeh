@@ -28,6 +28,9 @@ class PanToolView extends GestureTool.View
     @h_axis_only = false
     @v_axis_only = false
 
+    if @pan_info?
+      @plot_view.push_state('pan', @pan_info)
+
   _update: (dx, dy) ->
     frame = @plot_view.frame
 

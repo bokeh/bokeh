@@ -129,6 +129,8 @@ locations =
   ButtonTool:               require '../tool/button_tool'
   ActionTool:               require '../tool/actions/action_tool'
   PreviewSaveTool:          require '../tool/actions/preview_save_tool'
+  UndoTool:                 require '../tool/actions/undo_tool'
+  RedoTool:                 require '../tool/actions/redo_tool'
   ResetTool:                require '../tool/actions/reset_tool'
   HelpTool:                 require '../tool/actions/help_tool'
 

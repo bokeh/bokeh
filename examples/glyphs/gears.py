@@ -7,7 +7,7 @@ from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.browserlib import view
 
-from bokeh.models import Range1d, Plot, PanTool, WheelZoomTool, ResetTool
+from bokeh.models import Range1d, Plot, PanTool, WheelZoomTool, BoxZoomTool, UndoTool, RedoTool, ResetTool
 from bokeh.models.glyphs import Gear
 
 def pitch_radius(module, teeth):
@@ -24,7 +24,7 @@ def sample_gear():
     ydr = Range1d(start=-30, end=30)
 
     plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
-    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
+    plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
 
     glyph = Gear(x=0, y=0, module=5, teeth=8, angle=0, shaft_size=0.2, fill_color=fill_color[2], line_color=line_color)
     plot.add_glyph(glyph)
@@ -40,7 +40,7 @@ def classical_gear(module, large_teeth, small_teeth):
         x_range=xdr, y_range=ydr,
         plot_width=800, plot_height=800
     )
-    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
+    plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
 
     radius = pitch_radius(module, large_teeth)
     angle = 0
@@ -71,7 +71,7 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
         x_range=xdr, y_range=ydr,
         plot_width=800, plot_height=800
     )
-    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
+    plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
 
     annulus_teeth = sun_teeth + 2*planet_teeth
 

@@ -538,3 +538,9 @@ class HelpTool(Tool):
     redirect = String(help="""
     Site to be redirected through upon click.
     """)
+
+class UndoTool(Tool):
+    """ Undo tool allows to restore previous state of the plot. """
+
+class RedoTool(Tool):
+    """ Redo tool reverses the last action performed by undo tool. """

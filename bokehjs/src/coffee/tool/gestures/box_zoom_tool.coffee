@@ -26,7 +26,7 @@ class BoxZoomToolView extends GestureTool.View
 
     return null
 
-   _pan_end: (e) ->
+  _pan_end: (e) ->
     canvas = @plot_view.canvas
     curpoint = [
       canvas.sx_to_vx(e.bokeh.sx)
@@ -63,6 +63,8 @@ class BoxZoomToolView extends GestureTool.View
       xrs: xrs
       yrs: yrs
     }
+
+    @plot_view.push_state('box_zoom', zoom_info)
     @plot_view.update_range(zoom_info)
 
 class BoxZoomTool extends GestureTool.Model

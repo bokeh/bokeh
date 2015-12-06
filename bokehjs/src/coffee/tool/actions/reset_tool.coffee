@@ -3,6 +3,7 @@ ActionTool = require "./action_tool"
 class ResetToolView extends ActionTool.View
 
   do: () ->
+    @plot_view.clear_state()
     @plot_view.update_range()
 
 class ResetTool extends ActionTool.Model
