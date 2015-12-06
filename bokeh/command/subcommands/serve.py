@@ -1,5 +1,102 @@
-''' Provide a subcommand to run a bokeh server, optionally hosting specified
-Bokeh applications.
+'''
+
+To run a Bokeh application on a Bokeh server from a single Python script,
+pass the script name to ``bokeh serve`` on the command line:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py
+
+By default, the Bokeh application will be served by the Bokeh server on a
+default port ({DEFAULT_PORT}) at localhost, under the path ``/app_script``,
+i.e.,
+
+.. code-block:: none
+
+    http://localhost:{DEFAULT_PORT}/app_script
+
+Applications can also be created from directories. The directory should
+contain a ``main.py`` (and any other helper modules that are required) as
+well as any additional assets (e.g., theme files). Pass the directory name
+to ``bokeh serve`` to run the application:
+
+.. code-block:: sh
+
+    bokeh serve app_dir
+
+It is possible to run multiple applications at once:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py app_dir
+
+If you would like to automatically open a browser to display the HTML
+page(s), you can pass the ``--show`` option on the command line:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py app_dir --show
+
+This will open two pages, for ``/app_script`` and ``/app_dir``,
+respectively.
+
+Network Configuration
+~~~~~~~~~~~~~~~~~~~~~
+
+To control the port that the Bokeh server listens on, use the ``--port``
+argument:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --port=8080
+
+Similarly, a specific network address can be specified with the
+``--address`` argument. For example:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --address=0.0.0.0
+
+will have the Bokeh server listen all available network addresses.
+
+*** PREFIX OPTION BELOW NOT YET IMPLEMENTED ***
+
+The Bokeh server can also add an optional prefix to all URL paths.
+This can often be useful in conjunction with "reverse proxy" setups.
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --prefix=foobar
+
+Then the application will be served under the following URL:
+
+.. code-block:: none
+
+    http://localhost:{DEFAULT_PORT}/foobar/app_script
+
+Development Options
+~~~~~~~~~~~~~~~~~~~
+
+The logging level can be controlled by the ``--log-level`` argument:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py -log-level=debug
+
+The available log levels are: {LOGLEVELS}
+
+*** DEVELOP MODE BELOW NOT YET IMPLEMENTED ***
+
+Additionally, the Bokeh server supports a "develop" mode, which will watch
+application sources and automatically reload the application when any of them
+change. To use this mode, add the ``--develop`` argument on the command line:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --develop
+
+.. note::
+    The ``--develop`` mode option should not be used in "production" usage.
 
 '''
 from __future__ import absolute_import
@@ -17,6 +114,11 @@ from ..util import build_single_handler_applications
 DEFAULT_PORT = 5006
 
 LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
+
+__doc__ = __doc__.format(
+    DEFAULT_PORT=DEFAULT_PORT,
+    LOGLEVELS=nice_join(LOGLEVELS)
+)
 
 class Serve(Subcommand):
     ''' Subcommand to launch the Bokeh server.

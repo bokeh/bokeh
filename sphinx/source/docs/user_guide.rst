@@ -13,6 +13,10 @@ topic:
 :ref:`userguide_concepts`
     Define and explain important preliminary concepts.
 
+:ref:`userguide_cli`
+    Quickly create and iterate on Bokeh applications with the ``bokeh``
+    command line tool.
+
 :ref:`userguide_plotting`
     Use the simple but flexible glyph methods from the |bokeh.plotting|
     interface to construct basic and custom plots.
@@ -42,10 +46,6 @@ topic:
 :ref:`userguide_interaction`
     Create more sophisticated interactions including widgets or linked
     panning and selection.
-
-:ref:`userguide_cli`
-    Quickly create and iterate on Bokeh applications with the ``bokeh``
-    command line tool.
 
 :ref:`userguide_server`
     Deploy the Bokeh Server to build and publish sophisticated data
@@ -77,6 +77,7 @@ perfectly well with almost any array or table-like data structure.
 
     user_guide/setup
     user_guide/concepts
+    user_guide/cli
     user_guide/plotting
     user_guide/charts
     user_guide/compat
@@ -85,7 +86,6 @@ perfectly well with almost any array or table-like data structure.
     user_guide/layout
     user_guide/notebook
     user_guide/interaction
-    user_guide/cli
     user_guide/server
     user_guide/embed
     user_guide/webgl
