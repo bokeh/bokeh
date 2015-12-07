@@ -44,6 +44,9 @@ for loc in LegendLocation._values:
     legend = Legend(legends=[(loc, [line])], orientation=loc)
     plot.add_layout(legend)
 
+legend = Legend(legends=[("x=100px, y=150px", [line])], orientation=(100, 150))
+plot.add_layout(legend)
+
 doc = Document()
 doc.add_root(plot)
 

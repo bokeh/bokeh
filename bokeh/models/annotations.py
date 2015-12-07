@@ -40,7 +40,7 @@ class Legend(Annotation):
     def orientation(self, location):
         self.location = location
 
-    location = Enum(LegendLocation, help="""
+    location = Either(Enum(LegendLocation), Tuple(Float, Float), help="""
     The location where the legend should draw itself.
     """)
 

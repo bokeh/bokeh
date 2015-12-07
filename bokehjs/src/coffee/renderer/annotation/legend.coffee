@@ -60,34 +60,37 @@ class LegendView extends PlotWidget
     h_range = @plot_view.frame.get('h_range')
     v_range = @plot_view.frame.get('v_range')
 
-    switch location
-      when 'top_left'
-        x = h_range.get('start') + legend_padding
-        y = v_range.get('end') - legend_padding
-      when 'top_center'
-        x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
-        y = v_range.get('end') - legend_padding
-      when 'top_right'
-        x = h_range.get('end') - legend_padding - @legend_width
-        y = v_range.get('end') - legend_padding
-      when 'right_center'
-        x = h_range.get('end') - legend_padding - @legend_width
-        y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
-      when 'bottom_right'
-        x = h_range.get('end') - legend_padding - @legend_width
-        y = v_range.get('start') + legend_padding + @legend_height
-      when 'bottom_center'
-        x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
-        y = v_range.get('start') + legend_padding + @legend_height
-      when 'bottom_left'
-        x = h_range.get('start') + legend_padding
-        y = v_range.get('start') + legend_padding + @legend_height
-      when 'left_center'
-        x = h_range.get('start') + legend_padding
-        y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
-      when 'center'
-        x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
-        y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+    if _.isString(location)
+      switch location
+        when 'top_left'
+          x = h_range.get('start') + legend_padding
+          y = v_range.get('end') - legend_padding
+        when 'top_center'
+          x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
+          y = v_range.get('end') - legend_padding
+        when 'top_right'
+          x = h_range.get('end') - legend_padding - @legend_width
+          y = v_range.get('end') - legend_padding
+        when 'right_center'
+          x = h_range.get('end') - legend_padding - @legend_width
+          y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+        when 'bottom_right'
+          x = h_range.get('end') - legend_padding - @legend_width
+          y = v_range.get('start') + legend_padding + @legend_height
+        when 'bottom_center'
+          x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
+          y = v_range.get('start') + legend_padding + @legend_height
+        when 'bottom_left'
+          x = h_range.get('start') + legend_padding
+          y = v_range.get('start') + legend_padding + @legend_height
+        when 'left_center'
+          x = h_range.get('start') + legend_padding
+          y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+        when 'center'
+          x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
+          y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+    else if _.isArray(location) and location.length == 2
+      [x, y] = location
 
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)
