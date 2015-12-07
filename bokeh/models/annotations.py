@@ -40,7 +40,8 @@ class Legend(Annotation):
     def orientation(self, location):
         self.location = location
 
-    location = Either(Enum(LegendLocation), Tuple(Float, Float), help="""
+    location = Either(Enum(LegendLocation), Tuple(Float, Float),
+        default="top_right", help="""
     The location where the legend should draw itself. It's either one of
     ``bokeh.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location (from the bottom-left corner).
