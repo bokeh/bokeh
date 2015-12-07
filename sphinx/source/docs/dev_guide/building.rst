@@ -278,7 +278,7 @@ In the case of statically generated HTML or IPython notebooks, you should set
     BOKEH_DEV=true python example.py
 
 This enables the development mode, which uses absolute paths to development
-(non-minified) BokeJS components, sets logging to ``debug``, makes generated
+(non-minified) BokehJS components, sets logging to ``debug``, makes generated
 HTML and JSON human-readable, etc. Alternatively you can enable each part of
 the development mode with a specific shell variable. For example, to configure
 Bokeh to use relative paths to development resources, issue:
