@@ -134,7 +134,7 @@ class Legend extends HasParent
       border_line_dash: []
       border_line_dash_offset: 0
 
-      background_fill_color: '#fff'
+      background_fill_color: "#ffffff"
       background_fill_alpha: 1.0
 
       label_standoff: 15
@@ -153,7 +153,6 @@ class Legend extends HasParent
       legend_padding: 10
       legend_spacing: 3
       orientation: "top_right"
-      datapoint: null
     }
 
 module.exports =

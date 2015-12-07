@@ -3,8 +3,8 @@ $ = require "jquery"
 $1 = require "bootstrap/tab"
 build_views = require "../common/build_views"
 ContinuumView = require "../common/continuum_view"
-HasProperties = require "../common/has_properties"
 tabs_template = require "./tabs_template"
+Widget = require "./widget"
 
 class TabsView extends ContinuumView
 
@@ -51,7 +51,7 @@ class TabsView extends ContinuumView
     @$el.tabs
     return @
 
-class Tabs extends HasProperties
+class Tabs extends Widget.Model
   type: "Tabs"
   default_view: TabsView
 
@@ -59,6 +59,7 @@ class Tabs extends HasProperties
     return _.extend {}, super(), {
       tabs: []
       active: 0
+      callback: null
     }
 
 module.exports =

@@ -2,6 +2,15 @@ locations = {
   editors:                  [require('./cell_editors'), 'Editor']
   formatters:               [require('./cell_formatters'), 'Formatter']
 
+  Component:                require './component'
+  AbstractButton:           require './abstract_button'
+  AbstractIcon:             require './abstract_icon'
+  TableWidget:              require './table_widget'
+  BaseBox:                  require './basebox'
+  Layout:                   require './layout'
+  Markup:                   require './markup'
+  Widget:                   require './widget'
+  InputWidget:              require './input_widget'
   TableColumn:              require './table_column'
   DataTable:                require './data_table'
   Paragraph:                require './paragraph'
