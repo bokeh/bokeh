@@ -27,14 +27,20 @@ def _check_callback(callback, fargs):
     argspec = _callback_argspec(callback)
     formatted_args = formatargspec(*argspec)
     margs = ('self',) + fargs
+    error_msg = "Callbacks functions must have signature func(%s), got func%s"
+
     if isinstance(callback, FunctionType):
         if len(argspec.args) != len(fargs):
-            raise ValueError("Callbacks functions must have signature func(%s), got func%s" % (", ".join(fargs), formatted_args))
+            raise ValueError(error_msg % (", ".join(fargs), formatted_args))
 
+    elif isinstance(callback, partial):
+        expected_args = ismethod(callback.func) and margs or fargs
+        if len(argspec.args) - len(callback.args) - len(callback.keywords.keys()) != len(expected_args):
+            raise ValueError(error_msg % (", ".join(expected_args), formatted_args))
     # testing against MethodType misses callable objects, assume everything
     # else is a normal method, or __call__ here
     elif len(argspec.args) != len(margs):
-        raise ValueError("Callbacks methods must have signature method(%s), got method%s" % (", ".join(margs), formatted_args))
+        raise ValueError(error_msg % (", ".join(margs), formatted_args))
 
 class CallbackManager(object):
     ''' A mixin class to provide an interface for registering and
@@ -62,7 +68,8 @@ class CallbackManager(object):
         _callbacks = self._callbacks.setdefault(attr, [])
         for callback in callbacks:
 
-            if callback in _callbacks: continue
+            if callback in _callbacks:
+                continue
 
             _check_callback(callback, ('attr', 'old', 'new'))
 
