@@ -59,20 +59,35 @@ class LegendView extends PlotWidget
     legend_padding = @mget('legend_padding')
     h_range = @plot_view.frame.get('h_range')
     v_range = @plot_view.frame.get('v_range')
-    if location == "top_right"
-      x = h_range.get('end') - legend_padding - @legend_width
-      y = v_range.get('end') - legend_padding
-    else if location == "top_left"
-      x = h_range.get('start') + legend_padding
-      y = v_range.get('end') - legend_padding
-    else if location == "bottom_left"
-      x = h_range.get('start') + legend_padding
-      y = v_range.get('start') + legend_padding + @legend_height
-    else if location == "bottom_right"
-      x = h_range.get('end') - legend_padding - @legend_width
-      y = v_range.get('start') + legend_padding + @legend_height
-    else if location == "absolute"
-      [x,y] = @absolute_coords
+
+    switch location
+      when 'top_left'
+        x = h_range.get('start') + legend_padding
+        y = v_range.get('end') - legend_padding
+      when 'top_center'
+        x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
+        y = v_range.get('end') - legend_padding
+      when 'top_right'
+        x = h_range.get('end') - legend_padding - @legend_width
+        y = v_range.get('end') - legend_padding
+      when 'right_center'
+        x = h_range.get('end') - legend_padding - @legend_width
+        y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+      when 'bottom_right'
+        x = h_range.get('end') - legend_padding - @legend_width
+        y = v_range.get('start') + legend_padding + @legend_height
+      when 'bottom_center'
+        x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
+        y = v_range.get('start') + legend_padding + @legend_height
+      when 'bottom_left'
+        x = h_range.get('start') + legend_padding
+        y = v_range.get('start') + legend_padding + @legend_height
+      when 'left_center'
+        x = h_range.get('start') + legend_padding
+        y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
+      when 'center'
+        x = (h_range.get('end') + h_range.get('start'))/2 - @legend_width/2
+        y = (v_range.get('end') + v_range.get('start'))/2 + @legend_height/2
 
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)
