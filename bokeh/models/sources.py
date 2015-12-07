@@ -299,9 +299,11 @@ class BlazeDataSource(RemoteSource):
     expr = Dict(String, Any(), help="""
     blaze expression graph in json form
     """)
+
     namespace = Dict(String, Any(), help="""
     namespace in json form for evaluating blaze expression graph
     """)
+
     local = Bool(help="""
     Whether this data source is hosted by the bokeh server or not.
     """)

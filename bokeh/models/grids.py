@@ -64,3 +64,5 @@ class Grid(GuideRenderer):
     band_fill_alpha = Override(default=0)
 
     band_fill_color = Override(default=None)
+
+    level = Override(default="underlay")

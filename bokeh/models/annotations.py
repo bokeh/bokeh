@@ -23,6 +23,10 @@ class Annotation(Renderer):
     The plot to which this annotation is attached.
     """)
 
+    level = Enum(RenderLevel, default="overlay", help="""
+    Specifies the level in which to render the annotation.
+    """)
+
 class Legend(Annotation):
     """ Render informational legends for a plot.
 
@@ -142,9 +146,7 @@ class BoxAnnotation(Annotation):
     rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Enum(RenderLevel, default="annotation", help="""
-    Specifies the level in which to render the box annotation.
-    """)
+    level = Override(default="annotation")
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the shades.
@@ -189,9 +191,7 @@ class Span(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Enum(RenderLevel, default="annotation", help="""
-    Specifies the level in which to render the span.
-    """)
+    level = Override(default="annotation")
 
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the span is rendered as a canvas element or as an

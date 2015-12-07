@@ -20,7 +20,7 @@ class Icon(AbstractIcon):
 
     """
 
-    icon_name = Enum(NamedIcon, help="""
+    icon_name = Enum(NamedIcon, default="check", help="""
     What icon to use. See http://fortawesome.github.io/Font-Awesome/icons/
     for the list of available icons.
     """)
