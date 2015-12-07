@@ -37,7 +37,7 @@ def _check_callback(callback, fargs):
             raise ValueError(error_msg % (", ".join(expected_args), formatted_args))
     # testing against MethodType misses callable objects, assume everything
     # else is a normal method, or __call__ here
-    elif len(argspec.args) != len(margs):
+    elif len(argspec.args) - defaults_length != len(margs):
         raise ValueError(error_msg % (", ".join(margs), formatted_args))
 
 class CallbackManager(object):
