@@ -28,7 +28,7 @@ class PreviewSaveTool extends ActionTool.Model
   default_view: PreviewSaveToolView
   type: "PreviewSaveTool"
   tool_name: "Preview/Save"
-  icon: "bk-tool-icon-preview-save"
+  icon: "bk-tool-icon-save"
 
 module.exports =
   Model: PreviewSaveTool
