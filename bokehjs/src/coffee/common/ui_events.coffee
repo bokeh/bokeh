@@ -57,36 +57,35 @@ class UIEvents extends Backbone.Model
       logger.debug("Button tool: #{type}")
       return
 
+    listenTo = (event_name, method_name) =>
+      if tool_view[method_name]?
+        tool_view.listenTo(@, event_name, () -> tool_view[method_name].apply(tool_view, arguments))
+
     if et in ['pan', 'pinch', 'rotate']
       logger.debug("Registering tool: #{type} for event '#{et}'")
-      if tool_view["_#{et}_start"]?
-        tool_view.listenTo(@, "#{et}:start:#{id}", tool_view["_#{et}_start"])
-      if tool_view["_#{et}"]
-        tool_view.listenTo(@, "#{et}:#{id}",       tool_view["_#{et}"])
-      if tool_view["_#{et}_end"]
-        tool_view.listenTo(@, "#{et}:end:#{id}",   tool_view["_#{et}_end"])
+      listenTo("#{et}:start:#{id}", "_#{et}_start")
+      listenTo("#{et}:#{id}",       "_#{et}")
+      listenTo("#{et}:end:#{id}",   "_#{et}_end")
     else if et == "move"
       logger.debug("Registering tool: #{type} for event '#{et}'")
-      if tool_view._move_enter?
-        tool_view.listenTo(@, "move:enter", tool_view._move_enter)
-      tool_view.listenTo(@, "move", tool_view["_move"])
-      if tool_view._move_exit?
-        tool_view.listenTo(@, "move:exit", tool_view._move_exit)
+      listenTo("move:enter", "_move_enter")
+      listenTo("move", "_move")
+      listenTo("move:exit", "_move_exit")
     else
       logger.debug("Registering tool: #{type} for event '#{et}'")
-      tool_view.listenTo(@, "#{et}:#{id}", tool_view["_#{et}"])
+      listenTo("#{et}:#{id}", "_#{et}")
 
     if tool_view._keydown?
       logger.debug("Registering tool: #{type} for event 'keydown'")
-      tool_view.listenTo(@, "keydown", tool_view._keydown)
+      listenTo("keydown", "_keydown")
 
     if tool_view._keyup?
       logger.debug("Registering tool: #{type} for event 'keyup'")
-      tool_view.listenTo(@, "keyup", tool_view._keyup)
+      listenTo("keyup", "_keyup")
 
     if tool_view._doubletap?
       logger.debug("Registering tool: #{type} for event 'doubletap'")
-      tool_view.listenTo(@, "doubletap", tool_view._doubletap)
+      listenTo("doubletap", "_doubletap")
 
   _trigger: (event_type, e) ->
     tm = @get('tool_manager')

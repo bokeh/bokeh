@@ -112,7 +112,7 @@ class PlotView extends ContinuumView
       if window.location.search.indexOf('webgl=0') == -1
         @init_webgl()
 
-    @throttled_render = plot_utils.throttle_animation(@render, 15)
+    @throttled_render = plot_utils.throttle_animation(((force_canvas) -> @render(force_canvas)), 15)
 
     @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
     @title_props = new properties.Text({obj: @model, prefix: 'title_'})
@@ -233,12 +233,12 @@ class PlotView extends ContinuumView
 
   bind_bokeh_events: () ->
     for name, rng of @mget('frame').get('x_ranges')
-      @listenTo(rng, 'change', @request_render)
+      @listenTo(rng, 'change', () => @request_render())
     for name, rng of @mget('frame').get('y_ranges')
-      @listenTo(rng, 'change', @request_render)
-    @listenTo(@model, 'change:renderers', @build_levels)
-    @listenTo(@model, 'change:tool', @build_levels)
-    @listenTo(@model, 'change', @request_render)
+      @listenTo(rng, 'change', () => @request_render())
+    @listenTo(@model, 'change:renderers', () => @build_levels())
+    @listenTo(@model, 'change:tool', () => @build_levels())
+    @listenTo(@model, 'change', () => @request_render())
     @listenTo(@model, 'destroy', () => @remove())
 
   set_initial_range : () ->

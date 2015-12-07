@@ -44,10 +44,10 @@ class GlyphRendererView extends PlotWidget
     new model.default_view({model: model, renderer: this})
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @request_render)
-    @listenTo(@mget('data_source'), 'change', @set_data)
-    @listenTo(@mget('data_source'), 'select', @request_render)
-    @listenTo(@mget('data_source'), 'inspect', @request_render)
+    @listenTo(@model, 'change', () => @request_render)
+    @listenTo(@mget('data_source'), 'change', (request_render, arg) => @set_data(request_render, arg))
+    @listenTo(@mget('data_source'), 'select', () => @request_render())
+    @listenTo(@mget('data_source'), 'inspect', () => @request_render())
 
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would
