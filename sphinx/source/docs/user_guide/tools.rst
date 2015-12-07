@@ -219,6 +219,22 @@ Actions
 Actions are operations that are activated only when their button in the toolbar
 is tapped or clicked. They are typically modal or immediate-acting.
 
+UndoTool
+'''''''''
+
+* name: ``'undo'``
+* icon: |undo_icon|
+
+The undo tool allows to restore previous state of the plot.
+
+RedoTool
+'''''''''
+
+* name: ``'redo'``
+* icon: |redo_icon|
+
+The redo tool reverses the last action performed by undo tool.
+
 ResetTool
 '''''''''
 
@@ -402,6 +418,8 @@ LOD behavior:
     :height: 14pt
 .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
     :height: 14pt
+.. |redo_icon| image:: /_images/icons/Redo.png
+    :height: 14pt
 .. |reset_icon| image:: /_images/icons/Reset.png
     :height: 14pt
 .. |resize_icon| image:: /_images/icons/Resize.png
@@ -409,6 +427,8 @@ LOD behavior:
 .. |save_icon| image:: /_images/icons/Save.png
     :height: 14pt
 .. |tap_select_icon| image:: /_images/icons/TapSelect.png
+    :height: 14pt
+.. |undo_icon| image:: /_images/icons/Undo.png
     :height: 14pt
 .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
     :height: 14pt

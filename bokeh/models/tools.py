@@ -540,7 +540,19 @@ class HelpTool(Tool):
     """)
 
 class UndoTool(Tool):
-    """ Undo tool allows to restore previous state of the plot. """
+    """ *toolbar icon*: |undo_icon|
+
+    Undo tool allows to restore previous state of the plot.
+
+    .. |undo_icon| image:: /_images/icons/Undo.png
+        :height: 18pt
+    """
 
 class RedoTool(Tool):
-    """ Redo tool reverses the last action performed by undo tool. """
+    """ *toolbar icon*: |redo_icon|
+
+    Redo tool reverses the last action performed by undo tool.
+
+    .. |redo_icon| image:: /_images/icons/Redo.png
+        :height: 18pt
+    """
