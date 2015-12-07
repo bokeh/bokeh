@@ -80,7 +80,7 @@ class TestViewable(unittest.TestCase):
 class TestCollectModels(unittest.TestCase):
 
     def test_references_large(self):
-        root, objects = large_plot(500)
+        root, objects = large_plot(10)
         self.assertEqual(set(root.references()), objects)
 
 class SomeModelToJson(Model):
