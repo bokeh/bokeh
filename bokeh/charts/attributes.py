@@ -136,8 +136,8 @@ class AttrSpec(HasProps):
     def _generate_items(self, df, columns):
         """Produce list of unique tuples that identify each item."""
         if self.sort:
-            # TODO (fpliger):   this handles pandas API change so users do experience
-            #                   the annoying deprecation warning. This is probably worth
+            # TODO (fpliger):   this handles pandas API change so users do not experience
+            #                   the related annoying deprecation warning. This is probably worth
             #                   removing when pandas deprecated version (0.16) is "old" enough
             try:
                 df = df.sort_values(by=columns, ascending=self.ascending)
