@@ -12,10 +12,7 @@ def _callback_argspec(callback):
     if not callable(callback):
         raise ValueError("Callbacks must be callables")
 
-    if isfunction(callback):
-        return getargspec(callback)
-    elif ismethod(callback):
-        # in this case the argspec will have 'self' in the args
+    if isfunction(callback) or ismethod(callback):
         return getargspec(callback)
     elif isinstance(callback, partial):
         return getargspec(callback.func)
@@ -28,13 +25,14 @@ def _check_callback(callback, fargs):
     formatted_args = formatargspec(*argspec)
     margs = ('self',) + fargs
     error_msg = "Callbacks functions must have signature func(%s), got func%s"
+    defaults_length = len(argspec.defaults) if argspec.defaults else 0
 
     if isinstance(callback, FunctionType):
-        if len(argspec.args) != len(fargs):
+        if len(argspec.args) - defaults_length != len(fargs):
             raise ValueError(error_msg % (", ".join(fargs), formatted_args))
 
     elif isinstance(callback, partial):
-        expected_args = ismethod(callback.func) and margs or fargs
+        expected_args = margs if ismethod(callback.func) else fargs
         if len(argspec.args) - len(callback.args) - len(callback.keywords.keys()) != len(expected_args):
             raise ValueError(error_msg % (", ".join(expected_args), formatted_args))
     # testing against MethodType misses callable objects, assume everything
