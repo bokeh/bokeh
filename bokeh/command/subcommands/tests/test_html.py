@@ -28,7 +28,7 @@ def test_args():
         (
             '--show', dict(
             action='store_true',
-            help="Open generated file(s) in a brows,er"
+            help="Open generated file(s) in a browser"
         )),
 
     )
