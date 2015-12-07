@@ -232,7 +232,12 @@ For more information, see the Dev Guide:
 
 BUILD_FAIL_MSG = bright(red("Failed.")) + """
 
-ERROR: 'gulp build' returned error message:
+ERROR: 'gulp build' returned the following
+
+---- on stdout:
+%s
+
+---- on stderr:
 %s
 """
 
@@ -272,9 +277,11 @@ def build_js():
 
     if result != 0:
         indented_msg = ""
-        msg = proc.stderr.read().decode('ascii', errors='ignore')
-        msg = "\n".join(["    " + x for x in msg.split("\n")])
-        print(BUILD_FAIL_MSG % red(msg))
+        outmsg = proc.stdout.read().decode('ascii', errors='ignore')
+        outmsg = "\n".join(["    " + x for x in outmsg.split("\n")])
+        errmsg = proc.stderr.read().decode('ascii', errors='ignore')
+        errmsg = "\n".join(["    " + x for x in errmsg.split("\n")])
+        print(BUILD_FAIL_MSG % (red(outmsg), red(errmsg)))
         sys.exit(1)
 
     indented_msg = ""
