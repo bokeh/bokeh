@@ -32,7 +32,7 @@ from bokeh.enums import (
     Direction,
     Units, AngleUnits, DatetimeUnits,
     Dimension,
-    Anchor, Location, Orientation,
+    Anchor, Location, LegendLocation,
     DashPattern,
     ButtonType, MapType,
     NamedColor as Color, NamedIcon)
@@ -44,7 +44,7 @@ from bokeh.enums import (
     Direction,
     Units, AngleUnits, DatetimeUnits,
     Dimension,
-    Anchor, Location, Orientation,
+    Anchor, Location, LegendLocation,
     DashPattern,
     ButtonType, MapType,
     Color, NamedIcon)

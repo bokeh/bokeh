@@ -13,7 +13,7 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-from ..enums import enumeration, Orientation
+from ..enums import enumeration, LegendLocation
 from ..model import Model
 from ..properties import Auto, Bool, Either, Enum, Int, String
 
@@ -38,7 +38,7 @@ class ChartOptions(Model):
     A title for the chart.
     """)
 
-    legend = Either(Bool, Enum(Orientation), help="""
+    legend = Either(Bool, Enum(LegendLocation), help="""
     A location where the legend should draw itself.
     """)
 

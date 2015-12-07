@@ -55,24 +55,25 @@ class LegendView extends PlotWidget
     text_width = _.max(text_widths)
     @label_width = _.max([text_width, label_width])
     @legend_width = @label_width + @glyph_width + 3 * legend_spacing
-    orientation = @mget('orientation')
+    location = @mget('location')
     legend_padding = @mget('legend_padding')
     h_range = @plot_view.frame.get('h_range')
     v_range = @plot_view.frame.get('v_range')
-    if orientation == "top_right"
+    if location == "top_right"
       x = h_range.get('end') - legend_padding - @legend_width
       y = v_range.get('end') - legend_padding
-    else if orientation == "top_left"
+    else if location == "top_left"
       x = h_range.get('start') + legend_padding
       y = v_range.get('end') - legend_padding
-    else if orientation == "bottom_left"
+    else if location == "bottom_left"
       x = h_range.get('start') + legend_padding
       y = v_range.get('start') + legend_padding + @legend_height
-    else if orientation == "bottom_right"
+    else if location == "bottom_right"
       x = h_range.get('end') - legend_padding - @legend_width
       y = v_range.get('start') + legend_padding + @legend_height
-    else if orientation == "absolute"
+    else if location == "absolute"
       [x,y] = @absolute_coords
+
     x = @plot_view.canvas.vx_to_sx(x)
     y = @plot_view.canvas.vy_to_sy(y)
     @box_coords = [x,y]
@@ -152,7 +153,7 @@ class Legend extends HasParent
       label_width: 50
       legend_padding: 10
       legend_spacing: 3
-      orientation: "top_right"
+      location: 'top_right'
       datapoint: null
     }
 

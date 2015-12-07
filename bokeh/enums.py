@@ -52,7 +52,7 @@ Dimension = enumeration("width", "height", "x", "y")
 Anchor = enumeration("top_left", "top_center", "top_right", "right_center",
                      "bottom_right", "bottom_center", "bottom_left", "left_center", "center")
 Location = enumeration("above", "below", "left", "right")
-Orientation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
+LegendLocation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
 NamedColor = enumeration(*colors.__colors__, case_sensitive=False)
