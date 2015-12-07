@@ -2,6 +2,10 @@ ActionTool = require "./action_tool"
 
 class UndoToolView extends ActionTool.View
 
+  initialize: (options) ->
+    super(options)
+    @listenTo(@plot_view, "state_changed", () => @model.set('disabled', not @plot_view.can_undo()))
+
   do: () ->
     @plot_view.undo()
 
@@ -10,6 +14,7 @@ class UndoTool extends ActionTool.Model
   type: "UndoTool"
   tool_name: "Undo"
   icon: "bk-tool-icon-undo"
+  disabled: true
 
 module.exports = {
   Model: UndoTool

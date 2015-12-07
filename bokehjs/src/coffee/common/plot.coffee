@@ -202,9 +202,11 @@ class PlotView extends ContinuumView
     @state.history.slice(0, @state.index + 1)
     @state.history.push({type: type, range_info: range_info})
     @state.index = @state.history.length - 1
+    @trigger("state_changed")
 
   clear_state: () ->
     @state = {history: [], index: -1}
+    @trigger("state_changed")
 
   can_undo: () ->
     @state.index >= 0
@@ -215,11 +217,13 @@ class PlotView extends ContinuumView
   undo: () ->
     if @can_undo()
       @state.index -= 1
+      @trigger("state_changed")
       @update_range(@state.history[@state.index]?.range_info)
 
   redo: () ->
     if @can_redo()
       @state.index += 1
+      @trigger("state_changed")
       @update_range(@state.history[@state.index]?.range_info)
 
   update_range: (range_info) ->

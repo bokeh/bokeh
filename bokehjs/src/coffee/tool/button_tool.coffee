@@ -17,14 +17,14 @@ class ButtonToolButtonView extends Backbone.View
   initialize: (options) ->
     super(options)
     @$el.html(@template(@model.attrs_and_props()))
-    @listenTo(@model, 'change:active', @render)
+    @listenTo(@model, 'change:active', () => @render())
+    @listenTo(@model, 'change:disabled', () => @render())
     @render()
 
   render: () ->
-    if @model.get('active')
-      @$el.children('button').addClass('active')
-    else
-      @$el.children('button').removeClass('active')
+    @$el.children('button')
+        .prop("disabled", @model.get('disabled'))
+        .toggleClass('active', @model.get('active'))
     return @
 
   _clicked: (e) ->
@@ -43,6 +43,7 @@ class ButtonTool extends Tool.Model
   defaults: () ->
     return _.extend({}, super(), {
       active: false
+      disabled: if @disabled? then @disabled else false
       tool_name: @tool_name
       icon: @icon
     })
