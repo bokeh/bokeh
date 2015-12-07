@@ -621,7 +621,7 @@ for every element of the list:
 Location
 ~~~~~~~~
 
-The location of the legend labels is controlled by the ``orientation``
+The location of the legend labels is controlled by the ``location``
 property. Valid values for this property are:
 
 ``"top_right"``

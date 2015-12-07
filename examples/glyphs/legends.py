@@ -41,10 +41,10 @@ plot.add_tools(pan, wheel_zoom, preview_save)
 from bokeh.enums import LegendLocation
 
 for loc in LegendLocation._values:
-    legend = Legend(legends=[(loc, [line])], orientation=loc)
+    legend = Legend(legends=[(loc, [line])], location=loc)
     plot.add_layout(legend)
 
-legend = Legend(legends=[("x=100px, y=150px", [line])], orientation=(100, 150))
+legend = Legend(legends=[("x=100px, y=150px", [line])], location=(100, 150))
 plot.add_layout(legend)
 
 doc = Document()

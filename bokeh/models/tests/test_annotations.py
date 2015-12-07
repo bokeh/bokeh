@@ -63,7 +63,7 @@ def check_line(annotation, line_color='#cccccc', line_width=0.3, line_alpha=1.0)
 def test_Legend():
     legend = Legend()
     assert legend.plot is None
-    assert legend.orientation == 'top_right'
+    assert legend.location == 'top_right'
     assert legend.label_standoff == 15
     assert legend.label_height == 20
     assert legend.label_width == 50
@@ -77,7 +77,7 @@ def test_Legend():
     yield check_background, legend
     yield (check_props, legend, [
         "plot",
-        "orientation",
+        "location",
         "label_standoff",
         "label_height",
         "label_width",
