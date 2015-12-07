@@ -99,7 +99,8 @@ class ToolManager extends HasProperties
           continue
 
         gestures[et].tools.push(tool)
-        @listenTo(tool, 'change:active', () => @_active_change(tool))
+        do (tool) =>
+          @listenTo(tool, 'change:active', () => @_active_change(tool))
 
     for et of gestures
       tools = gestures[et].tools

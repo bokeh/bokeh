@@ -76,7 +76,8 @@ class GridToolManager extends ToolManager.Model
           continue
         proxy = new ToolProxy({tools: tools})
         @get('gestures')[et].tools.push(proxy)
-        @listenTo(proxy, 'change:active', _.bind(@_active_change, proxy))
+        do (proxy) =>
+          @listenTo(proxy, 'change:active', () => @_active_change(proxy))
 
     for typ, tools of actions
       if tools.length != @get('num_plots')
@@ -101,7 +102,7 @@ class GridToolManager extends ToolManager.Model
       info.tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
       info.tools[0].set('active', true)
 
-  _active_change: (tool) =>
+  _active_change: (tool) ->
     et = tool.get('event_type')
 
     active = tool.get('active')
