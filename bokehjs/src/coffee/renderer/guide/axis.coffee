@@ -175,7 +175,7 @@ class AxisView extends PlotWidget
     ctx.restore()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change', @plot_view.request_render)
+    @listenTo(@model, 'change', () => @plot_view.request_render())
 
   _draw_rule: (ctx) ->
     if not @rule_props.do_stroke

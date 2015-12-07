@@ -41,7 +41,7 @@ class CartesianFrame extends LayoutBox.Model
       , true)
     @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
 
-    @listenTo(@solver, 'layout_update', @_update_mappers)
+    @listenTo(@solver, 'layout_update', () => @_update_mappers())
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
     vx = @get('x_mappers')[x_name].v_map_to_target(x)

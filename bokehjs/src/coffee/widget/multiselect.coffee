@@ -14,9 +14,9 @@ class MultiSelectView extends ContinuumView
     super(options)
     @render()
     @listenTo(@model, 'change:value', () => @render_selection())
-    @listenTo(@model, 'change:options', @render)
-    @listenTo(@model, 'change:name', @render)
-    @listenTo(@model, 'change:title', @render)
+    @listenTo(@model, 'change:options', () => @render())
+    @listenTo(@model, 'change:name', () => @render())
+    @listenTo(@model, 'change:title', () => @render())
 
   render: () ->
     @$el.empty()

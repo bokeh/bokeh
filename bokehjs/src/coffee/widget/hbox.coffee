@@ -12,7 +12,7 @@ class HBoxView extends ContinuumView
     super(options)
     @views = {}
     @render()
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model, 'change', () => @render())
 
   render: () ->
     children = @model.children()

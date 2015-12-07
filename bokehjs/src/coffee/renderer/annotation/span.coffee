@@ -14,7 +14,7 @@ class SpanView extends PlotWidget
     @$el.hide()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:location', @_draw_span)
+    @listenTo(@model, 'change:location', () => @_draw_span())
 
   render: () ->
     @_draw_span()

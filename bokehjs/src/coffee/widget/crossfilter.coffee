@@ -19,7 +19,7 @@ class CrossFilterView extends ContinuumView
   initialize: (options) ->
     super(options)
     @views = {}
-    @listenTo(@model, 'change:plot', @render_plot)
+    @listenTo(@model, 'change:plot', () => @render_plot())
     @render()
     @render_plot()
 
@@ -86,10 +86,10 @@ class PlotAttributeSelector extends ContinuumView
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, "change:plot_selector", _.bind(@render_selector, 'plot'))
-    @listenTo(@model, "change:x_selector", _.bind(@render_selector, 'x'))
-    @listenTo(@model, "change:y_selector", _.bind(@render_selector, 'y'))
-    @listenTo(@model, "change:agg_selector", _.bind(@render_selector, 'agg'))
+    @listenTo(@model, "change:plot_selector", () => @render_selector('plot'))
+    @listenTo(@model, "change:x_selector", () => @render_selector('x'))
+    @listenTo(@model, "change:y_selector", () => @render_selector('y'))
+    @listenTo(@model, "change:agg_selector", () => @render_selector('agg'))
     @render_selector('plot')
     @render_selector('x')
     @render_selector('y')
@@ -106,7 +106,7 @@ class ColumnsView extends ContinuumView
   initialize: (options) ->
     super(options)
     @views = {}
-    @listenTo(@collection, 'all', @render)
+    @listenTo(@collection, 'all', () => @render())
     @render()
 
   render: () ->
@@ -138,9 +138,9 @@ class FacetsView extends ContinuumView
     @render_init()
     @render_all_facets()
 
-    @listenTo(@model, 'change:facet_x', @render_all_facets)
-    @listenTo(@model, 'change:facet_y', @render_all_facets)
-    @listenTo(@model, 'change:facet_tab', @render_all_facets)
+    @listenTo(@model, 'change:facet_x', () => @render_all_facets())
+    @listenTo(@model, 'change:facet_y', () => @render_all_facets())
+    @listenTo(@model, 'change:facet_tab', () => @render_all_facets())
 
   render_init: () ->
     @facet_x_node = @$('.bk-facet-x')

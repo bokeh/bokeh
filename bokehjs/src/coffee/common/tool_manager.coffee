@@ -15,7 +15,7 @@ class ToolManagerView extends Backbone.View
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model, 'change', () => @render())
     @render()
 
   render: () ->

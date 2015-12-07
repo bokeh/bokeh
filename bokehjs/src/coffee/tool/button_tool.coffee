@@ -17,7 +17,7 @@ class ButtonToolButtonView extends Backbone.View
   initialize: (options) ->
     super(options)
     @$el.html(@template(@model.attrs_and_props()))
-    @listenTo(@model, 'change:active', @render)
+    @listenTo(@model, 'change:active', () => @render())
     @render()
 
   render: () ->

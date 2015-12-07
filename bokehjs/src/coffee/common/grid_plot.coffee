@@ -15,8 +15,8 @@ class ToolProxy extends Backbone.Model
     # OK this is pretty lame but should work until we make a new
     # better grid plot. This just mimics all the events that
     # any of the tool types might expect to get.
-    @listenTo(@, 'do', @do)
-    @listenTo(@, 'change:active', @active)
+    @listenTo(@, 'do', () => @do())
+    @listenTo(@, 'change:active', () => @active())
     return null
 
   do: () ->
@@ -210,10 +210,10 @@ class GridPlotView extends ContinuumView
     return this
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:children', @build_children)
-    @listenTo(@model, 'change', @render)
-    @listenTo(@viewstate, 'change', @render)
-    @listenTo(@model, 'destroy', @remove)
+    @listenTo(@model, 'change:children', () => @build_children())
+    @listenTo(@model, 'change', () => @render())
+    @listenTo(@viewstate, 'change', () => @render())
+    @listenTo(@model, 'destroy', () => @remove())
 
   build_children: () ->
     childmodels = []
@@ -239,7 +239,7 @@ class GridPlotView extends ContinuumView
       for plot in row
         if not plot?
           continue
-        @listenTo(plot.solver, 'layout_update', @render)
+        @listenTo(plot.solver, 'layout_update', () => @render())
 
   render: () ->
     super()

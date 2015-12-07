@@ -16,7 +16,7 @@ class TextInputView extends ContinuumView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model, 'change', () => @render())
 
   render: () ->
     @$el.html(@template(@model.attributes))
