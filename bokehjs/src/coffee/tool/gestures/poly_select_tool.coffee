@@ -65,7 +65,7 @@ class PolySelectTool extends SelectTool.Model
   default_view: PolySelectToolView
   type: "PolySelectTool"
   tool_name: "Poly Select"
-  icon: "bk-tool-icon-poly-select"
+  icon: "bk-tool-icon-polygon-select"
   event_type: "tap"
   default_order: 11
 

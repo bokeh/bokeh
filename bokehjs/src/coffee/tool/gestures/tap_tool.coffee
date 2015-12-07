@@ -32,7 +32,7 @@ class TapTool extends SelectTool.Model
   default_view: TapToolView
   type: "TapTool"
   tool_name: "Tap"
-  icon: "bk-tool-icon-tap"
+  icon: "bk-tool-icon-tap-select"
   event_type: "tap"
   default_order: 10
 
