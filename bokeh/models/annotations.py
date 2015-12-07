@@ -41,7 +41,9 @@ class Legend(Annotation):
         self.location = location
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), help="""
-    The location where the legend should draw itself.
+    The location where the legend should draw itself. It's either one of
+    ``bokeh.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    tuple indicating an absolute location (from the bottom-left corner).
     """)
 
     border_props = Include(LineProps, help="""
