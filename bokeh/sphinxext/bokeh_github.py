@@ -11,6 +11,9 @@ to various resources in the Bokeh Github repository:
 
 ``:bokeh-pull:`` : link to a pull request
 
+``:bokeh-tree:`` : (versioned) link to a source tree URL
+
+
 Examples
 --------
 
@@ -18,13 +21,15 @@ The following code::
 
     The repo history shows that :bokeh-commit:`bf19bcb` was made in
     in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694` as part of
-    :bokeh-milestone:`0.8`.
+    :bokeh-milestone:`0.8`. This included updating all of the files in
+    the :bokeh-tree:`examples` subdirectory.
 
 yields the output:
 
 The repo history shows that :bokeh-commit:`bf19bcb` was made in
 in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694` as part of
-:bokeh-milestone:`0.8`.
+:bokeh-milestone:`0.8`. This included updating all of the files in
+the :bokeh-tree:`examples` subdirectory.
 
 """
 from __future__ import absolute_import
@@ -37,7 +42,7 @@ from six.moves import urllib
 BOKEH_GH = "https://github.com/bokeh/bokeh"
 
 def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Link to a Bokeh Github issue.
+    """ Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -49,7 +54,7 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=Non
     return [node], []
 
 def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Link to a Bokeh Github issue.
+    """ Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -71,7 +76,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
     return [node], []
 
 def bokeh_milestone(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Link to a Bokeh Github issue.
+    """ Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -83,7 +88,7 @@ def bokeh_milestone(name, rawtext, text, lineno, inliner, options=None, content=
     return [node], []
 
 def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Link to a Bokeh Github issue.
+    """ Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -104,6 +109,40 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
     node = make_gh_link_node(app, rawtext, 'pull', 'pull request', 'pull', str(issue_num), options)
     return [node], []
 
+def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None):
+    """ Link to a URL in the Bokeh GitHub tree, pointing to appropriate tags
+    for releases, or to master otherwise.
+
+    The link text is simply the URL path supplied, so typical usage might
+    look like:
+
+    .. code-block:: none
+
+        All of the examples are located in the :bokeh-tree:`examples`
+        subdirectory of your Bokeh checkout.
+
+
+    Returns 2 part tuple containing list of nodes to insert into the
+    document and a list of system messages.  Both are allowed to be
+    empty.
+
+    """
+    app = inliner.document.settings.env.app
+
+    tag = app.env.config['version']
+    if '-' in tag:
+        tag = 'master'
+
+    url = "%s/tree/%s/%s" % (BOKEH_GH, tag, text)
+    _try_url(url, 'tree')
+    options = options or {}
+    set_classes(options)
+    node = nodes.reference(
+        rawtext, text, refuri=url, **options)
+    return [node], []
+
+
+
 def make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     """ Return a link to a Bokeh Github resource.
 
@@ -119,6 +158,14 @@ def make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     """
     url = "%s/%s/%s" % (BOKEH_GH, api_type, id)
     options = options or {}
+    _try_url(url, role)
+    set_classes(options)
+    node = nodes.reference(
+        rawtext, kind + ' ' + utils.unescape(id), refuri=url, **options)
+    return node
+
+
+def _try_url(url, role):
     try:
         request = urllib.request.Request(url)
         request.get_method = lambda : 'HEAD'
@@ -128,13 +175,10 @@ def make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     else:
         if response.getcode() >= 400:
             app.warn("URL '%s' for :bokeh-%s: role could not be loaded" % (url, role))
-    set_classes(options)
-    node = nodes.reference(
-        rawtext, kind + ' ' + utils.unescape(id), refuri=url, **options)
-    return node
 
 def setup(app):
     app.add_role('bokeh-commit', bokeh_commit)
     app.add_role('bokeh-issue', bokeh_issue)
     app.add_role('bokeh-milestone', bokeh_milestone)
     app.add_role('bokeh-pull', bokeh_pull)
+    app.add_role('bokeh-tree', bokeh_tree)
