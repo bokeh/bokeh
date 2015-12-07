@@ -40,8 +40,8 @@ plot.add_tools(pan, wheel_zoom, preview_save)
 
 from bokeh.enums import LegendLocation
 
-for loc in LegendLocation._values:
-    legend = Legend(legends=[(loc, [line])], location=loc)
+for location in LegendLocation:
+    legend = Legend(legends=[(location, [line])], location=location)
     plot.add_layout(legend)
 
 legend = Legend(legends=[("x=100px, y=150px", [line])], location=(100, 150))

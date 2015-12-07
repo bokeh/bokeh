@@ -10,6 +10,9 @@ class Enumeration(object):
 
     __slots__ = ()
 
+    def __iter__(self):
+        return iter(self._values)
+
     def __contains__(self, value):
         if not self._case_sensitive:
             value = value.lower()
