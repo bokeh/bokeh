@@ -73,7 +73,7 @@ def make_calendar(year, month, firstweekday="Mon"):
     return plot
 
 months = [ [ make_calendar(2014, 3*i + j + 1) for j in range(3) ] for i in range(4) ]
-grid = GridPlot(title="Calendar 2014", toolbar_location=None, children=months)
+grid = GridPlot(toolbar_location=None, children=months)
 
 doc = Document()
 doc.add_root(grid)
