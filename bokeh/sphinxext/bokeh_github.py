@@ -134,7 +134,7 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
         tag = 'master'
 
     url = "%s/tree/%s/%s" % (BOKEH_GH, tag, text)
-    _try_url(url, 'tree')
+    _try_url(app, url, 'tree')
     options = options or {}
     set_classes(options)
     node = nodes.reference(
@@ -158,14 +158,14 @@ def make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     """
     url = "%s/%s/%s" % (BOKEH_GH, api_type, id)
     options = options or {}
-    _try_url(url, role)
+    _try_url(app, url, role)
     set_classes(options)
     node = nodes.reference(
         rawtext, kind + ' ' + utils.unescape(id), refuri=url, **options)
     return node
 
 
-def _try_url(url, role):
+def _try_url(app, url, role):
     try:
         request = urllib.request.Request(url)
         request.get_method = lambda : 'HEAD'
