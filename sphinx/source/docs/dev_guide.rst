@@ -7,7 +7,7 @@ Developer Guide
    :maxdepth: 2
 
    dev_guide/process.rst
-   dev_guide/building.rst
+   dev_guide/setup.rst
    dev_guide/documentation.rst
    dev_guide/testing.rst
    dev_guide/objects.rst

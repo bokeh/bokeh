@@ -1,7 +1,7 @@
-.. _devguide_building:
+.. _devguide_setup:
 
-Building and Installing
-=======================
+Getting Set Up
+==============
 
 .. contents::
     :local:

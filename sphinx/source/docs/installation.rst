@@ -140,7 +140,7 @@ Installing from Source
 
 Installing Bokeh from source requires rebuilding the BokehJS library
 from its CoffeeScript sources. Some additional toolchain support is required.
-Please consult the :ref:`devguide_building` section of the :ref:`devguide` for
+Please consult the :ref:`devguide_setup` section of the :ref:`devguide` for
 detailed instructions.
 
 .. _install_devbuild:
