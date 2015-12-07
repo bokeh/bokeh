@@ -1,20 +1,31 @@
 from __future__ import absolute_import
 
+from functools import partial
+
 import pytest
 
 import bokeh.util.callback_manager as cbm
 
 class _Good(object):
+
     def __init__(self):
         self.last_name = None
         self.last_old = None
         self.last_new = None
+
     def __call__(self, name, old, new):
         self.method(name, old, new)
+
     def method(self, name, old, new):
         self.last_name = name
         self.last_old = old
         self.last_new = new
+
+    def partially_good(self, name, old, new, newer):
+        pass
+
+    def just_fine(self, name, old, new, extra='default'):
+        pass
 
 class _Bad(object):
     def __call__(self, x, y): pass
@@ -22,6 +33,8 @@ class _Bad(object):
 
 def _good(x,y,z): pass
 def _bad(x,y): pass
+def _partially_good(w, x, y, z):pass
+def _just_fine(w, x, y, z='default'):pass
 
 def test_creation():
     m = cbm.CallbackManager()
@@ -34,6 +47,30 @@ def test_on_change_good_method():
     assert len(m._callbacks) == 1
     assert m._callbacks['foo'] == [good.method]
 
+def test_on_change_good_partial_function():
+    m = cbm.CallbackManager()
+    p = partial(_good_if_curried, 'foo')
+    m.on_change('bar', p)
+    assert len(m._callbacks) == 1
+
+def test_on_change_good_partial_method():
+    m = cbm.CallbackManager()
+    good = _Good()
+    p = partial(good.partially_good, 'foo')
+    m.on_change('bar', p)
+    assert len(m._callbacks) == 1
+
+def test_on_change_good_extra_kwargs_function():
+    m = cbm.CallbackManager()
+    m.on_change('bar', _just_fine)
+    assert len(m._callbacks) == 1
+
+def test_on_change_good_extra_kwargs_method():
+    m = cbm.CallbackManager()
+    good = _Good()
+    m.on_change('bar', good.just_fine)
+    assert len(m._callbacks) == 1
+
 def test_on_change_good_functor():
     m = cbm.CallbackManager()
     good = _Good()
@@ -42,6 +79,12 @@ def test_on_change_good_functor():
     assert m._callbacks['foo'] == [good]
 
 def test_on_change_good_function():
+    m = cbm.CallbackManager()
+    m.on_change('foo', _good)
+    assert len(m._callbacks) == 1
+    assert m._callbacks['foo'] == [_good]
+
+def test_on_change_good_partial_function():
     m = cbm.CallbackManager()
     m.on_change('foo', _good)
     assert len(m._callbacks) == 1
