@@ -16,4 +16,4 @@ class TestCallbackManager(unittest.TestCase):
         try:
             _check_callback(p, ('attr', 'old', 'new'))
         except:
-            self.fail("Callbaack check failed")
+            self.fail("Callback check failed")
