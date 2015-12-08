@@ -642,8 +642,8 @@ property. Valid values for this property are either:
 
 ``"center"``
 
-or a ``(x, y)`` tuple indicating an absolute location (measured from
-the bottom-left corner).
+or a ``(x, y)`` tuple indicating an absolute location in screen coordinates
+(pixels from the bottom-left corner).
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_location.py
     :source-position: above

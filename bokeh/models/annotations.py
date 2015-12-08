@@ -44,7 +44,8 @@ class Legend(Annotation):
         default="top_right", help="""
     The location where the legend should draw itself. It's either one of
     ``bokeh.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
-    tuple indicating an absolute location (from the bottom-left corner).
+    tuple indicating an absolute location absolute location in screen
+    coordinates (pixels from the bottom-left corner).
     """)
 
     border_props = Include(LineProps, help="""
