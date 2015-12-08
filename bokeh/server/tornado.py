@@ -80,10 +80,8 @@ class BokehTornado(TornadoApplication):
         self._executor = ProcessPoolExecutor(max_workers=4)
         self._loop.add_callback(self._start_async)
         self._stats_job = PeriodicCallback(self.log_stats, 15.0 * 1000, io_loop=self._loop)
-        self._stats_job.start()
         self._unused_session_linger_seconds = 60*30
         self._cleanup_job = PeriodicCallback(self.cleanup_sessions, 17.0 * 1000, io_loop=self._loop)
-        self._cleanup_job.start()
 
     @property
     def io_loop(self):
@@ -117,6 +115,8 @@ class BokehTornado(TornadoApplication):
             Keyboard interrupts or sigterm will cause the server to shut down.
 
         '''
+        self._stats_job.start()
+        self._cleanup_job.start()
         try:
             self._loop.start()
         except KeyboardInterrupt:
@@ -129,6 +129,8 @@ class BokehTornado(TornadoApplication):
             None
 
         '''
+        self._stats_job.stop()
+        self._cleanup_job.stop()
         self._loop.stop()
 
     @property
