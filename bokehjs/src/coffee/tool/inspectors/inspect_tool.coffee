@@ -12,7 +12,7 @@ class InspectToolListItemView extends Backbone.View
   }
 
   initialize: (options) ->
-    @listenTo(@model, 'change:active', @render)
+    @listenTo(@model, 'change:active', () => @render())
     @render()
 
   render: () ->

@@ -24,7 +24,7 @@ class SliderView extends ContinuumView
     @$('.slider').slider({
       orientation: @mget('orientation')
       animate: "fast",
-      slide: _.throttle(@slide, 200),
+      slide: _.throttle(((event, ui) => @slide(event, ui)), 200),
       value: @mget('value')
       min: min,
       max: max,
@@ -33,7 +33,7 @@ class SliderView extends ContinuumView
     @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') )
     return @
 
-  slide: (event, ui) =>
+  slide: (event, ui) ->
     value = ui.value
     logger.debug("slide value = #{value}")
     @$( "##{ @mget('id') }" ).val( ui.value )

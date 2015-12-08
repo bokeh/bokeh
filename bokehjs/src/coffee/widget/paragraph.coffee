@@ -8,7 +8,7 @@ class ParagraphView extends ContinuumView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model, 'change', () => @render())
 
   render: () ->
     if @mget('height')

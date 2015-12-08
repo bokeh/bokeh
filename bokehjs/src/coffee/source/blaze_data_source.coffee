@@ -7,17 +7,17 @@ RemoteDataSource = require "./remote_data_source"
 
 class BlazeDataSource extends RemoteDataSource.RemoteDataSource
   type: 'BlazeDataSource'
-  destroy : () =>
+  destroy : () ->
     if @interval?
       clearInterval(@interval)
 
-  setup : (plot_view, glyph) =>
+  setup : (plot_view, glyph) ->
     @pv = plot_view
     @update()
     if @get('polling_interval')
-      @interval = setInterval(@update, @get('polling_interval'))
+      @interval = setInterval((() => @update()), @get('polling_interval'))
 
-  update : () =>
+  update : () ->
     data = JSON.stringify(
       expr : @get('expr')
       namespace : @get('namespace')

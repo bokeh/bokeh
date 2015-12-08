@@ -13,9 +13,9 @@ class DialogView extends ContinuumView
     @render_content()
     @render_buttons()
 
-    @listenTo(@model, 'destroy', @remove)
-    @listenTo(@model, 'change:visible', @change_visibility)
-    @listenTo(@model, 'change:content', @change_content)
+    @listenTo(@model, 'destroy', () => @remove())
+    @listenTo(@model, 'change:visible', () => @change_visibility())
+    @listenTo(@model, 'change:content', () => @change_content())
 
   render_content: () ->
     if @content_view?
@@ -45,17 +45,17 @@ class DialogView extends ContinuumView
   render: () ->
     @$modal = $(dialog_template(@model.attributes))
     @$modal.modal({show: @mget("visible")})
-    @$modal.on('hidden.bk-bs.modal', @onHide)
+    @$modal.on('hidden.bk-bs.modal', () => @onHide())
     @$el.html(@$modal)
     return @
 
-  onHide: (event) =>
+  onHide: (event) ->
     @mset("visible", false, {silent: true})
 
-  change_visibility: () =>
+  change_visibility: () ->
     @$modal.modal(if @mget("visible") then "show" else "hide")
 
-  change_content: () =>
+  change_content: () ->
     @render_content()
 
 class Dialog extends HasProperties

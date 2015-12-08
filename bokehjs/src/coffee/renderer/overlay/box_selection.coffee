@@ -11,7 +11,7 @@ class BoxSelectionView extends PlotWidget
     @$el.hide()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:data', @_draw_box)
+    @listenTo(@model, 'change:data', () => @_draw_box())
 
   render: () ->
     @_draw_box()

@@ -19,7 +19,7 @@ class SelectView extends ContinuumView
   initialize: (options) ->
     super(options)
     @render()
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model, 'change', () => @render())
 
   render: () ->
     @$el.empty()

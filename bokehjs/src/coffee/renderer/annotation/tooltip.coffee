@@ -15,7 +15,7 @@ class TooltipView extends PlotWidget
     @$el.hide()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:data', @_draw_tips)
+    @listenTo(@model, 'change:data', () => @_draw_tips())
 
   render: () ->
     @_draw_tips()

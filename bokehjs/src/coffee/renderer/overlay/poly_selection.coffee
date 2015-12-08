@@ -11,7 +11,7 @@ class PolySelectionView extends PlotWidget
     @fill = new properties.Fill({obj: @model, prefix: ""})
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:data', @plot_view.request_render)
+    @listenTo(@model, 'change:data', () => @plot_view.request_render())
 
   render: (ctx) ->
     data = _.clone(@mget('data'))

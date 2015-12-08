@@ -38,7 +38,7 @@ class CellEditorView extends ContinuumView
   renderEditor: () ->
 
   disableNavigation: () ->
-    @$input.keydown (event) =>
+    @$input.keydown (event) ->
       stop = () -> event.stopImmediatePropagation()
       switch event.keyCode
         when $.ui.keyCode.LEFT      then stop()

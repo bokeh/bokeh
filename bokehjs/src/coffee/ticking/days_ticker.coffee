@@ -49,7 +49,7 @@ class DaysTicker extends SingleIntervalTicker.Model
     month_dates = date_range_by_month(data_low, data_high)
 
     days = @get('days')
-    days_of_month = (month_date, interval) =>
+    days_of_month = (month_date, interval) ->
       dates = []
       for day in days
         day_date = copy_date(month_date)

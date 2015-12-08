@@ -15,8 +15,8 @@ class ToolProxy extends Backbone.Model
     # OK this is pretty lame but should work until we make a new
     # better grid plot. This just mimics all the events that
     # any of the tool types might expect to get.
-    @listenTo(@, 'do', @do)
-    @listenTo(@, 'change:active', @active)
+    @listenTo(@, 'do', () => @do())
+    @listenTo(@, 'change:active', () => @active())
     return null
 
   do: () ->
@@ -76,7 +76,8 @@ class GridToolManager extends ToolManager.Model
           continue
         proxy = new ToolProxy({tools: tools})
         @get('gestures')[et].tools.push(proxy)
-        @listenTo(proxy, 'change:active', _.bind(@_active_change, proxy))
+        do (proxy) =>
+          @listenTo(proxy, 'change:active', () => @_active_change(proxy))
 
     for typ, tools of actions
       if tools.length != @get('num_plots')
@@ -101,7 +102,7 @@ class GridToolManager extends ToolManager.Model
       info.tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
       info.tools[0].set('active', true)
 
-  _active_change: (tool) =>
+  _active_change: (tool) ->
     et = tool.get('event_type')
 
     active = tool.get('active')
@@ -130,7 +131,7 @@ class GridToolManager extends ToolManager.Model
 
 class GridViewState extends HasProperties
 
-  setup_layout_properties: () =>
+  setup_layout_properties: () ->
     @register_property('layout_heights', @layout_heights, false)
     @register_property('layout_widths', @layout_widths, false)
     for row in @get('viewstates')
@@ -141,7 +142,7 @@ class GridViewState extends HasProperties
   initialize: (attrs, options) ->
     super(attrs, options)
     @setup_layout_properties()
-    @listenTo(this, 'change:viewstates', @setup_layout_properties)
+    @listenTo(this, 'change:viewstates', () => @setup_layout_properties())
     calculateHeight = =>
       _.reduce @get("layout_heights"), ((x, y) -> x + y), 0
     @register_property('height', calculateHeight, false)
@@ -168,11 +169,11 @@ class GridViewState extends HasProperties
         return 0
       ))
 
-  layout_heights: () =>
+  layout_heights: () ->
     row_heights = (@maxdim('height',row) for row in @get('viewstates'))
     return row_heights
 
-  layout_widths: () =>
+  layout_widths: () ->
     num_cols = @get('viewstates')[0].length
     columns = ((row[n] for row in @get('viewstates')) for n in _.range(num_cols))
     col_widths = (@maxdim('width', col) for col in columns)
@@ -209,10 +210,10 @@ class GridPlotView extends ContinuumView
     return this
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:children', @build_children)
-    @listenTo(@model, 'change', @render)
-    @listenTo(@viewstate, 'change', @render)
-    @listenTo(@model, 'destroy', @remove)
+    @listenTo(@model, 'change:children', () => @build_children())
+    @listenTo(@model, 'change', () => @render())
+    @listenTo(@viewstate, 'change', () => @render())
+    @listenTo(@model, 'destroy', () => @remove())
 
   build_children: () ->
     childmodels = []
@@ -238,7 +239,7 @@ class GridPlotView extends ContinuumView
       for plot in row
         if not plot?
           continue
-        @listenTo(plot.solver, 'layout_update', @render)
+        @listenTo(plot.solver, 'layout_update', () => @render())
 
   render: () ->
     super()

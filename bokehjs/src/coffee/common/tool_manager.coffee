@@ -15,7 +15,7 @@ class ToolManagerView extends Backbone.View
 
   initialize: (options) ->
     super(options)
-    @listenTo(@model, 'change', @render)
+    @listenTo(@model, 'change', () => @render())
     @render()
 
   render: () ->
@@ -99,7 +99,8 @@ class ToolManager extends HasProperties
           continue
 
         gestures[et].tools.push(tool)
-        @listenTo(tool, 'change:active', _.bind(@_active_change, tool))
+        do (tool) =>
+          @listenTo(tool, 'change:active', () => @_active_change(tool))
 
     for et of gestures
       tools = gestures[et].tools
@@ -109,7 +110,7 @@ class ToolManager extends HasProperties
       if et not in ['pinch', 'scroll']
         gestures[et].tools[0].set('active', true)
 
-  _active_change: (tool) =>
+  _active_change: (tool) ->
     event_type = tool.get('event_type')
     gestures = @get('gestures')
 

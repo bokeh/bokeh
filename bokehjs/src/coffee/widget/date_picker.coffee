@@ -17,12 +17,12 @@ class DatePickerView extends ContinuumView
       defaultDate: new Date(@mget('value'))
       minDate: if @mget('min_date')? then new Date(@mget('min_date')) else null
       maxDate: if @mget('max_date')? then new Date(@mget('max_date')) else null
-      onSelect: @onSelect
+      onSelect: (dateText, ui) => @onSelect(dateText, ui)
     })
     @$el.append([$label, $datepicker])
     return @
 
-  onSelect: (dateText, ui) =>
+  onSelect: (dateText, ui) ->
     @mset('value', new Date(dateText))
     @mget('callback')?.execute(@model)
 

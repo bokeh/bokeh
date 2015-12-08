@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 
 waitForElement = (el, fn) ->
-  handler = () =>
+  handler = () ->
     if $.contains(document.documentElement, el)
       clearInterval(interval)
       fn()

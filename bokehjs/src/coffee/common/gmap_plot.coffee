@@ -10,7 +10,7 @@ class GMapPlotView extends Plot.View
     super(_.defaults(options, @default_options))
     @zoom_count = 0
 
-  getLatLngBounds: () =>
+  getLatLngBounds: () ->
     bounds = @map.getBounds()
     top_right = bounds.getNorthEast()
     bottom_left = bounds.getSouthWest()
@@ -21,13 +21,13 @@ class GMapPlotView extends Plot.View
     yend = top_right.lat()
     return [xstart, xend, ystart, yend]
 
-  getProjectedBounds: () =>
+  getProjectedBounds: () ->
     [xstart, xend, ystart, yend] = @getLatLngBounds()
     [proj_xstart, proj_ystart] = proj4(toProjection, [xstart, ystart])
     [proj_xend, proj_yend] = proj4(toProjection, [xend, yend])
     return [proj_xstart, proj_xend, proj_ystart, proj_yend]
 
-  setRanges: () =>
+  setRanges: () ->
     [proj_xstart, proj_xend, proj_ystart, proj_yend] = @getProjectedBounds()
     @x_range.set({start: proj_xstart, end: proj_xend, silent:true})
     @y_range.set({start: proj_ystart, end: proj_yend, silent:true})
@@ -108,7 +108,7 @@ class GMapPlotView extends Plot.View
 
       # Create the map with above options in div
       @map = new maps.Map(@canvas_view.map_div[0], map_options)
-      maps.event.addListenerOnce(@map, 'idle', @setRanges)
+      maps.event.addListenerOnce(@map, 'idle', () => @setRanges())
 
     if not window._bokeh_gmap_loads?
       window._bokeh_gmap_loads = []
