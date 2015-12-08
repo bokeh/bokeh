@@ -60,6 +60,13 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--keep-alive', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to send a keep-alive ping to clients, 0 to disable.",
+            default=None,
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
@@ -80,7 +87,14 @@ class Serve(Subcommand):
             # create an empty application by default, typically used with output_server
             applications['/'] = Application()
 
-        server = Server(applications, port=args.port, address=args.address)
+        if args.keep_alive is not None:
+            if args.keep_alive == 0:
+                log.info("Keep-alive ping disabled")
+            else:
+                log.info("Keep-alive ping configured every %d milliseconds", args.keep_alive)
+
+        server = Server(applications, port=args.port, address=args.address,
+                        keep_alive_milliseconds=args.keep_alive)
 
         if args.show:
             # we have to defer opening in browser until we start up the server

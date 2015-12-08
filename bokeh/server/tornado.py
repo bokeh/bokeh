@@ -35,13 +35,25 @@ class BokehTornado(TornadoApplication):
         extra_patterns (seq[tuple]) : tuples of (str, http or websocket handler)
             Use this argument to add additional endpoints to custom deployments
             of the Bokeh Server.
+        keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
+            Set to 0 to disable pings. Pings keep the websocket open.
 
     '''
 
-    def __init__(self, applications, io_loop=None, extra_patterns=None):
+    def __init__(self, applications,
+                 io_loop=None,
+                 extra_patterns=None,
+                 keep_alive_milliseconds=None):
         if io_loop is None:
             io_loop = IOLoop.current()
         self._loop = io_loop
+
+        if keep_alive_milliseconds is None:
+            # the default is <60 seconds because that seems like a common timeout
+            keep_alive_milliseconds = 37*1000
+        if keep_alive_milliseconds < 0:
+            # 0 means "disable"
+            raise ValueError("keep_alive_milliseconds must be >= 0")
 
         self._resources = {}
 
@@ -83,6 +95,11 @@ class BokehTornado(TornadoApplication):
         self._unused_session_linger_seconds = 60*30
         self._cleanup_job = PeriodicCallback(self.cleanup_sessions, 17.0 * 1000, io_loop=self._loop)
 
+        if keep_alive_milliseconds > 0:
+            self._ping_job = PeriodicCallback(self.keep_alive, keep_alive_milliseconds, io_loop=self._loop)
+        else:
+            self._ping_job = None
+
     @property
     def io_loop(self):
         return self._loop
@@ -117,6 +134,8 @@ class BokehTornado(TornadoApplication):
         '''
         self._stats_job.start()
         self._cleanup_job.start()
+        if self._ping_job is not None:
+            self._ping_job.start()
         try:
             self._loop.start()
         except KeyboardInterrupt:
@@ -131,6 +150,8 @@ class BokehTornado(TornadoApplication):
         '''
         self._stats_job.stop()
         self._cleanup_job.stop()
+        if self._ping_job is not None:
+            self._ping_job.stop()
         self._loop.stop()
 
     @property
@@ -157,6 +178,10 @@ class BokehTornado(TornadoApplication):
 
     def log_stats(self):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
+
+    def keep_alive(self):
+        for c in self._clients:
+            c.send_ping()
 
     @gen.coroutine
     def run_in_background(self, _func, *args, **kwargs):

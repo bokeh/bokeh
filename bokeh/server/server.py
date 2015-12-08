@@ -34,8 +34,12 @@ class Server(object):
 
         io_loop = kwargs.get('io_loop')
         extra_patterns = kwargs.get('extra_patterns')
+        keep_alive_milliseconds = kwargs.get('keep_alive_milliseconds')
 
-        self._tornado = BokehTornado(self._applications, io_loop=io_loop, extra_patterns=extra_patterns)
+        self._tornado = BokehTornado(self._applications,
+                                     io_loop=io_loop,
+                                     extra_patterns=extra_patterns,
+                                     keep_alive_milliseconds=keep_alive_milliseconds)
         self._http = HTTPServer(self._tornado)
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
