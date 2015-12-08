@@ -84,34 +84,3 @@ class GMapPlot(MapPlot):
     """)
 
     border_fill_color = Override(default="#ffffff")
-
-class GeoJSOptions(MapOptions):
-    """ Options for GeoJSPlot objects.
-
-    """
-
-class GeoJSPlot(MapPlot):
-    """ A Bokeh Plot with a `GeoJS Map`_ displayed underneath.
-
-    .. warning::
-        GeoJSPlot support should be considered experimental, a subject
-        to revision or removal.
-
-    .. _GeoJS Map: https://github.com/OpenGeoscience/geojs
-
-    """
-
-    # TODO (bev) map plot might not have these
-    @validation.error(REQUIRED_RANGE)
-    def _check_required_range(self):
-        pass
-    @validation.warning(MISSING_RENDERERS)
-    def _check_missing_renderers(self):
-        pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
-        pass
-
-    map_options = Instance(GeoJSOptions, help="""
-    Options for displaying the plot.
-    """)

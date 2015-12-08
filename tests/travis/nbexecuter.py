@@ -54,6 +54,7 @@ def main(ipynb, kernel_name):
 
     config = get_config()
     config.BokehExecutePreprocessor.kernel_name = kernel_name
+    config.BokehExecutePreprocessor.allow_errors = True
     print(config)
     ep = BokehExecutePreprocessor(config=config)
     ep.preprocess(nb, {'metadata': {'path': './'}})
