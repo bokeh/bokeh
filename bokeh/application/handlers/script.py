@@ -75,14 +75,21 @@ class ScriptHandler(Handler):
         if self.failed:
             return
         from types import ModuleType
-        self._module_name = 'bk_script_' + str(uuid.uuid4()).replace('-', '')
-        self._module = ModuleType(self._module_name)
-        self._module.__dict__['__file__'] = abspath(self._path)
+        module_name = 'bk_script_' + str(uuid.uuid4()).replace('-', '')
+        module = ModuleType(module_name)
+        module.__dict__['__file__'] = abspath(self._path)
+        # This is to prevent the module from being gc'd before the
+        # document is.  A symptom of a gc'd module is that its
+        # globals become None.
+        if not hasattr(doc, '_ScriptHandler__modules'):
+            setattr(doc, '_ScriptHandler__modules', [])
+        doc.__modules.append(module)
+
         old_doc = curdoc()
         set_curdoc(doc)
         old_io = self._monkeypatch_io()
         try:
-            exec(self._code, self._module.__dict__)
+            exec(self._code, module.__dict__)
             newdoc = curdoc()
             # script is supposed to edit the doc not replace it
             if newdoc is not doc:
