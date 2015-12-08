@@ -86,7 +86,7 @@ class Image extends Glyph.Model
   type: 'Image'
   visuals: []
   distances: ['dw', 'dh']
-  fields: ['image:array', '?rows', '?cols', 'palette:string']
+  fields: ['image:array', '?rows', '?cols']
 
   display_defaults: ->
     return _.extend {}, super(), {

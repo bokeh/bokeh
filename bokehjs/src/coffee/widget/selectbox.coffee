@@ -1,8 +1,8 @@
 _ = require "underscore"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
 template = require "./selecttemplate"
+InputWidget = require "./input_widget"
 
 class SelectView extends ContinuumView
   tagName: "div"
@@ -27,7 +27,7 @@ class SelectView extends ContinuumView
     @$el.html(html)
     return @
 
-class Select extends HasParent
+class Select extends InputWidget.Model
   type: "Select"
   default_view: SelectView
 

@@ -126,7 +126,7 @@ class TextProps(HasProps):
 
     """
 
-    text_font = String("Helvetica", help="""
+    text_font = String("helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
     ``'helvetica'``.
 
