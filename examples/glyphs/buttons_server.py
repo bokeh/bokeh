@@ -36,7 +36,7 @@ def checkbox_button_group_handler(active):
 def radio_button_group_handler(active):
     print("radio_button_group_handler: %s" % active)
 
-button = Button(label="Push button", icon=Icon(name="check"), type="primary")
+button = Button(label="Push button", icon=Icon(icon_name="check"), type="primary")
 button.on_click(button_handler)
 
 toggle = Toggle(label="Toggle button", type="success")
@@ -65,7 +65,7 @@ radio_button_group.on_click(radio_button_group_handler)
 vbox = VBox(children=[button, toggle, dropdown, split, checkbox_group, radio_group, checkbox_button_group, radio_button_group])
 
 document = Document()
-document.add(vbox)
+document.add_root(vbox)
 session = push_session(document)
 session.show()
 

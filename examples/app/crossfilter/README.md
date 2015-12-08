@@ -1,5 +1,5 @@
 
-This example shows how to create a crossfiter applet in Bokeh, which can
+This example shows how to create a crossfilter applet in Bokeh, which can
 be viewed directly on a bokeh-server.
 
 Running

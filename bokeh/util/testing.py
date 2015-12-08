@@ -3,7 +3,7 @@
 from __future__ import absolute_import, print_function
 
 def skipIfPy3(message):
-    """ unittest decoractor to skip a test for Python 3
+    """ unittest decorator to skip a test for Python 3
 
     """
     from unittest import skipIf
@@ -12,7 +12,7 @@ def skipIfPy3(message):
 
 
 def skipIfPyPy(message):
-    """ unittest decoractor to skip a test for PyPy
+    """ unittest decorator to skip a test for PyPy
 
     """
     from unittest import skipIf

@@ -47,7 +47,7 @@ plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 plot.add_tools(PanTool(), WheelZoomTool())
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "iris.html"

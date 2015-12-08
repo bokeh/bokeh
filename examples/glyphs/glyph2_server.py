@@ -42,5 +42,5 @@ plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
 
-document.add(plot)
+document.add_root(plot)
 session.show(plot)

@@ -28,12 +28,10 @@ locations = {
   RadioGroup:               require './radio_group'
   CheckboxButtonGroup:      require './checkbox_button_group'
   RadioButtonGroup:         require './radio_button_group'
-  SimpleApp:                require './simpleapp'
-
-  AppHBox:                  require './layouts/apphbox'
-  AppVBox:                  require './layouts/appvbox'
-  AppVBoxForm:              require './layouts/appvboxform'
 }
 
 {Collections} = require('../common/base')
 Collections.register_plugin('widgets', locations)
+
+module.exports =
+  locations: locations

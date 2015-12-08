@@ -1,25 +1,48 @@
-from bokeh.sampledata.glucose import data
-(x, y) = (data.ix['2010-10-06'].index.to_series(), data.ix['2010-10-06']['glucose'])
 
 from bokeh.plotting import figure, output_file, show
-from bokeh.models import ColumnDataSource, Circle, HoverTool, CustomJS
+from bokeh.models import ColumnDataSource, HoverTool, CustomJS
 
 output_file("hover_callback.html")
 
-# Basic plot setup
-p = figure(width=600, height=300, x_axis_type="datetime", tools="", toolbar_location=None, title='Hover over points')
-p.line(x, y, line_dash="4 4", line_width=1, color='gray')
+# define some points and a little graph between them
+x = [2, 3, 5, 6, 8, 7]
+y = [6, 4, 3, 8, 7, 5]
+links = {
+    0: [1, 2],
+    1: [0, 3, 4],
+    2: [0, 5],
+    3: [1, 4],
+    4: [1, 3],
+    5: [2, 3, 4]
+}
 
-# Add a circle, that is visible only when selected
-source = ColumnDataSource({'x': x, 'y': y})
-invisible_circle = Circle(x='x', y='y', fill_color='gray', fill_alpha=0.05, line_color=None, size=20)
-visible_circle = Circle(x='x', y='y', fill_color='firebrick', fill_alpha=0.5, line_color=None, size=20)
-cr = p.add_glyph(source, invisible_circle, selection_glyph=visible_circle, nonselection_glyph=invisible_circle)
+p = figure(width=400, height=400, tools="", toolbar_location=None, title='Hover over points')
 
-# Add a hover tool, that selects the circle
-code = "source.set('selected', cb_data['index']);"
-callback = CustomJS(args={'source': source}, code=code)
-p.add_tools(HoverTool(tooltips=None, callback=callback, renderers=[cr], mode='hline'))
+source = ColumnDataSource({'x0': [], 'y0': [], 'x1': [], 'y1': []})
+sr = p.segment(x0='x0', y0='y0', x1='x1', y1='y1', color='olive', alpha=0.6, line_width=3, source=source, )
+cr = p.circle(x, y, color='olive', size=30, alpha=0.4, hover_color='olive', hover_alpha=1.0)
+
+# Add a hover tool, that sets the link data for a hovered circle
+code = """
+var links = %s;
+var data = {'x0': [], 'y0': [], 'x1': [], 'y1': []};
+var cdata = circle.get('data');
+var indices = cb_data.index['1d'].indices;
+for (i=0; i < indices.length; i++) {
+    ind0 = indices[i]
+    for (j=0; j < links[ind0].length; j++) {
+        ind1 = links[ind0][j];
+        data['x0'].push(cdata.x[ind0]);
+        data['y0'].push(cdata.y[ind0]);
+        data['x1'].push(cdata.x[ind1]);
+        data['y1'].push(cdata.y[ind1]);
+    }
+}
+segment.set('data', data);
+""" % links
+
+callback = CustomJS(args={'circle': cr.data_source, 'segment': sr.data_source}, code=code)
+p.add_tools(HoverTool(tooltips=None, callback=callback, renderers=[cr]))
 
 show(p)
 

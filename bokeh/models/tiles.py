@@ -36,6 +36,10 @@ class TileSource(Model):
     These variables are useful for parts of tile urls which do not change from tile to tile (e.g. server host name, or layer name).
     """)
 
+    attribution = String("", help="""
+    Data provider attribution content. This can include HTML content.
+    """)
+
 class MercatorTileSource(TileSource):
     """``MercatorTileSource`` is not generally useful to instantiate on its own, but is the parent class of mercator tile services (e.g. ``WMTSTileSource``).
     """

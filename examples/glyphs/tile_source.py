@@ -31,7 +31,7 @@ tile_renderer_options = {}
 p.add_tile(tile_source, **tile_renderer_options)
 
 doc = Document()
-doc.add(p)
+doc.add_root(p)
 
 if __name__ == "__main__":
     filename = "tile_source.html"

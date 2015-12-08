@@ -27,8 +27,8 @@ from .utils import collect_attribute_columns
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
-from ..properties import (HasProps, Instance, List, String, Property,
-                          Either, Dict)
+from ..properties import (HasProps, Instance, List, String, Dict,
+                          Color, Bool, Tuple)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -41,11 +41,11 @@ def create_and_build(builder_class, *data, **kws):
     Returns:
         :class:`Chart`
     """
-    if isinstance(builder_class.dimensions, Property):
-        raise NotImplementedError('Each builder must specify its dimensions.')
+    if getattr(builder_class, 'dimensions') is None:
+        raise NotImplementedError('Each builder must specify its dimensions, %s does not.' % builder_class.__name__)
 
-    if isinstance(builder_class.default_attributes, Property):
-        raise NotImplementedError('Each builder must specify its dimensions.')
+    if getattr(builder_class, 'default_attributes') is None:
+        raise NotImplementedError('Each builder must specify its default_attributes, %s does not.' % builder_class.__name__)
 
     builder_props = set(builder_class.properties())
 
@@ -113,25 +113,36 @@ class Builder(HasProps):
     xscale = String()
     yscale = String()
 
-    # Dimension Configuration
-    dimensions = List(String, help="""The dimension
-        labels that drive the position of the glyphs. Subclasses should implement this
-        so that the Builder base class knows which dimensions it needs to operate on.
-        An example for a builder working with cartesian x and y coordinates would be
-        dimensions = ['x', 'y']. You should then instantiate the x and y dimensions as
-        attributes of the subclass of builder using the
-        :class:`Dimension <bokeh.charts.properties.Dimension>` class. One for x,
-        as x = Dimension(...), and one as y = Dimension(...).
+    palette = List(Color, help="""Optional input to override the default palette used
+        by any color attribute.
         """)
 
-    req_dimensions = Either(List(String), List(List(String)), List(Dict(String, String)),
-                            help="""
-        The dimension labels that must exist to produce the glyphs. This specifies what
-        are the valid configurations for the chart, with the option of specifying the
-        type of the columns. The :class:`~bokeh.charts.data_source.ChartDataSource` will
-        inspect this property of your subclass of Builder and use this to fill in any
-        required dimensions if no keyword arguments are used.
-        """)
+    # Dimension Configuration
+
+    """
+    The dimension labels that drive the position of the
+    glyphs. Subclasses should implement this so that the Builder
+    base class knows which dimensions it needs to operate on.
+    An example for a builder working with cartesian x and y
+    coordinates would be dimensions = ['x', 'y']. You should
+    then instantiate the x and y dimensions as attributes of the
+    subclass of builder using the :class:`Dimension
+    <bokeh.charts.properties.Dimension>` class. One for x, as x
+    = Dimension(...), and one as y = Dimension(...).
+    """
+    dimensions = None # None because it MUST be overridden
+
+    """
+    The dimension labels that must exist to produce the
+    glyphs. This specifies what are the valid configurations for
+    the chart, with the option of specifying the type of the
+    columns. The
+    :class:`~bokeh.charts.data_source.ChartDataSource` will
+    inspect this property of your subclass of Builder and use
+    this to fill in any required dimensions if no keyword
+    arguments are used.
+    """
+    req_dimensions = []
 
     # Attribute Configuration
     attributes = Dict(String, Instance(AttrSpec), help="""
@@ -147,17 +158,21 @@ class Builder(HasProps):
         the subclass of :class:`~bokeh.charts.builder.Builder`.
         """)
 
-    default_attributes = Dict(String, Instance(AttrSpec), help="""
-        The default attribute specs used to group data. This is where the subclass of
-        Builder should specify what the default attributes are that will yield
-        attribute values to each group of data, and any specific configuration. For
-        example, the :class:`ColorAttr` utilizes a default palette for assigning color
-        based on groups of data. If the user doesn't assign a column of the data to the
-        associated attribute spec, then the default attrspec is used, which will yield
-        a constant color value for each group of data. This is by default the first
-        color in the default palette, but can be customized by setting the default color
-        in the ColorAttr.
-        """)
+    """
+    The default attribute specs used to group data. This is
+    where the subclass of Builder should specify what the
+    default attributes are that will yield attribute values to
+    each group of data, and any specific configuration. For
+    example, the :class:`ColorAttr` utilizes a default palette
+    for assigning color based on groups of data. If the user
+    doesn't assign a column of the data to the associated
+    attribute spec, then the default attrspec is used, which
+    will yield a constant color value for each group of
+    data. This is by default the first color in the default
+    palette, but can be customized by setting the default color
+    in the ColorAttr.
+    """
+    default_attributes = None # None because it MUST be overridden
 
     # Derived properties (created by Builder at runtime)
     attribute_columns = List(ColumnLabel, help="""
@@ -178,7 +193,9 @@ class Builder(HasProps):
         """)
 
     labels = List(String, help="""Represents the unique labels to be used for legends.""")
-    label_attributes = List(String, help="""List of attributes to use for legends.""")
+
+    """List of attributes to use for legends."""
+    label_attributes = []
 
     """
     Used to assign columns to dimensions when no selections have been provided. The
@@ -186,6 +203,18 @@ class Builder(HasProps):
     a single column to each dimension available in the `Builder`'s `dims` property.
     """
     column_selector = OrderedAssigner
+
+    comp_glyph_types = List(Instance(CompositeGlyph))
+
+    sort_dim = Dict(String, Bool, default={})
+
+    sort_legend = List(Tuple(String, Bool), help="""
+        List of tuples to use for sorting the legend, in order that they should be
+        used for sorting. This sorting can be different than the sorting used for the
+        rest of the chart. For example, you might want to sort only on the column
+        assigned to the color attribute, or sort it descending. The order of each tuple
+        is (Column, Ascending).
+        """)
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -266,7 +295,10 @@ class Builder(HasProps):
         """
         source = ColumnDataSource(data.df)
         attr_names = self.default_attributes.keys()
+        custom_palette = kws.get('palette')
+
         attributes = dict()
+
         for attr_name in attr_names:
 
             attr = kws.pop(attr_name, None)
@@ -278,10 +310,22 @@ class Builder(HasProps):
             # if we are given columns, use those
             elif isinstance(attr, str) or isinstance(attr, list):
                 attributes[attr_name] = self.default_attributes[attr_name]._clone()
+
+                # override palette if available
+                if isinstance(attributes[attr_name], ColorAttr):
+                    if custom_palette is not None:
+                        attributes[attr_name].iterable = custom_palette
+
                 attributes[attr_name].setup(data=source, columns=attr)
 
             else:
-                attributes[attr_name] = self.default_attributes[attr_name]._clone()
+                # override palette if available
+                if (isinstance(self.default_attributes[attr_name], ColorAttr) and
+                        custom_palette is not None):
+                    attributes[attr_name] = self.default_attributes[attr_name]._clone()
+                    attributes[attr_name].iterable = custom_palette
+                else:
+                    attributes[attr_name] = self.default_attributes[attr_name]._clone()
 
         # make sure all have access to data source
         for attr_name in attr_names:
@@ -424,6 +468,14 @@ class Builder(HasProps):
 
         return str(raw_label)
 
+    def collect_attr_kwargs(self):
+        attrs = set(self.default_attributes.keys()) - set(
+            self.__class__.default_attributes.keys())
+        return attrs
+
+    def get_group_kwargs(self, group, attrs):
+        return {attr: group[attr] for attr in attrs}
+
     def create(self, chart=None):
         """Builds the renderers, adding them and other components to the chart.
 
@@ -460,6 +512,14 @@ class Builder(HasProps):
         chart.add_scales('y', self.yscale)
 
         return chart
+
+    @classmethod
+    def generate_help(cls):
+        help_str = ''
+        for comp_glyph in cls.comp_glyph_types:
+            help_str += str(comp_glyph.glyph_properties())
+
+        return help_str
 
 
 class XYBuilder(Builder):
@@ -507,6 +567,15 @@ class XYBuilder(Builder):
                 select = ['']
             self.ylabel = ', '.join(select)
 
+        # sort the legend if we are told to
+        if len(self.sort_legend) > 0:
+            for attr, asc in self.sort_legend:
+                if len(self.attributes[attr].columns) > 0:
+                    item_order = self.attributes[attr].items
+                    self._legends = list(sorted(self._legends, key=lambda leg:
+                                                item_order.index(leg[0]),
+                                                reverse=~asc))
+
     def _get_range(self, dim, start, end):
         """Create a :class:`Range` for the :class:`Chart`.
 
@@ -522,10 +591,13 @@ class XYBuilder(Builder):
         values = dim_ref.data
         dtype = dim_ref.dtype.name
 
+        sort = self.sort_dim.get(dim)
+
         # object data or single value
         if dtype == 'object':
             factors = values.drop_duplicates()
-            factors.sort(inplace=True)
+            if sort:
+                factors.sort(inplace=True)
             setattr(self, dim + 'scale', 'categorical')
             return FactorRange(factors=factors.tolist())
         elif 'datetime' in dtype:

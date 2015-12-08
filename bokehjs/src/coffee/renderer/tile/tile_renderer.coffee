@@ -1,4 +1,5 @@
 _ = require "underscore"
+$ = require "jquery"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
@@ -7,6 +8,10 @@ ImagePool = require "./image_pool"
 {logger} = require "../../common/logging"
 
 class TileRendererView extends PlotWidget
+
+  initialize: () ->
+    @attributionEl = null
+    super
 
   get_extent: () ->
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
@@ -24,6 +29,33 @@ class TileRendererView extends PlotWidget
     @_last_height = undefined
     @_last_width = undefined
 
+  _add_attribution: () =>
+    attribution = @mget('tile_source').get('attribution')
+
+    if _.isString(attribution) and attribution.length > 0
+      if @attributionEl?
+        @attributionEl.html(attribution)
+      else
+        border_width = @map_plot.get('outline_line_width').value
+        bottom_offset = @map_plot.get('min_border_bottom') + border_width
+        right_offset = @map_frame.get('right') - @map_frame.get('width')
+        max_width = @map_frame.get('width') - border_width
+        @attributionEl = $('<div>')
+          .html(attribution)
+          .addClass('bk-tile-attribution')
+          .css({
+            'position': 'absolute'
+            'bottom': "#{bottom_offset}px"
+            'right': "#{right_offset}px"
+            'max-width': "#{max_width}px"
+            'background-color': 'rgba(255,255,255,0.8)'
+            'font-size': '9pt'
+            'font-family': 'sans-serif'
+          })
+
+        overlays = @plot_view.$el.find('div.bk-canvas-events')
+        @attributionEl.appendTo(overlays)
+
   _map_data: () ->
     @initial_extent = @get_extent()
     zoom_level = @mget('tile_source').get_level_by_extent(@initial_extent, @map_frame.get('height'), @map_frame.get('width'))
@@ -32,6 +64,7 @@ class TileRendererView extends PlotWidget
     @y_range.set('start', new_extent[1])
     @x_range.set('end', new_extent[2])
     @y_range.set('end', new_extent[3])
+    @_add_attribution()
 
   _on_tile_load: (e) =>
     tile_data = e.target.tile_data
@@ -78,7 +111,7 @@ class TileRendererView extends PlotWidget
     @mget('tile_source').tiles[tile.tile_data.cache_key] = tile.tile_data
     tile.src = @mget('tile_source').get_image_url(x, y, z)
     return tile
-  
+
   _enforce_aspect_ratio: () ->
     # brute force way of handling resize or responsive event -------------------------------------------------------------
     if @_last_height != @map_frame.get('height') or @_last_width != @map_frame.get('width')
@@ -99,7 +132,7 @@ class TileRendererView extends PlotWidget
       @_set_data()
       @_map_data()
       @map_initialized = true
-      
+
     if @_enforce_aspect_ratio()
       return
 
@@ -108,6 +141,7 @@ class TileRendererView extends PlotWidget
       clearTimeout(@prefetch_timer)
 
     @prefetch_timer = setTimeout(@_prefetch_tiles, 500)
+
 
   _draw_tile: (tile_key) ->
     tile_obj = @mget('tile_source').tiles[tile_key]

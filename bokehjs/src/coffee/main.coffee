@@ -29,7 +29,6 @@ Bokeh.Document          = require("./common/document").Document
 Bokeh.CartesianFrame    = require("./common/cartesian_frame")
 Bokeh.Canvas            = require("./common/canvas")
 Bokeh.GMapPlot          = require("./common/gmap_plot")
-Bokeh.GeoJSPlot         = require("./common/geojs_plot")
 Bokeh.GridPlot          = require("./common/grid_plot")
 Bokeh.HasParent         = require("./common/has_parent")
 Bokeh.HasProperties     = require("./common/has_properties")
@@ -80,6 +79,7 @@ Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
 
 # data sources
 Bokeh.ColumnDataSource = require("./source/column_data_source")
+Bokeh.GeoJSONDataSource = require("./source/geojson_data_source")
 
 # tickers and tick formatters
 Bokeh.AbstractTicker           = require("./ticking/abstract_ticker")

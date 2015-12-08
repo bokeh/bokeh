@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bokeh.charts.attributes import AttrSpec
 from bokeh.sampledata.autompg import autompg
 
 
@@ -20,12 +19,6 @@ class TestData(object):
         self.records_data = self.pd_data.to_dict(orient='records')
 
         self.auto_data = autompg
-        self.single_col_spec = {'test': AttrSpec(df=self.auto_data, columns='cyl',
-                                                 name='test', iterable=['a', 'b'])}
-        self.multi_col_spec = {'test': AttrSpec(df=self.auto_data,
-                                                columns=('cyl', 'origin'),
-                                                name='test', iterable=['a', 'b'])}
-
 
 @pytest.fixture(scope='module')
 def test_data():

@@ -108,7 +108,7 @@ add_gauge(0.70, max_mph, 0.05, -1, "blue", major_step, minor_step)
 add_needle(55, "kmh")
 
 doc = Document()
-doc.add(plot)
+doc.add_root(plot)
 
 if __name__ == "__main__":
     filename = "gauges.html"
