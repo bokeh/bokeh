@@ -43,14 +43,12 @@ class BokehTornado(TornadoApplication):
     def __init__(self, applications,
                  io_loop=None,
                  extra_patterns=None,
-                 keep_alive_milliseconds=None):
+                 # heroku, nginx default to 60s timeout, so well less than that
+                 keep_alive_milliseconds=37000):
         if io_loop is None:
             io_loop = IOLoop.current()
         self._loop = io_loop
 
-        if keep_alive_milliseconds is None:
-            # the default is <60 seconds because that seems like a common timeout
-            keep_alive_milliseconds = 37*1000
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
