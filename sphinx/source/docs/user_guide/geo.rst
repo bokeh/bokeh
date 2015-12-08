@@ -1,6 +1,6 @@
 .. _userguide_geo:
 
-Mapping GIS Data
+Mapping Geo Data
 ================
 
 Bokeh has started adding support for working with Geographical data. There are
