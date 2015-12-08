@@ -43,21 +43,6 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-class ColumnsRef(HasProps):
-    """ A utility object to allow referring to a collection of columns
-    from a specified data source, all together.
-
-    """
-
-    source = Instance(DataSource, help="""
-    A data source to reference.
-    """)
-
-    columns = List(String, help="""
-    A list of column names to reference from ``source``.
-    """)
-
-
 class ColumnDataSource(DataSource):
     """ Maps names of columns to sequences or arrays.
 
@@ -205,21 +190,6 @@ class ColumnDataSource(DataSource):
         except (ValueError, KeyError):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
-
-
-    def columns(self, *columns):
-        """ Returns a ColumnsRef object for a column or set of columns
-        on this data source.
-
-        Args:
-            *columns
-
-        Returns:
-            ColumnsRef
-
-        """
-        return ColumnsRef(source=self, columns=list(columns))
-
 
     # def push_notebook(self):
     #     """ Update date for a plot in the IPython notebook in place.
