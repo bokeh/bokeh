@@ -15,6 +15,13 @@ requirements:
     - distribute
     - setuptools
     - nodejs >=4.1
+    - six
+    - python-dateutil
+    - numpy
+    - yaml
+    - pyyaml
+    - jinja2
+    - tornado
 
   run:
     # bokeh

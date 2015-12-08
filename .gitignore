@@ -107,3 +107,7 @@ win-64
 /examples/refs
 .cache/
 pytest-report.html
+
+# generated coffeescript
+/bokehjs/src/coffee/widget/defaults.coffee
+/bokehjs/src/coffee/common/defaults.coffee
