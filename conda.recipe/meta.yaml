@@ -58,7 +58,7 @@ test:
     - mock
     - pytest
     - pytest-cov ==1.8.1
-    - pytest-selenium ==1.0
+      #- pytest-selenium ==1.0 - temp installed by pip
     - beautiful-soup
     - scipy
     - pillow
