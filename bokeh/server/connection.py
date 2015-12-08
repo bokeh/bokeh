@@ -13,6 +13,7 @@ class ServerConnection(object):
         self._application_context = application_context
         self._session = session
         self._session.subscribe(self)
+        self._ping_count = 0
 
     @property
     def session(self):
@@ -38,6 +39,10 @@ class ServerConnection(object):
         """ Sends a PATCH-DOC message, returning a Future that's completed when it's written out. """
         msg = self.protocol.create('PATCH-DOC', [event])
         return self._socket.send_message(msg)
+
+    def send_ping(self):
+        self._socket.ping(str(self._ping_count))
+        self._ping_count += 1
 
     @property
     def protocol(self):

@@ -14,8 +14,6 @@ from bokeh.util.string import nice_join
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications
 
-DEFAULT_PORT = 5006
-
 LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 
 class Serve(Subcommand):
@@ -50,13 +48,20 @@ class Serve(Subcommand):
             metavar='PORT',
             type=int,
             help="Port to listen on",
-            default=DEFAULT_PORT,
+            default=None
         )),
 
         ('--address', dict(
             metavar='ADDRESS',
             type=str,
             help="Address to listen on",
+            default=None,
+        )),
+
+        ('--keep-alive', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to send a keep-alive ping to clients, 0 to disable.",
             default=None,
         )),
 
@@ -80,7 +85,20 @@ class Serve(Subcommand):
             # create an empty application by default, typically used with output_server
             applications['/'] = Application()
 
-        server = Server(applications, port=args.port, address=args.address)
+        if args.keep_alive is not None:
+            if args.keep_alive == 0:
+                log.info("Keep-alive ping disabled")
+            else:
+                log.info("Keep-alive ping configured every %d milliseconds", args.keep_alive)
+            # rename to be compatible with Server
+            args.keep_alive_milliseconds = args.keep_alive
+
+        server_kwargs = { key: getattr(args, key) for key in ['port',
+                                                              'address',
+                                                              'keep_alive']
+                          if getattr(args, key, None) is not None }
+
+        server = Server(applications, **server_kwargs)
 
         if args.show:
             # we have to defer opening in browser until we start up the server
