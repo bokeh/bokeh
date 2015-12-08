@@ -305,14 +305,40 @@ There are several environment variables that can be useful for developers:
     Valid values are any of the browser names understood by the python
     standard library webbrowser_ module.
 
+* ``BOKEH_DEV`` --- Whether to use development mode
+    This uses absolute paths to development (non-minified) BokehJS components,
+    sets logging to ``debug``, makes generated HTML and JSON human-readable,
+    etc.
+
+    This is a meta variable equivalent to the following environment variables:
+
+  - ``BOKEH_BROWSER=none``
+  - ``BOKEH_LOG_LEVEL=debug``
+  - ``BOKEH_MINIFIED=false``
+  - ``BOKEH_PRETTY=true``
+  - ``BOKEH_PY_LOG_LEVEL=debug``
+  - ``BOKEH_RESOURCES=absolute-dev``
+  - ``BOKEH_SIMPLE_IDS=true``
+
+    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+
 * ``BOKEH_DOCS_CDN`` --- What version of BokehJS to use when building sphinx
     docs locally.
 
     .. note::
         Set to ``"local"`` to use a locally built dev version of BokehJS.
 
+        This variable is only used when building documentation from the
+        development version.
+
 * ``BOKEH_DOCS_VERSION`` --- What version of Bokeh to show when building sphinx
     docs locally. Useful for re-deployment purposes.
+
+    .. note::
+        Set to ``"local"`` to use a locally built dev version of BokehJS.
+
+        This variable is only used when building documentation from the
+        development version.
 
 * ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use
     Valid values are, in order of increasing severity:
@@ -327,7 +353,7 @@ There are several environment variables that can be useful for developers:
     The default logging level is ``info``.
 
     .. note::
-        When running  server examples, it is the value of this
+        When running server examples, it is the value of this
         ``BOKEH_LOG_LEVEL`` that is set for the server that matters.
 
 * ``BOKEH_MINIFIED`` --- Whether to emit minified JavaScript for ``bokeh.js``
