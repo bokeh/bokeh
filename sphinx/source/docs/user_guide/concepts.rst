@@ -88,7 +88,7 @@ interactive usage are:
     For generating simple standalone HTML documents for Bokeh visualizations.
 
 ``output_notebook``
-    For displaying Bokeh visualizations inline in |Jupyter| notebook cells.
+    For displaying Bokeh visualizations inline in Jupyter notebook cells.
 
 ``output_server``
     For installing Bokeh applications on a running Bokeh server.
@@ -119,10 +119,9 @@ can also be used to generate various kinds of output:
 ``bokeh html``
     Create standalone HTML documents from any kind of Bokeh application
     source: e.g., python scripts, app directories, JSON files, and others.
-    For example
 
 ``bokeh json``
-    Generate a serialize JSON representation of a Bokeh document from any
+    Generate a serialized JSON representation of a Bokeh document from any
     kind of Bokeh application source.
 
 ``bokeh serve``
