@@ -209,11 +209,6 @@ interfaces. As with |bokeh.plotting|, the output functions |output_file| and
 |show|, etc. that are defined in |bokeh.io|, are also importable from
 |bokeh.charts| as a convenience.
 
-script/dir  -> application source (but "application" OK)
-document    -> (models, data, vars, assets)
-doc factory -> ???
-application -> rendered document
-
 
 other interfaces
 ~~~~~~~~~~~~~~~~
