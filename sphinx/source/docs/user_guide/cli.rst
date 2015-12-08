@@ -1,11 +1,14 @@
 .. _userguide_cli:
 
-Using the Command Line
-======================
+Using ``bokeh`` Commands
+========================
 
 .. contents::
     :local:
     :depth: 2
+
+It is possible to generate various kinds of output from Bokeh
+programmatically. In other sections
 
 .. _userguide_cli_html:
 

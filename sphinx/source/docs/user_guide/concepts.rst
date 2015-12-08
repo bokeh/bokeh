@@ -18,9 +18,6 @@ some of the most important concepts in Bokeh.
 
 ----
 
-Annotation
-
-
 Application
     A Bokeh application is a rendered Bokeh document, running in a browser.
 
@@ -64,7 +61,7 @@ Models
     :ref:`userguide_styling` for more information.
 
 Server
-    The ``bokeh-server`` is an optional component that can be used for sharing
+    The Bokeh server is an optional component that can be used for sharing
     and publishing Bokeh plots and apps, for handling streaming of large data
     sets, or for enabling sophisticated user interactions based off of widgets
     and selections. See :ref:`userguide_server` for more explanation.
@@ -74,10 +71,78 @@ Widgets
     menus, buttons, etc. Events and updates from widgets can inform additional
     computations, or cause Bokeh plots to update. Widgets can be used in both
     standalone applications or with the Bokeh server. For examples and
-    information, see :ref:`userguide_interaction`
-    .
+    information, see :ref:`userguide_interaction`.
 
 ----
+
+.. _userguide_output_methods:
+
+Output Methods
+--------------
+
+As we will see demonstrated frequently throughout the User Guide, there are
+various ways to generate output for Bokeh documents. The most common for
+interactive usage are:
+
+``output_file``
+    For generating simple standalone HTML documents for Bokeh visualizations.
+
+``output_notebook``
+    For displaying Bokeh visualizations inline in |Jupyter| notebook cells.
+
+``output_server``
+    For installing Bokeh applications on a running Bokeh server.
+
+These functions are most often used together with the ``show`` or ``save``
+functions. Scripts that output with these typically look something like:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("output.html")
+
+    p = figure()
+    p.line(x=[1, 2, 3], y=[4,6,2])
+
+    show(p)
+
+If this script is called ``foo.py`` then executing ``python foo.py`` will
+result in an HTML file ``output.html`` being generated with the line plot.
+These functions are often useful in interactive settings, or for creating
+standalone Bokeh documents to server from (Flask, Django, etc.) web
+applications.
+
+However, Bokeh also comes with a powerful command line tool ``bokeh`` that
+can also be used to generate various kinds of output:
+
+``bokeh html``
+    Create standalone HTML documents from any kind of Bokeh application
+    source: e.g., python scripts, app directories, JSON files, and others.
+    For example
+
+``bokeh json``
+    Generate a serialize JSON representation of a Bokeh document from any
+    kind of Bokeh application source.
+
+``bokeh serve``
+    Publish Bokeh documents as interactive web applications.
+
+An advantage of using the ``bokeh`` command is that the code you write does not
+have to specify any particular output method or format. You can write *just the
+visualization code* once, and decide later to output in different ways. The
+above example would be simplified to:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure
+
+    p = figure()
+    p.line(x=[1, 2, 3], y=[4,6,2])
+
+Now, you can run ``bokeh html foo.py`` to generate a standalone HTML file,
+or ``bokeh serve foo.py`` to start serving this document as a web application.
+For more information on the command line tool see :ref:`userguide_cli`.
 
 .. _userguide_interfaces:
 
@@ -247,6 +312,10 @@ just one additional line of code:
 .. |output_server|   replace:: :func:`~bokeh.io.output_server`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
+
+.. |bokeh html|      replace:: :ref:`bokeh html <userguide_cli_html>`
+.. |bokeh json|      replace:: :ref:`bokeh json <userguide_cli_json>`
+.. |bokeh serve|     replace:: :ref:`bokeh serve <userguide_cli_serve>`
 
 .. |figure|          replace:: :func:`~bokeh.plotting.figure`
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
