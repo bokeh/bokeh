@@ -57,6 +57,13 @@ def test_args():
             default=None,
         )),
 
+        ('--keep-alive', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to send a keep-alive ping to clients, 0 to disable.",
+            default=None,
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
