@@ -33,7 +33,9 @@ def _check_callback(callback, fargs):
 
     elif isinstance(callback, partial):
         expected_args = margs if ismethod(callback.func) else fargs
-        if len(argspec.args) - len(callback.args) - len(callback.keywords.keys()) != len(expected_args):
+        keyword_length = len(callback.keywords.keys()) if callback.keywords else 0
+        args_length = len(callback.args) if callback.args else 0
+        if len(argspec.args) - args_length - keyword_length != len(expected_args):
             raise ValueError(error_msg % (", ".join(expected_args), formatted_args))
     # testing against MethodType misses callable objects, assume everything
     # else is a normal method, or __call__ here
