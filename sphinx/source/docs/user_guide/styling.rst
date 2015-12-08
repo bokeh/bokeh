@@ -649,8 +649,9 @@ or a ``(x, y)`` tuple indicating an absolute location in screen coordinates
     :source-position: above
 
 .. note::
-    It is not currently possible to position a legend outside the plot area,
-    or using absolute coordinates. These and other improvements are planned.
+    It is currently not possible to position a legend outside the plot area,
+    or in an optimal, automatically computed location within the canvas.
+    These and other improvements are planned.
 
 Label Text
 ~~~~~~~~~~
