@@ -7,7 +7,7 @@ class ImageSource(Model):
 
     _args = ('url', 'extra_url_vars')
 
-    url = String("url", help="""
+    url = String(default="", help="""
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
     """)
 

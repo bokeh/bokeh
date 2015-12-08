@@ -206,7 +206,7 @@ _known_tools = {
     "save": lambda: PreviewSaveTool(),
     "resize": lambda: ResizeTool(),
     "click": "tap",
-    "tap": lambda: TapTool(always_active=True),
+    "tap": lambda: TapTool(),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),
     "poly_select": lambda: PolySelectTool(),

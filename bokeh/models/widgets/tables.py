@@ -27,11 +27,11 @@ class StringFormatter(CellFormatter):
 
     """
 
-    font_style = Enum(FontStyle, help="""
+    font_style = Enum(FontStyle, default="normal", help="""
     An optional text font style, e.g. bold, italic.
     """)
 
-    text_align = Enum(TextAlign, help="""
+    text_align = Enum(TextAlign, default="left", help="""
     An optional text align, i.e. left, center or right.
     """)
 

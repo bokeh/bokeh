@@ -309,7 +309,7 @@ class Glyph extends HasParent
   }
 
   defaults: ->
-    return _.extend {
+    return _.extend {}, super(), {
       visible: true
     }
 

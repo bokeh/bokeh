@@ -23,6 +23,10 @@ class Annotation(Renderer):
     The plot to which this annotation is attached.
     """)
 
+    level = Enum(RenderLevel, default="overlay", help="""
+    Specifies the level in which to render the annotation.
+    """)
+
 class Legend(Annotation):
     """ Render informational legends for a plot.
 
@@ -96,7 +100,7 @@ class BoxAnnotation(Annotation):
 
     """
 
-    left = Either(Auto, NumberSpec("left"), default=None, help="""
+    left = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the left edge of the box annotation.
     """)
 
@@ -105,7 +109,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    right = Either(Auto, NumberSpec("right"), default=None, help="""
+    right = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the right edge of the box annotation.
     """)
 
@@ -114,7 +118,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    bottom = Either(Auto, NumberSpec("bottom"), default=None, help="""
+    bottom = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the bottom edge of the box annotation.
     """)
 
@@ -123,7 +127,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    top = Either(Auto, NumberSpec("top"), default=None, help="""
+    top = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the top edge of the box annotation.
     """)
 
@@ -142,9 +146,7 @@ class BoxAnnotation(Annotation):
     rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Enum(RenderLevel, default="annotation", help="""
-    Specifies the level in which to render the box annotation.
-    """)
+    level = Override(default="annotation")
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the shades.
@@ -189,9 +191,7 @@ class Span(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Enum(RenderLevel, default="annotation", help="""
-    Specifies the level in which to render the span.
-    """)
+    level = Override(default="annotation")
 
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the span is rendered as a canvas element or as an
