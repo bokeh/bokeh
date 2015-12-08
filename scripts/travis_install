@@ -61,7 +61,7 @@ if [ ! $DEPS_FLAG == *"pytest"* ]; then
     echo "npm version $(npm -v)"
 
     conda install --yes boto
-    pip install pytest-selenium --upgrade --no-binary
+    pip install --no-binary all pytest-selenium --upgrade
     if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
         conda install --yes pdiff
     fi
