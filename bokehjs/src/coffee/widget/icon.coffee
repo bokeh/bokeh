@@ -1,6 +1,6 @@
 _ = require "underscore"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+AbstractIcon = require "./abstract_icon"
 
 class IconView extends ContinuumView
   tagName: "i"
@@ -27,13 +27,13 @@ class IconView extends ContinuumView
 
     return @
 
-class Icon extends HasParent
+class Icon extends AbstractIcon.Model
   type: "Icon"
   default_view: IconView
 
   defaults: ->
     return _.extend {}, super(), {
-      icon_name: ""
+      icon_name: "check"
       size: null
       flip: null
       spin: false

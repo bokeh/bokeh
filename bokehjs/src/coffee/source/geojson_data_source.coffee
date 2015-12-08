@@ -8,7 +8,12 @@ class GeoJSONDataSource extends ColumnDataSource.Model
     super(options)
     @register_property('data', @geojson_to_column_data, true)
     @add_dependencies('data', this, ['geojson'])
-    
+
+  defaults: () ->
+    return _.extend({}, super(), {
+      geojson: null
+    })
+
   nonserializable_attribute_names: () ->
     super().concat(['data'])
 
@@ -28,7 +33,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
     if geojson.type not in ['GeometryCollection', 'FeatureCollection']
       throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level')
 
-    if geojson.type == 'GeometryCollection' 
+    if geojson.type == 'GeometryCollection'
       if not geojson.geometries?
         throw new Error('No geometries found in GeometryCollection')
       if geojson.geometries.length == 0
@@ -41,7 +46,7 @@ class GeoJSONDataSource extends ColumnDataSource.Model
       if geojson.features.length == 0
         throw new Error('geojson.features must have one or more items')
       items = geojson.features
-    
+
     data = {
       'x': @_get_new_nan_array(items.length),
       'y': @_get_new_nan_array(items.length),

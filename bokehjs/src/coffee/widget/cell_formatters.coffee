@@ -18,8 +18,6 @@ class CellFormatter extends HasProperties
 class StringFormatter extends CellFormatter
   type: 'StringFormatter'
   formatterDefaults:
-    font_style: null
-    text_align: null
     text_color: null
 
   format: (row, cell, value, columnDef, dataContext) ->
@@ -43,8 +41,8 @@ class StringFormatter extends CellFormatter
 class NumberFormatter extends StringFormatter
   type: 'NumberFormatter'
   formatterDefaults:
-    font_style: null
-    text_align: null
+    font_style: "normal"
+    text_align: "left"
     text_color: null
     format: '0,0'
     language: 'en'

@@ -27,7 +27,7 @@ def check_border(annotation):
     assert annotation.border_line_dash_offset == 0
 
 def check_label(annotation):
-    assert annotation.label_text_font == "Helvetica"
+    assert annotation.label_text_font == "helvetica"
     assert annotation.label_text_font_size == {"value": "10pt"}
     assert annotation.label_text_font_style == FontStyle.normal
     assert annotation.label_text_color == "#444444"
@@ -85,7 +85,8 @@ def test_Legend():
         "glyph_width",
         "legend_padding",
         "legend_spacing",
-        "legends"
+        "legends",
+        "level"
     ], LABEL, BORDER, BACKGROUND)
 
 def test_BoxAnnotation():
