@@ -28,6 +28,7 @@ if [ ! "$(ls -A $HOME/miniconda)" ]; then
 fi
 
 conda config --add channels bokeh
+conda config --add channels birdsarah
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
