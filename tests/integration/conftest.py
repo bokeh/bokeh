@@ -100,12 +100,16 @@ def pytest_runtest_makereport(item, call):
             test_screenshot.convert('RGB')
         )
         # Pretty up the diff image and add a text note
-        diff = ImageOps.invert(diff)
-        diff = diff.convert('L')
-        draw = ImageDraw.Draw(diff)
-        font = ImageFont.truetype("Arial.ttf", 36)
-        draw.text((20, 20), "Expected (left)  --- Diff ---  Actual (right)", (0, 0, 0), font=font)
-        del draw
+        try:
+            diff = ImageOps.invert(diff)
+            diff = diff.convert('L')
+            draw = ImageDraw.Draw(diff)
+            font = ImageFont.truetype("Arial.ttf", 36)
+            draw.text((20, 20), "Expected (left)  --- Diff ---  Actual (right)", (0, 0, 0), font=font)
+            del draw
+        except OSError:
+            # It's ok if we can't do this.
+            pass
 
         # Add the diff and base image to report (note the result image is
         # already added to the report by pytest_selenium)
