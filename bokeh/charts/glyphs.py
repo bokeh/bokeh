@@ -62,10 +62,6 @@ class XyGlyph(CompositeGlyph):
         else:
             data = dict(x_values=self.x, y_values=self.y)
 
-        if self.label is not None:
-            for col, val in iteritems(self.label):
-                data[col] = self._build_label_array(('x', 'y'), val)
-
         return data
 
     def _build_label_array(self, props, value):
@@ -905,6 +901,8 @@ class HistogramGlyph(AggregateGlyph):
     @property
     def y_min(self):
         return 0.0
+
+
 
 
 class BinGlyph(XyGlyph):

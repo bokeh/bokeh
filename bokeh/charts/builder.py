@@ -331,7 +331,7 @@ class Builder(HasProps):
 
         # make sure all have access to data source
         for attr_name in attr_names:
-            attributes[attr_name].data = source
+            attributes[attr_name].update_data(data=source)
 
         return attributes
 
