@@ -660,3 +660,15 @@ def add_charts_hover(chart, use_hover, hover_text, values_col, agg_text=None):
 
         # add the tooltip
         chart.add_tools(HoverTool(tooltips=[(hover_text.title(), "@values")]))
+
+
+def label_from_index_dict(chart_index):
+    if isinstance(chart_index, str):
+        return chart_index
+    elif chart_index is None:
+        return 'None'
+    else:
+        label = tuple(chart_index.values())
+        if len(label) == 1:
+            label = label[0]
+        return label

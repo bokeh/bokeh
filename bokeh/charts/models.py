@@ -40,7 +40,6 @@ class CompositeGlyph(HasProps):
 
     # composite glyph inputs
     data = Any()
-    rows = Dict(String, Any)
     label = Either(String, Dict(String, Any), default='None',
                    help='Identifies the subset of data.')
 
@@ -84,16 +83,42 @@ class CompositeGlyph(HasProps):
         """
         if self.renderers is not None:
             data = self.build_source()
+
             if isinstance(data, dict):
                 source = ColumnDataSource(data)
 
             if not isinstance(source, ColumnDataSource) and source is not None:
                 raise TypeError('build_source must return dict or ColumnDataSource.')
             else:
-                self.source = source
-                self.rows = data
+                self.source = self.add_chart_index(source)
 
             self._set_sources()
+
+    def add_chart_index(self, data):
+
+        if isinstance(data, ColumnDataSource):
+            source = data
+            data = source.data
+        else:
+            source = None
+
+        # add chart index to data
+        if 'chart_index' not in data:
+            n_rows = len(list(data.values())[0])
+
+            # add composite chart index as column
+            data['chart_index'] = [self.label] * n_rows
+
+            # add constant value for each column in chart index
+            if isinstance(self.label, dict):
+                for col, val in iteritems(self.label):
+                    data[col] = [val] * n_rows
+
+        if source is not None:
+            source.data = data
+            return source
+        else:
+            return data
 
     def build_renderers(self):
         raise NotImplementedError('You must return list of renderers.')

@@ -447,6 +447,8 @@ class Builder(HasProps):
             label = group.label
         else:
             label = group[attr]
+            if isinstance(label, dict):
+                label = tuple(label.values())
 
         return self._get_label(label)
 
@@ -465,7 +467,7 @@ class Builder(HasProps):
             return None
 
         if (isinstance(raw_label, tuple) or isinstance(raw_label, list)) and \
-                        len(raw_label) == 1:
+                       len(raw_label) == 1:
             raw_label = raw_label[0]
 
         return str(raw_label)

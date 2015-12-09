@@ -239,12 +239,19 @@ def groupby(df, **specs):
                         # name (label) is a tuple of the column values
                         # we extract only the data associated with the columns that this attr spec was configured with
                         label = itemgetter(*name_idx)(name)
-                        col = itemgetter(*name_idx)(spec_cols)
+                        cols = itemgetter(*name_idx)(spec_cols)
                     else:
                         label = name
-                        col = spec_cols[0]
+                        cols = spec_cols[0]
 
-                    group_label[col] = label
+                    if not isinstance(label, tuple):
+                        label = (label, )
+
+                    if not isinstance(cols, list) and not isinstance(cols, tuple):
+                        cols = [cols]
+
+                    for col, value in zip(cols, label):
+                        group_label[col] = value
 
                 else:
                     label = None

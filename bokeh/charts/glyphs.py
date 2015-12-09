@@ -16,7 +16,7 @@ from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
 from .data_source import ChartDataSource
-from .utils import marker_types, generate_patch_base
+from .utils import marker_types, generate_patch_base, label_from_index_dict
 
 
 class NestedCompositeGlyph(CompositeGlyph):
@@ -61,8 +61,6 @@ class XyGlyph(CompositeGlyph):
             data = dict(x_values=self.x, y_values=str_labels)
         else:
             data = dict(x_values=self.x, y_values=self.y)
-
-        data['chart_index'] = str_labels
 
         if self.label is not None:
             for col, val in iteritems(self.label):
@@ -439,6 +437,8 @@ class AggregateGlyph(NestedCompositeGlyph):
     glyphs can inherit.
     """
 
+    x_label = String()
+
     stack_label = String()
     stack_shift = Float(default=0.0)
 
@@ -457,7 +457,8 @@ class AggregateGlyph(NestedCompositeGlyph):
             shift_str = ':' + str(self.dodge_shift + shift)
         else:
             shift_str = ''
-        return str(self.label) + shift_str
+
+        return str(label_from_index_dict(self.x_label)) + shift_str
 
     def filter_glyphs(self, glyphs):
         """Return only the glyphs that are of the same class."""
@@ -472,14 +473,17 @@ class AggregateGlyph(NestedCompositeGlyph):
         that had each of the values.
         """
         grouped = defaultdict(list)
-        [grouped[getattr(glyph, prop)].append(glyph) for glyph in glyphs]
+        labels = [getattr(glyph, prop) for glyph in glyphs]
+        labels = [tuple(label.values()) if isinstance(label, dict) else label for label
+                  in labels]
+        [grouped[label].append(glyph) for label, glyph in zip(labels, glyphs)]
         return grouped
 
     def __stack__(self, glyphs):
         """Apply relative shifts to the composite glyphs for stacking."""
         if self.stack_label is not None:
             filtered_glyphs = self.filter_glyphs(glyphs)
-            grouped = self.groupby(filtered_glyphs, 'label')
+            grouped = self.groupby(filtered_glyphs, 'x_label')
 
             for index, group in iteritems(grouped):
 
@@ -536,19 +540,11 @@ class Interval(AggregateGlyph):
     start = Float(default=0.0)
     end = Float()
 
-    label_value = Either(String, Float, Datetime, Bool, default=None)
-
     glyphs = {'Interval': Rect()}
 
     def __init__(self, label, values, **kwargs):
-        if not isinstance(label, str):
-            label_value = label
-            label = str(label)
-        else:
-            label_value = None
 
         kwargs['label'] = label
-        kwargs['label_value'] = label_value
         kwargs['values'] = values
 
         super(Interval, self).__init__(**kwargs)
@@ -578,7 +574,7 @@ class Interval(AggregateGlyph):
         if self.dodge_shift is not None:
             x = [self.get_dodge_label()]
         else:
-            x = [self.label_value or self.label]
+            x = [self.x_label]
         height = [self.span]
         y = [self.stack_shift + (self.span / 2.0) + self.start]
         color = [self.color]
