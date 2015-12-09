@@ -4,8 +4,8 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..enums import (Orientation, SpatialUnits, RenderLevel, Dimension,
-                     RenderMode)
+from ..deprecate import deprecated
+from ..enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
@@ -32,8 +32,24 @@ class Legend(Annotation):
 
     """
 
-    orientation = Enum(Orientation, help="""
-    The location where the legend should draw itself.
+    __deprecated_attributes__ = ('orientation',)
+
+    @property
+    @deprecated("Bokeh 0.11", "Legend.location")
+    def orientation(self):
+        return self.location
+
+    @orientation.setter
+    @deprecated("Bokeh 0.11", "Legend.location")
+    def orientation(self, location):
+        self.location = location
+
+    location = Either(Enum(LegendLocation), Tuple(Float, Float),
+        default="top_right", help="""
+    The location where the legend should draw itself. It's either one of
+    ``bokeh.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    tuple indicating an absolute location absolute location in screen
+    coordinates (pixels from the bottom-left corner).
     """)
 
     border_props = Include(LineProps, help="""

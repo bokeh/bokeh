@@ -19,7 +19,7 @@ p.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
 #  3*sin(x) curve should be under this legend at initial viewing, so
 # we can see that the legend is transparent
-p.legend.orientation = "bottom_right"
+p.legend.location = "bottom_right"
 p.legend.background_fill_color = "navy"
 p.legend.background_fill_alpha = 0.5
 
