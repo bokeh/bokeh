@@ -105,6 +105,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from bokeh.application import Application
+from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.server import Server
 from bokeh.util.string import nice_join
 
@@ -114,7 +115,7 @@ from ..util import build_single_handler_applications
 LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
 
 __doc__ = __doc__.format(
-    DEFAULT_PORT=DEFAULT_PORT,
+    DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS)
 )
 
