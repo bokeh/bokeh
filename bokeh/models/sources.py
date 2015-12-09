@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from ..model import Model
-from ..properties import HasProps, abstract
+from ..properties import abstract
 from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation

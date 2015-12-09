@@ -317,7 +317,7 @@ The same could also be achieved with the models interface as follows:
 
 .. note::
     Only the *visual* properties of ``selection_glyph`` and
-    ``nonselection_glyph``are considered when rendering. Changing
+    ``nonselection_glyph`` are considered when rendering. Changing
     positions, sizes, etc. will have no effect.
 
 Hover Inspections
