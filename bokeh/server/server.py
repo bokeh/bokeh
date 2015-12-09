@@ -57,8 +57,7 @@ class Server(object):
 
         tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
                                                         'extra_patterns',
-                                                        'keep_alive_milliseconds'
-                                                        'hosts']
+                                                        'keep_alive_milliseconds']
                            if key in kwargs }
 
         self._port = DEFAULT_SERVER_PORT
