@@ -8,6 +8,7 @@ build:
 extra:
   channels:
     - bokeh
+    - birdsarah
 
 requirements:
   build:
