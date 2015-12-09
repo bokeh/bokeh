@@ -23,6 +23,7 @@ class ServerHandler(object):
         self._handlers['PUSH-DOC'] = ServerSession.push
         self._handlers['PATCH-DOC'] = ServerSession.patch
         self._handlers['SERVER-INFO-REQ'] = self._server_info_req
+        self._handlers['PING-REQ'] = self._ping_req
 
     @gen.coroutine
     def handle(self, message, connection):
@@ -46,3 +47,6 @@ class ServerHandler(object):
     def _server_info_req(self, message, connection):
         raise gen.Return(connection.protocol.create('SERVER-INFO-REPLY', message.header['msgid']))
 
+    @gen.coroutine
+    def _ping_req(self, message, connection):
+        raise gen.Return(connection.ok(message))

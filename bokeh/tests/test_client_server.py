@@ -147,6 +147,22 @@ class TestClientServer(unittest.TestCase):
             session.loop_until_closed()
             assert not session.connected
 
+    def test_ping(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            session = ClientSession(url=server.ws_url, io_loop=server.io_loop)
+            session.connect()
+            assert session.connected
+            assert session.document is None
+
+            result = session.ping_wait_for_reply()
+
+            self.assertDictEqual(dict(), result)
+
+            session.close()
+            session.loop_until_closed()
+            assert not session.connected
+
     def test_client_changes_go_to_server(self):
         application = Application()
         with ManagedServerLoop(application) as server:

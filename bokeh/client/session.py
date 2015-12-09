@@ -309,6 +309,16 @@ class ClientSession(object):
         '''
         return self._connection.request_server_info()
 
+    def ping(self):
+        """ Ping the server, "fire-and-forget" style (do not wait for a reply).
+        """
+        return self._connection.ping()
+
+    def ping_wait_for_reply(self):
+        """ Ping the server, and wait in the IOLoop until a reply is received.
+        """
+        return self._connection.ping_wait_for_reply()
+
     def force_roundtrip(self):
         ''' Used in unit testing to force a request/reply pair in order to avoid races '''
         self._connection.force_roundtrip()

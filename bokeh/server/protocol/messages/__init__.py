@@ -20,6 +20,7 @@ def register(cls):
 from .ack import *
 from .ok import *
 from .patch_doc import *
+from .ping_req import *
 from .pull_doc_req import *
 from .pull_doc_reply import *
 from .push_doc import *
