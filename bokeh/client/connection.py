@@ -97,6 +97,7 @@ class ClientConnection(object):
         self._until_predicate = None
         self._protocol = Protocol("1.0")
         self._server_info = None
+        self._ping_count = 0
 
     @property
     def url(self):
@@ -196,13 +197,6 @@ class ClientConnection(object):
         else:
             reply.push_to_document(document)
 
-    def _send_request_server_info(self):
-        msg = self._protocol.create('SERVER-INFO-REQ')
-        reply = self._send_message_wait_for_reply(msg)
-        if reply is None:
-            raise RuntimeError("Did not get a reply to server info request before disconnect")
-        return reply.content
-
     def request_server_info(self):
         '''
         Ask for information about the server.
@@ -211,8 +205,30 @@ class ClientConnection(object):
             A dictionary of server attributes.
         '''
         if self._server_info is None:
-            self._server_info = self._send_request_server_info()
+            msg = self._protocol.create('SERVER-INFO-REQ')
+            reply = self._send_message_wait_for_reply(msg)
+            if reply is None:
+                raise RuntimeError("Did not get a reply to server info request before disconnect")
+            self._server_info = reply.content
         return self._server_info
+
+    def _ping_message(self):
+        msg = self._protocol.create('PING-REQ', self._ping_count)
+        self._ping_count += 1
+        return msg
+
+    def ping(self):
+        """ Ping the server, "fire-and-forget" style (do not wait for a reply).
+        """
+        self._send_message(self._ping_message())
+
+    def ping_wait_for_reply(self):
+        """ Ping the server, and wait in the IOLoop until a reply is received.
+        """
+        reply = self._send_message_wait_for_reply(self._ping_message())
+        if reply is None:
+            raise RuntimeError("Did not get a reply to ping before disconnect")
+        return reply.content
 
     def force_roundtrip(self):
         '''
@@ -223,7 +239,7 @@ class ClientConnection(object):
         Returns:
            None
         '''
-        self._send_request_server_info()
+        self.ping_wait_for_reply()
 
     def _loop_until(self, predicate):
         self._until_predicate = predicate

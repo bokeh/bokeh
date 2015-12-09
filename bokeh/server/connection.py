@@ -41,8 +41,9 @@ class ServerConnection(object):
         return self._socket.send_message(msg)
 
     def send_ping(self):
-        self._socket.ping(str(self._ping_count))
+        msg = self.protocol.create('PING-REQ', self._ping_count)
         self._ping_count += 1
+        self._socket.send_message(msg)
 
     @property
     def protocol(self):

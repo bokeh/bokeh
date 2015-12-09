@@ -57,7 +57,8 @@ spec = {
         ('PULL-DOC-REQ', 1),
         ('PULL-DOC-REPLY', 1),
         ('PUSH-DOC', 1),
-        ('PATCH-DOC', 1)
+        ('PATCH-DOC', 1),
+        ('PING-REQ', 1)
     ),
 
 }

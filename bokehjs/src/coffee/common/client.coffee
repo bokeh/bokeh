@@ -91,6 +91,9 @@ message_handlers = {
 
   'ERROR' : (connection, message) ->
     logger.error("Unhandled ERROR reply to #{message.reqid()}: #{message.content['text']}")
+
+  'PING-REQ' : (connection, message) ->
+    connection.send(Message.create('OK', { 'msgid' : message.msgid() }))
 }
 
 class ClientConnection
