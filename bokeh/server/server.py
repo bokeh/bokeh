@@ -61,11 +61,6 @@ class Server(object):
                 log.critical("Cannot start Bokeh server, %s %r", codename, e)
             sys.exit(1)
 
-    # TODO this is broken, it's only used by test_client_server.py so fix that then remove this
-    @property
-    def ws_url(self):
-        return "ws://localhost:" + str(self._port) + "/ws"
-
     @property
     def port(self):
         return self._port
