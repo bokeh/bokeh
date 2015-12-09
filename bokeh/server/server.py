@@ -16,6 +16,29 @@ from bokeh.application import Application
 
 from bokeh.resources import DEFAULT_SERVER_PORT
 
+def _create_hosts_whitelist(host_list, port):
+    if not host_list:
+        return ['localhost:' + str(port)]
+
+    hosts = []
+    for host in host_list:
+        parts = host.split(':')
+        if len(parts) == 1:
+            if parts[0] == "":
+                raise ValueError("Empty host value")
+            hosts.append(host+":80")
+        elif len(parts) == 2:
+            try:
+                int(parts[1])
+            except ValueError:
+                raise ValueError("Invalid port in host value: %s" % host)
+            if parts[0] == "":
+                raise ValueError("Empty host value")
+            hosts.append(host)
+        else:
+            raise ValueError("Invalid host value: %s" % host)
+    return hosts
+
 class Server(object):
     ''' A Server which creates a new Session for each connection, using an Application to initialize each Session.
 
@@ -34,17 +57,22 @@ class Server(object):
 
         tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
                                                         'extra_patterns',
-                                                        'keep_alive_milliseconds']
+                                                        'keep_alive_milliseconds'
+                                                        'hosts']
                            if key in kwargs }
 
-        self._tornado = BokehTornado(self._applications, **tornado_kwargs)
-        self._http = HTTPServer(self._tornado)
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
             self._port = kwargs['port']
+
+        tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host', None), self._port)
+
+        self._tornado = BokehTornado(self._applications, **tornado_kwargs)
+        self._http = HTTPServer(self._tornado)
         self._address = None
         if 'address' in kwargs:
             self._address = kwargs['address']
+
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
         try:

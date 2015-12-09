@@ -58,6 +58,13 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--host', dict(
+            metavar='HOST[:PORT]',
+            nargs='*',
+            type=str,
+            help="Public hostnames to allow in requests",
+        )),
+
         ('--keep-alive', dict(
             metavar='MILLISECONDS',
             type=int,
@@ -95,6 +102,7 @@ class Serve(Subcommand):
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'host',
                                                               'keep_alive']
                           if getattr(args, key, None) is not None }
 
