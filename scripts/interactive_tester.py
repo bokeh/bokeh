@@ -264,7 +264,7 @@ if __name__ == '__main__':
         if results.location and results.location in DIRECTORIES:
             target = results.location
 
-            if target in ['ggplot', 'pandas', 'seaborn', 'charts']:
+            if target in ['ggplot', 'pandas', 'seaborn']:
                 if not depend_check(target):
                     sys.exit(1)
 
