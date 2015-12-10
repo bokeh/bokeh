@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 import random
 import time
-
+import codecs
 
 from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
@@ -36,6 +36,7 @@ class WSHandler(WebSocketHandler):
         self.handler = None
         self.connection = None
         self.application_context = kw['application_context']
+        self.latest_pong = -1
         # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
@@ -124,8 +125,10 @@ class WSHandler(WebSocketHandler):
         raise gen.Return(None)
 
     def on_pong(self, data):
-        #log.debug("received a pong: %r", data)
-        pass
+        try:
+            self.latest_pong = int(codecs.decode(data, 'utf-8'))
+        except:
+            log.info("received unparseable pong %r", data)
 
     @gen.coroutine
     def send_message(self, message):

@@ -29,10 +29,11 @@ def ws_url(server):
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
 class ManagedServerLoop(object):
-    def __init__(self, application):
+    def __init__(self, application, **server_kwargs):
         loop = IOLoop()
         loop.make_current()
-        self._server = Server(application, io_loop=loop)
+        server_kwargs['io_loop'] = loop
+        self._server = Server(application, **server_kwargs)
     def __exit__(self, type, value, traceback):
         self._server.unlisten()
         self._server.io_loop.close()
@@ -146,6 +147,31 @@ class TestClientServer(unittest.TestCase):
 
             assert info['version_info']['bokeh'] == __version__
             assert info['version_info']['server'] == __version__
+
+            session.close()
+            session.loop_until_closed()
+            assert not session.connected
+
+    def test_ping(self):
+        application = Application()
+        with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
+            session = ClientSession(url=ws_url(server), io_loop=server.io_loop)
+            session.connect()
+            assert session.connected
+            assert session.document is None
+
+            connection = next(iter(server._tornado._clients))
+            expected_pong = connection._ping_count
+            server._tornado.keep_alive() # send ping
+            session.force_roundtrip()
+
+            self.assertEqual(expected_pong, connection._socket.latest_pong)
+
+            # check that each ping increments by 1
+            server._tornado.keep_alive()
+            session.force_roundtrip()
+
+            self.assertEqual(expected_pong + 1, connection._socket.latest_pong)
 
             session.close()
             session.loop_until_closed()

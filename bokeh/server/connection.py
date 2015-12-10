@@ -3,6 +3,8 @@
 '''
 from __future__ import absolute_import
 
+import codecs
+
 class ServerConnection(object):
     ''' Wraps a websocket connection to a client.
     '''
@@ -41,7 +43,7 @@ class ServerConnection(object):
         return self._socket.send_message(msg)
 
     def send_ping(self):
-        self._socket.ping(str(self._ping_count))
+        self._socket.ping(codecs.encode(str(self._ping_count), "utf-8"))
         self._ping_count += 1
 
     @property
