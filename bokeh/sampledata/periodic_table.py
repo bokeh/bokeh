@@ -29,11 +29,10 @@ element types: actinoid, alkali metal, alkaline earth metal, halogen, lanthanoid
 '''
 from __future__ import absolute_import
 
-from os.path import dirname, join
+from bokeh.util.dependencies import required
+pd = required('pandas',
+              'periodic_table sample data requires Pandas (http://pandas.pydata.org) to be installed')
 
-try:
-    import pandas as pd
-except ImportError as e:
-    raise RuntimeError("elements data requires pandas (http://pandas.pydata.org) to be installed")
+from os.path import dirname, join
 
 elements = pd.read_csv(join(dirname(__file__), 'elements.csv'))

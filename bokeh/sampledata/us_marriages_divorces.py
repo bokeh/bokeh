@@ -1,19 +1,18 @@
-'''
-This module provides U.S. marriage and divorce statistics between 1867 and 2014
+''' Provide U.S. marriage and divorce statistics between 1867 and 2014
 
-Data from the CDC's National Center for Health Statistics (http://www.cdc.gov/nchs/) (NCHS) database
+Data from the CDC's National Center for Health Statistics (NHCS) database
+(http://www.cdc.gov/nchs/).
 
 Data organized by Randal S. Olson (http://www.randalolson.com)
 
 '''
 from __future__ import absolute_import
 
-from os.path import dirname, join
+from bokeh.util.dependencies import required
+pd = required('pandas',
+              'us_marriages_divorces sample data requires Pandas (http://pandas.pydata.org) to be installed')
 
-try:
-    import pandas as pd
-except ImportError as e:
-    raise RuntimeError('us_marriages_divorces data requires pandas (http://pandas.pydata.org) to be installed')
+from os.path import dirname, join
 
 data = pd.read_csv(
     join(dirname(__file__), 'us_marriages_divorces.csv'))

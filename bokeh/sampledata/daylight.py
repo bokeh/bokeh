@@ -1,6 +1,11 @@
-"""Daylight hours from http://www.sunrisesunset.com """
+""" Daylight hours from http://www.sunrisesunset.com
 
+"""
 from __future__ import absolute_import
+
+from bokeh.util.dependencies import required
+pd = required('pandas',
+              'daylight sample data requires Pandas (http://pandas.pydata.org) to be installed')
 
 import re
 import datetime
@@ -8,8 +13,6 @@ import requests
 
 from six.moves import xrange
 from os.path import join, abspath, dirname
-
-import pandas as pd
 
 url = "http://sunrisesunset.com/calendar.asp"
 
