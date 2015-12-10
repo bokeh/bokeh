@@ -451,7 +451,7 @@ class Document(object):
         old_doc = curdoc()
         try:
             set_curdoc(self)
-            f()
+            return f()
         finally:
             set_curdoc(old_doc)
 
@@ -459,8 +459,8 @@ class Document(object):
         doc = self
         def wrapper(*args, **kwargs):
             def invoke():
-                f(*args, **kwargs)
-            doc._with_self_as_curdoc(invoke)
+                return f(*args, **kwargs)
+            return doc._with_self_as_curdoc(invoke)
         return wrapper
 
     def _trigger_on_change(self, event):
