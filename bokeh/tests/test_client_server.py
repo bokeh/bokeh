@@ -10,7 +10,7 @@ from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.server.server import Server
 from bokeh.server.session import ServerSession
 from bokeh.model import Model
-from bokeh.properties import Int, Instance
+from bokeh.properties import Int, Instance, Dict, String, Any
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
 
@@ -20,6 +20,10 @@ class AnotherModelInTestClientServer(Model):
 class SomeModelInTestClientServer(Model):
     foo = Int(2)
     child = Instance(Model)
+
+
+class DictModel(Model):
+    values = Dict(String, Any)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -413,15 +417,16 @@ class TestClientServer(unittest.TestCase):
                                           url=ws_url(server),
                                           io_loop=server.io_loop)
 
-            result = {}
+            result = DictModel()
+            doc.add_root(result)
 
             @gen.coroutine
             def cb():
-                result['a'] = 0
-                result['b'] = yield self.async_value(1)
-                result['c'] = yield self.async_value(2)
-                result['d'] = yield self.async_value(3)
-                result['e'] = yield self.async_value(4)
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
                 client_session.close()
                 raise gen.Return(5)
 
@@ -431,12 +436,13 @@ class TestClientServer(unittest.TestCase):
 
             doc.remove_timeout_callback(cb)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result)
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
     def test_server_session_timeout_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
+            doc.add_root(DictModel())
 
             client_session = push_session(doc,
                                           session_id='test_server_session_timeout_async',
@@ -444,15 +450,17 @@ class TestClientServer(unittest.TestCase):
                                           io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
-            result = {}
+            result = next(iter(server_session.document.roots))
 
             @gen.coroutine
             def cb():
-                result['a'] = 0
-                result['b'] = yield self.async_value(1)
-                result['c'] = yield self.async_value(2)
-                result['d'] = yield self.async_value(3)
-                result['e'] = yield self.async_value(4)
+                # we're testing that we can modify the doc and be
+                # "inside" the document lock
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
                 client_session.close()
                 raise gen.Return(5)
 
@@ -462,7 +470,7 @@ class TestClientServer(unittest.TestCase):
 
             server_session.document.remove_timeout_callback(cb)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result)
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
     def test_client_session_periodic_async(self):
         application = Application()
@@ -474,15 +482,16 @@ class TestClientServer(unittest.TestCase):
                                           url=ws_url(server),
                                           io_loop=server.io_loop)
 
-            result = {}
+            result = DictModel()
+            doc.add_root(result)
 
             @gen.coroutine
             def cb():
-                result['a'] = 0
-                result['b'] = yield self.async_value(1)
-                result['c'] = yield self.async_value(2)
-                result['d'] = yield self.async_value(3)
-                result['e'] = yield self.async_value(4)
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
                 client_session.close()
                 raise gen.Return(5)
 
@@ -492,12 +501,13 @@ class TestClientServer(unittest.TestCase):
 
             doc.remove_periodic_callback(cb)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result)
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
     def test_server_session_periodic_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
+            doc.add_root(DictModel())
 
             client_session = push_session(doc,
                                           session_id='test_server_session_periodic_async',
@@ -505,15 +515,17 @@ class TestClientServer(unittest.TestCase):
                                           io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
-            result = {}
+            result = next(iter(server_session.document.roots))
 
             @gen.coroutine
             def cb():
-                result['a'] = 0
-                result['b'] = yield self.async_value(1)
-                result['c'] = yield self.async_value(2)
-                result['d'] = yield self.async_value(3)
-                result['e'] = yield self.async_value(4)
+                # we're testing that we can modify the doc and be
+                # "inside" the document lock
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
                 client_session.close()
                 raise gen.Return(5)
 
@@ -523,7 +535,7 @@ class TestClientServer(unittest.TestCase):
 
             server_session.document.remove_periodic_callback(cb)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result)
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
 # This isn't in the unittest.TestCase because per-test fixtures
 # don't work there (see note at bottom of https://pytest.org/latest/unittest.html#unittest-testcase)
