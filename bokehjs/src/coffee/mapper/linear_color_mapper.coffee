@@ -11,6 +11,15 @@ class LinearColorMapper extends HasProperties
       @reserve_color = parseInt(@get('reserve_color').slice(1), 16)
       @reserve_val   = @get('reserve_val')
 
+  defaults: ->
+    return _.extend({}, super(), {
+      high: null
+      low: null
+      palette: null
+      reserve_val: null
+      reserve_color: "#ffffff"
+    })
+
   v_map_screen: (data) ->
     buf = new ArrayBuffer(data.length * 4)
     color = new Uint32Array(buf)

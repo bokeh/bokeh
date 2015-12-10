@@ -16,7 +16,7 @@ class Paragraph(Markup):
 
     """
 
-    text = String(help="""
+    text = String(default="", help="""
     The contents of the widget.
     """)
 

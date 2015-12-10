@@ -77,10 +77,27 @@ class TestViewable(unittest.TestCase):
         self.assertTrue(hasattr(tclass, 'foo'))
         self.assertRaises(KeyError, self.viewable.get_class, 'Imaginary_Class')
 
+class DeepModel(Model):
+    child = Instance(Model)
+
 class TestCollectModels(unittest.TestCase):
 
     def test_references_large(self):
-        root, objects = large_plot(500)
+        root, objects = large_plot(10)
+        self.assertEqual(set(root.references()), objects)
+
+    def test_references_deep(self):
+        root = DeepModel()
+        objects = set([root])
+        parent = root
+        # in a previous implementation, about 400 would blow max
+        # recursion depth, so we double that and a little bit,
+        # here.
+        for i in xrange(900):
+            model = DeepModel()
+            objects.add(model)
+            parent.child = model
+            parent = model
         self.assertEqual(set(root.references()), objects)
 
 class SomeModelToJson(Model):

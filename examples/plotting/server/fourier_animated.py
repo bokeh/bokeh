@@ -191,8 +191,8 @@ def cb():
 # Add the callback function to the document. This will add the
 # callback to the client session main loop (when running the example)
 # with bokeh server. The main loop will then call the callback every
-# 0.5 seconds.
-curdoc().add_periodic_callback(cb, .05)
+# 100 milliseconds.
+curdoc().add_periodic_callback(cb, 100)
 
 # Start the session loop
 session.loop_until_closed()

@@ -13,7 +13,7 @@ class Panel(Widget):
 
     """
 
-    title = String(help="""
+    title = String(default="", help="""
     An optional text title of the panel.
     """)
 

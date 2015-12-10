@@ -123,6 +123,10 @@ class WSHandler(WebSocketHandler):
 
         raise gen.Return(None)
 
+    def on_pong(self, data):
+        #log.debug("received a pong: %r", data)
+        pass
+
     @gen.coroutine
     def send_message(self, message):
         ''' Send a Bokeh Server protocol message to the connected client.

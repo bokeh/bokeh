@@ -209,17 +209,24 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         is duplicate-free based on objects' identifiers.
         """
         ids = set([])
-        objs = []
+        collected = []
+        queued = []
 
-        def collect_one(obj):
+        def queue_one(obj):
             if obj._id not in ids:
-                ids.add(obj._id)
-                cls._visit_immediate_value_references(obj, collect_one)
-                objs.append(obj)
+                queued.append(obj)
 
         for value in input_values:
-            cls._visit_value_and_its_immediate_references(value, collect_one)
-        return objs
+            cls._visit_value_and_its_immediate_references(value, queue_one)
+
+        while queued:
+            obj = queued.pop(0)
+            if obj._id not in ids:
+                ids.add(obj._id)
+                collected.append(obj)
+                cls._visit_immediate_value_references(obj, queue_one)
+
+        return collected
 
     def references(self):
         """Returns all ``Models`` that this object has references to. """

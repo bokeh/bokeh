@@ -59,7 +59,7 @@ class GlyphRendererView extends PlotWidget
         @request_render()
     )
 
-  have_selection_glyphs: () -> true
+  have_selection_glyphs: () -> @selection_glyph? && @nonselection_glyph?
 
   # TODO (bev) arg is a quick-fix to allow some hinting for things like
   # partial data updates (especially useful on expensive set_data calls
@@ -72,8 +72,9 @@ class GlyphRendererView extends PlotWidget
 
     @glyph.set_visuals(source)
     @decimated_glyph.set_visuals(source)
-    @selection_glyph.set_visuals(source)
-    @nonselection_glyph.set_visuals(source)
+    if @have_selection_glyphs()      
+      @selection_glyph.set_visuals(source)
+      @nonselection_glyph.set_visuals(source)
     if @hover_glyph?
       @hover_glyph.set_visuals(source)
 
@@ -117,7 +118,7 @@ class GlyphRendererView extends PlotWidget
     if !selected or selected.length == 0
       selected = []
     else
-      if selected['0d'].flag
+      if selected['0d'].glyph
         selected = indices
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
@@ -130,7 +131,7 @@ class GlyphRendererView extends PlotWidget
     if !inspected or inspected.length == 0
       inspected = []
     else
-      if inspected['0d'].flag
+      if inspected['0d'].glyph
         inspected = indices
       else if inspected['1d'].indices.length > 0
         inspected = inspected['1d'].indices

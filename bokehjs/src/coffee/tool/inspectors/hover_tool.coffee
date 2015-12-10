@@ -77,7 +77,7 @@ class HoverToolView extends InspectTool.View
     tooltip.clear()
 
     [i1d, i2d] = [indices['1d'].indices, indices['2d'].indices]
-    if indices['0d'].flag == false and i1d.length == 0 and i2d.length == 0
+    if indices['0d'].glyph == null and i1d.length == 0 and i2d.length == 0
       return
 
     vx = geometry.vx
@@ -231,7 +231,7 @@ class HoverTool extends InspectTool.Model
     ttmodels = {}
     renderers = @get('plot').get('renderers')
     tooltips = @get("tooltips")
-    if tooltips
+    if tooltips?
       for r in @get('renderers')
         tooltip = new Tooltip.Model()
         tooltip.set("custom", _.isString(tooltips))
@@ -251,6 +251,9 @@ class HoverTool extends InspectTool.Model
       mode: 'mouse'
       point_policy: "snap_to_data" #, "follow_mouse", "none"
       line_policy: "prev" # "next", "nearest", "interp", "none"
+      always_active: true
+      callback: null
+
     })
 
 module.exports =

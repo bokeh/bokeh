@@ -317,7 +317,7 @@ The same could also be achieved with the models interface as follows:
 
 .. note::
     Only the *visual* properties of ``selection_glyph`` and
-    ``nonselection_glyph``are considered when rendering. Changing
+    ``nonselection_glyph`` are considered when rendering. Changing
     positions, sizes, etc. will have no effect.
 
 Hover Inspections
@@ -621,25 +621,37 @@ for every element of the list:
 Location
 ~~~~~~~~
 
-The location of the legend labels is controlled by the ``orientation``
-property. Valid values for this property are:
-
-``"top_right"``
+The location of the legend labels is controlled by the ``location``
+property. Valid values for this property are either:
 
 ``"top_left"``
 
-``"bottom_left"``
+``"top_center"``
+
+``"top_right"`` (the default)
+
+``"right_center"``
 
 ``"bottom_right"``
 
-The default location is ``"top_right"``.
+``"bottom_center"``
+
+``"bottom_left"``
+
+``"left_center"``
+
+``"center"``
+
+or a ``(x, y)`` tuple indicating an absolute location in screen coordinates
+(pixels from the bottom-left corner).
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_location.py
     :source-position: above
 
 .. note::
-    It is not currently possible to position a legend outside the plot area,
-    or using absolute coordinates. These and other improvements are planned.
+    It is currently not possible to position a legend outside the plot area,
+    or in an optimal, automatically computed location within the canvas.
+    These and other improvements are planned.
 
 Label Text
 ~~~~~~~~~~

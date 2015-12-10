@@ -32,10 +32,12 @@ class Server(object):
         else:
             self._applications = applications
 
-        io_loop = kwargs.get('io_loop')
-        extra_patterns = kwargs.get('extra_patterns')
+        tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
+                                                        'extra_patterns',
+                                                        'keep_alive_milliseconds']
+                           if key in kwargs }
 
-        self._tornado = BokehTornado(self._applications, io_loop=io_loop, extra_patterns=extra_patterns)
+        self._tornado = BokehTornado(self._applications, **tornado_kwargs)
         self._http = HTTPServer(self._tornado)
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
@@ -58,11 +60,6 @@ class Server(object):
                 codename = errno.errorcode[e.errno]
                 log.critical("Cannot start Bokeh server, %s %r", codename, e)
             sys.exit(1)
-
-    # TODO this is broken, it's only used by test_client_server.py so fix that then remove this
-    @property
-    def ws_url(self):
-        return "ws://localhost:" + str(self._port) + "/ws"
 
     @property
     def port(self):

@@ -48,6 +48,7 @@ from __future__ import absolute_import
 __all__ = [
     'deprecated_module',
     'deprecated',
+    'BokehDeprecationWarning',
     'getDeprecationWarningString',
     'getWarningMethod',
     'setWarningMethod',
@@ -58,6 +59,8 @@ import types, sys, inspect
 from warnings import warn, warn_explicit
 from dis import findlinestarts
 
+class BokehDeprecationWarning(DeprecationWarning):
+    pass
 
 def mergeFunctionMetadata(f, g):
     """
@@ -254,7 +257,7 @@ def getDeprecationWarningString(callableThing, version, format=None,
 
 def deprecated_module(name, version, replacement):
     message = _getDeprecationWarningString(name, version, DEPRECATION_WARNING_FORMAT + ': ' + replacement)
-    warn(message, DeprecationWarning, stacklevel=2)
+    warn(message, BokehDeprecationWarning, stacklevel=2)
 
 def deprecated(version, replacement=None):
     """
@@ -284,7 +287,7 @@ def deprecated(version, replacement=None):
         def deprecatedFunction(*args, **kwargs):
             warn(
                 warningString,
-                DeprecationWarning,
+                BokehDeprecationWarning,
                 stacklevel=2)
             return function(*args, **kwargs)
 
@@ -428,7 +431,7 @@ class _DeprecatedAttribute(object):
         result = getattr(self.module, self.__name__)
         message = _getDeprecationWarningString(self.fqpn, self.version,
             DEPRECATION_WARNING_FORMAT + ': ' + self.message)
-        warn(message, DeprecationWarning, stacklevel=3)
+        warn(message, BokehDeprecationWarning, stacklevel=3)
         return result
 
 
@@ -510,7 +513,7 @@ def warnAboutFunction(offender, warningString):
     globals = offender.func_globals
 
     kwargs = dict(
-        category=DeprecationWarning,
+        category=BokehDeprecationWarning,
         filename=filename,
         lineno=lastLineNo,
         module=offenderModule.__name__,
