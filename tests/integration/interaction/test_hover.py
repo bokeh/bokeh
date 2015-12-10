@@ -18,7 +18,7 @@ def hover_at_position(selenium, canvas, x, y):
     actions.perform()
 
 
-def test_hover_changes_color(output_file_url, selenium, base_screenshot):
+def test_hover_changes_color(output_file_url, selenium, screenshot):
 
     # Make plot and add a taptool callback that generates an alert
     plot = figure(height=HEIGHT, width=WIDTH, tools='')
@@ -37,5 +37,4 @@ def test_hover_changes_color(output_file_url, selenium, base_screenshot):
     # Hover over plot and take screenshot
     canvas = selenium.find_element_by_tag_name('canvas')
     hover_at_position(selenium, canvas, WIDTH * 0.33, HEIGHT * 0.5)
-    actual_screenshot = selenium.get_screenshot_as_png()
-    assert base_screenshot == actual_screenshot
+    assert screenshot.is_valid()
