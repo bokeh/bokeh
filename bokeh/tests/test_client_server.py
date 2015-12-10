@@ -12,6 +12,7 @@ from bokeh.server.session import ServerSession
 from bokeh.model import Model
 from bokeh.properties import Int, Instance
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
+from tornado import gen
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -397,6 +398,132 @@ class TestClientServer(unittest.TestCase):
             assert len(server_session._callbacks) == 0
             assert len(client_session._callbacks) == 0
             assert len(server_session._callbacks) == 0
+
+    @gen.coroutine
+    def async_value(self, value):
+        raise gen.Return(value)
+
+    def test_client_session_timeout_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_timeout_async',
+                                          url=ws_url(server),
+                                          io_loop=server.io_loop)
+
+            result = {}
+
+            @gen.coroutine
+            def cb():
+                result['a'] = 0
+                result['b'] = yield self.async_value(1)
+                result['c'] = yield self.async_value(2)
+                result['d'] = yield self.async_value(3)
+                result['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_timeout_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            doc.remove_timeout_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result)
+
+    def test_server_session_timeout_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_server_session_timeout_async',
+                                          url=ws_url(server),
+                                          io_loop=server.io_loop)
+            server_session = server.get_session('/', client_session.id)
+
+            result = {}
+
+            @gen.coroutine
+            def cb():
+                result['a'] = 0
+                result['b'] = yield self.async_value(1)
+                result['c'] = yield self.async_value(2)
+                result['d'] = yield self.async_value(3)
+                result['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = server_session.document.add_timeout_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            server_session.document.remove_timeout_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result)
+
+    def test_client_session_periodic_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_periodic_async',
+                                          url=ws_url(server),
+                                          io_loop=server.io_loop)
+
+            result = {}
+
+            @gen.coroutine
+            def cb():
+                result['a'] = 0
+                result['b'] = yield self.async_value(1)
+                result['c'] = yield self.async_value(2)
+                result['d'] = yield self.async_value(3)
+                result['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_periodic_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            doc.remove_periodic_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result)
+
+    def test_server_session_periodic_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_server_session_periodic_async',
+                                          url=ws_url(server),
+                                          io_loop=server.io_loop)
+            server_session = server.get_session('/', client_session.id)
+
+            result = {}
+
+            @gen.coroutine
+            def cb():
+                result['a'] = 0
+                result['b'] = yield self.async_value(1)
+                result['c'] = yield self.async_value(2)
+                result['d'] = yield self.async_value(3)
+                result['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = server_session.document.add_periodic_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            server_session.document.remove_periodic_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result)
 
 # This isn't in the unittest.TestCase because per-test fixtures
 # don't work there (see note at bottom of https://pytest.org/latest/unittest.html#unittest-testcase)
