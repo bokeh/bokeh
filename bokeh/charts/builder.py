@@ -23,12 +23,12 @@ from .chart import Chart
 from .data_source import ChartDataSource
 from .models import CompositeGlyph
 from .properties import Dimension, ColumnLabel
-from .utils import collect_attribute_columns, label_from_index_dict
+from .utils import collect_attribute_columns, label_from_index_dict, add_charts_hover
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
 from ..properties import (HasProps, Instance, List, String, Dict,
-                          Color, Bool, Tuple)
+                          Color, Bool, Tuple, Either)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -217,6 +217,8 @@ class Builder(HasProps):
         """)
 
     source = Instance(ColumnDataSource)
+
+    hover = Either(List(Tuple(String, String)), List(String), Bool, default=None)
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -516,6 +518,11 @@ class Builder(HasProps):
 
         chart.add_scales('x', self.xscale)
         chart.add_scales('y', self.yscale)
+
+        if self.hover is not None:
+            add_charts_hover(chart, use_hover=True,
+                             hover_spec=self.hover,
+                             chart_cols=self.attribute_columns)
 
         return chart
 

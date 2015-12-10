@@ -1,7 +1,6 @@
 import pandas as pd
 
 from bokeh.charts import TimeSeries, show, output_file
-from bokeh.models.tools import HoverTool
 
 # read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -25,9 +24,12 @@ output_file("stocks_timeseries.html")
 
 ts = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices')
+    title="Timeseries", tools=TOOLS, ylabel='Stock Prices',
+    hover=[('stock', '@series'), ('value', '@y_values')])
 
+# hover input is shorthand to adding manually
 # series is a generated column containing the labels of the data passed in as y
-ts.add_tools(HoverTool(tooltips=[('stock', '@series'), ('value', '@y_values')]))
+#ts.add_tools(HoverTool(tooltips=[('stock', '@series'), ('value', '@y_values')]))
+
 
 show(ts)

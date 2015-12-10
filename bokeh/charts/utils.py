@@ -643,9 +643,22 @@ def add_wedge_spacing(df, spacing):
         df.ix[df['level'] > 0, 'inners'] += spacing
 
 
-def add_charts_hover(chart, use_hover, hover_text, values_col, agg_text=None):
+def add_charts_hover(chart, use_hover, hover_text=None, values_col=None, agg_text=None,
+                     hover_spec=None, chart_cols=None):
 
-    if use_hover:
+    if hover_spec is not None:
+
+        if isinstance(hover_spec, bool):
+            tooltips = [(col, '@' + col) for col in chart_cols]
+        elif isinstance(hover_spec[0], tuple):
+            tooltips = hover_spec
+        else:
+            tooltips = [(col, '@' + col) for col in hover_spec]
+
+        chart.add_tools(HoverTool(tooltips=tooltips))
+
+    elif use_hover:
+
         # configure the hover text based on input configuration
         if hover_text is None:
             if agg_text is None:
