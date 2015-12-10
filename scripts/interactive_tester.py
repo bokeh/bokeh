@@ -13,15 +13,16 @@ import json
 #       catch and log exceptions in examples files that fail to open
 
 DIRECTORIES = {
-    'file'    : '../../examples/plotting/file',
-    'notebook': '../../examples/plotting/notebook',
-    'server'  : '../../examples/plotting/server',
-    'ggplot'  : '../../examples/compat/ggplot',
-    'glyphs'  : '../../examples/glyphs',
-    'mpl'     : '../../examples/compat/mpl',
-    'pandas'  : '../../examples/compat/pandas',
-    'seaborn' : '../../examples/compat/seaborn',
-    'charts'  : '../../examples/charts',
+    'plotting-file'    : '../../examples/plotting/file',
+    'plotting-notebook': '../../examples/plotting/notebook',
+    'server'           : '../../examples/plotting/server',
+    'ggplot'           : '../../examples/compat/ggplot',
+    'glyphs'           : '../../examples/glyphs',
+    'mpl'              : '../../examples/compat/mpl',
+    'pandas'           : '../../examples/compat/pandas',
+    'seaborn'          : '../../examples/compat/seaborn',
+    'charts-file'      : '../../examples/charts/file',
+    'charts-notebook'  : '../../examples/charts/notebook'
 }
 
 DEFAULT_TEST_FILES = [
@@ -53,14 +54,16 @@ def get_parser():
                      -l /path/to/my/examplesyou can choose:
 
                     or any of the pre-built keywords that point to the related examples:
-                        - file
-                        - notebook
+                        - plotting-file
+                        - plotting-notebook
                         - server
                         - ggplot
                         - glyphs
                         - mpl
                         - pandas
                         - seaborn
+                        - charts-file
+                        - charts-notebook
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,
@@ -79,7 +82,6 @@ def depend_check(dependency):
     """
     Make sure a given dependency is installed
     """
-
     try:
         importlib.import_module(dependency)
         found = True
@@ -282,7 +284,11 @@ if __name__ == '__main__':
 
     if results.location == 'server' or test_dir is None:
         print("Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab.")
-        time.sleep(5)
+        time.sleep(4)
+
+    if test_dir is None or 'notebook' in results.location:
+        print("Notebook examples require ipython-notebook. Make sure you have conda installed ipython-notebook")
+        time.sleep(4)
 
     if not results.reuseSession:
         print("cleaning previous session file...",)
