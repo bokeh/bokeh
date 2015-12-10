@@ -1,9 +1,9 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
 template = require "./text_input_template"
+InputWidget = require "./input_widget"
 
 class TextInputView extends ContinuumView
   tagName: "div"
@@ -28,13 +28,12 @@ class TextInputView extends ContinuumView
     @mset('value', value)
     @mget('callback')?.execute(@model)
 
-class TextInput extends HasParent
+class TextInput extends InputWidget.Model
   type: "TextInput"
   default_view: TextInputView
 
   defaults: ->
     return _.extend {}, super(), {
-      name: ""
       value: ""
       title: ""
     }

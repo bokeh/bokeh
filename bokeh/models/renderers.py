@@ -49,8 +49,9 @@ class TileRenderer(Renderer):
     """)
 
     level = Enum(RenderLevel, default="underlay", help="""
-    Specifies the level in which to render the glyph.
+    Specifies the level in which to render the tiles.
     """)
+
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
@@ -158,3 +159,7 @@ class GuideRenderer(Renderer):
         if self.plot is not None:
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
+
+    level = Enum(RenderLevel, default="overlay", help="""
+    Specifies the level in which to render the guide.
+    """)

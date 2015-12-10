@@ -51,7 +51,7 @@ class GMapPlotView extends Plot.View
 
       super(range_info)
 
-      if range_info.factor < 0 
+      if range_info.factor < 0
         zoom_change = -1
       else
         zoom_change = 1
@@ -62,7 +62,7 @@ class GMapPlotView extends Plot.View
       # Zooming out too far causes problems
       if new_map_zoom >=2
         @map.setZoom(new_map_zoom)
-        
+
         # Check we haven't gone out of bounds, and if we have undo the zoom
         [proj_xstart, proj_xend, proj_ystart, proj_yend] = @getProjectedBounds()
         if ( proj_xend - proj_xstart ) < 0
@@ -178,11 +178,6 @@ class GMapPlot extends Plot.Model
   defaults: ->
     return _.extend {}, super(), {
       title: 'GMapPlot'
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
-      border_fill: "#fff",
     }
 
 module.exports =

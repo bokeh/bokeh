@@ -580,6 +580,7 @@ class Axis extends HasParent
   defaults: ->
     return _.extend {}, super(), {
       location: "auto"
+      bounds: "auto"
       x_range_name: "default"
       y_range_name: "default"
     }

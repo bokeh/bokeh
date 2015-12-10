@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "jquery-ui/datepicker"
 ContinuumView = require "../common/continuum_view"
-HasProperties = require "../common/has_properties"
+InputWidget = require "./input_widget"
 
 class DatePickerView extends ContinuumView
 
@@ -26,13 +26,15 @@ class DatePickerView extends ContinuumView
     @mset('value', new Date(dateText))
     @mget('callback')?.execute(@model)
 
-class DatePicker extends HasProperties
+class DatePicker extends InputWidget.Model
   type: "DatePicker"
   default_view: DatePickerView
 
   defaults: () ->
     return _.extend {}, super(), {
       value: Date.now()
+      min_date: null
+      max_date: null
     }
 
 module.exports =

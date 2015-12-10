@@ -21,11 +21,11 @@ class Dialog(Widget):
     Whether this dialog is closable or not.
     """)
 
-    title = String(help="""
+    title = String(default="", help="""
     The title of the dialog widget.
     """)
 
-    content = Either(String(), Instance(BaseBox), help="""
+    content = Either(String(), Instance(BaseBox), default="", help="""
     Either a message to be displayed by this dialog or a BaseBox to be used
     as dialog body.
     """)
