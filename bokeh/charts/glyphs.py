@@ -8,10 +8,10 @@ from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.enums import DashPattern
-from bokeh.models.glyphs import Rect, Segment, Line, Patch, Patches
+from bokeh.models.glyphs import Rect, Segment, Line, Patches
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,
-                              List, Either, Int, Enum, Color, Override)
+                              List, Either, Int, Enum, Color, Override, Any)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
@@ -136,6 +136,18 @@ class LineGlyph(XyGlyph):
                  width=None, dash=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
+
+        if color is not None and line_color is None:
+            line_color = color
+
+        if dash is not None:
+            kwargs['dash'] = dash
+
+        if width is not None:
+            kwargs['width'] = width
+
+        if line_color is not None:
+            kwargs['line_color'] = line_color
 
         super(LineGlyph, self).__init__(**kwargs)
         self.setup()
@@ -434,6 +446,7 @@ class AggregateGlyph(NestedCompositeGlyph):
     """
 
     x_label = String()
+    x_label_value = Any()
 
     stack_label = String()
     stack_shift = Float(default=0.0)
@@ -444,6 +457,18 @@ class AggregateGlyph(NestedCompositeGlyph):
     agg = Instance(Stat, default=Sum())
 
     span = Float(help="""The range of values represented by the aggregate.""")
+
+    def __init__(self, x_label=None, **kwargs):
+
+        if x_label is not None:
+            kwargs['x_label_value'] = x_label
+
+            if not isinstance(x_label, str):
+                x_label = str(x_label)
+
+            kwargs['x_label'] = x_label
+
+        super(AggregateGlyph, self).__init__(**kwargs)
 
     def get_dodge_label(self, shift=0.0):
         """Generate the label defining an offset in relation to a position on a scale."""
@@ -588,7 +613,7 @@ class Interval(AggregateGlyph):
         .. note::
             Dodging the glyph can affect the value.
         """
-        return (self.dodge_shift or self.label_value) + (self.width / 2.0)
+        return (self.dodge_shift or self.x_label_value) + (self.width / 2.0)
 
     @property
     def x_min(self):
@@ -597,7 +622,7 @@ class Interval(AggregateGlyph):
         .. note::
             Dodging the glyph can affect the value.
         """
-        return (self.dodge_shift or self.label_value) - (self.width / 2.0)
+        return (self.dodge_shift or self.x_label_value) - (self.width / 2.0)
 
     @property
     def y_max(self):
@@ -892,8 +917,10 @@ class HistogramGlyph(AggregateGlyph):
 
         bars = []
         for bin in self.bins.bins:
-            bars.append(BarGlyph(label=bin.center, values=bin.values, color=self.color,
-                                 fill_alpha=self.fill_alpha, agg=bin.stat, width=self.bin_width))
+            bars.append(BarGlyph(label=self.label, x_label=bin.center,
+                                 values=bin.values, color=self.color,
+                                 fill_alpha=self.fill_alpha,
+                                 agg=bin.stat, width=self.bin_width))
 
         # provide access to bars as children for bounds properties
         self.bars = bars

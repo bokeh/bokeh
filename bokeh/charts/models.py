@@ -84,15 +84,17 @@ class CompositeGlyph(HasProps):
         if self.renderers is not None:
             data = self.build_source()
 
-            if isinstance(data, dict):
-                source = ColumnDataSource(data)
+            if data is not None:
 
-            if not isinstance(source, ColumnDataSource) and source is not None:
-                raise TypeError('build_source must return dict or ColumnDataSource.')
-            else:
-                self.source = self.add_chart_index(source)
+                if isinstance(data, dict):
+                    source = ColumnDataSource(data)
 
-            self._set_sources()
+                if not isinstance(source, ColumnDataSource) and source is not None:
+                    raise TypeError('build_source must return dict or ColumnDataSource.')
+                else:
+                    self.source = self.add_chart_index(source)
+
+                self._set_sources()
 
     def add_chart_index(self, data):
 
