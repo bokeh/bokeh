@@ -38,7 +38,7 @@ inc = df.close > df.open
 dec = df.open > df.close
 w = 0.5
 
-output_file("candlestick_custom_axis.html", title="custom_datetime_axis.py example")
+output_file("custom_datetime_axis.html", title="custom_datetime_axis.py example")
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
