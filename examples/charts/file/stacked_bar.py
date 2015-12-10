@@ -4,6 +4,8 @@ from bokeh.charts.attributes import cat, color
 from bokeh.charts.utils import df_from_json
 from bokeh.sampledata.olympics2014 import data
 
+from bokeh.models.tools import HoverTool
+
 # utilize utility to make it easy to get json/dict data converted to a dataframe
 df = df_from_json(data)
 
@@ -19,6 +21,8 @@ bar = Bar(df,
                       sort=False),
           legend='top_right',
           title="Medals per Country, Sorted by Total Medals")
+
+bar.add_tools(HoverTool(tooltips=[('medal', '@medal'), ('country', '@abbr')]))
 
 output_file("stacked_bar.html")
 show(bar)

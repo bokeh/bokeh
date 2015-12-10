@@ -87,12 +87,6 @@ class BarBuilder(Builder):
             if self.attributes['group'].columns is not None:
                 self.attributes['color'].set_columns(self.attributes['group'].columns)
 
-        if self.attributes['line_color'].columns is None:
-            if self.attributes['stack'].columns is not None:
-                self.attributes['line_color'].set_columns(self.attributes['stack'].columns)
-            if self.attributes['group'].columns is not None:
-                self.attributes['line_color'].set_columns(self.attributes['group'].columns)
-
         # ToDo: perform aggregation validation
         # Not given values kw, so using only categorical data
         if self.values.dtype.name == 'object' and len(self.attribute_columns) == 0:
