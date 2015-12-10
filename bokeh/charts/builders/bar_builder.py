@@ -98,8 +98,7 @@ class BarBuilder(Builder):
 
         # try to infer grouping vs stacking labels
         if (self.attributes['label'].columns is None and
-            self.values.selection is not None and
-                self.glyph == BarGlyph):
+            self.values.selection is not None):
 
             if self.attributes['stack'].columns is not None:
                 special_column = 'unity'
