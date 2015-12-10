@@ -23,7 +23,7 @@ from .chart import Chart
 from .data_source import ChartDataSource
 from .models import CompositeGlyph
 from .properties import Dimension, ColumnLabel
-from .utils import collect_attribute_columns
+from .utils import collect_attribute_columns, label_from_index_dict
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
@@ -469,6 +469,8 @@ class Builder(HasProps):
         if (isinstance(raw_label, tuple) or isinstance(raw_label, list)) and \
                        len(raw_label) == 1:
             raw_label = raw_label[0]
+        elif isinstance(raw_label, dict):
+            raw_label = label_from_index_dict(raw_label)
 
         return str(raw_label)
 
