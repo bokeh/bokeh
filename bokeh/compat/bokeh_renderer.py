@@ -18,7 +18,6 @@ import warnings
 
 import matplotlib as mpl
 import numpy as np
-import pandas as pd
 from six import string_types
 
 from ..models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
@@ -27,9 +26,12 @@ from ..models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
+from ..util.dependencies import optional
 
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import convert_dashes, get_props_cycled, is_ax_end, xkcd_line
+
+pd = optional('pandas')
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -37,10 +39,10 @@ from .mpl_helpers import convert_dashes, get_props_cycled, is_ax_end, xkcd_line
 
 class BokehRenderer(Renderer):
 
-    def __init__(self, pd_obj, xkcd):
+    def __init__(self, use_pd, xkcd):
         "Initial setup."
         self.fig = None
-        self.pd_obj = pd_obj
+        self.use_pd = use_pd
         self.xkcd = xkcd
         self.zorder = {}
         self.handles = {}
@@ -116,14 +118,14 @@ class BokehRenderer(Renderer):
         self.ax = ax
         self.plot.title = ax.get_title()
         # to avoid title conversion by draw_text later
-        
+
         #Make sure that all information about the axes are passed to the properties
         if props.get('xscale', False):
             props['axes'][0]['scale'] = props['xscale']
-            
+
         if props.get('yscale', False):
             props['axes'][1]['scale'] = props['yscale']
-            
+
         # Add axis
         for props in props['axes']:
             if   props['position'] == "bottom" : location, dim, thing = "below", 0, ax.xaxis
@@ -170,7 +172,7 @@ class BokehRenderer(Renderer):
     def draw_line(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Line glyph."
         _x = data[:, 0]
-        if self.pd_obj is True:
+        if pd and self.use_pd:
             try:
                 x = [pd.Period(ordinal=int(i), freq=self.ax.xaxis.freq).to_timestamp() for i in _x]
             except AttributeError: #  we probably can make this one more intelligent later

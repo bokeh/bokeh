@@ -1,13 +1,16 @@
 from __future__ import absolute_import
 
+from ..deprecate import deprecated
 from ..model import Model
 from ..properties import abstract
 from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..util.dependencies import optional
+from ..util.serialization import transform_column_source_data
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation
-from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
-from bokeh.deprecate import deprecated
+
+pd = optional('pandas')
 
 @abstract
 class DataSource(Model):
@@ -77,8 +80,7 @@ class ColumnDataSource(DataSource):
         # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data = kw.pop("data", {})
         if not isinstance(raw_data, dict):
-            import pandas as pd
-            if isinstance(raw_data, pd.DataFrame):
+            if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
@@ -138,7 +140,8 @@ class ColumnDataSource(DataSource):
             DataFrame
 
         """
-        import pandas as pd
+        if not pd:
+            raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         if self.column_names:
             return pd.DataFrame(self.data, columns=self.column_names)
         else:

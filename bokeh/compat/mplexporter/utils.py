@@ -17,6 +17,9 @@ from matplotlib.markers import MarkerStyle
 from matplotlib.transforms import Affine2D
 from matplotlib import ticker
 
+# NOTE: bokeh mod
+from bokeh.util.dependencies import optional
+pd = optional('pandas')
 
 def color_to_hex(color):
     """Convert matplotlib color code to hex color code"""
@@ -273,14 +276,8 @@ def get_axes_properties(ax):
         lim = domain
         if isinstance(axis.converter, matplotlib.dates.DateConverter):
             scale = 'date'
-            try:
-                import pandas as pd
-                from pandas.tseries.converter import PeriodConverter
-            except ImportError:
-                pd = None
 
-            if (pd is not None and isinstance(axis.converter,
-                                              PeriodConverter)):
+            if pd and isinstance(axis.converter, pd.tseries.converter.PeriodConverter):
                 _dates = [pd.Period(ordinal=int(d), freq=axis.freq)
                           for d in domain]
                 domain = [(d.year, d.month - 1, d.day,
