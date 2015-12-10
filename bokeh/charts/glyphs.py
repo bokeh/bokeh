@@ -755,10 +755,14 @@ class BoxGlyph(AggregateGlyph):
         kwargs['outliers'] = kwargs.pop('outliers', None) or outliers
         kwargs['label'] = label
         kwargs['values'] = values
-        kwargs['q2_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.25,
-                                           interval2=0.5, width=width, color=bar_color)
-        kwargs['q3_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.5,
-                                           interval2=0.75, width=width, color=bar_color)
+
+        x_label = kwargs.get('x_label')
+        kwargs['q2_glyph'] = QuartileGlyph(label=label, x_label=x_label, values=values,
+                                           interval1=0.25, interval2=0.5, width=width,
+                                           color=bar_color)
+        kwargs['q3_glyph'] = QuartileGlyph(label=label, x_label=x_label, values=values,
+                                           interval1=0.5, interval2=0.75, width=width,
+                                           color=bar_color)
         super(BoxGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -773,7 +777,8 @@ class BoxGlyph(AggregateGlyph):
                                            line_color=self.whisker_color))
 
         if len(outlier_values) > 0 and self.outliers:
-            self.outliers = PointGlyph(y=outlier_values, label=self.get_dodge_label(),
+            self.outliers = PointGlyph(label=self.label, y=outlier_values,
+                                       x=[self.get_dodge_label()] * len(outlier_values),
                                        line_color=self.outlier_line_color,
                                        fill_color=self.outlier_fill_color,
                                        size=self.outlier_size, marker=self.marker)
