@@ -512,9 +512,6 @@ REQUIRES = [
         'python-dateutil>=2.1',
         'Jinja2>=2.7',
         'numpy>=1.7.1',
-        'pandas>=0.11.0',
-        'Flask>=0.10.1',
-        'pyzmq>=14.3.1',
         'tornado>=4.0.1',
     ]
 
