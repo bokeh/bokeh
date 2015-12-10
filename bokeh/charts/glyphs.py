@@ -191,8 +191,8 @@ class AreaGlyph(LineGlyph):
 
         x0, y0 = generate_patch_base(data['x_values'], data['y_values'])
 
-        data['x_values'] = x0
-        data['y_values'] = y0
+        data['x_values'] = [x0]
+        data['y_values'] = [y0]
 
         return data
 
@@ -200,8 +200,8 @@ class AreaGlyph(LineGlyph):
 
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
-        glyph = Patch(
-            x='x_values', y='y_values',
+        glyph = Patches(
+            xs='x_values', ys='y_values',
             fill_alpha=self.fill_alpha, fill_color=self.fill_color,
             line_color=self.line_color
         )
@@ -217,8 +217,8 @@ class AreaGlyph(LineGlyph):
             # build a list of series
             areas = []
             for glyph in glyphs:
-                areas.append(pd.Series(glyph.source.data['y_values'],
-                                       index=glyph.source.data['x_values']))
+                areas.append(pd.Series(glyph.source.data['y_values'][0],
+                                       index=glyph.source.data['x_values'][0]))
 
             # concat the list of indexed y values into dataframe
             df = pd.concat(areas, axis=1)
@@ -237,8 +237,27 @@ class AreaGlyph(LineGlyph):
 
             # update the data in the glyphs
             for i, glyph in enumerate(glyphs):
-                glyph.source.data['x_values'] = stacked_df.index.values
-                glyph.source.data['y_values'] = stacked_df.ix[:, i].values
+                glyph.source.data['x_values'] = [stacked_df.index.values]
+                glyph.source.data['y_values'] = [stacked_df.ix[:, i].values]
+
+    def get_nested_extent(self, col, func):
+        return [getattr(arr, func)() for arr in self.source.data[col]]
+
+    @property
+    def x_max(self):
+        return max(self.get_nested_extent('x_values', 'max'))
+
+    @property
+    def x_min(self):
+        return min(self.get_nested_extent('x_values', 'min'))
+
+    @property
+    def y_max(self):
+        return max(self.get_nested_extent('y_values', 'max'))
+
+    @property
+    def y_min(self):
+        return min(self.get_nested_extent('y_values', 'min'))
 
 
 class HorizonGlyph(AreaGlyph):
@@ -382,25 +401,6 @@ class HorizonGlyph(AreaGlyph):
         )
         renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
         yield renderer
-
-    def get_nested_extent(self, col, func):
-        return func([func(arr) for arr in self.source.data[col]])
-
-    @property
-    def x_max(self):
-        return self.get_nested_extent('x_values', max)
-
-    @property
-    def x_min(self):
-        return self.get_nested_extent('x_values', min)
-
-    @property
-    def y_max(self):
-        return self.get_nested_extent('y_values', max)
-
-    @property
-    def y_min(self):
-        return self.get_nested_extent('y_values', min)
 
 
 class StepGlyph(LineGlyph):
