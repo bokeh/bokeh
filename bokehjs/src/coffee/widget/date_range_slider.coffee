@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "jqrangeslider/jQDateRangeSlider"
 ContinuumView = require "../common/continuum_view"
-HasProperties = require "../common/has_properties"
+InputWidget = require "./input_widget"
 
 class DateRangeSliderView extends ContinuumView
 
@@ -40,23 +40,23 @@ class DateRangeSliderView extends ContinuumView
 
     return @
 
-class DateRangeSlider extends HasProperties
+class DateRangeSlider extends InputWidget.Model
   type: "DateRangeSlider"
   default_view: DateRangeSliderView
 
   defaults: () ->
     return _.extend {}, super(), {
+      value: null
+      range: null
+      bounds: null
+      step: {}
+      enabled: true
+      arrows: true
+      value_labels: "show"
+      wheel_mode: null
       ###
-      value
-      range
-      bounds
-      step
       formatter
       scales
-      enabled
-      arrows
-      value_labels
-      wheel_mode
       ###
     }
 

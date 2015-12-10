@@ -1,7 +1,7 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+BaseBox = require "./basebox"
 
 class HBoxView extends ContinuumView
   tag: "div"
@@ -29,7 +29,7 @@ class HBoxView extends ContinuumView
 
     return @
 
-class HBox extends HasParent
+class HBox extends BaseBox.Model
   type: "HBox"
   default_view: HBoxView
 

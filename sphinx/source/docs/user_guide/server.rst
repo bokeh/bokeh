@@ -1,7 +1,7 @@
 .. _userguide_server:
 
-Deploying the Bokeh Server
-==========================
+Deploying a Bokeh Server
+========================
 
 .. contents::
     :local:

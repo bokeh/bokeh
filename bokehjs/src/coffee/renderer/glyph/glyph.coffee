@@ -17,10 +17,14 @@ class GlyphView extends ContinuumView
 
     @renderer = options.renderer
 
-    # Init gl
-    ctx = @renderer.plot_view.canvas_view.ctx
-    if ctx.glcanvas?
-      @_init_gl(ctx.glcanvas.gl)
+    # Init gl (this should really be done anytime renderer is set,
+    # and not done if it isn't ever set, but for now it only
+    # matters in the unit tests because we build a view without a
+    # renderer there)
+    if @renderer?.plot_view?
+      ctx = @renderer.plot_view.canvas_view.ctx
+      if ctx.glcanvas?
+        @_init_gl(ctx.glcanvas.gl)
 
     for name, func of properties.factories
       @[name] = {}
@@ -305,7 +309,7 @@ class Glyph extends HasParent
   }
 
   defaults: ->
-    return _.extend {
+    return _.extend {}, super(), {
       visible: true
     }
 

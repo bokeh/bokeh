@@ -9,9 +9,6 @@ def test_create():
     obj = scserve.Serve(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
-def test_default_port():
-    assert scserve.DEFAULT_PORT == 5006
-
 def test_loglevels():
     assert scserve.LOGLEVELS == ('debug', 'info', 'warning', 'error', 'critical')
 
@@ -47,13 +44,20 @@ def test_args():
             metavar='PORT',
             type=int,
             help="Port to listen on",
-            default=scserve.DEFAULT_PORT,
+            default=None
         )),
 
         ('--address', dict(
             metavar='ADDRESS',
             type=str,
             help="Address to listen on",
+            default=None,
+        )),
+
+        ('--keep-alive', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to send a keep-alive ping to clients, 0 to disable.",
             default=None,
         )),
 

@@ -72,7 +72,7 @@ def distribution():
     p.line(x, pdf, line_color="#348abd", line_width=8, alpha=0.7, legend="PDF")
     p.line(x, cdf, line_color="#7a68a6", line_width=8, alpha=0.7, legend="CDF")
 
-    p.legend.orientation = "top_left"
+    p.legend.location = "top_left"
 
     p.xaxis.axis_label = 'x'
     p.xgrid[0].grid_line_color = "white"

@@ -118,6 +118,7 @@ class BoxSelectTool extends SelectTool.Model
     return _.extend({}, super(), {
       dimensions: ["width", "height"]
       select_every_mousemove: false
+      callback: null
     })
 
 module.exports =

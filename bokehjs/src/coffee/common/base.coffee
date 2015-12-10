@@ -247,6 +247,10 @@ Collections.register_models = (specs) ->
   for own name, impl of specs
     Collections.register_model(name, impl)
 
+
+Collections.registered_names = () ->
+  Object.keys(_get_mod_cache())
+
 # "index" is a map from the toplevel model IDs rendered by
 # embed.coffee, to the view objects for those models.  It doesn't
 # contain all views, only those explicitly rendered to an element

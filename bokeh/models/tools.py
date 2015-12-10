@@ -182,10 +182,6 @@ class TapTool(Tool):
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
     """)
 
-    always_active = Bool(True, help="""
-    Whether the tap tool must be explicitly activated.
-    """)
-
 
 class CrosshairTool(Tool):
     """ *toolbar icon*: |inspector_icon|
@@ -470,7 +466,12 @@ class HoverTool(Tool):
     :geometry: object containing the coordinates of the hover cursor
     """)
 
-    tooltips = Either(String, List(Tuple(String, String)), help="""
+    tooltips = Either(String, List(Tuple(String, String)),
+            default=[
+                ("index","$index"),
+                ("data (x, y)","($x, $y)"),
+                ("canvas (x, y)","($sx, $sy)"),
+            ], help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.
 
@@ -523,6 +524,8 @@ class HoverTool(Tool):
     mouse position.
     """)
 
+DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
+DEFAULT_HELP_URL = "http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html"
 
 class HelpTool(Tool):
     """
@@ -531,11 +534,11 @@ class HelpTool(Tool):
     and the redirect site overridden as well.
     """
 
-    help_tooltip = String(help="""
+    help_tooltip = String(default=DEFAULT_HELP_TIP, help="""
     Tooltip displayed when hovering over the help icon.
     """)
 
-    redirect = String(help="""
+    redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.
     """)
 

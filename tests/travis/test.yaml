@@ -6,6 +6,7 @@
 - path: "compat/pandas"
 - path: "charts/file"
   type: file
+  skip: ["blaze_input.py"]
 - path: "charts/notebook"
   type: notebook
 - path: "plotting/file"

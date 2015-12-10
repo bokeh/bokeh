@@ -34,7 +34,7 @@ global_gl_canvas = null
 
 get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
     # client_width and height represent the available size
-    
+
     if use_width
       new_width1 = Math.max(client_width, min_size)
       new_height1 = parseInt(new_width1 / aspect_ratio)
@@ -47,7 +47,7 @@ get_size_for_available_space = (use_width, use_height, client_width, client_heig
       if new_width2 < min_size
         new_width2 = min_size
         new_height2 = parseInt(new_width2 / aspect_ratio)
-    
+
     if (not use_height) and (not use_width)
       return null  # remain same size
     else if use_height and use_width
@@ -420,19 +420,19 @@ class PlotView extends ContinuumView
 
   resize: () =>
     @resize_width_height(true, false)
-  
+
   resize_width_height: (use_width, use_height, maintain_ar=true) =>
     # Resize plot based on available width and/or height
-    
+
     # kiwi.js falls over if we try and resize too small.
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
-    
+
     avail_width = @.el.clientWidth
     avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
-        
+
     if maintain_ar is false
       # Just change width and/or height; aspect ratio will change
       if use_width and use_height
@@ -646,9 +646,9 @@ class Plot extends HasParent
   display_defaults: ->
     return _.extend {}, super(), {
       hidpi: true,
-      background_fill_color: "#fff",
+      background_fill_color: "#ffffff",
       background_fill_alpha: 1.0,
-      border_fill_color: "#fff",
+      border_fill_color: "#ffffff",
       border_fill_alpha: 1.0
       min_border: 40,
 

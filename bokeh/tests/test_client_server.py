@@ -22,6 +22,10 @@ class SomeModelInTestClientServer(Model):
 
 logging.basicConfig(level=logging.DEBUG)
 
+# just for testing
+def ws_url(server):
+    return "ws://localhost:" + str(server._port) + "/ws"
+
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
 class ManagedServerLoop(object):
@@ -47,7 +51,7 @@ class TestClientServer(unittest.TestCase):
             # uses the same main loop as the client, so
             # if we start either one it starts both
             session = ClientSession(io_loop = server.io_loop,
-                                    url = server.ws_url)
+                                    url = ws_url(server))
             session.connect()
             assert session.connected
             session.close()
@@ -57,7 +61,7 @@ class TestClientServer(unittest.TestCase):
     def test_disconnect_on_error(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            session = ClientSession(url=server.ws_url, io_loop = server.io_loop)
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
             # send a bogus message using private fields
@@ -76,7 +80,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session = push_session(doc,
                                           session_id='test_push_document',
-                                          url=server.ws_url,
+                                          url=ws_url(server),
                                           io_loop=server.io_loop)
 
             assert client_session.document == doc
@@ -108,7 +112,7 @@ class TestClientServer(unittest.TestCase):
 
         with ManagedServerLoop(application) as server:
             client_session = pull_session(session_id='test_pull_document',
-                                          url=server.ws_url,
+                                          url=ws_url(server),
                                           io_loop=server.io_loop)
             assert len(client_session.document.roots) == 2
 
@@ -131,7 +135,7 @@ class TestClientServer(unittest.TestCase):
     def test_request_server_info(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            session = ClientSession(url=server.ws_url, io_loop=server.io_loop)
+            session = ClientSession(url=ws_url(server), io_loop=server.io_loop)
             session.connect()
             assert session.connected
             assert session.document is None
@@ -154,7 +158,7 @@ class TestClientServer(unittest.TestCase):
             client_root = SomeModelInTestClientServer(foo=42)
 
             client_session = push_session(doc, session_id='test_client_changes_go_to_server',
-                                          url=server.ws_url,
+                                          url=ws_url(server),
                                           io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
@@ -202,7 +206,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session = push_session(doc,
                                           session_id='test_server_changes_go_to_client',
-                                          url=server.ws_url,
+                                          url=ws_url(server),
                                           io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
@@ -305,7 +309,7 @@ class TestClientServer(unittest.TestCase):
             doc = document.Document()
 
             client_session = ClientSession(session_id='test_client_session_callback',
-                                          url=server.ws_url,
+                                          url=ws_url(server),
                                           io_loop=server.io_loop)
             server_session = ServerSession('test_server_session_callback',
                                             doc, server.io_loop)
@@ -356,7 +360,7 @@ class TestClientServer(unittest.TestCase):
             doc = document.Document()
 
             client_session = ClientSession(session_id='test_client_session_callback',
-                                          url=server.ws_url,
+                                          url=ws_url(server),
                                           io_loop=server.io_loop)
             server_session = ServerSession('test_server_session_callback',
                                             doc, server.io_loop)
@@ -403,7 +407,7 @@ def test_client_changes_do_not_boomerang(monkeypatch):
 
         client_session = push_session(doc,
                                       session_id='test_client_changes_do_not_boomerang',
-                                      url=server.ws_url,
+                                      url=ws_url(server),
                                       io_loop=server.io_loop)
         server_session = server.get_session('/', client_session.id)
 
@@ -451,7 +455,7 @@ def test_server_changes_do_not_boomerang(monkeypatch):
 
         client_session = push_session(doc,
                                       session_id='test_server_changes_do_not_boomerang',
-                                      url=server.ws_url,
+                                      url=ws_url(server),
                                       io_loop=server.io_loop)
         server_session = server.get_session('/', client_session.id)
 
