@@ -405,6 +405,7 @@ class TestClientServer(unittest.TestCase):
 
     @gen.coroutine
     def async_value(self, value):
+        yield gen.moment # this ensures we actually return to the loop
         raise gen.Return(value)
 
     def test_client_session_timeout_async(self):
