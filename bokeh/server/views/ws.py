@@ -125,10 +125,14 @@ class WSHandler(WebSocketHandler):
         raise gen.Return(None)
 
     def on_pong(self, data):
+        # if we get an invalid integer or utf-8 back, either we
+        # sent a buggy ping or the client is evil/broken.
         try:
             self.latest_pong = int(codecs.decode(data, 'utf-8'))
-        except:
-            log.info("received unparseable pong %r", data)
+        except UnicodeDecodeError as e:
+            log.error("received invalid unicode in pong %r", data, exc_info=True)
+        except ValueError as e:
+            log.error("received invalid integer in pong %r", data, exc_info=True)
 
     @gen.coroutine
     def send_message(self, message):
