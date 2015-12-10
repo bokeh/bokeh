@@ -187,7 +187,7 @@ class _MultiValuedDict(object):
 class Document(object):
 
     def __init__(self, **kwargs):
-        self._roots = set()
+        self._roots = list()
         self._theme = kwargs.pop('theme', default_theme)
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
@@ -272,7 +272,7 @@ class Document(object):
 
     @property
     def roots(self):
-        return set(self._roots)
+        return list(self._roots)
 
     @property
     def title(self):
@@ -320,7 +320,7 @@ class Document(object):
             return
         self._push_all_models_freeze()
         try:
-            self._roots.add(model)
+            self._roots.append(model)
         finally:
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
