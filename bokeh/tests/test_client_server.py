@@ -311,8 +311,8 @@ class TestClientServer(unittest.TestCase):
             client_session = ClientSession(session_id='test_client_session_callback',
                                           url=ws_url(server),
                                           io_loop=server.io_loop)
-            server_session = ServerSession('test_server_session_callback',
-                                            doc, server.io_loop)
+            server_session = ServerSession(session_id='test_server_session_callback',
+                                           document=doc, io_loop=server.io_loop)
             client_session._attach_document(doc)
 
             assert len(server_session._callbacks) == 0
@@ -362,8 +362,8 @@ class TestClientServer(unittest.TestCase):
             client_session = ClientSession(session_id='test_client_session_callback',
                                           url=ws_url(server),
                                           io_loop=server.io_loop)
-            server_session = ServerSession('test_server_session_callback',
-                                            doc, server.io_loop)
+            server_session = ServerSession(session_id='test_server_session_callback',
+                                           document=doc, io_loop=server.io_loop)
             client_session._attach_document(doc)
 
             assert len(server_session._callbacks) == 0
@@ -385,13 +385,15 @@ class TestClientServer(unittest.TestCase):
                 iocb = ss._callbacks[callback.id]
                 assert isinstance(iocb, _Timeout)
 
-                # check that the callback deadline is 10 seconds later from
-                # when we called add_timeout_callback (using int to avoid
-                # ms differences between the x definition and the call)
-                assert int(iocb.deadline) == int(x + 10)
+                # check that the callback deadline is 10
+                # milliseconds later from when we called
+                # add_timeout_callback (using int to avoid ms
+                # differences between the x definition and the
+                # call)
+                assert abs(int(iocb.deadline) - int(x + 10/1000.0)) < 1e6
                 started_callbacks.append(iocb)
 
-            callback = doc.remove_periodic_callback(cb)
+            callback = doc.remove_timeout_callback(cb)
             assert len(server_session._callbacks) == 0
             assert len(client_session._callbacks) == 0
             assert len(server_session._callbacks) == 0
