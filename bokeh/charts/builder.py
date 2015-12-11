@@ -23,7 +23,7 @@ from .chart import Chart
 from .data_source import ChartDataSource
 from .models import CompositeGlyph
 from .properties import Dimension, ColumnLabel
-from .utils import collect_attribute_columns, label_from_index_dict, add_charts_hover
+from .utils import collect_attribute_columns, label_from_index_dict, build_hover_tooltips
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
@@ -520,9 +520,9 @@ class Builder(HasProps):
         chart.add_scales('y', self.yscale)
 
         if self.hover is not None:
-            add_charts_hover(chart, use_hover=True,
-                             hover_spec=self.hover,
-                             chart_cols=self.attribute_columns)
+            tooltips = build_hover_tooltips(hover_spec=self.hover,
+                                            chart_cols=self.attribute_columns)
+            chart.add_tooltips(tooltips)
 
         return chart
 

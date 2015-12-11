@@ -12,7 +12,7 @@ from bokeh.charts.stats import Bins
 from bokeh.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
-                              Color, Bool, Override)
+                              Bool, Override)
 
 
 class AttrSpec(HasProps):
