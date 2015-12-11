@@ -218,7 +218,7 @@ class Builder(HasProps):
 
     source = Instance(ColumnDataSource)
 
-    hover = Either(List(Tuple(String, String)), List(String), Bool, default=None)
+    tooltips = Either(List(Tuple(String, String)), List(String), Bool, default=None)
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -519,8 +519,8 @@ class Builder(HasProps):
         chart.add_scales('x', self.xscale)
         chart.add_scales('y', self.yscale)
 
-        if self.hover is not None:
-            tooltips = build_hover_tooltips(hover_spec=self.hover,
+        if self.tooltips is not None:
+            tooltips = build_hover_tooltips(hover_spec=self.tooltips,
                                             chart_cols=self.attribute_columns)
             chart.add_tooltips(tooltips)
 
