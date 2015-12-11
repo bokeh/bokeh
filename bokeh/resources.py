@@ -21,6 +21,7 @@ import copy
 from . import __version__
 from .settings import settings
 from .util.paths import bokehjsdir
+from .util.session_id import generate_session_id
 from .templates import JS_RESOURCES, CSS_RESOURCES
 
 DEFAULT_SERVER_HOST = "localhost"
@@ -51,6 +52,71 @@ def server_url_for_websocket_url(url):
     if not reprotocoled.endswith("/ws"):
         raise ValueError("websocket URL does not end in /ws")
     return reprotocoled[:-2]
+
+class _SessionCoordinates(object):
+    """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
+    def __init__(self, kwargs):
+        """ Using kwargs which may have extra stuff we don't care about, compute websocket url and session ID."""
+
+        if 'url' in kwargs:
+            self._base_url = kwargs['url']
+            if self._base_url is None:
+                raise ValueError("url cannot be None")
+            if self._base_url == 'default':
+                self._base_url = DEFAULT_SERVER_HTTP_URL
+            if self._base_url.startswith("ws"):
+                raise ValueError("url should be the http or https URL for the server, not the websocket URL")
+        else:
+            self._base_url = DEFAULT_SERVER_HTTP_URL
+
+        if not self._base_url.endswith("/"):
+            self._base_url = self._base_url + "/"
+
+        if 'app_path' in kwargs:
+            self._app_path = kwargs['app_path']
+            if self._app_path is None:
+                raise ValueError("app_path cannot be None")
+            if not self._app_path.startswith("/"):
+                raise ValueError("app_path should start with a '/' character")
+        else:
+            self._app_path = '/'
+
+        if 'session_id' in kwargs:
+            self._session_id = kwargs['session_id']
+            if self._session_id is None:
+                self._session_id = generate_session_id()
+        else:
+            self._session_id = generate_session_id()
+
+        if self._app_path == '/':
+            self._server_url = self._base_url
+        else:
+            self._server_url = self._base_url + self._app_path[1:]
+
+    @property
+    def websocket_url(self):
+        """ Websocket URL derived from the kwargs provided."""
+        return websocket_url_for_server_url(self._server_url)
+
+    @property
+    def server_url(self):
+        """ Server URL including app path derived from the kwargs provided."""
+        return self._server_url
+
+    @property
+    def url(self):
+        """ Server base URL derived from the kwargs provided (no app path)."""
+        return self._base_url
+
+    @property
+    def session_id(self):
+        """ Session ID derived from the kwargs provided."""
+        return self._session_id
+
+    @property
+    def app_path(self):
+        """ App path derived from the kwargs provided."""
+        return self._app_path
 
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 

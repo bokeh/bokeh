@@ -13,7 +13,6 @@ from tornado.concurrent import Future
 from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
 from bokeh.server.protocol.receiver import Receiver
 from bokeh.server.protocol import Protocol
-from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL
 
 class _WebSocketClientConnectionWrapper(object):
     ''' Used for compat across Tornado versions '''
@@ -79,11 +78,11 @@ class ClientConnection(object):
             else:
                 yield connection._next()
 
-    def __init__(self, session, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    def __init__(self, session, websocket_url, io_loop=None):
         '''
           Opens a websocket connection to the server.
         '''
-        self._url = url
+        self._url = websocket_url
         self._session = session
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)

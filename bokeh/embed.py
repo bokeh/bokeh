@@ -25,8 +25,7 @@ from .util.string import encode_utf8
 
 from .model import Model, _ModelInDocument
 from ._json_encoder import serialize_json
-from .resources import DEFAULT_SERVER_HTTP_URL
-from .client import DEFAULT_SESSION_ID
+from .resources import DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
 from .document import Document, DEFAULT_TITLE
 from collections import Sequence
 from six import string_types
@@ -352,7 +351,7 @@ def autoload_static(model, resources, script_path):
 
         return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="default", loglevel="info"):
+def autoload_server(model, app_path="/", session_id=None, url="default", loglevel="info"):
     ''' Return a script tag that can be used to embed Bokeh Plots from
     a Bokeh Server.
 
@@ -361,7 +360,8 @@ def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="def
     Args:
         model (Model) : the object to render from the session, or None for entire document
         app_path (str, optional) : the server path to the app we want to load
-        session_id (str, optional) : server session ID
+        session_id (str, optional) : server session ID (default: None)
+          If None, autogenerate a random session ID.
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
         loglevel (str, optional) : "trace", "debug", "info", "warn", "error", "fatal"
 
@@ -372,8 +372,9 @@ def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="def
 
     '''
 
-    if url == "default":
-        url = DEFAULT_SERVER_HTTP_URL
+    coords = _SessionCoordinates(dict(url=url,
+                                      session_id=session_id,
+                                      app_path=app_path))
 
     elementid = str(uuid.uuid4())
 
@@ -382,13 +383,13 @@ def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="def
     if model is not None:
         model_id = model._id
 
-    if not url.endswith("/"):
-        url = url + "/"
-    if not app_path.endswith("/"):
-        app_path = app_path + "/"
-    if app_path.startswith("/"):
-        app_path = app_path[1:]
-    src_path = url + app_path + "autoload.js" + "?bokeh-autoload-element=" + elementid
+    server_url = coords.server_url
+    session_id = coords.session_id
+
+    if not server_url.endswith("/"):
+        server_url = server_url + "/"
+
+    src_path = server_url + "autoload.js" + "?bokeh-autoload-element=" + elementid
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,

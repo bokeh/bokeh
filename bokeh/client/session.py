@@ -9,13 +9,16 @@ log = logging.getLogger(__name__)
 
 from .connection import ClientConnection
 
-from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL, DEFAULT_SERVER_HTTP_URL, server_url_for_websocket_url
+from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
+                              DEFAULT_SERVER_HTTP_URL,
+                              server_url_for_websocket_url,
+                              _SessionCoordinates )
 from bokeh.document import Document, PeriodicCallback, TimeoutCallback
 import uuid
 
 DEFAULT_SESSION_ID = "default"
 
-def push_session(document, session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+def push_session(document, session_id=None, url='default', app_path='/', io_loop=None):
     """Create a session by pushing the given document to the server, overwriting any existing server-side document.
 
        session.document in the returned session will be your supplied document. While the
@@ -27,20 +30,23 @@ def push_session(document, session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFA
             document : bokeh.document.Document
                 The document to be pushed and set as session.document
             session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
+                The name of the session, None to autogenerate a random one (default: None)
+            url : str, optional
+                The base server URL to connect to (default: 'default')
+            app_path : str, optional
+                Relative path to the app on the server (defualt: '/')
             io_loop : tornado.ioloop.IOLoop, optional
                 The IOLoop to use for the websocket
-            url : str, optional
-                The websocket URL to connect to
        Returns:
             session : ClientSession
                 A new ClientSession connected to the server
     """
-    session = ClientSession(session_id=session_id, io_loop=io_loop, url=url)
+    coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
+    session = ClientSession(session_id=coords.session_id, websocket_url=coords.websocket_url, io_loop=io_loop)
     session.push(document)
     return session
 
-def pull_session(session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+def pull_session(session_id=None, url='default', app_path='/', io_loop=None):
     """Create a session by loading the current server-side document.
 
        session.document will be a fresh document loaded from the server. While the
@@ -50,16 +56,19 @@ def pull_session(session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER
 
        Args:
             session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
+                The name of the session, None to autogenerate a random one (default: None)
+            url : str, optional
+                The base server URL to connect to (default: 'default')
+            app_path : str, optional
+                Relative path to the app on the server (defualt: '/')
             io_loop : tornado.ioloop.IOLoop, optional
                 The IOLoop to use for the websocket
-            url : str, optional
-                The websocket URL to connect to
        Returns:
             session : ClientSession
                 A new ClientSession connected to the server
     """
-    session = ClientSession(session_id=session_id, io_loop=io_loop, url=url)
+    coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
+    session = ClientSession(session_id=session_id, websocket_url=coords.websocket_url, io_loop=io_loop)
     session.pull()
     return session
 
@@ -74,18 +83,23 @@ def _encode_query_param(s):
 
 _new_param = {'tab': 2, 'window': 1}
 
-def show_session(session_id=None, server_url=None,
+def show_session(session_id=None, url='default', app_path='/',
                  session=None, browser=None, new="tab", controller=None):
         """ Open a browser displaying a session document.
 
         Args:
 
-        session_id (str, optional) : session ID to open (default: DEFAULT_SESSION_ID)
+        session_id : string, optional
+             The name of the session, None to autogenerate a random one (default: None)
 
-        server_url (str, optional) : server base URL to open the session on (default: DEFAULT_HTTP_SERVER_URL)
+        url : str, optional
+             The base server URL to connect to (default: 'default')
+
+        app_path : str, optional
+             Relative path to the app on the server (defualt: '/')
 
         session (ClientSession, optional) : session to get session ID and server URL from
-            If you specify this, you don't need to specify session_id and server_url
+            If you specify this, you don't need to specify session_id and url
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows
@@ -99,17 +113,13 @@ def show_session(session_id=None, server_url=None,
             opens a new tab. If **new** is 'window', then opens a new window.
         """
 
-        if session_id is None:
-            if session is not None:
-                session_id = session.id
-            else:
-                session_id = DEFAULT_SESSION_ID
-
-        if server_url is None:
-            if session is not None:
-                server_url = server_url_for_websocket_url(session._connection.url)
-            else:
-                server_url = DEFAULT_SERVER_HTTP_URL
+        if session is not None:
+            server_url = server_url_for_websocket_url(session._connection.url)
+            session_id = session.id
+        else:
+            coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
+            server_url = coords.server_url
+            session_id = coords.session_id
 
         if controller is None:
             import bokeh.browserlib as browserlib
@@ -128,7 +138,7 @@ class ClientSession(object):
 
     """
 
-    def __init__(self, session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    def __init__(self, session_id, websocket_url, io_loop=None):
         '''
           A connection which attaches to a particular named session on the server.
 
@@ -140,17 +150,17 @@ class ClientSession(object):
           a good way to obtain a ClientSession.
 
           Args:
-            session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
+            session_id : str
+                The name of the session
+            websocket_url : str
+                Websocket URL to connect to
             io_loop : tornado.ioloop.IOLoop, optional
                 The IOLoop to use for the websocket
-            url : str, optional
-                The websocket URL to connect to
         '''
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
-        self._connection = ClientConnection(session=self, io_loop=io_loop, url=url)
+        self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
         self._current_patch = None
         self._callbacks = {}
