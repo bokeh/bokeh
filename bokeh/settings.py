@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import codecs
 import logging
 import os
 from os.path import join, abspath, isdir
@@ -85,6 +86,24 @@ class Settings(object):
     def strict(self, default=None):
         return self._get_bool("STRICT", default, False)
 
+    def secret_key(self, default=None):
+        """ Should be a long, cryptographically-random secret unique the the Bokeh deployment."""
+        return self._get_str("SECRET_KEY", default)
+
+    def secret_key_bytes(self):
+        """ secret_key() converted to bytes and cached."""
+        if not hasattr(self, '_secret_key_bytes'):
+            key = self.secret_key()
+            if key is None:
+                self._secret_key_bytes = None
+            else:
+                self._secret_key_bytes = codecs.encode(key, "utf-8")
+        return self._secret_key_bytes
+
+    def sign_sessions(self, default=False):
+        """ True to only allow sessions signed with our secret key. If True, BOKEH_SECRET_KEY must also be set."""
+        return self._get_bool("SIGN_SESSIONS", default)
+
     """
     Server settings go here:
     """
@@ -122,3 +141,12 @@ class Settings(object):
 
 settings = Settings()
 del Settings
+
+if settings.secret_key() is not None:
+    if len(settings.secret_key()) < 64:
+        import warnings
+        warnings.warn("BOKEH_SECRET_KEY is recommended to be at least 64 characters chosen with a cryptographically-random algorithm")
+
+if settings.sign_sessions() and settings.secret_key() is None:
+    import warnings
+    warnings.warn("BOKEH_SECRET_KEY must be set if BOKEH_SIGN_SESSIONS is set to true")

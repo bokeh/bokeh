@@ -20,6 +20,8 @@ from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..protocol.server_handler import ServerHandler
 
+from bokeh.util.session_id import check_session_id_signature
+
 def do_background_stuff(msgid):
     delay = random.random() * 2.0
     log.info("start working for %.2f s. on %s", delay, msgid)
@@ -65,6 +67,10 @@ class WSHandler(WebSocketHandler):
         if session_id is None:
             self.close()
             raise ProtocolError("No bokeh-session-id specified")
+
+        if not check_session_id_signature(session_id):
+            log.error("Session id had invalid signature: %r", session_id)
+            raise ProtocolError("Invalid session ID")
 
         try:
             self.application_context.create_session_if_needed(session_id)
