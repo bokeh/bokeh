@@ -1,3 +1,4 @@
+from pdb import set_trace as bp
 from math import pi
 
 import pandas as pd
@@ -6,6 +7,8 @@ from bokeh.sampledata.stocks import MSFT
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.formatters import TickFormatter, String, List
 
+# In this custom TickFormatter, xaxis labels are taken from an array of date
+# Strings (e.g. ['Sep 01', 'Sep 02', ...]) passed to the date_labels property. 
 class DateGapTickFormatter(TickFormatter):
   date_labels = List(item_type=String)
   __implementation__ = """
@@ -28,8 +31,9 @@ module.exports =
 		"""
 
 df = pd.DataFrame(MSFT)[:50]
-df = df.set_index([range(0,len(df))])
-date_labels = map(lambda x: x.strftime('%b %d'), pd.to_datetime(df["date"]))
+
+# xaxis date labels used in the custom TickFormatter
+date_labels = [date.strftime('%b %d') for date in pd.to_datetime(df["date"])]
 
 mids = (df.open + df.close)/2
 spans = abs(df.close-df.open)
@@ -44,8 +48,11 @@ TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
 p = figure(tools=TOOLS, plot_width=1000, toolbar_location="left")
 
+# Using the custom TickFormatter. You must always define date_labels
 p.xaxis[0].formatter = DateGapTickFormatter(date_labels = date_labels)
 
+# x coordinates must be integers. If for example df.index are 
+# datetimes, you should replace them with a integer sequence
 p.segment(df.index, df.high, df.index, df.low, color="black")
 p.rect(df.index[inc], mids[inc], w, spans[inc], fill_color="#D5E1DD", line_color="black")
 p.rect(df.index[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="black")
