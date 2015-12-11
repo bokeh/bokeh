@@ -643,45 +643,60 @@ def add_wedge_spacing(df, spacing):
         df.ix[df['level'] > 0, 'inners'] += spacing
 
 
-def add_charts_hover(chart, use_hover, hover_text=None, values_col=None, agg_text=None,
-                     hover_spec=None, chart_cols=None):
+def build_hover_tooltips(hover_spec=None, chart_cols=None):
 
-    if hover_spec is not None:
+    if isinstance(hover_spec, bool):
+        tooltips = [(col, '@' + col) for col in chart_cols]
+    elif isinstance(hover_spec[0], tuple):
+        tooltips = hover_spec
+    else:
+        tooltips = [(col, '@' + col) for col in hover_spec]
 
-        if isinstance(hover_spec, bool):
-            tooltips = [(col, '@' + col) for col in chart_cols]
-        elif isinstance(hover_spec[0], tuple):
-            tooltips = hover_spec
-        else:
-            tooltips = [(col, '@' + col) for col in hover_spec]
+    return tooltips
 
-        chart.add_tools(HoverTool(tooltips=tooltips))
 
-    elif use_hover:
+def build_agg_tooltip(hover_text=None, agg_text=None, aggregated_col=None):
 
-        # configure the hover text based on input configuration
-        if hover_text is None:
-            if agg_text is None:
-                if isinstance(values_col, str):
-                    hover_text = values_col
-                else:
-                    hover_text = 'value'
+    # configure the hover text based on input configuration
+    if hover_text is None:
+        if agg_text is None:
+            if isinstance(aggregated_col, str):
+                hover_text = aggregated_col
             else:
-                hover_text = agg_text
-                if isinstance(values_col, str):
-                    hover_text = '%s of %s' % (hover_text, values_col)
+                hover_text = 'value'
+        else:
+            hover_text = agg_text
+            if isinstance(aggregated_col, str):
+                hover_text = '%s of %s' % (hover_text, aggregated_col)
 
-        # add the tooltip
-        chart.add_tools(HoverTool(tooltips=[(hover_text.title(), "@values")]))
+    return hover_text.title(), "@values"
 
 
-def label_from_index_dict(chart_index):
+def label_from_index_dict(chart_index, include_cols=False):
+    """
+
+    Args:
+        chart_index (dict(str, any) or str or None): identifier for the data group,
+            representing either the value of a column (str), no grouping (None), or a dict
+            where each key represents a column, and the value is the unique value.
+
+    Returns:
+        str: a derived label representing the chart index value
+
+    """
     if isinstance(chart_index, str):
         return chart_index
     elif chart_index is None:
         return 'None'
-    else:
-        label = tuple(chart_index.values())
-        if len(label) == 1:
-            label = label[0]
+    elif isinstance(chart_index, dict):
+        if include_cols:
+            label = ', '.join(['%s=%s' % (col, val) for col, val in iteritems(
+                chart_index)])
+        else:
+            label = tuple(chart_index.values())
+            if len(label) == 1:
+                label = label[0]
         return label
+    else:
+        raise ValueError('chart_index type is not recognized, \
+                          received %s' % type(chart_index))
