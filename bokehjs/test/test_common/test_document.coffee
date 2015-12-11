@@ -3,7 +3,7 @@ _ = require "underscore"
 utils = require "../utils"
 
 HasProperties = utils.require "common/has_properties"
-{Document, ModelChangedEvent} = utils.require "common/document"
+{Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "common/document"
 base = utils.require "common/base"
 Collection = utils.require "common/collection"
 
@@ -150,14 +150,180 @@ describe "Document", ->
       expect(e.message).to.include('Multiple models')
     expect(got_error).to.equal(true)
 
-  # TODO copy the following tests from test_document.py here
-  # TODO(havocp) test_all_models_with_multiple_references
-  # TODO(havocp) test_all_models_with_cycles
-  # TODO(havocp) test_change_notification
-  # TODO(havocp) test_change_notification_removal
-  # TODO(havocp) test_notification_of_roots
-  # TODO(havocp) test_notification_of_title
-  # TODO(havocp) test_clear
+  it "can have all_models with multiple references", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(_.size(d._all_models)).to.equal 0
+
+    root1 = new SomeModel()
+    root2 = new SomeModel()
+    child1 = new AnotherModel()
+    root1.set('child', child1)
+    root2.set('child', child1)
+    d.add_root(root1)
+    d.add_root(root2)
+    expect(d.roots().length).to.equal 2
+    expect(_.size(d._all_models)).to.equal 3
+
+    root1.set('child', null)
+    expect(_.size(d._all_models)).to.equal 3
+
+    root2.set('child', null)
+    expect(_.size(d._all_models)).to.equal 2
+
+    root1.set('child', child1)
+    expect(_.size(d._all_models)).to.equal 3
+
+    root2.set('child', child1)
+    expect(_.size(d._all_models)).to.equal 3
+
+    d.remove_root(root1)
+    expect(_.size(d._all_models)).to.equal 2
+
+    d.remove_root(root2)
+    expect(_.size(d._all_models)).to.equal 0
+
+  it "can have all_models with cycles", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(_.size(d._all_models)).to.equal 0
+
+    root1 = new SomeModel()
+    root2 = new SomeModel()
+    child1 = new SomeModel()
+    root1.set('child', child1)
+    root2.set('child', child1)
+    child1.set('child', root1)
+    d.add_root(root1)
+    d.add_root(root2)
+    expect(d.roots().length).to.equal 2
+    expect(_.size(d._all_models)).to.equal 3
+
+    root1.set('child', null)
+    expect(_.size(d._all_models)).to.equal 3
+
+    root2.set('child', null)
+    expect(_.size(d._all_models)).to.equal 2
+
+    root1.set('child', child1)
+    expect(_.size(d._all_models)).to.equal 3
+
+  it "can notify on changes", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+
+    m = new AnotherModel()
+
+    d.add_root(m)
+    expect(d.roots().length).to.equal 1
+    expect(m.get('bar')).to.equal 1
+
+    events = []
+    curdoc_from_listener = []
+    listener = (event) ->
+      events.push(event)
+    d.on_change(listener)
+
+    m.set('bar', 42)
+    expect(events.length).to.equal 1
+    expect(events[0]).is.instanceof ModelChangedEvent
+    expect(events[0].document).to.equal d
+    expect(events[0].model).to.equal m
+    expect(events[0].attr).to.equal 'bar'
+    expect(events[0].old).to.equal 1
+    expect(events[0].new_).to.equal 42
+
+  it "can remove notification changes", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+
+    m = new AnotherModel()
+
+    d.add_root(m)
+    expect(d.roots().length).to.equal 1
+    expect(m.get('bar')).to.equal 1
+
+    events = []
+    listener = (event) ->
+      events.push(event)
+    d.on_change(listener)
+
+    m.set('bar', 42)
+
+    expect(events.length).to.equal 1
+    expect(events[0].new_).to.equal 42
+
+    d.remove_on_change(listener)
+    m.set('bar', 43)
+
+    expect(events.length).to.equal 1
+
+  it "should notify on roots change", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+
+    events = []
+    listener = (event) ->
+      events.push(event)
+    d.on_change(listener)
+
+    m = new AnotherModel({bar:1})
+    d.add_root(m)
+    expect(d.roots().length).to.equal 1
+    expect(events.length).to.equal 1
+    expect(events[0]).is.instanceof RootAddedEvent
+    expect(events[0].model).to.equal m
+
+    m2 = new AnotherModel({bar:2})
+    d.add_root(m2)
+    expect(d.roots().length).to.equal 2
+    expect(events.length).to.equal 2
+    expect(events[1]).is.instanceof RootAddedEvent
+    expect(events[1].model).to.equal m2
+
+    d.remove_root(m)
+    expect(d.roots().length).to.equal 1
+    expect(events.length).to.equal 3
+    expect(events[2]).is.instanceof RootRemovedEvent
+    expect(events[2].model).to.equal m
+
+    d.remove_root(m2)
+    expect(d.roots().length).to.equal 0
+    expect(events.length).to.equal 4
+    expect(events[3]).is.instanceof RootRemovedEvent
+    expect(events[3].model).to.equal m2
+
+  it "should notify on title change", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(d.title()).to.equal DEFAULT_TITLE
+
+    events = []
+    listener = (event) ->
+      events.push(event)
+    d.on_change(listener)
+
+    d.set_title('Foo')
+    expect(d.title()).to.equal 'Foo'
+    expect(events.length).to.equal 1
+    expect(events[0]).is.instanceof TitleChangedEvent
+    expect(events[0].document).to.equal d
+    expect(events[0].title).to.equal 'Foo'
+
+  it "can clear", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(d.title()).to.equal DEFAULT_TITLE
+    d.add_root(new AnotherModel())
+    d.add_root(new AnotherModel())
+    d.set_title('Foo')
+    expect(d.roots().length).to.equal 2
+    expect(d.title()).to.equal 'Foo'
+    d.clear()
+    expect(d.roots().length).to.equal 0
+    expect(_.size(d._all_models)).to.equal 0
+    # does not reset title
+    expect(d.title()).to.equal 'Foo'
 
   it "can serialize with one model in it", ->
     d = new Document()
@@ -203,9 +369,69 @@ describe "Document", ->
 
     expect(child1.get('foo')).to.equal 67
 
-  # TODO copy the following tests from test_document.py here
-  # TODO(havocp) test_patch_reference_property
-  # TODO(havocp) test_patch_two_properties_at_once
+  it "can patch a reference property", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(Object.keys(d._all_models).length).to.equal 0
+
+    root1 = new SomeModel({ foo: 42 })
+    root2 = new SomeModel({ foo: 43 })
+    child1 = new SomeModel({ foo: 44 })
+    child2 = new SomeModel({ foo: 45 })
+    child3 = new SomeModel({ foo: 46, child: child2})
+    root1.set { child: child1 }
+    root2.set { child: child1 }
+    d.add_root(root1)
+    d.add_root(root2)
+    expect(d.roots().length).to.equal 2
+
+    expect(d._all_models).to.have.property(child1.id)
+    expect(d._all_models).to.not.have.property(child2.id)
+    expect(d._all_models).to.not.have.property(child3.id)
+
+    event1 = new ModelChangedEvent(d, root1, 'child', root1.get('child'), child3)
+    patch1 = d.create_json_patch_string([event1])
+    d.apply_json_patch_string(patch1)
+
+    expect(root1.get('child').id).to.equal child3.id
+    expect(root1.get('child').get('child').id).to.equal child2.id
+    expect(d._all_models).to.have.property(child1.id)
+    expect(d._all_models).to.have.property(child2.id)
+    expect(d._all_models).to.have.property(child3.id)
+
+    # put it back how it was before
+    event2 = new ModelChangedEvent(d, root1, 'child', child1.get('child'), child1)
+    patch2 = d.create_json_patch_string([event2])
+    d.apply_json_patch_string(patch2)
+
+    expect(root1.get('child').id).to.equal child1.id
+    expect(root1.get('child').get('child')).to.be.equal null
+    expect(d._all_models).to.have.property(child1.id)
+    expect(d._all_models).to.not.have.property(child2.id)
+    expect(d._all_models).to.not.have.property(child3.id)
+
+  it "can patch two properties at once", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(Object.keys(d._all_models).length).to.equal 0
+
+    root1 = new SomeModel({ foo: 42 })
+    child1 = new SomeModel({ foo: 43 })
+    root1.set { child: child1 }
+    d.add_root(root1)
+    expect(d.roots().length).to.equal 1
+
+    child2 = new SomeModel({ foo: 44 })
+
+    event1 = new ModelChangedEvent(d, root1, 'foo', root1.get('foo'), 57)
+    event2 = new ModelChangedEvent(d, root1, 'child', root1.get('child'), child2)
+    patch1 = d.create_json_patch_string([event1, event2])
+    d.apply_json_patch_string(patch1)
+
+
+    expect(root1.get('foo')).to.equal 57
+    expect(root1.get('child').get('foo')).to.be.equal 44
+
 
   it "sets proper document on models added during construction", ->
     d = new Document()
