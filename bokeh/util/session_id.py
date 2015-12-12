@@ -10,7 +10,7 @@ import hmac
 import random
 import time
 
-from six import string_types
+from six import binary_type
 
 from bokeh.settings import settings
 
@@ -33,10 +33,12 @@ except NotImplementedError:
     using_sysrandom = False
 
 def _ensure_bytes(secret_key):
-    if isinstance(secret_key, string_types):
-        return codecs.encode(secret_key, 'utf-8')
-    else:
+    if secret_key is None:
+        return None
+    elif isinstance(secret_key, binary_type):
         return secret_key
+    else:
+        return codecs.encode(secret_key, 'utf-8')
 
 # this is broken out for unit testability
 def _reseed_if_needed(using_sysrandom, secret_key):
@@ -61,8 +63,8 @@ def _base64_encode(decoded):
     # If 'decoded' isn't bytes already, assume it's utf-8
     decoded_as_bytes = _ensure_bytes(decoded)
     encoded = codecs.decode(base64.urlsafe_b64encode(decoded_as_bytes), 'ascii')
-    # remove padding char that causes trouble
-    return encoded.rstrip('=')
+    # remove padding '=' chars that cause trouble
+    return str(encoded.rstrip('='))
 
 def _signature(base_id, secret_key):
     secret_key = _ensure_bytes(secret_key)
@@ -106,7 +108,7 @@ def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(
     """
     secret_key = _ensure_bytes(secret_key)
     if signed:
-        pieces = session_id.split(sep='-', maxsplit=1)
+        pieces = session_id.split('-', 1)
         if len(pieces) != 2:
             return False
         base_id = pieces[0]
