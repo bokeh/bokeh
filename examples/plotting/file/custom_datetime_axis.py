@@ -1,4 +1,3 @@
-from pdb import set_trace as bp
 from math import pi
 
 import pandas as pd
@@ -10,8 +9,9 @@ from bokeh.models.formatters import TickFormatter, String, List
 # In this custom TickFormatter, xaxis labels are taken from an array of date
 # Strings (e.g. ['Sep 01', 'Sep 02', ...]) passed to the date_labels property. 
 class DateGapTickFormatter(TickFormatter):
-  date_labels = List(item_type=String)
-  __implementation__ = """
+    date_labels = List(String)
+
+    __implementation__ = """
 _ = require "underscore"
 HasProperties = require "common/has_properties"
 
@@ -20,15 +20,11 @@ class DateGapTickFormatter extends HasProperties
 
   format: (ticks) ->
     date_labels = @get("date_labels")
-    labels = ( 
-      for tick, i in ticks
-        date_labels[tick] ? ""
-      )
-    return labels
+    return (date_labels[tick] ? "" for tick in ticks)
 
 module.exports =
   Model: DateGapTickFormatter
-		"""
+"""
 
 df = pd.DataFrame(MSFT)[:50]
 
