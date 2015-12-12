@@ -134,14 +134,20 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
 # here we default to a hardcoded one. This is to support local
 # usage e.g. with a notebook.
 def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", autopush=False):
-    """Store Bokeh plots and objects on a Bokeh server.
+    """ Configure the default output state to push its document to a
+    session on a Bokeh server.
 
-    File, server, and notebook output may be active at the
-    same time, so this does not clear the effects of
-    output_file() or output_notebook(). output_server()
-    changes the behavior of output_notebook(), so the notebook
-    will load output cells from the server rather than
-    receiving them as inline HTML.
+    Sessions are in-memory and not persisted to disk, making
+    output_server() most useful for single-user scripts
+    (output_server() isn't appropriate for an application deployed
+    on the web where each person will need their own session).
+
+    File, server, and notebook output may be active at the same
+    time, so output_server() does not clear the effects of
+    output_file() or output_notebook(). output_server() changes
+    the behavior of output_notebook(), so the notebook will load
+    output cells from the server rather than receiving them as
+    inline HTML.
 
     Args:
         session_id (str, optional) : Name of session to push on Bokeh server (default: "default")
