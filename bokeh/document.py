@@ -53,7 +53,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
     def dispatch(self, receiver):
         super(ModelChangedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_document_model_changed'):
-            receiver._document_patched(self)
+            receiver._document_model_changed(self)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
@@ -257,6 +257,7 @@ class Document(object):
         old_all_models_set = set(self._all_models.values())
         to_detach = old_all_models_set - new_all_models_set
         to_attach = new_all_models_set - old_all_models_set
+
         recomputed = {}
         recomputed_by_name = _MultiValuedDict()
         for m in new_all_models_set:
