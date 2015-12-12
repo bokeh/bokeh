@@ -206,7 +206,7 @@ class Serve(Subcommand):
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
                                                               'host',
-                                                              'keep_alive']
+                                                              'keep_alive_milliseconds']
                           if getattr(args, key, None) is not None }
 
         server = Server(applications, **server_kwargs)

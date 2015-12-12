@@ -30,6 +30,23 @@ class TestDocument(unittest.TestCase):
         assert len(d.roots) == 1
         assert next(iter(d.roots)).document == d
 
+    def test_roots_preserves_insertion_order(self):
+        d = document.Document()
+        assert not d.roots
+        roots = [
+            AnotherModelInTestDocument(),
+            AnotherModelInTestDocument(),
+            AnotherModelInTestDocument(),
+        ]
+        for r in roots:
+            d.add_root(r)
+        assert len(d.roots) == 3
+        assert type(d.roots) is list
+        roots_iter = iter(d.roots)
+        assert next(roots_iter) is roots[0]
+        assert next(roots_iter) is roots[1]
+        assert next(roots_iter) is roots[2]
+
     def test_set_title(self):
         d = document.Document()
         assert d.title == document.DEFAULT_TITLE

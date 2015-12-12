@@ -40,7 +40,7 @@ class CustomJS(Callback):
         except ImportError:
             if sys.version_info < (3, ):
                 raise RuntimeError('Using Python functions for CustomJS '
-                                    'is currently not supported on Python 2.x)')
+                                    'is currently not supported on Python 2.x')
             else:
                 raise RuntimeError('To use Python functions for CustomJS, you need Flexx '
                                    '("conda install -c bokeh flexx" or "pip install flexx")')
