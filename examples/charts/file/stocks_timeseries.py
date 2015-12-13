@@ -25,7 +25,7 @@ output_file("stocks_timeseries.html")
 ts = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
     title="Timeseries", tools=TOOLS, ylabel='Stock Prices',
-    hover=[('stock', '@series'), ('value', '@y_values')])
+    tooltips=[('stock', '@series'), ('value', '@y_values')])
 
 # hover input is shorthand to adding manually
 # series is a generated column containing the labels of the data passed in as y

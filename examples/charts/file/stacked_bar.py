@@ -19,7 +19,7 @@ bar = Bar(df,
                       sort=False),
           legend='top_right',
           title="Medals per Country, Sorted by Total Medals",
-          hover=[('medal', '@medal'), ('country', '@abbr')])
+          tooltips=[('medal', '@medal'), ('country', '@abbr')])
 
 
 output_file("stacked_bar.html")

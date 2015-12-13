@@ -36,7 +36,7 @@ box_plot7 = BoxPlot(df, label='cyl', values='mpg', whisker_color='cyl',
 # remove outliers
 box_plot8 = BoxPlot(df, label='cyl', values='mpg', outliers=False,
                     title="label='cyl', values='mpg', outliers=False",
-                    hover=True)
+                    tooltips=True)
 
 # collect and display
 output_file("boxplot_multi.html")
