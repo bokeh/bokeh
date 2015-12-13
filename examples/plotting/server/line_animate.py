@@ -1,34 +1,27 @@
-# The plot server must be running
-# Go to http://localhost:5006/bokeh to view this plot
-
-import time
-
 import numpy as np
+from numpy import pi
 
-from bokeh.plotting import figure, show, output_server, curdoc
+from bokeh.plotting import figure, curdoc
 from bokeh.client import push_session
-N = 80
+from bokeh.util.forcing import cosine
 
-x = np.linspace(0, 4*np.pi, N)
+x = np.linspace(0, 4*pi, 80)
 y = np.sin(x)
 
-output_server("line_animate")
-
 p = figure()
+r1 = p.line([0, 4*pi], [-1, 1], color="firebrick")
+r2 = p.line(x, y, color="navy", line_width=4)
 
-p.line(x, y, color="#3333ee", name="sin")
-p.line([0,4*np.pi], [-1, 1], color="#ee3333")
-
-# Open a session which will keep our local doc in sync with server
+# open a session to keep our local document in sync with server
 session = push_session(curdoc())
-# Open the session in a browser
-session.show()
 
-renderer = p.select(dict(name="sin"))
-ds = renderer[0].data_source
+@cosine(w=0.03)
+def update(step):
+    r2.data_source.data["y"] = y * step
+    r2.glyph.line_alpha = 1 - 0.8 * abs(step)
 
-while True:
-    for i in np.hstack((np.linspace(1, -1, 100), np.linspace(-1, 1, 100))):
-        ds.data["y"] = y * i
+curdoc().add_periodic_callback(update, 50)
 
-        time.sleep(0.05)
+session.show() # open the document in a browser
+
+session.loop_until_closed() # run forever
