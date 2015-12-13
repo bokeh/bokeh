@@ -6,8 +6,6 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
-import random
-import time
 import codecs
 
 from tornado import gen
@@ -19,13 +17,6 @@ from ..protocol import Protocol
 from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..protocol.server_handler import ServerHandler
-
-def do_background_stuff(msgid):
-    delay = random.random() * 2.0
-    log.info("start working for %.2f s. on %s", delay, msgid)
-    time.sleep(delay)
-    log.info("work finished on %s", msgid)
-    return "done"
 
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
@@ -129,9 +120,9 @@ class WSHandler(WebSocketHandler):
         # sent a buggy ping or the client is evil/broken.
         try:
             self.latest_pong = int(codecs.decode(data, 'utf-8'))
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             log.error("received invalid unicode in pong %r", data, exc_info=True)
-        except ValueError as e:
+        except ValueError:
             log.error("received invalid integer in pong %r", data, exc_info=True)
 
     @gen.coroutine
