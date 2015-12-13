@@ -643,7 +643,23 @@ def add_wedge_spacing(df, spacing):
 
 
 def build_hover_tooltips(hover_spec=None, chart_cols=None):
+    """Produce tooltips for column dimensions used in chart configuration.
 
+    Provides convenience for producing tooltips for data with labeled columns. If you
+    had two bars in a bar chart, one for female and one for male, you may also want to
+    have the tooltip say "Sex: female" and "Sex: male" when hovering.
+
+    Args:
+        hover_spec (bool, list(tuple(str, str), list(str), optional): either can be a
+            valid input to the `HoverTool` tooltips kwarg, or a boolean `True` to have
+            all dimensions specified in chart be added to the tooltip, or a list of
+            columns that you do want to be included in the tooltips.
+        chart_cols:
+
+    Returns:
+        list(tuple(str, str)): list of tooltips
+
+    """
     if isinstance(hover_spec, bool):
         tooltips = [(col, '@' + col) for col in chart_cols]
     elif isinstance(hover_spec[0], tuple):
@@ -655,8 +671,18 @@ def build_hover_tooltips(hover_spec=None, chart_cols=None):
 
 
 def build_agg_tooltip(hover_text=None, agg_text=None, aggregated_col=None):
+    """Produce a consistent tooltip based on available chart configuration.
 
-    # configure the hover text based on input configuration
+    Args:
+        hover_text (str, optional): the desired label for the value to be shown in the
+            tooltip
+        agg_text (str, optional): any aggregation text used for the chart
+        aggregated_col (str, optional): any column name used for aggregation
+
+    Returns:
+        tuple(str, str): a single tooltip
+
+    """
     if hover_text is None:
         if agg_text is None:
             if isinstance(aggregated_col, str):
