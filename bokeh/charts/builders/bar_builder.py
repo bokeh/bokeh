@@ -96,20 +96,7 @@ class BarBuilder(Builder):
         else:
             pass
 
-        # try to infer grouping vs stacking labels
-        if (self.attributes['label'].columns is None and
-            self.values.selection is not None):
-
-            if self.attributes['stack'].columns is not None:
-                special_column = 'unity'
-            else:
-                special_column = 'index'
-
-            self._data['label'] = special_column
-            self.attributes['label'].setup(data=ColumnDataSource(self._data.df),
-                                           columns=special_column)
-
-            self.xlabel = ''
+        self._apply_inferred_index()
 
         if self.xlabel is None:
             if self.attributes['label'].columns is not None:
@@ -122,6 +109,24 @@ class BarBuilder(Builder):
                 self.ylabel = '%s( %s )' % (self.agg.title(), str(self.values.selection).title())
             else:
                 self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
+
+    def _apply_inferred_index(self):
+        """Configure chart when labels are provided as index instead of as kwarg."""
+
+        # try to infer grouping vs stacking labels
+        if (self.attributes['label'].columns is None and
+                    self.values.selection is not None):
+
+            if self.attributes['stack'].columns is not None:
+                special_column = 'unity'
+            else:
+                special_column = 'index'
+
+            self._data['label'] = special_column
+            self.attributes['label'].setup(data=ColumnDataSource(self._data.df),
+                                           columns=special_column)
+
+            self.xlabel = ''
 
     def set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate

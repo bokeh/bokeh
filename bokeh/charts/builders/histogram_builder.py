@@ -133,6 +133,9 @@ class HistogramBuilder(BarBuilder):
     def get_extra_args(self):
         return dict(bin_count=self.bins)
 
+    def _apply_inferred_index(self):
+        pass
+
     def set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
