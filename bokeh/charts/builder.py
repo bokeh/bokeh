@@ -218,7 +218,13 @@ class Builder(HasProps):
 
     source = Instance(ColumnDataSource)
 
-    tooltips = Either(List(Tuple(String, String)), List(String), Bool, default=None)
+    tooltips = Either(List(Tuple(String, String)), List(String), Bool, default=None,
+                      help="""
+        Tells the builder to add tooltips to the chart by either using the columns
+        specified to the chart attributes (True), or by generating tooltips for each
+        column specified (list(str)), or by explicit specification of the tooltips
+        using the valid input for the `HoverTool` tooltips kwarg.
+        """)
 
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
