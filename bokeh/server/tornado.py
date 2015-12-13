@@ -24,6 +24,15 @@ from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
 
+def _whitelist(hosts, handler_class):
+    old_prepare = handler_class.prepare
+    def _prepare(self, *args, **kw):
+        if self.request.host not in hosts:
+            raise HTTPError(403)
+        old_prepare(self, *args, **kw)
+    handler_class.prepare = _prepare
+
+
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
 
@@ -49,8 +58,6 @@ class BokehTornado(TornadoApplication):
         if io_loop is None:
             io_loop = IOLoop.current()
         self._loop = io_loop
-
-        self._hosts = hosts
 
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
@@ -86,6 +93,10 @@ class BokehTornado(TornadoApplication):
             relative_patterns.extend(app_patterns)
 
         all_patterns = extra_patterns + relative_patterns + toplevel_patterns
+
+        for pat in all_patterns:
+            _whitelist(hosts, pat[1])
+
         log.debug("Patterns are: %r", all_patterns)
         super(BokehTornado, self).__init__(all_patterns, **settings)
 
@@ -105,18 +116,11 @@ class BokehTornado(TornadoApplication):
     def io_loop(self):
         return self._loop
 
-    def _check_host_whitelist(self, request):
-        if request.host not in self._hosts:
-            log.error("Request with Host: '%s' not in the host whitelist, if this is a valid host for your web server add a --host option to bokeh serve" % request.host)
-            raise HTTPError(403, reason="request host not in whitelist")
-
     def root_url_for_request(self, request):
-        self._check_host_whitelist(request)
         # If we add a "whole server prefix," we'd put that on here too
         return request.protocol + "://" + request.host + "/"
 
     def websocket_url_for_request(self, request, websocket_path):
-        self._check_host_whitelist(request)
         protocol = "ws"
         if request.protocol == "https":
             protocol = "wss"
