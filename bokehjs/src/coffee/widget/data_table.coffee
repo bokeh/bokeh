@@ -5,9 +5,9 @@ SlickGrid = require "slick_grid/slick.grid"
 RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
 CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
 ContinuumView = require "../common/continuum_view"
-HasProperties= require "../common/has_properties"
 DOMUtil = require "../util/dom_util"
 hittest = require "../common/hittest"
+TableWidget = require "./table_widget"
 
 class DataProvider
 
@@ -181,7 +181,7 @@ class DataTableView extends ContinuumView
 
     return @
 
-class DataTable extends HasProperties
+class DataTable extends TableWidget.Model
   type: 'DataTable'
   default_view: DataTableView
 

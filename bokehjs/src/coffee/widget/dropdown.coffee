@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+AbstractButton = require "./abstract_button"
 
 class DropdownView extends ContinuumView
   tagName: "div"
@@ -59,7 +59,7 @@ class DropdownView extends ContinuumView
     @mset('value', value)
     @mget('callback')?.execute(@model)
 
-class Dropdown extends HasParent
+class Dropdown extends AbstractButton.Model
   type: "Dropdown"
   default_view: DropdownView
 
@@ -68,10 +68,7 @@ class Dropdown extends HasParent
       value: null
       default_value: null
       label: "Dropdown"
-      icon: null
-      type: "default"
       menu: []
-      disabled: false
     }
 
 module.exports =

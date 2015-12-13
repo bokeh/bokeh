@@ -27,7 +27,7 @@ class OpenURL(Callback):
 
 class CustomJS(Callback):
     """ Execute a JavaScript function. """
-    
+
     @classmethod
     def from_py_func(cls, func):
         """ Create a CustomJS instance from a Python function. The
@@ -40,7 +40,7 @@ class CustomJS(Callback):
         except ImportError:
             if sys.version_info < (3, ):
                 raise RuntimeError('Using Python functions for CustomJS '
-                                    'is currently not supported on Python 2.x)')
+                                    'is currently not supported on Python 2.x')
             else:
                 raise RuntimeError('To use Python functions for CustomJS, you need Flexx '
                                    '("conda install -c bokeh flexx" or "pip install flexx")')
@@ -59,7 +59,7 @@ class CustomJS(Callback):
     parameters to the callback.
     """)
 
-    code = String(help="""
+    code = String(default="", help="""
     A snippet of JavaScript/CoffeeScript code to execute in the browser. The
     code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,

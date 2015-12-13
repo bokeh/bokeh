@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 import random
 import time
-
+import codecs
 
 from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
@@ -36,6 +36,7 @@ class WSHandler(WebSocketHandler):
         self.handler = None
         self.connection = None
         self.application_context = kw['application_context']
+        self.latest_pong = -1
         # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
@@ -122,6 +123,16 @@ class WSHandler(WebSocketHandler):
                 yield self._schedule(work)
 
         raise gen.Return(None)
+
+    def on_pong(self, data):
+        # if we get an invalid integer or utf-8 back, either we
+        # sent a buggy ping or the client is evil/broken.
+        try:
+            self.latest_pong = int(codecs.decode(data, 'utf-8'))
+        except UnicodeDecodeError as e:
+            log.error("received invalid unicode in pong %r", data, exc_info=True)
+        except ValueError as e:
+            log.error("received invalid integer in pong %r", data, exc_info=True)
 
     @gen.coroutine
     def send_message(self, message):

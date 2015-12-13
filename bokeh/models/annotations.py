@@ -4,8 +4,8 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..enums import (Orientation, SpatialUnits, RenderLevel, Dimension,
-                     RenderMode)
+from ..deprecate import deprecated
+from ..enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
@@ -23,13 +23,33 @@ class Annotation(Renderer):
     The plot to which this annotation is attached.
     """)
 
+    level = Enum(RenderLevel, default="overlay", help="""
+    Specifies the level in which to render the annotation.
+    """)
+
 class Legend(Annotation):
     """ Render informational legends for a plot.
 
     """
 
-    orientation = Enum(Orientation, help="""
-    The location where the legend should draw itself.
+    __deprecated_attributes__ = ('orientation',)
+
+    @property
+    @deprecated("Bokeh 0.11", "Legend.location")
+    def orientation(self):
+        return self.location
+
+    @orientation.setter
+    @deprecated("Bokeh 0.11", "Legend.location")
+    def orientation(self, location):
+        self.location = location
+
+    location = Either(Enum(LegendLocation), Tuple(Float, Float),
+        default="top_right", help="""
+    The location where the legend should draw itself. It's either one of
+    ``bokeh.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    tuple indicating an absolute location absolute location in screen
+    coordinates (pixels from the bottom-left corner).
     """)
 
     border_props = Include(LineProps, help="""
@@ -96,7 +116,7 @@ class BoxAnnotation(Annotation):
 
     """
 
-    left = Either(Auto, NumberSpec("left"), default=None, help="""
+    left = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the left edge of the box annotation.
     """)
 
@@ -105,7 +125,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    right = Either(Auto, NumberSpec("right"), default=None, help="""
+    right = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the right edge of the box annotation.
     """)
 
@@ -114,7 +134,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    bottom = Either(Auto, NumberSpec("bottom"), default=None, help="""
+    bottom = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the bottom edge of the box annotation.
     """)
 
@@ -123,7 +143,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    top = Either(Auto, NumberSpec("top"), default=None, help="""
+    top = Either(Auto, NumberSpec(), default=None, help="""
     The y-coordinates of the top edge of the box annotation.
     """)
 
@@ -142,9 +162,7 @@ class BoxAnnotation(Annotation):
     rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Enum(RenderLevel, default="annotation", help="""
-    Specifies the level in which to render the box annotation.
-    """)
+    level = Override(default="annotation")
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the shades.
@@ -189,9 +207,7 @@ class Span(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Enum(RenderLevel, default="annotation", help="""
-    Specifies the level in which to render the span.
-    """)
+    level = Override(default="annotation")
 
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the span is rendered as a canvas element or as an

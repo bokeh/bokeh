@@ -32,7 +32,7 @@ from bokeh.enums import (
     Direction,
     Units, AngleUnits, DatetimeUnits,
     Dimension,
-    Anchor, Location, Orientation,
+    Anchor, Location, LegendLocation,
     DashPattern,
     ButtonType, MapType,
     NamedColor as Color, NamedIcon)
@@ -44,7 +44,7 @@ from bokeh.enums import (
     Direction,
     Units, AngleUnits, DatetimeUnits,
     Dimension,
-    Anchor, Location, Orientation,
+    Anchor, Location, LegendLocation,
     DashPattern,
     ButtonType, MapType,
     Color, NamedIcon)
@@ -55,7 +55,7 @@ TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_al
 
 PROPS = ["name", "tags"]
 GLYPH = ["visible"]
-MARKER = ["x", "y", "size", "angle"]
+MARKER = ["x", "y", "size", "angle", "angle_units"]
 
 def check_props(glyph, *props):
     expected = set(sum((PROPS, GLYPH) + props, []))
@@ -79,7 +79,7 @@ def check_line(glyph):
     assert glyph.line_dash_offset == 0
 
 def check_text(glyph):
-    assert glyph.text_font == "Helvetica"
+    assert glyph.text_font == "helvetica"
     assert glyph.text_font_size == {"value": "12pt"}
     assert glyph.text_font_style == FontStyle.normal
     assert glyph.text_color == "#444444"
@@ -88,18 +88,18 @@ def check_text(glyph):
     assert glyph.text_baseline == TextBaseline.bottom
 
 def check_marker(marker):
-    assert marker.x == "x"
-    assert marker.y == "y"
+    assert marker.x is None
+    assert marker.y is None
     assert marker.size == 4
 
 def test_AnnularWedge():
     glyph = AnnularWedge()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.inner_radius == "inner_radius"
-    assert glyph.outer_radius == "outer_radius"
-    assert glyph.start_angle == "start_angle"
-    assert glyph.end_angle == "end_angle"
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.inner_radius is None
+    assert glyph.outer_radius is None
+    assert glyph.start_angle is None
+    assert glyph.end_angle is None
     assert glyph.direction == "anticlock"
     yield check_fill, glyph
     yield check_line, glyph
@@ -119,10 +119,10 @@ def test_AnnularWedge():
 
 def test_Annulus():
     glyph = Annulus()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.inner_radius == "inner_radius"
-    assert glyph.outer_radius == "outer_radius"
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.inner_radius is None
+    assert glyph.outer_radius is None
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
@@ -136,11 +136,11 @@ def test_Annulus():
 
 def test_Arc():
     glyph = Arc()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.radius == "radius"
-    assert glyph.start_angle == "start_angle"
-    assert glyph.end_angle == "end_angle"
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.radius is None
+    assert glyph.start_angle is None
+    assert glyph.end_angle is None
     assert glyph.direction == "clock"
     yield check_line, glyph
     yield (check_props, glyph, [
@@ -157,14 +157,14 @@ def test_Arc():
 
 def test_Bezier():
     glyph = Bezier()
-    assert glyph.x0 == "x0"
-    assert glyph.y0 == "y0"
-    assert glyph.x1 == "x1"
-    assert glyph.y1 == "y1"
-    assert glyph.cx0 == "cx0"
-    assert glyph.cy0 == "cy0"
-    assert glyph.cx1 == "cx1"
-    assert glyph.cy1 == "cy1"
+    assert glyph.x0 is None
+    assert glyph.y0 is None
+    assert glyph.x1 is None
+    assert glyph.y1 is None
+    assert glyph.cx0 is None
+    assert glyph.cy0 is None
+    assert glyph.cx1 is None
+    assert glyph.cy1 is None
     yield check_line, glyph
     yield (check_props, glyph, [
         "x0",
@@ -179,11 +179,11 @@ def test_Bezier():
 
 def test_Gear():
     glyph = Gear()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
+    assert glyph.x is None
+    assert glyph.y is None
     assert glyph.angle == 0
-    assert glyph.module == "module"
-    assert glyph.teeth == "teeth"
+    assert glyph.module is None
+    assert glyph.teeth is None
     assert glyph.pressure_angle == 20
     assert glyph.shaft_size == 0.3
     assert glyph.internal == False
@@ -203,11 +203,11 @@ def test_Gear():
 
 def test_Image():
     glyph = Image()
-    assert glyph.image == "image"
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.dw == "dw"
-    assert glyph.dh == "dh"
+    assert glyph.image is None
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.dw is None
+    assert glyph.dh is None
     assert glyph.dilate == False
     yield (check_props, glyph, [
         "image",
@@ -223,11 +223,11 @@ def test_Image():
 
 def test_ImageRGBA():
     glyph = ImageRGBA()
-    assert glyph.image == "image"
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.dw == "dw"
-    assert glyph.dh == "dh"
+    assert glyph.image is None
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.dw is None
+    assert glyph.dh is None
     assert glyph.rows == None
     assert glyph.cols == None
     assert glyph.dilate == False
@@ -246,11 +246,11 @@ def test_ImageRGBA():
 
 def test_ImageURL():
     glyph = ImageURL()
-    assert glyph.url == "url"
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.w == "w"
-    assert glyph.h == "h"
+    assert glyph.url is None
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.w is None
+    assert glyph.h is None
     assert glyph.angle == 0
     assert glyph.dilate == False
     assert glyph.anchor == Anchor.top_left
@@ -276,8 +276,8 @@ def test_ImageURL():
 
 def test_Line():
     glyph = Line()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
+    assert glyph.x is None
+    assert glyph.y is None
     yield check_line, glyph
     yield (check_props, glyph, [
         "x",
@@ -286,8 +286,8 @@ def test_Line():
 
 def test_MultiLine():
     glyph = MultiLine()
-    assert glyph.xs == "xs"
-    assert glyph.ys == "ys"
+    assert glyph.xs is None
+    assert glyph.ys is None
     yield check_line, glyph
     yield (check_props, glyph, [
         "xs",
@@ -296,10 +296,10 @@ def test_MultiLine():
 
 def test_Oval():
     glyph = Oval()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.width == "width"
-    assert glyph.height == "height"
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.width is None
+    assert glyph.height is None
     assert glyph.angle == 0
     yield check_fill, glyph
     yield check_line, glyph
@@ -316,8 +316,8 @@ def test_Oval():
 
 def test_Patch():
     glyph = Patch()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
+    assert glyph.x is None
+    assert glyph.y is None
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
@@ -327,8 +327,8 @@ def test_Patch():
 
 def test_Patches():
     glyph = Patches()
-    assert glyph.xs == "xs"
-    assert glyph.ys == "ys"
+    assert glyph.xs is None
+    assert glyph.ys is None
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
@@ -338,10 +338,10 @@ def test_Patches():
 
 def test_Quad():
     glyph = Quad()
-    assert glyph.left == "left"
-    assert glyph.right == "right"
-    assert glyph.bottom == "bottom"
-    assert glyph.top == "top"
+    assert glyph.left is None
+    assert glyph.right is None
+    assert glyph.bottom is None
+    assert glyph.top is None
     yield check_fill, glyph
     yield check_line, glyph
     yield (check_props, glyph, [
@@ -353,12 +353,12 @@ def test_Quad():
 
 def test_Quadratic():
     glyph = Quadratic()
-    assert glyph.x0 == "x0"
-    assert glyph.y0 == "y0"
-    assert glyph.x1 == "x1"
-    assert glyph.y1 == "y1"
-    assert glyph.cx == "cx"
-    assert glyph.cy == "cy"
+    assert glyph.x0 is None
+    assert glyph.y0 is None
+    assert glyph.x1 is None
+    assert glyph.y1 is None
+    assert glyph.cx is None
+    assert glyph.cy is None
     yield check_line, glyph
     yield (check_props, glyph, [
         "x0",
@@ -371,10 +371,10 @@ def test_Quadratic():
 
 def test_Ray():
     glyph = Ray()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.angle == "angle"
-    assert glyph.length == "length"
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.angle is None
+    assert glyph.length is None
     yield check_line, glyph
     yield (check_props, glyph, [
         "x",
@@ -387,10 +387,10 @@ def test_Ray():
 
 def test_Rect():
     glyph = Rect()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.width == "width"
-    assert glyph.height == "height"
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.width is None
+    assert glyph.height is None
     assert glyph.angle == 0
     assert glyph.dilate == False
     yield check_fill, glyph
@@ -409,10 +409,10 @@ def test_Rect():
 
 def test_Segment():
     glyph = Segment()
-    assert glyph.x0 == "x0"
-    assert glyph.y0 == "y0"
-    assert glyph.x1 == "x1"
-    assert glyph.y1 == "y1"
+    assert glyph.x0 is None
+    assert glyph.y0 is None
+    assert glyph.x1 is None
+    assert glyph.y1 is None
     yield check_line, glyph
     yield (check_props, glyph, [
         "x0",
@@ -423,8 +423,8 @@ def test_Segment():
 
 def test_Text():
     glyph = Text()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
+    assert glyph.x is None
+    assert glyph.y is None
     assert glyph.text == "text"
     assert glyph.angle == 0
     yield check_text, glyph
@@ -440,11 +440,11 @@ def test_Text():
 
 def test_Wedge():
     glyph = Wedge()
-    assert glyph.x == "x"
-    assert glyph.y == "y"
-    assert glyph.radius == "radius"
-    assert glyph.start_angle == "start_angle"
-    assert glyph.end_angle == "end_angle"
+    assert glyph.x is None
+    assert glyph.y is None
+    assert glyph.radius is None
+    assert glyph.start_angle is None
+    assert glyph.end_angle is None
     assert glyph.direction == "anticlock"
     yield check_fill, glyph
     yield check_line, glyph

@@ -114,7 +114,6 @@ class ClientConnection
     @_pending_ack = null # null or [resolve,reject]
     @_pending_replies = {} # map reqid to [resolve,reject]
     @session = null
-    @_schedule_reconnect(0)
 
   _for_session : (f) ->
     if @session != null
@@ -170,7 +169,7 @@ class ClientConnection
       # confusing errors that are causing trouble when debugging.
       if true or @closed_permanently
         if not @closed_permanently
-          logger.info("Bokeh client #{@_number} never reconnects for now; connection to server lost")
+          logger.info("Websocket connection #{@_number} disconnected, will not attempt to reconnect")
         return
       else
         logger.debug("Attempting to reconnect websocket #{@_number}")
@@ -254,7 +253,7 @@ class ClientConnection
       logger.error("Failed to repull session #{error}")
 
   _on_open : (resolve, reject) ->
-    logger.debug("Websocket connection #{@_number} is now open")
+    logger.info("Websocket connection #{@_number} is now open")
     @_pending_ack = [resolve, reject]
     @_current_handler = (message) =>
       @_awaiting_ack_handler(message)

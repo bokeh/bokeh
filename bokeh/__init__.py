@@ -20,6 +20,11 @@ from .util.version import __base_version__; __base_version__
 from .util import logconfig
 del logconfig
 
+# configure deprecation warnings
+import warnings
+from .deprecate import BokehDeprecationWarning
+warnings.simplefilter('always', BokehDeprecationWarning)
+
 # imports below are names we want to make available in the bokeh
 # module as transitive imports
 

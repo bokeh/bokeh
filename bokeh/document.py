@@ -53,7 +53,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
     def dispatch(self, receiver):
         super(ModelChangedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_document_model_changed'):
-            receiver._document_patched(self)
+            receiver._document_model_changed(self)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
@@ -187,7 +187,7 @@ class _MultiValuedDict(object):
 class Document(object):
 
     def __init__(self, **kwargs):
-        self._roots = set()
+        self._roots = list()
         self._theme = kwargs.pop('theme', default_theme)
         # use _title directly because we don't need to trigger an event
         self._title = kwargs.pop('title', DEFAULT_TITLE)
@@ -257,6 +257,7 @@ class Document(object):
         old_all_models_set = set(self._all_models.values())
         to_detach = old_all_models_set - new_all_models_set
         to_attach = new_all_models_set - old_all_models_set
+
         recomputed = {}
         recomputed_by_name = _MultiValuedDict()
         for m in new_all_models_set:
@@ -272,7 +273,7 @@ class Document(object):
 
     @property
     def roots(self):
-        return set(self._roots)
+        return list(self._roots)
 
     @property
     def title(self):
@@ -320,7 +321,7 @@ class Document(object):
             return
         self._push_all_models_freeze()
         try:
-            self._roots.add(model)
+            self._roots.append(model)
         finally:
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
@@ -730,14 +731,24 @@ class Document(object):
     def session_callbacks(self):
         return list(self._session_callbacks.values())
 
-    def add_periodic_callback(self, callback, period, id=None):
-        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+    def add_periodic_callback(self, callback, period_milliseconds, id=None):
+        ''' Add a callback to be invoked on a session periodically.
 
-        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+        Args:
+            callback (callable) : the callback function to execute
+            period_milliseconds (int) : the number of milliseconds that should
+                be between each callback execution.
+
+        ..note::
+            Periodic callbacks only work within the context of a Bokeh server
+            session. This function will no effect when Bokeh outputs to
+            standalone HTML or Jupyter notebook cells.
 
         '''
-        # create the new callback object
-        cb = PeriodicCallback(self, self._wrap_with_self_as_curdoc(callback), period, id)
+        cb = PeriodicCallback(self,
+                              self._wrap_with_self_as_curdoc(callback),
+                              period_milliseconds,
+                              id)
         self._session_callbacks[callback] = cb
         # emit event so the session is notified of the new callback
         self._trigger_on_change(SessionCallbackAdded(self, cb))
@@ -751,14 +762,19 @@ class Document(object):
         '''
         self._remove_session_callback(callback)
 
-    def add_timeout_callback(self, callback, timeout, id=None):
-        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+    def add_timeout_callback(self, callback, timeout_milliseconds, id=None):
+        ''' Add callback to be invoked once, after a specified timeout passes.
 
-        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
+        ..note::
+            Timeout callbacks only work within the context of a Bokeh server
+            session. This function will no effect when Bokeh outputs to
+            standalone HTML or Jupyter notebook cells.
 
         '''
-        # create the new callback object
-        cb = TimeoutCallback(self, self._wrap_with_self_as_curdoc(callback), timeout, id)
+        cb = TimeoutCallback(self,
+                             self._wrap_with_self_as_curdoc(callback),
+                             timeout_milliseconds,
+                             id)
         self._session_callbacks[callback] = cb
         # emit event so the session is notified of the new callback
         self._trigger_on_change(SessionCallbackAdded(self, cb))

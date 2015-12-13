@@ -455,7 +455,7 @@ of interest to look out for in this example:
 
     # NEW: customize by setting attributes
     p.title = "AAPL One-Month Average"
-    p.legend.orientation = "top_left"
+    p.legend.location = "top_left"
     p.grid.grid_line_alpha=0
     p.xaxis.axis_label = 'Date'
     p.yaxis.axis_label = 'Price'

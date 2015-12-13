@@ -2,8 +2,8 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/modal"
 ContinuumView = require "../common/continuum_view"
-HasProperties = require "../common/has_properties"
 dialog_template = require "./dialog_template"
+Widget = require "./widget"
 
 class DialogView extends ContinuumView
 
@@ -58,7 +58,7 @@ class DialogView extends ContinuumView
   change_content: () =>
     @render_content()
 
-class Dialog extends HasProperties
+class Dialog extends Widget.Model
   type: "Dialog"
   default_view: DialogView
 

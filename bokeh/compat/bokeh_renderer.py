@@ -156,7 +156,7 @@ class BokehRenderer(Renderer):
         self.plot.renderers.append(GlyphRenderer(data_source=dummy_source, glyph=X()))
 
     def open_legend(self, legend, props):
-        lgnd = Legend(orientation="top_right")
+        lgnd = Legend(location="top_right")
         try:
             for label, obj in zip(props['labels'], props['handles']):
                 lgnd.legends.append((label, [self.handles[id(obj)]]))

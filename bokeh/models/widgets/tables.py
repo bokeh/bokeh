@@ -27,11 +27,11 @@ class StringFormatter(CellFormatter):
 
     """
 
-    font_style = Enum(FontStyle, help="""
+    font_style = Enum(FontStyle, default="normal", help="""
     An optional text font style, e.g. bold, italic.
     """)
 
-    text_align = Enum(TextAlign, help="""
+    text_align = Enum(TextAlign, default="left", help="""
     An optional text align, i.e. left, center or right.
     """)
 
@@ -198,15 +198,18 @@ class HTMLTemplateFormatter(CellFormatter):
     This uses Underscore's `template` method and syntax.  http://underscorejs.org/#template
     The formatter has access other items in the row via the `dataContext` object passed to the formatter.
     So, for example, if another column in the datasource was named `url`, the template could access it as:
-        '<a href="<%= url %>"><%= value %></a>'
+
+        <a href="<%= url %>"><%= value %></a>
 
     To use a different set of template delimiters, pass the appropriate values for `evaluate`, `interpolate',
     or `escape`.  See the Underscore `template` documentation for more information.  http://underscorejs.org/#template
 
     Example: Simple HTML template to format the column value as code.
+
         HTMLTemplateFormatter(template='<code><%= value %></code>')
 
     Example: Use values from other columns (`manufacturer` and `model`) to build a hyperlink.
+
         HTMLTemplateFormatter(template='<a href="https:/www.google.com/search?q=<%= manufacturer %>+<%= model %>" target="_blank"><%= value %></a>')
 
     """

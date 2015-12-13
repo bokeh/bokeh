@@ -36,6 +36,11 @@ class TapTool extends SelectTool.Model
   event_type: "tap"
   default_order: 10
 
+  defaults: ->
+    return _.extend({}, super(), {
+      callback: null
+    })
+
 module.exports =
   Model: TapTool
   View: TapToolView
