@@ -58,7 +58,7 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
 
 def _cdn_base_url():
-    return "http://cdn.pydata.org"
+    return "https://cdn.pydata.org"
 
 
 def _get_cdn_urls(components, version=None, minified=True):
