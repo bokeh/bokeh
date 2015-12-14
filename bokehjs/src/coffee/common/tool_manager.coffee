@@ -16,9 +16,12 @@ class ToolManagerView extends Backbone.View
   initialize: (options) ->
     super(options)
     @listenTo(@model, 'change', @render)
-    @render()
+    @have_rendered = false
 
   render: () ->
+    if @have_rendered
+      return
+    @have_rendered = true
     @$el.html(@template(@model.attributes))
     @$el.addClass("bk-sidebar")
     @$el.addClass("bk-toolbar-active")
