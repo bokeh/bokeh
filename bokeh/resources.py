@@ -58,34 +58,25 @@ class _SessionCoordinates(object):
     def __init__(self, kwargs):
         """ Using kwargs which may have extra stuff we don't care about, compute websocket url and session ID."""
 
-        if 'url' in kwargs:
-            self._base_url = kwargs['url']
-            if self._base_url is None:
-                raise ValueError("url cannot be None")
-            if self._base_url == 'default':
-                self._base_url = DEFAULT_SERVER_HTTP_URL
-            if self._base_url.startswith("ws"):
-                raise ValueError("url should be the http or https URL for the server, not the websocket URL")
-        else:
+        self._base_url = kwargs.get('url', DEFAULT_SERVER_HTTP_URL)
+        if self._base_url is None:
+            raise ValueError("url cannot be None")
+        if self._base_url == 'default':
             self._base_url = DEFAULT_SERVER_HTTP_URL
+        if self._base_url.startswith("ws"):
+            raise ValueError("url should be the http or https URL for the server, not the websocket URL")
 
         if not self._base_url.endswith("/"):
             self._base_url = self._base_url + "/"
 
-        if 'app_path' in kwargs:
-            self._app_path = kwargs['app_path']
-            if self._app_path is None:
-                raise ValueError("app_path cannot be None")
-            if not self._app_path.startswith("/"):
-                raise ValueError("app_path should start with a '/' character")
-        else:
-            self._app_path = '/'
+        self._app_path = kwargs.get('app_path', '/')
+        if self._app_path is None:
+            raise ValueError("app_path cannot be None")
+        if not self._app_path.startswith("/"):
+            raise ValueError("app_path should start with a '/' character")
 
-        if 'session_id' in kwargs:
-            self._session_id = kwargs['session_id']
-            if self._session_id is None:
-                self._session_id = generate_session_id()
-        else:
+        self._session_id = kwargs.get('session_id', None)
+        if self._session_id is None:
             self._session_id = generate_session_id()
 
         if self._app_path == '/':
