@@ -172,5 +172,9 @@ describe "Defaults", ->
       if not check_matching_defaults(name, get_defaults(name), attrs)
         fail_count = fail_count + 1
 
-    # TODO this is skipped until it passes
-    #expect(fail_count).to.equal 0
+    console.error("Python/Coffee matching defaults problems: #{fail_count}")
+    # If this is failing because the problem count is now lower,
+    # then edit this number to be lower. If it's failing because
+    # it's higher, fix the newly-introduced errors. Eventually we
+    # will get to zero.
+    expect(fail_count).to.equal 63
