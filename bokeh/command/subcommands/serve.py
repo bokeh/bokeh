@@ -68,12 +68,12 @@ acceptable host values with the ``--host`` option:
     bokeh serve app_script.py --host foo.com:8081 --host bar.com
 
 If no port is specified in a host value, then port 80 will be used. In
-the example above Bokeh server will accept requests from ``foo.com:808``
+the example above Bokeh server will accept requests from ``foo.com:8081``
 and ``bar.com:80``.
 
 If no host values are specified, then by default the Bokeh server will
 accept requests from ``localhost:<port>`` where ``<port>`` is the port
-that the server is configure to listen on.
+that the server is configured to listen on (by default: {DEFAULT_PORT}).
 
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
