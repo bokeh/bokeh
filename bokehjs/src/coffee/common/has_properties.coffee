@@ -482,11 +482,27 @@ class HasProperties extends Backbone.Model
       console.log("May need to add #{attr} to nonserializable_attribute_names of #{@constructor.name} because new value #{new_.constructor.name} is not serializable")
       return
 
-    if new_ instanceof HasProperties and @document != null
-      new_.attach_document(@document)
-    if old instanceof HasProperties
-      old.detach_document()
     if @document != null
+      new_refs = {}
+      if new_ instanceof HasProperties
+        new_refs[new_.id] = new_
+      else
+        HasProperties._value_record_references(new_, new_refs, false)
+
+      old_refs = {}
+      if old instanceof HasProperties
+        old_refs[old.id] = old
+      else
+        HasProperties._value_record_references(old, old_refs, false)
+
+      for new_id, new_ref of new_refs
+        if new_id not of old_refs
+          new_ref.attach_document(@document)
+
+      for old_id, old_ref of old_refs
+        if old_id not of new_refs
+          old_ref.detach_document()
+
       @document._notify_change(@, attr, old, new_)
 
 module.exports = HasProperties
