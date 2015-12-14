@@ -44,7 +44,6 @@ import os
 from .document import Document
 from .resources import Resources, _SessionCoordinates
 from .client import DEFAULT_SESSION_ID
-from bokeh.resources import DEFAULT_SERVER_HTTP_URL
 
 #-----------------------------------------------------------------------------
 # Globals and constants

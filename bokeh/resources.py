@@ -28,7 +28,6 @@ DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
 
-
 def websocket_url_for_server_url(url):
     if url.startswith("http:"):
         reprotocoled = "ws" + url[4:]
@@ -66,6 +65,7 @@ class _SessionCoordinates(object):
         if self._base_url.startswith("ws"):
             raise ValueError("url should be the http or https URL for the server, not the websocket URL")
 
+        # base_url always has trailing slash, host:port/{prefix/}
         if not self._base_url.endswith("/"):
             self._base_url = self._base_url + "/"
 
@@ -74,13 +74,17 @@ class _SessionCoordinates(object):
             raise ValueError("app_path cannot be None")
         if not self._app_path.startswith("/"):
             raise ValueError("app_path should start with a '/' character")
+        if self._app_path != '/' and self._app_path.endswith("/"):
+            self._app_path = self._app_path[:-1] # chop off trailing slash
 
         self._session_id = kwargs.get('session_id', None)
         if self._session_id is None:
             self._session_id = generate_session_id()
 
+        # server_url never has trailing slash because it's
+        # prettier like host:port/app_path without a slash
         if self._app_path == '/':
-            self._server_url = self._base_url
+            self._server_url = self._base_url[:-1] # chop off trailing slash
         else:
             self._server_url = self._base_url + self._app_path[1:]
 

@@ -68,11 +68,11 @@ class TestState(unittest.TestCase):
         self.assertEqual(GENERATED_SESSION_ID_LEN, len(s.session_id))
         s.output_server()
         self.assertEqual(s.session_id, "default")
-        self.assertEqual(s.server_url, DEFAULT_SERVER_HTTP_URL)
+        self.assertEqual(s.server_url + "/", DEFAULT_SERVER_HTTP_URL)
         self.assertEqual(s.app_path, '/')
         s.output_server("foo")
         self.assertEqual(s.session_id, "foo")
-        self.assertEqual(s.server_url, DEFAULT_SERVER_HTTP_URL)
+        self.assertEqual(s.server_url + "/", DEFAULT_SERVER_HTTP_URL)
         self.assertEqual(s.app_path, '/')
 
     def test_reset(self):

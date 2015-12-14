@@ -25,7 +25,7 @@ from .util.string import encode_utf8
 
 from .model import Model, _ModelInDocument
 from ._json_encoder import serialize_json
-from .resources import DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
+from .resources import _SessionCoordinates
 from .document import Document, DEFAULT_TITLE
 from collections import Sequence
 from six import string_types
@@ -383,19 +383,13 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
     if model is not None:
         model_id = model._id
 
-    server_url = coords.server_url
-    session_id = coords.session_id
-
-    if not server_url.endswith("/"):
-        server_url = server_url + "/"
-
-    src_path = server_url + "autoload.js" + "?bokeh-autoload-element=" + elementid
+    src_path = coords.server_url + "/autoload.js" + "?bokeh-autoload-element=" + elementid
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         elementid = elementid,
         modelid = model_id,
-        sessionid = session_id,
+        sessionid = coords.session_id,
         loglevel = loglevel
     )
 
