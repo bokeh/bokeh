@@ -1,4 +1,8 @@
-''' Provide a request handler that returns a page displaying a document.
+''' Utilities for generating and manipulating session IDs.
+
+A session ID would typically be associated with each browser tab viewing
+an application or plot. Each session has its own state separate from any
+other sessions hosted by the server.
 
 '''
 from __future__ import absolute_import, print_function
@@ -86,10 +90,26 @@ def _get_random_string(length=36,
     return ''.join(random.choice(allowed_chars) for i in range(length))
 
 def generate_session_id(secret_key=settings.secret_key_bytes(), signed=settings.sign_sessions()):
-    """ Generate a random session ID.
+    """Generate a random session ID.
+
+    Typically, each browser tab connected to a Bokeh application
+    has its own session ID.  In production deployments of a Bokeh
+    app, session IDs should be random and unguessable - otherwise
+    users of the app could interfere with one another.
+
+    If session IDs are signed with a secret key, the server can
+    verify that the generator of the session ID was "authorized"
+    (the generator had to know the secret key). This can be used
+    to have a separate process, such as another web application,
+    which generates new sessions on a Bokeh server. This other
+    process may require users to log in before redirecting them to
+    the Bokeh server with a valid session ID, for example.
+
     Args:
         secret_key (str, optional) : Secret key (default: value of 'BOKEH_SECRET_KEY' env var)
-        signed (bool, optional) : Whether to sign the session ID (default: value of 'BOKEH_SIGN_SESSIONS' env var)
+        signed (bool, optional) : Whether to sign the session ID (default: value of
+                                  'BOKEH_SIGN_SESSIONS' env var)
+
     """
     secret_key = _ensure_bytes(secret_key)
     if signed:
@@ -99,12 +119,20 @@ def generate_session_id(secret_key=settings.secret_key_bytes(), signed=settings.
     else:
         return _get_random_string(secret_key=secret_key)
 
-def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(), signed=settings.sign_sessions()):
-    """ Check the signature of a session ID.
+def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(),
+                               signed=settings.sign_sessions()):
+    """Check the signature of a session ID, returning True if it's valid.
+
+    The server uses this function to check whether a session ID
+    was generated with the correct secret key. If signed sessions are disabled,
+    this function always returns True.
+
     Args:
         session_id (str) : The session ID to check
         secret_key (str, optional) : Secret key (default: value of 'BOKEH_SECRET_KEY' env var)
-        signed (bool, optional) : Whether to check anything (default: value of 'BOKEH_SIGN_SESSIONS' env var)
+        signed (bool, optional) : Whether to check anything (default: value of
+                                  'BOKEH_SIGN_SESSIONS' env var)
+
     """
     secret_key = _ensure_bytes(secret_key)
     if signed:

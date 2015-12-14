@@ -352,10 +352,32 @@ def autoload_static(model, resources, script_path):
         return encode_utf8(js), encode_utf8(tag)
 
 def autoload_server(model, app_path="/", session_id=None, url="default", loglevel="info"):
-    ''' Return a script tag that can be used to embed Bokeh Plots from
-    a Bokeh Server.
+    '''Return a script tag that embeds the given model (or entire
+    Document) from a Bokeh server session.
 
-    The data for the plot is stored on the Bokeh Server.
+    In a typical deployment, each browser tab connecting to a
+    Bokeh application will have its own unique session ID. The session ID
+    identifies a unique Document instance for each session (so the state
+    of the Document can be different in every tab).
+
+    If you call ``autoload_server(model=None)``, you'll embed the
+    entire Document for a freshly-generated session ID. Typically,
+    you should call ``autoload_server()`` again for each page load so
+    that every new browser tab gets its own session.
+
+    Sometimes when doodling around on a local machine, it's fine
+    to set ``session_id`` to something human-readable such as
+    ``"default"``.  That way you can easily reload the same
+    session each time and keep your state.  But don't do this in
+    production!
+
+    In some applications, you may want to "set up" the session
+    before you embed it. For example, you might ``session =
+    bokeh.client.pull_session()`` to load up a session, modify
+    ``session.document`` in some way (perhaps adding per-user
+    data?), and then call ``autoload_server(model=None,
+    session_id=session.id)``. The session ID obtained from
+    ``pull_session()`` can be passed to ``autoload_server()``.
 
     Args:
         model (Model) : the object to render from the session, or None for entire document
@@ -369,6 +391,11 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
         tag :
             a ``<script>`` tag that will execute an autoload script
             loaded from the Bokeh Server
+
+    .. note:: It is a very bad idea to use the same ``session_id`` for
+    every page load; you are likely to create scalability and
+    security problems. So ``autoload_server()`` should be called
+    again on each page load.
 
     '''
 

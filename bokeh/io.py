@@ -137,10 +137,16 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", au
     """ Configure the default output state to push its document to a
     session on a Bokeh server.
 
-    Sessions are in-memory and not persisted to disk, making
-    output_server() most useful for single-user scripts
-    (output_server() isn't appropriate for an application deployed
-    on the web where each person will need their own session).
+    Sessions are in-memory and not persisted to disk; in a typical
+    production deployment, you would have a fresh session ID for each
+    browser tab. If different users share the same session ID, it will
+    create security and scalability problems.
+
+    ``output_server()`` defaults to always using the
+    ``session_id`` ``"default"``, which is useful for running
+    local demos or notebooks. However, if you are creating
+    production sessions, you'll need to set ``session_id`` to None
+    (to generate a fresh ID) or to a session ID generated elsewhere.
 
     File, server, and notebook output may be active at the same
     time, so output_server() does not clear the effects of
