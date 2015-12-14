@@ -24,12 +24,15 @@ from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
 
-def _whitelist(hosts, handler_class):
+def _whitelist(handler_class):
+    if hasattr(handler_class.prepare, 'patched'):
+        return
     old_prepare = handler_class.prepare
     def _prepare(self, *args, **kw):
-        if self.request.host not in hosts:
+        if self.request.host not in self.application._hosts:
             raise HTTPError(403)
         old_prepare(self, *args, **kw)
+    _prepare.patched = True
     handler_class.prepare = _prepare
 
 
@@ -63,6 +66,7 @@ class BokehTornado(TornadoApplication):
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
 
+        self._hosts = hosts
         self._resources = {}
 
         # Wrap applications in ApplicationContext
@@ -95,7 +99,7 @@ class BokehTornado(TornadoApplication):
         all_patterns = extra_patterns + relative_patterns + toplevel_patterns
 
         for pat in all_patterns:
-            _whitelist(hosts, pat[1])
+            _whitelist(pat[1])
 
         log.debug("Patterns are: %r", all_patterns)
         super(BokehTornado, self).__init__(all_patterns, **settings)
