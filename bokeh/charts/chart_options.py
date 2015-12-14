@@ -30,10 +30,6 @@ class ChartOptions(Model):
     Each of the ChartOptions properties can be passed into a Chart as kwargs.
     """
 
-    id = String(None, help="""
-    Id of the chart.
-    """)
-
     title = String(None, help="""
     A title for the chart.
     """)

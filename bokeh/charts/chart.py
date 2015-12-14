@@ -82,14 +82,14 @@ class Chart(Plot):
     def __init__(self):
 
         # Initializes then gets default properties
-        super(Chart, self).__init__(id=self._options.id or make_id())
+        # NOTE: we use option._id here since ChartOptions converts id arg to _id
+        super(Chart, self).__init__(id=self._options._id or make_id())
 
         # create new chart options to get default properties with values
         default_props = ChartOptions().properties_with_values()
 
         # get the properties and values from the module-wide defaults object
         option_props = ChartOptions.properties_with_values(defaults)
-        option_props.pop('id')
 
         # if the module defaults differs from ChartOptions defaults, use that value
         # ToDo: allow Chart/Plot properties as well as ChartOptions
