@@ -72,6 +72,65 @@ class TestClientServer(unittest.TestCase):
             session.loop_until_closed()
             assert not session.connected
 
+    def test_host_whitelist_success(self):
+        application = Application()
+
+        # succeed no host value with defaults
+        with ManagedServerLoop(application, host=None) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+
+        # succeed no host value with port
+        with ManagedServerLoop(application, port=8080, host=None) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+
+        # succeed matching host value
+        with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+
+        # succeed matching host value one of multiple
+        with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+
+    def test_host_whitelist_failure(self):
+        application = Application()
+
+        # failure bad host
+        with ManagedServerLoop(application, host=["bad_host"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+
+        with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+
+        # failure good host, bad port
+        with ManagedServerLoop(application, host=["localhost:80"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+
+        # failure good host, bad default port
+        with ManagedServerLoop(application, host=["localhost"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+
+        # failure with custom port
+        with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+
     def test_push_document(self):
         application = Application()
         with ManagedServerLoop(application) as server:
