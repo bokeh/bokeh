@@ -29,17 +29,6 @@ from __future__ import absolute_import
 
 from functools import partial
 
-def _force(f, sequence):
-    def wrapper(*args, **kw):
-        f(next(sequence))
-    return wrapper
-
-def _advance(f):
-    i = 0
-    while True:
-        yield f(i)
-        i += 1
-
 def sine(w, A=1, phi=0, offset=0):
     ''' Return a driver function that can advance a sequence of sine values.
 
@@ -54,9 +43,9 @@ def sine(w, A=1, phi=0, offset=0):
         offset (float) : a global offset to add to the driver values
 
     '''
-    from math import cos
+    from math import sin
     def f(i):
-        return A * cos(w*i + phi) + offset
+        return A * sin(w*i + phi) + offset
     return partial(_force, sequence=_advance(f))
 
 def cosine(w, A=1, phi=0, offset=0):
@@ -103,7 +92,7 @@ def bounce(sequence):
 
         seq = [0, 1, 2, 3]
 
-        # => [0, 1, 2, 3, 3, 2, 1, 0, 0, 1, 2, ...]
+        # bounce(seq) => [0, 1, 2, 3, 3, 2, 1, 0, 0, 1, 2, ...]
 
     Args:
         sequence (seq) : a sequence of values for the driver to bounce
@@ -111,10 +100,11 @@ def bounce(sequence):
     '''
     N = len(sequence)
     def f(i):
-        if (i // N) % 2:
-            return sequence[i%N]
+        div, mod = divmod(i, N)
+        if div % 2 == 0:
+            return sequence[mod]
         else:
-            return sequence[N-i%N-1]
+            return sequence[N-mod-1]
     return partial(_force, sequence=_advance(f))
 
 def repeat(sequence):
@@ -124,7 +114,7 @@ def repeat(sequence):
 
         seq = [0, 1, 2, 3]
 
-        # => [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, ...]
+        # repeat(seq) => [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, ...]
 
     Args:
         sequence (seq) : a sequence of values for the driver to bounce
@@ -139,6 +129,17 @@ def count():
     ''' Return a driver function that can advance a simple count.
 
     '''
-    return partial(_force, sequence=_advance(lambda x: x*step))
+    return partial(_force, sequence=_advance(lambda x: x))
+
+def _force(f, sequence):
+    def wrapper(*args, **kw):
+        f(next(sequence))
+    return wrapper
+
+def _advance(f):
+    i = 0
+    while True:
+        yield f(i)
+        i += 1
 
 
