@@ -35,6 +35,15 @@ class SomeModel extends HasProperties
 
 register_test_collection('SomeModel', SomeModel)
 
+class SomeModelWithChildren extends HasProperties
+  type: 'SomeModelWithChildren'
+  defaults: () ->
+    return _.extend {}, super(), {
+      children: []
+    }
+
+register_test_collection('SomeModelWithChildren', SomeModelWithChildren)
+
 class ModelWithConstructTimeChanges extends HasProperties
   type: 'ModelWithConstructTimeChanges'
 
@@ -102,6 +111,60 @@ describe "Document", ->
     expect(Object.keys(d._all_models).length).to.equal 1
     m.set({ child: m2 })
     expect(Object.keys(d._all_models).length).to.equal 2
+    d.remove_root(m)
+    expect(d.roots().length).to.equal 0
+    expect(Object.keys(d._all_models).length).to.equal 0
+
+  it "tracks all_models with list property", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(Object.keys(d._all_models).length).to.equal 0
+    m = new SomeModelWithChildren()
+    m2 = new AnotherModel()
+    m.set({ children: [ m2 ] })
+    expect(m.get('children')).to.deep.equal [ m2 ]
+    # check that we get the right all_models on initial add_root
+    d.add_root(m)
+    expect(d.roots().length).to.equal 1
+    expect(Object.keys(d._all_models).length).to.equal 2
+
+    # check that removing children list drops the models beneath it
+    m.set({ children: [] })
+    expect(Object.keys(d._all_models).length).to.equal 1
+
+    # check that adding children back re-adds the models
+    m.set({ children: [ m2 ] })
+    expect(Object.keys(d._all_models).length).to.equal 2
+
+    # check that removing root removes the models
+    d.remove_root(m)
+    expect(d.roots().length).to.equal 0
+    expect(Object.keys(d._all_models).length).to.equal 0
+
+  it "tracks all_models with list property where list elements have a child", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(Object.keys(d._all_models).length).to.equal 0
+    m = new SomeModelWithChildren()
+    m3 = new AnotherModel()
+    m2 = new SomeModel({ child: m3 })
+    m.set({ children: [ m2 ] })
+    expect(m.get('children')).to.deep.equal [ m2 ]
+
+    # check that we get the right all_models on initial add_root
+    d.add_root(m)
+    expect(d.roots().length).to.equal 1
+    expect(Object.keys(d._all_models).length).to.equal 3
+
+    # check that removing children list drops the models beneath it
+    m.set({ children: [] })
+    expect(Object.keys(d._all_models).length).to.equal 1
+
+    # check that adding children back re-adds the models
+    m.set({ children: [ m2 ] })
+    expect(Object.keys(d._all_models).length).to.equal 3
+
+    # check that removing root removes the models
     d.remove_root(m)
     expect(d.roots().length).to.equal 0
     expect(Object.keys(d._all_models).length).to.equal 0
