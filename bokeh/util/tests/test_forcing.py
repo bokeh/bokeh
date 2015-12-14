@@ -12,7 +12,7 @@ A = 3
 phi = 0.1
 offset = 2
 
-def test_sine():
+def test_sine_sequence_values():
     results = []
     func = forcing.sine(w, A, phi, offset)(_collector(results))
     for i in range(4):
@@ -22,7 +22,7 @@ def test_sine():
         [2.2995002499404844, 3.1682550269259515, 3.932653061713073, 4.524412954423689]
     )
 
-def test_cosine():
+def test_cosine_sequence_values():
     results = []
     func = forcing.cosine(w, A, phi, offset)(_collector(results))
     for i in range(4):
@@ -32,28 +32,28 @@ def test_cosine():
         [4.985012495834077, 4.763182982008655, 4.294526561853465, 3.6209069176044197]
     )
 
-def test_linear():
+def test_linear_sequence_values():
     results = []
     func = forcing.linear(m=2.5, b=3.7)(_collector(results))
     for i in range(4):
         func()
     assert_allclose(results, [3.7, 6.2, 8.7, 11.2])
 
-def test_bounce():
+def test_bounce_sequence_values():
     results = []
     func = forcing.bounce([0, 1, 5, -1])(_collector(results))
     for i in range(8):
         func()
     assert results == [0, 1, 5, -1, -1, 5, 1, 0]
 
-def test_repeat():
+def test_repeat_sequence_values():
     results = []
     func = forcing.repeat([0, 1, 5, -1])(_collector(results))
     for i in range(8):
         func()
     assert results == [0, 1, 5, -1, 0, 1, 5, -1]
 
-def test_count():
+def test_count_sequence_values():
     results = []
     func = forcing.count()(_collector(results))
     for i in range(8):
