@@ -5,6 +5,11 @@ Renders a ``<script>`` tag for raw JavaScript code.
 :type js_code: str
 
 #}
+{%- if docs_json_id -%}
+<script id="{{ docs_json_id }}" type="text/x-bokeh">
+    {{ docs_json|indent(4) }}
+</script>
+{% endif -%}
 <script type="text/javascript">
     {{ js_code }}
 </script>

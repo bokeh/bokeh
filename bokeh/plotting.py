@@ -14,8 +14,8 @@ from .plotting_helpers import (
 from .document import Document
 from .models import ColumnDataSource
 from .io import (
-    curdoc, curstate, output_file, output_notebook, output_server, push,
-    reset_output, save, show, gridplot, hplot, vplot)
+    curdoc, curstate, output_file, output_png, output_notebook, output_server,
+    push, reset_output, save, show, gridplot, hplot, vplot)
 
 # Names that we want in this namespace (fool pyflakes)
 (GridPlot, Document, ColumnDataSource, gridplot,

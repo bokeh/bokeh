@@ -21,5 +21,9 @@
         newRequire(entry[i]);
     }
 
+    if (typeof exports !== "undefined") {
+      exports.bokehRequire = newRequire;
+    }
+
     return newRequire;
 })

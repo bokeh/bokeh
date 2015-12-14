@@ -20,7 +20,7 @@ class ImageURLView extends Glyph.View
     @retries = (retry_attempts for img in @url)
 
     for i in [0...@url.length]
-      img = new Image()
+      img = new window.Image()
       img.onerror = do (i, img) =>
         return () =>
           if @retries[i] > 0

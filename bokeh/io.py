@@ -101,6 +101,12 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
         root_dir=root_dir
     )
 
+def output_png(filename, autosave=False):
+    _state.output_png(
+        filename,
+        autosave=autosave,
+    )
+
 def output_notebook(resources=None, verbose=False, hide_banner=False):
     ''' Configure the default output state to generate output in
     Jupyter/IPython notebook cells when :func:`show` is called.
@@ -242,16 +248,20 @@ def _show_with_state(obj, state, browser, new):
 
     if state.notebook:
         _show_notebook_with_state(obj, state)
-
     elif state.session_id and state.server_url:
         _show_server_with_state(obj, state, new, controller)
-
-    if state.file:
+    elif state.file:
         _show_file_with_state(obj, state, new, controller)
+    elif state.png:
+        _show_png_with_state(obj, state, new, controller)
 
 def _show_file_with_state(obj, state, new, controller):
     save(obj, state=state)
     controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
+
+def _show_png_with_state(obj, state, new, controller):
+    savepng(obj, state=state)
+    controller.open("file://" + os.path.abspath(state.png['filename']), new=_new_param[new])
 
 def _show_notebook_with_state(obj, state):
     if state.session_id:
@@ -345,6 +355,46 @@ def _save_helper(obj, filename, resources, title, validate):
 
         with io.open(filename, "w", encoding="utf-8") as f:
             f.write(decode_utf8(html))
+
+def savepng(obj, filename=None, state=None, validate=True):
+    if state is None:
+        state = _state
+
+    if filename is None and state.png:
+        filename = state.png['filename']
+
+    if filename is None:
+        raise RuntimeError("savepng() called but no filename was supplied and output_png(...) was never called, nothing saved")
+
+    with _ModelInDocument(obj):
+        if isinstance(obj, Component):
+            doc = obj.document
+        elif isinstance(obj, Document):
+            doc = obj
+        else:
+            raise RuntimeError("Unable to save object of type '%s'" % type(obj))
+
+        if validate:
+            doc.validate()
+
+        from subprocess import Popen, PIPE
+        from os.path import join, dirname
+
+        from .resources import Resources
+
+        resources = Resources(mode="absolute-dev")
+
+        from .embed import _check_one_model, _standalone_docs_json_and_render_items
+        from ._json_encoder import serialize_json
+
+        objs = _check_one_model(obj)
+        (docs_json, render_items) = _standalone_docs_json_and_render_items(objs)
+
+        script = join(dirname(dirname(__file__)), "bokehjs", "node", "render.js")
+        cmd = "node %s --filename=%s --log-level=%s" % (script, filename, resources.log_level)
+
+        proc = Popen(cmd, stdin=PIPE, shell=True)
+        proc.communicate(input=serialize_json(docs_json))
 
 # this function exists mostly to be mocked in tests
 def _push_to_server(websocket_url, document, session_id, io_loop):

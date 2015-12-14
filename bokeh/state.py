@@ -103,6 +103,10 @@ class State(object):
         return self._file
 
     @property
+    def png(self):
+        return self._png
+
+    @property
     def notebook(self):
         return self._notebook
 
@@ -128,6 +132,7 @@ class State(object):
 
     def _reset_keeping_doc(self):
         self._file = None
+        self._png = None
         self._notebook = False
         self._session_id = None
         self._server_url = None
@@ -187,6 +192,15 @@ class State(object):
             'filename'  : filename,
             'resources' : Resources(mode=mode, root_dir=root_dir),
             'title'     : title
+        }
+        self._autosave = autosave
+
+        if os.path.isfile(filename):
+            logger.info("Session output file '%s' already exists, will be overwritten." % filename)
+
+    def output_png(self, filename, autosave=False):
+        self._png = {
+            'filename'  : filename,
         }
         self._autosave = autosave
 

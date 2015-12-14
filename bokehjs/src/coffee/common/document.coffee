@@ -435,6 +435,10 @@ class Document
   @from_json : (json) ->
     if typeof json != 'object'
       throw new Error("JSON object has wrong type #{typeof json}")
+
+    if json.models?
+      Collections.register_models(json.models)
+
     roots_json = json['roots']
     root_ids = roots_json['root_ids']
     references_json = roots_json['references']

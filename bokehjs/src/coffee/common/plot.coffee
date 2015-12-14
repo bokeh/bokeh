@@ -17,6 +17,7 @@ Solver = require "./solver"
 ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
 properties = require "./properties"
+{Events} = require "./events"
 
 
 # Notes on WebGL support:
@@ -387,6 +388,8 @@ class PlotView extends ContinuumView
 
     # TODO - This should only be on in testing
     # @$el.find('canvas').attr('data-hash', ctx.hash());
+
+    Events.trigger("render:done", this)
 
   resize: () =>
     @resize_width_height(true, false)

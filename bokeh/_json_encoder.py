@@ -7,6 +7,8 @@ import calendar
 import decimal
 
 from .util.serialization import transform_series, transform_array
+from .settings import settings
+
 import numpy as np
 
 try:
@@ -79,4 +81,6 @@ class BokehJSONEncoder(json.JSONEncoder):
             return self.transform_python_types(obj)
 
 def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
+    if settings.pretty(False):
+        kwargs["indent"] = 2
     return json.dumps(obj, cls=encoder, allow_nan=False, **kwargs)

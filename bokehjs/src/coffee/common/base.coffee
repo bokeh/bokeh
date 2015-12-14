@@ -224,7 +224,7 @@ Collections.register_locations = (locations, force=false, errorFn=null) ->
     else
       errorFn?(name)
 
-Collections.register_model = (name, mod) ->
+Collections.register_model = (name, model) ->
   logger.info("Registering model: #{name}")
 
   compile = (code) ->
@@ -234,7 +234,7 @@ Collections.register_model = (name, mod) ->
   mod_cache = _get_mod_cache()
 
   mod_name = "custom/#{name.toLowerCase()}"
-  [impl, deps] = mod
+  {impl, deps} = model
   delete browserify.cache[mod_name]
   browserify.modules[mod_name] = [compile(impl), deps]
   _locations = {}
@@ -242,8 +242,8 @@ Collections.register_model = (name, mod) ->
   Collections.register_locations(_locations, force=true)
 
 Collections.register_models = (specs) ->
-  for own name, impl of specs
-    Collections.register_model(name, impl)
+  for own name, model of specs
+    Collections.register_model(name, model)
 
 
 Collections.registered_names = () ->
