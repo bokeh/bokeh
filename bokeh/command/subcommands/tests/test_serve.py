@@ -54,6 +54,13 @@ def test_args():
             default=None,
         )),
 
+        ('--prefix', dict(
+            metavar='PREFIX',
+            type=str,
+            help="URL prefix for Bokeh server URLs",
+            default=None,
+        )),
+
         ('--keep-alive', dict(
             metavar='MILLISECONDS',
             type=int,

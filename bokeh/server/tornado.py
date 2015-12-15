@@ -35,16 +35,20 @@ class BokehTornado(TornadoApplication):
         extra_patterns (seq[tuple]) : tuples of (str, http or websocket handler)
             Use this argument to add additional endpoints to custom deployments
             of the Bokeh Server.
+        prefix (str) : a URL prefix to use for all Bokeh server paths
         keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
             Set to 0 to disable pings. Pings keep the websocket open.
 
     '''
 
-    def __init__(self, applications,
+    def __init__(self, applications, prefix,
                  io_loop=None,
                  extra_patterns=None,
                  # heroku, nginx default to 60s timeout, so well less than that
                  keep_alive_milliseconds=37000):
+
+        self._prefix = prefix
+
         if io_loop is None:
             io_loop = IOLoop.current()
         self._loop = io_loop
@@ -69,6 +73,7 @@ class BokehTornado(TornadoApplication):
                     route = p[0]
                 else:
                     route = key + p[0]
+                route = self._prefix + route
                 app_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
 
             websocket_path = None
@@ -102,9 +107,11 @@ class BokehTornado(TornadoApplication):
     def io_loop(self):
         return self._loop
 
-    def root_url_for_request(self, request):
-        # If we add a "whole server prefix," we'd put that on here too
+    def unprefixed_root_url_for_request(self, request):
         return request.protocol + "://" + request.host + "/"
+
+    def prefixed_root_url_for_request(self, request):
+        return request.protocol + "://" + request.host + self._prefix + "/"
 
     def websocket_url_for_request(self, request, websocket_path):
         protocol = "ws"
@@ -113,7 +120,7 @@ class BokehTornado(TornadoApplication):
         return protocol + "://" + request.host + websocket_path
 
     def resources(self, request):
-        root_url = self.root_url_for_request(request)
+        root_url = self.unprefixed_root_url_for_request(request)
         if root_url not in self._resources:
             self._resources[root_url] = Resources(mode="server", root_url=root_url)
         return self._resources[root_url]
