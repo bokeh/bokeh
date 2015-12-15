@@ -30,7 +30,7 @@ def _whitelist(handler_class):
     old_prepare = handler_class.prepare
     def _prepare(self, *args, **kw):
         if self.request.host not in self.application._hosts:
-            log.info("Rejected connection from host %s because it is not in the --host whitelist")
+            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % self.request.host)
             raise HTTPError(403)
         return old_prepare(self, *args, **kw)
     _prepare.patched = True
