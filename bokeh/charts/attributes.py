@@ -111,7 +111,7 @@ class AttrSpec(HasProps):
         super(AttrSpec, self).__init__(**properties)
 
         if self.default is None and self.iterable is not None:
-            self.default = next(copy(iter(self.iterable)))
+            self.default = next(iter(copy(self.iterable)))
 
     @staticmethod
     def _ensure_list(attr):
