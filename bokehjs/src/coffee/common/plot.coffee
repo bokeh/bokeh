@@ -160,6 +160,15 @@ class PlotView extends ContinuumView
 
     @unpause()
 
+    @_initial_state_info = {
+      range: @initial_range_info
+      selection: {}                   # XXX: initial selection?
+      dimensions: {
+        width: @canvas.get("width")
+        height: @canvas.get("height")
+      }
+    }
+
     logger.debug("PlotView initialized")
 
     return this
@@ -199,15 +208,9 @@ class PlotView extends ContinuumView
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
-  _initial_state_info: () ->
-    return {
-      range: @initial_range_info
-      selection: {}               # XXX: initial selection?
-    }
-
   push_state: (type, info) ->
     prev_info = @state.history[@state.index]?.info or {}
-    info = _.extend({}, @_initial_state_info(), prev_info, info)
+    info = _.extend({}, @_initial_state_info, prev_info, info)
 
     @state.history.slice(0, @state.index + 1)
     @state.history.push({type: type, info: info})
@@ -238,13 +241,19 @@ class PlotView extends ContinuumView
       @trigger("state_changed")
 
   _do_state_change: (index) ->
-    info = @state.history[index]?.info or @_initial_state_info()
+    info = @state.history[index]?.info or @_initial_state_info
 
     if info.range?
       @update_range(info.range)
 
     if info.selection?
       @update_selection(info.selection)
+
+    if info.dimensions?
+      @update_dimensions(info.dimensions)
+
+  update_dimensions: (dimensions) ->
+    @canvas._set_dims([dimensions.width, dimensions.height])
 
   get_selection: () ->
     selection = []
@@ -328,6 +337,7 @@ class PlotView extends ContinuumView
         xrs: xrs
         yrs: yrs
       }
+      @_initial_state_info.range = @initial_range_info
       logger.debug("initial ranges set")
     else
       logger.warn('could not set initial ranges')

@@ -48,6 +48,14 @@ class ResizeToolView extends GestureTool.View
     @plot_view.interactive_timestamp = Date.now()
     return null
 
+  _pan_end: (e) ->
+    @plot_view.push_state("resize", {
+      dimensions: {
+        width: @plot_view.canvas.get("width")
+        height: @plot_view.canvas.get("height")
+      }
+    })
+
   _update: (dx, dy) ->
     @plot_view.pause()
     canvas = @plot_view.canvas
