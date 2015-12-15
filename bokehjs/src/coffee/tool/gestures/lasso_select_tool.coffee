@@ -47,6 +47,7 @@ class LassoSelectToolView extends SelectTool.View
     @_clear_overlay()
     append = e.srcEvent.shiftKey ? false
     @_select(@data.vx, @data.vy, true, append)
+    @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
 
   _clear_overlay: () ->
     @mget('overlay').set('data', null)

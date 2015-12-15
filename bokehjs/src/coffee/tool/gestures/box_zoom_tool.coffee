@@ -64,7 +64,7 @@ class BoxZoomToolView extends GestureTool.View
       yrs: yrs
     }
 
-    @plot_view.push_state('box_zoom', zoom_info)
+    @plot_view.push_state('box_zoom', {range: zoom_info})
     @plot_view.update_range(zoom_info)
 
 class BoxZoomTool extends GestureTool.Model

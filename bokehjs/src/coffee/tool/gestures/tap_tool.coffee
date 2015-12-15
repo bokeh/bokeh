@@ -26,6 +26,8 @@ class TapToolView extends SelectTool.View
       if callback? then callback.execute(ds)
 
     @_save_geometry(geometry, final, append)
+    @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
+
     return null
 
 class TapTool extends SelectTool.Model

@@ -17,6 +17,7 @@ Solver = require "./solver"
 ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
 properties = require "./properties"
+GlyphRenderer = require "../renderer/glyph/glyph_renderer"
 
 
 # Notes on WebGL support:
@@ -198,10 +199,20 @@ class PlotView extends ContinuumView
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
-  push_state: (type, range_info) ->
+  _initial_state_info: () ->
+    return {
+      range: @initial_range_info
+      selection: {}               # XXX: initial selection?
+    }
+
+  push_state: (type, info) ->
+    prev_info = @state.history[@state.index]?.info or {}
+    info = _.extend({}, @_initial_state_info(), prev_info, info)
+
     @state.history.slice(0, @state.index + 1)
-    @state.history.push({type: type, range_info: range_info})
+    @state.history.push({type: type, info: info})
     @state.index = @state.history.length - 1
+
     @trigger("state_changed")
 
   clear_state: () ->
@@ -217,14 +228,37 @@ class PlotView extends ContinuumView
   undo: () ->
     if @can_undo()
       @state.index -= 1
+      @_do_state_change(@state.index)
       @trigger("state_changed")
-      @update_range(@state.history[@state.index]?.range_info)
 
   redo: () ->
     if @can_redo()
       @state.index += 1
+      @_do_state_change(@state.index)
       @trigger("state_changed")
-      @update_range(@state.history[@state.index]?.range_info)
+
+  _do_state_change: (index) ->
+    info = @state.history[index]?.info or @_initial_state_info()
+
+    if info.range?
+      @update_range(info.range)
+
+    if info.selection?
+      @update_selection(info.selection)
+
+  get_selection: () ->
+    selection = []
+    for renderer in @mget('renderers')
+      if renderer instanceof GlyphRenderer.Model
+        selected = renderer.get('data_source').get("selected")
+        selection[renderer.id] = selected
+    selection
+
+  update_selection: (selection) ->
+    for renderer in @mget("renderers")
+      if renderer instanceof GlyphRenderer.Model
+        selected = selection[renderer.id] or []
+        renderer.get('data_source').set("selected", selected)
 
   update_range: (range_info) ->
     if not range_info?

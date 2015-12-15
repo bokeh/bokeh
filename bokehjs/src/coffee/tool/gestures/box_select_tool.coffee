@@ -30,7 +30,7 @@ class BoxSelectToolView extends SelectTool.View
 
     return null
 
-   _pan_end: (e) ->
+  _pan_end: (e) ->
     canvas = @plot_view.canvas
     curpoint = [
       canvas.sx_to_vx(e.bokeh.sx)
@@ -46,6 +46,9 @@ class BoxSelectToolView extends SelectTool.View
     @mget('overlay').set('data', {})
 
     @_baseboint = null
+
+    @plot_view.push_state('box_select', {selection: @plot_view.get_selection()})
+
     return null
 
   _select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
