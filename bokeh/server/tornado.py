@@ -15,6 +15,7 @@ import signal
 from tornado import gen
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import Application as TornadoApplication
+from tornado.web import HTTPError
 
 from bokeh.resources import Resources
 
@@ -22,6 +23,19 @@ from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
+
+def _whitelist(handler_class):
+    if hasattr(handler_class.prepare, 'patched'):
+        return
+    old_prepare = handler_class.prepare
+    def _prepare(self, *args, **kw):
+        if self.request.host not in self.application._hosts:
+            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % self.request.host)
+            raise HTTPError(403)
+        return old_prepare(self, *args, **kw)
+    _prepare.patched = True
+    handler_class.prepare = _prepare
+
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -41,7 +55,7 @@ class BokehTornado(TornadoApplication):
 
     '''
 
-    def __init__(self, applications, prefix,
+    def __init__(self, applications, prefix, hosts,
                  io_loop=None,
                  extra_patterns=None,
                  # heroku, nginx default to 60s timeout, so well less than that
@@ -57,6 +71,7 @@ class BokehTornado(TornadoApplication):
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
 
+        self._hosts = hosts
         self._resources = {}
 
         # Wrap applications in ApplicationContext
@@ -90,6 +105,9 @@ class BokehTornado(TornadoApplication):
         for p in extra_patterns + toplevel_patterns:
             prefixed_pat = (self._prefix+p[0],) + p[1:]
             all_patterns.append(prefixed_pat)
+
+        for pat in all_patterns:
+            _whitelist(pat[1])
 
         log.debug("Patterns are: %r", all_patterns)
 

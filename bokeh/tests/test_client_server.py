@@ -87,11 +87,92 @@ class TestClientServer(unittest.TestCase):
                                     url = ws_url(server, "/foo"))
             session.connect()
             assert session.connected
+            session.close()
+            session.loop_until_closed()
 
             session = ClientSession(io_loop = server.io_loop,
                                     url = ws_url(server))
             session.connect()
             assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+    def test_host_whitelist_success(self):
+        application = Application()
+
+        # succeed no host value with defaults
+        with ManagedServerLoop(application, host=None) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed no host value with port
+        with ManagedServerLoop(application, port=8080, host=None) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed matching host value
+        with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed matching host value one of multiple
+        with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+    def test_host_whitelist_failure(self):
+        application = Application()
+
+        # failure bad host
+        with ManagedServerLoop(application, host=["bad_host"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure good host, bad port
+        with ManagedServerLoop(application, host=["localhost:80"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure good host, bad default port
+        with ManagedServerLoop(application, host=["localhost"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure with custom port
+        with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
 
     def test_push_document(self):
         application = Application()
