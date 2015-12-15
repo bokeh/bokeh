@@ -188,7 +188,8 @@ class ClientSession(object):
         NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
 
         '''
-        cb = self._connection._loop.call_later(callback.timeout, callback.callback)
+        # IOLoop.call_later takes a delay in seconds
+        cb = self._connection._loop.call_later(callback.timeout/1000.0, callback.callback)
         self._callbacks[callback.id] = cb
 
     def _remove_timeout_callback(self, callback):

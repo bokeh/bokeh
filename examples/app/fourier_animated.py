@@ -179,7 +179,7 @@ for k, p in fourier.items():
 # session = push_session(curdoc())
 # Open the session in a browser
 layout = vplot(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fourier.values()])
-curdoc().add(layout)
+curdoc().add_root(layout)
 
 gind = 0
 def work():
