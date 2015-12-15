@@ -31,7 +31,7 @@ def _whitelist(handler_class):
     def _prepare(self, *args, **kw):
         if self.request.host not in self.application._hosts:
             raise HTTPError(403)
-        old_prepare(self, *args, **kw)
+        return old_prepare(self, *args, **kw)
     _prepare.patched = True
     handler_class.prepare = _prepare
 
