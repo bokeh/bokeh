@@ -184,7 +184,7 @@ class WSHandler(WebSocketHandler):
         if isinstance(work, Message):
             yield self.send_message(work)
         else:
-            self._internal_error("expected a Message")
+            self._internal_error("expected a Message not " + repr(work))
 
         raise gen.Return(None)
 

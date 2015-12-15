@@ -442,6 +442,34 @@ class TestNumberSpec(unittest.TestCase):
         a.x = 14
         self.assertEqual(a.x, 14)
 
+    def test_set_from_json_keeps_mode(self):
+        class Foo(HasProps):
+            x = NumberSpec(default=None)
+
+        a = Foo()
+
+        self.assertIs(a.x, None)
+
+        # set as a value
+        a.x = 14
+        self.assertEqual(a.x, 14)
+        # set_from_json keeps the previous dict-ness or lack thereof
+        a.set_from_json('x', dict(value=16))
+        self.assertEqual(a.x, 16)
+        # but regular assignment overwrites the previous dict-ness
+        a.x = dict(value=17)
+        self.assertDictEqual(a.x, dict(value=17))
+
+        # set as a field
+        a.x = "bar"
+        self.assertEqual(a.x, "bar")
+        # set_from_json keeps the previous dict-ness or lack thereof
+        a.set_from_json('x', dict(field="foo"))
+        self.assertEqual(a.x, "foo")
+        # but regular assignment overwrites the previous dict-ness
+        a.x = dict(field="baz")
+        self.assertDictEqual(a.x, dict(field="baz"))
+
 class TestAngleSpec(unittest.TestCase):
     def test_default_none(self):
         class Foo(HasProps):
@@ -487,6 +515,19 @@ class TestAngleSpec(unittest.TestCase):
 
         a.x = { 'value' : 180, 'units' : 'deg' }
         self.assertDictEqual(a.x, { 'value' : 180 })
+        self.assertEqual(a.x_units, 'deg')
+
+    def test_setting_json_sets_units_keeps_dictness(self):
+        class Foo(HasProps):
+            x = AngleSpec(default=14)
+
+        a = Foo()
+
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+        a.set_from_json('x', { 'value' : 180, 'units' : 'deg' })
+        self.assertEqual(a.x, 180)
         self.assertEqual(a.x_units, 'deg')
 
 class TestDistanceSpec(unittest.TestCase):

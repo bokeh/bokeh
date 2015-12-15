@@ -58,7 +58,7 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
 
 def _cdn_base_url():
-    return "http://cdn.pydata.org"
+    return "https://cdn.pydata.org"
 
 
 def _get_cdn_urls(components, version=None, minified=True):
@@ -103,7 +103,7 @@ def _get_server_urls(components, root_url, minified=True):
     _min = ".min" if minified else ""
 
     def mk_url(comp, kind):
-        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, kind, comp, _min, kind)
+        return '%sstatic/%s/%s%s.%s' % (root_url, kind, comp, _min, kind)
 
     return {
         'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
