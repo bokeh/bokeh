@@ -59,8 +59,6 @@ Similarly, a specific network address can be specified with the
 
 will have the Bokeh server listen all available network addresses.
 
-*** PREFIX OPTION BELOW NOT YET IMPLEMENTED ***
-
 The Bokeh server can also add an optional prefix to all URL paths.
 This can often be useful in conjunction with "reverse proxy" setups.
 
@@ -73,6 +71,16 @@ Then the application will be served under the following URL:
 .. code-block:: none
 
     http://localhost:{DEFAULT_PORT}/foobar/app_script
+
+If needed, Bokeh server can send keep-alive pings at a fixed interval.
+To configure this feature, set the --keep-alive option:
+
+.. code-block:: sh
+
+    bokeh server app_script.py --keep-alive 10000
+
+The value is specified in milliseconds. The default keep-alive interval
+is 37 seconds. Give a value of 0 to disable keep-alive pings.
 
 Development Options
 ~~~~~~~~~~~~~~~~~~~
@@ -161,6 +169,13 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--prefix', dict(
+            metavar='PREFIX',
+            type=str,
+            help="URL prefix for Bokeh server URLs",
+            default=None,
+        )),
+
         ('--keep-alive', dict(
             metavar='MILLISECONDS',
             type=int,
@@ -198,6 +213,7 @@ class Serve(Subcommand):
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'prefix',
                                                               'keep_alive_milliseconds']
                           if getattr(args, key, None) is not None }
 

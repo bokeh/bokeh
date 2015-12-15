@@ -37,7 +37,15 @@ class Server(object):
                                                         'keep_alive_milliseconds']
                            if key in kwargs }
 
-        self._tornado = BokehTornado(self._applications, **tornado_kwargs)
+        prefix = kwargs.get('prefix', None)
+        if prefix is None:
+            prefix = ""
+        prefix = prefix.strip("/")
+        if prefix:
+            prefix = "/" + prefix
+        self._prefix = prefix
+
+        self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
         self._http = HTTPServer(self._tornado)
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
@@ -68,6 +76,10 @@ class Server(object):
     @property
     def address(self):
         return self._address
+
+    @property
+    def prefix(self):
+        return self._prefix
 
     @property
     def io_loop(self):
@@ -133,6 +145,6 @@ class Server(object):
         if not app_path.startswith("/"):
             raise ValueError("app_path must start with a /")
         from bokeh.browserlib import view
-        url = "http://localhost:%d%s" % (self.port, app_path)
+        url = "http://localhost:%d%s%s" % (self.port, self.prefix, app_path)
         view(url, browser=browser, new=new)
 

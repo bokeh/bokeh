@@ -28,8 +28,8 @@ class DictModel(Model):
 logging.basicConfig(level=logging.DEBUG)
 
 # just for testing
-def ws_url(server):
-    return "ws://localhost:" + str(server._port) + "/ws"
+def ws_url(server, prefix=""):
+    return "ws://localhost:" + str(server._port) + prefix + "/ws"
 
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
@@ -60,9 +60,6 @@ class TestClientServer(unittest.TestCase):
                                     url = ws_url(server))
             session.connect()
             assert session.connected
-            session.close()
-            session.loop_until_closed()
-            assert not session.connected
 
     def test_disconnect_on_error(self):
         application = Application()
@@ -75,6 +72,25 @@ class TestClientServer(unittest.TestCase):
             # connection should now close on the server side
             # and the client loop should end
             session.loop_until_closed()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+            assert not session.connected
+
+    def test_connect_with_prefix(self):
+        application = Application()
+        with ManagedServerLoop(application, prefix="foo") as server:
+            # we don't have to start the server because it
+            # uses the same main loop as the client, so
+            # if we start either one it starts both
+            session = ClientSession(io_loop = server.io_loop,
+                                    url = ws_url(server, "/foo"))
+            session.connect()
+            assert session.connected
+
+            session = ClientSession(io_loop = server.io_loop,
+                                    url = ws_url(server))
+            session.connect()
             assert not session.connected
 
     def test_push_document(self):
