@@ -71,4 +71,4 @@ for w in [offset, amplitude, phase, freq]:
 # Set up layouts and add to document
 inputs = VBoxForm(children=[text, offset, amplitude, phase, freq])
 
-curdoc().add(HBox(children=[inputs, plot]))
+curdoc().add_root(HBox(children=[inputs, plot]))

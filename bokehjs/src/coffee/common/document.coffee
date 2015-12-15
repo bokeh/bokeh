@@ -571,4 +571,5 @@ module.exports = {
   TitleChangedEvent : TitleChangedEvent
   RootAddedEvent : RootAddedEvent
   RootRemovedEvent : RootRemovedEvent
+  DEFAULT_TITLE : DEFAULT_TITLE
 }

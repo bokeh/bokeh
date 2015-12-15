@@ -117,6 +117,13 @@ Bokeh.InspectTool            = require("./tool/inspectors/inspect_tool")
 Bokeh.HoverTool              = require("./tool/inspectors/hover_tool")
 Bokeh.CrosshairTool          = require("./tool/inspectors/crosshair_tool")
 
+# widgets
+Bokeh.Layout                 = require('./widget/layout')
+Bokeh.BaseBox                = require('./widget/basebox')
+Bokeh.HBox                   = require('./widget/hbox')
+Bokeh.VBox                   = require('./widget/vbox')
+Bokeh.VBoxForm               = require('./widget/vboxform')
+
 # Add the jquery plugin
 require("./api/plugin")
 
