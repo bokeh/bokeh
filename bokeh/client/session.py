@@ -128,11 +128,10 @@ def show_session(session_id=None, url='default', app_path='/',
         """Open a browser displaying a session document.
 
         If you have a session from ``pull_session()`` or
-        ``push_session`` you can
-        ``show_session(session=mysession)``. If you don't need to
-        open a connection to the server yourself, you can show a new
-        session in a browser by providing just the ``url`` and
-        ``app_path``.
+        ``push_session`` you can ``show_session(session=mysession)``.
+        If you don't need to open a connection to the server yourself,
+        you can show a new session in a browser by providing just the
+        ``url`` and ``app_path``.
 
         Args:
 

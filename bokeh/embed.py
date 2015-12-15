@@ -392,10 +392,10 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
             a ``<script>`` tag that will execute an autoload script
             loaded from the Bokeh Server
 
-    .. note:: It is a very bad idea to use the same ``session_id`` for
-    every page load; you are likely to create scalability and
-    security problems. So ``autoload_server()`` should be called
-    again on each page load.
+    .. note:: It is a very bad idea to use the same ``session_id``
+        for every page load; you are likely to create scalability
+        and security problems. So ``autoload_server()`` should be
+        called again on each page load.
 
     '''
 
