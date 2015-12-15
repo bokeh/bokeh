@@ -65,7 +65,7 @@ class BokehTornado(TornadoApplication):
             self._applications[k] = ApplicationContext(v, self._loop)
 
         extra_patterns = extra_patterns or []
-        relative_patterns = []
+        all_patterns = []
         for key in applications:
             app_patterns = []
             for p in per_app_patterns:
@@ -85,10 +85,14 @@ class BokehTornado(TornadoApplication):
             for r in app_patterns:
                 r[2]["bokeh_websocket_path"] = websocket_path
 
-            relative_patterns.extend(app_patterns)
+            all_patterns.extend(app_patterns)
 
-        all_patterns = extra_patterns + relative_patterns + toplevel_patterns
+        for p in extra_patterns + toplevel_patterns:
+            prefixed_pat = (self._prefix+p[0],) + p[1:]
+            all_patterns.append(prefixed_pat)
+
         log.debug("Patterns are: %r", all_patterns)
+
         super(BokehTornado, self).__init__(all_patterns, **settings)
 
         self._clients = set()
@@ -107,20 +111,19 @@ class BokehTornado(TornadoApplication):
     def io_loop(self):
         return self._loop
 
-    def unprefixed_root_url_for_request(self, request):
-        return request.protocol + "://" + request.host + "/"
-
-    def prefixed_root_url_for_request(self, request):
+    def root_url_for_request(self, request):
         return request.protocol + "://" + request.host + self._prefix + "/"
 
     def websocket_url_for_request(self, request, websocket_path):
+        # websocket_path comes from the handler, and already has any
+        # prefix included, no need to add here
         protocol = "ws"
         if request.protocol == "https":
             protocol = "wss"
         return protocol + "://" + request.host + websocket_path
 
     def resources(self, request):
-        root_url = self.unprefixed_root_url_for_request(request)
+        root_url = self.root_url_for_request(request)
         if root_url not in self._resources:
             self._resources[root_url] = Resources(mode="server", root_url=root_url)
         return self._resources[root_url]
