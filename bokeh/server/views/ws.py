@@ -6,9 +6,7 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
-import random
-import time
-
+import codecs
 
 from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
@@ -20,13 +18,6 @@ from ..protocol.message import Message
 from ..protocol.receiver import Receiver
 from ..protocol.server_handler import ServerHandler
 
-def do_background_stuff(msgid):
-    delay = random.random() * 2.0
-    log.info("start working for %.2f s. on %s", delay, msgid)
-    time.sleep(delay)
-    log.info("work finished on %s", msgid)
-    return "done"
-
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
@@ -36,6 +27,7 @@ class WSHandler(WebSocketHandler):
         self.handler = None
         self.connection = None
         self.application_context = kw['application_context']
+        self.latest_pong = -1
         # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
@@ -124,8 +116,14 @@ class WSHandler(WebSocketHandler):
         raise gen.Return(None)
 
     def on_pong(self, data):
-        #log.debug("received a pong: %r", data)
-        pass
+        # if we get an invalid integer or utf-8 back, either we
+        # sent a buggy ping or the client is evil/broken.
+        try:
+            self.latest_pong = int(codecs.decode(data, 'utf-8'))
+        except UnicodeDecodeError:
+            log.error("received invalid unicode in pong %r", data, exc_info=True)
+        except ValueError:
+            log.error("received invalid integer in pong %r", data, exc_info=True)
 
     @gen.coroutine
     def send_message(self, message):
@@ -186,7 +184,7 @@ class WSHandler(WebSocketHandler):
         if isinstance(work, Message):
             yield self.send_message(work)
         else:
-            self._internal_error("expected a Message")
+            self._internal_error("expected a Message not " + repr(work))
 
         raise gen.Return(None)
 

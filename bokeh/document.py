@@ -43,17 +43,18 @@ class DocumentPatchedEvent(DocumentChangedEvent):
             receiver._document_patched(self)
 
 class ModelChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model, attr, old, new):
+    def __init__(self, document, model, attr, old, new, serializable_new):
         super(ModelChangedEvent, self).__init__(document)
         self.model = model
         self.attr = attr
         self.old = old
         self.new = new
+        self.serializable_new = serializable_new
 
     def dispatch(self, receiver):
         super(ModelChangedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_document_model_changed'):
-            receiver._document_patched(self)
+            receiver._document_model_changed(self)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
@@ -257,6 +258,7 @@ class Document(object):
         old_all_models_set = set(self._all_models.values())
         to_detach = old_all_models_set - new_all_models_set
         to_attach = new_all_models_set - old_all_models_set
+
         recomputed = {}
         recomputed_by_name = _MultiValuedDict()
         for m in new_all_models_set:
@@ -451,7 +453,7 @@ class Document(object):
         old_doc = curdoc()
         try:
             set_curdoc(self)
-            f()
+            return f()
         finally:
             set_curdoc(old_doc)
 
@@ -459,8 +461,8 @@ class Document(object):
         doc = self
         def wrapper(*args, **kwargs):
             def invoke():
-                f(*args, **kwargs)
-            doc._with_self_as_curdoc(invoke)
+                return f(*args, **kwargs)
+            return doc._with_self_as_curdoc(invoke)
         return wrapper
 
     def _trigger_on_change(self, event):
@@ -479,7 +481,8 @@ class Document(object):
             if new is not None:
                 self._all_models_by_name.add_value(new, model)
 
-        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new))
+        serializable_new = model.lookup(attr).serializable_value(model)
+        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new))
 
     @classmethod
     def _references_json(cls, references):
@@ -520,21 +523,7 @@ class Document(object):
 
             instance = references[obj_id]
 
-            # replace references with actual instances in obj_attrs
-            for p in instance.properties_with_refs():
-                if p in obj_attrs:
-                    prop = instance.lookup(p)
-                    obj_attrs[p] = prop.from_json(obj_attrs[p], models=references)
-
-            # set all properties on the instance
-            remove = []
-            for key in obj_attrs:
-                if key not in instance.properties():
-                    logger.warn("Client sent attr %r for instance %r, which is a client-only or invalid attribute that shouldn't have been sent", key, instance)
-                    remove.append(key)
-            for key in remove:
-                del obj_attrs[key]
-            instance.update(**obj_attrs)
+            instance.update_from_json(obj_attrs, models=references)
 
     def to_json_string(self, indent=None):
         ''' Convert the document to a JSON string.
@@ -618,7 +607,7 @@ class Document(object):
                 raise ValueError("Cannot create a patch using events from a different document " + repr(event))
 
             if isinstance(event, ModelChangedEvent):
-                value = event.new
+                value = event.serializable_new
 
                 # the new value is an object that may have
                 # not-yet-in-the-remote-doc references, and may also
@@ -694,14 +683,7 @@ class Document(object):
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
-                if attr in patched_obj.properties_with_refs():
-                    prop = patched_obj.lookup(attr)
-                    value = prop.from_json(value, models=references)
-                if attr in patched_obj.properties():
-                    #logger.debug("Patching attribute %s of %r", attr, patched_obj)
-                    patched_obj.update(** { attr : value })
-                else:
-                    logger.warn("Client sent attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", attr, patched_obj)
+                patched_obj.set_from_json(attr, value, models=references)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]

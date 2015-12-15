@@ -34,6 +34,14 @@ def _needs_document_lock(func):
             self._pending_writes = []
             try:
                 result = func(self, *args, **kwargs)
+                while True:
+                    try:
+                        future = gen.convert_yielded(result)
+                    except gen.BadYieldError:
+                        # result is not a yieldable thing, we are done
+                        break
+                    else:
+                        result = yield future
             finally:
                 # we want to be very sure we reset this or we'll
                 # keep hitting the RuntimeError above as soon as
@@ -171,7 +179,8 @@ class ServerSession(object):
         NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
 
         '''
-        cb = self._loop.call_later(callback.timeout, self._wrap_document_callback(callback.callback))
+        # IOLoop.call_later takes a delay in seconds
+        cb = self._loop.call_later(callback.timeout/1000.0, self._wrap_document_callback(callback.callback))
         self._callbacks[callback.id] = cb
 
     def _remove_timeout_callback(self, callback):

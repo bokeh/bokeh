@@ -10,8 +10,9 @@ from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.server.server import Server
 from bokeh.server.session import ServerSession
 from bokeh.model import Model
-from bokeh.properties import Int, Instance
+from bokeh.properties import Int, Instance, Dict, String, Any
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
+from tornado import gen
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -20,19 +21,24 @@ class SomeModelInTestClientServer(Model):
     foo = Int(2)
     child = Instance(Model)
 
+
+class DictModel(Model):
+    values = Dict(String, Any)
+
 logging.basicConfig(level=logging.DEBUG)
 
 # just for testing
-def ws_url(server):
-    return "ws://localhost:" + str(server._port) + "/ws"
+def ws_url(server, prefix=""):
+    return "ws://localhost:" + str(server._port) + prefix + "/ws"
 
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
 class ManagedServerLoop(object):
-    def __init__(self, application):
+    def __init__(self, application, **server_kwargs):
         loop = IOLoop()
         loop.make_current()
-        self._server = Server(application, io_loop=loop)
+        server_kwargs['io_loop'] = loop
+        self._server = Server(application, **server_kwargs)
     def __exit__(self, type, value, traceback):
         self._server.unlisten()
         self._server.io_loop.close()
@@ -54,9 +60,6 @@ class TestClientServer(unittest.TestCase):
                                     url = ws_url(server))
             session.connect()
             assert session.connected
-            session.close()
-            session.loop_until_closed()
-            assert not session.connected
 
     def test_disconnect_on_error(self):
         application = Application()
@@ -70,6 +73,106 @@ class TestClientServer(unittest.TestCase):
             # and the client loop should end
             session.loop_until_closed()
             assert not session.connected
+            session.close()
+            session.loop_until_closed()
+            assert not session.connected
+
+    def test_connect_with_prefix(self):
+        application = Application()
+        with ManagedServerLoop(application, prefix="foo") as server:
+            # we don't have to start the server because it
+            # uses the same main loop as the client, so
+            # if we start either one it starts both
+            session = ClientSession(io_loop = server.io_loop,
+                                    url = ws_url(server, "/foo"))
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+            session = ClientSession(io_loop = server.io_loop,
+                                    url = ws_url(server))
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+    def test_host_whitelist_success(self):
+        application = Application()
+
+        # succeed no host value with defaults
+        with ManagedServerLoop(application, host=None) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed no host value with port
+        with ManagedServerLoop(application, port=8080, host=None) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed matching host value
+        with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed matching host value one of multiple
+        with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+    def test_host_whitelist_failure(self):
+        application = Application()
+
+        # failure bad host
+        with ManagedServerLoop(application, host=["bad_host"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure good host, bad port
+        with ManagedServerLoop(application, host=["localhost:80"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure good host, bad default port
+        with ManagedServerLoop(application, host=["localhost"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure with custom port
+        with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
+            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
 
     def test_push_document(self):
         application = Application()
@@ -146,6 +249,31 @@ class TestClientServer(unittest.TestCase):
 
             assert info['version_info']['bokeh'] == __version__
             assert info['version_info']['server'] == __version__
+
+            session.close()
+            session.loop_until_closed()
+            assert not session.connected
+
+    def test_ping(self):
+        application = Application()
+        with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
+            session = ClientSession(url=ws_url(server), io_loop=server.io_loop)
+            session.connect()
+            assert session.connected
+            assert session.document is None
+
+            connection = next(iter(server._tornado._clients))
+            expected_pong = connection._ping_count
+            server._tornado.keep_alive() # send ping
+            session.force_roundtrip()
+
+            self.assertEqual(expected_pong, connection._socket.latest_pong)
+
+            # check that each ping increments by 1
+            server._tornado.keep_alive()
+            session.force_roundtrip()
+
+            self.assertEqual(expected_pong + 1, connection._socket.latest_pong)
 
             session.close()
             session.loop_until_closed()
@@ -311,8 +439,8 @@ class TestClientServer(unittest.TestCase):
             client_session = ClientSession(session_id='test_client_session_callback',
                                           url=ws_url(server),
                                           io_loop=server.io_loop)
-            server_session = ServerSession('test_server_session_callback',
-                                            doc, server.io_loop)
+            server_session = ServerSession(session_id='test_server_session_callback',
+                                           document=doc, io_loop=server.io_loop)
             client_session._attach_document(doc)
 
             assert len(server_session._callbacks) == 0
@@ -362,8 +490,8 @@ class TestClientServer(unittest.TestCase):
             client_session = ClientSession(session_id='test_client_session_callback',
                                           url=ws_url(server),
                                           io_loop=server.io_loop)
-            server_session = ServerSession('test_server_session_callback',
-                                            doc, server.io_loop)
+            server_session = ServerSession(session_id='test_server_session_callback',
+                                           document=doc, io_loop=server.io_loop)
             client_session._attach_document(doc)
 
             assert len(server_session._callbacks) == 0
@@ -385,16 +513,153 @@ class TestClientServer(unittest.TestCase):
                 iocb = ss._callbacks[callback.id]
                 assert isinstance(iocb, _Timeout)
 
-                # check that the callback deadline is 10 seconds later from
-                # when we called add_timeout_callback (using int to avoid
-                # ms differences between the x definition and the call)
-                assert int(iocb.deadline) == int(x + 10)
+                # check that the callback deadline is 10
+                # milliseconds later from when we called
+                # add_timeout_callback (using int to avoid ms
+                # differences between the x definition and the
+                # call)
+                assert abs(int(iocb.deadline) - int(x + 10/1000.0)) < 1e6
                 started_callbacks.append(iocb)
 
-            callback = doc.remove_periodic_callback(cb)
+            callback = doc.remove_timeout_callback(cb)
             assert len(server_session._callbacks) == 0
             assert len(client_session._callbacks) == 0
             assert len(server_session._callbacks) == 0
+
+    @gen.coroutine
+    def async_value(self, value):
+        yield gen.moment # this ensures we actually return to the loop
+        raise gen.Return(value)
+
+    def test_client_session_timeout_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_timeout_async',
+                                          url=ws_url(server),
+                                          io_loop=server.io_loop)
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_timeout_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            doc.remove_timeout_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_server_session_timeout_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+            doc.add_root(DictModel())
+
+            client_session = push_session(doc,
+                                          session_id='test_server_session_timeout_async',
+                                          url=ws_url(server),
+                                          io_loop=server.io_loop)
+            server_session = server.get_session('/', client_session.id)
+
+            result = next(iter(server_session.document.roots))
+
+            @gen.coroutine
+            def cb():
+                # we're testing that we can modify the doc and be
+                # "inside" the document lock
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = server_session.document.add_timeout_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            server_session.document.remove_timeout_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_periodic_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_periodic_async',
+                                          url=ws_url(server),
+                                          io_loop=server.io_loop)
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_periodic_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            doc.remove_periodic_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_server_session_periodic_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+            doc.add_root(DictModel())
+
+            client_session = push_session(doc,
+                                          session_id='test_server_session_periodic_async',
+                                          url=ws_url(server),
+                                          io_loop=server.io_loop)
+            server_session = server.get_session('/', client_session.id)
+
+            result = next(iter(server_session.document.roots))
+
+            @gen.coroutine
+            def cb():
+                # we're testing that we can modify the doc and be
+                # "inside" the document lock
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = server_session.document.add_periodic_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            server_session.document.remove_periodic_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
 # This isn't in the unittest.TestCase because per-test fixtures
 # don't work there (see note at bottom of https://pytest.org/latest/unittest.html#unittest-testcase)
