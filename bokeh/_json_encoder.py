@@ -6,12 +6,12 @@ import datetime as dt
 import calendar
 import decimal
 
-from .util.dependencies import optional
+from .util.dependencies import import_optional
 from .util.serialization import transform_series, transform_array
 import numpy as np
 
-pd = optional('pandas')
-dateutil = optional('dateutil')
+pd = import_optional('pandas')
+dateutil = import_optional('dateutil')
 
 log = logging.getLogger(__name__)
 

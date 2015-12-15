@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
-from bokeh.util.dependencies import required
-pd = required('pandas',
+from bokeh.util.dependencies import import_required
+pd = import_required('pandas',
               'glucose sample data requires Pandas (http://pandas.pydata.org) to be installed')
 
 from os.path import join

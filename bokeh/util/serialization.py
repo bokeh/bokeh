@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 from six import iterkeys
 
-from .dependencies import optional
+from .dependencies import import_optional
 
 is_numpy = None
 
@@ -16,7 +16,7 @@ try:
 except ImportError:
     is_numpy = False
 
-pd = optional('pandas')
+pd = import_optional('pandas')
 
 import logging
 log = logging.getLogger(__name__)

@@ -18,8 +18,8 @@ from matplotlib.transforms import Affine2D
 from matplotlib import ticker
 
 # NOTE: bokeh mod
-from bokeh.util.dependencies import optional
-pd = optional('pandas')
+from bokeh.util.dependencies import import_optional
+pd = import_optional('pandas')
 
 def color_to_hex(color):
     """Convert matplotlib color code to hex color code"""

@@ -59,12 +59,12 @@ from warnings import warn
 from six import string_types, iteritems
 
 from . import enums
-from .util.dependencies import optional
+from .util.dependencies import import_optional
 from .util.future import with_metaclass
 from .util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
 
-pd = optional('pandas')
+pd = import_optional('pandas')
 
 def field(name):
     ''' Convenience function do explicitly mark a field specification for

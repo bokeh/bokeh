@@ -12,8 +12,8 @@ Under ``CC-BY`` license (creative commons attributions license).
 '''
 from __future__ import absolute_import
 
-from bokeh.util.dependencies import required
-pd = required('pandas',
+from bokeh.util.dependencies import import_required
+pd = import_required('pandas',
               'world_cities sample data requires Pandas (http://pandas.pydata.org) to be installed')
 
 from . import _data_dir

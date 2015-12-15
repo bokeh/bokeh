@@ -8,8 +8,8 @@ Data organized by Randal S. Olson (http://www.randalolson.com)
 '''
 from __future__ import absolute_import
 
-from bokeh.util.dependencies import required
-pd = required('pandas',
+from bokeh.util.dependencies import import_required
+pd = import_required('pandas',
               'us_marriages_divorces sample data requires Pandas (http://pandas.pydata.org) to be installed')
 
 from os.path import dirname, join

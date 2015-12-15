@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
-from ..util.dependencies import required
-required(
+from ..util.dependencies import import_required
+import_required(
     'pandas',
     'The bokeh.charts interface requires Pandas (http://pandas.pydata.org) to be installed.'
 )

@@ -26,12 +26,12 @@ from ..models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
-from ..util.dependencies import optional
+from ..util.dependencies import import_optional
 
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import convert_dashes, get_props_cycled, is_ax_end, xkcd_line
 
-pd = optional('pandas')
+pd = import_optional('pandas')
 
 #-----------------------------------------------------------------------------
 # Classes and functions
