@@ -21,9 +21,11 @@ scatter2 = Scatter(
     xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
 scatter3 = Scatter(
-    df, x='mpg', y='hp', color='origin', title="x='mpg', y='hp', color='origin'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
-scatter3.add_tools(HoverTool(tooltips=[('origin', "@origin")]))
+    df, x='mpg', y='hp', color='origin', title="x='mpg', y='hp', color='origin', "
+                                               "with tooltips",
+    xlabel="Miles Per Gallon", ylabel="Horsepower",
+    legend='top_right', tooltips=[('origin', "@origin")])
+
 
 scatter4 = Scatter(
     df, x='mpg', y='hp', color='cyl', marker='origin', title="x='mpg', y='hp', color='cyl', marker='origin'",

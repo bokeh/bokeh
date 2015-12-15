@@ -35,7 +35,7 @@ box_plot7 = BoxPlot(df, label='cyl', values='mpg', whisker_color='cyl',
 
 # remove outliers
 box_plot8 = BoxPlot(df, label='cyl', values='mpg', outliers=False,
-                    title="label='cyl', values='mpg', outliers=False",
+                    title="label='cyl', values='mpg', outliers=False, tooltips=True",
                     tooltips=True)
 
 # collect and display

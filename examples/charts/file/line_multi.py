@@ -40,10 +40,8 @@ line3 = Line(df, x='date', y=['python', 'pypy', 'jython'],
 line4 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              dash='test',
              color=['python', 'pypy', 'jython'],
-             title="Interpreters (x='date', y, color=['python', 'pypy', 'jython'], dash='test')", ylabel='Duration',
-             legend=True)
-
-line4.add_tools(HoverTool(tooltips=[('series', '@series'), ('test', '@test')]))
+             title="Interpreters (x='date', y, color=['python', 'pypy', 'jython'], dash='test') with tooltips", ylabel='Duration',
+             legend=True, tooltips=[('series', '@series'), ('test', '@test')])
 
 
 output_file("line_multi.html", title="line examples")
