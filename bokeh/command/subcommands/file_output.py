@@ -51,7 +51,10 @@ class FileOutputSubcommand(Subcommand):
     def invoke(self, args):
         applications = build_single_handler_applications(args.files)
 
-        outputs = list(args.output) # copy so we can pop from it
+        if args.output is None:
+            outputs = []
+        else:
+            outputs = list(args.output) # copy so we can pop from it
 
         if len(outputs) > len(applications):
             die("--output/-o was given too many times (%d times for %d applications)" %
