@@ -1,0 +1,11 @@
+
+attrs:
+  Figure:
+    plot_width: 400
+    plot_height: 400
+    title_text_font_size: '10pt'
+    background_fill_color: 'lightgrey'
+    background_fill_alpha: 0.2
+
+  Grid:
+    grid_line_color: null
