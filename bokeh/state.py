@@ -114,6 +114,10 @@ class State(object):
         return self._session_coords.session_id
 
     @property
+    def session_id_allowing_none(self):
+        return self._session_coords.session_id_allowing_none
+
+    @property
     def url(self):
         """ Gets the server base URL (not including any app path)."""
         return self._session_coords.url

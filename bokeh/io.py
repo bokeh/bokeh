@@ -273,14 +273,14 @@ def _show_file_with_state(obj, state, new, controller):
 def _show_notebook_with_state(obj, state):
     if state.server_enabled:
         push(state=state)
-        snippet = autoload_server(obj, session_id=state.session_id, url=state.url, app_path=state.app_path)
+        snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
         publish_display_data({'text/html': notebook_div(obj)})
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
-    show_session(session_id=state.session_id, url=state.url, app_path=state.app_path,
+    show_session(session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path,
                  new=new, controller=controller)
 
 def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
@@ -399,7 +399,7 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
         state = _state
 
     if not session_id:
-        session_id = state.session_id
+        session_id = state.session_id_allowing_none
 
     if not url:
         url = state.url

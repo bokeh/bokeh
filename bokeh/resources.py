@@ -78,8 +78,8 @@ class _SessionCoordinates(object):
             self._app_path = self._app_path[:-1] # chop off trailing slash
 
         self._session_id = kwargs.get('session_id', None)
-        if self._session_id is None:
-            self._session_id = generate_session_id()
+        # we lazy-generate the session_id so we can generate
+        # it server-side when appropriate
 
         # server_url never has trailing slash because it's
         # prettier like host:port/app_path without a slash
@@ -106,6 +106,17 @@ class _SessionCoordinates(object):
     @property
     def session_id(self):
         """ Session ID derived from the kwargs provided."""
+        if self._session_id is None:
+            self._session_id = generate_session_id()
+        return self._session_id
+
+    @property
+    def session_id_allowing_none(self):
+        """ Session ID provided in kwargs, keeping it None if it hasn't been generated yet.
+
+        The purpose of this is to preserve ``None`` as long as possible... in some cases
+        we may never generate the session ID because we generate it on the server.
+        """
         return self._session_id
 
     @property
