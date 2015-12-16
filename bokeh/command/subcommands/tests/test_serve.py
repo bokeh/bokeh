@@ -54,6 +54,20 @@ def test_args():
             default=None,
         )),
 
+        ('--host', dict(
+            metavar='HOST[:PORT]',
+            nargs='*',
+            type=str,
+            help="Public hostnames to allow in requests",
+        )),
+
+        ('--prefix', dict(
+            metavar='PREFIX',
+            type=str,
+            help="URL prefix for Bokeh server URLs",
+            default=None,
+        )),
+
         ('--keep-alive', dict(
             metavar='MILLISECONDS',
             type=int,
