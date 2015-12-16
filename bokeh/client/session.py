@@ -14,7 +14,7 @@ from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
                               server_url_for_websocket_url,
                               _SessionCoordinates )
 from bokeh.document import Document, PeriodicCallback, TimeoutCallback
-import uuid
+from bokeh.util.session_id import generate_session_id
 
 DEFAULT_SESSION_ID = "default"
 
@@ -185,7 +185,7 @@ class ClientSession(object):
 
     """
 
-    def __init__(self, session_id, websocket_url, io_loop=None):
+    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None):
         '''
           A connection which attaches to a particular named session on the server.
 
@@ -198,7 +198,7 @@ class ClientSession(object):
 
           Args:
             session_id : str
-                The name of the session
+                The name of the session or None to generate one
             websocket_url : str
                 Websocket URL to connect to
             io_loop : tornado.ioloop.IOLoop, optional
@@ -327,10 +327,9 @@ class ClientSession(object):
         show_session(session=self)
 
     @classmethod
-    def _ensure_session_id(cls, session_id=DEFAULT_SESSION_ID):
-        # if someone explicitly sets session_id=None that means make one up
+    def _ensure_session_id(cls, session_id):
         if session_id is None:
-            session_id = str(uuid.uuid4())
+            session_id = generate_session_id()
         return session_id
 
     @property
