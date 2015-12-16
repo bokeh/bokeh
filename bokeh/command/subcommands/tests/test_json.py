@@ -13,7 +13,7 @@ def test_name():
     assert scjson.JSON.name == "json"
 
 def test_help():
-    assert scjson.JSON.help == "Emit serialized JSON for one application"
+    assert scjson.JSON.help == "Create JSON files for one or more applications"
 
 def test_args():
     assert scjson.JSON.args == (
@@ -32,6 +32,12 @@ def test_args():
             default=None
         )),
 
+        (('-o', '--output'), dict(
+                metavar='FILENAME',
+                action='append',
+                type=str,
+                help="Name of the output file or - for standard output."
+        )),
     )
 
 

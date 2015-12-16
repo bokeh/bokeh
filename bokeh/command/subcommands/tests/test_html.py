@@ -31,6 +31,13 @@ def test_args():
             help="Open generated file(s) in a browser"
         )),
 
+        (('-o', '--output'), dict(
+            metavar='FILENAME',
+            action='append',
+            type=str,
+            help="Name of the output file or - for standard output."
+        )),
+
     )
 
 
