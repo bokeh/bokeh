@@ -214,6 +214,8 @@ class PropertyDescriptor(PropertyFactory):
         return False
 
     def from_json(self, json, models=None):
+        """ Convert from JSON-compatible values (list, dict, number, string, bool, None)
+        into a value for this property."""
         return json
 
     def transform(self, value):
@@ -304,6 +306,11 @@ class Property(object):
         """
         return self.__get__(obj)
 
+    def set_from_json(self, obj, json, models):
+        """Sets from a JSON value.
+        """
+        return self.__set__(obj, json)
+
     @property
     def serialized(self):
         """ True if the property should be serialized when serializing an object.
@@ -311,11 +318,6 @@ class Property(object):
         information already available in other properties, for example.
         """
         raise NotImplementedError("Implement serialized()")
-
-    def from_json(self, json, models=None):
-        """ Convert from JSON-compatible values (list, dict, number, string, bool, None)
-        into a value for this property."""
-        raise NotImplementedError("Implement from_json()")
 
     @property
     def has_ref(self):
@@ -350,8 +352,12 @@ class BasicProperty(Property):
     def serialized(self):
         return self.descriptor.serialized
 
-    def from_json(self, json, models=None):
-        return self.descriptor.from_json(json, models)
+    def set_from_json(self, obj, json, models=None):
+        """Sets using the result of serializable_value().
+        """
+        return super(BasicProperty, self).set_from_json(obj,
+                                                        self.descriptor.from_json(json, models),
+                                                        models)
 
     @property
     def has_ref(self):
@@ -701,6 +707,27 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
+
+    def set_from_json(self, name, json, models=None):
+        """Sets a property of the object using JSON and a dictionary from model ids to model instances.
+        The model instances are necessary if the JSON contains references to models.
+        """
+        if name in self.properties():
+            #logger.debug("Patching attribute %s of %r", attr, patched_obj)
+            prop = self.lookup(name)
+            prop.set_from_json(self, json, models)
+        else:
+            logger.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
+
+    def update(self, **kwargs):
+        """ Updates the object's properties from the given keyword args."""
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+
+    def update_from_json(self, json_attributes, models=None):
+        """ Updates the object's properties from a JSON attributes dictionary."""
+        for k, v in json_attributes.items():
+            self.set_from_json(k, v, models)
 
     def _clone(self):
         """ Returns a duplicate of this object with all its properties
@@ -1484,7 +1511,23 @@ class DataSpecProperty(BasicProperty):
     """ A Property with a DataSpec descriptor."""
 
     def serializable_value(self, obj):
-        return self.descriptor.to_serializable(obj, self.name)
+        return self.descriptor.to_serializable(obj, self.name, getattr(obj, self.name))
+
+    def set_from_json(self, obj, json, models=None):
+        # we want to try to keep the "format" of the data spec as string, dict, or number,
+        # assuming the serialized dict is compatible with that.
+        old = getattr(obj, self.name)
+        if old is not None:
+            try:
+                self.descriptor._type.validate(old)
+                if 'value' in json:
+                    json = json['value']
+            except ValueError:
+                if isinstance(old, string_types) and 'field' in json:
+                    json = json['field']
+            # leave it as a dict if 'old' was a dict
+
+        super(DataSpecProperty, self).set_from_json(obj, json, models)
 
 class DataSpec(Either):
     def __init__(self, typ, default, help=None):
@@ -1494,9 +1537,7 @@ class DataSpec(Either):
     def make_properties(self, base_name):
         return [ DataSpecProperty(descriptor=self, name=base_name) ]
 
-    def to_serializable(self, obj, name):
-        val = getattr(obj, name)
-
+    def to_serializable(self, obj, name, val):
         # Check for None value; this means "the whole thing is
         # unset," not "the value is None."
         if val is None:
@@ -1551,12 +1592,19 @@ class UnitsSpecProperty(DataSpecProperty):
         super(UnitsSpecProperty, self).__init__(descriptor, name)
         self.units_prop = units_prop
 
-    def __set__(self, obj, value):
+    def _extract_units(self, obj, value):
         if isinstance(value, dict):
             units = value.pop("units", None)
             if units:
                 self.units_prop.__set__(obj, units)
+
+    def __set__(self, obj, value):
+        self._extract_units(obj, value)
         super(UnitsSpecProperty, self).__set__(obj, value)
+
+    def set_from_json(self, obj, json, models=None):
+        self._extract_units(obj, json)
+        super(UnitsSpecProperty, self).set_from_json(obj, json, models)
 
 class UnitsSpec(NumberSpec):
     def __init__(self, default, units_type, units_default, help=None):
@@ -1574,9 +1622,9 @@ class UnitsSpec(NumberSpec):
         units_props = self._units_type.make_properties(units_name)
         return units_props + [ UnitsSpecProperty(descriptor=self, name=base_name, units_prop=units_props[0]) ]
 
-    def to_serializable(self, obj, name):
-        d = super(UnitsSpec, self).to_serializable(obj, name)
-        if d is not None:
+    def to_serializable(self, obj, name, val):
+        d = super(UnitsSpec, self).to_serializable(obj, name, val)
+        if d is not None and 'units' not in d:
             d["units"] = getattr(obj, name+"_units")
         return d
 
@@ -1600,8 +1648,8 @@ class DistanceSpec(UnitsSpec):
         return super(DistanceSpec, self).prepare_value(cls, name, value)
 
 class ScreenDistanceSpec(NumberSpec):
-    def to_serializable(self, obj, name):
-        d = super(ScreenDistanceSpec, self).to_serializable(obj, name)
+    def to_serializable(self, obj, name, val):
+        d = super(ScreenDistanceSpec, self).to_serializable(obj, name, val)
         d["units"] = "screen"
         return d
 
@@ -1614,8 +1662,8 @@ class ScreenDistanceSpec(NumberSpec):
         return super(ScreenDistanceSpec, self).prepare_value(cls, name, value)
 
 class DataDistanceSpec(NumberSpec):
-    def to_serializable(self, obj, name):
-        d = super(ScreenDistanceSpec, self).to_serializable(obj, name)
+    def to_serializable(self, obj, name, val):
+        d = super(ScreenDistanceSpec, self).to_serializable(obj, name, val)
         d["units"] = "data"
         return d
 
@@ -1650,9 +1698,7 @@ class ColorSpec(DataSpec):
         else:
             return "rgba%r" % (colortuple,)
 
-    def to_serializable(self, obj, name):
-        val = getattr(obj, name)
-
+    def to_serializable(self, obj, name, val):
         if val is None:
             return dict(value=None)
 
