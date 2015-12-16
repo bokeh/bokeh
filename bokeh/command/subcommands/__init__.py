@@ -22,6 +22,8 @@ def _collect():
                 if not hasattr(attr, 'name'): continue # excludes abstract bases
                 results.append(attr)
 
+    results = sorted(results, key=lambda attr: attr.name)
+
     return results
 
 all = _collect()
