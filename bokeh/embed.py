@@ -383,7 +383,9 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
         model (Model) : the object to render from the session, or None for entire document
         app_path (str, optional) : the server path to the app we want to load
         session_id (str, optional) : server session ID (default: None)
-          If None, autogenerate a random session ID.
+          If None, let the server autogenerate a random session ID. If you supply
+          a specific model to render, you must also supply the session ID containing
+          that model, though.
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
         loglevel (str, optional) : "trace", "debug", "info", "warn", "error", "fatal"
 
@@ -410,13 +412,25 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
     if model is not None:
         model_id = model._id
 
-    src_path = coords.server_url + "/autoload.js" + "?bokeh-autoload-element=" + elementid
+    if model_id and session_id is None:
+        raise ValueError("A specific model was passed to autoload_server() but no session_id; "
+                         "this doesn't work because the server will generate a fresh session "
+                         "which won't have the model in it.")
+
+    src_path = coords.server_url + "/autoload.js" + \
+               "?bokeh-autoload-element=" + elementid
+
+    # we want the server to generate the ID, so the autoload script
+    # can be embedded in a static page while every user still gets
+    # their own session. So we omit bokeh-session-id rather than
+    # using a generated ID.
+    if coords.session_id_allowing_none is not None:
+        src_path = src_path + "&bokeh-session-id=" + session_id
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         elementid = elementid,
         modelid = model_id,
-        sessionid = coords.session_id,
         loglevel = loglevel
     )
 
