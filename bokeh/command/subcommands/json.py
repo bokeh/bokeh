@@ -56,7 +56,7 @@ class JSON(FileOutputSubcommand):
             default=None
         )),
 
-    )
+    ) + FileOutputSubcommand.other_args()
 
     def file_contents(self, args, doc):
         return doc.to_json_string(indent=args.indent)

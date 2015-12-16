@@ -9,7 +9,7 @@ import io
 from bokeh.util.string import decode_utf8
 
 from ..subcommand import Subcommand
-from ..util import build_single_handler_applications
+from ..util import build_single_handler_applications, die
 
 class FileOutputSubcommand(Subcommand):
     ''' Abstract subcommand to output applications as some type of file.
@@ -28,6 +28,18 @@ class FileOutputSubcommand(Subcommand):
             default=None
         ))
 
+    @classmethod
+    def other_args(cls):
+        """ Subtypes should append these to their args. """
+        return (
+            (('-o', '--output'), dict(
+                metavar='FILENAME',
+                action='append',
+                type=str,
+                help="Name of the output file."
+            )),
+        )
+
     def filename_from_route(self, route, ext):
         if route == "/":
             base = "index"
@@ -39,10 +51,19 @@ class FileOutputSubcommand(Subcommand):
     def invoke(self, args):
         applications = build_single_handler_applications(args.files)
 
+        outputs = list(args.output) # copy so we can pop from it
+
+        if len(outputs) > len(applications):
+            die("--output/-o was given too many times (%d times for %d applications)" %
+                (len(outputs), len(applications)))
+
         for (route, app) in applications.items():
             doc = app.create_document()
 
-            filename = self.filename_from_route(route, self.extension)
+            if len(outputs) > 0:
+                filename = outputs.pop(0)
+            else:
+                filename = self.filename_from_route(route, self.extension)
 
             self.write_file(args, filename, doc)
 

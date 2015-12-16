@@ -72,7 +72,7 @@ class HTML(FileOutputSubcommand):
             help="Open generated file(s) in a browser"
         )),
 
-    )
+    ) + FileOutputSubcommand.other_args()
 
     def after_write_file(self, args, filename, doc):
         if args.show:
