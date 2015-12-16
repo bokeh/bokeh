@@ -18,9 +18,10 @@ def test_help():
 def test_args():
     assert scjson.JSON.args == (
 
-        ('file', dict(
+        ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
-            help="The app directory or script to generate JSON for",
+            nargs='+',
+            help="The app directories or scripts to generate JSON for",
             default=None
         )),
 
