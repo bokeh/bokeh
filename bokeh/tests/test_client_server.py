@@ -91,14 +91,14 @@ class TestClientServer(unittest.TestCase):
             # uses the same main loop as the client, so
             # if we start either one it starts both
             session = ClientSession(io_loop = server.io_loop,
-                                    url = ws_url(server, "/foo"))
+                                    websocket_url = ws_url(server, "/foo"))
             session.connect()
             assert session.connected
             session.close()
             session.loop_until_closed()
 
             session = ClientSession(io_loop = server.io_loop,
-                                    url = ws_url(server))
+                                    websocket_url = ws_url(server))
             session.connect()
             assert not session.connected
             session.close()
@@ -109,7 +109,7 @@ class TestClientServer(unittest.TestCase):
 
         # succeed no host value with defaults
         with ManagedServerLoop(application, host=None) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
             session.close()
@@ -117,7 +117,7 @@ class TestClientServer(unittest.TestCase):
 
         # succeed no host value with port
         with ManagedServerLoop(application, port=8080, host=None) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
             session.close()
@@ -125,7 +125,7 @@ class TestClientServer(unittest.TestCase):
 
         # succeed matching host value
         with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
             session.close()
@@ -133,7 +133,7 @@ class TestClientServer(unittest.TestCase):
 
         # succeed matching host value one of multiple
         with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
             session.close()
@@ -144,14 +144,14 @@ class TestClientServer(unittest.TestCase):
 
         # failure bad host
         with ManagedServerLoop(application, host=["bad_host"]) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
             session.close()
             session.loop_until_closed()
 
         with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
             session.close()
@@ -159,7 +159,7 @@ class TestClientServer(unittest.TestCase):
 
         # failure good host, bad port
         with ManagedServerLoop(application, host=["localhost:80"]) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
             session.close()
@@ -167,7 +167,7 @@ class TestClientServer(unittest.TestCase):
 
         # failure good host, bad default port
         with ManagedServerLoop(application, host=["localhost"]) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
             session.close()
@@ -175,7 +175,7 @@ class TestClientServer(unittest.TestCase):
 
         # failure with custom port
         with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
             session.close()
