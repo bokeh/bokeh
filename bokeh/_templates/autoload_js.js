@@ -11,6 +11,9 @@ calls it with the rendered model.
 :param websocket_url: path to use to open websocket, or null if we are not using a server
 :type websocket_url: str
 
+:param sessionid: The id of the Bokeh server session to get a document from
+:type sessionid: str
+
 :param docs_json: embedded JSON serialization of documents
 :type docs_json: dict
 
@@ -78,7 +81,8 @@ calls it with the rendered model.
   var docs_json = {};
   {%- endif %}
 
-  var render_items = [{ 'elementid' : "{{ elementid }}" }];
+  var render_items = [{ 'elementid' : "{{ elementid }}",
+                        'sessionid' : "{{ sessionid }}" }];
 
   if (typeof(window._bokeh_is_loading) !== undefined && window._bokeh_is_loading == 0) {
     console.log("Bokeh: BokehJS loaded, going straight to plotting");

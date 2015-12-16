@@ -17,9 +17,6 @@ ID is not specified, the entire document will be rendered.
 :param docid: The id of the embedded Bokeh document to render
 :type docid: str
 
-:param sessionid: The id of the Bokeh server session to get a document from
-:type sessionid: str
-
 .. note::
     This script injects a ``<div>`` in place, so must be placed under ``<body>``.
 
@@ -30,6 +27,5 @@ ID is not specified, the entire document will be rendered.
     async="false"
     data-bokeh-model-id="{{ modelid }}"
     data-bokeh-doc-id="{{ docid }}"
-    data-bokeh-session-id="{{ sessionid }}"
     data-bokeh-log-level="{{ loglevel }}"
 ></script>
