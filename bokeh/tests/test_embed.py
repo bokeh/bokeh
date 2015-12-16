@@ -292,5 +292,8 @@ class TestAutoloadServer(unittest.TestCase):
                                'src' : src },
                              attrs)
 
+    def test_autoload_server_value_error_on_model_id_without_session_id(self):
+        self.assertRaises(ValueError, embed.autoload_server, _embed_test_plot)
+
 if __name__ == "__main__":
     unittest.main()
