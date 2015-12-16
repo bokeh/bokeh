@@ -2,6 +2,9 @@ from __future__ import absolute_import
 
 import pytest
 import os
+import sys
+
+is_python2 = sys.version_info[0] == 2
 
 import bokeh.command.subcommands.json as scjson
 from bokeh.command.bootstrap import main
@@ -54,10 +57,14 @@ def test_no_script(capsys):
             with pytest.raises(SystemExit):
                 main(["bokeh", "json"])
         out, err = capsys.readouterr()
+        if is_python2:
+            too_few = "too few arguments"
+        else:
+            too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
         assert err == """usage: bokeh json [-h] [--indent LEVEL] [-o FILENAME]
                   DIRECTORY-OR-SCRIPT [DIRECTORY-OR-SCRIPT ...]
-bokeh json: error: too few arguments
-"""
+bokeh json: error: %s
+""" % (too_few)
         assert out == ""
 
 def test_basic_script(capsys):
