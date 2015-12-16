@@ -36,7 +36,7 @@ class FileOutputSubcommand(Subcommand):
                 metavar='FILENAME',
                 action='append',
                 type=str,
-                help="Name of the output file."
+                help="Name of the output file or - for standard output."
             )),
         )
 
@@ -69,8 +69,11 @@ class FileOutputSubcommand(Subcommand):
 
     def write_file(self, args, filename, doc):
         contents = self.file_contents(args, doc)
-        with io.open(filename, "w", encoding="utf-8") as file:
-            file.write(decode_utf8(contents))
+        if filename == '-':
+            print(decode_utf8(contents))
+        else:
+            with io.open(filename, "w", encoding="utf-8") as file:
+                file.write(decode_utf8(contents))
         self.after_write_file(args, filename, doc)
 
     # can be overridden optionally
