@@ -15,7 +15,8 @@ from bokeh.io import curdoc
 
 from bokeh.charts import Bar, Scatter
 from bokeh.palettes import Blues4 
-from examples.app.crossfilter.components import FancyBox
+
+from examples.app.crossfilter.models import StyleableBox
 
 class AppModel(object):
 
@@ -123,10 +124,10 @@ class AppController(object):
 
 class BaseView(object):
 
-    def __init__(self, app_model, app_controller, layout='h'):
+    def __init__(self, app_model, app_controller, layout_class=HBox):
         self.model = app_model
         self.controller = app_controller
-        self.layout = FancyBox() if layout == 'h' else FancyBox()
+        self.layout = layout_class()
         self.create_children()
 
     def add_select(self, name, options, model_field):
@@ -170,11 +171,12 @@ class PlotView(BaseView):
         d = {}
         d['tools'] = 'pan,wheel_zoom'
         d['data'] = self.model.df
-        d['x'] = self.model.x_field
-        d['y'] = self.model.y_field
+        d['label'] = self.model.x_field
+        d['values'] = self.model.y_field
         d['xlabel'] = self.model.x_field
         d['ylabel'] = self.model.y_field
-        d['color'] = 'color'
+        d['agg'] = self.model.agg_type
+        d['color'] = self.model.color_field
         return d
 
     def update(self):
@@ -194,7 +196,7 @@ class ControlsView(BaseView):
 
     def create_children(self):
         cols = self.model.col_names
-        self.plot_selector = self.add_select('plot_type', cols, 'plot_type')
+        self.plot_selector = self.add_select('plot_type', self.model.plot_type_options, 'plot_type')
         self.x_selector = self.add_select('x', cols, 'x_field')
         self.y_selector = self.add_select('y', cols, 'y_field')
         self.color_selector = self.add_select('color', cols, 'color_field')
@@ -204,5 +206,6 @@ class ControlsView(BaseView):
 
 model = AppModel(autompg)
 controller = AppController(model)
-view = AppView(model, controller)
+view = AppView(model, controller, layout_class=StyleableBox)
+import pdb; pdb.set_trace()
 doc = curdoc().add_root(view.layout)
