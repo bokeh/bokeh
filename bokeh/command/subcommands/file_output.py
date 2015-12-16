@@ -4,6 +4,9 @@ Abstract base class for subcommands that output to a file (or stdout).
 from __future__ import absolute_import
 
 from abc import abstractmethod
+import io
+
+from bokeh.util.string import decode_utf8
 
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications
@@ -43,6 +46,17 @@ class FileOutputSubcommand(Subcommand):
 
             self.write_file(args, filename, doc)
 
-    @abstractmethod
     def write_file(self, args, filename, doc):
-        raise NotImplementedError("write_file")
+        contents = self.file_contents(args, doc)
+        with io.open(filename, "w", encoding="utf-8") as file:
+            file.write(decode_utf8(contents))
+        self.after_write_file(args, filename, doc)
+
+    # can be overridden optionally
+    def after_write_file(self, args, filename, doc):
+        pass
+
+    @abstractmethod
+    def file_contents(self, args, doc):
+        """ Subtypes must override this to return the contents of the output file for the given doc."""
+        raise NotImplementedError("file_contents")

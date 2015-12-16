@@ -58,7 +58,5 @@ class JSON(FileOutputSubcommand):
 
     )
 
-    def write_file(self, args, filename, doc):
-        json = doc.to_json_string(indent=args.indent)
-        with open(filename, "w") as file:
-            file.write(json)
+    def file_contents(self, args, doc):
+        return doc.to_json_string(indent=args.indent)
