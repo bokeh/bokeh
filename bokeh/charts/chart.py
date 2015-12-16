@@ -58,8 +58,14 @@ def _chained_options(opts_type):
         cls_props = set(cls.properties())
 
         def __init__(self, *args, **kwargs):
-            self._options = opts_type(**kwargs)
-            orig_init(self)
+            # Pop id since it's something we explictly want to b
+            opts_kwargs = {}
+            for prop_name in opts_type.properties():
+                if prop_name in kwargs:
+                    opts_kwargs[prop_name] = kwargs.pop(prop_name)
+
+            self._options = opts_type(**opts_kwargs)
+            orig_init(self, **kwargs)
 
         cls.__init__ = __init__
 
@@ -79,11 +85,10 @@ class Chart(Plot):
     __view_model__ = "Plot"
     __subtype__ = "Chart"
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
 
         # Initializes then gets default properties
-        # NOTE: we use option._id here since ChartOptions converts id arg to _id
-        super(Chart, self).__init__(id=self._options._id or make_id())
+        super(Chart, self).__init__(**kwargs)
 
         # create new chart options to get default properties with values
         default_props = ChartOptions().properties_with_values()

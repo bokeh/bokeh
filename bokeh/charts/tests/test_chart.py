@@ -195,3 +195,9 @@ class TestChart(unittest.TestCase):
 
         self.compare_tools(chart.tools, expected_tools)
         mock_warn.assert_any_call(msg_repeat)
+
+def test_chart_id():
+    chart = Chart(
+        id='1234', title="title"
+    )
+    assert chart._id == '1234'
