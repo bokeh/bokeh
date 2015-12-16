@@ -3,7 +3,7 @@
 _ = require "underscore"
 browserify = require "browserify"
 gulp = require "gulp"
-util = require "gulp-util"
+gutil = util = require "gulp-util"
 rename = require "gulp-rename"
 transform = require "vinyl-transform"
 uglify = require "gulp-uglify"
@@ -25,6 +25,24 @@ pkg = rootRequire("./package.json")
 insert = require('gulp-insert')
 child_process = require "child_process"
 license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
+
+newer = require 'gulp-newer'
+coffee = require 'gulp-coffee'
+eco = require '../eco'
+
+gulp.task "scripts:coffee", ["scripts:generate"], () ->
+  gulp.src('./src/coffee/**/*.coffee')
+      .pipe(newer({dest: './build/js/tree', ext: '.js'}))
+      .pipe(coffee({bare: true}).on('error', gutil.log))
+      .pipe(gulp.dest('./build/js/tree'))
+
+gulp.task "scripts:eco", () ->
+  gulp.src('./src/coffee/**/*.eco')
+      .pipe(newer({dest: './build/js/tree', ext: '.js'}))
+      .pipe(eco().on('error', gutil.log))
+      .pipe(gulp.dest('./build/js/tree'))
+
+gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco"]
 
 gulp.task "scripts:generate", (cb) ->
   generateDefaults = (next) ->
@@ -123,13 +141,13 @@ namedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (ro
 
   modName
 
-gulp.task "scripts:build", (cb) ->
+gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludePath = path.resolve("./src/js/prelude.js")
   preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
   bokehjsOpts = {
-    entries: [path.resolve('./src/coffee/main.coffee')]
-    extensions: [".coffee", ".eco"]
+    entries: [path.resolve('./build/js/tree/main.js')]
+    extensions: [".js"]
     debug: true
     preludePath: preludePath
     prelude: preludeText
@@ -139,8 +157,8 @@ gulp.task "scripts:build", (cb) ->
   preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
   widgetsOpts = {
-    entries: [path.resolve('./src/coffee/widget/main.coffee')]
-    extensions: [".coffee", ".eco"]
+    entries: [path.resolve('./build/js/tree/widget/main.js')]
+    extensions: [".js"]
     debug: true
     preludePath: preludePath
     prelude: preludeText
@@ -155,8 +173,6 @@ gulp.task "scripts:build", (cb) ->
     if argv.verbose then util.log("Building bokehjs")
     labels = namedLabeler(bokehjs, {})
     bokehjs
-      .transform("browserify-eco")
-      .transform("coffeeify")
       .bundle()
       .pipe(source(paths.coffee.bokehjs.destination.full))
       .pipe(buffer())
@@ -179,8 +195,6 @@ gulp.task "scripts:build", (cb) ->
     for own file, name of labels
       widgets.external(file)
     widgets
-      .transform("browserify-eco")
-      .transform("coffeeify")
       .bundle()
       .pipe(source(paths.coffee.widgets.destination.full))
       .pipe(buffer())
@@ -210,4 +224,4 @@ gulp.task "scripts:minify", ->
   es.merge.apply(null, tasks)
 
 gulp.task "scripts", (cb) ->
-  runSequence("scripts:generate", "scripts:build", "scripts:minify", cb)
+  runSequence("scripts:build", "scripts:minify", cb)
