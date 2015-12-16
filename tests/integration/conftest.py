@@ -1,20 +1,30 @@
 from __future__ import absolute_import, print_function
-import os
+
 import pytest
 
 from bokeh.io import output_file
+
 from .webserver import SimpleWebServer
+from .screenshot import Screenshot
+
+
+#
+# Fixtures for use in tests
+#
+
+@pytest.fixture
+def selenium(selenium):
+    # Give items a chance to load
+    selenium.implicitly_wait(10)
+    selenium.set_window_size(width=600, height=600)
+    return selenium
 
 
 @pytest.fixture(scope='session', autouse=True)
 def server(request):
     server = SimpleWebServer()
     server.start()
-
-    def stop_server():
-        server.stop()
-    request.addfinalizer(stop_server)
-
+    request.addfinalizer(server.stop)
     return server
 
 
@@ -27,12 +37,61 @@ def base_url(request, server):
 def output_file_url(request, base_url):
 
     filename = request.function.__name__ + '.html'
-    file_path = request.fspath.dirpath().join(filename).strpath
+    file_obj = request.fspath.dirpath().join(filename)
+    file_path = file_obj.strpath
 
     output_file(file_path, mode='inline')
 
-    def fin():
-        os.remove(file_path)
-    request.addfinalizer(fin)
+    def tearDown():
+        if file_obj.isfile():
+            file_obj.remove()
+    request.addfinalizer(tearDown)
 
     return '%s/%s' % (base_url, file_path)
+
+
+@pytest.fixture
+def screenshot(request):
+    return Screenshot(request=request)
+
+
+#
+# Hook into the pytest report to add the screnshot diff
+#
+
+@pytest.mark.hookwrapper
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+
+    # Only run through this at the end of the test
+    if call.when != 'call':
+        return
+
+    # Don't continue if this isn't a base_screenshot test
+    if 'screenshot' not in item.fixturenames:
+        return
+
+    # Don't add screenshots if we can't create a screenshot
+    try:
+        screenshot = Screenshot(item=item)
+    except AssertionError:
+        return
+
+    report = outcome.get_result()
+    xfail = hasattr(report, 'wasxfail')
+    failure = (report.skipped and xfail) or (report.failed and not xfail)
+    pytest_html = item.config.pluginmanager.getplugin('html')
+    extra = getattr(report, 'extra', [])
+
+    # Don't add screenshots if test passed
+    if not failure:
+        return
+
+    if screenshot.base_screenshot is not None:
+        extra.append(pytest_html.extras.image(screenshot.get_diff(), 'Diff'))
+        extra.append(pytest_html.extras.image(screenshot.base_screenshot_as_b64, 'Base'))
+        report.extra = extra
+
+    else:
+        # Set a new base screenshot if it wasn't available
+        screenshot.set_base_screenshot()

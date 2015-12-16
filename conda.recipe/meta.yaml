@@ -8,6 +8,7 @@ build:
 extra:
   channels:
     - bokeh
+    - birdsarah
 
 requirements:
   build:
@@ -58,7 +59,7 @@ test:
     - mock
     - pytest
     - pytest-cov ==1.8.1
-    - pytest-selenium ==1.0b1
+    - pytest-selenium ==1.0
     - beautiful-soup
     - scipy
     - pillow

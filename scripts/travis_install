@@ -28,6 +28,7 @@ if [ ! "$(ls -A $HOME/miniconda)" ]; then
 fi
 
 conda config --add channels bokeh
+conda config --add channels birdsarah
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
@@ -60,9 +61,9 @@ if [ ! $DEPS_FLAG == *"pytest"* ]; then
     echo "node version $(node -v)"
     echo "npm version $(npm -v)"
 
+    conda install --yes boto
     if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
         conda install --yes pdiff
-        conda install --yes boto
     fi
 
 fi

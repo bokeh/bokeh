@@ -106,6 +106,7 @@ win-64
 /bokeh/LICENSE.txt
 /examples/refs
 .cache/
+pytest-report.html
 
 # generated coffeescript
 /bokehjs/src/coffee/widget/defaults.coffee
