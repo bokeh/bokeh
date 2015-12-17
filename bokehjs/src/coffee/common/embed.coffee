@@ -8,6 +8,20 @@ HasProperties = require "./has_properties"
 {pull_session} = require "./client"
 {Promise} = require "es6-promise"
 
+_handle_notebook_comms = (msg) ->
+  logger.debug("handling notebook comms")
+  data = JSON.parse(msg.content.data)
+
+  # TODO apply the patch
+  console.log @, data
+
+_init_comms = (target, docs) ->
+  logger.info("Initializing Jupyter comms for target #{target} and docs #{_.keys(docs)}")
+  comm_manager = Jupyter.notebook.kernel.comm_manager
+  comm_manager.register_target(target, (comm, msg) ->
+    comm.on_msg(_.bind(_handle_notebook_comms, docs))
+  )
+
 _create_view = (model) ->
   view = new model.default_view({model : model})
   base.index[model.id] = view
@@ -114,10 +128,13 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-embed_items = (docs_json, render_items, websocket_url) ->
+embed_items = (docs_json, render_items, websocket_url, comms_target) ->
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
+
+  if comms_target?
+    _init_comms(comms_target, docs)
 
   for item in render_items
     element_id = item['elementid']

@@ -87,6 +87,7 @@ class State(object):
     def __init__(self):
         # TODO (havocp) right now there's no way to turn off autoadd
         self._autoadd = True
+        self.last_comms = None
         self.reset()
 
     @property

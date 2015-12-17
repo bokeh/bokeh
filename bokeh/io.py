@@ -18,6 +18,8 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import uuid
+
 import io, itertools, os, warnings
 
 # Third-party imports
@@ -31,7 +33,7 @@ from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .model import _ModelInDocument
 from .state import State
-from .util.notebook import load_notebook, publish_display_data
+from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 from .client import DEFAULT_SESSION_ID, push_session, show_session
 from bokeh.resources import websocket_url_for_server_url
@@ -276,7 +278,11 @@ def _show_notebook_with_state(obj, state):
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
-        publish_display_data({'text/html': notebook_div(obj)})
+        comms_target = str(uuid.uuid4())
+        publish_display_data({'text/html': notebook_div(obj, comms_target)})
+        if state.last_comms:
+            state.last_comms.close()
+        state.last_comms = get_comms(comms_target)
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
@@ -421,8 +427,40 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
     if validate:
         document.validate()
 
-    _push_to_server(session_id=session_id, url=url, app_path=app_path,
-                    document=document, io_loop=io_loop)
+    _push_to_notebook(session_id=session_id, url=url, app_path=app_path,
+                      document=document, io_loop=io_loop)
+
+def push_notebook(document=None, state=None):
+    ''' Update the notebook with the data for the current document.
+
+    Args:
+
+        document (Document, optional) : A :class:`bokeh.document.Document` to use
+
+        state (State, optional) : A state to use for any output_server() configuration of session or url
+
+    Returns:
+        None
+
+    '''
+    if state is None:
+        state = _state
+
+    if not document:
+        document = state.document
+
+    if not document:
+        warnings.warn("No document to push")
+        return
+
+    if not state.last_comms:
+        warnings.warn("Cannot find a last shown plot to update")
+        return
+
+    # TODO prepare actual patch
+    import json
+    msg = json.dumps(dict(foo="bar"))
+    state.last_comms.send(msg)
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
