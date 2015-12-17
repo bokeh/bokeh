@@ -21,7 +21,7 @@ class MercatorTileSource extends TileSource
 
   is_valid_tile: (x, y, z) ->
     
-    if not @get('wrap_around_180')
+    if not @get('wrap_around')
       if x < 0 or x >= Math.pow(2, z)
         return false
 
@@ -259,7 +259,7 @@ class MercatorTileSource extends TileSource
     return [0, 0, 0]
 
   normalize_xyz: (x, y, z) ->
-    if @get('wrap_around_180')
+    if @get('wrap_around')
       tile_count = Math.pow(2, z)
       return [((x % tile_count) + tile_count) % tile_count, y, z]
     else
@@ -279,7 +279,7 @@ class MercatorTileSource extends TileSource
       x_origin_offset : 20037508.34
       y_origin_offset : 20037508.34
       initial_resolution : 156543.03392804097
-      wrap_around_180 : true
+      wrap_around : true
     }
 
 module.exports = MercatorTileSource

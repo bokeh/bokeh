@@ -256,7 +256,7 @@ describe "tile sources", ->
     it "should convert cache key into tile x,y,z", ->
       expect(source.key_to_tile_xyz("1:1:1")).to.be.eql([1,1,1])
 
-    it "should successfully wrap around 180 (x-axis) for normalized tile coordinates", ->
+    it "should successfully wrap around (x-axis) for normalized tile coordinates", ->
       expect(source.normalize_xyz(-1, 1, 2)).to.be.eql([3,1,2])
 
     it "should successfully get closest parent tile by xyz", ->
@@ -266,13 +266,13 @@ describe "tile sources", ->
     it "should verify whether tile xyz's are valid", ->
 
       tile_options =
-        wrap_around_180 : true
+        wrap_around : true
 
       source = new MercatorTileSource(tile_options)
       expect(source.is_valid_tile(-1, 1, 1)).to.be.eql(true)
 
       tile_options =
-        wrap_around_180 : false
+        wrap_around : false
 
       source = new MercatorTileSource(tile_options)
       expect(source.is_valid_tile(-1, 1, 1)).to.be.eql(false)

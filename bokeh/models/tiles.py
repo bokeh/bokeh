@@ -58,7 +58,7 @@ class MercatorTileSource(TileSource):
     resolution (plot_units / pixels) of minimum zoom level of tileset projection. None to auto-compute.
     """)
 
-    wrap_around_180 = Bool(default=True, help="""
+    wrap_around = Bool(default=True, help="""
     flag to indicate whether to load tiles outside of world bounds.
     """)
 
