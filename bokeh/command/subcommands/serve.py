@@ -59,6 +59,25 @@ Similarly, a specific network address can be specified with the
 
 will have the Bokeh server listen all available network addresses.
 
+Additionally, it is possible to configure a hosts whitelist that must be
+matched by the ``Host`` header in new requests. You can specify multiple
+acceptable host values with the ``--host`` option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --host foo.com:8081 --host bar.com
+
+If no port is specified in a host value, then port 80 will be used. In
+the example above Bokeh server will accept requests from ``foo.com:8081``
+and ``bar.com:80``.
+
+If no host values are specified, then by default the Bokeh server will
+accept requests from ``localhost:<port>`` where ``<port>`` is the port
+that the server is configured to listen on (by default: {DEFAULT_PORT}).
+
+Also note that the host whitelist applies to all request handlers,
+including any extra ones added to extend the Bokeh server.
+
 The Bokeh server can also add an optional prefix to all URL paths.
 This can often be useful in conjunction with "reverse proxy" setups.
 
@@ -169,6 +188,13 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--host', dict(
+            metavar='HOST[:PORT]',
+            nargs='*',
+            type=str,
+            help="Public hostnames to allow in requests",
+        )),
+
         ('--prefix', dict(
             metavar='PREFIX',
             type=str,
@@ -213,6 +239,7 @@ class Serve(Subcommand):
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'host',
                                                               'prefix',
                                                               'keep_alive_milliseconds']
                           if getattr(args, key, None) is not None }

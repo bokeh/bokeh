@@ -1514,18 +1514,19 @@ class DataSpecProperty(BasicProperty):
         return self.descriptor.to_serializable(obj, self.name, getattr(obj, self.name))
 
     def set_from_json(self, obj, json, models=None):
-        # we want to try to keep the "format" of the data spec as string, dict, or number,
-        # assuming the serialized dict is compatible with that.
-        old = getattr(obj, self.name)
-        if old is not None:
-            try:
-                self.descriptor._type.validate(old)
-                if 'value' in json:
-                    json = json['value']
-            except ValueError:
-                if isinstance(old, string_types) and 'field' in json:
-                    json = json['field']
-            # leave it as a dict if 'old' was a dict
+        if isinstance(json, dict):
+            # we want to try to keep the "format" of the data spec as string, dict, or number,
+            # assuming the serialized dict is compatible with that.
+            old = getattr(obj, self.name)
+            if old is not None:
+                try:
+                    self.descriptor._type.validate(old)
+                    if 'value' in json:
+                        json = json['value']
+                except ValueError:
+                    if isinstance(old, string_types) and 'field' in json:
+                        json = json['field']
+                # leave it as a dict if 'old' was a dict
 
         super(DataSpecProperty, self).set_from_json(obj, json, models)
 

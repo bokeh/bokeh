@@ -25,8 +25,7 @@ from .util.string import encode_utf8
 
 from .model import Model, _ModelInDocument
 from ._json_encoder import serialize_json
-from .resources import DEFAULT_SERVER_HTTP_URL
-from .client import DEFAULT_SESSION_ID
+from .resources import _SessionCoordinates
 from .document import Document, DEFAULT_TITLE
 from collections import Sequence
 from six import string_types
@@ -352,16 +351,39 @@ def autoload_static(model, resources, script_path):
 
         return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="default", loglevel="info"):
-    ''' Return a script tag that can be used to embed Bokeh Plots from
-    a Bokeh Server.
+def autoload_server(model, app_path="/", session_id=None, url="default", loglevel="info"):
+    '''Return a script tag that embeds the given model (or entire
+    Document) from a Bokeh server session.
 
-    The data for the plot is stored on the Bokeh Server.
+    In a typical deployment, each browser tab connecting to a
+    Bokeh application will have its own unique session ID. The session ID
+    identifies a unique Document instance for each session (so the state
+    of the Document can be different in every tab).
+
+    If you call ``autoload_server(model=None)``, you'll embed the
+    entire Document for a freshly-generated session ID. Typically,
+    you should call ``autoload_server()`` again for each page load so
+    that every new browser tab gets its own session.
+
+    Sometimes when doodling around on a local machine, it's fine
+    to set ``session_id`` to something human-readable such as
+    ``"default"``.  That way you can easily reload the same
+    session each time and keep your state.  But don't do this in
+    production!
+
+    In some applications, you may want to "set up" the session
+    before you embed it. For example, you might ``session =
+    bokeh.client.pull_session()`` to load up a session, modify
+    ``session.document`` in some way (perhaps adding per-user
+    data?), and then call ``autoload_server(model=None,
+    session_id=session.id)``. The session ID obtained from
+    ``pull_session()`` can be passed to ``autoload_server()``.
 
     Args:
         model (Model) : the object to render from the session, or None for entire document
         app_path (str, optional) : the server path to the app we want to load
-        session_id (str, optional) : server session ID
+        session_id (str, optional) : server session ID (default: None)
+          If None, autogenerate a random session ID.
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
         loglevel (str, optional) : "trace", "debug", "info", "warn", "error", "fatal"
 
@@ -370,10 +392,16 @@ def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="def
             a ``<script>`` tag that will execute an autoload script
             loaded from the Bokeh Server
 
+    .. note:: It is a very bad idea to use the same ``session_id``
+        for every page load; you are likely to create scalability
+        and security problems. So ``autoload_server()`` should be
+        called again on each page load.
+
     '''
 
-    if url == "default":
-        url = DEFAULT_SERVER_HTTP_URL
+    coords = _SessionCoordinates(dict(url=url,
+                                      session_id=session_id,
+                                      app_path=app_path))
 
     elementid = str(uuid.uuid4())
 
@@ -382,19 +410,13 @@ def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="def
     if model is not None:
         model_id = model._id
 
-    if not url.endswith("/"):
-        url = url + "/"
-    if not app_path.endswith("/"):
-        app_path = app_path + "/"
-    if app_path.startswith("/"):
-        app_path = app_path[1:]
-    src_path = url + app_path + "autoload.js" + "?bokeh-autoload-element=" + elementid
+    src_path = coords.server_url + "/autoload.js" + "?bokeh-autoload-element=" + elementid
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         elementid = elementid,
         modelid = model_id,
-        sessionid = session_id,
+        sessionid = coords.session_id,
         loglevel = loglevel
     )
 
