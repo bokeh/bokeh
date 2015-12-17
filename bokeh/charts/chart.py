@@ -33,7 +33,7 @@ from ..embed import file_html
 from ..models import (
     CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
 from ..properties import (HasProps, Auto, Bool, Either, Enum, Int, Float,
-                          String, Tuple)
+                          String, Tuple, Override)
 from ..enums import enumeration, LegendLocation
 from ..models.tools import HoverTool
 from ..models.ranges import FactorRange
@@ -111,9 +111,7 @@ class Chart(Plot):
     notebook.
     """)
 
-    title_text_font_size = String('14pt', help="""
-    Font size to use for title label.
-    """)
+    title_text_font_size = Override(default={ 'value' : '14pt' })
 
     responsive = Bool(False, help="""
     If True, the chart will automatically resize based on the size of its container. The
