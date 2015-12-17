@@ -10,17 +10,17 @@ from ..enums import Location
 from ..mixins import LineProps, TextProps, FillProps
 from ..model import Model
 from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override)
+                          List, Dict, Include, Override)
 from ..query import find
 from ..util.string import nice_join
-from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
-    EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
+from ..validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
+                                   EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..validation.errors import REQUIRED_RANGE
 from .. import validation
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, GlyphRenderer, TileRenderer, DynamicImageRenderer
+from .renderers import Renderer, DataRenderer, GlyphRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
@@ -47,7 +47,7 @@ def _select_helper(args, kwargs):
         elif isinstance(arg, string_types):
             selector = dict(name=arg)
         elif issubclass(arg, Model):
-            selector = {"type" : arg}
+            selector = {"type": arg}
         else:
             raise RuntimeError("Selector must be a dictionary, string or plot object.")
 
@@ -269,8 +269,10 @@ class Plot(Component):
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
         missing = []
-        if not self.x_range: missing.append('x_range')
-        if not self.y_range: missing.append('y_range')
+        if not self.x_range:
+            missing.append('x_range')
+        if not self.y_range:
+            missing.append('y_range')
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
@@ -279,24 +281,28 @@ class Plot(Component):
         if len(self.renderers) == 0:
             return str(self)
 
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
-        if len(self.select(GlyphRenderer)) == 0:
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
+        if len(self.select(DataRenderer)) == 0:
             return str(self)
 
     @validation.warning(MALFORMED_CATEGORY_LABEL)
     def _check_colon_in_category_label(self):
-        if not self.x_range: return
-        if not self.y_range: return
+        if not self.x_range:
+            return
+        if not self.y_range:
+            return
 
         broken = []
 
         for range_name in ['x_range', 'y_range']:
             category_range = getattr(self, range_name)
-            if not isinstance(category_range, FactorRange): continue
+            if not isinstance(category_range, FactorRange):
+                continue
 
             for value in category_range.factors:
-                if not isinstance(value, string_types): break
+                if not isinstance(value, string_types):
+                    break
                 if ':' in value:
                     broken.append((range_name, value))
                     break
@@ -358,7 +364,7 @@ class Plot(Component):
 
     title_text_baseline = Override(default='alphabetic')
 
-    title_text_font_size = Override(default={ 'value' : '20pt' })
+    title_text_font_size = Override(default={'value': '20pt'})
 
     outline_props = Include(LineProps, help="""
     The %s for the plot border outline.
@@ -383,7 +389,7 @@ class Plot(Component):
     A ToolEvents object to share and report tool events.
     """)
 
-    left  = List(Instance(Renderer), help="""
+    left = List(Instance(Renderer), help="""
     A list of renderers to occupy the area to the left of the plot.
     """)
 
@@ -528,7 +534,6 @@ class Plot(Component):
     be made equal (the left or right padding amount, whichever is larger).
     """)
 
-
     v_symmetry = Bool(False, help="""
     Whether the total vertical padding on both sides of the plot will
     be made equal (the top or bottom padding amount, whichever is larger).
@@ -581,11 +586,13 @@ class GridPlot(Component):
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
         pass
+
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
+
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
         pass
 
     @validation.warning(EMPTY_LAYOUT)
