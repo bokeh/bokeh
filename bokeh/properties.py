@@ -59,9 +59,12 @@ from warnings import warn
 from six import string_types, iteritems
 
 from . import enums
+from .util.dependencies import import_optional
 from .util.future import with_metaclass
 from .util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
+
+pd = import_optional('pandas')
 
 def field(name):
     ''' Convenience function do explicitly mark a field specification for
@@ -1479,12 +1482,9 @@ class Datetime(PropertyDescriptor):
 
         if (isinstance(value, datetime_types)):
             return
-        try:
-            import pandas
-            if isinstance(value, (pandas.Timestamp)):
-                return
-        except ImportError:
-            pass
+
+        if pd and isinstance(value, (pd.Timestamp)):
+            return
 
         raise ValueError("Expected a datetime instance, got %r" % value)
 

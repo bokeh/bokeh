@@ -6,20 +6,12 @@ import datetime as dt
 import calendar
 import decimal
 
+from .util.dependencies import import_optional
 from .util.serialization import transform_series, transform_array
 import numpy as np
 
-try:
-    import pandas as pd
-    is_pandas = True
-except ImportError:
-    is_pandas = False
-
-try:
-    from dateutil.relativedelta import relativedelta
-    is_dateutil = True
-except ImportError:
-    is_dateutil = False
+pd = import_optional('pandas')
+dateutil = import_optional('dateutil')
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +20,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         """handle special scalars, default to default json encoder
         """
         # Pandas Timestamp
-        if is_pandas and isinstance(obj, pd.tslib.Timestamp):
+        if pd and isinstance(obj, pd.tslib.Timestamp):
             return obj.value / 10**6.0  #nanosecond to millisecond
         elif np.issubdtype(type(obj), np.float):
             return float(obj)
@@ -50,7 +42,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         # Time
         elif isinstance(obj, dt.time):
             return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
-        elif is_dateutil and isinstance(obj, relativedelta):
+        elif dateutil and isinstance(obj, dateutil.relativedelta):
             return dict(years=obj.years, months=obj.months, days=obj.days, hours=obj.hours,
                 minutes=obj.minutes, seconds=obj.seconds, microseconds=obj.microseconds)
         # Decimal
@@ -65,7 +57,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         from .properties import HasProps
         from .colors import Color
         ## array types
-        if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
+        if pd and isinstance(obj, (pd.Series, pd.Index)):
             return transform_series(obj)
         elif isinstance(obj, np.ndarray):
             return transform_array(obj)
