@@ -85,7 +85,8 @@ class ScatterBuilder(XYBuilder):
 
         for group in self._data.groupby(**self.attributes):
 
-            glyph = PointGlyph(x=group.get_values(self.x.selection),
+            glyph = PointGlyph(label=group.label,
+                               x=group.get_values(self.x.selection),
                                y=group.get_values(self.y.selection),
                                line_color=group['color'],
                                fill_color=group['color'],
