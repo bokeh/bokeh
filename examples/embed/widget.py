@@ -103,7 +103,7 @@ import bokeh.embed as embed
 pop = Population()
 pop.render()
 
-tag = embed.autoload_server(pop.layout)
+tag = embed.autoload_server(pop.layout, session_id=pop.session.id)
 
 html = """
 <html>

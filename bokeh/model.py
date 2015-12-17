@@ -315,10 +315,6 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         # (it converts Model into refs, for example).
         return serialize_json(json_like, sort_keys=True)
 
-    def update(self, **kwargs):
-        for k,v in kwargs.items():
-            setattr(self, k, v)
-
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))

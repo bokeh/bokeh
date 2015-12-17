@@ -15,6 +15,7 @@ import signal
 from tornado import gen
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import Application as TornadoApplication
+from tornado.web import HTTPError
 
 from bokeh.resources import Resources
 
@@ -22,6 +23,19 @@ from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
+
+def _whitelist(handler_class):
+    if hasattr(handler_class.prepare, 'patched'):
+        return
+    old_prepare = handler_class.prepare
+    def _prepare(self, *args, **kw):
+        if self.request.host not in self.application._hosts:
+            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % self.request.host)
+            raise HTTPError(403)
+        return old_prepare(self, *args, **kw)
+    _prepare.patched = True
+    handler_class.prepare = _prepare
+
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -35,16 +49,20 @@ class BokehTornado(TornadoApplication):
         extra_patterns (seq[tuple]) : tuples of (str, http or websocket handler)
             Use this argument to add additional endpoints to custom deployments
             of the Bokeh Server.
+        prefix (str) : a URL prefix to use for all Bokeh server paths
         keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
             Set to 0 to disable pings. Pings keep the websocket open.
 
     '''
 
-    def __init__(self, applications,
+    def __init__(self, applications, prefix, hosts,
                  io_loop=None,
                  extra_patterns=None,
                  # heroku, nginx default to 60s timeout, so well less than that
                  keep_alive_milliseconds=37000):
+
+        self._prefix = prefix
+
         if io_loop is None:
             io_loop = IOLoop.current()
         self._loop = io_loop
@@ -53,6 +71,7 @@ class BokehTornado(TornadoApplication):
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
 
+        self._hosts = hosts
         self._resources = {}
 
         # Wrap applications in ApplicationContext
@@ -61,7 +80,7 @@ class BokehTornado(TornadoApplication):
             self._applications[k] = ApplicationContext(v, self._loop)
 
         extra_patterns = extra_patterns or []
-        relative_patterns = []
+        all_patterns = []
         for key in applications:
             app_patterns = []
             for p in per_app_patterns:
@@ -69,6 +88,7 @@ class BokehTornado(TornadoApplication):
                     route = p[0]
                 else:
                     route = key + p[0]
+                route = self._prefix + route
                 app_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
 
             websocket_path = None
@@ -80,10 +100,17 @@ class BokehTornado(TornadoApplication):
             for r in app_patterns:
                 r[2]["bokeh_websocket_path"] = websocket_path
 
-            relative_patterns.extend(app_patterns)
+            all_patterns.extend(app_patterns)
 
-        all_patterns = extra_patterns + relative_patterns + toplevel_patterns
+        for p in extra_patterns + toplevel_patterns:
+            prefixed_pat = (self._prefix+p[0],) + p[1:]
+            all_patterns.append(prefixed_pat)
+
+        for pat in all_patterns:
+            _whitelist(pat[1])
+
         log.debug("Patterns are: %r", all_patterns)
+
         super(BokehTornado, self).__init__(all_patterns, **settings)
 
         self._clients = set()
@@ -103,10 +130,11 @@ class BokehTornado(TornadoApplication):
         return self._loop
 
     def root_url_for_request(self, request):
-        # If we add a "whole server prefix," we'd put that on here too
-        return request.protocol + "://" + request.host + "/"
+        return request.protocol + "://" + request.host + self._prefix + "/"
 
     def websocket_url_for_request(self, request, websocket_path):
+        # websocket_path comes from the handler, and already has any
+        # prefix included, no need to add here
         protocol = "ws"
         if request.protocol == "https":
             protocol = "wss"

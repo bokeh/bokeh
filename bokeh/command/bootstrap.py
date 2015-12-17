@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 import argparse
 
-from bokeh.settings import settings
+from bokeh import __version__
 from bokeh.util.string import nice_join
 
 from .util import die
@@ -26,11 +26,10 @@ def main(argv):
 
     parser = argparse.ArgumentParser(prog=argv[0])
 
-    # does this get set by anything other than BOKEH_VERSION env var?
-    version = settings.version()
-    if not version:
-        version = "unknown version"
-    parser.add_argument('-v', '--version', action='version', version=version)
+    # we don't use settings.version() because the point of this option
+    # is to report the actual version of Bokeh, while settings.version()
+    # lets people change the version used for CDN for example.
+    parser.add_argument('-v', '--version', action='version', version=__version__)
 
     subs = parser.add_subparsers(help="Sub-commands")
 

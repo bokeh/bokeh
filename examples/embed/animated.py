@@ -32,7 +32,7 @@ p.annular_wedge(
     line_color="black",
 )
 
-tag = embed.autoload_server(p)
+tag = embed.autoload_server(p, session_id=session.id)
 html = """
 <html>
   <head></head>

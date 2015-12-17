@@ -35,6 +35,7 @@ from ..models import (
 from ..properties import (HasProps, Auto, Bool, Either, Enum, Int, Float,
                           String, Tuple)
 from ..enums import enumeration, LegendLocation
+from ..models.tools import HoverTool
 from ..models.ranges import FactorRange
 from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
@@ -134,6 +135,7 @@ class Chart(Plot):
         self._ranges = defaultdict(list)
         self._labels = defaultdict(list)
         self._scales = defaultdict(list)
+        self._tooltips = []
 
         # Add to document and session if server output is asked
         _doc = None
@@ -167,6 +169,9 @@ class Chart(Plot):
 
     def add_scales(self, dim, scale):
         self._scales[dim].append(scale)
+
+    def add_tooltips(self, tooltips):
+        self._tooltips += tooltips
 
     def _get_labels(self, dim):
         if not getattr(self, dim + 'label') and len(self._labels[dim]) > 0:
@@ -211,6 +216,9 @@ class Chart(Plot):
         # Add tools if supposed to
         if self.tools:
             self.create_tools(self.tools)
+
+        if len(self._tooltips) > 0:
+            self.add_tools(HoverTool(tooltips=self._tooltips))
 
     def add_legend(self, legends):
         """Add the legend to your plot, and the plot to a new Document.
