@@ -143,10 +143,6 @@ class Chart(Plot):
     notebook.
     """)
 
-    tools = Either(Bool(True), String, help="""
-    Whether to add default tools the the chart.
-    """)
-
     title_text_font_size = String('14pt', help="""
     Font size to use for title label.
     """)
@@ -160,6 +156,7 @@ class Chart(Plot):
     def __init__(self, *args, **kwargs):
 
         # Initializes then gets default properties
+        tools = kwargs.pop('tools', True)
         super(Chart, self).__init__(*args, **kwargs)
 
         # # create new chart options to get default properties with values
@@ -204,7 +201,7 @@ class Chart(Plot):
         #     else:
         #         self._session = Session()
 
-        self.create_tools(self.tools)
+        self.create_tools(tools)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -252,7 +249,7 @@ class Chart(Plot):
             # in case tools == False just exit
             return
 
-        if len(tools) == 0:
+        if len(self.tools) == 0:
             # if no tools customization let's create the default tools
             tool_objs = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)

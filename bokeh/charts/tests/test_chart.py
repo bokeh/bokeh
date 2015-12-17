@@ -137,13 +137,11 @@ class TestChart(unittest.TestCase):
         expected_tools = [ResizeTool, PanTool, BoxZoomTool, ResetTool, LassoSelectTool, LassoSelectTool]
         mock_warn.reset_mock()
 
-        # Finally check repeated tools
+        # Finally check removing tools
         base_args['tools'] = "resize,pan,box_zoom,reset,lasso_select,lasso_select"
 
         chart = Chart(**base_args)
         chart.x_range = FactorRange()
-        chart.tools = []
-        chart.create_tools(chart._options.tools)
 
         self.compare_tools(chart.tools, expected_tools)
         mock_warn.assert_any_call(msg_repeat)
