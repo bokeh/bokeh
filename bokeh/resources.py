@@ -171,11 +171,14 @@ def _get_cdn_urls(components, version=None, minified=True):
     return result
 
 
-def _get_server_urls(components, root_url, minified=True):
+def _get_server_urls(components, root_url, minified=True, path_versioner=None):
     _min = ".min" if minified else ""
 
     def mk_url(comp, kind):
-        return '%sstatic/%s/%s%s.%s' % (root_url, kind, comp, _min, kind)
+        path = "%s/%s%s.%s" % (kind, comp, _min, kind)
+        if path_versioner is not None:
+            path = path_versioner(path)
+        return '%sstatic/%s' % (root_url, path)
 
     return {
         'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
@@ -190,7 +193,8 @@ class BaseResources(object):
     logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
     def __init__(self, mode='inline', version=None, root_dir=None,
-                 minified=True, log_level="info", root_url=None):
+                 minified=True, log_level="info", root_url=None,
+                 path_versioner=None):
         self.components = ["bokeh", "bokeh-widgets"]
 
         self.mode = settings.resources(mode)
@@ -198,6 +202,7 @@ class BaseResources(object):
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
         self.log_level = settings.log_level(log_level)
+        self.path_versioner = path_versioner
 
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
@@ -260,7 +265,7 @@ class BaseResources(object):
         return _get_cdn_urls(self.components, self.version, self.minified)
 
     def _server_urls(self):
-        return _get_server_urls(self.components, self.root_url, self.minified)
+        return _get_server_urls(self.components, self.root_url, self.minified, self.path_versioner)
 
     def _resolve(self, kind):
         paths = self._file_paths(kind)
