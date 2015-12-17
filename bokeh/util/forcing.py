@@ -1,5 +1,6 @@
-''' Provide a set of decorators useful for repeatedly driving an
-a function parameter.
+''' Provide a set of decorators useful for repeatedly updating a
+a function parameter in a specified way each time the function is
+called.
 
 These decorators can be especially useful in conjunction with periodic
 callbacks in a Bokeh server application.
