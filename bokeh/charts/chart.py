@@ -46,42 +46,9 @@ from ..util.serialization import make_id
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-# def _make_method(prop_name):
-#     def method(self, value):
-#         setattr(self._options, prop_name, value)
-#         return self
-#     method.__doc__ = """ Chained method for %s option.
-#     """ % prop_name
-#     return method
-#
-# def _chained_options(opts_type):
-#     def wrapper(cls):
-#         orig_init = cls.__init__
-#
-#         cls_props = set(cls.properties())
-#
-#         def __init__(self, *args, **kwargs):
-#             # Pop id since it's something we explictly want to b
-#             opts_kwargs = {}
-#             for prop_name in opts_type.properties():
-#                 if prop_name in kwargs:
-#                     opts_kwargs[prop_name] = kwargs.pop(prop_name)
-#
-#             self._options = opts_type(**opts_kwargs)
-#             orig_init(self, **kwargs)
-#
-#         cls.__init__ = __init__
-#
-#         for prop_name in opts_type.properties():
-#             if prop_name not in cls_props:
-#                 setattr(cls, prop_name, _make_method(prop_name))
-#
-#         return cls
-#     return wrapper
-
 Scale = enumeration('linear', 'categorical', 'datetime')
 
-# @_chained_options(ChartOptions)
+
 class Chart(Plot):
     """ The main Chart class, the core of the ``Bokeh.charts`` interface.
 
@@ -158,25 +125,6 @@ class Chart(Plot):
         # Initializes then gets default properties
         tools = kwargs.pop('tools', True)
         super(Chart, self).__init__(*args, **kwargs)
-
-        # # create new chart options to get default properties with values
-        # default_props = ChartOptions().properties_with_values()
-        #
-        # # get the properties and values from the module-wide defaults object
-        # option_props = ChartOptions.properties_with_values(defaults)
-
-        # # if the module defaults differs from ChartOptions defaults, use that value
-        # # ToDo: allow Chart/Plot properties as well as ChartOptions
-        # for option, value in iteritems(option_props):
-        #     if value != default_props[option]:
-        #         setattr(self._options, option, value)
-        #
-        # self.title = self._options.title
-        # self.plot_height = self._options.height
-        # self.plot_width = self._options.width
-        # self.responsive = self._options.responsive
-        # self.title_text_font_size = self._options.title_text_font_size
-        # self.title_text_font_style = 'bold'
 
         self._glyphs = []
         self._built = False
