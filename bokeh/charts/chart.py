@@ -32,6 +32,9 @@ from ..document import Document
 from ..embed import file_html
 from ..models import (
     CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
+from ..properties import (HasProps, Auto, Bool, Either, Enum, Int, Float,
+                          String, Tuple)
+from ..enums import enumeration, LegendLocation
 from ..models.ranges import FactorRange
 from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
@@ -43,40 +46,42 @@ from ..util.serialization import make_id
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def _make_method(prop_name):
-    def method(self, value):
-        setattr(self._options, prop_name, value)
-        return self
-    method.__doc__ = """ Chained method for %s option.
-    """ % prop_name
-    return method
+# def _make_method(prop_name):
+#     def method(self, value):
+#         setattr(self._options, prop_name, value)
+#         return self
+#     method.__doc__ = """ Chained method for %s option.
+#     """ % prop_name
+#     return method
+#
+# def _chained_options(opts_type):
+#     def wrapper(cls):
+#         orig_init = cls.__init__
+#
+#         cls_props = set(cls.properties())
+#
+#         def __init__(self, *args, **kwargs):
+#             # Pop id since it's something we explictly want to b
+#             opts_kwargs = {}
+#             for prop_name in opts_type.properties():
+#                 if prop_name in kwargs:
+#                     opts_kwargs[prop_name] = kwargs.pop(prop_name)
+#
+#             self._options = opts_type(**opts_kwargs)
+#             orig_init(self, **kwargs)
+#
+#         cls.__init__ = __init__
+#
+#         for prop_name in opts_type.properties():
+#             if prop_name not in cls_props:
+#                 setattr(cls, prop_name, _make_method(prop_name))
+#
+#         return cls
+#     return wrapper
 
-def _chained_options(opts_type):
-    def wrapper(cls):
-        orig_init = cls.__init__
+Scale = enumeration('linear', 'categorical', 'datetime')
 
-        cls_props = set(cls.properties())
-
-        def __init__(self, *args, **kwargs):
-            # Pop id since it's something we explictly want to b
-            opts_kwargs = {}
-            for prop_name in opts_type.properties():
-                if prop_name in kwargs:
-                    opts_kwargs[prop_name] = kwargs.pop(prop_name)
-
-            self._options = opts_type(**opts_kwargs)
-            orig_init(self, **kwargs)
-
-        cls.__init__ = __init__
-
-        for prop_name in opts_type.properties():
-            if prop_name not in cls_props:
-                setattr(cls, prop_name, _make_method(prop_name))
-
-        return cls
-    return wrapper
-
-@_chained_options(ChartOptions)
+# @_chained_options(ChartOptions)
 class Chart(Plot):
     """ The main Chart class, the core of the ``Bokeh.charts`` interface.
 
@@ -85,29 +90,96 @@ class Chart(Plot):
     __view_model__ = "Plot"
     __subtype__ = "Chart"
 
+    title = String(None, help="""
+    A title for the chart.
+    """)
+
+    legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
+    A location where the legend should draw itself.
+    """)
+
+    xgrid = Bool(True, help="""
+    Whether to draw an x-grid.
+    """)
+
+    ygrid = Bool(True, help="""
+    Whether to draw an y-grid.
+    """)
+
+    xlabel = String(None, help="""
+    A label for the x-axis. (default: None)
+    """)
+
+    ylabel = String(None, help="""
+    A label for the y-axis. (default: None)
+    """)
+
+    xscale = Either(Auto, Enum(Scale), help="""
+    What kind of scale to use for the x-axis.
+    """)
+
+    yscale = Either(Auto, Enum(Scale), help="""
+    What kind of scale to use for the y-axis.
+    """)
+
+    width = Int(600, help="""
+    Width of the rendered chart, in pixels.
+    """)
+
+    height = Int(400, help="""
+    Height of the rendered chart, in pixels.
+    """)
+
+    filename = Either(Bool(False), String, help="""
+    A name for the file to save this chart to.
+    """)
+
+    server = Either(Bool(False), String, help="""
+    A name to use to save this chart to on server.
+    """)
+
+    notebook = Either(Bool(False), String, help="""
+    Whether to display the plot inline in an IPython/Jupyter
+    notebook.
+    """)
+
+    tools = Either(Bool(True), String, help="""
+    Whether to add default tools the the chart.
+    """)
+
+    title_text_font_size = String('14pt', help="""
+    Font size to use for title label.
+    """)
+
+    responsive = Bool(False, help="""
+    If True, the chart will automatically resize based on the size of its container. The
+    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height``
+    will act only to set the initial aspect ratio.
+    """)
+
     def __init__(self, *args, **kwargs):
 
         # Initializes then gets default properties
-        super(Chart, self).__init__(**kwargs)
+        super(Chart, self).__init__(*args, **kwargs)
 
-        # create new chart options to get default properties with values
-        default_props = ChartOptions().properties_with_values()
+        # # create new chart options to get default properties with values
+        # default_props = ChartOptions().properties_with_values()
+        #
+        # # get the properties and values from the module-wide defaults object
+        # option_props = ChartOptions.properties_with_values(defaults)
 
-        # get the properties and values from the module-wide defaults object
-        option_props = ChartOptions.properties_with_values(defaults)
-
-        # if the module defaults differs from ChartOptions defaults, use that value
-        # ToDo: allow Chart/Plot properties as well as ChartOptions
-        for option, value in iteritems(option_props):
-            if value != default_props[option]:
-                setattr(self._options, option, value)
-
-        self.title = self._options.title
-        self.plot_height = self._options.height
-        self.plot_width = self._options.width
-        self.responsive = self._options.responsive
-        self.title_text_font_size = self._options.title_text_font_size
-        self.title_text_font_style = 'bold'
+        # # if the module defaults differs from ChartOptions defaults, use that value
+        # # ToDo: allow Chart/Plot properties as well as ChartOptions
+        # for option, value in iteritems(option_props):
+        #     if value != default_props[option]:
+        #         setattr(self._options, option, value)
+        #
+        # self.title = self._options.title
+        # self.plot_height = self._options.height
+        # self.plot_width = self._options.width
+        # self.responsive = self._options.responsive
+        # self.title_text_font_size = self._options.title_text_font_size
+        # self.title_text_font_style = 'bold'
 
         self._glyphs = []
         self._built = False
@@ -132,7 +204,7 @@ class Chart(Plot):
         #     else:
         #         self._session = Session()
 
-        self.create_tools(self._options.tools)
+        self.create_tools(self.tools)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -152,10 +224,10 @@ class Chart(Plot):
         self._scales[dim].append(scale)
 
     def _get_labels(self, dim):
-        if not getattr(self._options, dim + 'label') and len(self._labels[dim]) > 0:
+        if not getattr(self, dim + 'label') and len(self._labels[dim]) > 0:
             return self._labels[dim][0]
         else:
-            return getattr(self._options, dim + 'label')
+            return getattr(self, dim + 'label')
 
     def create_axes(self):
         self._xaxis = self.make_axis('x', "below", self._scales['x'][0], self._get_labels('x'))
@@ -173,14 +245,15 @@ class Chart(Plot):
         Only adds tools if given boolean and does not already have
         tools added to self.
         """
-        if len(self.tools) == 0:
-            # if no tools customization let's create the default tools
-            if isinstance(tools, bool) and tools:
-                tools = DEFAULT_TOOLS
-            elif isinstance(tools, bool):
-                # in case tools == False just exit
-                return
 
+        if isinstance(tools, bool) and tools:
+            tools = DEFAULT_TOOLS
+        elif isinstance(tools, bool):
+            # in case tools == False just exit
+            return
+
+        if len(tools) == 0:
+            # if no tools customization let's create the default tools
             tool_objs = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)
 
@@ -188,11 +261,11 @@ class Chart(Plot):
         """Add the axis, grids and tools
         """
         self.create_axes()
-        self.create_grids(self._options.xgrid, self._options.ygrid)
+        self.create_grids(self.xgrid, self.ygrid)
 
         # Add tools if supposed to
-        if self._options.tools:
-            self.create_tools(self._options.tools)
+        if self.tools:
+            self.create_tools(self.tools)
 
     def add_legend(self, legends):
         """Add the legend to your plot, and the plot to a new Document.
@@ -206,10 +279,10 @@ class Chart(Plot):
                 labels.
         """
         location = None
-        if self._options.legend is True:
+        if self.legend is True:
             location = "top_left"
         else:
-            location = self._options.legend
+            location = self.legend
 
         if location:
             legend = Legend(location=location, legends=legends)
@@ -280,11 +353,11 @@ class Chart(Plot):
         It shows the plot in file, server and notebook outputs.
         """
         # Add to document and session
-        if self._options.server:
-            if self._options.server is True:
+        if self.server:
+            if self.server is True:
                 self._servername = "untitled_chart"
             else:
-                self._servername = self._options.server
+                self._servername = self.server
 
             self._session.use_doc(self._servername)
             self._session.load_document(self._doc)
@@ -293,27 +366,27 @@ class Chart(Plot):
             self._doc._current_plot = self
             self._doc.add_root(self)
 
-        if self._options.filename:
-            if self._options.filename is True:
+        if self.filename:
+            if self.filename is True:
                 filename = "untitled"
             else:
-                filename = self._options.filename
+                filename = self.filename
 
             with open(filename, "w") as f:
                 f.write(file_html(self._doc, INLINE, self.title))
             print("Wrote %s" % filename)
             view(filename)
-        elif self._options.filename is False and \
-                        self._options.server is False and \
-                        self._options.notebook is False:
+        elif self.filename is False and \
+                        self.server is False and \
+                        self.notebook is False:
             print("You must provide a filename (filename='foo.html' or"
                   " .filename('foo.html')) to save your plot.")
 
-        if self._options.server:
+        if self.server:
             self.session.store_document(self._doc)
             link = self._session.object_link(self._doc.context)
             view(link)
 
-        if self._options.notebook:
+        if self.notebook:
             from bokeh.embed import notebook_div
             publish_display_data({'text/html': notebook_div(self)})
