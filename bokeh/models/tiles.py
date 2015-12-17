@@ -58,6 +58,10 @@ class MercatorTileSource(TileSource):
     resolution (plot_units / pixels) of minimum zoom level of tileset projection. None to auto-compute.
     """)
 
+    wrap_around_180 = Bool(default=True, help="""
+    flag to indicate whether to load tiles outside of world bounds.
+    """)
+
 class TMSTileSource(MercatorTileSource):
     """
     The TMSTileSource contains tile config info and provides urls for tiles based on a templated url (ex. http://your.tms.server.host/{Z}/{X}/{Y}.png).

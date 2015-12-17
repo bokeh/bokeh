@@ -52,7 +52,7 @@ class TileExpects
   expect_mercator_tile_counts: (source) ->
     for zoom_level in [1..5] by 1
       tiles = source.get_tiles_by_extent(@MERCATOR_BOUNDS, zoom_level, 0)
-      expect(tiles.length).to.be.equal(4 ** zoom_level)
+      expect(tiles.length).to.be.equal(Math.pow(2, zoom_level) * Math.pow(2, zoom_level))
 
   expect_geographic_tile_counts: (source) ->
     #assumes 512 tile size
@@ -255,6 +255,27 @@ describe "tile sources", ->
 
     it "should convert cache key into tile x,y,z", ->
       expect(source.key_to_tile_xyz("1:1:1")).to.be.eql([1,1,1])
+
+    it "should successfully wrap around 180 (x-axis) for normalized tile coordinates", ->
+      expect(source.normalize_xyz(-1, 1, 2)).to.be.eql([3,1,2])
+
+    it "should successfully get closest parent tile by xyz", ->
+      source.tiles[source.tile_xyz_to_key(0,1,1)] = {}
+      expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.eql([0,1,1])
+
+    it "should verify whether tile xyz's are valid", ->
+
+      tile_options =
+        wrap_around_180 : true
+
+      source = new MercatorTileSource(tile_options)
+      expect(source.is_valid_tile(-1, 1, 1)).to.be.eql(true)
+
+      tile_options =
+        wrap_around_180 : false
+
+      source = new MercatorTileSource(tile_options)
+      expect(source.is_valid_tile(-1, 1, 1)).to.be.eql(false)
 
     it "should get best zoom level based on extent and height/width", ->
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(0)
