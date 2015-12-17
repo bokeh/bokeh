@@ -1,4 +1,4 @@
-.. _tutorials:
+.. _userguide_tutorials:
 
 Tutorials
 =========

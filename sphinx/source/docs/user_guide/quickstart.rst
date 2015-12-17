@@ -1,4 +1,4 @@
-.. _quickstart:
+.. _userguide_quickstart:
 
 Quickstart
 ##########
