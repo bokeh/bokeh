@@ -572,7 +572,7 @@ class Document(object):
     # we use this to detect changes during document deserialization
     # (in model constructors and initializers)
     @classmethod
-    def _compute_patch_between_json(cls, from_json, to_json, to_doc):
+    def _compute_patch_between_json(cls, from_json, to_json):
 
         def refs(json):
           result = {}
@@ -604,7 +604,8 @@ class Document(object):
 
         value_refs = {}
         events = []
-        for id, model in to_doc._all_models.items():
+        import pprint
+        for id in refs(to_json):
             if id in from_references:
                 update_model_events = Document._events_to_sync_objects(
                     from_references[id],

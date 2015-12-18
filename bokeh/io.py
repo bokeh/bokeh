@@ -460,7 +460,7 @@ def push_notebook(document=None, state=None):
 
     import json
     to_json = state.document.to_json()
-    msg = state.document._compute_patch_between_json(state.last_json, to_json, state.document)
+    msg = Document._compute_patch_between_json(state.last_json, to_json)
     state.last_comms.send(json.dumps(msg))
     state.last_json = to_json
 
