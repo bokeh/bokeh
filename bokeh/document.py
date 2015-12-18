@@ -560,10 +560,10 @@ class Document(object):
             old_value = from_obj['attributes'].get(key, None)
             new_value = to_obj['attributes'].get(key, None)
 
-            if not old_value and not new_value:
+            if old_value is None and new_value is None:
                 continue
 
-            if not old_value or not new_value or old_value != new_value:
+            if old_value is None or new_value is None or old_value != new_value:
                 event = Document._event_for_attribute_change(from_obj, key, new_value, value_refs)
                 events.append(event)
 
