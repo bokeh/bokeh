@@ -10,7 +10,7 @@ Working in the Notebook
 Displaying Inline Plots
 -----------------------
 
-To display Bokeh plots inline in an IPython/Jupyter notebook, use the
+To display Bokeh plots inline in an Jupyter notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
 the |output_file| function we have seen previously. No other modifications
 are required. You can see an example below:
@@ -23,19 +23,16 @@ are required. You can see an example below:
     As a convenience, |output_notebook| is also importable from the
     |bokeh.charts| and |bokeh.plotting| modules.
 
-Connecting to Bokeh Server Plots
+
+Integrating Notebook Interactors
 --------------------------------
 
-
-Integrating IPython Interactors
--------------------------------
-
-It is possible to drive updates to Bokeh plots using IPython/Jupyter
+It is possible to drive updates to Bokeh plots using Jupyter
 notebook widgets, known as interactors. The key doing this is the
-|push_notebook| method on |ColumnDataSource|. This method allows you to
-update plot data sources in the notebook, so that the plot is made to
-update. Typically, |push_notebook| is used in the update callback for the
-interactor. An example is shown below:
+|push_notebook| function. This function allows you to update document
+data and properties in the notebook, so that any plots, etc are made to
+update. A common use of |push_notebook| is in an update callback for
+interactors. An example is shown below:
 
 .. image:: /_images/notebook_interactors.png
     :scale: 50 %
@@ -52,4 +49,4 @@ interactor. An example is shown below:
 
 
 .. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
-.. |push_notebook| replace:: :func:`~bokeh.models.sources.ColumnDataSource.push_notebook`
+.. |push_notebook| replace:: :func:`~bokeh.io.push_notebook`
