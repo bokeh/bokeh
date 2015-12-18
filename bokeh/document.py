@@ -527,9 +527,7 @@ class Document(object):
             instance.update_from_json(obj_attrs, models=references)
 
     @classmethod
-    def _event_for_attribute_change(cls, changed_obj, key, new_value, doc, value_refs):
-      changed_model = doc.get_model_by_id(changed_obj['id'])
-
+    def _event_for_attribute_change(cls, changed_obj, key, new_value, value_refs):
       event = dict(
         kind='ModelChanged',
         model=dict(id=changed_obj['id'], type=changed_obj['type']),
@@ -540,7 +538,7 @@ class Document(object):
       return event
 
     @classmethod
-    def _events_to_sync_objects(cls, from_obj, to_obj, to_doc, value_refs):
+    def _events_to_sync_objects(cls, from_obj, to_obj, value_refs):
         from_keys = set(from_obj['attributes'].keys())
         to_keys = set(to_obj['attributes'].keys())
         removed = from_keys - to_keys
@@ -551,11 +549,11 @@ class Document(object):
         for key in removed:
           # we don't really have a "remove" event - not sure this ever happens even -
           # but treat it as equivalent to setting to null
-          events.append(Document._event_for_attribute_change(from_obj, key, null, to_doc, value_refs))
+          events.append(Document._event_for_attribute_change(from_obj, key, null, value_refs))
 
         for key in added:
             new_value = to_obj['attributes'][key]
-            events.append(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
+            events.append(Document._event_for_attribute_change(from_obj, key, new_value, value_refs))
 
         for key in shared:
             old_value = from_obj['attributes'].get(key, None)
@@ -565,15 +563,15 @@ class Document(object):
                 continue
 
             if not old_value or not new_value or old_value != new_value:
-                event = Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs)
+                event = Document._event_for_attribute_change(from_obj, key, new_value, value_refs)
                 events.append(event)
 
         return events
 
     # we use this to detect changes during document deserialization
     # (in model constructors and initializers)
-    def _compute_patch_since_json(self, from_json):
-        to_json = self.to_json()
+    @classmethod
+    def _compute_patch_between_json(cls, from_json, to_json, to_doc):
 
         def refs(json):
           result = {}
@@ -605,12 +603,11 @@ class Document(object):
 
         value_refs = {}
         events = []
-        for id, model in self._all_models.items():
+        for id, model in to_doc._all_models.items():
             if id in from_references:
                 update_model_events = Document._events_to_sync_objects(
                     from_references[id],
                     to_references[id],
-                    self,
                     value_refs
                 )
                 events.extend(update_model_events)
