@@ -1,12 +1,3 @@
-img.gallery {height:200px; width:200px}
-
-ul.gallery {list-style-type:none}
-ul.gallery li {height:250px; width:220px; display:block; float:left; text-align:center}
-a.logo {float:left; margin:9px 5px 0 0}
-
-.col-md-12 {padding-right:80px; /* this makes sure text stays clear of the fork me ribbon*/
-}
-
 /*
  *  Display Class documentation
  */
@@ -15,25 +6,10 @@ code > .pre {
     color: #2A6496;
 }
 
-.class,
-.section {
+.class, .section {
     clear: both;
 }
 
-/* I'd like to do something like this but
- * it affects too much of the rest of the docs */
-/*
-.section > h2 > a > code > .pre {
-    color: #EB2366;
-    background-color: white;
-    font-weight: bold;
-    font-size: 1.3em;
-}
-.section > h2 > a,
-.section > h2 > a:hover {
-    color: #EB2366;
-}
-*/
 .class > dt > .headerlink {
     padding-left: 10px;
     color: #85398C;
