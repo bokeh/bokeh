@@ -282,6 +282,7 @@ def _show_notebook_with_state(obj, state):
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         if state.last_comms:
             state.last_comms.close()
+        state.last_json = state.document.to_json()
         state.last_comms = get_comms(comms_target)
 
 def _show_server_with_state(obj, state, new, controller):
@@ -457,10 +458,10 @@ def push_notebook(document=None, state=None):
         warnings.warn("Cannot find a last shown plot to update")
         return
 
-    # TODO prepare actual patch
     import json
-    msg = json.dumps(dict(foo="bar"))
-    state.last_comms.send(msg)
+    msg = state.document._compute_patch_since_json(state.last_json)
+    state.last_comms.send(json.dumps(msg))
+    state.last_json = state.document.to_json()
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.

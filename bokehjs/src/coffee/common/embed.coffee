@@ -10,10 +10,8 @@ HasProperties = require "./has_properties"
 
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
-  data = JSON.parse(msg.content.data)
-
-  # TODO apply the patch
-  console.log @, data
+  doc = _.values(@)[0] # should only be one
+  doc.apply_json_patch_string(msg.content.data)
 
 _init_comms = (target, docs) ->
   logger.info("Initializing Jupyter comms for target #{target} and docs #{_.keys(docs)}")

@@ -93,5 +93,5 @@ def get_comms(target_name):
 
     '''
     from ipykernel.comm import Comm
-    return Comm(target_name=target_name,data={})
+    return Comm(target_name=target_name, data={})
 

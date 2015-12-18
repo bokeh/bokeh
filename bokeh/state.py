@@ -88,6 +88,7 @@ class State(object):
         # TODO (havocp) right now there's no way to turn off autoadd
         self._autoadd = True
         self.last_comms = None
+        self.last_json = True
         self.reset()
 
     @property
