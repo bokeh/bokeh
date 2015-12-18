@@ -22,15 +22,12 @@ logger = logging.getLogger(__name__)
 
 @abstract
 class Renderer(Model):
-    """ A base class for renderer types. ``Renderer`` is not
-    generally useful to instantiate on its own.
-
+    """An abstract base class for renderer types.
     """
 
 @abstract
 class DataRenderer(Renderer):
-    """ A base class for data renderer types (e.g. GlyphRenderer). ``DataRenderer`` is not
-    generally useful to instantiate on its own.
+    """ An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
     """
 
 class TileRenderer(DataRenderer):
