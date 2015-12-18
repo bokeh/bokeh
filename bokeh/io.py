@@ -455,7 +455,7 @@ def push_notebook(document=None, state=None):
         return
 
     if not state.last_comms:
-        warnings.warn("Cannot find a last shown plot to update")
+        warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show() before push_notebook()")
         return
 
     import json
