@@ -76,30 +76,6 @@ handful of exceptions, no outside libraries such as NumPy, Pandas, or
 Blaze are required to run the examples as written. However, Bokeh works
 perfectly well with almost any array or table-like data structure.
 
-----
-
-.. toctree::
-    :maxdepth: 2
-
-    user_guide/quickstart
-    user_guide/setup
-    user_guide/concepts
-    user_guide/plotting
-    user_guide/charts
-    user_guide/compat
-    user_guide/styling
-    user_guide/tools
-    user_guide/layout
-    user_guide/notebook
-    user_guide/interaction
-    user_guide/cli
-    user_guide/server
-    user_guide/embed
-    user_guide/webgl
-    user_guide/geo
-    user_guide/info
-    user_guide/tutorials
-
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 

@@ -67,14 +67,14 @@
   </div>
 
 <!-- MAIN BODY OF DOCS –––––––––––––––––– -->
+  <div class="toc">
+    {{ toctree(collapse=True, includehidden=True) }}
+  </div>
   <div class="docs section">
     <div class="content">
       {% block body %}{% endblock %}
     </div>
   </div>
-  {%- if last_updated %}
-    {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}<br/>
-  {%- endif %}
 
 <!-- END MAIN BODY OF DOCS ––––––––––––– -->
 

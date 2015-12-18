@@ -3,12 +3,6 @@
 Gallery
 #######
 
-.. toctree::
-   :hidden:
-   :glob:
-
-   server_gallery/*
-
 .. _gallery_server_examples:
 
 Server Examples
