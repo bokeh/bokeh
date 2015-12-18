@@ -168,4 +168,4 @@ def test_charts_theme_validation():
     p = figure()
 
     with pytest.raises(ValueError):
-        defaults.apply_to_model(p)
+        defaults.apply(p)
