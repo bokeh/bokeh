@@ -3,11 +3,6 @@
 Release Notes
 #############
 
-.. _release_notes:
-
-Release Notes
-=============
-
 .. toctree::
     :maxdepth: 2
 
