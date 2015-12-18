@@ -67,12 +67,9 @@
   </div>
 
 <!-- MAIN BODY OF DOCS –––––––––––––––––– -->
-  <div class="section">
+  <div class="docs section">
     <div class="content">
-        <h2 class="title">{{ title }}</h2>
-        <div>
-          {% block body %}{% endblock %}
-        </div>
+      {% block body %}{% endblock %}
     </div>
   </div>
   {%- if last_updated %}
