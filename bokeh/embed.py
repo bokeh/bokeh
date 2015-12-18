@@ -193,7 +193,7 @@ def _extract_custom_models(models):
 
     return custom_models
 
-def notebook_div(model, comms_target=None):
+def notebook_div(model, notebook_comms_target=None):
     ''' Return HTML for a div that will display a Bokeh plot in an
     IPython Notebook
 
@@ -201,7 +201,7 @@ def notebook_div(model, comms_target=None):
 
     Args:
         model (Model) : Bokeh object to render
-        comms_target (str, optional) :
+        notebook_comms_target (str, optional) :
             A target name for a Jupyter Comms object that can update
             the document that is rendered to this notebook div
 
@@ -222,7 +222,7 @@ def notebook_div(model, comms_target=None):
     script = _script_for_render_items(docs_json, render_items,
                                       custom_models=custom_models,
                                       websocket_url=None,
-                                      comms_target=comms_target)
+                                      notebook_comms_target=notebook_comms_target)
 
     item = render_items[0]
 
@@ -441,7 +441,7 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
     return encode_utf8(tag)
 
 def _script_for_render_items(docs_json, render_items, websocket_url,
-                             custom_models, wrap_script=True, comms_target=None):
+                             custom_models, wrap_script=True, notebook_comms_target=None):
     # this avoids emitting the "register custom models" code at all
     # just to register an empty set
     if (custom_models is not None) and len(custom_models) == 0:
@@ -453,7 +453,7 @@ def _script_for_render_items(docs_json, render_items, websocket_url,
             websocket_url=websocket_url,
             docs_json=serialize_json(docs_json),
             render_items=serialize_json(render_items),
-            comms_target=comms_target
+            notebook_comms_target=notebook_comms_target
         )
     )
     if wrap_script:
