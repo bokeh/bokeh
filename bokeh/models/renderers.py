@@ -88,29 +88,22 @@ class GlyphRenderer(DataRenderer):
 
     @validation.error(MISSING_GLYPH)
     def _check_missing_glyph(self):
-        if not self.glyph:
-            return str(self)
+        if not self.glyph: return str(self)
 
     @validation.error(NO_SOURCE_FOR_GLYPH)
     def _check_no_source_for_glyph(self):
-        if not self.data_source:
-            return str(self)
+        if not self.data_source: return str(self)
 
     @validation.error(BAD_COLUMN_NAME)
     def _check_bad_column_name(self):
-        if not self.glyph:
-            return
-        if not self.data_source:
-            return
-        if isinstance(self.data_source, RemoteSource):
-            return
+        if not self.glyph: return
+        if not self.data_source: return
+        if isinstance(self.data_source, RemoteSource): return
         missing = set()
         specs = self.glyph.dataspecs()
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
-            if name not in specs:
-                continue
-            if not isinstance(item, dict):
-                continue
+            if name not in specs: continue
+            if not isinstance(item, dict): continue
             if 'field' in item and item['field'] not in self.data_source.column_names:
                 missing.add(item['field'])
         if missing:
