@@ -67,12 +67,12 @@
   </div>
 
 <!-- MAIN BODY OF DOCS –––––––––––––––––– -->
-  <div class="toc">
-    {{ toctree(collapse=True, includehidden=True) }}
-  </div>
   <div class="docs section">
+    <div class="toc">
+      {{ toctree(maxdepth=4, collapse=True, includehidden=True) }}
+    </div>
     <div class="content">
-      {% block body %}{% endblock %}
+        {% block body %}{% endblock %}
     </div>
   </div>
 
