@@ -427,7 +427,7 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
     if validate:
         document.validate()
 
-    _push_to_notebook(session_id=session_id, url=url, app_path=app_path,
+    _push_to_server(session_id=session_id, url=url, app_path=app_path,
                       document=document, io_loop=io_loop)
 
 def push_notebook(document=None, state=None):
