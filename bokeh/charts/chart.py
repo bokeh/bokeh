@@ -25,8 +25,6 @@ from collections import defaultdict
 import numpy as np
 from six import iteritems
 
-from . import defaults
-from .chart_options import ChartOptions
 from ..browserlib import view
 from ..document import Document
 from ..embed import file_html
@@ -42,6 +40,9 @@ from ..plotting_helpers import _process_tools_arg
 from ..resources import INLINE
 from ..util.notebook import publish_display_data
 from ..util.serialization import make_id
+from ..util.future import with_metaclass
+from ..model import Viewable
+from ..themes import Theme
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -49,6 +50,27 @@ from ..util.serialization import make_id
 
 Scale = enumeration('linear', 'categorical', 'datetime')
 
+class ChartsTheme(Theme):
+    def apply_to_model(self, model):
+        """Apply this theme to a model. Don't call this method directly,
+        instead set the theme on the Document the model is a part of."""
+
+        if not isinstance(model, Chart):
+            raise ValueError("ChartsTheme should be only used on Chart objects \
+            but it's being used on %s instead." % model)
+
+        attrs = {}
+        for k in model.properties_with_values(include_defaults=True):
+            if hasattr(self, k):
+                attrs[k] = getattr(self, k)
+
+        if attrs:
+            self._by_class_cache = {}
+            self._json = {'attrs' : { 'Chart' : attrs }}
+
+        model.apply_theme(self._for_class(model.__class__))
+
+defaults = ChartsTheme(json={})
 
 class Chart(Plot):
     """ The main Chart class, the core of the ``Bokeh.charts`` interface.
@@ -119,11 +141,19 @@ class Chart(Plot):
     will act only to set the initial aspect ratio.
     """)
 
-    def __init__(self, *args, **kwargs):
+    _theme = defaults
 
-        # Initializes then gets default properties
-        tools = kwargs.pop('tools', True)
+    def __init__(self, *args, **kwargs):
+        # pop tools as it is also a property that doesn't match the argument
+        # supported types
+        tools = kwargs.pop('tools', None)
         super(Chart, self).__init__(*args, **kwargs)
+        self._tools = tools
+
+        # TODO(fpliger): still need to apply the theme explicitly as Model
+        #               applies the default_theme, that does not matches the
+        #               default one for Charts
+        self._theme.apply_to_model(self)
 
         self._glyphs = []
         self._built = False
@@ -149,7 +179,7 @@ class Chart(Plot):
         #     else:
         #         self._session = Session()
 
-        self.create_tools(tools)
+        self.create_tools(self._tools)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -341,3 +371,10 @@ class Chart(Plot):
         if self.notebook:
             from bokeh.embed import notebook_div
             publish_display_data({'text/html': notebook_div(self)})
+
+    def apply_theme(self, property_values):
+        tools = property_values.pop('tools', True)
+        if getattr(self, '_tools', None) is None:
+            self._tools = tools
+
+        super(Chart, self).apply_theme(property_values)
