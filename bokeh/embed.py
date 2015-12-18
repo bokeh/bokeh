@@ -287,7 +287,7 @@ def file_html(models,
         title = _title_from_models(models, title)
         custom_models = _extract_custom_models(models)
         return _html_page_for_render_items(resources, docs_json, render_items, title=title,
-                                           custom_models=custom_models, websocket_url=None,
+                                           custom_models=custom_models,
                                            js_resources=js_resources, css_resources=css_resources,
                                            template=template, template_variables=template_variables,
                                            use_widgets=_use_widgets(models))
@@ -420,8 +420,8 @@ def _script_for_render_items(docs_json, render_items, websocket_url,
     else:
         return plot_js
 
-def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url,
-                                custom_models, js_resources=None, css_resources=None,
+def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url=None,
+                                custom_models=None, js_resources=None, css_resources=None,
                                 template=FILE, template_variables={}, use_widgets=True):
     if title is None:
         title = DEFAULT_TITLE
