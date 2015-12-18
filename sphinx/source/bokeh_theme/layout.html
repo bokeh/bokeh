@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>{{ SITENAME }}</title>
+  <meta name="description" content="{{ DESCRIPTION }}">
+  <meta name="author" content="{{ AUTHOR }}">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  {#
+  <link href='//fonts.googleapis.com/css?family=Raleway:100,200,300,400,600' rel='stylesheet' type='text/css'>
+  #}
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="{{ pathto('_static/' + theme_css, 1) }}">
+  <link rel="stylesheet" href="{{ pathto('_static/css/bokeh-docs.css', 1) }}">
+
+
+  <!-- Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="{{ pathto('_static/' + theme_favicon, 1) }}">
+
+</head>
+<body class="">
+
+  <header class="navigation" role="banner">
+  <div class="wrapper">
+    <a href="{{ SITEURL }}/" class="logo">
+      <img src="{{ pathto('_static/images/logo.png', 1) }}" alt="Bokeh Logo">
+    </a>
+    <a href="{{ SITEURL }}/" class="navigation-menu logo-text">Bokeh</a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">Menu</a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+        {% for name, link in NAV %}
+            <li class="nav-link"><a href="{{ link }}">{{ name }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- MAIN BODY OF DOCS –––––––––––––––––– -->
+  <div class="section">
+    <div class="content">
+        <h2 class="title">{{ title }}</h2>
+        <div>
+          {% block body %}{% endblock %}
+        </div>
+    </div>
+  </div>
+  {%- if last_updated %}
+    {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}<br/>
+  {%- endif %}
+
+<!-- END MAIN BODY OF DOCS ––––––––––––– -->
+
+<footer class="footer" role="contentinfo">
+  <div class="wrapper">
+    <div class="footer-links">
+      <ul>
+        <li><h3>About Us</h3></li>
+        {% for name, link in ABOUT %}
+            <li><a href="{{ link }}">{{ name }}</a></li>
+        {% endfor %}
+      </ul>
+      <ul>
+        <li><h3>Community</h3></li>
+        {% for name, link in COMMUNITY %}
+            <li><a href="{{ link }}">{{ name }}</a></li>
+        {% endfor %}
+      </ul>
+      <ul>
+        <li><h3>Find Us</h3></li>
+        {% for name, link in SOCIAL %}
+            <li><a href="{{ link }}">{{ name }}</a></li>
+        {% endfor %}
+      </ul>
+      <ul class="copyright">
+        <li>{{ copyright }}</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<!-- Google Analytics -->
+{#
+{% include 'includes/ga.html' %}
+#}
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+
+</html>
+
