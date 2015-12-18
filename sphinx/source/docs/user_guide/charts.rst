@@ -3,10 +3,6 @@
 Making High-level Charts
 ========================
 
-.. contents::
-    :local:
-    :depth: 2
-
 The high level ``bokeh.charts`` interface provides a fast, convenient way
 to create common statistical charts with a minimum of code. Wherever possible,
 the interface is geared to be extremely simple to use in conjunction with

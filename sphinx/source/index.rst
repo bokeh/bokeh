@@ -25,6 +25,8 @@ the :ref:`devguide`.
 
 .. toctree::
 
+    docs/installation
+    docs/user_guide/quickstart
     docs/user_guide/setup
     docs/user_guide/concepts
     docs/user_guide/plotting
@@ -41,6 +43,8 @@ the :ref:`devguide`.
     docs/user_guide/webgl
     docs/user_guide/geo
     docs/user_guide/info
+    docs/user_guide/tutorials
+    docs/gallery
     docs/reference/properties
     docs/reference/models
     docs/reference/validation

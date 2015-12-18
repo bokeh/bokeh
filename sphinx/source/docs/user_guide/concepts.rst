@@ -3,10 +3,6 @@
 Defining Key Concepts
 =====================
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _userguide_glossary:
 
 Glossary

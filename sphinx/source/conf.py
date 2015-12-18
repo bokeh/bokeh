@@ -151,7 +151,7 @@ html_context = {
         ('User Guide', 'user_guide'),
         ('Gallery', 'gallery'),
         ('Reference', 'reference'),
-        ('Release Notes', 'release_notes'),
+        ('Releases', 'releases'),
         ('Developer Guide', 'dev_guide'),
     )
 }

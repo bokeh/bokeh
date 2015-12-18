@@ -18,10 +18,6 @@ To assist with diagnosing potential problems, Bokeh performs a validation step
 when outputting a visualization for display. These errors and warnings are
 outlined below.
 
-.. contents::
-    :local:
-    :depth: 1
-
 .. _bokeh.validation.errors:
 
 ``bokeh.validation.errors``
