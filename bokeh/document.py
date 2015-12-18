@@ -527,18 +527,18 @@ class Document(object):
             instance.update_from_json(obj_attrs, models=references)
 
     @classmethod
-    def _event_for_attribute_change(cls, changed_obj, key, new_value, value_refs):
+    def _event_for_attribute_change(cls, changed_obj, key, new_value, value_refs, doc):
       event = dict(
         kind='ModelChanged',
         model=dict(id=changed_obj['id'], type=changed_obj['type']),
         attr=key,
         new=new_value,
       )
-      #HasProps._json_record_references(doc, new_value, value_refs, true) # true = recurse
+      HasProps._json_record_references(doc, new_value, value_refs, True) # True = recurse
       return event
 
     @classmethod
-    def _events_to_sync_objects(cls, from_obj, to_obj, value_refs):
+    def _events_to_sync_objects(cls, from_obj, to_obj, value_refs, doc):
         from_keys = set(from_obj['attributes'].keys())
         to_keys = set(to_obj['attributes'].keys())
         removed = from_keys - to_keys
@@ -554,7 +554,7 @@ class Document(object):
 
         for key in added:
             new_value = to_obj['attributes'][key]
-            events.append(Document._event_for_attribute_change(from_obj, key, new_value, value_refs))
+            events.append(Document._event_for_attribute_change(from_obj, key, new_value, value_refs, doc))
 
         for key in shared:
             old_value = from_obj['attributes'].get(key, None)
@@ -564,7 +564,7 @@ class Document(object):
                 continue
 
             if old_value is None or new_value is None or old_value != new_value:
-                event = Document._event_for_attribute_change(from_obj, key, new_value, value_refs)
+                event = Document._event_for_attribute_change(from_obj, key, new_value, value_refs, doc)
                 events.append(event)
 
         return events
@@ -572,7 +572,7 @@ class Document(object):
     # we use this to detect changes during document deserialization
     # (in model constructors and initializers)
     @classmethod
-    def _compute_patch_between_json(cls, from_json, to_json):
+    def _compute_patch_between_json(cls, from_json, to_json, to_doc):
 
         def refs(json):
           result = {}
@@ -610,7 +610,8 @@ class Document(object):
                 update_model_events = Document._events_to_sync_objects(
                     from_references[id],
                     to_references[id],
-                    value_refs
+                    value_refs,
+                    to_doc
                 )
                 events.extend(update_model_events)
 
