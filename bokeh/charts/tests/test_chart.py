@@ -21,7 +21,7 @@ import pytest
 
 import numpy as np
 
-from bokeh.charts.chart import Chart
+from bokeh.charts import Chart, defaults
 from bokeh.models import (
     ColumnDataSource, Grid, GlyphRenderer, LinearAxis, Range1d, Ticker)
 from bokeh.models.ranges import FactorRange
@@ -147,7 +147,25 @@ class TestChart(unittest.TestCase):
         mock_warn.assert_any_call(msg_repeat)
 
 def test_chart_id():
-    chart = Chart(
-        id='1234', title="title"
-    )
+    chart = Chart(id='1234', title="title")
     assert chart._id == '1234'
+
+def test_defaults():
+    c1 = Chart()
+    defaults.height = 1000
+    defaults.tools = False
+    c2 = Chart()
+    c3 = Chart()
+
+    assert c1.height == 400
+    assert c2.height == c3.height == 1000
+
+    assert c1.tools
+    assert c2.tools == c3.tools == []
+
+def test_charts_theme_validation():
+    from bokeh.plotting import figure
+    p = figure()
+
+    with pytest.raises(ValueError):
+        defaults.apply_to_model(p)
