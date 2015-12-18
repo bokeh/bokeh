@@ -447,6 +447,9 @@ def push_notebook(document=None, state=None):
     if state is None:
         state = _state
 
+    if state.server_enabled:
+        raise RuntimeError("output_server() has been called, use push() to push to server")
+
     if not document:
         document = state.document
 
