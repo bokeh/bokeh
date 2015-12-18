@@ -549,7 +549,8 @@ class Document(object):
         for key in removed:
           # we don't really have a "remove" event - not sure this ever happens even -
           # but treat it as equivalent to setting to null
-          events.append(Document._event_for_attribute_change(from_obj, key, null, value_refs))
+          #events.append(Document._event_for_attribute_change(from_obj, key, None, value_refs))
+          raise RuntimeError("'RemoveAttribute' events not supported")
 
         for key in added:
             new_value = to_obj['attributes'][key]
