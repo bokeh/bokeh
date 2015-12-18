@@ -39,21 +39,32 @@
 <body class="">
 
   <header class="navigation" role="banner">
-  <div class="wrapper">
-    <a href="{{ SITEURL }}/" class="logo">
-      <img src="{{ pathto('_static/images/logo.png', 1) }}" alt="Bokeh Logo">
-    </a>
-    <a href="{{ SITEURL }}/" class="navigation-menu logo-text">Bokeh</a>
-    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">Menu</a>
-    <nav role="navigation">
-      <ul id="js-navigation-menu" class="navigation-menu show">
-        {% for name, link in NAV %}
-            <li class="nav-link"><a href="{{ link }}">{{ name }}</a></li>
-        {% endfor %}
-      </ul>
-    </nav>
+    <div class="wrapper">
+      <a href="{{ SITEURL }}/" class="logo">
+        <img src="{{ pathto('_static/images/logo.png', 1) }}" alt="Bokeh Logo">
+      </a>
+      <a href="{{ SITEURL }}/" class="navigation-menu logo-text">Bokeh</a>
+      <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">Menu</a>
+      <nav role="navigation">
+        <ul id="js-navigation-menu" class="navigation-menu show">
+          {% for name, link in NAV %}
+              <li class="nav-link"><a href="{{ link }}">{{ name }}</a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <div class="navigation doc">
+    <div class="wrapper">
+      <nav role="navigation">
+        <ul class="navigation-menu show">
+          {%- for name, link in NAV_DOCS  %}
+              <li class="nav-link"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+          {%- endfor %}
+        </ul>
+      </nav>
+    </div>
   </div>
-</header>
 
 <!-- MAIN BODY OF DOCS –––––––––––––––––– -->
   <div class="section">

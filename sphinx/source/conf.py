@@ -58,6 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Bokeh'
+copyright = '2013-2016, Continuum Analytics'
 
 # Get the standard computed Bokeh version string to use for |version|
 # and |release|
@@ -142,7 +143,16 @@ html_context = {
     'SOCIAL': (
         ('Github', '//github.com/bokeh/bokeh'),
         ('Twitter', '//twitter.com/bokehplots'),
-        ('Youtube', '#')
+        ('Youtube', '#'),
+    ),
+    # Links for the docs navigation
+    'NAV_DOCS': (
+        ('Installation', 'installation'),
+        ('User Guide', 'user_guide'),
+        ('Gallery', 'gallery'),
+        ('Reference', 'reference'),
+        ('Release Notes', 'release_notes'),
+        ('Developer Guide', 'dev_guide'),
     )
 }
 
@@ -240,6 +250,8 @@ texinfo_documents = [
 #texinfo_show_urls = 'footnote'
 
 # intersphinx settings
-intersphinx_mapping = {'python': ('https://docs.python.org/', None),
-                       'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/', None),
+    'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None)
+}
