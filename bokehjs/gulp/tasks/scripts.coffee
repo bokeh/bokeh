@@ -134,7 +134,7 @@ namedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (ro
     .relative(cwd, modPath)
     .replace(/\.(coffee|js|eco)$/, "")
     .split(path.sep).join("/")
-    .replace(/^(src\/(coffee|vendor)|node_modules)\//, "")
+    .replace(/^(src\/(coffee|vendor)|node_modules|build\/js\/tree)\//, "")
 
   if argv.verbose
     util.log("Processing #{modName}")
