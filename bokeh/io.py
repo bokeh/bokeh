@@ -432,16 +432,37 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
                     document=document, io_loop=io_loop)
 
 def push_notebook(document=None, state=None):
-    ''' Update the notebook with the data for the current document.
+    ''' Update the last-shown plot in a Jupyter notebook with the new data
+    or property values.
 
     Args:
 
-        document (Document, optional) : A :class:`bokeh.document.Document` to use
+        document (Document, optional) :
+            A :class:`~bokeh.document.Document` to push from. If None,
+            uses ``curdoc()``.
 
-        state (State, optional) : A state to use for any output_server() configuration of session or url
+        state (State, optional) :
+            A Bokeh State object
 
     Returns:
         None
+
+    Examples:
+
+        Typical usage is typically similar to this:
+
+        .. code-block:: python
+
+            from bokeh.io import push_notebook
+
+            # code to create a plot
+
+            show(plot)
+
+            plot.title = "New Title"
+
+            # This will cause the title to update
+            push_notebook()
 
     '''
     if state is None:
@@ -462,8 +483,8 @@ def push_notebook(document=None, state=None):
         return
 
     import json
-    to_json = state.document.to_json()
-    msg = Document._compute_patch_between_json(state.last_json, to_json, state.document)
+    to_json = document.to_json()
+    msg = Document._compute_patch_between_json(state.last_json, to_json, document)
     state.last_comms.send(json.dumps(msg))
     state.last_json = to_json
 

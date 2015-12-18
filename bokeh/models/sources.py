@@ -203,15 +203,9 @@ class ColumnDataSource(DataSource):
 
         .. warning::
             This function has been deprecated. Please use
-
-            ..code-block:: python
-
-                from bokeh.io import push_notebook()
-
-                push_notebook()
-
-            Which will push any changes (not just data sources) to
-            the last shown plot in a Jupyter notebook.
+            ``bokeh.io.push_notebook()`` which will push all changes
+            (not just data sources) to the last shown plot in a Jupyter
+            notebook.
 
         Returns:
             None

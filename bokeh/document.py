@@ -187,6 +187,9 @@ class _MultiValuedDict(object):
             return [existing]
 
 class Document(object):
+    '''
+
+    '''
 
     def __init__(self, **kwargs):
         self._roots = list()
