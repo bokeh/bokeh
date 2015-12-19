@@ -12,7 +12,7 @@ Example:
 
     .. code-block:: python
 
-        from bokeh.util.forcing import bounce
+        from bokeh.driving import bounce
 
         @bounce([0, 1, 2])
         def update(i):

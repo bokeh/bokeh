@@ -331,13 +331,17 @@ class Document(object):
     @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
+
         .. warning::
             This function should only be called on top level objects such
             as Plot, and Layout containers.
+
         Args:
             *objects (Model) : objects to add to the Document
+
         Returns:
             None
+
         """
         for obj in objects:
             self.add_root(obj)
