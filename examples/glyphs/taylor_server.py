@@ -3,7 +3,7 @@ from __future__ import print_function
 import numpy as np
 import sympy as sy
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend

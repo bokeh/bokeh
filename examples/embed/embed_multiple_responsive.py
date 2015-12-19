@@ -1,4 +1,4 @@
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.resources import INLINE

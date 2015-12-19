@@ -23,7 +23,6 @@ import io, itertools, os, warnings
 # Third-party imports
 
 # Bokeh imports
-from . import browserlib
 from .core.state import State
 from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
@@ -33,6 +32,7 @@ from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .model import _ModelInDocument
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
+import bokeh.util.browser as browserlib # full import needed for test mocking to work
 from .client import DEFAULT_SESSION_ID, push_session, show_session
 from bokeh.resources import websocket_url_for_server_url
 

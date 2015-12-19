@@ -2,7 +2,7 @@ import pandas as pd
 
 from jinja2 import Template
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.models import (
     ColumnDataSource, Plot, Circle, Range1d,
     LinearAxis, HoverTool, Text,
