@@ -6,10 +6,10 @@ Utility Modules
     :local:
     :depth: 2
 
-.. _bokeh.util.forcing:
+.. _bokeh.driving:
 
-``bokeh.util.forcing``
-----------------------
+``bokeh.driving``
+-----------------
 
-.. automodule:: bokeh.util.forcing
+.. automodule:: bokeh.driving
     :members:
