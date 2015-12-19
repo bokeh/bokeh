@@ -3,7 +3,7 @@ from numpy import pi
 
 from bokeh.plotting import figure, curdoc
 from bokeh.client import push_session
-from bokeh.util.forcing import cosine
+from bokeh.driving import cosine
 
 x = np.linspace(0, 4*pi, 80)
 y = np.sin(x)

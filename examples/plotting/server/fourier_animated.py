@@ -12,7 +12,7 @@ from bokeh.client import push_session
 from bokeh.io import vplot
 from bokeh.models.sources import ColumnDataSource as CDS
 from bokeh.plotting import figure, curdoc
-from bokeh.util.forcing import repeat
+from bokeh.driving import repeat
 
 N = 100
 newx = x = np.linspace(0, 2*pi, N)

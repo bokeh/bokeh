@@ -5,7 +5,7 @@ from bokeh.io import curdoc
 from bokeh.models import GeoJSONDataSource
 from bokeh.plotting import figure
 from bokeh.sampledata.sample_geojson import geojson as original
-from bokeh.util.forcing import repeat
+from bokeh.driving import repeat
 
 updated = json.dumps({
     'type': 'FeatureCollection',
