@@ -4,11 +4,12 @@ from collections import Iterable, OrderedDict, Sequence
 import difflib
 import itertools
 import re
+import warnings
 
 import numpy as np
 from six import string_types
 
-from .models import (
+from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
@@ -16,9 +17,8 @@ from .models import (
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
-from .properties import ColorSpec, Datetime
-from .util.string import nice_join
-import warnings
+from ..properties import ColorSpec, Datetime
+from ..util.string import nice_join
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 

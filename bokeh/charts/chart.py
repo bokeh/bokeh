@@ -34,7 +34,7 @@ from ..models import (
 from ..models.tools import HoverTool
 from ..models.ranges import FactorRange
 from ..plotting import DEFAULT_TOOLS
-from ..plotting_helpers import _process_tools_arg
+from ..plotting.helpers import _process_tools_arg
 from ..resources import INLINE
 from ..util.browser import view
 from ..util.notebook import publish_display_data

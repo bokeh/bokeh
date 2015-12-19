@@ -3,25 +3,13 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
-from .models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
-from .models import glyphs, markers
-from .plotting_helpers import (
+from ..io import curdoc, curstate
+from ..models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
+from ..models import glyphs, markers
+from .helpers import (
     _list_attr_splat, _get_range, _get_axis_class, _get_num_minor_ticks,
     _process_tools_arg, _glyph_function
 )
-
-# extra imports -- just things to add to 'from plotting import *'
-from .document import Document
-from .models import ColumnDataSource
-from .io import (
-    curdoc, curstate, output_file, output_notebook, output_server, push,
-    reset_output, save, show, gridplot, hplot, vplot)
-
-# Names that we want in this namespace (fool pyflakes)
-(GridPlot, Document, ColumnDataSource, gridplot,
-curstate, show, save, reset_output, push, output_file, output_notebook,
-output_server, vplot, hplot)
-
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset,help"
 

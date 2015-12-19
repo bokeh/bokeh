@@ -31,7 +31,7 @@ from ..models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..models.sources import ColumnDataSource
-from ..plotting_helpers import DEFAULT_PALETTE
+from ..plotting.helpers import DEFAULT_PALETTE
 from ..resources import INLINE
 from ..util.browser import view
 from ..util.notebook import publish_display_data

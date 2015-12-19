@@ -25,7 +25,7 @@ from ..models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, 
 from ..models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
 from ..plotting import DEFAULT_TOOLS
-from ..plotting_helpers import _process_tools_arg
+from ..plotting.helpers import _process_tools_arg
 from ..util.dependencies import import_optional
 
 from .mplexporter.renderers import Renderer

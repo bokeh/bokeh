@@ -122,7 +122,7 @@ class Plot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -620,7 +620,7 @@ class GridPlot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):
