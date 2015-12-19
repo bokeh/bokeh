@@ -11,8 +11,7 @@ Plot Objects
 ``bokeh``
 ---------
 
-The ``bokeh`` module itself contains a few useful functions for testing
-and reporting issues:
+The ``bokeh`` module itself contains a few useful functions for testing and reporting issues:
 
 .. autofunction:: bokeh.test
 
