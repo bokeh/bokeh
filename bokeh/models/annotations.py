@@ -4,13 +4,12 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..deprecate import deprecated
 from ..enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode
 from ..mixins import LineProps, FillProps, TextProps
 from ..properties import abstract
 from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
                           Include, NumberSpec, Either, Auto, Float, Override)
-
+from ..util.deprecate import deprecated
 from .renderers import Renderer, GlyphRenderer
 
 @abstract

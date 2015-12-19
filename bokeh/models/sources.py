@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
-from ..deprecate import deprecated
 from ..model import Model
 from ..properties import abstract
 from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
 from ..util.dependencies import import_optional
+from ..util.deprecate import deprecated
 from ..util.serialization import transform_column_source_data
 from ..validation.errors import COLUMN_LENGTHS
 from .. import validation

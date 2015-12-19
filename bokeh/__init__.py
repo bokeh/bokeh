@@ -22,7 +22,7 @@ del logconfig
 
 # configure deprecation warnings
 import warnings
-from .deprecate import BokehDeprecationWarning
+from .util.deprecate import BokehDeprecationWarning
 warnings.simplefilter('always', BokehDeprecationWarning)
 
 # imports below are names we want to make available in the bokeh

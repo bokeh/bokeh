@@ -15,9 +15,9 @@ from six import string_types
 
 from .model import Model
 from .query import find
-from .deprecate import deprecated
 from .validation import check_integrity
 from .util.callback_manager import _check_callback
+from .util.deprecate import deprecated
 from .util.version import __version__
 from ._json_encoder import serialize_json
 from .themes import default as default_theme
