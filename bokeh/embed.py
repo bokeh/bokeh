@@ -17,7 +17,7 @@ import re
 import uuid
 from warnings import warn
 
-from .templates import (
+from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
     NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
@@ -268,7 +268,7 @@ def file_html(models,
         css_resources (CSSResources, optional): custom CSS Resources (default: ``None``), if
             resources is also provided, resources will override css_resources.
         template (Template, optional) : HTML document template (default: FILE)
-            A Jinja2 Template, see bokeh.templates.FILE for the required
+            A Jinja2 Template, see bokeh.core.templates.FILE for the required
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
