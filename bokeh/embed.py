@@ -13,22 +13,22 @@ these different cases.
 
 from __future__ import absolute_import
 
+from collections import Sequence
 import re
 import uuid
 from warnings import warn
+
+from six import string_types
 
 from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
     NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
-from .util.string import encode_utf8
-
-from .model import Model, _ModelInDocument
-from ._json_encoder import serialize_json
-from .resources import _SessionCoordinates
+from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from collections import Sequence
-from six import string_types
+from .model import Model, _ModelInDocument
+from .resources import _SessionCoordinates
+from .util.string import encode_utf8
 
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
