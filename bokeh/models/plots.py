@@ -7,16 +7,16 @@ from six import string_types
 import warnings
 
 from ..core.query import find
+from ..core import validation
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+    EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..enums import Location
 from ..mixins import LineProps, TextProps, FillProps
 from ..model import Model
 from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include, Override)
 from ..util.string import nice_join
-from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
-    EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
-from ..validation.errors import REQUIRED_RANGE
-from .. import validation
+from ..core.validation.errors import REQUIRED_RANGE
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange

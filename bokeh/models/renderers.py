@@ -6,12 +6,12 @@ from __future__ import absolute_import
 
 import logging
 
+from ..core import validation
+from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from ..model import Model
 from ..properties import abstract
 from ..properties import String, Enum, Instance, Float, Bool
 from ..enums import RenderLevel
-from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
-from .. import validation
 
 from .sources import DataSource, RemoteSource
 from .glyphs import Glyph

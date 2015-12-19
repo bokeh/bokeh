@@ -15,8 +15,8 @@ from six import string_types
 
 from .core.json_encoder import serialize_json
 from .core.query import find
+from .core.validation import check_integrity
 from .model import Model
-from .validation import check_integrity
 from .util.callback_manager import _check_callback
 from .util.deprecate import deprecated
 from .util.version import __version__
