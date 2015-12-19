@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from ..properties import abstract
 from ..properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
                           Tuple, Either, Include, Override)
-from ..mixins import LineProps, TextProps
+from ..property_mixins import LineProps, TextProps
 from ..enums import Location
 
 from .renderers import GuideRenderer

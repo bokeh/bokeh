@@ -6,7 +6,7 @@ import tempfile
 
 from bokeh.document import Document
 from bokeh.model import Model
-from bokeh.mixins import FillProps, LineProps, TextProps
+from bokeh.property_mixins import FillProps, LineProps, TextProps
 from bokeh.properties import Int, String
 from bokeh.themes import Theme
 
