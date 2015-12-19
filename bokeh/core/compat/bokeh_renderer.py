@@ -20,13 +20,13 @@ import matplotlib as mpl
 import numpy as np
 from six import string_types
 
-from ..models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
+from ...models import (ColumnDataSource, FactorRange, DataRange1d, DatetimeAxis, GlyphRenderer,
                      Grid, GridPlot, LinearAxis, Plot, CategoricalAxis, Legend)
-from ..models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
+from ...models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
                             Line, MultiLine, Patches, Square, Text, Triangle, X)
-from ..plotting import DEFAULT_TOOLS
-from ..plotting.helpers import _process_tools_arg
-from ..util.dependencies import import_optional
+from ...plotting import DEFAULT_TOOLS
+from ...plotting.helpers import _process_tools_arg
+from ...util.dependencies import import_optional
 
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import convert_dashes, get_props_cycled, is_ax_end, xkcd_line

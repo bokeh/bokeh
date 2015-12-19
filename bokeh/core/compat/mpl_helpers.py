@@ -17,7 +17,7 @@ import numpy as np
 
 from itertools import cycle, islice
 
-from ..models import GlyphRenderer
+from ...models import GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Classes and functions
