@@ -9,8 +9,8 @@ import logging
 from ..core import validation
 from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from ..model import Model
-from ..properties import abstract
-from ..properties import String, Enum, Instance, Float, Bool
+from ..core.properties import abstract
+from ..core.properties import String, Enum, Instance, Float, Bool
 from ..core.enums import RenderLevel
 
 from .sources import DataSource, RemoteSource

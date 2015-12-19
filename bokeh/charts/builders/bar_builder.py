@@ -21,7 +21,7 @@ from __future__ import absolute_import, print_function, division
 from ..builder import Builder, create_and_build
 from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph
-from ...properties import Float, Enum, Bool
+from ...core.properties import Float, Enum, Bool
 from ..properties import Dimension
 from ..attributes import ColorAttr, CatAttr
 from ..operations import Stack, Dodge

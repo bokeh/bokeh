@@ -15,7 +15,7 @@
 
 from ..core.enums import enumeration, LegendLocation
 from ..model import Model
-from ..properties import Auto, Bool, Either, Enum, Int, Float, String, Tuple
+from ..core.properties import Auto, Bool, Either, Enum, Int, Float, String, Tuple
 
 #-----------------------------------------------------------------------------
 # Classes and functions

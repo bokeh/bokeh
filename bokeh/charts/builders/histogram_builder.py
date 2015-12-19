@@ -21,7 +21,7 @@ the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 from ...models import Range1d
-from ...properties import Bool, Int
+from ...core.properties import Bool, Int
 
 from ..builder import create_and_build
 from .bar_builder import BarBuilder

@@ -8,8 +8,8 @@ from json import loads
 from six import iteritems
 
 from .core.json_encoder import serialize_json
+from .core.properties import Any, HasProps, List, MetaHasProps, String
 from .core.query import find
-from .properties import Any, HasProps, List, MetaHasProps, String
 from .themes import default as default_theme
 from .util.callback_manager import CallbackManager
 from .util.future import with_metaclass

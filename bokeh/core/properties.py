@@ -58,11 +58,11 @@ from warnings import warn
 
 from six import string_types, iteritems
 
-from .core import enums
-from .util.dependencies import import_optional
-from .util.future import with_metaclass
-from .util.string import nice_join
+from ..util.dependencies import import_optional
+from ..util.future import with_metaclass
+from ..util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
+from . import enums
 
 pd = import_optional('pandas')
 
@@ -1181,7 +1181,7 @@ class Instance(PropertyDescriptor):
         if json is None:
             return None
         elif isinstance(json, dict):
-            from .model import Model
+            from ..model import Model
             if issubclass(self.instance_type, Model):
                 if models is None:
                     raise DeserializationError("%s can't deserialize without models" % self)

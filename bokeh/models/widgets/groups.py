@@ -3,8 +3,8 @@
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
-from ...properties import Bool, Int, String, Enum, List
+from ...core.properties import abstract
+from ...core.properties import Bool, Int, String, Enum, List
 from ...core.enums import ButtonType
 from .widget import Widget
 

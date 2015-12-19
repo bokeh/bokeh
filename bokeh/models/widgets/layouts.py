@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 from ...core import validation
 from ...core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
-from ...properties import abstract
-from ...properties import Int, Instance, List
+from ...core.properties import abstract
+from ...core.properties import Int, Instance, List
 
 from ..component import Component
 from .widget import Widget

@@ -6,7 +6,7 @@ these widgets.
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
+from ...core.properties import abstract
 from ..component import Component
 
 @abstract

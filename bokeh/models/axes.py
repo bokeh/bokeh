@@ -4,10 +4,10 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..properties import abstract
-from ..properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
+from ..core.properties import abstract
+from ..core.properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
                           Tuple, Either, Include, Override)
-from ..property_mixins import LineProps, TextProps
+from ..core.property_mixins import LineProps, TextProps
 from ..core.enums import Location
 
 from .renderers import GuideRenderer

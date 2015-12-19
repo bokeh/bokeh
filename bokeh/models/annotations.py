@@ -5,9 +5,9 @@ Bokeh plots
 from __future__ import absolute_import
 
 from ..core.enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode
-from ..property_mixins import LineProps, FillProps, TextProps
-from ..properties import abstract
-from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
+from ..core.property_mixins import LineProps, FillProps, TextProps
+from ..core.properties import abstract
+from ..core.properties import (Int, String, Enum, Instance, List, Dict, Tuple,
                           Include, NumberSpec, Either, Auto, Float, Override)
 from ..util.deprecate import deprecated
 from .renderers import Renderer, GlyphRenderer

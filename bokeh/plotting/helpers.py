@@ -17,7 +17,7 @@ from ..models import (
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
-from ..properties import ColorSpec, Datetime
+from ..core.properties import ColorSpec, Datetime
 from ..util.string import nice_join
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]

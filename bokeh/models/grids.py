@@ -3,8 +3,8 @@
 """
 from __future__ import absolute_import
 
-from ..properties import Int, String, Float, Auto, Instance, Tuple, Either, Include, Override
-from ..property_mixins import FillProps, LineProps
+from ..core.properties import Int, String, Float, Auto, Instance, Tuple, Either, Include, Override
+from ..core.property_mixins import FillProps, LineProps
 
 from .renderers import GuideRenderer
 from .tickers import Ticker

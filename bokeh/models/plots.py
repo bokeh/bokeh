@@ -11,9 +11,9 @@ from ..core import validation
 from ..core.validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..core.enums import Location
-from ..property_mixins import LineProps, TextProps, FillProps
+from ..core.property_mixins import LineProps, TextProps, FillProps
 from ..model import Model
-from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
     List, Dict, Include, Override)
 from ..util.string import nice_join
 from ..core.validation.errors import REQUIRED_RANGE

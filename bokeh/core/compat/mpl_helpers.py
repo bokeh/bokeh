@@ -49,7 +49,7 @@ def convert_color(mplcolor):
 def convert_dashes(dash):
     """ Converts a Matplotlib dash specification
 
-    bokeh.properties.DashPattern supports the matplotlib named dash styles,
+    bokeh.core.properties.DashPattern supports the matplotlib named dash styles,
     but not the little shorthand characters.  This function takes care of
     mapping those.
     """

@@ -55,8 +55,8 @@ class BokehJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         #argh! local import!
         from ..model import Model
-        from ..properties import HasProps
         from ..colors import Color
+        from .properties import HasProps
         ## array types
         if pd and isinstance(obj, (pd.Series, pd.Index)):
             return transform_series(obj)

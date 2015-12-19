@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import unittest
 import numpy as np
 
-from bokeh.properties import (
+from bokeh.core.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,

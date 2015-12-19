@@ -6,9 +6,9 @@ from __future__ import absolute_import
 
 from .glyphs import Glyph
 from ..core.enums import enumeration
-from ..property_mixins import FillProps, LineProps
-from ..properties import abstract
-from ..properties import DistanceSpec, Enum, Include, NumberSpec, AngleSpec, ScreenDistanceSpec
+from ..core.property_mixins import FillProps, LineProps
+from ..core.properties import abstract
+from ..core.properties import DistanceSpec, Enum, Include, NumberSpec, AngleSpec, ScreenDistanceSpec
 
 @abstract
 class Marker(Glyph):

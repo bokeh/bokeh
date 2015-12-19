@@ -23,8 +23,8 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..model import Model
-from ..properties import abstract, Float, Color
-from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
+from ..core.properties import abstract, Float, Color
+from ..core.properties import (Any, Bool, String, Enum, Instance, Either, List,
                           Dict, Tuple)
 from ..core.enums import Dimension
 
