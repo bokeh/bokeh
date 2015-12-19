@@ -456,7 +456,7 @@ if jsinstall:
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojson')
 
 package_path(join(SERVER, 'static'))
-package_path(join(ROOT, 'bokeh', '_templates'))
+package_path(join(ROOT, 'bokeh', 'core', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
 
 if '--user' in sys.argv:
