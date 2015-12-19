@@ -1,20 +1,26 @@
-from bokeh.browserlib import view
-from bokeh.plotting import figure
-from bokeh.embed import components
-from bokeh.resources import INLINE
+
+import random
 
 from jinja2 import Template
-import random
+
+from bokeh.browserlib import view
+from bokeh.embed import components
+from bokeh.plotting import figure
+from bokeh.resources import INLINE
 
 ########## BUILD FIGURES ################
 
 PLOT_OPTIONS = dict(plot_width=800, plot_height=300)
 SCATTER_OPTIONS = dict(size=12, alpha=0.5)
+
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
+
 red = figure(responsive=True, tools='pan', **PLOT_OPTIONS)
 red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
+
 blue = figure(responsive=False, tools='pan', **PLOT_OPTIONS)
 blue.scatter(data(), data(), color="blue", **SCATTER_OPTIONS)
+
 green = figure(responsive=True, tools='pan,resize', **PLOT_OPTIONS)
 green.scatter(data(), data(), color="green", **SCATTER_OPTIONS)
 
@@ -55,9 +61,9 @@ html = template.render(js_resources=js_resources,
                        plot_script=script,
                        plot_div=div)
 
-html_file = 'embed_multiple_responsive.html'
+filename = 'embed_multiple_responsive.html'
 
-with open(html_file, 'w') as f:
+with open(filename, 'w') as f:
     f.write(html)
 
-view(html_file)
+view(filename)
