@@ -5,7 +5,7 @@ with data columns from data sources.
 """
 from __future__ import absolute_import
 
-from ..enums import Direction, Anchor
+from ..core.enums import Direction, Anchor
 from ..property_mixins import FillProps, LineProps, TextProps
 from ..model import Model
 from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,

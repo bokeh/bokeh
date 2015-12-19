@@ -25,7 +25,7 @@ from ...properties import Float, Enum, Bool
 from ..properties import Dimension
 from ..attributes import ColorAttr, CatAttr
 from ..operations import Stack, Dodge
-from ...enums import Aggregation
+from ...core.enums import Aggregation
 from ..stats import stats
 from ...models.sources import ColumnDataSource
 from ..utils import help

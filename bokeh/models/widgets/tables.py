@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from ...properties import abstract
 from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
 from ...model import Model
-from ...enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
+from ...core.enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
 from .widget import Widget
 

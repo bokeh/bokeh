@@ -8,7 +8,7 @@ from ..model import Model
 
 from ..properties import abstract
 from ..properties import Dict, Instance, String, Enum
-from ..enums import ScriptingLanguage
+from ..core.enums import ScriptingLanguage
 
 @abstract
 class Callback(Model):

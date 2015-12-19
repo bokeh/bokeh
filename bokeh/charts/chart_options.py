@@ -13,7 +13,7 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-from ..enums import enumeration, LegendLocation
+from ..core.enums import enumeration, LegendLocation
 from ..model import Model
 from ..properties import Auto, Bool, Either, Enum, Int, Float, String, Tuple
 

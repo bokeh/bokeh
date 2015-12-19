@@ -5,7 +5,7 @@ markers on Bokeh plots.
 from __future__ import absolute_import
 
 from .glyphs import Glyph
-from ..enums import enumeration
+from ..core.enums import enumeration
 from ..property_mixins import FillProps, LineProps
 from ..properties import abstract
 from ..properties import DistanceSpec, Enum, Include, NumberSpec, AngleSpec, ScreenDistanceSpec

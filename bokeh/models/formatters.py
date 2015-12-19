@@ -8,7 +8,7 @@ from .tickers import Ticker
 from ..model import Model
 from ..properties import abstract
 from ..properties import Bool, Int, String, Enum, Auto, List, Dict, Either, Instance
-from ..enums import DatetimeUnits, RoundingFunction, NumeralLanguage
+from ..core.enums import DatetimeUnits, RoundingFunction, NumeralLanguage
 
 @abstract
 class TickFormatter(Model):

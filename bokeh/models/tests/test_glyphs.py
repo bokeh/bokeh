@@ -25,7 +25,7 @@ from bokeh.models.glyphs import (
     Triangle,
     X)
 
-from bokeh.enums import (
+from bokeh.core.enums import (
     LineJoin, LineDash, LineCap,
     FontStyle,
     TextAlign, TextBaseline,

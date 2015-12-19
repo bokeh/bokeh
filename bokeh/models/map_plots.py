@@ -8,7 +8,7 @@ from ..core.validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
 from ..core.validation.errors import REQUIRED_RANGE
 from ..properties import HasProps, abstract
 from ..properties import Enum, Float, Instance, Int, JSON, Override
-from ..enums import MapType
+from ..core.enums import MapType
 
 from .plots import Plot
 

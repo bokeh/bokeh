@@ -26,7 +26,7 @@ from ..model import Model
 from ..properties import abstract, Float, Color
 from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
                           Dict, Tuple)
-from ..enums import Dimension
+from ..core.enums import Dimension
 
 from .renderers import Renderer
 from .callbacks import Callback

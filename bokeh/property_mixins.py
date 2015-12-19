@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from .properties import (
     HasProps, ColorSpec, Enum, DashPattern, Int, NumberSpec, String, FontSizeSpec)
-from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
+from .core.enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 
 class FillProps(HasProps):
     """ Properties to use when performing fill operations while rendering.

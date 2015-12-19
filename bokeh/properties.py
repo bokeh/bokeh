@@ -58,7 +58,7 @@ from warnings import warn
 
 from six import string_types, iteritems
 
-from . import enums
+from .core import enums
 from .util.dependencies import import_optional
 from .util.future import with_metaclass
 from .util.string import nice_join

@@ -7,7 +7,7 @@ import pandas as pd
 from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
-from bokeh.enums import DashPattern
+from bokeh.core.enums import DashPattern
 from bokeh.models.glyphs import Rect, Segment, Line, Patches
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,

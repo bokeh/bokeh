@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ...properties import abstract
 from ...properties import Bool, Int, String, Enum, Instance, List, Tuple, Override
-from ...enums import ButtonType
+from ...core.enums import ButtonType
 from ..callbacks import Callback
 from .widget import Widget
 from .icons import AbstractIcon

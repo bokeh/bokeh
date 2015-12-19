@@ -10,7 +10,7 @@ from ..core.query import find
 from ..core import validation
 from ..core.validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
-from ..enums import Location
+from ..core.enums import Location
 from ..property_mixins import LineProps, TextProps, FillProps
 from ..model import Model
 from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,

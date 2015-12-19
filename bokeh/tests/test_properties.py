@@ -1229,7 +1229,7 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(" green"))
         self.assertFalse(prop.is_valid(" blue"))
 
-        from bokeh.enums import LineJoin
+        from bokeh.core.enums import LineJoin
         prop = Enum(LineJoin)
 
         self.assertTrue(prop.is_valid(None))
@@ -1258,7 +1258,7 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(" round"))
         self.assertFalse(prop.is_valid(" bevel"))
 
-        from bokeh.enums import NamedColor
+        from bokeh.core.enums import NamedColor
         prop = Enum(NamedColor)
 
         self.assertTrue(prop.is_valid("red"))
