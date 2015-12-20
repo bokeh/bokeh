@@ -42,9 +42,8 @@ import os
 
 # Bokeh imports
 from .document import Document
-from .resources import Resources
+from .resources import Resources, _SessionCoordinates
 from .client import DEFAULT_SESSION_ID
-from bokeh.resources import DEFAULT_SERVER_HTTP_URL
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -107,12 +106,30 @@ class State(object):
         return self._notebook
 
     @property
+    def server_enabled(self):
+        return self._server_enabled
+
+    @property
     def session_id(self):
-        return self._session_id
+        return self._session_coords.session_id
+
+    @property
+    def session_id_allowing_none(self):
+        return self._session_coords.session_id_allowing_none
+
+    @property
+    def url(self):
+        """ Gets the server base URL (not including any app path)."""
+        return self._session_coords.url
 
     @property
     def server_url(self):
-        return self._server_url
+        """ Gets the full server URL (including the app path)."""
+        return self._session_coords.server_url
+
+    @property
+    def app_path(self):
+        return self._session_coords.app_path
 
     @property
     def autoadd(self):
@@ -129,8 +146,8 @@ class State(object):
     def _reset_keeping_doc(self):
         self._file = None
         self._notebook = False
-        self._session_id = None
-        self._server_url = None
+        self._session_coords = _SessionCoordinates(dict())
+        self._server_enabled = False
         self._autosave = False
         self._autopush = False
 
@@ -209,7 +226,8 @@ class State(object):
         """
         self._notebook = True
 
-    def output_server(self, session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
+    def output_server(self, session_id=DEFAULT_SESSION_ID, url="default",
+                      app_path='/', autopush=False):
         """Store Bokeh plots and objects on a Bokeh server.
 
         File, server, and notebook output may be active at the
@@ -226,6 +244,8 @@ class State(object):
             url (str, optional) : base URL of the Bokeh server (default: "default")
                 If "default" use the default localhost URL.
 
+            app_path (str, optional) : relative path of the app on the Bokeh server (default: "/")
+
             autopush (bool, optional) : whether to automatically push (default: False)
                 If True, then Bokeh plotting APIs may opt to automatically
                 push the document more frequently (e.g., after any plotting
@@ -239,9 +259,9 @@ class State(object):
             Calling this function will replace any existing server-side document in the named session.
 
         """
-        if url == "default":
-            url = DEFAULT_SERVER_HTTP_URL
+        self._session_coords = _SessionCoordinates(dict(session_id=session_id,
+                                                        url=url,
+                                                        app_path=app_path))
 
-        self._session_id = session_id
-        self._server_url = url
         self._autopush = autopush
+        self._server_enabled = True

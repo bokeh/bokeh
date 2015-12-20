@@ -24,7 +24,7 @@ from .bokeh_renderer import BokehRenderer
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def to_bokeh(fig=None, name=None, server=None, notebook=None, pd_obj=True, xkcd=False):
+def to_bokeh(fig=None, use_pandas=True, xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
     You can store a bokeh plot in a standalone HTML file, as a document in
@@ -51,9 +51,9 @@ def to_bokeh(fig=None, name=None, server=None, notebook=None, pd_obj=True, xkcd=
         object that the IPython notebook can display. You can also use it with
         a bokeh plot server just specifying the URL.
 
-    pd_obj: bool (default=True)
-        The implementation assumes you are plotting using the pandas.
-        You have the option to turn it off (False) to plot the datetime xaxis
+    use_pandas: bool (default=True)
+        The implementation should try to use Pandas for processing datetime
+        data (if it is installed). Set to False to plot the datetime xaxis
         with other non-pandas interfaces.
 
     xkcd: bool (default=False)
@@ -61,17 +61,10 @@ def to_bokeh(fig=None, name=None, server=None, notebook=None, pd_obj=True, xkcd=
         xkcd style.
     """
 
-    if name is not None:
-        warn("Use standard output_file(...) from bokeh.io")
-    if server is not None:
-        warn("Use standard output_server(...) from bokeh.io")
-    if notebook is not None:
-        warn("Use standard output_notebook() from bokeh.io")
-
     if fig is None:
         fig = plt.gcf()
 
-    renderer = BokehRenderer(pd_obj, xkcd)
+    renderer = BokehRenderer(use_pandas, xkcd)
     exporter = BokehExporter(renderer)
 
     exporter.run(fig)
