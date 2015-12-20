@@ -282,7 +282,7 @@ def _show_notebook_with_state(obj, state):
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         if state.last_comms:
             state.last_comms.close()
-        state.last_json = state.document.to_json()
+        state.last_pushed_json = state.document.to_json()
         state.last_comms = get_comms(comms_target)
 
 def _show_server_with_state(obj, state, new, controller):
@@ -484,9 +484,13 @@ def push_notebook(document=None, state=None):
 
     import json
     to_json = document.to_json()
-    msg = Document._compute_patch_between_json(state.last_json, to_json, document)
+    if state.last_pushed_doc and state.last_pushed_doc != document:
+        msg = dict(doc=to_json)
+    else:
+        msg = Document._compute_patch_between_json(state.last_pushed_json, to_json, document)
     state.last_comms.send(json.dumps(msg))
-    state.last_json = to_json
+    state.last_pushed_doc = document
+    state.last_pushed_json = to_json
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
