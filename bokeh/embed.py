@@ -219,10 +219,11 @@ def notebook_div(model, notebook_comms_target=None):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
         custom_models = _extract_custom_models([model])
 
+    render_items[0]['notebook_comms_target'] = notebook_comms_target
+
     script = _script_for_render_items(docs_json, render_items,
                                       custom_models=custom_models,
-                                      websocket_url=None,
-                                      notebook_comms_target=notebook_comms_target)
+                                      websocket_url=None)
 
     item = render_items[0]
 
@@ -441,7 +442,7 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
     return encode_utf8(tag)
 
 def _script_for_render_items(docs_json, render_items, websocket_url,
-                             custom_models, wrap_script=True, notebook_comms_target=None):
+                             custom_models, wrap_script=True):
     # this avoids emitting the "register custom models" code at all
     # just to register an empty set
     if (custom_models is not None) and len(custom_models) == 0:
@@ -452,8 +453,7 @@ def _script_for_render_items(docs_json, render_items, websocket_url,
             custom_models=custom_models,
             websocket_url=websocket_url,
             docs_json=serialize_json(docs_json),
-            render_items=serialize_json(render_items),
-            notebook_comms_target=notebook_comms_target
+            render_items=serialize_json(render_items)
         )
     )
     if wrap_script:

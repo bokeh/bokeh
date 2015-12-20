@@ -12,14 +12,7 @@ Bokeh.Collections.register_models({
   var websocket_url = null;
 {%- endif %}
 
-{% if notebook_comms_target -%}
-  var notebook_comms_target = "{{ notebook_comms_target }}";
-{%- else %}
-  var notebook_comms_target = null;
-{%- endif %}
-
-
 var docs_json = {{ docs_json }};
 var render_items = {{ render_items }};
 
-Bokeh.embed.embed_items(docs_json, render_items, websocket_url, notebook_comms_target);
+Bokeh.embed.embed_items(docs_json, render_items, websocket_url);

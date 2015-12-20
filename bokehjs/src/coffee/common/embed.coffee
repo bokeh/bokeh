@@ -10,14 +10,14 @@ HasProperties = require "./has_properties"
 
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
-  doc = _.values(@)[0] # should only be one
-  doc.apply_json_patch_string(msg.content.data)
+  # @ is bound to the doc
+  @apply_json_patch_string(msg.content.data)
 
-_init_comms = (target, docs) ->
-  logger.info("Initializing Jupyter comms for target #{target} and docs #{_.keys(docs)}")
+_init_comms = (target, doc) ->
+  logger.info("Initializing Jupyter comms for target #{target} and doc #{doc}")
   comm_manager = Jupyter.notebook.kernel.comm_manager
   comm_manager.register_target(target, (comm, msg) ->
-    comm.on_msg(_.bind(_handle_notebook_comms, docs))
+    comm.on_msg(_.bind(_handle_notebook_comms, doc))
   )
 
 _create_view = (model) ->
@@ -126,15 +126,16 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-embed_items = (docs_json, render_items, websocket_url, comms_target) ->
+embed_items = (docs_json, render_items, websocket_url) ->
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
 
-  if comms_target?
-    _init_comms(comms_target, docs)
-
   for item in render_items
+
+    if item.notebook_comms_target?
+      _init_comms(item.notebook_comms_target, docs[docid])
+
     element_id = item['elementid']
     elem = $('#' + element_id);
     if elem.length == 0
