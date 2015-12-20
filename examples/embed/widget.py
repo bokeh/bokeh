@@ -1,4 +1,14 @@
-""" To view this example, run
+""" To view this example, first start a Bokeh server:
+
+    bokeh serve
+
+And then load the example into the Bokeh server by
+running the script:
+
+    python widget.py
+
+in this directory. Finally, start a simple web server
+by running:
 
     python -m SimpleHTTPServer  (python 2)
 
@@ -6,9 +16,9 @@ or
 
     python -m http.server  (python 3)
 
-in this directory, then navigate to
+in this directory. Navigate to
 
-    http://localhost:8000/population_embed.html
+    http://localhost:8000/widget.html
 
 """
 from __future__ import print_function
@@ -158,7 +168,7 @@ html = """
 </html>
 """ % autoload_server(layout)
 
-with open("population_embed.html", "w+") as f:
+with open("widget.html", "w+") as f:
     f.write(html)
 
 print(__doc__)
