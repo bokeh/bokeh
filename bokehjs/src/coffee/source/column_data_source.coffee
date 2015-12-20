@@ -16,7 +16,7 @@ class ColumnDataSource extends HasProperties
     )
 
   nonserializable_attribute_names: () ->
-    super().concat(['selection_manager'])
+    super().concat(['selection_manager', 'inspected'])
 
   get_column: (colname) ->
     return @get('data')[colname] ? null

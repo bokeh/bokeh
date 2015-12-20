@@ -1,12 +1,7 @@
-# The plot server must be running
-# Go to http://localhost:5006/bokeh to view this plot
-
 import numpy as np
 
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import figure, show, output_server, vplot
-
-output_server("stocks")
 
 p1 = figure(x_axis_type = "datetime")
 
@@ -40,4 +35,6 @@ p2.yaxis.axis_label = 'Price'
 p2.ygrid.band_fill_color="olive"
 p2.ygrid.band_fill_alpha = 0.1
 
-show(vplot(p1,p2))  # open a browser
+output_server("stocks")
+
+show(vplot(p1,p2)) # open a browser
