@@ -295,14 +295,17 @@ class Test_ShowWithState(DefaultStateTester):
         self.assertFalse(mock__show_server_with_state.called)
         self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
 
+    @patch('bokeh.io.get_comms')
     @patch('bokeh.io._show_notebook_with_state')
     @patch('bokeh.io._show_server_with_state')
     @patch('bokeh.io._show_file_with_state')
     @patch('bokeh.browserlib.get_browser_controller')
     def test_no_notebook(self, mock_get_browser_controller,
             mock__show_file_with_state, mock__show_server_with_state,
-            mock__show_notebook_with_state):
+            mock__show_notebook_with_state,
+            mock_get_comms):
         mock_get_browser_controller.return_value = "controller"
+        mock_get_comms.return_value = "comms"
         s = io.State()
 
         s.output_file("foo.html")
@@ -352,9 +355,11 @@ class Test_ShowNotebookWithState(DefaultStateTester):
         self._check_func_called(mock_push, (), {"state": s})
         self._check_func_called(mock_publish_display_data, ({"text/html":"snippet"},), {})
 
+    @patch('bokeh.io.get_comms')
     @patch('bokeh.io.publish_display_data')
     @patch('bokeh.io.notebook_div')
-    def test_no_server(self, mock_notebook_div, mock_publish_display_data):
+    def test_no_server(self, mock_notebook_div, mock_publish_display_data, mock_get_comms):
+        mock_get_comms.return_value = "comms"
         s = io.State()
         mock_notebook_div.return_value = "notebook_div"
 
