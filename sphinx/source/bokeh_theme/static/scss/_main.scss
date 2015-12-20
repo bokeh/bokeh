@@ -2,10 +2,39 @@
     margin-bottom: 20px;
 }
 
+a.headerlink {
+  visibility: visible;
+  color: $light-grey;
+  padding-left: 0.2em;
+  margin-top: -0.2em;
+  vertical-align: text-bottom;
+  &:hover {
+    color: $pink;
+    text-decoration: none;
+  }
+}
+
+dt a.headerlink {
+  vertical-align: inherit;
+}
+
 .simple {
     display: inline-block;
+    margin-bottom: $small-spacing;
+    padding-left: $base-spacing;
 }
 
 .simple ~ p {
     clear: both;
+}
+
+code {
+  background-color: $light-grey;
+  padding: $base-font-size/8 $base-font-size/4 ;
+  border-radius: $base-font-size/4;
+  color: $mint;
+}
+
+table {
+  font-size: 0.85em;
 }
