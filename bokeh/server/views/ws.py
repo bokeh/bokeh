@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 import codecs
 
-from tornado import gen
+from tornado import gen, locks
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.concurrent import Future
 
@@ -30,6 +30,9 @@ class WSHandler(WebSocketHandler):
         self.connection = None
         self.application_context = kw['application_context']
         self.latest_pong = -1
+        # write_lock allows us to lock the connection to send multiple
+        # messages atomically.
+        self.write_lock = locks.Lock()
         # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
@@ -161,15 +164,24 @@ class WSHandler(WebSocketHandler):
             log.warn("Failed sending message as connection was closed")
         raise gen.Return(None)
 
-    def write_message(self, message, binary=False):
+    @gen.coroutine
+    def write_message(self, message, binary=False, locked=True):
         ''' Override parent write_message with a version that consistently returns Future across Tornado versions '''
-        future = super(WSHandler, self).write_message(message, binary)
-        if future is None:
-            # tornado >= 4.3 gives us a Future, simulate that
-            # with this fake Future on < 4.3
-            future = Future()
-            future.set_result(None)
-        return future
+        def write_message_unlocked():
+            future = super(WSHandler, self).write_message(message, binary)
+            if future is None:
+                # tornado >= 4.3 gives us a Future, simulate that
+                # with this fake Future on < 4.3
+                future = Future()
+                future.set_result(None)
+            # don't yield this future or we're blocking on ourselves!
+            raise gen.Return(future)
+        if locked:
+            with (yield self.write_lock.acquire()):
+                write_message_unlocked()
+        else:
+            write_message_unlocked()
+
 
     def on_close(self):
         ''' Clean up when the connection is closed.

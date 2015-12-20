@@ -4,7 +4,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from tornado import gen
+from tornado import gen, locks
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
 from tornado.websocket import websocket_connect, WebSocketError
@@ -15,21 +15,42 @@ from bokeh.server.protocol.receiver import Receiver
 from bokeh.server.protocol import Protocol
 
 class _WebSocketClientConnectionWrapper(object):
-    ''' Used for compat across Tornado versions '''
+    ''' Used for compat across Tornado versions and to add write_lock'''
 
     def __init__(self, socket):
         if socket is None:
             raise ValueError("socket must not be None")
         self._socket = socket
+        # write_lock allows us to lock the connection to send multiple
+        # messages atomically.
+        self.write_lock = locks.Lock()
 
-    def write_message(self, message, binary=False):
-        future = self._socket.write_message(message, binary)
-        if future is None:
-            # tornado >= 4.3 gives us a Future, simulate that
-            # with this fake Future on < 4.3
-            future = Future()
-            future.set_result(None)
-        return future
+    @gen.coroutine
+    def write_message(self, message, binary=False, locked=True):
+        def write_message_unlocked():
+            if self._socket.protocol is None:
+                # Tornado is maybe supposed to do this, but in fact it
+                # tries to do _socket.protocol.write_message when protocol
+                # is None and throws AttributeError or something. So avoid
+                # trying to write to the closed socket. There doesn't seem
+                # to be an obvious public function to check if the socket
+                # is closed.
+                raise WebSocketError("Connection to the server has been closed")
+
+            future = self._socket.write_message(message, binary)
+            if future is None:
+                # tornado >= 4.3 gives us a Future, simulate that
+                # with this fake Future on < 4.3
+                future = Future()
+                future.set_result(None)
+            # don't yield this future or we're blocking on ourselves!
+            raise gen.Return(future)
+
+        if locked:
+            with (self.write_lock.acquire()):
+                write_message_unlocked()
+        else:
+            write_message_unlocked()
 
     def close(self, code=None, reason=None):
         return self._socket.close(code, reason)
