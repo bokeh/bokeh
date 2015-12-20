@@ -17,8 +17,8 @@ import scipy.special
 
 from bokeh.client import push_session
 from bokeh.embed import autoload_server
-from bokeh.models import GlyphRenderer, Select, HBox, VBox, ColumnDataSource
-from bokeh.plotting import figure, push, curdoc
+from bokeh.models import Select, HBox, VBox, ColumnDataSource
+from bokeh.plotting import figure, curdoc
 from bokeh.sampledata.population import load_population
 
 app = Flask(__name__)
@@ -30,7 +30,6 @@ def render_plot():
     dist_plot = distribution()
 
     anim_plot = animated()
-    curdoc().add_periodic_callback(update_animated, 50)
 
     pop = Population(curdoc())
 
@@ -89,15 +88,16 @@ def animated():
     # figure() function auto-adds the figure to curdoc()
     p = figure(x_range=(-11, 11), y_range=(-11, 11))
     r = p.annular_wedge(0, 0, rmin, rmax, theta[:-1], theta[1:],
-                        fill_color=colors, line_color="white")
+                    fill_color=colors, line_color="white")
+
+    def update_animated(plot):
+        ds = r.data_source
+        rmin = roll(ds.data["inner_radius"], 1)
+        rmax = roll(ds.data["outer_radius"], -1)
+        ds.data.update(inner_radius=rmin, outer_radius=rmax)
+        curdoc().add_periodic_callback(update_animated, 50)
 
     return p
-
-def update_animated(plot):
-    ds = r.data_source
-    rmin = roll(ds.data["inner_radius"], 1)
-    rmax = roll(ds.data["outer_radius"], -1)
-    ds.data.update(inner_radius=rmin, outer_radius=rmax)
 
 class Population(object):
 

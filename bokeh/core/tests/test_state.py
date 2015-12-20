@@ -13,7 +13,7 @@ import unittest
 from bokeh.document import Document
 from bokeh.resources import DEFAULT_SERVER_HTTP_URL
 
-import bokeh.state as state
+import bokeh.core.state as state
 
 GENERATED_SESSION_ID_LEN = 36
 
@@ -40,7 +40,7 @@ class TestState(unittest.TestCase):
         self.assertEqual(s.file['resources'].log_level, 'info')
         self.assertEqual(s.file['resources'].minified, True)
 
-    @patch('bokeh.state.logger')
+    @patch('bokeh.core.state.logger')
     @patch('os.path.isfile')
     def test_output_file_file_exists(self, mock_isfile, mock_logger):
         mock_isfile.return_value = True

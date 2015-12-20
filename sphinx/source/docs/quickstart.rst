@@ -53,9 +53,6 @@ installed, then you can also use ``pip`` at the command line:
     The ``pip`` method does not install the examples. Clone the Git repository
     and look in the ``examples/`` directory of the checkout to see examples.
 
-Windows users, see :ref:`install_windows` in the :ref:`installation` section.
-
-
 Getting Started
 ===============
 

@@ -12,7 +12,7 @@ from bokeh.server.server import Server
 from bokeh.server.session import ServerSession
 from bokeh.model import Model
 from bokeh.resources import websocket_url_for_server_url
-from bokeh.properties import Int, Instance, Dict, String, Any
+from bokeh.core.properties import Int, Instance, Dict, String, Any
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
 

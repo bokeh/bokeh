@@ -3,9 +3,9 @@
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
-from ...properties import Bool, Float, Enum
-from ...enums import NamedIcon
+from ...core.properties import abstract
+from ...core.properties import Bool, Float, Enum
+from ...core.enums import NamedIcon
 from .widget import Widget
 
 @abstract

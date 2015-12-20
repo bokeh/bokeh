@@ -15,7 +15,7 @@ except ImportError as e:
 class TestBokehJSONEncoder(unittest.TestCase):
 
     def setUp(self):
-        from bokeh._json_encoder import BokehJSONEncoder
+        from bokeh.core.json_encoder import BokehJSONEncoder
         self.encoder = BokehJSONEncoder()
 
     def test_fail(self):
@@ -54,7 +54,7 @@ class TestBokehJSONEncoder(unittest.TestCase):
 class TestSerializeJson(unittest.TestCase):
 
     def setUp(self):
-        from bokeh._json_encoder import serialize_json
+        from bokeh.core.json_encoder import serialize_json
         from json import loads
         self.serialize = serialize_json
         self.deserialize = loads

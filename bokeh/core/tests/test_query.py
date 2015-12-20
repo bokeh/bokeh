@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 
-import bokeh.query as query
+import bokeh.core.query as query
 
 from bokeh.models import (
     Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid, LinearAxis,
@@ -122,7 +122,7 @@ class TestFind(unittest.TestCase):
             self.assertTrue(all(isinstance(x.glyph, typ) for x in res))
 
     def test_in(self):
-        from bokeh.query import IN
+        from bokeh.core.query import IN
 
         res = list(query.find(self.plot.references(), dict(name={IN: ['a', 'b']})))
         self.assertEqual(len(res), 0)
@@ -154,7 +154,7 @@ class TestFind(unittest.TestCase):
 
 
     def test_disjuction(self):
-        from bokeh.query import OR
+        from bokeh.core.query import OR
 
         res = list(
             query.find(self.plot.references(),
@@ -197,7 +197,7 @@ class TestFind(unittest.TestCase):
         self.assertEqual(len(res), 1)
 
     def test_ops(self):
-        from bokeh.query import EQ, LEQ, GEQ, LT, GT, NEQ
+        from bokeh.core.query import EQ, LEQ, GEQ, LT, GT, NEQ
 
         res = list(
             query.find(self.plot.references(), {'size': {EQ: 5}})

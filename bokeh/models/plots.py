@@ -6,17 +6,17 @@ from __future__ import absolute_import
 from six import string_types
 import warnings
 
-from ..enums import Location
-from ..mixins import LineProps, TextProps, FillProps
-from ..model import Model
-from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override)
-from ..query import find
-from ..util.string import nice_join
-from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+from ..core.query import find
+from ..core import validation
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
-from ..validation.errors import REQUIRED_RANGE
-from .. import validation
+from ..core.enums import Location
+from ..core.property_mixins import LineProps, TextProps, FillProps
+from ..model import Model
+from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+    List, Dict, Include, Override)
+from ..util.string import nice_join
+from ..core.validation.errors import REQUIRED_RANGE
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
@@ -122,7 +122,7 @@ class Plot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -620,7 +620,7 @@ class GridPlot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):
