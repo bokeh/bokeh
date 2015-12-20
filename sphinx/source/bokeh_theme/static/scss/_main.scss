@@ -1,0 +1,11 @@
+.highlight-python {
+    margin-bottom: 20px;
+}
+
+.simple {
+    display: inline-block;
+}
+
+.simple ~ p {
+    clear: both;
+}

@@ -1,0 +1,25 @@
+@import "base/_variables";
+
+// Media queries
+$large-screen: 640px;
+
+// Applied colors
+$hover-color: $pink;
+
+// Applied colors - header & footer
+$navigation-background-color: $charcoal;
+$navigation-text-head-color: $lime;
+$navigation-text-base-color: $medium-grey;
+
+// Applied colors - details
+$header-color: $pink;
+$sub-header-color: $light-charcoal;
+
+// Applied colors - nav
+$secondary-nav-background-color: $plum;
+$secondary-nav-text-color: $medium-grey;
+
+// Menu color
+$menu-background-color: $light-grey; 
+$menu-link-highlight-color: $mint;
+$menu-link-base-color: $charcoal;

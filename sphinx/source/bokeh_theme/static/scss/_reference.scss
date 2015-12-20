@@ -73,38 +73,4 @@ dt:target, .highlighted {
     font-weight: normal;
 }
 
-.highlight-python {
-    margin-bottom: 20px;
-}
 
-/* Handle the call out boxes */
-.admonition.alert {
-    color: #2A2A2A;
-    background-color: white;
-    border-color: white;
-    border: 1px white solid;
-    background-image: none;
-    box-shadow: none;
-    padding-left: 10px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    width: 80%;
-}
-
-.admonition.note {
-    border-left: 2px #35A9DE solid;
-}
-
-.admonition.warning {
-    border-color: #F89E2E;
-    border-left: 2px #F89E2E solid;
-    border-bottom: 2px #F89E2E solid;
-}
-
-.simple {
-    display: inline-block;
-}
-
-.simple ~ p {
-    clear: both;
-}
