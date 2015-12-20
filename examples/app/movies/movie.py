@@ -2,18 +2,21 @@ from bokeh.plotting import Figure
 from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.models.widgets import HBox, Slider, TextInput, VBoxForm, Select, TextInput, Paragraph
 from bokeh.io import curdoc
-from bokeh.charts import Scatter
-import locale
 
 import blaze as bz
 import pandas as pd
 import numpy as np
+from bokeh.sampledata.movies_data import movie_path
 
+# To get the movies sample data execute the following from a python prompt
+#   >>> import bokeh.sampledata
+#   >>> bokeh.sampledata.download()
+#
 
 ### If you want to use sqlite3 directly instead of blaze uncomment the following
 # import pandas.io.sql as psql
 # import sqlite3 as sql
-# con = sql.connect('movies.db')
+# con = sql.connect(movie_path)
 # movies = psql.read_sql('select omdb.ID, imdbID, Title, Year, omdb.Rating, Runtime, Genre, Released, \
 #     Director, Writer, imdbRating, imdbVotes, Language, Country, Oscars, \
 #     tomatoes.Rating, Meter, Reviews, Fresh, Rotten, userMeter, userRating, userReviews, \
@@ -23,14 +26,18 @@ import numpy as np
 #     and Reviews >= 10', con)
 
 ### If you want to use sqlite3 directly instead of blaze comment out the following 3 lines
-data = bz.Data('sqlite:///movies.db')
+
+data = bz.Data('sqlite:///%s' % movie_path)
 movies = bz.join(data.omdb, data.tomatoes, "ID")
 movies = bz.into(pd.DataFrame, movies)
 
 movies["has_oscars"] = movies["Oscars"] > 0
 movies["pt_color"] = np.where(movies["Oscars"] > 0, "orange", "grey")
-movies.BoxOffice.fillna(0)
 movies.rename(columns={'Rating_right':'Rating'}, inplace=True)
+# Replace missing BoxOffice values with zeroes
+# and then format with commas so easier to read.
+movies.BoxOffice.fillna(0, inplace=True)
+movies["revenue"] = movies.BoxOffice.apply(lambda x: '{:,d}'.format(int(x)))
 
 # Dictionary to map axis selection drop down to column of data
 axis_vars = {"Tomato Meter": "Meter",
@@ -93,12 +100,12 @@ p.xaxis.axis_label = "Tomato Meter"
 
 # Callback to update the plot when an input changes
 def update_data(attrname, old, new):
+    # Get the name of the variable selected from the Axis dropdowns
     x_var = axis_vars[x_axis.value]
     y_var = axis_vars[y_axis.value]
-
+    # Get data that meets criteria and update the plot
     new_df = select_movies()
-
-    df.data = dict(x=new_df[x_var], y=new_df[y_var], pt_color=new_df["pt_color"], title=new_df["Title"], year=new_df["Year"], revenue=new_df["BoxOffice"])
+    df.data = dict(x=new_df[x_var], y=new_df[y_var], pt_color=new_df["pt_color"], title=new_df["Title"], year=new_df["Year"], revenue=new_df["revenue"])
     p.xaxis.axis_label = x_axis.value
     p.yaxis.axis_label = y_axis.value
 
@@ -114,8 +121,8 @@ update_data("", "", "")
 # set the hights so the controls will be closer together than default.
 inputs=VBoxForm(children=[HBox(reviews, width=250, height=80),
                         HBox(min_year, width=250, height=50),
-                        HBox(max_year, width=250, height=50),
-                        HBox(oscars, width=250, height=80),
+                        HBox(max_year, width=250, height=70),
+                        HBox(oscars, width=250, height=90),
                         HBox(boxoffice, width=250, height=80),
                         HBox(genre, width=200, height=80),
                         HBox(director, width=200, height=90),
