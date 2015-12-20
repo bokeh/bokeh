@@ -1,3 +1,67 @@
+code {
+  background-color: $light-grey;
+  padding: $base-font-size/8 $base-font-size/4 ;
+  border-radius: $base-font-size/4;
+  color: $mint;
+}
+
+// Fiddle with font sizs
+table, ul, ol {
+  font-size: 0.85em;
+}
+
+table ul {
+  font-size: $base-font-size * 0.85;
+}
+
+.footer ul {
+  font-size: $base-font-size;
+}
+
+.section.docs {
+  h2, h3 {
+    margin-top: 2em;
+    font-size: 1.3em;
+    font-weight: $normal-weight;
+    color: $base-font-color;
+    text-transform: unset;
+  }
+  h3 {
+    font-size: 1.2em;
+    color: lighten($base-font-color, 25%);
+    margin-bottom: 0em;
+  }
+
+  .content {
+    table p {
+      font-size: $base-font-size * 0.85;
+    }
+    p {
+      margin: 1em 0;
+    }
+  }
+
+  @include outer-container;
+  max-width: none;
+
+  .content {
+    @include span-columns(9);  /* matching toc defined under _toc.scss */
+    @include omega();
+    padding-left: 0.5em;
+
+    h1 {
+      @extend .title;
+    }
+  }
+
+  img {
+    border: none;
+    vertical-align: middle;
+  }
+}
+
+// Misc touch ups
+
 .highlight-python {
     margin-bottom: 20px;
 }
@@ -26,15 +90,4 @@ dt a.headerlink {
 
 .simple ~ p {
     clear: both;
-}
-
-code {
-  background-color: $light-grey;
-  padding: $base-font-size/8 $base-font-size/4 ;
-  border-radius: $base-font-size/4;
-  color: $mint;
-}
-
-table {
-  font-size: 0.85em;
 }

@@ -1,0 +1,12 @@
+.section .content {
+  ul.gallery {
+    li {
+      list-style-type: none;
+      float: left;
+    }
+  }
+  img.gallery {
+      width: 200px;
+      height: 200px;
+  }
+}

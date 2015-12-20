@@ -6,22 +6,16 @@
     clear: both;
 }
 
-.class > dt > .headerlink {
-    padding-left: 10px;
-    color: #85398C;
-}
-
 .class {
     margin-top: 20px;
     padding-top: 10px;
-    border-top: 2px #2A2A2A solid;
+    border-top: 1px $light-charcoal solid;
 }
 
 .class > dt {
-    font-size: 1.3em;
     text-align: right;
     float: right;
-    color: #F5634A;
+    color: $pink;
 }
 
 dt:target, .highlighted {
@@ -36,26 +30,26 @@ dt:target, .highlighted {
 .attribute > dt > code:before {
     content: ' attr ';
     font-style: italic;
-    color: #B1CE2D;
+    color: $plum;
     font-size: 0.8em;
 }
 
 .method > dt > code:before {
     content: ' method ';
     font-style: italic;
-    color: #1EA354;
+    color: $plum;
     font-size: 0.8em;
 }
 
 .classmethod > dt > .property {
     font-style: italic;
-    color: #20A7AA;
-    font-size: 0.8em;
+    color: $plum;
+    font-size: 0.9em;
 }
 
-.classmethod > dd > .table,
-.method > dd > .table,
-.attribute > dd > .table {
+.classmethod > dd > table,
+.method > dd > table,
+.attribute > dd > table {
     margin-left: 40px;
     margin-bottom: 0;
 }

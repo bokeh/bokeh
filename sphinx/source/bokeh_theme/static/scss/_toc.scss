@@ -2,7 +2,6 @@
 
   @include span-columns(3);
   font-family: $source-sans-font-family;
-  font-size: 0.85em;
   margin-top: 3em;
   padding: 2em 1em;
   background-color: $menu-background-color;
@@ -32,6 +31,7 @@
         padding: $gutter / 4 $gutter * 1.5;
         &:hover {
           background-color: lighten($menu-background-color, 10%);
+          text-decoration: none;
         }
       }
     }
@@ -57,6 +57,9 @@
     }
   }
   li.toctree-l2 {
+    a:hover {
+      text-decoration: underline;
+    }
     &.current {
       > a {
         background: lighten($menu-background-color, 20%);
@@ -70,7 +73,6 @@
     }
   }
   li.toctree-l3 {
-    font-size: .9em;
     > a {
       background: lighten($menu-background-color, 25%);
       padding: $gutter / 4 $gutter * 2.5;
@@ -84,7 +86,6 @@
     }
   }
   li.toctree-l4 {
-    font-size: .9em;
   }
   li.current ul {
     display: block;
@@ -113,6 +114,7 @@
     color: $menu-link-base-color;
     &:hover {
       background-color: lighten($menu-background-color, 10%);
+      text-decoration: none;
     }
   }
 }
