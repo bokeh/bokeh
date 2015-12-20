@@ -14,10 +14,10 @@ import uuid
 from six import string_types
 
 from .core.json_encoder import serialize_json
+from .core.properties import HasProps
 from .core.query import find
 from .core.validation import check_integrity
 from .model import Model
-from .properties import HasProps
 from .themes import default as default_theme
 from .themes import Theme
 from .util.callback_manager import _check_callback
