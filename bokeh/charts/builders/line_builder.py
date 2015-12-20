@@ -213,7 +213,6 @@ class LineBuilder(XYBuilder):
         return {attr: getattr(self, attr) for attr in attrs
                 if attr in self.glyph.properties()}
 
-
     def yield_renderers(self):
 
         build_attr = self.get_builder_attr()
@@ -227,7 +226,8 @@ class LineBuilder(XYBuilder):
             group_kwargs = self.get_group_kwargs(group, attrs)
             group_kwargs.update(build_attr)
 
-            glyph = self.glyph(x=group.get_values(self.x.selection),
+            glyph = self.glyph(label=group.label,
+                               x=group.get_values(self.x.selection),
                                y=group.get_values(self.y.selection),
                                **group_kwargs)
 

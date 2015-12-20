@@ -57,7 +57,6 @@ if __name__ == '__main__':
         'bs4': 'beautiful-soup',
         'websocket': 'websocket-client',
         'sphinx_bootstrap_theme': 'sphinx-bootstrap-theme',
-        'sphinxcontrib.httpdomain': 'sphinxcontrib-httpdomain',
         'pytest_selenium': 'pytest-selenium',
         'pytest_cov': 'pytest-cov',
     }
@@ -78,6 +77,5 @@ if __name__ == '__main__':
         'sphinx',
         'pygments',
         'sphinx_bootstrap_theme',
-        'sphinxcontrib.httpdomain'
     ]
     depend_check('Docs', *docs_deps)

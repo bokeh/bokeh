@@ -34,7 +34,7 @@ from .state import State
 from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
 from .client import DEFAULT_SESSION_ID, push_session, show_session
-from bokeh.resources import DEFAULT_SERVER_HTTP_URL, websocket_url_for_server_url
+from bokeh.resources import websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -130,15 +130,30 @@ def output_notebook(resources=None, verbose=False, hide_banner=False):
     load_notebook(resources, verbose, hide_banner)
     _state.output_notebook()
 
-def output_server(session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
-    """Store Bokeh plots and objects on a Bokeh server.
+# usually we default session_id to "generate a random one" but
+# here we default to a hardcoded one. This is to support local
+# usage e.g. with a notebook.
+def output_server(session_id=DEFAULT_SESSION_ID, url="default", app_path="/", autopush=False):
+    """ Configure the default output state to push its document to a
+    session on a Bokeh server.
 
-    File, server, and notebook output may be active at the
-    same time, so this does not clear the effects of
-    output_file() or output_notebook(). output_server()
-    changes the behavior of output_notebook(), so the notebook
-    will load output cells from the server rather than
-    receiving them as inline HTML.
+    Sessions are in-memory and not persisted to disk; in a typical
+    production deployment, you would have a fresh session ID for each
+    browser tab. If different users share the same session ID, it will
+    create security and scalability problems.
+
+    ``output_server()`` defaults to always using the
+    ``session_id`` ``"default"``, which is useful for running
+    local demos or notebooks. However, if you are creating
+    production sessions, you'll need to set ``session_id`` to None
+    (to generate a fresh ID) or to a session ID generated elsewhere.
+
+    File, server, and notebook output may be active at the same
+    time, so output_server() does not clear the effects of
+    output_file() or output_notebook(). output_server() changes
+    the behavior of output_notebook(), so the notebook will load
+    output cells from the server rather than receiving them as
+    inline HTML.
 
     Args:
         session_id (str, optional) : Name of session to push on Bokeh server (default: "default")
@@ -146,6 +161,8 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
 
         url (str, optional) : base URL of the Bokeh server (default: "default")
             If "default" use the default localhost URL.
+
+        app_path (str, optional) : relative path of the app on the Bokeh server (default: "/")
 
         autopush (bool, optional) : whether to automatically push (default: False)
             If True, then Bokeh plotting APIs may opt to automatically
@@ -161,7 +178,7 @@ def output_server(session_id=DEFAULT_SESSION_ID, url="default", autopush=False):
 
     """
 
-    _state.output_server(session_id=session_id, url=url, autopush=autopush)
+    _state.output_server(session_id=session_id, url=url, app_path=app_path, autopush=autopush)
 
 def set_curdoc(doc):
     '''Configure the current document (returned by curdoc()).
@@ -243,7 +260,7 @@ def _show_with_state(obj, state, browser, new):
     if state.notebook:
         _show_notebook_with_state(obj, state)
 
-    elif state.session_id and state.server_url:
+    elif state.server_enabled:
         _show_server_with_state(obj, state, new, controller)
 
     if state.file:
@@ -254,16 +271,16 @@ def _show_file_with_state(obj, state, new, controller):
     controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
 
 def _show_notebook_with_state(obj, state):
-    if state.session_id:
+    if state.server_enabled:
         push(state=state)
-        snippet = autoload_server(obj, session_id=state.session_id, url=state.server_url)
+        snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
         publish_display_data({'text/html': notebook_div(obj)})
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
-    show_session(session_id=state.session_id, server_url=state.server_url,
+    show_session(session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path,
                  new=new, controller=controller)
 
 def save(obj, filename=None, resources=None, title=None, state=None, validate=True):
@@ -347,22 +364,24 @@ def _save_helper(obj, filename, resources, title, validate):
             f.write(decode_utf8(html))
 
 # this function exists mostly to be mocked in tests
-def _push_to_server(websocket_url, document, session_id, io_loop):
-    session = push_session(document, session_id=session_id, url=websocket_url, io_loop=io_loop)
+def _push_to_server(session_id, url, app_path, document, io_loop):
+    session = push_session(document, session_id=session_id, url=url, app_path=app_path, io_loop=io_loop)
     session.close()
     session.loop_until_closed()
 
-def push(session_id=None, url=None, document=None, state=None, io_loop=None, validate=True):
+def push(session_id=None, url=None, app_path=None, document=None, state=None, io_loop=None, validate=True):
     ''' Update the server with the data for the current document.
 
-    Will fall back to the default output state (or an explicitly provided
-    :class:`State` object) for ``session_id``, ``url``, or ``document`` if they are not
-    provided.
+    Will fall back to the default output state (or an explicitly
+    provided :class:`State` object) for ``session_id``, ``url``,
+    ``app_path``, or ``document`` if they are not provided.
 
     Args:
         session_id (str, optional) : a Bokeh server session ID to push objects to
 
         url (str, optional) : a Bokeh server URL to push objects to
+
+        app_path (str, optional) : Relative application path to push objects to
 
         document (Document, optional) : A :class:`bokeh.document.Document` to use
 
@@ -380,16 +399,18 @@ def push(session_id=None, url=None, document=None, state=None, io_loop=None, val
         state = _state
 
     if not session_id:
-        session_id = state.session_id
-
-    if not session_id:
-        session_id = DEFAULT_SESSION_ID
+        session_id = state.session_id_allowing_none
 
     if not url:
-        url = state.server_url
+        url = state.url
 
-    if not url:
-        url = DEFAULT_SERVER_HTTP_URL
+    if not app_path:
+        app_path = state.app_path
+
+    # State is supposed to ensure these are set
+    assert session_id is not None
+    assert url is not None
+    assert app_path is not None
 
     if not document:
         document = state.document
@@ -400,8 +421,8 @@ def push(session_id=None, url=None, document=None, state=None, io_loop=None, val
     if validate:
         document.validate()
 
-    _push_to_server(websocket_url=websocket_url_for_server_url(url), document=document,
-                    session_id=session_id, io_loop=io_loop)
+    _push_to_server(session_id=session_id, url=url, app_path=app_path,
+                    document=document, io_loop=io_loop)
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
@@ -419,7 +440,7 @@ def _remove_roots(subplots):
             doc.remove_root(sub)
 
 def _push_or_save(obj):
-    if _state.session_id and _state.autopush:
+    if _state.server_enabled and _state.autopush:
         push()
     if _state.file and _state.autosave:
         save(obj)

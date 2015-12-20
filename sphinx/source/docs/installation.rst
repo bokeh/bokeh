@@ -26,26 +26,24 @@ Bokeh with plain Python lists of values.
 The Bokeh plot server does take advantage of NumPy, and may have a hard
 dependency on several compiled libraries.
 
-Have the following libraries installed:
+For basic usage, have the following libraries installed:
 
 .. hlist::
-    :columns: 3
+    :columns: 2
 
     * NumPy
-    * Pandas
-    * Flask
     * Jinja2
-    * Redis
-    * Redis-py
     * Six
     * Requests
     * Tornado >= 4.0
-    * Werkzeug
-    * MarkupSafe
-    * Greenlet
-    * PyZMQ
     * PyYaml
     * DateUtil
+
+To use the Bokeh server with python 2.7, you also need to install Futures
+package.
+
+Additionally the ``bokeh.charts`` interface as well as various examples
+depend on the Pandas library, which is recommended to be installed.
 
 .. _install_packages:
 
@@ -107,32 +105,6 @@ config file:
 
 will cause the sample data to be stored in ``/tmp/bokeh_data``.
 
-.. _install_windows:
-
-Notes for Windows Users
-=======================
-
-If you are using Windows then installing `redis`_ may be challenging. On
-Windows the Bokeh plot server defaults to an in-memory storage backend.
-
-.. note::
-    The in-memory storage backend will still allow you to run any server
-    examples, but it cannot save any results in a persistent way. It is not
-    suitable for production use.
-
-If you would like to try using the Redis backend on Windows, we recommend
-downloading the binaries from one of these locations:
-
-* https://github.com/dmajkic/redis/downloads
-* http://cloud.github.com/downloads/rgl/redis/redis-2.4.6-setup-64-bit.exe
-
-Once installed, add ``C:\Program Files\Redis`` to your ``PATH`` variable,
-and execute run the Bokeh server as follows:
-
-.. code-block:: sh
-
-    bokeh-server --backend=redis
-
 .. _install_source:
 
 Installing from Source
@@ -190,10 +162,10 @@ for the BokehJS JavaScript, and::
 
 for the BokehJS CSS.
 
-As a concrete example, the links for version ``0.8.1`` are:
+As a concrete example, the links for version ``0.11.0`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.8.1.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-0.8.1.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.css
 
 Alternatively, BokehJS is available from `npmjs`_ through the Node Package
 Manager. From a Bash or Windows command prompt, execute:

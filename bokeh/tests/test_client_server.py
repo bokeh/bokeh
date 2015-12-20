@@ -10,6 +10,7 @@ from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.server.server import Server
 from bokeh.server.session import ServerSession
 from bokeh.model import Model
+from bokeh.resources import websocket_url_for_server_url
 from bokeh.properties import Int, Instance, Dict, String, Any
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
@@ -28,8 +29,11 @@ class DictModel(Model):
 logging.basicConfig(level=logging.DEBUG)
 
 # just for testing
-def ws_url(server):
-    return "ws://localhost:" + str(server._port) + "/ws"
+def url(server, prefix=""):
+    return "http://localhost:" + str(server._port) + prefix + "/"
+
+def ws_url(server, prefix=""):
+    return "ws://localhost:" + str(server._port) + prefix + "/ws"
 
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
@@ -56,18 +60,18 @@ class TestClientServer(unittest.TestCase):
             # we don't have to start the server because it
             # uses the same main loop as the client, so
             # if we start either one it starts both
-            session = ClientSession(io_loop = server.io_loop,
-                                    url = ws_url(server))
+            session = ClientSession(session_id='test_minimal_connect_and_disconnect',
+                                    io_loop = server.io_loop,
+                                    websocket_url = ws_url(server))
             session.connect()
             assert session.connected
-            session.close()
-            session.loop_until_closed()
-            assert not session.connected
 
     def test_disconnect_on_error(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            session = ClientSession(url=ws_url(server), io_loop = server.io_loop)
+            session = ClientSession(session_id='test_disconnect_on_error',
+                                    websocket_url=ws_url(server),
+                                    io_loop = server.io_loop)
             session.connect()
             assert session.connected
             # send a bogus message using private fields
@@ -76,6 +80,106 @@ class TestClientServer(unittest.TestCase):
             # and the client loop should end
             session.loop_until_closed()
             assert not session.connected
+            session.close()
+            session.loop_until_closed()
+            assert not session.connected
+
+    def test_connect_with_prefix(self):
+        application = Application()
+        with ManagedServerLoop(application, prefix="foo") as server:
+            # we don't have to start the server because it
+            # uses the same main loop as the client, so
+            # if we start either one it starts both
+            session = ClientSession(io_loop = server.io_loop,
+                                    websocket_url = ws_url(server, "/foo"))
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+            session = ClientSession(io_loop = server.io_loop,
+                                    websocket_url = ws_url(server))
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+    def test_host_whitelist_success(self):
+        application = Application()
+
+        # succeed no host value with defaults
+        with ManagedServerLoop(application, host=None) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed no host value with port
+        with ManagedServerLoop(application, port=8080, host=None) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed matching host value
+        with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # succeed matching host value one of multiple
+        with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert session.connected
+            session.close()
+            session.loop_until_closed()
+
+    def test_host_whitelist_failure(self):
+        application = Application()
+
+        # failure bad host
+        with ManagedServerLoop(application, host=["bad_host"]) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure good host, bad port
+        with ManagedServerLoop(application, host=["localhost:80"]) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure good host, bad default port
+        with ManagedServerLoop(application, host=["localhost"]) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
+
+        # failure with custom port
+        with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
+            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
+            session.connect()
+            assert not session.connected
+            session.close()
+            session.loop_until_closed()
 
     def test_push_document(self):
         application = Application()
@@ -86,7 +190,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session = push_session(doc,
                                           session_id='test_push_document',
-                                          url=ws_url(server),
+                                          url=url(server),
                                           io_loop=server.io_loop)
 
             assert client_session.document == doc
@@ -118,7 +222,7 @@ class TestClientServer(unittest.TestCase):
 
         with ManagedServerLoop(application) as server:
             client_session = pull_session(session_id='test_pull_document',
-                                          url=ws_url(server),
+                                          url=url(server),
                                           io_loop=server.io_loop)
             assert len(client_session.document.roots) == 2
 
@@ -141,7 +245,9 @@ class TestClientServer(unittest.TestCase):
     def test_request_server_info(self):
         application = Application()
         with ManagedServerLoop(application) as server:
-            session = ClientSession(url=ws_url(server), io_loop=server.io_loop)
+            session = ClientSession(session_id='test_request_server_info',
+                                    websocket_url=ws_url(server),
+                                    io_loop=server.io_loop)
             session.connect()
             assert session.connected
             assert session.document is None
@@ -160,7 +266,9 @@ class TestClientServer(unittest.TestCase):
     def test_ping(self):
         application = Application()
         with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
-            session = ClientSession(url=ws_url(server), io_loop=server.io_loop)
+            session = ClientSession(session_id='test_ping',
+                                    websocket_url=ws_url(server),
+                                    io_loop=server.io_loop)
             session.connect()
             assert session.connected
             assert session.document is None
@@ -189,7 +297,7 @@ class TestClientServer(unittest.TestCase):
             client_root = SomeModelInTestClientServer(foo=42)
 
             client_session = push_session(doc, session_id='test_client_changes_go_to_server',
-                                          url=ws_url(server),
+                                          url=url(server),
                                           io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
@@ -237,7 +345,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session = push_session(doc,
                                           session_id='test_server_changes_go_to_client',
-                                          url=ws_url(server),
+                                          url=url(server),
                                           io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
@@ -340,7 +448,7 @@ class TestClientServer(unittest.TestCase):
             doc = document.Document()
 
             client_session = ClientSession(session_id='test_client_session_callback',
-                                          url=ws_url(server),
+                                          websocket_url=ws_url(server),
                                           io_loop=server.io_loop)
             server_session = ServerSession(session_id='test_server_session_callback',
                                            document=doc, io_loop=server.io_loop)
@@ -391,7 +499,7 @@ class TestClientServer(unittest.TestCase):
             doc = document.Document()
 
             client_session = ClientSession(session_id='test_client_session_callback',
-                                          url=ws_url(server),
+                                          websocket_url=ws_url(server),
                                           io_loop=server.io_loop)
             server_session = ServerSession(session_id='test_server_session_callback',
                                            document=doc, io_loop=server.io_loop)
@@ -441,7 +549,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session = push_session(doc,
                                           session_id='test_client_session_timeout_async',
-                                          url=ws_url(server),
+                                          url=url(server),
                                           io_loop=server.io_loop)
 
             result = DictModel()
@@ -473,7 +581,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session = push_session(doc,
                                           session_id='test_server_session_timeout_async',
-                                          url=ws_url(server),
+                                          url=url(server),
                                           io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
@@ -506,7 +614,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session = push_session(doc,
                                           session_id='test_client_session_periodic_async',
-                                          url=ws_url(server),
+                                          url=url(server),
                                           io_loop=server.io_loop)
 
             result = DictModel()
@@ -538,7 +646,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session = push_session(doc,
                                           session_id='test_server_session_periodic_async',
-                                          url=ws_url(server),
+                                          url=url(server),
                                           io_loop=server.io_loop)
             server_session = server.get_session('/', client_session.id)
 
@@ -575,7 +683,7 @@ def test_client_changes_do_not_boomerang(monkeypatch):
 
         client_session = push_session(doc,
                                       session_id='test_client_changes_do_not_boomerang',
-                                      url=ws_url(server),
+                                      url=url(server),
                                       io_loop=server.io_loop)
         server_session = server.get_session('/', client_session.id)
 
@@ -623,7 +731,7 @@ def test_server_changes_do_not_boomerang(monkeypatch):
 
         client_session = push_session(doc,
                                       session_id='test_server_changes_do_not_boomerang',
-                                      url=ws_url(server),
+                                      url=url(server),
                                       io_loop=server.io_loop)
         server_session = server.get_session('/', client_session.id)
 

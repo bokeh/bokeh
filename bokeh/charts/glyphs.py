@@ -8,16 +8,15 @@ from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
 from bokeh.enums import DashPattern
-from bokeh.models.glyphs import Rect, Segment, Line, Patch, Patches
+from bokeh.models.glyphs import Rect, Segment, Line, Patches
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.models.sources import ColumnDataSource
 from bokeh.properties import (Float, String, Datetime, Bool, Instance,
-                              List, Either, Int, Enum, Color, Override)
+                              List, Either, Int, Enum, Color, Override, Any)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins
 from .data_source import ChartDataSource
-from .utils import marker_types, generate_patch_base
+from .utils import marker_types, generate_patch_base, label_from_index_dict
 
 
 class NestedCompositeGlyph(CompositeGlyph):
@@ -53,15 +52,25 @@ class XyGlyph(CompositeGlyph):
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
 
     def build_source(self):
+        labels = self._build_label_array(('x', 'y'), self.label)
+        str_labels = [str(label) for label in labels]
+
         if self.x is None:
-            x = [self.label] * len(self.y)
-            data = dict(x_values=x, y_values=self.y)
+            data = dict(x_values=str_labels, y_values=self.y)
         elif self.y is None:
-            y = [self.label] * len(self.x)
-            data = dict(x_values=self.x, y_values=y)
+            data = dict(x_values=self.x, y_values=str_labels)
         else:
             data = dict(x_values=self.x, y_values=self.y)
-        return ColumnDataSource(data)
+
+        return data
+
+    def _build_label_array(self, props, value):
+        for prop in props:
+            if getattr(self, prop) is not None:
+                return [value] * len(getattr(self, prop))
+
+        if self.data is not None:
+            return [None] * len(self.data.index)
 
     @property
     def x_max(self):
@@ -128,6 +137,18 @@ class LineGlyph(XyGlyph):
         kwargs['x'] = x
         kwargs['y'] = y
 
+        if color is not None and line_color is None:
+            line_color = color
+
+        if dash is not None:
+            kwargs['dash'] = dash
+
+        if width is not None:
+            kwargs['width'] = width
+
+        if line_color is not None:
+            kwargs['line_color'] = line_color
+
         super(LineGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -182,8 +203,8 @@ class AreaGlyph(LineGlyph):
 
         x0, y0 = generate_patch_base(data['x_values'], data['y_values'])
 
-        data['x_values'] = x0
-        data['y_values'] = y0
+        data['x_values'] = [x0]
+        data['y_values'] = [y0]
 
         return data
 
@@ -191,8 +212,8 @@ class AreaGlyph(LineGlyph):
 
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
-        glyph = Patch(
-            x='x_values', y='y_values',
+        glyph = Patches(
+            xs='x_values', ys='y_values',
             fill_alpha=self.fill_alpha, fill_color=self.fill_color,
             line_color=self.line_color
         )
@@ -208,8 +229,8 @@ class AreaGlyph(LineGlyph):
             # build a list of series
             areas = []
             for glyph in glyphs:
-                areas.append(pd.Series(glyph.source.data['y_values'],
-                                       index=glyph.source.data['x_values']))
+                areas.append(pd.Series(glyph.source.data['y_values'][0],
+                                       index=glyph.source.data['x_values'][0]))
 
             # concat the list of indexed y values into dataframe
             df = pd.concat(areas, axis=1)
@@ -228,8 +249,27 @@ class AreaGlyph(LineGlyph):
 
             # update the data in the glyphs
             for i, glyph in enumerate(glyphs):
-                glyph.source.data['x_values'] = stacked_df.index.values
-                glyph.source.data['y_values'] = stacked_df.ix[:, i].values
+                glyph.source.data['x_values'] = [stacked_df.index.values]
+                glyph.source.data['y_values'] = [stacked_df.ix[:, i].values]
+
+    def get_nested_extent(self, col, func):
+        return [getattr(arr, func)() for arr in self.source.data[col]]
+
+    @property
+    def x_max(self):
+        return max(self.get_nested_extent('x_values', 'max'))
+
+    @property
+    def x_min(self):
+        return min(self.get_nested_extent('x_values', 'min'))
+
+    @property
+    def y_max(self):
+        return max(self.get_nested_extent('y_values', 'max'))
+
+    @property
+    def y_min(self):
+        return min(self.get_nested_extent('y_values', 'min'))
 
 
 class HorizonGlyph(AreaGlyph):
@@ -374,25 +414,6 @@ class HorizonGlyph(AreaGlyph):
         renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
         yield renderer
 
-    def get_nested_extent(self, col, func):
-        return func([func(arr) for arr in self.source.data[col]])
-
-    @property
-    def x_max(self):
-        return self.get_nested_extent('x_values', max)
-
-    @property
-    def x_min(self):
-        return self.get_nested_extent('x_values', min)
-
-    @property
-    def y_max(self):
-        return self.get_nested_extent('y_values', max)
-
-    @property
-    def y_min(self):
-        return self.get_nested_extent('y_values', min)
-
 
 class StepGlyph(LineGlyph):
     """Represents a group of data as a stepped line."""
@@ -414,7 +435,7 @@ class StepGlyph(LineGlyph):
         ys[1::2] = y[:-1]
 
         data = dict(x_values=xs, y_values=ys)
-        return ColumnDataSource(data)
+        return data
 
 
 class AggregateGlyph(NestedCompositeGlyph):
@@ -423,6 +444,9 @@ class AggregateGlyph(NestedCompositeGlyph):
     Implements default stacking and dodging behavior that other composite
     glyphs can inherit.
     """
+
+    x_label = String()
+    x_label_value = Any()
 
     stack_label = String()
     stack_shift = Float(default=0.0)
@@ -434,6 +458,18 @@ class AggregateGlyph(NestedCompositeGlyph):
 
     span = Float(help="""The range of values represented by the aggregate.""")
 
+    def __init__(self, x_label=None, **kwargs):
+
+        if x_label is not None:
+            kwargs['x_label_value'] = x_label
+
+            if not isinstance(x_label, str):
+                x_label = str(x_label)
+
+            kwargs['x_label'] = x_label
+
+        super(AggregateGlyph, self).__init__(**kwargs)
+
     def get_dodge_label(self, shift=0.0):
         """Generate the label defining an offset in relation to a position on a scale."""
         if self.dodge_shift is None:
@@ -442,7 +478,8 @@ class AggregateGlyph(NestedCompositeGlyph):
             shift_str = ':' + str(self.dodge_shift + shift)
         else:
             shift_str = ''
-        return str(self.label) + shift_str
+
+        return str(label_from_index_dict(self.x_label)) + shift_str
 
     def filter_glyphs(self, glyphs):
         """Return only the glyphs that are of the same class."""
@@ -457,14 +494,17 @@ class AggregateGlyph(NestedCompositeGlyph):
         that had each of the values.
         """
         grouped = defaultdict(list)
-        [grouped[getattr(glyph, prop)].append(glyph) for glyph in glyphs]
+        labels = [getattr(glyph, prop) for glyph in glyphs]
+        labels = [tuple(label.values()) if isinstance(label, dict) else label for label
+                  in labels]
+        [grouped[label].append(glyph) for label, glyph in zip(labels, glyphs)]
         return grouped
 
     def __stack__(self, glyphs):
         """Apply relative shifts to the composite glyphs for stacking."""
         if self.stack_label is not None:
             filtered_glyphs = self.filter_glyphs(glyphs)
-            grouped = self.groupby(filtered_glyphs, 'label')
+            grouped = self.groupby(filtered_glyphs, 'x_label')
 
             for index, group in iteritems(grouped):
 
@@ -521,19 +561,11 @@ class Interval(AggregateGlyph):
     start = Float(default=0.0)
     end = Float()
 
-    label_value = Either(String, Float, Datetime, Bool, default=None)
-
     glyphs = {'Interval': Rect()}
 
     def __init__(self, label, values, **kwargs):
-        if not isinstance(label, str):
-            label_value = label
-            label = str(label)
-        else:
-            label_value = None
 
         kwargs['label'] = label
-        kwargs['label_value'] = label_value
         kwargs['values'] = values
 
         super(Interval, self).__init__(**kwargs)
@@ -563,16 +595,16 @@ class Interval(AggregateGlyph):
         if self.dodge_shift is not None:
             x = [self.get_dodge_label()]
         else:
-            x = [self.label_value or self.label]
+            x = [self.x_label]
         height = [self.span]
         y = [self.stack_shift + (self.span / 2.0) + self.start]
         color = [self.color]
         fill_alpha = [self.fill_alpha]
         line_color = [self.line_color]
         line_alpha = [self.line_alpha]
-        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color,
-                                     fill_alpha=fill_alpha, line_color=line_color,
-                                     line_alpha=line_alpha))
+        return dict(x=x, y=y, width=width, height=height, color=color,
+                    fill_alpha=fill_alpha, line_color=line_color,
+                    line_alpha=line_alpha)
 
     @property
     def x_max(self):
@@ -581,7 +613,7 @@ class Interval(AggregateGlyph):
         .. note::
             Dodging the glyph can affect the value.
         """
-        return (self.dodge_shift or self.label_value) + (self.width / 2.0)
+        return (self.dodge_shift or self.x_label_value) + (self.width / 2.0)
 
     @property
     def x_min(self):
@@ -590,7 +622,7 @@ class Interval(AggregateGlyph):
         .. note::
             Dodging the glyph can affect the value.
         """
-        return (self.dodge_shift or self.label_value) - (self.width / 2.0)
+        return (self.dodge_shift or self.x_label_value) - (self.width / 2.0)
 
     @property
     def y_max(self):
@@ -748,10 +780,14 @@ class BoxGlyph(AggregateGlyph):
         kwargs['outliers'] = kwargs.pop('outliers', None) or outliers
         kwargs['label'] = label
         kwargs['values'] = values
-        kwargs['q2_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.25,
-                                           interval2=0.5, width=width, color=bar_color)
-        kwargs['q3_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.5,
-                                           interval2=0.75, width=width, color=bar_color)
+
+        x_label = kwargs.get('x_label')
+        kwargs['q2_glyph'] = QuartileGlyph(label=label, x_label=x_label, values=values,
+                                           interval1=0.25, interval2=0.5, width=width,
+                                           color=bar_color)
+        kwargs['q3_glyph'] = QuartileGlyph(label=label, x_label=x_label, values=values,
+                                           interval1=0.5, interval2=0.75, width=width,
+                                           color=bar_color)
         super(BoxGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -766,7 +802,8 @@ class BoxGlyph(AggregateGlyph):
                                            line_color=self.whisker_color))
 
         if len(outlier_values) > 0 and self.outliers:
-            self.outliers = PointGlyph(y=outlier_values, label=self.get_dodge_label(),
+            self.outliers = PointGlyph(label=self.label, y=outlier_values,
+                                       x=[self.get_dodge_label()] * len(outlier_values),
                                        line_color=self.outlier_line_color,
                                        fill_color=self.outlier_fill_color,
                                        size=self.outlier_size, marker=self.marker)
@@ -799,7 +836,7 @@ class BoxGlyph(AggregateGlyph):
         x1s = [x_label, x_w1_label, x_label, x_w1_label]
         y1s = [self.q1, self.w0, self.w1, self.w1]
 
-        return ColumnDataSource(dict(x0s=x0s, y0s=y0s, x1s=x1s, y1s=y1s))
+        return dict(x0s=x0s, y0s=y0s, x1s=x1s, y1s=y1s)
 
     def _set_sources(self):
         """Set the column data source on the whisker glyphs."""
@@ -880,8 +917,10 @@ class HistogramGlyph(AggregateGlyph):
 
         bars = []
         for bin in self.bins.bins:
-            bars.append(BarGlyph(label=bin.center, values=bin.values, color=self.color,
-                                 fill_alpha=self.fill_alpha, agg=bin.stat, width=self.bin_width))
+            bars.append(BarGlyph(label=self.label, x_label=bin.center,
+                                 values=bin.values, color=self.color,
+                                 fill_alpha=self.fill_alpha,
+                                 agg=bin.stat, width=self.bin_width))
 
         # provide access to bars as children for bounds properties
         self.bars = bars
@@ -894,6 +933,8 @@ class HistogramGlyph(AggregateGlyph):
     @property
     def y_min(self):
         return 0.0
+
+
 
 
 class BinGlyph(XyGlyph):

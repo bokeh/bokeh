@@ -8,14 +8,13 @@ from .views.doc_handler import DocHandler
 from .views.static_handler import StaticHandler
 from .views.autoload_js_handler import AutoloadJsHandler
 
+# all routes are prefixed with any --prefix specified
+
 toplevel_patterns = [
-    # TODO implement /
-    # (r'/', SomeHandler),
-    # TODO remove /bokehjs/ here, it's just weird.
-    (r'/bokehjs/static/(.*)', StaticHandler)
+    (r'/static/(.*)', StaticHandler)
 ]
 
-# These all get prefixed with the application route, so /foo/ws etc.
+# these all also get prefixed with the application route
 per_app_patterns = [
     (r'/?', DocHandler),
     (r'/ws', WSHandler),

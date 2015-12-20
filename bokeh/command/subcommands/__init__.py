@@ -18,9 +18,11 @@ def _collect():
 
         for name in dir(mod):
             attr = getattr(mod, name)
-            if attr is Subcommand: continue
             if isinstance(attr, type) and issubclass(attr, Subcommand):
+                if not hasattr(attr, 'name'): continue # excludes abstract bases
                 results.append(attr)
+
+    results = sorted(results, key=lambda attr: attr.name)
 
     return results
 

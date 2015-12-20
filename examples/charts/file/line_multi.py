@@ -2,6 +2,8 @@ import pandas as pd
 from bokeh.charts import Line, show, output_file, vplot, hplot
 from bokeh.charts import defaults
 
+from bokeh.models.tools import HoverTool
+
 defaults.width = 550
 defaults.height = 350
 
@@ -38,8 +40,8 @@ line3 = Line(df, x='date', y=['python', 'pypy', 'jython'],
 line4 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              dash='test',
              color=['python', 'pypy', 'jython'],
-             title="Interpreters (x='date', y, color=['python', 'pypy', 'jython'], dash='test')", ylabel='Duration',
-             legend=True)
+             title="Interpreters (x='date', y, color=['python', 'pypy', 'jython'], dash='test') with tooltips", ylabel='Duration',
+             legend=True, tooltips=[('series', '@series'), ('test', '@test')])
 
 
 output_file("line_multi.html", title="line examples")
