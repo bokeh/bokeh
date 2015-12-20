@@ -7,7 +7,6 @@
 from bokeh.plotting import figure, show, output_file, ColumnDataSource
 from bokeh.models import HoverTool, NumeralTickFormatter
 from bokeh.models import SingleIntervalTicker, LinearAxis
-import pandas as pd
 
 # Since the data set is loaded in the bokeh data repository, we can do this:
 
@@ -20,11 +19,6 @@ md_data = md_data.interpolate(method='linear', axis=0).ffill().bfill()
 
 # Tell Bokeh where to save the interactive chart
 output_file('us_marriages_divorces_per_capita.html',
-            # Tell Bokeh to use its minified JavaScript hosted on a
-            # cdn instead of putting the Bokeh JS in the output file
-            # Warning: This makes it so people can only view the
-            # chart with an internet connection
-            mode='cdn',
             title='144 years of marriage and divorce in the U.S.A.')
 
 # Set up the data sources for the lines we'll be plotting.
@@ -62,7 +56,8 @@ source_divorces = ColumnDataSource(
 # Use HTML to mark up the tooltip that displays over the chart
 # Note that the variables in the data sources (above) are referenced with a @
 hover = HoverTool(
-    tooltips='<font face="Arial" size="3">@y_text @desc in @x</font>')
+    tooltips='<font face="Arial" size="3">@y_text @desc in @x</font>',
+    mode='vline')
 
 # Select the tools that will be available to the chart
 TOOLS = ['pan,wheel_zoom,box_zoom,reset,save,resize'] + [hover]
