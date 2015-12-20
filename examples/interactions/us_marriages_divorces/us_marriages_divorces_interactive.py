@@ -7,7 +7,6 @@
 from bokeh.plotting import figure, show, output_file, ColumnDataSource
 from bokeh.models import HoverTool, NumeralTickFormatter
 from bokeh.models import SingleIntervalTicker, LinearAxis
-import pandas as pd
 
 # Since the data set is loaded in the bokeh data repository, we can do this:
 
