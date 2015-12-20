@@ -13,22 +13,22 @@ these different cases.
 
 from __future__ import absolute_import
 
+from collections import Sequence
 import re
 import uuid
 from warnings import warn
 
-from .templates import (
+from six import string_types
+
+from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
     NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
-from .util.string import encode_utf8
-
-from .model import Model, _ModelInDocument
-from ._json_encoder import serialize_json
-from .resources import _SessionCoordinates
+from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from collections import Sequence
-from six import string_types
+from .model import Model, _ModelInDocument
+from .resources import _SessionCoordinates
+from .util.string import encode_utf8
 
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
@@ -273,7 +273,7 @@ def file_html(models,
         css_resources (CSSResources, optional): custom CSS Resources (default: ``None``), if
             resources is also provided, resources will override css_resources.
         template (Template, optional) : HTML document template (default: FILE)
-            A Jinja2 Template, see bokeh.templates.FILE for the required
+            A Jinja2 Template, see bokeh.core.templates.FILE for the required
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:

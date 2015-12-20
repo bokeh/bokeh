@@ -271,7 +271,7 @@ class Test_ShowWithState(DefaultStateTester):
     @patch('bokeh.io._show_notebook_with_state')
     @patch('bokeh.io._show_server_with_state')
     @patch('bokeh.io._show_file_with_state')
-    @patch('bokeh.browserlib.get_browser_controller')
+    @patch('bokeh.util.browser.get_browser_controller')
     def test_notebook(self, mock_get_browser_controller,
             mock__show_file_with_state, mock__show_server_with_state,
             mock__show_notebook_with_state):
@@ -299,7 +299,7 @@ class Test_ShowWithState(DefaultStateTester):
     @patch('bokeh.io._show_notebook_with_state')
     @patch('bokeh.io._show_server_with_state')
     @patch('bokeh.io._show_file_with_state')
-    @patch('bokeh.browserlib.get_browser_controller')
+    @patch('bokeh.util.browser.get_browser_controller')
     def test_no_notebook(self, mock_get_browser_controller,
             mock__show_file_with_state, mock__show_server_with_state,
             mock__show_notebook_with_state,

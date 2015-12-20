@@ -1,12 +1,11 @@
-
-import random
+mport random
 
 from jinja2 import Template
 
-from bokeh.browserlib import view
 from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 ########## BUILD FIGURES ################
 

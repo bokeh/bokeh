@@ -30,8 +30,8 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     global _notebook_loaded
 
     from .. import __version__
+    from ..core.templates import NOTEBOOK_LOAD
     from ..resources import CDN
-    from ..templates import NOTEBOOK_LOAD
 
     if resources is None:
         resources = CDN

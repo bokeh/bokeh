@@ -13,16 +13,16 @@ import uuid
 
 from six import string_types
 
-from .deprecate import deprecated
+from .core.json_encoder import serialize_json
+from .core.query import find
+from .core.validation import check_integrity
 from .model import Model
 from .properties import HasProps
-from .query import find
 from .themes import default as default_theme
 from .themes import Theme
 from .util.callback_manager import _check_callback
+from .util.deprecate import deprecated
 from .util.version import __version__
-from .validation import check_integrity
-from ._json_encoder import serialize_json
 
 DEFAULT_TITLE = "Bokeh Application"
 

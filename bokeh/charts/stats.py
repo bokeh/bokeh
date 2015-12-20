@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.models.sources import ColumnDataSource
-from bokeh.properties import (HasProps, Float, Either, String, Date, Datetime, Int,
+from bokeh.core.properties import (HasProps, Float, Either, String, Date, Datetime, Int,
                               Bool, List, Instance)
 from .properties import Column, EitherColumn, ColumnLabel
 

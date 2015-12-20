@@ -27,7 +27,6 @@ from six import iteritems
 
 from . import defaults
 from .chart_options import ChartOptions
-from ..browserlib import view
 from ..document import Document
 from ..embed import file_html
 from ..models import (
@@ -35,8 +34,9 @@ from ..models import (
 from ..models.tools import HoverTool
 from ..models.ranges import FactorRange
 from ..plotting import DEFAULT_TOOLS
-from ..plotting_helpers import _process_tools_arg
+from ..plotting.helpers import _process_tools_arg
 from ..resources import INLINE
+from ..util.browser import view
 from ..util.notebook import publish_display_data
 from ..util.serialization import make_id
 

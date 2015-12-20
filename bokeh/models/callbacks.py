@@ -6,9 +6,9 @@ import sys
 from types import FunctionType
 from ..model import Model
 
-from ..properties import abstract
-from ..properties import Dict, Instance, String, Enum
-from ..enums import ScriptingLanguage
+from ..core.properties import abstract
+from ..core.properties import Dict, Instance, String, Enum
+from ..core.enums import ScriptingLanguage
 
 @abstract
 class Callback(Model):
