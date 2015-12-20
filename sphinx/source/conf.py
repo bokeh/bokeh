@@ -58,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Bokeh'
-copyright = '2013-2016, Continuum Analytics'
+copyright = '© Copyright 2015, Continuum Analytics.'
 
 # Get the standard computed Bokeh version string to use for |version|
 # and |release|
@@ -122,6 +122,9 @@ html_theme_path = ['.']
 MAIN_SITE = '//bokehplots.com'
 
 html_context = {
+    'SITENAME': 'Bokeh Docs',
+    'DESCRIPTION': 'Bokeh visualization library, documentation site.',
+    'AUTHOR': 'Bokeh contributors',
     'NAV': (
         ('About', MAIN_SITE + '/pages/about-bokeh.html'),
         ('Gallery', '/docs/gallery.html'),

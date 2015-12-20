@@ -15,9 +15,7 @@
 
   <!-- FONT
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  {#
-  <link href='//fonts.googleapis.com/css?family=Raleway:100,200,300,400,600' rel='stylesheet' type='text/css'>
-  #}
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600%7CNoto+Sans:400,700' rel='stylesheet' type='text/css'>
 
   <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -38,14 +36,14 @@
 </head>
 <body class="">
 
-  <header class="navigation" role="banner">
+  <header class="navigation">
     <div class="wrapper">
       <a href="{{ SITEURL }}/" class="logo">
         <img src="{{ pathto('_static/images/logo.png', 1) }}" alt="Bokeh Logo">
       </a>
       <a href="{{ SITEURL }}/" class="navigation-menu logo-text">Bokeh</a>
       <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">Menu</a>
-      <nav role="navigation">
+      <nav>
         <ul id="js-navigation-menu" class="navigation-menu show">
           {% for name, link in NAV %}
               <li class="nav-link"><a href="{{ link }}">{{ name }}</a></li>
@@ -54,20 +52,18 @@
       </nav>
     </div>
   </header>
-  <div class="navigation doc">
-    <div class="wrapper">
-      <nav role="navigation">
-        <ul class="navigation-menu show">
-          {%- for name, link in NAV_DOCS  %}
-              <li class="nav-link"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
-          {%- endfor %}
-        </ul>
-      </nav>
-    </div>
+  <div class="second-nav">
+    <nav>
+      <ul class="navigation-menu show">
+        {%- for name, link in NAV_DOCS  %}
+            <li class="nav-link"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+        {%- endfor %}
+      </ul>
+    </nav>
   </div>
 
 <!-- MAIN BODY OF DOCS –––––––––––––––––– -->
-  <div class="docs section">
+  <div class="docs section light">
     <div class="toc">
       {{ toctree(maxdepth=4, collapse=True, includehidden=True) }}
     </div>
@@ -78,31 +74,29 @@
 
 <!-- END MAIN BODY OF DOCS ––––––––––––– -->
 
-<footer class="footer" role="contentinfo">
-  <div class="wrapper">
-    <div class="footer-links">
-      <ul>
-        <li><h3>About Us</h3></li>
-        {% for name, link in ABOUT %}
-            <li><a href="{{ link }}">{{ name }}</a></li>
-        {% endfor %}
-      </ul>
-      <ul>
-        <li><h3>Community</h3></li>
-        {% for name, link in COMMUNITY %}
-            <li><a href="{{ link }}">{{ name }}</a></li>
-        {% endfor %}
-      </ul>
-      <ul>
-        <li><h3>Find Us</h3></li>
-        {% for name, link in SOCIAL %}
-            <li><a href="{{ link }}">{{ name }}</a></li>
-        {% endfor %}
-      </ul>
-      <ul class="copyright">
-        <li>{{ copyright }}</li>
-      </ul>
-    </div>
+<footer class="footer">
+  <div class="footer-links">
+    <ul>
+      <li><span class="footer-title">About Us</span></li>
+      {% for name, link in ABOUT %}
+          <li><a href="{{ link }}">{{ name }}</a></li>
+      {% endfor %}
+    </ul>
+    <ul>
+      <li><span class="footer-title">Community</span></li>
+      {% for name, link in COMMUNITY %}
+          <li><a href="{{ link }}">{{ name }}</a></li>
+      {% endfor %}
+    </ul>
+    <ul>
+      <li><span class="footer-title">Find Us</span></li>
+      {% for name, link in SOCIAL %}
+          <li><a href="{{ link }}">{{ name }}</a></li>
+      {% endfor %}
+    </ul>
+    <ul class="copyright">
+      <li>{{ copyright }}</li>
+    </ul>
   </div>
 </footer>
 
