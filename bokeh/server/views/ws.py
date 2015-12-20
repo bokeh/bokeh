@@ -107,17 +107,32 @@ class WSHandler(WebSocketHandler):
 
         '''
 
-        message = yield self._receive(fragment)
+        # We shouldn't throw exceptions from on_message because
+        # the caller is just Tornado and it doesn't know what to
+        # do with them other than report them as an unhandled
+        # Future
 
-        if message:
+        try:
+            message = yield self._receive(fragment)
+        except Exception as e:
+            # If you go look at self._receive, it's catching the
+            # expected error types... here we have something weird.
+            log.error("Unhandled exception receiving a message: %r: %r", e, fragment, exc_info=True)
+            self._internal_error("server failed to parse a message")
 
-            #log.debug("Received message: %r", message)
-            work = yield self._handle(message)
+        try:
+            if message:
 
-            #log.debug("work from message %r was %r", message, work)
+                #log.debug("Received message: %r", message)
+                work = yield self._handle(message)
 
-            if work:
-                yield self._schedule(work)
+                #log.debug("work from message %r was %r", message, work)
+
+                if work:
+                    yield self._schedule(work)
+        except Exception as e:
+            log.error("Handler or its work threw an exception: %r: %r", e, message, exc_info=True)
+            self._internal_error("server failed to handle a message")
 
         raise gen.Return(None)
 

@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 from tornado import gen
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
-from tornado.websocket import websocket_connect
+from tornado.websocket import websocket_connect, WebSocketError
 from tornado.concurrent import Future
 
 from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
@@ -18,6 +18,8 @@ class _WebSocketClientConnectionWrapper(object):
     ''' Used for compat across Tornado versions '''
 
     def __init__(self, socket):
+        if socket is None:
+            raise ValueError("socket must not be None")
         self._socket = socket
 
     def write_message(self, message, binary=False):
@@ -133,8 +135,31 @@ class ClientConnection(object):
         if self._socket is None:
             log.info("We're disconnected, so not sending message %r", message)
         else:
-            sent = yield message.send(self._socket)
-            log.debug("Sent %r [%d bytes]", message, sent)
+            try:
+                sent = yield message.send(self._socket)
+                log.debug("Sent %r [%d bytes]", message, sent)
+            except WebSocketError as e:
+                # A thing that happens is that we detect the
+                # socket closing by getting a None from
+                # read_message, but the network socket can be down
+                # with many messages still in the read buffer, so
+                # we'll process all those incoming messages and
+                # get write errors trying to send change
+                # notifications during that processing.
+
+                # this is just debug level because it's completely normal
+                # for it to happen when the socket shuts down.
+                log.debug("Error sending message to server: %r", e)
+
+                # error is almost certainly because
+                # socket is already closed, but be sure,
+                # because once we fail to send a message
+                # we can't recover
+                self.close(why="received error while sending")
+
+                # don't re-throw the error - there's nothing to
+                # do about it.
+
         raise gen.Return(None)
 
     def _send_patch_document(self, session_id, event):
@@ -324,8 +349,8 @@ class ClientConnection(object):
                     log.debug("Received message %r" % message)
                     raise gen.Return(message)
             except (MessageError, ProtocolError, ValidationError) as e:
-                log.error("%r", e)
-                raise e
+                log.error("%r", e, exc_info=True)
+                self.close(why="error parsing message from server")
 
     def _tell_session_about_disconnect(self):
         if self._session:
