@@ -47,13 +47,16 @@ the :ref:`devguide`.
     docs/gallery
     docs/reference/properties
     docs/reference/models
+    docs/reference/document
     docs/reference/validation
     docs/reference/plotting
     docs/reference/charts
     docs/reference/palettes
+    docs/reference/utils
     docs/reference/resources_embedding
     docs/reference/plot_objects
     docs/reference/bokehjs
+    docs/reference/testing
     docs/reference/sphinxext
     docs/releases/0.10.0
     docs/releases/0.9.3
