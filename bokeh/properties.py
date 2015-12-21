@@ -59,9 +59,12 @@ from warnings import warn
 from six import string_types, iteritems
 
 from . import enums
+from .util.dependencies import import_optional
 from .util.future import with_metaclass
 from .util.string import nice_join
 from .property_containers import PropertyValueList, PropertyValueDict, PropertyValueContainer
+
+pd = import_optional('pandas')
 
 def field(name):
     ''' Convenience function do explicitly mark a field specification for
@@ -1479,12 +1482,9 @@ class Datetime(PropertyDescriptor):
 
         if (isinstance(value, datetime_types)):
             return
-        try:
-            import pandas
-            if isinstance(value, (pandas.Timestamp)):
-                return
-        except ImportError:
-            pass
+
+        if pd and isinstance(value, (pd.Timestamp)):
+            return
 
         raise ValueError("Expected a datetime instance, got %r" % value)
 
@@ -1514,18 +1514,19 @@ class DataSpecProperty(BasicProperty):
         return self.descriptor.to_serializable(obj, self.name, getattr(obj, self.name))
 
     def set_from_json(self, obj, json, models=None):
-        # we want to try to keep the "format" of the data spec as string, dict, or number,
-        # assuming the serialized dict is compatible with that.
-        old = getattr(obj, self.name)
-        if old is not None:
-            try:
-                self.descriptor._type.validate(old)
-                if 'value' in json:
-                    json = json['value']
-            except ValueError:
-                if isinstance(old, string_types) and 'field' in json:
-                    json = json['field']
-            # leave it as a dict if 'old' was a dict
+        if isinstance(json, dict):
+            # we want to try to keep the "format" of the data spec as string, dict, or number,
+            # assuming the serialized dict is compatible with that.
+            old = getattr(obj, self.name)
+            if old is not None:
+                try:
+                    self.descriptor._type.validate(old)
+                    if 'value' in json:
+                        json = json['value']
+                except ValueError:
+                    if isinstance(old, string_types) and 'field' in json:
+                        json = json['field']
+                # leave it as a dict if 'old' was a dict
 
         super(DataSpecProperty, self).set_from_json(obj, json, models)
 

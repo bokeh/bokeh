@@ -44,28 +44,27 @@ respectively.
 '''
 from __future__ import absolute_import
 
-from bokeh.io import output_file, save, show
+from bokeh.resources import Resources
+from bokeh.embed import standalone_html_page_for_models
 
-from ..subcommand import Subcommand
 from ..util import build_single_handler_applications
 
-class HTML(Subcommand):
+from .file_output import FileOutputSubcommand
+
+class HTML(FileOutputSubcommand):
     ''' Subcommand to output applications as standalone HTML files.
 
     '''
 
     name = "html"
 
+    extension = "html"
+
     help = "Create standalone HTML files for one or more applications"
 
     args = (
 
-        ('files', dict(
-            metavar='DIRECTORY-OR-SCRIPT',
-            nargs='+',
-            help="The app directories or scripts to generate HTML for",
-            default=None,
-        )),
+        FileOutputSubcommand.files_arg("HTML"),
 
         (
             '--show', dict(
@@ -73,22 +72,13 @@ class HTML(Subcommand):
             help="Open generated file(s) in a browser"
         )),
 
-    )
+    ) + FileOutputSubcommand.other_args()
 
-    def invoke(self, args):
-        applications = build_single_handler_applications(args.files)
+    def after_write_file(self, args, filename, doc):
+        if args.show:
+            from bokeh.browserlib import view
+            view(filename)
 
-        for (route, app) in applications.items():
-            doc = app.create_document()
-
-            if route == "/":
-                filename = "index.html"
-            else:
-                filename = route[1:] + ".html"
-
-            output_file(filename)
-
-            if args.show:
-                show(doc, new='tab')
-            else:
-                save(doc)
+    def file_contents(self, args, doc):
+        resources = Resources(mode="cdn", root_dir=None)
+        return standalone_html_page_for_models(doc, resources=resources, title=None)

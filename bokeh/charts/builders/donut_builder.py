@@ -21,7 +21,7 @@ from __future__ import absolute_import
 
 from ..builder import create_and_build, Builder
 from ..utils import (build_wedge_source, build_wedge_text_source,
-                     add_charts_hover, derive_aggregation)
+                     build_agg_tooltip, derive_aggregation)
 from ..attributes import ColorAttr, CatAttr
 from ...models.sources import ColumnDataSource
 from ...models.glyphs import AnnularWedge, Text
@@ -94,8 +94,10 @@ def Donut(data, label='index', values=None, xgrid=False,
     chart.below[0].visible = False
 
     values, agg = derive_aggregation(dim_cols=label, agg_col=values, agg=agg)
-    add_charts_hover(chart, use_hover=hover_tool, hover_text=hover_text,
-                     values_col=values, agg_text=agg)
+    if hover_tool:
+        tooltip = build_agg_tooltip(hover_text=hover_text, aggregated_col=values,
+                                    agg_text=agg)
+        chart.add_tooltips([tooltip])
 
     return chart
 

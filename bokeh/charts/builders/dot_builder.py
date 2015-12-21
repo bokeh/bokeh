@@ -130,6 +130,7 @@ class DotBuilder(BarBuilder):
                           'group': CatAttr(),
                           'marker': MarkerAttr(),
                           }
+
     stem = Bool(False, help="""
     Whether to draw a stem from each do to the axis.
     """)
