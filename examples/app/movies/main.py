@@ -1,42 +1,34 @@
 from bokeh.plotting import Figure
 from bokeh.models import ColumnDataSource, HoverTool
-from bokeh.models.widgets import HBox, Slider, TextInput, VBoxForm, Select, TextInput, Paragraph
+from bokeh.models.widgets import HBox, Slider, TextInput, VBoxForm, Select, TextInput, Paragraph, PreText
 from bokeh.io import curdoc
-
-import blaze as bz
+from bokeh.sampledata.movies_data import movie_path
 import pandas as pd
 import numpy as np
-from bokeh.sampledata.movies_data import movie_path
+import pandas.io.sql as psql
+import sqlite3 as sql
 
 # To get the movies sample data execute the following from a python prompt
 #   >>> import bokeh.sampledata
 #   >>> bokeh.sampledata.download()
-#
 
-### If you want to use sqlite3 directly instead of blaze uncomment the following
-# import pandas.io.sql as psql
-# import sqlite3 as sql
-# con = sql.connect(movie_path)
-# movies = psql.read_sql('select omdb.ID, imdbID, Title, Year, omdb.Rating, Runtime, Genre, Released, \
-#     Director, Writer, imdbRating, imdbVotes, Language, Country, Oscars, \
-#     tomatoes.Rating, Meter, Reviews, Fresh, Rotten, userMeter, userRating, userReviews, \
-#     BoxOffice, Production \
-#     from omdb, tomatoes \
-#     where omdb.ID = tomatoes.ID \
-#     and Reviews >= 10', con)
-
-### If you want to use sqlite3 directly instead of blaze comment out the following 3 lines
-
-data = bz.Data('sqlite:///%s' % movie_path)
-movies = bz.join(data.omdb, data.tomatoes, "ID")
-movies = bz.into(pd.DataFrame, movies)
+con = sql.connect(movie_path)
+movies = psql.read_sql('select omdb.ID, imdbID, Title, Year, omdb.Rating, Runtime, Genre, Released, \
+    Director, Writer, imdbRating, imdbVotes, Language, Country, Oscars, \
+    tomatoes.Rating, Meter, Reviews, Fresh, Rotten, userMeter, userRating, userReviews, \
+    BoxOffice, Production \
+    from omdb, tomatoes \
+    where omdb.ID = tomatoes.ID \
+    and Reviews >= 10', con)
 
 movies["has_oscars"] = movies["Oscars"] > 0
 movies["pt_color"] = np.where(movies["Oscars"] > 0, "orange", "grey")
 movies.rename(columns={'Rating_right':'Rating'}, inplace=True)
 # Replace missing BoxOffice values with zeroes
 # and then format with commas so easier to read.
-movies.BoxOffice.fillna(0, inplace=True)
+movies.fillna(0, inplace=True)
+print("Movies.BoxOffice class: ", movies.BoxOffice.__class__)
+print("BoxOffice: ", movies.BoxOffice[:20])
 movies["revenue"] = movies.BoxOffice.apply(lambda x: '{:,d}'.format(int(x)))
 
 # Dictionary to map axis selection drop down to column of data
@@ -61,7 +53,8 @@ genre = Select(title="Genre (a movie can have multiple genres)",
 director = TextInput(title="Director name contains (e.g., Miyazaki)")
 cast = TextInput(title="Cast names contains (e.g. Tom Hanks)")
 x_axis = Select(title="X Axis", options=list(axis_vars.keys()), value="Tomato Meter")
-y_axis = Select(title="X Axis", options=list(axis_vars.keys()), value="Number of reviews")
+y_axis = Select(title="Y Axis", options=list(axis_vars.keys()), value="Number of reviews")
+# movie_count_txt = Paragraph(text="Number of selected movies: 0")
 movie_count_txt = Paragraph(text="Number of selected movies: 0")
 
 def select_movies():
@@ -101,6 +94,7 @@ p.xaxis.axis_label = "Tomato Meter"
 # Callback to update the plot when an input changes
 def update_data(attrname, old, new):
     # Get the name of the variable selected from the Axis dropdowns
+    print("----- in update_data")
     x_var = axis_vars[x_axis.value]
     y_var = axis_vars[y_axis.value]
     # Get data that meets criteria and update the plot
