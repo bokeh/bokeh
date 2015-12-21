@@ -8,50 +8,39 @@ We are using this "building blocks" approach here because we believe it has some
 conceptual advantages for people trying to quickly understand, and more
 importantly, use the embed API, in a more complex way than just a simple script.
 """
-import time
-from threading import Thread
-
-import numpy as np
-import scipy.special
-
-from bokeh.embed import autoload_server
-from bokeh.models import GlyphRenderer
-from bokeh.plotting import figure, output_server, push, curdoc
-from bokeh.client import push_session
+from __future__ import print_function
 
 from flask import Flask, render_template
+import numpy as np
+from numpy import roll, pi, cos, sin, linspace
+import scipy.special
+
+from bokeh.client import push_session
+from bokeh.embed import autoload_server
+from bokeh.models import Select, HBox, VBox, ColumnDataSource
+from bokeh.plotting import figure, curdoc
+from bokeh.sampledata.population import load_population
+
 app = Flask(__name__)
 
 session = push_session(curdoc())
 
 @app.route('/')
 def render_plot():
-    """
-    Get the script tags from each plot object and "insert" them into the template.
+    dist_plot = distribution()
 
-    This also starts different threads for each update function, so you can have
-    a non-blocking update.
-    """
-    dist_plot, dist_session = distribution()
-    dist_tag = autoload_server(dist_plot)
+    anim_plot = animated()
 
-    anim_plot, anim_session = animated()
-    anim_tag = autoload_server(anim_plot)
-    # for update_animation as target we need to pass the anim_plot and anim_session as args
-    thread = Thread(target=update_animation, args=(anim_plot, anim_session))
-    thread.start()
+    pop = Population(curdoc())
 
-    pop = Population()
-    pop_tag = autoload_server(pop.layout)
-    # for update_population as target we need to pass the pop instance as args
-    thread = Thread(target=update_population, args=(pop,))
-    thread.start()
-
-    return render_template('app_plot.html', tag1=dist_tag, tag2=anim_tag, tag3=pop_tag)
-
+    return render_template(
+        'app_plot.html',
+        tag1=autoload_server(dist_plot),
+        tag2=autoload_server(anim_plot),
+        tag3=autoload_server(pop.layout)
+    )
 
 def distribution():
-
     mu, sigma = 0, 0.5
 
     measured = np.random.normal(mu, sigma, 1000)
@@ -61,10 +50,8 @@ def distribution():
     pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(x - mu) ** 2 / (2 * sigma ** 2))
     cdf = (1 + scipy.special.erf((x - mu) / np.sqrt(2 * sigma ** 2))) / 2
 
-    output_server("distribution_reveal")
+    p = figure(title="Interactive plots", background_fill_color="#E5E5E5")
 
-    p = figure(title="Interactive plots",
-               background_fill_color="#E5E5E5")
     p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
            fill_color="#333333", line_color="#E5E5E5", line_width=3)
 
@@ -82,74 +69,43 @@ def distribution():
     p.ygrid[0].grid_line_color = "white"
     p.ygrid[0].grid_line_width = 3
 
-    return p, session
-
+    return p
 
 def animated():
-
-    from numpy import pi, cos, sin, linspace
-
-    N = 50 + 1
+    M = 5
+    N = M*10 + 1
     r_base = 8
-    theta = linspace(0, 2 * pi, N)
-    r_x = linspace(0, 6 * pi, N - 1)
+    theta = linspace(0, 2*pi, N)
+    r_x = linspace(0, 6*pi, N-1)
     rmin = r_base - cos(r_x) - 1
     rmax = r_base + sin(r_x) + 1
 
     colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
               "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
-    output_server("animated_reveal")
-
     p = figure(title="Animations", x_range=[-11, 11], y_range=[-11, 11])
 
-    p.annular_wedge(
-        0, 0, rmin, rmax, theta[:-1], theta[1:],
-        inner_radius_units="data",
-        outer_radius_units="data",
-        fill_color=colors,
-        line_color="black",
-    )
+    # figure() function auto-adds the figure to curdoc()
+    p = figure(x_range=(-11, 11), y_range=(-11, 11))
+    r = p.annular_wedge(0, 0, rmin, rmax, theta[:-1], theta[1:],
+                    fill_color=colors, line_color="white")
 
-    return p, session
+    def update_animated(plot):
+        ds = r.data_source
+        rmin = roll(ds.data["inner_radius"], 1)
+        rmax = roll(ds.data["outer_radius"], -1)
+        ds.data.update(inner_radius=rmin, outer_radius=rmax)
+        curdoc().add_periodic_callback(update_animated, 50)
 
-
-def update_animation(plot, session):
-
-    from numpy import roll
-
-    renderer = plot.select(dict(type=GlyphRenderer))
-    ds = renderer[0].data_source
-
-    while True:
-
-        rmin = ds.data["inner_radius"]
-        rmin = roll(rmin, 1)
-        ds.data["inner_radius"] = rmin
-
-        rmax = ds.data["outer_radius"]
-        rmax = roll(rmax, -1)
-        ds.data["outer_radius"] = rmax
-
-        time.sleep(0.1)
-
+    return p
 
 class Population(object):
 
     year = 2010
     location = "World"
 
-    def __init__(self):
-        from bokeh.models import ColumnDataSource
-        from bokeh.document import Document
-        # from bokeh.session import Session
-        from bokeh.sampledata.population import load_population
-
-        self.document = curdoc() #Document()
-        self.session = session
-        # self.session = Session()
-        # self.session.use_doc('population_reveal')
-        # self.session.load_document(self.document)
+    def __init__(self, document):
+        self.document = document
 
         self.df = load_population()
         self.source_pyramid = ColumnDataSource(data=dict())
@@ -202,8 +158,6 @@ class Population(object):
         self.update_pyramid()
 
     def create_layout(self):
-        from bokeh.models.widgets import Select, HBox, VBox
-
         years = list(map(str, sorted(self.df.Year.unique())))
         locations = sorted(self.df.Location.unique())
 
@@ -237,11 +191,6 @@ class Population(object):
             female=female_percent,
         )
 
-
-def update_population(plot):
-    while True:
-        time.sleep(0.1)
-
 if __name__ == '__main__':
-    print "STARTED"
-    app.run(debug=True)
+    print(__doc__)
+    app.run()

@@ -25,23 +25,23 @@ from collections import defaultdict
 import numpy as np
 from six import iteritems
 
-from ..browserlib import view
+from ..core.enums import enumeration, LegendLocation
 from ..document import Document
 from ..embed import file_html
+from ..model import Viewable
 from ..models import (
-    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
+    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot,
+    HoverTool, FactorRange
+)
+from ..plotting import DEFAULT_TOOLS
+from ..plotting.helpers import _process_tools_arg
 from ..properties import (HasProps, Auto, Bool, Either, Enum, Int, Float,
                           String, Tuple, Override)
-from ..enums import enumeration, LegendLocation
-from ..models.tools import HoverTool
-from ..models.ranges import FactorRange
-from ..plotting import DEFAULT_TOOLS
-from ..plotting_helpers import _process_tools_arg
 from ..resources import INLINE
+from ..util.browser import view
 from ..util.notebook import publish_display_data
 from ..util.serialization import make_id
 from ..util.future import with_metaclass
-from ..model import Viewable
 from ..themes import Theme
 
 #-----------------------------------------------------------------------------

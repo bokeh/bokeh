@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 
 import yaml
 
-from ..properties import HasProps
+from ..core.properties import HasProps
 
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty

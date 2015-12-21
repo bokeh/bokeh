@@ -8,23 +8,24 @@ log = logging.getLogger(__name__)
 
 from tornado.web import RequestHandler
 
-from bokeh.templates import AUTOLOAD_JS
+from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.util.string import encode_utf8
 
-class AutoloadJsHandler(RequestHandler):
+from .session_handler import SessionHandler
+
+class AutoloadJsHandler(SessionHandler):
     ''' Implements a custom Tornado handler for the autoload JS chunk
 
     '''
     def __init__(self, tornado_app, *args, **kw):
-        self.application_context = kw['application_context']
-        self.bokeh_websocket_path = kw['bokeh_websocket_path']
-        # Note: tornado_app is stored as self.application
         super(AutoloadJsHandler, self).__init__(tornado_app, *args, **kw)
 
     def initialize(self, *args, **kw):
         pass
 
     def get(self, *args, **kwargs):
+        session = self.get_session()
+
         element_id = self.get_argument("bokeh-autoload-element", default=None)
         if not element_id:
             self.send_error(status_code=400, reason='No bokeh-autoload-element query parameter')
@@ -38,6 +39,7 @@ class AutoloadJsHandler(RequestHandler):
             js_urls = resources.js_files,
             css_files = resources.css_files,
             elementid = element_id,
+            sessionid = session.id,
             websocket_url = websocket_url
         )
 

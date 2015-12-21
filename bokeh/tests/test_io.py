@@ -159,7 +159,7 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(url=io._state.url,
                                      app_path=io._state.app_path,
-                                     session_id=io._state.session_id,
+                                     session_id=io._state.session_id_allowing_none,
                                      document=io._state.document,
                                      io_loop=None))
 
@@ -167,7 +167,7 @@ class TestPush(DefaultStateTester):
     def test_noargs(self, mock_push_to_server):
         # if we had called output_server, the state object would be set
         # up like this
-        io._state.session_id = "fakesessionid"
+        io._state.session_id_allowing_none = "fakesessionid"
         io._state.url = "http://example.com/"
         io._state.app_path = "/bar"
         io._state.server_enabled = True
@@ -199,7 +199,7 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(url="http://example.com/",
                                      app_path=io._state.app_path,
-                                     session_id=io._state.session_id,
+                                     session_id=io._state.session_id_allowing_none,
                                      document=io._state.document,
                                      io_loop=None))
 
@@ -212,7 +212,7 @@ class TestPush(DefaultStateTester):
         self._check_func_called(mock_push_to_server, (),
                                 dict(url=io._state.url,
                                      app_path=io._state.app_path,
-                                     session_id=io._state.session_id,
+                                     session_id=io._state.session_id_allowing_none,
                                      document=d,
                                      io_loop=None))
 
@@ -243,7 +243,7 @@ class TestPush(DefaultStateTester):
         state = Mock()
         state.document = d
         state.url = url
-        state.session_id = session_id
+        state.session_id_allowing_none = session_id
         io.push(state=state)
         self._check_func_called(mock_push_to_server, (),
                                 dict(url="https://example.com/state/",
@@ -271,7 +271,7 @@ class Test_ShowWithState(DefaultStateTester):
     @patch('bokeh.io._show_notebook_with_state')
     @patch('bokeh.io._show_server_with_state')
     @patch('bokeh.io._show_file_with_state')
-    @patch('bokeh.browserlib.get_browser_controller')
+    @patch('bokeh.util.browser.get_browser_controller')
     def test_notebook(self, mock_get_browser_controller,
             mock__show_file_with_state, mock__show_server_with_state,
             mock__show_notebook_with_state):
@@ -298,7 +298,7 @@ class Test_ShowWithState(DefaultStateTester):
     @patch('bokeh.io._show_notebook_with_state')
     @patch('bokeh.io._show_server_with_state')
     @patch('bokeh.io._show_file_with_state')
-    @patch('bokeh.browserlib.get_browser_controller')
+    @patch('bokeh.util.browser.get_browser_controller')
     def test_no_notebook(self, mock_get_browser_controller,
             mock__show_file_with_state, mock__show_server_with_state,
             mock__show_notebook_with_state):

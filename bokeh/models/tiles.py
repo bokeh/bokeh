@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from ..model import Model
 
-from ..properties import (Any, Dict, Float, String, Int, Bool)
+from ..core.properties import (Any, Dict, Float, String, Int, Bool)
 
 class TileSource(Model):
     """ A base class for all tile source types. ``TileSource`` is

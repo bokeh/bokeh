@@ -8,9 +8,9 @@
     :local:
     :depth: 2
 
-.. autofunction:: bokeh.plotting.figure
+.. autofunction:: bokeh.plotting.figure.figure
 
-.. autoclass:: bokeh.plotting.Figure
+.. autoclass:: bokeh.plotting.figure.Figure
     :members:
     :undoc-members:
 

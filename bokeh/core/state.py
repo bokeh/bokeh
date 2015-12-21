@@ -41,9 +41,9 @@ import os
 # Third-party imports
 
 # Bokeh imports
-from .document import Document
-from .resources import Resources, _SessionCoordinates
-from .client import DEFAULT_SESSION_ID
+from ..document import Document
+from ..resources import Resources, _SessionCoordinates
+from ..client import DEFAULT_SESSION_ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -112,6 +112,10 @@ class State(object):
     @property
     def session_id(self):
         return self._session_coords.session_id
+
+    @property
+    def session_id_allowing_none(self):
+        return self._session_coords.session_id_allowing_none
 
     @property
     def url(self):

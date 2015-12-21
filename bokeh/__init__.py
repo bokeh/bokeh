@@ -22,7 +22,7 @@ del logconfig
 
 # configure deprecation warnings
 import warnings
-from .deprecate import BokehDeprecationWarning
+from .util.deprecate import BokehDeprecationWarning
 warnings.simplefilter('always', BokehDeprecationWarning)
 
 # imports below are names we want to make available in the bokeh
@@ -32,6 +32,21 @@ from . import sampledata; sampledata
 
 
 def test(args=None):
+    ''' Run the Bokeh tests under the bokeh python directory using pytest.
+
+    Does not run tests from bokehjs or examples.
+
+    Args:
+        args(list, optional): command line arguments accepted by py.test
+
+            e.g. args=['-s', '-k charts'] prevents capture of standard out
+            and only runs tests that match charts. For more py.test options
+            see http://pytest.org/latest/usage.html#usage.
+
+    Returns:
+        int: pytest exitcode
+
+    '''
     from .util.testing import runtests
     return runtests(args)
 

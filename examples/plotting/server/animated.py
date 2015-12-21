@@ -1,7 +1,3 @@
-# The plot server must be running (`bokeh serve`) then run this script to push to it
-
-import time
-
 from numpy import pi, cos, sin, linspace, roll, zeros_like
 
 from bokeh.plotting import figure
@@ -22,23 +18,21 @@ cx = cy = zeros_like(rmin)
 
 # figure() function auto-adds the figure to curdoc()
 p = figure(x_range=(-11, 11), y_range=(-11, 11))
-p.annular_wedge(cx, cy, rmin, rmax, theta[:-1], theta[1:],
-                fill_color=colors, line_color="white", name="glyph")
+r = p.annular_wedge(cx, cy, rmin, rmax, theta[:-1], theta[1:],
+                    fill_color=colors, line_color="white")
 
-# Open a session which will keep our local doc in sync with server
+# open a session to keep our local document in sync with server
 session = push_session(curdoc())
 
-# Open the session in a browser
-session.show()
+ds = r.data_source
 
-ds = p.select_one(dict(name="glyph")).data_source
-
-# These changes to our document will automatically go to the server
-while True:
-
+def update():
     rmin = roll(ds.data["inner_radius"], 1)
     rmax = roll(ds.data["outer_radius"], -1)
-
     ds.data.update(inner_radius=rmin, outer_radius=rmax)
 
-    time.sleep(.03)
+curdoc().add_periodic_callback(update, 30)
+
+session.show() # open the document in a browser
+
+session.loop_until_closed() # run forever

@@ -4,7 +4,7 @@ import numpy as np
 
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, Circle, VBox, HBox, Button, TapTool
 from bokeh.document import Document
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.client import push_session
 
 document = Document()

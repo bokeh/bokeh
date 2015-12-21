@@ -5,7 +5,7 @@ from six import iteritems
 from bokeh.models.glyphs import Glyph
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
-from bokeh.properties import (HasProps, String, Either, Float, Color, Instance, List,
+from bokeh.core.properties import (HasProps, String, Either, Float, Color, Instance, List,
                               Any, Dict)
 from .properties import ColumnLabel, Column
 

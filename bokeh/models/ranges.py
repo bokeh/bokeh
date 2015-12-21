@@ -6,8 +6,8 @@ and with options for "auto sizing".
 from __future__ import absolute_import
 
 from ..model import Model
-from ..properties import abstract
-from ..properties import Int, Float, String, Datetime, Instance, List, Either
+from ..core.properties import abstract
+from ..core.properties import Int, Float, String, Datetime, Instance, List, Either
 from .callbacks import Callback
 from .renderers import Renderer
 

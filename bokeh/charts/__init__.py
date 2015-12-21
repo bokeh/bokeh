@@ -1,7 +1,13 @@
 from __future__ import absolute_import
 
+from ..util.dependencies import import_required
+import_required(
+    'pandas',
+    'The bokeh.charts interface requires Pandas (http://pandas.pydata.org) to be installed.'
+)
+
 # defaults and constants
-from ..plotting_helpers import DEFAULT_PALETTE
+from ..plotting.helpers import DEFAULT_PALETTE
 
 # main components
 from .chart import Chart, defaults
