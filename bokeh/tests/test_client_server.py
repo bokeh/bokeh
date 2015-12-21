@@ -885,29 +885,37 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch):
         assert client_root.distance == 42
         assert server_root.angle == 0
 
-        got_angry = {}
-        got_angry['result'] = None
-        # trap any boomerang
-        def get_angry(message):
-            got_angry['result'] = message
-        monkeypatch.setattr(client_session, '_handle_patch', get_angry)
+        def change_to(new_distance, new_angle):
+            got_angry = {}
+            got_angry['result'] = None
+            # trap any boomerang
+            def get_angry(message):
+                got_angry['result'] = message
+            monkeypatch.setattr(client_session, '_handle_patch', get_angry)
 
-        # Now modify the client document
-        client_root.distance = 57
-        client_root.angle = 1
+            server_previous_distance = server_root.distance
+            server_previous_angle = server_root.angle
 
-        # wait until server side change made ... but we may not have the
-        # boomerang yet
-        def server_change_made():
-            return server_root.distance == 57 and server_root.angle == 1
-        client_session._connection._loop_until(server_change_made)
-        assert server_root.distance == 57
-        assert server_root.angle == 1
+            # Now modify the client document
+            client_root.distance = new_distance
+            client_root.angle = new_angle
 
-        # force a round trip to be sure we get the boomerang if we're going to
-        client_session.force_roundtrip()
+            # wait until server side change made ... but we may not have the
+            # boomerang yet
+            def server_change_made():
+                return server_root.distance != server_previous_distance and \
+                    server_root.angle != server_previous_angle
+            client_session._connection._loop_until(server_change_made)
 
-        assert got_angry['result'] is None
+            # force a round trip to be sure we get the boomerang if we're going to
+            client_session.force_roundtrip()
+
+            assert got_angry['result'] is None
+
+        change_to(57, 1)
+        change_to({ 'value' : 58 }, { 'value' : 2 })
+        change_to({ 'field' : 'foo' }, { 'field' : 'bar' })
+        change_to({ 'value' : 59, 'units' : 'screen' }, { 'value' : 30, 'units' : 'deg' })
 
         client_session.close()
         client_session.loop_until_closed()
