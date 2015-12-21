@@ -1,6 +1,6 @@
 '''
 This module provides a table of data regarding bachelors degrees earned by
-women, broken down by field for any given year. It exposes a an attribute
+women, broken down by field for any given year. It exposes an attribute
 'xyvalues' which is a pandas dataframe with the following fields:
 
     Year
