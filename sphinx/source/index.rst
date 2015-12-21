@@ -23,25 +23,66 @@ the :ref:`devguide`.
 
 .. include:: docs/includes/hero.txt
 
-Contents
---------
-
 .. toctree::
-   :maxdepth: 2
 
-   docs/installation.rst
-   docs/user_guide.rst
-   docs/gallery.rst
-   docs/reference.rst
-   docs/release_notes.rst
-   docs/dev_guide.rst
-
-
-.. _indices:
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    docs/installation
+    docs/user_guide/quickstart
+    docs/user_guide/setup
+    docs/user_guide/concepts
+    docs/user_guide/plotting
+    docs/user_guide/charts
+    docs/user_guide/compat
+    docs/user_guide/styling
+    docs/user_guide/tools
+    docs/user_guide/layout
+    docs/user_guide/notebook
+    docs/user_guide/interaction
+    docs/user_guide/cli
+    docs/user_guide/server
+    docs/user_guide/embed
+    docs/user_guide/webgl
+    docs/user_guide/geo
+    docs/user_guide/info
+    docs/user_guide/tutorials
+    docs/gallery
+    docs/reference/properties
+    docs/reference/models
+    docs/reference/validation
+    docs/reference/plotting
+    docs/reference/charts
+    docs/reference/palettes
+    docs/reference/resources_embedding
+    docs/reference/plot_objects
+    docs/reference/bokehjs
+    docs/reference/sphinxext
+    docs/releases/0.10.0
+    docs/releases/0.9.3
+    docs/releases/0.9.2
+    docs/releases/0.9.1
+    docs/releases/0.9.0
+    docs/releases/0.8.2
+    docs/releases/0.8.1
+    docs/releases/0.8.0
+    docs/releases/0.7.1
+    docs/releases/0.7.0
+    docs/releases/0.6.1
+    docs/releases/0.6.0
+    docs/releases/0.5.2
+    docs/releases/0.5.1
+    docs/releases/0.5.0
+    docs/releases/0.4.4
+    docs/releases/0.4.2
+    docs/releases/0.4.1
+    docs/releases/0.4.0
+    docs/releases/0.3.0
+    docs/releases/0.2.0
+    docs/releases/0.1.0
+    docs/dev_guide/process.rst
+    docs/dev_guide/setup.rst
+    docs/dev_guide/documentation.rst
+    docs/dev_guide/testing.rst
+    docs/dev_guide/objects.rst
+    docs/dev_guide/server.rst
+    docs/dev_guide/bindings.rst
+    docs/dev_guide/notes.rst
+    docs/dev_guide/bokehjs.rst
