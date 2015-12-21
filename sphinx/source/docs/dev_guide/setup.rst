@@ -337,6 +337,13 @@ There are several environment variables that can be useful for developers:
         This variable is only used when building documentation from the
         development version.
 
+* ``BOKEH_DOCS_CSS_SERVER`` --- Where to get the css stylesheet from, by
+    default this will be bokehplots.com
+
+    .. note::
+        This variable is only used when building documentation from the
+        development version.
+
 * ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use
     Valid values are, in order of increasing severity:
 

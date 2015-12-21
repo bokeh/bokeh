@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
 
 #
 # Bokeh documentation build configuration file, created by
@@ -157,7 +158,8 @@ html_context = {
         ('Releases', 'releases'),
         ('Developer Guide', 'dev_guide'),
     ),
-    'ALL_VERSIONS': ['0.9.3', '0.8.2', '0.7.0', '0.6.0', '0.5.0']
+    'ALL_VERSIONS': ['0.9.3', '0.8.2', '0.7.0', '0.6.0', '0.5.0'],
+    'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 
 
