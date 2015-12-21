@@ -5,8 +5,8 @@ of plots.
 from __future__ import absolute_import
 
 from ..model import Model
-from ..properties import abstract
-from ..properties import Int, Float, Seq, Instance, Override
+from ..core.properties import abstract
+from ..core.properties import Int, Float, Seq, Instance, Override
 
 @abstract
 class Ticker(Model):

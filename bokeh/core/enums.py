@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 from six import string_types
 
-from . import colors, icons, palettes
+from .. import colors, icons, palettes
 
 class Enumeration(object):
 

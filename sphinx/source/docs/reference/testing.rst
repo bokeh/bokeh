@@ -1,5 +1,6 @@
-Plot Objects
-============
+
+Testing
+=======
 
 .. _bokeh_module:
 
@@ -10,12 +11,4 @@ The ``bokeh`` module itself contains a few useful functions for testing
 and reporting issues:
 
 .. autofunction:: bokeh.test
-
-.. _bokeh.document:
-
-``bokeh.document``
-------------------
-
-.. automodule:: bokeh.document
-    :members:
 

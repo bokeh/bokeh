@@ -4,13 +4,12 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..deprecate import deprecated
-from ..enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode
-from ..mixins import LineProps, FillProps, TextProps
-from ..properties import abstract
-from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
+from ..core.enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode
+from ..core.property_mixins import LineProps, FillProps, TextProps
+from ..core.properties import abstract
+from ..core.properties import (Int, String, Enum, Instance, List, Dict, Tuple,
                           Include, NumberSpec, Either, Auto, Float, Override)
-
+from ..util.deprecate import deprecated
 from .renderers import Renderer, GlyphRenderer
 
 @abstract
@@ -47,7 +46,7 @@ class Legend(Annotation):
     location = Either(Enum(LegendLocation), Tuple(Float, Float),
         default="top_right", help="""
     The location where the legend should draw itself. It's either one of
-    ``bokeh.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
     """)

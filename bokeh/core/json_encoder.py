@@ -1,19 +1,20 @@
 from __future__ import absolute_import
 
-import json
 import logging
-import datetime as dt
-import calendar
-import decimal
+log = logging.getLogger(__name__)
 
-from .util.dependencies import import_optional
-from .util.serialization import transform_series, transform_array
+import calendar
+import datetime as dt
+import decimal
+import json
+
 import numpy as np
+
+from ..util.dependencies import import_optional
+from ..util.serialization import transform_series, transform_array
 
 pd = import_optional('pandas')
 dateutil = import_optional('dateutil')
-
-log = logging.getLogger(__name__)
 
 class BokehJSONEncoder(json.JSONEncoder):
     def transform_python_types(self, obj):
@@ -53,9 +54,9 @@ class BokehJSONEncoder(json.JSONEncoder):
 
     def default(self, obj):
         #argh! local import!
-        from .model import Model
+        from ..model import Model
+        from ..colors import Color
         from .properties import HasProps
-        from .colors import Color
         ## array types
         if pd and isinstance(obj, (pd.Series, pd.Index)):
             return transform_series(obj)

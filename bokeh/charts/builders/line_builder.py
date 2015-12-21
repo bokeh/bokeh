@@ -24,7 +24,7 @@ from ..glyphs import LineGlyph, PointGlyph
 from ..attributes import DashAttr, ColorAttr, MarkerAttr
 from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
-from ...properties import Bool, String, List
+from ...core.properties import Bool, String, List
 from ..operations import Stack, Dodge
 
 # -----------------------------------------------------------------------------

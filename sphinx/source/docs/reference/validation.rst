@@ -1,8 +1,8 @@
 
-.. _bokeh.validation:
+.. _bokeh.core.validation:
 
-``bokeh.validation`` Package
-============================
+``bokeh.core.validation``
+=========================
 
 To create a Bokeh visualization, the central task is to assemble a collection
 model objects from |bokeh.models| into a graph that represents the scene that
@@ -18,42 +18,42 @@ To assist with diagnosing potential problems, Bokeh performs a validation step
 when outputting a visualization for display. These errors and warnings are
 outlined below.
 
-.. _bokeh.validation.errors:
+.. _bokeh.core.validation.errors:
 
-``bokeh.validation.errors``
----------------------------
+``bokeh.core.validation.errors``
+--------------------------------
 
-.. automodule:: bokeh.validation.errors
+.. automodule:: bokeh.core.validation.errors
    :members:
    :undoc-members:
 
 
-.. _bokeh.validation.warnings:
+.. _bokeh.core.validation.warnings:
 
-``bokeh.validation.warnings``
------------------------------
+``bokeh.core.validation.warnings``
+----------------------------------
 
-.. automodule:: bokeh.validation.warnings
+.. automodule:: bokeh.core.validation.warnings
    :members:
    :undoc-members:
 
 
-.. _bokeh.validation.decorators:
+.. _bokeh.core.validation.decorators:
 
-``bokeh.validation.decorators``
--------------------------------
+``bokeh.core.validation.decorators``
+------------------------------------
 
-.. autofunction:: bokeh.validation.decorators.error
+.. autofunction:: bokeh.core.validation.decorators.error
 
-.. autofunction:: bokeh.validation.decorators.warning
+.. autofunction:: bokeh.core.validation.decorators.warning
 
 
-.. _bokeh.validation.exceptions:
+.. _bokeh.core.validation.exceptions:
 
-``bokeh.validation.exceptions``
--------------------------------
+``bokeh.core.validation.exceptions``
+------------------------------------
 
-.. automodule:: bokeh.validation.exceptions
+.. automodule:: bokeh.core.validation.exceptions
    :members:
    :undoc-members:
 

@@ -6,10 +6,10 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
-from ...properties import abstract
-from ...properties import Int, Instance, List
-from ...validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
-from ... import validation
+from ...core import validation
+from ...core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
+from ...core.properties import abstract
+from ...core.properties import Int, Instance, List
 
 from ..component import Component
 from .widget import Widget

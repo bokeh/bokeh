@@ -29,15 +29,13 @@ window_size = 30
 window = np.ones(window_size)/float(window_size)
 aapl_avg = np.convolve(aapl, window, 'same')
 
-cds = ColumnDataSource(
-    {'dates': np.array(AAPL['date'], dtype=np.datetime64), 'adj_close': AAPL['adj_close'],
-    'avg': aapl_avg}
-    )
+cds = ColumnDataSource({
+    'dates': np.array(AAPL['date'], dtype=np.datetime64),
+    'adj_close': AAPL['adj_close'],
+    'avg': aapl_avg
+})
+
 p2 = figure(x_axis_type="datetime")
-
-p2.circle('dates', 'adj_close', size=4, color='darkgrey', alpha=0.2, legend='close', source=cds)
-p2.line('dates', 'avg', color='navy', legend='avg', source=cds)
-
 p2.title = "AAPL One-Month Average"
 p2.grid.grid_line_alpha=0
 p2.xaxis.axis_label = 'Date'
@@ -45,11 +43,13 @@ p2.yaxis.axis_label = 'Price'
 p2.ygrid.band_fill_color="olive"
 p2.ygrid.band_fill_alpha = 0.1
 
-# Open a session which will keep our local doc in sync with server
+p2.circle('dates', 'adj_close', size=4, color='darkgrey', alpha=0.2, legend='close', source=cds)
+p2.line('dates', 'avg', color='navy', legend='avg', source=cds)
+
+# open a session to keep our local document in sync with server
 session = push_session(curdoc())
-# Open the session in a browser
-layout = hplot(p1,p2)
-session.show(layout)
+
+layout = hplot(p1, p2)
 
 def get_change_datasource_cb(data, stockname):
     def cb():
@@ -66,14 +66,10 @@ def get_change_datasource_cb(data, stockname):
 
     return cb
 
-def register_callbacks():
-    for i, (callback, stockname) in enumerate([(FB, 'FB'), (GOOG, 'GOOG'), (IBM, 'IBM'), (MSFT, 'MSFT'), (AAPL, 'AAPL')]):
-        cb = get_change_datasource_cb(callback, stockname)
-        curdoc().add_timeout_callback(cb, (i+1)*5)
+for i, (callback, stockname) in enumerate([(FB, 'FB'), (GOOG, 'GOOG'), (IBM, 'IBM'), (MSFT, 'MSFT'), (AAPL, 'AAPL')]):
+    cb = get_change_datasource_cb(callback, stockname)
+    curdoc().add_timeout_callback(cb, i*5+1)
 
+session.show(layout) # open the document in a browser
 
-
-register_callbacks()
-
-# Start the session loop
-session.loop_until_closed()
+session.loop_until_closed() # run forever
