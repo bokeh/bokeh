@@ -64,32 +64,29 @@ class _AsyncPeriodic(object):
         self._func = func
         self._loop = io_loop
         self._period = period
-        self._handle = None
-        self._last_start_time = None
-
-    def _step(self):
-        ''' Invoke async _func() and re-schedule next invocation '''
-        future = self._func()
-        def on_done(future):
-            now = self._loop.time()
-            duration = (now - self._last_start_time)
-            self._last_start_time = now
-            next_period = max(self._period - duration, 0)
-            # IOLoop.call_later takes a delay in seconds
-            self._handle = self._loop.call_later(next_period/1000.0, self._step)
-            if future.exception() is not None:
-                log.error("Error thrown from periodic callback: %r", future.exception())
-        self._loop.add_future(future, on_done)
+        self._started = False
+        self._stopped = False
 
     def start(self):
-        self._last_start_time = self._loop.time()
-        # IOLoop.call_later takes a delay in seconds
-        self._handle = self._loop.call_later(self._period/1000.0, self._step)
+        if self._started:
+            raise RuntimeError("called start() twice on _AsyncPeriodic")
+        self._started = True
+        def schedule():
+            # important to start the sleep before starting callback
+            # so any initial time spent in callback "counts against"
+            # the period.
+            sleep_future = gen.sleep(self._period / 1000.0)
+            callback_future = self._func()
+            return gen.multi([sleep_future, callback_future])
+        def on_done(future):
+            if not self._stopped:
+                self._loop.add_future(schedule(), on_done)
+            if future.exception() is not None:
+                log.error("Error thrown from periodic callback: %r", future.exception())
+        self._loop.add_future(schedule(), on_done)
 
     def stop(self):
-        if self._handle is not None:
-            self._loop.remove_timeout(self._handle)
-            self._handle = None
+        self._stopped = True
 
 class ServerSession(object):
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.

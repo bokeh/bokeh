@@ -472,7 +472,8 @@ class TestClientServer(unittest.TestCase):
                 iocb = ss._callbacks[callback.id]
                 assert iocb._period == 1
                 assert iocb._loop == server.io_loop
-                assert iocb._handle is not None
+                assert iocb._started
+                assert not iocb._stopped
                 started_callbacks.append(iocb)
 
             for ss in [client_session]:
@@ -489,10 +490,10 @@ class TestClientServer(unittest.TestCase):
             assert len(server_session._callbacks) == 0
 
             for iocb in started_callbacks:
-                if hasattr(iocb, '_handle'):
-                    assert iocb._handle is None
+                if hasattr(iocb, '_stopped'):
+                    assert iocb._stopped # server
                 else:
-                    assert not iocb.is_running()
+                    assert not iocb.is_running() # client
 
     def test_session_timeout_callback(self):
         application = Application()
