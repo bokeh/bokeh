@@ -715,7 +715,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
     # instead of models, and takes a doc to look up the refs in
     def _json_record_references(doc, v, result, recurse):
         if v is None: return
-        if isinstance(v, dict) and set(v.keys()) == set(['id', 'type']):
+        if isinstance(v, dict) and set(['id', 'type']).issubset(set(v.keys())):
             if v['id'] not in result:
                 model = doc.get_model_by_id(v['id'])
                 HasProps._value_record_references(model, result, recurse)
