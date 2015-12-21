@@ -3,10 +3,6 @@
 Styling Visual Attributes
 =========================
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _userguide_styling_using_palettes:
 
 Using Palettes

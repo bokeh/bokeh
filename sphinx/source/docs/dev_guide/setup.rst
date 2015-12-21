@@ -3,11 +3,6 @@
 Getting Set Up
 ==============
 
-.. contents::
-    :local:
-    :depth: 2
-
-
 The Bokeh project encompasses two major components: the Bokeh package source
 code, written in Python, and the BokehJS client-side library, written in
 CoffeeScript. Accordingly, development of Bokeh is slightly complicated by
