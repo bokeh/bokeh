@@ -55,8 +55,15 @@
   <div class="second-nav">
     <nav>
       <ul class="navigation-menu show">
+        <li class="nav-link more"><a href="{{ pathto('index') }}">{{ version }}</a>
+            <ul class="submenu">
+              {% for version in ALL_VERSIONS %}
+              <li class="version-link"><a href="//bokeh.pydata.org/en/{{ version }}/">{{ version }}</a></li>
+              {% endfor %}
+            </ul>
+        </li>
         {%- for name, link in NAV_DOCS  %}
-            <li class="nav-link"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+            <li class="nav-link doc-head"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
         {%- endfor %}
       </ul>
     </nav>

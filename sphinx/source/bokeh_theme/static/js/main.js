@@ -15,7 +15,7 @@ $(document).ready(function() {
   var loc = window.location.pathname;
 
   if (loc.split('docs/').length == 1 ) {
-    // If index.html only show top-level toc
+    // If index.html hide toc
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
 
@@ -42,7 +42,8 @@ $(document).ready(function() {
       }
     });
 
-    var nav_links = $('.second-nav .nav-link a');
+    // Add current class to the section of docs we're in
+    var nav_links = $('.nav-link.doc-head a');
     nav_links.each(function(i, nav_link) {
       var href = nav_link.href;
       var href_part = href.split('docs/')[1].split('.html')[0];
@@ -54,6 +55,5 @@ $(document).ready(function() {
       }
     });
   }
-
 });
 
