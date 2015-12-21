@@ -34,6 +34,10 @@ data and properties in the notebook, so that any plots, etc are made to
 update. A common use of |push_notebook| is in an update callback for
 interactors. An example is shown below:
 
+.. warning::
+    Currently, ``push_notebook`` always updates only the ***last shown
+    object***.
+
 .. image:: /_images/notebook_interactors.png
     :scale: 50 %
     :align: center
