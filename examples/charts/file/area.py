@@ -12,21 +12,12 @@ xyvalues = OrderedDict(
     jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
 )
 
+area1 = Area(xyvalues, title="Area Chart", legend="top_left",
+             xlabel='time', ylabel='memory')
+
+area2 = Area(xyvalues, title="Stacked Area Chart", legend="top_left",
+             stack=True, xlabel='time', ylabel='memory')
+
 output_file(filename="area.html")
 
-area1 = Area(
-    xyvalues, title="Area Chart",
-    xlabel='time', ylabel='memory', legend="top_left"
-)
-
-area2 = Area(
-    xyvalues, title="Stacked Area Chart", stack=True,
-    xlabel='time', ylabel='memory', legend="top_left"
-)
-
-show(
-    vplot(
-        area1,
-        area2
-    )
-)
+show(vplot(area1, area2))

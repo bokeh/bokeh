@@ -42,4 +42,5 @@ d10 = Donut(autompg, label=['cyl', 'origin'],
            values='displ', agg='mean', level_spacing=[0.8, 0.3])
 
 output_file("donut_multi.html")
+
 show(vplot(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10))
