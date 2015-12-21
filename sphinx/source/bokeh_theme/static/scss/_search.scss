@@ -1,0 +1,60 @@
+$navigation-color: transparentize(white, 0.3);
+$navigation-background: $light-grey;
+$navigation-search-background: lighten($navigation-background, 5);
+$navigation-search-border: 1px solid darken($navigation-background, 5);
+
+// Search bar
+
+.search-bar {
+  $search-bar-border-color: $base-border-color;
+  $search-bar-border: 1px solid $search-bar-border-color;
+  $search-bar-background: lighten($search-bar-border-color, 10%);
+
+  float: left;
+  width: 60%;
+
+  position: relative;
+
+  input[type=search] {
+    box-sizing: border-box;
+    background: $navigation-search-background;
+    border: $navigation-search-border;
+    color: $plum;
+    font-size: 0.75em;
+    margin: 0;
+    padding: 0.25em 0.4em;
+    width: 100%;
+  }
+  @include media($large_screen) {
+    width: 100%;
+  }
+
+  button[type=submit] {
+    background: $navigation-search-background;
+    border: none;
+    bottom: 0.1em;
+    left: auto;
+    outline: none;
+    padding: 0 9px;
+    position: absolute;
+    right: 0.1em;
+    top: 0.2em;
+
+    img {
+      height: 12px;
+      opacity: 0.7;
+      padding: 1px;
+    }
+  }
+}
+
+@include media($large-screen) {
+  display: inline-block;
+  position: relative;
+  width: 16em;
+
+  input {
+    box-sizing: border-box;
+    display: block;
+  }
+}
