@@ -24,7 +24,7 @@ from ..operations import Aggregate
 from ..attributes import ColorAttr
 from ..glyphs import BinGlyph
 from ..utils import build_agg_tooltip
-from ...properties import Float, String
+from ...core.properties import Float, String
 
 from bokeh.palettes import Blues6
 

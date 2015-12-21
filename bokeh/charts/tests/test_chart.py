@@ -161,7 +161,7 @@ class TestChart(unittest.TestCase):
         for i, _type in enumerate(expected_tools):
             self.assertIsInstance(tools[i], _type)
 
-    @patch('bokeh.plotting_helpers.warnings.warn')
+    @patch('bokeh.plotting.helpers.warnings.warn')
     def test_chart_tools_linear(self, mock_warn):
         base_args = dict(
             title="title", xlabel="xlabel", ylabel="ylabel",

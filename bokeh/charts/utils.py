@@ -25,16 +25,16 @@ import pandas as pd
 import numpy as np
 from six import iteritems
 
-from ..browserlib import view
 from ..document import Document
 from ..embed import file_html
 from ..models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..models.sources import ColumnDataSource
+from ..plotting.helpers import DEFAULT_PALETTE
 from ..resources import INLINE
+from ..util.browser import view
 from ..util.notebook import publish_display_data
-from ..plotting_helpers import DEFAULT_PALETTE
 
 #-----------------------------------------------------------------------------
 # Classes and functions

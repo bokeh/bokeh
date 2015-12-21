@@ -7,7 +7,7 @@ import_required(
 )
 
 # defaults and constants
-from ..plotting_helpers import DEFAULT_PALETTE
+from ..plotting.helpers import DEFAULT_PALETTE
 from .chart_options import default_options as defaults
 
 # main components

@@ -28,7 +28,7 @@ from ...models.glyphs import AnnularWedge, Text
 from ...models.renderers import GlyphRenderer
 from ...models.ranges import Range1d
 from ..properties import Dimension
-from ...properties import String, Instance, Float, Color, Either, List
+from ...core.properties import String, Instance, Float, Color, Either, List
 
 #-----------------------------------------------------------------------------
 # Classes and functions

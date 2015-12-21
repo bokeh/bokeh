@@ -30,7 +30,7 @@ def _with_directory_contents(contents, func):
 script_adds_two_roots_template = """
 from bokeh.io import curdoc
 from bokeh.model import Model
-from bokeh.properties import Int, Instance
+from bokeh.core.properties import Int, Instance
 
 class %s(Model):
     bar = Int(1)

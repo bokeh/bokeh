@@ -41,9 +41,9 @@ import os
 # Third-party imports
 
 # Bokeh imports
-from .document import Document
-from .resources import Resources, _SessionCoordinates
-from .client import DEFAULT_SESSION_ID
+from ..document import Document
+from ..resources import Resources, _SessionCoordinates
+from ..client import DEFAULT_SESSION_ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants

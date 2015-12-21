@@ -13,13 +13,13 @@ import uuid
 
 from six import string_types
 
+from .core.json_encoder import serialize_json
+from .core.query import find
+from .core.validation import check_integrity
 from .model import Model
-from .query import find
-from .deprecate import deprecated
-from .validation import check_integrity
 from .util.callback_manager import _check_callback
+from .util.deprecate import deprecated
 from .util.version import __version__
-from ._json_encoder import serialize_json
 from .themes import default as default_theme
 from .themes import Theme
 
@@ -186,7 +186,9 @@ class _MultiValuedDict(object):
             return [existing]
 
 class Document(object):
+    '''
 
+    '''
     def __init__(self, **kwargs):
         self._roots = list()
         self._theme = kwargs.pop('theme', default_theme)
@@ -330,13 +332,17 @@ class Document(object):
     @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
+
         .. warning::
             This function should only be called on top level objects such
             as Plot, and Layout containers.
+
         Args:
             *objects (Model) : objects to add to the Document
+
         Returns:
             None
+
         """
         for obj in objects:
             self.add_root(obj)
@@ -720,7 +726,7 @@ class Document(object):
             period_milliseconds (int) : the number of milliseconds that should
                 be between each callback execution.
 
-        ..note::
+        .. note::
             Periodic callbacks only work within the context of a Bokeh server
             session. This function will no effect when Bokeh outputs to
             standalone HTML or Jupyter notebook cells.
@@ -746,7 +752,7 @@ class Document(object):
     def add_timeout_callback(self, callback, timeout_milliseconds, id=None):
         ''' Add callback to be invoked once, after a specified timeout passes.
 
-        ..note::
+        .. note::
             Timeout callbacks only work within the context of a Bokeh server
             session. This function will no effect when Bokeh outputs to
             standalone HTML or Jupyter notebook cells.
