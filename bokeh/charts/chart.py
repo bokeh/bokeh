@@ -35,7 +35,7 @@ from ..models import (
 )
 from ..plotting import DEFAULT_TOOLS
 from ..plotting.helpers import _process_tools_arg
-from ..properties import (HasProps, Auto, Bool, Either, Enum, Int, Float,
+from ..core.properties import (HasProps, Auto, Bool, Either, Enum, Int, Float,
                           String, Tuple, Override)
 from ..resources import INLINE
 from ..util.browser import view
@@ -76,10 +76,6 @@ class Chart(Plot):
 
     __view_model__ = "Plot"
     __subtype__ = "Chart"
-
-    title = String(None, help="""
-    A title for the chart.
-    """)
 
     legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
     A location where the legend should draw itself.
@@ -132,11 +128,7 @@ class Chart(Plot):
 
     title_text_font_size = Override(default={ 'value' : '14pt' })
 
-    responsive = Bool(False, help="""
-    If True, the chart will automatically resize based on the size of its container. The
-    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height``
-    will act only to set the initial aspect ratio.
-    """)
+    responsive = Override(default=False)
 
     _defaults = defaults
 
