@@ -478,13 +478,14 @@ def push_notebook(document=None, state=None):
         warnings.warn("No document to push")
         return
 
+    # state.last_comms also implies last_pushed_doc and last_pushed_json
     if not state.last_comms:
         warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show() before push_notebook()")
         return
 
     import json
     to_json = document.to_json()
-    if state.last_pushed_doc and state.last_pushed_doc != document:
+    if state.last_pushed_doc != document:
         msg = dict(doc=to_json)
     else:
         msg = Document._compute_patch_between_json(state.last_pushed_json, to_json, document)
