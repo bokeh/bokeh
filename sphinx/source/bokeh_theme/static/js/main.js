@@ -1,4 +1,5 @@
 $(document).ready(function() {
+
   var menuToggle = $('#js-mobile-menu').unbind();
   $('#js-navigation-menu').removeClass("show");
 
@@ -41,7 +42,7 @@ $(document).ready(function() {
       }
     });
 
-    var nav_links = $('.navigation.doc .nav-link a');
+    var nav_links = $('.second-nav .nav-link a');
     nav_links.each(function(i, nav_link) {
       var href = nav_link.href;
       var href_part = href.split('docs/')[1].split('.html')[0];
