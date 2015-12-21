@@ -7,7 +7,7 @@ from copy import copy
 import bokeh.document as document
 from bokeh.io import curdoc
 from bokeh.model import Model
-from bokeh.properties import Int, Instance, String, DistanceSpec
+from bokeh.core.properties import Int, Instance, String, DistanceSpec
 
 class AnotherModelInTestDocument(Model):
     bar = Int(1)

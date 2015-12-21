@@ -9,9 +9,9 @@ from bokeh.charts.properties import ColumnLabel
 from bokeh.charts.utils import marker_types
 from bokeh.charts.data_source import ChartDataSource
 from bokeh.charts.stats import Bins
-from bokeh.enums import DashPattern
+from bokeh.core.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource
-from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
+from bokeh.core.properties import (HasProps, String, List, Instance, Either, Any, Dict,
                               Bool, Override)
 
 

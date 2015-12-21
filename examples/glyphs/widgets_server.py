@@ -3,7 +3,7 @@ from __future__ import print_function
 from datetime import date
 from random import randint
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.models.glyphs import Line, Circle
 from bokeh.models import (

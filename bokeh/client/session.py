@@ -169,8 +169,8 @@ def show_session(session_id=None, url='default', app_path='/',
             session_id = coords.session_id
 
         if controller is None:
-            import bokeh.browserlib as browserlib
-            controller = browserlib.get_browser_controller(browser=browser)
+            from bokeh.util.browser import get_browser_controller
+            controller = get_browser_controller(browser=browser)
 
         controller.open(server_url + "?bokeh-session-id=" + _encode_query_param(session_id),
                         new=_new_param[new])

@@ -6,7 +6,7 @@ from bokeh.application.handlers import FunctionHandler
 from bokeh.document import Document
 
 from bokeh.model import Model
-from bokeh.properties import Int, Instance
+from bokeh.core.properties import Int, Instance
 
 class AnotherModelInTestFunction(Model):
     bar = Int(1)

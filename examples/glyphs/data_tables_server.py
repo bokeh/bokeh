@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
 from bokeh.models.widgets import (
     Select, DataTable, TableColumn, StringFormatter, HBox, VBox,

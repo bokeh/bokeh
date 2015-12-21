@@ -14,15 +14,16 @@ from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger(__name__)
+
+import copy
 from os.path import join, relpath
 import re
-import copy
 
 from . import __version__
+from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
 from .util.paths import bokehjsdir
 from .util.session_id import generate_session_id
-from .templates import JS_RESOURCES, CSS_RESOURCES
 
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006

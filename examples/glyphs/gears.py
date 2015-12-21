@@ -5,7 +5,7 @@ from math import pi
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 
 from bokeh.models import Range1d, Plot, PanTool, WheelZoomTool, ResetTool
 from bokeh.models.glyphs import Gear

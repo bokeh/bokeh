@@ -27,7 +27,7 @@ from .utils import collect_attribute_columns, label_from_index_dict, build_hover
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
-from ..properties import (HasProps, Instance, List, String, Dict,
+from ..core.properties import (HasProps, Instance, List, String, Dict,
                           Color, Bool, Tuple, Either)
 
 #-----------------------------------------------------------------------------
