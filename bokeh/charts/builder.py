@@ -29,7 +29,7 @@ from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
 from ..core.properties import (HasProps, Instance, List, String, Dict,
                           Color, Bool, Tuple, Either)
-
+from ..io import curdoc, curstate
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -66,6 +66,11 @@ def create_and_build(builder_class, *data, **kws):
     chart = Chart(**chart_kws)
     chart.add_builder(builder)
     chart.start_plot()
+
+    curdoc()._current_plot = chart # TODO (havocp) store this on state, not doc?
+    if curstate().autoadd:
+        curdoc().add_root(chart)
+
 
     return chart
 
