@@ -400,6 +400,4 @@ on all charts created, in one place. For instance:
 will set the default width and height for any chart. The full list of
 attributes that can be set is below:
 
-.. bokeh-model:: bokeh.charts.chart_options.ChartOptions
-
-
+.. bokeh-model:: bokeh.charts.Chart
