@@ -8,10 +8,9 @@ import_required(
 
 # defaults and constants
 from ..plotting.helpers import DEFAULT_PALETTE
-from .chart_options import default_options as defaults
 
 # main components
-from .chart import Chart
+from .chart import Chart, defaults
 
 # operations and attributes for users to input into Charts
 from .attributes import color, marker, cat

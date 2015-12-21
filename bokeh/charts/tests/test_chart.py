@@ -21,7 +21,7 @@ import pytest
 
 import numpy as np
 
-from bokeh.charts.chart import Chart
+from bokeh.charts import Chart, defaults
 from bokeh.models import (
     ColumnDataSource, Grid, GlyphRenderer, LinearAxis, Range1d, Ticker)
 from bokeh.models.ranges import FactorRange
@@ -53,56 +53,8 @@ class TestChart(unittest.TestCase):
         self.chart.title = "new_title"
         self.assertEqual(self.chart.title, "new_title")
 
-    def test_xlabel(self):
-        self.chart.xlabel("new_xlabel")
-        self.assertEqual(self.chart._options.xlabel, "new_xlabel")
-
-    def test_ylabel(self):
-        self.chart.ylabel("new_ylabel")
-        self.assertEqual(self.chart._options.ylabel, "new_ylabel")
-
-    def test_legend(self):
-        self.chart.legend("bottom_right")
-        self.assertEqual(self.chart._options.legend, "bottom_right")
-        self.chart.legend(True)
-        self.assertTrue(self.chart._options.legend)
-
-    def test_xscale(self):
-        self.chart.xscale("datetime")
-        self.assertEqual(self.chart._options.xscale, "datetime")
-
-    def test_yscale(self):
-        self.chart.yscale("datetime")
-        self.assertEqual(self.chart._options.yscale, "datetime")
-
-    def test_width(self):
-        self.chart.width(400)
-        self.assertEqual(self.chart._options.width, 400)
-
-    def test_height(self):
-        self.chart.height(400)
-        self.assertEqual(self.chart._options.height, 400)
-
     def test_responsive(self):
-        self.assertEqual(self.chart._options.responsive, True)
-
-    def test_filename(self):
-        self.chart.filename("bar.html")
-        self.assertEqual(self.chart._options.filename, "bar.html")
-        self.chart.filename(True)
-        self.assertTrue(self.chart._options.filename)
-
-    def test_server(self):
-        self.chart.server("baz")
-        self.assertEqual(self.chart._options.server, "baz")
-        self.chart.server(True)
-        self.assertTrue(self.chart._options.server)
-
-    def test_notebook(self):
-        self.chart.notebook(True)
-        self.assertTrue(self.chart._options.notebook)
-        self.chart.notebook(False)
-        self.assertFalse(self.chart._options.notebook)
+        self.assertEqual(self.chart.responsive, True)
 
     def check_chart_elements(self, expected_tools):
         self.assertIsInstance(self.chart.left[0], LinearAxis)
@@ -185,13 +137,35 @@ class TestChart(unittest.TestCase):
         expected_tools = [ResizeTool, PanTool, BoxZoomTool, ResetTool, LassoSelectTool, LassoSelectTool]
         mock_warn.reset_mock()
 
-        # Finally check repeated tools
+        # Finally check removing tools
         base_args['tools'] = "resize,pan,box_zoom,reset,lasso_select,lasso_select"
 
         chart = Chart(**base_args)
         chart.x_range = FactorRange()
-        chart.tools = []
-        chart.create_tools(chart._options.tools)
 
         self.compare_tools(chart.tools, expected_tools)
         mock_warn.assert_any_call(msg_repeat)
+
+def test_chart_id():
+    chart = Chart(id='1234', title="title")
+    assert chart._id == '1234'
+
+def test_defaults():
+    c1 = Chart()
+    defaults.height = 1000
+    defaults.tools = False
+    c2 = Chart()
+    c3 = Chart()
+
+    assert c1.height == 400
+    assert c2.height == c3.height == 1000
+
+    assert c1.tools
+    assert c2.tools == c3.tools == []
+
+def test_charts_theme_validation():
+    from bokeh.plotting import figure
+    p = figure()
+
+    with pytest.raises(ValueError):
+        defaults.apply(p)
