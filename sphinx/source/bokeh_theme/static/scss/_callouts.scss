@@ -1,0 +1,48 @@
+.section .content { // Annoying - needed for specificity
+
+  .admonition-title {
+      font-family: $source-sans-font-family;
+      font-weight: $normal-weight;
+      color: $mint;
+      font-size: 1.3em;
+  }
+
+  .admonition {
+    margin: 1em 0;
+    border-left: 2em $charcoal solid;
+    background-color: lighten($light-grey, 5%);
+    padding: 0.5em 3em 0.5em 1em;
+
+    p {
+      margin: 0.2em 0;
+    }
+
+    &.note {
+        border-color: $aqua;
+        .admonition-title {
+          color: $aqua;
+        }
+    }
+
+    &.error {
+        border-color: red;
+        .admonition-title {
+          color: red;
+        }
+    }
+
+    &.warning {
+        border-color: $pink;
+        .admonition-title {
+          color: $pink;
+        }
+    }
+
+    &.alert {
+        border-color: $plum;
+        .admonition-title {
+          color: $plum;
+        }
+    }
+  }
+}

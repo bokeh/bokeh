@@ -1,0 +1,66 @@
+/*
+ *  Display Class documentation
+ */
+
+.class, .section {
+    clear: both;
+}
+
+.class {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px $light-charcoal solid;
+}
+
+.class > dt {
+    text-align: right;
+    float: right;
+    color: $pink;
+}
+
+dt:target, .highlighted {
+    background-color: #EEEEDD;
+}
+
+.class > dd {
+    padding-top: 10px;
+    clear: both;
+}
+
+.attribute > dt > code:before {
+    content: ' attr ';
+    font-style: italic;
+    color: $plum;
+    font-size: 0.8em;
+}
+
+.method > dt > code:before {
+    content: ' method ';
+    font-style: italic;
+    color: $plum;
+    font-size: 0.8em;
+}
+
+.classmethod > dt > .property {
+    font-style: italic;
+    color: $plum;
+    font-size: 0.9em;
+}
+
+.classmethod > dd > table,
+.method > dd > table,
+.attribute > dd > table {
+    margin-left: 40px;
+    margin-bottom: 0;
+}
+
+/* Give things some breathing room */
+.class ~ .panel-group {
+    float: left;
+}
+
+.xref .pre {
+    font-weight: normal;
+}
+
+

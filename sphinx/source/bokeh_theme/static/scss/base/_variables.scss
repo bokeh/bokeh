@@ -1,0 +1,69 @@
+// Bokeh Theme Colors
+$charcoal: #2f2f2f;
+$light-charcoal: #4c4c4c;
+$grey: #c4c3c3;
+$medium-grey: #e8e8e7;
+$light-grey: #e8e8e7;
+$white: #ffffff;
+$lime: #9fb744;
+$pink: #eb2a82;
+$light-pink: #f74ba1;
+$mint: #087d88;
+$aqua: #3bbcb5;
+$plum: #75436b;
+
+// Spacing
+$navigation-height: 40px;
+
+// Font Sizes
+$base-font-size: 16px;
+
+// Font-families
+$logo-font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+$source-sans-font-family: "Source Sans Pro", sans-serif; 
+$noto-sans-font-family: "Noto Sans", sans-serif;
+$normal-weight: 400;
+$logo-font-weight: $normal-weight;
+$source-sans-bold-font-weight: 600;
+$noto-bold-font-weight: 700;
+$logo-size: $base-font-size;
+
+// Typography
+$base-font-family: $noto-sans-font-family;
+$heading-font-family: $source-sans-font-family;
+
+// Line height
+$base-line-height: 1.5;
+$heading-line-height: 1.2;
+
+// Other Sizes
+$base-border-radius: 0px;
+$base-spacing: $base-line-height * 1em;
+$small-spacing: $base-spacing / 2;
+$base-z-index: 0;
+
+// Colors
+$blue: $aqua;
+$dark-gray: $grey;
+$medium-gray: $medium-grey;
+$light-gray: $light-grey;
+
+// Font Colors
+$base-font-color: $charcoal;
+$action-color: $pink;
+
+// Border
+$base-border-color: $light-gray;
+$base-border: 1px solid $base-border-color;
+
+// Background Colors
+$base-background-color: $white;
+$secondary-background-color: $light-grey;
+
+// Forms
+$form-box-shadow: inset 0 1px 3px rgba(#000, 0.06);
+$form-box-shadow-focus: $form-box-shadow, 0 0 5px adjust-color($action-color, $lightness: -5%, $alpha: -0.3);
+
+// Animations
+$base-duration: 150ms;
+$base-timing: ease;

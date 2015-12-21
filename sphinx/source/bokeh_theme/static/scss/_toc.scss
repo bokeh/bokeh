@@ -1,0 +1,125 @@
+.toc {
+
+  @include span-columns(3);
+  font-family: $source-sans-font-family;
+  margin-top: 3em;
+  padding: 2em 1em;
+  background-color: $menu-background-color;
+
+  .hide {
+    display: none;
+  }
+  &.obfuscate {
+    background-color: white;
+    width: 7%;
+  }
+  
+  ul {
+    margin-bottom: 0;
+  }
+  li {
+    &.divide-top {
+      border-top: solid 1px hsl(0, 0%, 25%);
+    } 
+    &.divide-bottom {
+      border-bottom: solid 1px hsl(0, 0%, 25%);
+    }
+    &.current {
+      background: lighten($menu-background-color, 10%);
+      a {
+        color: $menu-link-base-color;
+        padding: $gutter / 4 $gutter * 1.5;
+        &:hover {
+          background-color: lighten($menu-background-color, 10%);
+          text-decoration: none;
+        }
+      }
+    }
+    code {
+      border: none;
+      background: inherit;
+      color: inherit;
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+  // On state for the first level
+  li.on a, li.current > a {
+    color: $menu-link-highlight-color;
+    padding: $gutter / 2 $gutter;
+    font-weight: $source-sans-bold-font-weight;
+    position: relative;
+    background: lighten($menu-background-color, 5%);
+    border: none;
+    padding-left: $gutter -4px;
+    &:hover {
+      background-color: lighten($menu-background-color, 10%);
+    }
+  }
+  li.toctree-l2 {
+    a:hover {
+      text-decoration: underline;
+    }
+    &.current {
+      > a {
+        background: lighten($menu-background-color, 20%);
+        padding: $gutter / 4 $gutter * 1.5;
+      }
+      li.toctree-l3 > a {
+        display: block;
+        background: lighten($menu-background-color, 20%);
+        padding: $gutter / 4 $gutter * 2.5;
+      };
+    }
+  }
+  li.toctree-l3 {
+    > a {
+      background: lighten($menu-background-color, 25%);
+      padding: $gutter / 4 $gutter * 2.5;
+    }
+    li.toctree-l4 > a {
+      display: block;
+      background: lighten($menu-background-color, 25%);
+      padding: $gutter / 4 $gutter * 3.5;
+      border-top: none;
+      border-bottom: none;
+    }
+  }
+  li.toctree-l4 {
+  }
+  li.current ul {
+    display: block;
+  }
+  li ul {
+    margin-bottom: 0;
+    display: none;
+  }
+  .local-toc {
+    li ul {
+      display: block;
+    }
+  }
+  li ul li a {
+    margin-bottom: 0;
+    color: $menu-link-base-color;
+    font-weight: normal;
+  }
+  a {
+    display: inline-block;
+    line-height: 18px;
+    padding: $gutter / 4 $gutter;
+    display: block;
+    position: relative;
+    font-size: 90%;
+    color: $menu-link-base-color;
+    &:hover {
+      background-color: lighten($menu-background-color, 10%);
+      text-decoration: none;
+    }
+  }
+}
+
+.toctree-wrapper {
+  /* Hides TOC on homepage - may be a little aggressive */
+  display: none;
+}

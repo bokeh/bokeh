@@ -3,10 +3,6 @@
 Documentation
 =============
 
-.. contents::
-    :local:
-    :depth: 2
-
 Requirements
 ------------
 
