@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 import numpy as np
 import pandas as pd
 
@@ -17,7 +15,7 @@ df = pd.DataFrame(data)
 df = df.set_index(['x'])
 
 def stacked(df, categories):
-    areas = OrderedDict()
+    areas = dict()
     last = np.zeros(len(df[categories[0]]))
     for cat in categories:
         next = last + df[cat]

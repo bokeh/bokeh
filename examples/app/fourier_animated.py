@@ -15,8 +15,6 @@ in your browser.
 .. _this video: https://www.youtube.com/watch?v=LznjC4Lo7lE
 
 '''
-from collections import OrderedDict
-
 import numpy as np
 from numpy import pi
 
@@ -154,7 +152,7 @@ cf1 = lambda x: (4*np.cos(x))/pi
 cf2 = lambda x: (4*np.cos(3*x))/(3*pi)
 cf3 = lambda x: (4*np.cos(5*x))/(5*pi)
 cf4 = lambda x: (4*np.cos(7*x))/(7*pi)
-fourier = OrderedDict(
+fourier = dict(
     fourier_4 = {
         'f': lambda x: f1(x) + f2(x) + f3(x) + f4(x),
         'fs': [f1, f2, f3, f4],

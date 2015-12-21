@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 import pandas as pd
 
 from bokeh.charts import Horizon, output_file, show
@@ -15,7 +13,7 @@ IBM = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 
-data = OrderedDict([
+data = dict([
     ('AAPL', AAPL['Adj Close']),
     ('Date', AAPL['Date']),
     ('MSFT', MSFT['Adj Close']),

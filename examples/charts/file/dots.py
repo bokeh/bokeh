@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from bokeh.charts import Dot, hplot, output_file, show
 
 output_file("dots.html")

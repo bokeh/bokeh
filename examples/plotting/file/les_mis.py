@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 import numpy as np
 
 from bokeh.plotting import figure, show, output_file
@@ -67,7 +65,7 @@ p.axis.major_label_standoff = 0
 p.xaxis.major_label_orientation = np.pi/3
 
 hover = p.select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
+hover.tooltips = dict([
     ('names', '@yname, @xname'),
     ('count', '@count'),
 ])

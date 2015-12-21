@@ -4,7 +4,6 @@ import itertools
 
 import numpy as np
 from six.moves import zip
-from collections import OrderedDict
 
 from bokeh.plotting import ColumnDataSource, figure, show, output_file
 from bokeh.models import HoverTool
@@ -46,7 +45,7 @@ p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
      text_baseline="middle", text_align="center")
 
 hover =p.select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
+hover.tooltips = dict([
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),
     ("radius", "@radius"),
