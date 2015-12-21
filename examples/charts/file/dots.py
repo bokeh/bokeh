@@ -1,17 +1,8 @@
 from collections import OrderedDict
 
-from bokeh.charts import Dot, show, output_file
-
-# create some example data
-xyvalues = OrderedDict(
-    python=[2, 3, 7, 5, 26],
-    pypy=[12, 33, 47, 15, 126],
-    jython=[22, 43, 10, 25, 26],
-)
+from bokeh.charts import Dot, hplot, output_file, show
 
 output_file("dots.html")
-
-from bokeh.charts import Bar, output_file, show, hplot
 
 # best support is with data in a format that is table-like
 data = {

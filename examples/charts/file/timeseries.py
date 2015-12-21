@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import TimeSeries, show, output_file, defaults, vplot, hplot
+from bokeh.charts import TimeSeries, show, output_file, vplot
 
 # read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
