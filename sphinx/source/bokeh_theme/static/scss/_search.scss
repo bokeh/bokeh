@@ -11,7 +11,11 @@ $navigation-search-border: 1px solid darken($navigation-background, 5);
   $search-bar-background: lighten($search-bar-border-color, 10%);
 
   float: left;
-  width: 60%;
+  width: 100%;
+
+  @include media($large_screen) {
+    width: 60%;
+  }
 
   position: relative;
 
