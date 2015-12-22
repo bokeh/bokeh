@@ -1,4 +1,5 @@
 require "./test_build_views"
+require "./test_canvas"
 require "./test_client"
 require "./test_color"
 require "./test_defaults"
