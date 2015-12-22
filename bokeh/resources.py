@@ -14,19 +14,20 @@ from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger(__name__)
+
+import copy
 from os.path import join, relpath
 import re
-import copy
 
 from . import __version__
+from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
 from .util.paths import bokehjsdir
-from .templates import JS_RESOURCES, CSS_RESOURCES
+from .util.session_id import generate_session_id
 
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
-
 
 def websocket_url_for_server_url(url):
     if url.startswith("http:"):
@@ -51,6 +52,78 @@ def server_url_for_websocket_url(url):
     if not reprotocoled.endswith("/ws"):
         raise ValueError("websocket URL does not end in /ws")
     return reprotocoled[:-2]
+
+class _SessionCoordinates(object):
+    """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
+    def __init__(self, kwargs):
+        """ Using kwargs which may have extra stuff we don't care about, compute websocket url and session ID."""
+
+        self._base_url = kwargs.get('url', DEFAULT_SERVER_HTTP_URL)
+        if self._base_url is None:
+            raise ValueError("url cannot be None")
+        if self._base_url == 'default':
+            self._base_url = DEFAULT_SERVER_HTTP_URL
+        if self._base_url.startswith("ws"):
+            raise ValueError("url should be the http or https URL for the server, not the websocket URL")
+
+        # base_url always has trailing slash, host:port/{prefix/}
+        if not self._base_url.endswith("/"):
+            self._base_url = self._base_url + "/"
+
+        self._app_path = kwargs.get('app_path', '/')
+        if self._app_path is None:
+            raise ValueError("app_path cannot be None")
+        if not self._app_path.startswith("/"):
+            raise ValueError("app_path should start with a '/' character")
+        if self._app_path != '/' and self._app_path.endswith("/"):
+            self._app_path = self._app_path[:-1] # chop off trailing slash
+
+        self._session_id = kwargs.get('session_id', None)
+        # we lazy-generate the session_id so we can generate
+        # it server-side when appropriate
+
+        # server_url never has trailing slash because it's
+        # prettier like host:port/app_path without a slash
+        if self._app_path == '/':
+            self._server_url = self._base_url[:-1] # chop off trailing slash
+        else:
+            self._server_url = self._base_url + self._app_path[1:]
+
+    @property
+    def websocket_url(self):
+        """ Websocket URL derived from the kwargs provided."""
+        return websocket_url_for_server_url(self._server_url)
+
+    @property
+    def server_url(self):
+        """ Server URL including app path derived from the kwargs provided."""
+        return self._server_url
+
+    @property
+    def url(self):
+        """ Server base URL derived from the kwargs provided (no app path)."""
+        return self._base_url
+
+    @property
+    def session_id(self):
+        """ Session ID derived from the kwargs provided."""
+        if self._session_id is None:
+            self._session_id = generate_session_id()
+        return self._session_id
+
+    @property
+    def session_id_allowing_none(self):
+        """ Session ID provided in kwargs, keeping it None if it hasn't been generated yet.
+
+        The purpose of this is to preserve ``None`` as long as possible... in some cases
+        we may never generate the session ID because we generate it on the server.
+        """
+        return self._session_id
+
+    @property
+    def app_path(self):
+        """ App path derived from the kwargs provided."""
+        return self._app_path
 
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
@@ -99,11 +172,14 @@ def _get_cdn_urls(components, version=None, minified=True):
     return result
 
 
-def _get_server_urls(components, root_url, minified=True):
+def _get_server_urls(components, root_url, minified=True, path_versioner=None):
     _min = ".min" if minified else ""
 
     def mk_url(comp, kind):
-        return '%sbokehjs/static/%s/%s%s.%s' % (root_url, kind, comp, _min, kind)
+        path = "%s/%s%s.%s" % (kind, comp, _min, kind)
+        if path_versioner is not None:
+            path = path_versioner(path)
+        return '%sstatic/%s' % (root_url, path)
 
     return {
         'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
@@ -118,7 +194,8 @@ class BaseResources(object):
     logo_url = "http://bokeh.pydata.org/static/bokeh-transparent.png"
 
     def __init__(self, mode='inline', version=None, root_dir=None,
-                 minified=True, log_level="info", root_url=None):
+                 minified=True, log_level="info", root_url=None,
+                 path_versioner=None):
         self.components = ["bokeh", "bokeh-widgets"]
 
         self.mode = settings.resources(mode)
@@ -126,6 +203,7 @@ class BaseResources(object):
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
         self.log_level = settings.log_level(log_level)
+        self.path_versioner = path_versioner
 
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
@@ -188,7 +266,7 @@ class BaseResources(object):
         return _get_cdn_urls(self.components, self.version, self.minified)
 
     def _server_urls(self):
-        return _get_server_urls(self.components, self.root_url, self.minified)
+        return _get_server_urls(self.components, self.root_url, self.minified, self.path_versioner)
 
     def _resolve(self, kind):
         paths = self._file_paths(kind)

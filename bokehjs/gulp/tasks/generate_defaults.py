@@ -1,12 +1,13 @@
+import codecs
+import inspect
+from json import loads
+import os
+import sys
+
 from bokeh.model import Model
 import bokeh.models as models
-from bokeh.properties import DataSpec
-import inspect
-from bokeh._json_encoder import serialize_json
-from json import loads
-import codecs
-import sys
-import os
+from bokeh.core.properties import DataSpec
+from bokeh.core.json_encoder import serialize_json
 
 dest_dir = sys.argv[1]
 

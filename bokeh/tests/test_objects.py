@@ -3,10 +3,10 @@ import unittest
 
 from six.moves import xrange
 import copy
-from bokeh.properties import List, String, Instance, Dict, Any, Int
+from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
-from bokeh.property_containers import PropertyValueList, PropertyValueDict
+from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
 def large_plot(n):
@@ -129,7 +129,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual({'type': 'Model', 'id': 'test_id'}, testObject.ref)
 
     def test_references_by_ref_by_value(self):
-        from bokeh.properties import HasProps, Instance, Int
+        from bokeh.core.properties import HasProps, Instance, Int
 
         class T(self.pObjectClass):
             t = Int(0)
@@ -162,7 +162,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(x2.references(), {t1, y, t2, z2, x2})
 
     def test_references_in_containers(self):
-        from bokeh.properties import Int, String, Instance, List, Tuple, Dict
+        from bokeh.core.properties import Int, String, Instance, List, Tuple, Dict
 
         # XXX: can't use Y, because of:
         #

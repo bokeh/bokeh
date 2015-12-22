@@ -38,7 +38,10 @@ class Subcommand(with_metaclass(ABCMeta)):
         self.parser = parser
         args = getattr(self, 'args', ())
         for arg in args:
-            self.parser.add_argument(arg[0], **arg[1])
+            flags = arg[0]
+            if not isinstance(flags, tuple):
+                flags = (flags,)
+            self.parser.add_argument(*flags, **arg[1])
 
     @abstractmethod
     def invoke(self, args):

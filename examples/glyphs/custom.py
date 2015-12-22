@@ -1,14 +1,14 @@
 from __future__ import print_function
 
-from bokeh.browserlib import view
+from bokeh.core.properties import String
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.properties import String
 from bokeh.models.callbacks import Callback
 from bokeh.models.glyphs import Circle
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
 from bokeh.models.widgets import HBox
 from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 class Popup(Callback):
 

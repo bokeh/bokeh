@@ -21,7 +21,7 @@ the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 from ...models import Range1d
-from ...properties import Bool, Int
+from ...core.properties import Bool, Int
 
 from ..builder import create_and_build
 from .bar_builder import BarBuilder
@@ -127,11 +127,17 @@ class HistogramBuilder(BarBuilder):
     def setup(self):
         super(HistogramBuilder, self).setup()
 
+        # when we create multiple histograms, we set the alpha to support overlap
         if self.attributes['color'].columns is not None:
             self.fill_alpha = 0.6
 
     def get_extra_args(self):
+        """Build kwargs that are unique to the histogram builder."""
         return dict(bin_count=self.bins)
+
+    def _apply_inferred_index(self):
+        # ignore this for now, unless histogram later adds handling of indexed data
+        pass
 
     def set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate

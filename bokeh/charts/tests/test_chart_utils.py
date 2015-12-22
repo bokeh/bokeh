@@ -14,7 +14,8 @@
 #-----------------------------------------------------------------------------
 
 from __future__ import absolute_import
-from bokeh.charts.utils import build_wedge_source, build_wedge_text_source
+from bokeh.charts.utils import (build_wedge_source, build_wedge_text_source,
+                                label_from_index_dict)
 
 import pytest
 from bokeh.models.sources import ColumnDataSource
@@ -63,3 +64,29 @@ def test_create_wedge_text(polar_cats):
     assert isinstance(text_data, ColumnDataSource)
     assert all(col in text_data.column_names for col in
                ['x', 'y', 'text', 'text_angle']) is True
+
+
+def test_chart_index_label():
+    str_label = 'custom label'
+    dict_label = {'col1': 5, 'col2': 8}
+
+    # custom label is just returned because it is already a label
+    label = label_from_index_dict(str_label)
+    assert str_label == label
+
+    # tuple label
+    label = label_from_index_dict(dict_label)
+    assert label == (5, 8) or label == (8, 5)
+
+    # named column label
+    label = label_from_index_dict(dict_label, include_cols=True)
+    assert label == 'col1=5, col2=8' or label == 'col2=8, col1=5'
+
+    # no label because data not grouped
+    label = label_from_index_dict(None)
+    assert label == 'None'
+
+
+
+
+

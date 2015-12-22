@@ -21,7 +21,7 @@ from __future__ import absolute_import
 
 from ..builder import create_and_build
 from ...models import Range1d
-from ...properties import Bool, String
+from ...core.properties import Bool, String
 from .bar_builder import BarBuilder
 from ..glyphs import BoxGlyph
 from ..utils import title_from_columns

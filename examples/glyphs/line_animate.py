@@ -4,7 +4,7 @@ import time
 
 from numpy import pi, sin, cos, linspace
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
 from bokeh.models import (

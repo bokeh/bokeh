@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from bokeh.model import Model
-from bokeh.properties import Auto, Either, Enum, Float, Int, List, Tuple
+from bokeh.core.properties import Auto, Either, Enum, Float, Int, List, Tuple
 
 class Foo(Model):
     """ This is a Foo model. """

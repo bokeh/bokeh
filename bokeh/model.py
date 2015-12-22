@@ -7,13 +7,13 @@ from json import loads
 
 from six import iteritems
 
-from .properties import Any, HasProps, List, MetaHasProps, String
-from .query import find
+from .core.json_encoder import serialize_json
+from .core.properties import Any, HasProps, List, MetaHasProps, String
+from .core.query import find
+from .themes import default as default_theme
 from .util.callback_manager import CallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
-from ._json_encoder import serialize_json
-from .themes import default as default_theme
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -255,7 +255,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         for (k, v) in attrs.items():
             # we can't serialize Infinity, we send it as None and
             # the other side has to fix it up. This transformation
-            # can't be in our _json_encoder because the json
+            # can't be in our json_encoder because the json
             # module checks for inf before it calls the custom
             # encoder.
             if isinstance(v, float) and v == float('inf'):
@@ -314,10 +314,6 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         # _to_json_like by converting all types into plain JSON types
         # (it converts Model into refs, for example).
         return serialize_json(json_like, sort_keys=True)
-
-    def update(self, **kwargs):
-        for k,v in kwargs.items():
-            setattr(self, k, v)
 
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
