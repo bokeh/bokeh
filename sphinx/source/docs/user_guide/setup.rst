@@ -3,10 +3,6 @@
 Getting Set Up
 ==============
 
-.. contents::
-    :local:
-    :depth: 2
-
 This first section will guide you through quick installation instructions,
 and provide some short "test" code you can run to verify that your Bokeh
 installation is working as expected.
