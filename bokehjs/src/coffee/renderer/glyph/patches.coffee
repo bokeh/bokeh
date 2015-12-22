@@ -27,17 +27,19 @@ class PatchesView extends Glyph.View
       ds[i] = []
       qs = _.toArray(nanned_qs[i])
       while qs.length > 0
-
         nan_index = _.findLastIndex(qs, (q) ->  _.isNaN(q))
-
         if nan_index >= 0
           qs_part = qs.splice(nan_index)
         else
           qs_part = qs
           qs = []
-
-        denanned = (q for q in qs_part when not _.isNaN(q))
-        ds[i].push(denanned)
+        if _.isNumber(qs_part[0]) or _.isNaN(qs_part[0])
+          denanned = (q for q in qs_part when not _.isNaN(q))
+          ds[i].push(denanned)
+        else
+          for part in qs_part
+            denanned = (q for q in part when not _.isNaN(q))
+            ds[i].push(denanned)
     return ds
 
 
@@ -53,9 +55,15 @@ class PatchesView extends Glyph.View
         ys = yss[i][j]
         if xs.length == 0
           continue
+        if not _.isArray(xs[0])
+          xs_array = xs
+          ys_array = ys
+        if _.isArray(xs[0])
+          xs_array = _.flatten(xs)
+          ys_array = _.flatten(ys)
         pts.push([
-          _.min(xs), _.min(ys),
-          _.max(xs), _.max(ys),
+          _.min(xs_array), _.min(ys_array),
+          _.max(xs_array), _.max(ys_array),
           {'i': i}
         ])
     index.load(pts)
@@ -70,6 +78,45 @@ class PatchesView extends Glyph.View
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
+  _render_polygon_with_hole: (ctx, sx_arrays, sy_arrays, fill_or_stroke) ->
+    ctx.beginPath()
+    for i in [0...sx_arrays.length]
+      sx = sx_arrays[i]
+      sy = sy_arrays[i]
+      for j in [0...sx.length]
+        if j == 0
+          ctx.moveTo(sx[j], sy[j])
+          continue
+        else
+          ctx.lineTo(sx[j], sy[j])
+      ctx.closePath()
+    if fill_or_stroke == 'fill'
+      ctx.fill()
+    if fill_or_stroke == 'stroke'
+      ctx.stroke()
+
+  _render_polygon: (ctx, sx, sy, fill_or_stroke) ->
+    for j in [0...sx.length]
+      if j == 0
+        ctx.beginPath()
+        ctx.moveTo(sx[j], sy[j])
+        continue
+      else if isNaN(sx[j] + sy[j])
+        ctx.closePath()
+        if fill_or_stroke == 'fill'
+          ctx.fill()
+        if fill_or_stroke == 'stroke'
+          ctx.stroke()
+        ctx.beginPath()
+        continue
+      else
+        ctx.lineTo(sx[j], sy[j])
+    ctx.closePath()
+    if fill_or_stroke == 'fill'
+      ctx.fill()
+    if fill_or_stroke == 'stroke'
+      ctx.stroke()
+
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
     # This is the earliest we can build them, and only build them once
@@ -81,40 +128,19 @@ class PatchesView extends Glyph.View
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
 
-        for j in [0...sx.length]
-          if j == 0
-            ctx.beginPath()
-            ctx.moveTo(sx[j], sy[j])
-            continue
-          else if isNaN(sx[j] + sy[j])
-            ctx.closePath()
-            ctx.fill()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(sx[j], sy[j])
-
-        ctx.closePath()
-        ctx.fill()
+        if _.isNumber(sx[0])
+          @_render_polygon(ctx, sx, sy, 'fill')
+        else
+          @_render_polygon_with_hole(ctx, sx, sy, 'fill')
 
       if @visuals.line.do_stroke
         @visuals.line.set_vectorize(ctx, i)
 
-        for j in [0...sx.length]
-          if j == 0
-            ctx.beginPath()
-            ctx.moveTo(sx[j], sy[j])
-            continue
-          else if isNaN(sx[j] + sy[j])
-            ctx.closePath()
-            ctx.stroke()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(sx[j], sy[j])
+        if _.isNumber(sx[0])
+          @_render_polygon(ctx, sx, sy, 'stroke')
+        else
+          @_render_polygon_with_hole(ctx, sx, sy, 'stroke')
 
-        ctx.closePath()
-        ctx.stroke()
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
