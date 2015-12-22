@@ -143,10 +143,8 @@ class Canvas extends LayoutBox.Model
     return xx
 
   v_vy_to_sy: (yy) ->
-    canvas_height = @get('height')
-    # Note: +1 to account for 1px canvas dilation
     for y, idx in yy
-      yy[idx] = canvas_height - (y + 1)
+      yy[idx] = @vy_to_sy(y)
     return yy
 
   # Transform: underlying screen coordinates -> view coordinates
