@@ -65,9 +65,6 @@ class Range1d(Range):
     Examples:
 
         Range1d(0, 1)  # Increasing range, auto-bounded to 0 and 1 (Default behavior)
-        Range1d(0, 1, bounds=(-0.1, 1.1))  # Increasing range with bounds at -0.1 and 1.1
-        Range1d(1, 0, bounds=(-0.1, 1.1))  # Decreasing range with bounds at -0.1 and 1.1
-        Range1d(0, 1, bounds=(0, None))  # Increasing range bounded at minimum of 0, unbounded maximum
         Range1d(start=0, end=1, bounds=None)  # Unbounded range
     """)
 
