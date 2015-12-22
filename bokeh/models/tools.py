@@ -25,9 +25,11 @@ from __future__ import absolute_import
 from ..model import Model
 from ..core.properties import abstract, Float, Color
 from ..core.properties import (
-    Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
+    Any, Bool, String, Enum, Include, Instance, Either, List, Dict,
+    Override, Tuple
 )
-from ..core.enums import Dimension
+from ..core.property_mixins import FillProps, LineProps
+from ..core.enums import Dimension, RenderLevel
 
 from .renderers import Renderer
 from .callbacks import Callback
@@ -309,18 +311,42 @@ class BoxSelectTool(Tool):
     """)
 
 
-class BoxSelectionOverlay(Renderer):
+class ToolOverlay(Renderer):
+
+    level = Enum(RenderLevel, default="overlay", help="""
+    Specifies the level in which to render the annotation.
+    """)
+
+class BoxSelection(ToolOverlay):
     """ An overlay renderer that Tool objects can use to render a
     'rubber band' selection box on a Plot.
 
     """
 
-    __view_model__ = 'BoxSelection'
+class PolySelection(ToolOverlay):
+    """ An overlay renderer that Tool objects can use to render a
+    'rubber band' selection polygon on a Plot.
 
-    tool = Instance(Tool, help="""
-    The tool that this overlay should respond to.
+    """
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the shades.
     """)
 
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the shades.
+    """)
+
+    fill_color = Override(default=None)
+    fill_alpha = Override(default=0.2)
+
+    line_color = Override(default="grey")
+    line_alpha = Override(default=0.8)
+    line_width = Override(default=3)
+    line_dash = Override(default=[4])
+    line_dash_offset = Override(default=0)
+    line_join = Override(default='miter')
+    line_cap = Override(default='butt')
 
 class LassoSelectTool(Tool):
     """ *toolbar icon*: |lasso_select_icon|
