@@ -84,7 +84,7 @@ script:
 
 after_success:
     |
-    if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '2.7' && "$GROUP" == flake_docs]]; then
+    if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_PYTHON_VERSION" == '2.7' && "$GROUP" == flake_docs ]]; then
         #install some additional dependencies
         conda install anaconda-client fabric --yes
         #decrypt some files and place them in the correct location
