@@ -1,7 +1,7 @@
 '''
 This module provides a table of data regarding bachelors degrees earned by
 women, broken down by field for any given year. It exposes an attribute
-'xyvalues' which is a pandas dataframe with the following fields:
+'data' which is a pandas dataframe with the following fields:
 
     Year
     Agriculture
@@ -30,4 +30,4 @@ pd = import_required('pandas',
 
 from os.path import dirname, join
 
-xyvalues = pd.read_csv(join(dirname(__file__), "percent-bachelors-degrees-women-usa.csv"))
+data = pd.read_csv(join(dirname(__file__), "percent-bachelors-degrees-women-usa.csv"))
