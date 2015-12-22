@@ -11,12 +11,18 @@ HasProperties = require "./has_properties"
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")
   # @ is bound to the doc
-  @apply_json_patch_string(msg.content.data)
+  data = JSON.parse(msg.content.data)
+  if 'events' of data and 'references' of data
+    @apply_json_patch(data)
+  else if 'doc' of data
+    @replace_with_json(data['doc'])
+  else
+    throw new Error("handling notebook comms message: ", msg)
 
 _init_comms = (target, doc) ->
-  logger.info("Initializing Jupyter comms for target #{target} and doc #{doc}")
   comm_manager = Jupyter.notebook.kernel.comm_manager
   comm_manager.register_target(target, (comm, msg) ->
+    logger.info("Registering Jupyter comms for target #{target}")
     comm.on_msg(_.bind(_handle_notebook_comms, doc))
   )
 

@@ -86,7 +86,7 @@ class Document
 
   _destructively_move : (dest_doc) ->
     dest_doc.clear()
-    while len(@_roots) > 0
+    while @_roots.length > 0
       r = @_roots[0]
       @remove_root(r)
       dest_doc.add_root(r)
