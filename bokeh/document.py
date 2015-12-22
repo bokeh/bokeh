@@ -540,7 +540,7 @@ class Document(object):
         attr=key,
         new=new_value,
       )
-      HasProps._json_record_references(doc, new_value, value_refs, True) # True = recurse
+      HasProps._json_record_references(doc, new_value, value_refs)
       return event
 
     @classmethod
