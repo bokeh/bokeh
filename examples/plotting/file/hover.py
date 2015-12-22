@@ -44,14 +44,14 @@ p.circle(x, y, radius=radii, source=source,
 p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
      text_baseline="middle", text_align="center")
 
-hover =p.select(dict(type=HoverTool))
-hover.tooltips = dict([
+hover = p.select(dict(type=HoverTool))
+hover.tooltips = [
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),
     ("radius", "@radius"),
     ("fill color", "$color[hex, swatch]:fill_color"),
     ("foo", "@foo"),
     ("bar", "@bar"),
-])
+]
 
 show(p)  # open a browser

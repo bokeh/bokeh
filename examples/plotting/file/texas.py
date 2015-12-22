@@ -51,10 +51,10 @@ p.patches('x', 'y',
 
 hover = p.select(dict(type=HoverTool))
 hover.point_policy = "follow_mouse"
-hover.tooltips = dict([
+hover.tooltips = [
     ("Name", "@name"),
     ("Unemployment rate)", "@rate%"),
     ("(Long, Lat)", "($x, $y)"),
-])
+]
 
 show(p)

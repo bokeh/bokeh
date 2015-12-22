@@ -74,13 +74,13 @@ p.text(x="symx", y="massy", text="mass",
 p.grid.grid_line_color = None
 
 hover = p.select(dict(type=HoverTool))
-hover.tooltips = dict([
+hover.tooltips = [
     ("name", "@name"),
     ("atomic number", "@atomic_number"),
     ("type", "@type"),
     ("atomic mass", "@mass"),
     ("CPK color", "$color[hex, swatch]:cpk"),
     ("electronic configuration", "@electronic"),
-])
+]
 
 show(p)
