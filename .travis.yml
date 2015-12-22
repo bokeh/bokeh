@@ -2,12 +2,6 @@ sudo: false
 
 language: python
 
-cache:
-    directories:
-        - $HOME/miniconda
-        - $HOME/.bokeh
-        - $HOME/build/bokeh/bokeh/bokehjs/node_modules
-
 python:
     - 2.7
     - 3.4
