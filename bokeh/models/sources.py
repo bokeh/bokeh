@@ -1,13 +1,16 @@
 from __future__ import absolute_import
 
+from ..core import validation
+from ..core.validation.errors import COLUMN_LENGTHS
 from ..model import Model
-from ..properties import HasProps, abstract
-from ..properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
-from ..validation.errors import COLUMN_LENGTHS
-from .. import validation
+from ..core.properties import abstract
+from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..util.dependencies import import_optional
+from ..util.deprecate import deprecated
 from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
-from bokeh.deprecate import deprecated
+
+pd = import_optional('pandas')
 
 @abstract
 class DataSource(Model):
@@ -43,21 +46,6 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-class ColumnsRef(HasProps):
-    """ A utility object to allow referring to a collection of columns
-    from a specified data source, all together.
-
-    """
-
-    source = Instance(DataSource, help="""
-    A data source to reference.
-    """)
-
-    columns = List(String, help="""
-    A list of column names to reference from ``source``.
-    """)
-
-
 class ColumnDataSource(DataSource):
     """ Maps names of columns to sequences or arrays.
 
@@ -92,8 +80,7 @@ class ColumnDataSource(DataSource):
         # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data = kw.pop("data", {})
         if not isinstance(raw_data, dict):
-            import pandas as pd
-            if isinstance(raw_data, pd.DataFrame):
+            if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
@@ -153,7 +140,8 @@ class ColumnDataSource(DataSource):
             DataFrame
 
         """
-        import pandas as pd
+        if not pd:
+            raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         if self.column_names:
             return pd.DataFrame(self.data, columns=self.column_names)
         else:
@@ -205,21 +193,6 @@ class ColumnDataSource(DataSource):
         except (ValueError, KeyError):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
-
-
-    def columns(self, *columns):
-        """ Returns a ColumnsRef object for a column or set of columns
-        on this data source.
-
-        Args:
-            *columns
-
-        Returns:
-            ColumnsRef
-
-        """
-        return ColumnsRef(source=self, columns=list(columns))
-
 
     # def push_notebook(self):
     #     """ Update date for a plot in the IPython notebook in place.
@@ -299,9 +272,11 @@ class BlazeDataSource(RemoteSource):
     expr = Dict(String, Any(), help="""
     blaze expression graph in json form
     """)
+
     namespace = Dict(String, Any(), help="""
     namespace in json form for evaluating blaze expression graph
     """)
+
     local = Bool(help="""
     Whether this data source is hosted by the bokeh server or not.
     """)

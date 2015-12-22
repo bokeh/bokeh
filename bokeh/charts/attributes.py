@@ -9,10 +9,10 @@ from bokeh.charts.properties import ColumnLabel
 from bokeh.charts.utils import marker_types
 from bokeh.charts.data_source import ChartDataSource
 from bokeh.charts.stats import Bins
-from bokeh.enums import DashPattern
+from bokeh.core.enums import DashPattern
 from bokeh.models.sources import ColumnDataSource
-from bokeh.properties import (HasProps, String, List, Instance, Either, Any, Dict,
-                              Color, Bool, Override)
+from bokeh.core.properties import (HasProps, String, List, Instance, Either, Any, Dict,
+                              Bool, Override)
 
 
 class AttrSpec(HasProps):
@@ -30,6 +30,9 @@ class AttrSpec(HasProps):
 
     id = Any()
     data = Instance(ColumnDataSource)
+
+    iterable = List(Any, default=None)
+
     name = String(help='Name of the attribute the spec provides.')
 
     columns = Either(ColumnLabel, List(ColumnLabel), help="""
@@ -51,7 +54,7 @@ class AttrSpec(HasProps):
         found in `columns` and the attribute value that has been assigned.
         """)
 
-    items = List(Any, default=None, help="""
+    items = Any(default=None, help="""
         The attribute specification calculates this list of distinct values that are
         found in `columns` of `data`.
         """)
@@ -107,6 +110,9 @@ class AttrSpec(HasProps):
 
         super(AttrSpec, self).__init__(**properties)
 
+        if self.default is None and self.iterable is not None:
+            self.default = next(iter(copy(self.iterable)))
+
     @staticmethod
     def _ensure_list(attr):
         """Always returns a list with the provided value. Returns the value if a list."""
@@ -124,6 +130,7 @@ class AttrSpec(HasProps):
             return (attr,)
         else:
             return attr
+        return list(attr.items())
 
     def _setup_default(self):
         """Stores the first value of iterable into `default` property."""
@@ -136,7 +143,14 @@ class AttrSpec(HasProps):
     def _generate_items(self, df, columns):
         """Produce list of unique tuples that identify each item."""
         if self.sort:
-            df = df.sort(columns=columns, ascending=self.ascending)
+            # TODO (fpliger):   this handles pandas API change so users do not experience
+            #                   the related annoying deprecation warning. This is probably worth
+            #                   removing when pandas deprecated version (0.16) is "old" enough
+            try:
+                df = df.sort_values(by=columns, ascending=self.ascending)
+            except AttributeError:
+                df = df.sort(columns=columns, ascending=self.ascending)
+
         items = df[columns].drop_duplicates()
         self.items = [tuple(x) for x in items.to_records(index=False)]
 
@@ -174,6 +188,9 @@ class AttrSpec(HasProps):
         if self.columns is not None and self.data is not None:
             self.attr_map = self._create_attr_map(self.data.to_df(), self.columns)
 
+    def update_data(self, data):
+        self.setup(data=data, columns=self.columns)
+
     def __getitem__(self, item):
         """Lookup the attribute to use for the given unique group label."""
 
@@ -194,7 +211,7 @@ class ColorAttr(AttrSpec):
         Should be expanded to support more complex coloring options.
     """
     name = Override(default='color')
-    iterable = List(Color, default=DEFAULT_PALETTE)
+    iterable = Override(default=DEFAULT_PALETTE)
     bin = Bool(default=False)
 
     def __init__(self, **kwargs):
@@ -235,10 +252,11 @@ class ColorAttr(AttrSpec):
         data._data[col] = pd.Categorical(data._data[col], categories=list(self.items),
                                          ordered=self.sort)
 
+
 class MarkerAttr(AttrSpec):
     """An attribute specification for mapping unique data values to markers."""
     name = Override(default='marker')
-    iterable = List(String, default=list(marker_types.keys()))
+    iterable = Override(default=list(marker_types.keys()))
 
     def __init__(self, **kwargs):
         iterable = kwargs.pop('markers', None)
@@ -253,7 +271,7 @@ dashes = DashPattern._values
 class DashAttr(AttrSpec):
     """An attribute specification for mapping unique data values to line dashes."""
     name = Override(default='dash')
-    iterable = List(String, default=dashes)
+    iterable = Override(default=dashes)
 
     def __init__(self, **kwargs):
         iterable = kwargs.pop('dash', None)

@@ -3,9 +3,9 @@
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
-from ...properties import Bool, Int, String, Enum, Instance, List, Tuple
-from ...enums import ButtonType
+from ...core.properties import abstract
+from ...core.properties import Bool, Int, String, Enum, Instance, List, Tuple, Override
+from ...core.enums import ButtonType
 from ..callbacks import Callback
 from .widget import Widget
 from .icons import AbstractIcon
@@ -60,6 +60,8 @@ class Toggle(AbstractButton):
 
     """
 
+    label = Override(default="Toggle")
+
     active = Bool(False, help="""
     The initial state of a button. Also used to trigger ``on_click`` event
     handler.
@@ -81,6 +83,8 @@ class Dropdown(AbstractButton):
     """ A dropdown button.
 
     """
+
+    label = Override(default="Dropdown")
 
     value = String(help="""
     A private property used to trigger ``on_click`` event handler.

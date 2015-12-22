@@ -1,6 +1,3 @@
-# The plot server must be running (./bin/bokeh serve)
-# Running python glyphs.py will open the plot in the browser
-
 import numpy as np
 
 from bokeh.plotting import figure
@@ -14,8 +11,6 @@ sizes = np.linspace(10, 20, N)
 
 xpts = np.array([-.09, -.12, .0, .12, .09])
 ypts = np.array([-.1, .02, .1, .02, -.1])
-
-output_server("glyphs")
 
 plots = []
 
@@ -132,4 +127,7 @@ p = figure(title="circle_cross")
 p.scatter(x, y, marker="circle_cross", size=sizes, color="#FB8072", fill_color=None, line_width=2)
 plots.append(p)
 
-show(vplot(*plots))  # open a browser
+output_server("glyphs")
+
+show(vplot(*plots)) # open a browser
+

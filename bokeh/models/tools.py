@@ -23,10 +23,10 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..model import Model
-from ..properties import abstract, Float, Color
-from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
+from ..core.properties import abstract, Float, Color
+from ..core.properties import (Any, Bool, String, Enum, Instance, Either, List,
                           Dict, Tuple)
-from ..enums import Dimension
+from ..core.enums import Dimension
 
 from .renderers import Renderer
 from .callbacks import Callback
@@ -180,10 +180,6 @@ class TapTool(Tool):
     callback = Instance(Callback, help="""
     A client-side action specification, like opening a URL, showing
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
-    """)
-
-    always_active = Bool(True, help="""
-    Whether the tap tool must be explicitly activated.
     """)
 
 
@@ -470,7 +466,12 @@ class HoverTool(Tool):
     :geometry: object containing the coordinates of the hover cursor
     """)
 
-    tooltips = Either(String, List(Tuple(String, String)), help="""
+    tooltips = Either(String, List(Tuple(String, String)),
+            default=[
+                ("index","$index"),
+                ("data (x, y)","($x, $y)"),
+                ("canvas (x, y)","($sx, $sy)"),
+            ], help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.
 
@@ -523,6 +524,8 @@ class HoverTool(Tool):
     mouse position.
     """)
 
+DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
+DEFAULT_HELP_URL = "http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html"
 
 class HelpTool(Tool):
     """
@@ -531,10 +534,10 @@ class HelpTool(Tool):
     and the redirect site overridden as well.
     """
 
-    help_tooltip = String(help="""
+    help_tooltip = String(default=DEFAULT_HELP_TIP, help="""
     Tooltip displayed when hovering over the help icon.
     """)
 
-    redirect = String(help="""
+    redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.
     """)

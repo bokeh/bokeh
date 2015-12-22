@@ -18,5 +18,5 @@ def test_all_count():
     files = listdir(dirname(sc.__file__))
     pyfiles = [x for x in files if x.endswith(".py")]
 
-    # the -1 accounts for __init__.py
-    assert len(sc.all) == len(pyfiles) - 1
+    # the -2 accounts for __init__.py and file_output.py
+    assert len(sc.all) == len(pyfiles) - 2

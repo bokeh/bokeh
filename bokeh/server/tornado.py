@@ -15,6 +15,7 @@ import signal
 from tornado import gen
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import Application as TornadoApplication
+from tornado.web import HTTPError
 
 from bokeh.resources import Resources
 
@@ -22,6 +23,20 @@ from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
+from .views.static_handler import StaticHandler
+
+def _whitelist(handler_class):
+    if hasattr(handler_class.prepare, 'patched'):
+        return
+    old_prepare = handler_class.prepare
+    def _prepare(self, *args, **kw):
+        if self.request.host not in self.application._hosts:
+            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % self.request.host)
+            raise HTTPError(403)
+        return old_prepare(self, *args, **kw)
+    _prepare.patched = True
+    handler_class.prepare = _prepare
+
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -35,14 +50,29 @@ class BokehTornado(TornadoApplication):
         extra_patterns (seq[tuple]) : tuples of (str, http or websocket handler)
             Use this argument to add additional endpoints to custom deployments
             of the Bokeh Server.
+        prefix (str) : a URL prefix to use for all Bokeh server paths
+        keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
+            Set to 0 to disable pings. Pings keep the websocket open.
 
     '''
 
-    def __init__(self, applications, io_loop=None, extra_patterns=None):
+    def __init__(self, applications, prefix, hosts,
+                 io_loop=None,
+                 extra_patterns=None,
+                 # heroku, nginx default to 60s timeout, so well less than that
+                 keep_alive_milliseconds=37000):
+
+        self._prefix = prefix
+
         if io_loop is None:
             io_loop = IOLoop.current()
         self._loop = io_loop
 
+        if keep_alive_milliseconds < 0:
+            # 0 means "disable"
+            raise ValueError("keep_alive_milliseconds must be >= 0")
+
+        self._hosts = hosts
         self._resources = {}
 
         # Wrap applications in ApplicationContext
@@ -51,7 +81,7 @@ class BokehTornado(TornadoApplication):
             self._applications[k] = ApplicationContext(v, self._loop)
 
         extra_patterns = extra_patterns or []
-        relative_patterns = []
+        all_patterns = []
         for key in applications:
             app_patterns = []
             for p in per_app_patterns:
@@ -59,6 +89,7 @@ class BokehTornado(TornadoApplication):
                     route = p[0]
                 else:
                     route = key + p[0]
+                route = self._prefix + route
                 app_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
 
             websocket_path = None
@@ -70,30 +101,41 @@ class BokehTornado(TornadoApplication):
             for r in app_patterns:
                 r[2]["bokeh_websocket_path"] = websocket_path
 
-            relative_patterns.extend(app_patterns)
+            all_patterns.extend(app_patterns)
 
-        all_patterns = extra_patterns + relative_patterns + toplevel_patterns
+        for p in extra_patterns + toplevel_patterns:
+            prefixed_pat = (self._prefix+p[0],) + p[1:]
+            all_patterns.append(prefixed_pat)
+
+        for pat in all_patterns:
+            _whitelist(pat[1])
+
         log.debug("Patterns are: %r", all_patterns)
+
         super(BokehTornado, self).__init__(all_patterns, **settings)
 
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
         self._loop.add_callback(self._start_async)
         self._stats_job = PeriodicCallback(self.log_stats, 15.0 * 1000, io_loop=self._loop)
-        self._stats_job.start()
         self._unused_session_linger_seconds = 60*30
         self._cleanup_job = PeriodicCallback(self.cleanup_sessions, 17.0 * 1000, io_loop=self._loop)
-        self._cleanup_job.start()
+
+        if keep_alive_milliseconds > 0:
+            self._ping_job = PeriodicCallback(self.keep_alive, keep_alive_milliseconds, io_loop=self._loop)
+        else:
+            self._ping_job = None
 
     @property
     def io_loop(self):
         return self._loop
 
     def root_url_for_request(self, request):
-        # If we add a "whole server prefix," we'd put that on here too
-        return request.protocol + "://" + request.host + "/"
+        return request.protocol + "://" + request.host + self._prefix + "/"
 
     def websocket_url_for_request(self, request, websocket_path):
+        # websocket_path comes from the handler, and already has any
+        # prefix included, no need to add here
         protocol = "ws"
         if request.protocol == "https":
             protocol = "wss"
@@ -102,7 +144,9 @@ class BokehTornado(TornadoApplication):
     def resources(self, request):
         root_url = self.root_url_for_request(request)
         if root_url not in self._resources:
-            self._resources[root_url] = Resources(mode="server", root_url=root_url)
+            self._resources[root_url] =  Resources(mode="server",
+                                                   root_url=root_url,
+                                                   path_versioner=StaticHandler.append_version)
         return self._resources[root_url]
 
     def start(self):
@@ -117,6 +161,10 @@ class BokehTornado(TornadoApplication):
             Keyboard interrupts or sigterm will cause the server to shut down.
 
         '''
+        self._stats_job.start()
+        self._cleanup_job.start()
+        if self._ping_job is not None:
+            self._ping_job.start()
         try:
             self._loop.start()
         except KeyboardInterrupt:
@@ -129,6 +177,10 @@ class BokehTornado(TornadoApplication):
             None
 
         '''
+        self._stats_job.stop()
+        self._cleanup_job.stop()
+        if self._ping_job is not None:
+            self._ping_job.stop()
         self._loop.stop()
 
     @property
@@ -155,6 +207,10 @@ class BokehTornado(TornadoApplication):
 
     def log_stats(self):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
+
+    def keep_alive(self):
+        for c in self._clients:
+            c.send_ping()
 
     @gen.coroutine
     def run_in_background(self, _func, *args, **kwargs):

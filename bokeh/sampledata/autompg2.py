@@ -1,11 +1,13 @@
+"""
+
+"""
 from __future__ import absolute_import
 
-from os.path import dirname, join
+from bokeh.util.dependencies import import_required
+pd = import_required('pandas',
+              'autompg2 sample data requires Pandas (http://pandas.pydata.org) to be installed')
 
-try:
-    import pandas as pd
-except ImportError as e:
-    raise RuntimeError("auto-mpg2 data requires pandas (http://pandas.pydata.org) to be installed")
+from os.path import dirname, join
 
 autompg2 = pd.read_csv(join(dirname(__file__), 'auto-mpg2.csv'))
 

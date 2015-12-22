@@ -3,7 +3,7 @@ from __future__ import print_function
 import numpy as np
 import sympy as sy
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend
@@ -68,7 +68,7 @@ plot.add_layout(yaxis, 'left')
 xgrid = Grid(dimension=0, ticker=xaxis.ticker)
 ygrid = Grid(dimension=1, ticker=yaxis.ticker)
 
-legend = Legend(orientation="bottom_left")
+legend = Legend(location="bottom_left")
 plot.add_layout(legend)
 
 def on_slider_value_change(attr, old, new):

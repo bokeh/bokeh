@@ -5,8 +5,8 @@ from __future__ import absolute_import
 
 import six
 
-from ...properties import abstract
-from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
+from ...core.properties import abstract
+from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
 from ..callbacks import Callback
 from .widget import Widget
 
@@ -17,7 +17,7 @@ class InputWidget(Widget):
 
     """
 
-    title = String(help="""
+    title = String(default="", help="""
     Widget's label.
     """)
 
@@ -52,7 +52,7 @@ class InputWidget(Widget):
 class TextInput(InputWidget):
     """ Single-line input widget. """
 
-    value = String(help="""
+    value = String(default="", help="""
     Initial or entered text value.
     """)
 
@@ -73,7 +73,7 @@ class Select(InputWidget):
     Available selection options.
     """)
 
-    value = String(help="""
+    value = String(default="", help="""
     Initial or selected value.
     """)
 
@@ -117,19 +117,19 @@ class Slider(InputWidget):
 
     """
 
-    value = Float(help="""
+    value = Float(default=0.5, help="""
     Initial or selected value.
     """)
 
-    start = Float(help="""
+    start = Float(default=0, help="""
     The minimum allowable value.
     """)
 
-    end = Float(help="""
+    end = Float(default=1, help="""
     The maximum allowable value.
     """)
 
-    step = Float(help="""
+    step = Float(default=0.1, help="""
     The step between consecutive values.
     """)
 

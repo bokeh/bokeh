@@ -1,9 +1,9 @@
 .. _userguide_geo:
 
-Working with geographical data
-==============================
+Mapping Geo Data
+================
 
-Bokeh has started adding support for working with Geographical data. There are 
+Bokeh has started adding support for working with Geographical data. There are
 a number of powerful features already available, but we still have more to add.
 Please tell use your use cases through the `mailing list`_ or on `github`_ so that we
 can continue to build out these features to meet your needs.
@@ -17,16 +17,16 @@ with JSON. It describes points, lines and polygons (called Patches in Bokeh) as 
 collection of features. Each feature can also have a set of properties.
 
 Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
-|ColumnDataSource|. For example:
+``ColumnDataSource``. For example:
 
 .. bokeh-plot::
     :source-position: above
 
     from bokeh.io import output_file, show
     from bokeh.models import GeoJSONDataSource
-    from bokeh.plotting import figure 
+    from bokeh.plotting import figure
     from bokeh.sampledata.sample_geojson import geojson
-    
+
     geo_source = GeoJSONDataSource(geojson=geojson)
 
     p = figure()
@@ -62,6 +62,7 @@ Google Maps support
 -------------------
 
 With the GMapPlot, you can plot any bokeh glyphs over a Google Map.
+
 .. bokeh-plot::
     :source-position: below
 
@@ -92,7 +93,7 @@ With the GMapPlot, you can plot any bokeh glyphs over a Google Map.
 
 .. warning::
     There is an `open issue`_ documenting points appearing to be ~10px off from
-    their intended location. 
+    their intended location.
 
     Google has its own terms of service for using Google Maps API and any use
     of Bokeh with Google Maps must be within Google's Terms of Service

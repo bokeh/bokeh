@@ -88,9 +88,7 @@ class Numeric extends Property
 class Angle extends Numeric
 
   _init: () ->
-    super()
-    obj = @get('obj')
-    attr = @get('attr')
+    super() # chain up updates @spec
     @units = @spec?.units ? "rad"
     if @units != "deg" and @units != "rad"
       throw new Error("Angle units must be one of 'deg' or 'rad', given invalid value: #{@units}")
@@ -104,9 +102,7 @@ class Angle extends Numeric
 class Distance extends Numeric
 
   _init: () ->
-    super()
-    obj = @get('obj')
-    attr = @get('attr')
+    super() # chain up updates @spec
     @units = @spec?.units ? "data"
     if @units != "data" and @units != "screen"
       throw new Error("Distance units must be one of 'data' or 'screen', given invalid value: #{@units}")

@@ -1,7 +1,7 @@
 from __future__ import  absolute_import
 
 from bokeh.models.annotations import Legend, BoxAnnotation, Span
-from bokeh.enums import (
+from bokeh.core.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
 
@@ -27,7 +27,7 @@ def check_border(annotation):
     assert annotation.border_line_dash_offset == 0
 
 def check_label(annotation):
-    assert annotation.label_text_font == "Helvetica"
+    assert annotation.label_text_font == "helvetica"
     assert annotation.label_text_font_size == {"value": "10pt"}
     assert annotation.label_text_font_style == FontStyle.normal
     assert annotation.label_text_color == "#444444"
@@ -63,7 +63,7 @@ def check_line(annotation, line_color='#cccccc', line_width=0.3, line_alpha=1.0)
 def test_Legend():
     legend = Legend()
     assert legend.plot is None
-    assert legend.orientation == 'top_right'
+    assert legend.location == 'top_right'
     assert legend.label_standoff == 15
     assert legend.label_height == 20
     assert legend.label_width == 50
@@ -77,7 +77,7 @@ def test_Legend():
     yield check_background, legend
     yield (check_props, legend, [
         "plot",
-        "orientation",
+        "location",
         "label_standoff",
         "label_height",
         "label_width",
@@ -85,7 +85,8 @@ def test_Legend():
         "glyph_width",
         "legend_padding",
         "legend_spacing",
-        "legends"
+        "legends",
+        "level"
     ], LABEL, BORDER, BACKGROUND)
 
 def test_BoxAnnotation():

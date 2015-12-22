@@ -6,8 +6,8 @@ and with options for "auto sizing".
 from __future__ import absolute_import
 
 from ..model import Model
-from ..properties import abstract
-from ..properties import Int, Float, String, Datetime, Instance, List, Either, Auto, Tuple
+from ..core.properties import abstract
+from ..core.properties import Int, Float, String, Datetime, Instance, List, Either, Auto, Tuple
 from .callbacks import Callback
 from .renderers import Renderer
 
@@ -36,11 +36,11 @@ class Range1d(Range):
 
     """
 
-    start = Either(Float, Datetime, Int, help="""
+    start = Either(Float, Datetime, Int, default=0, help="""
     The start of the range.
     """)
 
-    end = Either(Float, Datetime, Int, help="""
+    end = Either(Float, Datetime, Int, default=1, help="""
     The end of the range.
     """)
 

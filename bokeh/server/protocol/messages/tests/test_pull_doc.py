@@ -4,7 +4,7 @@ import unittest
 
 import bokeh.document as document
 from bokeh.model import Model
-from bokeh.properties import Int, Instance
+from bokeh.core.properties import Int, Instance
 from bokeh.server.protocol import Protocol
 
 class AnotherModelInTestPullDoc(Model):

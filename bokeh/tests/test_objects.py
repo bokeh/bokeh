@@ -3,10 +3,10 @@ import unittest
 
 from six.moves import xrange
 import copy
-from bokeh.properties import List, String, Instance, Dict, Any, Int
+from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
-from bokeh.property_containers import PropertyValueList, PropertyValueDict
+from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
 def large_plot(n):
@@ -77,10 +77,27 @@ class TestViewable(unittest.TestCase):
         self.assertTrue(hasattr(tclass, 'foo'))
         self.assertRaises(KeyError, self.viewable.get_class, 'Imaginary_Class')
 
+class DeepModel(Model):
+    child = Instance(Model)
+
 class TestCollectModels(unittest.TestCase):
 
     def test_references_large(self):
-        root, objects = large_plot(500)
+        root, objects = large_plot(10)
+        self.assertEqual(set(root.references()), objects)
+
+    def test_references_deep(self):
+        root = DeepModel()
+        objects = set([root])
+        parent = root
+        # in a previous implementation, about 400 would blow max
+        # recursion depth, so we double that and a little bit,
+        # here.
+        for i in xrange(900):
+            model = DeepModel()
+            objects.add(model)
+            parent.child = model
+            parent = model
         self.assertEqual(set(root.references()), objects)
 
 class SomeModelToJson(Model):
@@ -112,7 +129,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual({'type': 'Model', 'id': 'test_id'}, testObject.ref)
 
     def test_references_by_ref_by_value(self):
-        from bokeh.properties import HasProps, Instance, Int
+        from bokeh.core.properties import HasProps, Instance, Int
 
         class T(self.pObjectClass):
             t = Int(0)
@@ -145,7 +162,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(x2.references(), {t1, y, t2, z2, x2})
 
     def test_references_in_containers(self):
-        from bokeh.properties import Int, String, Instance, List, Tuple, Dict
+        from bokeh.core.properties import Int, String, Instance, List, Tuple, Dict
 
         # XXX: can't use Y, because of:
         #

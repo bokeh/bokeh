@@ -15,6 +15,13 @@ requirements:
     - distribute
     - setuptools
     - nodejs >=4.1
+    - six
+    - python-dateutil
+    - numpy
+    - yaml
+    - pyyaml
+    - jinja2
+    - tornado
 
   run:
     # bokeh
@@ -25,11 +32,8 @@ requirements:
     - python-dateutil
     - jinja2
     - numpy
-    - pandas
 
     # server
-    - flask
-    - pyzmq
     - tornado >=4.0.1
     - futures        [py27]
 
@@ -40,7 +44,6 @@ test:
     - pygments
     - sphinx >=1.3.1
     - sphinx-bootstrap-theme
-    - sphinxcontrib-httpdomain
 
     # tests
     # pyyaml installed by bokeh
@@ -49,6 +52,7 @@ test:
     - coverage
     - flake8
     - mock
+    - pandas
     - pytest
     - pytest-cov ==1.8.1
     - pytest-selenium ==1.0b1

@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 import pandas as pd
 
 from bokeh.charts import TimeSeries, show, output_file
@@ -15,30 +13,23 @@ IBM = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 
-xyvalues = OrderedDict(
-    AAPL=AAPL['Adj Close'],
-    Date=AAPL['Date'],
-    MSFT=MSFT['Adj Close'],
-    IBM=IBM['Adj Close'],
-)
+xyvalues = dict(AAPL=AAPL['Adj Close'],
+                Date=AAPL['Date'],
+                MSFT=MSFT['Adj Close'],
+                IBM=IBM['Adj Close'])
 
-# any of the following commented are valid Bar inputs
-#xyvalues = pd.DataFrame(xyvalues)
-#lindex = xyvalues.pop('Date')
-#lxyvalues = list(xyvalues.values())
-#lxyvalues = np.array(xyvalues.values())
-
-TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
+TOOLS = "resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 
 output_file("stocks_timeseries.html")
 
 ts = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
-    title="Timeseries", tools=TOOLS, ylabel='Stock Prices')
+    title="Timeseries with Hover", tools=TOOLS, ylabel='Stock Prices',
+    tooltips=[('stock', '@series'), ('value', '@y_values')])
 
-# usage with iterable index
-#ts = TimeSeries(
-#    lxyvalues, index=lindex,
-#    title="timeseries, pd_input", ylabel='Stock Prices')
+# tooltips input is shorthand to adding manually
+# series is a generated column containing the labels of the data passed in as y
+#ts.add_tools(HoverTool(tooltips=[('stock', '@series'), ('value', '@y_values')]))
+
 
 show(ts)

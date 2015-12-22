@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 from ..model import Model
-from ..properties import (Any, Dict, String)
+from ..core.properties import (Any, Dict, String)
 
 class ImageSource(Model):
     """ A base class for all image source types. """
 
     _args = ('url', 'extra_url_vars')
 
-    url = String("url", help="""
+    url = String(default="", help="""
     tile service url (example: http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png)
     """)
 

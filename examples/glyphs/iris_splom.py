@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from math import pi
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle, Text
@@ -89,7 +89,7 @@ for y in yattrs:
         row.append(plot)
     plots.append(row)
 
-grid = GridPlot(children=plots, title="iris_splom")
+grid = GridPlot(children=plots)
 
 doc = Document()
 doc.add_root(grid)

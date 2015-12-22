@@ -1,61 +1,90 @@
-### Embed multiple
 
-To run the example:
 
-    python embed_multiple.py
+## animated.py
 
----
+To view this example, first start a Bokeh server:
 
-### Widget, animated
+    bokeh serve
 
-To try these example you first have to start the bokeh-server, ie.,
-
-    bokeh-server
-
-Then run the examples:
-
-    python widget.py
-
-or
+And then load the example into the Bokeh server by
+running the script:
 
     python animated.py
 
+in this directory. Finally, start a simple web server
+by running:
 
-To view them, start a web server in this directory, for instance, the server
-built into python:
+    python -m SimpleHTTPServer  (python 2)
 
-If you are using python 2, run:
+or
 
-    python -m SimpleHTTPServer
+    python -m http.server  (python 3)
 
-or if you are using python 3, run:
+in this directory. Navigate to
 
-    python -m http.server
+    http://localhost:8000/animated.html
 
-and use the links provided when you run the scripts.
+## embed_multiple.py
 
----
+Execute the script:
 
-### Bokeh plots in an online slideshow
+    python embed_multiple.py
 
-    cd slideshow
-    python app_reveal.py
+## embed_multiple_responsive.py
 
-and then navigate to:
+Execute the script:
 
-    http://127.0.0.1:5000/
+    python embed_multiple_responsive.py
 
----
+## embed_responsive_width_height.py
 
-### Spectrogram
+Execute the script:
 
-The spectrogram example requires the pyaudio library, which is available
-via conda on py27. Or see the documentation here: https://people.csail.mit.edu/hubert/pyaudio/
+    python embed_responsive_width_height.py
 
-    conda install -c mutirri pyaudio
+## simple
 
-To run the spectrogram example:
+See instructions in simple/README.md
 
-    python spectogram.py
+## slideshow
 
-Then open your webbrowser at: http://localhost:5000
+See instructions in slideshow/README.md
+
+## spectrogram
+
+See instructions in spectrogram/README.md
+
+## widget.py
+
+To view this example, first start a Bokeh server:
+
+    bokeh serve
+
+And then load the example into the Bokeh server by
+running the script:
+
+    python widget.py
+
+in this directory. Finally, start a simple web server
+by running:
+
+    python -m SimpleHTTPServer  (python 2)
+
+or
+
+    python -m http.server  (python 3)
+
+in this directory. Navigate to
+
+    http://localhost:8000/widget.html
+
+
+
+
+
+
+
+
+
+
+

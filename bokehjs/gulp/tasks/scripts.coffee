@@ -1,5 +1,6 @@
 # scripts - build or minify JS
 
+_ = require "underscore"
 browserify = require "browserify"
 gulp = require "gulp"
 util = require "gulp-util"
@@ -22,7 +23,36 @@ resolve = require "resolve"
 rootRequire = require("root-require")
 pkg = rootRequire("./package.json")
 insert = require('gulp-insert')
+child_process = require "child_process"
 license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
+
+gulp.task "scripts:generate", (cb) ->
+  generateDefaults = (next) ->
+    if argv.verbose then util.log("Generating defaults.coffee")
+    bokehjsdir = path.normalize(process.cwd())
+    basedir = path.normalize(bokehjsdir + "/..")
+    oldpath = process.env['PYTHONPATH']
+    if oldpath?
+      pypath = "#{basedir}:#{oldpath}"
+    else
+      pypath = basedir
+    env = _.extend({}, process.env, { PYTHONPATH: pypath })
+    handle = child_process.spawn("python", ['./gulp/tasks/generate_defaults.py', paths.buildDir.coffee], {
+      env: env,
+      cwd: bokehjsdir
+    })
+    handle.stdout.on 'data', (data) ->
+      console.log("generate_defaults.py: #{data}")
+    handle.stderr.on 'data', (data) ->
+      console.log("generate_defaults.py: #{data}")
+    handle.on 'close', (code) ->
+      if code != 0
+        cb(new Error("generate_defaults.py exited code #{code}"))
+      else
+        cb()
+
+  generateDefaults(cb)
+  null # XXX: this is extremely important to allow cb() to work
 
 customLabeler = (bundle, parentLabels, fn) ->
   labels = {}
@@ -137,7 +167,7 @@ gulp.task "scripts:build", (cb) ->
       .pipe change (content) ->
         "(function() { var define = undefined; return #{content} })()"
       .pipe change (content) ->
-        "bokehRequire = #{content}"
+        "Bokeh = #{content}"
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
@@ -180,4 +210,4 @@ gulp.task "scripts:minify", ->
   es.merge.apply(null, tasks)
 
 gulp.task "scripts", (cb) ->
-  runSequence("scripts:build", "scripts:minify", cb)
+  runSequence("scripts:generate", "scripts:build", "scripts:minify", cb)

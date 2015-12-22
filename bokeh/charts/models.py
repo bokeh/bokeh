@@ -5,7 +5,7 @@ from six import iteritems
 from bokeh.models.glyphs import Glyph
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
-from bokeh.properties import (HasProps, String, Either, Float, Color, Instance, List,
+from bokeh.core.properties import (HasProps, String, Either, Float, Color, Instance, List,
                               Any, Dict)
 from .properties import ColumnLabel, Column
 
@@ -39,7 +39,10 @@ class CompositeGlyph(HasProps):
     """
 
     # composite glyph inputs
-    label = String('None', help='Identifies the subset of data.')
+    data = Any()
+    label = Either(String, Dict(String, Any), default='None',
+                   help='Identifies the subset of data.')
+
     values = Either(Column(Float), Column(String), help="""Array-like values,
         which are used as the input to the composite glyph.""")
 
@@ -66,16 +69,6 @@ class CompositeGlyph(HasProps):
     top_buffer = Float(default=0.0)
     bottom_buffer = Float(default=0.0)
 
-    def __init__(self, **kwargs):
-        label = kwargs.pop('label', None)
-
-        if label is not None:
-            if not isinstance(label, str):
-                label = str(label)
-            kwargs['label'] = label
-
-        super(CompositeGlyph, self).__init__(**kwargs)
-
     def setup(self):
         """Build renderers and data source and set sources on renderers."""
         self.renderers = [renderer for renderer in self.build_renderers()]
@@ -89,16 +82,45 @@ class CompositeGlyph(HasProps):
             this method would be called after data is added.
         """
         if self.renderers is not None:
-            source = self.build_source()
-            if isinstance(source, dict):
-                source = ColumnDataSource(source)
+            data = self.build_source()
 
-            if not isinstance(source, ColumnDataSource) and source is not None:
-                raise TypeError('build_source must return dict or ColumnDataSource.')
-            else:
-                self.source = source
+            if data is not None:
 
-            self._set_sources()
+                if isinstance(data, dict):
+                    source = ColumnDataSource(data)
+
+                if not isinstance(source, ColumnDataSource) and source is not None:
+                    raise TypeError('build_source must return dict or ColumnDataSource.')
+                else:
+                    self.source = self.add_chart_index(source)
+
+                self._set_sources()
+
+    def add_chart_index(self, data):
+
+        if isinstance(data, ColumnDataSource):
+            source = data
+            data = source.data
+        else:
+            source = None
+
+        # add chart index to data
+        if 'chart_index' not in data:
+            n_rows = len(list(data.values())[0])
+
+            # add composite chart index as column
+            data['chart_index'] = [self.label] * n_rows
+
+            # add constant value for each column in chart index
+            if isinstance(self.label, dict):
+                for col, val in iteritems(self.label):
+                    data[col] = [val] * n_rows
+
+        if source is not None:
+            source.data = data
+            return source
+        else:
+            return data
 
     def build_renderers(self):
         raise NotImplementedError('You must return list of renderers.')

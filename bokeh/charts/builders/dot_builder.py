@@ -21,7 +21,7 @@ from __future__ import absolute_import
 
 from ..builder import create_and_build
 from ...models import Range1d
-from ...properties import Bool, Float
+from ...core.properties import Bool, Float
 from .bar_builder import BarBuilder
 from ..glyphs import DotGlyph
 from ..attributes import ColorAttr, CatAttr, MarkerAttr
@@ -130,6 +130,7 @@ class DotBuilder(BarBuilder):
                           'group': CatAttr(),
                           'marker': MarkerAttr(),
                           }
+
     stem = Bool(False, help="""
     Whether to draw a stem from each do to the axis.
     """)

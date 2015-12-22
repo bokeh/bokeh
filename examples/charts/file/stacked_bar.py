@@ -18,7 +18,9 @@ bar = Bar(df,
           color=color(columns='medal', palette=['SaddleBrown', 'Silver', 'Goldenrod'],
                       sort=False),
           legend='top_right',
-          title="Medals per Country, Sorted by Total Medals")
+          title="Medals per Country, Sorted by Total Medals",
+          tooltips=[('medal', '@medal'), ('country', '@abbr')])
+
 
 output_file("stacked_bar.html")
 show(bar)

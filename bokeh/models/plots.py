@@ -6,17 +6,17 @@ from __future__ import absolute_import
 from six import string_types
 import warnings
 
-from ..enums import Location
-from ..mixins import LineProps, TextProps, FillProps
-from ..model import Model
-from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override)
-from ..query import find
-from ..util.string import nice_join
-from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+from ..core.query import find
+from ..core import validation
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
-from ..validation.errors import REQUIRED_RANGE
-from .. import validation
+from ..core.enums import Location
+from ..core.property_mixins import LineProps, TextProps, FillProps
+from ..model import Model
+from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+    List, Dict, Include, Override)
+from ..util.string import nice_join
+from ..core.validation.errors import REQUIRED_RANGE
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
@@ -122,7 +122,7 @@ class Plot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -253,7 +253,7 @@ class Plot(Component):
         '''Adds new DynamicImageRenderer into the Plot.renderers
 
         Args:
-            image_source (ImageSource) : a image source instance which contain image configuration 
+            image_source (ImageSource) : a image source instance which contain image configuration
 
         Keyword Arguments:
             Additional keyword arguments are passed on as-is to the dynamic image renderer
@@ -572,7 +572,7 @@ class Plot(Component):
     """)
 
 
-class GridPlot(Plot):
+class GridPlot(Component):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.
 
     """
@@ -594,7 +594,7 @@ class GridPlot(Plot):
         if not list(chain(self.children)):
             return str(self)
 
-    children = List(List(Instance(Plot)), help="""
+    children = List(List(Instance(Plot)), default=[[]], help="""
     An array of plots to display in a grid, given as a list of lists of
     Plot objects. To leave a position in the grid empty, pass None for
     that position in the ``children`` list.
@@ -602,6 +602,11 @@ class GridPlot(Plot):
 
     border_space = Int(0, help="""
     Distance (in pixels) between adjacent plots.
+    """)
+
+    toolbar_location = Enum(Location, default="left", help="""
+    Where the toolbar will be located. If set to None, no toolbar
+    will be attached to the plot.
     """)
 
     def select(self, *args, **kwargs):
@@ -615,7 +620,7 @@ class GridPlot(Plot):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):

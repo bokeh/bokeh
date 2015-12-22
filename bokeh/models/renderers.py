@@ -6,12 +6,12 @@ from __future__ import absolute_import
 
 import logging
 
+from ..core import validation
+from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from ..model import Model
-from ..properties import abstract
-from ..properties import String, Enum, Instance, Float, Bool
-from ..enums import RenderLevel
-from ..validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
-from .. import validation
+from ..core.properties import abstract
+from ..core.properties import String, Enum, Instance, Float, Bool
+from ..core.enums import RenderLevel
 
 from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
@@ -49,8 +49,9 @@ class TileRenderer(Renderer):
     """)
 
     level = Enum(RenderLevel, default="underlay", help="""
-    Specifies the level in which to render the glyph.
+    Specifies the level in which to render the tiles.
     """)
+
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
@@ -158,3 +159,7 @@ class GuideRenderer(Renderer):
         if self.plot is not None:
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
+
+    level = Enum(RenderLevel, default="overlay", help="""
+    Specifies the level in which to render the guide.
+    """)

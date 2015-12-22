@@ -232,7 +232,12 @@ For more information, see the Dev Guide:
 
 BUILD_FAIL_MSG = bright(red("Failed.")) + """
 
-ERROR: 'gulp build' returned error message:
+ERROR: 'gulp build' returned the following
+
+---- on stdout:
+%s
+
+---- on stderr:
 %s
 """
 
@@ -272,16 +277,20 @@ def build_js():
 
     if result != 0:
         indented_msg = ""
-        msg = proc.stderr.read().decode('ascii', errors='ignore')
-        msg = "\n".join(["    " + x for x in msg.split("\n")])
-        print(BUILD_FAIL_MSG % red(msg))
+        outmsg = proc.stdout.read().decode('ascii', errors='ignore')
+        outmsg = "\n".join(["    " + x for x in outmsg.split("\n")])
+        errmsg = proc.stderr.read().decode('ascii', errors='ignore')
+        errmsg = "\n".join(["    " + x for x in errmsg.split("\n")])
+        print(BUILD_FAIL_MSG % (red(outmsg), red(errmsg)))
         sys.exit(1)
 
     indented_msg = ""
     msg = proc.stdout.read().decode('ascii', errors='ignore')
     pat = re.compile(r"(\[.*\]) (.*)", re.DOTALL)
     for line in msg.strip().split("\n"):
-        stamp, txt = pat.match(line).groups()
+        m = pat.match(line)
+        if not m: continue # skip generate.py output lines
+        stamp, txt = m.groups()
         indented_msg += "   " + dim(green(stamp)) + " " + dim(txt) + "\n"
     msg = "\n".join(["    " + x for x in msg.split("\n")])
     print(BUILD_SUCCESS_MSG % indented_msg)
@@ -447,7 +456,7 @@ if jsinstall:
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojson')
 
 package_path(join(SERVER, 'static'))
-package_path(join(ROOT, 'bokeh', '_templates'))
+package_path(join(ROOT, 'bokeh', 'core', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
 
 if '--user' in sys.argv:
@@ -503,9 +512,6 @@ REQUIRES = [
         'python-dateutil>=2.1',
         'Jinja2>=2.7',
         'numpy>=1.7.1',
-        'pandas>=0.11.0',
-        'Flask>=0.10.1',
-        'pyzmq>=14.3.1',
         'tornado>=4.0.1',
     ]
 
@@ -549,10 +555,15 @@ setup(
         'bokeh.command.tests',
         'bokeh.command.subcommands',
         'bokeh.command.subcommands.tests',
-        'bokeh.compat',
-        'bokeh.compat.mplexporter',
-        'bokeh.compat.mplexporter.renderers',
+        'bokeh.core',
+        'bokeh.core.compat',
+        'bokeh.core.compat.mplexporter',
+        'bokeh.core.compat.mplexporter.renderers',
+        'bokeh.core.tests',
+        'bokeh.core.validation',
         'bokeh.crossfilter',
+        'bokeh.plotting',
+        'bokeh.plotting.tests',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.protocol',
@@ -566,7 +577,6 @@ setup(
         'bokeh.tests',
         'bokeh.util',
         'bokeh.util.tests',
-        'bokeh.validation',
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',
