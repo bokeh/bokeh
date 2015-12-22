@@ -3,10 +3,6 @@
 Plotting with Basic Glyphs
 ==========================
 
-.. contents::
-    :local:
-    :depth: 3
-
 .. _userguide_plotting_figures:
 
 Creating Figures

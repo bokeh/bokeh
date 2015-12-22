@@ -1,12 +1,7 @@
-
 .. _installation:
 
 Installation
 ############
-
-.. contents::
-    :local:
-    :depth: 2
 
 This section gives more details about the installation process of Bokeh,
 for those who were unable to complete the process detailed in the
