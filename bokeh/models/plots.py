@@ -8,7 +8,7 @@ import warnings
 
 from ..core.query import find
 from ..core import validation
-from ..core.validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..core.enums import Location
 from ..core.property_mixins import LineProps, TextProps, FillProps
