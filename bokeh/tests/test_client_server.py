@@ -12,7 +12,7 @@ from bokeh.server.server import Server
 from bokeh.server.session import ServerSession
 from bokeh.model import Model
 from bokeh.resources import websocket_url_for_server_url
-from bokeh.core.properties import Int, Instance, Dict, String, Any
+from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
 
@@ -26,6 +26,10 @@ class SomeModelInTestClientServer(Model):
 
 class DictModel(Model):
     values = Dict(String, Any)
+
+class UnitsSpecModel(Model):
+    distance = DistanceSpec(42)
+    angle = AngleSpec(0)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -859,3 +863,61 @@ def test_server_changes_do_not_boomerang(monkeypatch):
         client_session.close()
         client_session.loop_until_closed()
         assert not client_session.connected
+
+# this test is because we do the funky serializable_value
+# tricks with the units specs
+def test_unit_spec_changes_do_not_boomerang(monkeypatch):
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        doc = document.Document()
+        client_root = UnitsSpecModel()
+        doc.add_root(client_root)
+
+        client_session = push_session(doc,
+                                      session_id='test_unit_spec_changes_do_not_boomerang',
+                                      url=url(server),
+                                      io_loop=server.io_loop)
+        server_session = server.get_session('/', client_session.id)
+
+        assert len(server_session.document.roots) == 1
+        server_root = next(iter(server_session.document.roots))
+
+        assert client_root.distance == 42
+        assert server_root.angle == 0
+
+        def change_to(new_distance, new_angle):
+            got_angry = {}
+            got_angry['result'] = None
+            # trap any boomerang
+            def get_angry(message):
+                got_angry['result'] = message
+            monkeypatch.setattr(client_session, '_handle_patch', get_angry)
+
+            server_previous_distance = server_root.distance
+            server_previous_angle = server_root.angle
+
+            # Now modify the client document
+            client_root.distance = new_distance
+            client_root.angle = new_angle
+
+            # wait until server side change made ... but we may not have the
+            # boomerang yet
+            def server_change_made():
+                return server_root.distance != server_previous_distance and \
+                    server_root.angle != server_previous_angle
+            client_session._connection._loop_until(server_change_made)
+
+            # force a round trip to be sure we get the boomerang if we're going to
+            client_session.force_roundtrip()
+
+            assert got_angry['result'] is None
+
+        change_to(57, 1)
+        change_to({ 'value' : 58 }, { 'value' : 2 })
+        change_to({ 'field' : 'foo' }, { 'field' : 'bar' })
+        change_to({ 'value' : 59, 'units' : 'screen' }, { 'value' : 30, 'units' : 'deg' })
+
+        client_session.close()
+        client_session.loop_until_closed()
+        assert not client_session.connected
+        server.unlisten() # clean up so next test can run
