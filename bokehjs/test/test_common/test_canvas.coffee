@@ -18,12 +18,12 @@ describe "Canvas Model", ->
     expect(@cm.vy_to_sy(view_y)).to.eql(@height - view_y - 1)
 
   it "v_vx_to_sx should return what it is passed", ->
-    xx = new Float64Array(72.72, 87.87, 224.24, 209.09)
+    xx = new Float64Array([72.72, 87.87, 224.24, 209.09])
     expect(@cm.v_vx_to_sx(xx)).to.eql(xx)
 
   it "v_vy_to_sy should make y relative to canvas height less 1 px", ->
-    view_yy = [10.0, 20.0, 30.0]
-    screen_yy = [@height - view_yy[0] - 1, @height - view_yy[1] - 1, @height - view_yy[2] - 1]
+    view_yy = new Float64Array([10.0, 20.0, 30.0])
+    screen_yy = new Float64Array([@cm.vy_to_sy(view_yy[0]), @cm.vy_to_sy(view_yy[1]), @cm.vy_to_sy(view_yy[2])])
     expect(@cm.v_vy_to_sy(view_yy)).to.eql(screen_yy)
 
   it "sx_to_vx should return what it is passed", ->
@@ -36,10 +36,10 @@ describe "Canvas Model", ->
     expect(@cm.sy_to_vy(screen_y)).to.eql(view_y)
 
   it "v_sx_to_vx should return what it is passed", ->
-    xx = new Float64Array(72.72, 87.87, 224.24, 209.09)
+    xx = new Float64Array([72.72, 87.87, 224.24, 209.09])
     expect(@cm.v_sx_to_vx(xx)).to.eql(xx)
 
   it "v_sy_to_vy should convert back to view_yy", ->
-    view_yy = [10.0, 20.0, 30.0]
-    screen_yy = [@height - view_yy[0] - 1, @height - view_yy[1] - 1, @height - view_yy[2] - 1]
+    view_yy = new Float64Array([10.0, 20.0, 30.0])
+    screen_yy = new Float64Array([@cm.vy_to_sy(view_yy[0]), @cm.vy_to_sy(view_yy[1]), @cm.vy_to_sy(view_yy[2])])
     expect(@cm.v_sy_to_vy(screen_yy)).to.eql(view_yy)
