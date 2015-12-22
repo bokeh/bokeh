@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from math import log, sqrt
 
 import numpy as np
@@ -26,7 +27,7 @@ Streptococcus viridans,          0.005,      10,           40,       positive
 Diplococcus pneumoniae,          0.005,      11,           10,       positive
 """
 
-drug_color = dict([
+drug_color = OrderedDict([
     ("Penicillin",   "#0d3362"),
     ("Streptomycin", "#c64737"),
     ("Neomycin",     "black"  ),

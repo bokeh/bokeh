@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from collections import OrderedDict
+
 from bokeh.plotting import figure, show, output_file
 from bokeh.palettes import brewer
 
@@ -15,7 +17,7 @@ df = pd.DataFrame(data)
 df = df.set_index(['x'])
 
 def stacked(df, categories):
-    areas = dict()
+    areas = OrderedDict()
     last = np.zeros(len(df[categories[0]]))
     for cat in categories:
         next = last + df[cat]
