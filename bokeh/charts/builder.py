@@ -71,7 +71,6 @@ def create_and_build(builder_class, *data, **kws):
     if curstate().autoadd:
         curdoc().add_root(chart)
 
-
     return chart
 
 
