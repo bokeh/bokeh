@@ -143,9 +143,18 @@ class Canvas extends LayoutBox.Model
     return xx
 
   v_vy_to_sy: (yy) ->
-    for y, idx in yy
-      yy[idx] = @vy_to_sy(y)
-    return yy
+    if not _.isNumber(yy[0])
+      result = []
+      for arr, i in yy
+        r = new Float64Array(arr.length)
+        for y, j in yy[i]
+          r[j] = @vy_to_sy(y)
+        result[i] = r
+    else
+      result = new Float64Array(yy.length)
+      for y, idy in yy
+        result[idy] = @vy_to_sy(y)
+    return result
 
   # Transform: underlying screen coordinates -> view coordinates
   sx_to_vx: (x) ->

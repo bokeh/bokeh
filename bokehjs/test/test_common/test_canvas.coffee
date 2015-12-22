@@ -26,6 +26,17 @@ describe "Canvas Model", ->
     screen_yy = new Float64Array([@cm.vy_to_sy(view_yy[0]), @cm.vy_to_sy(view_yy[1]), @cm.vy_to_sy(view_yy[2])])
     expect(@cm.v_vy_to_sy(view_yy)).to.eql(screen_yy)
 
+  it "v_vy_to_sy should handle nested arrays", ->
+    view_yy = [
+      new Float64Array([10.0, 20.0, 30.0]),
+      new Float64Array([40.0, 50.0])
+    ]
+    screen_yy = [
+      new Float64Array([@cm.vy_to_sy(view_yy[0][0]), @cm.vy_to_sy(view_yy[0][1]), @cm.vy_to_sy(view_yy[0][2])]),
+      new Float64Array([@cm.vy_to_sy(view_yy[1][0]), @cm.vy_to_sy(view_yy[1][1])])
+    ]
+    expect(@cm.v_vy_to_sy(view_yy)).to.eql(screen_yy)
+
   it "sx_to_vx should return what it is passed", ->
     x = 12
     expect(@cm.sx_to_vx(x)).to.eql(x)
@@ -42,4 +53,15 @@ describe "Canvas Model", ->
   it "v_sy_to_vy should convert back to view_yy", ->
     view_yy = new Float64Array([10.0, 20.0, 30.0])
     screen_yy = new Float64Array([@cm.vy_to_sy(view_yy[0]), @cm.vy_to_sy(view_yy[1]), @cm.vy_to_sy(view_yy[2])])
+    expect(@cm.v_sy_to_vy(screen_yy)).to.eql(view_yy)
+
+  it "v_sy_to_vy should handle nested arrays", ->
+    view_yy = [
+      new Float64Array([10.0, 20.0, 30.0]),
+      new Float64Array([40.0, 50.0])
+    ]
+    screen_yy = [
+      new Float64Array([@cm.vy_to_sy(view_yy[0][0]), @cm.vy_to_sy(view_yy[0][1]), @cm.vy_to_sy(view_yy[0][2])]),
+      new Float64Array([@cm.vy_to_sy(view_yy[1][0]), @cm.vy_to_sy(view_yy[1][1])])
+    ]
     expect(@cm.v_sy_to_vy(screen_yy)).to.eql(view_yy)
