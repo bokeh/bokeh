@@ -66,6 +66,7 @@ test:
     - ggplot
     - seaborn
     - icalendar
+    - flask
     - flexx           [py3k]
 
   commands:
