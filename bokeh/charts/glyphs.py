@@ -942,7 +942,7 @@ class BinGlyph(XyGlyph):
     stat = String()
 
     glyph_name = String()
-    glyphs = Override(default={'rect': Rect})
+    glyphs = {'rect': Rect}
 
     width = Float()
     height = Float()
