@@ -135,4 +135,4 @@ p.scatter(x, y, marker="circle_cross", size=sizes, color="#FB8072",
     fill_color=None, line_width=2)
 children.append(p)
 
-show(vplot(*children))  # open a browser
+show(vplot)  # open a browser

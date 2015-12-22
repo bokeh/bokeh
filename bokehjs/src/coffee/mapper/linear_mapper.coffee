@@ -1,3 +1,4 @@
+_ = require "underscore"
 HasProperties = require "../common/has_properties"
 
 class LinearMapper extends HasProperties
@@ -15,9 +16,17 @@ class LinearMapper extends HasProperties
 
   v_map_to_target: (xs) ->
     [scale, offset] = @get('mapper_state')
-    result = new Float64Array(xs.length)
-    for x, idx in xs
-      result[idx] = scale * x + offset
+    if not _.isNumber(xs[0])
+      result = []
+      for arr, i in xs
+        r = new Float64Array(arr.length)
+        for x, j in xs[i]
+          r[j] = scale * x + offset
+        result[i] = r
+    else
+      result = new Float64Array(xs.length)
+      for x, idx in xs
+        result[idx] = scale * x + offset
     return result
 
   map_from_target: (xprime) ->
