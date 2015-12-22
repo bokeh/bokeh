@@ -42,6 +42,7 @@ from ..util.browser import view
 from ..util.notebook import publish_display_data
 from ..util.serialization import make_id
 from ..util.future import with_metaclass
+from ..util.deprecate import deprecated
 from ..themes import Theme
 
 #-----------------------------------------------------------------------------
@@ -294,3 +295,8 @@ class Chart(Plot):
         self.add_layout(grid)
 
         return grid
+
+    @deprecated("Bokeh 0.11", "bokeh.io.show")
+    def show(self):
+        import bokeh.io
+        bokeh.io.show(self)
