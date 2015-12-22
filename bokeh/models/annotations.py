@@ -8,7 +8,7 @@ from ..core.enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, R
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
 from ..core.properties import (
-    Bool Int, String, Enum, Instance, List, Dict, Tuple,
+    Bool, Int, String, Enum, Instance, List, Dict, Tuple,
     Include, NumberSpec, Either, Auto, Float, Override, Seq
 )
 from ..util.deprecate import deprecated
