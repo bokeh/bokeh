@@ -151,10 +151,10 @@ class Canvas extends LayoutBox.Model
 
   # Transform: underlying screen coordinates -> view coordinates
   sx_to_vx: (x) ->
-    return x
+    return @vx_to_sx(x)
 
   sy_to_vy: (y) ->
-    return @get('height') - (y + 1)
+    return @vy_to_sy(y)
 
   v_sx_to_vx: (xx) ->
     return @v_vx_to_sx(xx)
