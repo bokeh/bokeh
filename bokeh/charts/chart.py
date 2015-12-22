@@ -117,19 +117,6 @@ class Chart(Plot):
     Height of the rendered chart, in pixels.
     """)
 
-    filename = Either(Bool(False), String, help="""
-    A name for the file to save this chart to.
-    """)
-
-    server = Either(Bool(False), String, help="""
-    A name to use to save this chart to on server.
-    """)
-
-    notebook = Either(Bool(False), String, help="""
-    Whether to display the plot inline in an IPython/Jupyter
-    notebook.
-    """)
-
     title_text_font_size = Override(default={ 'value' : '14pt' })
 
     responsive = Bool(False, help="""
@@ -158,20 +145,6 @@ class Chart(Plot):
         self._labels = defaultdict(list)
         self._scales = defaultdict(list)
         self._tooltips = []
-
-        # Add to document and session if server output is asked
-        _doc = None
-        if _doc:
-            self._doc = _doc
-        else:
-            self._doc = Document()
-
-        # if self._options.server:
-        #     _session = None
-        #     if _session:
-        #         self._session = _session
-        #     else:
-        #         self._session = Session()
 
         self.create_tools(self._tools)
 
@@ -321,47 +294,3 @@ class Chart(Plot):
         self.add_layout(grid)
 
         return grid
-
-    def show(self):
-        """Main show function.
-
-        It shows the plot in file, server and notebook outputs.
-        """
-        # Add to document and session
-        if self.server:
-            if self.server is True:
-                self._servername = "untitled_chart"
-            else:
-                self._servername = self.server
-
-            self._session.use_doc(self._servername)
-            self._session.load_document(self._doc)
-
-        if not self._doc._current_plot == self:
-            self._doc._current_plot = self
-            self._doc.add_root(self)
-
-        if self.filename:
-            if self.filename is True:
-                filename = "untitled"
-            else:
-                filename = self.filename
-
-            with open(filename, "w") as f:
-                f.write(file_html(self._doc, INLINE, self.title))
-            print("Wrote %s" % filename)
-            view(filename)
-        elif self.filename is False and \
-                        self.server is False and \
-                        self.notebook is False:
-            print("You must provide a filename (filename='foo.html' or"
-                  " .filename('foo.html')) to save your plot.")
-
-        if self.server:
-            self.session.store_document(self._doc)
-            link = self._session.object_link(self._doc.context)
-            view(link)
-
-        if self.notebook:
-            from bokeh.embed import notebook_div
-            publish_display_data({'text/html': notebook_div(self)})
