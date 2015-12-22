@@ -206,6 +206,5 @@ class ControlsView(BaseView):
 
 model = AppModel(autompg)
 controller = AppController(model)
-view = AppView(model, controller, layout_class=StyleableBox)
-import pdb; pdb.set_trace()
+view = AppView(model, controller, layout_class=VBox)
 doc = curdoc().add_root(view.layout)
