@@ -1,27 +1,29 @@
-"""
-This example shows how a Bokeh plot can be embedded in an HTML document,
-in a way that the plot resizes to make use of the available width and
-height (while keeping the aspect ratio fixed).
+""" This example shows how a Bokeh plot can be embedded in an HTML
+document, in a way that the plot resizes to make use of the available
+width and height (while keeping the aspect ratio fixed).
 
 To make this work well, the plot should be placed in a container that
 *has* a certain width and height (i.e. non-scrollable), which is the
 body element in this case. A more realistic example might be embedding
 a plot in a Phosphor widget.
-"""
 
-from bokeh.browserlib import view
-from bokeh.plotting import figure
-from bokeh.embed import components
-from bokeh.resources import INLINE
+"""
+import random
 
 from jinja2 import Template
-import random
+
+from bokeh.embed import components
+from bokeh.plotting import figure
+from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 ########## BUILD FIGURES ################
 
 PLOT_OPTIONS = dict(plot_width=600, plot_height=400)
 SCATTER_OPTIONS = dict(size=12, alpha=0.5)
+
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
+
 red = figure(responsive=False, tools='pan', **PLOT_OPTIONS)
 red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
 
@@ -74,9 +76,9 @@ html = template.render(js_resources=js_resources,
                        plot_script=script,
                        plot_div=div)
 
-html_file = 'embed_responsive_width_height.html'
+filename = 'embed_responsive_width_height.html'
 
-with open(html_file, 'w') as f:
+with open(filename, 'w') as f:
     f.write(html)
 
-view(html_file)
+view(filename)

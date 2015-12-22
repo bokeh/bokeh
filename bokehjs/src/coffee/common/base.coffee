@@ -209,6 +209,13 @@ browserify = {
   cache: arguments[5]
 }
 
+register_modules = (modules) ->
+  for own name, module of modules
+    if not browserify.modules[name]
+      browserify.modules[name] = module
+    else
+      throw new Error("Module `#{name}' already exists. Can't reassign.")
+
 Collections.register_plugin = (plugin, locations) ->
   logger.info("Registering plugin: #{plugin}")
   Collections.register_locations locations, errorFn = (name) ->
@@ -245,7 +252,6 @@ Collections.register_models = (specs) ->
   for own name, impl of specs
     Collections.register_model(name, impl)
 
-
 Collections.registered_names = () ->
   Object.keys(_get_mod_cache())
 
@@ -257,6 +263,7 @@ index = {}
 
 module.exports =
   collection_overrides: collection_overrides # for testing only
+  register_modules: register_modules
   locations: locations #
   index: index
   Collections: Collections

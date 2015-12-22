@@ -3,12 +3,12 @@
 """
 from __future__ import absolute_import
 
-from ..properties import HasProps, abstract
-from ..properties import Enum, Float, Instance, Int, JSON, Override
-from ..enums import MapType
-from ..validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
-from ..validation.errors import REQUIRED_RANGE
-from .. import validation
+from ..core import validation
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
+from ..core.validation.errors import REQUIRED_RANGE
+from ..core.properties import HasProps, abstract
+from ..core.properties import Enum, Float, Instance, Int, JSON, Override
+from ..core.enums import MapType
 
 from .plots import Plot
 

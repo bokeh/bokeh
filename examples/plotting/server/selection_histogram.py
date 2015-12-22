@@ -1,106 +1,86 @@
-# The plot server must be running
-# Go to http://localhost:5006/bokeh to view this plot
-
 import numpy as np
 
-from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
-from bokeh.plotting import (
-    curdoc, figure, output_server, show, hplot, vplot
-)
 from bokeh.client import push_session
+from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
+from bokeh.plotting import curdoc, figure, hplot, vplot
+
 # create three normal population samples with different parameters
-N1 = 2000
-N2 = 5000
-N3 = 1000
+x1 = np.random.normal(loc=5.0, size=400) * 100
+y1 = np.random.normal(loc=10.0, size=400) * 10
 
-x1 = np.random.normal(loc=5.0, size=N1) * 100
-y1 = np.random.normal(loc=10.0, size=N1) * 10
+x2 = np.random.normal(loc=5.0, size=800) * 50
+y2 = np.random.normal(loc=5.0, size=800) * 10
 
-x2 = np.random.normal(loc=5.0, size=N2) * 50
-y2 = np.random.normal(loc=5.0, size=N2) * 10
-
-x3 = np.random.normal(loc=55.0, size=N3) * 10
-y3 = np.random.normal(loc=4.0, size=N3) * 10
+x3 = np.random.normal(loc=55.0, size=200) * 10
+y3 = np.random.normal(loc=4.0, size=200) * 10
 
 x = np.concatenate((x1, x2, x3))
 y = np.concatenate((y1, y2, y3))
-
-all_inds = np.arange(len(x1) + len(x2) + len(x3))
 
 TOOLS="pan,wheel_zoom,box_select,lasso_select"
 
 # create the scatter plot
 p = figure(tools=TOOLS, plot_width=600, plot_height=600, title=None, min_border=10, min_border_left=50)
-p.scatter(x, y, size=3, color="#3A5785", alpha=0.6, name="scatter")
+r = p.scatter(x, y, size=3, color="#3A5785", alpha=0.6)
 
-renderer = p.select(dict(name="scatter"))
-scatter_ds = renderer[0].data_source
-
-box_select_tool = p.select(dict(type=BoxSelectTool))
-box_select_tool.select_every_mousemove = False
-lasso_select_tool = p.select(dict(type=LassoSelectTool))
-lasso_select_tool.select_every_mousemove = False
+p.select(BoxSelectTool).select_every_mousemove = False
+p.select(LassoSelectTool).select_every_mousemove = False
 
 # create the horizontal histogram
 hhist, hedges = np.histogram(x, bins=20)
 hzeros = np.zeros(len(hedges)-1)
 hmax = max(hhist)*1.1
 
+LINE_ARGS = dict(color="#3A5785", line_color=None)
+
 ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range,
             y_range=(-hmax, hmax), title=None, min_border=10, min_border_left=50)
-ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hhist, color="white", line_color="#3A5785")
-ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785", alpha=0.5, line_color=None, name="hhist")
-ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785", alpha=0.1, line_color=None, name="hhist2")
 ph.xgrid.grid_line_color = None
+
+ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hhist, color="white", line_color="#3A5785")
+hh1 = ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, alpha=0.5, **LINE_ARGS)
+hh2 = ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, alpha=0.1, **LINE_ARGS)
 
 # create the vertical histogram
 vhist, vedges = np.histogram(y, bins=20)
 vzeros = np.zeros(len(vedges)-1)
 vmax = max(vhist)*1.1
 
-# need to adjust for toolbar height, unfortunately
-th = 42
-
+th = 42 # need to adjust for toolbar height, unfortunately
 pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height+th-10, x_range=(-vmax, vmax),
             y_range=p.y_range, title=None, min_border=10, min_border_top=th)
-pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", line_color="#3A5785")
-pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785", alpha=0.5, line_color=None, name="vhist")
-pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785", alpha=0.1, line_color=None, name="vhist2")
 pv.ygrid.grid_line_color = None
+pv.xaxis.major_label_orientation = -3.14/2
 
-session = push_session(curdoc())
+pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", line_color="#3A5785")
+vh1 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.5, **LINE_ARGS)
+vh2 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.1, **LINE_ARGS)
+
 layout = vplot(hplot(p, pv), hplot(ph, Paragraph()))
-session.show(layout)
 
-ph_source = ph.select(dict(name="hhist"))[0].data_source
-ph_source2 = ph.select(dict(name="hhist2"))[0].data_source
+# open a session to keep our local document in sync with server
+session = push_session(curdoc())
 
-pv_source = pv.select(dict(name="vhist"))[0].data_source
-pv_source2 = pv.select(dict(name="vhist2"))[0].data_source
-
-# set up callbacks
-def on_selection_change(attr, old, new):
+def update(attr, old, new):
     inds = np.array(new['1d']['indices'])
     if len(inds) == 0 or len(inds) == len(x):
-        hhist = hzeros
-        vhist = vzeros
-        hhist2 = hzeros
-        vhist2 = vzeros
+        hhist1, hhist2 = hzeros, hzeros
+        vhist1, vhist2 = vzeros, vzeros
     else:
-        hhist, _ = np.histogram(x[inds], bins=hedges)
-        vhist, _ = np.histogram(y[inds], bins=vedges)
-        negative_inds = np.ones_like(x, dtype=np.bool)
-        negative_inds[inds] = False
-        hhist2, _ = np.histogram(x[negative_inds], bins=hedges)
-        vhist2, _ = np.histogram(y[negative_inds], bins=vedges)
+        neg_inds = np.ones_like(x, dtype=np.bool)
+        neg_inds[inds] = False
+        hhist1, _ = np.histogram(x[inds], bins=hedges)
+        vhist1, _ = np.histogram(y[inds], bins=vedges)
+        hhist2, _ = np.histogram(x[neg_inds], bins=hedges)
+        vhist2, _ = np.histogram(y[neg_inds], bins=vedges)
 
-    ph_source.data["top"] = hhist
-    pv_source.data["right"] = vhist
-    ph_source2.data["top"] = -hhist2
-    pv_source2.data["right"] = -vhist2
+    hh1.data_source.data["top"]   =  hhist1
+    hh2.data_source.data["top"]   = -hhist2
+    vh1.data_source.data["right"] =  vhist1
+    vh2.data_source.data["right"] = -vhist2
 
-scatter_ds.on_change('selected', on_selection_change)
+r.data_source.on_change('selected', update)
 
+session.show(layout) # open the document in a browser
 
-
-session.loop_until_closed()
+session.loop_until_closed() # run forever

@@ -1,7 +1,7 @@
 from __future__ import  absolute_import
 
 from bokeh.models.annotations import Legend, BoxAnnotation, Span
-from bokeh.enums import (
+from bokeh.core.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
 
