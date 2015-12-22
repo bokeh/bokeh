@@ -3,10 +3,6 @@
 Adding Interactions
 ===================
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _userguide_interaction_linking:
 
 Linking Plots
