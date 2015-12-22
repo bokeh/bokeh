@@ -54,7 +54,6 @@ the :ref:`devguide`.
     docs/reference/palettes
     docs/reference/utils
     docs/reference/resources_embedding
-    docs/reference/plot_objects
     docs/reference/bokehjs
     docs/reference/testing
     docs/reference/sphinxext

@@ -162,27 +162,11 @@ html_context = {
     'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 
-
-# Custom sidebar templates, maps document names to template names.
-standard_sidebars = ['sidebartoc.html', 'sourcelink.html', 'searchbox.html']
-html_sidebars = {
-    '*': standard_sidebars,
-    'docs/*': standard_sidebars,
-    'docs/dev_guide/**': standard_sidebars,
-    'docs/reference/**': standard_sidebars,
-    'docs/tutorials/**': standard_sidebars,
-    'docs/user_guide/**': standard_sidebars,
-    'docs/gallery': [],
-    'docs/gallery/*': [],
-}
-
-
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = True
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Bokehdoc'
-
 
 # -- Options for LaTeX output --------------------------------------------------
 
