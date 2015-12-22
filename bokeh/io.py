@@ -282,6 +282,7 @@ def _show_notebook_with_state(obj, state):
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         if state.last_comms:
             state.last_comms.close()
+        state.last_pushed_doc = state.document
         state.last_pushed_json = state.document.to_json()
         state.last_comms = get_comms(comms_target)
 
