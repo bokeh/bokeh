@@ -3,7 +3,7 @@ from bokeh.plotting import figure, show, output_file
 from bokeh.palettes import Spectral4
 from bokeh.models import HoverTool
 
-output_file("patches_with_holes.html", title="patches_with_holes.py example")
+output_file("patches_with_hole.html", title="patches_with_holes.py example")
 
 hover = HoverTool(tooltips=None)
 p = figure(title="Hover over to see different groups", tools=[hover])
