@@ -128,7 +128,7 @@ class Arc(Glyph):
     The angles to end the arcs, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.
     """)
 
