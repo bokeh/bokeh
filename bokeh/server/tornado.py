@@ -165,6 +165,10 @@ class BokehTornado(TornadoApplication):
         self._cleanup_job.start()
         if self._ping_job is not None:
             self._ping_job.start()
+
+        for context in self._applications.values():
+            context.run_load_hook()
+
         try:
             self._loop.start()
         except KeyboardInterrupt:
@@ -177,6 +181,9 @@ class BokehTornado(TornadoApplication):
             None
 
         '''
+        for context in self._applications.values():
+            context.run_unload_hook()
+
         self._stats_job.stop()
         self._cleanup_job.stop()
         if self._ping_job is not None:
