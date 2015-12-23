@@ -1,18 +1,21 @@
-# Source of inspiration for example:
-# https://www.youtube.com/watch?v=LznjC4Lo7lE
+# You must first run "bokeh serve" to view this example
+#
+# Example inspired by:
+#
+#   https://www.youtube.com/watch?v=LznjC4Lo7lE
 
 from __future__ import division
 
 from collections import OrderedDict
+from math import pi
 
 import numpy as np
-from numpy import pi
 
 from bokeh.client import push_session
+from bokeh.driving import repeat
 from bokeh.io import vplot
 from bokeh.models.sources import ColumnDataSource as CDS
 from bokeh.plotting import figure, curdoc
-from bokeh.driving import repeat
 
 N = 100
 newx = x = np.linspace(0, 2*pi, N)

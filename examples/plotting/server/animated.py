@@ -1,8 +1,10 @@
+# You must first run "bokeh serve" to view this example
+
 from numpy import pi, cos, sin, linspace, roll, zeros_like
 
-from bokeh.plotting import figure
 from bokeh.client import push_session
 from bokeh.io import curdoc
+from bokeh.plotting import figure
 
 M = 5
 N = M*10 + 1
