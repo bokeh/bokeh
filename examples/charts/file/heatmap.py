@@ -41,6 +41,7 @@ hm8 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), values='cyl',
               stat='mean', legend='top_right')
 
 hm9 = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None)
+
 hm10 = HeatMap(unempl, x='Year', y='Month', values='Unemployment', stat=None,
               sort_dim={'x': False}, width=1000)
 
