@@ -11,7 +11,7 @@ from bokeh.plotting import figure, curdoc
 N = 50
 
 p = figure(x_range=(0, 100), y_range=(0, 100), toolbar_location=None)
-#           x_axis_location=None, y_axis_location=None)
+
 p.border_fill_color = 'black'
 p.background_fill_color = 'black'
 p.outline_line_color = None
