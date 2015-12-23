@@ -8,10 +8,6 @@ and property mixins. Property classes provide automatic validation and
 serialization for a large collection of useful types. Mixin classes provide
 for easy bulk addition of properties to model classes.
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _bokeh.core.properties:
 
 ``bokeh.core.properties``

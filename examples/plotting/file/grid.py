@@ -7,8 +7,6 @@ N = 50
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_file("grid.html", title="grid.py example")
-
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,crosshair"
 
 l = figure(title="line", tools=TOOLS, plot_width=300, plot_height=300)
@@ -27,5 +25,7 @@ q.quad(x, x-0.2, y, y-0.2, color="tomato", alpha=0.4)
 
 # specify "empty" grid cells with None
 p = gridplot([[l, None, aw], [bez, q, None]])
+
+output_file("grid.html", title="grid.py example")
 
 show(p)

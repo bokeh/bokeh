@@ -167,7 +167,7 @@ gulp.task "scripts:build", (cb) ->
       .pipe change (content) ->
         "(function() { var define = undefined; return #{content} })()"
       .pipe change (content) ->
-        "bokehRequire = #{content}"
+        "Bokeh = #{content}"
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))

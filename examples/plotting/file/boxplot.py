@@ -1,8 +1,10 @@
+
 import numpy as np
 import pandas as pd
+
 from bokeh.plotting import figure, show, output_file
 
-# Generate some synthetic time series for six different categories
+# generate some synthetic time series for six different categories
 cats = list("abcdef")
 yy = np.random.randn(2000)
 g = np.random.choice(cats, 2000)
@@ -10,7 +12,7 @@ for i, l in enumerate(cats):
     yy[g == l] += i // 2
 df = pd.DataFrame(dict(score=yy, group=g))
 
-# Find the quartiles and IQR foor each category
+# find the quartiles and IQR for each category
 groups = df.groupby('group')
 q1 = groups.quantile(q=0.25)
 q2 = groups.quantile(q=0.5)
@@ -25,7 +27,7 @@ def outliers(group):
     return group[(group.score > upper.loc[cat][0]) | (group.score < lower.loc[cat][0])]['score']
 out = groups.apply(outliers).dropna()
 
-# Prepare outlier data for plotting, we need coordinate for every outlier.
+# prepare outlier data for plotting, we need coordinates for every outlier.
 outx = []
 outy = []
 for cat in cats:
@@ -35,11 +37,9 @@ for cat in cats:
             outx.append(cat)
             outy.append(value)
 
-output_file("boxplot.html")
-
 p = figure(tools="save", background_fill_color="#EFE8E2", title="", x_range=cats)
 
-# If no outliers, shrink lengths of stems to be no longer than the minimums or maximums
+# if no outliers, shrink lengths of stems to be no longer than the minimums or maximums
 qmin = groups.quantile(q=0.00)
 qmax = groups.quantile(q=1.00)
 upper.score = [min([x,y]) for (x,y) in zip(list(qmax.iloc[:,0]),upper.score) ]
@@ -66,5 +66,7 @@ p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = "white"
 p.grid.grid_line_width = 2
 p.xaxis.major_label_text_font_size="12pt"
+
+output_file("boxplot.html")
 
 show(p)
