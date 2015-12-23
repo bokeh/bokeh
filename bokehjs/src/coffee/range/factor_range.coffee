@@ -1,8 +1,9 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Range = require "./range"
 
-class FactorRange extends HasProperties
+class FactorRange extends Range.Model
   type: 'FactorRange'
+
   initialize: (attrs, options) ->
     super(attrs, options)
     @_init()

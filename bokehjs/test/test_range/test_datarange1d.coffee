@@ -9,7 +9,7 @@ describe "datarange1d module", ->
   describe "default creation", ->
     r = Collections('DataRange1d').create()
 
-    it "should have start = 10", ->
+    it "should have start = 0", ->
       expect(r.get('start')).to.be.equal 0
 
     it "should have end = 1", ->
