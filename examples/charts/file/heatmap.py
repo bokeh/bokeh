@@ -14,6 +14,9 @@ unempl = pd.melt(data, var_name='Month', value_name='Unemployment', id_vars=['Ye
 fruits = {'fruit': ['apples', 'apples', 'apples', 'apples', 'apples',
                     'pears', 'pears', 'pears', 'pears', 'pears',
                     'bananas', 'bananas', 'bananas', 'bananas', 'bananas'],
+            'mix': ['pears', 'pears', 'pears', 'pears', 'pears',
+                    'bananas', 'bananas', 'bananas', 'bananas', 'bananas',
+                    'apples', 'apples', 'apples', 'apples', 'apples'],
           'fruit_count': [4, 5, 8, 12, 4, 6, 5, 4, 8, 7, 1, 2, 4, 8, 12],
           'year': [2009, 2010, 2011, 2012, 2013, 2009, 2010, 2011, 2012, 2013, 2009, 2010,
                    2011, 2012, 2013]}
@@ -41,9 +44,9 @@ hm8 = HeatMap(autompg, x=bins('mpg'), y=bins('displ'), values='cyl',
               stat='mean', legend='top_right')
 
 hm9 = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None)
-
-hm10 = HeatMap(unempl, x='Year', y='Month', values='Unemployment', stat=None,
-              sort_dim={'x': False}, width=1000)
+hm10 = HeatMap(fruits, y='mix', x='fruit', values='fruit_count', stat=None)
+# hm10 = HeatMap(unempl, x='Year', y='Month', values='Unemployment', stat=None,
+#               sort_dim={'x': False}, width=1000)
 
 output_file("heatmap.html")
 

@@ -301,41 +301,29 @@ class Chart(Plot):
 
     @property
     def filename(self):
-        warnings.warn(
-            """
-            Chart property 'filename' will be deprecated in Bokeh
-            0.12.0. Use 'bokeh.io.output_file' instead.
-            """)
+        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
+            and will be removed in the future.")
         from bokeh.io import output_file
         output_file("default.html")
 
     @filename.setter
     def filename(self, filename):
-        warnings.warn(
-            """
-            Chart property 'filename' will be deprecated in Bokeh
-            0.12.0. Use 'bokeh.io.output_file' instead.
-            """)
+        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
+            and will be removed in the future.")
         from bokeh.io import output_file
         output_file(filename)
 
     @property
     def server(self):
-        warnings.warn(
-            """
-            Chart property 'server' will be deprecated in Bokeh
-            0.12.0. Use 'bokeh.io.output_server' instead.
-            """)
+        warnings.warn("Chart property 'server' was deprecated in 0.11 \
+            and will be removed in the future.")
         from bokeh.io import output_server
         output_server("default")
 
     @server.setter
     def server(self, session_id):
-        warnings.warn(
-            """
-            Chart property 'server' will be deprecated in Bokeh
-            0.12.0. Use 'bokeh.io.output_server' instead.
-            """)
+        warnings.warn("Chart property 'server' was deprecated in 0.11 \
+            and will be removed in the future.")
         from bokeh.io import output_server
         if session_id:
             if isinstance(session_id, bool):
@@ -344,21 +332,15 @@ class Chart(Plot):
 
     @property
     def notebook(self):
-        warnings.warn(
-            """
-            Chart property 'notebook' will be deprecated in Bokeh
-            0.12.0. Use 'bokeh.io.output_notebook' instead.
-            """)
+        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
+            and will be removed in the future.")
         from bokeh.io import output_notebook
         output_notebook()
 
     @notebook.setter
     def notebook(self, flag):
-        warnings.warn(
-            """
-            Chart property 'notebook' will be deprecated in Bokeh
-            0.12.0. Use 'bokeh.io.output_notebook' instead.
-            """)
+        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
+            and will be removed in the future.")
         from bokeh.io import output_notebook
         output_notebook()
 
