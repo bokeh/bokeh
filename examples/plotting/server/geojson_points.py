@@ -1,11 +1,13 @@
+# You must first run "bokeh serve" to view this example
+
 import json
 
 from bokeh.client import push_session
+from bokeh.driving import repeat
 from bokeh.io import curdoc
 from bokeh.models import GeoJSONDataSource
 from bokeh.plotting import figure
 from bokeh.sampledata.sample_geojson import geojson as original
-from bokeh.driving import repeat
 
 updated = json.dumps({
     'type': 'FeatureCollection',

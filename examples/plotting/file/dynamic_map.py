@@ -1,18 +1,16 @@
-from bokeh.plotting import figure
-from bokeh.plotting import output_file
-from bokeh.plotting import show
-from bokeh.models import Range1d
-from bokeh.models import ImageSource
+
+from bokeh.models import ImageSource, Range1d
+from bokeh.plotting import figure, output_file, show
 from bokeh.tile_providers import STAMEN_TONER, STAMEN_TONER_LABELS
 
-output_file('dynamic_map.html')
-
 title = 'Dynamic Map: National Land Cover Dataset'
-fig = figure(tools='wheel_zoom,pan', title=title)
-fig.x_range = Range1d(start=-15473429, end=2108550)
-fig.y_range = Range1d(start=-6315661, end=7264686)
-fig.background_fill_color = "black"
-fig.axis.visible = False
+
+p = figure(tools='wheel_zoom,pan', title=title)
+
+p.x_range = Range1d(start=-15473429, end=2108550)
+p.y_range = Range1d(start=-6315661, end=7264686)
+p.background_fill_color = "black"
+p.axis.visible = False
 
 # National Land Cover Dataset (http://www.mrlc.gov/nlcd2011.php)
 service_url = (
@@ -28,8 +26,10 @@ service_url = (
 )
 image_source = ImageSource(url=service_url)
 
-fig.add_tile(STAMEN_TONER)
-fig.add_dynamic_image(image_source)
-fig.add_tile(STAMEN_TONER_LABELS, render_parents=False)
+p.add_tile(STAMEN_TONER)
+p.add_dynamic_image(image_source)
+p.add_tile(STAMEN_TONER_LABELS, render_parents=False)
 
-show(fig)
+output_file('dynamic_map.html')
+
+show(p)

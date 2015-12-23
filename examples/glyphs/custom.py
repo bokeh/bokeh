@@ -6,6 +6,7 @@ from bokeh.embed import file_html
 from bokeh.models.callbacks import Callback
 from bokeh.models.glyphs import Circle
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
+from bokeh.models.widgets import HBox
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
@@ -39,6 +40,29 @@ module.exports =
     which will be formatted with data from the data source.
     """)
 
+class MyHBox(HBox):
+
+    __implementation__ = """
+_ = require "underscore"
+build_views = require "common/build_views"
+ContinuumView = require "common/continuum_view"
+HBox = require "widget/hbox"
+
+class MyHBoxView extends HBox.View
+  render: () ->
+    super()
+    @$el.css({border: "5px solid black"})
+
+class MyHBox extends HBox.Model
+  type: "MyHBox"
+  default_view: MyHBoxView
+
+module.exports = {
+  Model: MyHBox
+  View: MyHBoxView
+}
+"""
+
 source = ColumnDataSource(
     data = dict(
         x = [1, 2, 3, 4, 4,   5, 5],
@@ -62,7 +86,7 @@ tap = TapTool(renderers=[circle_renderer], callback=Popup(message="Selected colo
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
 
 doc = Document()
-doc.add_root(plot)
+doc.add_root(MyHBox(children=[plot]))
 
 if __name__ == "__main__":
     filename = "custom.html"

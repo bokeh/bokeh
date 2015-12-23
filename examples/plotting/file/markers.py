@@ -2,17 +2,17 @@ from numpy.random import random
 
 from bokeh.plotting import figure, show, output_file
 
-def mscatter(p, x, y, typestr):
-    p.scatter(x, y, marker=typestr,
-            line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12)
+def mscatter(p, x, y, marker):
+    p.scatter(x, y, marker=marker, size=15,
+              line_color="navy", fill_color="orange", alpha=0.5)
 
-def mtext(p, x, y, textstr):
-    p.text(x, y, text=[textstr],
-         text_color="#449944", text_align="center", text_font_size="10pt")
+def mtext(p, x, y, text):
+    p.text(x, y, text=[text],
+           text_color="firebrick", text_align="center", text_font_size="10pt")
 
-output_file("markers.html")
-
-p = figure(title="markers.py example")
+p = figure(title="Bokeh Markers", toolbar_location=None)
+p.grid.grid_line_color = None
+p.background_fill_color = "#eeeeee"
 
 N = 10
 
@@ -31,19 +31,21 @@ mscatter(p, random(N)+4, random(N)+7, "square_cross")
 mscatter(p, random(N)+6, random(N)+7, "diamond")
 mscatter(p, random(N)+8, random(N)+7, "cross")
 
-mtext(p, [2.5], [0.5], "circle / o")
-mtext(p, [4.5], [0.5], "square")
-mtext(p, [6.5], [0.5], "triangle")
-mtext(p, [8.5], [0.5], "asterisk / *")
+mtext(p, 2.5, 0.5, "circle / o")
+mtext(p, 4.5, 0.5, "square")
+mtext(p, 6.5, 0.5, "triangle")
+mtext(p, 8.5, 0.5, "asterisk / *")
 
-mtext(p, [2.5], [3.5], "circle_x / ox")
-mtext(p, [4.5], [3.5], "square_x")
-mtext(p, [6.5], [3.5], "inverted_triangle")
-mtext(p, [8.5], [3.5], "x")
+mtext(p, 2.5, 3.5, "circle_x / ox")
+mtext(p, 4.5, 3.5, "square_x")
+mtext(p, 6.5, 3.5, "inverted_triangle")
+mtext(p, 8.5, 3.5, "x")
 
-mtext(p, [2.5], [6.5], "circle_cross / o+")
-mtext(p, [4.5], [6.5], "square_cross")
-mtext(p, [6.5], [6.5], "diamond")
-mtext(p, [8.5], [6.5], "cross / +")
+mtext(p, 2.5, 6.5, "circle_cross / o+")
+mtext(p, 4.5, 6.5, "square_cross")
+mtext(p, 6.5, 6.5, "diamond")
+mtext(p, 8.5, 6.5, "cross / +")
+
+output_file("markers.html")
 
 show(p)  # open a browser
