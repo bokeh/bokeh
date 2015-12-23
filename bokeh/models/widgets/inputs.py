@@ -58,7 +58,7 @@ class TextInput(InputWidget):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the user unfocuses the TextInput
-    box by hitting Enter or clicking outside of the text area.
+    widget by hitting Enter or clicking outside of the text area.
     """)
 
 class AutocompleteInput(TextInput):
