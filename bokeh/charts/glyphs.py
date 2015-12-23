@@ -557,8 +557,6 @@ class Interval(AggregateGlyph):
     start = Float(default=0.0)
     end = Float()
 
-    glyphs = Override(default={'Interval': Rect()})
-
     def __init__(self, label, values, **kwargs):
 
         kwargs['label'] = label
@@ -940,7 +938,6 @@ class BinGlyph(XyGlyph):
     stat = String()
 
     glyph_name = String()
-    glyphs = Override(default={'rect': Rect})
 
     width = Float()
     height = Float()
@@ -958,6 +955,8 @@ class BinGlyph(XyGlyph):
         kwargs['glyph_name'] = glyph
         kwargs['height'] = height
         kwargs['width'] = width
+        if 'glyphs' not in kwargs:
+            kwargs['glyphs'] = {'rect': Rect}
         super(XyGlyph, self).__init__(**kwargs)
         self.setup()
 
