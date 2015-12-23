@@ -7,7 +7,7 @@ from bokeh.models.glyphs import Circle
 from bokeh.models import (
     GMapPlot, Range1d, ColumnDataSource,
     PanTool, WheelZoomTool, BoxSelectTool,
-    BoxSelectionOverlay, GMapOptions)
+    BoxSelection, GMapOptions)
 from bokeh.resources import INLINE
 
 x_range = Range1d()
@@ -37,11 +37,8 @@ plot.add_glyph(source, circle)
 
 pan = PanTool()
 wheel_zoom = WheelZoomTool()
-box_select = BoxSelectTool()
 
-plot.add_tools(pan, wheel_zoom, box_select)
-overlay = BoxSelectionOverlay(tool=box_select)
-plot.add_layout(overlay)
+plot.add_tools(pan, wheel_zoom)
 
 doc = Document()
 doc.add_root(plot)
