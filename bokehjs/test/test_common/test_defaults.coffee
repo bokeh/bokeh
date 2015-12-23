@@ -38,6 +38,8 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
     if k of python_defaults
       py_v = python_defaults[k]
       if not _.isEqual(py_v, v)
+        if _.isObject(v) and 'value' of v and _.isEqual(py_v, v['value'])
+          continue
         different.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python defaults to #{safe_stringify(py_v)}")
     else
       python_missing.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python has no such property")
