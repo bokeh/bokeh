@@ -185,12 +185,13 @@ If you have any problems with the steps here, please contact the developers
 Dependencies
 ~~~~~~~~~~~~
 
-If you are working within a Conda environment, you will need to make sure
-you have the python requirements installed. You can install these via
-``conda install`` or ``pip install`` for the packages referenced at
-:ref:`install_dependencies`.
+In order to build Bokeh from its source, you'll have to install the project's
+python dependencies. If you're using Conda or pip + virtualenv to setup a
+development environment, you'll be able to install these via ``conda install``
+or ``pip install`` for the packages references at :ref:`install_dependencies`.
 
-Testing dependencies include the following additional libraries:
+There are additional testing dependencies required to run the unit tests,
+which include:
 
 * beautiful-soup
 * colorama
@@ -199,6 +200,11 @@ Testing dependencies include the following additional libraries:
 * pytest-selenium >= 1.0
 * mock
 * websocket-client
+
+Both the build and test dependencies can potentially change between releases
+and be out of sync with the hosted Bokeh site documentation, so the best way
+to view the current required packages is the review the meta.yaml_ file included
+in the Github repository.
 
 .. This comment is just here to fix a weird Sphinx formatting bug
 
@@ -395,3 +401,4 @@ There are several environment variables that can be useful for developers:
 .. _Gulp: http://gulpjs.com/
 .. _NodeJS: http://nodejs.org/
 .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
+.. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
