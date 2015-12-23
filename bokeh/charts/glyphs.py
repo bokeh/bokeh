@@ -931,8 +931,6 @@ class HistogramGlyph(AggregateGlyph):
         return 0.0
 
 
-
-
 class BinGlyph(XyGlyph):
     """Represents a group of data that was aggregated and is represented by a glyph.
 
@@ -942,7 +940,7 @@ class BinGlyph(XyGlyph):
     stat = String()
 
     glyph_name = String()
-    glyphs = {'rect': Rect}
+    glyphs = Override(default={'rect': Rect})
 
     width = Float()
     height = Float()
