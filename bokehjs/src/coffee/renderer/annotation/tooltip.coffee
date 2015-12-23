@@ -1,6 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
 {logger} = require "../../common/logging"
 
@@ -68,7 +68,7 @@ class TooltipView extends PlotWidget
       @$el.css({top: top, left: left})
       @$el.show()
 
-class Tooltip extends HasParent
+class Tooltip extends Annotation.Model
   default_view: TooltipView
   type: 'Tooltip'
 

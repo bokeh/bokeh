@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 
@@ -44,7 +44,7 @@ class BoxAnnotationView extends PlotWidget
       vdim = frame_extrema
     return vdim
 
-class BoxAnnotation extends HasParent
+class BoxAnnotation extends Annotation.Model
   default_view: BoxAnnotationView
   type: 'BoxAnnotation'
 
@@ -52,11 +52,15 @@ class BoxAnnotation extends HasParent
     return _.extend {}, super(), {
       x_range_name: "default"
       y_range_name: "default"
+      level: 'annotation'
     }
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'annotation'
+      left: null
+      right: null
+      top: null
+      bottom: null
       left_units: 'data'
       right_units: 'data'
       top_units: 'data'
