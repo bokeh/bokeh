@@ -4,10 +4,6 @@
 Leveraging Other Libraries
 ==========================
 
-.. contents::
-    :local:
-    :depth: 2
-
 Overview
 --------
 
