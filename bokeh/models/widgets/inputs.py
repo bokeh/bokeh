@@ -21,10 +21,6 @@ class InputWidget(Widget):
     Widget's label.
     """)
 
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the input's value changes.
-    """)
-
     @classmethod
     def coerce_value(cls, val):
         prop_obj = cls.lookup('value')
@@ -58,7 +54,7 @@ class TextInput(InputWidget):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the user unfocuses the TextInput
-    widget by hitting Enter or clicking outside of the text area.
+    widget by hitting Enter or clicking outside of the text box area.
     """)
 
 class AutocompleteInput(TextInput):
@@ -66,7 +62,7 @@ class AutocompleteInput(TextInput):
 
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
-    user when he types-in a value.
+    user upon typing the beginning of a desired value.
     """)
 
 class Select(InputWidget):
@@ -80,6 +76,11 @@ class Select(InputWidget):
 
     value = String(default="", help="""
     Initial or selected value.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current Select dropdown
+    value changes.
     """)
 
     @classmethod
@@ -104,6 +105,11 @@ class MultiSelect(InputWidget):
 
     value = List(String, help="""
     Initial or selected values.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current dropdown value
+    changes.
     """)
 
     @classmethod
@@ -140,6 +146,10 @@ class Slider(InputWidget):
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the slider either horizontally (default) or vertically.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current Slider value changes.
     """)
 
 class DateRangeSlider(InputWidget):
@@ -183,6 +193,10 @@ class DateRangeSlider(InputWidget):
     do nothing).
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever either slider's value changes.
+    """)
+
 class DatePicker(InputWidget):
     """ Calendar-based date picker widget.
 
@@ -198,4 +212,8 @@ class DatePicker(InputWidget):
 
     max_date = Date(default=None, help="""
     Optional latest allowable date.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current date value changes.
     """)
