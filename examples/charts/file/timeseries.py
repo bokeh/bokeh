@@ -26,24 +26,24 @@ output_file("timeseries.html")
 
 # line simple
 tsline = TimeSeries(
-    data, x='Date', y=['IBM', 'AAPL'], legend=True,
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True,
     title="Timeseries (Line)", tools=TOOLS, ylabel='Stock Prices')
 
 # line explicit
 tsline2 = TimeSeries(
-    data, x='Date', y=['IBM', 'AAPL'], color=['IBM', 'AAPL'],
-    dash=['IBM', 'AAPL'], legend=True,
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], color=['IBM', 'MSFT', 'AAPL'],
+    dash=['IBM', 'MSFT', 'AAPL'], legend=True,
     title="Timeseries (Line Explicit)", tools=TOOLS, ylabel='Stock Prices')
 
 # step
 tsstep = TimeSeries(
-    data, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='step',
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True, builder_type='step',
     title="Timeseries (Step)", tools=TOOLS, ylabel='Stock Prices')
 
 # point
 tspoint = TimeSeries(
-    data, x='Date', y=['IBM', 'AAPL'], marker=['IBM', 'AAPL'], legend=True,
-    color=['IBM', 'AAPL'], builder_type='point',
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], marker=['IBM', 'MSFT', 'AAPL'], legend=True,
+    color=['IBM', 'MSFT', 'AAPL'], builder_type='point',
     title="Timeseries (Point)", tools=TOOLS, ylabel='Stock Prices')
 
 show(vplot(tsline, tsline2, tsstep, tspoint))
