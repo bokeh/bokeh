@@ -76,6 +76,8 @@ Bokeh.LinearAxis      = require("./renderer/guide/linear_axis")
 Bokeh.LogAxis         = require("./renderer/guide/log_axis")
 
 # data sources
+Bokeh.DataSource = require("./source/data_source")
+Bokeh.RemoteDataSource = require("./source/remote_data_source")
 Bokeh.ColumnDataSource = require("./source/column_data_source")
 Bokeh.GeoJSONDataSource = require("./source/geojson_data_source")
 

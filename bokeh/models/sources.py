@@ -19,7 +19,7 @@ class DataSource(Model):
 
     """
     selected = Dict(String, Dict(String, Any), default={
-        '0d': {'flag': False, 'indices': []},
+        '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
         '2d': {'indices': []}
     }, help="""
