@@ -219,7 +219,7 @@ If any needed packages are missing, you will be given output like this
     ------------------------------------------------------------------
     You are missing the following Docs dependencies:
      *  sphinx
-     *  sphinxcontrib-httpdomain
+     *  pygments
 
 Otherwise, you should see this message
 
