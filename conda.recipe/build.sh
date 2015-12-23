@@ -27,15 +27,7 @@ fi
 cp __conda_version__.txt $BLD_DIR
 
 pushd bokehjs
-
-if [ -e "__travis_build_number__.txt" ]; then
-    if [ ! "$(ls -A $PWD/node_modules)" ]; then
-        npm install
-    fi
-else
-    npm install
-fi
-
+npm install
 popd
 
 $PYTHON setup.py --quiet install nightly --build_js --single-version-externally-managed --record=record.txt
@@ -47,4 +39,3 @@ popd
 
 cd $PREFIX
 echo $PREFIX
-

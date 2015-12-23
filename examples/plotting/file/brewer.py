@@ -1,4 +1,3 @@
-from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
@@ -17,7 +16,7 @@ df = pd.DataFrame(data)
 df = df.set_index(['x'])
 
 def stacked(df, categories):
-    areas = OrderedDict()
+    areas = dict()
     last = np.zeros(len(df[categories[0]]))
     for cat in categories:
         next = last + df[cat]
@@ -31,10 +30,12 @@ colors = brewer["Spectral"][len(areas)]
 
 x2 = np.hstack((data['x'][::-1], data['x']))
 
+p = figure()
+p.grid.minor_grid_line_color = '#eeeeee'
+
+p.patches([x2] * len(areas), [areas[cat] for cat in categories],
+          color=colors, alpha=0.8, line_color=None)
+
 output_file("brewer.html", title="brewer.py example")
 
-p = figure()
-p.patches([x2 for a in areas], list(areas.values()), color=colors, alpha=0.8, line_color=None)
-
-p.grid.minor_grid_line_color = '#eeeeee'
 show(p)

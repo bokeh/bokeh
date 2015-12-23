@@ -476,15 +476,16 @@ class TestClientServer(unittest.TestCase):
                 iocb = ss._callbacks[callback.id]
                 assert iocb._period == 1
                 assert iocb._loop == server.io_loop
-                assert iocb._handle is not None
+                assert iocb._started
+                assert not iocb._stopped
                 started_callbacks.append(iocb)
 
             for ss in [client_session]:
                 iocb = ss._callbacks[callback.id]
-                assert isinstance(iocb, PeriodicCallback)
-                assert iocb.callback_time == 1
-                assert iocb.io_loop == server.io_loop
-                assert iocb.is_running()
+                assert iocb._period == 1
+                assert iocb._loop == server.io_loop
+                assert iocb._started
+                assert not iocb._stopped
                 started_callbacks.append(iocb)
 
             callback = doc.remove_periodic_callback(cb)
@@ -493,10 +494,7 @@ class TestClientServer(unittest.TestCase):
             assert len(server_session._callbacks) == 0
 
             for iocb in started_callbacks:
-                if hasattr(iocb, '_handle'):
-                    assert iocb._handle is None
-                else:
-                    assert not iocb.is_running()
+                assert iocb._stopped # server
 
     def test_session_timeout_callback(self):
         application = Application()
