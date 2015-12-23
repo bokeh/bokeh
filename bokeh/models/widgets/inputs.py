@@ -56,6 +56,11 @@ class TextInput(InputWidget):
     Initial or entered text value.
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the user unfocuses the TextInput
+    box by hitting Enter or clicking outside of the text area.
+    """)
+
 class AutocompleteInput(TextInput):
     """ Single-line input widget with auto-completion. """
 
