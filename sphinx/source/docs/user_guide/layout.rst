@@ -3,10 +3,6 @@
 Laying Out Multiple Plots
 =========================
 
-.. contents::
-    :local:
-    :depth: 2
-
 Bokeh includes several layout options for arranging plots and widgets
 in an HTML document. Note that the layout options here are all HTML
 layouts; future Bokeh versions should offer the ability to lay out
