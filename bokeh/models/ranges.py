@@ -7,7 +7,7 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Int, Float, String, Datetime, Instance, List, Either
+from ..core.properties import Bool, Int, Float, String, Datetime, Instance, List, Either
 from .callbacks import Callback
 from .renderers import Renderer
 
@@ -88,6 +88,10 @@ class DataRange1d(DataRange):
     end = Float(help="""
     An explicitly supplied range end. If provided, will override
     automatically computed end value.
+    """)
+
+    flipped = Bool(default=False, help="""
+    Whether the range should be "flipped" from its normal direction.
     """)
 
 class FactorRange(Range):
