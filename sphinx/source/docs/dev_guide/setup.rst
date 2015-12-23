@@ -194,13 +194,11 @@ Testing dependencies include the following additional libraries:
 
 * beautiful-soup
 * colorama
-* pdiff
-* boto
-* nose
-* mock
-* coverage
-* websocket-client
+* pytest
+* pytest-cov
 * pytest-selenium >= 1.0
+* mock
+* websocket-client
 
 .. This comment is just here to fix a weird Sphinx formatting bug
 
