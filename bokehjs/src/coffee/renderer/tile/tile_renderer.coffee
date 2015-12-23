@@ -279,11 +279,9 @@ class TileRenderer extends HasParent
   default_view: TileRendererView
   type: 'TileRenderer'
   visuals: []
-  angles: ['angle']
 
   defaults: ->
     return _.extend {}, super(), {
-      angle: 0
       alpha: 1.0
       x_range_name: "default"
       y_range_name: "default"
