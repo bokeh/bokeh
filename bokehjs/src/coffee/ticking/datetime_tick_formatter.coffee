@@ -4,6 +4,12 @@ tz = require "timezone"
 HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 
+tz_aware = tz(
+  require("timezone/Europe/Berlin"),
+  require("timezone/America/Detroit"),
+  require("timezone/America/Los_Angeles"),
+)
+
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get
   # microsecond since last second. Precision seems to run
@@ -48,7 +54,8 @@ _strftime = (t, format) ->
       # But we want the string argument, in case a user supplies a format string
       # which doesn't contain a formatting directive or is only using %f.
       return format
-    return tz(t, format)
+    zone = "America/Los_Angeles"
+    return tz_aware(t, format, zone)
 
 class DatetimeTickFormatter extends HasProperties
   type: 'DatetimeTickFormatter'
@@ -82,7 +89,7 @@ class DatetimeTickFormatter extends HasProperties
 
   initialize: (attrs, options) ->
     super(attrs, options)
-
+    
     fmt = _.extend({}, @_formats, @get("formats"))
     now = tz(new Date())
     @formats = {}
