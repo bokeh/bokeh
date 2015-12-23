@@ -1,11 +1,13 @@
 _ = require "underscore"
 {logger} = require "../common/logging"
-ColumnDataSource = require "./column_data_source"
+DataSource = require "./data_source"
 
-class GeoJSONDataSource extends ColumnDataSource.Model
+class GeoJSONDataSource extends DataSource.Model
+  type: 'GeoJSONDataSource'
 
   initialize: (options) ->
     super(options)
+    @geojson_to_column_data() # this just validates the initial geojson value
     @register_property('data', @geojson_to_column_data, true)
     @add_dependencies('data', this, ['geojson'])
 

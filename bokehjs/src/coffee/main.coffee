@@ -79,6 +79,8 @@ Bokeh.BoxSelection  = require("./renderer/overlay/box_selection")
 Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
 
 # data sources
+Bokeh.DataSource = require("./source/data_source")
+Bokeh.RemoteDataSource = require("./source/remote_data_source")
 Bokeh.ColumnDataSource = require("./source/column_data_source")
 Bokeh.GeoJSONDataSource = require("./source/geojson_data_source")
 
