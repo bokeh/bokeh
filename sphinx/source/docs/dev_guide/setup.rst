@@ -399,6 +399,6 @@ There are several environment variables that can be useful for developers:
 .. _conda: http://conda.pydata.org/
 .. _GitHub: https://github.com
 .. _Gulp: http://gulpjs.com/
+.. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
 .. _NodeJS: http://nodejs.org/
 .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
-.. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
