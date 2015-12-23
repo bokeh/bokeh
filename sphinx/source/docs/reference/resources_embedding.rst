@@ -2,10 +2,6 @@
 Resources and Embedding
 =======================
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _bokeh.io:
 
 ``bokeh.io``

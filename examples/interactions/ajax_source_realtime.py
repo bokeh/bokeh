@@ -35,7 +35,7 @@ def gen_entry():
 
 
 try:
-    from flask import Flask, jsonify, make_response, request, current_app, Response
+    from flask import Flask, make_response, request, current_app, Response
 except ImportError:
     raise ImportError("You need Flask to run this example!")
 

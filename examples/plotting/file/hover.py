@@ -1,14 +1,10 @@
-from __future__ import division
 
 import itertools
 
 import numpy as np
-from six.moves import zip
 
 from bokeh.plotting import ColumnDataSource, figure, show, output_file
 from bokeh.models import HoverTool
-
-output_file("hover.html")
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"
 
@@ -22,30 +18,24 @@ colors = [
     "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
 ]
 
-foo = list(itertools.permutations("abcdef"))[:N]
-bar = np.random.normal(size=N)
-
-source = ColumnDataSource(
-    data=dict(
-        x=x,
-        y=y,
-        radius=radii,
-        colors=colors,
-        foo=foo,
-        bar=bar,
-    )
-)
+source = ColumnDataSource(data=dict(
+    x=x,
+    y=y,
+    radius=radii,
+    colors=colors,
+    foo=list(itertools.permutations("abcdef"))[:N],
+    bar=np.random.normal(size=N),
+))
 
 p = figure(title="Hoverful Scatter", tools=TOOLS)
 
 p.circle(x, y, radius=radii, source=source,
-    fill_color=colors, fill_alpha=0.6, line_color=None)
+         fill_color=colors, fill_alpha=0.6, line_color=None)
 
 p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
-     text_baseline="middle", text_align="center")
+       text_baseline="middle", text_align="center")
 
-hover = p.select(dict(type=HoverTool))
-hover.tooltips = [
+hover = p.select_one(HoverTool).tooltips = [
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),
     ("radius", "@radius"),
@@ -53,5 +43,7 @@ hover.tooltips = [
     ("foo", "@foo"),
     ("bar", "@bar"),
 ]
+
+output_file("hover.html")
 
 show(p)  # open a browser

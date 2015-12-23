@@ -17,9 +17,11 @@
         return cache[name].exports;
     }
 
+    var lastEntryResult = null;
+
     for (var i = 0; i < entry.length; i++) {
-        newRequire(entry[i]);
+        lastEntryResult = newRequire(entry[i]);
     }
 
-    return newRequire;
+    return lastEntryResult;
 })
