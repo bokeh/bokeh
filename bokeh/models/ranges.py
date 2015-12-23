@@ -7,7 +7,9 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..core.properties import abstract
-from ..core.properties import Int, Float, String, Datetime, Instance, List, Either, Auto, Tuple
+from ..core.properties import (
+    Int, Float, String, Datetime, Instance, List, Either, Auto, MinMaxBounds
+)
 from .callbacks import Callback
 from .renderers import Renderer
 
@@ -44,12 +46,7 @@ class Range1d(Range):
     The end of the range.
     """)
 
-    bounds = Either(
-        Auto,
-        Tuple(Float, Float),
-        Tuple(Datetime, Datetime),
-        Tuple(Int, Int),
-        help="""
+    bounds = MinMaxBounds(accept_datetime=True, help="""
     The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
 
@@ -79,10 +76,6 @@ class Range1d(Range):
             kwargs['end'] = args[1]
 
         super(Range1d, self).__init__(**kwargs)
-
-        if self.bounds and self.bounds != 'auto':
-            if self.bounds[0] > self.bounds[1]:
-                raise ValueError('Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)')
 
 
 @abstract
@@ -124,7 +117,7 @@ class DataRange1d(DataRange):
     automatically computed end value.
     """)
 
-    bounds = Either(Auto, Tuple(Float, Float), help="""
+    bounds = MinMaxBounds(accept_datetime=False, help="""
     The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
 
@@ -136,15 +129,11 @@ class DataRange1d(DataRange):
 
     Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
     want to constrain one end of the plot, you can set min or max to
-    ``None`` e.g. ``DataRange1d(bounds=(None,12))``
+    ``None`` e.g. ``DataRange1d(bounds=(None, 12))``
     """)
 
     def __init__(self, *args, **kwargs):
         super(DataRange1d, self).__init__(**kwargs)
-
-        if self.bounds and self.bounds != 'auto':
-            if self.bounds[0] > self.bounds[1]:
-                raise ValueError('Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)')
 
 
 class FactorRange(Range):
@@ -211,7 +200,6 @@ class FactorRange(Range):
         The plot will display the chart with only the factors ["apples", "peaches", "bananas"] (in that order)
         and the plot will not pan left of apples or right of bananas.
     """)
-
 
     def __init__(self, *args, **kwargs):
         if args and "factors" in kwargs:
