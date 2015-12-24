@@ -37,7 +37,7 @@ class GlyphRendererView extends PlotWidget
 
     @set_data(false)
 
-    if @mget('data_source') instanceof RemoteDataSource.RemoteDataSource
+    if @mget('data_source') instanceof RemoteDataSource.Model
       @mget('data_source').setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
