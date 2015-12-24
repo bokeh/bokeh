@@ -55,6 +55,11 @@ def _select_helper(args, kwargs):
         selector = kwargs
     return selector
 
+class LayoutBox(Model):
+    ''' Represents an **on-cavas** layout.
+
+    '''
+
 class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
@@ -402,7 +407,9 @@ class Plot(Component):
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    above = List(Instance(Renderer), help="""
+    # TODO (bev) LayoutBox here is a temporary workaround to the fact that
+    # plot titles are not proper renderers
+    above = List(Either(Instance(Renderer), Instance(LayoutBox)), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
