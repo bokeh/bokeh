@@ -46,7 +46,6 @@ FontStyle = enumeration("normal", "italic", "bold")
 TextAlign = enumeration("left", "right", "center")
 TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging")
 Direction = enumeration("clock", "anticlock")
-Side = enumeration("left", "right")
 Units = enumeration("screen", "data")
 SpatialUnits = Units
 AngleUnits = enumeration("deg", "rad")
