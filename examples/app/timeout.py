@@ -51,7 +51,6 @@ def make_callback(i):
             ds.data['text_color'].append(RdYlBu3[i%3])
             ds.data['text'].append(str(i))
         ds.trigger('data', ds.data, ds.data)
-        print("FOOOO")
     func.interval = i * 100
 
     return func
