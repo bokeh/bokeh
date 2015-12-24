@@ -28,14 +28,11 @@ class AdaptiveTicker extends ContinuousTicker.Model
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    if not @get('max_interval')?
-      @set('max_interval', Infinity)
-
     prefix_mantissa =  _.last(@get('mantissas')) / @get('base')
     suffix_mantissa = _.first(@get('mantissas')) * @get('base')
     @extended_mantissas = _.flatten([prefix_mantissa, @get('mantissas'), suffix_mantissa])
 
-    @base_factor = if @get('min_interval') == 0.0 then 1.0 else @get('min_interval')
+    @base_factor = if @get_min_interval() == 0.0 then 1.0 else @get_min_interval()
 
   get_interval: (data_low, data_high, desired_n_ticks) ->
     data_range = data_high - data_low
@@ -56,7 +53,7 @@ class AdaptiveTicker extends ContinuousTicker.Model
 
     interval = best_mantissa * ideal_magnitude
 
-    return clamp(interval, @get('min_interval'), @get('max_interval'))
+    return clamp(interval, @get_min_interval(), @get_max_interval())
 
   defaults: () ->
     return _.extend {}, super(), {
