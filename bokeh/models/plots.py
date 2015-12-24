@@ -346,6 +346,15 @@ class Plot(Component):
     This is useful for adding additional axes.
     """)
 
+    hidpi = Bool(default=True, help="""
+    Whether to use HiDPI mode when available.
+    """)
+
+    title_standoff = Int(default=8, help="""
+    How far (in screen units) to place a title away from the central
+    plot region.
+    """)
+
     title = String('', help="""
     A title for the plot.
     """)
@@ -477,7 +486,7 @@ class Plot(Component):
 
     border_fill_color = Override(default='#ffffff')
 
-    min_border_top = Int(50, help="""
+    min_border_top = Int(40, help="""
     Minimum size in pixels of the padding region above the top of the
     central plot region.
 
@@ -487,7 +496,7 @@ class Plot(Component):
 
     """)
 
-    min_border_bottom = Int(50, help="""
+    min_border_bottom = Int(40, help="""
     Minimum size in pixels of the padding region below the bottom of
     the central plot region.
 
@@ -497,7 +506,7 @@ class Plot(Component):
 
     """)
 
-    min_border_left = Int(50, help="""
+    min_border_left = Int(40, help="""
     Minimum size in pixels of the padding region to the left of
     the central plot region.
 
@@ -507,7 +516,7 @@ class Plot(Component):
 
     """)
 
-    min_border_right = Int(50, help="""
+    min_border_right = Int(40, help="""
     Minimum size in pixels of the padding region to the right of
     the central plot region.
 
