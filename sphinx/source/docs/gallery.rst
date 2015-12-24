@@ -3,12 +3,6 @@
 Gallery
 #######
 
-.. toctree::
-   :hidden:
-   :glob:
-
-   server_gallery/*
-
 .. _gallery_server_examples:
 
 Server Examples
@@ -24,6 +18,12 @@ Bokeh server.
 * :doc:`server_gallery/sliders_server`.
 * :doc:`server_gallery/crossfilter_server`.
 * :doc:`server_gallery/stocks_server`.
+
+.. toctree::
+   :hidden:
+   :glob:
+
+   server_gallery/*
 
 .. _gallery_static_examples:
 

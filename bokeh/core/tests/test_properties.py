@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 import unittest
 import numpy as np
+from copy import copy
 
 from bokeh.core.properties import (
     HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle, AngleSpec,
     DistanceSpec, Override, Include)
-
 
 class Basictest(unittest.TestCase):
 
@@ -529,6 +529,25 @@ class TestAngleSpec(unittest.TestCase):
         a.set_from_json('x', { 'value' : 180, 'units' : 'deg' })
         self.assertEqual(a.x, 180)
         self.assertEqual(a.x_units, 'deg')
+
+    def test_setting_dict_does_not_modify_original_dict(self):
+        class Foo(HasProps):
+            x = AngleSpec(default=14)
+
+        a = Foo()
+
+        self.assertEqual(a.x, 14)
+        self.assertEqual(a.x_units, 'rad')
+
+        new_value = { 'value' : 180, 'units' : 'deg' }
+        new_value_copy = copy(new_value)
+        self.assertDictEqual(new_value_copy, new_value)
+
+        a.x = new_value
+        self.assertDictEqual(a.x, { 'value' : 180 })
+        self.assertEqual(a.x_units, 'deg')
+
+        self.assertDictEqual(new_value_copy, new_value)
 
 class TestDistanceSpec(unittest.TestCase):
     def test_default_none(self):
