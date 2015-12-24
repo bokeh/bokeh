@@ -50,8 +50,8 @@ class ChartDefaults(object):
         """Apply this defaults to a chart."""
 
         if not isinstance(chart, Chart):
-            raise ValueError("ChartsDefaultsshould be only used on Chart objects \
-            but it's being used on %s instead." % chart)
+            raise ValueError("ChartsDefaults should be only used on Chart \
+            objects but it's being used on %s instead." % chart)
 
         for k in chart.properties_with_values(include_defaults=True):
             if k == 'tools':
