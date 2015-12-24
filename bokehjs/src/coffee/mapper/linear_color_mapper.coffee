@@ -90,4 +90,4 @@ class LinearColorMapper extends HasProperties
     return new_palette
 
 module.exports =
-  Model: LinearColorMapper,
+  Model: LinearColorMapper
