@@ -194,4 +194,4 @@ describe "Defaults", ->
     # then edit this number to be lower. If it's failing because
     # it's higher, fix the newly-introduced errors. Eventually we
     # will get to zero.
-    expect(fail_count).to.equal 63
+    expect(fail_count).to.equal 54
