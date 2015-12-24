@@ -20,9 +20,6 @@ ONE_MONTH = util.ONE_MONTH
 class DatetimeTicker extends CompositeTicker.Model
   type: 'DatetimeTicker'
 
-  nonserializable_attribute_names: () ->
-    super().concat(['tickers', 'num_minor_ticks'])
-
   defaults: () ->
     return _.extend {}, super(), {
       num_minor_ticks: 0

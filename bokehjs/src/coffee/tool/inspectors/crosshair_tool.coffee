@@ -14,17 +14,17 @@ class CrosshairToolView extends InspectTool.View
     for dim in @mget('dimensions')
       span = @mget('spans')[dim]
       if not frame.contains(vx, vy)
-        span.unset('computed_location')
+        span.unset('location')
       else
         if dim == "width"
-          span.set('computed_location', vy)
+          span.set('location', vy)
         else
-          span.set('computed_location', vx)
+          span.set('location', vx)
 
   _move_exit: (e)->
     for dim in @mget('dimensions')
       span = @mget('spans')[dim]
-      span.unset('computed_location')
+      span.unset('location')
 
 class CrosshairTool extends InspectTool.Model
   default_view: CrosshairToolView
@@ -44,23 +44,21 @@ class CrosshairTool extends InspectTool.Model
 
     @set('spans', {
       width: new Span.Model({
-        for_hover: true
-        dimension: "width",
-        render_mode: @get("render_mode")
-        location_units: @get("location_units")
-        line_color: @get("line_color")
-        line_width: @get('line_width')
-        line_alpha: @get('line_alpha')
-      }),
+                               dimension: "width",
+                               render_mode: @get("render_mode"),
+                               location_units: @get("location_units"),
+                               line_color: @get("line_color"),
+                               line_width: @get('line_width'),
+                               line_alpha: @get('line_alpha')
+                             }),
       height: new Span.Model({
-        for_hover: true
-        dimension: "height"
-        render_mode: @get("render_mode")
-        location_units: @get("location_units")
-        line_color: @get("line_color")
-        line_width: @get('line_width')
-        line_alpha: @get('line_alpha')
-      })
+                               dimension: "height",
+                               render_mode: @get("render_mode"),
+                               location_units: @get("location_units"),
+                               line_color: @get("line_color"),
+                               line_width: @get('line_width'),
+                               line_alpha: @get('line_alpha')
+                             })
     })
 
     renderers = @get('plot').get('renderers')

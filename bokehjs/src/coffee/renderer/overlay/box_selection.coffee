@@ -45,9 +45,7 @@ class BoxSelectionView extends PlotWidget
 class BoxSelection extends HasParent
   default_view: BoxSelectionView
   type: "BoxSelection"
-
-  nonserializable_attribute_names: () ->
-    super().concat(['data'])
+  serializable_in_document: () -> false
 
   defaults: () ->
     return _.extend({}, super(), {

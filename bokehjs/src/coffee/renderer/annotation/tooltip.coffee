@@ -72,9 +72,6 @@ class Tooltip extends HasParent
   default_view: TooltipView
   type: 'Tooltip'
 
-  nonserializable_attribute_names: () ->
-    super().concat(['data', 'custom'])
-
   clear: () ->
     @set('data', [])
 

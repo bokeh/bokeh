@@ -41,9 +41,7 @@ class PolySelectionView extends PlotWidget
 class PolySelection extends HasParent
   default_view: PolySelectionView
   type: "PolySelection"
-
-  nonserializable_attribute_names: () ->
-    super().concat(['data', 'auto_close'])
+  serializable_in_document: () -> false
 
   display_defaults: () ->
     return _.extend({}, super(), {

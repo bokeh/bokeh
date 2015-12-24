@@ -31,10 +31,6 @@ class Select extends InputWidget.Model
   type: "Select"
   default_view: SelectView
 
-  # TODO (bev) figure out where this is coming from
-  nonserializable_attribute_names: () ->
-    super().concat(['escape'])
-
   defaults: ->
     return _.extend {}, super(), {
       title: ''
