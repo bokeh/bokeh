@@ -5,20 +5,19 @@ types that Bokeh supports.
 from __future__ import absolute_import
 
 import logging
+logger = logging.getLogger(__name__)
 
-from ..core import validation
-from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from ..model import Model
+from ..core.enums import RenderLevel
 from ..core.properties import abstract
 from ..core.properties import String, Enum, Instance, Float, Bool
-from ..core.enums import RenderLevel
+from ..core import validation
+from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 
-from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
-from .tiles import TileSource
 from .images import ImageSource
-
-logger = logging.getLogger(__name__)
+from .sources import DataSource, RemoteSource
+from .tiles import TileSource, WMTSTileSource
 
 @abstract
 class Renderer(Model):
@@ -28,7 +27,7 @@ class Renderer(Model):
     """
 class TileRenderer(Renderer):
 
-    tile_source = Instance(TileSource, help="""
+    tile_source = Instance(TileSource, default=lambda: WMTSTileSource(), help="""
     Local data source to use when rendering glyphs on the plot.
     """)
 
