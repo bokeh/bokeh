@@ -39,6 +39,7 @@ from ..core.properties import (Auto, Bool, Either, Enum, Int, Float,
 from ..resources import INLINE
 from ..util.browser import view
 from ..util.notebook import publish_display_data
+from ..util.deprecate import deprecated
 
 #-----------------------------------------------------------------------------
 # Classes and functions
