@@ -33,14 +33,25 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   python_missing = []
   coffee_missing = []
   for k, v of coffee_defaults
+
+    # special case for date picker, default is "now"
+    if name == 'DatePicker' and k == 'value'
+      continue
+
     if k == 'id'
       continue
+
     if k of python_defaults
       py_v = python_defaults[k]
       if not _.isEqual(py_v, v)
+
+        # these two conditionals compare 'foo' and {value: 'foo'}
         if _.isObject(v) and 'value' of v and _.isEqual(py_v, v['value'])
           continue
+        if _.isObject(py_v) and 'value' of py_v and _.isEqual(py_v['value'], v)
+          continue
 
+        # compare arrays of objects
         if _.isArray(v) and _.isArray(py_v)
           equal = true
 
