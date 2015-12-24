@@ -104,7 +104,8 @@ locations =
   AjaxDataSource:           require '../source/ajax_data_source'
   GeoJSONDataSource:        require '../source/geojson_data_source'
 
-  AbstractTicker:           require '../ticking/abstract_ticker'
+  Ticker:                   require '../ticking/ticker'
+  ContinuousTicker:         require '../ticking/continuous_ticker'
   AdaptiveTicker:           require '../ticking/adaptive_ticker'
   BasicTicker:              require '../ticking/basic_ticker'
   CategoricalTicker:        require '../ticking/categorical_ticker'
