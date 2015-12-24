@@ -1,5 +1,5 @@
 _ = require "underscore"
-AbstractTicker = require "./abstract_ticker"
+ContinuousTicker = require "./continuous_ticker"
 {argmin} = require "./util"
 
 # Forces a number x into a specified range [min_val, max_val].
@@ -14,7 +14,7 @@ log = (x, base=Math.E) ->
 # AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
 # following:
 # ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
-class AdaptiveTicker extends AbstractTicker.Model
+class AdaptiveTicker extends ContinuousTicker.Model
   type: 'AdaptiveTicker'
 
   # These arguments control the range of possible intervals.  The interval I
@@ -60,9 +60,8 @@ class AdaptiveTicker extends AbstractTicker.Model
 
   defaults: () ->
     return _.extend {}, super(), {
-      toString_properties: ['mantissas', 'base', 'min_magnitude', 'max_magnitude'],
       base: 10.0,
-      mantissas: [2, 5, 10]
+      mantissas: [1, 2, 5]
       min_interval: 0.0,
       max_interval: null,
     }
