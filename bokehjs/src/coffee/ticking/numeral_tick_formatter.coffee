@@ -1,8 +1,8 @@
 _ = require "underscore"
 Numeral = require "numeral"
-HasProperties = require "../common/has_properties"
+TickFormatter = require "./tick_formatter"
 
-class NumeralTickFormatter extends HasProperties
+class NumeralTickFormatter extends TickFormatter.Model
   type: 'NumeralTickFormatter'
 
   format: (ticks) ->

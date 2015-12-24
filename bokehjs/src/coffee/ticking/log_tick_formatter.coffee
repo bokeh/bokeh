@@ -1,10 +1,15 @@
 _ = require "underscore"
 HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
-BasicTickFormatter = require "./basic_tick_formatter"
+TickFormatter = require "./tick_formatter"
 
-class LogTickFormatter extends HasProperties
+class LogTickFormatter extends TickFormatter.Model
   type: 'LogTickFormatter'
+
+  defaults: () ->
+    return _.extend {}, super(), {
+      ticker: null
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)
