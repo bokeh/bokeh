@@ -5,7 +5,7 @@ Backbone = require "backbone"
 RemoteDataSource = require "./remote_data_source"
 
 #maybe generalize to ajax data source later?
-class AjaxDataSource extends RemoteDataSource.RemoteDataSource
+class AjaxDataSource extends RemoteDataSource.Model
   type: 'AjaxDataSource'
   destroy : () =>
     if @interval?
@@ -48,6 +48,9 @@ class AjaxDataSource extends RemoteDataSource.RemoteDataSource
   defaults: =>
     return _.extend {}, super(), {
       mode: 'replace'
+      max_size: null
+      method: 'POST'
+      if_modified: false
     }
 
 class AjaxDataSources extends Backbone.Collection

@@ -1,10 +1,10 @@
 _ = require "underscore"
 bbox = require "../common/bbox"
 {logger} = require "../common/logging"
-Range1d = require "./range1d"
+DataRange = require "./data_range"
 
 
-class DataRange1d extends Range1d.Model
+class DataRange1d extends DataRange.Model
   type: 'DataRange1d'
 
   _get_start: () ->
@@ -36,6 +36,16 @@ class DataRange1d extends Range1d.Model
       '_end', 'flipped', '_auto_end', 'range_padding', 'default_span'
     ])
 
+    @register_property('min',
+        () -> Math.min(@get('start'), @get('end'))
+      , true)
+    @add_dependencies('min', this, ['start', 'end'])
+    @register_property('max',
+        () ->
+          Math.max(@get('start'), @get('end'))
+      , true)
+    @add_dependencies('max', this, ['start', 'end'])
+
     if attrs?.start?
       @set('start', attrs.start)
       delete attrs.start
@@ -50,7 +60,7 @@ class DataRange1d extends Range1d.Model
 
   nonserializable_attribute_names: () ->
     super().concat(['_auto_end', '_auto_start', '_start', '_end',
-      'flipped', 'sources', 'default_span', 'plots'])
+      'sources', 'default_span', 'plots'])
 
   update: (bounds, dimension, plot_view) ->
     # TODO (bev)
@@ -96,6 +106,8 @@ class DataRange1d extends Range1d.Model
 
   defaults: ->
     return _.extend {}, super(), {
+      start: 0
+      end: 1
       plots: []
       sources: []
       range_padding: 0.1

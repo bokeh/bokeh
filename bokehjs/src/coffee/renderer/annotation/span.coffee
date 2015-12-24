@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
 {logger} = require "../../common/logging"
 properties = require "../../common/properties"
@@ -74,7 +74,7 @@ class SpanView extends PlotWidget
         vdim = location
       return vdim
 
-class Span extends HasParent
+class Span extends Annotation.Model
   default_view: SpanView
   type: 'Span'
 
@@ -84,11 +84,11 @@ class Span extends HasParent
       y_range_name: "default"
       render_mode: "canvas"
       location_units: "data"
+      level: 'annotation'
     }
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'annotation'
       dimension: "width"
       location: null
       line_color: 'black'

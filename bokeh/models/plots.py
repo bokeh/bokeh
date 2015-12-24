@@ -55,6 +55,11 @@ def _select_helper(args, kwargs):
         selector = kwargs
     return selector
 
+class LayoutBox(Model):
+    ''' Represents an **on-cavas** layout.
+
+    '''
+
 class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
@@ -346,6 +351,15 @@ class Plot(Component):
     This is useful for adding additional axes.
     """)
 
+    hidpi = Bool(default=True, help="""
+    Whether to use HiDPI mode when available.
+    """)
+
+    title_standoff = Int(default=8, help="""
+    How far (in screen units) to place a title away from the central
+    plot region.
+    """)
+
     title = String('', help="""
     A title for the plot.
     """)
@@ -391,7 +405,9 @@ class Plot(Component):
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    above = List(Instance(Renderer), help="""
+    # TODO (bev) LayoutBox here is a temporary workaround to the fact that
+    # plot titles are not proper renderers
+    above = List(Either(Instance(Renderer), Instance(LayoutBox)), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
@@ -477,7 +493,7 @@ class Plot(Component):
 
     border_fill_color = Override(default='#ffffff')
 
-    min_border_top = Int(50, help="""
+    min_border_top = Int(40, help="""
     Minimum size in pixels of the padding region above the top of the
     central plot region.
 
@@ -487,7 +503,7 @@ class Plot(Component):
 
     """)
 
-    min_border_bottom = Int(50, help="""
+    min_border_bottom = Int(40, help="""
     Minimum size in pixels of the padding region below the bottom of
     the central plot region.
 
@@ -497,7 +513,7 @@ class Plot(Component):
 
     """)
 
-    min_border_left = Int(50, help="""
+    min_border_left = Int(40, help="""
     Minimum size in pixels of the padding region to the left of
     the central plot region.
 
@@ -507,7 +523,7 @@ class Plot(Component):
 
     """)
 
-    min_border_right = Int(50, help="""
+    min_border_right = Int(40, help="""
     Minimum size in pixels of the padding region to the right of
     the central plot region.
 

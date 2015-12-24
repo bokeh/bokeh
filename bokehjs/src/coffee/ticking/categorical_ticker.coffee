@@ -1,6 +1,6 @@
-HasProperties = require "../common/has_properties"
+Ticker = require "./ticker"
 
-class CategoricalTicker extends HasProperties
+class CategoricalTicker extends Ticker.Model
   type: 'CategoricalTicker'
 
   get_ticks: (start, end, range, {desired_n_ticks}) ->

@@ -162,23 +162,15 @@ class GMapPlot extends Plot.Model
   type: 'GMapPlot'
   default_view: GMapPlotView
 
+  defaults: ->
+    return _.extend {}, super(), {
+      map_options: null
+      disabled: false
+    }
+
   initialize: (attrs, options) ->
     @use_map = true
     super(attrs, options)
-
-  parent_properties: [
-    'border_fill',
-    'min_border',
-    'min_border_top',
-    'min_border_bottom'
-    'min_border_left'
-    'min_border_right'
-  ]
-
-  defaults: ->
-    return _.extend {}, super(), {
-      title: 'GMapPlot'
-    }
 
 module.exports =
   Model: GMapPlot
