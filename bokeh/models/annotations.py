@@ -7,8 +7,10 @@ from __future__ import absolute_import
 from ..core.enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
-from ..core.properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, NumberSpec, Either, Auto, Float, Override)
+from ..core.properties import (
+    Int, String, Enum, Instance, List, Dict, Tuple,
+    Include, NumberSpec, Either, Auto, Float, Override, Seq
+)
 from ..util.deprecate import deprecated
 from .renderers import Renderer, GlyphRenderer
 
@@ -22,7 +24,7 @@ class Annotation(Renderer):
     The plot to which this annotation is attached.
     """)
 
-    level = Enum(RenderLevel, default="overlay", help="""
+    level = Enum(RenderLevel, default="annotation", help="""
     Specifies the level in which to render the annotation.
     """)
 
@@ -111,9 +113,13 @@ class Legend(Annotation):
     )
 
 class BoxAnnotation(Annotation):
-    """ Render an annotation box "shade" thing
+    """ Render a shaded rectangular region as an annotation.
 
     """
+
+    mode = String(default="canvas", help="""
+
+    """)
 
     left = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the left edge of the box annotation.
@@ -161,10 +167,8 @@ class BoxAnnotation(Annotation):
     rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Override(default="annotation")
-
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the shades.
+    The %s values for the box.
     """)
 
     line_alpha = Override(default=0.3)
@@ -172,7 +176,55 @@ class BoxAnnotation(Annotation):
     line_color = Override(default="#cccccc")
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the shades.
+    The %s values for the box.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
+
+class PolyAnnotation(Annotation):
+    """ Render a shaded polygonal region as an annotation.
+    """
+
+    xs = Seq(Float, default=[], help="""
+
+    """)
+
+    xs_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the xs attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    ys = Seq(Float, default=[], help="""
+
+    """)
+
+    ys_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the ys attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering box annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering box annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the polygon.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the polygon.
     """)
 
     fill_alpha = Override(default=0.4)
@@ -205,8 +257,6 @@ class Span(Annotation):
     A particular (named) y-range to use for computing screen locations when
     rendering annotations on the plot. If unset, use the default y-range.
     """)
-
-    level = Override(default="annotation")
 
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the span is rendered as a canvas element or as an

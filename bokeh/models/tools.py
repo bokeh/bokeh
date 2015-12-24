@@ -28,6 +28,7 @@ from ..core.properties import (Any, Bool, String, Enum, Instance, Either, List,
                           Dict, Tuple)
 from ..core.enums import Dimension
 
+from .annotations import BoxAnnotation, PolyAnnotation
 from .renderers import Renderer
 from .callbacks import Callback
 
@@ -256,6 +257,23 @@ class BoxZoomTool(Tool):
     dimension can be controlled.
     """)
 
+    overlay = Instance(BoxAnnotation,
+                       default=lambda: BoxAnnotation(level="overlay",
+                                                     mode="css",
+                                                     top_units="screen",
+                                                     left_units="screen",
+                                                     bottom_units="screen",
+                                                     right_units="screen",
+                                                     fill_color="lightgrey",
+                                                     fill_alpha=0.5,
+                                                     line_color="black",
+                                                     line_alpha=1.0,
+                                                     line_width=2,
+                                                     line_dash=[4, 4]),
+                       help="""
+
+    """)
+
 
 class BoxSelectTool(Tool):
     """ *toolbar icon*: |box_select_icon|
@@ -307,19 +325,22 @@ class BoxSelectTool(Tool):
     :geometry: object containing the coordinates of the selection box
     """)
 
+    overlay = Instance(BoxAnnotation,
+                       default=lambda: BoxAnnotation(level="overlay",
+                                                     mode="css",
+                                                     top_units="screen",
+                                                     left_units="screen",
+                                                     bottom_units="screen",
+                                                     right_units="screen",
+                                                     fill_color="lightgrey",
+                                                     fill_alpha=0.5,
+                                                     line_color="black",
+                                                     line_alpha=1.0,
+                                                     line_width=3,
+                                                     line_dash=[4, 4]),
+                       help="""
 
-class BoxSelectionOverlay(Renderer):
-    """ An overlay renderer that Tool objects can use to render a
-    'rubber band' selection box on a Plot.
-
-    """
-
-    __view_model__ = 'BoxSelection'
-
-    tool = Instance(Tool, help="""
-    The tool that this overlay should respond to.
     """)
-
 
 class LassoSelectTool(Tool):
     """ *toolbar icon*: |lasso_select_icon|
@@ -357,6 +378,20 @@ class LassoSelectTool(Tool):
     event, or only once, when the selection region is completed. Default: True
     """)
 
+    overlay = Instance(PolyAnnotation,
+                       default=lambda: PolyAnnotation(level="overlay",
+                                                      xs_units="screen",
+                                                      ys_units="screen",
+                                                      fill_color="lightgrey",
+                                                      fill_alpha=0.5,
+                                                      line_color="black",
+                                                      line_alpha=1.0,
+                                                      line_width=2,
+                                                      line_dash=[4, 4]),
+                       help="""
+
+    """)
+
 
 class PolySelectTool(Tool):
     """ *toolbar icon*: |poly_select_icon|
@@ -390,6 +425,19 @@ class PolySelectTool(Tool):
     defaults to all renderers on a plot.
     """)
 
+    overlay = Instance(PolyAnnotation,
+                       default=lambda: PolyAnnotation(level="overlay",
+                                                      xs_units="screen",
+                                                      ys_units="screen",
+                                                      fill_color="lightgrey",
+                                                      fill_alpha=0.5,
+                                                      line_color="black",
+                                                      line_alpha=1.0,
+                                                      line_width=2,
+                                                      line_dash=[4, 4]),
+                       help="""
+
+    """)
 
 class HoverTool(Tool):
     """ *toolbar icon*: |inspector_icon|

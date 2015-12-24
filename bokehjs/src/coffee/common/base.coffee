@@ -41,6 +41,7 @@ locations =
   Range1d:                  require '../range/range1d'
 
   BoxAnnotation:            require '../renderer/annotation/box_annotation'
+  PolyAnnotation:           require '../renderer/annotation/poly_annotation'
   Legend:                   require '../renderer/annotation/legend'
   Span:                     require '../renderer/annotation/span'
   Tooltip:                  require '../renderer/annotation/tooltip'
@@ -97,9 +98,6 @@ locations =
   CategoricalAxis:          require '../renderer/guide/categorical_axis'
   DatetimeAxis:             require '../renderer/guide/datetime_axis'
   Grid:                     require '../renderer/guide/grid'
-
-  BoxSelection:             require '../renderer/overlay/box_selection'
-  PolySelection:            require '../renderer/overlay/poly_selection'
 
   ColumnDataSource:         require '../source/column_data_source'
   BlazeDataSource:          require '../source/blaze_data_source'

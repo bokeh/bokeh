@@ -1,5 +1,4 @@
 _ = require "underscore"
-PolySelection = require "../../renderer/overlay/poly_selection"
 SelectTool = require "./select_tool"
 
 class PolySelectToolView extends SelectTool.View
@@ -25,7 +24,7 @@ class PolySelectToolView extends SelectTool.View
 
   _clear_data: () ->
     @data = null
-    @mget('overlay').set('data', null)
+    @mget('overlay').update({xs:[], ys:[]})
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -43,7 +42,7 @@ class PolySelectToolView extends SelectTool.View
     new_data = {}
     new_data.vx = _.clone(@data.vx)
     new_data.vy = _.clone(@data.vy)
-    overlay.set('data', new_data)
+    overlay.update({xs: @data.vx, ys: @data.vy})
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -71,10 +70,7 @@ class PolySelectTool extends SelectTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @set('overlay', new PolySelection.Model)
-    plot_renderers = @get('plot').get('renderers')
-    plot_renderers.push(@get('overlay'))
-    @get('plot').set('renderers', plot_renderers)
+    @get('overlay').set('silent_update', true, {silent: true})
 
 module.exports =
   Model: PolySelectTool
