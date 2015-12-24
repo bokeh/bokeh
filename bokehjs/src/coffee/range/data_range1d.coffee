@@ -20,6 +20,8 @@ class DataRange1d extends Range1d.Model
     @set('_end', end)
 
   initialize: (attrs, options) ->
+    @renderers_computed = false
+
     # TODO this is broken; start/end are serializable attributes
     # that need to be synced with the server, so they can't be 'virtual'
     # properties with the current implementation of HasProperties
@@ -53,19 +55,20 @@ class DataRange1d extends Range1d.Model
       'flipped', 'sources', 'default_span', 'plots'])
 
   update: (bounds, dimension, plot_view) ->
-    # TODO (bev)
-    # check that renderers actually configured with this range
-    renderers = @get('renderers') ? []
+    if not @renderers_computed
+      @renderers_computed = true
+      # TODO (bev)
+      # check that renderers actually configured with this range
+      renderers = @get('renderers')
 
-    all_renderers = []
-    if renderers.length == 0
-      for plot in @get('plots')
-        rs = plot.get('renderers')
-        rs = (r for r in rs when r.type == "GlyphRenderer")
-        all_renderers = all_renderers.concat(rs)
-      renderers = all_renderers
-
-    @set('renderers', renderers)
+      all_renderers = []
+      if renderers.length == 0
+        for plot in @get('plots')
+          rs = plot.get('renderers')
+          rs = (r for r in rs when r.type == "GlyphRenderer")
+          all_renderers = all_renderers.concat(rs)
+        renderers = all_renderers
+        @set('renderers', renderers)
 
     result = new bbox.empty()
     for r in @get('renderers')
@@ -98,6 +101,7 @@ class DataRange1d extends Range1d.Model
     return _.extend {}, super(), {
       plots: []
       sources: []
+      renderers: []
       range_padding: 0.1
       default_span: 2
       flipped: false
