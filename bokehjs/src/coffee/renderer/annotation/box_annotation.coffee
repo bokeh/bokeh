@@ -13,7 +13,7 @@ class BoxAnnotationView extends PlotWidget
     @$el.hide()
 
   bind_bokeh_events: () ->
-    if @mget('mode') == 'css'
+    if @mget('render_mode') == 'css'
       # dispatch CSS update immediately
       @listenTo(@model, 'data_update', @render)
     else
@@ -35,7 +35,7 @@ class BoxAnnotationView extends PlotWidget
     sbottom = @canvas.vy_to_sy(@_calc_dim('bottom', @ymapper, @frame.get('v_range').get('start')))
     stop = @canvas.vy_to_sy(@_calc_dim('top', @ymapper, @frame.get('v_range').get('end')))
 
-    if @mget('mode') == 'css'
+    if @mget('render_mode') == 'css'
       @_css_box(sleft, sright, sbottom, stop)
 
     else

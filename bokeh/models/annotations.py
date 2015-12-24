@@ -117,8 +117,13 @@ class BoxAnnotation(Annotation):
 
     """
 
-    mode = String(default="canvas", help="""
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the box is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas".
 
+    .. warning::
+        The line_dash and line_dash_offset attributes aren't supported if
+        the render_mode is set to "css"
     """)
 
     left = Either(Auto, NumberSpec(), default=None, help="""

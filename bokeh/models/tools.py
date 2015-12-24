@@ -24,8 +24,9 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..core.properties import abstract, Float, Color
-from ..core.properties import (Any, Bool, String, Enum, Instance, Either, List,
-                          Dict, Tuple)
+from ..core.properties import (
+    Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
+)
 from ..core.enums import Dimension
 
 from .annotations import BoxAnnotation, PolyAnnotation
@@ -259,7 +260,7 @@ class BoxZoomTool(Tool):
 
     overlay = Instance(BoxAnnotation,
                        default=lambda: BoxAnnotation(level="overlay",
-                                                     mode="css",
+                                                     render_mode="css",
                                                      top_units="screen",
                                                      left_units="screen",
                                                      bottom_units="screen",
@@ -327,7 +328,7 @@ class BoxSelectTool(Tool):
 
     overlay = Instance(BoxAnnotation,
                        default=lambda: BoxAnnotation(level="overlay",
-                                                     mode="css",
+                                                     render_mode="css",
                                                      top_units="screen",
                                                      left_units="screen",
                                                      bottom_units="screen",
