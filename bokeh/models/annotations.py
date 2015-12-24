@@ -284,6 +284,7 @@ class Tooltip(Annotation):
         directly from python.
 
     """
+    level = Override(default="overlay")
 
     side = Either(Auto, Enum(Side), default="auto", help="""
     Whether the tooltip should display to the left or right off the cursor
