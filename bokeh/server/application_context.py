@@ -27,8 +27,7 @@ class BokehServerContext(ServerContext):
 
     @property
     def develop_mode(self):
-        # TODO implement me
-        raise NotImplementedError("develop_mode")
+        return self.application_context.develop
 
     def add_callback(self, callback):
         # TODO implement me
@@ -107,8 +106,9 @@ class ApplicationContext(object):
         data specific to an "instance" of the application.
     '''
 
-    def __init__(self, application, io_loop=None):
+    def __init__(self, application, develop=False, io_loop=None):
         self._application = application
+        self._develop = develop
         self._loop = io_loop
         self._sessions = dict()
         self._session_contexts = dict()
@@ -117,6 +117,10 @@ class ApplicationContext(object):
     @property
     def application(self):
         return self._application
+
+    @property
+    def develop(self):
+        return self._develop
 
     @property
     def server_context(self):

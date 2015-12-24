@@ -241,6 +241,7 @@ class Serve(Subcommand):
                                                               'address',
                                                               'host',
                                                               'prefix',
+                                                              'develop',
                                                               'keep_alive_milliseconds']
                           if getattr(args, key, None) is not None }
 

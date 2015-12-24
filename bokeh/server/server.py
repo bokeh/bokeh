@@ -56,6 +56,7 @@ class Server(object):
             self._applications = applications
 
         tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
+                                                        'develop',
                                                         'extra_patterns',
                                                         'keep_alive_milliseconds']
                            if key in kwargs }

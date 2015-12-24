@@ -53,6 +53,7 @@ class BokehTornado(TornadoApplication):
         prefix (str) : a URL prefix to use for all Bokeh server paths
         keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
             Set to 0 to disable pings. Pings keep the websocket open.
+        develop (boolean) : True for develop mode
 
     '''
 
@@ -60,7 +61,8 @@ class BokehTornado(TornadoApplication):
                  io_loop=None,
                  extra_patterns=None,
                  # heroku, nginx default to 60s timeout, so well less than that
-                 keep_alive_milliseconds=37000):
+                 keep_alive_milliseconds=37000,
+                 develop=False):
 
         self._prefix = prefix
 
@@ -74,11 +76,12 @@ class BokehTornado(TornadoApplication):
 
         self._hosts = hosts
         self._resources = {}
+        self._develop = develop
 
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v, self._loop)
+            self._applications[k] = ApplicationContext(v, self._develop, self._loop)
 
         extra_patterns = extra_patterns or []
         all_patterns = []
