@@ -45,11 +45,20 @@ class BoxAnnotationView extends PlotWidget
     sw = Math.abs(sright-sleft)
     sh = Math.abs(sbottom-stop)
 
-    lw = @mget("line_width")
+    lw = @mget("line_width").value
     lc = @mget("line_color").value
     bc = @mget("fill_color").value
     ba = @mget("fill_alpha").value
-    style = "left:#{sleft}px; width:#{sw}px; top:#{stop}px; height:#{sh}px; border-width:#{lw}px; border-color:#{lc};background-color:#{bc}; opacity:#{ba};"
+    style = "left:#{sleft}px; width:#{sw}px; top:#{stop}px; height:#{sh}px; border-width:#{lw}px; border-color:#{lc}; background-color:#{bc}; opacity:#{ba};"
+    # try our best to honor line dashing in some way, if we can
+    ld = @mget("line_dash")
+    if _.isArray(ld)
+      if ld.length < 2
+        ld = "solid"
+      else
+        ld = "dashed"
+    if _.isString(ld)
+      style += " border-style:#{ld};"
     @$el.attr('style', style)
     @$el.show()
 
