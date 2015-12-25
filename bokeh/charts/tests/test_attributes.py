@@ -21,6 +21,7 @@ def test_attr_map_with_explicit_items(simple_attr):
 
 
 def test_order_assignment(simple_attr):
+    # values in iterable should be applied in order to items
     for item, iter_val in zip(simple_attr.items, simple_attr.iterable):
         assert simple_attr[item] == iter_val
 

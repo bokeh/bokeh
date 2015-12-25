@@ -112,6 +112,9 @@ class AttrSpec(HasProps):
         if self.default is None and self.iterable is not None:
             self.default = next(iter(copy(self.iterable)))
 
+        if self.data is not None and self.columns is not None:
+            self._generate_items(self.data.to_df(), columns=self.columns)
+
         if self.items is not None and self.iterable is not None:
             self.attr_map = self._create_attr_map()
 
@@ -163,11 +166,10 @@ class AttrSpec(HasProps):
 
         iterable = self._setup_iterable()
 
-        iter_map = {}
-        for item in self.items:
-            item = self._ensure_tuple(item)
-            iter_map[item] = next(iterable)
-        return iter_map
+        return {item: next(iterable) for item in self._item_tuples()}
+    
+    def _item_tuples(self):
+        return [self._ensure_tuple(item) for item in self.items]
 
     def set_columns(self, columns):
         """Set columns property and update derived properties as needed."""
@@ -205,6 +207,14 @@ class AttrSpec(HasProps):
             self.setup()
 
         return self.attr_map[self._ensure_tuple(item)]
+
+    @property
+    def series(self):
+        if not self.attr_map:
+            return pd.Series()
+        else:
+            index = pd.MultiIndex.from_tuples(self._item_tuples(), names=self.columns)
+            return pd.Series(list(self.attr_map.values()), index=index)
 
 
 class ColorAttr(AttrSpec):
