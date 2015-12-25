@@ -104,9 +104,8 @@ class Legend(Annotation):
     renderers that should draw sample representations for those labels.
 
     .. note::
-        The ``legends`` attribute may also be set from a dict or OrderedDict,
-        but note that if a dict is used, the order of the legend entries is
-        unspecified.
+        The ``legends`` attribute may also be set from a dict or OrderedDict.
+        If a dict is used, the order of the legend entries is unspecified.
 
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
@@ -116,15 +115,6 @@ class BoxAnnotation(Annotation):
     """ Render a shaded rectangular region as an annotation.
 
     """
-
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the box is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
-
-    .. warning::
-        The line_dash and line_dash_offset attributes aren't supported if
-        the render_mode is set to "css"
-    """)
 
     left = Either(Auto, NumberSpec(), default=None, help="""
     The x-coordinates of the left edge of the box annotation.
@@ -188,12 +178,23 @@ class BoxAnnotation(Annotation):
 
     fill_color = Override(default="#fff9ba")
 
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the box is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas".
+
+    .. warning::
+        The line_dash and line_dash_offset attributes aren't supported if
+        the render_mode is set to "css"
+
+    """)
+
 class PolyAnnotation(Annotation):
     """ Render a shaded polygonal region as an annotation.
+
     """
 
     xs = Seq(Float, default=[], help="""
-
+    The x-coordinates of the region to draw.
     """)
 
     xs_units = Enum(SpatialUnits, default='data', help="""
@@ -202,7 +203,7 @@ class PolyAnnotation(Annotation):
     """)
 
     ys = Seq(Float, default=[], help="""
-
+    The y-coordinates of the region to draw.
     """)
 
     ys_units = Enum(SpatialUnits, default='data', help="""
@@ -240,8 +241,9 @@ class Span(Annotation):
     """ Render a horizontal or vertical line span.
 
     """
+
     location = Float(help="""
-    The location of the span.
+    The location of the span, along ``dimension``.
     """)
 
     location_units = Enum(SpatialUnits, default='data', help="""
@@ -270,6 +272,7 @@ class Span(Annotation):
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
         the render_mode is set to "css"
+
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
@@ -280,7 +283,7 @@ class Tooltip(Annotation):
     """ Render a tooltip.
 
     .. note::
-        This model is typically managed by BokehJS and is not useful
+        This model is currently managed by BokehJS and is not useful
         directly from python.
 
     """
