@@ -28,7 +28,6 @@ class AttrSpec(HasProps):
     AttrSpec with data and column values and update all derived property values.
     """
 
-    id = Any()
     data = Instance(ColumnDataSource)
 
     iterable = List(Any, default=None)
@@ -113,6 +112,9 @@ class AttrSpec(HasProps):
         if self.default is None and self.iterable is not None:
             self.default = next(iter(copy(self.iterable)))
 
+        if self.items is not None and self.iterable is not None:
+            self.attr_map = self._create_attr_map()
+
     @staticmethod
     def _ensure_list(attr):
         """Always returns a list with the provided value. Returns the value if a list."""
@@ -130,7 +132,6 @@ class AttrSpec(HasProps):
             return (attr,)
         else:
             return attr
-        return list(attr.items())
 
     def _setup_default(self):
         """Stores the first value of iterable into `default` property."""
@@ -154,10 +155,12 @@ class AttrSpec(HasProps):
         items = df[columns].drop_duplicates()
         self.items = [tuple(x) for x in items.to_records(index=False)]
 
-    def _create_attr_map(self, df, columns):
+    def _create_attr_map(self, df=None, columns=None):
         """Creates map between unique values and available attributes."""
 
-        self._generate_items(df, columns)
+        if df is not None and columns is not None:
+            self._generate_items(df, columns)
+
         iterable = self._setup_iterable()
 
         iter_map = {}
