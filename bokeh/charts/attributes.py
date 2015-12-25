@@ -113,7 +113,10 @@ class AttrSpec(HasProps):
             self.default = next(iter(copy(self.iterable)))
 
         if self.data is not None and self.columns is not None:
-            self._generate_items(self.data.to_df(), columns=self.columns)
+            if df is None:
+                df = self.data.to_df()
+
+            self._generate_items(df, columns=self.columns)
 
         if self.items is not None and self.iterable is not None:
             self.attr_map = self._create_attr_map()
