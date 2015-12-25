@@ -197,7 +197,7 @@ class AttrSpec(HasProps):
     def __getitem__(self, item):
         """Lookup the attribute to use for the given unique group label."""
 
-        if not self.columns or not self.data or item is None:
+        if not self.attr_map:
             return self.default
         elif self._ensure_tuple(item) not in self.attr_map.keys():
 
