@@ -9,5 +9,7 @@ class Range extends HasProperties
       callback: null
     }
 
+  reset: () ->
+
 module.exports =
   Model: Range

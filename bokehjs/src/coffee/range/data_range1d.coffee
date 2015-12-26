@@ -3,120 +3,151 @@ bbox = require "../common/bbox"
 {logger} = require "../common/logging"
 DataRange = require "./data_range"
 
-
 class DataRange1d extends DataRange.Model
   type: 'DataRange1d'
 
-  _get_start: () ->
-    return @get('_start') ? @get('_auto_start')
-
-  _set_start: (start) ->
-    @set('_start', start)
-
-  _get_end: () ->
-    return @get('_end') ? @get('_auto_end')
-
-  _set_end: (end) ->
-    @set('_end', end)
-
   initialize: (attrs, options) ->
-    @renderers_computed = false
-
-    # TODO this is broken; start/end are serializable attributes
-    # that need to be synced with the server, so they can't be 'virtual'
-    # properties with the current implementation of HasProperties
-    # (they don't have change notification this way)
-    @register_property('start', @_get_start, true)
-    @register_setter('start', @_set_start)
-    @add_dependencies('start', this, [
-      '_start', 'flipped', '_auto_start', 'range_padding', 'default_span'
-    ])
-
-    @register_property('end', @_get_end, true)
-    @register_setter('end', @_set_end)
-    @add_dependencies('end', this, [
-      '_end', 'flipped', '_auto_end', 'range_padding', 'default_span'
-    ])
+    super(attrs, options)
 
     @register_property('min',
         () -> Math.min(@get('start'), @get('end'))
       , true)
     @add_dependencies('min', this, ['start', 'end'])
+
     @register_property('max',
-        () ->
-          Math.max(@get('start'), @get('end'))
+        () -> Math.max(@get('start'), @get('end'))
       , true)
     @add_dependencies('max', this, ['start', 'end'])
 
-    if attrs?.start?
-      @set('start', attrs.start)
-      delete attrs.start
-
-    if attrs?.end?
-      @set('end', attrs.end)
-      delete attrs.end
-
-    super(attrs, options)
+    @register_property('computed_renderers',
+        () -> @_compute_renderers()
+      , true)
+    @add_dependencies('computed_renderers', this, ['plots', 'renderers', 'names'])
 
     @plot_bounds = {}
 
-  nonserializable_attribute_names: () ->
-    super().concat(['_auto_end', '_auto_start', '_start', '_end',
-      'sources', 'default_span', 'plots'])
+    @_initial_start = @get('start')
+    @_initial_end = @get('end')
+    @_initial_range_padding = @get('range_padding')
+    @_initial_follow = @get('follow')
+    @_initial_follow_interval = @get('follow_interval')
+    @_initial_default_span = @get('default_span')
 
-  update: (bounds, dimension, plot_view) ->
-    if not @renderers_computed
-      @renderers_computed = true
-      # TODO (bev)
-      # check that renderers actually configured with this range
-      renderers = @get('renderers')
+  _compute_renderers: () ->
+    # TODO (bev) check that renderers actually configured with this range
+    names = @get('names')
+    renderers = @get('renderers')
 
-      all_renderers = []
-      if renderers.length == 0
-        for plot in @get('plots')
-          rs = plot.get('renderers')
-          rs = (r for r in rs when r.type == "GlyphRenderer")
-          all_renderers = all_renderers.concat(rs)
-        renderers = all_renderers
-        @set('renderers', renderers)
+    if renderers.length == 0
+      for plot in @get('plots')
+        all_renderers = plot.get('renderers')
+        rs = (r for r in all_renderers when r.type == "GlyphRenderer")
+        renderers = renderers.concat(rs)
 
+    if names.length > 0
+      renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+
+    logger.debug("computed #{renderers.length} renderers for DataRange1d #{@id}")
+    for r in renderers
+      logger.trace(" - #{r.type} #{r.id}")
+
+    return renderers
+
+  _compute_plot_bounds: (renderers, bounds) ->
     result = new bbox.empty()
-    for r in @get('renderers')
+
+    for r in renderers
       if bounds[r.id]?
         result = bbox.extend(result, bounds[r.id])
 
-    @plot_bounds[plot_view.model.id] = result
+    return result
 
+  _compute_min_max: (plot_bounds, dimension) ->
     overall = new bbox.empty()
-    for k, v of @plot_bounds
+    for k, v of plot_bounds
       overall = bbox.extend(overall, v)
 
     [min, max] = overall[dimension]
 
-    if max != min
-      span = (max-min)*(1+@get('range_padding'))
+    return [min, max]
+
+  _compute_range: (min, max) ->
+    range_padding = @get('range_padding')
+    if range_padding? and range_padding > 0
+
+      if max == min
+        span = @get('default_span')
+      else
+        span = (max-min)*(1+range_padding)
+
+      center = (max+min)/2.0
+      [start, end] = [center-span/2.0, center+span/2.0]
+
     else
-      span = @get('default_span')
+      [start, end] = [min, max]
 
-    center = (max+min)/2.0
-
-    sgn = 1
+    follow_sign = +1
     if @get('flipped')
-      sgn = -1
+      [start, end] = [end, start]
+      follow_sign = -1
 
-    @set('_auto_start', center-sgn*span/2.0)
-    @set('_auto_end', center+sgn*span/2.0)
+    follow_interval = @get('follow_interval')
+    if follow_interval? and Math.abs(start-end) > follow_interval
+      if @get('follow') == 'start'
+        end = start + follow_sign*follow_interval
+      else if @get('follow') == 'end'
+        start = end - follow_sign*follow_interval
+
+    return [start, end]
+
+  update: (bounds, dimension, bounds_id) ->
+    renderers = @get('computed_renderers')
+
+    # update the raw data bounds for all renderers we care about
+    @plot_bounds[bounds_id] = @_compute_plot_bounds(renderers, bounds)
+
+    # compute the min/mix for our specified dimension
+    [min, max] = @_compute_min_max(@plot_bounds, dimension)
+
+    # derive start, end from bounds and data range config
+    [start, end] = @_compute_range(min, max)
+
+    if @_initial_start?
+      start = @_initial_start
+    if @_initial_end?
+      end = @_initial_end
+
+    # only trigger updates when there are changes
+    [_start, _end] = [@get('start'), @get('end')]
+    if start != _start or end != _end
+      new_range = {}
+      if start != _start
+        new_range.start = start
+      if end != _end
+        new_range.end = end
+      @set(new_range)
+
+  reset: () ->
+    @set({
+      range_padding: @_initial_range_padding
+      follow: @_initial_follow
+      follow_interval: @_initial_follow_interval
+      default_span: @_initial_default_span
+    })
+
+  nonserializable_attribute_names: () ->
+    super().concat(['plots'])
 
   defaults: ->
     return _.extend {}, super(), {
-      start: 0
-      end: 1
-      plots: []
-      sources: []
-      renderers: []
+      start: null
+      end: null
       range_padding: 0.1
-      default_span: 2
       flipped: false
+      follow: null
+      follow_interval: null
+      default_span: 2
+      plots: []
     }
 
 module.exports =
