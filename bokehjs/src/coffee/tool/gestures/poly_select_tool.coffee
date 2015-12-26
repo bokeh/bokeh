@@ -1,5 +1,6 @@
 _ = require "underscore"
 SelectTool = require "./select_tool"
+PolyAnnotation = require "../../renderer/annotation/poly_annotation"
 
 class PolySelectToolView extends SelectTool.View
 
@@ -67,6 +68,20 @@ class PolySelectTool extends SelectTool.Model
   icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAQCAYAAAAbBi9cAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAGdSURBVDiNjdO/axRBGMbxT8IiwSBBi4AiBBVRJE3UIqIIilrYLGuxMYo/AimsrNTCWkH/AbFR78Dc5dZiWW3SKQaVaKWlIFEiithooaiIZ7EbPM7b3D0wzLzzvvOdZ5iZviTNmnKN4gE2YSteYjW24A2+Yh/ux1G4uVij2cyXB0V8AYuYwBq8x5Ei/wEH8LNoHRVgWxyFr4v4RUvuScv4ESRpFhTQ/9SPmSTNdpbt1KZhXCsD7cZQj6AB7OqUCDCCTz2C3mF/maNnGOsRtB53y0BD/t1eN32T32pH0HY870ZI0mwMFZwvA73F+AqA4STNduCS3PlSpdbY0F4XFKAfJZA9mMO9OAonl+crtcZcpdaYP3ti4mqro0Py79AKOJqk2TwGMRVH4XTbHqtwpVJrVKv1ZGDZ0SIO4mGSZqNYh2m8wtM4Cr93MPur6E9jY7WenAvkz38pSbO9eIzrcRQe63TUFg3iDz7iIj73Yxa3i4LxOAovr0S4MzPbhzoOYy1GzkzGXwLcxC0sxFH4u4sTUyePN3EDKrXGAk4h/QvU5XGB9rRYawAAAABJRU5ErkJggg=="
   event_type: "tap"
   default_order: 11
+
+  defaults: () ->
+    return _.extend({}, super(), {
+      overlay: new PolyAnnotation.Model({
+        xs_units: "screen"
+        ys_units: "screen"
+        fill_color: "lightgrey"
+        fill_alpha: 0.5
+        line_color: "black"
+        line_alpha: 1.0
+        line_width: 2
+        line_dash: [4, 4]
+      })
+    })
 
   initialize: (attrs, options) ->
     super(attrs, options)
