@@ -230,7 +230,8 @@ class ColumnDataSource(DataSource):
             return str(self)
 
 
-class GeoJSONDataSource(DataSource):
+class GeoJSONDataSource(ColumnDataSource):
+
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
     only process a FeatureCollection or GeometryCollection.

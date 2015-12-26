@@ -1,8 +1,8 @@
 _ = require "underscore"
 {logger} = require "../common/logging"
-DataSource = require "./data_source"
+ColumnDataSource = require "./column_data_source"
 
-class GeoJSONDataSource extends DataSource.Model
+class GeoJSONDataSource extends ColumnDataSource.Model
   type: 'GeoJSONDataSource'
 
   initialize: (options) ->
