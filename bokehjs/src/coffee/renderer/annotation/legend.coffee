@@ -139,6 +139,7 @@ class Legend extends Annotation.Model
   defaults: ->
     return _.extend {}, super(), {
       legends: []
+      level: "annotation"
     }
 
   display_defaults: ->

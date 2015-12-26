@@ -11,7 +11,7 @@ class DatetimeAxis extends LinearAxis.Model
 
   defaults: ->
     return _.extend {}, super(), {
-      axis_label: "date"
+      axis_label: ""
       ticker: new DatetimeTicker.Model()
       formatter: new DatetimeTickFormatter.Model()
     }
