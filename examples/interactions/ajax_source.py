@@ -1,6 +1,8 @@
 import numpy as np
 from datetime import timedelta
 from functools import update_wrapper, wraps
+from math import sin
+from random import random
 from six import string_types
 
 from bokeh.plotting import figure, show, output_file
@@ -8,9 +10,12 @@ from bokeh.models.sources import AjaxDataSource
 
 output_file("ajax_source.html", title="ajax_source.py example")
 source = AjaxDataSource(data_url='http://localhost:5050/data',
-                        polling_interval=1000)
+                        polling_interval=100)
 p = figure()
 p.circle('x', 'y', source=source)
+
+p.x_range.follow = "end"
+p.x_range.follow_interval = 10
 
 try:
     from flask import Flask, jsonify, make_response, request, current_app
@@ -85,12 +90,15 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 app = Flask(__name__)
 
+x = list(np.arange(0, 6, 0.1))
+y = [sin(x) + random() for x in x]
 
 @app.route('/data', methods=['GET', 'OPTIONS', 'POST'])
 @crossdomain(origin="*", methods=['GET', 'POST'], headers=None)
 def hello_world():
-    return jsonify(x=np.random.random(5).tolist(), y=np.random.random(5).tolist())
-
+    x.append(x[-1]+0.1)
+    y.append(sin(x[-1])+random())
+    return jsonify(x=x[-500:], y=y[-500:])
 
 if __name__ == "__main__":
     app.run(port=5050)
