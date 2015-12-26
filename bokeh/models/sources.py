@@ -18,6 +18,7 @@ class DataSource(Model):
     not generally useful to instantiate on its own.
 
     """
+
     selected = Dict(String, Dict(String, Any), default={
         '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
@@ -231,6 +232,7 @@ class ColumnDataSource(DataSource):
 
 
 class GeoJSONDataSource(DataSource):
+
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
     only process a FeatureCollection or GeometryCollection.
@@ -238,29 +240,30 @@ class GeoJSONDataSource(DataSource):
 
 
 @abstract
-class RemoteSource(DataSource):
+class RemoteSource(ColumnDataSource):
+
     data_url = String(help="""
     The URL to the endpoint for the data.
     """)
-    data = Dict(String, Any, help="""
-    Additional data to include directly in this data source object. The
-    columns provided here are merged with those from the Bokeh server.
-    """)
+
     polling_interval = Int(help="""
     polling interval for updating data source in milliseconds
     """)
 
 class AjaxDataSource(RemoteSource):
+
     method = Enum('POST', 'GET', help="http method - GET or POST")
 
     mode = Enum("replace", "append", help="""
     Whether to append new data to existing data (up to ``max_size``),
     or to replace existing data entirely.
     """)
+
     max_size = Int(help="""
     Maximum size of the data array being kept after each pull requests.
     Larger than that size, the data will be right shifted.
     """)
+
     if_modified = Bool(False, help="""
     Whether to include an ``If-Modified-Since`` header in AJAX requests
     to the server. If this header is supported by the server, then only

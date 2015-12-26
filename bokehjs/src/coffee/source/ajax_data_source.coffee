@@ -4,9 +4,9 @@ Backbone = require "backbone"
 {logger} = require "../common/logging"
 RemoteDataSource = require "./remote_data_source"
 
-#maybe generalize to ajax data source later?
 class AjaxDataSource extends RemoteDataSource.Model
   type: 'AjaxDataSource'
+
   destroy : () =>
     if @interval?
       clearInterval(@interval)
