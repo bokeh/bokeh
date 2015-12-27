@@ -19,4 +19,5 @@ d = Donut(df, label=['abbr', 'medal'], values='medal_count',
           text_font_size='8pt', hover_text='medal_count')
 
 output_file("donut.html")
+
 show(d)

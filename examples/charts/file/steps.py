@@ -22,4 +22,5 @@ line = Step(data, y=['stamp', 'postcard'],
             title="U.S. Postage Rates (1999-2015)", ylabel='Rate per ounce', legend=True)
 
 output_file("steps.html")
+
 show(line)

@@ -22,8 +22,6 @@ data = dict(
 
 TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 
-output_file("timeseries.html")
-
 # line simple
 tsline = TimeSeries(
     data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True,
@@ -31,8 +29,8 @@ tsline = TimeSeries(
 
 # line explicit
 tsline2 = TimeSeries(
-    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], color=['IBM', 'MSFT', 'AAPL'],
-    dash=['IBM', 'MSFT', 'AAPL'], legend=True,
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True,
+    color=['IBM', 'MSFT', 'AAPL'], dash=['IBM', 'MSFT', 'AAPL'],
     title="Timeseries (Line Explicit)", tools=TOOLS, ylabel='Stock Prices')
 
 # step
@@ -42,8 +40,10 @@ tsstep = TimeSeries(
 
 # point
 tspoint = TimeSeries(
-    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], marker=['IBM', 'MSFT', 'AAPL'], legend=True,
-    color=['IBM', 'MSFT', 'AAPL'], builder_type='point',
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True, builder_type='point',
+    marker=['IBM', 'MSFT', 'AAPL'], color=['IBM', 'MSFT', 'AAPL'],
     title="Timeseries (Point)", tools=TOOLS, ylabel='Stock Prices')
+
+output_file("timeseries.html")
 
 show(vplot(tsline, tsline2, tsstep, tspoint))
