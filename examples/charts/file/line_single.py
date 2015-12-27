@@ -15,4 +15,5 @@ line = Line(data, y=['python', 'pypy', 'jython'],
             title="Interpreter Sample Data", ylabel='Duration', legend=True)
 
 output_file("line_single.html")
+
 show(line)

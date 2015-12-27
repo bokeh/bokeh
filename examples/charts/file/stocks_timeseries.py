@@ -6,9 +6,11 @@ from bokeh.charts import TimeSeries, show, output_file
 AAPL = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
+
 MSFT = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
+
 IBM = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
@@ -30,6 +32,5 @@ ts = TimeSeries(
 # tooltips input is shorthand to adding manually
 # series is a generated column containing the labels of the data passed in as y
 #ts.add_tools(HoverTool(tooltips=[('stock', '@series'), ('value', '@y_values')]))
-
 
 show(ts)

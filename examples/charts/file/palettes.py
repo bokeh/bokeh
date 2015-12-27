@@ -45,4 +45,5 @@ area_charts = [create_area_chart(data, palette)
 area_charts = np.reshape(area_charts, newshape=[9,3]).tolist()
 
 output_file('palettes.html', title='palettes.py example')
+
 show(gridplot(area_charts))

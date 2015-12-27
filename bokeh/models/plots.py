@@ -8,7 +8,7 @@ import warnings
 
 from ..core.query import find
 from ..core import validation
-from ..core.validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
 from ..core.enums import Location
 from ..core.property_mixins import LineProps, TextProps, FillProps
@@ -20,7 +20,7 @@ from ..core.validation.errors import REQUIRED_RANGE
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, GlyphRenderer, TileRenderer, DynamicImageRenderer
+from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
@@ -286,9 +286,9 @@ class Plot(Component):
         if len(self.renderers) == 0:
             return str(self)
 
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
-        if len(self.select(GlyphRenderer)) == 0:
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
+        if len(self.select(DataRenderer)) == 0:
             return str(self)
 
     @validation.warning(MALFORMED_CATEGORY_LABEL)
@@ -495,7 +495,7 @@ class Plot(Component):
 
     border_fill_color = Override(default='#ffffff')
 
-    min_border_top = Int(40, help="""
+    min_border_top = Int(50, help="""
     Minimum size in pixels of the padding region above the top of the
     central plot region.
 
@@ -505,7 +505,7 @@ class Plot(Component):
 
     """)
 
-    min_border_bottom = Int(40, help="""
+    min_border_bottom = Int(50, help="""
     Minimum size in pixels of the padding region below the bottom of
     the central plot region.
 
@@ -515,7 +515,7 @@ class Plot(Component):
 
     """)
 
-    min_border_left = Int(40, help="""
+    min_border_left = Int(50, help="""
     Minimum size in pixels of the padding region to the left of
     the central plot region.
 
@@ -525,7 +525,7 @@ class Plot(Component):
 
     """)
 
-    min_border_right = Int(40, help="""
+    min_border_right = Int(50, help="""
     Minimum size in pixels of the padding region to the right of
     the central plot region.
 
@@ -535,7 +535,7 @@ class Plot(Component):
 
     """)
 
-    min_border = Int(40, help="""
+    min_border = Int(50, help="""
     A convenience property to set all all the ``min_X_border`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
@@ -602,8 +602,9 @@ class GridPlot(Component):
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
+
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
         pass
 
     @validation.warning(EMPTY_LAYOUT)

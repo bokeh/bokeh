@@ -1,13 +1,12 @@
 
-from bokeh.sampledata.autompg import autompg as df
-from bokeh.sampledata.olympics2014 import data
-from bokeh.sampledata.iris import flowers
+import pandas as pd
 
 from bokeh.charts import Scatter, output_file, show, vplot, hplot
 from bokeh.charts.operations import blend
 from bokeh.charts.utils import df_from_json
-from bokeh.models.tools import HoverTool
-import pandas as pd
+from bokeh.sampledata.autompg import autompg as df
+from bokeh.sampledata.iris import flowers
+from bokeh.sampledata.olympics2014 import data
 
 scatter0 = Scatter(
     df, x='mpg', title="x='mpg'", xlabel="Miles Per Gallon")
