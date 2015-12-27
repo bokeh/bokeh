@@ -1,9 +1,8 @@
-
 import pandas as pd
 
 from bokeh.charts import HeatMap, bins, output_file, show, vplot
-from bokeh.sampledata.autompg import autompg
 from bokeh.palettes import RdYlGn6, RdYlGn9
+from bokeh.sampledata.autompg import autompg
 from bokeh.sampledata.unemployment1948 import data
 
 # setup data sources
