@@ -20,7 +20,7 @@ from ..core.validation.errors import REQUIRED_RANGE
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, DataRenderer, TileRenderer, DynamicImageRenderer
+from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
