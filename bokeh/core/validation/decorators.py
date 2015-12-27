@@ -86,9 +86,9 @@ core developers.
 
 .. code-block:: python
 
-    from bokeh.validation.warnings import NO_GLYPH_RENDERERS
+    from bokeh.validation.warnings import NO_DATA_RENDERERS
 
-    @warning(NO_GLYPH_RENDERERS)
+    @warning(NO_DATA_RENDERERS)
     def _check_no_glyph_renderers(self):
 
 The second example shows how a custom warning check can be implemented by

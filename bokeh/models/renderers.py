@@ -22,11 +22,15 @@ logger = logging.getLogger(__name__)
 
 @abstract
 class Renderer(Model):
-    """ A base class for renderer types. ``Renderer`` is not
-    generally useful to instantiate on its own.
-
+    """An abstract base class for renderer types.
     """
-class TileRenderer(Renderer):
+
+@abstract
+class DataRenderer(Renderer):
+    """ An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
+    """
+
+class TileRenderer(DataRenderer):
 
     tile_source = Instance(TileSource, help="""
     Local data source to use when rendering glyphs on the plot.
@@ -56,7 +60,7 @@ class TileRenderer(Renderer):
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
-class DynamicImageRenderer(Renderer):
+class DynamicImageRenderer(DataRenderer):
 
     image_source = Instance(ImageSource, help="""
     Image source to use when rendering on the plot.
@@ -74,7 +78,7 @@ class DynamicImageRenderer(Renderer):
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
-class GlyphRenderer(Renderer):
+class GlyphRenderer(DataRenderer):
     """
 
     """
