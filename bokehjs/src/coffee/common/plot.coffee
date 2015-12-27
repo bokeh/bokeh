@@ -33,7 +33,7 @@ ToolEvents = require "./tool_events"
 
 global_gl_canvas = null
 
-MIN_BORDER = 40
+MIN_BORDER = 50
 
 get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
     # client_width and height represent the available size

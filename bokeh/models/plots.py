@@ -495,7 +495,7 @@ class Plot(Component):
 
     border_fill_color = Override(default='#ffffff')
 
-    min_border_top = Int(40, help="""
+    min_border_top = Int(50, help="""
     Minimum size in pixels of the padding region above the top of the
     central plot region.
 
@@ -505,7 +505,7 @@ class Plot(Component):
 
     """)
 
-    min_border_bottom = Int(40, help="""
+    min_border_bottom = Int(50, help="""
     Minimum size in pixels of the padding region below the bottom of
     the central plot region.
 
@@ -515,7 +515,7 @@ class Plot(Component):
 
     """)
 
-    min_border_left = Int(40, help="""
+    min_border_left = Int(50, help="""
     Minimum size in pixels of the padding region to the left of
     the central plot region.
 
@@ -525,7 +525,7 @@ class Plot(Component):
 
     """)
 
-    min_border_right = Int(40, help="""
+    min_border_right = Int(50, help="""
     Minimum size in pixels of the padding region to the right of
     the central plot region.
 
@@ -535,7 +535,7 @@ class Plot(Component):
 
     """)
 
-    min_border = Int(40, help="""
+    min_border = Int(50, help="""
     A convenience property to set all all the ``min_X_border`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
