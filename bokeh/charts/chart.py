@@ -28,22 +28,18 @@ import numpy as np
 from ..core.enums import enumeration, LegendLocation
 from ..document import Document
 from ..embed import file_html
-from ..model import Viewable
 from ..models import (
     CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot,
     HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
 from ..plotting.helpers import _process_tools_arg
-from ..properties import (HasProps, Auto, Bool, Either, Enum, Int, Float,
+from ..core.properties import (Auto, Bool, Either, Enum, Int, Float,
                           String, Tuple, Override)
 from ..resources import INLINE
 from ..util.browser import view
 from ..util.notebook import publish_display_data
-from ..util.serialization import make_id
-from ..util.future import with_metaclass
 from ..util.deprecate import deprecated
-from ..themes import Theme
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -56,8 +52,8 @@ class ChartDefaults(object):
         """Apply this defaults to a chart."""
 
         if not isinstance(chart, Chart):
-            raise ValueError("ChartsTheme should be only used on Chart objects \
-            but it's being used on %s instead." % chart)
+            raise ValueError("ChartsDefaults should be only used on Chart \
+            objects but it's being used on %s instead." % chart)
 
         for k in chart.properties_with_values(include_defaults=True):
             if k == 'tools':
@@ -77,10 +73,6 @@ class Chart(Plot):
 
     __view_model__ = "Plot"
     __subtype__ = "Chart"
-
-    title = String(None, help="""
-    A title for the chart.
-    """)
 
     legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
     A location where the legend should draw itself.
@@ -120,11 +112,7 @@ class Chart(Plot):
 
     title_text_font_size = Override(default={ 'value' : '14pt' })
 
-    responsive = Bool(False, help="""
-    If True, the chart will automatically resize based on the size of its container. The
-    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height``
-    will act only to set the initial aspect ratio.
-    """)
+    responsive = Override(default=False)
 
     _defaults = defaults
 
