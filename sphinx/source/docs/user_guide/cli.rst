@@ -3,10 +3,6 @@
 Using ``bokeh`` Commands
 ========================
 
-.. contents::
-    :local:
-    :depth: 2
-
 It is possible to generate various kinds of output from Bokeh
 programmatically. The use of ``output_file``, ``output_notebook``, etc.
 has been demonstrated previously in many areas of the User Guide.

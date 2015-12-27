@@ -1,3 +1,5 @@
+# You must first run "bokeh serve" to view this example
+
 import numpy as np
 
 from bokeh.client import push_session

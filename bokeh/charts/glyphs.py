@@ -292,10 +292,6 @@ class HorizonGlyph(AreaGlyph):
     pos_color = Color("#006400", help="""The color used for positive values.""")
     neg_color = Color("#6495ed", help="""The color used for negative values.""")
 
-    line_color = Color(help="""The color used for the area outline. This is by default
-    set to the same color as the positive or negative color.
-    """)
-
     flip_neg = Bool(default=True, help="""When True, the negative values will be
     plotted as their absolute value, then their individual axes is flipped. If False,
     then the negative values will still be taken as their absolute value, but the base
@@ -560,8 +556,6 @@ class Interval(AggregateGlyph):
 
     start = Float(default=0.0)
     end = Float()
-
-    glyphs = {'Interval': Rect()}
 
     def __init__(self, label, values, **kwargs):
 
@@ -935,8 +929,6 @@ class HistogramGlyph(AggregateGlyph):
         return 0.0
 
 
-
-
 class BinGlyph(XyGlyph):
     """Represents a group of data that was aggregated and is represented by a glyph.
 
@@ -946,7 +938,6 @@ class BinGlyph(XyGlyph):
     stat = String()
 
     glyph_name = String()
-    glyphs = {'rect': Rect}
 
     width = Float()
     height = Float()
@@ -964,6 +955,8 @@ class BinGlyph(XyGlyph):
         kwargs['glyph_name'] = glyph
         kwargs['height'] = height
         kwargs['width'] = width
+        if 'glyphs' not in kwargs:
+            kwargs['glyphs'] = {'rect': Rect}
         super(XyGlyph, self).__init__(**kwargs)
         self.setup()
 

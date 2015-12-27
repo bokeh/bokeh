@@ -1,10 +1,13 @@
+# You must first run "bokeh serve" to view this example
+
+from math import pi
+
 import numpy as np
-from numpy import pi
 
 from bokeh.client import push_session
+from bokeh.driving import cosine
 from bokeh.models.widgets import Button
 from bokeh.plotting import figure, curdoc, vplot,  hplot
-from bokeh.driving import cosine
 
 x = np.linspace(0, 4*pi, 100)
 y = np.sin(x)
