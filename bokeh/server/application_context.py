@@ -115,6 +115,10 @@ class ApplicationContext(object):
         self._server_context = BokehServerContext(self)
 
     @property
+    def io_loop(self):
+        return self._loop
+
+    @property
     def application(self):
         return self._application
 
