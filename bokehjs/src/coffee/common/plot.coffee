@@ -150,7 +150,6 @@ class PlotView extends ContinuumView
         el: @$(toolbar_selector)
       })
 
-    @_have_updated_range_interactively = false
     @update_dataranges()
 
     if @mget('responsive')
@@ -203,22 +202,22 @@ class PlotView extends ContinuumView
   update_range: (range_info) ->
     @pause
     if not range_info?
-      @_have_updated_range_interactively = false
       for name, rng of @frame.get('x_ranges')
         rng.reset()
       for name, rng of @frame.get('y_ranges')
         rng.reset()
       @update_dataranges()
     else
-      @_have_updated_range_interactively = true
       for name, rng of @frame.get('x_ranges')
         if rng.get('start') != range_info.xrs[name]['start'] or
             rng.get('end') != range_info.xrs[name]['end']
+          rng.have_updated_interactively = true
           rng.set(range_info.xrs[name])
           rng.get('callback')?.execute(@model)
       for name, rng of @frame.get('y_ranges')
         if rng.get('start') != range_info.yrs[name]['start'] or
             rng.get('end') != range_info.yrs[name]['end']
+          rng.have_updated_interactively = true
           rng.set(range_info.yrs[name])
           rng.get('callback')?.execute(@model)
     @unpause()
@@ -315,11 +314,10 @@ class PlotView extends ContinuumView
       if v.model.update_layout?
         v.model.update_layout(v, @canvas.solver)
 
-    if not @_have_updated_range_interactively
-      for k, v of @renderers
-        if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
-          @update_dataranges()
-          break
+    for k, v of @renderers
+      if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
+        @update_dataranges()
+        break
 
     title = @mget('title')
     if title

@@ -26,6 +26,7 @@ class DataRange1d extends DataRange.Model
 
     @plot_bounds = {}
 
+    @have_updated_interactively = false
     @_initial_start = @get('start')
     @_initial_end = @get('end')
     @_initial_range_padding = @get('range_padding')
@@ -101,6 +102,9 @@ class DataRange1d extends DataRange.Model
     return [start, end]
 
   update: (bounds, dimension, bounds_id) ->
+    if @have_updated_interactively
+      return
+
     renderers = @get('computed_renderers')
 
     # update the raw data bounds for all renderers we care about
@@ -128,6 +132,7 @@ class DataRange1d extends DataRange.Model
       @set(new_range)
 
   reset: () ->
+    @have_updated_interactively = false
     @set({
       range_padding: @_initial_range_padding
       follow: @_initial_follow
