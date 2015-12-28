@@ -23,13 +23,13 @@ from .chart import Chart
 from .data_source import ChartDataSource
 from .models import CompositeGlyph
 from .properties import Dimension, ColumnLabel
-from .utils import collect_attribute_columns
+from .utils import collect_attribute_columns, label_from_index_dict, build_hover_tooltips
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
-from ..properties import (HasProps, Instance, List, String, Dict,
-                          Color, Bool, Tuple)
-
+from ..core.properties import (HasProps, Instance, List, String, Dict,
+                          Color, Bool, Tuple, Either)
+from ..io import curdoc, curstate
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -66,6 +66,10 @@ def create_and_build(builder_class, *data, **kws):
     chart = Chart(**chart_kws)
     chart.add_builder(builder)
     chart.start_plot()
+
+    curdoc()._current_plot = chart # TODO (havocp) store this on state, not doc?
+    if curstate().autoadd:
+        curdoc().add_root(chart)
 
     return chart
 
@@ -216,6 +220,16 @@ class Builder(HasProps):
         is (Column, Ascending).
         """)
 
+    source = Instance(ColumnDataSource)
+
+    tooltips = Either(List(Tuple(String, String)), List(String), Bool, default=None,
+                      help="""
+        Tells the builder to add tooltips to the chart by either using the columns
+        specified to the chart attributes (True), or by generating tooltips for each
+        column specified (list(str)), or by explicit specification of the tooltips
+        using the valid input for the `HoverTool` tooltips kwarg.
+        """)
+
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
 
@@ -329,7 +343,7 @@ class Builder(HasProps):
 
         # make sure all have access to data source
         for attr_name in attr_names:
-            attributes[attr_name].data = source
+            attributes[attr_name].update_data(data=source)
 
         return attributes
 
@@ -445,6 +459,8 @@ class Builder(HasProps):
             label = group.label
         else:
             label = group[attr]
+            if isinstance(label, dict):
+                label = tuple(label.values())
 
         return self._get_label(label)
 
@@ -463,8 +479,10 @@ class Builder(HasProps):
             return None
 
         if (isinstance(raw_label, tuple) or isinstance(raw_label, list)) and \
-                        len(raw_label) == 1:
+                       len(raw_label) == 1:
             raw_label = raw_label[0]
+        elif isinstance(raw_label, dict):
+            raw_label = label_from_index_dict(raw_label)
 
         return str(raw_label)
 
@@ -510,6 +528,11 @@ class Builder(HasProps):
 
         chart.add_scales('x', self.xscale)
         chart.add_scales('y', self.yscale)
+
+        if self.tooltips is not None:
+            tooltips = build_hover_tooltips(hover_spec=self.tooltips,
+                                            chart_cols=self.attribute_columns)
+            chart.add_tooltips(tooltips)
 
         return chart
 

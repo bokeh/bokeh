@@ -9,57 +9,107 @@ log = logging.getLogger(__name__)
 
 from .connection import ClientConnection
 
-from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL, DEFAULT_SERVER_HTTP_URL, server_url_for_websocket_url
+from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
+                              DEFAULT_SERVER_HTTP_URL,
+                              server_url_for_websocket_url,
+                              _SessionCoordinates )
 from bokeh.document import Document, PeriodicCallback, TimeoutCallback
-import uuid
+from bokeh.util.session_id import generate_session_id
+from bokeh.util.tornado import _AsyncPeriodic
 
 DEFAULT_SESSION_ID = "default"
 
-def push_session(document, session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
-    """Create a session by pushing the given document to the server, overwriting any existing server-side document.
+def push_session(document, session_id=None, url='default', app_path='/', io_loop=None):
+    """ Create a session by pushing the given document to the server,
+       overwriting any existing server-side document.
 
-       session.document in the returned session will be your supplied document. While the
-       connection to the server is open, changes made on the server side will be applied
-       to this document, and changes made on the client side will be synced
-       to the server.
+       ``session.document`` in the returned session will be your
+       supplied document. While the connection to the server is
+       open, changes made on the server side will be applied to
+       this document, and changes made on the client side will be
+       synced to the server.
+
+       In a production scenario, the ``session_id`` should be
+       unique for each browser tab, which keeps users from
+       stomping on each other. It's neither scalable nor secure to
+       use predictable session IDs or to share session IDs across
+       users.
+
+       For a notebook running on a single machine, ``session_id``
+       could be something human-readable such as ``"default"`` for
+       convenience.
+
+       If you allow ``push_session()`` to generate a unique
+       ``session_id``, you can obtain the generated ID with the
+       ``id`` property on the returned ``ClientSession``.
 
        Args:
             document : bokeh.document.Document
                 The document to be pushed and set as session.document
             session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
+                The name of the session, None to autogenerate a random one (default: None)
+            url : str, optional
+                The base server URL to connect to (default: 'default')
+            app_path : str, optional
+                Relative path to the app on the server (defualt: '/')
             io_loop : tornado.ioloop.IOLoop, optional
                 The IOLoop to use for the websocket
-            url : str, optional
-                The websocket URL to connect to
        Returns:
             session : ClientSession
                 A new ClientSession connected to the server
+
     """
-    session = ClientSession(session_id=session_id, io_loop=io_loop, url=url)
+    coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
+    session = ClientSession(session_id=coords.session_id, websocket_url=coords.websocket_url, io_loop=io_loop)
     session.push(document)
     return session
 
-def pull_session(session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
-    """Create a session by loading the current server-side document.
+def pull_session(session_id=None, url='default', app_path='/', io_loop=None):
+    """ Create a session by loading the current server-side document.
 
-       session.document will be a fresh document loaded from the server. While the
-       connection to the server is open, changes made on the server side will be
-       applied to this document, and changes made on the client side will be synced
-       to the server.
+       ``session.document`` will be a fresh document loaded from
+       the server. While the connection to the server is open,
+       changes made on the server side will be applied to this
+       document, and changes made on the client side will be
+       synced to the server.
+
+       If you don't plan to modify ``session.document`` you probably
+       don't need to use this function; instead you can directly
+       ``show_session()`` or ``autoload_server()`` without downloading
+       the session's document into your process first. It's much
+       more efficient to avoid downloading the session if you don't need
+       to.
+
+       In a production scenario, the ``session_id`` should be
+       unique for each browser tab, which keeps users from
+       stomping on each other. It's neither scalable nor secure to
+       use predictable session IDs or to share session IDs across
+       users.
+
+       For a notebook running on a single machine, ``session_id``
+       could be something human-readable such as ``"default"`` for
+       convenience.
+
+       If you allow ``push_session()`` to generate a unique
+       ``session_id``, you can obtain the generated ID with the
+       ``id`` property on the returned ``ClientSession``.
 
        Args:
             session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
+                The name of the session, None to autogenerate a random one (default: None)
+            url : str, optional
+                The base server URL to connect to (default: 'default')
+            app_path : str, optional
+                Relative path to the app on the server (defualt: '/')
             io_loop : tornado.ioloop.IOLoop, optional
                 The IOLoop to use for the websocket
-            url : str, optional
-                The websocket URL to connect to
        Returns:
             session : ClientSession
                 A new ClientSession connected to the server
+
     """
-    session = ClientSession(session_id=session_id, io_loop=io_loop, url=url)
+    coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
+    session = ClientSession(session_id=session_id, websocket_url=coords.websocket_url, io_loop=io_loop)
     session.pull()
     return session
 
@@ -74,18 +124,29 @@ def _encode_query_param(s):
 
 _new_param = {'tab': 2, 'window': 1}
 
-def show_session(session_id=None, server_url=None,
+def show_session(session_id=None, url='default', app_path='/',
                  session=None, browser=None, new="tab", controller=None):
-        """ Open a browser displaying a session document.
+        """Open a browser displaying a session document.
+
+        If you have a session from ``pull_session()`` or
+        ``push_session`` you can ``show_session(session=mysession)``.
+        If you don't need to open a connection to the server yourself,
+        you can show a new session in a browser by providing just the
+        ``url`` and ``app_path``.
 
         Args:
 
-        session_id (str, optional) : session ID to open (default: DEFAULT_SESSION_ID)
+        session_id : string, optional
+             The name of the session, None to autogenerate a random one (default: None)
 
-        server_url (str, optional) : server base URL to open the session on (default: DEFAULT_HTTP_SERVER_URL)
+        url : str, optional
+             The base server URL to connect to (default: 'default')
+
+        app_path : str, optional
+             Relative path to the app on the server (defualt: '/')
 
         session (ClientSession, optional) : session to get session ID and server URL from
-            If you specify this, you don't need to specify session_id and server_url
+            If you specify this, you don't need to specify session_id and url
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows
@@ -97,23 +158,20 @@ def show_session(session_id=None, server_url=None,
             For file-based output, opens or raises the browser window
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
+
         """
 
-        if session_id is None:
-            if session is not None:
-                session_id = session.id
-            else:
-                session_id = DEFAULT_SESSION_ID
-
-        if server_url is None:
-            if session is not None:
-                server_url = server_url_for_websocket_url(session._connection.url)
-            else:
-                server_url = DEFAULT_SERVER_HTTP_URL
+        if session is not None:
+            server_url = server_url_for_websocket_url(session._connection.url)
+            session_id = session.id
+        else:
+            coords = _SessionCoordinates(dict(session_id=session_id, url=url, app_path=app_path))
+            server_url = coords.server_url
+            session_id = coords.session_id
 
         if controller is None:
-            import bokeh.browserlib as browserlib
-            controller = browserlib.get_browser_controller(browser=browser)
+            from bokeh.util.browser import get_browser_controller
+            controller = get_browser_controller(browser=browser)
 
         controller.open(server_url + "?bokeh-session-id=" + _encode_query_param(session_id),
                         new=_new_param[new])
@@ -128,7 +186,7 @@ class ClientSession(object):
 
     """
 
-    def __init__(self, session_id=DEFAULT_SESSION_ID, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None):
         '''
           A connection which attaches to a particular named session on the server.
 
@@ -140,17 +198,17 @@ class ClientSession(object):
           a good way to obtain a ClientSession.
 
           Args:
-            session_id : string, optional
-                The name of the session (omit to use 'default', None to use random unique id)
+            session_id : str
+                The name of the session or None to generate one
+            websocket_url : str
+                Websocket URL to connect to
             io_loop : tornado.ioloop.IOLoop, optional
                 The IOLoop to use for the websocket
-            url : str, optional
-                The websocket URL to connect to
         '''
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
-        self._connection = ClientConnection(session=self, io_loop=io_loop, url=url)
+        self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
         self._current_patch = None
         self._callbacks = {}
@@ -168,8 +226,7 @@ class ClientSession(object):
         NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
 
         '''
-        from tornado import ioloop
-        cb = self._callbacks[callback.id] = ioloop.PeriodicCallback(
+        cb = self._callbacks[callback.id] = _AsyncPeriodic(
             callback.callback, callback.period, io_loop=self._connection._loop
         )
         cb.start()
@@ -270,10 +327,9 @@ class ClientSession(object):
         show_session(session=self)
 
     @classmethod
-    def _ensure_session_id(cls, session_id=DEFAULT_SESSION_ID):
-        # if someone explicitly sets session_id=None that means make one up
+    def _ensure_session_id(cls, session_id):
         if session_id is None:
-            session_id = str(uuid.uuid4())
+            session_id = generate_session_id()
         return session_id
 
     @property

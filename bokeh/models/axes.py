@@ -4,11 +4,11 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..properties import abstract
-from ..properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
+from ..core.properties import abstract
+from ..core.properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
                           Tuple, Either, Include, Override)
-from ..mixins import LineProps, TextProps
-from ..enums import Location
+from ..core.property_mixins import LineProps, TextProps
+from ..core.enums import Location
 
 from .renderers import GuideRenderer
 from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker
@@ -145,37 +145,27 @@ class LinearAxis(ContinuousAxis):
     linear scale. Configured with a ``BasicTickFormatter`` by default.
 
     """
-    def __init__(self, ticker=None, formatter=None, **kwargs):
-        if ticker is None:
-            ticker = BasicTicker()
-        if formatter is None:
-            formatter = BasicTickFormatter()
-        super(LinearAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
+    ticker = Override(default=lambda: BasicTicker())
+
+    formatter = Override(default=lambda: BasicTickFormatter())
 
 class LogAxis(ContinuousAxis):
     """ An axis that picks nice numbers for tick locations on a
     log scale. Configured with a ``LogTickFormatter`` by default.
 
     """
+    ticker = Override(default=lambda: LogTicker())
 
-    def __init__(self, ticker=None, formatter=None, **kwargs):
-        if ticker is None:
-            ticker = LogTicker(num_minor_ticks=10)
-        if formatter is None:
-            formatter = LogTickFormatter(ticker=ticker)
-        super(LogAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
+    formatter = Override(default=lambda: LogTickFormatter())
 
 class CategoricalAxis(Axis):
     """ An axis that picks evenly spaced tick locations for a
     collection of categories/factors.
 
     """
-    def __init__(self, ticker=None, formatter=None, **kwargs):
-        if ticker is None:
-            ticker = CategoricalTicker()
-        if formatter is None:
-            formatter = CategoricalTickFormatter()
-        super(CategoricalAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
+    ticker = Override(default=lambda: CategoricalTicker())
+
+    formatter = Override(default=lambda: CategoricalTickFormatter())
 
 class DatetimeAxis(LinearAxis):
     """ An LinearAxis that picks nice numbers for tick locations on
@@ -183,20 +173,7 @@ class DatetimeAxis(LinearAxis):
     default.
 
     """
-    axis_label = Override(default="date")
 
-    # TODO: (bev) this should be an Enum, if it is exposed at all
-    scale = String("time")
+    ticker = Override(default=lambda: DatetimeTicker())
 
-    num_labels = Int(8)
-
-    char_width = Int(10)
-
-    fill_ratio = Float(0.3)
-
-    def __init__(self, ticker=None, formatter=None, **kwargs):
-        if ticker is None:
-            ticker = DatetimeTicker()
-        if formatter is None:
-            formatter = DatetimeTickFormatter()
-        super(DatetimeAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
+    formatter = Override(default=lambda: DatetimeTickFormatter())

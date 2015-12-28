@@ -1,6 +1,6 @@
-HasProperties = require "../common/has_properties"
+TickFormatter = require "./tick_formatter"
 
-class CategoricalTickFormatter extends HasProperties
+class CategoricalTickFormatter extends TickFormatter.Model
   type: 'CategoricalTickFormatter'
 
   format: (ticks) ->

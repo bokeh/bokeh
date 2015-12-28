@@ -5,14 +5,14 @@ import numpy as np
 from bokeh.plotting import figure, show, output_file, vplot
 
 def streamlines(x, y, u, v, density=1):
-    '''Returns streamlines of a vector flow.
+    ''' Return streamlines of a vector flow.
 
     * x and y are 1d arrays defining an *evenly spaced* grid.
     * u and v are 2d arrays (shape [y,x]) giving velocities.
     * density controls the closeness of the streamlines. For different
       densities in each direction, use a tuple or list [densityx, densityy].
 
-     '''
+    '''
 
     ## Set up some constants - size of the grid used.
     NGX = len(x)
@@ -192,12 +192,12 @@ cm = np.array(["#C7E9B4", "#7FCDBB", "#41B6C4", "#1D91C0", "#225EA8", "#0C2C84"]
 ix = ((length-length.min())/(length.max()-length.min())*5).astype('int')
 colors = cm[ix]
 
-output_file("vector.html", title="vector.py example")
-
 p1 = figure()
 p1.segment(x0, y0, x1, y1, color=colors, line_width=2)
 
 p2 = figure()
 p2.multi_line(xs, ys, color="#ee6666", line_width=2, line_alpha=0.8)
+
+output_file("vector.html", title="vector.py example")
 
 show(vplot(p1,p2))  # open a browser

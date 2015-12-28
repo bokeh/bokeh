@@ -13,13 +13,13 @@ import uuid
 
 from six import string_types
 
+from .core.json_encoder import serialize_json
+from .core.query import find
+from .core.validation import check_integrity
 from .model import Model
-from .query import find
-from .deprecate import deprecated
-from .validation import check_integrity
 from .util.callback_manager import _check_callback
+from .util.deprecate import deprecated
 from .util.version import __version__
-from ._json_encoder import serialize_json
 from .themes import default as default_theme
 from .themes import Theme
 
@@ -43,12 +43,13 @@ class DocumentPatchedEvent(DocumentChangedEvent):
             receiver._document_patched(self)
 
 class ModelChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model, attr, old, new):
+    def __init__(self, document, model, attr, old, new, serializable_new):
         super(ModelChangedEvent, self).__init__(document)
         self.model = model
         self.attr = attr
         self.old = old
         self.new = new
+        self.serializable_new = serializable_new
 
     def dispatch(self, receiver):
         super(ModelChangedEvent, self).dispatch(receiver)
@@ -185,7 +186,9 @@ class _MultiValuedDict(object):
             return [existing]
 
 class Document(object):
+    '''
 
+    '''
     def __init__(self, **kwargs):
         self._roots = list()
         self._theme = kwargs.pop('theme', default_theme)
@@ -329,13 +332,17 @@ class Document(object):
     @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
+
         .. warning::
             This function should only be called on top level objects such
             as Plot, and Layout containers.
+
         Args:
             *objects (Model) : objects to add to the Document
+
         Returns:
             None
+
         """
         for obj in objects:
             self.add_root(obj)
@@ -480,7 +487,8 @@ class Document(object):
             if new is not None:
                 self._all_models_by_name.add_value(new, model)
 
-        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new))
+        serializable_new = model.lookup(attr).serializable_value(model)
+        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new))
 
     @classmethod
     def _references_json(cls, references):
@@ -521,21 +529,7 @@ class Document(object):
 
             instance = references[obj_id]
 
-            # replace references with actual instances in obj_attrs
-            for p in instance.properties_with_refs():
-                if p in obj_attrs:
-                    prop = instance.lookup(p)
-                    obj_attrs[p] = prop.from_json(obj_attrs[p], models=references)
-
-            # set all properties on the instance
-            remove = []
-            for key in obj_attrs:
-                if key not in instance.properties():
-                    logger.warn("Client sent attr %r for instance %r, which is a client-only or invalid attribute that shouldn't have been sent", key, instance)
-                    remove.append(key)
-            for key in remove:
-                del obj_attrs[key]
-            instance.update(**obj_attrs)
+            instance.update_from_json(obj_attrs, models=references)
 
     def to_json_string(self, indent=None):
         ''' Convert the document to a JSON string.
@@ -619,7 +613,7 @@ class Document(object):
                 raise ValueError("Cannot create a patch using events from a different document " + repr(event))
 
             if isinstance(event, ModelChangedEvent):
-                value = event.new
+                value = event.serializable_new
 
                 # the new value is an object that may have
                 # not-yet-in-the-remote-doc references, and may also
@@ -695,14 +689,7 @@ class Document(object):
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
-                if attr in patched_obj.properties_with_refs():
-                    prop = patched_obj.lookup(attr)
-                    value = prop.from_json(value, models=references)
-                if attr in patched_obj.properties():
-                    #logger.debug("Patching attribute %s of %r", attr, patched_obj)
-                    patched_obj.update(** { attr : value })
-                else:
-                    logger.warn("Client sent attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", attr, patched_obj)
+                patched_obj.set_from_json(attr, value, models=references)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
@@ -739,7 +726,7 @@ class Document(object):
             period_milliseconds (int) : the number of milliseconds that should
                 be between each callback execution.
 
-        ..note::
+        .. note::
             Periodic callbacks only work within the context of a Bokeh server
             session. This function will no effect when Bokeh outputs to
             standalone HTML or Jupyter notebook cells.
@@ -765,7 +752,7 @@ class Document(object):
     def add_timeout_callback(self, callback, timeout_milliseconds, id=None):
         ''' Add callback to be invoked once, after a specified timeout passes.
 
-        ..note::
+        .. note::
             Timeout callbacks only work within the context of a Bokeh server
             session. This function will no effect when Bokeh outputs to
             standalone HTML or Jupyter notebook cells.

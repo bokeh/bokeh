@@ -1,13 +1,11 @@
 from __future__ import print_function
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    GMapPlot, Range1d, ColumnDataSource,
-    PanTool, WheelZoomTool, BoxSelectTool,
-    BoxSelectionOverlay, GMapOptions)
+    GMapPlot, Range1d, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions)
 from bokeh.resources import INLINE
 
 x_range = Range1d()
@@ -40,8 +38,6 @@ wheel_zoom = WheelZoomTool()
 box_select = BoxSelectTool()
 
 plot.add_tools(pan, wheel_zoom, box_select)
-overlay = BoxSelectionOverlay(tool=box_select)
-plot.add_layout(overlay)
 
 doc = Document()
 doc.add_root(plot)

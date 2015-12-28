@@ -11,7 +11,7 @@ Usage
 This directive takes the path to an attribute on a Bokeh
 model class as an argument::
 
-    .. bokeh-jinja:: bokeh.templates.FOO
+    .. bokeh-jinja:: bokeh.core.templates.FOO
 
 
 """

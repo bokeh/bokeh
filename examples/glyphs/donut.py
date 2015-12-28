@@ -3,7 +3,7 @@ from __future__ import print_function
 import base64
 from math import pi, sin, cos
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.colors import skyblue, seagreen, tomato, orchid, firebrick, lightgray
 from bokeh.document import Document
 from bokeh.embed import file_html

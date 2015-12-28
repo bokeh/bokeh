@@ -38,15 +38,15 @@ class Text extends Glyph.Model
   default_view: TextView
   type: 'Text'
   visuals: ['text']
-  distances: ['x_offset', 'y_offset']
   angles: ['angle']
-  fields: ['text:string']
+  fields: ['text:string', 'x_offset', 'y_offset']
 
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
       x_offset: 0
       y_offset: 0
+      text: { field :"text" }
     }
 
 module.exports =

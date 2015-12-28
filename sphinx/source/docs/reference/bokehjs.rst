@@ -1,11 +1,5 @@
-
-
 BokehJS Interface Reference
 ===========================
-
-.. contents::
-    :local:
-    :depth: 2
 
 .. _bokehjs_data_source:
 

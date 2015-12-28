@@ -2,10 +2,12 @@ from __future__ import absolute_import, print_function
 
 import unittest
 
+from copy import copy
+
 import bokeh.document as document
 from bokeh.io import curdoc
 from bokeh.model import Model
-from bokeh.properties import Int, Instance, String
+from bokeh.core.properties import Int, Instance, String, DistanceSpec
 
 class AnotherModelInTestDocument(Model):
     bar = Int(1)
@@ -16,6 +18,9 @@ class SomeModelInTestDocument(Model):
 
 class ModelThatOverridesName(Model):
     name = String()
+
+class ModelWithSpecInTestDocument(Model):
+    foo = DistanceSpec(2)
 
 class TestDocument(unittest.TestCase):
 
@@ -520,17 +525,71 @@ class TestDocument(unittest.TestCase):
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
+        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
         patch1 = d.create_json_patch_string([event1])
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57
 
-        event2 = document.ModelChangedEvent(d, child1, 'foo', child1.foo, 67)
+        event2 = document.ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
         patch2 = d.create_json_patch_string([event2])
         d.apply_json_patch_string(patch2)
 
         assert child1.foo == 67
+
+    def test_patch_spec_property(self):
+        d = document.Document()
+        assert not d.roots
+        assert len(d._all_models) == 0
+        root1 = ModelWithSpecInTestDocument(foo=42)
+        d.add_root(root1)
+        assert len(d.roots) == 1
+
+        def patch_test(new_value):
+            serializable_new = root1.lookup('foo').descriptor.to_serializable(root1,
+                                                                              'foo',
+                                                                              new_value)
+            event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, new_value,
+                                                serializable_new)
+            patch1 = d.create_json_patch_string([event1])
+            d.apply_json_patch_string(patch1)
+            if isinstance(new_value, dict):
+                expected = copy(new_value)
+                if 'units' not in expected:
+                    expected['units'] = root1.foo_units
+                self.assertDictEqual(expected, root1.lookup('foo').serializable_value(root1))
+            else:
+                self.assertEqual(new_value, root1.foo)
+        patch_test(57)
+        self.assertEqual('data', root1.foo_units)
+        patch_test(dict(value=58))
+        self.assertEqual('data', root1.foo_units)
+        patch_test(dict(value=58, units='screen'))
+        self.assertEqual('screen', root1.foo_units)
+        patch_test(dict(value=59, units='screen'))
+        self.assertEqual('screen', root1.foo_units)
+        patch_test(dict(value=59, units='data'))
+        self.assertEqual('data', root1.foo_units)
+        patch_test(dict(value=60, units='data'))
+        self.assertEqual('data', root1.foo_units)
+        patch_test(dict(value=60, units='data'))
+        self.assertEqual('data', root1.foo_units)
+        patch_test(61)
+        self.assertEqual('data', root1.foo_units)
+        root1.foo = "a_string" # so "woot" gets set as a string
+        patch_test("woot")
+        self.assertEqual('data', root1.foo_units)
+        patch_test(dict(field="woot2"))
+        self.assertEqual('data', root1.foo_units)
+        patch_test(dict(field="woot2", units='screen'))
+        self.assertEqual('screen', root1.foo_units)
+        patch_test(dict(field="woot3"))
+        self.assertEqual('screen', root1.foo_units)
+        patch_test(dict(value=70))
+        self.assertEqual('screen', root1.foo_units)
+        root1.foo = 123 # so 71 gets set as a number
+        patch_test(71)
+        self.assertEqual('screen', root1.foo_units)
 
     def test_patch_reference_property(self):
         d = document.Document()
@@ -551,7 +610,7 @@ class TestDocument(unittest.TestCase):
         assert child2._id not in d._all_models
         assert child3._id not in d._all_models
 
-        event1 = document.ModelChangedEvent(d, root1, 'child', root1.child, child3)
+        event1 = document.ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
         patch1 = d.create_json_patch_string([event1])
         d.apply_json_patch_string(patch1)
 
@@ -562,7 +621,7 @@ class TestDocument(unittest.TestCase):
         assert child3._id in d._all_models
 
         # put it back how it was before
-        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child1)
+        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
         patch2 = d.create_json_patch_string([event2])
         d.apply_json_patch_string(patch2)
 
@@ -588,8 +647,8 @@ class TestDocument(unittest.TestCase):
 
         child2 = SomeModelInTestDocument(foo=44)
 
-        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
-        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child2)
+        event1 = document.ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
+        event2 = document.ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
         patch1 = d.create_json_patch_string([event1, event2])
         d.apply_json_patch_string(patch1)
 

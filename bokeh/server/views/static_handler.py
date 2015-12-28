@@ -19,3 +19,18 @@ class StaticHandler(StaticFileHandler):
 
         # Note: tornado_app is stored as self.application
         super(StaticHandler, self).__init__(tornado_app, *args, **kw)
+
+    # We aren't using tornado's built-in static_path function
+    # because it relies on TornadoApplication's autoconfigured
+    # static handler instead of our custom one. We have a
+    # custom one because we think we might want to serve
+    # static files from multiple paths at once in the future.
+    @classmethod
+    def append_version(cls, path):
+        # this version is cached on the StaticFileHandler class,
+        # keyed by absolute filesystem path, and only invalidated
+        # on an explicit StaticFileHandler.reset(). The reset is
+        # automatic on every request if you set
+        # static_hash_cache=False in TornadoApplication kwargs.
+        version = StaticFileHandler.get_version(dict(static_path=settings.bokehjsdir()), path)
+        return ("%s?v=%s" % (path, version))

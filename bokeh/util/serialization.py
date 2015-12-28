@@ -6,6 +6,8 @@ from __future__ import absolute_import
 
 from six import iterkeys
 
+from .dependencies import import_optional
+
 is_numpy = None
 
 try:
@@ -14,11 +16,7 @@ try:
 except ImportError:
     is_numpy = False
 
-try:
-    import pandas as pd
-    is_pandas = True
-except ImportError:
-    is_pandas = False
+pd = import_optional('pandas')
 
 import logging
 log = logging.getLogger(__name__)
@@ -123,7 +121,7 @@ def transform_column_source_data(data):
     """
     data_copy = {}
     for key in iterkeys(data):
-        if is_pandas and isinstance(data[key], (pd.Series, pd.Index)):
+        if pd and isinstance(data[key], (pd.Series, pd.Index)):
             data_copy[key] = transform_series(data[key])
         elif isinstance(data[key], np.ndarray):
             data_copy[key] = transform_array(data[key])

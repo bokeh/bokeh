@@ -16,6 +16,29 @@ from bokeh.application import Application
 
 from bokeh.resources import DEFAULT_SERVER_PORT
 
+def _create_hosts_whitelist(host_list, port):
+    if not host_list:
+        return ['localhost:' + str(port)]
+
+    hosts = []
+    for host in host_list:
+        parts = host.split(':')
+        if len(parts) == 1:
+            if parts[0] == "":
+                raise ValueError("Empty host value")
+            hosts.append(host+":80")
+        elif len(parts) == 2:
+            try:
+                int(parts[1])
+            except ValueError:
+                raise ValueError("Invalid port in host value: %s" % host)
+            if parts[0] == "":
+                raise ValueError("Empty host value")
+            hosts.append(host)
+        else:
+            raise ValueError("Invalid host value: %s" % host)
+    return hosts
+
 class Server(object):
     ''' A Server which creates a new Session for each connection, using an Application to initialize each Session.
 
@@ -37,14 +60,26 @@ class Server(object):
                                                         'keep_alive_milliseconds']
                            if key in kwargs }
 
-        self._tornado = BokehTornado(self._applications, **tornado_kwargs)
-        self._http = HTTPServer(self._tornado)
+        prefix = kwargs.get('prefix', None)
+        if prefix is None:
+            prefix = ""
+        prefix = prefix.strip("/")
+        if prefix:
+            prefix = "/" + prefix
+        self._prefix = prefix
+
         self._port = DEFAULT_SERVER_PORT
         if 'port' in kwargs:
             self._port = kwargs['port']
+
+        tornado_kwargs['hosts'] = _create_hosts_whitelist(kwargs.get('host', None), self._port)
+
+        self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
+        self._http = HTTPServer(self._tornado)
         self._address = None
         if 'address' in kwargs:
             self._address = kwargs['address']
+
         # these queue a callback on the ioloop rather than
         # doing the operation immediately (I think - havocp)
         try:
@@ -68,6 +103,10 @@ class Server(object):
     @property
     def address(self):
         return self._address
+
+    @property
+    def prefix(self):
+        return self._prefix
 
     @property
     def io_loop(self):
@@ -100,6 +139,7 @@ class Server(object):
         Returns:
             None
         '''
+        self._http.close_all_connections()
         self._http.stop()
 
     def get_session(self, app_path, session_id):
@@ -132,7 +172,7 @@ class Server(object):
         '''
         if not app_path.startswith("/"):
             raise ValueError("app_path must start with a /")
-        from bokeh.browserlib import view
-        url = "http://localhost:%d%s" % (self.port, app_path)
+        from bokeh.util.browser import view
+        url = "http://localhost:%d%s%s" % (self.port, self.prefix, app_path)
         view(url, browser=browser, new=new)
 

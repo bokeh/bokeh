@@ -23,8 +23,8 @@ from ..properties import Dimension
 from ..operations import Aggregate
 from ..attributes import ColorAttr
 from ..glyphs import BinGlyph
-from ..utils import add_charts_hover
-from ...properties import Float, String
+from ..utils import build_agg_tooltip
+from ...core.properties import Float, String
 
 from bokeh.palettes import Blues6
 
@@ -86,8 +86,10 @@ def HeatMap(data, x=None, y=None, values=None, stat='count', xgrid=False, ygrid=
     kw['stat'] = stat
     chart = create_and_build(HeatMapBuilder, data, xgrid=xgrid, ygrid=ygrid, **kw)
 
-    add_charts_hover(chart, use_hover=hover_tool, hover_text=hover_text,
-                     values_col=values, agg_text=stat)
+    if hover_tool:
+        tooltip = build_agg_tooltip(hover_text=hover_text, aggregated_col=values,
+                                    agg_text=stat)
+        chart.add_tooltips([tooltip])
 
     return chart
 
