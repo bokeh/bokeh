@@ -51,7 +51,6 @@ class Viewable(MetaHasProps):
     @classmethod
     def _preload_models(cls):
         from . import models; models
-        from .crossfilter import models as crossfilter_models; crossfilter_models
         from .charts import Chart; Chart
 
     @classmethod
