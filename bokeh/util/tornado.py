@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 from tornado import gen
 
-from bokeh.document import PeriodicCallback, TimeoutCallback
+from bokeh.document import NextTickCallback, PeriodicCallback, TimeoutCallback
 
 class _AsyncPeriodic(object):
     """Like ioloop.PeriodicCallback except the 'func' can be async and
@@ -190,8 +190,10 @@ class _DocumentCallbackGroup(object):
             remover = self._group.add_periodic_callback(callback.callback, callback.period, cleanup)
         elif isinstance(callback, TimeoutCallback):
             remover = self._group.add_timeout_callback(callback.callback, callback.timeout, cleanup)
+        elif isinstance(callback, NextTickCallback):
+            remover = self._group.add_next_tick_callback(callback.callback, cleanup)
         else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+            raise ValueError("Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: %s" % event.callback)
         self._removers[callback.id] = remover
 
     def remove_session_callback(self, callback):

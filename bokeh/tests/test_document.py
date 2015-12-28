@@ -415,6 +415,30 @@ class TestDocument(unittest.TestCase):
         assert isinstance(events[0], document.SessionCallbackAdded)
         assert isinstance(events[1], document.SessionCallbackRemoved)
 
+    def test_add_remove_next_tick_callback(self):
+        d = document.Document()
+
+        events = []
+        def listener(event):
+            events.append(event)
+        d.on_change(listener)
+
+        assert len(d.session_callbacks) == 0
+        assert not events
+
+        def cb(): pass
+
+        callback = d.add_next_tick_callback(cb)
+        assert len(d.session_callbacks) == len(events) == 1
+        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert callback == d.session_callbacks[0] == events[0].callback
+
+        callback = d.remove_next_tick_callback(cb)
+        assert len(d.session_callbacks) == 0
+        assert len(events) == 2
+        assert isinstance(events[0], document.SessionCallbackAdded)
+        assert isinstance(events[1], document.SessionCallbackRemoved)
+
     def test_periodic_callback_gets_curdoc(self):
         d = document.Document()
         assert curdoc() is not d
@@ -433,6 +457,17 @@ class TestDocument(unittest.TestCase):
         def cb():
             curdoc_from_cb.append(curdoc())
         callback = d.add_timeout_callback(cb, 1)
+        callback.callback()
+        assert len(curdoc_from_cb) == 1
+        assert curdoc_from_cb[0] is d
+
+    def test_next_tick_callback_gets_curdoc(self):
+        d = document.Document()
+        assert curdoc() is not d
+        curdoc_from_cb = []
+        def cb():
+            curdoc_from_cb.append(curdoc())
+        callback = d.add_next_tick_callback(cb)
         callback.callback()
         assert len(curdoc_from_cb) == 1
         assert curdoc_from_cb[0] is d

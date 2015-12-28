@@ -139,6 +139,13 @@ class TimeoutCallback(SessionCallback):
     def _copy_with_changed_callback(self, new_callback):
         return TimeoutCallback(self._document, new_callback, self._timeout, self._id)
 
+class NextTickCallback(SessionCallback):
+    def __init__(self, document, callback, id=None):
+        super(NextTickCallback, self).__init__(document, callback, id)
+
+    def _copy_with_changed_callback(self, new_callback):
+        return NextTickCallback(self._document, new_callback, self._id)
+
 class _MultiValuedDict(object):
     """
     This is to store a mapping from keys to multiple values, while avoiding
@@ -789,6 +796,26 @@ class Document(object):
 
     def remove_timeout_callback(self, callback):
         ''' Remove a callback added earlier with add_timeout_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._remove_session_callback(callback)
+
+    def add_next_tick_callback(self, callback):
+        ''' Add callback to be invoked once on the next "tick" of the event loop.
+
+        .. note::
+            Next tick callbacks only work within the context of a Bokeh server
+            session. This function will no effect when Bokeh outputs to
+            standalone HTML or Jupyter notebook cells.
+
+        '''
+        cb = NextTickCallback(self, None)
+        return self._add_session_callback(cb, callback, one_shot=True)
+
+    def remove_next_tick_callback(self, callback):
+        ''' Remove a callback added earlier with add_next_tick_callback()
 
             Throws an error if the callback wasn't added
 

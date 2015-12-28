@@ -554,6 +554,108 @@ class TestClientServer(unittest.TestCase):
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
+    def test_client_session_next_tick_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_next_tick_callback(cb)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_next_tick_async_added_before_push(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_next_tick_callback(cb)
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_server_session_next_tick_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+            doc.add_root(DictModel())
+
+            client_session = push_session(doc,
+                                          session_id='test_server_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+            server_session = server.get_session('/', client_session.id)
+
+            result = next(iter(server_session.document.roots))
+
+            @gen.coroutine
+            def cb():
+                # we're testing that we can modify the doc and be
+                # "inside" the document lock
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = server_session.document.add_next_tick_callback(cb)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                server_session.document.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
     def test_client_session_periodic_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
