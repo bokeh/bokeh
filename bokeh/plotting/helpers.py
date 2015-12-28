@@ -213,7 +213,9 @@ _known_tools = {
     "ybox_select": lambda: BoxSelectTool(dimensions=['height']),
     "poly_select": lambda: PolySelectTool(),
     "lasso_select": lambda: LassoSelectTool(),
-    "box_zoom": lambda: BoxZoomTool(),
+    "box_zoom": lambda: BoxZoomTool(dimensions=['width', 'height']),
+    "xbox_zoom": lambda: BoxZoomTool(dimensions=['width']),
+    "ybox_zoom": lambda: BoxZoomTool(dimensions=['height']),
     "hover": lambda: HoverTool(always_active=True, tooltips=[
         ("index", "$index"),
         ("data (x, y)", "($x, $y)"),
