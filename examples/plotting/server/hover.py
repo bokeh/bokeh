@@ -1,10 +1,11 @@
+# You must first run "bokeh serve" to view this example
 
 import itertools
 
 import numpy as np
 
-from bokeh.plotting import ColumnDataSource, figure, show, output_file
 from bokeh.models import HoverTool
+from bokeh.plotting import ColumnDataSource, figure, show, output_server
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"
 
@@ -44,6 +45,6 @@ hover = p.select_one(HoverTool).tooltips = [
     ("bar", "@bar"),
 ]
 
-output_file("hover.html")
+output_server("hover")
 
 show(p)  # open a browser
