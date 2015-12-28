@@ -1,5 +1,4 @@
 _ = require "underscore"
-BoxSelection = require "../../renderer/overlay/box_selection"
 GestureTool = require "./gesture_tool"
 
 class BoxZoomToolView extends GestureTool.View
@@ -22,7 +21,7 @@ class BoxZoomToolView extends GestureTool.View
     dims = @mget('dimensions')
 
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-    @mget('overlay').set('data', {vxlim: vxlim, vylim: vylim})
+    @mget('overlay').update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
 
     return null
 
@@ -38,7 +37,7 @@ class BoxZoomToolView extends GestureTool.View
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
     @_update(vxlim, vylim)
 
-    @mget('overlay').set('data', {})
+    @mget('overlay').update({left: null, right: null, top: null, bottom: null})
     @_baseboint = null
     return null
 
@@ -75,7 +74,7 @@ class BoxZoomTool extends GestureTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-
+    @get('overlay').set('silent_update', true, {silent: true})
     @register_property('tooltip', () ->
         @_get_dim_tooltip(
           @get("tool_name"),
@@ -83,11 +82,6 @@ class BoxZoomTool extends GestureTool.Model
         )
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
-
-    @set('overlay', new BoxSelection.Model)
-    plot_renderers = @get('plot').get('renderers')
-    plot_renderers.push(@get('overlay'))
-    @get('plot').set('renderers', plot_renderers)
 
   defaults: () ->
     return _.extend({}, super(), {

@@ -183,7 +183,6 @@ class DatetimeAxis(LinearAxis):
     default.
 
     """
-    axis_label = Override(default="date")
 
     # TODO: (bev) this should be an Enum, if it is exposed at all
     scale = String("time")

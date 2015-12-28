@@ -196,6 +196,8 @@ class Plot(Component):
             if tool.plot is not None:
                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
             tool.plot = self
+            if hasattr(tool, 'overlay'):
+                self.renderers.append(tool.overlay)
             self.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):

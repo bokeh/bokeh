@@ -59,7 +59,8 @@ Bokeh.LinearColorMapper = require("./mapper/linear_color_mapper")
 Bokeh.Palettes = require("./palettes/palettes")
 
 # annotations
-Bokeh.BoxAnnotation = require("./renderer/annotation/box_annotation")
+Bokeh.BoxAnnotation  = require("./renderer/annotation/box_annotation")
+Bokeh.PolyAnnotation = require("./renderer/annotation/poly_annotation")
 Bokeh.Legend  = require("./renderer/annotation/legend")
 Bokeh.Span    = require("./renderer/annotation/span")
 Bokeh.Tooltip = require("./renderer/annotation/tooltip")
@@ -74,16 +75,13 @@ Bokeh.Grid            = require("./renderer/guide/grid")
 Bokeh.LinearAxis      = require("./renderer/guide/linear_axis")
 Bokeh.LogAxis         = require("./renderer/guide/log_axis")
 
-# overlays
-Bokeh.BoxSelection  = require("./renderer/overlay/box_selection")
-Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
-
 # data sources
 Bokeh.ColumnDataSource = require("./source/column_data_source")
 Bokeh.GeoJSONDataSource = require("./source/geojson_data_source")
 
 # tickers and tick formatters
-Bokeh.AbstractTicker           = require("./ticking/abstract_ticker")
+Bokeh.Ticker                   = require("./ticking/ticker")
+Bokeh.ContinuousTicker         = require("./ticking/continuous_ticker")
 Bokeh.AdaptiveTicker           = require("./ticking/adaptive_ticker")
 Bokeh.BasicTicker              = require("./ticking/basic_ticker")
 Bokeh.BasicTickFormatter       = require("./ticking/basic_tick_formatter")
