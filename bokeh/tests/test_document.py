@@ -378,11 +378,10 @@ class TestDocument(unittest.TestCase):
 
         def cb(): pass
 
-        callback = d.add_periodic_callback(cb, 1, 'abc')
+        callback = d.add_periodic_callback(cb, 1)
         assert len(d.session_callbacks) == len(events) == 1
         assert isinstance(events[0], document.SessionCallbackAdded)
         assert callback == d.session_callbacks[0] == events[0].callback
-        assert callback.id == 'abc'
         assert callback.period == 1
 
         callback = d.remove_periodic_callback(cb)
@@ -404,11 +403,10 @@ class TestDocument(unittest.TestCase):
 
         def cb(): pass
 
-        callback = d.add_timeout_callback(cb, 1, 'abc')
+        callback = d.add_timeout_callback(cb, 1)
         assert len(d.session_callbacks) == len(events) == 1
         assert isinstance(events[0], document.SessionCallbackAdded)
         assert callback == d.session_callbacks[0] == events[0].callback
-        assert callback.id == 'abc'
         assert callback.timeout == 1
 
         callback = d.remove_timeout_callback(cb)

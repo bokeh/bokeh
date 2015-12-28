@@ -97,7 +97,6 @@ class SessionCallback(object):
             self._id = str(uuid.uuid4())
         else:
             self._id = id
-
         self._document = document
         self._callback = callback
 
@@ -112,6 +111,10 @@ class SessionCallback(object):
     def remove(self):
         self.document._remove_session_callback(self)
 
+    def _copy_with_changed_callback(self, new_callback):
+        """ Internal API used to wrap the callback with decorators."""
+        raise NotImplementedError("_copy_with_changed_callback")
+
 class PeriodicCallback(SessionCallback):
     def __init__(self, document, callback, period, id=None):
         super(PeriodicCallback, self).__init__(document, callback, id)
@@ -121,6 +124,9 @@ class PeriodicCallback(SessionCallback):
     def period(self):
         return self._period
 
+    def _copy_with_changed_callback(self, new_callback):
+        return PeriodicCallback(self._document, new_callback, self._period, self._id)
+
 class TimeoutCallback(SessionCallback):
     def __init__(self, document, callback, timeout, id=None):
         super(TimeoutCallback, self).__init__(document, callback, id)
@@ -129,6 +135,9 @@ class TimeoutCallback(SessionCallback):
     @property
     def timeout(self):
         return self._timeout
+
+    def _copy_with_changed_callback(self, new_callback):
+        return TimeoutCallback(self._document, new_callback, self._timeout, self._id)
 
 class _MultiValuedDict(object):
     """
@@ -718,7 +727,26 @@ class Document(object):
     def session_callbacks(self):
         return list(self._session_callbacks.values())
 
-    def add_periodic_callback(self, callback, period_milliseconds, id=None):
+    def _add_session_callback(self, callback_obj, callback, one_shot):
+        if callback in self._session_callbacks:
+            raise ValueError("callback has already been added")
+        if one_shot:
+            def remove_then_invoke(*args, **kwargs):
+                if callback in self._session_callbacks:
+                    obj = self._session_callbacks[callback]
+                    if obj is callback_obj:
+                        self._remove_session_callback(callback)
+                return callback(*args, **kwargs)
+            actual_callback = remove_then_invoke
+        else:
+            actual_callback = callback
+        callback_obj._callback = self._wrap_with_self_as_curdoc(actual_callback)
+        self._session_callbacks[callback] = callback_obj
+        # emit event so the session is notified of the new callback
+        self._trigger_on_change(SessionCallbackAdded(self, callback_obj))
+        return callback_obj
+
+    def add_periodic_callback(self, callback, period_milliseconds):
         ''' Add a callback to be invoked on a session periodically.
 
         Args:
@@ -733,13 +761,9 @@ class Document(object):
 
         '''
         cb = PeriodicCallback(self,
-                              self._wrap_with_self_as_curdoc(callback),
-                              period_milliseconds,
-                              id)
-        self._session_callbacks[callback] = cb
-        # emit event so the session is notified of the new callback
-        self._trigger_on_change(SessionCallbackAdded(self, cb))
-        return cb
+                              None,
+                              period_milliseconds)
+        return self._add_session_callback(cb, callback, one_shot=False)
 
     def remove_periodic_callback(self, callback):
         ''' Remove a callback added earlier with add_periodic_callback()
@@ -749,7 +773,7 @@ class Document(object):
         '''
         self._remove_session_callback(callback)
 
-    def add_timeout_callback(self, callback, timeout_milliseconds, id=None):
+    def add_timeout_callback(self, callback, timeout_milliseconds):
         ''' Add callback to be invoked once, after a specified timeout passes.
 
         .. note::
@@ -759,13 +783,9 @@ class Document(object):
 
         '''
         cb = TimeoutCallback(self,
-                             self._wrap_with_self_as_curdoc(callback),
-                             timeout_milliseconds,
-                             id)
-        self._session_callbacks[callback] = cb
-        # emit event so the session is notified of the new callback
-        self._trigger_on_change(SessionCallbackAdded(self, cb))
-        return cb
+                             None,
+                             timeout_milliseconds)
+        return self._add_session_callback(cb, callback, one_shot=True)
 
     def remove_timeout_callback(self, callback):
         ''' Remove a callback added earlier with add_timeout_callback()
@@ -775,7 +795,6 @@ class Document(object):
         '''
         self._remove_session_callback(callback)
 
-
     def _remove_session_callback(self, callback):
         ''' Remove a callback added earlier with add_periodic_callback()
         or add_timeout_callback()
@@ -783,6 +802,8 @@ class Document(object):
             Throws an error if the callback wasn't added
 
         '''
+        if callback not in self._session_callbacks:
+            raise ValueError("callback already ran or was already removed, cannot be removed again")
         cb = self._session_callbacks.pop(callback)
         # emit event so the session is notified and can remove the callback
         self._trigger_on_change(SessionCallbackRemoved(self, cb))
