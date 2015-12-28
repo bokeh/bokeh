@@ -1,5 +1,6 @@
 _ = require "underscore"
 GestureTool = require "./gesture_tool"
+BoxAnnotation = require "../../renderer/annotation/box_annotation"
 
 class BoxZoomToolView extends GestureTool.View
 
@@ -86,6 +87,20 @@ class BoxZoomTool extends GestureTool.Model
   defaults: () ->
     return _.extend({}, super(), {
       dimensions: ["width", "height"]
+      overlay: new BoxAnnotation.Model({
+        level: "overlay"
+        render_mode: "css"
+        top_units: "screen"
+        left_units: "screen"
+        bottom_units: "screen"
+        right_units: "screen"
+        fill_color: "lightgrey"
+        fill_alpha: 0.5
+        line_color: "black"
+        line_alpha: 1.0
+        line_width: 2
+        line_dash: [4, 4]
+      })
     })
 
 module.exports =

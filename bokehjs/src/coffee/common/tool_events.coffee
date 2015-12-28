@@ -4,5 +4,12 @@ HasProperties = require "./has_properties"
 class ToolEvents extends HasProperties
   type: 'ToolEvents'
 
+  defaults: () ->
+    return {
+      geometries: []
+      name: null
+      tags: []
+    }
+
 module.exports =
   Model: ToolEvents

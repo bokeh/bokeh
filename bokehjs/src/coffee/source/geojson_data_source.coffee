@@ -3,9 +3,11 @@ _ = require "underscore"
 ColumnDataSource = require "./column_data_source"
 
 class GeoJSONDataSource extends ColumnDataSource.Model
+  type: 'GeoJSONDataSource'
 
   initialize: (options) ->
     super(options)
+    @geojson_to_column_data() # this just validates the initial geojson value
     @register_property('data', @geojson_to_column_data, true)
     @add_dependencies('data', this, ['geojson'])
 

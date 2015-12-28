@@ -19,7 +19,7 @@ class DataSource(Model):
 
     """
     selected = Dict(String, Dict(String, Any), default={
-        '0d': {'flag': False, 'indices': []},
+        '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
         '2d': {'indices': []}
     }, help="""
@@ -230,7 +230,8 @@ class ColumnDataSource(DataSource):
             return str(self)
 
 
-class GeoJSONDataSource(DataSource):
+class GeoJSONDataSource(ColumnDataSource):
+
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
     only process a FeatureCollection or GeometryCollection.

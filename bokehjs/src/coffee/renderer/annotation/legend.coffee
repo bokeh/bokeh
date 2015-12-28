@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 textutils = require "../../common/textutils"
@@ -132,19 +132,18 @@ class LegendView extends PlotWidget
 
     ctx.restore()
 
-class Legend extends HasParent
+class Legend extends Annotation.Model
   default_view: LegendView
   type: 'Legend'
 
   defaults: ->
     return _.extend {}, super(), {
       legends: []
+      level: "annotation"
     }
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'overlay'
-
       border_line_color: 'black'
       border_line_width: 1
       border_line_alpha: 1.0

@@ -67,11 +67,17 @@ class PolyAnnotation extends HasParent
   defaults: () ->
     return _.extend({}, super(), {
       silent_update: false
+      plot: null
       xs: []
       ys: []
+      xs_units: "data"
+      ys_units: "data"
+      x_range_name: "default"
+      y_range_name: "default"
       level: 'annotation'
       fill_color: "#fff9ba"
       fill_alpha: 0.4
+      line_width: 1
       line_color: "#cccccc"
       line_alpha: 0.3
       line_alpha: 0.3

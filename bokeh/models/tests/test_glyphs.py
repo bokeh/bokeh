@@ -141,7 +141,7 @@ def test_Arc():
     assert glyph.radius is None
     assert glyph.start_angle is None
     assert glyph.end_angle is None
-    assert glyph.direction == "clock"
+    assert glyph.direction == "anticlock"
     yield check_line, glyph
     yield (check_props, glyph, [
         "x",

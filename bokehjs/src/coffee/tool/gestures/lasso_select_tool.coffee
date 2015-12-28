@@ -1,5 +1,6 @@
 _ = require "underscore"
 SelectTool = require "./select_tool"
+PolyAnnotation = require "../../renderer/annotation/poly_annotation"
 
 class LassoSelectToolView extends SelectTool.View
 
@@ -78,6 +79,16 @@ class LassoSelectTool extends SelectTool.Model
   defaults: () ->
     return _.extend({}, super(), {
       select_every_mousemove: true
+      overlay: new PolyAnnotation.Model({
+        xs_units: "screen"
+        ys_units: "screen"
+        fill_color: "lightgrey"
+        fill_alpha: 0.5
+        line_color: "black"
+        line_alpha: 1.0
+        line_width: 2
+        line_dash: [4, 4]
+      })
     })
 
 module.exports =

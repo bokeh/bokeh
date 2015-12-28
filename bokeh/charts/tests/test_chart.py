@@ -82,7 +82,6 @@ class TestChart(unittest.TestCase):
 
         axis = self.chart.make_axis("x", "left", "datetime", "foo")
         self.assertEqual(axis.location, "auto")
-        self.assertEqual(axis.scale, "time")
         self.assertEqual(axis.axis_label, "foo")
 
         axis = self.chart.make_axis("x", "left", "categorical", "bar")

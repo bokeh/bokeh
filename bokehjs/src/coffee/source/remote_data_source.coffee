@@ -1,8 +1,15 @@
 _ = require "underscore"
-Backbone = require "backbone"
-ColumnDataSource = require "./column_data_source"
+DataSource = require "./data_source"
 
-class RemoteDataSource extends ColumnDataSource.Model
+class RemoteDataSource extends DataSource.Model
+  type: 'RemoteDataSource'
+
+  defaults: =>
+    return _.extend {}, super(), {
+      data: {}
+      data_url: null
+      polling_interval: null
+    }
 
 module.exports =
-  RemoteDataSource: RemoteDataSource
+  Model: RemoteDataSource

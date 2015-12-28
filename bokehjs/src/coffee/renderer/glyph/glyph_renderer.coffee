@@ -37,7 +37,7 @@ class GlyphRendererView extends PlotWidget
 
     @set_data(false)
 
-    if @mget('data_source') instanceof RemoteDataSource.RemoteDataSource
+    if @mget('data_source') instanceof RemoteDataSource.Model
       @mget('data_source').setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
@@ -72,7 +72,7 @@ class GlyphRendererView extends PlotWidget
 
     @glyph.set_visuals(source)
     @decimated_glyph.set_visuals(source)
-    if @have_selection_glyphs()      
+    if @have_selection_glyphs()
       @selection_glyph.set_visuals(source)
       @nonselection_glyph.set_visuals(source)
     if @hover_glyph?
@@ -221,11 +221,11 @@ class GlyphRenderer extends HasParent
       x_range_name: "default"
       y_range_name: "default"
       data_source: null
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'glyph'
+      glyph: null
+      hover_glyph: null
+      nonselection_glyph: null
+      selection_glyph: null
     }
 
 module.exports =
