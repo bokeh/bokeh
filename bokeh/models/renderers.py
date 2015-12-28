@@ -5,30 +5,33 @@ types that Bokeh supports.
 from __future__ import absolute_import
 
 import logging
+logger = logging.getLogger(__name__)
 
-from ..core import validation
-from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 from ..model import Model
+from ..core.enums import RenderLevel
 from ..core.properties import abstract
 from ..core.properties import String, Enum, Instance, Float, Bool
-from ..core.enums import RenderLevel
+from ..core import validation
+from ..core.validation.errors import BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH
 
-from .sources import DataSource, RemoteSource
 from .glyphs import Glyph
-from .tiles import TileSource
 from .images import ImageSource
-
-logger = logging.getLogger(__name__)
+from .sources import DataSource, RemoteSource
+from .tiles import TileSource, WMTSTileSource
 
 @abstract
 class Renderer(Model):
-    """ A base class for renderer types. ``Renderer`` is not
-    generally useful to instantiate on its own.
-
+    """An abstract base class for renderer types.
     """
-class TileRenderer(Renderer):
 
-    tile_source = Instance(TileSource, help="""
+@abstract
+class DataRenderer(Renderer):
+    """ An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``).
+    """
+
+class TileRenderer(DataRenderer):
+
+    tile_source = Instance(TileSource, default=lambda: WMTSTileSource(), help="""
     Local data source to use when rendering glyphs on the plot.
     """)
 
@@ -56,7 +59,7 @@ class TileRenderer(Renderer):
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
-class DynamicImageRenderer(Renderer):
+class DynamicImageRenderer(DataRenderer):
 
     image_source = Instance(ImageSource, help="""
     Image source to use when rendering on the plot.
@@ -74,7 +77,7 @@ class DynamicImageRenderer(Renderer):
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
-class GlyphRenderer(Renderer):
+class GlyphRenderer(DataRenderer):
     """
 
     """

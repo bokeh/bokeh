@@ -4,7 +4,6 @@
         { "path": "examples/plotting/file/image_rgba.py",      "name": "image_rgba"                                  },
         { "path": "examples/plotting/file/candlestick.py",     "name": "candlestick"                                 },
         { "path": "examples/plotting/file/legend.py",          "name": "legend"                                      },
-        { "path": "examples/plotting/file/correlation.py",     "name": "correlation"                                 },
         { "path": "examples/plotting/file/box_annotation.py",  "name": "box_annotation"                              },
         { "path": "examples/plotting/file/les_mis.py",         "name": "les_mis"                                     },
         { "path": "examples/plotting/file/unemployment.py",    "name": "unemployment"                                },

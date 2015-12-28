@@ -20,29 +20,26 @@ the generation of several outputs (file, server, notebook).
 
 from __future__ import absolute_import
 
-from collections import defaultdict
-
-import numpy as np
+import warnings
 from six import iteritems
+from collections import defaultdict
+import numpy as np
 
 from ..core.enums import enumeration, LegendLocation
 from ..document import Document
 from ..embed import file_html
-from ..model import Viewable
 from ..models import (
     CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot,
     HoverTool, FactorRange
 )
 from ..plotting import DEFAULT_TOOLS
 from ..plotting.helpers import _process_tools_arg
-from ..properties import (HasProps, Auto, Bool, Either, Enum, Int, Float,
+from ..core.properties import (Auto, Bool, Either, Enum, Int, Float,
                           String, Tuple, Override)
 from ..resources import INLINE
 from ..util.browser import view
 from ..util.notebook import publish_display_data
-from ..util.serialization import make_id
-from ..util.future import with_metaclass
-from ..themes import Theme
+from ..util.deprecate import deprecated
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -55,8 +52,8 @@ class ChartDefaults(object):
         """Apply this defaults to a chart."""
 
         if not isinstance(chart, Chart):
-            raise ValueError("ChartsTheme should be only used on Chart objects \
-            but it's being used on %s instead." % chart)
+            raise ValueError("ChartsDefaults should be only used on Chart \
+            objects but it's being used on %s instead." % chart)
 
         for k in chart.properties_with_values(include_defaults=True):
             if k == 'tools':
@@ -76,10 +73,6 @@ class Chart(Plot):
 
     __view_model__ = "Plot"
     __subtype__ = "Chart"
-
-    title = String(None, help="""
-    A title for the chart.
-    """)
 
     legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
     A location where the legend should draw itself.
@@ -117,28 +110,13 @@ class Chart(Plot):
     Height of the rendered chart, in pixels.
     """)
 
-    filename = Either(Bool(False), String, help="""
-    A name for the file to save this chart to.
-    """)
-
-    server = Either(Bool(False), String, help="""
-    A name to use to save this chart to on server.
-    """)
-
-    notebook = Either(Bool(False), String, help="""
-    Whether to display the plot inline in an IPython/Jupyter
-    notebook.
-    """)
-
     title_text_font_size = Override(default={ 'value' : '14pt' })
 
-    responsive = Bool(False, help="""
-    If True, the chart will automatically resize based on the size of its container. The
-    aspect ratio of the plot will be preserved, but ``plot_width`` and ``plot_height``
-    will act only to set the initial aspect ratio.
-    """)
+    responsive = Override(default=False)
 
     _defaults = defaults
+
+    __deprecated_attributes__ = ('filename', 'server', 'notebook')
 
     def __init__(self, *args, **kwargs):
         # pop tools as it is also a property that doesn't match the argument
@@ -158,20 +136,6 @@ class Chart(Plot):
         self._labels = defaultdict(list)
         self._scales = defaultdict(list)
         self._tooltips = []
-
-        # Add to document and session if server output is asked
-        _doc = None
-        if _doc:
-            self._doc = _doc
-        else:
-            self._doc = Document()
-
-        # if self._options.server:
-        #     _session = None
-        #     if _session:
-        #         self._session = _session
-        #     else:
-        #         self._session = Session()
 
         self.create_tools(self._tools)
 
@@ -322,46 +286,53 @@ class Chart(Plot):
 
         return grid
 
+
+    @property
+    def filename(self):
+        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_file
+        output_file("default.html")
+
+    @filename.setter
+    def filename(self, filename):
+        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_file
+        output_file(filename)
+
+    @property
+    def server(self):
+        warnings.warn("Chart property 'server' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_server
+        output_server("default")
+
+    @server.setter
+    def server(self, session_id):
+        warnings.warn("Chart property 'server' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_server
+        if session_id:
+            if isinstance(session_id, bool):
+                session_id='default'
+            output_server(session_id)
+
+    @property
+    def notebook(self):
+        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_notebook
+        output_notebook()
+
+    @notebook.setter
+    def notebook(self, flag):
+        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_notebook
+        output_notebook()
+
+    @deprecated("Bokeh 0.11", "bokeh.io.show")
     def show(self):
-        """Main show function.
-
-        It shows the plot in file, server and notebook outputs.
-        """
-        # Add to document and session
-        if self.server:
-            if self.server is True:
-                self._servername = "untitled_chart"
-            else:
-                self._servername = self.server
-
-            self._session.use_doc(self._servername)
-            self._session.load_document(self._doc)
-
-        if not self._doc._current_plot == self:
-            self._doc._current_plot = self
-            self._doc.add_root(self)
-
-        if self.filename:
-            if self.filename is True:
-                filename = "untitled"
-            else:
-                filename = self.filename
-
-            with open(filename, "w") as f:
-                f.write(file_html(self._doc, INLINE, self.title))
-            print("Wrote %s" % filename)
-            view(filename)
-        elif self.filename is False and \
-                        self.server is False and \
-                        self.notebook is False:
-            print("You must provide a filename (filename='foo.html' or"
-                  " .filename('foo.html')) to save your plot.")
-
-        if self.server:
-            self.session.store_document(self._doc)
-            link = self._session.object_link(self._doc.context)
-            view(link)
-
-        if self.notebook:
-            from bokeh.embed import notebook_div
-            publish_display_data({'text/html': notebook_div(self)})
+        import bokeh.io
+        bokeh.io.show(self)

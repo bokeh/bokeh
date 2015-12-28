@@ -1,8 +1,8 @@
 _ = require "underscore"
 SPrintf = require "sprintf"
-HasProperties = require "../common/has_properties"
+TickFormatter = require "./tick_formatter"
 
-class PrintfTickFormatter extends HasProperties
+class PrintfTickFormatter extends TickFormatter.Model
   type: 'PrintfTickFormatter'
 
   format: (ticks) ->

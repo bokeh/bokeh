@@ -1,7 +1,7 @@
 _ = require "underscore"
 SPrintf = require "sprintf"
 tz = require "timezone"
-HasProperties = require "../common/has_properties"
+TickFormatter = require "./tick_formatter"
 {logger} = require "../common/logging"
 
 _us = (t) ->
@@ -50,7 +50,7 @@ _strftime = (t, format) ->
       return format
     return tz(t, format)
 
-class DatetimeTickFormatter extends HasProperties
+class DatetimeTickFormatter extends TickFormatter.Model
   type: 'DatetimeTickFormatter'
 
   # Labels of time units, from finest to coarsest.

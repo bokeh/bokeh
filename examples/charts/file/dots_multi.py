@@ -35,13 +35,10 @@ dot_plot8 = Dot(df, label='cyl', values='neg_mpg', agg='mean', group='origin',
 df = df.set_index('cyl')
 dot_plot9 = Dot(df, values='mpg', agg='mean', legend='top_right', title='inferred labels')
 
-# collect and display
 output_file("dots_multi.html")
 
-show(
-    vplot(
-        hplot(dot_plot, dot_plot2, dot_plot3),
-        hplot(dot_plot4, dot_plot5, dot_plot6),
-        hplot(dot_plot7, dot_plot8, dot_plot9)
-    )
-)
+show(vplot(
+    hplot(dot_plot, dot_plot2, dot_plot3),
+    hplot(dot_plot4, dot_plot5, dot_plot6),
+    hplot(dot_plot7, dot_plot8, dot_plot9)
+))

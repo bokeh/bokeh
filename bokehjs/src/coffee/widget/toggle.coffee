@@ -37,7 +37,7 @@ class ToggleView extends ContinuumView
     return @
 
   change_input: () ->
-    @mset('active', @$el.hasClass("bk-bs-active"))
+    @mset('active', not @mget('active'))
     @mget('callback')?.execute(@model)
 
 class Toggle extends AbstractButton.Model

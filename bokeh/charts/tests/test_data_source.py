@@ -69,10 +69,10 @@ def test_groupby(test_data):
     # what is accepted for iterable, i.e. List(String)
     for cls in (ColorAttr, MarkerAttr, DashAttr):
         single_col_spec = {'test': cls(df=test_data.auto_data, columns='cyl',
-                                            name='test', iterable=['red', 'blue'])}
+                                            attrname='test', iterable=['red', 'blue'])}
         multi_col_spec = {'test': cls(df=test_data.auto_data,
                                            columns=('cyl', 'origin'),
-                                           name='test', iterable=['red', 'blue'])}
+                                           attrname='test', iterable=['red', 'blue'])}
 
         ds = ChartDataSource(df=test_data.auto_data)
         groups = list(ds.groupby(**single_col_spec))

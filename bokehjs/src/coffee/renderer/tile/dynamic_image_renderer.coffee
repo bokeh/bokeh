@@ -107,13 +107,12 @@ class DynamicImageRenderer extends HasParent
   default_view: DynamicImageView
   type: 'DynamicImageRenderer'
   visuals: []
-  angles: ['angle']
 
   defaults: ->
     return _.extend {}, super(), {
-      angle: 0
       alpha: 1.0
-      image_source:undefined
+      image_source: null
+      render_parents: true
     }
 
   display_defaults: ->

@@ -1,47 +1,26 @@
 import numpy as np
-
 from datetime import timedelta
 from functools import update_wrapper, wraps
+from math import sin
+from random import random
 from six import string_types
 
 from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import AjaxDataSource
 
-output_file("ajax_source_realtime.html", title="ajax_source_realtime.py example")
-source = AjaxDataSource(data_url='http://localhost:5050/data', mode="append",
-                        if_modified=True, polling_interval=1000, max_size=125)
+output_file("ajax_source.html", title="ajax_source.py example")
+source = AjaxDataSource(data_url='http://localhost:5050/data',
+                        polling_interval=100)
 p = figure()
-p.line('x', 'y', source=source)
+p.circle('x', 'y', source=source)
 
-import time
-from threading import Thread
-from collections import namedtuple, deque
-import json
-
-Entry = namedtuple('Entry', ['x', 'y', 'creation'])
-
-entries = deque(maxlen=120)
-
-def gen_entry():
-    global entries
-    x = 0
-    while True:
-        last_entry = Entry(x, np.sin(x*np.pi/10), time.time())
-        entries.append(last_entry)
-        x += 1
-        if x > entries.maxlen and x % 10 == 0:
-            time.sleep(2)
-
-
+p.x_range.follow = "end"
+p.x_range.follow_interval = 10
 
 try:
-    from flask import Flask, jsonify, make_response, request, current_app, Response
+    from flask import Flask, jsonify, make_response, request, current_app
 except ImportError:
     raise ImportError("You need Flask to run this example!")
-
-t = Thread(target=gen_entry)
-t.daemon = True
-t.start()
 
 show(p)
 
@@ -53,6 +32,7 @@ show(p)
 # previously. Flask just happens to be one of the python
 # web frameworks that makes it's easy and concise to do so
 #########################################################
+
 
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
@@ -77,7 +57,6 @@ def crossdomain(origin=None, methods=None, headers=None,
         max_age = max_age.total_seconds()
 
     def get_methods():
-        return methods
         options_resp = current_app.make_default_options_response()
         return options_resp.headers['allow']
 
@@ -101,7 +80,7 @@ def crossdomain(origin=None, methods=None, headers=None,
             )
             if headers is not None:
                 h['Access-Control-Allow-Headers'] = headers
-            elif requested_headers :
+            elif requested_headers:
                 h['Access-Control-Allow-Headers'] = requested_headers
             return resp
         f.provide_automatic_options = False
@@ -111,25 +90,15 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 app = Flask(__name__)
 
+x = list(np.arange(0, 6, 0.1))
+y = [sin(x) + random() for x in x]
+
 @app.route('/data', methods=['GET', 'OPTIONS', 'POST'])
-@crossdomain(origin="*", methods=['GET', 'POST'])
+@crossdomain(origin="*", methods=['GET', 'POST'], headers=None)
 def hello_world():
-    global entries
-    try:
-        modified_since = float(request.headers.get('If-Modified-Since'))
-    except TypeError:
-        modified_since = 0
+    x.append(x[-1]+0.1)
+    y.append(sin(x[-1])+random())
+    return jsonify(x=x[-500:], y=y[-500:])
 
-    new_entries = [e for e in entries if e.creation > modified_since]
-    js = json.dumps({'x':[e.x for e in new_entries], 'y':[e.y for e in new_entries]})
-    resp = Response(js, status=200, mimetype='application/json')
-
-    if new_entries:
-        resp.headers['Last-Modified'] = new_entries[-1].creation
-    elif modified_since:
-        resp.headers['Last-Modified'] = modified_since
-
-    return resp
-
-if __name__ ==  "__main__":
+if __name__ == "__main__":
     app.run(port=5050)

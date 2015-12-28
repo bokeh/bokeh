@@ -6,9 +6,10 @@ and with options for "auto sizing".
 from __future__ import absolute_import
 
 from ..model import Model
+from ..core.enums import StartEnd
 from ..core.properties import abstract
 from ..core.properties import (
-    Int, Float, String, Datetime, Instance, List, Either, Auto, MinMaxBounds
+    Auto, Bool, Int, Float, String, Datetime, Instance, List, Either, Enum, MinMaxBounds
 )
 from .callbacks import Callback
 from .renderers import Renderer
@@ -102,7 +103,7 @@ class DataRange1d(DataRange):
     The upper and lower bounds are set to the min and max of the data.
     """
 
-    range_padding = Float(0.1, help="""
+    range_padding = Float(default=0.1, help="""
     A percentage of the total range size to add as padding to
     the range start and end.
     """)
@@ -132,8 +133,41 @@ class DataRange1d(DataRange):
     ``None`` e.g. ``DataRange1d(bounds=(None, 12))``
     """)
 
-    def __init__(self, *args, **kwargs):
-        super(DataRange1d, self).__init__(**kwargs)
+    flipped = Bool(default=False, help="""
+    Whether the range should be "flipped" from its normal direction when
+    auto-ranging.
+    """)
+
+    follow = Enum(StartEnd, default=None, help="""
+    Configure the data to follow one or the other data extreme, with a
+    maximum range size of ``follow_interval``.
+
+    If set to ``"start"`` then the range will adjust so that ``start`` always
+    corresponds to the minimum data value (or maximum, if ``flipped`` is
+    ``True``).
+
+    If set to ``"end"`` then the range will adjust so that ``end`` always
+    corresponds to the maximum data value (or minimum, if ``flipped`` is
+    ``True``).
+
+    If set to ``None`` (default), then auto-ranging does not follow, and
+    the range will encompass both the minimum and maximum data values.
+
+    """)
+
+    follow_interval = Float(default=None, help="""
+    If ``follow`` is set to ``"start"`` or ``"end"`` then the range will
+    always be constrained to that::
+
+         abs(r.start - r.end) <= follow_interval
+
+    is maintained.
+
+    """)
+
+    default_span = Float(default=2.0, help="""
+    A default width for the interval, in case ``start`` is equal to ``end``.
+    """)
 
 
 class FactorRange(Range):
@@ -158,6 +192,7 @@ class FactorRange(Range):
         The primary usage of this is to support compatibility and integration
         with other plotting systems, and will not generally of interest to
         most users.
+
     """)
 
     factors = Either(List(String), List(Int), help="""

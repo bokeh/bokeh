@@ -17,6 +17,7 @@ Solver = require "./solver"
 ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
 properties = require "./properties"
+ToolEvents = require "./tool_events"
 
 
 # Notes on WebGL support:
@@ -31,6 +32,8 @@ properties = require "./properties"
 # marker that we use throughout that determines whether we have gl support.
 
 global_gl_canvas = null
+
+MIN_BORDER = 50
 
 get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
     # client_width and height represent the available size
@@ -188,41 +191,35 @@ class PlotView extends ContinuumView
       if bds?
         bounds[k] = bds
     for xr in _.values(frame.get('x_ranges'))
-      xr.update?(bounds, 0, @)
+      xr.update?(bounds, 0, @model.id)
     for yr in _.values(frame.get('y_ranges'))
-      yr.update?(bounds, 1, @)
+      yr.update?(bounds, 1, @model.id)
     @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
-  _update_single_range: (rng, range_info, is_panning) ->
-      # Prevent range from going outside limits
-      # Also ensure that range keeps the same delta when panning
-      if rng.get('bound_lower')?
-        if rng.get('bound_lower') >= range_info['start']
-          range_info['start'] = rng.get('bound_lower')
-          if is_panning?
-            range_info['end'] = rng.get('end')
-      if rng.get('bound_upper')?
-        if rng.get('bound_upper') <= range_info['end']
-          range_info['end'] = rng.get('bound_upper')
-          if is_panning?
-            range_info['start'] = rng.get('start')
-
-      # Update the range if necessary
-      if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
-        rng.set(range_info)
-        rng.get('callback')?.execute(@model)
-
-  update_range: (range_info, is_panning) ->
+  update_range: (range_info) ->
+    @pause
     if not range_info?
-      range_info = @initial_range_info
-    @pause()
-    for name, rng of @frame.get('x_ranges')
-      @_update_single_range(rng, range_info.xrs[name], is_panning)
-    for name, rng of @frame.get('y_ranges')
-      @_update_single_range(rng, range_info.yrs[name], is_panning)
+      for name, rng of @frame.get('x_ranges')
+        rng.reset()
+      for name, rng of @frame.get('y_ranges')
+        rng.reset()
+      @update_dataranges()
+    else
+      for name, rng of @frame.get('x_ranges')
+        if rng.get('start') != range_info.xrs[name]['start'] or
+            rng.get('end') != range_info.xrs[name]['end']
+          rng.have_updated_interactively = true
+          rng.set(range_info.xrs[name])
+          rng.get('callback')?.execute(@model)
+      for name, rng of @frame.get('y_ranges')
+        if rng.get('start') != range_info.yrs[name]['start'] or
+            rng.get('end') != range_info.yrs[name]['end']
+          rng.have_updated_interactively = true
+          rng.set(range_info.yrs[name])
+          rng.get('callback')?.execute(@model)
     @unpause()
 
   build_levels: () ->
@@ -318,7 +315,7 @@ class PlotView extends ContinuumView
         v.model.update_layout(v, @canvas.solver)
 
     for k, v of @renderers
-      if v.set_data_timestamp > @range_update_timestamp?
+      if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
@@ -529,10 +526,10 @@ class Plot extends HasParent
     @set('above', elts)
 
   add_constraints: (solver) ->
-    min_border_top    = @get('min_border_top')    ? @get('min_border')
-    min_border_bottom = @get('min_border_bottom') ? @get('min_border')
-    min_border_left   = @get('min_border_left')   ? @get('min_border')
-    min_border_right  = @get('min_border_right')  ? @get('min_border')
+    min_border_top    = @get('min_border_top')
+    min_border_bottom = @get('min_border_bottom')
+    min_border_left   = @get('min_border_left')
+    min_border_right  = @get('min_border_right')
 
     do_side = (solver, min_size, side, cnames, dim, op) =>
       canvas = @get('canvas')
@@ -580,19 +577,8 @@ class Plot extends HasParent
     renderers = renderers.concat(new_renderers)
     @set('renderers', renderers)
 
-  parent_properties: [
-    'background_fill',
-    'border_fill',
-    'min_border',
-    'min_border_top',
-    'min_border_bottom'
-    'min_border_left'
-    'min_border_right'
-  ]
-
   nonserializable_attribute_names: () ->
-    super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame',
-    'min_size'])
+    super().concat(['solver', 'canvas', 'tool_manager', 'frame', 'min_size'])
 
   serializable_attributes: () ->
     attrs = super()
@@ -604,6 +590,7 @@ class Plot extends HasParent
     return _.extend {}, super(), {
       renderers: [],
       tools: [],
+      tool_events: new ToolEvents.Model(),
       h_symmetry: true,
       v_symmetry: false,
       x_mapper_type: 'auto',
@@ -624,18 +611,25 @@ class Plot extends HasParent
       webgl: false
       responsive: false
       min_size: 120
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       hidpi: true,
+      title_standoff: 8,
+
+      x_range: null
+      extra_x_ranges: {}
+
+      y_range: null
+      extra_y_ranges: {}
+
       background_fill_color: "#ffffff",
       background_fill_alpha: 1.0,
       border_fill_color: "#ffffff",
       border_fill_alpha: 1.0
-      min_border: 40,
+      min_border: MIN_BORDER,
+      min_border_top: MIN_BORDER,
+      min_border_left: MIN_BORDER,
+      min_border_bottom: MIN_BORDER,
+      min_border_right: MIN_BORDER,
 
-      title_standoff: 8,
       title_text_font: "helvetica",
       title_text_font_size: "20pt",
       title_text_font_style: "normal",
