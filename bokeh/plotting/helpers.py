@@ -209,6 +209,8 @@ _known_tools = {
     "tap": lambda: TapTool(),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),
+    "xbox_select": lambda: BoxSelectTool(dimensions=['width']),
+    "ybox_select": lambda: BoxSelectTool(dimensions=['height']),
     "poly_select": lambda: PolySelectTool(),
     "lasso_select": lambda: LassoSelectTool(),
     "box_zoom": lambda: BoxZoomTool(),

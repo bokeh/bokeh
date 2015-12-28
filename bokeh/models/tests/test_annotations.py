@@ -106,6 +106,7 @@ def test_BoxAnnotation():
     yield check_line, box, '#cccccc', 1, 0.3
     yield check_fill, box
     yield (check_props, box, [
+        "render_mode",
         "plot",
         "left",
         "left_units",

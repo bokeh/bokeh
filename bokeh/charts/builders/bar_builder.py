@@ -21,7 +21,7 @@ from __future__ import absolute_import, print_function, division
 from ..builder import Builder, create_and_build
 from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph
-from ...core.properties import Float, Enum, Bool
+from ...core.properties import Float, Enum, Bool, Override
 from ..properties import Dimension
 from ..attributes import ColorAttr, CatAttr
 from ..operations import Stack, Dodge
@@ -73,7 +73,7 @@ class BarBuilder(Builder):
     fill_alpha = Float(default=0.8)
 
     glyph = BarGlyph
-    comp_glyph_types = [BarGlyph]
+    comp_glyph_types = Override(default=[BarGlyph])
     label_attributes = ['stack', 'group']
 
     label_only = Bool(False)

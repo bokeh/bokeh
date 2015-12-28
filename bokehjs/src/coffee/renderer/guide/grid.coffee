@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+GuideRenderer = require "./guide_renderer"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 
@@ -63,7 +63,7 @@ class GridView extends PlotWidget
       ctx.stroke()
     return
 
-class Grid extends HasParent
+class Grid extends GuideRenderer.Model
   default_view: GridView
   type: 'Grid'
 
@@ -160,11 +160,11 @@ class Grid extends HasParent
     return _.extend {}, super(), {
       x_range_name: "default"
       y_range_name: "default"
+      level: "underlay"
     }
 
   display_defaults: ->
     return _.extend {}, super(), {
-      level: 'underlay'
       bounds: 'auto'
       dimension: 0
       ticker: null

@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import TimeSeries, show, output_file, defaults, vplot, hplot
+from bokeh.charts import TimeSeries, show, output_file, vplot
 
 # read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -24,8 +24,6 @@ xyvalues = OrderedDict(
 
 TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 
-output_file("timeseries.html")
-
 # line simple
 tsline = TimeSeries(
     xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
@@ -33,8 +31,8 @@ tsline = TimeSeries(
 
 # line explicit
 tsline2 = TimeSeries(
-    xyvalues, x='Date', y=['IBM', 'AAPL'], color=['IBM', 'AAPL'],
-    dash=['IBM', 'AAPL'], legend=True,
+    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
+    color=['IBM', 'AAPL'], dash=['IBM', 'AAPL'],
     title="Timeseries (Line Explicit)", tools=TOOLS, ylabel='Stock Prices')
 
 # step
@@ -44,8 +42,10 @@ tsstep = TimeSeries(
 
 # point
 tspoint = TimeSeries(
-    xyvalues, x='Date', y=['IBM', 'AAPL'], marker=['IBM', 'AAPL'], legend=True,
-    color=['IBM', 'AAPL'], builder_type='point',
+    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='point',
+    marker=['IBM', 'AAPL'], color=['IBM', 'AAPL'],
     title="Timeseries (Point)", tools=TOOLS, ylabel='Stock Prices')
+
+output_file("timeseries.html")
 
 show(vplot(tsline, tsline2, tsstep, tspoint))

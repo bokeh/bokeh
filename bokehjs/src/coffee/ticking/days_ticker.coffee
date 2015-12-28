@@ -79,7 +79,7 @@ class DaysTicker extends SingleIntervalTicker.Model
 
   defaults: () ->
     return _.extend {}, super(), {
-      toString_properties: ['days']
+      days: []
     }
 
 module.exports =
