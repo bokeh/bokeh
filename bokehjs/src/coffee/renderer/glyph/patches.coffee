@@ -5,12 +5,30 @@ hittest = require "../../common/hittest"
 
 class PatchesView extends Glyph.View
 
+  _process_polygon_with_hole: (qs_with_hole) ->
+    flattened = []
+    while qs_with_hole.length > 0
+
+      real_nan_index = _.findLastIndex(qs_with_hole, (q) -> _.isNaN(q))
+      str_nan_index = _.findLastIndex(qs_with_hole, (q) -> q == "NaN")
+      nan_index = if real_nan_index > str_nan_index then real_nan_index else str_nan_index
+
+      if nan_index >= 0
+        flattened.push(qs_with_hole.splice(nan_index)[1])
+        flattened.push("NaN")
+        
+      else
+        flattened.push(qs_with_hole[0])
+        qs_with_hole = []
+
+    return _.flatten(flattened)
+
   _build_discontinuous_object: (nanned_qs) ->
     # _s is @xs, @ys, @sxs, @sys
     # an object of n 1-d arrays in either data or screen units
     #
     # Each 1-d array gets broken to an array of arrays split
-    # on any NaNs
+    # on any Nas
     #
     # So:
     # { 0: [x11, x12],
@@ -25,25 +43,27 @@ class PatchesView extends Glyph.View
     ds = {}
     for i in [0...nanned_qs.length]
       ds[i] = []
+
       qs = _.toArray(nanned_qs[i])
+      if _.isArray(qs[0])
+        qs = @_process_polygon_with_hole(qs)
+
       while qs.length > 0
-        nan_index = _.findLastIndex(qs, (q) ->  _.isNaN(q))
+        nan_index = _.findLastIndex(qs, (q) -> _.isNaN(q))
         if nan_index >= 0
           qs_part = qs.splice(nan_index)
         else
           qs_part = qs
           qs = []
-        if _.isNumber(qs_part[0]) or _.isNaN(qs_part[0])
-          denanned = (q for q in qs_part when not _.isNaN(q))
-          ds[i].push(denanned)
-        else
-          for part in qs_part
-            denanned = (q for q in part when not _.isNaN(q))
-            ds[i].push(denanned)
+
+        denanned = (q for q in qs_part when (not _.isNaN(q)))
+        ds[i].push(denanned)
+
     return ds
 
 
   _index_data: () ->
+
     index = rbush()
     pts = []
     xss = @_build_discontinuous_object(@xs)
@@ -66,6 +86,7 @@ class PatchesView extends Glyph.View
           _.max(xs_array), _.max(ys_array),
           {'i': i}
         ])
+
     index.load(pts)
     return index
 
@@ -158,8 +179,13 @@ class PatchesView extends Glyph.View
       sxs = @sxss[idx]
       sys = @syss[idx]
       for j in [0...sxs.length]
-        if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
-          hits.push(idx)
+        if _.isNumber(sxs[j][0])
+          if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
+            hits.push(idx)
+        else
+          # Patches with holes end up here
+          if hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0])
+            hits.push(idx)
 
     result = hittest.create_hit_test_result()
     result['1d'].indices = hits
