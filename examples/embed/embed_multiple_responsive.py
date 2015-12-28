@@ -1,4 +1,4 @@
-mport random
+import random
 
 from jinja2 import Template
 

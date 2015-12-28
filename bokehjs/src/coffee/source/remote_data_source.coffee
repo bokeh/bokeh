@@ -1,7 +1,7 @@
 _ = require "underscore"
-DataSource = require "./data_source"
+ColumnDataSource = require "./column_data_source"
 
-class RemoteDataSource extends DataSource.Model
+class RemoteDataSource extends ColumnDataSource.Model
   type: 'RemoteDataSource'
 
   defaults: =>

@@ -20,6 +20,9 @@ class FactorRange extends Range.Model
     @listenTo(@, 'change:factors', @_init)
     @listenTo(@, 'change:offset', @_init)
 
+  reset: () ->
+    @_init()
+
   _init: () ->
     @set('start', 0.5 + @get('offset'))
     @set('end', @get('factors').length + @get('start'))

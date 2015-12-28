@@ -24,7 +24,7 @@ updated = json.dumps({
 source = GeoJSONDataSource(geojson=original)
 
 p = figure(tools='box_select')
-p.circle(line_color=None, fill_alpha=0.8, source=source)
+p.circle(x='x', y='y', line_color=None, fill_alpha=0.8, source=source)
 
 # open a session to keep our local document in sync with server
 session = push_session(curdoc())

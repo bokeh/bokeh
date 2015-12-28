@@ -1,3 +1,4 @@
+_ = require "underscore"
 HasProperties = require "./has_properties"
 {logger} = require "./logging"
 
@@ -5,10 +6,8 @@ class ToolEvents extends HasProperties
   type: 'ToolEvents'
 
   defaults: () ->
-    return {
+    return _.extend {}, super(), {
       geometries: []
-      name: null
-      tags: []
     }
 
 module.exports =

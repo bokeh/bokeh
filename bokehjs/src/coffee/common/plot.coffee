@@ -191,28 +191,35 @@ class PlotView extends ContinuumView
       if bds?
         bounds[k] = bds
     for xr in _.values(frame.get('x_ranges'))
-      xr.update?(bounds, 0, @)
+      xr.update?(bounds, 0, @model.id)
     for yr in _.values(frame.get('y_ranges'))
-      yr.update?(bounds, 1, @)
+      yr.update?(bounds, 1, @model.id)
     @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
   update_range: (range_info) ->
+    @pause
     if not range_info?
-      range_info = @initial_range_info
-    @pause()
-    for name, rng of @frame.get('x_ranges')
-      if rng.get('start') != range_info.xrs[name]['start'] or
-          rng.get('end') != range_info.xrs[name]['end']
-        rng.set(range_info.xrs[name])
-        rng.get('callback')?.execute(@model)
-    for name, rng of @frame.get('y_ranges')
-      if rng.get('start') != range_info.yrs[name]['start'] or
-          rng.get('end') != range_info.yrs[name]['end']
-        rng.set(range_info.yrs[name])
-        rng.get('callback')?.execute(@model)
+      for name, rng of @frame.get('x_ranges')
+        rng.reset()
+      for name, rng of @frame.get('y_ranges')
+        rng.reset()
+      @update_dataranges()
+    else
+      for name, rng of @frame.get('x_ranges')
+        if rng.get('start') != range_info.xrs[name]['start'] or
+            rng.get('end') != range_info.xrs[name]['end']
+          rng.have_updated_interactively = true
+          rng.set(range_info.xrs[name])
+          rng.get('callback')?.execute(@model)
+      for name, rng of @frame.get('y_ranges')
+        if rng.get('start') != range_info.yrs[name]['start'] or
+            rng.get('end') != range_info.yrs[name]['end']
+          rng.have_updated_interactively = true
+          rng.set(range_info.yrs[name])
+          rng.get('callback')?.execute(@model)
     @unpause()
 
   build_levels: () ->
@@ -308,7 +315,7 @@ class PlotView extends ContinuumView
         v.model.update_layout(v, @canvas.solver)
 
     for k, v of @renderers
-      if v.set_data_timestamp > @range_update_timestamp?
+      if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
