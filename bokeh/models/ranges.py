@@ -169,6 +169,9 @@ class DataRange1d(DataRange):
     A default width for the interval, in case ``start`` is equal to ``end``.
     """)
 
+    def __init__(self, *args, **kwargs):
+        super(DataRange1d, self).__init__(**kwargs)
+
 
 class FactorRange(Range):
     """ A range in a categorical dimension.
