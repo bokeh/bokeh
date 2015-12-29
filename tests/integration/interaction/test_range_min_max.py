@@ -9,7 +9,7 @@ import pytest
 pytestmark = pytest.mark.integration
 
 
-def make_pan_plot_with_callback(range_min=None, range_max=None):
+def make_range1d_pan_plot_with_callback(range_min=None, range_max=None):
     x_range = Range1d(0, 3, bounds=(range_min, range_max))
     x_callback = CustomJS(args=dict(x_range=x_range), code="""
         window.get_x_range_start = function() {
@@ -54,7 +54,7 @@ def test_range_with_callback_triggers_alert(output_file_url, selenium):
     # Simple test to ensure range callbacks are working
     # Rest of tests in this file depend on range callback.
 
-    plot = make_pan_plot_with_callback()
+    plot = make_range1d_pan_plot_with_callback()
     initial_start = plot.x_range.start
     save(plot)
     selenium.get(output_file_url)
@@ -68,7 +68,7 @@ def test_range_with_callback_triggers_alert(output_file_url, selenium):
 
 def test_x_range_does_not_pan_left_of_x_min(output_file_url, selenium):
     x_range_min = -1
-    plot = make_pan_plot_with_callback(range_min=x_range_min)
+    plot = make_range1d_pan_plot_with_callback(range_min=x_range_min)
     save(plot)
     selenium.get(output_file_url)
 
@@ -81,7 +81,7 @@ def test_x_range_does_not_pan_left_of_x_min(output_file_url, selenium):
 
 def test_x_range_does_not_pan_right_of_x_max(output_file_url, selenium):
     x_range_max = 4
-    plot = make_pan_plot_with_callback(range_max=x_range_max)
+    plot = make_range1d_pan_plot_with_callback(range_max=x_range_max)
     save(plot)
     selenium.get(output_file_url)
 
@@ -94,7 +94,7 @@ def test_x_range_does_not_pan_right_of_x_max(output_file_url, selenium):
 
 def test_y_range_does_not_pan_below_y_min(output_file_url, selenium):
     y_range_min = -1
-    plot = make_pan_plot_with_callback(range_min=y_range_min)
+    plot = make_range1d_pan_plot_with_callback(range_min=y_range_min)
     save(plot)
     selenium.get(output_file_url)
 
@@ -107,7 +107,7 @@ def test_y_range_does_not_pan_below_y_min(output_file_url, selenium):
 
 def test_y_range_does_not_pan_above_y_max(output_file_url, selenium):
     y_range_max = 4
-    plot = make_pan_plot_with_callback(range_max=y_range_max)
+    plot = make_range1d_pan_plot_with_callback(range_max=y_range_max)
     save(plot)
     selenium.get(output_file_url)
 
