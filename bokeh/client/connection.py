@@ -125,6 +125,10 @@ class ClientConnection(object):
         return self._url
 
     @property
+    def io_loop(self):
+        return self._loop
+
+    @property
     def connected(self):
         """True if we've connected the websocket and exchanged initial handshake messages."""
         return isinstance(self._state, self.CONNECTED_AFTER_ACK)

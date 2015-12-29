@@ -211,7 +211,7 @@ class ClientSession(object):
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
         self._current_patch = None
-        self._callbacks = _DocumentCallbackGroup(io_loop)
+        self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
 
     def _attach_document(self, document):
         self._document = document

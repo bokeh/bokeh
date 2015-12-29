@@ -63,6 +63,8 @@ class _CallbackGroup(object):
     want to remove as a group. """
 
     def __init__(self, io_loop):
+        if io_loop is None:
+            raise ValueError("must provide an io loop")
         self._loop = io_loop
         # dicts from callback to remove callable. These are
         # separate only because it's allowed to add the same
