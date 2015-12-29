@@ -59,7 +59,8 @@ class MercatorTileSource(TileSource):
     """)
 
     wrap_around = Bool(default=True, help="""
-    flag to indicate whether to load tiles outside of world bounds.
+    Enables continuous horizontal panning by wrapping the x-axis based on bounds of map.
+    Note that axis coordinates are not wrapped. To toggle axis label visibility, use ``plot.axis.visible = False``.
     """)
 
 class TMSTileSource(MercatorTileSource):
