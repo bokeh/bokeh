@@ -36,7 +36,7 @@ class Range1d extends Range.Model
     return _.extend {}, super(), {
       start: 0
       end: 1
-      bounds: null
+      bounds: 'auto'
     }
 
 module.exports =

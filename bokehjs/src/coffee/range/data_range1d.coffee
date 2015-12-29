@@ -156,7 +156,7 @@ class DataRange1d extends DataRange.Model
       follow_interval: null
       default_span: 2
       plots: []
-      bounds: null
+      bounds: 'auto'
     }
 
 module.exports =

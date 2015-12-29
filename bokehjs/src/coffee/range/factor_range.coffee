@@ -43,7 +43,7 @@ class FactorRange extends Range.Model
     return _.extend {}, super(), {
       offset: 0
       factors: []
-      bounds: null
+      bounds: 'auto'
     }
 
 module.exports =
