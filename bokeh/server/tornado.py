@@ -62,6 +62,12 @@ class BokehTornado(TornadoApplication):
                  extra_patterns=None,
                  # heroku, nginx default to 60s timeout, so well less than that
                  keep_alive_milliseconds=37000,
+                 # how often to check for unused sessions
+                 check_unused_sessions_milliseconds=17000,
+                 # how long unused sessions last
+                 unused_session_lifetime_milliseconds=60*30*1000,
+                 # how often to log stats
+                 stats_log_frequency_milliseconds=15000,
                  develop=False):
 
         self._prefix = prefix
@@ -120,9 +126,13 @@ class BokehTornado(TornadoApplication):
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
         self._loop.add_callback(self._start_async)
-        self._stats_job = PeriodicCallback(self.log_stats, 15.0 * 1000, io_loop=self._loop)
-        self._unused_session_linger_seconds = 60*30
-        self._cleanup_job = PeriodicCallback(self.cleanup_sessions, 17.0 * 1000, io_loop=self._loop)
+        self._stats_job = PeriodicCallback(self.log_stats,
+                                           stats_log_frequency_milliseconds,
+                                           io_loop=self._loop)
+        self._unused_session_linger_seconds = unused_session_lifetime_milliseconds
+        self._cleanup_job = PeriodicCallback(self.cleanup_sessions,
+                                             check_unused_sessions_milliseconds,
+                                             io_loop=self._loop)
 
         if keep_alive_milliseconds > 0:
             self._ping_job = PeriodicCallback(self.keep_alive, keep_alive_milliseconds, io_loop=self._loop)

@@ -58,7 +58,10 @@ class Server(object):
         tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
                                                         'develop',
                                                         'extra_patterns',
-                                                        'keep_alive_milliseconds']
+                                                        'keep_alive_milliseconds',
+                                                        'check_unused_sessions_milliseconds',
+                                                        'unused_session_lifetime_milliseconds',
+                                                        'stats_log_frequency_milliseconds']
                            if key in kwargs }
 
         prefix = kwargs.get('prefix', None)
