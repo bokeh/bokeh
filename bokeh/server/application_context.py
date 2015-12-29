@@ -13,10 +13,15 @@ from .exceptions import ProtocolError
 
 from bokeh.application.application import ServerContext, SessionContext
 from bokeh.document import Document
+from bokeh.util.tornado import _CallbackGroup
 
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
         self.application_context = application_context
+        self._callbacks = _CallbackGroup(self.application_context.io_loop)
+
+    def _remove_all_callbacks(self):
+        self._callbacks.remove_all_callbacks()
 
     @property
     def sessions(self):
@@ -30,28 +35,22 @@ class BokehServerContext(ServerContext):
         return self.application_context.develop
 
     def add_callback(self, callback):
-        # TODO implement me
-        raise NotImplementedError("add_callback")
+        self._callbacks.add_next_tick_callback(callback)
 
     def remove_callback(self, callback):
-        # TODO implement me
-        raise NotImplementedError("remove_callback")
+        self._callbacks.remove_next_tick_callback(callback)
 
     def add_timeout_callback(self, callback, timeout_milliseconds):
-        # TODO implement me
-        raise NotImplementedError("add_timeout_callback")
+        self._callbacks.add_timeout_callback(callback, timeout_milliseconds)
 
     def remove_timeout_callback(self, callback):
-        # TODO implement me
-        raise NotImplementedError("remove_timeout_callback")
+        self._callbacks.remove_timeout_callback(callback)
 
     def add_periodic_callback(self, callback, period_milliseconds):
-        # TODO implement me
-        raise NotImplementedError("add_periodic_callback")
+        self._callbacks.add_periodic_callback(callback, period_milliseconds)
 
     def remove_periodic_callback(self, callback):
-        # TODO implement me
-        raise NotImplementedError("remove_periodic_callback")
+        self._callbacks.remove_periodic_callback(callback)
 
 class _ReleasingDocLockManager(object):
     def __init__(self, doc, lock):
@@ -146,8 +145,7 @@ class ApplicationContext(object):
         except Exception as e:
             log.error("Error in server unloaded hook %r", e, exc_info=True)
 
-        # TODO we need to remove any callbacks added via ServerContext
-        # from the ioloop here.
+        self._server_context._remove_all_callbacks()
 
     def create_session_if_needed(self, session_id):
         # this is because empty session_ids would be "falsey" and
