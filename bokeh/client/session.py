@@ -15,6 +15,7 @@ from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
                               _SessionCoordinates )
 from bokeh.document import Document, PeriodicCallback, TimeoutCallback
 from bokeh.util.session_id import generate_session_id
+from bokeh.util.tornado import _AsyncPeriodic
 
 DEFAULT_SESSION_ID = "default"
 
@@ -169,8 +170,8 @@ def show_session(session_id=None, url='default', app_path='/',
             session_id = coords.session_id
 
         if controller is None:
-            import bokeh.browserlib as browserlib
-            controller = browserlib.get_browser_controller(browser=browser)
+            from bokeh.util.browser import get_browser_controller
+            controller = get_browser_controller(browser=browser)
 
         controller.open(server_url + "?bokeh-session-id=" + _encode_query_param(session_id),
                         new=_new_param[new])
@@ -225,8 +226,7 @@ class ClientSession(object):
         NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
 
         '''
-        from tornado import ioloop
-        cb = self._callbacks[callback.id] = ioloop.PeriodicCallback(
+        cb = self._callbacks[callback.id] = _AsyncPeriodic(
             callback.callback, callback.period, io_loop=self._connection._loop
         )
         cb.start()

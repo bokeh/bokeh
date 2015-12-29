@@ -172,7 +172,7 @@ class Server(object):
         '''
         if not app_path.startswith("/"):
             raise ValueError("app_path must start with a /")
-        from bokeh.browserlib import view
+        from bokeh.util.browser import view
         url = "http://localhost:%d%s%s" % (self.port, self.prefix, app_path)
         view(url, browser=browser, new=new)
 

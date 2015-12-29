@@ -1,7 +1,6 @@
 
-from bokeh.charts import BoxPlot, output_file, show
+from bokeh.charts import BoxPlot, output_file, show, defaults, vplot, hplot
 from bokeh.sampledata.autompg import autompg as df
-from bokeh.charts import defaults, vplot, hplot
 
 defaults.width = 450
 defaults.height = 350
@@ -35,15 +34,13 @@ box_plot7 = BoxPlot(df, label='cyl', values='mpg', whisker_color='cyl',
 
 # remove outliers
 box_plot8 = BoxPlot(df, label='cyl', values='mpg', outliers=False,
-                    title="label='cyl', values='mpg', outliers=False")
+                    title="label='cyl', values='mpg', outliers=False, tooltips=True",
+                    tooltips=True)
 
-# collect and display
 output_file("boxplot_multi.html")
 
-show(
-    vplot(
-        hplot(box_plot, box_plot2, box_plot3),
-        hplot(box_plot4, box_plot5, box_plot6),
-        hplot(box_plot7, box_plot8)
-    )
-)
+show(vplot(
+    hplot(box_plot, box_plot2, box_plot3),
+    hplot(box_plot4, box_plot5, box_plot6),
+    hplot(box_plot7, box_plot8)
+) )

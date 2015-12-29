@@ -3,7 +3,7 @@
 '''
 from importlib import import_module
 
-def optional(mod_name):
+def import_optional(mod_name):
     ''' Attempt to import an optional dependency.
 
     Silently returns None if the requested module is not available.
@@ -20,7 +20,7 @@ def optional(mod_name):
     except ImportError:
         return None
 
-def required(mod_name, error_msg):
+def import_required(mod_name, error_msg):
     ''' Attempt to import a required dependency.
 
     Raises a RuntimeError if the requested module is not available.

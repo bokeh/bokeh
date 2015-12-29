@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.resources import INLINE
 from bokeh.models.glyphs import Circle, Text
 from bokeh.models import ColumnDataSource, Range1d, DataRange1d, Plot, LinearAxis, SingleIntervalTicker, Grid, HoverTool

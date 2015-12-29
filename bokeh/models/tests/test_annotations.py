@@ -1,7 +1,7 @@
 from __future__ import  absolute_import
 
 from bokeh.models.annotations import Legend, BoxAnnotation, Span
-from bokeh.enums import (
+from bokeh.core.enums import (
     NamedColor as Color, LineJoin, LineCap, FontStyle, TextAlign,
     TextBaseline)
 
@@ -106,6 +106,7 @@ def test_BoxAnnotation():
     yield check_line, box, '#cccccc', 1, 0.3
     yield check_fill, box
     yield (check_props, box, [
+        "render_mode",
         "plot",
         "left",
         "left_units",

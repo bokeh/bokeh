@@ -2,18 +2,6 @@
 Resources and Embedding
 =======================
 
-.. contents::
-    :local:
-    :depth: 2
-
-.. _bokeh.state:
-
-``bokeh.state``
----------------
-
-.. automodule:: bokeh.state
-  :members:
-
 .. _bokeh.io:
 
 ``bokeh.io``
@@ -38,9 +26,17 @@ Resources and Embedding
 .. automodule:: bokeh.embed
   :members:
 
-.. _bokeh.templates:
+.. _bokeh.core.state:
 
-``bokeh.templates``
--------------------
+``bokeh.core.state``
+--------------------
 
-.. automodule:: bokeh.templates
+.. automodule:: bokeh.core.state
+  :members:
+
+.. _bokeh.core.templates:
+
+``bokeh.core.templates``
+------------------------
+
+.. automodule:: bokeh.core.templates

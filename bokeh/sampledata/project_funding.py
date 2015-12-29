@@ -31,18 +31,17 @@ Resulting dataframe reports the following dtypes:
     marital_status            object
     session_id                object
 """
-
 from __future__ import absolute_import
 
+from bokeh.util.dependencies import import_required
+pd = import_required('pandas',
+              'project_funding sample data requires Pandas (http://pandas.pydata.org) to be installed')
+
 import os
+
 from six.moves.urllib.request import URLopener
+
 from bokeh.charts.utils import df_from_json
-
-try:
-    import pandas as pd
-except ImportError as e:
-    raise RuntimeError("mtb data requires pandas (http://pandas.pydata.org) to be installed")
-
 
 DATA_URL = "https://raw.githubusercontent.com/localytics/data-viz-challenge/master/data.json"
 DOWNLOAD_NAME = 'project_funding.json'

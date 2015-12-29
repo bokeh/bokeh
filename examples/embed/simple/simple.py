@@ -1,16 +1,17 @@
+'''This example demonstrates embedding a standalone Bokeh document
+into a simple Flask application, with a basic HTML web form.
+
+To view the example, run:
+
+    python simple.py
+
+in this directory, and navigate to:
+
+    http://localhost:5000
+
 '''
-This script is loosely based on the bokeh spectogram example,
-but is much simpler:
+from __future__ import print_function
 
-    https://github.com/bokeh/bokeh/tree/master/examples/embed/spectrogram
-
-This creates a simple form for generating polynomials of the form y = x^2.
-
-This is done using a form that has a method of GET, allowing you to share the
-graphs you create with your friends though the link!
-
-You should know at least the basics of Flask to understand this example
-'''
 import flask
 
 from bokeh.embed import components
@@ -27,17 +28,18 @@ colors = {
     'Blue':  '#0000FF',
 }
 
-
 def getitem(obj, item, default):
     if item not in obj:
         return default
     else:
         return obj[item]
 
-
 @app.route("/")
 def polynomial():
-    """ Very simple embedding of a polynomial chart"""
+    """ Very simple embedding of a polynomial chart
+
+    """
+
     # Grab the inputs arguments from the URL
     # This is automated by the button
     args = flask.request.args
@@ -73,10 +75,6 @@ def polynomial():
     )
     return encode_utf8(html)
 
-
-def main():
-    app.debug = True
-    app.run()
-
 if __name__ == "__main__":
-    main()
+    print(__doc__)
+    app.run()

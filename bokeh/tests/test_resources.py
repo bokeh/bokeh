@@ -142,6 +142,18 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
+    def test_server_with_versioner(self):
+        def versioner(path):
+            return path + "?v=VERSIONED"
+
+        r = resources.Resources(mode="server", root_url="http://foo/",
+                                path_versioner=versioner)
+
+        self.assertEqual(r.js_files, ['http://foo/static/js/bokeh.min.js?v=VERSIONED',
+                                      'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED'])
+        self.assertEqual(r.css_files, ['http://foo/static/css/bokeh.min.css?v=VERSIONED',
+                                       'http://foo/static/css/bokeh-widgets.min.css?v=VERSIONED'])
+
     def test_server_dev(self):
         r = resources.Resources(mode="server-dev")
         self.assertEqual(r.mode, "server")

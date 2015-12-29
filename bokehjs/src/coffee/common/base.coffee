@@ -41,6 +41,7 @@ locations =
   Range1d:                  require '../range/range1d'
 
   BoxAnnotation:            require '../renderer/annotation/box_annotation'
+  PolyAnnotation:           require '../renderer/annotation/poly_annotation'
   Legend:                   require '../renderer/annotation/legend'
   Span:                     require '../renderer/annotation/span'
   Tooltip:                  require '../renderer/annotation/tooltip'
@@ -98,15 +99,13 @@ locations =
   DatetimeAxis:             require '../renderer/guide/datetime_axis'
   Grid:                     require '../renderer/guide/grid'
 
-  BoxSelection:             require '../renderer/overlay/box_selection'
-  PolySelection:            require '../renderer/overlay/poly_selection'
-
   ColumnDataSource:         require '../source/column_data_source'
   BlazeDataSource:          require '../source/blaze_data_source'
   AjaxDataSource:           require '../source/ajax_data_source'
   GeoJSONDataSource:        require '../source/geojson_data_source'
 
-  AbstractTicker:           require '../ticking/abstract_ticker'
+  Ticker:                   require '../ticking/ticker'
+  ContinuousTicker:         require '../ticking/continuous_ticker'
   AdaptiveTicker:           require '../ticking/adaptive_ticker'
   BasicTicker:              require '../ticking/basic_ticker'
   CategoricalTicker:        require '../ticking/categorical_ticker'
@@ -209,6 +208,13 @@ browserify = {
   cache: arguments[5]
 }
 
+register_modules = (modules) ->
+  for own name, module of modules
+    if not browserify.modules[name]
+      browserify.modules[name] = module
+    else
+      throw new Error("Module `#{name}' already exists. Can't reassign.")
+
 Collections.register_plugin = (plugin, locations) ->
   logger.info("Registering plugin: #{plugin}")
   Collections.register_locations locations, errorFn = (name) ->
@@ -245,7 +251,6 @@ Collections.register_models = (specs) ->
   for own name, impl of specs
     Collections.register_model(name, impl)
 
-
 Collections.registered_names = () ->
   Object.keys(_get_mod_cache())
 
@@ -257,6 +262,7 @@ index = {}
 
 module.exports =
   collection_overrides: collection_overrides # for testing only
+  register_modules: register_modules
   locations: locations #
   index: index
   Collections: Collections

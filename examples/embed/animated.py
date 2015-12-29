@@ -1,38 +1,53 @@
-# The bokeh-server must be running to see this example
+""" To view this example, first start a Bokeh server:
 
+    bokeh serve
+
+And then load the example into the Bokeh server by
+running the script:
+
+    python animated.py
+
+in this directory. Finally, start a simple web server
+by running:
+
+    python -m SimpleHTTPServer  (python 2)
+
+or
+
+    python -m http.server  (python 3)
+
+in this directory. Navigate to
+
+    http://localhost:8000/animated.html
+
+"""
 from __future__ import print_function
 
-from bokeh.plotting import figure, output_server, show, curdoc
-from bokeh.models import GlyphRenderer
-import bokeh.embed as embed
-from bokeh.client import push_session
-
-import time
 from numpy import pi, cos, sin, linspace, roll
 
-N = 50 + 1
+from bokeh.client import push_session
+from bokeh.embed import autoload_server
+from bokeh.plotting import figure, curdoc
+
+M = 5
+N = M*10 + 1
 r_base = 8
-theta = linspace(0, 2 * pi, N)
-r_x = linspace(0, 6 * pi, N - 1)
+theta = linspace(0, 2*pi, N)
+r_x = linspace(0, 6*pi, N-1)
 rmin = r_base - cos(r_x) - 1
 rmax = r_base + sin(r_x) + 1
 
 colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
           "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
-# Open a session which will keep our local doc in sync with server
+# figure() function auto-adds the figure to curdoc()
+p = figure(x_range=(-11, 11), y_range=(-11, 11))
+r = p.annular_wedge(0, 0, rmin, rmax, theta[:-1], theta[1:],
+                    fill_color=colors, line_color="white")
+
+# open a session which will keep our local doc in sync with server
 session = push_session(curdoc())
 
-p = figure(x_range=[-11, 11], y_range=[-11, 11])
-p.annular_wedge(
-    0, 0, rmin, rmax, theta[:-1], theta[1:],
-    inner_radius_units="data",
-    outer_radius_units="data",
-    fill_color = colors,
-    line_color="black",
-)
-
-tag = embed.autoload_server(p, session_id=session.id)
 html = """
 <html>
   <head></head>
@@ -40,32 +55,20 @@ html = """
     %s
   </body>
 </html>
-"""
-html = html % (tag)
-with open("animated_embed.html", "w+") as f:
+""" % autoload_server(p, session_id=session.id)
+
+with open("animated.html", "w+") as f:
     f.write(html)
 
-print("""
-To view this example, run
+print(__doc__)
 
-    python -m SimpleHTTPServer (or http.server on python 3)
+ds = r.data_source
 
-in this directory, then navigate to
+def update():
+    rmin = roll(ds.data["inner_radius"], 1)
+    rmax = roll(ds.data["outer_radius"], -1)
+    ds.data.update(inner_radius=rmin, outer_radius=rmax)
 
-    http://localhost:8000/animated_embed.html
-""")
+curdoc().add_periodic_callback(update, 300)
 
-renderer = p.select(dict(type=GlyphRenderer))
-ds = renderer[0].data_source
-
-while True:
-
-    rmin = ds.data["inner_radius"]
-    rmin = roll(rmin, 1)
-    ds.data["inner_radius"] = rmin
-
-    rmax = ds.data["outer_radius"]
-    rmax = roll(rmax, -1)
-    ds.data["outer_radius"] = rmax
-
-    time.sleep(0.1)
+session.loop_until_closed() # run forever

@@ -8,10 +8,6 @@ of these will not be of general interest, except for `bokeh.sphinxext.bokeh_plot
 which allows anyone to include and embed bokeh plots directly
 in their own Sphinx docs.
 
-.. contents::
-    :local:
-    :depth: 1
-
 .. _bokeh.sphinxext.bokeh_autodoc:
 
 bokeh_autodoc

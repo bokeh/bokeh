@@ -44,7 +44,7 @@ from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
 from bokeh.model import Viewable
-import bokeh.properties
+import bokeh.core.properties
 
 
 PROP_TEMPLATE = jinja2.Template(u"""
@@ -58,8 +58,8 @@ PROP_TEMPLATE = jinja2.Template(u"""
 """)
 
 PROP_NAMES = [
-    name for name, cls in bokeh.properties.__dict__.items()
-    if isinstance(cls, type) and issubclass(cls, bokeh.properties.Property)
+    name for name, cls in bokeh.core.properties.__dict__.items()
+    if isinstance(cls, type) and issubclass(cls, bokeh.core.properties.Property)
 ]
 PROP_NAMES.sort(reverse=True, key=len)
 
@@ -108,7 +108,7 @@ class BokehPropDirective(Directive):
 
     def _get_type_info(self, prop):
         desc = str(prop)
-        template = ":class:`~bokeh.properties.%s`\ "
+        template = ":class:`~bokeh.core.properties.%s`\ "
         # some of the property names are substrings of other property names
         # so first go through greedily replacing the longest possible match
         # with a unique id (PROP_NAMES is reverse sorted by length)

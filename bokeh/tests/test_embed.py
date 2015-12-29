@@ -234,45 +234,66 @@ class TestAutoloadStatic(unittest.TestCase):
         self.assertEqual(attrs['src'], 'some/path')
 
 
-# class TestAutoloadServer(unittest.TestCase):
+class TestAutoloadServer(unittest.TestCase):
 
-#     def setUp(self):
-#         self.sess = Session(load_from_config=False)
-#         self.sess.docid = 'docid10'
-#         self.sess.apikey = 'apikey123'
-#         self.sess.root_url = "http://foo"
+    def test_return_type(self):
+        r = embed.autoload_server(_embed_test_plot, session_id='fakesession')
+        self.assertTrue(isinstance(r, str))
 
-#     def test_return_type(self):
-#         r = embed.autoload_server(_embed_test_plot, self.sess)
-#         self.assertTrue(isinstance(r, str))
+    def test_script_attrs_session_id_provided(self):
+        r = embed.autoload_server(_embed_test_plot, session_id='fakesession')
+        self.assertTrue('bokeh-session-id=fakesession' in r)
+        html = bs4.BeautifulSoup(r)
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'data-bokeh-log-level',
+            'async',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-session-id=fakesession" % \
+              ("http://localhost:5006", divid)
+        self.assertDictEqual({ 'async' : 'false',
+                               'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : str(_embed_test_plot._id),
+                               'data-bokeh-log-level' : 'info',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
 
-#     def test_script_attrs(self):
-#         r = embed.autoload_server(_embed_test_plot, self.sess)
-#         html = bs4.BeautifulSoup(r)
-#         scripts = html.findAll(name='script')
-#         self.assertEqual(len(scripts), 1)
-#         attrs = scripts[0].attrs
-#         self.assertTrue(set(attrs), set([
-#             'src',
-#             'data-bokeh-docid',
-#             'data-bokeh-docapikey',
-#             'data-bokeh-modeltype',
-#             'data-bokeh-modelid',
-#             'data-bokeh-root-url',
-#             'async',
-#             'id',
-#             'data-bokeh-data',
-#             'data-bokeh-conn-string'
-#         ]))
-#         self.assertEqual(attrs['async'], 'true')
-#         self.assertEqual(attrs['data-bokeh-data'], 'server')
-#         self.assertEqual(attrs['data-bokeh-docapikey'], 'apikey123')
-#         self.assertEqual(attrs['data-bokeh-docid'], 'docid10')
-#         self.assertEqual(attrs['data-bokeh-modelid'], str(_embed_test_plot._id))
-#         self.assertEqual(attrs['data-bokeh-root-url'], "http://foo/")
-#         divid = attrs['id']
-#         self.assertEqual(attrs['src'], "%s/bokeh/autoload.js/%s" % ("http://foo", divid))
+    def test_script_attrs_no_session_id_provided(self):
+        r = embed.autoload_server(None)
+        self.assertFalse('bokeh-session-id' in r)
+        html = bs4.BeautifulSoup(r)
+        scripts = html.findAll(name='script')
+        self.assertEqual(len(scripts), 1)
+        attrs = scripts[0].attrs
+        self.assertTrue(set(attrs), set([
+            'src',
+            'data-bokeh-doc-id',
+            'data-bokeh-model-id',
+            'data-bokeh-log-level',
+            'async',
+            'id'
+        ]))
+        divid = attrs['id']
+        src = "%s/autoload.js?bokeh-autoload-element=%s" % \
+              ("http://localhost:5006", divid)
+        self.assertDictEqual({ 'async' : 'false',
+                               'data-bokeh-doc-id' : '',
+                               'data-bokeh-model-id' : '',
+                               'data-bokeh-log-level' : 'info',
+                               'id' : divid,
+                               'src' : src },
+                             attrs)
 
+    def test_autoload_server_value_error_on_model_id_without_session_id(self):
+        self.assertRaises(ValueError, embed.autoload_server, _embed_test_plot)
 
 if __name__ == "__main__":
     unittest.main()

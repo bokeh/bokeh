@@ -1,12 +1,12 @@
 
-from bokeh.sampledata.autompg import autompg as df
-from bokeh.sampledata.olympics2014 import data
-from bokeh.sampledata.iris import flowers
+import pandas as pd
 
 from bokeh.charts import Scatter, output_file, show, vplot, hplot
 from bokeh.charts.operations import blend
 from bokeh.charts.utils import df_from_json
-import pandas as pd
+from bokeh.sampledata.autompg import autompg as df
+from bokeh.sampledata.iris import flowers
+from bokeh.sampledata.olympics2014 import data
 
 scatter0 = Scatter(
     df, x='mpg', title="x='mpg'", xlabel="Miles Per Gallon")
@@ -20,8 +20,11 @@ scatter2 = Scatter(
     xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
 
 scatter3 = Scatter(
-    df, x='mpg', y='hp', color='origin', title="x='mpg', y='hp', color='origin'",
-    xlabel="Miles Per Gallon", ylabel="Horsepower", legend='top_right')
+    df, x='mpg', y='hp', color='origin', title="x='mpg', y='hp', color='origin', "
+                                               "with tooltips",
+    xlabel="Miles Per Gallon", ylabel="Horsepower",
+    legend='top_right', tooltips=[('origin', "@origin")])
+
 
 scatter4 = Scatter(
     df, x='mpg', y='hp', color='cyl', marker='origin', title="x='mpg', y='hp', color='cyl', marker='origin'",

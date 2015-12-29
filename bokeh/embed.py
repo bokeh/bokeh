@@ -13,22 +13,22 @@ these different cases.
 
 from __future__ import absolute_import
 
+from collections import Sequence
 import re
 import uuid
 from warnings import warn
 
-from .templates import (
+from six import string_types
+
+from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
     NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
-from .util.string import encode_utf8
-
-from .model import Model, _ModelInDocument
-from ._json_encoder import serialize_json
-from .resources import _SessionCoordinates
+from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from collections import Sequence
-from six import string_types
+from .model import Model, _ModelInDocument
+from .resources import _SessionCoordinates
+from .util.string import encode_utf8
 
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
@@ -268,7 +268,7 @@ def file_html(models,
         css_resources (CSSResources, optional): custom CSS Resources (default: ``None``), if
             resources is also provided, resources will override css_resources.
         template (Template, optional) : HTML document template (default: FILE)
-            A Jinja2 Template, see bokeh.templates.FILE for the required
+            A Jinja2 Template, see bokeh.core.templates.FILE for the required
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
@@ -383,7 +383,9 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
         model (Model) : the object to render from the session, or None for entire document
         app_path (str, optional) : the server path to the app we want to load
         session_id (str, optional) : server session ID (default: None)
-          If None, autogenerate a random session ID.
+          If None, let the server autogenerate a random session ID. If you supply
+          a specific model to render, you must also supply the session ID containing
+          that model, though.
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
         loglevel (str, optional) : "trace", "debug", "info", "warn", "error", "fatal"
 
@@ -410,13 +412,25 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
     if model is not None:
         model_id = model._id
 
-    src_path = coords.server_url + "/autoload.js" + "?bokeh-autoload-element=" + elementid
+    if model_id and session_id is None:
+        raise ValueError("A specific model was passed to autoload_server() but no session_id; "
+                         "this doesn't work because the server will generate a fresh session "
+                         "which won't have the model in it.")
+
+    src_path = coords.server_url + "/autoload.js" + \
+               "?bokeh-autoload-element=" + elementid
+
+    # we want the server to generate the ID, so the autoload script
+    # can be embedded in a static page while every user still gets
+    # their own session. So we omit bokeh-session-id rather than
+    # using a generated ID.
+    if coords.session_id_allowing_none is not None:
+        src_path = src_path + "&bokeh-session-id=" + session_id
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         elementid = elementid,
         modelid = model_id,
-        sessionid = coords.session_id,
         loglevel = loglevel
     )
 

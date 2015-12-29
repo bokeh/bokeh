@@ -23,6 +23,7 @@ from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
+from .views.static_handler import StaticHandler
 
 def _whitelist(handler_class):
     if hasattr(handler_class.prepare, 'patched'):
@@ -143,7 +144,9 @@ class BokehTornado(TornadoApplication):
     def resources(self, request):
         root_url = self.root_url_for_request(request)
         if root_url not in self._resources:
-            self._resources[root_url] = Resources(mode="server", root_url=root_url)
+            self._resources[root_url] =  Resources(mode="server",
+                                                   root_url=root_url,
+                                                   path_versioner=StaticHandler.append_version)
         return self._resources[root_url]
 
     def start(self):

@@ -76,7 +76,7 @@ class HTML(FileOutputSubcommand):
 
     def after_write_file(self, args, filename, doc):
         if args.show:
-            from bokeh.browserlib import view
+            from bokeh.util.browser import view
             view(filename)
 
     def file_contents(self, args, doc):
