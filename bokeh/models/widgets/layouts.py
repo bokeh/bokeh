@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 from ...core import validation
 from ...core.validation.warnings import EMPTY_LAYOUT, BOTH_CHILD_AND_ROOT
 from ...core.properties import abstract
-from ...core.properties import Int, Instance, List, Either, String
+from ...core.properties import Int, Instance, List
 
 from ..component import Component
 from .widget import Widget
@@ -33,14 +33,6 @@ class Layout(Widget):
 class BaseBox(Layout):
     """ Abstract base class for HBox and VBox. Do not use directly.
     """
-
-    padding = Int(help="""
-    An optional padding for the widget (in pixels).
-    """)
-
-    children_padding = Either(String, Int, help="""
-    An optional padding for the widget children elements (in pixels).
-    """)
 
     def __init__(self, *args, **kwargs):
         if len(args) > 0 and "children" in kwargs:

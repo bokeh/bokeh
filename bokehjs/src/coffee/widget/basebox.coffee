@@ -8,8 +8,6 @@ class BaseBox extends Layout.Model
     return _.extend {}, super(), {
       width: null
       height: null
-      padding: null
-      children_padding: null
     }
 
 module.exports =

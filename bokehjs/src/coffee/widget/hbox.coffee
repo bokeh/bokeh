@@ -28,13 +28,9 @@ class HBoxView extends ContinuumView
     padding = @mget("padding")
     if padding? then @$el.css(padding: padding + "px")
     for child in children
-      children_padding = @mget("children_padding")
-      if children_padding?
-        if children_padding == "auto"
-          spacer = $('<div class="bk-hbox-spacer"></div>')
-          @$el.append(spacer)
-        else
-          @views[child.id].$el.css(padding: "0 " + children_padding + "px")
+      spacer = $('<div class="bk-hbox-spacer"></div>')
+      @$el.append(spacer)
+      
       @$el.append(@views[child.id].$el)
 
     return @
