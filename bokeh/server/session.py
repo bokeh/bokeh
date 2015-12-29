@@ -22,11 +22,16 @@ def current_time():
 def _needs_document_lock(func):
     '''Decorator that adds the necessary locking and post-processing
        to manipulate the session's document. Expects to decorate a
-       non-coroutine method on ServerSession and transforms it
-       into a coroutine.
+       method on ServerSession and transforms it into a coroutine
+       if it wasn't already.
     '''
     @gen.coroutine
     def _needs_document_lock_wrapper(self, *args, **kwargs):
+        # TODO while we wait for the lock, we should prevent the
+        # session from being discarded (waiting here should hold
+        # the session alive). That way apps don't have to worry
+        # about sessions disappearing out from under them while
+        # waiting for the session document.
         with (yield self._lock.acquire()):
             if self._pending_writes is not None:
                 raise RuntimeError("internal class invariant violated: _pending_writes " + \
@@ -67,6 +72,7 @@ class ServerSession(object):
         self._callbacks = _DocumentCallbackGroup(io_loop)
         self._pending_writes = None
         self._destroyed = False
+        self._expiration_requested = False
 
         wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
         self._callbacks.add_session_callbacks(wrapped_callbacks)
@@ -83,10 +89,18 @@ class ServerSession(object):
     def destroyed(self):
         return self._destroyed
 
+    @property
+    def expiration_requested(self):
+        return self._expiration_requested
+
     def destroy(self):
         self._destroyed = True
         self._document.remove_on_change(self)
         self._callbacks.remove_all_callbacks()
+
+    def request_expiration(self):
+        """ Used in test suite for now. Forces immediate expiration if no connections."""
+        self._expiration_requested = True
 
     def subscribe(self, connection):
         """This should only be called by ServerConnection.subscribe_session or our book-keeping will be broken"""

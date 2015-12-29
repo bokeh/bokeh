@@ -66,8 +66,22 @@ class WSHandler(WebSocketHandler):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
 
+        def on_fully_opened(future):
+            e = future.exception()
+            if e is not None:
+                # this isn't really an error (unless we have a
+                # bug), it just means a client disconnected
+                # immediately, most likely.
+                log.debug("Failed to fully open connection %r", e)
+
+        future = self._async_open(session_id, proto_version)
+        self.application.io_loop.add_future(future,
+                                            on_fully_opened)
+
+    @gen.coroutine
+    def _async_open(self, session_id, proto_version):
         try:
-            self.application_context.create_session_if_needed(session_id)
+            yield self.application_context.create_session_if_needed(session_id)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol(proto_version)
@@ -85,16 +99,10 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise e
 
-        def on_ack_sent(future):
-            e = future.exception()
-            if e is not None:
-                # this isn't really an error (unless we have a
-                # bug), it just means a client disconnected
-                # immediately, most likely.
-                log.debug("Failed to send ack %r", e)
-
         msg = self.connection.protocol.create('ACK')
-        self.application.io_loop.add_future(self.send_message(msg), on_ack_sent)
+        yield self.send_message(msg)
+
+        raise gen.Return(None)
 
     @gen.coroutine
     def on_message(self, fragment):

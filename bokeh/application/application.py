@@ -6,9 +6,12 @@ from __future__ import absolute_import
 import logging
 log = logging.getLogger(__name__)
 
+from tornado import gen
+
 from abc import ABCMeta, abstractmethod
 
 from ..util.future import with_metaclass
+from ..util.tornado import yield_for_all_futures
 from ..document import Document
 
 class ServerContext(with_metaclass(ABCMeta)):
@@ -78,11 +81,16 @@ class SessionContext(with_metaclass(ABCMeta)):
         raise NotImplementedError("destroyed")
 
     @abstractmethod
-    def locked_document(self):
-        """ Returns a Future containing a context manager to access the document with lock held.
+    def with_locked_document(self, func):
+        """ Runs a function with the document lock held, passing the document to the function.
+        The function may return a future.
 
-        Use this like: ``with (yield session_context.locked_document()) as doc:``
-        It must be used from within a coroutine.
+        Args:
+            func: function that takes a single parameter (the Document) and returns None or a Future
+
+        Returns:
+            a Future containing the result of the function
+
         """
         raise NotImplementedError("locked_document")
 
@@ -135,16 +143,25 @@ class Application(object):
     def on_server_unloaded(self, server_context):
         """ Invoked in theory if the server shuts down cleanly, probably
         not invoked most of the time in practice since servers tend to be
-        killed by a signal."""
+        killed by a signal. Invoked before stopping the server's IOLoop."""
         for h in self._handlers:
             h.on_server_unloaded(server_context)
 
+    @gen.coroutine
     def on_session_created(self, session_context):
-        """ Invoked when we create a new session, with a blank Document that hasn't been filled in yet."""
+        """ Invoked when we create a new session, with a blank Document that hasn't been filled in yet.
+        May return a Future which will delay session creation until the Future completes."""
         for h in self._handlers:
-            h.on_session_created(session_context)
+            result = h.on_session_created(session_context)
+            yield yield_for_all_futures(result)
+        raise gen.Return(None)
 
+    @gen.coroutine
     def on_session_destroyed(self, session_context):
-        """ Invoked when we expire a session and drop it from memory, after removing all of its callbacks."""
+        """ Invoked when we are about to expire a session and drop it from memory
+        (but before we've permanently destroyed it). May return a Future which will delay session
+        destruction until the Future completes."""
         for h in self._handlers:
-            h.on_session_destroyed(session_context)
+            result = h.on_session_destroyed(session_context)
+            yield yield_for_all_futures(result)
+        raise gen.Return(None)

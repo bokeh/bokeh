@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
+from tornado import gen
 from tornado.web import RequestHandler
 
 from bokeh.core.templates import AUTOLOAD_JS
@@ -23,8 +24,9 @@ class AutoloadJsHandler(SessionHandler):
     def initialize(self, *args, **kw):
         pass
 
+    @gen.coroutine
     def get(self, *args, **kwargs):
-        session = self.get_session()
+        session = yield self.get_session()
 
         element_id = self.get_argument("bokeh-autoload-element", default=None)
         if not element_id:

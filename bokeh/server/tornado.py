@@ -162,10 +162,11 @@ class BokehTornado(TornadoApplication):
                                                    path_versioner=StaticHandler.append_version)
         return self._resources[root_url]
 
-    def start(self):
+    def start(self, start_loop=True):
         ''' Start the Bokeh Server application main loop.
 
         Args:
+            start_loop (boolean): False to not actually start event loop, used in tests
 
         Returns:
             None
@@ -182,10 +183,11 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             context.run_load_hook()
 
-        try:
-            self._loop.start()
-        except KeyboardInterrupt:
-            print("\nInterrupted, shutting down")
+        if start_loop:
+            try:
+                self._loop.start()
+            except KeyboardInterrupt:
+                print("\nInterrupted, shutting down")
 
     def stop(self):
         ''' Stop the Bokeh Server application.
@@ -194,6 +196,11 @@ class BokehTornado(TornadoApplication):
             None
 
         '''
+        # TODO we should probably close all connections and shut
+        # down all sessions either here or in unlisten() ... but
+        # it isn't that important since in real life it's rare to
+        # do a clean shutdown (vs. a kill-by-signal) anyhow.
+
         for context in self._applications.values():
             context.run_unload_hook()
 
@@ -201,6 +208,7 @@ class BokehTornado(TornadoApplication):
         self._cleanup_job.stop()
         if self._ping_job is not None:
             self._ping_job.stop()
+
         self._loop.stop()
 
     @property
@@ -221,9 +229,11 @@ class BokehTornado(TornadoApplication):
             raise ValueError("Application %s does not exist on this server" % app_path)
         return self._applications[app_path].get_session(session_id)
 
+    @gen.coroutine
     def cleanup_sessions(self):
         for app in self._applications.values():
-            app.cleanup_sessions(self._unused_session_linger_seconds)
+            yield app.cleanup_sessions(self._unused_session_linger_seconds)
+        raise gen.Return(None)
 
     def log_stats(self):
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
