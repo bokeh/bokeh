@@ -18,9 +18,12 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import io
+import itertools
+import json
+import os
 import uuid
-
-import io, itertools, os, warnings
+import warnings
 
 # Third-party imports
 
@@ -53,6 +56,24 @@ _state = State()
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
+
+class _CommsHandle(object):
+    def __init__(self, comms, doc, json):
+        self._comms = comms
+        self._doc = doc
+        self._json = json
+
+    @property
+    def comms(self):
+        return self._comms
+
+    @property
+    def doc(self):
+        return self._doc
+
+    @property
+    def json(self):
+        return self._json
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
@@ -254,19 +275,19 @@ def show(obj, browser=None, new="tab"):
         an IPython/Jupyter notebook.
 
     '''
-    _show_with_state(obj, _state, browser, new)
+    return _show_with_state(obj, _state, browser, new)
 
 def _show_with_state(obj, state, browser, new):
     controller = browserlib.get_browser_controller(browser=browser)
 
     if state.notebook:
-        _show_notebook_with_state(obj, state)
+        return _show_notebook_with_state(obj, state)
 
     elif state.server_enabled:
-        _show_server_with_state(obj, state, new, controller)
+        return _show_server_with_state(obj, state, new, controller)
 
     if state.file:
-        _show_file_with_state(obj, state, new, controller)
+        return _show_file_with_state(obj, state, new, controller)
 
 def _show_file_with_state(obj, state, new, controller):
     save(obj, state=state)
@@ -280,11 +301,9 @@ def _show_notebook_with_state(obj, state):
     else:
         comms_target = str(uuid.uuid4())
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
-        if state.last_comms:
-            state.last_comms.close()
-        state.last_pushed_doc = state.document
-        state.last_pushed_json = state.document.to_json()
-        state.last_comms = get_comms(comms_target)
+        handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
+        state.last_comms_handle = handle
+        return handle
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
@@ -432,7 +451,7 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
     _push_to_server(session_id=session_id, url=url, app_path=app_path,
                     document=document, io_loop=io_loop)
 
-def push_notebook(document=None, state=None):
+def push_notebook(document=None, state=None, handle=None):
     ''' Update the last-shown plot in a Jupyter notebook with the new data
     or property values.
 
@@ -479,20 +498,21 @@ def push_notebook(document=None, state=None):
         warnings.warn("No document to push")
         return
 
-    # state.last_comms also implies last_pushed_doc and last_pushed_json
-    if not state.last_comms:
+    if handle is None:
+        handle = state.last_comms_handle
+
+    if not handle:
         warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show() before push_notebook()")
         return
 
-    import json
     to_json = document.to_json()
-    if state.last_pushed_doc != document:
+    if handle.doc != document:
         msg = dict(doc=to_json)
     else:
-        msg = Document._compute_patch_between_json(state.last_pushed_json, to_json, document)
-    state.last_comms.send(json.dumps(msg))
-    state.last_pushed_doc = document
-    state.last_pushed_json = to_json
+        msg = Document._compute_patch_between_json(handle.json, to_json, document)
+    handle.comms.send(json.dumps(msg))
+    handle._doc = document
+    handle._json = to_json
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
