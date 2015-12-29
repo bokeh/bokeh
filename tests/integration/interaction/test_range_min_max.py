@@ -10,7 +10,7 @@ pytestmark = pytest.mark.integration
 
 
 def make_pan_plot_with_callback(range_min=None, range_max=None):
-    x_range = Range1d(0, 3, bound_lower=range_min, bound_upper=range_max)
+    x_range = Range1d(0, 3, bounds=(range_min, range_max))
     x_callback = CustomJS(args=dict(x_range=x_range), code="""
         window.get_x_range_start = function() {
             return x_range.get('start');
@@ -21,7 +21,7 @@ def make_pan_plot_with_callback(range_min=None, range_max=None):
     """)
     x_range.callback = x_callback
 
-    y_range = Range1d(0, 3, bound_lower=range_min, bound_upper=range_max)
+    y_range = Range1d(0, 3, bounds=(range_min, range_max))
     y_callback = CustomJS(args=dict(y_range=y_range), code="""
         window.get_y_range_start = function() {
             return y_range.get('start');
@@ -73,7 +73,7 @@ def test_x_range_does_not_pan_left_of_x_min(output_file_url, selenium):
     selenium.get(output_file_url)
 
     # Pan plot and test for new range value
-    pan_plot(selenium, pan_x=100, pan_y=0)
+    pan_plot(selenium, pan_x=200, pan_y=0)
     new_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
     assert new_range_start == x_range_min
@@ -86,7 +86,7 @@ def test_x_range_does_not_pan_right_of_x_max(output_file_url, selenium):
     selenium.get(output_file_url)
 
     # Pan plot and test for new range value
-    pan_plot(selenium, pan_x=-100, pan_y=0)
+    pan_plot(selenium, pan_x=-200, pan_y=0)
     new_range_end = float(selenium.execute_script("""alert(window.get_x_range_end())"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
     assert new_range_end == x_range_max
