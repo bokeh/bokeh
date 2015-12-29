@@ -512,7 +512,7 @@ REQUIRES = [
         'python-dateutil>=2.1',
         'Jinja2>=2.7',
         'numpy>=1.7.1',
-        'tornado>=4.0.1',
+        'tornado>=4.3',
     ]
 
 if sys.version_info[:2] == (2, 7):
@@ -561,7 +561,6 @@ setup(
         'bokeh.core.compat.mplexporter.renderers',
         'bokeh.core.tests',
         'bokeh.core.validation',
-        'bokeh.crossfilter',
         'bokeh.plotting',
         'bokeh.plotting.tests',
         'bokeh.sampledata',

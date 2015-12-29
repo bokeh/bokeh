@@ -16,7 +16,6 @@ downsample large data sets or stream continuously updating data from the
 Bokeh server.
 
 * :doc:`server_gallery/sliders_server`.
-* :doc:`server_gallery/crossfilter_server`.
 * :doc:`server_gallery/stocks_server`.
 
 .. toctree::

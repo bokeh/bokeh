@@ -56,7 +56,7 @@ def test_args():
 
         ('--host', dict(
             metavar='HOST[:PORT]',
-            nargs='*',
+            action='append',
             type=str,
             help="Public hostnames to allow in requests",
         )),
