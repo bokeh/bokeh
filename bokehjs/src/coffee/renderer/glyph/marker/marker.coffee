@@ -99,9 +99,9 @@ class Marker extends Glyph.Model
   distances: ['size']
   angles: ['angle']
 
-  display_defaults: ->
+  defaults: ->
     return _.extend {}, super(), {
-      size: 4
+      size: { units: "screen", value: 4 }
       angle: 0
     }
 

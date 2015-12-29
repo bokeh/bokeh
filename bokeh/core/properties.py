@@ -1625,16 +1625,19 @@ class UnitsSpecProperty(DataSpecProperty):
 
     def _extract_units(self, obj, value):
         if isinstance(value, dict):
+            if 'units' in value:
+                value = copy(value) # so we can modify it
             units = value.pop("units", None)
             if units:
                 self.units_prop.__set__(obj, units)
+        return value
 
     def __set__(self, obj, value):
-        self._extract_units(obj, value)
+        value = self._extract_units(obj, value)
         super(UnitsSpecProperty, self).__set__(obj, value)
 
     def set_from_json(self, obj, json, models=None):
-        self._extract_units(obj, json)
+        json = self._extract_units(obj, json)
         super(UnitsSpecProperty, self).set_from_json(obj, json, models)
 
 class UnitsSpec(NumberSpec):

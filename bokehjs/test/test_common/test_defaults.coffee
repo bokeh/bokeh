@@ -33,11 +33,39 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   python_missing = []
   coffee_missing = []
   for k, v of coffee_defaults
+
+    # special case for date picker, default is "now"
+    if name == 'DatePicker' and k == 'value'
+      continue
+
     if k == 'id'
       continue
+
     if k of python_defaults
       py_v = python_defaults[k]
       if not _.isEqual(py_v, v)
+
+        # these two conditionals compare 'foo' and {value: 'foo'}
+        if _.isObject(v) and 'value' of v and _.isEqual(py_v, v['value'])
+          continue
+        if _.isObject(py_v) and 'value' of py_v and _.isEqual(py_v['value'], v)
+          continue
+
+        # compare arrays of objects
+        if _.isArray(v) and _.isArray(py_v)
+          equal = true
+
+          if v.length != py_v.length
+            equal = false
+          else
+            for i in [0...v.length]
+              if not _.isEqual(_.omit(v[i], 'id'), _.omit(py_v[i], 'id'))
+                equal = false
+                break
+
+          if equal
+            continue
+
         different.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python defaults to #{safe_stringify(py_v)}")
     else
       python_missing.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python has no such property")
@@ -177,4 +205,4 @@ describe "Defaults", ->
     # then edit this number to be lower. If it's failing because
     # it's higher, fix the newly-introduced errors. Eventually we
     # will get to zero.
-    expect(fail_count).to.equal 63
+    expect(fail_count).to.equal 12

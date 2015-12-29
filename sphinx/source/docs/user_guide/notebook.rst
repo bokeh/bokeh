@@ -3,10 +3,6 @@
 Working in the Notebook
 =======================
 
-.. contents::
-    :local:
-    :depth: 2
-
 Displaying Inline Plots
 -----------------------
 

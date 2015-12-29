@@ -1,11 +1,13 @@
+# You must first run "bokeh serve" to view this example
+
 import json
 
 from bokeh.client import push_session
+from bokeh.driving import repeat
 from bokeh.io import curdoc
 from bokeh.models import GeoJSONDataSource
 from bokeh.plotting import figure
 from bokeh.sampledata.sample_geojson import geojson as original
-from bokeh.driving import repeat
 
 updated = json.dumps({
     'type': 'FeatureCollection',
@@ -22,7 +24,7 @@ updated = json.dumps({
 source = GeoJSONDataSource(geojson=original)
 
 p = figure(tools='box_select')
-p.circle(line_color=None, fill_alpha=0.8, source=source)
+p.circle(x='x', y='y', line_color=None, fill_alpha=0.8, source=source)
 
 # open a session to keep our local document in sync with server
 session = push_session(curdoc())

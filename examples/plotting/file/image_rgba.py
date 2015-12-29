@@ -14,9 +14,11 @@ for i in range(N):
         view[i, j, 2] = int(j/N*255)
         view[i, j, 3] = 255
 
-output_file("image_rgba.html", title="image_rgba.py example")
+p = figure(x_range=(0,10), y_range=(0,10))
 
-p = figure(x_range=[0,10], y_range=[0,10])
-p.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10])
+# must give a vector of images
+p.image_rgba(image=[img], x=0, y=0, dw=10, dh=10)
+
+output_file("image_rgba.html", title="image_rgba.py example")
 
 show(p)  # open a browser

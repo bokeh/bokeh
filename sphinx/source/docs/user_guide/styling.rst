@@ -3,10 +3,6 @@
 Styling Visual Attributes
 =========================
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _userguide_styling_using_palettes:
 
 Using Palettes
@@ -334,6 +330,18 @@ below demonstrates the latter method:
 .. note::
     Only the *visual* properties of ``hover_glyph`` are considered when
     rendering. Changing positions, sizes, etc. will have no effect.
+
+.. _userguide_styling_tools:
+
+Tools
+-----
+
+Some Bokeh tools also have configurable visual attributes. For instance the
+various region selection tools and box zoom tool all have an ``overlay``
+whose line and fill properties may be set:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_tool_overlays.py
+    :source-position: above
 
 .. _userguide_styling_axes:
 
