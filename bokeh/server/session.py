@@ -79,9 +79,6 @@ class ServerSession(object):
         wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
         self._callbacks.add_session_callbacks(wrapped_callbacks)
 
-        # TODO: in a future patch, we need to self._callbacks.remove_all_callbacks
-        # when the session is destroyed
-
     @property
     def document(self):
         return self._document
@@ -96,8 +93,8 @@ class ServerSession(object):
 
     def destroy(self):
         self._destroyed = True
-
-        # TODO we need to remove all timeout/periodic callbacks from the io loop!
+        self._document.remove_on_change(self)
+        self._callbacks.remove_all_callbacks()
 
     def subscribe(self, connection):
         """This should only be called by ServerConnection.subscribe_session or our book-keeping will be broken"""
