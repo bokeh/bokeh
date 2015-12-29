@@ -64,6 +64,7 @@ locations =
   Bezier:                   require '../renderer/glyph/bezier'
   Circle:                   require '../renderer/glyph/circle'
   Gear:                     require '../renderer/glyph/gear'
+  HBar:                     require '../renderer/glyph/hbar'
   Image:                    require '../renderer/glyph/image'
   ImageRGBA:                require '../renderer/glyph/image_rgba'
   ImageURL:                 require '../renderer/glyph/image_url'
@@ -78,6 +79,7 @@ locations =
   Rect:                     require '../renderer/glyph/rect'
   Segment:                  require '../renderer/glyph/segment'
   Text:                     require '../renderer/glyph/text'
+  VBar:                     require '../renderer/glyph/vbar'
   Wedge:                    require '../renderer/glyph/wedge'
 
   Asterisk:                 require '../renderer/glyph/marker/asterisk'
