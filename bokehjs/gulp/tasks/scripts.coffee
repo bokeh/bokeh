@@ -135,6 +135,7 @@ namedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (ro
     .replace(/\.(coffee|js|eco)$/, "")
     .split(path.sep).join("/")
     .replace(/^(src\/(coffee|vendor)|node_modules|build\/js\/tree)\//, "")
+    .replace("browserify/node_modules/process/browser", "_process")
 
   if argv.verbose
     util.log("Processing #{modName}")
@@ -164,8 +165,19 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
     prelude: preludeText
   }
 
+  compilerOpts = {
+    entries: [path.resolve('./build/js/tree/compiler/main.js')]
+    extensions: [".js"]
+    debug: true
+    preludePath: preludePath
+    prelude: preludeText
+  }
+
   bokehjs = browserify(bokehjsOpts)
+  bokehjs.exclude("coffee-script")
+
   widgets = browserify(widgetsOpts)
+  compiler = browserify(compilerOpts)
 
   labels = {}
 
@@ -193,7 +205,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
     if argv.verbose then util.log("Building widgets")
     namedLabeler(widgets, labels)
     for own file, name of labels
-      widgets.external(file)
+      widgets.external(file) if name != "_process"
     widgets
       .bundle()
       .pipe(source(paths.coffee.widgets.destination.full))
@@ -209,11 +221,31 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       .pipe(gulp.dest(paths.buildDir.js))
       .on 'end', () -> next()
 
-  buildBokehjs () -> buildWidgets(cb)
+  buildCompiler = (next) ->
+    if argv.verbose then util.log("Building compiler")
+    namedLabeler(compiler, labels)
+    for own file, name of labels
+      compiler.external(file) if name != "_process"
+    compiler
+      .bundle()
+      .pipe(source(paths.coffee.compiler.destination.full))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({loadMaps: true}))
+      # This solves a conflict when requirejs is loaded on the page. Backbone
+      # looks for `define` before looking for `module.exports`, which eats up
+      # our backbone.
+      .pipe change (content) ->
+        "(function() { var define = undefined; return #{content} })()"
+      .pipe(insert.append(license))
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest(paths.buildDir.js))
+      .on 'end', () -> next()
+
+  buildBokehjs(() -> buildWidgets(() -> buildCompiler(cb)))
   null # XXX: this is extremely important to allow cb() to work
 
 gulp.task "scripts:minify", ->
-  tasks = [paths.coffee.bokehjs, paths.coffee.widgets].map (entry) ->
+  tasks = [paths.coffee.bokehjs, paths.coffee.widgets, paths.coffee.compiler].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
       .pipe(sourcemaps.init({loadMaps: true}))

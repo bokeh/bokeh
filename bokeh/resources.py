@@ -196,7 +196,7 @@ class BaseResources(object):
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None,
                  path_versioner=None):
-        self.components = ["bokeh", "bokeh-widgets"]
+        self.components = ["bokeh", "bokeh-widgets", "bokeh-compiler"]
 
         self.mode = settings.resources(mode)
         self.root_dir = settings.rootdir(root_dir)

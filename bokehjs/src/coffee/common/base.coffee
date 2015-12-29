@@ -2,8 +2,6 @@ _ = require "underscore"
 Collection = require "./collection"
 window = {location: {href: "local"}} unless window?
 
-coffee = require "coffee-script"
-
 {logger} = require "./logging"
 
 # add some useful functions to underscore
