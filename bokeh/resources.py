@@ -24,6 +24,7 @@ from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
 from .util.paths import bokehjsdir
 from .util.session_id import generate_session_id
+from .model import Model
 
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
@@ -294,29 +295,6 @@ class BaseResources(object):
         end = "/* END %s */" % path
         return "%s\n%s\n%s" % (begin, middle, end)
 
-    def _use_component(self, component, use):
-        obj = copy.deepcopy(self)
-
-        if use:
-            if component not in obj.components:
-                try:
-                    i = obj.components.index("bokeh")
-                except ValueError:
-                    i = 0
-
-                obj.components.insert(i, component)
-        else:
-            try:
-                obj.components.remove(component)
-            except ValueError:
-                pass
-
-        return obj
-
-    def use_widgets(self, use):
-        return self._use_component("bokeh-widgets", use)
-
-
 class JSResources(BaseResources):
     ''' The Resources class encapsulates information relating to loading or embedding Bokeh Javascript.
 
@@ -374,11 +352,106 @@ class JSResources(BaseResources):
     @property
     def js_raw(self):
         _, raw = self._resolve('js')
-        return raw + ['Bokeh.set_log_level("%s");' % self.log_level]
+        raw.append('Bokeh.set_log_level("%s");' % self.log_level)
+        custom_models = self._render_custom_models_static()
+        if custom_models is not None:
+            raw.append(custom_models)
+        return raw
+
+    _plugin_template = \
+"""
+(function outer(modules, cache, entry) {
+  if (Bokeh) {
+    for (var name in modules) {
+      var module = modules[name];
+
+      if (typeof(module) === "string") {
+        try {
+          coffee = Bokeh.require("coffee-script")
+        } catch (e) {
+          throw new Error("Compiler requested but failed to import. Make sure bokeh-compiler(-min).js was included.")
+        }
+
+        function compile(code) {
+          var body = coffee.compile(code, {bare: true, shiftLine: true});
+          return new Function("require", "module", "exports", body);
+        }
+
+        modules[name] = [compile(module), {}];
+      }
+    }
+
+    for (var name in modules) {
+      Bokeh.require.modules[name] = modules[name];
+    }
+
+    for (var i = 0; i < entry.length; i++) {
+      Bokeh.Collections.register_locations(Bokeh.require(entry[i]));
+    }
+  } else {
+    throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
+  }
+})({
+ "custom/main":[function(require,module,exports){
+   module.exports = { %(exports)s };
+ }, {}],
+ %(models)s
+}, {}, ["custom/main"]);
+"""
+
+    def _render_custom_models_static(self):
+        def _snakify(name, sep='_'):
+            name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1%s\2" % sep, name)
+            name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
+            return name.lower()
+
+        def _escape_code(code):
+            """ Escape JS/CS source code, so that it can be embedded in a JS string.
+
+            This is based on https://github.com/joliss/js-string-escape.
+            """
+            def escape(match):
+                ch = match.group(0)
+
+                if ch == '"' or ch == "'" or ch == '\\':
+                    return '\\' + ch
+                elif ch == '\n':
+                    return '\\n'
+                elif ch == '\r':
+                    return '\\r'
+                elif ch == '\u2028':
+                    return '\\u2028'
+                elif ch == '\u2029':
+                    return '\\u2029'
+
+            return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
+
+        custom_models = {}
+
+        for cls in Model.model_class_reverse_map.values():
+            impl = getattr(cls, "__implementation__", None)
+
+            if impl is not None:
+                custom_models[(cls.__module__, cls.__name__)] = impl
+
+        if not custom_models:
+            return None
+
+        exports = []
+        models = []
+
+        for (_, model_name), impl in sorted(custom_models.items(), key=lambda arg: arg[0]):
+            module_name = "custom/%s" % _snakify(model_name)
+            exports.append('%s: require("%s")' % (model_name, module_name))
+            models.append('"%s": "%s"' % (module_name, _escape_code(impl)))
+
+        exports = ",\n".join(exports)
+        models = ",\n".join(models)
+
+        return self._plugin_template % dict(exports=exports, models=models)
 
     def render_js(self):
         return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
-
 
 class CSSResources(BaseResources):
     ''' The CSSResources class encapsulates information relating to loading or embedding Bokeh client-side CSS.

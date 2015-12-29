@@ -66,29 +66,6 @@ Collections = (typename) ->
 Collections.register = (name, collection) ->
   collection_overrides[name] = collection
 
-# XXX: this refers to the 4th and 5th arguments of the outer function of this module,
-# which is provided by browserify during # compilation. Only first three arguments
-# are named, i.e require, module and exports, so the next ones we have to retrieve
-# like this. `modules` is the set of all modules known to bokehjs upon compilation
-# and # extended with module registration mechanism. `cache` is an internal thing of
-# browserify, but we have to manage it here as well, to all module re-registration.
-browserify = {
-  modules: arguments[4]
-  cache: arguments[5]
-}
-
-register_modules = (modules) ->
-  for own name, module of modules
-    if not browserify.modules[name]
-      browserify.modules[name] = module
-    else
-      throw new Error("Module `#{name}' already exists. Can't reassign.")
-
-Collections.register_plugin = (plugin, locations) ->
-  logger.info("Registering plugin: #{plugin}")
-  Collections.register_locations locations, errorFn = (name) ->
-    throw new Error("#{name} was already registered, attempted to re-register in #{plugin}")
-
 Collections.register_locations = (locations, force=false, errorFn=null) ->
   mod_cache = _get_mod_cache()
   cache = make_cache(locations)
@@ -98,27 +75,6 @@ Collections.register_locations = (locations, force=false, errorFn=null) ->
       mod_cache[name] = module
     else
       errorFn?(name)
-
-Collections.register_model = (name, mod) ->
-  logger.info("Registering model: #{name}")
-
-  compile = (code) ->
-    body = coffee.compile(code, {bare: true, shiftLine: true})
-    new Function("require", "module", "exports", body)
-
-  mod_cache = _get_mod_cache()
-
-  mod_name = "custom/#{name.toLowerCase()}"
-  [impl, deps] = mod
-  delete browserify.cache[mod_name]
-  browserify.modules[mod_name] = [compile(impl), deps]
-  _locations = {}
-  _locations[name] = require(mod_name)
-  Collections.register_locations(_locations, force=true)
-
-Collections.register_models = (specs) ->
-  for own name, impl of specs
-    Collections.register_model(name, impl)
 
 Collections.registered_names = () ->
   Object.keys(_get_mod_cache())
@@ -131,7 +87,6 @@ index = {}
 
 module.exports =
   collection_overrides: collection_overrides # for testing only
-  register_modules: register_modules
   locations: locations #
   index: index
   Collections: Collections

@@ -24,7 +24,6 @@ Bokeh.embed             = require("./common/embed")
 
 Bokeh.Collections       = require("./common/base").Collections
 Bokeh.Config            = require("./common/base").Config
-Bokeh.register_modules  = require("./common/base").register_modules
 
 require("./api")(Bokeh)
 
