@@ -149,7 +149,8 @@ class Application(object):
 
     @gen.coroutine
     def on_session_created(self, session_context):
-        """ Invoked when we create a new session, with a blank Document that hasn't been filled in yet.
+        """ Invoked when we create a new session, with a blank Document that
+        hasn't been filled in yet.
         May return a Future which will delay session creation until the Future completes."""
         for h in self._handlers:
             result = h.on_session_created(session_context)
@@ -158,9 +159,8 @@ class Application(object):
 
     @gen.coroutine
     def on_session_destroyed(self, session_context):
-        """ Invoked when we are about to expire a session and drop it from memory
-        (but before we've permanently destroyed it). May return a Future which will delay session
-        destruction until the Future completes."""
+        """ Invoked when we have destroyed a session.
+        ``session_context.destroyed`` will be True."""
         for h in self._handlers:
             result = h.on_session_destroyed(session_context)
             yield yield_for_all_futures(result)

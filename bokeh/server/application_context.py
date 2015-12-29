@@ -188,19 +188,13 @@ class ApplicationContext(object):
             raise RuntimeError("Should not be discarding a session with open connections")
         log.debug("Discarding session %r last in use %r seconds ago", session.id, session.seconds_since_last_unsubscribe)
 
-        # session lifecycle hooks are supposed to be called outside the document lock...
-        # TODO unfortunately if we decide not to discard the session after all, we will
-        # still have run these hooks. Maybe they should be moved post-destroy but then
-        # they couldn't have the ability to prevent destroy, which could be useful.
-        try:
-            yield yield_for_all_futures(self._application.on_session_destroyed(self._session_contexts[session.id]))
-        except Exception as e:
-            log.error("Failed to run session destroy hooks %r", e, exc_info=True)
+        session_context = self._session_contexts[session.id]
 
         # session.destroy() wants the document lock so it can shut down the document
         # callbacks.
         def do_discard():
-            # while we yielded above, the discard-worthiness of the session may have changed.
+            # while we yielded for the document lock, the discard-worthiness of the
+            # session may have changed.
             # However, since we have the document lock, our own lock will cause the
             # block count to be 1. If there's any other block count besides our own,
             # we want to skip session destruction though.
@@ -211,6 +205,15 @@ class ApplicationContext(object):
             else:
                 log.debug("Session %r was scheduled to discard but came back to life", session.id)
         yield session.with_document_locked(do_discard)
+
+        # session lifecycle hooks are supposed to be called outside the document lock,
+        # we only run these if we actually ended up destroying the session.
+        if session_context.destroyed:
+            try:
+                result = self._application.on_session_destroyed(session_context)
+                yield yield_for_all_futures(result)
+            except Exception as e:
+                log.error("Failed to run session destroy hooks %r", e, exc_info=True)
 
         raise gen.Return(None)
 
