@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 import pandas as pd
 
 from bokeh.charts import TimeSeries, show, output_file, vplot
@@ -15,7 +13,7 @@ IBM = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 
-xyvalues = OrderedDict(
+data = dict(
     AAPL=AAPL['Adj Close'],
     Date=AAPL['Date'],
     MSFT=MSFT['Adj Close'],
@@ -26,24 +24,24 @@ TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 
 # line simple
 tsline = TimeSeries(
-    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True,
     title="Timeseries (Line)", tools=TOOLS, ylabel='Stock Prices')
 
 # line explicit
 tsline2 = TimeSeries(
-    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True,
-    color=['IBM', 'AAPL'], dash=['IBM', 'AAPL'],
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True,
+    color=['IBM', 'MSFT', 'AAPL'], dash=['IBM', 'MSFT', 'AAPL'],
     title="Timeseries (Line Explicit)", tools=TOOLS, ylabel='Stock Prices')
 
 # step
 tsstep = TimeSeries(
-    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='step',
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True, builder_type='step',
     title="Timeseries (Step)", tools=TOOLS, ylabel='Stock Prices')
 
 # point
 tspoint = TimeSeries(
-    xyvalues, x='Date', y=['IBM', 'AAPL'], legend=True, builder_type='point',
-    marker=['IBM', 'AAPL'], color=['IBM', 'AAPL'],
+    data, x='Date', y=['IBM', 'MSFT', 'AAPL'], legend=True, builder_type='point',
+    marker=['IBM', 'MSFT', 'AAPL'], color=['IBM', 'MSFT', 'AAPL'],
     title="Timeseries (Point)", tools=TOOLS, ylabel='Stock Prices')
 
 output_file("timeseries.html")

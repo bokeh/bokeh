@@ -1,0 +1,1 @@
+coffee = require "coffee-script"

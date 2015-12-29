@@ -21,7 +21,7 @@ requirements:
     - yaml
     - pyyaml
     - jinja2
-    - tornado
+    - tornado >=4.3
 
   run:
     # bokeh
@@ -34,7 +34,7 @@ requirements:
     - numpy
 
     # server
-    - tornado >=4.0.1
+    - tornado >=4.3
     - futures        [py27]
 
 test:

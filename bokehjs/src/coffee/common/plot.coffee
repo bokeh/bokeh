@@ -455,8 +455,7 @@ class PlotView extends ContinuumView
 
   _paint_empty: (ctx, frame_box) ->
     @border_props.set_value(ctx)
-    ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
-                 @canvas_view.mget('canvas_height')) # TODO
+    ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
     ctx.clearRect(frame_box...)
 
     @background_props.set_value(ctx)
