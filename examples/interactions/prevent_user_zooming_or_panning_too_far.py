@@ -20,7 +20,7 @@ plot_datarange.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, li
 ## Plot where limits are manually set
 x_range = Range1d(0, 3, bounds=(-1, 3.5))
 y_range = Range1d(0, 3, bounds=(-0.5, 4))
-plot_range = figure(tools='pan, wheel_zoom, reset', x_range=x_range, y_range=y_range, title="Manual bounds")
+plot_range = figure(tools='pan, wheel_zoom, reset', x_range=x_range, y_range=y_range, title="Manual bounds x:(-1, 3.5) y:(-0.5, 4)")
 plot_range.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9)
 
 ## Chart where limits are set on a categorical range (see compared to heatmap in charts)
@@ -41,7 +41,7 @@ fruits = {
         '2009', '2010', '2011', '2012', '2013']
 }
 plot_cat_unbounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap no bounds")
-plot_cat_bounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap with bounds")
+plot_cat_bounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap with bounds x:['apples', 'pears'], y:['2009', '2010', '2013']")
 plot_cat_bounded.x_range.bounds = ['apples', 'pears']
 plot_cat_bounded.y_range.bounds = ['2009', '2010', '2013']
 
@@ -57,7 +57,7 @@ x_range = Range1d(
 y_range = Range1d(start=00, end=40, bounds=(10, 60))
 y_range_extra = Range1d(start=300, end=700, bounds=(200, 1000))
 
-plot_extra = figure(x_axis_type="datetime", x_range=x_range, y_range=y_range)
+plot_extra = figure(x_axis_type="datetime", x_range=x_range, y_range=y_range, title="Multiple ranges x:(2001/1/1, 2006/12/31), y1:(10, 60), y2:(200, 1000)")
 plot_extra.line(x, apple_y, color='lightblue')
 plot_extra.extra_y_ranges = {'goog': y_range_extra}
 plot_extra.line(x, google_y, color='pink', y_range_name='goog')
