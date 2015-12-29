@@ -28,14 +28,14 @@ class ServerContext(with_metaclass(ABCMeta)):
         raise NotImplementedError("develop_mode")
 
     @abstractmethod
-    def add_callback(self, callback):
-        """ Adds a callback to be run on the next tick."""
-        raise NotImplementedError("add_callback")
+    def add_next_tick_callback(self, callback):
+        """ Adds a callback to be run on the next tick of the event loop."""
+        raise NotImplementedError("add_next_tick_callback")
 
     @abstractmethod
-    def remove_callback(self, callback):
-        """ Removes a callback added with add_callback, before it runs."""
-        raise NotImplementedError("remove_callback")
+    def remove_next_tick_callback(self, callback):
+        """ Removes a callback added with add_next_tick_callback, before it runs."""
+        raise NotImplementedError("remove_next_tick_callback")
 
     @abstractmethod
     def add_timeout_callback(self, callback, timeout_milliseconds):

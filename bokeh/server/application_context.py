@@ -34,11 +34,10 @@ class BokehServerContext(ServerContext):
     def develop_mode(self):
         return self.application_context.develop
 
-    # TODO rename these add_next_tick
-    def add_callback(self, callback):
+    def add_next_tick_callback(self, callback):
         self._callbacks.add_next_tick_callback(callback)
 
-    def remove_callback(self, callback):
+    def remove_next_tick_callback(self, callback):
         self._callbacks.remove_next_tick_callback(callback)
 
     def add_timeout_callback(self, callback, timeout_milliseconds):

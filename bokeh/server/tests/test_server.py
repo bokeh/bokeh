@@ -103,7 +103,7 @@ class HookTestHandler(Handler):
         self.load_count += 1
         self.hooks.append("server_loaded")
 
-        server_context.add_callback(self.on_next_tick_server)
+        server_context.add_next_tick_callback(self.on_next_tick_server)
         server_context.add_timeout_callback(self.on_timeout_server, 2)
         server_context.add_periodic_callback(self.on_periodic_server, 3)
         def remover():
@@ -135,7 +135,7 @@ class HookTestHandler(Handler):
         yield session_context.with_locked_document(setup_document)
 
         server_context = session_context.server_context
-        server_context.add_callback(self.on_next_tick_session)
+        server_context.add_next_tick_callback(self.on_next_tick_session)
         server_context.add_timeout_callback(self.on_timeout_session, 2)
         server_context.add_periodic_callback(self.on_periodic_session, 3)
         def remover():
