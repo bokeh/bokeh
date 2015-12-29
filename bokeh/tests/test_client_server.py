@@ -447,99 +447,6 @@ class TestClientServer(unittest.TestCase):
             # Clean up global IO state
             reset_output()
 
-    def test_session_periodic_callback(self):
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            doc = document.Document()
-
-            client_session = ClientSession(session_id='test_client_session_callback',
-                                          websocket_url=ws_url(server),
-                                          io_loop=server.io_loop)
-            server_session = ServerSession(session_id='test_server_session_callback',
-                                           document=doc, io_loop=server.io_loop)
-            client_session._attach_document(doc)
-
-            assert len(server_session._callbacks) == 0
-            assert len(client_session._callbacks) == 0
-
-            def cb(): pass
-            callback = doc.add_periodic_callback(cb, 1, 'abc')
-            server_session2 = ServerSession('test_server_session_callback',
-                                            doc, server.io_loop)
-
-            assert server_session2._callbacks
-            assert len(server_session._callbacks) == 1
-            assert len(client_session._callbacks) == 1
-
-            started_callbacks = []
-            for ss in [server_session, server_session2]:
-                iocb = ss._callbacks[callback.id]
-                assert iocb._period == 1
-                assert iocb._loop == server.io_loop
-                assert iocb._started
-                assert not iocb._stopped
-                started_callbacks.append(iocb)
-
-            for ss in [client_session]:
-                iocb = ss._callbacks[callback.id]
-                assert iocb._period == 1
-                assert iocb._loop == server.io_loop
-                assert iocb._started
-                assert not iocb._stopped
-                started_callbacks.append(iocb)
-
-            callback = doc.remove_periodic_callback(cb)
-            assert len(server_session._callbacks) == 0
-            assert len(client_session._callbacks) == 0
-            assert len(server_session._callbacks) == 0
-
-            for iocb in started_callbacks:
-                assert iocb._stopped # server
-
-    def test_session_timeout_callback(self):
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            doc = document.Document()
-
-            client_session = ClientSession(session_id='test_client_session_callback',
-                                          websocket_url=ws_url(server),
-                                          io_loop=server.io_loop)
-            server_session = ServerSession(session_id='test_server_session_callback',
-                                           document=doc, io_loop=server.io_loop)
-            client_session._attach_document(doc)
-
-            assert len(server_session._callbacks) == 0
-            assert len(client_session._callbacks) == 0
-
-            def cb(): pass
-
-            x = server.io_loop.time()
-            callback = doc.add_timeout_callback(cb, 10, 'abc')
-            server_session2 = ServerSession('test_server_session_callback',
-                                            doc, server.io_loop)
-
-            assert server_session2._callbacks
-            assert len(server_session._callbacks) == 1
-            assert len(client_session._callbacks) == 1
-
-            started_callbacks = []
-            for ss in [server_session, client_session, server_session2]:
-                iocb = ss._callbacks[callback.id]
-                assert isinstance(iocb, _Timeout)
-
-                # check that the callback deadline is 10
-                # milliseconds later from when we called
-                # add_timeout_callback (using int to avoid ms
-                # differences between the x definition and the
-                # call)
-                assert abs(int(iocb.deadline) - int(x + 10/1000.0)) < 1e6
-                started_callbacks.append(iocb)
-
-            callback = doc.remove_timeout_callback(cb)
-            assert len(server_session._callbacks) == 0
-            assert len(client_session._callbacks) == 0
-            assert len(server_session._callbacks) == 0
-
     @gen.coroutine
     def async_value(self, value):
         yield gen.moment # this ensures we actually return to the loop
@@ -572,7 +479,42 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed()
 
-            doc.remove_timeout_callback(cb)
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_timeout_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_timeout_async_added_before_push(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_timeout_callback(cb, 10)
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_timeout_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_timeout_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
@@ -606,7 +548,111 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed()
 
-            server_session.document.remove_timeout_callback(cb)
+            with (self.assertRaises(ValueError)) as manager:
+                server_session.document.remove_timeout_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_next_tick_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_next_tick_callback(cb)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_next_tick_async_added_before_push(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_next_tick_callback(cb)
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                doc.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_server_session_next_tick_async(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+            doc.add_root(DictModel())
+
+            client_session = push_session(doc,
+                                          session_id='test_server_session_next_tick_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
+            server_session = server.get_session('/', client_session.id)
+
+            result = next(iter(server_session.document.roots))
+
+            @gen.coroutine
+            def cb():
+                # we're testing that we can modify the doc and be
+                # "inside" the document lock
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = server_session.document.add_next_tick_callback(cb)
+
+            client_session.loop_until_closed()
+
+            with (self.assertRaises(ValueError)) as manager:
+                server_session.document.remove_next_tick_callback(cb)
+            self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
@@ -634,6 +680,37 @@ class TestClientServer(unittest.TestCase):
                 raise gen.Return(5)
 
             callback = doc.add_periodic_callback(cb, 10)
+
+            client_session.loop_until_closed()
+
+            doc.remove_periodic_callback(cb)
+
+            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+
+    def test_client_session_periodic_async_added_before_push(self):
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            doc = document.Document()
+
+            result = DictModel()
+            doc.add_root(result)
+
+            @gen.coroutine
+            def cb():
+                result.values['a'] = 0
+                result.values['b'] = yield self.async_value(1)
+                result.values['c'] = yield self.async_value(2)
+                result.values['d'] = yield self.async_value(3)
+                result.values['e'] = yield self.async_value(4)
+                client_session.close()
+                raise gen.Return(5)
+
+            callback = doc.add_periodic_callback(cb, 10)
+
+            client_session = push_session(doc,
+                                          session_id='test_client_session_periodic_async',
+                                          url=url(server),
+                                          io_loop=server.io_loop)
 
             client_session.loop_until_closed()
 

@@ -7,8 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
-from bokeh.document import PeriodicCallback, TimeoutCallback
-from bokeh.util.tornado import _AsyncPeriodic
+from bokeh.util.tornado import _DocumentCallbackGroup
 
 import time
 
@@ -73,14 +72,14 @@ class ServerSession(object):
         self._current_patch = None
         self._current_patch_connection = None
         self._document.on_change_dispatch_to(self)
-        self._callbacks = {}
+        self._callbacks = _DocumentCallbackGroup(io_loop)
         self._pending_writes = None
 
-        for cb in self._document.session_callbacks:
-            if isinstance(cb, PeriodicCallback):
-                self._add_periodic_callback(cb)
-            elif isinstance(cb, TimeoutCallback):
-                self._add_timeout_callback(cb)
+        wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
+        self._callbacks.add_session_callbacks(wrapped_callbacks)
+
+        # TODO: in a future patch, we need to self._callbacks.remove_all_callbacks
+        # when the session is destroyed
 
     @property
     def document(self):
@@ -117,43 +116,15 @@ class ServerSession(object):
             return self.with_document_locked(callback, *args, **kwargs)
         return wrapped_callback
 
-    def _add_periodic_callback(self, callback):
-        ''' Add callback so it can be invoked on a session periodically accordingly to period.
+    def _wrap_session_callback(self, callback):
+        wrapped = self._wrap_document_callback(callback.callback)
+        return callback._copy_with_changed_callback(wrapped)
 
-        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
-
-        '''
-        cb = self._callbacks[callback.id] = _AsyncPeriodic(
-            self._wrap_document_callback(callback.callback), callback.period, io_loop=self._loop
-        )
-        cb.start()
-
-    def _remove_periodic_callback(self, callback):
-        ''' Remove a callback added earlier with add_periodic_callback()
-
-            Throws an error if the callback wasn't added
-
-        '''
-        self._callbacks.pop(callback.id).stop()
-
-    def _add_timeout_callback(self, callback):
-        ''' Add callback so it can be invoked on a session after timeout
-
-        NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
-
-        '''
-        # IOLoop.call_later takes a delay in seconds
-        cb = self._loop.call_later(callback.timeout/1000.0, self._wrap_document_callback(callback.callback))
-        self._callbacks[callback.id] = cb
-
-    def _remove_timeout_callback(self, callback):
-        ''' Remove a callback added earlier with _add_timeout_callback()
-
-            Throws an error if the callback wasn't added
-
-        '''
-        cb = self._callbacks.pop(callback.id)
-        self._loop.remove_timeout(cb)
+    def _wrap_session_callbacks(self, callbacks):
+        wrapped = []
+        for cb in callbacks:
+            wrapped.append(self._wrap_session_callback(cb))
+        return wrapped
 
     def _document_patched(self, event):
         may_suppress = self._current_patch is not None and \
@@ -178,21 +149,11 @@ class ServerSession(object):
         return connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], self.document)
 
     def _session_callback_added(self, event):
-        if isinstance(event.callback, PeriodicCallback):
-            self._add_periodic_callback(event.callback)
-        elif isinstance(event.callback, TimeoutCallback):
-            self._add_timeout_callback(event.callback)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+        wrapped = self._wrap_session_callback(event.callback)
+        self._callbacks.add_session_callback(wrapped)
 
     def _session_callback_removed(self, event):
-        if isinstance(event.callback, PeriodicCallback):
-            self._remove_periodic_callback(event.callback)
-        elif isinstance(event.callback, TimeoutCallback):
-            self._remove_timeout_callback(event.callback)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
-
+        self._callbacks.remove_session_callback(event.callback)
 
     @classmethod
     def pull(cls, message, connection):
