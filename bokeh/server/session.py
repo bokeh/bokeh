@@ -27,27 +27,30 @@ def _needs_document_lock(func):
     '''
     @gen.coroutine
     def _needs_document_lock_wrapper(self, *args, **kwargs):
-        # TODO while we wait for the lock, we should prevent the
-        # session from being discarded (waiting here should hold
-        # the session alive). That way apps don't have to worry
-        # about sessions disappearing out from under them while
-        # waiting for the session document.
-        with (yield self._lock.acquire()):
-            if self._pending_writes is not None:
-                raise RuntimeError("internal class invariant violated: _pending_writes " + \
-                                   "should be None if lock is not held")
-            self._pending_writes = []
-            try:
-                result = yield yield_for_all_futures(func(self, *args, **kwargs))
-            finally:
-                # we want to be very sure we reset this or we'll
-                # keep hitting the RuntimeError above as soon as
-                # any callback goes wrong
-                pending_writes = self._pending_writes
-                self._pending_writes = None
-            for p in pending_writes:
-                yield p
-        raise gen.Return(result)
+        # while we wait for and hold the lock, prevent the session
+        # from being discarded. This avoids potential weirdness
+        # with the session vanishing in the middle of some async
+        # task.
+        self.block_expiration()
+        try:
+            with (yield self._lock.acquire()):
+                if self._pending_writes is not None:
+                    raise RuntimeError("internal class invariant violated: _pending_writes " + \
+                                       "should be None if lock is not held")
+                self._pending_writes = []
+                try:
+                    result = yield yield_for_all_futures(func(self, *args, **kwargs))
+                finally:
+                    # we want to be very sure we reset this or we'll
+                    # keep hitting the RuntimeError above as soon as
+                    # any callback goes wrong
+                    pending_writes = self._pending_writes
+                    self._pending_writes = None
+                for p in pending_writes:
+                    yield p
+            raise gen.Return(result)
+        finally:
+            self.unblock_expiration()
     return _needs_document_lock_wrapper
 
 class ServerSession(object):
@@ -73,6 +76,7 @@ class ServerSession(object):
         self._pending_writes = None
         self._destroyed = False
         self._expiration_requested = False
+        self._expiration_blocked_count = 0
 
         wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
         self._callbacks.add_session_callbacks(wrapped_callbacks)
@@ -93,6 +97,14 @@ class ServerSession(object):
     def expiration_requested(self):
         return self._expiration_requested
 
+    @property
+    def expiration_blocked(self):
+        return self._expiration_blocked_count > 0
+
+    @property
+    def expiration_blocked_count(self):
+        return self._expiration_blocked_count
+
     def destroy(self):
         self._destroyed = True
         self._document.remove_on_change(self)
@@ -101,6 +113,14 @@ class ServerSession(object):
     def request_expiration(self):
         """ Used in test suite for now. Forces immediate expiration if no connections."""
         self._expiration_requested = True
+
+    def block_expiration(self):
+        self._expiration_blocked_count += 1
+
+    def unblock_expiration(self):
+        if self._expiration_blocked_count <= 0:
+            raise RuntimeError("mismatched block_expiration / unblock_expiration")
+        self._expiration_blocked_count -= 1
 
     def subscribe(self, connection):
         """This should only be called by ServerConnection.subscribe_session or our book-keeping will be broken"""

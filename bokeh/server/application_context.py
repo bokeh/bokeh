@@ -188,7 +188,10 @@ class ApplicationContext(object):
             raise RuntimeError("Should not be discarding a session with open connections")
         log.debug("Discarding session %r last in use %r seconds ago", session.id, session.seconds_since_last_unsubscribe)
 
-        # session lifecycle hooks are supposed to be called outside the document lock
+        # session lifecycle hooks are supposed to be called outside the document lock...
+        # TODO unfortunately if we decide not to discard the session after all, we will
+        # still have run these hooks. Maybe they should be moved post-destroy but then
+        # they couldn't have the ability to prevent destroy, which could be useful.
         try:
             yield yield_for_all_futures(self._application.on_session_destroyed(self._session_contexts[session.id]))
         except Exception as e:
@@ -197,8 +200,11 @@ class ApplicationContext(object):
         # session.destroy() wants the document lock so it can shut down the document
         # callbacks.
         def do_discard():
-            # while we yielded above, the discard-worthiness of the session may have changed
-            if should_discard(session):
+            # while we yielded above, the discard-worthiness of the session may have changed.
+            # However, since we have the document lock, our own lock will cause the
+            # block count to be 1. If there's any other block count besides our own,
+            # we want to skip session destruction though.
+            if should_discard(session) and session.expiration_blocked_count == 1:
                 session.destroy()
                 del self._sessions[session.id]
                 del self._session_contexts[session.id]
@@ -210,18 +216,18 @@ class ApplicationContext(object):
 
     @gen.coroutine
     def cleanup_sessions(self, unused_session_linger_seconds):
-        def should_discard(session):
+        def should_discard_ignoring_block(session):
             return session.connection_count == 0 and \
                 (session.seconds_since_last_unsubscribe > unused_session_linger_seconds or \
                  session.expiration_requested)
         # build a temp list to avoid trouble from self._sessions changes
         to_discard = []
         for session in self._sessions.values():
-            if should_discard(session):
+            if should_discard_ignoring_block(session) and not session.expiration_blocked:
                 to_discard.append(session)
         # asynchronously reconsider each session
         for session in to_discard:
-            if should_discard(session):
-                yield self._discard_session(session, should_discard)
+            if should_discard_ignoring_block(session) and not session.expiration_blocked:
+                yield self._discard_session(session, should_discard_ignoring_block)
 
         raise gen.Return(None)
