@@ -21,7 +21,7 @@ class BoxAnnotationView extends PlotWidget
 
   render: () ->
     # don't render if *all* position are null
-    if not @mget('left')? and not @mget('right')? not @mget('top')? and not @mget('bottom')?
+    if not @mget('left')? and not @mget('right')? and not @mget('top')? and not @mget('bottom')?
       @$el.hide()
       return null
 
