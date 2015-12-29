@@ -1,11 +1,12 @@
 from __future__ import absolute_import, print_function
 
 import unittest
+import pytest
 
 from tornado import gen
 from tornado.ioloop import IOLoop
 
-from bokeh.util.tornado import _CallbackGroup
+from bokeh.util.tornado import _CallbackGroup, yield_for_all_futures
 
 def _make_invocation_counter(loop, stop_after=1):
     from types import MethodType
@@ -259,3 +260,37 @@ class TestCallbackGroup(unittest.TestCase):
             ctx.group.add_timeout_callback(func, timeout_milliseconds=1, cleanup=cleanup)
         self.assertEqual(1, func.count())
         self.assertTrue(result['ok'])
+
+@gen.coroutine
+def async_value(value):
+    yield gen.moment # this ensures we actually return to the loop
+    raise gen.Return(value)
+
+def test__yield_for_all_futures():
+    loop = IOLoop()
+    loop.make_current()
+
+    @gen.coroutine
+    def several_steps():
+        value = 0
+        value += yield async_value(1)
+        value += yield async_value(2)
+        value += yield async_value(3)
+        raise gen.Return(value)
+
+    result = {}
+    def on_done(future):
+        result['value'] = future.result()
+        loop.stop()
+
+    loop.add_future(yield_for_all_futures(several_steps()),
+                    on_done)
+
+    try:
+        loop.start()
+    except KeyboardInterrupt as e:
+        print("keyboard interrupt")
+
+    assert 6 == result['value']
+
+    loop.close()

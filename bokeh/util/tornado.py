@@ -10,6 +10,23 @@ from tornado import gen
 
 from bokeh.document import NextTickCallback, PeriodicCallback, TimeoutCallback
 
+@gen.coroutine
+def yield_for_all_futures(result):
+    """ Converts result into a Future by collapsing any futures inside result.
+
+    If result is a Future we yield until it's done, then if the value inside
+    the Future is another Future we yield until it's done as well, and so on.
+    """
+    while True:
+        try:
+            future = gen.convert_yielded(result)
+        except gen.BadYieldError:
+            # result is not a yieldable thing, we are done
+            break
+        else:
+            result = yield future
+    raise gen.Return(result)
+
 class _AsyncPeriodic(object):
     """Like ioloop.PeriodicCallback except the 'func' can be async and
         return a Future, and we wait for func to finish each time

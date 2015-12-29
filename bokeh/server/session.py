@@ -7,7 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
-from bokeh.util.tornado import _DocumentCallbackGroup
+from bokeh.util.tornado import _DocumentCallbackGroup, yield_for_all_futures
 
 import time
 
@@ -33,15 +33,7 @@ def _needs_document_lock(func):
                                    "should be None if lock is not held")
             self._pending_writes = []
             try:
-                result = func(self, *args, **kwargs)
-                while True:
-                    try:
-                        future = gen.convert_yielded(result)
-                    except gen.BadYieldError:
-                        # result is not a yieldable thing, we are done
-                        break
-                    else:
-                        result = yield future
+                result = yield yield_for_all_futures(func(self, *args, **kwargs))
             finally:
                 # we want to be very sure we reset this or we'll
                 # keep hitting the RuntimeError above as soon as
