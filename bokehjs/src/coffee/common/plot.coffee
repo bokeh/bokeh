@@ -199,6 +199,12 @@ class PlotView extends ContinuumView
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
+  _update_single_range: (rng, rng_info) ->
+    if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
+      rng.have_updated_interactively = true
+      rng.set(range_info)
+      rng.get('callback')?.execute(@model)
+
   update_range: (range_info) ->
     @pause
     if not range_info?
@@ -209,17 +215,9 @@ class PlotView extends ContinuumView
       @update_dataranges()
     else
       for name, rng of @frame.get('x_ranges')
-        if rng.get('start') != range_info.xrs[name]['start'] or
-            rng.get('end') != range_info.xrs[name]['end']
-          rng.have_updated_interactively = true
-          rng.set(range_info.xrs[name])
-          rng.get('callback')?.execute(@model)
+        @_update_single_range(rng, range_info.xrs[name])
       for name, rng of @frame.get('y_ranges')
-        if rng.get('start') != range_info.yrs[name]['start'] or
-            rng.get('end') != range_info.yrs[name]['end']
-          rng.have_updated_interactively = true
-          rng.set(range_info.yrs[name])
-          rng.get('callback')?.execute(@model)
+        @_update_single_range(rng, range_info.yrs[name])
     @unpause()
 
   build_levels: () ->
