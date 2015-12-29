@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..core import validation
-from ..core.validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
 from ..core.validation.errors import REQUIRED_RANGE
 from ..core.properties import HasProps, abstract
 from ..core.properties import Enum, Float, Instance, Int, JSON, Override
@@ -75,8 +75,8 @@ class GMapPlot(MapPlot):
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
         pass
 
     map_options = Instance(GMapOptions, help="""

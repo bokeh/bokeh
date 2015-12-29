@@ -1,10 +1,10 @@
 _ = require "underscore"
-AbstractTicker = require "./abstract_ticker"
+ContinuousTicker = require "./continuous_ticker"
 
 # The SingleIntervalTicker is a Ticker that always uses the same tick spacing,
 # regardless of the input range.  It's not very useful by itself, but can
 # be used as part of a CompositeTicker below.
-class SingleIntervalTicker extends AbstractTicker.Model
+class SingleIntervalTicker extends ContinuousTicker.Model
   type: 'SingleIntervalTicker'
 
   initialize: (attrs, options) ->
@@ -24,7 +24,7 @@ class SingleIntervalTicker extends AbstractTicker.Model
 
   defaults: () ->
     return _.extend {}, super(), {
-      toString_properties: ['interval']
+      interval: null
     }
 
 module.exports =

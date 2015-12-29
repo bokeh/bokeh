@@ -51,7 +51,7 @@ class CompositeGlyph(HasProps):
         glyph renderers. Simple glyphs part of the composite glyph might not use the
         column data source.""")
     renderers = List(Instance(GlyphRenderer))
-    glyphs = Dict(String, Instance(Glyph))
+    glyphs = Dict(String, Any) # where we expect a Glyph class as Value
 
     operations = List(Any, help="""A list of chart operations that can be applied to
         manipulate their visual depiction.""")

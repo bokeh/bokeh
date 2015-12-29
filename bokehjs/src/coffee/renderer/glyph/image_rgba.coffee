@@ -95,6 +95,8 @@ class ImageRGBA extends Glyph.Model
   display_defaults: ->
     return _.extend {}, super(), {
       dilate: false
+      rows: null
+      cols: null
     }
 
 module.exports =

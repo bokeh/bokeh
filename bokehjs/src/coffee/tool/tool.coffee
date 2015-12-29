@@ -87,6 +87,7 @@ class Tool extends HasProperties
 
   defaults: () ->
     return _.extend({}, super(), {
+      plot: null
       tool_name: @tool_name
       level: 'overlay'
     })

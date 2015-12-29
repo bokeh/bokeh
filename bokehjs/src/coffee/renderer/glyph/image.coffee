@@ -1,6 +1,7 @@
 _ = require "underscore"
 Glyph = require "./glyph"
 LinearColorMapper = require "../../mapper/linear_color_mapper"
+{Greys9} = require '../../palettes/palettes'
 
 class ImageView extends Glyph.View
 
@@ -88,9 +89,10 @@ class Image extends Glyph.Model
   distances: ['dw', 'dh']
   fields: ['image:array', '?rows', '?cols']
 
-  display_defaults: ->
+  defaults: ->
     return _.extend {}, super(), {
       dilate: false
+      color_mapper: new LinearColorMapper.Model(palette: Greys9)
     }
 
 module.exports =

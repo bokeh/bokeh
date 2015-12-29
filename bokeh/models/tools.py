@@ -24,10 +24,12 @@ from __future__ import absolute_import
 
 from ..model import Model
 from ..core.properties import abstract, Float, Color
-from ..core.properties import (Any, Bool, String, Enum, Instance, Either, List,
-                          Dict, Tuple)
+from ..core.properties import (
+    Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
+)
 from ..core.enums import Dimension
 
+from .annotations import BoxAnnotation, PolyAnnotation
 from .renderers import Renderer
 from .callbacks import Callback
 
@@ -233,6 +235,21 @@ class CrosshairTool(Tool):
 
     """)
 
+DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
+    level="overlay",
+    render_mode="css",
+    top_units="screen",
+    left_units="screen",
+    bottom_units="screen",
+    right_units="screen",
+    fill_color="lightgrey",
+    fill_alpha=0.5,
+    line_color="black",
+    line_alpha=1.0,
+    line_width=2,
+    line_dash=[4, 4]
+)
+
 class BoxZoomTool(Tool):
     """ *toolbar icon*: |box_zoom_icon|
 
@@ -254,6 +271,10 @@ class BoxZoomTool(Tool):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
+    """)
+
+    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
     """)
 
 
@@ -307,19 +328,21 @@ class BoxSelectTool(Tool):
     :geometry: object containing the coordinates of the selection box
     """)
 
-
-class BoxSelectionOverlay(Renderer):
-    """ An overlay renderer that Tool objects can use to render a
-    'rubber band' selection box on a Plot.
-
-    """
-
-    __view_model__ = 'BoxSelection'
-
-    tool = Instance(Tool, help="""
-    The tool that this overlay should respond to.
+    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
     """)
 
+DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
+    level="overlay",
+    xs_units="screen",
+    ys_units="screen",
+    fill_color="lightgrey",
+    fill_alpha=0.5,
+    line_color="black",
+    line_alpha=1.0,
+    line_width=2,
+    line_dash=[4, 4]
+)
 
 class LassoSelectTool(Tool):
     """ *toolbar icon*: |lasso_select_icon|
@@ -357,6 +380,10 @@ class LassoSelectTool(Tool):
     event, or only once, when the selection region is completed. Default: True
     """)
 
+    overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
+    """)
+
 
 class PolySelectTool(Tool):
     """ *toolbar icon*: |poly_select_icon|
@@ -390,6 +417,9 @@ class PolySelectTool(Tool):
     defaults to all renderers on a plot.
     """)
 
+    overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
+    """)
 
 class HoverTool(Tool):
     """ *toolbar icon*: |inspector_icon|

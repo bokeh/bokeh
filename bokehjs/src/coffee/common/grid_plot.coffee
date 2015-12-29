@@ -37,6 +37,7 @@ class ToolProxy extends Backbone.Model
 
   set: (attr, value) ->
     super(attr, value)
+    attr = _.omit(attr, "tools")
     for tool in @attributes.tools
       tool.set(attr, value)
     return null

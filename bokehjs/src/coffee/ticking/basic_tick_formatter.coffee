@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+TickFormatter = require "./tick_formatter"
 
-class BasicTickFormatter extends HasProperties
+class BasicTickFormatter extends TickFormatter.Model
   type: 'BasicTickFormatter'
 
   initialize: (attrs, options) ->

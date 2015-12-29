@@ -44,8 +44,7 @@ class TestChart(unittest.TestCase):
             title="title", xlabel="xlabel", ylabel="ylabel",
             legend="top_left", xscale="linear", yscale="linear",
             width=800, height=600, tools=True,
-            filename=False, server=False,
-            notebook=False, responsive=True,
+            responsive=True,
             xgrid=True, ygrid=False
         )
 
@@ -83,7 +82,6 @@ class TestChart(unittest.TestCase):
 
         axis = self.chart.make_axis("x", "left", "datetime", "foo")
         self.assertEqual(axis.location, "auto")
-        self.assertEqual(axis.scale, "time")
         self.assertEqual(axis.axis_label, "foo")
 
         axis = self.chart.make_axis("x", "left", "categorical", "bar")
@@ -118,7 +116,7 @@ class TestChart(unittest.TestCase):
         base_args = dict(
             title="title", xlabel="xlabel", ylabel="ylabel",
             legend="top_left", xscale="linear", yscale="linear", xgrid=True, ygrid=True,
-            width=800, height=600, filename=False, server=False, notebook=False
+            width=800, height=600,
         )
         expected = [
             [PanTool,  WheelZoomTool, BoxZoomTool, PreviewSaveTool, ResizeTool, ResetTool, HelpTool],

@@ -32,6 +32,7 @@ module.exports = (Bokeh) ->
 
   # annotations
   Bokeh.BoxAnnotation = require("./renderer/annotation/box_annotation")
+  Bokeh.PolyAnnotation = require("./renderer/annotation/poly_annotation")
   Bokeh.Legend  = require("./renderer/annotation/legend")
   Bokeh.Span    = require("./renderer/annotation/span")
   Bokeh.Tooltip = require("./renderer/annotation/tooltip")
@@ -46,11 +47,9 @@ module.exports = (Bokeh) ->
   Bokeh.LinearAxis      = require("./renderer/guide/linear_axis")
   Bokeh.LogAxis         = require("./renderer/guide/log_axis")
 
-  # overlays
-  Bokeh.BoxSelection  = require("./renderer/overlay/box_selection")
-  Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
-
   # data sources
+  Bokeh.DataSource = require("./source/data_source")
+  Bokeh.RemoteDataSource = require("./source/remote_data_source")
   Bokeh.ColumnDataSource = require("./source/column_data_source")
   Bokeh.GeoJSONDataSource = require("./source/geojson_data_source")
 
@@ -86,7 +85,3 @@ module.exports = (Bokeh) ->
   Bokeh.SelectTool             = require("./tool/gestures/select_tool")
   Bokeh.TapTool                = require("./tool/gestures/tap_tool")
   Bokeh.WheelZoomTool          = require("./tool/gestures/wheel_zoom_tool")
-
-  Bokeh.InspectTool            = require("./tool/inspectors/inspect_tool")
-  Bokeh.HoverTool              = require("./tool/inspectors/hover_tool")
-  Bokeh.CrosshairTool          = require("./tool/inspectors/crosshair_tool")
