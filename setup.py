@@ -564,7 +564,6 @@ setup(
         'bokeh.core.compat.mplexporter.renderers',
         'bokeh.core.tests',
         'bokeh.core.validation',
-        'bokeh.crossfilter',
         'bokeh.plotting',
         'bokeh.plotting.tests',
         'bokeh.sampledata',
