@@ -70,7 +70,7 @@ script:
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
     #
     # Run integration tests only once (Py 3.4)
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration -rs; fi  # Run the integration tests
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration -rsv; fi  # Run the integration tests
     #
     # Flake/docs testing only once (Py 2.7)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( flake8 bokeh; cd sphinx; make all ) ; fi
