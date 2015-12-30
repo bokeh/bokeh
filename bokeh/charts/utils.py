@@ -25,17 +25,16 @@ import pandas as pd
 import numpy as np
 from six import iteritems
 
-from ..browserlib import view
 from ..document import Document
 from ..embed import file_html
 from ..models.glyphs import (
     Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..models.sources import ColumnDataSource
-from ..models.tools import HoverTool
+from ..plotting.helpers import DEFAULT_PALETTE
 from ..resources import INLINE
+from ..util.browser import view
 from ..util.notebook import publish_display_data
-from ..plotting_helpers import DEFAULT_PALETTE
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -108,97 +107,6 @@ def polar_to_cartesian(r, start_angles, end_angles):
         points.append(cartesian(r, (end + start)/2))
 
     return zip(*points)
-
-
-# ToDo: Reconsider whether to utilize this, vice Chart
-# TODO: Experimental implementation. This should really be a shared
-#       pattern between plotting/charts and other bokeh interfaces.
-#       This will probably be part of the future charts re-design
-#       to make them inherit from plot (or at least be closer to).
-#       In this was both charts and plotting could share figure,
-#       show, save, push methods as well as VBox, etc...
-class Figure(object):
-    def __init__(self, *charts, **kwargs):
-        self.filename = kwargs.pop('filename', None)
-        self.server = kwargs.pop('server', None)
-        self.notebook = kwargs.pop('notebook', None)
-        self.title = kwargs.pop('title', '')
-        self.children = kwargs.pop('children', None)
-        self.charts = charts
-        self.doc = Document()
-        self.doc.hold(True)
-        self._plots = []
-
-        # if self.server:
-        #     self.session = Session()
-        #     self.session.use_doc(self.server)
-        #     self.session.load_document(self.doc)
-
-        if self.children:
-            from bokeh.models import VBox
-            self.doc.add_root(VBox(children=self.children))
-
-        self.plot = None
-        for i, chart in enumerate(self.charts):
-            chart.doc = self.doc
-            if self.server:
-                chart.session = self.session
-
-            # Force the chart to create the underlying plot
-            chart._setup_show()
-            chart._prepare_show()
-            chart._show_teardown()
-
-            if not self.title:
-                self.title = chart.chart.title
-
-            self._plots += chart.chart._plots
-
-        # reset the pot title with the one set for the Figure
-        self.doc._current_plot.title = self.title
-
-    def show(self):
-        """Main show function.
-
-        It shows the Figure in file, server and notebook outputs.
-        """
-        show(self, self.title, self.filename, self.server, self.notebook)
-
-
-def show(obj, title='test', filename=False, server=False, notebook=False, **kws):
-    """ 'shows' a plot object, by auto-raising the window or tab
-    displaying the current plot (for file/server output modes) or displaying
-    it in an output cell (IPython notebook).
-
-    Args:
-        obj (Component object, optional): it accepts a plot object and just shows it.
-
-    """
-    if filename:
-        if filename is True:
-            filename = "untitled"
-        else:
-            filename = filename
-
-        with open(filename, "w") as f:
-            f.write(file_html(obj.doc, INLINE, title))
-        print("Wrote %s" % filename)
-        view(filename)
-
-    elif filename is False and server is False and notebook is False:
-        print("You have to provide a filename (filename='foo.html' or"
-              " .filename('foo.html')) to save your plot.")
-
-    if server:
-        obj.session.store_document(obj.doc)
-        link = obj.session.object_link(obj.doc.context)
-        view(link)
-
-    if notebook:
-        from bokeh.embed import notebook_div
-        for plot in obj._plots:
-            publish_display_data({'text/html': notebook_div(plot)})
-
 
 def ordered_set(iterable):
     """Creates an ordered list from strings, tuples or other hashable items.
@@ -643,20 +551,86 @@ def add_wedge_spacing(df, spacing):
         df.ix[df['level'] > 0, 'inners'] += spacing
 
 
-def add_charts_hover(chart, use_hover, hover_text, values_col, agg_text=None):
+def build_hover_tooltips(hover_spec=None, chart_cols=None):
+    """Produce tooltips for column dimensions used in chart configuration.
 
-    if use_hover:
-        # configure the hover text based on input configuration
-        if hover_text is None:
-            if agg_text is None:
-                if isinstance(values_col, str):
-                    hover_text = values_col
-                else:
-                    hover_text = 'value'
+    Provides convenience for producing tooltips for data with labeled columns. If you
+    had two bars in a bar chart, one for female and one for male, you may also want to
+    have the tooltip say "Sex: female" and "Sex: male" when hovering.
+
+    Args:
+        hover_spec (bool, list(tuple(str, str), list(str), optional): either can be a
+            valid input to the `HoverTool` tooltips kwarg, or a boolean `True` to have
+            all dimensions specified in chart be added to the tooltip, or a list of
+            columns that you do want to be included in the tooltips.
+        chart_cols:
+
+    Returns:
+        list(tuple(str, str)): list of tooltips
+
+    """
+    if isinstance(hover_spec, bool):
+        tooltips = [(col, '@' + col) for col in chart_cols]
+    elif isinstance(hover_spec[0], tuple):
+        tooltips = hover_spec
+    else:
+        tooltips = [(col, '@' + col) for col in hover_spec]
+
+    return tooltips
+
+
+def build_agg_tooltip(hover_text=None, agg_text=None, aggregated_col=None):
+    """Produce a consistent tooltip based on available chart configuration.
+
+    Args:
+        hover_text (str, optional): the desired label for the value to be shown in the
+            tooltip
+        agg_text (str, optional): any aggregation text used for the chart
+        aggregated_col (str, optional): any column name used for aggregation
+
+    Returns:
+        tuple(str, str): a single tooltip
+
+    """
+    if hover_text is None:
+        if agg_text is None:
+            if isinstance(aggregated_col, str):
+                hover_text = aggregated_col
             else:
-                hover_text = agg_text
-                if isinstance(values_col, str):
-                    hover_text = '%s of %s' % (hover_text, values_col)
+                hover_text = 'value'
+        else:
+            hover_text = agg_text
+            if isinstance(aggregated_col, str):
+                hover_text = '%s of %s' % (hover_text, aggregated_col)
 
-        # add the tooltip
-        chart.add_tools(HoverTool(tooltips=[(hover_text.title(), "@values")]))
+    return hover_text.title(), "@values"
+
+
+def label_from_index_dict(chart_index, include_cols=False):
+    """
+
+    Args:
+        chart_index (dict(str, any) or str or None): identifier for the data group,
+            representing either the value of a column (str), no grouping (None), or a dict
+            where each key represents a column, and the value is the unique value.
+
+    Returns:
+        str: a derived label representing the chart index value
+
+    """
+    if isinstance(chart_index, str):
+        return chart_index
+    elif chart_index is None:
+        return 'None'
+    elif isinstance(chart_index, dict):
+        if include_cols:
+            label = ', '.join(['%s=%s' % (col, val) for col, val in iteritems(
+                chart_index)])
+        else:
+            label = tuple(chart_index.values())
+            if len(label) == 1:
+                label = label[0]
+        return label
+    else:
+        raise ValueError('chart_index type is not recognized, \
+                          received %s' % type(chart_index))

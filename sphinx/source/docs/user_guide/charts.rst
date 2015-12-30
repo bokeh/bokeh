@@ -3,10 +3,6 @@
 Making High-level Charts
 ========================
 
-.. contents::
-    :local:
-    :depth: 2
-
 The high level ``bokeh.charts`` interface provides a fast, convenient way
 to create common statistical charts with a minimum of code. Wherever possible,
 the interface is geared to be extremely simple to use in conjunction with
@@ -404,6 +400,4 @@ on all charts created, in one place. For instance:
 will set the default width and height for any chart. The full list of
 attributes that can be set is below:
 
-.. bokeh-model:: bokeh.charts.chart_options.ChartOptions
-
-
+.. bokeh-model:: bokeh.charts.Chart

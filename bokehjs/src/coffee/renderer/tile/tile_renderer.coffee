@@ -36,7 +36,7 @@ class TileRendererView extends PlotWidget
       if @attributionEl?
         @attributionEl.html(attribution)
       else
-        border_width = @map_plot.get('outline_line_width').value
+        border_width = @map_plot.get('outline_line_width')
         bottom_offset = @map_plot.get('min_border_bottom') + border_width
         right_offset = @map_frame.get('right') - @map_frame.get('width')
         max_width = @map_frame.get('width') - border_width
@@ -279,11 +279,9 @@ class TileRenderer extends HasParent
   default_view: TileRendererView
   type: 'TileRenderer'
   visuals: []
-  angles: ['angle']
 
   defaults: ->
     return _.extend {}, super(), {
-      angle: 0
       alpha: 1.0
       x_range_name: "default"
       y_range_name: "default"

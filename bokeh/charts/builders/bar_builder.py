@@ -21,11 +21,11 @@ from __future__ import absolute_import, print_function, division
 from ..builder import Builder, create_and_build
 from ...models import FactorRange, Range1d
 from ..glyphs import BarGlyph
-from ...properties import Float, Enum, Bool
+from ...core.properties import Float, Enum, Bool, Override
 from ..properties import Dimension
 from ..attributes import ColorAttr, CatAttr
 from ..operations import Stack, Dodge
-from ...enums import Aggregation
+from ...core.enums import Aggregation
 from ..stats import stats
 from ...models.sources import ColumnDataSource
 from ..utils import help
@@ -73,7 +73,7 @@ class BarBuilder(Builder):
     fill_alpha = Float(default=0.8)
 
     glyph = BarGlyph
-    comp_glyph_types = [BarGlyph]
+    comp_glyph_types = Override(default=[BarGlyph])
     label_attributes = ['stack', 'group']
 
     label_only = Bool(False)
@@ -87,12 +87,6 @@ class BarBuilder(Builder):
             if self.attributes['group'].columns is not None:
                 self.attributes['color'].set_columns(self.attributes['group'].columns)
 
-        if self.attributes['line_color'].columns is None:
-            if self.attributes['stack'].columns is not None:
-                self.attributes['line_color'].set_columns(self.attributes['stack'].columns)
-            if self.attributes['group'].columns is not None:
-                self.attributes['line_color'].set_columns(self.attributes['group'].columns)
-
         # ToDo: perform aggregation validation
         # Not given values kw, so using only categorical data
         if self.values.dtype.name == 'object' and len(self.attribute_columns) == 0:
@@ -102,21 +96,7 @@ class BarBuilder(Builder):
         else:
             pass
 
-        # try to infer grouping vs stacking labels
-        if (self.attributes['label'].columns is None and
-            self.values.selection is not None and
-                self.glyph == BarGlyph):
-
-            if self.attributes['stack'].columns is not None:
-                special_column = 'unity'
-            else:
-                special_column = 'index'
-
-            self._data['label'] = special_column
-            self.attributes['label'].setup(data=ColumnDataSource(self._data.df),
-                                           columns=special_column)
-
-            self.xlabel = ''
+        self._apply_inferred_index()
 
         if self.xlabel is None:
             if self.attributes['label'].columns is not None:
@@ -129,6 +109,24 @@ class BarBuilder(Builder):
                 self.ylabel = '%s( %s )' % (self.agg.title(), str(self.values.selection).title())
             else:
                 self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
+
+    def _apply_inferred_index(self):
+        """Configure chart when labels are provided as index instead of as kwarg."""
+
+        # try to infer grouping vs stacking labels
+        if (self.attributes['label'].columns is None and
+                    self.values.selection is not None):
+
+            if self.attributes['stack'].columns is not None:
+                special_column = 'unity'
+            else:
+                special_column = 'index'
+
+            self._data['label'] = special_column
+            self.attributes['label'].setup(data=ColumnDataSource(self._data.df),
+                                           columns=special_column)
+
+            self.xlabel = ''
 
     def set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
@@ -181,7 +179,8 @@ class BarBuilder(Builder):
             glyph_kwargs = self.get_group_kwargs(group, attrs)
             group_kwargs = kwargs.copy()
             group_kwargs.update(glyph_kwargs)
-            bg = self.glyph(label=self._get_label(group['label']),
+            bg = self.glyph(label=group.label,
+                            x_label=self._get_label(group['label']),
                             values=group.data[self.values.selection].values,
                             agg=stats[self.agg](),
                             width=self.bar_width,

@@ -59,7 +59,35 @@ Similarly, a specific network address can be specified with the
 
 will have the Bokeh server listen all available network addresses.
 
-*** PREFIX OPTION BELOW NOT YET IMPLEMENTED ***
+Additionally, it is possible to configure a hosts whitelist that must be
+matched by the ``Host`` header in new requests. You can specify multiple
+acceptable host values with the ``--host`` option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --host foo.com:8081 --host bar.com
+
+If no port is specified in a host value, then port 80 will be used. In
+the example above Bokeh server will accept requests from ``foo.com:8081``
+and ``bar.com:80``.
+
+If no host values are specified, then by default the Bokeh server will
+accept requests from ``localhost:<port>`` where ``<port>`` is the port
+that the server is configured to listen on (by default: {DEFAULT_PORT}).
+
+Also note that the host whitelist applies to all request handlers,
+including any extra ones added to extend the Bokeh server.
+
+By default, cross site connections to the Bokeh server websocket are not
+allowed. You can enable websocket connections originating from additional
+hosts by specifying them with the ``--allow-websocket-origin`` option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --allow-websocket-origin foo.com:8081
+
+It is possible to specify multiple allowed websocket origins by adding
+the ``--allow-websocket-origin`` option multiple times.
 
 The Bokeh server can also add an optional prefix to all URL paths.
 This can often be useful in conjunction with "reverse proxy" setups.
@@ -73,6 +101,16 @@ Then the application will be served under the following URL:
 .. code-block:: none
 
     http://localhost:{DEFAULT_PORT}/foobar/app_script
+
+If needed, Bokeh server can send keep-alive pings at a fixed interval.
+To configure this feature, set the --keep-alive option:
+
+.. code-block:: sh
+
+    bokeh server app_script.py --keep-alive 10000
+
+The value is specified in milliseconds. The default keep-alive interval
+is 37 seconds. Give a value of 0 to disable keep-alive pings.
 
 Development Options
 ~~~~~~~~~~~~~~~~~~~
@@ -161,6 +199,27 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--allow-websocket-origin', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames which may connect to the Bokeh websocket",
+        )),
+
+        ('--host', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames to allow in requests",
+        )),
+
+        ('--prefix', dict(
+            metavar='PREFIX',
+            type=str,
+            help="URL prefix for Bokeh server URLs",
+            default=None,
+        )),
+
         ('--keep-alive', dict(
             metavar='MILLISECONDS',
             type=int,
@@ -198,6 +257,10 @@ class Serve(Subcommand):
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'allow_websocket_origin',
+                                                              'host',
+                                                              'prefix',
+                                                              'develop',
                                                               'keep_alive_milliseconds']
                           if getattr(args, key, None) is not None }
 

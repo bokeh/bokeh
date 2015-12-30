@@ -6,21 +6,21 @@ from __future__ import absolute_import
 from six import string_types
 import warnings
 
-from ..enums import Location
-from ..mixins import LineProps, TextProps, FillProps
-from ..model import Model
-from ..properties import (Bool, Int, String, Enum, Auto, Instance, Either,
-    List, Dict, Include, Override)
-from ..query import find
-from ..util.string import nice_join
-from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+from ..core.query import find
+from ..core import validation
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
-from ..validation.errors import REQUIRED_RANGE
-from .. import validation
+from ..core.enums import Location
+from ..core.property_mixins import LineProps, TextProps, FillProps
+from ..model import Model
+from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+    List, Dict, Include, Override)
+from ..util.string import nice_join
+from ..core.validation.errors import REQUIRED_RANGE
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, GlyphRenderer, TileRenderer, DynamicImageRenderer
+from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
@@ -54,6 +54,11 @@ def _select_helper(args, kwargs):
     else:
         selector = kwargs
     return selector
+
+class LayoutBox(Model):
+    ''' Represents an **on-cavas** layout.
+
+    '''
 
 class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
@@ -122,7 +127,7 @@ class Plot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -196,6 +201,8 @@ class Plot(Component):
             if tool.plot is not None:
                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
             tool.plot = self
+            if hasattr(tool, 'overlay'):
+                self.renderers.append(tool.overlay)
             self.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
@@ -279,9 +286,9 @@ class Plot(Component):
         if len(self.renderers) == 0:
             return str(self)
 
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
-        if len(self.select(GlyphRenderer)) == 0:
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
+        if len(self.select(DataRenderer)) == 0:
             return str(self)
 
     @validation.warning(MALFORMED_CATEGORY_LABEL)
@@ -346,6 +353,15 @@ class Plot(Component):
     This is useful for adding additional axes.
     """)
 
+    hidpi = Bool(default=True, help="""
+    Whether to use HiDPI mode when available.
+    """)
+
+    title_standoff = Int(default=8, help="""
+    How far (in screen units) to place a title away from the central
+    plot region.
+    """)
+
     title = String('', help="""
     A title for the plot.
     """)
@@ -391,7 +407,9 @@ class Plot(Component):
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    above = List(Instance(Renderer), help="""
+    # TODO (bev) LayoutBox here is a temporary workaround to the fact that
+    # plot titles are not proper renderers
+    above = List(Either(Instance(Renderer), Instance(LayoutBox)), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
@@ -517,7 +535,7 @@ class Plot(Component):
 
     """)
 
-    min_border = Int(40, help="""
+    min_border = Int(50, help="""
     A convenience property to set all all the ``min_X_border`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
@@ -584,8 +602,9 @@ class GridPlot(Component):
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
+
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
         pass
 
     @validation.warning(EMPTY_LAYOUT)
@@ -620,7 +639,7 @@ class GridPlot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):

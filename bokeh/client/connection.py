@@ -4,31 +4,53 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from tornado import gen
+from tornado import gen, locks
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
-from tornado.websocket import websocket_connect
+from tornado.websocket import websocket_connect, WebSocketError
 from tornado.concurrent import Future
 
 from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
 from bokeh.server.protocol.receiver import Receiver
 from bokeh.server.protocol import Protocol
-from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL
 
 class _WebSocketClientConnectionWrapper(object):
-    ''' Used for compat across Tornado versions '''
+    ''' Used for compat across Tornado versions and to add write_lock'''
 
     def __init__(self, socket):
+        if socket is None:
+            raise ValueError("socket must not be None")
         self._socket = socket
+        # write_lock allows us to lock the connection to send multiple
+        # messages atomically.
+        self.write_lock = locks.Lock()
 
-    def write_message(self, message, binary=False):
-        future = self._socket.write_message(message, binary)
-        if future is None:
-            # tornado >= 4.3 gives us a Future, simulate that
-            # with this fake Future on < 4.3
-            future = Future()
-            future.set_result(None)
-        return future
+    @gen.coroutine
+    def write_message(self, message, binary=False, locked=True):
+        def write_message_unlocked():
+            if self._socket.protocol is None:
+                # Tornado is maybe supposed to do this, but in fact it
+                # tries to do _socket.protocol.write_message when protocol
+                # is None and throws AttributeError or something. So avoid
+                # trying to write to the closed socket. There doesn't seem
+                # to be an obvious public function to check if the socket
+                # is closed.
+                raise WebSocketError("Connection to the server has been closed")
+
+            future = self._socket.write_message(message, binary)
+            if future is None:
+                # tornado >= 4.3 gives us a Future, simulate that
+                # with this fake Future on < 4.3
+                future = Future()
+                future.set_result(None)
+            # don't yield this future or we're blocking on ourselves!
+            raise gen.Return(future)
+
+        if locked:
+            with (yield self.write_lock.acquire()):
+                write_message_unlocked()
+        else:
+            write_message_unlocked()
 
     def close(self, code=None, reason=None):
         return self._socket.close(code, reason)
@@ -79,11 +101,11 @@ class ClientConnection(object):
             else:
                 yield connection._next()
 
-    def __init__(self, session, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    def __init__(self, session, websocket_url, io_loop=None):
         '''
           Opens a websocket connection to the server.
         '''
-        self._url = url
+        self._url = websocket_url
         self._session = session
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)
@@ -101,6 +123,10 @@ class ClientConnection(object):
     @property
     def url(self):
         return self._url
+
+    @property
+    def io_loop(self):
+        return self._loop
 
     @property
     def connected(self):
@@ -134,8 +160,31 @@ class ClientConnection(object):
         if self._socket is None:
             log.info("We're disconnected, so not sending message %r", message)
         else:
-            sent = yield message.send(self._socket)
-            log.debug("Sent %r [%d bytes]", message, sent)
+            try:
+                sent = yield message.send(self._socket)
+                log.debug("Sent %r [%d bytes]", message, sent)
+            except WebSocketError as e:
+                # A thing that happens is that we detect the
+                # socket closing by getting a None from
+                # read_message, but the network socket can be down
+                # with many messages still in the read buffer, so
+                # we'll process all those incoming messages and
+                # get write errors trying to send change
+                # notifications during that processing.
+
+                # this is just debug level because it's completely normal
+                # for it to happen when the socket shuts down.
+                log.debug("Error sending message to server: %r", e)
+
+                # error is almost certainly because
+                # socket is already closed, but be sure,
+                # because once we fail to send a message
+                # we can't recover
+                self.close(why="received error while sending")
+
+                # don't re-throw the error - there's nothing to
+                # do about it.
+
         raise gen.Return(None)
 
     def _send_patch_document(self, session_id, event):
@@ -325,8 +374,8 @@ class ClientConnection(object):
                     log.debug("Received message %r" % message)
                     raise gen.Return(message)
             except (MessageError, ProtocolError, ValidationError) as e:
-                log.error("%r", e)
-                raise e
+                log.error("%r", e, exc_info=True)
+                self.close(why="error parsing message from server")
 
     def _tell_session_about_disconnect(self):
         if self._session:

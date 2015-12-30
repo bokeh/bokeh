@@ -9,5 +9,5 @@ def test_area_base_values(test_data):
 
     ag = AreaGlyph(x=x, y=y)
 
-    assert ag.source.data['y_values'][0] == 0
-    assert ag.source.data['y_values'][-1] == 0
+    assert ag.source.data['y_values'][0][0] == 0
+    assert ag.source.data['y_values'][0][-1] == 0

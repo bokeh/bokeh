@@ -456,7 +456,7 @@ if jsinstall:
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojson')
 
 package_path(join(SERVER, 'static'))
-package_path(join(ROOT, 'bokeh', '_templates'))
+package_path(join(ROOT, 'bokeh', 'core', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
 
 if '--user' in sys.argv:
@@ -512,10 +512,7 @@ REQUIRES = [
         'python-dateutil>=2.1',
         'Jinja2>=2.7',
         'numpy>=1.7.1',
-        'pandas>=0.11.0',
-        'Flask>=0.10.1',
-        'pyzmq>=14.3.1',
-        'tornado>=4.0.1',
+        'tornado>=4.3',
     ]
 
 if sys.version_info[:2] == (2, 7):
@@ -558,10 +555,14 @@ setup(
         'bokeh.command.tests',
         'bokeh.command.subcommands',
         'bokeh.command.subcommands.tests',
-        'bokeh.compat',
-        'bokeh.compat.mplexporter',
-        'bokeh.compat.mplexporter.renderers',
-        'bokeh.crossfilter',
+        'bokeh.core',
+        'bokeh.core.compat',
+        'bokeh.core.compat.mplexporter',
+        'bokeh.core.compat.mplexporter.renderers',
+        'bokeh.core.tests',
+        'bokeh.core.validation',
+        'bokeh.plotting',
+        'bokeh.plotting.tests',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.protocol',
@@ -575,7 +576,6 @@ setup(
         'bokeh.tests',
         'bokeh.util',
         'bokeh.util.tests',
-        'bokeh.validation',
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',

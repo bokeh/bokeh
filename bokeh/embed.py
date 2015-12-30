@@ -13,23 +13,22 @@ these different cases.
 
 from __future__ import absolute_import
 
+from collections import Sequence
 import re
 import uuid
 from warnings import warn
 
-from .templates import (
+from six import string_types
+
+from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
     NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
-from .util.string import encode_utf8
-
-from .model import Model, _ModelInDocument
-from ._json_encoder import serialize_json
-from .resources import DEFAULT_SERVER_HTTP_URL
-from .client import DEFAULT_SESSION_ID
+from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
-from collections import Sequence
-from six import string_types
+from .model import Model, _ModelInDocument
+from .resources import _SessionCoordinates
+from .util.string import encode_utf8
 
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
@@ -194,7 +193,7 @@ def _extract_custom_models(models):
 
     return custom_models
 
-def notebook_div(model):
+def notebook_div(model, notebook_comms_target=None):
     ''' Return HTML for a div that will display a Bokeh plot in an
     IPython Notebook
 
@@ -202,6 +201,9 @@ def notebook_div(model):
 
     Args:
         model (Model) : Bokeh object to render
+        notebook_comms_target (str, optional) :
+            A target name for a Jupyter Comms object that can update
+            the document that is rendered to this notebook div
 
     Returns:
         UTF-8 encoded HTML text for a ``<div>``
@@ -216,6 +218,8 @@ def notebook_div(model):
     with _ModelInDocument(model):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
         custom_models = _extract_custom_models([model])
+
+    render_items[0]['notebook_comms_target'] = notebook_comms_target
 
     script = _script_for_render_items(docs_json, render_items,
                                       custom_models=custom_models,
@@ -269,7 +273,7 @@ def file_html(models,
         css_resources (CSSResources, optional): custom CSS Resources (default: ``None``), if
             resources is also provided, resources will override css_resources.
         template (Template, optional) : HTML document template (default: FILE)
-            A Jinja2 Template, see bokeh.templates.FILE for the required
+            A Jinja2 Template, see bokeh.core.templates.FILE for the required
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
@@ -352,16 +356,41 @@ def autoload_static(model, resources, script_path):
 
         return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="default", loglevel="info"):
-    ''' Return a script tag that can be used to embed Bokeh Plots from
-    a Bokeh Server.
+def autoload_server(model, app_path="/", session_id=None, url="default", loglevel="info"):
+    '''Return a script tag that embeds the given model (or entire
+    Document) from a Bokeh server session.
 
-    The data for the plot is stored on the Bokeh Server.
+    In a typical deployment, each browser tab connecting to a
+    Bokeh application will have its own unique session ID. The session ID
+    identifies a unique Document instance for each session (so the state
+    of the Document can be different in every tab).
+
+    If you call ``autoload_server(model=None)``, you'll embed the
+    entire Document for a freshly-generated session ID. Typically,
+    you should call ``autoload_server()`` again for each page load so
+    that every new browser tab gets its own session.
+
+    Sometimes when doodling around on a local machine, it's fine
+    to set ``session_id`` to something human-readable such as
+    ``"default"``.  That way you can easily reload the same
+    session each time and keep your state.  But don't do this in
+    production!
+
+    In some applications, you may want to "set up" the session
+    before you embed it. For example, you might ``session =
+    bokeh.client.pull_session()`` to load up a session, modify
+    ``session.document`` in some way (perhaps adding per-user
+    data?), and then call ``autoload_server(model=None,
+    session_id=session.id)``. The session ID obtained from
+    ``pull_session()`` can be passed to ``autoload_server()``.
 
     Args:
         model (Model) : the object to render from the session, or None for entire document
         app_path (str, optional) : the server path to the app we want to load
-        session_id (str, optional) : server session ID
+        session_id (str, optional) : server session ID (default: None)
+          If None, let the server autogenerate a random session ID. If you supply
+          a specific model to render, you must also supply the session ID containing
+          that model, though.
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
         loglevel (str, optional) : "trace", "debug", "info", "warn", "error", "fatal"
 
@@ -370,10 +399,16 @@ def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="def
             a ``<script>`` tag that will execute an autoload script
             loaded from the Bokeh Server
 
+    .. note:: It is a very bad idea to use the same ``session_id``
+        for every page load; you are likely to create scalability
+        and security problems. So ``autoload_server()`` should be
+        called again on each page load.
+
     '''
 
-    if url == "default":
-        url = DEFAULT_SERVER_HTTP_URL
+    coords = _SessionCoordinates(dict(url=url,
+                                      session_id=session_id,
+                                      app_path=app_path))
 
     elementid = str(uuid.uuid4())
 
@@ -382,19 +417,25 @@ def autoload_server(model, app_path="/", session_id=DEFAULT_SESSION_ID, url="def
     if model is not None:
         model_id = model._id
 
-    if not url.endswith("/"):
-        url = url + "/"
-    if not app_path.endswith("/"):
-        app_path = app_path + "/"
-    if app_path.startswith("/"):
-        app_path = app_path[1:]
-    src_path = url + app_path + "autoload.js" + "?bokeh-autoload-element=" + elementid
+    if model_id and session_id is None:
+        raise ValueError("A specific model was passed to autoload_server() but no session_id; "
+                         "this doesn't work because the server will generate a fresh session "
+                         "which won't have the model in it.")
+
+    src_path = coords.server_url + "/autoload.js" + \
+               "?bokeh-autoload-element=" + elementid
+
+    # we want the server to generate the ID, so the autoload script
+    # can be embedded in a static page while every user still gets
+    # their own session. So we omit bokeh-session-id rather than
+    # using a generated ID.
+    if coords.session_id_allowing_none is not None:
+        src_path = src_path + "&bokeh-session-id=" + session_id
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         elementid = elementid,
         modelid = model_id,
-        sessionid = session_id,
         loglevel = loglevel
     )
 

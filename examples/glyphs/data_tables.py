@@ -3,7 +3,7 @@ from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, 
 from bokeh.models.widgets import DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 
 source = ColumnDataSource(mpg)

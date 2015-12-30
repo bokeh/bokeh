@@ -1,6 +1,6 @@
 _ = require "underscore"
-BoxSelection = require "../../renderer/overlay/box_selection"
 SelectTool = require "./select_tool"
+BoxAnnotation = require "../../renderer/annotation/box_annotation"
 
 class BoxSelectToolView extends SelectTool.View
 
@@ -22,7 +22,7 @@ class BoxSelectToolView extends SelectTool.View
     dims = @mget('dimensions')
 
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-    @mget('overlay').set('data', {vxlim: vxlim, vylim: vylim})
+    @mget('overlay').update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
 
     if @mget('select_every_mousemove')
       append = e.srcEvent.shiftKey ? false
@@ -43,7 +43,7 @@ class BoxSelectToolView extends SelectTool.View
     append = e.srcEvent.shiftKey ? false
     @_select(vxlim, vylim, true, append)
 
-    @mget('overlay').set('data', {})
+    @mget('overlay').update({left: null, right: null, top: null, bottom: null})
 
     @_baseboint = null
 
@@ -103,7 +103,7 @@ class BoxSelectTool extends SelectTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-
+    @get('overlay').set('silent_update', true, {silent: true})
     @register_property('tooltip', () ->
         @_get_dim_tooltip(
           @get("tool_name"),
@@ -112,16 +112,25 @@ class BoxSelectTool extends SelectTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
-    @set('overlay', new BoxSelection.Model)
-    plot_renderers = @get('plot').get('renderers')
-    plot_renderers.push(@get('overlay'))
-    @get('plot').set('renderers', plot_renderers)
-
   defaults: () ->
     return _.extend({}, super(), {
       dimensions: ["width", "height"]
       select_every_mousemove: false
       callback: null
+      overlay: new BoxAnnotation.Model({
+        level: "overlay"
+        render_mode: "css"
+        top_units: "screen"
+        left_units: "screen"
+        bottom_units: "screen"
+        right_units: "screen"
+        fill_color: "lightgrey"
+        fill_alpha: 0.5
+        line_color: "black"
+        line_alpha: 1.0
+        line_width: 2
+        line_dash: [4, 4]
+      })
     })
 
 module.exports =

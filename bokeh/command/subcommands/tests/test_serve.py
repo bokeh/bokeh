@@ -54,6 +54,27 @@ def test_args():
             default=None,
         )),
 
+        ('--allow-websocket-origin', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames which may connect to the Bokeh websocket",
+        )),
+
+        ('--host', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames to allow in requests",
+        )),
+
+        ('--prefix', dict(
+            metavar='PREFIX',
+            type=str,
+            help="URL prefix for Bokeh server URLs",
+            default=None,
+        )),
+
         ('--keep-alive', dict(
             metavar='MILLISECONDS',
             type=int,

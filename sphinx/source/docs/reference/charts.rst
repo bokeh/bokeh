@@ -1,12 +1,7 @@
-
 .. _bokeh.charts:
 
 ``bokeh.charts`` Interface
 ==========================
-
-.. contents::
-    :local:
-    :depth: 2
 
 Chart Options
 -------------

@@ -45,12 +45,11 @@ clean:
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	@mkdir -p $(BUILDDIR)/html/bokehjs
-	@ln -sf ../../../../bokeh/server/static $(BUILDDIR)/html/bokehjs/static
+	@ln -sf ../../../bokeh/server/static $(BUILDDIR)/html/static
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
-serve: html
+serve:
 	python docserver.py
 
 dirhtml:

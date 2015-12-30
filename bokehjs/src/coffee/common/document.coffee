@@ -86,7 +86,7 @@ class Document
 
   _destructively_move : (dest_doc) ->
     dest_doc.clear()
-    while len(@_roots) > 0
+    while @_roots.length > 0
       r = @_roots[0]
       @remove_root(r)
       dest_doc.add_root(r)
@@ -307,7 +307,8 @@ class Document
 
     # this first pass removes all 'refs' replacing them with real instances
     foreach_depth_first to_update, (instance, attrs, was_new) ->
-      instance.set(attrs)
+      if was_new
+        instance.set(attrs)
 
     # after removing all the refs, we can run the initialize code safely
     foreach_depth_first to_update, (instance, attrs, was_new) ->

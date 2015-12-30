@@ -7,7 +7,7 @@ from bokeh.models.glyphs import Text, Rect
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.sampledata.us_holidays import us_holidays
 
 def make_calendar(year, month, firstweekday="Mon"):

@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 
 from .handler import Handler
 from .script import ScriptHandler
+from .server_lifecycle import ServerLifecycleHandler
 import os
 
 class DirectoryHandler(Handler):
@@ -19,6 +20,14 @@ class DirectoryHandler(Handler):
         self._path = src_path
         self._mainpy = mainpy
         self._mainpy_handler = ScriptHandler(filename=self._mainpy)
+
+        lifecycle = os.path.join(src_path, 'server_lifecycle.py')
+        if os.path.exists(lifecycle):
+            self._lifecycle = lifecycle
+            self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle)
+        else:
+            self._lifecycle = None
+            self._lifecycle_handler = Handler() # no-op handler
 
         self._theme = None
         themeyaml = os.path.join(src_path, 'theme.yaml')
@@ -44,12 +53,24 @@ class DirectoryHandler(Handler):
 
     @property
     def failed(self):
-        return self._mainpy_handler.failed
+        return self._mainpy_handler.failed or self._lifecycle_handler.failed
 
     @property
     def error(self):
-        return self._mainpy_handler.error
+        return self._mainpy_handler.error or self._lifecycle_handler.error
 
     @property
     def error_detail(self):
-        return self._mainpy_handler.error_detail
+        return self._mainpy_handler.error_detail or self._lifecycle_handler.error_detail
+
+    def on_server_loaded(self, server_context):
+        return self._lifecycle_handler.on_server_loaded(server_context)
+
+    def on_server_unloaded(self, server_context):
+        return self._lifecycle_handler.on_server_unloaded(server_context)
+
+    def on_session_created(self, session_context):
+        return self._lifecycle_handler.on_session_created(session_context)
+
+    def on_session_destroyed(self, session_context):
+        return self._lifecycle_handler.on_session_destroyed(session_context)

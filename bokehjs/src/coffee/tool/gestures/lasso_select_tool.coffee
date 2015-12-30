@@ -1,6 +1,6 @@
 _ = require "underscore"
-PolySelection = require "../../renderer/overlay/poly_selection"
 SelectTool = require "./select_tool"
+PolyAnnotation = require "../../renderer/annotation/poly_annotation"
 
 class LassoSelectToolView extends SelectTool.View
 
@@ -34,10 +34,7 @@ class LassoSelectToolView extends SelectTool.View
     @data.vy.push(vy)
 
     overlay = @mget('overlay')
-    new_data = {}
-    new_data.vx = _.clone(@data.vx)
-    new_data.vy = _.clone(@data.vy)
-    overlay.set('data', new_data)
+    overlay.update({xs: @data.vx, ys: @data.vy})
 
     if @mget('select_every_mousemove')
       append = e.srcEvent.shiftKey ? false
@@ -50,7 +47,7 @@ class LassoSelectToolView extends SelectTool.View
     @plot_view.push_state('lasso_select', {selection: @plot_view.get_selection()})
 
   _clear_overlay: () ->
-    @mget('overlay').set('data', null)
+    @mget('overlay').update({xs:[], ys:[]})
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -78,14 +75,21 @@ class LassoSelectTool extends SelectTool.Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @set('overlay', new PolySelection.Model({line_width: 2}))
-    plot_renderers = @get('plot').get('renderers')
-    plot_renderers.push(@get('overlay'))
-    @get('plot').set('renderers', plot_renderers)
+    @get('overlay').set('silent_update', true, {silent: true})
 
   defaults: () ->
     return _.extend({}, super(), {
       select_every_mousemove: true
+      overlay: new PolyAnnotation.Model({
+        xs_units: "screen"
+        ys_units: "screen"
+        fill_color: "lightgrey"
+        fill_alpha: 0.5
+        line_color: "black"
+        line_alpha: 1.0
+        line_width: 2
+        line_dash: [4, 4]
+      })
     })
 
 module.exports =

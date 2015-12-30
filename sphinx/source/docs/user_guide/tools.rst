@@ -3,10 +3,6 @@
 Configuring Plot Tools
 ======================
 
-.. contents::
-    :local:
-    :depth: 3
-
 Bokeh comes with a number of interactive tools. There are three categories of tool
 interactions:
 

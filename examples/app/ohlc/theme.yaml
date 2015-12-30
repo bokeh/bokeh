@@ -1,0 +1,8 @@
+
+attrs:
+  Figure:
+    background_fill_color: "#eeeeee"
+    plot_width: 1200
+    toolbar_location: "left"
+    min_border_bottom: 0
+    min_border_top: 0

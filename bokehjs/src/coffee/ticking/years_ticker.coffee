@@ -30,10 +30,5 @@ class YearsTicker extends SingleIntervalTicker.Model
       minor: []
     }
 
-  defaults: () ->
-    return _.extend {}, super(), {
-      toString_properties: ['years']
-    }
-
 module.exports =
   Model: YearsTicker

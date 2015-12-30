@@ -1,9 +1,11 @@
 
-# Polynomial Graph Example
+This example demonstrates embedding a standalone Bokeh document
+into a simple Flask application, with a basic HTML web form.
 
-This demonstrates the ability of bokeh to easily embed into a webpage.
+To view the example, run:
 
-This example uses the excellent python library Flask to handle creating the web page and
-handling the data to populate the graph.
+    python simple.py
 
-With this example, you should be able to embed bokeh into pretty much any webpage!
+in this directory, and navigate to:
+
+    http://localhost:5000

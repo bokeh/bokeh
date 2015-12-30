@@ -11,12 +11,13 @@ class SliderView extends ContinuumView
 
   initialize: (options) ->
     super(options)
-    @render()
-
-  render: () ->
+    @listenTo(@model, 'change', @render)
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)
+    @render()
+
+  render: () ->
     max = @mget('end')
     min = @mget('start')
     step = @mget('step') or ((max - min)/50)

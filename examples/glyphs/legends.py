@@ -3,7 +3,7 @@ from __future__ import print_function
 from numpy import pi, sin, cos
 import numpy as np
 
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Line
@@ -38,7 +38,7 @@ preview_save = PreviewSaveTool()
 
 plot.add_tools(pan, wheel_zoom, preview_save)
 
-from bokeh.enums import LegendLocation
+from bokeh.core.enums import LegendLocation
 
 for location in LegendLocation:
     legend = Legend(legends=[(location, [line])], location=location)

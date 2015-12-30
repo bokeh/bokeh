@@ -22,7 +22,7 @@ from .properties import ColumnLabel, Column
 from .stats import Stat, Bins
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
-from ..properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
+from ..core.properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
 
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -187,6 +187,21 @@ class DataGroup(object):
     def __len__(self):
         return len(self.data.index)
 
+    @property
+    def attributes(self):
+        return list(self.attr_specs.keys())
+
+    def to_dict(self):
+        row = {}
+
+        if self.label is not None:
+            row.update(self.label)
+            row['chart_index'] = tuple(self.label.items())
+        else:
+            row['chart_index'] = None
+        row.update(self.attr_specs)
+        return row
+
 
 def groupby(df, **specs):
     """Convenience iterator around pandas groupby and attribute specs.
@@ -211,6 +226,8 @@ def groupby(df, **specs):
         for name, data in df.groupby(spec_cols, sort=False):
 
             attrs = {}
+            group_label = {}
+
             for spec_name, spec in iteritems(specs):
                 if spec.columns is not None:
                     # get index of the unique column values grouped on for this spec
@@ -222,15 +239,27 @@ def groupby(df, **specs):
                         # name (label) is a tuple of the column values
                         # we extract only the data associated with the columns that this attr spec was configured with
                         label = itemgetter(*name_idx)(name)
+                        cols = itemgetter(*name_idx)(spec_cols)
                     else:
                         label = name
+                        cols = spec_cols[0]
+
+                    if not isinstance(label, tuple):
+                        label = (label, )
+
+                    if not isinstance(cols, list) and not isinstance(cols, tuple):
+                        cols = [cols]
+
+                    for col, value in zip(cols, label):
+                        group_label[col] = value
+
                 else:
                     label = None
 
                 # get attribute value for this spec, given the unique column values associated with it
                 attrs[spec_name] = spec[label]
 
-            yield DataGroup(label=name, data=data, attr_specs=attrs)
+            yield DataGroup(label=group_label, data=data, attr_specs=attrs)
 
     # collect up the defaults from the attribute specs
     else:
@@ -238,7 +267,7 @@ def groupby(df, **specs):
         for spec_name, spec in iteritems(specs):
             attrs[spec_name] = spec[None]
 
-        yield DataGroup(label='None', data=df, attr_specs=attrs)
+        yield DataGroup(label=None, data=df, attr_specs=attrs)
 
 
 class ChartDataSource(object):
@@ -490,6 +519,34 @@ class ChartDataSource(object):
                 'You must provide one or more Attribute Specs to support iteration.')
 
         return groupby(self._data, **specs)
+
+    def create_attr_data(self, **attr_specs):
+        df = self._data.copy()
+
+        groups = []
+        rows = []
+        no_index = False
+        for group in self.groupby(**attr_specs):
+            if group.label is None:
+                no_index = True
+            groups.append(group)
+            rows.append(group.to_dict())
+
+        if no_index:
+            attr_data = pd.DataFrame.from_records([groups[0].to_dict()])
+            df['join_column'] = 'join_value'
+            attr_data['join_column'] = 'join_value'
+
+            df = pd.merge(df, attr_data, on='join_column')
+            del df['join_column']
+
+        else:
+            attr_data = pd.DataFrame.from_records(rows)
+            cols = list(groups[0].label.keys())
+
+            df = pd.merge(df, attr_data, how='left', on=cols)
+
+        return df
 
     @classmethod
     def from_data(cls, *args, **kwargs):

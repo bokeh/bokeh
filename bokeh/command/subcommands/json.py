@@ -1,5 +1,5 @@
 '''
-To generate a the serialized JSON represenation for a Bokeh application
+To generate the serialized JSON representation for a Bokeh application
 from a single Python script, pass the script name to ``bokeh json`` on the
 command line:
 
@@ -7,8 +7,8 @@ command line:
 
     bokeh json app_script.py
 
-The resulting JSON will be output to the console ("standard out"), and will
-have the keys of each block sorted alphabetically.
+The generated JSON will be saved in the current working directory with
+the name ``app_script.json``.
 
 Applications can also be created from directories. The directory should
 contain a ``main.py`` (and any other helper modules that are required) as
@@ -30,25 +30,24 @@ indentation level with the ``--indent`` argument:
 '''
 from __future__ import print_function
 
-from ..subcommand import Subcommand
 from ..util import build_single_handler_application
 
-class JSON(Subcommand):
+from .file_output import FileOutputSubcommand
+
+class JSON(FileOutputSubcommand):
     ''' Subcommand to output applications as serialized JSON
 
     '''
 
     name = "json"
 
-    help = "Emit serialized JSON for one application"
+    extension = "json"
+
+    help = "Create JSON files for one or more applications"
 
     args = (
 
-        ('file', dict(
-            metavar='DIRECTORY-OR-SCRIPT',
-            help="The app directory or script to generate JSON for",
-            default=None
-        )),
+        FileOutputSubcommand.files_arg("JSON"),
 
         ('--indent', dict(
             metavar='LEVEL',
@@ -57,10 +56,7 @@ class JSON(Subcommand):
             default=None
         )),
 
-    )
+    ) + FileOutputSubcommand.other_args()
 
-    def invoke(self, args):
-        application = build_single_handler_application(args.file)
-
-        doc = application.create_document()
-        print(doc.to_json_string(indent=args.indent))
+    def file_contents(self, args, doc):
+        return doc.to_json_string(indent=args.indent)
