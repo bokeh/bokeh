@@ -20,11 +20,14 @@ _handle_notebook_comms = (msg) ->
     throw new Error("handling notebook comms message: ", msg)
 
 _init_comms = (target, doc) ->
-  comm_manager = Jupyter.notebook.kernel.comm_manager
-  comm_manager.register_target(target, (comm, msg) ->
-    logger.info("Registering Jupyter comms for target #{target}")
-    comm.on_msg(_.bind(_handle_notebook_comms, doc))
-  )
+  if Jupyter?
+    comm_manager = Jupyter.notebook.kernel.comm_manager
+    comm_manager.register_target(target, (comm, msg) ->
+      logger.info("Registering Jupyter comms for target #{target}")
+      comm.on_msg(_.bind(_handle_notebook_comms, doc))
+    )
+  else
+    console.warn('Juptyer notebooks comms not available. push_notebook will not function');
 
 _create_view = (model) ->
   view = new model.default_view({model : model})
