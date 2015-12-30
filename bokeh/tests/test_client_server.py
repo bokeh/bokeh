@@ -153,19 +153,28 @@ class TestClientServer(unittest.TestCase):
             session.close()
             session.loop_until_closed()
 
-    def test_host_whitelist_success(self):
-        application = Application()
-
-        def check_http_gets(server):
+    def check_http_gets_fail(self, server):
+        with (self.assertRaises(HTTPError)) as manager:
             http_get(server.io_loop, url(server))
+        with (self.assertRaises(HTTPError)) as manager:
             http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-        def check_connect_session(server):
+    def check_connect_session_fails(self, server):
+        with (self.assertRaises(HTTPError)) as manager:
             websocket_open(server.io_loop, ws_url(server))
 
+    def check_http_gets(self, server):
+        http_get(server.io_loop, url(server))
+        http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+
+    def check_connect_session(self, server):
+        websocket_open(server.io_loop, ws_url(server))
+
+    def test_host_whitelist_success(self):
+        application = Application()
         def check(server):
-            check_http_gets(server)
-            check_connect_session(server)
+            self.check_http_gets(server)
+            self.check_connect_session(server)
 
         # succeed no host value with defaults
         with ManagedServerLoop(application, host=None) as server:
@@ -186,19 +195,9 @@ class TestClientServer(unittest.TestCase):
     def test_host_whitelist_failure(self):
         application = Application()
 
-        def check_http_gets_fail(server):
-            with (self.assertRaises(HTTPError)) as manager:
-                http_get(server.io_loop, url(server))
-            with (self.assertRaises(HTTPError)) as manager:
-                http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
-
-        def check_connect_session_fails(server):
-            with (self.assertRaises(HTTPError)) as manager:
-                websocket_open(server.io_loop, ws_url(server))
-
         def check_fails(server):
-            check_http_gets_fail(server)
-            check_connect_session_fails(server)
+            self.check_http_gets_fail(server)
+            self.check_connect_session_fails(server)
 
         # failure bad host
         with ManagedServerLoop(application, host=["bad_host"]) as server:
