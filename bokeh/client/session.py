@@ -13,9 +13,9 @@ from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
                               DEFAULT_SERVER_HTTP_URL,
                               server_url_for_websocket_url,
                               _SessionCoordinates )
-from bokeh.document import Document, PeriodicCallback, TimeoutCallback
+from bokeh.document import Document
 from bokeh.util.session_id import generate_session_id
-from bokeh.util.tornado import _AsyncPeriodic
+from bokeh.util.tornado import _DocumentCallbackGroup
 
 DEFAULT_SESSION_ID = "default"
 
@@ -211,52 +211,13 @@ class ClientSession(object):
         self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
 
         self._current_patch = None
-        self._callbacks = {}
+        self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
 
     def _attach_document(self, document):
         self._document = document
         self._document.on_change_dispatch_to(self)
 
-        for cb in self._document.session_callbacks:
-            self._add_periodic_callback(cb)
-
-    def _add_periodic_callback(self, callback):
-        ''' Add callback so it can be invoked on a session periodically accordingly to period.
-
-        NOTE: periodic callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
-
-        '''
-        cb = self._callbacks[callback.id] = _AsyncPeriodic(
-            callback.callback, callback.period, io_loop=self._connection._loop
-        )
-        cb.start()
-
-    def _remove_periodic_callback(self, callback):
-        ''' Remove a callback added earlier with add_periodic_callback()
-
-            Throws an error if the callback wasn't added
-
-        '''
-        self._callbacks.pop(callback.id).stop()
-
-    def _add_timeout_callback(self, callback):
-        ''' Add callback so it can be invoked on a session after timeout
-
-        NOTE: timeout callbacks can only work within a session. It'll take no effect when bokeh output is html or notebook
-
-        '''
-        # IOLoop.call_later takes a delay in seconds
-        cb = self._connection._loop.call_later(callback.timeout/1000.0, callback.callback)
-        self._callbacks[callback.id] = cb
-
-    def _remove_timeout_callback(self, callback):
-        ''' Remove a callback added earlier with _add_timeout_callback()
-
-            Throws an error if the callback wasn't added
-
-        '''
-        cb = self._callbacks.pop(callback.id)
-        self._connection._loop.remove_timeout(cb)
+        self._callbacks.add_session_callbacks(self._document.session_callbacks)
 
     def pull(self):
         """ Pull the server's state and set it as session.document.
@@ -374,6 +335,7 @@ class ClientSession(object):
         '''Called by the ClientConnection we are using to notify us of disconnect'''
         if self._document is not None:
             self._document.remove_on_change(self)
+            self._callbacks.remove_all_callbacks()
 
     def _document_patched(self, event):
 
@@ -395,17 +357,7 @@ class ClientSession(object):
             self._current_patch = None
 
     def _session_callback_added(self, event):
-        if isinstance(event.callback, PeriodicCallback):
-            self._add_periodic_callback(event.callback)
-        elif isinstance(event.callback, TimeoutCallback):
-            self._add_timeout_callback(event.callback)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+        self._callbacks.add_session_callback(event.callback)
 
     def _session_callback_removed(self, event):
-        if isinstance(event.callback, PeriodicCallback):
-            self._remove_periodic_callback(event.callback)
-        elif isinstance(event.callback, TimeoutCallback):
-            self._remove_timeout_callback(event.callback)
-        else:
-            raise ValueError("Expected callback of type PeriodicCallback or TimeoutCallback, got: %s" % event.callback)
+        self._callbacks.remove_session_callback(event.callback)
