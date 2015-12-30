@@ -15,6 +15,8 @@ from bokeh.resources import websocket_url_for_server_url
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
+from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
+from tornado.websocket import websocket_connect
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -39,6 +41,48 @@ def url(server, prefix=""):
 
 def ws_url(server, prefix=""):
     return "ws://localhost:" + str(server._port) + prefix + "/ws"
+
+def http_get(io_loop, url):
+    result = {}
+    def handle_request(response):
+        result['response'] = response
+        io_loop.stop()
+
+    # for some reason passing a loop to AsyncHTTPClient is deprecated
+    assert io_loop is IOLoop.current()
+    http_client = AsyncHTTPClient()
+    http_client.fetch(url, handle_request)
+    io_loop.start()
+
+    if 'response' not in result:
+        raise RuntimeError("Failed to http get")
+    response = result['response']
+    if response.error:
+        raise response.error
+    else:
+        return response
+
+def websocket_open(io_loop, url, origin=None):
+    result = {}
+    def handle_connection(future):
+        result['connection'] = future
+        io_loop.stop()
+
+    request = HTTPRequest(url)
+    if origin is not None:
+        request.headers['Origin'] = origin
+    websocket_connect(request, callback=handle_connection, io_loop=io_loop)
+
+    io_loop.start()
+
+    if 'connection' not in result:
+        raise RuntimeError("Failed to handle websocket connect")
+    future = result['connection']
+    if future.exception():
+        raise future.exception()
+    else:
+        future.result().close()
+        return None
 
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
@@ -111,82 +155,120 @@ class TestClientServer(unittest.TestCase):
             session.close()
             session.loop_until_closed()
 
+    def check_http_gets_fail(self, server):
+        with (self.assertRaises(HTTPError)) as manager:
+            http_get(server.io_loop, url(server))
+        with (self.assertRaises(HTTPError)) as manager:
+            http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+
+    def check_connect_session_fails(self, server, origin):
+        with (self.assertRaises(HTTPError)) as manager:
+            websocket_open(server.io_loop,
+                           ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
+                           origin=origin)
+
+    def check_http_gets(self, server):
+        http_get(server.io_loop, url(server))
+        http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+
+    def check_connect_session(self, server, origin):
+        websocket_open(server.io_loop,
+                       ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
+                       origin=origin)
+
+    def check_http_ok_socket_ok(self, server, origin=None):
+        self.check_http_gets(server)
+        self.check_connect_session(server, origin=origin)
+
+    def check_http_ok_socket_blocked(self, server, origin=None):
+        self.check_http_gets(server)
+        self.check_connect_session_fails(server, origin=origin)
+
+    def check_http_blocked_socket_blocked(self, server, origin=None):
+        self.check_http_gets_fail(server)
+        self.check_connect_session_fails(server, origin=origin)
+
     def test_host_whitelist_success(self):
         application = Application()
 
         # succeed no host value with defaults
         with ManagedServerLoop(application, host=None) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_ok_socket_ok(server)
 
         # succeed no host value with port
         with ManagedServerLoop(application, port=8080, host=None) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_ok_socket_ok(server)
 
         # succeed matching host value
         with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_ok_socket_ok(server)
 
         # succeed matching host value one of multiple
         with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_ok_socket_ok(server)
 
     def test_host_whitelist_failure(self):
         application = Application()
 
         # failure bad host
         with ManagedServerLoop(application, host=["bad_host"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
 
         with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
 
         # failure good host, bad port
         with ManagedServerLoop(application, host=["localhost:80"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
 
         # failure good host, bad default port
         with ManagedServerLoop(application, host=["localhost"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
 
         # failure with custom port
         with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            self.check_http_blocked_socket_blocked(server)
+
+    def test_allow_websocket_origin(self):
+        application = Application()
+
+        # allow an origin that's an allowed host but not an extra origin
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com"]) as server:
+            self.check_http_ok_socket_ok(server, origin=url(server))
+
+        # allow good host and good origin
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com"]) as server:
+            self.check_http_ok_socket_ok(server, origin="http://example.com:80")
+
+        # allow good host and good origin with port
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com:8080"]) as server:
+            self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
+
+        # block non-Host origins by default even if no extra origins specified
+        with ManagedServerLoop(application, host=None) as server:
+            self.check_http_ok_socket_blocked(server, origin="http://example.com:80")
+
+        # block on a garbage Origin header
+        with ManagedServerLoop(application, host=None) as server:
+            self.check_http_ok_socket_blocked(server, origin="hsdf:::///%#^$#:8080")
+
+        # block good host and bad origin
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com"]) as server:
+            self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
+
+        # block good host and bad origin port
+        with ManagedServerLoop(application, host=None,
+                               allow_websocket_origin=["example.com:8080"]) as server:
+            self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
+
+        # block on bad host even though the bad host is an allowed origin
+        with ManagedServerLoop(application, host=["bad_host"],
+                               allow_websocket_origin=["bad_host"]) as server:
+            self.check_http_blocked_socket_blocked(server, origin="http://bad_host:80")
 
     def test_push_document(self):
         application = Application()

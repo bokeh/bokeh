@@ -8,6 +8,8 @@ log = logging.getLogger(__name__)
 
 import codecs
 
+from six.moves.urllib.parse import urlparse
+
 from tornado import gen, locks
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.concurrent import Future
@@ -40,11 +42,16 @@ class WSHandler(WebSocketHandler):
         pass
 
     def check_origin(self, origin):
-        # Allow ANY site to open our websocket...
-        # this is to make the autoload embed work.
-        # Potentially, we should limit this somehow
-        # or make it configurable.
-        return True
+        parsed_origin = urlparse(origin)
+        origin_host = parsed_origin.netloc.lower()
+
+        allowed = self.application.websocket_origins
+
+        if origin_host in allowed:
+            return True
+        else:
+            log.error("Refusing websocket connection from Origin '%s'; use --allow-websocket-origin=%s to permit this; currently we allow origins %r", origin, origin_host, allowed)
+            return False
 
     def open(self):
         ''' Initialize a connection to a client.

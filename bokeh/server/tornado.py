@@ -51,6 +51,9 @@ class BokehTornado(TornadoApplication):
             Use this argument to add additional endpoints to custom deployments
             of the Bokeh Server.
         prefix (str) : a URL prefix to use for all Bokeh server paths
+        hosts (list) : hosts that are valid values for the Host header
+        extra_websocket_origins (list) : hosts that can connect to the websocket
+            These are in addition to ``hosts``.
         keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
             Set to 0 to disable pings. Pings keep the websocket open.
         develop (boolean) : True for develop mode
@@ -58,6 +61,7 @@ class BokehTornado(TornadoApplication):
     '''
 
     def __init__(self, applications, prefix, hosts,
+                 extra_websocket_origins,
                  io_loop=None,
                  extra_patterns=None,
                  # heroku, nginx default to 60s timeout, so well less than that
@@ -80,9 +84,13 @@ class BokehTornado(TornadoApplication):
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
 
-        self._hosts = hosts
+        self._hosts = set(hosts)
+        self._websocket_origins = self._hosts | set(extra_websocket_origins)
         self._resources = {}
         self._develop = develop
+
+        log.debug("Allowed Host headers: %r", list(self._hosts))
+        log.debug("These host origins can connect to the websocket: %r", list(self._websocket_origins))
 
         # Wrap applications in ApplicationContext
         self._applications = dict()
@@ -142,6 +150,10 @@ class BokehTornado(TornadoApplication):
     @property
     def io_loop(self):
         return self._loop
+
+    @property
+    def websocket_origins(self):
+        return self._websocket_origins
 
     def root_url_for_request(self, request):
         return request.protocol + "://" + request.host + self._prefix + "/"
