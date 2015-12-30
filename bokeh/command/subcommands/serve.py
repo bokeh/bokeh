@@ -147,14 +147,11 @@ processes access a fixed session name such as
 no need to generate or configure a secret key.
 
 In ``signed`` mode, the session ID must be in a special format and
-signed with a secret key. The secret key should be set in a
-``BOKEH_SECRET_KEY`` environment variable and should be a
-cryptographically random string with at least 256 bits (32 bytes)
-of entropy. Attempts to use the application with an invalid
-session ID will fail, but if no ``?bokeh-session-id=`` parameter
-is provided, the server will generate a fresh, signed session
-ID. The result of ``signed`` mode is that only secure session IDs
-are allowed but anyone can connect to the server.
+signed with a secret key. Attempts to use the application with an
+invalid session ID will fail, but if no ``?bokeh-session-id=``
+parameter is provided, the server will generate a fresh, signed
+session ID. The result of ``signed`` mode is that only secure
+session IDs are allowed but anyone can connect to the server.
 
 In ``external-signed`` mode, the session ID must be signed but the
 server itself won't generate a session ID; the
@@ -175,6 +172,11 @@ they can't load the app from the Bokeh server.
 In both ``signed`` and ``external-signed`` mode, the secret key
 must be kept secret; anyone with the key can generate a valid
 session ID.
+
+The secret key should be set in a ``BOKEH_SECRET_KEY`` environment
+variable and should be a cryptographically random string with at
+least 256 bits (32 bytes) of entropy.  You can generate a new
+secret key with the ``bokeh secret`` command.
 
 Development Options
 ~~~~~~~~~~~~~~~~~~~
@@ -353,10 +355,12 @@ class Serve(Subcommand):
             server_kwargs['sign_sessions'] = True
             server_kwargs['generate_session_ids'] = False
         else:
-            raise RuntimeError("argparse should have filtered out --session-ids mode " + args.session_ids)
+            raise RuntimeError("argparse should have filtered out --session-ids mode " +
+                               args.session_ids)
 
         if server_kwargs['sign_sessions'] and not server_kwargs['secret_key']:
-            die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set.")
+            die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
+                "the `bokeh secret` command can be used to generate a new key.")
 
         server = Server(applications, **server_kwargs)
 

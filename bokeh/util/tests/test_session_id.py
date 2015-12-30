@@ -6,6 +6,7 @@ import unittest
 
 import bokeh.util.session_id
 from bokeh.util.session_id import ( generate_session_id,
+                                    generate_secret_key,
                                     check_session_id_signature,
                                     _signature,
                                     _reseed_if_needed,
@@ -84,3 +85,10 @@ class TestSessionId(unittest.TestCase):
 
     def test_check_signature_with_signing_disabled(self):
         self.assertTrue(check_session_id_signature("gobbledygook", secret_key="abc", signed=False))
+
+    def test_generate_secret_key(self):
+        key = generate_secret_key()
+        self.assertEqual(44, len(key))
+        key2 = generate_secret_key()
+        self.assertEqual(44, len(key2))
+        self.assertNotEqual(key, key2)
