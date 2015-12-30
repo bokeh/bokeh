@@ -280,14 +280,18 @@ def show(obj, browser=None, new="tab"):
 def _show_with_state(obj, state, browser, new):
     controller = browserlib.get_browser_controller(browser=browser)
 
+    comms_handle = None
+
     if state.notebook:
-        return _show_notebook_with_state(obj, state)
+        comms_handle = _show_notebook_with_state(obj, state)
 
     elif state.server_enabled:
-        return _show_server_with_state(obj, state, new, controller)
+        _show_server_with_state(obj, state, new, controller)
 
     if state.file:
-        return _show_file_with_state(obj, state, new, controller)
+        _show_file_with_state(obj, state, new, controller)
+
+    return comms_handle
 
 def _show_file_with_state(obj, state, new, controller):
     save(obj, state=state)
