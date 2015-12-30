@@ -258,6 +258,9 @@ class PlotView extends ContinuumView
   update_dimensions: (dimensions) ->
     @canvas._set_dims([dimensions.width, dimensions.height])
 
+  reset_dimensions: () ->
+    @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
+
   get_selection: () ->
     selection = []
     for renderer in @mget('renderers')
@@ -271,6 +274,9 @@ class PlotView extends ContinuumView
       if renderer instanceof GlyphRenderer.Model
         selected = selection[renderer.id] or []
         renderer.get('data_source').set("selected", selected)
+
+  reset_selection: () ->
+    @update_selection({})
 
   update_range: (range_info) ->
     @pause
@@ -294,6 +300,9 @@ class PlotView extends ContinuumView
           rng.set(range_info.yrs[name])
           rng.get('callback')?.execute(@model)
     @unpause()
+
+  reset_range: () ->
+    @update_range(null)
 
   build_levels: () ->
     # should only bind events on NEW views and tools

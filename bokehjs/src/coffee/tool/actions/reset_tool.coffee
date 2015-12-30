@@ -4,7 +4,9 @@ class ResetToolView extends ActionTool.View
 
   do: () ->
     @plot_view.clear_state()
-    @plot_view.update_range()
+    @plot_view.reset_range()
+    @plot_view.reset_selection()
+    @plot_view.reset_dimensions()
 
 class ResetTool extends ActionTool.Model
   default_view: ResetToolView
