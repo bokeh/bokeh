@@ -243,27 +243,27 @@ def test_autorange_prevents_panning_but_can_zoom_in_with_range1d(output_file_url
 # Test no bounds
 ############################
 
-def _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium):
-    selenium.get(output_file_url)
-
-    pan_plot(selenium, pan_x=-1000, pan_y=2000)
-
-    x_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
-    selenium.switch_to_alert().dismiss()
-    assert x_range_start > 5
-
-    y_range_start = float(selenium.execute_script("""alert(window.get_y_range_start())"""))
-    selenium.switch_to_alert().dismiss()
-    assert y_range_start > 5
-
-
-def test_no_bounds_allows_unlimited_panning_with_datarange1d(output_file_url, selenium):
-    plot = make_pan_plot_with_callback(xr=DataRange1d(bounds=None), yr=DataRange1d(bounds=None))
-    save(plot)
-    _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium)
-
-
-def test_no_bounds_allows_unlimited_panning_with_range1d(output_file_url, selenium):
-    plot = make_pan_plot_with_callback(xr=Range1d(0.45, 3, bounds=None), yr=DataRange1d(0, 3, bounds=None))
-    save(plot)
-    _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium)
+#def _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium):
+#    selenium.get(output_file_url)
+#
+#    pan_plot(selenium, pan_x=-1000, pan_y=2000)
+#
+#    x_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
+#    selenium.switch_to_alert().dismiss()
+#    assert x_range_start > 5
+#
+#    y_range_start = float(selenium.execute_script("""alert(window.get_y_range_start())"""))
+#    selenium.switch_to_alert().dismiss()
+#    assert y_range_start > 5
+#
+#
+#def test_no_bounds_allows_unlimited_panning_with_datarange1d(output_file_url, selenium):
+#    plot = make_pan_plot_with_callback(xr=DataRange1d(bounds=None), yr=DataRange1d(bounds=None))
+#    save(plot)
+#    _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium)
+#
+#
+#def test_no_bounds_allows_unlimited_panning_with_range1d(output_file_url, selenium):
+#    plot = make_pan_plot_with_callback(xr=Range1d(0.45, 3, bounds=None), yr=DataRange1d(0, 3, bounds=None))
+#    save(plot)
+#    _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium)
