@@ -408,3 +408,31 @@ def test__reject_unsigned_session_websocket():
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
+
+def test__no_generate_session_autoload():
+    application = Application()
+    with ManagedServerLoop(application, generate_session_ids=False) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        with (pytest.raises(HTTPError)) as info:
+            http_get(server.io_loop,
+                     autoload_url(server))
+        assert 'No bokeh-session-id provided' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+def test__no_generate_session_doc():
+    application = Application()
+    with ManagedServerLoop(application, generate_session_ids=False) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        with (pytest.raises(HTTPError)) as info:
+            response = http_get(server.io_loop,
+                                url(server))
+        assert 'No bokeh-session-id provided' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)

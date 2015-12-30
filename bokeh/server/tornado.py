@@ -52,6 +52,9 @@ class BokehTornado(TornadoApplication):
             of the Bokeh Server.
         prefix (str) : a URL prefix to use for all Bokeh server paths
         hosts (list) : hosts that are valid values for the Host header
+        secret_key (str) : secret key for signing session IDs
+        sign_sessions (boolean) : whether to sign session IDs
+        generate_session_ids (boolean) : whether to generate a session ID when none is provided
         extra_websocket_origins (list) : hosts that can connect to the websocket
             These are in addition to ``hosts``.
         keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
@@ -66,6 +69,7 @@ class BokehTornado(TornadoApplication):
                  extra_patterns=None,
                  secret_key=settings.secret_key_bytes(),
                  sign_sessions=settings.sign_sessions(),
+                 generate_session_ids=True,
                  # heroku, nginx default to 60s timeout, so well less than that
                  keep_alive_milliseconds=37000,
                  # how often to check for unused sessions
@@ -92,6 +96,7 @@ class BokehTornado(TornadoApplication):
         self._develop = develop
         self._secret_key = secret_key
         self._sign_sessions = sign_sessions
+        self._generate_session_ids = generate_session_ids
 
         log.debug("Allowed Host headers: %r", list(self._hosts))
         log.debug("These host origins can connect to the websocket: %r", list(self._websocket_origins))
@@ -166,6 +171,10 @@ class BokehTornado(TornadoApplication):
     @property
     def sign_sessions(self):
         return self._sign_sessions
+
+    @property
+    def generate_session_ids(self):
+        return self._generate_session_ids
 
     def root_url_for_request(self, request):
         return request.protocol + "://" + request.host + self._prefix + "/"

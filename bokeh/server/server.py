@@ -60,6 +60,7 @@ class Server(object):
                                                         'extra_patterns',
                                                         'secret_key',
                                                         'sign_sessions',
+                                                        'generate_session_ids',
                                                         'keep_alive_milliseconds',
                                                         'check_unused_sessions_milliseconds',
                                                         'unused_session_lifetime_milliseconds',
