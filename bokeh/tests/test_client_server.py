@@ -15,6 +15,7 @@ from bokeh.resources import websocket_url_for_server_url
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
+from tornado.httpclient import AsyncHTTPClient, HTTPError
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -39,6 +40,26 @@ def url(server, prefix=""):
 
 def ws_url(server, prefix=""):
     return "ws://localhost:" + str(server._port) + prefix + "/ws"
+
+def http_get(io_loop, url):
+    result = {}
+    def handle_request(response):
+        result['response'] = response
+        io_loop.stop()
+
+    # for some reason passing a loop to AsyncHTTPClient is deprecated
+    assert io_loop is IOLoop.current()
+    http_client = AsyncHTTPClient()
+    http_client.fetch(url, handle_request)
+    io_loop.start()
+
+    if 'response' not in result:
+        raise RuntimeError("Failed to http get")
+    response = result['response']
+    if response.error:
+        raise response.error
+    else:
+        return response
 
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
@@ -112,8 +133,14 @@ class TestClientServer(unittest.TestCase):
     def test_host_whitelist_success(self):
         application = Application()
 
+        def check_http_gets(server):
+            http_get(server.io_loop, url(server))
+            http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+
         # succeed no host value with defaults
         with ManagedServerLoop(application, host=None) as server:
+            check_http_gets(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
@@ -122,6 +149,8 @@ class TestClientServer(unittest.TestCase):
 
         # succeed no host value with port
         with ManagedServerLoop(application, port=8080, host=None) as server:
+            check_http_gets(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
@@ -130,6 +159,8 @@ class TestClientServer(unittest.TestCase):
 
         # succeed matching host value
         with ManagedServerLoop(application, port=8080, host=["localhost:8080"]) as server:
+            check_http_gets(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
@@ -138,6 +169,8 @@ class TestClientServer(unittest.TestCase):
 
         # succeed matching host value one of multiple
         with ManagedServerLoop(application, port=8080, host=["bad_host", "localhost:8080"]) as server:
+            check_http_gets(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert session.connected
@@ -147,8 +180,16 @@ class TestClientServer(unittest.TestCase):
     def test_host_whitelist_failure(self):
         application = Application()
 
+        def check_http_gets_fail(server):
+            with (self.assertRaises(HTTPError)) as manager:
+                http_get(server.io_loop, url(server))
+            with (self.assertRaises(HTTPError)) as manager:
+                http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+
         # failure bad host
         with ManagedServerLoop(application, host=["bad_host"]) as server:
+            check_http_gets_fail(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
@@ -156,6 +197,8 @@ class TestClientServer(unittest.TestCase):
             session.loop_until_closed()
 
         with ManagedServerLoop(application, host=["bad_host:5006"]) as server:
+            check_http_gets_fail(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
@@ -164,6 +207,8 @@ class TestClientServer(unittest.TestCase):
 
         # failure good host, bad port
         with ManagedServerLoop(application, host=["localhost:80"]) as server:
+            check_http_gets_fail(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
@@ -172,6 +217,8 @@ class TestClientServer(unittest.TestCase):
 
         # failure good host, bad default port
         with ManagedServerLoop(application, host=["localhost"]) as server:
+            check_http_gets_fail(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
@@ -180,6 +227,8 @@ class TestClientServer(unittest.TestCase):
 
         # failure with custom port
         with ManagedServerLoop(application, port=8080, host=["localhost:8081"]) as server:
+            check_http_gets_fail(server)
+
             session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
             session.connect()
             assert not session.connected
