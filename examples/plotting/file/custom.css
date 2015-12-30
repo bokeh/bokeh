@@ -1,0 +1,20 @@
+body{
+  background-color: black;
+}
+
+div.custom_box {
+  background-color: #555;
+}
+
+.funky{
+  background-color: #CCC;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+}
+
+.funky label{
+  font-family: sans-serif;
+  color: #A5855F;
+}

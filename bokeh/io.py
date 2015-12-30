@@ -52,7 +52,8 @@ _state = State()
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
+def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn",
+                root_dir=None, custom_css_files=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
@@ -98,7 +99,8 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_d
         title=title,
         autosave=autosave,
         mode=mode,
-        root_dir=root_dir
+        root_dir=root_dir,
+        custom_css_files=custom_css_files,
     )
 
 def output_notebook(resources=None, verbose=False, hide_banner=False):

@@ -167,7 +167,8 @@ class State(object):
         '''
         self._reset_with_doc(Document())
 
-    def output_file(self, filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
+    def output_file(self, filename, title="Bokeh Plot", autosave=False,
+                    mode="cdn", root_dir=None, custom_css_files=None):
         """Output to a standalone HTML file.
 
         Does not change the current Document from curdoc(). File,
@@ -202,7 +203,7 @@ class State(object):
         """
         self._file = {
             'filename'  : filename,
-            'resources' : Resources(mode=mode, root_dir=root_dir),
+            'resources' : Resources(mode=mode, root_dir=root_dir, custom_css_files=custom_css_files),
             'title'     : title
         }
         self._autosave = autosave

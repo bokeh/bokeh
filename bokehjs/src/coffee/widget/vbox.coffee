@@ -16,10 +16,15 @@ class VBoxView extends ContinuumView
 
   render: () ->
     children = @model.children()
+    css_classes = @model.css_classes()
     build_views(@views, children)
     for own key, val of @views
       val.$el.detach()
     @$el.empty()
+
+    for css_class in css_classes
+      @$el.addClass(css_class)
+
     width = @mget("width")
     if width? then @$el.css(width: width + "px")
     height = @mget("height")
@@ -35,10 +40,14 @@ class VBox extends BaseBox.Model
   defaults: ->
     return _.extend {}, super(), {
       children: []
+      css_classes: []
     }
 
   children: () ->
     return @get('children')
+
+  css_classes: () ->
+    return @get('css_classes')
 
 module.exports =
   Model: VBox
