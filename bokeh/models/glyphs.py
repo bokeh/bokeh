@@ -263,7 +263,7 @@ class HBar(Glyph):
     _args = ('y', 'height', 'left', 'right')
 
     y = NumberSpec(help="""
-    The x-coordinates of the centers of the bars.
+    The y-coordinates of the centers of the bars.
     """)
 
     height = NumberSpec(help="""
