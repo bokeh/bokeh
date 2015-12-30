@@ -229,6 +229,10 @@ def test__lifecycle_hooks():
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 sessionid_in_json = re.compile("""["']sessionid["'] *: *["']([^"]+)["']""")
 def extract_sessionid_from_json(html):
+    from six import string_types
+    if not isinstance(html, string_types):
+        import codecs
+        html = codecs.decode(html, 'utf-8')
     match = sessionid_in_json.search(html)
     return match.group(1)
 

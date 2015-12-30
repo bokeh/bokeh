@@ -265,7 +265,7 @@ class BokehTornado(TornadoApplication):
     def get_sessions(self, app_path):
         if app_path not in self._applications:
             raise ValueError("Application %s does not exist on this server" % app_path)
-        return self._applications[app_path].sessions
+        return list(self._applications[app_path].sessions)
 
     @gen.coroutine
     def cleanup_sessions(self):
