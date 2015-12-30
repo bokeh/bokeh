@@ -190,10 +190,25 @@ class PlotView extends ContinuumView
       bds = v.glyph?.bounds?()
       if bds?
         bounds[k] = bds
+
+    follow_enabled = false
+    has_bounds = false
     for xr in _.values(frame.get('x_ranges'))
       xr.update?(bounds, 0, @model.id)
+      follow_enabled = true if xr.get('follow')?
+      has_bounds = true if xr.get('bounds')?
     for yr in _.values(frame.get('y_ranges'))
       yr.update?(bounds, 1, @model.id)
+      follow_enabled = true if yr.get('follow')?
+      has_bounds = true if yr.get('bounds')?
+
+    if follow_enabled and has_bounds
+      logger.warn('Follow enabled so bounds are unset.')
+      for xr in _.values(frame.get('x_ranges'))
+        xr.set('bounds', null)
+      for yr in _.values(frame.get('y_ranges'))
+        yr.set('bounds', null)
+
     @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->

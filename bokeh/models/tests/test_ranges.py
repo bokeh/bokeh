@@ -57,9 +57,15 @@ def test_range1d_bounds_with_three_item_tuple_raises_valueerror():
 
 def test_datarange1d_init_with_no_arguments():
     datarange1d = DataRange1d()
-    assert datarange1d.start == None
-    assert datarange1d.end == None
+    assert datarange1d.start is None
+    assert datarange1d.end is None
     assert datarange1d.bounds == 'auto'
+
+
+def test_datarange1d_init_with_follow_sets_bounds_to_none():
+    datarange1d = DataRange1d(follow="start")
+    assert datarange1d.follow == "start"
+    assert datarange1d.bounds is None
 
 
 def test_datarange1d_init_with_bad_bounds():

@@ -153,6 +153,7 @@ class DataRange1d(DataRange):
     If set to ``None`` (default), then auto-ranging does not follow, and
     the range will encompass both the minimum and maximum data values.
 
+    ``follow`` cannot be used with bounds, and if set, bounds will be set to ``None``.
     """)
 
     follow_interval = Float(default=None, help="""
@@ -170,6 +171,8 @@ class DataRange1d(DataRange):
     """)
 
     def __init__(self, *args, **kwargs):
+        if kwargs.get('follow') is not None:
+            kwargs['bounds'] = None
         super(DataRange1d, self).__init__(**kwargs)
 
 
