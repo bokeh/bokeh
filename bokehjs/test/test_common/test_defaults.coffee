@@ -9,8 +9,9 @@ widget_defaults = utils.require "widget/defaults"
 HasProperties = utils.require "common/has_properties"
 properties = utils.require "common/properties"
 Bokeh = utils.require "main"
-# for side-effect of loading widgets into locations, as well as to get 'widget_locations'
-widget_locations = (utils.require "widget/main")
+
+widget_locations = utils.require "widget/main"
+Collections.register_locations(widget_locations)
 
 all_view_model_names = []
 all_view_model_names = all_view_model_names.concat(core_defaults.all_view_model_names())
