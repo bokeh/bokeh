@@ -19,7 +19,6 @@ from tornado.web import HTTPError
 
 from bokeh.resources import Resources
 
-from .settings import settings
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
 from .application_context import ApplicationContext
@@ -129,7 +128,7 @@ class BokehTornado(TornadoApplication):
 
         log.debug("Patterns are: %r", all_patterns)
 
-        super(BokehTornado, self).__init__(all_patterns, **settings)
+        super(BokehTornado, self).__init__(all_patterns)
 
         self._clients = set()
         self._executor = ProcessPoolExecutor(max_workers=4)
