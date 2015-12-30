@@ -4,10 +4,9 @@ import pytest
 import logging
 
 from tornado import gen
-from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.ioloop import PeriodicCallback
 
 import bokeh.server.server as server
-from bokeh.server.server import Server
 
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
@@ -15,25 +14,7 @@ from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
 
-class ManagedServerLoop(object):
-    def __init__(self, application, **server_kwargs):
-        loop = IOLoop()
-        loop.make_current()
-        server_kwargs['io_loop'] = loop
-        self._server = Server(application, **server_kwargs)
-    def __exit__(self, type, value, traceback):
-        self._server.unlisten()
-        self._server.stop()
-        self._server.io_loop.close()
-    def __enter__(self):
-        self._server.start(start_loop=False)
-        return self._server
-    @property
-    def io_loop(self):
-        return self.s_server.io_loop
-
-def url(server, prefix=""):
-    return "http://localhost:" + str(server._port) + prefix + "/"
+from .utils import ManagedServerLoop, url
 
 logging.basicConfig(level=logging.DEBUG)
 

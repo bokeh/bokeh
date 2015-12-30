@@ -8,15 +8,12 @@ from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.document import ModelChangedEvent, TitleChangedEvent
-from bokeh.server.server import Server
-from bokeh.server.session import ServerSession
 from bokeh.model import Model
-from bokeh.resources import websocket_url_for_server_url
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
-from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
-from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
-from tornado.websocket import websocket_connect
+from tornado.httpclient import HTTPError
+
+from bokeh.server.tests.utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -34,74 +31,6 @@ class UnitsSpecModel(Model):
     angle = AngleSpec(0)
 
 logging.basicConfig(level=logging.DEBUG)
-
-# just for testing
-def url(server, prefix=""):
-    return "http://localhost:" + str(server._port) + prefix + "/"
-
-def ws_url(server, prefix=""):
-    return "ws://localhost:" + str(server._port) + prefix + "/ws"
-
-def http_get(io_loop, url):
-    result = {}
-    def handle_request(response):
-        result['response'] = response
-        io_loop.stop()
-
-    # for some reason passing a loop to AsyncHTTPClient is deprecated
-    assert io_loop is IOLoop.current()
-    http_client = AsyncHTTPClient()
-    http_client.fetch(url, handle_request)
-    io_loop.start()
-
-    if 'response' not in result:
-        raise RuntimeError("Failed to http get")
-    response = result['response']
-    if response.error:
-        raise response.error
-    else:
-        return response
-
-def websocket_open(io_loop, url, origin=None):
-    result = {}
-    def handle_connection(future):
-        result['connection'] = future
-        io_loop.stop()
-
-    request = HTTPRequest(url)
-    if origin is not None:
-        request.headers['Origin'] = origin
-    websocket_connect(request, callback=handle_connection, io_loop=io_loop)
-
-    io_loop.start()
-
-    if 'connection' not in result:
-        raise RuntimeError("Failed to handle websocket connect")
-    future = result['connection']
-    if future.exception():
-        raise future.exception()
-    else:
-        future.result().close()
-        return None
-
-# lets us use a current IOLoop with "with"
-# and ensures the server unlistens
-class ManagedServerLoop(object):
-    def __init__(self, application, **server_kwargs):
-        loop = IOLoop()
-        loop.make_current()
-        server_kwargs['io_loop'] = loop
-        self._server = Server(application, **server_kwargs)
-    def __exit__(self, type, value, traceback):
-        self._server.unlisten()
-        self._server.stop()
-        self._server.io_loop.close()
-    def __enter__(self):
-        self._server.start(start_loop=False)
-        return self._server
-    @property
-    def io_loop(self):
-        return self.s_server.io_loop
 
 class TestClientServer(unittest.TestCase):
 
