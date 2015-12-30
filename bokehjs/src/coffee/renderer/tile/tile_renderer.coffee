@@ -217,7 +217,6 @@ class TileRendererView extends PlotWidget
       snap_back = true
 
     if snap_back
-      @plot_model.set({x_range:k})
       @x_range.set(x_range:{start:extent[0], end: extent[2]})
       @y_range.set({start:extent[1], end: extent[3]})
       @extent = extent
