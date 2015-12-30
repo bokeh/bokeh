@@ -27,8 +27,6 @@ def create_plot():
     p = Figure(tools='pan,wheel_zoom', x_range=axis_range, y_range=axis_range, plot_height=800, plot_width=800)
     p.axis.visible = False
     tile_source = RandomTileSource()
-    tile_source.attribution = STAMEN_TONER.attribution
-
     tile_source.urls = []
     tile_source.attribution = STAMEN_TONER.attribution
     tile_source.urls.append(STAMEN_TONER.url)
@@ -39,6 +37,3 @@ def create_plot():
 
 p = create_plot()
 curdoc().add_root(p)
-
-
-
