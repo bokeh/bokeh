@@ -156,6 +156,11 @@ class Server(object):
 
         return self._tornado.get_session(app_path, session_id)
 
+    def get_sessions(self, app_path):
+        '''Gets all live sessions for an application.'''
+
+        return self._tornado.get_sessions(app_path)
+
     def show(self, app_path, browser=None, new='tab'):
         ''' Opens an app in a browser window or tab.
 
