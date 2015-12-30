@@ -56,8 +56,12 @@ class Server(object):
             self._applications = applications
 
         tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
+                                                        'develop',
                                                         'extra_patterns',
-                                                        'keep_alive_milliseconds']
+                                                        'keep_alive_milliseconds',
+                                                        'check_unused_sessions_milliseconds',
+                                                        'unused_session_lifetime_milliseconds',
+                                                        'stats_log_frequency_milliseconds']
                            if key in kwargs }
 
         prefix = kwargs.get('prefix', None)
@@ -113,8 +117,12 @@ class Server(object):
     def io_loop(self):
         return self._tornado.io_loop
 
-    def start(self):
-        ''' Start the Bokeh Server's IO loop.
+    def start(self, start_loop=True):
+        ''' Start the Bokeh Server's IO loop and background tasks.
+
+        Args:
+            start_loop (boolean, optional): whether to start the IO loop after
+               starting background tasks (default: True).
 
         Returns:
             None
@@ -123,7 +131,7 @@ class Server(object):
             Keyboard interrupts or sigterm will cause the server to shut down.
 
         '''
-        self._tornado.start()
+        self._tornado.start(start_loop=start_loop)
 
     def stop(self):
         ''' Stop the Bokeh Server's IO loop.

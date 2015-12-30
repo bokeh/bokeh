@@ -260,6 +260,7 @@ class Serve(Subcommand):
                                                               'allow_websocket_origin',
                                                               'host',
                                                               'prefix',
+                                                              'develop',
                                                               'keep_alive_milliseconds']
                           if getattr(args, key, None) is not None }
 

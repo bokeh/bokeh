@@ -7,7 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen, locks
-from bokeh.util.tornado import _DocumentCallbackGroup
+from bokeh.util.tornado import _DocumentCallbackGroup, yield_for_all_futures
 
 import time
 
@@ -22,35 +22,35 @@ def current_time():
 def _needs_document_lock(func):
     '''Decorator that adds the necessary locking and post-processing
        to manipulate the session's document. Expects to decorate a
-       non-coroutine method on ServerSession and transforms it
-       into a coroutine.
+       method on ServerSession and transforms it into a coroutine
+       if it wasn't already.
     '''
     @gen.coroutine
     def _needs_document_lock_wrapper(self, *args, **kwargs):
-        with (yield self._lock.acquire()):
-            if self._pending_writes is not None:
-                raise RuntimeError("internal class invariant violated: _pending_writes " + \
-                                   "should be None if lock is not held")
-            self._pending_writes = []
-            try:
-                result = func(self, *args, **kwargs)
-                while True:
-                    try:
-                        future = gen.convert_yielded(result)
-                    except gen.BadYieldError:
-                        # result is not a yieldable thing, we are done
-                        break
-                    else:
-                        result = yield future
-            finally:
-                # we want to be very sure we reset this or we'll
-                # keep hitting the RuntimeError above as soon as
-                # any callback goes wrong
-                pending_writes = self._pending_writes
-                self._pending_writes = None
-            for p in pending_writes:
-                yield p
-        raise gen.Return(result)
+        # while we wait for and hold the lock, prevent the session
+        # from being discarded. This avoids potential weirdness
+        # with the session vanishing in the middle of some async
+        # task.
+        self.block_expiration()
+        try:
+            with (yield self._lock.acquire()):
+                if self._pending_writes is not None:
+                    raise RuntimeError("internal class invariant violated: _pending_writes " + \
+                                       "should be None if lock is not held")
+                self._pending_writes = []
+                try:
+                    result = yield yield_for_all_futures(func(self, *args, **kwargs))
+                finally:
+                    # we want to be very sure we reset this or we'll
+                    # keep hitting the RuntimeError above as soon as
+                    # any callback goes wrong
+                    pending_writes = self._pending_writes
+                    self._pending_writes = None
+                for p in pending_writes:
+                    yield p
+            raise gen.Return(result)
+        finally:
+            self.unblock_expiration()
     return _needs_document_lock_wrapper
 
 class ServerSession(object):
@@ -74,12 +74,12 @@ class ServerSession(object):
         self._document.on_change_dispatch_to(self)
         self._callbacks = _DocumentCallbackGroup(io_loop)
         self._pending_writes = None
+        self._destroyed = False
+        self._expiration_requested = False
+        self._expiration_blocked_count = 0
 
         wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
         self._callbacks.add_session_callbacks(wrapped_callbacks)
-
-        # TODO: in a future patch, we need to self._callbacks.remove_all_callbacks
-        # when the session is destroyed
 
     @property
     def document(self):
@@ -88,6 +88,39 @@ class ServerSession(object):
     @property
     def id(self):
         return self._id
+
+    @property
+    def destroyed(self):
+        return self._destroyed
+
+    @property
+    def expiration_requested(self):
+        return self._expiration_requested
+
+    @property
+    def expiration_blocked(self):
+        return self._expiration_blocked_count > 0
+
+    @property
+    def expiration_blocked_count(self):
+        return self._expiration_blocked_count
+
+    def destroy(self):
+        self._destroyed = True
+        self._document.remove_on_change(self)
+        self._callbacks.remove_all_callbacks()
+
+    def request_expiration(self):
+        """ Used in test suite for now. Forces immediate expiration if no connections."""
+        self._expiration_requested = True
+
+    def block_expiration(self):
+        self._expiration_blocked_count += 1
+
+    def unblock_expiration(self):
+        if self._expiration_blocked_count <= 0:
+            raise RuntimeError("mismatched block_expiration / unblock_expiration")
+        self._expiration_blocked_count -= 1
 
     def subscribe(self, connection):
         """This should only be called by ServerConnection.subscribe_session or our book-keeping will be broken"""
