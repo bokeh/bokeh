@@ -54,6 +54,13 @@ def test_args():
             default=None,
         )),
 
+        ('--allow-websocket-origin', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames which may connect to the Bokeh websocket",
+        )),
+
         ('--host', dict(
             metavar='HOST[:PORT]',
             action='append',

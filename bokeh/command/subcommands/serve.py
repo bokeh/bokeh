@@ -188,6 +188,13 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--allow-websocket-origin', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames which may connect to the Bokeh websocket",
+        )),
+
         ('--host', dict(
             metavar='HOST[:PORT]',
             action='append',
@@ -239,6 +246,7 @@ class Serve(Subcommand):
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'allow_websocket_origin',
                                                               'host',
                                                               'prefix',
                                                               'keep_alive_milliseconds']
