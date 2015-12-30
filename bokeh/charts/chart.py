@@ -127,6 +127,10 @@ class Chart(Plot):
         if tools is not None:
             self._tools = tools
 
+        # TODO (bev) have to force serialization of overriden defaults on subtypes for now
+        self.title_text_font_size = "10pt"
+        self.title_text_font_size = "14pt"
+
         self._glyphs = []
         self._built = False
 

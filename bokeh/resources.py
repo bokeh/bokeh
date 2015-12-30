@@ -22,7 +22,9 @@ import re
 from . import __version__
 from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
+
 from .util.paths import bokehjsdir
+from .util.string import snakify
 from .util.session_id import generate_session_id
 from .model import Model
 
@@ -419,11 +421,6 @@ class JSResources(BaseResources):
 """
 
     def _render_custom_models_static(self):
-        def _snakify(name, sep='_'):
-            name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1%s\2" % sep, name)
-            name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
-            return name.lower()
-
         def _escape_code(code):
             """ Escape JS/CS source code, so that it can be embedded in a JS string.
 
@@ -460,7 +457,7 @@ class JSResources(BaseResources):
         models = []
 
         for (_, model_name), impl in sorted(custom_models.items(), key=lambda arg: arg[0]):
-            module_name = "custom/%s" % _snakify(model_name)
+            module_name = "custom/%s" % snakify(model_name)
             exports.append('%s: require("%s")' % (model_name, module_name))
             models.append('"%s": "%s"' % (module_name, _escape_code(impl)))
 

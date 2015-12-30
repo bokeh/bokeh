@@ -78,6 +78,17 @@ that the server is configured to listen on (by default: {DEFAULT_PORT}).
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
 
+By default, cross site connections to the Bokeh server websocket are not
+allowed. You can enable websocket connections originating from additional
+hosts by specifying them with the ``--allow-websocket-origin`` option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --allow-websocket-origin foo.com:8081
+
+It is possible to specify multiple allowed websocket origins by adding
+the ``--allow-websocket-origin`` option multiple times.
+
 The Bokeh server can also add an optional prefix to all URL paths.
 This can often be useful in conjunction with "reverse proxy" setups.
 
@@ -188,9 +199,16 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--allow-websocket-origin', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames which may connect to the Bokeh websocket",
+        )),
+
         ('--host', dict(
             metavar='HOST[:PORT]',
-            nargs='*',
+            action='append',
             type=str,
             help="Public hostnames to allow in requests",
         )),
@@ -239,8 +257,10 @@ class Serve(Subcommand):
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'allow_websocket_origin',
                                                               'host',
                                                               'prefix',
+                                                              'develop',
                                                               'keep_alive_milliseconds']
                           if getattr(args, key, None) is not None }
 

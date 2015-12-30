@@ -8,6 +8,8 @@ log = logging.getLogger(__name__)
 
 import codecs
 
+from six.moves.urllib.parse import urlparse
+
 from tornado import gen, locks
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.concurrent import Future
@@ -40,11 +42,16 @@ class WSHandler(WebSocketHandler):
         pass
 
     def check_origin(self, origin):
-        # Allow ANY site to open our websocket...
-        # this is to make the autoload embed work.
-        # Potentially, we should limit this somehow
-        # or make it configurable.
-        return True
+        parsed_origin = urlparse(origin)
+        origin_host = parsed_origin.netloc.lower()
+
+        allowed = self.application.websocket_origins
+
+        if origin_host in allowed:
+            return True
+        else:
+            log.error("Refusing websocket connection from Origin '%s'; use --allow-websocket-origin=%s to permit this; currently we allow origins %r", origin, origin_host, allowed)
+            return False
 
     def open(self):
         ''' Initialize a connection to a client.
@@ -66,8 +73,22 @@ class WSHandler(WebSocketHandler):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
 
+        def on_fully_opened(future):
+            e = future.exception()
+            if e is not None:
+                # this isn't really an error (unless we have a
+                # bug), it just means a client disconnected
+                # immediately, most likely.
+                log.debug("Failed to fully open connection %r", e)
+
+        future = self._async_open(session_id, proto_version)
+        self.application.io_loop.add_future(future,
+                                            on_fully_opened)
+
+    @gen.coroutine
+    def _async_open(self, session_id, proto_version):
         try:
-            self.application_context.create_session_if_needed(session_id)
+            yield self.application_context.create_session_if_needed(session_id)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol(proto_version)
@@ -85,16 +106,10 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise e
 
-        def on_ack_sent(future):
-            e = future.exception()
-            if e is not None:
-                # this isn't really an error (unless we have a
-                # bug), it just means a client disconnected
-                # immediately, most likely.
-                log.debug("Failed to send ack %r", e)
-
         msg = self.connection.protocol.create('ACK')
-        self.application.io_loop.add_future(self.send_message(msg), on_ack_sent)
+        yield self.send_message(msg)
+
+        raise gen.Return(None)
 
     @gen.coroutine
     def on_message(self, fragment):

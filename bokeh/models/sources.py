@@ -195,34 +195,25 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    # def push_notebook(self):
-    #     """ Update date for a plot in the IPython notebook in place.
+    @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
+    def push_notebook(self):
+        """ Update a data source for a plot in a Jupyter notebook.
 
-    #     This function can be be used to update data in plot data sources
-    #     in the IPython notebook, without having to use the Bokeh server.
+        This function can be be used to update data in plot data sources
+        in the Jupyter notebook, without having to use the Bokeh server.
 
-    #     Returns:
-    #         None
+        .. warning::
+            This function has been deprecated. Please use
+            ``bokeh.io.push_notebook()`` which will push all changes
+            (not just data sources) to the last shown plot in a Jupyter
+            notebook.
 
-    #     .. warning::
-    #         The current implementation leaks memory in the IPython notebook,
-    #         due to accumulating JS code. This function typically works well
-    #         with light UI interactions, but should not be used for continuously
-    #         updating data. See :bokeh-issue:`1732` for more details and to
-    #         track progress on potential fixes.
+        Returns:
+            None
 
-    #     """
-    #     from IPython.core import display
-    #     from bokeh.protocol import serialize_json
-    #     id = self.ref['id']
-    #     model = self.ref['type']
-    #     json = serialize_json(self.vm_serialize())
-    #     js = """
-    #         var ds = Bokeh.Collections('{model}').get('{id}');
-    #         var data = {json};
-    #         ds.set(data);
-    #     """.format(model=model, id=id, json=json)
-    #     display.display_javascript(js, raw=True)
+        """
+        from bokeh.io import push_notebook
+        push_notebook()
 
     @validation.error(COLUMN_LENGTHS)
     def _check_column_lengths(self):

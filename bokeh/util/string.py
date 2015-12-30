@@ -3,6 +3,8 @@
 """
 from __future__ import absolute_import
 
+import re
+
 def encode_utf8(u):
     """ Encode a UTF-8 string to a sequence of bytes.
 
@@ -55,3 +57,9 @@ def nice_join(seq, sep=", "):
         return sep.join(seq)
     else:
         return "%s or %s" % (sep.join(seq[:-1]), seq[-1])
+
+def snakify(name, sep='_'):
+    """ Convert CamelCase to snake_case. """
+    name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1%s\2" % sep, name)
+    name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
+    return name.lower()
