@@ -425,10 +425,18 @@ class CSSResources(BaseResources):
 
     '''
 
+    def __init__(self, mode='inline', version=None, root_dir=None,
+                 minified=True, log_level="info", root_url=None,
+                 path_versioner=None, custom_css_files=None):
+        super(CSSResources, self).__init__(mode='inline', version=version,
+            root_dir=root_dir, minified=minified, log_level=log_level,
+            root_url=root_url, path_versioner=path_versioner)
+        self.custom_css_files = [] if custom_css_files is None else custom_css_files
+
     @property
     def css_files(self):
         files, _ = self._resolve('css')
-        return files
+        return files + self.custom_css_files
 
     @property
     def css_raw(self):
@@ -439,7 +447,7 @@ class CSSResources(BaseResources):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
 
 
-class Resources(JSResources, CSSResources):
+class Resources(CSSResources, JSResources):
     ''' The Resources class encapsulates information relating to loading or
     embedding Bokeh Javascript and CSS.
 
