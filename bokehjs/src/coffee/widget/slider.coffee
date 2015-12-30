@@ -4,6 +4,7 @@ ContinuumView = require "../common/continuum_view"
 {logger} = require "../common/logging"
 slidertemplate = require "./slidertemplate"
 InputWidget = require "./input_widget"
+dom_util = require "../util/dom_util"
 
 class SliderView extends ContinuumView
   tagName: "div"
@@ -16,6 +17,7 @@ class SliderView extends ContinuumView
     html = @template(@model.attributes)
     @$el.html(html)
     @render()
+    dom_util.add_css_classes(@$el, @model.css_classes())
 
   render: () ->
     max = @mget('end')
