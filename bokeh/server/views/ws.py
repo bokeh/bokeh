@@ -8,10 +8,7 @@ log = logging.getLogger(__name__)
 
 import codecs
 
-try:
-    from urllib.parse import urlparse  # py2
-except ImportError:
-    from urlparse import urlparse  # py3
+from six.moves.urllib.parse import urlparse
 
 from tornado import gen, locks
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
