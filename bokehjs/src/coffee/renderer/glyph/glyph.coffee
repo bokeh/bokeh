@@ -15,6 +15,8 @@ class GlyphView extends ContinuumView
   initialize: (options) ->
     super(options)
 
+    @model.glyph_view = @
+
     @renderer = options.renderer
 
     # Init gl (this should really be done anytime renderer is set,
@@ -44,7 +46,7 @@ class GlyphView extends ContinuumView
           return
 
       @_render(ctx, indices, data)
-  
+
   _render_gl: (ctx, indices, mainglyph) ->
     # Get transform
     wx = wy = 1  # Weights to scale our vectors
@@ -56,18 +58,18 @@ class GlyphView extends ContinuumView
     # Test how linear it is
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
-      return false 
-    
-    trans = 
-        width: ctx.glcanvas.width, height: ctx.glcanvas.height, 
+      return false
+
+    trans =
+        width: ctx.glcanvas.width, height: ctx.glcanvas.height,
         dx: dx, dy: dy, sx: (dx[1]-dx[0])/wx, sy: (dy[1]-dy[0])/wy
     @glglyph.draw(indices, mainglyph, trans)
     return true  # success
 
   map_data: () ->
-    
+
     # todo: if using gl, skip this (when is this called?)
-    
+
     # map all the coordinate fields
     for [xname, yname] in @model.coords
       sxname = "s#{xname}"
@@ -136,7 +138,7 @@ class GlyphView extends ContinuumView
     # finally, warm the visual properties cache
     for name, prop of @visuals
       prop.warm_cache(source)
-    
+
     if @glglyph?
       @glglyph.set_visuals_changed()
 
