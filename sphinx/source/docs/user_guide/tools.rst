@@ -85,7 +85,8 @@ Pan/Drag Tools
 ~~~~~~~~~~~~~~
 
 These tools are employed by panning (on touch devices) or left-dragging (on
-mouse devices). Only one pan/drag tool may be active at a time.
+mouse devices). Only one pan/drag tool may be active at a time. Where
+applicable, Pan/Drag tools will respect any max and min values set on ranges.
 
 BoxSelectTool
 '''''''''''''
@@ -200,7 +201,8 @@ WheelZoomTool
 * icon: |wheel_zoom_icon|
 
 The wheel zoom tool will zoom the plot in and out, centered on the current
-mouse location.
+mouse location. It will respect any min and max values and ranges preventing
+zooming in and out beyond these.
 
 It is also possible to constraint the wheel zoom tool to only act on either
 just the x-axis or just the y-axis by setting the ``dimensions`` property to

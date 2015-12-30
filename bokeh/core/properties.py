@@ -1361,8 +1361,49 @@ class Color(Either):
         return self.__class__.__name__
 
 
+class MinMaxBounds(Either):
+    """ Accepts min and max bounds for use with Ranges.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
+    increasing or decreasing, the first item should be the minimum value of the range and the
+    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+
+    Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
+    want to constrain one end of the plot, you can set min or max to
+    ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
+
+    def __init__(self, accept_datetime=False, default='auto', help=None):
+        if accept_datetime:
+            types = (
+                Auto,
+                Tuple(Float, Float),
+                Tuple(Datetime, Datetime),
+            )
+        else:
+            types = (
+                Auto,
+                Tuple(Float, Float),
+            )
+        super(MinMaxBounds, self).__init__(*types, default=default, help=help)
+
+    def validate(self, value):
+        super(MinMaxBounds, self).validate(value)
+
+        if value is None:
+            pass
+
+        elif value[0] is None or value[1] is None:
+            pass
+
+        elif value[0] >= value[1]:
+            raise ValueError('Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)')
+
+        return True
+
+
 class Align(PropertyDescriptor):
     pass
+
 
 class DashPattern(Either):
     """ Dash type property.
