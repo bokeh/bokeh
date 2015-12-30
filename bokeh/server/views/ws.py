@@ -69,7 +69,9 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise ProtocolError("No bokeh-session-id specified")
 
-        if not check_session_id_signature(session_id):
+        if not check_session_id_signature(session_id,
+                                          signed=self.application.sign_sessions,
+                                          secret_key=self.application.secret_key):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
 

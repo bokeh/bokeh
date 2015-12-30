@@ -58,6 +58,8 @@ class Server(object):
         tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
                                                         'develop',
                                                         'extra_patterns',
+                                                        'secret_key',
+                                                        'sign_sessions',
                                                         'keep_alive_milliseconds',
                                                         'check_unused_sessions_milliseconds',
                                                         'unused_session_lifetime_milliseconds',

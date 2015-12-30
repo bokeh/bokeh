@@ -18,6 +18,7 @@ from tornado.web import Application as TornadoApplication
 from tornado.web import HTTPError
 
 from bokeh.resources import Resources
+from bokeh.settings import settings
 
 from .urls import per_app_patterns, toplevel_patterns
 from .connection import ServerConnection
@@ -63,6 +64,8 @@ class BokehTornado(TornadoApplication):
                  extra_websocket_origins,
                  io_loop=None,
                  extra_patterns=None,
+                 secret_key=settings.secret_key_bytes(),
+                 sign_sessions=settings.sign_sessions(),
                  # heroku, nginx default to 60s timeout, so well less than that
                  keep_alive_milliseconds=37000,
                  # how often to check for unused sessions
@@ -87,6 +90,8 @@ class BokehTornado(TornadoApplication):
         self._websocket_origins = self._hosts | set(extra_websocket_origins)
         self._resources = {}
         self._develop = develop
+        self._secret_key = secret_key
+        self._sign_sessions = sign_sessions
 
         log.debug("Allowed Host headers: %r", list(self._hosts))
         log.debug("These host origins can connect to the websocket: %r", list(self._websocket_origins))
@@ -153,6 +158,14 @@ class BokehTornado(TornadoApplication):
     @property
     def websocket_origins(self):
         return self._websocket_origins
+
+    @property
+    def secret_key(self):
+        return self._secret_key
+
+    @property
+    def sign_sessions(self):
+        return self._sign_sessions
 
     def root_url_for_request(self, request):
         return request.protocol + "://" + request.host + self._prefix + "/"
