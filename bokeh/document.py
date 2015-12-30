@@ -588,8 +588,8 @@ class Document(object):
 
         return events
 
-    # we use this to detect changes during document deserialization
-    # (in model constructors and initializers)
+    # we use this to send changes that happened between show() and
+    # push_notebook()
     @classmethod
     def _compute_patch_between_json(cls, from_json, to_json, to_doc):
 
@@ -616,14 +616,15 @@ class Document(object):
         from_root_ids.sort()
         to_root_ids.sort()
 
-        if set(from_root_ids) - set(to_root_ids):
-          # this would arise if someone does add_root/remove_root during
-          # document deserialization, hopefully they won't ever do so.
-          raise RuntimeError("Not implemented: computing add/remove of document roots")
+        from_set = set(from_root_ids)
+        to_set = set(to_root_ids)
+        removed = from_set - to_set
+        added = to_set - from_set
+        if removed or added:
+            raise RuntimeError("Current limitation: cannot add/remove document roots between notebook pushes")
 
         value_refs = {}
         events = []
-        import pprint
         for id in refs(to_json):
             if id in from_references:
                 update_model_events = Document._events_to_sync_objects(
