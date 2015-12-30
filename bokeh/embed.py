@@ -27,7 +27,7 @@ from .core.templates import (
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model, _ModelInDocument
-from .resources import Resources, _SessionCoordinates
+from .resources import Resources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 
 def _wrap_in_function(code):
@@ -198,7 +198,7 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     from copy import deepcopy
 
-    # XXX: force all components on server, because we don't know in advance what will be used
+    # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets =  _use_widgets(objs) if objs else True
     use_compiler = _use_compiler(objs) if objs else True
 
@@ -242,7 +242,8 @@ def notebook_div(model):
     with _ModelInDocument(model):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
-    script = _script_for_render_items(docs_json, render_items)
+    preamble = EMPTY.render() # XXX: this only includes custom models
+    script = preamble + "\n" + _script_for_render_items(docs_json, render_items)
 
     item = render_items[0]
 
@@ -439,7 +440,7 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, websocket_url, wrap_script=True):
+def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
     plot_js = _wrap_in_function(
         DOC_JS.render(
             websocket_url=websocket_url,

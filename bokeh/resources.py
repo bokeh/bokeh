@@ -196,8 +196,10 @@ class BaseResources(object):
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None,
-                 path_versioner=None):
-        self.components = ["bokeh", "bokeh-widgets", "bokeh-compiler"]
+                 path_versioner=None, components=None):
+
+        self.components = components if components is not None \
+            else ["bokeh", "bokeh-widgets", "bokeh-compiler"]
 
         self.mode = settings.resources(mode)
         self.root_dir = settings.rootdir(root_dir)
@@ -291,7 +293,11 @@ class BaseResources(object):
 
     def _inline(self, path):
         begin = "/* BEGIN %s */" % path
-        middle = open(path, 'rb').read().decode("utf-8")
+        try:
+            with open(path, 'rb') as f:
+                middle = f.read().decode("utf-8")
+        except IOError:
+            middle = ""
         end = "/* END %s */" % path
         return "%s\n%s\n%s" % (begin, middle, end)
 
@@ -511,7 +517,6 @@ class CSSResources(BaseResources):
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
 
-
 class Resources(JSResources, CSSResources):
     ''' The Resources class encapsulates information relating to loading or
     embedding Bokeh Javascript and CSS.
@@ -567,3 +572,5 @@ class Resources(JSResources, CSSResources):
 CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
+
+EMPTY = Resources(mode="inline", components=[])
