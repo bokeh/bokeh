@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 from .properties import (
-    HasProps, ColorSpec, Enum, DashPattern, Int, NumberSpec, String, FontSizeSpec)
+    value, HasProps, ColorSpec, Enum, DashPattern, Int, NumberSpec, String, FontSizeSpec)
 
 class FillProps(HasProps):
     """ Properties to use when performing fill operations while rendering.
@@ -132,7 +132,7 @@ class TextProps(HasProps):
 
     """)
 
-    text_font_size = FontSizeSpec("12pt")
+    text_font_size = FontSizeSpec(value("12pt"))
 
     text_font_style = Enum(FontStyle, help="""
     A style to use for rendering text.
