@@ -76,11 +76,11 @@ class BokehTornado(TornadoApplication):
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
 
-        self._hosts = hosts
-        self._websocket_origins = set(self._hosts + extra_websocket_origins)
+        self._hosts = set(hosts)
+        self._websocket_origins = self._hosts | set(extra_websocket_origins)
         self._resources = {}
 
-        log.debug("Allowed Host headers: %r", self._hosts)
+        log.debug("Allowed Host headers: %r", list(self._hosts))
         log.debug("These host origins can connect to the websocket: %r", list(self._websocket_origins))
 
         # Wrap applications in ApplicationContext
