@@ -61,9 +61,9 @@ class TestSessionId(unittest.TestCase):
 
     def test_generate_unsigned(self):
         session_id = generate_session_id(signed=False)
-        self.assertEqual(36, len(session_id))
+        self.assertEqual(44, len(session_id))
         another_session_id = generate_session_id(signed=False)
-        self.assertEqual(36, len(another_session_id))
+        self.assertEqual(44, len(another_session_id))
 
         self.assertNotEqual(session_id, another_session_id)
 
