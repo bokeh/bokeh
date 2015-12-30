@@ -104,7 +104,7 @@ def test_x_range_does_not_pan_left_of_x_min(output_file_url, selenium):
     pan_plot(selenium, pan_x=200, pan_y=0)
     new_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
     selenium.switch_to_alert().dismiss()
-    assert int(new_range_start) == x_range_min
+    assert round(new_range_start) == x_range_min
 
 
 def test_x_range_does_not_pan_right_of_x_max(output_file_url, selenium):
@@ -117,7 +117,7 @@ def test_x_range_does_not_pan_right_of_x_max(output_file_url, selenium):
     pan_plot(selenium, pan_x=-200, pan_y=0)
     new_range_end = float(selenium.execute_script("""alert(window.get_x_range_end())"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
-    assert int(new_range_end) == x_range_max
+    assert round(new_range_end) == x_range_max
 
 
 def test_y_range_does_not_pan_below_y_min(output_file_url, selenium):
@@ -130,7 +130,7 @@ def test_y_range_does_not_pan_below_y_min(output_file_url, selenium):
     pan_plot(selenium, pan_x=50, pan_y=-150)
     new_range_start = float(selenium.execute_script("""alert(window.get_y_range_start())"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
-    assert int(new_range_start) == y_range_min
+    assert round(new_range_start) == y_range_min
 
 
 def test_y_range_does_not_pan_above_y_max(output_file_url, selenium):
@@ -143,7 +143,7 @@ def test_y_range_does_not_pan_above_y_max(output_file_url, selenium):
     pan_plot(selenium, pan_x=50, pan_y=150)
     new_range_end = float(selenium.execute_script("""alert(window.get_y_range_end())"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
-    assert int(new_range_end) == y_range_max
+    assert round(new_range_end) == y_range_max
 
 
 ############################
@@ -160,7 +160,7 @@ def test_reversed_x_range_does_not_pan_right_of_x_min(output_file_url, selenium)
     pan_plot(selenium, pan_x=-200, pan_y=0)
     new_range_start = float(selenium.execute_script("""alert(window.get_x_range_end())"""))
     selenium.switch_to_alert().dismiss()
-    assert int(new_range_start) == x_range_min
+    assert round(new_range_start) == x_range_min
 
 
 def test_reversed_x_range_does_not_pan_left_of_x_max(output_file_url, selenium):
@@ -173,7 +173,7 @@ def test_reversed_x_range_does_not_pan_left_of_x_max(output_file_url, selenium):
     pan_plot(selenium, pan_x=200, pan_y=0)
     new_range_end = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
     selenium.switch_to_alert().dismiss()  # This is not necessary but assists debugging
-    assert int(new_range_end) == x_range_max
+    assert round(new_range_end) == x_range_max
 
 
 def test_reversed_y_range_does_not_pan_above_y_min(output_file_url, selenium):
@@ -187,7 +187,7 @@ def test_reversed_y_range_does_not_pan_above_y_min(output_file_url, selenium):
 
     new_range_start = float(selenium.execute_script("""alert(window.get_y_range_end())"""))
     selenium.switch_to_alert().dismiss()
-    assert int(new_range_start) == y_range_min
+    assert round(new_range_start) == y_range_min
 
 
 def test_reversed_y_range_does_not_pan_below_y_max(output_file_url, selenium):
@@ -200,7 +200,7 @@ def test_reversed_y_range_does_not_pan_below_y_max(output_file_url, selenium):
     pan_plot(selenium, pan_x=50, pan_y=-150)
     new_range_end = float(selenium.execute_script("""alert(window.get_y_range_start())"""))
     selenium.switch_to_alert().dismiss()
-    assert int(new_range_end) == y_range_max
+    assert round(new_range_end) == y_range_max
 
 
 ############################
@@ -220,7 +220,7 @@ def _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium):
     assert x_range_start > 0.5
 
     # Now try panning far to left to check bounds
-    pan_plot(selenium, pan_x=500, pan_y=0)
+    pan_plot(selenium, pan_x=200, pan_y=0)
     x_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
     selenium.switch_to_alert().dismiss()
     assert x_range_start > 0.4
@@ -246,15 +246,15 @@ def test_autorange_prevents_panning_but_can_zoom_in_with_range1d(output_file_url
 def _assert_no_bounds_allows_unlimited_panning(output_file_url, selenium):
     selenium.get(output_file_url)
 
-    pan_plot(selenium, pan_x=-5000, pan_y=15000)
+    pan_plot(selenium, pan_x=-1000, pan_y=2000)
 
     x_range_start = float(selenium.execute_script("""alert(window.get_x_range_start())"""))
     selenium.switch_to_alert().dismiss()
-    assert x_range_start > 20
+    assert x_range_start > 5
 
     y_range_start = float(selenium.execute_script("""alert(window.get_y_range_start())"""))
     selenium.switch_to_alert().dismiss()
-    assert y_range_start > 20
+    assert y_range_start > 5
 
 
 def test_no_bounds_allows_unlimited_panning_with_datarange1d(output_file_url, selenium):
