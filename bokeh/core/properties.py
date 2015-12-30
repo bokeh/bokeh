@@ -711,38 +711,6 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    # this is like _value_record_references but expects to find refs
-    # instead of models, and takes a doc to look up the refs in
-    @classmethod
-    def _json_record_references(cls, doc, v, result):
-        if v is None: return
-        if isinstance(v, dict) and set(['id', 'type']).issubset(set(v.keys())):
-            if v['id'] not in result:
-                model = doc.get_model_by_id(v['id'])
-                HasProps._value_record_references(model, result)
-        elif isinstance(v, (list, tuple)):
-            for elem in v:
-                HasProps._json_record_references(doc, elem, result)
-        elif isinstance(v, dict):
-            for k, elem in v.items():
-                HasProps._json_record_references(doc, elem, result)
-
-    # add all references from 'v' to 'result'
-    @classmethod
-    def _value_record_references(cls, v, result):
-        if v is None: return
-
-        if isinstance(v, HasProps):
-            if v['id'] not in result:
-                result[v['id']] = v
-            HasProps._value_record_references(value, result)
-        elif isinstance(v, (list, tuple)):
-            for elem in v:
-                HasProps._value_record_references(elem, result)
-        elif isinstance(v, dict):
-            for k, elem in v.items():
-                HasProps._value_record_references(elem, result)
-
     def set_from_json(self, name, json, models=None):
         """Sets a property of the object using JSON and a dictionary from model ids to model instances.
         The model instances are necessary if the JSON contains references to models.

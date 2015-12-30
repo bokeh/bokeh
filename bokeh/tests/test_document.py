@@ -723,7 +723,7 @@ class TestDocument(unittest.TestCase):
 
         after = d.to_json()
 
-        patch = Document._compute_patch_between_json(before, after, d)
+        patch = Document._compute_patch_between_json(before, after)
 
         expected = dict(references=[],
                         events=[
@@ -755,7 +755,7 @@ class TestDocument(unittest.TestCase):
 
         after = d.to_json()
 
-        patch = Document._compute_patch_between_json(before, after, d)
+        patch = Document._compute_patch_between_json(before, after)
 
         expected = dict(references=[],
                         events=[
@@ -804,7 +804,7 @@ class TestDocument(unittest.TestCase):
         after = d.to_json()
 
         with self.assertRaises(RuntimeError):
-            patch = Document._compute_patch_between_json(before, after, d)
+            patch = Document._compute_patch_between_json(before, after)
 
         #self.assertDictEqual({}, patch)
 
@@ -828,7 +828,7 @@ class TestDocument(unittest.TestCase):
         after = d.to_json()
 
         with self.assertRaises(RuntimeError):
-            patch = Document._compute_patch_between_json(before, after, d)
+            patch = Document._compute_patch_between_json(before, after)
 
         #self.assertDictEqual({}, patch)
 

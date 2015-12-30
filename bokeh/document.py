@@ -549,18 +549,33 @@ class Document(object):
             instance.update_from_json(obj_attrs, models=references)
 
     @classmethod
-    def _event_for_attribute_change(cls, changed_obj, key, new_value, value_refs, doc):
-      event = dict(
-        kind='ModelChanged',
-        model=dict(id=changed_obj['id'], type=changed_obj['type']),
-        attr=key,
-        new=new_value,
-      )
-      HasProps._json_record_references(doc, new_value, value_refs)
-      return event
+    def _value_record_references(cls, all_references, v, result):
+        if v is None: return
+        if isinstance(v, dict) and set(['id', 'type']).issubset(set(v.keys())):
+            if v['id'] not in result:
+                ref = all_references[v['id']]
+                result[v['id']] = ref
+                Document._value_record_references(all_references, ref['attributes'], result)
+        elif isinstance(v, (list, tuple)):
+            for elem in v:
+                Document._value_record_references(all_references, elem, result)
+        elif isinstance(v, dict):
+            for k, elem in v.items():
+                Document._value_record_references(all_references, elem, result)
 
     @classmethod
-    def _events_to_sync_objects(cls, from_obj, to_obj, value_refs, doc):
+    def _event_for_attribute_change(cls, all_references, changed_obj, key, new_value, value_refs):
+        event = dict(
+            kind='ModelChanged',
+            model=dict(id=changed_obj['id'], type=changed_obj['type']),
+            attr=key,
+            new=new_value,
+        )
+        Document._value_record_references(all_references, new_value, value_refs)
+        return event
+
+    @classmethod
+    def _events_to_sync_objects(cls, all_references, from_obj, to_obj, value_refs):
         from_keys = set(from_obj['attributes'].keys())
         to_keys = set(to_obj['attributes'].keys())
         removed = from_keys - to_keys
@@ -573,7 +588,11 @@ class Document(object):
 
         for key in added:
             new_value = to_obj['attributes'][key]
-            events.append(Document._event_for_attribute_change(from_obj, key, new_value, value_refs, doc))
+            events.append(Document._event_for_attribute_change(all_references,
+                                                               from_obj,
+                                                               key,
+                                                               new_value,
+                                                               value_refs))
 
         for key in shared:
             old_value = from_obj['attributes'].get(key, None)
@@ -583,7 +602,11 @@ class Document(object):
                 continue
 
             if old_value is None or new_value is None or old_value != new_value:
-                event = Document._event_for_attribute_change(from_obj, key, new_value, value_refs, doc)
+                event = Document._event_for_attribute_change(all_references,
+                                                             from_obj,
+                                                             key,
+                                                             new_value,
+                                                             value_refs)
                 events.append(event)
 
         return events
@@ -591,7 +614,7 @@ class Document(object):
     # we use this to send changes that happened between show() and
     # push_notebook()
     @classmethod
-    def _compute_patch_between_json(cls, from_json, to_json, to_doc):
+    def _compute_patch_between_json(cls, from_json, to_json):
 
         def refs(json):
           result = {}
@@ -623,21 +646,25 @@ class Document(object):
         if removed or added:
             raise RuntimeError("Current limitation: cannot add/remove document roots between notebook pushes")
 
+        combined_references = dict(from_references)
+        for k in to_references.keys():
+            combined_references[k] = to_references[k]
+
         value_refs = {}
         events = []
         for id in refs(to_json):
             if id in from_references:
                 update_model_events = Document._events_to_sync_objects(
+                    combined_references,
                     from_references[id],
                     to_references[id],
-                    value_refs,
-                    to_doc
+                    value_refs
                 )
                 events.extend(update_model_events)
 
         return dict(
             events=events,
-            references=Document._references_json(list(value_refs.values()))
+            references=list(value_refs.values())
         )
 
     def to_json_string(self, indent=None):
