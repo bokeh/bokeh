@@ -643,8 +643,6 @@ class Document(object):
         to_set = set(to_root_ids)
         removed = from_set - to_set
         added = to_set - from_set
-        if removed or added:
-            raise RuntimeError("Current limitation: cannot add/remove document roots between notebook pushes")
 
         combined_references = dict(from_references)
         for k in to_references.keys():
@@ -652,7 +650,23 @@ class Document(object):
 
         value_refs = {}
         events = []
-        for id in refs(to_json):
+
+        for removed_root_id in removed:
+            model = dict(combined_references[removed_root_id])
+            del model['attributes']
+            events.append({ 'kind' : 'RootRemoved',
+                            'model' : model })
+
+        for added_root_id in added:
+            Document._value_record_references(combined_references,
+                                              combined_references[added_root_id],
+                                              value_refs)
+            model = dict(combined_references[added_root_id])
+            del model['attributes']
+            events.append({ 'kind' : 'RootAdded',
+                            'model' : model })
+
+        for id in to_references:
             if id in from_references:
                 update_model_events = Document._events_to_sync_objects(
                     combined_references,

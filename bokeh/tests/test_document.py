@@ -803,14 +803,21 @@ class TestDocument(unittest.TestCase):
 
         after = d.to_json()
 
-        with self.assertRaises(RuntimeError):
-            patch = Document._compute_patch_between_json(before, after)
+        patch = Document._compute_patch_between_json(before, after)
 
-        #self.assertDictEqual({}, patch)
+        expected = dict(references=[],
+                        events= [
+                            {'kind': 'RootRemoved',
+                             'model': {'id': None,
+                                       'type': 'SomeModelInTestDocument'}}
+                        ])
+        expected['events'][0]['model']['id'] = root1._id
 
-        #d2 = Document.from_json(before)
-        #d2.apply_json_patch(patch)
-        #self.assertEqual([], d2.roots)
+        self.assertDictEqual(expected, patch)
+
+        d2 = Document.from_json(before)
+        d2.apply_json_patch(patch)
+        self.assertEqual([], d2.roots)
 
     def test_compute_add_root_patch(self):
         from bokeh.document import Document
@@ -827,13 +834,29 @@ class TestDocument(unittest.TestCase):
 
         after = d.to_json()
 
-        with self.assertRaises(RuntimeError):
-            patch = Document._compute_patch_between_json(before, after)
+        patch = Document._compute_patch_between_json(before, after)
 
-        #self.assertDictEqual({}, patch)
+        expected = {
+            'references' : [
+                { 'attributes': {'child': None, 'foo': 57},
+                  'id': None,
+                  'type': 'SomeModelInTestDocument'}
+            ],
+            'events' : [
+                { 'kind': 'RootAdded',
+                  'model': {'id': None,
+                            'type': 'SomeModelInTestDocument'}
+                }
+            ]
+        }
 
-        #d2 = Document.from_json(before)
-        #d2.apply_json_patch(patch)
-        #self.assertEqual(2, len(d2.roots))
-        #self.assertEqual(42, d2.roots[0].foo)
-        #self.assertEqual(57, d2.roots[1].foo)
+        expected['references'][0]['id'] = root2._id
+        expected['events'][0]['model']['id'] = root2._id
+
+        self.assertDictEqual(expected, patch)
+
+        d2 = Document.from_json(before)
+        d2.apply_json_patch(patch)
+        self.assertEqual(2, len(d2.roots))
+        self.assertEqual(42, d2.roots[0].foo)
+        self.assertEqual(57, d2.roots[1].foo)
