@@ -1,4 +1,5 @@
 _ = require "underscore"
+$ = require "jquery"
 build_views = require "../common/build_views"
 ContinuumView = require "../common/continuum_view"
 BaseBox = require "./basebox"
@@ -23,9 +24,19 @@ class VBoxView extends ContinuumView
     width = @mget("width")
     if width? then @$el.css(width: width + "px")
     height = @mget("height")
-    if height? then @$el.css(height: height + "px")
+    if height?
+      @$el.css(height: height + "px")
+      spacer_height = height/(children.length*2)
+    else
+      spacer_height = 20
+
+    spacer = $('<div>').addClass('bk-vbox-spacer').css({height: spacer_height})
+    @$el.append($(spacer))
     for child in children
       @$el.append(@views[child.id].$el)
+
+      @$el.append($(spacer))
+
     return @
 
 class VBox extends BaseBox.Model
