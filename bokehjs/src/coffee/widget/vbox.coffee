@@ -26,12 +26,11 @@ class VBoxView extends ContinuumView
     height = @mget("height")
     if height?
       @$el.css(height: height + "px")
-      t = (children.length-2)*2
       spacer_height = height/(children.length*2)
     else
       spacer_height = 20
 
-    spacer = '<div class="bk-vbox-spacer" style="height: ' + spacer_height + 'px;"></div>';
+    spacer = $('<div>').addClass('bk-vbox-spacer').css({height: spacer_height})
     @$el.append($(spacer))
     for child in children
       @$el.append(@views[child.id].$el)
