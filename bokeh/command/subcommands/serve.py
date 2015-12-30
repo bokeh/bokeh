@@ -107,7 +107,7 @@ To configure this feature, set the --keep-alive option:
 
 .. code-block:: sh
 
-    bokeh server app_script.py --keep-alive 10000
+    bokeh serve app_script.py --keep-alive 10000
 
 The value is specified in milliseconds. The default keep-alive interval
 is 37 seconds. Give a value of 0 to disable keep-alive pings.
