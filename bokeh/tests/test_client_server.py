@@ -15,7 +15,8 @@ from bokeh.resources import websocket_url_for_server_url
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from tornado.ioloop import IOLoop, PeriodicCallback, _Timeout
 from tornado import gen
-from tornado.httpclient import AsyncHTTPClient, HTTPError
+from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
+from tornado.websocket import websocket_connect
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -60,6 +61,28 @@ def http_get(io_loop, url):
         raise response.error
     else:
         return response
+
+def websocket_open(io_loop, url, origin=None):
+    result = {}
+    def handle_connection(future):
+        result['connection'] = future
+        io_loop.stop()
+
+    request = HTTPRequest(url)
+    if origin is not None:
+        request.headers['Origin'] = origin
+    websocket_connect(request, callback=handle_connection, io_loop=io_loop)
+
+    io_loop.start()
+
+    if 'connection' not in result:
+        raise RuntimeError("Failed to handle websocket connect")
+    future = result['connection']
+    if future.exception():
+        raise future.exception()
+    else:
+        future.result().close()
+        return None
 
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
@@ -138,11 +161,7 @@ class TestClientServer(unittest.TestCase):
             http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
         def check_connect_session(server):
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert session.connected
-            session.close()
-            session.loop_until_closed()
+            websocket_open(server.io_loop, ws_url(server))
 
         def check(server):
             check_http_gets(server)
@@ -174,11 +193,8 @@ class TestClientServer(unittest.TestCase):
                 http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
         def check_connect_session_fails(server):
-            session = ClientSession(websocket_url=ws_url(server), io_loop = server.io_loop)
-            session.connect()
-            assert not session.connected
-            session.close()
-            session.loop_until_closed()
+            with (self.assertRaises(HTTPError)) as manager:
+                websocket_open(server.io_loop, ws_url(server))
 
         def check_fails(server):
             check_http_gets_fail(server)
