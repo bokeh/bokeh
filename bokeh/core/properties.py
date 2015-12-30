@@ -811,7 +811,9 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         if include_defaults:
             keys = self.properties()
         else:
-            keys = self._property_values.keys()
+            keys = set(self._property_values.keys())
+            if self.themed_values():
+                keys |= set(self.themed_values().keys())
 
         for key in keys:
             prop = self.lookup(key)

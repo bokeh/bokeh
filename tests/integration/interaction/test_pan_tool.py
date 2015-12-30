@@ -24,6 +24,9 @@ def get_non_stale_pan_buttons(selenium):
             used = True
         except StaleElementReferenceException:
             print('Got a StaleElementReference, retrying %s more times' % 4 - attempts)
+        except IndexError:
+            print('No pan buttons availabe yet')
+        finally:
             attempts += 1
     return pan_buttons
 
