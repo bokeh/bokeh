@@ -14,14 +14,15 @@ import uuid
 from six import string_types
 
 from .core.json_encoder import serialize_json
+from .core.properties import HasProps
 from .core.query import find
 from .core.validation import check_integrity
 from .model import Model
+from .themes import default as default_theme
+from .themes import Theme
 from .util.callback_manager import _check_callback
 from .util.deprecate import deprecated
 from .util.version import __version__
-from .themes import default as default_theme
-from .themes import Theme
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -547,6 +548,139 @@ class Document(object):
 
             instance.update_from_json(obj_attrs, models=references)
 
+    @classmethod
+    def _value_record_references(cls, all_references, v, result):
+        if v is None: return
+        if isinstance(v, dict) and set(['id', 'type']).issubset(set(v.keys())):
+            if v['id'] not in result:
+                ref = all_references[v['id']]
+                result[v['id']] = ref
+                Document._value_record_references(all_references, ref['attributes'], result)
+        elif isinstance(v, (list, tuple)):
+            for elem in v:
+                Document._value_record_references(all_references, elem, result)
+        elif isinstance(v, dict):
+            for k, elem in v.items():
+                Document._value_record_references(all_references, elem, result)
+
+    @classmethod
+    def _event_for_attribute_change(cls, all_references, changed_obj, key, new_value, value_refs):
+        event = dict(
+            kind='ModelChanged',
+            model=dict(id=changed_obj['id'], type=changed_obj['type']),
+            attr=key,
+            new=new_value,
+        )
+        Document._value_record_references(all_references, new_value, value_refs)
+        return event
+
+    @classmethod
+    def _events_to_sync_objects(cls, all_references, from_obj, to_obj, value_refs):
+        from_keys = set(from_obj['attributes'].keys())
+        to_keys = set(to_obj['attributes'].keys())
+        removed = from_keys - to_keys
+        added = to_keys - from_keys
+        shared = from_keys & to_keys
+
+        events = []
+        for key in removed:
+          raise RuntimeError("internal error: should not be possible to delete attribute %s" % key)
+
+        for key in added:
+            new_value = to_obj['attributes'][key]
+            events.append(Document._event_for_attribute_change(all_references,
+                                                               from_obj,
+                                                               key,
+                                                               new_value,
+                                                               value_refs))
+
+        for key in shared:
+            old_value = from_obj['attributes'].get(key, None)
+            new_value = to_obj['attributes'].get(key, None)
+
+            if old_value is None and new_value is None:
+                continue
+
+            if old_value is None or new_value is None or old_value != new_value:
+                event = Document._event_for_attribute_change(all_references,
+                                                             from_obj,
+                                                             key,
+                                                             new_value,
+                                                             value_refs)
+                events.append(event)
+
+        return events
+
+    # we use this to send changes that happened between show() and
+    # push_notebook()
+    @classmethod
+    def _compute_patch_between_json(cls, from_json, to_json):
+
+        def refs(json):
+          result = {}
+          for obj in json['roots']['references']:
+            result[obj['id']] = obj
+          return result
+
+        from_references = refs(from_json)
+        from_roots = {}
+        from_root_ids = []
+        for r in from_json['roots']['root_ids']:
+          from_roots[r] = from_references[r]
+          from_root_ids.append(r)
+
+        to_references = refs(to_json)
+        to_roots = {}
+        to_root_ids = []
+        for r in to_json['roots']['root_ids']:
+          to_roots[r] = to_references[r]
+          to_root_ids.append(r)
+
+        from_root_ids.sort()
+        to_root_ids.sort()
+
+        from_set = set(from_root_ids)
+        to_set = set(to_root_ids)
+        removed = from_set - to_set
+        added = to_set - from_set
+
+        combined_references = dict(from_references)
+        for k in to_references.keys():
+            combined_references[k] = to_references[k]
+
+        value_refs = {}
+        events = []
+
+        for removed_root_id in removed:
+            model = dict(combined_references[removed_root_id])
+            del model['attributes']
+            events.append({ 'kind' : 'RootRemoved',
+                            'model' : model })
+
+        for added_root_id in added:
+            Document._value_record_references(combined_references,
+                                              combined_references[added_root_id],
+                                              value_refs)
+            model = dict(combined_references[added_root_id])
+            del model['attributes']
+            events.append({ 'kind' : 'RootAdded',
+                            'model' : model })
+
+        for id in to_references:
+            if id in from_references:
+                update_model_events = Document._events_to_sync_objects(
+                    combined_references,
+                    from_references[id],
+                    to_references[id],
+                    value_refs
+                )
+                events.extend(update_model_events)
+
+        return dict(
+            events=events,
+            references=list(value_refs.values())
+        )
+
     def to_json_string(self, indent=None):
         ''' Convert the document to a JSON string.
 
@@ -581,7 +715,6 @@ class Document(object):
         # this is a total hack to go via a string, needed because
         # our BokehJSONEncoder goes straight to a string.
         doc_json = self.to_json_string()
-
         return loads(doc_json)
 
     @classmethod

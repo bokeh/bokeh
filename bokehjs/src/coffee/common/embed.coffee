@@ -8,6 +8,27 @@ HasProperties = require "./has_properties"
 {pull_session} = require "./client"
 {Promise} = require "es6-promise"
 
+_handle_notebook_comms = (msg) ->
+  logger.debug("handling notebook comms")
+  # @ is bound to the doc
+  data = JSON.parse(msg.content.data)
+  if 'events' of data and 'references' of data
+    @apply_json_patch(data)
+  else if 'doc' of data
+    @replace_with_json(data['doc'])
+  else
+    throw new Error("handling notebook comms message: ", msg)
+
+_init_comms = (target, doc) ->
+  if Jupyter?
+    comm_manager = Jupyter.notebook.kernel.comm_manager
+    comm_manager.register_target(target, (comm, msg) ->
+      logger.info("Registering Jupyter comms for target #{target}")
+      comm.on_msg(_.bind(_handle_notebook_comms, doc))
+    )
+  else
+    console.warn('Juptyer notebooks comms not available. push_notebook will not function');
+
 _create_view = (model) ->
   view = new model.default_view({model : model})
   base.index[model.id] = view
@@ -120,6 +141,10 @@ embed_items = (docs_json, render_items, websocket_url) ->
     docs[docid] = Document.from_json(docs_json[docid])
 
   for item in render_items
+
+    if item.notebook_comms_target?
+      _init_comms(item.notebook_comms_target, docs[docid])
+
     element_id = item['elementid']
     elem = $('#' + element_id);
     if elem.length == 0

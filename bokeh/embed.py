@@ -193,7 +193,7 @@ def _extract_custom_models(models):
 
     return custom_models
 
-def notebook_div(model):
+def notebook_div(model, notebook_comms_target=None):
     ''' Return HTML for a div that will display a Bokeh plot in an
     IPython Notebook
 
@@ -201,6 +201,9 @@ def notebook_div(model):
 
     Args:
         model (Model) : Bokeh object to render
+        notebook_comms_target (str, optional) :
+            A target name for a Jupyter Comms object that can update
+            the document that is rendered to this notebook div
 
     Returns:
         UTF-8 encoded HTML text for a ``<div>``
@@ -215,6 +218,8 @@ def notebook_div(model):
     with _ModelInDocument(model):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
         custom_models = _extract_custom_models([model])
+
+    render_items[0]['notebook_comms_target'] = notebook_comms_target
 
     script = _script_for_render_items(docs_json, render_items,
                                       custom_models=custom_models,

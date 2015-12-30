@@ -18,7 +18,12 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
-import io, itertools, os, warnings
+import io
+import itertools
+import json
+import os
+import uuid
+import warnings
 
 # Third-party imports
 
@@ -30,7 +35,7 @@ from .models import Component
 from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .model import _ModelInDocument
-from .util.notebook import load_notebook, publish_display_data
+from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
 import bokeh.util.browser as browserlib # full import needed for test mocking to work
 from .client import DEFAULT_SESSION_ID, push_session, show_session
@@ -51,6 +56,24 @@ _state = State()
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
+
+class _CommsHandle(object):
+    def __init__(self, comms, doc, json):
+        self._comms = comms
+        self._doc = doc
+        self._json = json
+
+    @property
+    def comms(self):
+        return self._comms
+
+    @property
+    def doc(self):
+        return self._doc
+
+    @property
+    def json(self):
+        return self._json
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
@@ -252,19 +275,23 @@ def show(obj, browser=None, new="tab"):
         an IPython/Jupyter notebook.
 
     '''
-    _show_with_state(obj, _state, browser, new)
+    return _show_with_state(obj, _state, browser, new)
 
 def _show_with_state(obj, state, browser, new):
     controller = browserlib.get_browser_controller(browser=browser)
 
+    comms_handle = None
+
     if state.notebook:
-        _show_notebook_with_state(obj, state)
+        comms_handle = _show_notebook_with_state(obj, state)
 
     elif state.server_enabled:
         _show_server_with_state(obj, state, new, controller)
 
     if state.file:
         _show_file_with_state(obj, state, new, controller)
+
+    return comms_handle
 
 def _show_file_with_state(obj, state, new, controller):
     save(obj, state=state)
@@ -276,7 +303,11 @@ def _show_notebook_with_state(obj, state):
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
-        publish_display_data({'text/html': notebook_div(obj)})
+        comms_target = str(uuid.uuid4())
+        publish_display_data({'text/html': notebook_div(obj, comms_target)})
+        handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
+        state.last_comms_handle = handle
+        return handle
 
 def _show_server_with_state(obj, state, new, controller):
     push(state=state)
@@ -423,6 +454,69 @@ def push(session_id=None, url=None, app_path=None, document=None, state=None, io
 
     _push_to_server(session_id=session_id, url=url, app_path=app_path,
                     document=document, io_loop=io_loop)
+
+def push_notebook(document=None, state=None, handle=None):
+    ''' Update the last-shown plot in a Jupyter notebook with the new data
+    or property values.
+
+    Args:
+
+        document (Document, optional) :
+            A :class:`~bokeh.document.Document` to push from. If None,
+            uses ``curdoc()``.
+
+        state (State, optional) :
+            A Bokeh State object
+
+    Returns:
+        None
+
+    Examples:
+
+        Typical usage is typically similar to this:
+
+        .. code-block:: python
+
+            from bokeh.io import push_notebook
+
+            # code to create a plot
+
+            show(plot)
+
+            plot.title = "New Title"
+
+            # This will cause the title to update
+            push_notebook()
+
+    '''
+    if state is None:
+        state = _state
+
+    if state.server_enabled:
+        raise RuntimeError("output_server() has been called, use push() to push to server")
+
+    if not document:
+        document = state.document
+
+    if not document:
+        warnings.warn("No document to push")
+        return
+
+    if handle is None:
+        handle = state.last_comms_handle
+
+    if not handle:
+        warnings.warn("Cannot find a last shown plot to update. Call output_notebook() and show() before push_notebook()")
+        return
+
+    to_json = document.to_json()
+    if handle.doc is not document:
+        msg = dict(doc=to_json)
+    else:
+        msg = Document._compute_patch_between_json(handle.json, to_json)
+    handle.comms.send(json.dumps(msg))
+    handle._doc = document
+    handle._json = to_json
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
