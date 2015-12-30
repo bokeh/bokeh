@@ -74,19 +74,37 @@ class XyGlyph(CompositeGlyph):
 
     @property
     def x_max(self):
-        return self.source.data['x_values'].max()
+        # TODO(fpliger): since CompositeGlyphs are not exposed in general we
+        #                should expect to always have a Series but in case
+        #                it's not we just use the default min/max instead
+        #                of just failing. When/If we end up exposing
+        #                CompositeGlyphs we should consider making this
+        #                more robust (either enforcing data or checking)
+        try:
+            return self.source.data['x_values'].max()
+        except AttributeError:
+            return max(self.source.data['x_values'])
 
     @property
     def x_min(self):
-        return self.source.data['x_values'].min()
+        try:
+            return self.source.data['x_values'].min()
+        except AttributeError:
+            return min(self.source.data['x_values'])
 
     @property
     def y_max(self):
-        return self.source.data['y_values'].max()
+        try:
+            return self.source.data['y_values'].max()
+        except AttributeError:
+            return max(self.source.data['y_values'])
 
     @property
     def y_min(self):
-        return self.source.data['y_values'].min()
+        try:
+            return self.source.data['y_values'].min()
+        except AttributeError:
+            return min(self.source.data['y_values'])
 
 
 class PointGlyph(XyGlyph):
