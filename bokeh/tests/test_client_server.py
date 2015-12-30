@@ -245,6 +245,14 @@ class TestClientServer(unittest.TestCase):
                                allow_websocket_origin=["example.com:8080"]) as server:
             self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
 
+        # block non-Host origins by default even if no extra origins specified
+        with ManagedServerLoop(application, host=None) as server:
+            self.check_http_ok_socket_blocked(server, origin="http://example.com:80")
+
+        # block on a garbage Origin header
+        with ManagedServerLoop(application, host=None) as server:
+            self.check_http_ok_socket_blocked(server, origin="hsdf:::///%#^$#:8080")
+
         # block good host and bad origin
         with ManagedServerLoop(application, host=None,
                                allow_websocket_origin=["example.com"]) as server:
