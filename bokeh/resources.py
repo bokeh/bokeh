@@ -134,6 +134,12 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 def _cdn_base_url():
     return "https://cdn.pydata.org"
 
+# XXX: this shouldn't be here, however we mix classes and global functions and
+# we end up with code like this. This module needs a redesign and rewrite soon.
+_component_filter = {
+    'js' : [],
+    'css': ['bokeh-compiler'],
+}
 
 def _get_cdn_urls(components, version=None, minified=True):
     if version is None:
@@ -159,7 +165,8 @@ def _get_cdn_urls(components, version=None, minified=True):
         return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
 
     result = {
-        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
+        'urls'     : lambda kind: [ mk_url(component, kind) \
+            for component in components if component not in _component_filter[kind] ],
         'messages' : [],
     }
 
@@ -183,7 +190,8 @@ def _get_server_urls(components, root_url, minified=True, path_versioner=None):
         return '%sstatic/%s' % (root_url, path)
 
     return {
-        'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
+        'urls'     : lambda kind: [ mk_url(component, kind) \
+            for component in components if component not in _component_filter[kind] ],
         'messages' : [],
     }
 
@@ -247,7 +255,7 @@ class BaseResources(object):
         valid_levels = [
             "trace", "debug", "info", "warn", "error", "fatal"
         ]
-        if level not in valid_levels:
+        if not (level is None or level in valid_levels):
             raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
         self._log_level = level
 
@@ -261,7 +269,8 @@ class BaseResources(object):
     def _file_paths(self, kind):
         bokehjs_dir = bokehjsdir(self.dev)
         minified = ".min" if not self.dev and self.minified else ""
-        files = [ "%s%s.%s" % (component, minified, kind) for component in self.components ]
+        files = [ "%s%s.%s" % (component, minified, kind) \
+            for component in self.components if component not in _component_filter[kind] ]
         paths = [ join(bokehjs_dir, kind, file) for file in files ]
         return paths
 
@@ -358,10 +367,14 @@ class JSResources(BaseResources):
     @property
     def js_raw(self):
         _, raw = self._resolve('js')
-        raw.append('Bokeh.set_log_level("%s");' % self.log_level)
+
+        if self.log_level is not None:
+            raw.append('Bokeh.set_log_level("%s");' % self.log_level)
+
         custom_models = self._render_custom_models_static()
         if custom_models is not None:
             raw.append(custom_models)
+
         return raw
 
     _plugin_template = \
@@ -573,4 +586,4 @@ CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
 
-EMPTY = Resources(mode="inline", components=[])
+EMPTY = Resources(mode="inline", components=[], log_level=None)

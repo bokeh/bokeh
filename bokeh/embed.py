@@ -27,7 +27,7 @@ from .core.templates import (
 from .core.json_encoder import serialize_json
 from .document import Document, DEFAULT_TITLE
 from .model import Model, _ModelInDocument
-from .resources import Resources, _SessionCoordinates, EMPTY
+from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 
 def _wrap_in_function(code):
@@ -183,9 +183,9 @@ def _use_compiler(objs):
         return False
 
 def _bundle_for_objs_and_resources(objs, resources):
-    if isinstance(resources, Resources):
+    if isinstance(resources, BaseResources):
         js_resources = css_resources = resources
-    elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, Resources) for r in resources):
+    elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
         js_resources, css_resources = resources
 
         if js_resources and not css_resources:
@@ -204,16 +204,20 @@ def _bundle_for_objs_and_resources(objs, resources):
 
     if js_resources:
         js_resources = deepcopy(js_resources)
-        if not use_widgets: js_resources.components.remove("bokeh-widgets")
-        if not use_compiler: js_resources.components.remove("bokeh-compiler")
+        if not use_widgets and "bokeh-widgets" in js_resources.components:
+            js_resources.components.remove("bokeh-widgets")
+        if not use_compiler and "bokeh-compiler" in js_resources.components:
+            js_resources.components.remove("bokeh-compiler")
         bokeh_js = js_resources.render_js()
     else:
         bokeh_js = None
 
     if css_resources:
         css_resources = deepcopy(css_resources)
-        if not use_widgets: css_resources.components.remove("bokeh-widgets")
-        if not use_compiler: css_resources.components.remove("bokeh-compiler")
+        if not use_widgets and "bokeh-widgets" in css_resources.components:
+            css_resources.components.remove("bokeh-widgets")
+        if not use_compiler and "bokeh-compiler" in css_resources.components:
+            css_resources.components.remove("bokeh-compiler")
         bokeh_css = css_resources.render_css()
     else:
         bokeh_css = None
