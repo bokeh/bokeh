@@ -253,6 +253,39 @@ class Gear(Glyph):
     The %s values for the gears.
     """)
 
+class HBar(Glyph):
+    """ Render horizontal bars, given a center coordinate, height and (left, right) coordinates. """
+
+    __example__ = "tests/glyphs/HBar.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('y', 'height', 'left', 'right')
+
+    y = NumberSpec(help="""
+    The x-coordinates of the centers of the bars.
+    """)
+
+    height = NumberSpec(help="""
+    The heights of the vertical bars.
+    """)
+
+    left = NumberSpec(help="""
+    The x-coordinates of the left edges.
+    """)
+
+    right = NumberSpec(help="""
+    The x-coordinates of the right edges.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the rectangles.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the rectangles.
+    """)
+
 class Image(Glyph):
     """ Render images given as scalar data together with a color mapper. """
 
@@ -853,6 +886,39 @@ class Text(Glyph):
 
     text_props = Include(TextProps, use_prefix=False, help="""
     The %s values for the text.
+    """)
+
+class VBar(Glyph):
+    """ Render vertical bars, given a center coordinate, width and (top, bottom) coordinates. """
+
+    __example__ = "tests/glyphs/VBar.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'width', 'top', 'bottom')
+
+    x = NumberSpec(help="""
+    The x-coordinates of the centers of the bars.
+    """)
+
+    width = NumberSpec(help="""
+    The widths of the vertical bars.
+    """)
+
+    bottom = NumberSpec(help="""
+    The y-coordinates of the bottom edges.
+    """)
+
+    top = NumberSpec(help="""
+    The y-coordinates of the top edges.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the rectangles.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the rectangles.
     """)
 
 class Wedge(Glyph):
