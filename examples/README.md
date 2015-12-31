@@ -12,7 +12,10 @@ This directory contains examples of Bokeh Apps, which are simple and easy to cre
 
 ### [`charts`](https://github.com/bokeh/bokeh/tree/master/examples/compat)
 
-This directory includes examples that use the high level [`bokeh.charts`](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html) interface of Bokeh. This interface can be for easily building [histograms](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#histograms), [bar charts](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#bar-charts) or [box plots](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#box-plots).
+This directory includes examples that use the high level [`bokeh.charts`](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html) interface of Bokeh. This interface can be for easily building high-level statistical or scientific charts such as 
+[histograms](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#histograms), 
+[bar charts](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#bar-charts) or 
+[box plots](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#box-plots).
 
 ### [`compat`](https://github.com/bokeh/bokeh/tree/master/examples/compat)
 
