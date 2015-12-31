@@ -1,10 +1,8 @@
 from __future__ import print_function
 
-from math import pi
-
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle, Text
+from bokeh.models.glyphs import Circle
 from bokeh.models import (
     BasicTicker, ColumnDataSource, Grid, GridPlot, LinearAxis,
     DataRange1d, PanTool, Plot, WheelZoomTool
