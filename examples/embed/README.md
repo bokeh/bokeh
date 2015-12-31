@@ -52,10 +52,6 @@ Execute the script:
 
 See instructions in [simple/README.md](https://github.com/bokeh/bokeh/edit/master/examples/embed/simple/README.md)
 
-#### slideshow
-
-See instructions in [slideshow/README.md](https://github.com/bokeh/bokeh/edit/master/examples/embed/slideshow/README.md)
-
 #### spectrogram
 
 See instructions in [spectrogram/README.md](https://github.com/bokeh/bokeh/edit/master/examples/embed/spectrogram/README.md)
