@@ -550,6 +550,24 @@ class Plot extends HasParent
     logger.debug("Plot initialized")
 
   initialize_layout: (solver) ->
+    existing_or_new_layout = (side, name) =>
+      list = @get(side)
+      box = null
+      for model in list
+        if model.get('name') == name
+          box = model
+          break
+      if box?
+        box.set('solver', solver)
+      else
+        box = new LayoutBox.Model({
+          name: name,
+          solver: solver
+        })
+        list.push(box)
+        @set(side, list)
+      return box
+
     canvas = @get('canvas')
     frame = new CartesianFrame.Model({
       x_range: @get('x_range'),
@@ -564,11 +582,8 @@ class Plot extends HasParent
 
     # TODO (bev) titles should probably be a proper guide, then they could go
     # on any side, this will do to get the PR merged
-    @title_panel = new LayoutBox.Model({solver: solver})
+    @title_panel = existing_or_new_layout('above', 'title_panel')
     @title_panel._anchor = @title_panel._bottom
-    elts = @get('above')
-    elts.push(@title_panel)
-    @set('above', elts)
 
   add_constraints: (solver) ->
     min_border_top    = @get('min_border_top')

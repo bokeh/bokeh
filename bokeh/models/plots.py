@@ -56,7 +56,7 @@ def _select_helper(args, kwargs):
     return selector
 
 class LayoutBox(Model):
-    ''' Represents an **on-cavas** layout.
+    ''' Represents an **on-canvas** layout.
 
     '''
 
