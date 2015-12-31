@@ -33,6 +33,7 @@ Data Operations
 ~~~~~~~~~~~~~~~
 
 .. autofunction:: bokeh.charts.blend
+.. autofunction:: bokeh.charts.bins
 
 .. _bokeh_charts_attr_gen:
 
@@ -47,6 +48,10 @@ Attribute Generators
 
 Builders
 --------
+
+.. autoclass:: bokeh.charts.builders.area_builder.AreaBuilder
+    :members:
+    :undoc-members:
 
 .. autoclass:: bokeh.charts.builders.bar_builder.BarBuilder
     :members:
