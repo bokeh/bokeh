@@ -560,8 +560,10 @@ class Plot extends HasParent
       if box?
         box.set('solver', solver)
       else
-        box = new LayoutBox.Model({ name: name,
-        solver: solver })
+        box = new LayoutBox.Model({
+          name: name,
+          solver: solver
+        })
         list.push(box)
         @set(side, list)
       return box
