@@ -16,7 +16,7 @@ from bokeh.io import curdoc
 from bokeh.charts import Bar, Scatter
 from bokeh.palettes import Blues4 
 
-from examples.app.crossfilter.models import StyleableBox
+from .models import StyleableBox
 
 class AppModel(object):
 
