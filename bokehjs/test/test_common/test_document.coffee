@@ -271,6 +271,31 @@ describe "Document", ->
     root1.set('child', child1)
     expect(_.size(d._all_models)).to.equal 3
 
+  it "can have all_models with cycles through lists", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(_.size(d._all_models)).to.equal 0
+
+    root1 = new SomeModelWithChildren()
+    root2 = new SomeModelWithChildren()
+    child1 = new SomeModelWithChildren()
+    root1.set('children', [child1])
+    root2.set('children', [child1])
+    child1.set('children', [root1])
+    d.add_root(root1)
+    d.add_root(root2)
+    expect(d.roots().length).to.equal 2
+    expect(_.size(d._all_models)).to.equal 3
+
+    root1.set('children', [])
+    expect(_.size(d._all_models)).to.equal 3
+
+    root2.set('children', [])
+    expect(_.size(d._all_models)).to.equal 2
+
+    root1.set('children', [child1])
+    expect(_.size(d._all_models)).to.equal 3
+
   it "can notify on changes", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
