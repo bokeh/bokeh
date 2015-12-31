@@ -34,10 +34,11 @@ The examples in this directory show off particular aspects of Bokeh user interac
 
 This directory contains example using the [`bokeh.plotting`](http://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html) interface. There are three subdirectories illustrating output in three different modes:
 
-* `file` - examples that output static HTML files
-* `notebook` - examples that output inline within IPython notebooks
-* `server` - examples that send their output to the Bokeh server
+* `file` examples that output to static HTML files
 
+* `notebook` examples that display inline in [Jupyter](http://jupyter.org) notebooks
+
+* `server` examples that send output to a Bokeh server, using the python client library for the server 
 ## Other sources for examples
 
 * There are many examples in the [Bokeh Gallery](http://bokeh.pydata.org/en/latest/docs/gallery.html) on main documentation site http://bokeh.pydata.org.
