@@ -5,9 +5,6 @@ all the attributes (including Bokeh properties) of a Bokeh
 model class. A JSON prototype showing all the possible
 JSON fields will also be generated.
 
-Usage
------
-
 This directive takes the path to a Bokeh model class as an
 argument::
 

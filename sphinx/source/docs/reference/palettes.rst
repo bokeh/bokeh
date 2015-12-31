@@ -1,6 +1,6 @@
-.. _bokeh_dot_palettes:
+.. _bokeh.palettes:
 
-Standard Palettes
-=================
+``bokeh.palettes``
+==================
 
 .. bokeh-palette:: unused.for.now

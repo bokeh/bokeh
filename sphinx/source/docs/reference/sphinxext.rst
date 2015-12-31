@@ -1,6 +1,8 @@
 
-Sphinx Extensions
-=================
+.. _bokeh.sphinxext:
+
+``bokeh.sphinxext``
+===================
 
 In order to help automate and simplify the generation of Bokeh
 documentation, several Sphinx extensions have been created. Most

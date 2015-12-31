@@ -48,18 +48,29 @@ the :ref:`devguide`.
     docs/user_guide/tutorials
     docs/gallery
     docs/reference
-    docs/reference/properties
-    docs/reference/models
-    docs/reference/document
-    docs/reference/validation
-    docs/reference/plotting
+    docs/reference/bokeh
     docs/reference/charts
+    docs/reference/client
+    docs/reference/core
+    docs/reference/document
+    docs/reference/driving
+    docs/reference/embed
+    docs/reference/icons
+    docs/reference/io
+    docs/reference/model
+    docs/reference/models
+    docs/reference/mpl
     docs/reference/palettes
-    docs/reference/utils
-    docs/reference/resources_embedding
-    docs/reference/bokehjs
-    docs/reference/testing
+    docs/reference/plotting
+    docs/reference/resources
+    docs/reference/sampledata
+    docs/reference/server
+    docs/reference/settings
     docs/reference/sphinxext
+    docs/reference/themes
+    docs/reference/tile_providers
+    docs/reference/util
+    docs/reference/bokehjs
     docs/releases/0.10.0
     docs/releases
     docs/releases/0.9.3
