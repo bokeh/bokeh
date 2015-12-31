@@ -5,7 +5,7 @@ from bokeh.embed import components
 from bokeh.models import Range1d
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
-from bokeh.browserlib import view
+from bokeh.util.browser import view
 
 # create some data
 x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
