@@ -385,7 +385,8 @@ class Document
     from_root_ids.sort()
     to_root_ids.sort()
 
-    if _.difference(from_root_ids, to_root_ids).length > 0
+    if _.difference(from_root_ids, to_root_ids).length > 0 or
+       _.difference(to_root_ids, from_root_ids).length > 0
       # this would arise if someone does add_root/remove_root during
       # document deserialization, hopefully they won't ever do so.
       throw new Error("Not implemented: computing add/remove of document roots")
