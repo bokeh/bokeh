@@ -15,7 +15,7 @@ in your browser.
 import numpy as np
 
 from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
-from bokeh.plotting import curdoc, figure, hplot, vplot
+from bokeh.plotting import figure, hplot, vplot
 
 # create three normal population samples with different parameters
 x1 = np.random.normal(loc=5.0, size=400) * 100

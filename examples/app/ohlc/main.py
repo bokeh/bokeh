@@ -1,8 +1,8 @@
-from numpy import asarray, cumprod, convolve, exp, ones, nan
+from numpy import asarray, cumprod, convolve, exp, ones
 from numpy.random import lognormal, gamma, uniform
 
 from bokeh.models import ColumnDataSource, Slider, VBox, HBox, Select, GridPlot
-from bokeh.plotting import ColumnDataSource, curdoc, Figure
+from bokeh.plotting import curdoc, Figure
 from bokeh.driving import count
 
 BUFSIZE = 200

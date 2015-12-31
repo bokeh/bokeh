@@ -1,20 +1,15 @@
 from __future__ import print_function
 
-import json
-
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.resources import INLINE
-from bokeh.models.glyphs import Circle
+from bokeh.models import (
+    Plot, Range1d, WMTSTileSource, ColumnDataSource, WheelZoomTool,
+    ResizeTool, PanTool, BoxZoomTool, HoverTool, Circle
+)
 from bokeh.plotting import output_file
-from bokeh.models import Plot
-from bokeh.models import Range1d
-from bokeh.models import WheelZoomTool, ResizeTool, PanTool, BoxZoomTool, HoverTool
-from bokeh.models import WMTSTileSource
-from bokeh.models import ColumnDataSource
-
+from bokeh.resources import INLINE
 from bokeh.sampledata.airports import data as airports
+from bokeh.util.browser import view
 
 title = "US Airports: Field Elevation > 1500m"
 output_file("airports_map.html", title=title)

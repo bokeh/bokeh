@@ -4,9 +4,12 @@
 
 To view this example, first start a Bokeh server:
 
-    bokeh serve
+    bokeh serve --allow-websocket-origin=localhost:8000
 
-And then load the example into the Bokeh server by
+The option for websocket origin is to allow specific cross
+domain connections.
+
+Next load the example into the Bokeh server by
 running the script:
 
     python animated.py
@@ -58,7 +61,10 @@ See instructions in spectrogram/README.md
 
 To view this example, first start a Bokeh server:
 
-    bokeh serve
+    bokeh serve --allow-websocket-origin=localhost:8000
+
+The option for websocket origin is to allow specific cross
+domain connections.
 
 And then load the example into the Bokeh server by
 running the script:
