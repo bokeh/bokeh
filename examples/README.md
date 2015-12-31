@@ -16,7 +16,7 @@ This directory includes examples that use the high level [`bokeh.charts`](http:/
 
 ### [`compat`](https://github.com/bokeh/bokeh/tree/master/examples/compat)
 
-This directory contains examples of plots that use Bokeh's [compatibility layer](http://bokeh.pydata.org/en/latest/docs/user_guide/compat.html) to allow user's to create Bokeh plots using other plotting libraries such as [matplotlib](http://matplotlib.org), [seaborn](http://stanford.edu/~mwaskom/software/seaborn/), or [ggplot.py](http://ggplot.yhathq.com).
+This directory contains examples of plots that use Bokeh's [compatibility layer](http://bokeh.pydata.org/en/latest/docs/user_guide/compat.html) to allow users to create Bokeh plots using other plotting libraries such as [matplotlib](http://matplotlib.org), [seaborn](http://stanford.edu/~mwaskom/software/seaborn/), or [ggplot.py](http://ggplot.yhathq.com).
 
 ### [`embed`](https://github.com/bokeh/bokeh/tree/master/examples/embed)
 
