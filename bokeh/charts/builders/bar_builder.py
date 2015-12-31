@@ -36,20 +36,23 @@ from ..utils import help
 
 
 class BarBuilder(Builder):
-    """This is the Bar class and it is in charge of plotting
+    """This is the Bar builder and it is in charge of plotting
     Bar chart (grouped and stacked) in an easy and intuitive way.
 
-    Essentially, it provides a way to ingest the data, make the proper
-    calculations and push the references into a source object.
-    We additionally make calculations for the ranges.
-    And finally add the needed glyphs (rects) taking the references
-    from the source.
+    Essentially, it utilizes a standardized way to ingest the data,
+    make the proper calculations and generate renderers. The renderers
+    reference the transformed data, which represent the groups of data
+    that were derived from the inputs. We additionally make calculations
+    for the ranges.
 
-    The x_range is categorical, and is made either from the cat argument
-    or from the indexes of the passed values if no cat is supplied.  The
-    y_range can be supplied as the parameter continuous_range,
-    or will be calculated as a linear range (Range1d) based on the supplied
-    values.
+    The x_range is categorical, and is made either from the label argument
+    or from the `pandas.DataFrame.index`. The y_range can be supplied as the
+    parameter continuous_range, or will be calculated as a linear range
+    (Range1d) based on the supplied values.
+
+    The bar builder is and can be further used as a base class for other
+    builders that might also be performing some aggregation across
+    derived groups of data.
 
     """
 
