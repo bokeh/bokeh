@@ -34,16 +34,19 @@ from ..attributes import ColorAttr, CatAttr, MarkerAttr
 def Dot(data, label=None, values=None, color=None, stack=None, group=None,
         agg="sum", xscale="categorical", yscale="linear", xgrid=False,
         ygrid=True, continuous_range=None, **kw):
-    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builders.bar_builder.BarBuilder>`
-    render the geometry from values, cat and stacked.
+    """ Create a Dot chart using :class:`BarBuilder <bokeh.charts.builders.dot_builder.DotBuilder>`
+    to render the geometry from the inputs.
 
     Args:
         data (:ref:`userguide_charts_data_types`): the data
             source for the chart.
-        values (str, optional): iterable 2d representing the data series
-            values matrix.
         label (list(str) or str, optional): list of string representing the categories.
             (Defaults to None)
+        values (str, optional): iterable 2d representing the data series
+            values matrix.
+        color (str or list(str) or `~bokeh.charts._attributes.ColorAttr`): string color,
+            string column name, list of string columns or a custom `ColorAttr`,
+            which replaces the default `ColorAttr` for the builder.
         stack (list(str) or str, optional): columns to use for stacking.
             (Defaults to False, so grouping is assumed)
         group (list(str) or str, optional): columns to use for grouping.
