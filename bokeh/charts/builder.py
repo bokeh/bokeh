@@ -487,8 +487,11 @@ class Builder(HasProps):
         return str(raw_label)
 
     def collect_attr_kwargs(self):
-        attrs = set(self.default_attributes.keys()) - set(
-            self.__class__.default_attributes.keys())
+        if hasattr(super(self.__class__, self), 'default_attributes'):
+            attrs = set(self.default_attributes.keys()) - set(
+                (super(self.__class__, self).default_attributes or {}).keys())
+        else:
+            attrs = set()
         return attrs
 
     def get_group_kwargs(self, group, attrs):
