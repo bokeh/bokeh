@@ -39,6 +39,7 @@ This directory contains example using the [`bokeh.plotting`](http://bokeh.pydata
 * `notebook` examples that display inline in [Jupyter](http://jupyter.org) notebooks
 
 * `server` examples that send output to a Bokeh server, using the python client library for the server 
+
 ## Other sources for examples
 
 * There are many examples in the [Bokeh Gallery](http://bokeh.pydata.org/en/latest/docs/gallery.html) on main documentation site http://bokeh.pydata.org.
