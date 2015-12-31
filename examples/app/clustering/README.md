@@ -1,8 +1,8 @@
 Create a clustering visualization app with the Bokeh server and
 scikit-learn.
 
-Setting Up
-==========
+#### Setting Up
+
 This demo requires the scikit-learn package in order to run. To install
 scikit-learn using conda, execute the command:
 
@@ -12,10 +12,10 @@ To install using pip, execute the command:
 
     pip install scikit-learn
 
-Running
-=======
+#### Running
+
 
 To view the apps directly from a Bokeh server, navigate to the parent
 directory ``examples/app``, and execute the command:
 
-    bokeh serve clustering --show
+    bokeh serve --show clustering 
