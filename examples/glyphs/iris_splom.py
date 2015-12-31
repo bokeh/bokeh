@@ -2,7 +2,6 @@ from __future__ import print_function
 
 from math import pi
 
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle, Text
@@ -12,6 +11,7 @@ from bokeh.models import (
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
+from bokeh.util.browser import view
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 
@@ -28,18 +28,17 @@ source = ColumnDataSource(
     )
 )
 
-text_source = ColumnDataSource(
-    data=dict(xcenter=[125], ycenter=[135])
-)
+xdr = DataRange1d(bounds=None)
+ydr = DataRange1d(bounds=None)
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
-def make_plot(xname, yname, xax=False, yax=False, text=None):
+def make_plot(xname, yname, xax=False, yax=False):
+    mbl = 40 if yax else 0
+    mbb = 40 if xax else 0
     plot = Plot(
         x_range=xdr, y_range=ydr, background_fill_color="#efe8e2",
-        border_fill_color='white', title="", min_border=2, h_symmetry=False, 
-        v_symmetry=False, plot_width=250, plot_height=250)
+        border_fill_color='white', title="", h_symmetry=False, v_symmetry=False,
+        plot_width=200 + mbl, plot_height=200 + mbb, min_border_left=2+mbl, min_border_right=2,
+        min_border_top=2, min_border_bottom=2+mbb)
 
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     r = plot.add_glyph(source, circle)
@@ -63,16 +62,6 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
 
     plot.add_tools(PanTool(), WheelZoomTool())
 
-    if text:
-        text = " ".join(text.split('_'))
-        text = Text(
-            x={'field':'xcenter', 'units':'screen'},
-            y={'field':'ycenter', 'units':'screen'},
-            text=[text], angle=pi/4, text_font_style="bold", text_baseline="top",
-            text_color="#ffaaaa", text_alpha=0.7, text_align="center", text_font_size="28pt"
-        )
-        plot.add_glyph(text_source, text)
-
     return plot
 
 xattrs = ["petal_length", "petal_width", "sepal_width", "sepal_length"]
@@ -84,8 +73,7 @@ for y in yattrs:
     for x in xattrs:
         xax = (y == yattrs[-1])
         yax = (x == xattrs[0])
-        text = x if (x==y) else None
-        plot = make_plot(x, y, xax, yax, text)
+        plot = make_plot(x, y, xax, yax)
         row.append(plot)
     plots.append(row)
 
