@@ -60,6 +60,9 @@ def HeatMap(data, x=None, y=None, values=None, stat='count', xgrid=False, ygrid=
             tooltip. Defaults to `None`. When `None`, a hover_text will be derived from
             the aggregation and the values column.
 
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
+
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`
 

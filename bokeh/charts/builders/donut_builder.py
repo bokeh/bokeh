@@ -61,6 +61,9 @@ def Donut(data, label='index', values=None,  color=None, agg=None,
         shown with the hover tool
       **kw:
 
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
+
     Returns:
         :class:`Chart`: includes glyph renderers that generate the wedges the make
             up the donut(s)

@@ -42,7 +42,7 @@ def Step(data=None, x=None, y=None, **kws):
         x (str or list(str), optional): specifies variable(s) to use for x axis
         y (str or list(str), optional): specifies variable(s) to use for y axis
 
-    In addition the the parameters specific to this chart,
+    In addition to the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     .. note::

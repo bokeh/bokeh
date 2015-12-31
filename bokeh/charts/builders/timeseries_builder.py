@@ -46,8 +46,8 @@ def TimeSeries(data=None, x=None, y=None, builder_type=LineBuilder, **kws):
             area.values is a mapping (like a dict, an OrderedDict
             or a pandas DataFrame)
 
-    In addition the the parameters specific to this chart,
-    :ref:`userguide_charts_generic_arguments` are also accepted as keyword parameters.
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`

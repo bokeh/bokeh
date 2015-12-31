@@ -60,6 +60,9 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
       bins (int, optional): the number of bins to use. Defaults to None to auto select.
       **kw:
 
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
+
     Returns:
         :class:`Chart`: includes glyph renderers that generate the histograms
 

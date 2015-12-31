@@ -64,6 +64,9 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
       outliers (bool, optional): whether to show outliers. Defaults to True.
       **kw:
 
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
+
     Returns:
         :class:`Chart`: includes glyph renderers that generate Boxes and Whiskers
 
