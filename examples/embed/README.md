@@ -1,6 +1,9 @@
+This directory contains examples that demonstrate how to embed Bokeh plots and widgets as 
+DOM elements of larger documents. Typically, this is accomplished using the [`bokeh.embed`](http://bokeh.pydata.org/en/latest/docs/user_guide/embed.html) interface. 
 
+Specific instructions for each demo are below:
 
-## animated.py
+#### animated.py
 
 To view this example, first start a Bokeh server:
 
@@ -27,37 +30,37 @@ in this directory. Navigate to
 
     http://localhost:8000/animated.html
 
-## embed_multiple.py
+#### embed_multiple.py
 
 Execute the script:
 
     python embed_multiple.py
 
-## embed_multiple_responsive.py
+#### embed_multiple_responsive.py
 
 Execute the script:
 
     python embed_multiple_responsive.py
 
-## embed_responsive_width_height.py
+#### embed_responsive_width_height.py
 
 Execute the script:
 
     python embed_responsive_width_height.py
 
-## simple
+#### simple
 
-See instructions in simple/README.md
+See instructions in [simple/README.md](https://github.com/bokeh/bokeh/edit/master/examples/embed/simple/README.md)
 
-## slideshow
+#### slideshow
 
-See instructions in slideshow/README.md
+See instructions in [slideshow/README.md](https://github.com/bokeh/bokeh/edit/master/examples/embed/slideshow/README.md)
 
-## spectrogram
+#### spectrogram
 
-See instructions in spectrogram/README.md
+See instructions in [spectrogram/README.md](https://github.com/bokeh/bokeh/edit/master/examples/embed/spectrogram/README.md)
 
-## widget.py
+#### widget.py
 
 To view this example, first start a Bokeh server:
 
