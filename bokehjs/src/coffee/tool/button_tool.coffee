@@ -38,7 +38,7 @@ class ButtonTool extends Tool.Model
     @register_property('tooltip', () ->@get('tool_name'))
 
   nonserializable_attribute_names: () ->
-    super().concat(['icon'])
+    super().concat(['icon', 'disabled'])
 
   defaults: () ->
     return _.extend({}, super(), {
