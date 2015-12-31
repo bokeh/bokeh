@@ -76,7 +76,10 @@ plot_cat_unbounded.x_range.bounds = None
 plot_cat_unbounded.y_range.bounds = None
 ###### -- end -- ########
 
-plot_cat_bounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap with bounds x:['apples', 'pears'], y:['2009', '2010', '2013']")
+plot_cat_bounded = HeatMap(
+    fruits, y='year', x='fruit', values='fruit_count', stat=None,
+    title="Heatmap with bounds x:['apples', 'pears'], y:['2009', '2010', '2013']"
+)
 ###### -- ranges set here -- ########
 plot_cat_bounded.x_range.bounds = ['apples', 'pears']
 plot_cat_bounded.y_range.bounds = ['2009', '2010', '2013']

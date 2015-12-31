@@ -3,13 +3,11 @@ from __future__ import print_function
 import numpy as np
 import sympy as sy
 
-from bokeh.util.browser import view
+from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend
 from bokeh.models.widgets import Slider, TextInput, HBox, VBox, Dialog
-
-from bokeh.client import push_session
 
 document = Document()
 session = push_session(document)
