@@ -18,8 +18,10 @@ Charts
 
 .. automodule:: bokeh.charts
 
+    .. autofunction:: Area
     .. autofunction:: Bar
     .. autofunction:: BoxPlot
+    .. autofunction:: Donut
     .. autofunction:: Histogram
     .. autofunction:: Line
     .. autofunction:: Scatter
@@ -58,6 +60,10 @@ Builders
     :undoc-members:
 
 .. autoclass:: bokeh.charts.builders.boxplot_builder.BoxPlotBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.donut_builder.DonutBuilder
     :members:
     :undoc-members:
 
