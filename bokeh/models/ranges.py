@@ -226,8 +226,7 @@ class FactorRange(Range):
     Values of bounds that are not in factors are acceptable and will simply have no impact
     on the plot.
 
-    Examples
-    --------
+    Examples:
 
     Default behavior:
         x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"])
