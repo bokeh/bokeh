@@ -90,4 +90,11 @@ def test_args():
             help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
         )),
 
+        ('--session-ids', dict(
+            metavar='MODE',
+            action  = 'store',
+            default = None,
+            choices = scserve.SESSION_ID_MODES,
+            help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
+        )),
     )

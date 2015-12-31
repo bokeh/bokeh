@@ -25,8 +25,15 @@ class SessionHandler(RequestHandler):
     def get_session(self):
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:
-            session_id = generate_session_id()
-        elif not check_session_id_signature(session_id):
+            if self.application.generate_session_ids:
+                session_id = generate_session_id(secret_key=self.application.secret_key,
+                                                 signed=self.application.sign_sessions)
+            else:
+                log.debug("Server configured not to generate session IDs and none was provided")
+                raise HTTPError(status_code=403, reason="No bokeh-session-id provided")
+        elif not check_session_id_signature(session_id,
+                                            secret_key=self.application.secret_key,
+                                            signed=self.application.sign_sessions):
             log.error("Session id had invalid signature: %r", session_id)
             raise HTTPError(status_code=403, reason="Invalid session ID")
 

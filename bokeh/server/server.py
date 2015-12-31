@@ -58,6 +58,9 @@ class Server(object):
         tornado_kwargs = { key: kwargs[key] for key in ['io_loop',
                                                         'develop',
                                                         'extra_patterns',
+                                                        'secret_key',
+                                                        'sign_sessions',
+                                                        'generate_session_ids',
                                                         'keep_alive_milliseconds',
                                                         'check_unused_sessions_milliseconds',
                                                         'unused_session_lifetime_milliseconds',
@@ -155,6 +158,11 @@ class Server(object):
         '''Gets a session by name (session must already exist)'''
 
         return self._tornado.get_session(app_path, session_id)
+
+    def get_sessions(self, app_path):
+        '''Gets all live sessions for an application.'''
+
+        return self._tornado.get_sessions(app_path)
 
     def show(self, app_path, browser=None, new='tab'):
         ''' Opens an app in a browser window or tab.

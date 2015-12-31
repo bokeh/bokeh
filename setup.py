@@ -310,6 +310,9 @@ def build_js():
         print("  - bokeh-widgets.css     : %6.1f KB" % size("css", "bokeh-widgets.css"))
         print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
         print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
+
+        print("  - bokeh-compiler.js      : %6.1f KB" % size("js", "bokeh-compiler.js"))
+        print("  - bokeh-compiler.min.js  : %6.1f KB" % size("js", "bokeh-compiler.min.js"))
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
 
@@ -583,7 +586,7 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=['bin/bokeh'],
+    scripts=['bin/bokeh', 'bin/bokeh-server'],
     zip_safe=False,
     install_requires=REQUIRES
 )

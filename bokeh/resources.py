@@ -22,8 +22,11 @@ import re
 from . import __version__
 from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
+
 from .util.paths import bokehjsdir
+from .util.string import snakify
 from .util.session_id import generate_session_id
+from .model import Model
 
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
@@ -133,6 +136,12 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 def _cdn_base_url():
     return "https://cdn.pydata.org"
 
+# XXX: this shouldn't be here, however we mix classes and global functions and
+# we end up with code like this. This module needs a redesign and rewrite soon.
+_component_filter = {
+    'js' : [],
+    'css': ['bokeh-compiler'],
+}
 
 def _get_cdn_urls(components, version=None, minified=True):
     if version is None:
@@ -158,7 +167,8 @@ def _get_cdn_urls(components, version=None, minified=True):
         return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
 
     result = {
-        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
+        'urls'     : lambda kind: [ mk_url(component, kind) \
+            for component in components if component not in _component_filter[kind] ],
         'messages' : [],
     }
 
@@ -182,7 +192,8 @@ def _get_server_urls(components, root_url, minified=True, path_versioner=None):
         return '%sstatic/%s' % (root_url, path)
 
     return {
-        'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
+        'urls'     : lambda kind: [ mk_url(component, kind) \
+            for component in components if component not in _component_filter[kind] ],
         'messages' : [],
     }
 
@@ -195,8 +206,10 @@ class BaseResources(object):
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None,
-                 path_versioner=None):
-        self.components = ["bokeh", "bokeh-widgets"]
+                 path_versioner=None, components=None):
+
+        self.components = components if components is not None \
+            else ["bokeh", "bokeh-widgets", "bokeh-compiler"]
 
         self.mode = settings.resources(mode)
         self.root_dir = settings.rootdir(root_dir)
@@ -244,7 +257,7 @@ class BaseResources(object):
         valid_levels = [
             "trace", "debug", "info", "warn", "error", "fatal"
         ]
-        if level not in valid_levels:
+        if not (level is None or level in valid_levels):
             raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
         self._log_level = level
 
@@ -258,7 +271,8 @@ class BaseResources(object):
     def _file_paths(self, kind):
         bokehjs_dir = bokehjsdir(self.dev)
         minified = ".min" if not self.dev and self.minified else ""
-        files = [ "%s%s.%s" % (component, minified, kind) for component in self.components ]
+        files = [ "%s%s.%s" % (component, minified, kind) \
+            for component in self.components if component not in _component_filter[kind] ]
         paths = [ join(bokehjs_dir, kind, file) for file in files ]
         return paths
 
@@ -290,33 +304,13 @@ class BaseResources(object):
 
     def _inline(self, path):
         begin = "/* BEGIN %s */" % path
-        with open(path, 'rb') as f:
-            middle = f.read().decode("utf-8")
+        try:
+            with open(path, 'rb') as f:
+                middle = f.read().decode("utf-8")
+        except IOError:
+            middle = ""
         end = "/* END %s */" % path
         return "%s\n%s\n%s" % (begin, middle, end)
-
-    def _use_component(self, component, use):
-        obj = copy.deepcopy(self)
-
-        if use:
-            if component not in obj.components:
-                try:
-                    i = obj.components.index("bokeh")
-                except ValueError:
-                    i = 0
-
-                obj.components.insert(i, component)
-        else:
-            try:
-                obj.components.remove(component)
-            except ValueError:
-                pass
-
-        return obj
-
-    def use_widgets(self, use):
-        return self._use_component("bokeh-widgets", use)
-
 
 class JSResources(BaseResources):
     ''' The Resources class encapsulates information relating to loading or embedding Bokeh Javascript.
@@ -375,11 +369,105 @@ class JSResources(BaseResources):
     @property
     def js_raw(self):
         _, raw = self._resolve('js')
-        return raw + ['Bokeh.set_log_level("%s");' % self.log_level]
+
+        if self.log_level is not None:
+            raw.append('Bokeh.set_log_level("%s");' % self.log_level)
+
+        custom_models = self._render_custom_models_static()
+        if custom_models is not None:
+            raw.append(custom_models)
+
+        return raw
+
+    _plugin_template = \
+"""
+(function outer(modules, cache, entry) {
+  if (Bokeh) {
+    for (var name in modules) {
+      var module = modules[name];
+
+      if (typeof(module) === "string") {
+        try {
+          coffee = Bokeh.require("coffee-script")
+        } catch (e) {
+          throw new Error("Compiler requested but failed to import. Make sure bokeh-compiler(-min).js was included.")
+        }
+
+        function compile(code) {
+          var body = coffee.compile(code, {bare: true, shiftLine: true});
+          return new Function("require", "module", "exports", body);
+        }
+
+        modules[name] = [compile(module), {}];
+      }
+    }
+
+    for (var name in modules) {
+      Bokeh.require.modules[name] = modules[name];
+    }
+
+    for (var i = 0; i < entry.length; i++) {
+      Bokeh.Collections.register_locations(Bokeh.require(entry[i]));
+    }
+  } else {
+    throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
+  }
+})({
+ "custom/main":[function(require,module,exports){
+   module.exports = { %(exports)s };
+ }, {}],
+ %(models)s
+}, {}, ["custom/main"]);
+"""
+
+    def _render_custom_models_static(self):
+        def _escape_code(code):
+            """ Escape JS/CS source code, so that it can be embedded in a JS string.
+
+            This is based on https://github.com/joliss/js-string-escape.
+            """
+            def escape(match):
+                ch = match.group(0)
+
+                if ch == '"' or ch == "'" or ch == '\\':
+                    return '\\' + ch
+                elif ch == '\n':
+                    return '\\n'
+                elif ch == '\r':
+                    return '\\r'
+                elif ch == '\u2028':
+                    return '\\u2028'
+                elif ch == '\u2029':
+                    return '\\u2029'
+
+            return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
+
+        custom_models = {}
+
+        for cls in Model.model_class_reverse_map.values():
+            impl = getattr(cls, "__implementation__", None)
+
+            if impl is not None:
+                custom_models[(cls.__module__, cls.__name__)] = impl
+
+        if not custom_models:
+            return None
+
+        exports = []
+        models = []
+
+        for (_, model_name), impl in sorted(custom_models.items(), key=lambda arg: arg[0]):
+            module_name = "custom/%s" % snakify(model_name)
+            exports.append('%s: require("%s")' % (model_name, module_name))
+            models.append('"%s": "%s"' % (module_name, _escape_code(impl)))
+
+        exports = ",\n".join(exports)
+        models = ",\n".join(models)
+
+        return self._plugin_template % dict(exports=exports, models=models)
 
     def render_js(self):
         return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
-
 
 class CSSResources(BaseResources):
     ''' The CSSResources class encapsulates information relating to loading or embedding Bokeh client-side CSS.
@@ -439,7 +527,6 @@ class CSSResources(BaseResources):
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
 
-
 class Resources(JSResources, CSSResources):
     ''' The Resources class encapsulates information relating to loading or
     embedding Bokeh Javascript and CSS.
@@ -495,3 +582,5 @@ class Resources(JSResources, CSSResources):
 CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
+
+EMPTY = Resources(mode="inline", components=[], log_level=None)

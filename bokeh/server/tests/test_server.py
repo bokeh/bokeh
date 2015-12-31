@@ -2,9 +2,11 @@ from __future__ import absolute_import
 
 import pytest
 import logging
+import re
 
 from tornado import gen
 from tornado.ioloop import PeriodicCallback
+from tornado.httpclient import HTTPError
 
 import bokeh.server.server as server
 
@@ -13,8 +15,9 @@ from bokeh.application.handlers import Handler
 from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
+from bokeh.util.session_id import generate_session_id, check_session_id_signature
 
-from .utils import ManagedServerLoop, url
+from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -220,3 +223,220 @@ def test__lifecycle_hooks():
     # we shut down at that point.
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify", "session_destroyed"]
+
+# examples:
+# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
+# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
+sessionid_in_json = re.compile("""["']sessionid["'] *: *["']([^"]+)["']""")
+def extract_sessionid_from_json(html):
+    from six import string_types
+    if not isinstance(html, string_types):
+        import codecs
+        html = codecs.decode(html, 'utf-8')
+    match = sessionid_in_json.search(html)
+    return match.group(1)
+
+def autoload_url(server):
+    return url(server) + \
+        "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
+
+def test__autocreate_session_autoload():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = http_get(server.io_loop,
+                            autoload_url(server))
+        js = response.body
+        sessionid = extract_sessionid_from_json(js)
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert sessionid == sessions[0].id
+
+def test__autocreate_session_doc():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = http_get(server.io_loop,
+                            url(server))
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert sessionid == sessions[0].id
+
+def test__no_autocreate_session_websocket():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        websocket_open(server.io_loop,
+                       ws_url(server) + "?bokeh-protocol-version=1.0")
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+def test__use_provided_session_autoload():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        response = http_get(server.io_loop,
+                            autoload_url(server) + "&bokeh-session-id=" + expected)
+        js = response.body
+        sessionid = extract_sessionid_from_json(js)
+        assert expected == sessionid
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert expected == sessions[0].id
+
+def test__use_provided_session_doc():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        response = http_get(server.io_loop,
+                            url(server) + "?bokeh-session-id=" + expected)
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+        assert expected == sessionid
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert expected == sessions[0].id
+
+def test__use_provided_session_websocket():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        url = ws_url(server) + \
+              "?bokeh-protocol-version=1.0" + \
+              "&bokeh-session-id=" + expected
+        websocket_open(server.io_loop,
+                       url)
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert expected == sessions[0].id
+
+def test__autocreate_signed_session_autoload():
+    application = Application()
+    with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = http_get(server.io_loop,
+                            autoload_url(server))
+        js = response.body
+        sessionid = extract_sessionid_from_json(js)
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert sessionid == sessions[0].id
+
+        assert check_session_id_signature(sessionid, signed=True, secret_key='foo')
+
+def test__autocreate_signed_session_doc():
+    application = Application()
+    with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = http_get(server.io_loop,
+                            url(server))
+        html = response.body
+        sessionid = extract_sessionid_from_json(html)
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert sessionid == sessions[0].id
+
+        assert check_session_id_signature(sessionid, signed=True, secret_key='foo')
+
+def test__reject_unsigned_session_autoload():
+    application = Application()
+    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        with (pytest.raises(HTTPError)) as info:
+            http_get(server.io_loop,
+                     autoload_url(server) + "&bokeh-session-id=" + expected)
+        assert 'Invalid session ID' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+def test__reject_unsigned_session_doc():
+    application = Application()
+    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        with (pytest.raises(HTTPError)) as info:
+            response = http_get(server.io_loop,
+                                url(server) + "?bokeh-session-id=" + expected)
+        assert 'Invalid session ID' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+def test__reject_unsigned_session_websocket():
+    application = Application()
+    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        url = ws_url(server) + \
+              "?bokeh-protocol-version=1.0" + \
+              "&bokeh-session-id=" + expected
+        websocket_open(server.io_loop,
+                       url)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+def test__no_generate_session_autoload():
+    application = Application()
+    with ManagedServerLoop(application, generate_session_ids=False) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        with (pytest.raises(HTTPError)) as info:
+            http_get(server.io_loop,
+                     autoload_url(server))
+        assert 'No bokeh-session-id provided' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+def test__no_generate_session_doc():
+    application = Application()
+    with ManagedServerLoop(application, generate_session_ids=False) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        with (pytest.raises(HTTPError)) as info:
+            response = http_get(server.io_loop,
+                                url(server))
+        assert 'No bokeh-session-id provided' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
