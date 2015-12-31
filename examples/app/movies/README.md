@@ -11,6 +11,15 @@ command line, execute:
 And all the necessary data files will be downloaded to a subfolder in 
 your home directory. 
 
+Additionally, this demo requires the [pandas](http://pandas.pydata.org/)  library 
+in order to run. To install pandas using conda, execute the command:
+
+    conda install pandas
+
+To install using pip, execute the command:
+
+    pip install pandas
+
 #### Running
 
 To view the app directly from a Bokeh server, navigate to the parent
