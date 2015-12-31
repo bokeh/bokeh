@@ -81,6 +81,14 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
 
         output_file('box.html')
         show(hplot(box, box2))
+
+    References:
+        Box Meaning (`Source: BoxPlot on Wikipedia <https://en.wikipedia.org/wiki/Box_plot>`_)
+            .. image:: https://upload.wikimedia.org/wikipedia/commons/1/1a/Boxplot_vs_PDF.svg
+                :width: 400px
+                :align: left
+                :alt: box plot explanation
+
     """
 
     if continuous_range and not isinstance(continuous_range, Range1d):
