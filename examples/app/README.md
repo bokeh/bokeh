@@ -5,9 +5,9 @@ python scripts.
 
 To run any of these examples, excute `bokeh serve --show` and the name of the script or dirctory that contains the 
 demo. For example,
-``` sh
-bokeh serve --show sliders.py
-```
+
+    bokeh serve --show sliders.py
+
 will run the "sliders" demo, and open it up in a new browser tab. 
 
 The demos container here are:
