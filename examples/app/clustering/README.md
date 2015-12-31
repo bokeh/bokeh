@@ -16,6 +16,7 @@ To install using pip, execute the command:
 
 
 To view the apps directly from a Bokeh server, navigate to the parent
-directory ``examples/app``, and execute the command:
+directory [`examples/app`]([`examples/app`](https://github.com/bokeh/bokeh/tree/master/examples/app)), 
+and execute the command:
 
     bokeh serve --show clustering 
