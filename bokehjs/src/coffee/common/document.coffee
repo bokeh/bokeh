@@ -179,14 +179,14 @@ class Document
         @_all_models_by_name.remove_value(name, model)
     attach_count
 
-  @_references_json : (references) ->
+  @_references_json : (references, include_defaults=true) ->
     references_json = []
     for r in references
       if not r.serializable_in_document()
         console.log("nonserializable value in references ", r)
         throw new Error("references should never contain nonserializable value")
       ref = r.ref()
-      ref['attributes'] = r.attributes_as_json()
+      ref['attributes'] = r.attributes_as_json(include_defaults)
       # server doesn't want id in here since it's already in ref above
       delete ref['attributes']['id']
       references_json.push(ref)
@@ -338,9 +338,13 @@ class Document
 
     events = []
     for key in removed
-      # we don't really have a "remove" event - not sure this ever happens even -
-      # but treat it as equivalent to setting to null
-      events.push(Document._event_for_attribute_change(from_obj, key, null, to_doc, value_refs))
+      # we don't really have a "remove" event - not sure this ever
+      # happens even. One way this could happen is if the server
+      # does include_defaults=True and we do
+      # include_defaults=false ... in that case it'd be best to
+      # just ignore this probably. Warn about it, could mean
+      # there's a bug if we don't have a key that the server sent.
+      logger.warn("Server sent key #{key} but we don't seem to have it in our JSON")
     for key in added
       new_value = to_obj.attributes[key]
       events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
@@ -360,7 +364,7 @@ class Document
   # we use this to detect changes during document deserialization
   # (in model constructors and initializers)
   @_compute_patch_since_json: (from_json, to_doc) ->
-    to_json = to_doc.to_json()
+    to_json = to_doc.to_json(include_defaults=false)
 
     refs = (json) ->
       result = {}
@@ -405,13 +409,13 @@ class Document
 
     {
       'events' : events,
-      'references' : Document._references_json(_.values(value_refs))
+      'references' : Document._references_json(_.values(value_refs), include_defaults=false)
     }
 
-  to_json_string : () ->
-    JSON.stringify(@to_json())
+  to_json_string : (include_defaults=true) ->
+    JSON.stringify(@to_json(include_defaults))
 
-  to_json : () ->
+  to_json : (include_defaults=true) ->
     root_ids = []
     for r in @_roots
       root_ids.push(r.id)
@@ -424,7 +428,7 @@ class Document
       'title' : @_title
       'roots' : {
         'root_ids' : root_ids,
-        'references' : Document._references_json(root_references)
+        'references' : Document._references_json(root_references, include_defaults)
       }
     }
 
