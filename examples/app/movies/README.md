@@ -1,5 +1,5 @@
-Create a clustering visualization app with the Bokeh server and
-scikit-learn.
+Create an interactive query and visualization dashboard for a set of 
+IBMD movie data.
 
 #### Setting Up
 
