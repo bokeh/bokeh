@@ -7,8 +7,8 @@ romans = ["I", "II", "III", "IV", "V", "VI", "VII"]
 
 elements["atomic mass"] = elements["atomic mass"].astype(str)
 
-elements["period"] = [romans[x-1] for x in elements.period]
 elements = elements[elements.group != "-"]
+elements["period"] = [romans[x-1] for x in elements.period]
 
 group_range = [str(x) for x in range(1, 19)]
 

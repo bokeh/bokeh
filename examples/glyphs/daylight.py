@@ -37,10 +37,10 @@ patch2_source = ColumnDataSource(dict(
 summer_start = df.Summer.tolist().index(1)
 summer_end = df.Summer.tolist().index(0, summer_start)
 
-calendar_start = df.Date.iat[0]
-summer_start = df.Date.iat[summer_start]
-summer_end = df.Date.iat[summer_end]
-calendar_end = df.Date.iat[-1]
+calendar_start = df.Date.irow(0)
+summer_start = df.Date.irow(summer_start)
+summer_end = df.Date.irow(summer_end)
+calendar_end = df.Date.irow(-1)
 
 d1 = calendar_start + (summer_start - calendar_start)/2
 d2 = summer_start + (summer_end - summer_start)/2
