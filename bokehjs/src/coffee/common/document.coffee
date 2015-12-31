@@ -218,14 +218,14 @@ class Document
       for obj in references_json
           obj_id = obj['id']
           obj_type = obj['type']
-          if 'subtype' in obj
-            obj_type = obj['subtype']
           obj_attrs = obj['attributes']
 
           if obj_id of existing_models
             instance = existing_models[obj_id]
           else
             instance = Document._instantiate_object(obj_id, obj_type, obj_attrs)
+            if 'subtype' of obj
+              instance.set_subtype(obj['subtype'])
           references[instance.id] = instance
 
       references

@@ -265,8 +265,12 @@ class HasProperties extends Backbone.Model
   ref: () ->
     # ### method: HasProperties::ref
     # generates a reference to this model
-    'type': this.type
-    'id': this.id
+    base =
+      'type': this.type
+      'id': this.id
+    if @_subtype?
+      base['subtype'] = @_subtype
+    base
 
   @_is_ref: (arg) ->
     if _.isObject(arg)
@@ -276,6 +280,11 @@ class HasProperties extends Backbone.Model
       if keys.length==3
         return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
     return false
+
+  # we only keep the subtype so we match Python;
+  # only Python cares about this
+  set_subtype: (subtype) ->
+    @_subtype = subtype
 
   # TODO (havocp) I suspect any use of this is broken, because
   # if we're in a Document we should have already resolved refs,
