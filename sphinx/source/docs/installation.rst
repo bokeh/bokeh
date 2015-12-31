@@ -5,7 +5,7 @@ Installation
 
 This section gives more details about the installation process of Bokeh,
 for those who were unable to complete the process detailed in the
-:ref:`quickstart`, or who want more information about the process.
+:ref:`userguide_quickstart`, or who want more information about the process.
 
 .. _install_dependencies:
 

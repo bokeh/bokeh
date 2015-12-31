@@ -24,8 +24,10 @@ the :ref:`devguide`.
 .. include:: docs/includes/hero.txt
 
 .. toctree::
+    :hidden:
 
     docs/installation
+    docs/user_guide
     docs/user_guide/quickstart
     docs/user_guide/setup
     docs/user_guide/concepts
@@ -45,6 +47,7 @@ the :ref:`devguide`.
     docs/user_guide/info
     docs/user_guide/tutorials
     docs/gallery
+    docs/reference
     docs/reference/properties
     docs/reference/models
     docs/reference/document
@@ -58,6 +61,7 @@ the :ref:`devguide`.
     docs/reference/testing
     docs/reference/sphinxext
     docs/releases/0.10.0
+    docs/releases
     docs/releases/0.9.3
     docs/releases/0.9.2
     docs/releases/0.9.1
@@ -79,12 +83,13 @@ the :ref:`devguide`.
     docs/releases/0.3.0
     docs/releases/0.2.0
     docs/releases/0.1.0
-    docs/dev_guide/process.rst
-    docs/dev_guide/setup.rst
-    docs/dev_guide/documentation.rst
-    docs/dev_guide/testing.rst
-    docs/dev_guide/objects.rst
-    docs/dev_guide/server.rst
-    docs/dev_guide/bindings.rst
-    docs/dev_guide/notes.rst
-    docs/dev_guide/bokehjs.rst
+    docs/dev_guide
+    docs/dev_guide/process
+    docs/dev_guide/setup
+    docs/dev_guide/documentation
+    docs/dev_guide/testing
+    docs/dev_guide/objects
+    docs/dev_guide/server
+    docs/dev_guide/bindings
+    docs/dev_guide/notes
+    docs/dev_guide/bokehjs
