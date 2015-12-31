@@ -1,5 +1,5 @@
 Create a clustering visualization app with the Bokeh server and
-scikit-learn.
+[scikit-learn](http://scikit-learn.org/stable/).
 
 #### Setting Up
 
