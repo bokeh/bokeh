@@ -12,7 +12,12 @@ will run the "sliders" demo, and open it up in a new browser tab.
 
 The demos container here are:
 
-* `clustering`  Demonstrates different [scikit-learn](http://scikit-learn.org/stable/) clustering alorithms on a few different data sets. 
+<table>
+  <tr>
+    <td><img src="http://bokeh.pydata.org/static/clustering_t.png" width=200></img></td> 
+    <td>`clustering`  Demonstrates different [scikit-learn](http://scikit-learn.org/stable/) clustering alorithms on a few different data sets.</td>
+  </tr>
+</table>
 
 * `fourier_animated.py` A continuous updating deomnstration of Fourier synthesis using periodic callbacks
 
