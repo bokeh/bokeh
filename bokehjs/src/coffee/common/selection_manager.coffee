@@ -11,6 +11,8 @@ class SelectionManager extends HasProperties
     super(attrs, options)
     @selectors = {}
     @inspectors = {}
+    @empty = hittest.create_hit_test_result()
+    @last_inspection_was_empty = false
 
   serializable_in_document: () -> false
 
@@ -38,6 +40,15 @@ class SelectionManager extends HasProperties
     indices = renderer_view.hit_test(geometry)
 
     if indices?
+
+      if _.isEqual(indices, @empty)
+        if @last_inspection_was_empty
+          return
+        else
+          @last_inspection_was_empty = true
+      else
+        @last_inspection_was_empty = false
+
       inspector = @_get_inspector(renderer_view)
       inspector.update(indices, true, false, true)
 
