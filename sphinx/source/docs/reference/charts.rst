@@ -22,9 +22,13 @@ Charts
     .. autofunction:: Bar
     .. autofunction:: BoxPlot
     .. autofunction:: Donut
+    .. autofunction:: Heatmap
     .. autofunction:: Histogram
+    .. autofunction:: Horizon
     .. autofunction:: Line
     .. autofunction:: Scatter
+    .. autofunction:: Step
+    .. autofunction:: TimeSeries
 
 .. _bokeh_charts_functions:
 
@@ -67,7 +71,15 @@ Builders
     :members:
     :undoc-members:
 
+.. autoclass:: bokeh.charts.builders.heatmap_builder.HeatmapBuilder
+    :members:
+    :undoc-members:
+
 .. autoclass:: bokeh.charts.builders.histogram_builder.HistogramBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.horizon_builder.HorizonBuilder
     :members:
     :undoc-members:
 
@@ -76,6 +88,18 @@ Builders
     :undoc-members:
 
 .. autoclass:: bokeh.charts.builders.scatter_builder.ScatterBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.scatter_builder.ScatterBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.step_builder.StepBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.timeseries_builder.TimeSeriesBuilder
     :members:
     :undoc-members:
 
