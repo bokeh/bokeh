@@ -100,28 +100,23 @@ class GridToolManager extends ToolManager.Model
       if tools.length == 0
         continue
       info.tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
-      info.tools[0].set('active', true)
+      if et not in ['pinch', 'scroll']
+        info.tools[0].set('active', true)
 
   _active_change: (tool) =>
-    et = tool.get('event_type')
-
-    active = tool.get('active')
-    if not active
-      return null
-
+    event_type = tool.get('event_type')
     gestures = @get('gestures')
-    prev = gestures[et].active
-    if prev?
-      logger.debug(
-        "GridToolManager: deactivating tool: #{prev.type} (for event type '#{et}'"
-      )
-      prev.set('active', false)
 
-    gestures[et].active = tool
+    # Toggle between tools of the same type by deactivating any active ones
+    currently_active_tool = gestures[event_type].active
+    if currently_active_tool? and currently_active_tool != tool
+      logger.debug("GridToolManager: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
+      currently_active_tool.set('active', false)
+
+    # Update the gestures with the new active tool
+    gestures[event_type].active = tool
     @set('gestures', gestures)
-    logger.debug(
-      "GridToolManager: activating tool: #{tool.type} (for event type '#{et}'"
-    )
+    logger.debug("GridToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
   defaults: () ->
