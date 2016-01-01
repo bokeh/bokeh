@@ -469,7 +469,7 @@ class HasProperties extends Backbone.Model
     for key of attrs
       value = attrs[key]
       if value instanceof HasProperties and not value.serializable_in_document()
-          console.log("May need to add #{key} to nonserializable_attribute_names of #{v.constructor.name} because value #{value.constructor.name} is not serializable")
+          console.log("May need to add #{key} to nonserializable_attribute_names of #{@constructor.name} because value #{value.constructor.name} is not serializable")
       HasProperties._value_record_references(value, result, false) # false = no recurse
 
     _.values(result)
@@ -493,8 +493,6 @@ class HasProperties extends Backbone.Model
           c.detach_document()
 
   _tell_document_about_change: (attr, old, new_) ->
-    if attr == 'children'
-      console.log("changing children on ", @id)
     if not @attribute_is_serializable(attr)
       return
 
