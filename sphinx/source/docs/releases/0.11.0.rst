@@ -1,0 +1,78 @@
+0.11.0 (Jan 2016)
+=================
+
+Bokeh Version ``0.11.0`` is a large release with many new improvements
+
+* New Tornado and websocket-based Bokeh Server
+
+  - ``bokeh`` command line tool for creating applications
+  - expanded docs including deployment guidance
+  - video demonstrations and tutorials
+
+* User-Defined Models allowing anyone to extend Bokeh
+* GeoJSON data source and map tiles renderer
+* WebGL support for rendering lines
+* Python -> JS compilation for CustomJS callbacks (Py3 only for now)
+* New general push_notebook() based on Jupyter comms
+* Updates to charts
+
+  - all legacy charts converted
+  - more examples and expanded docs
+
+* UX improvements
+
+  - configurable and "auto" range bounds
+  - wheel zoom scroll capture turned off by default
+  - hover policy for glyphs
+  - responsive improvements
+
+* many small bug fixes
+
+Migration Guide
+---------------
+
+The previous Flask-based ``bokeh-server`` has been completely removed and
+replaced with the new ``bokeh serve`` based on Tornado and a websocket
+protocol. If you require to use ``bokeh-server`` you will have to remain on
+Bokeh version ``0.10.0`` or lower.
+
+All "old-style" charts in ``bokeh._legacy_charts`` have been updated with
+new versions in ``bokeh.charts``, and ``bokeh._legacy_charts`` has been
+removed.
+
+Bokeh deprecation warnings, which are not enabled by default python, have
+now been unconditionally enabled and are always displayed.
+
+``ColumnDataSource.push_notebook()`` has been deprecated (but still works)
+in favor of the more general ``bokeh.io.push_notebook()`` base on Jupyter
+notebook websocket comms.
+
+The following modules have been deprecated (but still work), with
+new counterparts as described in this table:
+
+========================== ==============================
+Old location               New location
+========================== ==============================
+``bokeh.browserlib``       ``bokeh.util.browser``
+``bokeh.properties``       ``bokeh.core.properties``
+``bokeh.mixins``           ``bokeh.core.property_mixins``
+``bokeh.plotting_helpers`` ``bokeh.plotting.helpers``
+``bokeh.templates``        ``bokeh.core.templates``
+========================== ==============================
+
+Additionally, the following modules that should not be of interest to
+general users have been moved immediately, without deprecation:
+
+========================== ==============================
+Old location               New location
+========================== ==============================
+``bokeh._json_encoder``    ``bokeh.core.json_encoder``
+``bokeh.compat``           ``bokeh.core.compat``
+``bokeh.enums``            ``bokeh.core.enums``
+``bokeh.query``            ``bokeh.core.query``
+``bokeh.state``            ``bokeh.core.state``
+``bokeh.validation``       ``bokeh.core.validation``
+========================== ==============================
+
+
+
