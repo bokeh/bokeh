@@ -1,9 +1,6 @@
 """ Display code blocks in collapsible sections when outputting
 to HTML.
 
-Usage
------
-
 This directive takes a heading to use for the collapsible code block::
 
     .. collapsible-code-block:: python
@@ -12,9 +9,6 @@ This directive takes a heading to use for the collapsible code block::
         from __future__ import print_function
 
         print("Hello, Bokeh!")
-
-Options
--------
 
 This directive is identical to the standard ``code-block`` directive
 that Sphinx supplies, with the addition of one new option:

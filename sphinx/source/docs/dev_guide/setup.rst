@@ -179,8 +179,7 @@ to ``setup.py``:
 * ``--build_js``
 * ``--install_js``
 
-If you have any problems with the steps here, please contact the developers
-(see :ref:`contact`).
+If you have any problems with the steps here, please `contact the developers`_.
 
 Dependencies
 ~~~~~~~~~~~~
@@ -394,9 +393,9 @@ There are several environment variables that can be useful for developers:
 ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources
   See the :class:`~bokeh.resources.Resources` class reference for full details.
 
-.. _AMD module: http://requirejs.org/docs/whyamd.html
 .. _anaconda.org: https://anaconda.org
 .. _conda: http://conda.pydata.org/
+.. _contact the developers: http://bokehplots.com/pages/contact.html
 .. _GitHub: https://github.com
 .. _Gulp: http://gulpjs.com/
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml

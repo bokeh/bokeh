@@ -1,5 +1,5 @@
-BokehJS Interface Reference
-===========================
+BokehJS Reference
+=================
 
 .. _bokehjs_data_source:
 
