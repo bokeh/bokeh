@@ -444,12 +444,10 @@ class HasProperties extends Backbone.Model
     else if v instanceof HasProperties
       if v.id not of result
         result[v.id] = v
-        attrs = v.serializable_attributes()
-        for key of attrs
-          value = attrs[key]
-          if value instanceof HasProperties and not value.serializable_in_document()
-            console.log("May need to add #{key} to nonserializable_attribute_names of #{v.constructor.name} because value #{value.constructor.name} is not serializable")
-          HasProperties._value_record_references(value, result, recurse)
+        if recurse
+          immediate = v._immediate_references()
+          for obj in immediate
+            HasProperties._value_record_references(obj, result, true) # true=recurse
     else if _.isArray(v)
       for elem in v
         if elem instanceof HasProperties and not elem.serializable_in_document()
@@ -467,8 +465,13 @@ class HasProperties extends Backbone.Model
   # (do not recurse, do not include ourselves)
   _immediate_references: () ->
     result = {}
-    HasProperties._value_record_references(@, result, false) # false = no recurse
-    delete result[@id]
+    attrs = @serializable_attributes()
+    for key of attrs
+      value = attrs[key]
+      if value instanceof HasProperties and not value.serializable_in_document()
+          console.log("May need to add #{key} to nonserializable_attribute_names of #{v.constructor.name} because value #{value.constructor.name} is not serializable")
+      HasProperties._value_record_references(value, result, false) # false = no recurse
+
     _.values(result)
 
   attach_document: (doc) ->
@@ -490,6 +493,8 @@ class HasProperties extends Backbone.Model
           c.detach_document()
 
   _tell_document_about_change: (attr, old, new_) ->
+    if attr == 'children'
+      console.log("changing children on ", @id)
     if not @attribute_is_serializable(attr)
       return
 
@@ -505,16 +510,10 @@ class HasProperties extends Backbone.Model
 
     if @document != null
       new_refs = {}
-      if new_ instanceof HasProperties
-        new_refs[new_.id] = new_
-      else
-        HasProperties._value_record_references(new_, new_refs, false)
+      HasProperties._value_record_references(new_, new_refs, false)
 
       old_refs = {}
-      if old instanceof HasProperties
-        old_refs[old.id] = old
-      else
-        HasProperties._value_record_references(old, old_refs, false)
+      HasProperties._value_record_references(old, old_refs, false)
 
       for new_id, new_ref of new_refs
         if new_id not of old_refs
