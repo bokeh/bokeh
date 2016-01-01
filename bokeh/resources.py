@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import copy
-from os.path import join, relpath
+from os.path import basename, join, relpath
 import re
 
 from . import __version__
@@ -303,13 +303,13 @@ class BaseResources(object):
         return (files, raw)
 
     def _inline(self, path):
-        begin = "/* BEGIN %s */"
+        begin = "/* BEGIN %s */" % basename(path)
         try:
             with open(path, 'rb') as f:
                 middle = f.read().decode("utf-8")
         except IOError:
             middle = ""
-        end = "/* END %s */"
+        end = "/* END %s */"  % basename(path)
         return "%s\n%s\n%s" % (begin, middle, end)
 
 class JSResources(BaseResources):
