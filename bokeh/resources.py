@@ -303,13 +303,13 @@ class BaseResources(object):
         return (files, raw)
 
     def _inline(self, path):
-        begin = "/* BEGIN %s */" % path
+        begin = "/* BEGIN %s */"
         try:
             with open(path, 'rb') as f:
                 middle = f.read().decode("utf-8")
         except IOError:
             middle = ""
-        end = "/* END %s */" % path
+        end = "/* END %s */"
         return "%s\n%s\n%s" % (begin, middle, end)
 
 class JSResources(BaseResources):
