@@ -50,7 +50,7 @@ Adding Widgets
 
 Bokeh provides a simple default set of widgets, largely based off the Bootstrap
 JavaScript library. In the future, it will be possible for users to wrap and use
-other widget libararies, or their own custom widgets. By themselves, most widgets
+other widget libraries, or their own custom widgets. By themselves, most widgets
 are not useful. There are two ways to use widgets to drive interactions:
 
 * Use the ``CustomJS`` callback (see below). This will work in static HTML documents.
@@ -191,7 +191,7 @@ OpenURL callback object that can be passed to a Tap tool in order to have that
 action called whenever the users clicks on the glyph.
 
 The following code shows how to use the OpenURL action combined with a TapTool
-to open an url whenever the user clicks on a circle.
+to open an URL whenever the user clicks on a circle.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_open_url.py
     :source-position: above
