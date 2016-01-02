@@ -22,7 +22,7 @@ Charts
     .. autofunction:: Bar
     .. autofunction:: BoxPlot
     .. autofunction:: Donut
-    .. autofunction:: Heatmap
+    .. autofunction:: HeatMap
     .. autofunction:: Histogram
     .. autofunction:: Horizon
     .. autofunction:: Line
@@ -71,7 +71,7 @@ Builders
     :members:
     :undoc-members:
 
-.. autoclass:: bokeh.charts.builders.heatmap_builder.HeatmapBuilder
+.. autoclass:: bokeh.charts.builders.heatmap_builder.HeatMapBuilder
     :members:
     :undoc-members:
 
@@ -96,10 +96,6 @@ Builders
     :undoc-members:
 
 .. autoclass:: bokeh.charts.builders.step_builder.StepBuilder
-    :members:
-    :undoc-members:
-
-.. autoclass:: bokeh.charts.builders.timeseries_builder.TimeSeriesBuilder
     :members:
     :undoc-members:
 
@@ -174,5 +170,3 @@ Utilities
 ---------
 
 .. autofunction:: bokeh.charts.utils.df_from_json
-
-

@@ -47,26 +47,27 @@ def Donut(data, label='index', values=None,  color=None, agg=None,
     array of values.
 
     Args:
-      data (:ref:`userguide_charts_data_types`): the data source for the chart
-      label (str or list(str), optional): the categorical variable to use for creating
-        separate boxes
-      values (str, optional): the values to use for producing the boxplot using
-        table-like input data
-      color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
-        categorical variable or color attribute specification to use for coloring the
-        wedges
-      agg (str, optional): how the values associated with a wedge should be aggregated
-      hover_tool (bool, optional): whether to show the value of the wedge when hovering
-      hover_text (str, optional): provide an alternative string to use label the value
-        shown with the hover tool
-      **kw:
+        data (:ref:`userguide_charts_data_types`): the data source for the chart
+            label (str or list(str), optional): the categorical variable to use for
+            creating separate boxes
+        values (str, optional): the values to use for producing the boxplot using
+            table-like input data
+        color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
+            categorical variable or color attribute specification to use for coloring
+            the wedges
+        agg (str, optional): how the values associated with a wedge should be
+            aggregated hover_tool (bool, optional): whether to show the value of the
+            wedge when hovering
+        hover_text (str, optional): provide an alternative string to use label the
+        value shown with the hover tool
+        **kw:
 
     In addition to the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        :class:`Chart`: includes glyph renderers that generate the wedges the make
-            up the donut(s)
+        :class:`Chart`: includes glyph renderers that generate the wedges the make up
+        the donut(s)
 
     Examples:
 
@@ -96,6 +97,7 @@ def Donut(data, label='index', values=None,  color=None, agg=None,
             output_file("donut.html")
 
             show(d)
+
     """
 
     kw['label'] = label

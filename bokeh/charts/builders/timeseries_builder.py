@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the TimeSeries builder, which provides a convenient interface for
+This is the TimeSeries chart, which provides a convenient interface for
 generating different charts using series-like data by transforming the data
 to a consistent format and producing renderers.
 """
@@ -36,7 +36,7 @@ BUILDER_TYPES = {
 def TimeSeries(data=None, x=None, y=None, builder_type=LineBuilder, **kws):
     """ Create a timeseries chart using :class:`LineBuilder
     <bokeh.charts.builder.line_builder.LineBuilder>` to produce the renderers from
-    the inputs. The timeseries builder acts as a switchboard to produce charts
+    the inputs. The timeseries chart acts as a switchboard to produce charts
     for timeseries data with different glyph representations.
 
     Args:
