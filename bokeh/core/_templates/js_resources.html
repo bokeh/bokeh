@@ -16,6 +16,7 @@ configuration in a Resources object.
        fileref.setAttribute("type","text/javascript");
        fileref.setAttribute("src", scriptsCollection[startIndex]);
        fileref.onload = function(){
+         console.log("Bokeh: loaded", scriptsCollection[startIndex])
          startIndex = startIndex + 1;
          loadJsFilesSequentially(scriptsCollection, startIndex, librariesLoadedCallback)
        };
@@ -33,7 +34,7 @@ configuration in a Resources object.
             {{ js|indent(4) }}
         {% endfor %}
         if (typeof window._bokeh_todos != 'undefined') {
-            console.log('Found Bokeh todos to process');
+            console.log('Bokeh: found todos to process');
             for (i = 0; i < window._bokeh_todos.length; i++) {
                 window._bokeh_todos[i]();
             }
