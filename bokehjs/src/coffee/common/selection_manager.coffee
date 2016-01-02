@@ -12,7 +12,7 @@ class SelectionManager extends HasProperties
     @selectors = {}
     @inspectors = {}
     @empty = hittest.create_hit_test_result()
-    @last_inspection_was_empty = false
+    @last_inspection_was_empty = {}
 
   serializable_in_document: () -> false
 
@@ -41,13 +41,16 @@ class SelectionManager extends HasProperties
 
     if indices?
 
+      r_id = renderer_view.model.id
       if _.isEqual(indices, @empty)
-        if @last_inspection_was_empty
+        if not @last_inspection_was_empty[r_id]?
+          @last_inspection_was_empty[r_id] = false
+        if @last_inspection_was_empty[r_id]
           return
         else
-          @last_inspection_was_empty = true
+          @last_inspection_was_empty[r_id] = true
       else
-        @last_inspection_was_empty = false
+        @last_inspection_was_empty[r_id] = false
 
       inspector = @_get_inspector(renderer_view)
       inspector.update(indices, true, false, true)
