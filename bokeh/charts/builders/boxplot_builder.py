@@ -48,21 +48,21 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
     variable by an associated categorical variable.
 
     Args:
-      data (:ref:`userguide_charts_data_types`): the data source for the chart
-      values (str, optional): the values to use for producing the boxplot using
-        table-like input data
-      label (str or list(str), optional): the categorical variable to use for creating
-        separate boxes
-      color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
-        categorical variable or color attribute specification to use for coloring the
-        boxes.
-      whisker_color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
-        color of the "whiskers" that show the spread of values outside the .25 and .75
-        quartiles.
-      marker (str or list(str) or bokeh.charts._attributes.MarkerAttr, optional): the
-        marker glyph to use for the outliers
-      outliers (bool, optional): whether to show outliers. Defaults to True.
-      **kw:
+        data (:ref:`userguide_charts_data_types`): the data source for the chart
+        values (str, optional): the values to use for producing the boxplot using
+            table-like input data
+        label (str or list(str), optional): the categorical variable to use for creating
+            separate boxes
+        color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
+            categorical variable or color attribute specification to use for coloring the
+            boxes.
+        whisker_color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
+            color of the "whiskers" that show the spread of values outside the .25 and .75
+            quartiles.
+        marker (str or list(str) or bokeh.charts._attributes.MarkerAttr, optional): the
+            marker glyph to use for the outliers
+        outliers (bool, optional): whether to show outliers. Defaults to True.
+        **kw:
 
     In addition to the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
