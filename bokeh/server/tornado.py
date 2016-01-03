@@ -35,15 +35,11 @@ def check_whitelist(request_host, whitelist):
         # see if the request came with no port, assume port 80 in that case
         if len(request_host.split(':')) == 1:
             host = request_host + ":80"
-            if host in whitelist:
-                log.debug("Accepting connection from '%s' because '%s' is in the --host whitelist" % (request_host, host))
-            else:
-                log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % request_host)
-                raise HTTPError(403)
-
+            return host in whitelist
         else:
-            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % request_host)
-            raise HTTPError(403)
+            return False
+
+    return True
 
 
 def _whitelist(handler_class):
@@ -51,7 +47,9 @@ def _whitelist(handler_class):
         return
     old_prepare = handler_class.prepare
     def _prepare(self, *args, **kw):
-        check_whitelist(self.request.host, self.application._hosts)
+        if not check_whitelist(self.request.host, self.application._hosts):
+            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % self.request.host)
+            raise HTTPError(403)
         return old_prepare(self, *args, **kw)
     _prepare.patched = True
     handler_class.prepare = _prepare

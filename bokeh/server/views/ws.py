@@ -42,12 +42,14 @@ class WSHandler(WebSocketHandler):
         pass
 
     def check_origin(self, origin):
+        from ..tornado import check_whitelist
         parsed_origin = urlparse(origin)
         origin_host = parsed_origin.netloc.lower()
 
-        allowed = self.application.websocket_origins
+        allowed_hosts = self.application.websocket_origins
 
-        if origin_host in allowed:
+        allowed = check_whitelist(origin_host, allowed_hosts)
+        if allowed:
             return True
         else:
             log.error("Refusing websocket connection from Origin '%s'; use --allow-websocket-origin=%s to permit this; currently we allow origins %r", origin, origin_host, allowed)
