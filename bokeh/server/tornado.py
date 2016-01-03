@@ -25,14 +25,33 @@ from .connection import ServerConnection
 from .application_context import ApplicationContext
 from .views.static_handler import StaticHandler
 
+# factored out to be easier to test
+def check_whitelist(request_host, whitelist):
+    ''' Check a given request host against a whitelist.
+
+    '''
+    if request_host not in whitelist:
+
+        # see if the request came with no port, assume port 80 in that case
+        if len(request_host.split(':')) == 1:
+            host = request_host + ":80"
+            if host in whitelist:
+                log.debug("Accepting connection from '%s' because '%s' is in the --host whitelist" % (request_host, host))
+            else:
+                log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % request_host)
+                raise HTTPError(403)
+
+        else:
+            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % request_host)
+            raise HTTPError(403)
+
+
 def _whitelist(handler_class):
     if hasattr(handler_class.prepare, 'patched'):
         return
     old_prepare = handler_class.prepare
     def _prepare(self, *args, **kw):
-        if self.request.host not in self.application._hosts:
-            log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % self.request.host)
-            raise HTTPError(403)
+        check_whitelist(self.request.host, self.application._hosts)
         return old_prepare(self, *args, **kw)
     _prepare.patched = True
     handler_class.prepare = _prepare
