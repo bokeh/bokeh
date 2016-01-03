@@ -71,8 +71,9 @@ the :ref:`devguide`.
     docs/reference/tile_providers
     docs/reference/util
     docs/reference/bokehjs
-    docs/releases/0.10.0
     docs/releases
+    docs/releases/0.11.0
+    docs/releases/0.10.0
     docs/releases/0.9.3
     docs/releases/0.9.2
     docs/releases/0.9.1

@@ -64,8 +64,8 @@ AXIS_FORMATS = dict(
     major_tick_line_width=1,
 )
 
-xaxis = LinearAxis(SingleIntervalTicker(interval=1), axis_label="Children per woman (total fertility)", **AXIS_FORMATS)
-yaxis = LinearAxis(SingleIntervalTicker(interval=20), axis_label="Life expectancy at birth (years)", **AXIS_FORMATS)
+xaxis = LinearAxis(ticker=SingleIntervalTicker(interval=1), axis_label="Children per woman (total fertility)", **AXIS_FORMATS)
+yaxis = LinearAxis(ticker=SingleIntervalTicker(interval=20), axis_label="Life expectancy at birth (years)", **AXIS_FORMATS)
 plot.add_layout(xaxis, 'below')
 plot.add_layout(yaxis, 'left')
 
@@ -123,7 +123,7 @@ with open('gapminder_template.jinja', 'r') as f:
 # Use inline resources, render the html and open
 js_resources = JSResources(mode='inline')
 title = "Bokeh - Gapminder Bubble Plot"
-html = file_html(layout, None, title, template=template, js_resources=js_resources)
+html = file_html(layout, resources=(js_resources, None), title=title, template=template)
 
 output_file = 'gapminder.html'
 with open(output_file, 'w') as f:

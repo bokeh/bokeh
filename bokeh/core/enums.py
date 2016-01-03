@@ -1,6 +1,22 @@
-""" Common enumerations to be used together with ``Enum`` property.
+''' Common enumerations to be used together with |Enum| property.
 
-"""
+Typical usage of the enumerations in this module look similar to this:
+
+.. code-block:: python
+
+    from bokeh.model import Model
+    from bokeh.core.enums import StartEnd
+    from bokeh.core.properties import Enum
+
+    class MyModel(Model):
+
+        location = Enum(StartEnd, help="""
+        Whether the thing should be located at the start or the end.
+        """)
+
+.. |Enum| replace:: :class:`~bokeh.core.properties.Enum`
+
+'''
 
 from __future__ import absolute_import
 
@@ -28,7 +44,16 @@ class Enumeration(object):
     __repr__ = __str__
 
 def enumeration(*values, **kwargs):
-    ''' Create an ``Enumeration`` from a sequence of values.
+    ''' Create an |Enumeration| from a sequence of values.
+
+    Args:
+        case_sensitive (bool, optional) :
+            Whether validation should consider case or not (default: True)
+
+    Returns:
+        |Enumeration|: enum
+
+    .. |Enumeration| replace:: :class:`~bokeh.core.enums.Enumeration`
 
     '''
     if not (values and all(isinstance(value, string_types) and value for value in values)):
