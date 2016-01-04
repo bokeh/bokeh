@@ -5,7 +5,8 @@ from pandas.util.testing import assert_frame_equal
 from bokeh.client import push_session
 from bokeh.charts import Line, Bar
 from bokeh.charts.operations import blend
-from bokeh.io import curdoc, hplot
+from bokeh.models import Paragraph
+from bokeh.io import curdoc, hplot, vplot
 
 wb = xw.Workbook()  # Creates a connection with a new workbook
 # write example data to notebook
@@ -62,7 +63,18 @@ def update():
 
 line = create_line(energy_per_capita)
 bar = create_bar(energy_per_capita)
-layout = hplot(line, bar)
+desc1 = Paragraph(text="""
+This example shows live integration between bokeh server and Excel using
+XLWings.""")
+desc2 = Paragraph(text="""
+*** YOU MUST HAVE EXCEL and XLWINGS INSTALLED ON YOUR MACHINE FOR IT TO WORK ***
+""")
+desc3 = Paragraph(text="""
+It opens this plots window and an excel spreadsheet instance with the
+values being plotted. When user changes the values on the excel spreadsheet
+the plots will be updated accordingly. It's not required to save the spreadsheet for the plots to update.
+""")
+layout = vplot(desc1, desc2, desc3, hplot(line, bar))
 curdoc().add_root(layout)
 curdoc().add_periodic_callback(update, 500)
 
