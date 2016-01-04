@@ -91,7 +91,7 @@ Specifying ``output_server``
 
 With the previous Flask-based Bokeh server, there was a function
 :func:`bokeh.io.output_server` that could be used to load Bokeh documents
-in to a running Bokeh server programmaticaally. The function still exists
+in to a running Bokeh server programmatically. The function still exists
 and works, however its utility is somewhat limited.
 
 First, we must have a Bokeh Server running. To do that, execute the command:
