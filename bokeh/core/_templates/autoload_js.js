@@ -42,7 +42,7 @@ calls it with the rendered model.
     }
     console.log("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
     window._bokeh_is_loading = js_urls.length;
-    for (i = 0; i < js_urls.length; i++) {
+    for (var i = 0; i < js_urls.length; i++) {
       var url = js_urls[i];
       var s = document.createElement('script');
       s.src = url;
