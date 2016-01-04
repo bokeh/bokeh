@@ -321,7 +321,6 @@ a document looks like:
     <script
         src="http://localhost:5006/bokeh/autoload.js/f64f7959-017d-4d1b-924e-899a61fed42b"
         id="f64f7959-017d-4d1b-924e-899a61fed42b"
-        async="true"
         data-bokeh-data="server"
         data-bokeh-modelid="82ef36f7-9d58-47c8-9b0d-201947febb00"
         data-bokeh-root-url="http://localhost:5006/"

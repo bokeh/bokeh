@@ -39,7 +39,7 @@ class AutoloadJsHandler(SessionHandler):
         js = AUTOLOAD_JS.render(
             docs_json = None,
             js_urls = resources.js_files,
-            css_files = resources.css_files,
+            css_urls = resources.css_files,
             elementid = element_id,
             sessionid = session.id,
             websocket_url = websocket_url
