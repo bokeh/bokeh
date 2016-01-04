@@ -134,12 +134,12 @@ class Aggregate(DataOperator):
         return agg
 
 
-def stack(renderers=None, columns=None):
+def stack(*comp_glyphs, columns=None):
     """Stacks the :class:`CompositeGlyph`s."""
-    if renderers is not None:
-        stacker = Stack(renderers=renderers)
+    if comp_glyphs is not None:
+        stacker = Stack(comp_glyphs=list(comp_glyphs))
         stacker.apply()
-        return renderers
+        return comp_glyphs
     elif columns is not None:
         return Stack(columns=columns)
     else:

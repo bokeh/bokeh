@@ -502,25 +502,24 @@ class AggregateGlyph(NestedCompositeGlyph):
 
     def __stack__(self, glyphs):
         """Apply relative shifts to the composite glyphs for stacking."""
-        if self.stack_label is not None:
-            filtered_glyphs = self.filter_glyphs(glyphs)
-            grouped = self.groupby(filtered_glyphs, 'x_label')
+        filtered_glyphs = self.filter_glyphs(glyphs)
+        grouped = self.groupby(filtered_glyphs, 'x_label')
 
-            for index, group in iteritems(grouped):
+        for index, group in iteritems(grouped):
 
-                # separate the negative and positive aggregates into separate groups
-                neg_group = [glyph for glyph in group if glyph.span < 0]
-                pos_group = [glyph for glyph in group if glyph.span >= 0]
+            # separate the negative and positive aggregates into separate groups
+            neg_group = [glyph for glyph in group if glyph.span < 0]
+            pos_group = [glyph for glyph in group if glyph.span >= 0]
 
-                # apply stacking to each group separately
-                for group in [neg_group, pos_group]:
-                    shift = []
-                    for i, glyph in enumerate(group):
-                        # save off the top of each rect's height
-                        shift.append(glyph.span)
-                        if i > 0:
-                            glyph.stack_shift = sum(shift[0:i])
-                            glyph.refresh()
+            # apply stacking to each group separately
+            for group in [neg_group, pos_group]:
+                shift = []
+                for i, glyph in enumerate(group):
+                    # save off the top of each rect's height
+                    shift.append(glyph.span)
+                    if i > 0:
+                        glyph.stack_shift = sum(shift[0:i])
+                        glyph.refresh()
 
     def __dodge__(self, glyphs):
         """Apply relative shifts to the composite glyphs for dodging."""
