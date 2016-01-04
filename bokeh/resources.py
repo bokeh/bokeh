@@ -20,7 +20,7 @@ from os.path import basename, join, relpath
 import re
 
 from . import __version__
-from .core.templates import JS_RESOURCES, CSS_RESOURCES
+from .core.templates import JS_RESOURCES, CSS_RESOURCES, BOOTSTRAP_JS
 from .settings import settings
 
 from .util.paths import bokehjsdir
@@ -467,7 +467,8 @@ class JSResources(BaseResources):
         return self._plugin_template % dict(exports=exports, models=models)
 
     def render_js(self):
-        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
+        bootstrap_js = BOOTSTRAP_JS.render(js_urls=self.js_files, css_files=[])
+        return JS_RESOURCES.render(bootstrap_js=bootstrap_js, js_raw=self.js_raw)
 
 class CSSResources(BaseResources):
     ''' The CSSResources class encapsulates information relating to loading or embedding Bokeh client-side CSS.

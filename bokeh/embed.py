@@ -21,7 +21,7 @@ from warnings import warn
 from six import string_types
 
 from .core.templates import (
-    AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
+    AUTOLOAD_JS, AUTOLOAD_TAG, BOOTSTRAP_JS, FILE,
     NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
 from .core.json_encoder import serialize_json
@@ -29,11 +29,6 @@ from .document import Document, DEFAULT_TITLE
 from .model import Model, _ModelInDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
-
-def _wrap_in_function(code):
-    # indent and wrap Bokeh function def around
-    code = "\n".join(["    " + line for line in code.split("\n")])
-    return 'Bokeh.$(function() {\n%s\n});' % code
 
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
@@ -345,10 +340,13 @@ def autoload_static(model, resources, script_path):
         if 'docid' in item:
             doc_id = item['docid']
 
+        bootstrap_js = BOOTSTRAP_JS.render(
+            js_urls = resources.js_files,
+            css_files = resources.css_files
+        )
         js = AUTOLOAD_JS.render(
             docs_json = serialize_json(docs_json),
-            js_urls = resources.js_files,
-            css_files = resources.css_files,
+            bootstrap_js = bootstrap_js,
             elementid = item['elementid'],
             websocket_url = None
         )
@@ -449,13 +447,12 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
     return encode_utf8(tag)
 
 def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
-    plot_js = _wrap_in_function(
-        DOC_JS.render(
-            websocket_url=websocket_url,
-            docs_json=serialize_json(docs_json),
-            render_items=serialize_json(render_items)
-        )
+    plot_js = DOC_JS.render(
+        websocket_url=websocket_url,
+        docs_json=serialize_json(docs_json),
+        render_items=serialize_json(render_items)
     )
+
     if wrap_script:
         return SCRIPT_TAG.render(js_code=plot_js)
     else:

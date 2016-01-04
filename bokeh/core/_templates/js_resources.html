@@ -2,19 +2,22 @@
 Renders HTML that loads BokehJS JavaScript code and CSS according to the
 configuration in a Resources object.
 
-:param js_files: a list of URIs for JS files to include
-:type js_files: list[str]
+:param bootstrap_js: JS to define window.bokeh_load
+:type bootstrap_js: str
 
-:param js_raw: a list of raw JS snippets to put between ``<style>`` tags
+:param js_raw: a list of raw JS snippets to put between ``<script>`` tags
 :type js_raw: list[str]
 
 #}
-{%- for file in js_files %}
-<script type="text/javascript" src="{{ file }}"></script>
-{%- endfor %}
+
+<script type="text/javascript"">
+    {{ bootstrap_js|indent(8) }}
+</script>
 
 {%- for js in js_raw %}
 <script type="text/javascript">
+bokeh_load(function() {
     {{ js|indent(8) }}
+});
 </script>
 {%- endfor %}

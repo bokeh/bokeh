@@ -17,50 +17,13 @@ calls it with the rendered model.
 :param docs_json: embedded JSON serialization of documents
 :type docs_json: dict
 
-:param js_urls: URLs of JS files making up Bokeh library
-:type js_urls: list
-
-:param css_files: CSS files to inject
-:type css_files: list
-
+:param bootstrap_js: JS to define window.bokeh_load
+:type bootstrap_js: str
 
 #}
 (function(global) {
-  if (typeof (window._bokeh_onload_callbacks) === "undefined"){
-    window._bokeh_onload_callbacks = [];
-  }
-  function load_libs(js_urls, callback) {
-    window._bokeh_onload_callbacks.push(callback);
-    if (window._bokeh_is_loading > 0) {
-      console.log("Bokeh: BokehJS is being loaded, scheduling callback at", new Date());
-      return null;
-    }
-    console.log("Bokeh: BokehJS not loaded, scheduling load and callback at", new Date());
-    window._bokeh_is_loading = js_urls.length;
-    for (i = 0; i < js_urls.length; i++) {
-      var url = js_urls[i];
-      var s = document.createElement('script');
-      s.src = url;
-      s.async = false;
-      s.onreadystatechange = s.onload = function() {
-        window._bokeh_is_loading--;
-        if (window._bokeh_is_loading === 0) {
-          console.log("Bokeh: all BokehJS libraries loaded");
-          {%- for file in css_files %}
-          console.log("Bokeh: injecting CSS: {{ file }}");
-          Bokeh.embed.inject_css("{{ file }}");
-          {%- endfor %}
-          window._bokeh_onload_callbacks.forEach(function(callback){callback()});
-          delete window._bokeh_onload_callbacks
-        }
-      };
-      s.onerror = function() {
-        console.warn("failed to load library " + url);
-      };
-      console.log("Bokeh: injecting script tag for BokehJS library: ", url);
-      document.getElementsByTagName("head")[0].appendChild(s);
-    }
-  };
+
+  {{ bootstrap_js }}
 
   var elt = document.getElementById("{{ elementid }}");
   if(elt==null) {
@@ -84,14 +47,8 @@ calls it with the rendered model.
   var render_items = [{ 'elementid' : "{{ elementid }}",
                         'sessionid' : "{{ sessionid }}" }];
 
-  if (typeof(window._bokeh_is_loading) !== undefined && window._bokeh_is_loading == 0) {
-    console.log("Bokeh: BokehJS loaded, going straight to plotting");
+  bokeh_load(function() {
     Bokeh.embed.embed_items(docs_json, render_items, websocket_url);
-  } else {
-    load_libs({{ js_urls }}, function() {
-      console.log("Bokeh: BokehJS plotting callback run at", new Date());
-      Bokeh.embed.embed_items(docs_json, render_items, websocket_url);
-    });
-  }
+  });
 
 }(this));
