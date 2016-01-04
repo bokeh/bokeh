@@ -179,13 +179,24 @@ class BarBuilder(Builder):
             glyph_kwargs = self.get_group_kwargs(group, attrs)
             group_kwargs = kwargs.copy()
             group_kwargs.update(glyph_kwargs)
+            props = self.glyph.properties().difference(set(['label']))
+
+            # make sure we always pass the color and line color
+            for k in ['color', 'line_color']:
+                group_kwargs[k] = group[k]
+
+            # TODO(fpliger): we shouldn't need to do this to ensure we don't
+            #               have extra kwargs... this is needed now because
+            #               of label, group and stack being "special"
+            for k in set(group_kwargs):
+                if k not in props:
+                    group_kwargs.pop(k)
+
             bg = self.glyph(label=group.label,
                             x_label=self._get_label(group['label']),
                             values=group.data[self.values.selection].values,
                             agg=stats[self.agg](),
                             width=self.bar_width,
-                            color=group['color'],
-                            line_color=group['line_color'],
                             fill_alpha=self.fill_alpha,
                             stack_label=self._get_label(group['stack']),
                             dodge_label=self._get_label(group['group']),

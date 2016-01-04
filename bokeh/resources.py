@@ -16,13 +16,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 import copy
-from os.path import join, relpath
+from os.path import basename, join, relpath
 import re
 
 from . import __version__
 from .core.templates import JS_RESOURCES, CSS_RESOURCES
 from .settings import settings
+
 from .util.paths import bokehjsdir
+from .util.string import snakify
 from .util.session_id import generate_session_id
 from .model import Model
 
@@ -134,6 +136,12 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 def _cdn_base_url():
     return "https://cdn.pydata.org"
 
+# XXX: this shouldn't be here, however we mix classes and global functions and
+# we end up with code like this. This module needs a redesign and rewrite soon.
+_component_filter = {
+    'js' : [],
+    'css': ['bokeh-compiler'],
+}
 
 def _get_cdn_urls(components, version=None, minified=True):
     if version is None:
@@ -159,7 +167,8 @@ def _get_cdn_urls(components, version=None, minified=True):
         return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
 
     result = {
-        'urls'     : lambda kind: [ mk_url(component, kind) for component in components ],
+        'urls'     : lambda kind: [ mk_url(component, kind) \
+            for component in components if component not in _component_filter[kind] ],
         'messages' : [],
     }
 
@@ -183,7 +192,8 @@ def _get_server_urls(components, root_url, minified=True, path_versioner=None):
         return '%sstatic/%s' % (root_url, path)
 
     return {
-        'urls'     : lambda kind: [ mk_url(component, kind)  for component in components ],
+        'urls'     : lambda kind: [ mk_url(component, kind) \
+            for component in components if component not in _component_filter[kind] ],
         'messages' : [],
     }
 
@@ -196,8 +206,10 @@ class BaseResources(object):
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None,
-                 path_versioner=None):
-        self.components = ["bokeh", "bokeh-widgets", "bokeh-compiler"]
+                 path_versioner=None, components=None):
+
+        self.components = components if components is not None \
+            else ["bokeh", "bokeh-widgets", "bokeh-compiler"]
 
         self.mode = settings.resources(mode)
         self.root_dir = settings.rootdir(root_dir)
@@ -245,7 +257,7 @@ class BaseResources(object):
         valid_levels = [
             "trace", "debug", "info", "warn", "error", "fatal"
         ]
-        if level not in valid_levels:
+        if not (level is None or level in valid_levels):
             raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
         self._log_level = level
 
@@ -259,7 +271,8 @@ class BaseResources(object):
     def _file_paths(self, kind):
         bokehjs_dir = bokehjsdir(self.dev)
         minified = ".min" if not self.dev and self.minified else ""
-        files = [ "%s%s.%s" % (component, minified, kind) for component in self.components ]
+        files = [ "%s%s.%s" % (component, minified, kind) \
+            for component in self.components if component not in _component_filter[kind] ]
         paths = [ join(bokehjs_dir, kind, file) for file in files ]
         return paths
 
@@ -290,9 +303,13 @@ class BaseResources(object):
         return (files, raw)
 
     def _inline(self, path):
-        begin = "/* BEGIN %s */" % path
-        middle = open(path, 'rb').read().decode("utf-8")
-        end = "/* END %s */" % path
+        begin = "/* BEGIN %s */" % basename(path)
+        try:
+            with open(path, 'rb') as f:
+                middle = f.read().decode("utf-8")
+        except IOError:
+            middle = ""
+        end = "/* END %s */"  % basename(path)
         return "%s\n%s\n%s" % (begin, middle, end)
 
 class JSResources(BaseResources):
@@ -352,10 +369,14 @@ class JSResources(BaseResources):
     @property
     def js_raw(self):
         _, raw = self._resolve('js')
-        raw.append('Bokeh.set_log_level("%s");' % self.log_level)
+
+        if self.log_level is not None:
+            raw.append('Bokeh.set_log_level("%s");' % self.log_level)
+
         custom_models = self._render_custom_models_static()
         if custom_models is not None:
             raw.append(custom_models)
+
         return raw
 
     _plugin_template = \
@@ -400,11 +421,6 @@ class JSResources(BaseResources):
 """
 
     def _render_custom_models_static(self):
-        def _snakify(name, sep='_'):
-            name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1%s\2" % sep, name)
-            name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
-            return name.lower()
-
         def _escape_code(code):
             """ Escape JS/CS source code, so that it can be embedded in a JS string.
 
@@ -441,7 +457,7 @@ class JSResources(BaseResources):
         models = []
 
         for (_, model_name), impl in sorted(custom_models.items(), key=lambda arg: arg[0]):
-            module_name = "custom/%s" % _snakify(model_name)
+            module_name = "custom/%s" % snakify(model_name)
             exports.append('%s: require("%s")' % (model_name, module_name))
             models.append('"%s": "%s"' % (module_name, _escape_code(impl)))
 
@@ -511,7 +527,6 @@ class CSSResources(BaseResources):
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
 
-
 class Resources(JSResources, CSSResources):
     ''' The Resources class encapsulates information relating to loading or
     embedding Bokeh Javascript and CSS.
@@ -567,3 +582,5 @@ class Resources(JSResources, CSSResources):
 CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
+
+EMPTY = Resources(mode="inline", components=[], log_level=None)

@@ -14,8 +14,8 @@ Resources for Authors
 Since the low-level object interface in Python mirrors the JSON schema
 exactly, the best, most authoritative source of information for anyone
 writing bindings for Bokeh are the reference guide sections for the
-:doc:`../reference/properties` and :doc:`../reference/models`. In
-particular, the models reference has a JSON prototpe for every models
+:ref:`bokeh.core.properties` and :ref:` bokeh.models`. In
+particular, the models reference has a JSON prototype for every models
 in the Bokeh object system.
 
 Additionally, there is a very low-traffic ``bokeh-dev`` mailing list

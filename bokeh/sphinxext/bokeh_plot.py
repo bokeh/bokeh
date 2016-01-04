@@ -3,9 +3,6 @@
 For other output types, the placeholder text ``[graph]`` will
 be generated.
 
-Usage
------
-
 The ``bokeh-plot`` directive can be used by either supplying:
 
 1. **A path to a source file** as the argument to the directive::
@@ -32,9 +29,6 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
 This directive also works in conjunction with Sphinx autodoc, when
 used in docstrings.
-
-Options
--------
 
 The ``bokeh-plot`` directive accepts the following options:
 

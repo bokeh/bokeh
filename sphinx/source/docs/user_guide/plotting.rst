@@ -161,7 +161,7 @@ oval shapes:
 Images
 ~~~~~~
 
-You can dipslay images on Bokeh plots using the |image|, |image_rgba|, and
+You can display images on Bokeh plots using the |image|, |image_rgba|, and
 |image_url| glyph methods.
 
 The first example here shows how to display images in Bokeh plots from
@@ -204,7 +204,7 @@ Wedges and Arcs
 To draw a simple line arc, Bokeh provides the |arc| glyph method, which
 accepts ``radius``, ``start_angle``, and ``end_angle`` to determine position.
 Additionally, the ``direction`` property determines whether to render
-clockwise (``"clocl"``) or anti-clockwise (``"anticlock"``) between the start
+clockwise (``"clock"``) or anti-clockwise (``"anticlock"``) between the start
 and end angles.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_arcs.py
@@ -234,7 +234,7 @@ Specialized Curves
 ~~~~~~~~~~~~~~~~~~
 
 Bokeh also provides |quadratic| and |bezier| glyph methods for drawing
-parameterized quardratic and cubic curves. These are somewhat uncommon,
+parameterized quadratic and cubic curves. These are somewhat uncommon;
 please refer to the reference documentation linked above for details.
 
 .. _userguide_plotting_multiple_glyphs:
@@ -273,6 +273,10 @@ Below is a an example that shows both methods of setting the range:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/plotting_figure_range.py
     :source-position: above
+
+Ranges can also accept a min and max property that allow you to specify the
+edges of the plot that you do not want the user to be able to pan/zoom beyond.
+By default, Bokeh will set these to the max and min of your data.
 
 .. _userguide_plotting_axis_types:
 
@@ -324,7 +328,7 @@ for the value of either of these parameters.
 Log Scale Axes
 ~~~~~~~~~~~~~~
 
-When dealing with data that grows quicks (e.g., exponentially), it is often
+When dealing with data that grows quick (e.g., exponentially), it is often
 desired to plot one axis on a log scale. Another use-scenario involves
 fitting data to a power law, in which case is it desired to plot with both
 axes on a log scale.

@@ -58,6 +58,11 @@ class MercatorTileSource(TileSource):
     resolution (plot_units / pixels) of minimum zoom level of tileset projection. None to auto-compute.
     """)
 
+    wrap_around = Bool(default=True, help="""
+    Enables continuous horizontal panning by wrapping the x-axis based on bounds of map.
+    Note that axis coordinates are not wrapped. To toggle axis label visibility, use ``plot.axis.visible = False``.
+    """)
+
 class TMSTileSource(MercatorTileSource):
     """
     The TMSTileSource contains tile config info and provides urls for tiles based on a templated url (ex. http://your.tms.server.host/{Z}/{X}/{Y}.png).

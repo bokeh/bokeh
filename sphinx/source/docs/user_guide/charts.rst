@@ -61,7 +61,7 @@ each attribute value.
 **Supporting Exploratory Use**
 More importantly, you'll need to pre-define enough unique values of the attribute to
 assign to each value you have grouped on, which isn't necessarily complicated, but it
-can be especially time consuming for new or sporatic users. This process of assigning
+can be especially time consuming for new or sporadic users. This process of assigning
 attributes is also generally of little interest to users that prioritize interactive data
 discovery over novel charts. With the discovery use case, you are trying to understand
 what relationships exist within the data, so it is counter-productive to require the user
@@ -208,8 +208,8 @@ case the boxes are shaded automatically according to the group:
 Whisker Color
 ~~~~~~~~~~~~~
 
-The color of the whiskers can be similary controlled using the ``whisker_color``
-paramter. For a single color:
+The color of the whiskers can be similarly controlled using the ``whisker_color``
+parameter. For a single color:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_whisker_color.py
     :source-position: above
@@ -398,6 +398,5 @@ on all charts created, in one place. For instance:
     defaults.height = 350
 
 will set the default width and height for any chart. The full list of
-attributes that can be set is below:
-
-.. bokeh-model:: bokeh.charts.Chart
+attributes that can be set can be seen in the :ref:`bokeh.charts` section
+of the Reference Guide.

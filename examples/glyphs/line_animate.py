@@ -4,14 +4,12 @@ import time
 
 from numpy import pi, sin, cos, linspace
 
-from bokeh.util.browser import view
+from bokeh.client import push_session
 from bokeh.document import Document
-from bokeh.models.glyphs import Line
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis, Range1d,
-    ColumnDataSource, PanTool, WheelZoomTool
+    ColumnDataSource, PanTool, WheelZoomTool, Line
 )
-from bokeh.client import push_session
 
 document = Document()
 session = push_session(document)

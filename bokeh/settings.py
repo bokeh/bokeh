@@ -143,9 +143,9 @@ settings = Settings()
 del Settings
 
 if settings.secret_key() is not None:
-    if len(settings.secret_key()) < 64:
+    if len(settings.secret_key()) < 32:
         import warnings
-        warnings.warn("BOKEH_SECRET_KEY is recommended to be at least 64 characters chosen with a cryptographically-random algorithm")
+        warnings.warn("BOKEH_SECRET_KEY is recommended to have at least 32 bytes of entropy chosen with a cryptographically-random algorithm")
 
 if settings.sign_sessions() and settings.secret_key() is None:
     import warnings

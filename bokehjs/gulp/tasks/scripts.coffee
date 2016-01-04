@@ -26,19 +26,20 @@ insert = require('gulp-insert')
 child_process = require "child_process"
 license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 
+gulpif = require 'gulp-if'
 newer = require 'gulp-newer'
 coffee = require 'gulp-coffee'
 eco = require '../eco'
 
 gulp.task "scripts:coffee", ["scripts:generate"], () ->
   gulp.src('./src/coffee/**/*.coffee')
-      .pipe(newer({dest: './build/js/tree', ext: '.js'}))
+      .pipe(gulpif(argv.incremental, newer({dest: './build/js/tree', ext: '.js'})))
       .pipe(coffee({bare: true}).on('error', gutil.log))
       .pipe(gulp.dest('./build/js/tree'))
 
 gulp.task "scripts:eco", () ->
   gulp.src('./src/coffee/**/*.eco')
-      .pipe(newer({dest: './build/js/tree', ext: '.js'}))
+      .pipe(gulpif(argv.incremental, newer({dest: './build/js/tree', ext: '.js'})))
       .pipe(eco().on('error', gutil.log))
       .pipe(gulp.dest('./build/js/tree'))
 

@@ -54,7 +54,8 @@ module.exports = (Bokeh) ->
   Bokeh.GeoJSONDataSource = require("./source/geojson_data_source")
 
   # tickers and tick formatters
-  Bokeh.AbstractTicker           = require("./ticking/abstract_ticker")
+  Bokeh.Ticker                   = require("./ticking/ticker")
+  Bokeh.ContinuousTicker         = require("./ticking/continuous_ticker")
   Bokeh.AdaptiveTicker           = require("./ticking/adaptive_ticker")
   Bokeh.BasicTicker              = require("./ticking/basic_ticker")
   Bokeh.BasicTickFormatter       = require("./ticking/basic_tick_formatter")

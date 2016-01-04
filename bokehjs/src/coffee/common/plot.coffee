@@ -190,16 +190,70 @@ class PlotView extends ContinuumView
       bds = v.glyph?.bounds?()
       if bds?
         bounds[k] = bds
+
+    follow_enabled = false
+    has_bounds = false
     for xr in _.values(frame.get('x_ranges'))
       xr.update?(bounds, 0, @model.id)
+      follow_enabled = true if xr.get('follow')?
+      has_bounds = true if xr.get('bounds')?
     for yr in _.values(frame.get('y_ranges'))
       yr.update?(bounds, 1, @model.id)
+      follow_enabled = true if yr.get('follow')?
+      has_bounds = true if yr.get('bounds')?
+
+    if follow_enabled and has_bounds
+      logger.warn('Follow enabled so bounds are unset.')
+      for xr in _.values(frame.get('x_ranges'))
+        xr.set('bounds', null)
+      for yr in _.values(frame.get('y_ranges'))
+        yr.set('bounds', null)
+
     @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
-  update_range: (range_info) ->
+  _update_single_range: (rng, range_info, is_panning) ->
+    # Is this a reversed range?
+    reversed = if rng.get('start') > rng.get('end') then true else false
+    
+    # Prevent range from going outside limits
+    # Also ensure that range keeps the same delta when panning
+
+    if rng.get('bounds')?
+      min = rng.get('bounds')[0]
+      max = rng.get('bounds')[1]
+
+      if reversed
+        if min?
+          if min >= range_info['end']
+            range_info['end'] = min 
+            if is_panning?
+              range_info['start'] = rng.get('start')
+        if max?
+          if max <= range_info['start']
+            range_info['start'] = max 
+            if is_panning?
+              range_info['end'] = rng.get('end')
+      else
+        if min?
+          if min >= range_info['start']
+            range_info['start'] = min 
+            if is_panning?
+              range_info['end'] = rng.get('end')
+        if max?
+          if max <= range_info['end']
+            range_info['end'] = max 
+            if is_panning?
+              range_info['start'] = rng.get('start')
+
+    if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
+      rng.have_updated_interactively = true
+      rng.set(range_info)
+      rng.get('callback')?.execute(@model)
+
+  update_range: (range_info, is_panning) ->
     @pause
     if not range_info?
       for name, rng of @frame.get('x_ranges')
@@ -209,17 +263,9 @@ class PlotView extends ContinuumView
       @update_dataranges()
     else
       for name, rng of @frame.get('x_ranges')
-        if rng.get('start') != range_info.xrs[name]['start'] or
-            rng.get('end') != range_info.xrs[name]['end']
-          rng.have_updated_interactively = true
-          rng.set(range_info.xrs[name])
-          rng.get('callback')?.execute(@model)
+        @_update_single_range(rng, range_info.xrs[name], is_panning)
       for name, rng of @frame.get('y_ranges')
-        if rng.get('start') != range_info.yrs[name]['start'] or
-            rng.get('end') != range_info.yrs[name]['end']
-          rng.have_updated_interactively = true
-          rng.set(range_info.yrs[name])
-          rng.get('callback')?.execute(@model)
+        @_update_single_range(rng, range_info.yrs[name], is_panning)
     @unpause()
 
   build_levels: () ->
@@ -504,6 +550,24 @@ class Plot extends HasParent
     logger.debug("Plot initialized")
 
   initialize_layout: (solver) ->
+    existing_or_new_layout = (side, name) =>
+      list = @get(side)
+      box = null
+      for model in list
+        if model.get('name') == name
+          box = model
+          break
+      if box?
+        box.set('solver', solver)
+      else
+        box = new LayoutBox.Model({
+          name: name,
+          solver: solver
+        })
+        list.push(box)
+        @set(side, list)
+      return box
+
     canvas = @get('canvas')
     frame = new CartesianFrame.Model({
       x_range: @get('x_range'),
@@ -518,11 +582,8 @@ class Plot extends HasParent
 
     # TODO (bev) titles should probably be a proper guide, then they could go
     # on any side, this will do to get the PR merged
-    @title_panel = new LayoutBox.Model({solver: solver})
+    @title_panel = existing_or_new_layout('above', 'title_panel')
     @title_panel._anchor = @title_panel._bottom
-    elts = @get('above')
-    elts.push(@title_panel)
-    @set('above', elts)
 
   add_constraints: (solver) ->
     min_border_top    = @get('min_border_top')

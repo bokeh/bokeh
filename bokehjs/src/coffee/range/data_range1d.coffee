@@ -131,6 +131,9 @@ class DataRange1d extends DataRange.Model
         new_range.end = end
       @set(new_range)
 
+    if @get('bounds') == 'auto'
+      @set('bounds', [start, end])
+
   reset: () ->
     @have_updated_interactively = false
     @set({
@@ -153,6 +156,7 @@ class DataRange1d extends DataRange.Model
       follow_interval: null
       default_span: 2
       plots: []
+      bounds: 'auto'
     }
 
 module.exports =

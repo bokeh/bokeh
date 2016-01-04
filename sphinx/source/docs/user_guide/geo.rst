@@ -53,7 +53,7 @@ behave as expected.
 
     ``p.circle(x='x', y='y', size='x', alpha=0.9, source=geo_source)``
 
-    and the x value from your properties will be overriden with the longitude
+    and the x value from your properties will be overridden with the longitude
     values from your geometry coordinates.
 
 

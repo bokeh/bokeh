@@ -1,13 +1,13 @@
-""" Functions useful for loading Bokeh code and data in IPython notebooks.
+''' Functions useful for loading Bokeh code and data in IPython notebooks.
 
-"""
+'''
 from __future__ import absolute_import
 
 _notebook_loaded = None
 
 
 def load_notebook(resources=None, verbose=False, hide_banner=False):
-    """ Prepare the IPython notebook for displaying Bokeh plots.
+    ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
         resources (Resource, optional) :
@@ -26,7 +26,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     Returns:
         None
 
-    """
+    '''
     global _notebook_loaded
 
     from .. import __version__
@@ -63,9 +63,8 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     )
     publish_display_data({'text/html': html})
 
-
 def publish_display_data(data, source='bokeh'):
-    """ Compatibility wrapper for IPython ``publish_display_data``
+    ''' Compatibility wrapper for IPython ``publish_display_data``
 
     Later versions of IPython remove the ``source`` (first) argument. This
     function insulates Bokeh library code from this change.
@@ -75,9 +74,24 @@ def publish_display_data(data, source='bokeh'):
         data (dict) : the data dict to pass to ``publish_display_data``
             Typically has the form ``{'text/html': html}``
 
-    """
+    '''
     import IPython.core.displaypub as displaypub
     try:
         displaypub.publish_display_data(source, data)
     except TypeError:
         displaypub.publish_display_data(data)
+
+def get_comms(target_name):
+    ''' Create a Jupyter comms object for a specific target, that can
+    be used to update Bokeh documents in the notebook.
+
+    Args:
+        target_name (str) : the target name the Comms object should connect to
+
+    Returns
+        Jupyter Comms
+
+    '''
+    from ipykernel.comm import Comm
+    return Comm(target_name=target_name, data={})
+

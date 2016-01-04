@@ -13,14 +13,13 @@ to various resources in the Bokeh Github repository:
 
 ``:bokeh-tree:`` : (versioned) link to a source tree URL
 
-
 Examples
 --------
 
 The following code::
 
     The repo history shows that :bokeh-commit:`bf19bcb` was made in
-    in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694` as part of
+    in :bokeh-pull:`1698`, which closed :bokeh-issue:`1694` as part of
     :bokeh-milestone:`0.8`. This included updating all of the files in
     the :bokeh-tree:`examples` subdirectory.
 

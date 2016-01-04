@@ -12,9 +12,35 @@ class LayoutBox extends HasProperties
   nonserializable_attribute_names: () ->
     super().concat(['solver', 'layout_location'])
 
+  constructor: (attrs, options) ->
+    @solver = null
+    @_initialized = false
+    super(attrs, options)
+
   initialize: (attrs, options) ->
     super(attrs, options)
+    @_initialized = true
+    @_initialize_if_we_have_solver()
+
+  set: (key, value, options) ->
+    super(key, value, options)
+    @_initialize_if_we_have_solver()
+
+  _initialize_if_we_have_solver: () ->
+    if not @_initialized
+      # if someone sets the solver in the constructor, defer
+      # until we get to initialize
+      return
+
+    if @solver?
+      if @get('solver') != @solver
+          throw new Error("We do not support changing the solver attribute on LayoutBox")
+      # we already initialized
+      return
+
     @solver = @get('solver')
+    if not @solver?
+      return # we don't have one yet
 
     @var_constraints = {}
 
