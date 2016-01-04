@@ -11,7 +11,7 @@ def url(server, prefix=""):
 def ws_url(server, prefix=""):
     return "ws://localhost:" + str(server._port) + prefix + "/ws"
 
-def http_get(io_loop, url):
+def http_get(io_loop, url, host=None):
     result = {}
     def handle_request(response):
         result['response'] = response
@@ -20,7 +20,10 @@ def http_get(io_loop, url):
     # for some reason passing a loop to AsyncHTTPClient is deprecated
     assert io_loop is IOLoop.current()
     http_client = AsyncHTTPClient()
-    http_client.fetch(url, handle_request)
+    headers = dict()
+    if host is not None:
+        headers['Host'] = host
+    http_client.fetch(url, handle_request, headers=headers)
     io_loop.start()
 
     if 'response' not in result:
@@ -31,7 +34,7 @@ def http_get(io_loop, url):
     else:
         return response
 
-def websocket_open(io_loop, url, origin=None):
+def websocket_open(io_loop, url, origin=None, host=None):
     result = {}
     def handle_connection(future):
         result['connection'] = future
@@ -40,6 +43,8 @@ def websocket_open(io_loop, url, origin=None):
     request = HTTPRequest(url)
     if origin is not None:
         request.headers['Origin'] = origin
+    if host is not None:
+        request.headers['Host'] = host
     websocket_connect(request, callback=handle_connection, io_loop=io_loop)
 
     io_loop.start()
