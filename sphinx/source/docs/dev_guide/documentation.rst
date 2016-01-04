@@ -12,6 +12,7 @@ packages installed in order to build Bokeh documentation:
 * docutils
 * sphinx
 * sphinxcontrib-httpdomain
+* sphinxcontrib-napoleon (see `Issue #2984 <https://github.com/bokeh/bokeh/issues/2984>`_)
 * seaborn
 * pygments
 * yaml

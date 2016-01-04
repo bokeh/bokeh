@@ -58,6 +58,7 @@ if __name__ == '__main__':
         'websocket': 'websocket-client',
         'pytest_selenium': 'pytest-selenium',
         'pytest_cov': 'pytest-cov',
+        'sphinxcontrib.napoleon': 'sphinxcontrib-napoleon'
     }
 
     dev_deps = [
@@ -75,5 +76,6 @@ if __name__ == '__main__':
         'graphviz',
         'sphinx',
         'pygments',
+        'sphinxcontrib.napoleon'
     ]
     depend_check('Docs', *docs_deps)
