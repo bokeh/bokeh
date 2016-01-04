@@ -97,10 +97,10 @@ class WSHandler(WebSocketHandler):
 
             protocol = Protocol(proto_version)
             self.receiver = Receiver(protocol)
-            log.debug("Receiver created created for %r", protocol)
+            log.debug("Receiver created for %r", protocol)
 
             self.handler = ServerHandler()
-            log.debug("ServerHandler created created for %r", protocol)
+            log.debug("ServerHandler created for %r", protocol)
 
             self.connection = self.application.new_connection(protocol, self, self.application_context, session)
             log.info("ServerConnection created")
