@@ -5,7 +5,7 @@ Stocks Example
 ==============
 
 This example shows a dashboard that allows users to compare different
-pairs of stocks. Users will se a correlation plot as as well as a data
+pairs of stocks. Users will see a correlation plot as well as a data
 summary. For each stock there is also a histogram and time series.
 Selections are linked across plots and histograms are recomputed to
 show only the distribution of the selected points.

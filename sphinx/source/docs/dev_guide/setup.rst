@@ -75,7 +75,7 @@ subdirectory (and list them as ``devDependencies`` in ``package.json``).
 If ``bokehjs`` fails, please check if you are working inside the ``bokehjs`` directory.
 
 At this point you can typically use the ``setup.py`` script at the top level
-of the source chekcout to manage building and installing BokehJS as part of
+of the source checkout to manage building and installing BokehJS as part of
 the complete Bokeh library (see :ref:`devguide_python_setup`).
 
 However, if you want to work on the BokehJS sources or use BokehJS as a

@@ -13,7 +13,7 @@ colormap and be can set as the ``palette`` attribute of all chart types from
 ``bokeh.charts`` and as the ``color`` attribute of many plot objects from
 ``bokeh.plotting``. Bokeh offers many of the standard Brewer palettes, which
 can be imported from the ``bokeh.palettes`` module. For example, importing
-“Spectral6” gives a six element list of RBG(A) hex strings from the Brewer
+“Spectral6” gives a six element list of RGB(A) hex strings from the Brewer
 “Spectral” colormap.
 
 .. code-block:: python
@@ -411,7 +411,7 @@ Tick Locations
 
 Bokeh has several "ticker" models that can choose nice locations for ticks.
 These are configured on the ``.ticker`` property of an axis. With the
-|bokeh.plotting| and |bokeh.charts| interfaces, choosing an approriate ticker
+|bokeh.plotting| and |bokeh.charts| interfaces, choosing an appropriate ticker
 type (categorical, datetime, linear or log scale) normally happens
 automatically. However, there are cases when more explicit control is
 useful.

@@ -33,7 +33,7 @@ operations.
 .. note::
     This is a fairly low-level, explicit way to generate an HTML file.
     When using the |bokeh.plotting| or |bokeh.charts| interfaces, users will
-    typically call the function |output_file| in conjuction with |show| or
+    typically call the function |output_file| in conjunction with |show| or
     |save| instead.
 
 You can also provide your own template and pass in custom, or additional, template variables.

@@ -48,6 +48,8 @@ def HeatMap(data, x=None, y=None, values=None, stat='count', xgrid=False, ygrid=
 
     Args:
         data (:ref:`userguide_charts_data_types`): the data source for the chart
+        x (str or list(str), optional): specifies variable(s) to use for x axis
+        y (str or list(str), optional): specifies variable(s) to use for y axis
         values (str, optional): the values to use for producing the histogram using
             table-like input data
         stat (str, optional): the aggregation to use. Defaults to count. If provided
@@ -57,6 +59,9 @@ def HeatMap(data, x=None, y=None, values=None, stat='count', xgrid=False, ygrid=
         hover_text (str, optional): a string to place beside the value in the hover
             tooltip. Defaults to `None`. When `None`, a hover_text will be derived from
             the aggregation and the values column.
+
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
         a new :class:`Chart <bokeh.charts.Chart>`
@@ -100,6 +105,7 @@ class HeatMapBuilder(XYBuilder):
     Primary use case is to display the 3rd dimension of a value by binning and
     aggregating as needed and assigning the results to color. This color is represented
     on a glyph that is positioned by the x and y dimensions.
+
     """
     values = Dimension('values')
 

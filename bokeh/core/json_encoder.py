@@ -1,4 +1,4 @@
-'''
+''' Provide a custom JSON encoder for serializing Bokeh models.
 
 '''
 from __future__ import absolute_import
