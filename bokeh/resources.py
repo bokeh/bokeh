@@ -382,7 +382,7 @@ class JSResources(BaseResources):
     _plugin_template = \
 """
 (function outer(modules, cache, entry) {
-  if (Bokeh) {
+  if (typeof Bokeh !== "undefined") {
     for (var name in modules) {
       var module = modules[name];
 
