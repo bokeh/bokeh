@@ -36,20 +36,23 @@ from ..utils import help
 
 
 class BarBuilder(Builder):
-    """This is the Bar class and it is in charge of plotting
+    """This is the Bar builder and it is in charge of plotting
     Bar chart (grouped and stacked) in an easy and intuitive way.
 
-    Essentially, it provides a way to ingest the data, make the proper
-    calculations and push the references into a source object.
-    We additionally make calculations for the ranges.
-    And finally add the needed glyphs (rects) taking the references
-    from the source.
+    Essentially, it utilizes a standardized way to ingest the data,
+    make the proper calculations and generate renderers. The renderers
+    reference the transformed data, which represent the groups of data
+    that were derived from the inputs. We additionally make calculations
+    for the ranges.
 
-    The x_range is categorical, and is made either from the cat argument
-    or from the indexes of the passed values if no cat is supplied.  The
-    y_range can be supplied as the parameter continuous_range,
-    or will be calculated as a linear range (Range1d) based on the supplied
-    values.
+    The x_range is categorical, and is made either from the label argument
+    or from the `pandas.DataFrame.index`. The y_range can be supplied as the
+    parameter continuous_range, or will be calculated as a linear range
+    (Range1d) based on the supplied values.
+
+    The bar builder is and can be further used as a base class for other
+    builders that might also be performing some aggregation across
+    derived groups of data.
 
     """
 
@@ -218,18 +221,21 @@ class BarBuilder(Builder):
 
 @help(BarBuilder)
 def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="sum",
-        xscale="categorical", yscale="linear",
-        xgrid=False, ygrid=True, continuous_range=None, **kw):
+        xscale="categorical", yscale="linear", xgrid=False, ygrid=True,
+        continuous_range=None, **kw):
     """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builders.bar_builder.BarBuilder>`
     render the geometry from values, cat and stacked.
 
     Args:
         data (:ref:`userguide_charts_data_types`): the data
             source for the chart.
-        values (str, optional): iterable 2d representing the data series
-            values matrix.
         label (list(str) or str, optional): list of string representing the categories.
             (Defaults to None)
+        values (str, optional): iterable 2d representing the data series
+            values matrix.
+        color (str or list(str) or `~bokeh.charts._attributes.ColorAttr`): string color,
+            string column name, list of string columns or a custom `ColorAttr`,
+            which replaces the default `ColorAttr` for the builder.
         stack (list(str) or str, optional): columns to use for stacking.
             (Defaults to False, so grouping is assumed)
         group (list(str) or str, optional): columns to use for grouping.
