@@ -347,7 +347,7 @@ def autoload_static(model, resources, script_path):
 
     return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path="/", session_id=None, url="default", loglevel="info"):
+def autoload_server(model, app_path="/", session_id=None, url="default"):
     '''Return a script tag that embeds the given model (or entire
     Document) from a Bokeh server session.
 
@@ -383,7 +383,6 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
           a specific model to render, you must also supply the session ID containing
           that model, though.
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
-        loglevel (str, optional) : "trace", "debug", "info", "warn", "error", "fatal"
 
     Returns:
         tag :
@@ -427,7 +426,6 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
         src_path = src_path,
         elementid = elementid,
         modelid = model_id,
-        loglevel = loglevel
     )
 
     return encode_utf8(tag)
