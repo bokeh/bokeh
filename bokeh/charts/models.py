@@ -43,8 +43,8 @@ class CompositeGlyph(HasProps):
     label = Either(String, Dict(String, Any), default='None',
                    help='Identifies the subset of data.')
 
-    values = Either(Column(Float), Column(String), help="""Array-like values,
-        which are used as the input to the composite glyph.""")
+    values = Either(Column(Float), Column(String), help="""
+        Array-like values, which are used as the input to the composite glyph.""")
 
     # derived from inputs
     source = Instance(ColumnDataSource, help="""The data source used for the contained
@@ -68,6 +68,12 @@ class CompositeGlyph(HasProps):
     right_buffer = Float(default=0.0)
     top_buffer = Float(default=0.0)
     bottom_buffer = Float(default=0.0)
+
+    def __init__(self, **properties):
+        vals = properties.get('values')
+        if String().is_valid(vals) or Float().is_valid(vals):
+            properties['values'] = [vals]
+        super(CompositeGlyph, self).__init__(**properties)
 
     def setup(self):
         """Build renderers and data source and set sources on renderers."""
