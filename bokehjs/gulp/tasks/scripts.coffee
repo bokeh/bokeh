@@ -196,7 +196,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       .pipe change (content) ->
         "(function() { var define = undefined; return #{content} })()"
       .pipe change (content) ->
-        "Bokeh = #{content}"
+        "window.Bokeh = Bokeh = #{content}"
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
