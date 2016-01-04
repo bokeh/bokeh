@@ -5,7 +5,7 @@ function do_embed() {
     Bokeh.embed.embed_items(docs_json, render_items{%- if websocket_url -%}, "{{ websocket_url }}" {%- endif -%});
 }
 
-if (typeof Bokeh != 'undefined') {
+if (typeof Bokeh !== 'undefined') {
     do_embed()
 }
 else {
