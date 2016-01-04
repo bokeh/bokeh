@@ -371,7 +371,11 @@ class JSResources(BaseResources):
         _, raw = self._resolve('js')
 
         if self.log_level is not None:
-            raw.append('Bokeh.set_log_level("%s");' % self.log_level)
+            raw.append('''
+bokeh_load(function() {
+  Bokeh.set_log_level("%s");
+});
+''' % self.log_level)
 
         custom_models = self._render_custom_models_static()
         if custom_models is not None:
@@ -382,7 +386,7 @@ class JSResources(BaseResources):
     _plugin_template = \
 """
 (function outer(modules, cache, entry) {
-  if (Bokeh) {
+  bokeh_load(function() {
     for (var name in modules) {
       var module = modules[name];
 
@@ -409,9 +413,7 @@ class JSResources(BaseResources):
     for (var i = 0; i < entry.length; i++) {
       Bokeh.Collections.register_locations(Bokeh.require(entry[i]));
     }
-  } else {
-    throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
-  }
+  });
 })({
  "custom/main":[function(require,module,exports){
    module.exports = { %(exports)s };

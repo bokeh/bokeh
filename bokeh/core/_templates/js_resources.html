@@ -16,8 +16,6 @@ configuration in a Resources object.
 
 {%- for js in js_raw %}
 <script type="text/javascript">
-bokeh_load(function() {
     {{ js|indent(8) }}
-});
 </script>
 {%- endfor %}
