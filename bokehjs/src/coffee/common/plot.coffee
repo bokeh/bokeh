@@ -455,6 +455,16 @@ class PlotView extends ContinuumView
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
 
+    # We need the parent node, because the el node itself collapses to zero
+    # height. It might not be available though, if the initial resize
+    # happened before Bokeh got properly initialized. If that happens, we
+    # will try again, but only once.
+    if not @.el.parentNode and not @_re_resized
+      that = this
+      setTimeout( (-> that.resize_width_height(use_width, use_height, maintain_ar)), 10)
+      @_re_resized = true
+      return
+
     avail_width = @.el.clientWidth
     avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
