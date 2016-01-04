@@ -111,7 +111,7 @@ console:
     INFO:bokeh.command.subcommands.serve:Starting Bokeh server on port 5006 with applications at paths ['/']
 
 This starts the Bokeh Server in a mode where it can easily accept connections
-and data from any script that uses :func:`bokeh.io.output_server` to connect
+and data from any script that uses :func:`~bokeh.io.output_server` to connect
 to it.
 
 A simple script that illustrates this is here:
@@ -234,7 +234,7 @@ the Bokeh server is to create Bokeh Applications, and serve them with the
 ``bokeh serve`` command.
 
 Let's look again at a complete example and then examine some specific parts
-in more detail::
+in more detail:
 
 .. code-block:: python
 
@@ -341,7 +341,7 @@ often desirable to host the application on an internal network, and proxy
 connections to it through some dedicated HTTP server. One very common HTTP
 and reverse-proxying server is Nginx.
 
-.. code-block:: none
+.. code-block:: nginx
 
     server {
         listen 80 default_server;
@@ -389,7 +389,7 @@ Nginx has a fast static asset handler. To utilize Nginx to server Bokeh's
 static assets, you can add a new stanza inside the `server` block above,
 similar to this:
 
-.. code-block:: none
+.. code-block:: nginx
 
     location /static {
         alias /path/to/bokeh/server/static;
@@ -419,7 +419,7 @@ strategies available for choosing what server to connect to next.
 First we need to add an ``upstream`` stanze to our NGinx configuration,
 typically above the ``server`` stanza. This section looks something like:
 
-.. code-block:: none
+.. code-block:: nginx
 
     upstream myapp {
         least_conn;                 # Use Least Connections strategy
@@ -449,7 +449,7 @@ Next, in the ``location`` stanza for our Bokeh server, change the
 above. In this case we use ``proxy_pass http://myapp;`` as shown
 here:
 
-.. code-block:: none
+.. code-block:: nginx
 
     server {
 
@@ -477,6 +477,8 @@ Monitoring with Supervisord
 
 A Full Example with Automation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://github.com/bokeh/demo.bokehplots.com
 
 
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
