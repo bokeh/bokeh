@@ -14,7 +14,7 @@ from bokeh.properties import (Float, String, Datetime, Bool, Instance,
                               List, Either, Int, Enum, Color, Override, Any)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
-from .stats import Stat, Quantile, Sum, Min, Max, Bins
+from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats
 from .data_source import ChartDataSource
 from .utils import marker_types, generate_patch_base, label_from_index_dict
 
@@ -553,10 +553,10 @@ class Interval(AggregateGlyph):
     """
 
     width = Float(default=0.8)
-    start_agg = Instance(Stat, default=Min(), help="""The stat used to derive the
-        starting point of the composite glyph.""")
-    end_agg = Instance(Stat, default=Max(), help="""The stat used to derive the end
-        point of the composite glyph.""")
+    start_agg = Either(Instance(Stat), Enum(*list(stats.keys())), default=Min(), help="""
+        The stat used to derive the starting point of the composite glyph.""")
+    end_agg = Either(Instance(Stat), Enum(*list(stats.keys())), default=Max(), help="""
+        The stat used to derive the end point of the composite glyph.""")
 
     start = Float(default=0.0)
     end = Float()
@@ -573,11 +573,23 @@ class Interval(AggregateGlyph):
 
     def get_start(self):
         """Get the value for the start of the glyph."""
+        if len(self.values.index) == 1:
+            self.start_agg = None
+            return self.values[0]
+        elif isinstance(self.start_agg, str):
+            self.start_agg = stats[self.start_agg]()
+
         self.start_agg.set_data(self.values)
         return self.start_agg.value
 
     def get_end(self):
         """Get the value for the end of the glyph."""
+        if len(self.values.index) == 1:
+            self.end_agg = None
+            return self.values[0]
+        elif isinstance(self.end_agg, str):
+            self.end_agg = stats[self.end_agg]()
+
         self.end_agg.set_data(self.values)
         return self.end_agg.value
 
@@ -672,6 +684,7 @@ class BarGlyph(Interval):
 
     def __init__(self, label, values, agg='sum', **kwargs):
         kwargs['end_agg'] = agg
+        kwargs['start_agg'] = None
         super(BarGlyph, self).__init__(label, values, **kwargs)
         self.setup()
 
