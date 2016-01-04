@@ -26,7 +26,7 @@ Bokeh.set_log_level("info");
 
 LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 
-DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
+DEFAULT_LOG_JS_RAW = '\nbokeh_load(function() {\n  Bokeh.set_log_level("info");\n});\n'
 
 
 ## Test JSResources
@@ -87,7 +87,7 @@ class TestResources(unittest.TestCase):
             r.log_level = level
             self.assertEqual(r.log_level, level)
             if not r.dev:
-                self.assertEqual(r.js_raw[-1], 'Bokeh.set_log_level("%s");' % level)
+                self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW.replace("info", level))
         self.assertRaises(ValueError, setattr, r, "log_level", "foo")
 
     def test_module_attrs(self):

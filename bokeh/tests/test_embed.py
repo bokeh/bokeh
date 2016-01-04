@@ -98,8 +98,9 @@ class TestNotebookDiv(unittest.TestCase):
         r = embed.notebook_div(_embed_test_plot)
         html = bs4.BeautifulSoup(r)
         scripts = html.findAll(name='script')
-        self.assertEqual(len(scripts), 1)
+        self.assertEqual(len(scripts), 2)
         self.assertTrue(scripts[0].attrs, {'type': 'text/javascript'})
+        self.assertTrue(scripts[1].attrs, {'type': 'text/javascript'})
 
     def test_div_attrs(self):
         r = embed.notebook_div(_embed_test_plot)

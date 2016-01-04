@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 from tornado import gen
 from tornado.web import RequestHandler
 
-from bokeh.core.templates import AUTOLOAD_JS
+from bokeh.core.templates import AUTOLOAD_JS, BOOTSTRAP_JS
 from bokeh.util.string import encode_utf8
 
 from .session_handler import SessionHandler
@@ -36,10 +36,14 @@ class AutoloadJsHandler(SessionHandler):
         resources = self.application.resources(self.request)
         websocket_url = self.application.websocket_url_for_request(self.request, self.bokeh_websocket_path)
 
+        bootstrap_js = BOOTSTRAP_JS.render(
+            js_urls = resources.js_files,
+            css_files = resources.css_files
+        )
+
         js = AUTOLOAD_JS.render(
             docs_json = None,
-            js_urls = resources.js_files,
-            css_files = resources.css_files,
+            bootstrap_js = bootstrap_js,
             elementid = element_id,
             sessionid = session.id,
             websocket_url = websocket_url
