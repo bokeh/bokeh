@@ -326,8 +326,9 @@ def autoload_static(model, resources, script_path):
         ValueError
 
     '''
-    if resources.mode == 'inline':
-        raise ValueError("autoload_static() requires non-inline resources")
+    # TODO: maybe warn that it's not exactly useful, but technically possible
+    # if resources.mode == 'inline':
+    #     raise ValueError("autoload_static() requires non-inline resources")
 
     model = _check_one_model(model)
 
