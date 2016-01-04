@@ -12,10 +12,10 @@ data.
 Key Concepts
 ------------
 
-* **Data**: Input data is either a Pandas :class:`pandas.DataFrame` or other table-like
+**Data**: Input data is either a Pandas :class:`pandas.DataFrame` or other table-like
     structure, yet also handling simple formats through conversion to a `DataFrame`
     internally.
-* **Smart Defaults**: The attempt is made to provide unique chart attribute assignment
+**Smart Defaults**: The attempt is made to provide unique chart attribute assignment
   (color, marker, etc) by one or more column names, while supporting custom and/or
   advanced configuration through the same keyword argument.
 
@@ -31,8 +31,9 @@ to remember how to import and create a dataframe.
 
 The input types accepted are:
 
-- **Array-like**: 1..* list, tuple, :class:`numpy.ndarray`, :class:`pandas.Series`
-- **Table-like**:
+**Array-like**: 1..* list, tuple, :class:`numpy.ndarray`, :class:`pandas.Series`
+
+**Table-like**:
     - records: a list(dict)
     - columns: a dict(list), :class:`pandas.DataFrame`, or blaze resource
 
