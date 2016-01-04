@@ -24,8 +24,10 @@ Notebook according to a Resources object.
 :type warnings: list[str]
 
 #}
-    {{ bokeh_js }}
-    {{ bokeh_css }}
+
+    <script type="text/javascript">
+      {{ bootstrap|indent(6) }}
+    </script>
 
     {%- if not hide_banner %}
     <div>

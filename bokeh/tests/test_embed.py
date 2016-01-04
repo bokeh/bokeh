@@ -185,13 +185,6 @@ def test_file_html_provides_warning_if_no_js(mock_warn):
 
 class TestAutoloadStatic(unittest.TestCase):
 
-    def test_invalid_resources(self):
-        self.assertRaises(ValueError, embed.autoload_static, _embed_test_plot, INLINE, "some/path")
-
-        dev_resources = (Resources("absolute-dev"), Resources("server-dev"),Resources("relative-dev"))
-        for x in dev_resources:
-            self.assertRaises(ValueError, embed.autoload_static, _embed_test_plot, x, "some/path")
-
     def test_return_type(self):
         r = embed.autoload_static(_embed_test_plot, CDN, "some/path")
         self.assertEqual(len(r), 2)
@@ -207,10 +200,8 @@ class TestAutoloadStatic(unittest.TestCase):
         attrs = scripts[0].attrs
         self.assertTrue(set(attrs), set(['src',
             'data-bokeh-model-id',
-            'async',
             'id',
             'data-bokeh-doc-id']))
-        self.assertEqual(attrs['async'], 'false')
         self.assertEqual(attrs['data-bokeh-doc-id'], 'uuid')
         self.assertEqual(attrs['data-bokeh-model-id'], str(_embed_test_plot._id))
         self.assertEqual(attrs['src'], 'some/path')
@@ -233,17 +224,13 @@ class TestAutoloadServer(unittest.TestCase):
             'src',
             'data-bokeh-doc-id',
             'data-bokeh-model-id',
-            'data-bokeh-log-level',
-            'async',
             'id'
         ]))
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-session-id=fakesession" % \
               ("http://localhost:5006", divid)
-        self.assertDictEqual({ 'async' : 'false',
-                               'data-bokeh-doc-id' : '',
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
                                'data-bokeh-model-id' : str(_embed_test_plot._id),
-                               'data-bokeh-log-level' : 'info',
                                'id' : divid,
                                'src' : src },
                              attrs)
@@ -259,17 +246,13 @@ class TestAutoloadServer(unittest.TestCase):
             'src',
             'data-bokeh-doc-id',
             'data-bokeh-model-id',
-            'data-bokeh-log-level',
-            'async',
             'id'
         ]))
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s" % \
               ("http://localhost:5006", divid)
-        self.assertDictEqual({ 'async' : 'false',
-                               'data-bokeh-doc-id' : '',
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
                                'data-bokeh-model-id' : '',
-                               'data-bokeh-log-level' : 'info',
                                'id' : divid,
                                'src' : src },
                              attrs)
