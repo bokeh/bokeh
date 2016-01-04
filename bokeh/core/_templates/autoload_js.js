@@ -91,7 +91,7 @@ calls it with the rendered model.
 
   function run_inline_js() {
     for (var i = 0; i < inline_js.length; i++) {
-      inline_js[i](global.Bokeh);
+      inline_js[i](window.Bokeh);
     }
   }
 
