@@ -254,7 +254,7 @@ def notebook_div(model, notebook_comms_target=None):
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
-        css_raw = resources.css_raw,
+        css_raw = resources.css_raw_str,
         elementid = item['elementid'],
     )
     div = _div_for_render_item(item)
@@ -341,7 +341,7 @@ def autoload_static(model, resources, script_path):
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
-        css_raw = resources.css_raw,
+        css_raw = resources.css_raw_str,
         elementid = item['elementid'],
     )
 

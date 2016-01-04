@@ -51,11 +51,6 @@ calls it with the rendered model.
         window._bokeh_is_loading--;
         if (window._bokeh_is_loading === 0) {
           console.log("Bokeh: all BokehJS libraries loaded");
-          {%- for url in css_urls %}
-          console.log("Bokeh: injecting CSS: {{ url }}");
-          Bokeh.embed.inject_css("{{ url }}");
-          {%- endfor %}
-          // TODO: inject raw CSS
           window._bokeh_onload_callbacks.forEach(function(callback){callback()});
           delete window._bokeh_onload_callbacks
         }
@@ -84,6 +79,16 @@ calls it with the rendered model.
       {{ js|indent(6) }}
     },
     {% endfor -%}
+    function(Bokeh) {
+      {%- for url in css_urls %}
+      console.log("Bokeh: injecting CSS: {{ url }}");
+      Bokeh.embed.inject_css("{{ url }}");
+      {%- endfor %}
+      {%- for css in css_raw %}
+      console.log("Bokeh: injecting raw CSS");
+      Bokeh.embed.inject_raw_css({{ css }});
+      {%- endfor %}
+    },
     function(Bokeh) {
       console.info("Bokeh: all callbacks have finished");
     }

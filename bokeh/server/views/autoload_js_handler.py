@@ -45,7 +45,7 @@ class AutoloadJsHandler(SessionHandler):
             js_urls = resources.js_files,
             css_urls = resources.css_files,
             js_raw = resources.js_raw + [script],
-            css_raw = resources.css_raw,
+            css_raw = resources.css_raw_str,
             elementid = element_id,
         )
 
