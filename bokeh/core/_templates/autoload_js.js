@@ -68,11 +68,13 @@ calls it with the rendered model.
     }
   };
 
+  {%- if elementid -%}
   var element = document.getElementById("{{ elementid }}");
   if (element == null) {
     console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
     return false;
   }
+  {%- endif -%}
 
   var js_urls = {{ js_urls }};
 
