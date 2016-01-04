@@ -134,8 +134,22 @@ class Aggregate(DataOperator):
         return agg
 
 
-def stack(*comp_glyphs, columns=None):
-    """Stacks the :class:`CompositeGlyph`s."""
+def stack(*comp_glyphs, **kwargs):
+    """Stacks the :class:`CompositeGlyph`s.
+
+    Stacks the glyphs which results in the glyphs having transformed data,
+    which represents the stacked glyphs.
+
+    Args:
+        *comp_glyphs (:class:`CompositeGlyph`): a sequence of glyphs to stack
+         
+    Returns:
+        comp_glyphs: a list of composite glyphs
+
+    """
+
+    columns = kwargs.get('columns')
+
     if comp_glyphs is not None:
         stacker = Stack(comp_glyphs=list(comp_glyphs))
         stacker.apply()
