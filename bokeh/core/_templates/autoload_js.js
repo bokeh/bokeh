@@ -21,10 +21,10 @@ calls it with the rendered model.
 :type bootstrap_js: str
 
 #}
+
+{{ bootstrap_js }}
+
 (function(global) {
-
-  {{ bootstrap_js }}
-
   var elt = document.getElementById("{{ elementid }}");
   if(elt==null) {
     console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
