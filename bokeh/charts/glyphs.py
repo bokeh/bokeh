@@ -460,6 +460,7 @@ class AggregateGlyph(NestedCompositeGlyph):
 
     def __init__(self, x_label=None, **kwargs):
 
+        label = kwargs.get('label')
         if x_label is not None:
             kwargs['x_label_value'] = x_label
 
@@ -467,6 +468,8 @@ class AggregateGlyph(NestedCompositeGlyph):
                 x_label = str(x_label)
 
             kwargs['x_label'] = x_label
+        elif label is not None:
+            kwargs['x_label'] = str(label)
 
         super(AggregateGlyph, self).__init__(**kwargs)
 
