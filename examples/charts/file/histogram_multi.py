@@ -2,8 +2,8 @@
 from bokeh.charts import Histogram, defaults, vplot, hplot, show, output_file
 from bokeh.sampledata.autompg import autompg as df
 
-defaults.width = 450
-defaults.height = 350
+defaults.plot_width = 400
+defaults.plot_height = 350
 
 # input options
 hist  = Histogram(df['mpg'], title="df['mpg']")
@@ -19,6 +19,7 @@ hist5 = Histogram(df, values='mpg', bins=50,
 output_file("histogram_multi.html")
 
 show(vplot(
-    hplot(hist, hist2, hist3),
-    hplot(hist4, hist5)
+    hplot(hist, hist2),
+    hplot(hist3, hist4),
+    hplot(hist5)
 ))
