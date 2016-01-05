@@ -322,7 +322,7 @@ This is a meta variable equivalent to the following environment variables:
 Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 
 ``BOKEH_DOCS_CDN``
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 What version of BokehJS to use when building sphinx docs locally.
 
 .. note::
