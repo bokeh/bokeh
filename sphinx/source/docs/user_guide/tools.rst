@@ -34,13 +34,10 @@ The toolbar location can be specified by passing the ``toolbar_location``
 parameter to the |figure| function or to any |bokeh.charts| Chart function.
 Valid values are:
 
-``"above"``
-
-``"below"``
-
-``"left"``
-
-``"right"``
+* ``"above"``
+* ``"below"``
+* ``"left"``
+* ``"right"``
 
 If you would like to hide the toolbar entirely, pass ``None``.
 
