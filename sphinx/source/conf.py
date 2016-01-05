@@ -32,7 +32,7 @@ extensions = [
     'sphinx.ext.graphviz',
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
-    'sphinxcontrib.napoleon',
+    'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'bokeh.sphinxext.bokeh_autodoc',
     'bokeh.sphinxext.bokeh_gallery',
