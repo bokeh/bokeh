@@ -8,7 +8,7 @@ associated with your data. A simple, but typical complete example of this API lo
     p = figure()
     p.circle([1, 2, 3], [4, 5, 6], color="orange")
     
-    output_file("foo.htm")
+    output_file("foo.html")
     
     show(p)
 
