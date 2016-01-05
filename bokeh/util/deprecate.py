@@ -1,46 +1,36 @@
 # This deprecation library was adapted from Twisted. Full copyright
 # statement retained at the bottom of this file
 
-"""
-Deprecation framework for Twisted.
+""" Deprecation framework for Bokeh.
 
-To mark a method or function as being deprecated do this::
+To mark a method or function as being deprecated do this:
 
-    from twisted.python.versions import Version
-    from twisted.python.deprecate import deprecated
+.. code-block:: python
 
-    @deprecated(Version("Twisted", 8, 0, 0))
-    def badAPI(self, first, second):
+    from bokeh.util.deprecate import deprecated
+
+    @deprecated(("Bokeh 0.11.0", "other_thing")
+    def bad_thing(self, first, second):
+        ''' Docstring for bad_thing.
+
         '''
-        Docstring for badAPI.
-        '''
-        ...
+        pass
 
-The newly-decorated badAPI will issue a warning when called. It will also have
-a deprecation notice appended to its docstring.
+The newly-decorated ``bad_thing`` will issue a warning when called. It will
+also have a deprecation notice appended to its docstring.
 
-To mark module-level attributes as being deprecated you can use::
+To mark an entire module as deprecated do this:
 
-    badAttribute = "someValue"
+.. code-block:: python
 
-    ...
+    from bokeh.util.deprecate import deprecated_module
 
-    deprecatedModuleAttribute(
-        Version("Twisted", 8, 0, 0),
-        "Use goodAttribute instead.",
-        "your.full.module.name",
-        "badAttribute")
+    deprecated_module('foo.bar', '0.11', 'use baz.quux instead')
 
-The deprecated attributes will issue a warning whenever they are accessed. If
-the attributes being deprecated are in the same module as the
-L{deprecatedModuleAttribute} call is being made from, the C{__name__} global
-can be used as the C{moduleName} parameter.
+The module ``foo.bar`` will issue a warning whenever it is imported.
 
-See also L{Version}.
+.. autoclass:: bokeh.util.deprecate.BokehDeprecationWarning
 
-@type DEPRECATION_WARNING_FORMAT: C{str}
-@var DEPRECATION_WARNING_FORMAT: The default deprecation warning string format
-    to use when one is not provided by the user.
 """
 
 from __future__ import absolute_import
@@ -60,6 +50,10 @@ from warnings import warn, warn_explicit
 from dis import findlinestarts
 
 class BokehDeprecationWarning(DeprecationWarning):
+    ''' A specific ``DeprecationWarning`` subclass for Bokeh deprecations.
+    Used to selectively filter Bokeh deprecations for unconditional display.
+
+    '''
     pass
 
 def mergeFunctionMetadata(f, g):

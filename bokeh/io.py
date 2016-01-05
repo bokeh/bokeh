@@ -268,7 +268,8 @@ def show(obj, browser=None, new="tab"):
             opens a new tab. If **new** is 'window', then opens a new window.
 
     Returns:
-        None
+        when in a a jupyter notebook (with ``output_notebook`` enabled), returns
+        a handle that can be used by ``push_notebook``, None otherwise.
 
     .. note::
         The ``browser`` and ``new`` parameters are ignored when showing in
