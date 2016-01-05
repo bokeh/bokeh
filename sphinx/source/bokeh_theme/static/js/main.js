@@ -20,9 +20,10 @@ $(document).ready(function() {
     $('.toc').addClass('obfuscate');
 
   } else if (loc.contains('gallery')) {
-    // If gallery, dispense with toc
+    // If gallery, dispense with toc, and manually add current under second nav
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
+    $('.second-nav .nav-link a[href="#"]').addClass('current');
 
   } else {
     // Else, selectively hide toc
