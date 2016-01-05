@@ -21,8 +21,6 @@ For the following definition of ``bokeh.sphinxext.sample.Bar``::
 
 the above usage yields the output:
 
-----
-
     .. bokeh-prop:: bokeh.sphinxext.sample.Bar.thing
 
 """

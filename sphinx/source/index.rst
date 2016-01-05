@@ -46,7 +46,6 @@ the :ref:`devguide`.
     docs/user_guide/geo
     docs/user_guide/info
     docs/user_guide/tutorials
-    docs/gallery
     docs/reference
     docs/reference/bokeh
     docs/reference/charts
@@ -71,7 +70,6 @@ the :ref:`devguide`.
     docs/reference/tile_providers
     docs/reference/util
     docs/reference/bokehjs
-    docs/releases
     docs/releases/0.11.0
     docs/releases/0.10.0
     docs/releases/0.9.3
@@ -96,7 +94,6 @@ the :ref:`devguide`.
     docs/releases/0.2.0
     docs/releases/0.1.0
     docs/dev_guide
-    docs/dev_guide/process
     docs/dev_guide/setup
     docs/dev_guide/documentation
     docs/dev_guide/testing

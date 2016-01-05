@@ -5,13 +5,12 @@ Bokeh Server Architecture
 
 This chapter is a "deep dive" into Bokeh server's internals... it
 assumes you're already familiar with the information on Bokeh
-server in the `User Guide
-<http://bokeh.pydata.org/en/0.11.0/docs/user_guide.html>`_.
+server in the `User Guide <http://bokeh.pydata.org/en/0.11.0/docs/user_guide.html>`_.
 
 You might want to read this if:
- - you're trying to work on the Bokeh codebase
- - you're trying to write your own custom server
-   process to use rather than ``bokeh serve``
+
+- you're trying to work on the Bokeh codebase
+- you're trying to write your own custom server process to use rather than ``bokeh serve``
 
 A custom server process can add additional routes (web pages or
 REST endpoints) using `Tornado's web framework
@@ -93,22 +92,22 @@ and ``BokehSessionContext`` (`source <https://github.com/bokeh/bokeh/blob/0.11.0
 
 Summarizing the object graph:
 
- - ``Server`` implemented by ``BokehTornado``
+- ``Server`` implemented by ``BokehTornado``
 
-    - has N ``ApplicationContext``
+ - has N ``ApplicationContext``
 
-       - has 1 ``Application`` capable of creating new sessions
-       - has 1 path used to identify it in URLs
-       - has 1 ``ServerContext`` representing the aspects of
-         the server visible to application code
-       - has N ``ServerSesssion``
+  - has 1 ``Application`` capable of creating new sessions
+  - has 1 path used to identify it in URLs
+  - has 1 ``ServerContext`` representing the aspects of
+    the server visible to application code
+  - has N ``ServerSesssion``
 
-          - has 1 session ID which is a string naming the session
-          - has 1 ``Document`` representing the session state
-          - has N ``ServerConnection`` representing websockets
-            attached to the session
-          - has 1 ``SessionContext`` representing the aspects of
-            the session visible to application code
+   - has 1 session ID which is a string naming the session
+   - has 1 ``Document`` representing the session state
+   - has N ``ServerConnection`` representing websockets
+     attached to the session
+   - has 1 ``SessionContext`` representing the aspects of
+     the session visible to application code
 
 Tornado ``IOLoop`` and Async Code
 ---------------------------------
@@ -120,24 +119,24 @@ The `Tornado documentation
 <http://www.tornadoweb.org/en/stable/gen.html>`__ will be the best
 resource, but here are some quick things to know:
 
- - the Bokeh server is single-threaded, so it's important not to
-   write "blocking" code, meaning code that uses up the single
-   thread while it waits for IO or performs a long computation. If
-   you do this, you'll rapidly increase the latency seen by users
-   of your application. For example, if you block for 100ms every
-   time someone moves a slider, and ten users are doing this at
-   once, users could easily see 10*100ms=1s of lag... with only
-   ten users.
- - in Tornado, nonblocking code is modeled with functions or
-   methods that return an instance of the ``Future`` class.  You
-   may have seen the ``@gen.coroutine`` decorator, which
-   transforms the decorated method into a method which returns a
-   ``Future``.
- - when no code is running, Tornado waits in its ``IOLoop``
-   (sometimes called a "main loop" or "event loop"), which means
-   it's waiting for something to happen. When something happens,
-   ``IOLoop`` executes any callbacks that were interested in that
-   event.
+- the Bokeh server is single-threaded, so it's important not to
+  write "blocking" code, meaning code that uses up the single
+  thread while it waits for IO or performs a long computation. If
+  you do this, you'll rapidly increase the latency seen by users
+  of your application. For example, if you block for 100ms every
+  time someone moves a slider, and ten users are doing this at
+  once, users could easily see 10*100ms=1s of lag... with only
+  ten users.
+- in Tornado, nonblocking code is modeled with functions or
+  methods that return an instance of the ``Future`` class.  You
+  may have seen the ``@gen.coroutine`` decorator, which
+  transforms the decorated method into a method which returns a
+  ``Future``.
+- when no code is running, Tornado waits in its ``IOLoop``
+  (sometimes called a "main loop" or "event loop"), which means
+  it's waiting for something to happen. When something happens,
+  ``IOLoop`` executes any callbacks that were interested in that
+  event.
 
 Applications and the ``IOLoop``
 -------------------------------
@@ -329,21 +328,21 @@ There aren't many messages right now. You can find them `all here
 <https://github.com/bokeh/bokeh/tree/0.11.0rc1/bokeh/server/protocol/messages>`__
 but a quick overview:
 
- - ``ACK`` is used for an initial handshake when setting up the connection
- - ``OK`` is a generic reply when a request doesn't require any
-   more specific reply
- - ``ERROR``  is a generic error reply when something goes wrong
- - ``SERVER-INFO-REQ`` and ``SERVER-INFO-REPLY`` are a
-   request-reply pair where the reply contains information about
-   the server, such as its Bokeh version
- - ``PULL-DOC-REQ`` asks to get the entire contents of the
-   session's ``Document`` as JSON, and ``PULL-DOC-REPLY`` is the
-   reply containing said JSON.
- - ``PUSH-DOC`` sends the entire contents of the session's
-   ``Document`` as JSON, and the other side should replace its
-   document with these new contents.
- - ``PATCH-DOC`` sends changes to the session's document to the
-   other side
+- ``ACK`` is used for an initial handshake when setting up the connection
+- ``OK`` is a generic reply when a request doesn't require any
+  more specific reply
+- ``ERROR``  is a generic error reply when something goes wrong
+- ``SERVER-INFO-REQ`` and ``SERVER-INFO-REPLY`` are a
+  request-reply pair where the reply contains information about
+  the server, such as its Bokeh version
+- ``PULL-DOC-REQ`` asks to get the entire contents of the
+  session's ``Document`` as JSON, and ``PULL-DOC-REPLY`` is the
+  reply containing said JSON.
+- ``PUSH-DOC`` sends the entire contents of the session's
+  ``Document`` as JSON, and the other side should replace its
+  document with these new contents.
+- ``PATCH-DOC`` sends changes to the session's document to the
+  other side
 
 Typically, when opening a connection one side will pull or push
 the entire document; after the initial pull or push, the two sides
@@ -384,11 +383,11 @@ The server only supports a few HTTP routes; you can find them in
 
 In brief:
 
- - ``/static/`` serves Bokeh's JS and CSS resources
- - ``/app_path/`` serves a page that displays a new session
- - ``/app_path/ws`` is the websocket connection URL
- - ``/app_path/autoload.js`` serves a chunk of JavaScript that
-   backs the ``bokeh.embed.autoload_server()`` functionality
+- ``/static/`` serves Bokeh's JS and CSS resources
+- ``/app_path/`` serves a page that displays a new session
+- ``/app_path/ws`` is the websocket connection URL
+- ``/app_path/autoload.js`` serves a chunk of JavaScript that
+  backs the ``bokeh.embed.autoload_server()`` functionality
 
 Bokeh server isn't intended to be a general-purpose web
 framework. You can however pass new endpoints to ``Server`` using

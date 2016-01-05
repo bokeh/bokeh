@@ -22,8 +22,6 @@ Examples
 
 The inline example code above produces the following output:
 
-----
-
 .. collapsible-code-block:: python
     :heading: Some Code
 

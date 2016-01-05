@@ -155,10 +155,10 @@ html_context = {
         ('User Guide', 'user_guide'),
         ('Gallery', 'gallery'),
         ('Reference', 'reference'),
-        ('Releases', 'releases'),
+        ('Releases', 'releases/0.11.0'),
         ('Developer Guide', 'dev_guide'),
     ),
-    'ALL_VERSIONS': ['0.10.0', '0.9.3', '0.8.2', '0.7.0', '0.6.0', '0.5.0'],
+    'ALL_VERSIONS': ['0.10.0', '0.9.3', '0.8.2'],
     'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 
