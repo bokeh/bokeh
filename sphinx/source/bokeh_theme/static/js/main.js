@@ -19,6 +19,11 @@ $(document).ready(function() {
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
 
+  } else if (loc.contains('gallery')) {
+    // If gallery, dispense with toc
+    $('.toc .toctree-l1').addClass('hide');
+    $('.toc').addClass('obfuscate');
+
   } else {
     // Else, selectively hide toc
     var loc_part = loc.split('docs/')[1].split('.html')[0];
