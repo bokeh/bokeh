@@ -1,4 +1,5 @@
 _ = require "underscore"
+$ = require "jquery"
 build_views = require "common/build_views"
 ContinuumView = require "common/continuum_view"
 BaseBox = require "widget/basebox"
@@ -10,11 +11,17 @@ class StyleableBoxView extends ContinuumView
 
   initialize: (options) ->
     super(options)
+
+
     @views = {}
     @render()
     @listenTo(@model, 'change', @render)
 
   render: () ->
+
+    if @model.get('orientation') == 'horizontal' and @attributes.class != 'horizontal'
+      $(@el).addClass('bk-hbox').removeClass('bk-vbox')
+
     children = @model.children()
     build_views(@views, children)
     for own key, val of @views
@@ -36,6 +43,7 @@ class StyleableBox extends BaseBox.Model
     return _.extend {}, super(), {
       children: []
       css_properties: {}
+      orientation: 'vertical'
     }
 
   children: () ->

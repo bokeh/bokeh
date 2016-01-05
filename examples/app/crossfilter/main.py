@@ -6,7 +6,8 @@ import pandas as pd
 from bokeh.sampledata.autompg import autompg
 from bokeh.models import ColumnDataSource, Panel, Tabs, Range
 
-from bokeh.models.widgets import HBox, VBox, PreText, Select
+from bokeh.models.widgets import HBox, VBox, PreText, Select, Button
+from bokeh.models.widgets import RadioButtonGroup, DataTable
 from bokeh.properties import Dict, Enum, Instance, List, String, Any, Int
 from bokeh.plotting import Figure
 from bokeh.model import Model
@@ -14,11 +15,15 @@ from bokeh.sampledata.autompg import autompg
 from bokeh.io import curdoc
 
 from bokeh.charts import Bar, Scatter
-from bokeh.palettes import Blues4 
+from bokeh.palettes import Blues4
 
 from examples.app.crossfilter.models import StyleableBox
+from examples.app.crossfilter.models import StatsBox
+
+import pdb
 
 class AppModel(object):
+    '''todo: add docs'''
 
     def __init__(self, df):
         self.df = df
@@ -39,9 +44,12 @@ class AppModel(object):
         self.dot_sizes = [9, 12, 15, 18]
         self.set_metadata()
         self.set_defaults()
+        self.filter_states = ['Summary Stats', 'Filters', 'Facets']
+        self.active_filter_state = 0
         self.update()
 
     def set_defaults(self):
+        '''todo: add docs'''
         self.x_field = self.continuous_columns[0]['name']
         self.y_field = self.continuous_columns[1]['name']
         self.color_field = self.continuous_columns[2]['name']
@@ -78,15 +86,16 @@ class AppModel(object):
                     'type': "ContinuousColumn",
                     'name': c,
                     'count': desc['count'],
-                    'mean': "%.2f"%desc['mean'],
-                    'std': "%.2f"%desc['std'],
-                    'min': "%.2f"%desc['min'],
-                    'max': "%.2f"%desc['max'],
+                    'mean': "%.2f" % desc['mean'],
+                    'std': "%.2f" % desc['std'],
+                    'min': "%.2f" % desc['min'],
+                    'max': "%.2f" % desc['max'],
                 })
 
         self.columns = descriptors
 
     def update(self):
+        '''TODO: add docs'''
         pass
 
     @property
@@ -102,60 +111,107 @@ class AppModel(object):
         return [x for x in self.columns if x['type'] == 'TimeColumn']
 
 class AppController(object):
+    '''mediate views -> model updates'''
 
     def __init__(self, data_model):
         self.model = data_model
         self.views = []
 
     def register_view_for_update(self, view):
+        '''TODO: add docs'''
         self.views.append(view)
 
     def bind_to_model(self, widget, widget_field, model_field):
+        '''TODO: add docs'''
         widget.on_change(widget_field, partial(self.on_change, model_field=model_field))
 
     def on_change(self, attr, old, new, model_field):
+        '''TODO: add docs'''
         setattr(self.model, model_field, new)
         self.update_app()
 
     def update_app(self):
+        '''TODO: add docs'''
         self.model.update()
         for v in self.views:
             v.update()
 
 class BaseView(object):
+    '''TODO: add docs'''
 
-    def __init__(self, app_model, app_controller, layout_class=HBox):
+    def __init__(self, app_model, app_controller, layout_class=None):
         self.model = app_model
         self.controller = app_controller
-        self.layout = layout_class()
+        self.layout = layout_class() if layout_class else None
         self.create_children()
 
     def add_select(self, name, options, model_field):
+        '''TODO: add docs'''
         widget = Select.create(name=name, value=getattr(self.model, model_field), options=options)
         self.controller.bind_to_model(widget, 'value', model_field)
         self.layout.children.append(widget)
         return widget
 
     def update(self):
+        '''TODO: add docs'''
         pass
 
 class AppView(BaseView):
+    '''TODO: add docs'''
     '''Main all-encompassing view class for example'''
 
     def create_children(self):
         self.controls_view = ControlsView(self.model, self.controller)
         self.plot_view = PlotView(self.model, self.controller)
+        self.filter_view = FilterView(self.model, self.controller)
+
+        # user defined model
+        self.main_container = StyleableBox(self.controls_view.layout, self.plot_view.layout)
+        self.main_container.css_properties = dict(position='absolute',
+                                                    top='0',
+                                                    right='0',
+                                                    bottom='0',
+                                                    background="#373737",
+                                                )
+
+        self.side_container = StyleableBox(self.filter_view.layout)
+        self.side_container.css_properties = dict(position='absolute', 
+                                                    top='0',
+                                                    left='0',
+                                                    bottom='0',
+                                                    background="#373737",
+                                                )
+
+        # register view for update with contoller
         self.controller.register_view_for_update(self.plot_view)
+        self.controller.register_view_for_update(self.filter_view)
         self.controller.register_view_for_update(self)
+        
         self.update()
 
     def update(self):
-        self.layout.children = [self.controls_view.layout, self.plot_view.layout]
+        '''TODO: add docs'''
+        self.layout = HBox(children=[self.side_container, self.main_container])
+
+class FilterView(BaseView):
+
+    def create_children(self):
+        '''TODO: add docs'''
+        self.layout = StyleableBox()
+        self.radio_button_group = RadioButtonGroup(labels=self.model.filter_states, active=self.model.active_filter_state)
+        self.controller.bind_to_model(self.radio_button_group, 'active', 'active_filter_state')
+        self.update()
+
+    def update(self):
+        self.layout.children = [StatsBox(display_items=c) for c in self.model.columns]
+
 
 class PlotView(BaseView):
+    '''TODO: add docs'''
 
     @property
     def scatter_args(self):
+        '''TODO: add docs'''
         d = {}
         d['tools'] = 'pan,wheel_zoom'
         d['data'] = self.model.df
@@ -163,11 +219,11 @@ class PlotView(BaseView):
         d['y'] = self.model.y_field
         d['xlabel'] = self.model.x_field
         d['ylabel'] = self.model.y_field
-        d['color'] = self.model.color_field
         return d
 
     @property
     def bar_args(self):
+        '''TODO: add docs'''
         d = {}
         d['tools'] = 'pan,wheel_zoom'
         d['data'] = self.model.df
@@ -180,21 +236,38 @@ class PlotView(BaseView):
         return d
 
     def update(self):
-        self.create_children()
+        '''TODO: add docs'''
+        if self.model.plot_type == 'scatter':
+            print('>>>>> HHELLEOOEL')
+            self.scatter = Figure()
+            self.layout.children[0] = self.scatter
+            print('>>>>> GOODBYD')
+            pass
+        elif self.model.plot_type == 'bar':
+            self.bar = Bar(**self.bar_args)
+            self.layout.children[0] = self.bar
 
     def create_children(self):
-        self.plots = []
-        if self.model.plot_type == 'scatter':
-            scatter = Scatter(**self.scatter_args)
-            self.plots.append(scatter)
-        elif self.model.plot_type == 'bar':
-            bar = Bar(**self.bar_args)
-            self.plots.append(bar)
-        self.layout.children = self.plots
+        '''TODO: add docs'''
+        self.layout = StyleableBox()
+        self.layout.children = [None]
+        self.update()
 
 class ControlsView(BaseView):
 
     def create_children(self):
+        '''TODO: add docs'''
+        self.layout = StyleableBox(orientation='horizontal')
+
+        self.layout.css_properties = {}
+        self.layout.css_properties['position'] = 'relative'
+        self.layout.css_properties['top'] = '0'
+        self.layout.css_properties['left'] = '0'
+        self.layout.css_properties['right'] = '0'
+        self.layout.css_properties['height'] = '4em'
+        self.layout.css_properties['background'] = "#336688"
+        self.layout.css_properties['padding'] = ".5em"
+
         cols = self.model.col_names
         self.plot_selector = self.add_select('plot_type', self.model.plot_type_options, 'plot_type')
         self.x_selector = self.add_select('x', cols, 'x_field')
