@@ -28,6 +28,10 @@ Bokeh Version ``0.11.0`` is a large release with many new improvements
   - hover policy for glyphs
   - responsive improvements
 
+* Known issues
+
+  - annulus glyph does not render correctly on IE and Edge
+
 * many small bug fixes
 
 Migration Guide
