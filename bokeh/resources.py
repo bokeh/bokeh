@@ -280,7 +280,7 @@ class BaseResources(object):
         return _get_cdn_urls(self.components, self.version, self.minified)
 
     def _server_urls(self):
-        return _get_server_urls(self.components, self.root_url, self.minified, self.path_versioner)
+        return _get_server_urls(self.components, self.root_url, False if self.dev else self.minified, self.path_versioner)
 
     def _resolve(self, kind):
         paths = self._file_paths(kind)
@@ -382,7 +382,7 @@ class JSResources(BaseResources):
     _plugin_template = \
 """
 (function outer(modules, cache, entry) {
-  if (Bokeh) {
+  if (typeof Bokeh !== "undefined") {
     for (var name in modules) {
       var module = modules[name];
 

@@ -30,11 +30,6 @@ from .model import Model, _ModelInDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 
-def _wrap_in_function(code):
-    # indent and wrap Bokeh function def around
-    code = "\n".join(["    " + line for line in code.split("\n")])
-    return 'Bokeh.$(function() {\n%s\n});' % code
-
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -249,16 +244,23 @@ def notebook_div(model, notebook_comms_target=None):
     with _ModelInDocument(model):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
-    render_items[0]['notebook_comms_target'] = notebook_comms_target
-
-    preamble = EMPTY.render() # XXX: this only includes custom models
-    script = preamble + "\n" + _script_for_render_items(docs_json, render_items)
-
     item = render_items[0]
+    item['notebook_comms_target'] = notebook_comms_target
+
+    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    resources = EMPTY
+
+    js = AUTOLOAD_JS.render(
+        js_urls = resources.js_files,
+        css_urls = resources.css_files,
+        js_raw = resources.js_raw + [script],
+        css_raw = resources.css_raw,
+        elementid = item['elementid'],
+    )
     div = _div_for_render_item(item)
 
     html = NOTEBOOK_DIV.render(
-        plot_script = script,
+        plot_script = js,
         plot_div = div,
     )
     return encode_utf8(html)
@@ -327,43 +329,32 @@ def autoload_static(model, resources, script_path):
     if resources.mode == 'inline':
         raise ValueError("autoload_static() requires non-inline resources")
 
-    # TODO why is this?
-    if resources.dev:
-        raise ValueError("autoload_static() only works with non-dev resources")
-
     model = _check_one_model(model)
 
     with _ModelInDocument(model):
-
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
-        item = render_items[0]
 
-        model_id = ""
-        if 'modelid' in item:
-            model_id = item['modelid']
-        doc_id = ""
-        if 'docid' in item:
-            doc_id = item['docid']
+    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    item = render_items[0]
 
-        js = AUTOLOAD_JS.render(
-            docs_json = serialize_json(docs_json),
-            js_urls = resources.js_files,
-            css_files = resources.css_files,
-            elementid = item['elementid'],
-            websocket_url = None
-        )
+    js = AUTOLOAD_JS.render(
+        js_urls = resources.js_files,
+        css_urls = resources.css_files,
+        js_raw = resources.js_raw + [script],
+        css_raw = resources.css_raw,
+        elementid = item['elementid'],
+    )
 
-        tag = AUTOLOAD_TAG.render(
-            src_path = script_path,
-            elementid = item['elementid'],
-            modelid = model_id,
-            docid = doc_id,
-            loglevel = resources.log_level
-        )
+    tag = AUTOLOAD_TAG.render(
+        src_path = script_path,
+        elementid = item['elementid'],
+        modelid = item.get('modelid', ''),
+        docid = item.get('docid', ''),
+    )
 
-        return encode_utf8(js), encode_utf8(tag)
+    return encode_utf8(js), encode_utf8(tag)
 
-def autoload_server(model, app_path="/", session_id=None, url="default", loglevel="info"):
+def autoload_server(model, app_path="/", session_id=None, url="default"):
     '''Return a script tag that embeds the given model (or entire
     Document) from a Bokeh server session.
 
@@ -399,7 +390,6 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
           a specific model to render, you must also supply the session ID containing
           that model, though.
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
-        loglevel (str, optional) : "trace", "debug", "info", "warn", "error", "fatal"
 
     Returns:
         tag :
@@ -443,18 +433,15 @@ def autoload_server(model, app_path="/", session_id=None, url="default", logleve
         src_path = src_path,
         elementid = elementid,
         modelid = model_id,
-        loglevel = loglevel
     )
 
     return encode_utf8(tag)
 
 def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
-    plot_js = _wrap_in_function(
-        DOC_JS.render(
-            websocket_url=websocket_url,
-            docs_json=serialize_json(docs_json),
-            render_items=serialize_json(render_items)
-        )
+    plot_js = DOC_JS.render(
+        websocket_url=websocket_url,
+        docs_json=serialize_json(docs_json),
+        render_items=serialize_json(render_items)
     )
     if wrap_script:
         return SCRIPT_TAG.render(js_code=plot_js)

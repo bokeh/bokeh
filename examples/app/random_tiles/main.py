@@ -1,6 +1,7 @@
 from bokeh.plotting import Figure
 from bokeh.io import curdoc
 from bokeh.core.properties import (String, List)
+from bokeh.models import Range1d
 from bokeh.models.tiles import MercatorTileSource
 from bokeh.tile_providers import STAMEN_TONER
 
@@ -24,7 +25,9 @@ class RandomTileSource(MercatorTileSource):
 
 def create_plot():
     axis_range = [-10000000, 10000000]
-    p = Figure(tools='pan,wheel_zoom', x_range=axis_range, y_range=axis_range, plot_height=800, plot_width=800)
+    x_range = Range1d(start=axis_range[0], end=axis_range[1], bounds=None)
+    y_range = Range1d(start=axis_range[0], end=axis_range[1], bounds=None)
+    p = Figure(tools='pan,wheel_zoom', x_range=x_range, y_range=y_range, plot_height=800, plot_width=800)
     p.axis.visible = False
     tile_source = RandomTileSource()
     tile_source.urls = []
