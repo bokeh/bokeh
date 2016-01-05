@@ -8,17 +8,17 @@ from bokeh.sampledata.stocks import AAPL, GOOG
 
 output_file('prevent_user_zooming_or_panning_too_far.html')
 
-## Plot where limits are set on DataRange1d
+## Plot where bounds are set by auto
 N = 4000
 x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
 colors = ["#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50 + 2 * x, 30 + 2 * y)]
-plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset', title="Cannot pan outside data")
+plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset', title="Cannot pan outside data (bounds='auto')")
 plot_default.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 ###### -- ranges set here -- ########
-plot_default.x_range.bounds = (-5, 105)
-plot_default.y_range.bounds = (-5, 105)
+plot_default.x_range.bounds = 'auto'
+plot_default.y_range.bounds = 'auto'
 ###### -- end -- ########
 
 
@@ -74,10 +74,10 @@ fruits = {
 
 plot_cat_unbounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap (unbounded)")
 
-plot_cat_bounded_to_all_data = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap (bounded - all)")
+plot_cat_autobounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap (autobounded)")
 ###### -- ranges set here -- ########
-plot_cat_bounded_to_all_data.x_range.bounds = plot_cat_bounded_to_all_data.x_range.factors
-plot_cat_bounded_to_all_data.y_range.bounds = plot_cat_bounded_to_all_data.y_range.factors
+plot_cat_autobounded.x_range.bounds = 'auto'
+plot_cat_autobounded.y_range.bounds = 'auto'
 ###### -- end -- ########
 
 plot_cat_bounded = HeatMap(
@@ -112,8 +112,8 @@ plot_extra.line(x, google_y, color='pink', y_range_name='goog')
 plot_extra.add_layout(LinearAxis(y_range_name="goog", major_label_text_color='pink'), 'left')
 
 # Tweak the formats to make it all readable
-plots = [plot_default, plot_range, plot_range_un, plot_range_rev, plot_cat_bounded_to_all_data, plot_cat_unbounded, plot_cat_bounded, plot_extra]
+plots = [plot_default, plot_range, plot_range_un, plot_range_rev, plot_cat_autobounded, plot_cat_unbounded, plot_cat_bounded, plot_extra]
 for plot in plots:
     plot.title_text_font_size = '12pt'
 
-show(vplot(plot_default, hplot(plot_range, plot_range_un, plot_range_rev), hplot(plot_cat_unbounded, plot_cat_bounded_to_all_data, plot_cat_bounded), plot_extra))
+show(vplot(plot_default, hplot(plot_range, plot_range_un, plot_range_rev), hplot(plot_cat_unbounded, plot_cat_autobounded, plot_cat_bounded), plot_extra))

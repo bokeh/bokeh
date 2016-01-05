@@ -13,14 +13,14 @@ def test_range1d_init_with_positional_arguments():
     range1d = Range1d(1, 2)
     assert range1d.start == 1
     assert range1d.end == 2
-    assert range1d.bounds == 'auto'
+    assert range1d.bounds is None
 
 
 def test_range1d_init_with_keyword_arguments():
     range1d = Range1d(start=1, end=2)
     assert range1d.start == 1
     assert range1d.end == 2
-    assert range1d.bounds == 'auto'
+    assert range1d.bounds is None
 
 
 def test_range1d_cannot_initialize_with_both_keyword_and_positional_arguments():
@@ -59,7 +59,7 @@ def test_datarange1d_init_with_no_arguments():
     datarange1d = DataRange1d()
     assert datarange1d.start is None
     assert datarange1d.end is None
-    assert datarange1d.bounds == 'auto'
+    assert datarange1d.bounds is None
 
 
 def test_datarange1d_init_with_follow_sets_bounds_to_none():
@@ -84,13 +84,13 @@ def test_datarange1d_init_with_bad_bounds():
 def test_factorrange_init_with_positional_arguments():
     factor_range = FactorRange(1, 2)
     assert factor_range.factors == [1, 2]
-    assert factor_range.bounds == 'auto'
+    assert factor_range.bounds is None
 
 
 def test_factorrange_init_with_keyword_arguments():
     factor_range = FactorRange(factors=[1, 2, 3, 4, 5])
     assert factor_range.factors == [1, 2, 3, 4, 5]
-    assert factor_range.bounds == 'auto'
+    assert factor_range.bounds is None
 
 
 def test_factorrange_with_bounds():
