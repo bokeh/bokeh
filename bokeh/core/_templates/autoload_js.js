@@ -34,10 +34,20 @@ calls it with the rendered model.
     window._bokeh_onload_callbacks = [];
   }
 
+  function run_callbacks() {
+    window._bokeh_onload_callbacks.forEach(function(callback) { callback() });
+    delete window._bokeh_onload_callbacks
+    console.info("Bokeh: all callbacks have finished");
+  }
+
   function load_libs(js_urls, callback) {
     window._bokeh_onload_callbacks.push(callback);
     if (window._bokeh_is_loading > 0) {
       console.log("Bokeh: BokehJS is being loaded, scheduling callback at", now());
+      return null;
+    }
+    if (js_urls == null || js_urls.length === 0) {
+      run_callbacks();
       return null;
     }
     console.log("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
@@ -51,13 +61,7 @@ calls it with the rendered model.
         window._bokeh_is_loading--;
         if (window._bokeh_is_loading === 0) {
           console.log("Bokeh: all BokehJS libraries loaded");
-          {%- for url in css_urls %}
-          console.log("Bokeh: injecting CSS: {{ url }}");
-          Bokeh.embed.inject_css("{{ url }}");
-          {%- endfor %}
-          // TODO: inject raw CSS
-          window._bokeh_onload_callbacks.forEach(function(callback){callback()});
-          delete window._bokeh_onload_callbacks
+          run_callbacks()
         }
       };
       s.onerror = function() {
@@ -85,7 +89,14 @@ calls it with the rendered model.
     },
     {% endfor -%}
     function(Bokeh) {
-      console.info("Bokeh: all callbacks have finished");
+      {%- for url in css_urls %}
+      console.log("Bokeh: injecting CSS: {{ url }}");
+      Bokeh.embed.inject_css("{{ url }}");
+      {%- endfor %}
+      {%- for css in css_raw %}
+      console.log("Bokeh: injecting raw CSS");
+      Bokeh.embed.inject_raw_css({{ css }});
+      {%- endfor %}
     }
   ];
 
