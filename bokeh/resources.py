@@ -212,28 +212,28 @@ class BaseResources(object):
         self.components = components if components is not None \
             else ["bokeh", "bokeh-widgets", "bokeh-compiler"]
 
-        self.mode = settings.resources(mode)
-        self.root_dir = settings.rootdir(root_dir)
-        self.version = settings.version(version)
-        self.minified = settings.minified(minified)
-        self.log_level = settings.log_level(log_level)
-        self.path_versioner = path_versioner
+        self.mode = settings.resources(mode);           del mode
+        self.root_dir = settings.rootdir(root_dir);     del root_dir
+        self.version = settings.version(version);       del version
+        self.minified = settings.minified(minified);    del minified
+        self.log_level = settings.log_level(log_level); del log_level
+        self.path_versioner = path_versioner;           del path_versioner
 
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
         self._root_url = root_url
-        if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
+        if self.mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
             raise ValueError("wrong value for 'mode' parameter, expected "
                              "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
 
-        if self.root_dir and not mode.startswith("relative"):
+        if self.root_dir and not self.mode.startswith("relative"):
             raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
 
-        if self.version and not mode.startswith('cdn'):
+        if self.version and not self.mode.startswith('cdn'):
             raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
 
-        if root_url and not mode.startswith('server'):
+        if root_url and not self.mode.startswith('server'):
             raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
 
         self.dev = self.mode.endswith('-dev')
