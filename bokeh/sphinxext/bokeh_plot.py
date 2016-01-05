@@ -47,8 +47,6 @@ Examples
 
 The inline example code above produces the following output:
 
-----
-
 .. bokeh-plot::
 
     from bokeh.plotting import figure, output_file, show
