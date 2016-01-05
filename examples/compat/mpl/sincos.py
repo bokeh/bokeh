@@ -14,6 +14,6 @@ plt.title("Matplotlib Figure in Bokeh")
 # dashed lines work
 plt.plot(x, z, "g-x", linestyle="-.")
 
-output_file("sincos.html")
+output_file("sincos.html", title="sincos.py example")
 
 show(mpl.to_bokeh())

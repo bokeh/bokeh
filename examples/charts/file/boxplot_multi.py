@@ -38,7 +38,7 @@ box_plot8 = BoxPlot(df, label='cyl', values='mpg', outliers=False,
                     tooltips=True)
 box_plot8.title_text_font_size = '11pt'
 
-output_file("boxplot_multi.html")
+output_file("boxplot_multi.html", title="boxplot_multi.py example")
 
 show(vplot(
     hplot(box_plot, box_plot2),

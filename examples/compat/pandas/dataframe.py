@@ -11,6 +11,6 @@ df = pd.DataFrame(np.random.randn(1000, 4), index=ts.index, columns=list('ABCD')
 df = df.cumsum()
 df.plot(legend=False)
 
-output_file("dataframe.html")
+output_file("dataframe.html", title="dataframe.py example")
 
 show(mpl.to_bokeh())

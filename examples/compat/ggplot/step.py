@@ -17,6 +17,6 @@ g.draw()
 
 plt.title("Step ggplot-based plot in Bokeh.")
 
-output_file("step.html")
+output_file("step.html", title="step.py example")
 
 show(mpl.to_bokeh())

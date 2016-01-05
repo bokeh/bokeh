@@ -37,6 +37,6 @@ tr = p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
 # in the browser console, you will see messages when circles are clicked
 tool = p.select_one(TapTool).renderers = [cr]
 
-output_file("tap.html")
+output_file("tap.html", title="tap.py example")
 
 show(p)  # open a browser
