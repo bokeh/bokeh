@@ -38,6 +38,9 @@ functioning correctly, and will be fixed in a follow on 0.11.1 release
 shortly. However, new notebook comms can enable many of the same kinds
 of interactions and notebook-based apps without a Bokeh server.
 
+The Image glyph does not currently work with the Bokeh server, and will be
+fixed in a follow on 0.11.1 release shortly.
+
 Migration Guide
 ---------------
 
