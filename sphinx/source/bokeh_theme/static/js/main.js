@@ -34,6 +34,9 @@ $(document).ready(function() {
       } else {
         var href = l1_link.childNodes[0].href;
         var href_part = href.split('docs/')[1].split('/')[0];
+        if ( href_part.split('.html').length > 1 ) {
+          href_part = href_part.split('.html')[0]
+        }
         if (href_part == loc_part) {
           $(this).addClass('show');
         } else {
