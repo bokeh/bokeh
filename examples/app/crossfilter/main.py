@@ -161,12 +161,14 @@ class AppView(BaseView):
     '''Main all-encompassing view class for example'''
 
     def create_children(self):
+        self.layout = StyleableBox()
         self.controls_view = ControlsView(self.model, self.controller)
         self.plot_view = PlotView(self.model, self.controller)
         self.filter_view = FilterView(self.model, self.controller)
 
         # user defined model
-        self.main_container = StyleableBox(self.controls_view.layout, self.plot_view.layout)
+        self.main_container = StyleableBox()
+        self.main_container.children = [self.controls_view.layout]
         self.main_container.css_properties = dict(position='absolute',
                                                     top='0',
                                                     right='0',
@@ -186,12 +188,14 @@ class AppView(BaseView):
         self.controller.register_view_for_update(self.plot_view)
         self.controller.register_view_for_update(self.filter_view)
         self.controller.register_view_for_update(self)
+        self.layout = HBox(children=[self.side_container, self.main_container])
         
-        self.update()
+        #self.update()
 
     def update(self):
         '''TODO: add docs'''
-        self.layout = HBox(children=[self.side_container, self.main_container])
+        pass
+        #self.layout = HBox(children=[self.side_container, self.main_container])
 
 class FilterView(BaseView):
 
@@ -209,7 +213,6 @@ class FilterView(BaseView):
 class PlotView(BaseView):
     '''TODO: add docs'''
 
-    @property
     def scatter_args(self):
         '''TODO: add docs'''
         d = {}
@@ -226,7 +229,7 @@ class PlotView(BaseView):
         '''TODO: add docs'''
         d = {}
         d['tools'] = 'pan,wheel_zoom'
-        d['data'] = self.model.df
+        d['data'] = self.model.data
         d['label'] = self.model.x_field
         d['values'] = self.model.y_field
         d['xlabel'] = self.model.x_field
@@ -235,11 +238,17 @@ class PlotView(BaseView):
         d['color'] = self.model.color_field
         return d
 
+    def create_children(self):
+        '''TODO: add docs'''
+        self.layout = StyleableBox()
+        self.layout.children = [None]
+        #self.update()
+
     def update(self):
         '''TODO: add docs'''
         if self.model.plot_type == 'scatter':
-            print('>>>>> HHELLEOOEL')
-            self.scatter = Figure()
+            print(self.scatter_args)
+            self.scatter = Scatter(**self.scatter_args())
             self.layout.children[0] = self.scatter
             print('>>>>> GOODBYD')
             pass
@@ -247,11 +256,6 @@ class PlotView(BaseView):
             self.bar = Bar(**self.bar_args)
             self.layout.children[0] = self.bar
 
-    def create_children(self):
-        '''TODO: add docs'''
-        self.layout = StyleableBox()
-        self.layout.children = [None]
-        self.update()
 
 class ControlsView(BaseView):
 
@@ -279,5 +283,5 @@ class ControlsView(BaseView):
 
 model = AppModel(autompg)
 controller = AppController(model)
-view = AppView(model, controller, layout_class=VBox)
+view = AppView(model, controller)
 doc = curdoc().add_root(view.layout)
