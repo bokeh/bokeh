@@ -32,29 +32,21 @@ you want to work on a new language binding for Bokeh and need some help,
 please let us know.
 
 rbokeh
-~~~~~~
-
-The `rbokeh <bokeh_r_>`_ project, started by `@hafen <hafen_>`_, adds support
-for Bokeh to the R language.
+  The `rbokeh <bokeh_r_>`_ project, started by `@hafen <hafen_>`_, adds support
+  for Bokeh to the R language.
 
 bokeh.jl
-~~~~~~~~
-
-Created by `@samuelcolvin <samuelcolvin_>`_, the `bokeh.jl <bokeh_jl_>`_ project
-brings Bokeh to Julia users.
+  Created by `@samuelcolvin <samuelcolvin_>`_, the `bokeh.jl <bokeh_jl_>`_ project
+  brings Bokeh to Julia users.
 
 bokeh-scala
-~~~~~~~~~~~
-
-The `bokeh-scala <bokeh_scala_>`_ exposes Bokeh in the Scala language. The
-project was created by the Bokeh core dev team's own `@mattpap <mattpap_>`_.
+  The `bokeh-scala <bokeh_scala_>`_ exposes Bokeh in the Scala language. The
+  project was created by the Bokeh core dev team's own `@mattpap <mattpap_>`_.
 
 bokeh.lua
-~~~~~~~~~
-
-The `iTorch <bokeh_lua_>`_ project, created by Facebook, integrates Bokeh
-as the solution for interactive plotting in a Jupyter notebook. Minimal Lua
-bindings were generated to support this effort.
+  The `iTorch <bokeh_lua_>`_ project, created by Facebook, integrates Bokeh
+  as the solution for interactive plotting in a Jupyter notebook. Minimal Lua
+  bindings were generated to support this effort.
 
 
 .. _bokeh_jl: https://github.com/bokeh/Bokeh.jl
