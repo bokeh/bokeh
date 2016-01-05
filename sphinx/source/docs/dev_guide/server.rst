@@ -5,13 +5,12 @@ Bokeh Server Architecture
 
 This chapter is a "deep dive" into Bokeh server's internals... it
 assumes you're already familiar with the information on Bokeh
-server in the `User Guide
-<http://bokeh.pydata.org/en/0.11.0/docs/user_guide.html>`_.
+server in the `User Guide <http://bokeh.pydata.org/en/0.11.0/docs/user_guide.html>`_.
 
 You might want to read this if:
- - you're trying to work on the Bokeh codebase
- - you're trying to write your own custom server
-   process to use rather than ``bokeh serve``
+
+* you're trying to work on the Bokeh codebase
+* you're trying to write your own custom server process to use rather than ``bokeh serve``
 
 A custom server process can add additional routes (web pages or
 REST endpoints) using `Tornado's web framework
