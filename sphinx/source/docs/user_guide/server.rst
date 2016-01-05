@@ -8,9 +8,26 @@ Running a Bokeh Server
 Purpose
 -------
 
-* respond to UI and tool events generated in a browser
-* push updates the UI, or plots, in a browser
-* use periodic, timeout, and asychronous callbacks drive updates
+The architecture of Bokeh is such that high-level "model objects"
+(representing things like plots, ranges, axes, glyphs, etc.) are created
+in Python, and then converted to a JSON format that is consumed by the
+client library, BokehJS. (See :ref:`userguide_concepts` for a more detailed
+disussion.) By itself, this flexible and decoupled design offers advantages,
+for instance it is easy to have other languages (R, Scala, Lua, ...) drive
+the exact same Bokeh plots and visualizations in the browser.
+
+However, if it were possible to keep the "model objects" in python and in
+the browser in sync with one another, then more additional and powerful
+possibilities immediately open up:
+
+* respond to UI and tool events generated in a browser with computations or
+  queries using the full power of python
+* automatically push updates the UI (i.e. widgets or plots), in a browser
+* use periodic, timeout, and asychronous callbacks drive streaming updates
+
+**This capability to synchronize between python and the browser is the main
+purpose of the Bokeh Server.**
+
 
 .. _userguide_server_use_case:
 
@@ -70,18 +87,30 @@ Shared Publishing
 Both of the scenarios above involve a *single creator* making applications
 on the server, either for their own local use, or for consumption by a
 larger audience. Another scenario is the case where a group of *several
-creators* all want publish applications to the same server. **This is not a
-good use-case for single Bokeh server.** Because it is possible to create
-applications that execute arbitrary python code, process isolation and
+creators* all want publish different applications to the same server. **This
+is not a good use-case for single Bokeh server.** Because it is possible to
+create applications that execute arbitrary python code, process isolation and
 security concerns make this kind of shared tenancy prohibitive.
 
-In order to support this kind of multi-creator environment, it is required
-to build up infrastructure that can run many Bokeh servers as-needed, either
-on a per-app, or at least a per-user basis. It is possible that we may create
-a public service to enable just this kind of usage in the future, and it
-would also certainly be possible for third parties to build their own private
-infrastructure to do so as well, but that is beyond the scope of this
-User's Guide.
+In order to support this kind of multi-creator, multi-application environment,
+one approach is to build up infrastructure that can run as many Bokeh servers
+as-needed, either on a per-app, or at least a per-user basis. It is possible
+that we may create a public service to enable just this kind of usage in the
+future, and it would also certainly be possible for third parties to build
+their own private infrastructure to do so as well, but that is beyond the
+scope of this User's Guide.
+
+Another possibility is to have a single centrally created app (perhaps by an
+organization), that can access data or other artifacts published by many
+different people (possibly with access controls). This sort of scenario *is*
+possible with the Bokeh server, but often involves integrating a Bokeh
+server with other web application frameworks. See
+
+:ref:`userguide_server_integration`
+
+for general information, and a complete example at
+
+https://github.com/bokeh/bokeh-demos/tree/master/happiness
 
 
 .. _userguide_server_output_server:
@@ -233,6 +262,11 @@ By far the most flexible way to create interactive data visualizations using
 the Bokeh server is to create Bokeh Applications, and serve them with the
 ``bokeh serve`` command.
 
+.. _userguide_server_applications_single_module:
+
+Single module format
+~~~~~~~~~~~~~~~~~~~~
+
 Let's look again at a complete example and then examine some specific parts
 in more detail:
 
@@ -297,7 +331,135 @@ to the address of the running application, which in this case is:
     http://localhost:5006/myapp
 
 In addition to creating Bokeh applications from single python files, it is
-also possible to create applications from dirctories.
+also possible to create applications from directories.
+
+
+.. _userguide_server_applications_directory:
+
+Directory format
+~~~~~~~~~~~~~~~~
+
+Bokeh applications may also be created by creating and populating a filesystem
+directory with the appropriate files. To start a directory application in a
+directory ``myapp``, execute ``bokeh serve`` with the name of the directory, for
+instance:
+
+.. code-block:: sh
+
+    bokeh serve --show myapp
+
+At a minimum, the directory must contain a ``main.py`` that constructs a
+Document for the Bokeh Server to serve:
+
+.. code-block:: none
+
+    myapp
+       |
+       +---main.py
+
+The full set of files that Bokeh server knows about is:
+
+.. code-block:: none
+
+    myapp
+       |
+       +---main.py
+       +---server_lifecycle.py
+       +---theme.yaml
+
+See below for information about :ref:`userguide_server_applications_themes`
+and :ref:`userguide_server_applications_lifecycle` for details on the other
+files.
+
+When executing your ``main.py`` Bokeh server ensures that the standard
+``__file__`` module attribute works as you would expect. So it is possible
+to include data files or custom user defined models in your directory
+however you like. An example might be:
+
+.. code-block:: none
+
+    myapp
+       |
+       +---data
+       |      +---things.csv
+       |
+       +---main.py
+       |---models
+       |      +---custom.js
+       |
+       +---server_lifecycle.py
+       +---theme.yaml
+
+In this case you might have code similar to:
+
+.. code-block:: python
+
+    from os.path import dirname, join
+    import pandas
+
+    pandas.read_csv(join(dirname(__file__), 'data', 'things.csv')
+
+And similar code to load the JavaScript implementation for a custom model
+from ``custom.js``
+
+.. note::
+    Currently only absolute imports are supported in ``main.py``. We hope to
+    lift this limitation in future releases.
+
+.. _userguide_server_applications_callbacks:
+
+Callbacks and Events
+~~~~~~~~~~~~~~~~~~~~
+
+.. _userguide_server_applications_themes:
+
+Application Theming
+~~~~~~~~~~~~~~~~~~~
+
+.. _userguide_server_applications_lifecycle:
+
+Lifecycle Hooks
+~~~~~~~~~~~~~~~
+
+Sometimes it is desirable to have code execute at specific times in a server
+or session lifetime. For instance, if you are using a Bokeh Server along side
+a Django server, you would need to call ``django.setup()`` once, as each
+Bokeh server started, to initialize the Django properly for use by Bokeh
+application code.
+
+Bokeh provides this capability through a set of *Lifecycle Hooks*. To use
+these hooks, you must create your application in
+:ref:`userguide_server_applications_directory`, and include a designated file
+called ``server_lifecycle.py`` in the directory. In this file you can include
+any or all of the following conventionally named functions:
+
+.. code-block:: python
+
+    def on_server_loaded(server_context):
+        ''' If present, this function is called when the server first starts. '''
+        pass
+
+    def on_server_unloaded(server_context):
+        ''' If present, this function is called when the server shuts down. '''
+        pass
+
+    def on_session_created(session_context):
+        ''' If present, this function is called when a session is created. '''
+        pass
+
+    def on_session_destroyed(session_context):
+        ''' If present, this function is called when a session is closed. '''
+        pass
+
+.. _userguide_server_examples:
+
+Examples and Video Tutorials
+----------------------------
+
+.. _userguide_server_integration:
+
+Integration with Web App Frameworks
+-----------------------------------
 
 .. _userguide_server_deployment:
 
@@ -329,12 +491,13 @@ these considerations.
 .. note::
     We intend to expand this section with more guidance for other tools and
     configurations. If have experience with other web deployment scenarios
-    and wish to contribute your knowledge here, please contact us.
+    and wish to contribute your knowledge here, please
+    `contact us on the mailing list`_.
 
 .. _userguide_server_deployment_nginx_proxy:
 
-Configure a Reverse Proxying
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reverse Proxying with Nginx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the goal is to serve an web application to the general Internet, it is
 often desirable to host the application on an internal network, and proxy
@@ -402,8 +565,8 @@ to a global static directory during your deployment process. See
 
 .. _userguide_server_deployment_nginx_load_balance:
 
-Load Balancing
-~~~~~~~~~~~~~~
+Load Balancing with Nginx
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The architecture of the Bokeh server is specifically designed to be
 scalable---by and large, if you need more capacity, you simply run additional
@@ -469,8 +632,77 @@ here:
 
 .. _userguide_server_deployment_supervisord:
 
-Monitoring with Supervisord
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Process Control with Supervisord
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is often desired to use process control and monitoring tools when
+deploying web applications. One popular such tool is `Supervisor`_, which
+can automatically start and stop process, as well as re-start processes
+if they terminate unexpectedly. Supervisor is configured using INI style
+config files. A sample file that might be used to start a single Bokeh
+Server app is below:
+
+.. code-block:: ini
+
+    ; supervisor config file
+
+    [unix_http_server]
+    file=/tmp/supervisor.sock   ; (the path to the socket file)
+    chmod=0700                  ; sockef file mode (default 0700)
+
+    [supervisord]
+    logfile=/var/log/supervisord.log ; (main log file; default $CWD/supervisord.log)
+    pidfile=/var/run/supervisord.pid ; (supervisord pidfile; default $CWD/supervisord.pid)
+    childlogdir=/var/log/supervisor  ; ('AUTO' child log dir, default $TEMP)
+
+    ; The section below must be in the present for the RPC (supervisorctl/web)
+    ; interface in to function.
+    [rpcinterface:supervisor]
+    supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+    [supervisorctl]
+    serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL for a unix socket
+
+    [program:myapp]
+    command=/path/to/bokeh serve myapp.py --host foo.com:80
+    directory=/path/to/workdir
+    autostart=false
+    autorestart=true
+    startretries=3
+    numprocs=4
+    process_name=%(program_name)s_%(process_num)02d
+    stderr_logfile=/var/log/myapp.err.log
+    stdout_logfile=/var/log/myapp.out.log
+    user=someuser
+    environment=USER="someuser",HOME="/home/someuser"
+
+The standard location for the supervisor configj file varies from system to
+system. Consult the `Supervisor configuration documentation`_ for more
+details. It is also possible to specify a config file explicity. To do this,
+execute:
+
+.. code-block:: sh
+
+    supervisord -c /path/to/supervisord.conf
+
+to start the Supervisor process. Then to control processes execute
+``supervisorctl`` commands. For instance to start all processes, run:
+
+.. code-block:: sh
+
+    supervisctl -c /path/to/supervisord.conf start all
+
+To stop all processes run:
+
+.. code-block:: sh
+
+    supervisctl -c /path/to/supervisord.conf start all
+
+And to update the process control after editing the config file, run:
+
+.. code-block:: sh
+
+    supervisctl -c /path/to/supervisord.conf update
 
 
 .. _userguide_server_deployment_automation:
@@ -478,7 +710,30 @@ Monitoring with Supervisord
 A Full Example with Automation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+To deploy the demo site at http://demo.bokehplots.com we combine all of the
+above techniques. Additionally, we used `SaltStack`_ to automate many aspects
+of the deployment.
+
+.. note::
+    Other devops automation tools include `Puppet`_, `Ansible`_, and `Chef`_.
+    We would like to provide specific guidance where ever we can, so if you
+    have experience with these tools and would be interested in contributing
+    your knowledge, please `contact us on the mailing list`_.
+
+You can see all the code for deploying the site at the public GitHub
+repository here:
+
 https://github.com/bokeh/demo.bokehplots.com
 
+You can modify or deploy your own version of this site on an Amazon Linux
+instance by simply running the ``deploy.sh`` script at the top level. With
+minor modifications, this machinery should work on many linux variants.
 
+.. _Ansible: http://www.ansible.com
+.. _Chef: https://www.chef.io/chef/
+.. _contact us on the mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _Puppet: https://puppetlabs.com
+.. _SaltStack: http://saltstack.com
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
+.. _Supervisor: http://supervisord.org
+.. _Supervisor configuration documentation: http://supervisord.org/configuration.html
