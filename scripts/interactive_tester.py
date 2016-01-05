@@ -283,7 +283,7 @@ if __name__ == '__main__':
         test_dir = None
 
     if results.location == 'server' or test_dir is None:
-        print("Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab.")
+        print("Server examples require the bokeh server. Make sure you've typed 'bokeh serve' in another terminal tab.")
         time.sleep(4)
 
     if test_dir is None or 'notebook' in results.location:
