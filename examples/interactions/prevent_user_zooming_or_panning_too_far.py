@@ -8,17 +8,21 @@ from bokeh.sampledata.stocks import AAPL, GOOG
 
 output_file('prevent_user_zooming_or_panning_too_far.html')
 
-## Plot where limits are set automatically by DataRange1d
+## Plot where bounds are set by auto
 N = 4000
 x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
 colors = ["#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50 + 2 * x, 30 + 2 * y)]
-plot_datarange = figure(tools='pan, box_zoom, wheel_zoom, reset', title="Auto bounded (cannot pan outside data)")
-plot_datarange.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
+plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset', title="Cannot pan outside data (bounds='auto')")
+plot_default.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
+###### -- ranges set here -- ########
+plot_default.x_range.bounds = 'auto'
+plot_default.y_range.bounds = 'auto'
+###### -- end -- ########
 
 
-## Plot where limits are manually set
+## Plot where ranges are manually set
 
 ###### -- ranges set here -- ########
 x_range = Range1d(0, 3, bounds=(-1, 3.5))
@@ -28,11 +32,10 @@ plot_range = figure(tools='pan, wheel_zoom, reset', x_range=x_range, y_range=y_r
 plot_range.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9)
 
 
-
-## Manually unbounded (except for y_max) - range1d defaults to Auto so if you don't want bounds, you need to say so
+## Manually set y_max only
 
 ###### -- ranges set here -- ########
-x_range = Range1d(0, 3, bounds=None)
+x_range = Range1d(0, 3)
 y_range = Range1d(0, 3, bounds=(None, 4))
 ###### -- end -- ########
 plot_range_un = figure(tools='pan, wheel_zoom, reset', x_range=x_range, y_range=y_range, title="Unbounded (except for y_max=4)")
@@ -68,12 +71,13 @@ fruits = {
         '2009', '2010', '2011', '2012', '2013',
         '2009', '2010', '2011', '2012', '2013']
 }
-plot_cat_autobounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap (autobounded)")
 
 plot_cat_unbounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap (unbounded)")
+
+plot_cat_autobounded = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None, title="Heatmap (autobounded)")
 ###### -- ranges set here -- ########
-plot_cat_unbounded.x_range.bounds = None
-plot_cat_unbounded.y_range.bounds = None
+plot_cat_autobounded.x_range.bounds = 'auto'
+plot_cat_autobounded.y_range.bounds = 'auto'
 ###### -- end -- ########
 
 plot_cat_bounded = HeatMap(
@@ -108,8 +112,8 @@ plot_extra.line(x, google_y, color='pink', y_range_name='goog')
 plot_extra.add_layout(LinearAxis(y_range_name="goog", major_label_text_color='pink'), 'left')
 
 # Tweak the formats to make it all readable
-plots = [plot_datarange, plot_range, plot_range_un, plot_range_rev, plot_cat_autobounded, plot_cat_unbounded, plot_cat_bounded, plot_extra]
+plots = [plot_default, plot_range, plot_range_un, plot_range_rev, plot_cat_autobounded, plot_cat_unbounded, plot_cat_bounded, plot_extra]
 for plot in plots:
     plot.title_text_font_size = '12pt'
 
-show(vplot(plot_datarange, hplot(plot_range, plot_range_un, plot_range_rev), hplot(plot_cat_autobounded, plot_cat_unbounded, plot_cat_bounded), plot_extra))
+show(vplot(plot_default, hplot(plot_range, plot_range_un, plot_range_rev), hplot(plot_cat_unbounded, plot_cat_autobounded, plot_cat_bounded), plot_extra))
