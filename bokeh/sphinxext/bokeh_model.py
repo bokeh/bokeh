@@ -23,8 +23,6 @@ For the following definition of ``bokeh.sphinxext.sample.Foo``::
 
 the above usage yields the output:
 
-----
-
     .. bokeh-model:: bokeh.sphinxext.sample.Foo
 
 """
