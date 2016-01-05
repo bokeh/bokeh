@@ -39,7 +39,7 @@ class AutoloadJsHandler(SessionHandler):
 
         # TODO: yes, this should resuse code from bokeh.embed more directly
         render_items = [dict(sessionid=session.id, elementid=element_id, use_for_title=True)]
-        script = _script_for_render_items(None, render_items, websocket_url=websocket_url, wrap_script=False)
+        script = _script_for_render_items(None, render_items, websocket_url=websocket_url)
 
         js = AUTOLOAD_JS.render(
             js_urls = resources.js_files,

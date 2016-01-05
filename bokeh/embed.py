@@ -125,7 +125,15 @@ def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     with _ModelInDocument(models):
         (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
-    script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
+    script = _script_for_render_items(docs_json, render_items, websocket_url=None)
+    script = """
+    document.addEventListener("DOMContentLoaded", function(event) {
+    %s
+    });
+
+    """ % script
+    if wrap_script:
+        script = SCRIPT_TAG.render(js_code=script)
     script = encode_utf8(script)
 
     if wrap_plot_info:
@@ -247,7 +255,7 @@ def notebook_div(model, notebook_comms_target=None):
     item = render_items[0]
     item['notebook_comms_target'] = notebook_comms_target
 
-    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    script = _script_for_render_items(docs_json, render_items)
     resources = EMPTY
 
     js = AUTOLOAD_JS.render(
@@ -334,7 +342,7 @@ def autoload_static(model, resources, script_path):
     with _ModelInDocument(model):
         (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
-    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    script = _script_for_render_items(docs_json, render_items)
     item = render_items[0]
 
     js = AUTOLOAD_JS.render(
@@ -437,16 +445,13 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
+def _script_for_render_items(docs_json, render_items, websocket_url=None):
     plot_js = DOC_JS.render(
         websocket_url=websocket_url,
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items)
     )
-    if wrap_script:
-        return SCRIPT_TAG.render(js_code=plot_js)
-    else:
-        return plot_js
+    return plot_js
 
 def _html_page_for_render_items(bundle, docs_json, render_items, title, websocket_url=None,
                                 template=FILE, template_variables={}):
@@ -456,6 +461,7 @@ def _html_page_for_render_items(bundle, docs_json, render_items, title, websocke
     bokeh_js, bokeh_css = bundle
 
     script = _script_for_render_items(docs_json, render_items, websocket_url)
+    script = SCRIPT_TAG.render(js_code=script)
 
     template_variables_full = template_variables.copy()
 
