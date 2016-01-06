@@ -58,8 +58,8 @@ def update():
     new_df = data_changed(energy_per_capita)
     if new_df is not None:
         energy_per_capita = new_df
-        layout.children[0] = create_line(energy_per_capita)
-        layout.children[1] = create_bar(energy_per_capita)
+        plots_box.children[0] = create_line(energy_per_capita)
+        plots_box.children[1] = create_bar(energy_per_capita)
 
 line = create_line(energy_per_capita)
 bar = create_bar(energy_per_capita)
@@ -74,7 +74,8 @@ It opens this plots window and an excel spreadsheet instance with the
 values being plotted. When user changes the values on the excel spreadsheet
 the plots will be updated accordingly. It's not required to save the spreadsheet for the plots to update.
 """)
-layout = vplot(desc1, desc2, desc3, hplot(line, bar))
+plots_box = hplot(line, bar)
+layout = vplot(desc1, desc2, desc3, plots_box)
 curdoc().add_root(layout)
 curdoc().add_periodic_callback(update, 500)
 
