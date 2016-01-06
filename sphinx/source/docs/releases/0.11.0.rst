@@ -91,5 +91,17 @@ Old location               New location
 ``bokeh.validation``       ``bokeh.core.validation``
 ========================== ==============================
 
+If you have been using ``file_html`` and manually passing in
+``js_resources`` or ``css_resources``, your call will no longer
+work. You can still do this, but you pass a tuple to the ``resources``
+argument. 
 
+Before: 
 
+  ``html = file_html(layout, None, title=title, template=template, js_resources=js_resources, css_resources=css_resources)``
+
+v0.11:
+
+  ``html = file_html(layout, resources=(js_resources, css_resources), title=title, template=template)``
+
+Note you can pass ``None`` in place of either ``js_resources`` or ``css_resources``.
