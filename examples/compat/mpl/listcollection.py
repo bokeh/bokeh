@@ -53,6 +53,6 @@ plt.title("MPL support for ListCollection in Bokeh")
 plt.xlim(x.min(), x.max())
 plt.ylim(-1.0, 1.0)
 
-output_file("listcollection.html")
+output_file("listcollection.html", title="listcollection.py example")
 
 show(mpl.to_bokeh())

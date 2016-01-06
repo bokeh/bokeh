@@ -44,7 +44,7 @@ df = df.set_index('cyl')
 bar_plot9 = Bar(df, values='mpg', agg='mean', legend='top_right', title='inferred labels')
 bar_plot9.title_text_font_size = '10pt'
 
-output_file("bar_multi.html")
+output_file("bar_multi.html", title="bar_multi.py example")
 
 show(vplot(
     hplot(bar_plot,  bar_plot2),

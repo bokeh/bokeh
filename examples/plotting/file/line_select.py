@@ -36,6 +36,6 @@ p.text(0, -100, source=source)
 
 p.add_tools(TapTool(callback=CustomJS(code=code, args=dict(source=source))))
 
-output_file("line_select.html")
+output_file("line_select.html", title="line_select.py example")
 
 show(p)

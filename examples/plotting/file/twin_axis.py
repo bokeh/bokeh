@@ -16,6 +16,6 @@ p.extra_y_ranges['foo'] = Range1d(0, 100)
 p.circle(x, y2, fill_color="blue", size=5, line_color="black", y_range_name="foo")
 p.add_layout(LinearAxis(y_range_name="foo"), 'left')
 
-output_file("twin_axis.html")
+output_file("twin_axis.html", title="twin_axis.py example")
 
 show(p)

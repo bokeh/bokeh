@@ -23,6 +23,6 @@ bar = Bar(df,
           tooltips=[('medal', '@medal'), ('country', '@abbr')])
 
 
-output_file("stacked_bar.html")
+output_file("stacked_bar.html", title="stacked_bar.py example")
 
 show(bar)

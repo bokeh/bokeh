@@ -82,6 +82,6 @@ p.select_one(HoverTool).tooltips = [
     ("electronic configuration", "@electronic"),
 ]
 
-output_file("periodic.html")
+output_file("periodic.html", title="periodic.py example")
 
 show(p)

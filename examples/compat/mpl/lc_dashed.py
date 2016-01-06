@@ -25,6 +25,6 @@ ax = plt.axes()
 ax.add_collection(line_segments)
 ax.set_title('Line Collection with dashed colors')
 
-output_file("lc_dashed.html")
+output_file("lc_dashed.html", title="lc_dashed.py example")
 
 show(mpl.to_bokeh())

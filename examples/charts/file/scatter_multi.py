@@ -51,7 +51,7 @@ scatter6 = Scatter(flowers, x=blend('petal_length', 'sepal_length', name='length
                    legend='top_right')
 scatter6.title_text_font_size = '10pt'
 
-output_file("scatter_multi.html")
+output_file("scatter_multi.html", title="scatter_multi.py example")
 
 show(vplot(
     hplot(scatter0, scatter1),

@@ -16,7 +16,7 @@ hist4 = Histogram(df, values='hp', color='cyl',
 hist5 = Histogram(df, values='mpg', bins=50,
                   title="df, values='mpg', bins=50")
 
-output_file("histogram_multi.html")
+output_file("histogram_multi.html", title="histogram_multi.py example")
 
 show(vplot(
     hplot(hist, hist2),

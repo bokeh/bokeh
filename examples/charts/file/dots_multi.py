@@ -36,7 +36,7 @@ dot_plot8.title_text_font_size = '11pt'
 df = df.set_index('cyl')
 dot_plot9 = Dot(df, values='mpg', agg='mean', legend='top_right', title='inferred labels')
 
-output_file("dots_multi.html")
+output_file("dots_multi.html", title="dots_multi.py example")
 
 show(vplot(
     hplot(dot_plot, dot_plot2),

@@ -16,6 +16,6 @@ area1 = Area(data, title="Area Chart", legend="top_left",
 area2 = Area(data, title="Stacked Area Chart", legend="top_left",
              stack=True, xlabel='time', ylabel='memory')
 
-output_file(filename="area.html")
+output_file("area.html", title="area.py example")
 
 show(vplot(area1, area2))

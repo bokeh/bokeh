@@ -6,7 +6,8 @@ from bokeh.models import Range1d, LinearAxis
 from bokeh.plotting import figure
 from bokeh.sampledata.stocks import AAPL, GOOG
 
-output_file('prevent_user_zooming_or_panning_too_far.html')
+output_file('prevent_user_zooming_or_panning_too_far.html',
+            title="prevent_user_zooming_or_panning_too_far.py example")
 
 ## Plot where bounds are set by auto
 N = 4000
