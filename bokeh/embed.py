@@ -286,8 +286,8 @@ def file_html(models,
     Args:
         models (Model or Document or list) : Bokeh object or objects to render
             typically a Model or Document
-        resources (Resources) : a resource configuration for Bokeh JS & CSS assets. Pass ``None`` if
-            using js_resources of css_resources manually.
+        resources (Resources) : a resource configuration for Bokeh JS & CSS assets. To use
+            js_resources or css_resources manually, pass a tuple of (js_resources, css_resources).
         title (str, optional) : a title for the HTML document ``<title>`` tags or None. (default: None)
             If None, attempt to automatically find the Document title from the given plot objects.
         template (Template, optional) : HTML document template (default: FILE)
