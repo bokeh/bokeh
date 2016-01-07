@@ -6,3 +6,4 @@
 
 .. automodule:: bokeh.util
   :members:
+

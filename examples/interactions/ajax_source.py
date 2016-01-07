@@ -91,7 +91,7 @@ def crossdomain(origin=None, methods=None, headers=None,
 app = Flask(__name__)
 
 x = list(np.arange(0, 6, 0.1))
-y = [sin(x) + random() for x in x]
+y = [sin(xx) + random() for xx in x]
 
 @app.route('/data', methods=['GET', 'OPTIONS', 'POST'])
 @crossdomain(origin="*", methods=['GET', 'POST'], headers=None)

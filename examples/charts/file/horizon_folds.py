@@ -14,6 +14,6 @@ data = dict([
 
 hp = Horizon(data, x='x', title="test horizon", ylabel='Random')
 
-output_file("horizon_folds.html")
+output_file("horizon_folds.html", title="horizon_folds.py example")
 
 show(hp)

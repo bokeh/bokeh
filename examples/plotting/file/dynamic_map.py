@@ -27,6 +27,6 @@ p.add_tile(STAMEN_TONER)
 p.add_dynamic_image(image_source)
 p.add_tile(STAMEN_TONER_LABELS, render_parents=False)
 
-output_file('dynamic_map.html')
+output_file('dynamic_map.html', title="dynamic_map.py example")
 
 show(p)

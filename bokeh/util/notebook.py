@@ -58,7 +58,7 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw,
-        css_raw = resources.css_raw,
+        css_raw = resources.css_raw_str,
         elementid = None,
     )
 

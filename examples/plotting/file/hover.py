@@ -44,6 +44,6 @@ hover = p.select_one(HoverTool).tooltips = [
     ("bar", "@bar"),
 ]
 
-output_file("hover.html")
+output_file("hover.html", title="hover.py example")
 
 show(p)  # open a browser

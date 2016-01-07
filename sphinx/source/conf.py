@@ -126,39 +126,44 @@ html_context = {
     'SITENAME': 'Bokeh Docs',
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
+    # Nav
     'NAV': (
         ('About', MAIN_SITE + '/pages/about-bokeh.html'),
         ('Gallery', '/docs/gallery.html'),
         ('Docs', '//bokeh.pydata.org/en/latest/'),
         ('Github', '//github.com/bokeh/bokeh'),
     ),
-    # Community Links
-    'COMMUNITY': (
-        ('Contribute', '#'),
-        ('Join our mailing list', '#')
+    # Links
+    'LINKS': (
+        ('FAQs', MAIN_SITE + '/pages/faqs.html'),
+        ('Technical vision', MAIN_SITE + '/pages/technical-vision.html'),
+        ('Roadmap', MAIN_SITE + '/pages/roadmap.html'),
+        ('Citation', MAIN_SITE + '/pages/citation.html'),
     ),
     # About Links
     'ABOUT': (
-        ('Team', '#'),
-        ('Technical vision', '#'),
-        ('Contact', MAIN_SITE + '/pages/contact.html')
+        ('About', MAIN_SITE + '/pages/about-bokeh.html'),
+        ('Team', MAIN_SITE + '/pages/team.html'),
+        ('Contact', MAIN_SITE + '/pages/contact.html'),
     ),
-    # Social widget
+    # Social links
     'SOCIAL': (
+        ('Contribute', MAIN_SITE + '/pages/contribute.html'),
+        ('Mailing list', '//groups.google.com/a/continuum.io/forum/#!forum/bokeh'),
         ('Github', '//github.com/bokeh/bokeh'),
-        ('Twitter', '//twitter.com/bokehplots'),
-        ('Youtube', '#'),
+        ('Twitter', '//twitter.com/BokehPlots'),
+        ('YouTube', '//www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw')
     ),
-    # Links for the docs navigation
+    # Links for the docs sub navigation
     'NAV_DOCS': (
         ('Installation', 'installation'),
         ('User Guide', 'user_guide'),
         ('Gallery', 'gallery'),
         ('Reference', 'reference'),
-        ('Releases', 'releases'),
+        ('Releases', 'releases/0.11.0'),
         ('Developer Guide', 'dev_guide'),
     ),
-    'ALL_VERSIONS': ['0.10.0', '0.9.3', '0.8.2', '0.7.0', '0.6.0', '0.5.0'],
+    'ALL_VERSIONS': ['0.10.0', '0.9.3', '0.8.2'],
     'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 

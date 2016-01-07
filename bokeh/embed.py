@@ -30,6 +30,11 @@ from .model import Model, _ModelInDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
 
+def _wrap_in_function(code):
+    # indent and wrap Bokeh function def around
+    code = "\n".join(["    " + line for line in code.split("\n")])
+    return 'Bokeh.$(function() {\n%s\n});' % code
+
 def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -254,7 +259,7 @@ def notebook_div(model, notebook_comms_target=None):
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
-        css_raw = resources.css_raw,
+        css_raw = resources.css_raw_str,
         elementid = item['elementid'],
     )
     div = _div_for_render_item(item)
@@ -281,8 +286,7 @@ def file_html(models,
     Args:
         models (Model or Document or list) : Bokeh object or objects to render
             typically a Model or Document
-        resources (Resources) : a resource configuration for Bokeh JS & CSS assets. Pass ``None`` if
-            using js_resources of css_resources manually.
+        resources (Resources or tuple(JSResources or None, CSSResources or None)) : a resource configuration for Bokeh JS & CSS assets.
         title (str, optional) : a title for the HTML document ``<title>`` tags or None. (default: None)
             If None, attempt to automatically find the Document title from the given plot objects.
         template (Template, optional) : HTML document template (default: FILE)
@@ -326,8 +330,9 @@ def autoload_static(model, resources, script_path):
         ValueError
 
     '''
-    if resources.mode == 'inline':
-        raise ValueError("autoload_static() requires non-inline resources")
+    # TODO: maybe warn that it's not exactly useful, but technically possible
+    # if resources.mode == 'inline':
+    #     raise ValueError("autoload_static() requires non-inline resources")
 
     model = _check_one_model(model)
 
@@ -341,7 +346,7 @@ def autoload_static(model, resources, script_path):
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [script],
-        css_raw = resources.css_raw,
+        css_raw = resources.css_raw_str,
         elementid = item['elementid'],
     )
 
@@ -438,11 +443,12 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
     return encode_utf8(tag)
 
 def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
-    plot_js = DOC_JS.render(
+    plot_js = _wrap_in_function(DOC_JS.render(
         websocket_url=websocket_url,
         docs_json=serialize_json(docs_json),
         render_items=serialize_json(render_items)
-    )
+    ))
+
     if wrap_script:
         return SCRIPT_TAG.render(js_code=plot_js)
     else:

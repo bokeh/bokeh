@@ -57,6 +57,6 @@ layout = hplot(
     vform(amp_slider, freq_slider, phase_slider, offset_slider),
 )
 
-output_file("python_callback.html")
+output_file("python_callback.html", title="python_callback.py example")
 
 show(layout)

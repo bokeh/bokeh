@@ -119,7 +119,9 @@ inject_css = (url) ->
   link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
   $('body').append(link)
 
-# TODO: inject_raw_css
+inject_raw_css = (css) ->
+  style = $("<style>").html(css)
+  $('body').append(style)
 
 # pull missing render item fields from data- attributes
 fill_render_item_from_script_tag = (script, item) ->
@@ -188,6 +190,8 @@ embed_items = (docs_json, render_items, websocket_url=null) ->
           console.log("Error rendering Bokeh items ", error)
       )
 
-module.exports =
+module.exports = {
   embed_items: embed_items
   inject_css: inject_css
+  inject_raw_css: inject_raw_css
+}

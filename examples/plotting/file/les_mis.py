@@ -62,6 +62,6 @@ p.select_one(HoverTool).tooltips = [
     ('count', '@count'),
 ]
 
-output_file("les_mis.html")
+output_file("les_mis.html", title="les_mis.py example")
 
 show(p) # show the plot

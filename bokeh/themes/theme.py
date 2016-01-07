@@ -1,3 +1,7 @@
+''' Provide a ``Theme`` class for specify overrides for default values
+for Bokeh :class:`~bokeh.model.Model` properties.
+
+'''
 from __future__ import absolute_import, print_function
 
 import yaml
@@ -14,6 +18,17 @@ _empty_dict = dict()
 # don't monitor it for changes. If you make this mutable by adding
 # any kind of setter, you could have to refactor some other code.
 class Theme(object):
+    '''
+
+    Args:
+        filename (str, optional) : path to a YAML theme file
+        json (str, optional) : a JSON dictionary specifying theme values
+
+    Raises:
+        ValueError
+            If neither ``filename`` or ``json`` is supplied.
+
+    '''
     def __init__(self, filename=None, json=None):
         if (filename is not None) and (json is not None):
             raise ValueError("Theme should be constructed from a file or from json not both")
@@ -78,8 +93,13 @@ class Theme(object):
         return self._by_class_cache[cls.__name__]
 
     def apply_to_model(self, model):
-        """Apply this theme to a model. Don't call this method directly,
-        instead set the theme on the Document the model is a part of."""
+        ''' Apply this theme to a model.
+
+        .. warning::
+            Typically, don't call this method directly. Instead, set the theme
+            on the :class:`~bokeh.document.Document` the model is a part of.
+
+        '''
         model.apply_theme(self._for_class(model.__class__))
 
         # a little paranoia because it would be Bad(tm) to mess

@@ -228,13 +228,13 @@ def _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium):
 
 
 def test_autorange_prevents_panning_but_can_zoom_in_with_datarange1d(output_file_url, selenium):
-    plot = make_pan_plot_with_callback(xr=DataRange1d(), yr=DataRange1d())
+    plot = make_pan_plot_with_callback(xr=DataRange1d(bounds='auto'), yr=DataRange1d(bounds='auto'))
     save(plot)
     _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium)
 
 
 def test_autorange_prevents_panning_but_can_zoom_in_with_range1d(output_file_url, selenium):
-    plot = make_pan_plot_with_callback(xr=Range1d(0.45, 3), yr=DataRange1d(0, 3))
+    plot = make_pan_plot_with_callback(xr=Range1d(0.45, 3, bounds='auto'), yr=DataRange1d(0, 3, bounds='auto'))
     save(plot)
     _assert_autorange_prevents_panning_but_can_zoom(output_file_url, selenium)
 

@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import json
 import copy
 from os.path import basename, join, relpath
 import re
@@ -523,6 +524,10 @@ class CSSResources(BaseResources):
     def css_raw(self):
         _, raw = self._resolve('css')
         return raw
+
+    @property
+    def css_raw_str(self):
+        return [ json.dumps(css) for css in self.css_raw ]
 
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)

@@ -30,9 +30,10 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
     geo_source = GeoJSONDataSource(geojson=geojson)
 
     p = figure()
-    p.circle(alpha=0.9, source=geo_source)
+    p.circle(x='x', y='y', alpha=0.9, source=geo_source)
     output_file("geojson.html")
     show(p)
+
 
 The important thing to know is that behind the scenes, Bokeh converts the
 GeoJSON coordinates into columns called `x` and `y` (`z` where appropriate)
