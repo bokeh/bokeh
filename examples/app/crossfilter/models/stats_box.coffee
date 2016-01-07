@@ -14,6 +14,12 @@ class StatsBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
 
+    styles =
+       rel: "stylesheet",
+       type: "text/css",
+       href: "//s3.amazonaws.com/bcollins/stats_box.css"
+
+    $("<link/>", styles).appendTo("head")
 
     @views = {}
     @render()
@@ -35,37 +41,14 @@ class StatsBoxView extends ContinuumView
       if k == 'type'
         field_type = v
 
-    # create caption
-    $caption = $('<caption/>')
-    $caption.append("<strong>#{name}</strong>")
-    $caption.css('font-family', 'Lucida Sans Unicode')
-    $caption.css('text-align', 'left')
-
     # create table
-    $table = $('<table/>')
-    $table.append($caption)
+    $table = $('<table class="bk-stats-table" />')
+    $table.append("""<tr><th>#{name}</th><th></th></tr>""")
 
     for k,v of @mget("display_items")
       if k in ['name','type']
         continue
       $table.append("""<tr><td class="table-field"><strong>#{k}</strong></td><td class="table-value">#{v}</td></tr>""")
-
-    # add style
-    $table.css('font-family', 'Lucida Sans Unicode')
-    $table.css('font-size', '12px')
-    $table.css('background', '#fff')
-    $table.css('width', '10em')
-    $table.css('border-collapse', 'collapse')
-    $table.css('text-align', 'left')
-    $table.css('margin', '20px')
-
-    $table.find('td').css('padding', '2em')
-    $table.find('td').css('border', '#4E95F4 1px solid')
-    $table.find('tr').css('background', '#B81F3')
-
-    $table.find('td.table-field').css('padding', '2em')
-    $table.find('td').css('border', '#4E95F4 1px solid')
-    $table.find('tr').css('background', '#B81F3')
 
     @$el.append($table)
 

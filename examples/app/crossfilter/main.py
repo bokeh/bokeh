@@ -11,6 +11,7 @@ from bokeh.models.widgets import RadioButtonGroup, DataTable
 from bokeh.properties import Dict, Enum, Instance, List, String, Any, Int
 from bokeh.plotting import Figure
 from bokeh.model import Model
+from bokeh.models import Range1d
 from bokeh.sampledata.autompg import autompg
 from bokeh.io import curdoc
 
@@ -26,6 +27,7 @@ class AppModel(object):
     '''todo: add docs'''
 
     def __init__(self, df):
+        self.doc = None
         self.df = df
         self.data = ColumnDataSource(df)
         self.columns = []
@@ -168,34 +170,33 @@ class AppView(BaseView):
 
         # user defined model
         self.main_container = StyleableBox()
-        self.main_container.children = [self.controls_view.layout]
+        self.main_container.children = [self.controls_view.layout, self.plot_view.layout]
         self.main_container.css_properties = dict(position='absolute',
-                                                    top='0',
-                                                    right='0',
-                                                    bottom='0',
+                                                    top='1em',
+                                                    right='1em',
+                                                    left='12.5em',
+                                                    bottom='1em',
                                                     background="#373737",
                                                 )
 
         self.side_container = StyleableBox(self.filter_view.layout)
-        self.side_container.css_properties = dict(position='absolute', 
-                                                    top='0',
-                                                    left='0',
-                                                    bottom='0',
-                                                    background="#373737",
-                                                )
+        self.side_container.css_properties = {}
+        self.side_container.css_properties['position'] = 'absolute'
+        self.side_container.css_properties['overflow'] = 'scroll'
+        self.side_container.css_properties['top'] = '1em'
+        self.side_container.css_properties['left'] = '1em'
+        self.side_container.css_properties['bottom'] = '1em'
 
         # register view for update with contoller
         self.controller.register_view_for_update(self.plot_view)
         self.controller.register_view_for_update(self.filter_view)
         self.controller.register_view_for_update(self)
-        self.layout = HBox(children=[self.side_container, self.main_container])
-        
-        #self.update()
+
+        self.update()
 
     def update(self):
         '''TODO: add docs'''
-        pass
-        #self.layout = HBox(children=[self.side_container, self.main_container])
+        self.layout = HBox(children=[self.side_container, self.main_container])
 
 class FilterView(BaseView):
 
@@ -207,7 +208,7 @@ class FilterView(BaseView):
         self.update()
 
     def update(self):
-        self.layout.children = [StatsBox(display_items=c) for c in self.model.columns]
+        self.layout.children = [StatsBox(display_items=c) for c in self.model.continuous_columns]
 
 
 class PlotView(BaseView):
@@ -222,6 +223,7 @@ class PlotView(BaseView):
         d['y'] = self.model.y_field
         d['xlabel'] = self.model.x_field
         d['ylabel'] = self.model.y_field
+        d['color'] = self.model.color_field
         return d
 
     @property
@@ -241,21 +243,25 @@ class PlotView(BaseView):
     def create_children(self):
         '''TODO: add docs'''
         self.layout = StyleableBox()
-        self.layout.children = [None]
-        #self.update()
+
+        self.layout.css_properties = {}
+        self.layout.css_properties['position'] = 'relative'
+        self.layout.css_properties['top'] = '0'
+        self.layout.css_properties['left'] = '0'
+        self.layout.css_properties['right'] = '0'
+        self.layout.css_properties['bottom'] = '0'
+        self.layout.css_properties['padding'] = "1em"
+
+        self.update()
 
     def update(self):
         '''TODO: add docs'''
         if self.model.plot_type == 'scatter':
-            print(self.scatter_args)
             self.scatter = Scatter(**self.scatter_args())
-            self.layout.children[0] = self.scatter
-            print('>>>>> GOODBYD')
-            pass
+            self.layout.children = [self.scatter]
         elif self.model.plot_type == 'bar':
             self.bar = Bar(**self.bar_args)
-            self.layout.children[0] = self.bar
-
+            self.layout.children = [self.bar]
 
 class ControlsView(BaseView):
 
@@ -269,7 +275,7 @@ class ControlsView(BaseView):
         self.layout.css_properties['left'] = '0'
         self.layout.css_properties['right'] = '0'
         self.layout.css_properties['height'] = '4em'
-        self.layout.css_properties['background'] = "#336688"
+        self.layout.css_properties['background'] = "#31AADE"
         self.layout.css_properties['padding'] = ".5em"
 
         cols = self.model.col_names
