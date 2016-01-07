@@ -217,7 +217,7 @@ class PlotView extends ContinuumView
   _update_single_range: (rng, range_info, is_panning) ->
     # Is this a reversed range?
     reversed = if rng.get('start') > rng.get('end') then true else false
-    
+
     # Prevent range from going outside limits
     # Also ensure that range keeps the same delta when panning
 
@@ -228,30 +228,30 @@ class PlotView extends ContinuumView
       if reversed
         if min?
           if min >= range_info['end']
-            range_info['end'] = min 
+            range_info['end'] = min
             if is_panning?
               range_info['start'] = rng.get('start')
         if max?
           if max <= range_info['start']
-            range_info['start'] = max 
+            range_info['start'] = max
             if is_panning?
               range_info['end'] = rng.get('end')
       else
         if min?
           if min >= range_info['start']
-            range_info['start'] = min 
+            range_info['start'] = min
             if is_panning?
               range_info['end'] = rng.get('end')
         if max?
           if max <= range_info['end']
-            range_info['end'] = max 
+            range_info['end'] = max
             if is_panning?
               range_info['start'] = rng.get('start')
 
     if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
       rng.have_updated_interactively = true
       rng.set(range_info)
-      rng.get('callback')?.execute(@model)
+      rng.get('callback')?.execute(rng)
 
   update_range: (range_info, is_panning) ->
     @pause
