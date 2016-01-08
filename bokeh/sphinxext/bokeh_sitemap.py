@@ -1,3 +1,6 @@
+""" Generate a sitemap.txt to aid with search indexing.
+
+"""
 def setup(app):
     app.connect('html-page-context', add_html_link)
     app.connect('build-finished', create_sitemap)
