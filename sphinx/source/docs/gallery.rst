@@ -20,6 +20,7 @@ can be processed to trigger more visual updates.
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <style type="text/css">
         .row { margin-top: 1em}
+        #gallery, #server-app-examples { overflow-x: visible }
     </style>
 
     <div class="row">
@@ -169,6 +170,4 @@ plot.
 .. bokeh-gallery:: main_gallery.json
 
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
-
-
 
