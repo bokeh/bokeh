@@ -171,13 +171,12 @@ class AppView(BaseView):
         # user defined model
         self.main_container = StyleableBox()
         self.main_container.children = [self.controls_view.layout, self.plot_view.layout]
-        self.main_container.css_properties = dict(position='absolute',
-                                                    top='1em',
-                                                    right='1em',
-                                                    left='12.5em',
-                                                    bottom='1em',
-                                                    background="#373737",
-                                                )
+        self.main_container.css_properties = {}
+        self.main_container.css_properties['position'] = 'absolute'
+        self.main_container.css_properties['top'] = '1em'
+        self.main_container.css_properties['right'] = '1em'
+        self.main_container.css_properties['left'] = '12.5em'
+        self.main_container.css_properties['bottom'] = '1em'
 
         self.side_container = StyleableBox(self.filter_view.layout)
         self.side_container.css_properties = {}
@@ -245,12 +244,12 @@ class PlotView(BaseView):
         self.layout = StyleableBox()
 
         self.layout.css_properties = {}
-        self.layout.css_properties['position'] = 'relative'
-        self.layout.css_properties['top'] = '0'
-        self.layout.css_properties['left'] = '0'
-        self.layout.css_properties['right'] = '0'
+        self.layout.css_properties['position'] = 'absolute'
+        self.layout.css_properties['top'] = '6em'
         self.layout.css_properties['bottom'] = '0'
-        self.layout.css_properties['padding'] = "1em"
+        self.layout.css_properties['right'] = '0'
+        self.layout.css_properties['left'] = '0'
+        self.layout.css_properties['background'] = "#2F2F2F"
 
         self.update()
 
@@ -285,7 +284,6 @@ class ControlsView(BaseView):
         self.color_selector = self.add_select('color', cols, 'color_field')
         self.size_selector = self.add_select('size', cols, 'size_field')
         self.agg_selector = self.add_select('agg', self.model.agg_options, 'agg_type')
-
 
 model = AppModel(autompg)
 controller = AppController(model)
