@@ -28,7 +28,7 @@ can be processed to trigger more visual updates.
     <div class="col-sm-6">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="apps/movies">
+          <a target="_blank" href="//demo.bokehplots.com/apps/movies">
           <img src="http://bokeh.pydata.org/static/movies_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
@@ -46,7 +46,7 @@ can be processed to trigger more visual updates.
     <div class="col-sm-6">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="apps/selection_histogram">
+          <a target="_blank" href="//demo.bokehplots.com/apps/selection_histogram">
             <img src="http://bokeh.pydata.org/static/selection_histogram_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
@@ -67,7 +67,7 @@ can be processed to trigger more visual updates.
     <div class="col-sm-6">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="apps/weather">
+          <a target="_blank" href="//demo.bokehplots.com/apps/weather">
             <img src="http://bokeh.pydata.org/static/weather_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
@@ -87,7 +87,7 @@ can be processed to trigger more visual updates.
     <div class="col-sm-6">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="apps/sliders">
+          <a target="_blank" href="//demo.bokehplots.com/apps/sliders">
             <img src="http://bokeh.pydata.org/static/sliders_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
@@ -107,7 +107,7 @@ can be processed to trigger more visual updates.
     <div class="col-sm-6">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="apps/timeout">
+          <a target="_blank" href="//demo.bokehplots.com/apps/timeout">
             <img src="http://bokeh.pydata.org/static/timeout_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
@@ -125,7 +125,7 @@ can be processed to trigger more visual updates.
     <div class="col-sm-6">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="apps/random_tiles">
+          <a target="_blank" href="//demo.bokehplots.com/apps/random_tiles">
             <img src="http://bokeh.pydata.org/static/random_tiles_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
