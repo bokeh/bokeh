@@ -11,6 +11,16 @@ To build the gallery, ggplot and seaborn are also needed:
     $ pip install ggplot
     $ pip install seaborn
 
+
+Manual actions for new releases
+===============================
+
+In ``conf.py`` the links that appear in the docs nav appear. On a new release, the 
+releases link should be changed to the latest release notes (we should find a way to automate this)
+
+The link to the sitemap should be added to the Google Search Console.
+
+
 Building
 ========
 
@@ -51,4 +61,5 @@ objects.graffle
 ===============
 The objects.graffle file was created using the commercial OmniGraffle package. It 
 was exported as a PNG image in _images/objects.png.
+
 
