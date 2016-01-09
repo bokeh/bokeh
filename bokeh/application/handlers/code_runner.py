@@ -11,14 +11,15 @@ import uuid
 class _CodeRunner(object):
     """Load and run a Python file."""
 
-    def __init__(self, path):
+    def __init__(self, path, source=None):
         self._failed = False
         self._error = None
         self._error_detail = None
 
         import ast
         self._code = None
-        source = codecs.open(path, 'r', 'UTF-8').read()
+        if source is None:
+            source = codecs.open(path, 'r', 'UTF-8').read()
         try:
             nodes = ast.parse(source, path)
             self._code = compile(nodes, filename=path, mode='exec')

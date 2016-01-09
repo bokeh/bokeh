@@ -7,7 +7,7 @@ import os
 import sys
 
 from bokeh.application import Application
-from bokeh.application.handlers import ScriptHandler, DirectoryHandler
+from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
 
 def die(message):
     ''' Print an error message and exit.
@@ -38,7 +38,10 @@ def build_single_handler_application(path):
     if os.path.isdir(path):
         handler = DirectoryHandler(filename=path)
     else:
-        handler = ScriptHandler(filename=path)
+        if path.endswith(".ipynb"):
+            handler = NotebookHandler(filename=path)
+        else:
+            handler = ScriptHandler(filename=path)
 
     if handler.failed:
         raise RuntimeError("Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail))
