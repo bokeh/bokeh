@@ -19,12 +19,12 @@ def _callback_argspec(callback):
     else:
         return getargspec(callback.__call__)
 
-def _check_callback(callback, fargs):
+def _check_callback(callback, fargs, what="Callback functions"):
     '''Bokeh-internal function to check callback signature'''
     argspec = _callback_argspec(callback)
     formatted_args = formatargspec(*argspec)
     margs = ('self',) + fargs
-    error_msg = "Callbacks functions must have signature func(%s), got func%s"
+    error_msg = what + " must have signature func(%s), got func%s"
     defaults_length = len(argspec.defaults) if argspec.defaults else 0
 
     if isinstance(callback, FunctionType):

@@ -1,0 +1,83 @@
+{#
+Renders HTML for loading BokehJS JavaScript code and CSS into a Jupyter
+Notebook according to a Resources object.
+
+:param plot_resources: typically the output of RESOURCES
+:type plot_resources: str
+
+:param logo_url: URL to Bokeh logo to dispay
+:type logo_url: str
+
+:param verbose: whether to display verbose info about BokehJS configuration, etc
+:type verbose: bool
+
+:param bokeh_version: the current version of Bokeh
+:type bokeh_version: str
+
+:param js_info: information about the location, version, etc. of BokehJS code
+:type js_info: str
+
+:param css_info: information about the location, version, etc. of BokehJS css
+:type css_info: str
+
+:param warnings: a list of warnings to display to user
+:type warnings: list[str]
+
+#}
+
+    <script type="text/javascript">
+      {{ bootstrap|indent(6) }}
+    </script>
+
+    {%- if not hide_banner %}
+    <div>
+        <a href="http://bokeh.pydata.org" target="_blank" class="bk-logo bk-logo-small bk-logo-notebook"></a>
+        <span>BokehJS successfully loaded.</span>
+    </div>
+
+    {%- if verbose %}
+    <style>
+        p.bokeh_notebook { margin-left: 24px; }
+        table.bokeh_notebook {
+            border: 1px solid #e7e7e7;
+            margin: 5px;
+            margin-left: 24px;
+            width: 80%;
+        }
+        tr.bokeh_notebook {
+            border: 1px solid #e7e7e7;
+            background-color: #FFF;
+        }
+        th.bokeh_notebook {
+            border: 1px solid #e7e7e7;
+            background-color: #f8f8f8;
+            text-align: center;
+        }
+        td.bokeh_notebook {
+            border: 1px solid #e7e7e7;
+            background-color: #d2d7ec;
+            text-align: left;
+        }
+    </style>
+    <p class="bokeh_notebook">Using Settings:</p>
+    <table class="bokeh_notebook">
+        <tr class="bokeh_notebook">
+            <th class="bokeh_notebook">Bokeh</th>
+            <th class="bokeh_notebook">version</th>
+            <td class="bokeh_notebook">{{ bokeh_version }}</td>
+        </tr>
+        <tr class="bokeh_notebook">
+            <th class="bokeh_notebook" rowspan="2">BokehJS</th>
+            <th class="bokeh_notebook">js</th>
+            <td class="bokeh_notebook">{{ js_info }}</td>
+        </tr>
+        <tr class="bokeh_notebook">
+            <th class="bokeh_notebook">css</th>
+            <td class="bokeh_notebook">{{ css_info }}</td>
+        </tr>
+    </table>
+    {%- endif %}
+    {%- for warning in warnings %}
+    <p style="background-color: #f2d7dc;">{{ warning }}</p>
+    {%- endfor %}
+    {%- endif %}

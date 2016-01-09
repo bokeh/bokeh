@@ -24,7 +24,7 @@ from ..glyphs import LineGlyph, PointGlyph
 from ..attributes import DashAttr, ColorAttr, MarkerAttr
 from ..data_source import NumericalColumnsAssigner
 from ...models.sources import ColumnDataSource
-from ...properties import Bool, String, List
+from ...core.properties import Bool, String, List
 from ..operations import Stack, Dodge
 
 # -----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ def Line(data=None, x=None, y=None, **kws):
         x (str or list(str), optional): specifies variable(s) to use for x axis
         y (str or list(str), optional): specifies variable(s) to use for y axis
 
-    In addition the the parameters specific to this chart,
+    In addition to the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     .. note::

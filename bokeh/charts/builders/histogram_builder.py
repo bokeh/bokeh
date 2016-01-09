@@ -21,7 +21,7 @@ the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 from ...models import Range1d
-from ...properties import Bool, Int
+from ...core.properties import Bool, Int
 
 from ..builder import create_and_build
 from .bar_builder import BarBuilder
@@ -53,12 +53,15 @@ def Histogram(data, values=None, label=None, color=None, agg="count",
         table-like input data
       label (str or list(str), optional): the categorical variable to use for creating
         separate histograms
-      color (str or list(str) or bokeh.charts._attributes.ColorAttr, optional): the
+      color (str or list(str) or `~bokeh.charts._attributes.ColorAttr`, optional): the
         categorical variable or color attribute specification to use for coloring the
-        histogram.
+        histogram, or explicit color as a string.
       agg (str, optional): how to aggregate the bins. Defaults to "count".
       bins (int, optional): the number of bins to use. Defaults to None to auto select.
       **kw:
+
+    In addition to the parameters specific to this chart,
+    :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
         :class:`Chart`: includes glyph renderers that generate the histograms

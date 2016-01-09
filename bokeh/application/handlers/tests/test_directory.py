@@ -30,7 +30,7 @@ def _with_directory_contents(contents, func):
 script_adds_two_roots_template = """
 from bokeh.io import curdoc
 from bokeh.model import Model
-from bokeh.properties import Int, Instance
+from bokeh.core.properties import Int, Instance
 
 class %s(Model):
     bar = Int(1)
@@ -46,6 +46,17 @@ curdoc().add_root(%s())
 def script_adds_two_roots(some_model_name, another_model_name):
     return script_adds_two_roots_template % (another_model_name, some_model_name,
                                              another_model_name, some_model_name)
+
+script_has_lifecycle_handlers = """
+def on_server_loaded(server_context):
+    return "on_server_loaded"
+def on_server_unloaded(server_context):
+    return "on_server_unloaded"
+def on_session_created(session_context):
+    return "on_session_created"
+def on_session_destroyed(session_context):
+    return "on_session_destroyed"
+"""
 
 class TestDirectoryHandler(unittest.TestCase):
 
@@ -117,3 +128,27 @@ some.foo = 57
         doc.theme = None
         self.assertEqual(2, some_model.foo)
         self.assertEqual(1, another_model.bar)
+
+    def test_directory_with_server_lifecycle(self):
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        _with_directory_contents({
+            'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
+                                              'AnotherModelInTestDirectoryWithLifecycle'),
+            'server_lifecycle.py' : script_has_lifecycle_handlers
+        }, load)
+
+        assert len(doc.roots) == 2
+
+        handler = result['handler']
+        assert "on_server_loaded" == handler.on_server_loaded(None)
+        assert "on_server_unloaded" == handler.on_server_unloaded(None)
+        assert "on_session_created" == handler.on_session_created(None)
+        assert "on_session_destroyed" == handler.on_session_destroyed(None)

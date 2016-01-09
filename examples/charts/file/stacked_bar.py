@@ -1,6 +1,7 @@
+
 from bokeh.charts import Bar, output_file, show
-from bokeh.charts.operations import blend
 from bokeh.charts.attributes import cat, color
+from bokeh.charts.operations import blend
 from bokeh.charts.utils import df_from_json
 from bokeh.sampledata.olympics2014 import data
 
@@ -22,5 +23,6 @@ bar = Bar(df,
           tooltips=[('medal', '@medal'), ('country', '@abbr')])
 
 
-output_file("stacked_bar.html")
+output_file("stacked_bar.html", title="stacked_bar.py example")
+
 show(bar)

@@ -1,11 +1,11 @@
-from bokeh.plotting import figure
-from bokeh.models import Range1d
-from bokeh.embed import components
-from bokeh.resources import INLINE
+
 from jinja2 import Template
-import webbrowser
-import os
-import six
+
+from bokeh.embed import components
+from bokeh.models import Range1d
+from bokeh.plotting import figure
+from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 # create some data
 x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -62,15 +62,14 @@ template = Template('''<!DOCTYPE html>
 js_resources = INLINE.render_js()
 css_resources = INLINE.render_css()
 
-html_file = 'embed_multiple.html'
+filename = 'embed_multiple.html'
 
 html = template.render(js_resources=js_resources,
                        css_resources=css_resources,
                        script=script,
                        div=div)
 
-with open(html_file, 'w') as textfile:
-    textfile.write(html)
+with open(filename, 'w') as f:
+    f.write(html)
 
-url = 'file:{}'.format(six.moves.urllib.request.pathname2url(os.path.abspath(html_file)))
-webbrowser.open(url)
+view(filename)

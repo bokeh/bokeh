@@ -11,7 +11,7 @@ from six import class_types
 from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter
 
 from bokeh.model import Model
-from bokeh.properties import Property
+from bokeh.core.properties import Property
 
 def _add_directive_header(self, sig):
     # Note: we are supplying our own version of this function because

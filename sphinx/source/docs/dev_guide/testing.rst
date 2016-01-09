@@ -3,10 +3,6 @@
 Testing
 =======
 
-.. contents::
-    :local:
-    :depth: 2
-
 There is a TravisCI project configured to execute on every GitHub push, it can
 be viewed at: https://travis-ci.org/bokeh/bokeh.
 

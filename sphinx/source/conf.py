@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+import os
+
 #
 # Bokeh documentation build configuration file, created by
 # sphinx-quickstart on Sat Oct 12 23:43:03 2013.
@@ -11,7 +14,6 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sphinx_bootstrap_theme
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -56,8 +58,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Bokeh'
-copyright = u'2013, Continuum Analytics'
+project = 'Bokeh'
+copyright = '© Copyright 2015, Continuum Analytics.'
 
 # Get the standard computed Bokeh version string to use for |version|
 # and |release|
@@ -116,170 +118,78 @@ autodoc_member_order = 'groupwise'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'bootstrap'
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-html_theme_options = {
-    # Navigation bar title. (Default: ``project`` value)
-    #'navbar_title': "Demo",
+html_theme = 'bokeh_theme'
+html_theme_path = ['.']
+MAIN_SITE = '//bokehplots.com'
 
-    # Tab name for entire site. (Default: "Site")
-    'navbar_site_name': "Site",
-
-    # A list of tuples containing pages or urls to link to.
-    # Valid tuples should be in the following forms:
-    #    (name, page)                 # a link to a page
-    #    (name, "/aa/bb", 1)          # a link to an arbitrary relative url
-    #    (name, "http://example.com", True) # arbitrary absolute url
-    # Note the "1" or "True" value above as the third argument to indicate
-    # an arbitrary url.
-    'navbar_links': [
-        ("Gallery", "docs/gallery"),
-    ],
-
-    # Render the next and previous page links in navbar. (Default: true)
-    'navbar_sidebarrel': False,
-
-    # Render the current pages TOC in the navbar. (Default: true)
-    'navbar_pagenav': True,
-
-    # Global TOC depth for "site" navbar tab. (Default: 1)
-    # Switching to -1 shows all levels.
-    'globaltoc_depth': 3,
-
-    # Include hidden TOCs in Site navbar?
-    #
-    # Note: If this is "false", you cannot have mixed ``:hidden:`` and
-    # non-hidden ``toctree`` directives in the same page, or else the build
-    # will break.
-    #
-    # Values: "true" (default) or "false"
-    'globaltoc_includehidden': "true",
-
-    # HTML navbar class (Default: "navbar") to attach to <div> element.
-    # For black navbar, do "navbar navbar-inverse"
-    'navbar_class': "navbar navbar-inverse",
-
-    # Fix navigation bar to top of page?
-    # Values: "true" (default) or "false"
-    'navbar_fixed_top': "false",
-
-    # Location of link to source.
-    # Options are "nav" (default), "footer" or anything else to exclude.
-    'source_link_position': "footer",
-
-    # Bootswatch (http://bootswatch.com/) theme.
-    #
-    # Options are nothing with "" (default) or the name of a valid theme
-    # such as "amelia" or "cosmo".
-    #'bootswatch_theme': "united",
-
-    # Choose Bootstrap version.
-    # Values: "3" (default) or "2" (in quotes)
-    'bootstrap_version': "3",
+html_context = {
+    'SITENAME': 'Bokeh Docs',
+    'DESCRIPTION': 'Bokeh visualization library, documentation site.',
+    'AUTHOR': 'Bokeh contributors',
+    # Nav
+    'NAV': (
+        ('About', MAIN_SITE + '/pages/about-bokeh.html'),
+        ('Gallery', '/docs/gallery.html'),
+        ('Docs', '//bokeh.pydata.org/en/latest/'),
+        ('Github', '//github.com/bokeh/bokeh'),
+    ),
+    # Links
+    'LINKS': (
+        ('FAQs', MAIN_SITE + '/pages/faqs.html'),
+        ('Technical vision', MAIN_SITE + '/pages/technical-vision.html'),
+        ('Roadmap', MAIN_SITE + '/pages/roadmap.html'),
+        ('Citation', MAIN_SITE + '/pages/citation.html'),
+    ),
+    # About Links
+    'ABOUT': (
+        ('About', MAIN_SITE + '/pages/about-bokeh.html'),
+        ('Team', MAIN_SITE + '/pages/team.html'),
+        ('Contact', MAIN_SITE + '/pages/contact.html'),
+    ),
+    # Social links
+    'SOCIAL': (
+        ('Contribute', MAIN_SITE + '/pages/contribute.html'),
+        ('Mailing list', '//groups.google.com/a/continuum.io/forum/#!forum/bokeh'),
+        ('Github', '//github.com/bokeh/bokeh'),
+        ('Twitter', '//twitter.com/BokehPlots'),
+        ('YouTube', '//www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw')
+    ),
+    # Links for the docs sub navigation
+    'NAV_DOCS': (
+        ('Installation', 'installation'),
+        ('User Guide', 'user_guide'),
+        ('Gallery', 'gallery'),
+        ('Reference', 'reference'),
+        ('Releases', 'releases/0.11.0'),
+        ('Developer Guide', 'dev_guide'),
+    ),
+    'ALL_VERSIONS': ['0.10.0', '0.9.3', '0.8.2'],
+    'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#html_theme_options = {}
-
-# Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
-
-# The name for this set of Sphinx documents.  If None, it defaults to
-# "<project> v<release> documentation".
-#html_title = None
-
-# A shorter title for the navigation bar.  Default is the same as html_title.
-#html_short_title = None
-
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-#html_logo = ""
-
-# The name of an image file (within the static path) to use as favicon of the
-# docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
-# pixels large.
-html_favicon = "_static/bokeh_white_32.ico"
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
-# using the given strftime format.
-#html_last_updated_fmt = '%b %d, %Y'
-
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#html_use_smartypants = True
-
-# Custom sidebar templates, maps document names to template names.
-standard_sidebars = ['sidebartoc.html', 'sourcelink.html', 'searchbox.html']
-html_sidebars = {
-    '*': standard_sidebars,
-    'docs/*': standard_sidebars,
-    'docs/dev_guide/**': standard_sidebars,
-    'docs/reference/**': standard_sidebars,
-    'docs/tutorials/**': standard_sidebars,
-    'docs/user_guide/**': standard_sidebars,
-    'docs/gallery': [],
-    'docs/gallery/*': [],
-}
-
-# Additional templates that should be rendered to pages, maps page names to
-# template names.
-#html_additional_pages = {}
-
-# If false, no module index is generated.
-#html_domain_indices = True
-
-# If false, no index is generated.
-#html_use_index = True
-
-# If true, the index is split into individual pages for each letter.
-#html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = True
 
-# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
-
-# If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-#html_show_copyright = True
-
-# If true, an OpenSearch description file will be output, and all pages will
-# contain a <link> tag referring to it.  The value of this option must be the
-# base URL from which the finished HTML is served.
-#html_use_opensearch = ''
-
-# This is the file name suffix for HTML files (e.g. ".xhtml").
-#html_file_suffix = None
-
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Bokehdoc'
-
 
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
 
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
 
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Bokeh.tex', u'Bokeh Documentation',
-   u'Continuum Analytics', 'manual'),
+    ('index', 'Bokeh.tex', u'Bokeh Documentation', u'Continuum Analytics', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -322,9 +232,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Bokeh', u'Bokeh Documentation',
-   u'Continuum Analytics', 'Bokeh', 'Interactive Web Plotting for Python',
-   'Graphics'),
+    ('index', 'Bokeh', u'Bokeh Documentation', u'Continuum Analytics', 'Bokeh', 'Interactive Web Plotting for Python', 'Graphics'),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -337,6 +245,8 @@ texinfo_documents = [
 #texinfo_show_urls = 'footnote'
 
 # intersphinx settings
-intersphinx_mapping = {'python': ('https://docs.python.org/', None),
-                       'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/', None),
+    'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None)
+}

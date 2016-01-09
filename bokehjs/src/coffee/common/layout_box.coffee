@@ -9,9 +9,38 @@ Range1d = require "../range/range1d"
 class LayoutBox extends HasProperties
   type: 'LayoutBox'
 
+  nonserializable_attribute_names: () ->
+    super().concat(['solver', 'layout_location'])
+
+  constructor: (attrs, options) ->
+    @solver = null
+    @_initialized = false
+    super(attrs, options)
+
   initialize: (attrs, options) ->
     super(attrs, options)
+    @_initialized = true
+    @_initialize_if_we_have_solver()
+
+  set: (key, value, options) ->
+    super(key, value, options)
+    @_initialize_if_we_have_solver()
+
+  _initialize_if_we_have_solver: () ->
+    if not @_initialized
+      # if someone sets the solver in the constructor, defer
+      # until we get to initialize
+      return
+
+    if @solver?
+      if @get('solver') != @solver
+          throw new Error("We do not support changing the solver attribute on LayoutBox")
+      # we already initialized
+      return
+
     @solver = @get('solver')
+    if not @solver?
+      return # we don't have one yet
 
     @var_constraints = {}
 
@@ -67,8 +96,6 @@ class LayoutBox extends HasProperties
     @register_setter('aspect', @_set_aspect)
     @add_dependencies('aspect', this, ['width', 'height'])
 
-  serializable_in_document: () -> false
-
   contains: (vx, vy) ->
     return (
       vx >= @get('left') and vx <= @get('right') and
@@ -97,16 +124,6 @@ class LayoutBox extends HasProperties
       c = new Constraint(new Expression([aspect, @_height], [-1, @_width]), Eq)
       @_aspect_constraint = c
       @solver.add_constraint(c)
-
-  defaults: ->
-    return _.extend {}, super(), {
-      'top_strength': kiwi.Strength.strong,
-      'bottom_strength': kiwi.Strength.strong,
-      'left_strength': kiwi.Strength.strong,
-      'right_strength': kiwi.Strength.strong,
-      'width_strength': kiwi.Strength.strong,
-      'height_strength': kiwi.Strength.strong
-    }
 
 module.exports =
   Model: LayoutBox

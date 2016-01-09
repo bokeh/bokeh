@@ -3,17 +3,16 @@ import unittest
 
 from six.moves import xrange
 import copy
-from bokeh.properties import List, String, Instance, Dict, Any, Int
+from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
-from bokeh.property_containers import PropertyValueList, PropertyValueDict
+from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
 def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
-        ResetTool)
+        BoxSelectTool, ResizeTool, PreviewSaveTool, ResetTool, BoxAnnotation)
     from bokeh.models.widgets.layouts import VBox
     from bokeh.models.glyphs import Line
 
@@ -37,8 +36,6 @@ def large_plot(n):
         wheel_zoom = WheelZoomTool(plot=plot)
         box_zoom = BoxZoomTool(plot=plot)
         box_select = BoxSelectTool(plot=plot)
-        box_selection = BoxSelectionOverlay(tool=box_select)
-        plot.renderers.append(box_selection)
         resize = ResizeTool(plot=plot)
         previewsave = PreviewSaveTool(plot=plot)
         reset = ResetTool(plot=plot)
@@ -46,7 +43,7 @@ def large_plot(n):
         plot.tools.extend(tools)
         vbox.children.append(plot)
         objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
-                        renderer, glyph, plot.tool_events, box_selection] +
+                        renderer, glyph, plot.tool_events, box_zoom.overlay, box_select.overlay] +
                         tickers + tools)
 
     return vbox, objects
@@ -129,7 +126,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual({'type': 'Model', 'id': 'test_id'}, testObject.ref)
 
     def test_references_by_ref_by_value(self):
-        from bokeh.properties import HasProps, Instance, Int
+        from bokeh.core.properties import HasProps, Instance, Int
 
         class T(self.pObjectClass):
             t = Int(0)
@@ -162,7 +159,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(x2.references(), {t1, y, t2, z2, x2})
 
     def test_references_in_containers(self):
-        from bokeh.properties import Int, String, Instance, List, Tuple, Dict
+        from bokeh.core.properties import Int, String, Instance, List, Tuple, Dict
 
         # XXX: can't use Y, because of:
         #

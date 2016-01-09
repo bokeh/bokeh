@@ -82,7 +82,7 @@ class PanToolView extends GestureTool.View
       sdy: sdy
     }
 
-    @plot_view.update_range(pan_info)
+    @plot_view.update_range(pan_info, is_panning=true)
     return null
 
 class PanTool extends GestureTool.Model

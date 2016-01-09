@@ -10,7 +10,7 @@ from __future__ import absolute_import
 
 from copy import copy
 
-from bokeh.properties import Override, String, List, Instance
+from bokeh.core.properties import Override, String, List, Instance
 from .data_source import DataOperator
 from .models import CollisionModifier
 from .properties import ColumnLabel

@@ -1,11 +1,9 @@
 import pandas as pd
-from bokeh.charts import Line, show, output_file, vplot, hplot
-from bokeh.charts import defaults
 
-from bokeh.models.tools import HoverTool
+from bokeh.charts import Line, show, output_file, vplot, hplot, defaults
 
-defaults.width = 550
-defaults.height = 350
+defaults.plot_width = 450
+defaults.plot_height = 400
 
 # build a dataset where multiple columns measure the same thing
 data = dict(python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120, 111],
@@ -31,11 +29,13 @@ line1 = Line(df, x='date', y=['python', 'pypy', 'jython'],
 line2 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              dash=['python', 'pypy', 'jython'],
              title="Interpreters (x='date', y, dash=['python', 'pypy', 'jython'])", ylabel='Duration', legend=True)
+line2.title_text_font_size = '11pt'
 
 line3 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              dash=['python', 'pypy', 'jython'],
              color=['python', 'pypy', 'jython'],
              title="Interpreters (x='date', y, dash, color=['python', 'pypy', 'jython'])", ylabel='Duration', legend=True)
+line3.title_text_font_size = '11pt'
 
 line4 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              dash='test',
@@ -43,15 +43,11 @@ line4 = Line(df, x='date', y=['python', 'pypy', 'jython'],
              title="Interpreters (x='date', y, color=['python', 'pypy', 'jython'], dash='test') with tooltips", ylabel='Duration',
              legend=True, tooltips=[('series', '@series'), ('test', '@test')])
 
-
 output_file("line_multi.html", title="line examples")
 
-
-show(
-    vplot(
-        hplot(line),
-        hplot(line0, line1),
-        hplot(line2, line3),
-        hplot(line4)
-    )
-)
+show(vplot(
+    hplot(line),
+    hplot(line0, line1),
+    hplot(line2, line3),
+    hplot(line4)
+))

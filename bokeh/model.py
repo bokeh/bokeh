@@ -7,13 +7,13 @@ from json import loads
 
 from six import iteritems
 
-from .properties import Any, HasProps, List, MetaHasProps, String
-from .query import find
+from .core.json_encoder import serialize_json
+from .core.properties import Any, HasProps, List, MetaHasProps, String
+from .core.query import find
+from .themes import default as default_theme
 from .util.callback_manager import CallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
-from ._json_encoder import serialize_json
-from .themes import default as default_theme
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -51,7 +51,6 @@ class Viewable(MetaHasProps):
     @classmethod
     def _preload_models(cls):
         from . import models; models
-        from .crossfilter import models as crossfilter_models; crossfilter_models
         from .charts import Chart; Chart
 
     @classmethod
@@ -255,7 +254,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         for (k, v) in attrs.items():
             # we can't serialize Infinity, we send it as None and
             # the other side has to fix it up. This transformation
-            # can't be in our _json_encoder because the json
+            # can't be in our json_encoder because the json
             # module checks for inf before it calls the custom
             # encoder.
             if isinstance(v, float) and v == float('inf'):

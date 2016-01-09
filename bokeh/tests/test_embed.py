@@ -150,65 +150,40 @@ class TestFileHTML(unittest.TestCase):
 
 
 def test_file_html_handles_js_only_resources():
-    js_resources = JSResources(mode="relative")
+    js_resources = JSResources(mode="relative", components=["bokeh"])
     template = Template("<head>{{ bokeh_js }}</head><body></body>")
-    output = embed.file_html(_embed_test_plot, None, "title", template=template, js_resources=js_resources)
-    html = "<head>%s</head><body></body>" % js_resources.use_widgets(False).render_js()
+    output = embed.file_html(_embed_test_plot, (js_resources, None), "title", template=template)
+    html = "<head>%s</head><body></body>" % js_resources.render_js()
     assert output == html
 
 
 @mock.patch('bokeh.embed.warn')
 def test_file_html_provides_warning_if_no_css(mock_warn):
     js_resources = JSResources()
-    embed.file_html(_embed_test_plot, None, "title", js_resources=js_resources)
+    embed.file_html(_embed_test_plot, (js_resources, None), "title")
     mock_warn.assert_called_once_with(
         'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
     )
 
 
-@mock.patch('bokeh.embed.warn')
-def test_file_html_provides_warning_if_both_resources_and_js_provided(mock_warn):
-    js_resources = JSResources()
-    embed.file_html(_embed_test_plot, CDN, "title", js_resources=js_resources)
-    mock_warn.assert_called_once_with(
-        'Both resources and js_resources provided. resources will override js_resources.'
-    )
-
-
-@mock.patch('bokeh.embed.warn')
-def test_file_html_provides_warning_if_both_resources_and_css_provided(mock_warn):
-    css_resources = CSSResources()
-    embed.file_html(_embed_test_plot, CDN, "title", css_resources=css_resources)
-    mock_warn.assert_called_once_with(
-        'Both resources and css_resources provided. resources will override css_resources.'
-    )
-
-
 def test_file_html_handles_css_only_resources():
-    css_resources = CSSResources(mode="relative")
+    css_resources = CSSResources(mode="relative", components=["bokeh"])
     template = Template("<head>{{ bokeh_css }}</head><body></body>")
-    output = embed.file_html(_embed_test_plot, None, "title", template=template, css_resources=css_resources)
-    html = "<head>%s</head><body></body>" % css_resources.use_widgets(False).render_css()
+    output = embed.file_html(_embed_test_plot, (None, css_resources), "title", template=template)
+    html = "<head>%s</head><body></body>" % css_resources.render_css()
     assert output == html
 
 
 @mock.patch('bokeh.embed.warn')
 def test_file_html_provides_warning_if_no_js(mock_warn):
     css_resources = CSSResources()
-    embed.file_html(_embed_test_plot, None, "title", css_resources=css_resources)
+    embed.file_html(_embed_test_plot, (None, css_resources), "title")
     mock_warn.assert_called_once_with(
         'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
     )
 
 
 class TestAutoloadStatic(unittest.TestCase):
-
-    def test_invalid_resources(self):
-        self.assertRaises(ValueError, embed.autoload_static, _embed_test_plot, INLINE, "some/path")
-
-        dev_resources = (Resources("absolute-dev"), Resources("server-dev"),Resources("relative-dev"))
-        for x in dev_resources:
-            self.assertRaises(ValueError, embed.autoload_static, _embed_test_plot, x, "some/path")
 
     def test_return_type(self):
         r = embed.autoload_static(_embed_test_plot, CDN, "some/path")
@@ -225,10 +200,8 @@ class TestAutoloadStatic(unittest.TestCase):
         attrs = scripts[0].attrs
         self.assertTrue(set(attrs), set(['src',
             'data-bokeh-model-id',
-            'async',
             'id',
             'data-bokeh-doc-id']))
-        self.assertEqual(attrs['async'], 'false')
         self.assertEqual(attrs['data-bokeh-doc-id'], 'uuid')
         self.assertEqual(attrs['data-bokeh-model-id'], str(_embed_test_plot._id))
         self.assertEqual(attrs['src'], 'some/path')
@@ -251,17 +224,13 @@ class TestAutoloadServer(unittest.TestCase):
             'src',
             'data-bokeh-doc-id',
             'data-bokeh-model-id',
-            'data-bokeh-log-level',
-            'async',
             'id'
         ]))
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-session-id=fakesession" % \
               ("http://localhost:5006", divid)
-        self.assertDictEqual({ 'async' : 'false',
-                               'data-bokeh-doc-id' : '',
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
                                'data-bokeh-model-id' : str(_embed_test_plot._id),
-                               'data-bokeh-log-level' : 'info',
                                'id' : divid,
                                'src' : src },
                              attrs)
@@ -277,17 +246,13 @@ class TestAutoloadServer(unittest.TestCase):
             'src',
             'data-bokeh-doc-id',
             'data-bokeh-model-id',
-            'data-bokeh-log-level',
-            'async',
             'id'
         ]))
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s" % \
               ("http://localhost:5006", divid)
-        self.assertDictEqual({ 'async' : 'false',
-                               'data-bokeh-doc-id' : '',
+        self.assertDictEqual({ 'data-bokeh-doc-id' : '',
                                'data-bokeh-model-id' : '',
-                               'data-bokeh-log-level' : 'info',
                                'id' : divid,
                                'src' : src },
                              attrs)

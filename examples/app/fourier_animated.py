@@ -15,18 +15,22 @@ in your browser.
 .. _this video: https://www.youtube.com/watch?v=LznjC4Lo7lE
 
 '''
-import numpy as np
-
-from bokeh.plotting import curdoc, figure
-from bokeh.io import vplot
-from bokeh.models.sources import ColumnDataSource as CDS
 from collections import OrderedDict
 
-newx = x = np.linspace(0, 2*np.pi, 100)
+import numpy as np
+from numpy import pi
+
+from bokeh.io import vplot
+from bokeh.models.sources import ColumnDataSource as CDS
+from bokeh.plotting import curdoc, figure
+from bokeh.driving import repeat
+
+N = 100
+newx = x = np.linspace(0, 2*pi, N)
 shift = 2.2
 base_x = x + shift
 
-period = np.pi/2.
+period = pi/2
 palette = ['#08519c', '#3182bd', '#6baed6', '#bdd7e7']
 
 def new_source():
@@ -37,7 +41,7 @@ def create_circle_glyphs(p, color, sources):
     p.circle('x', 'y', size=5, line_color=color, color=color, source=sources['circle_point'])
     p.line('radius_x', 'radius_y', line_color=color, color=color, alpha=0.5, source=sources['lines'])
 
-def create_plot(foos, title='', r = 1, y_range=None, period = np.pi/2., cfoos=None):
+def create_plot(foos, title='', r = 1, y_range=None, period = pi/2, cfoos=None):
     if y_range is None:
         y_range=[-2, 2]
 
@@ -91,10 +95,9 @@ def get_new_sources(xs, foo, sources, cfoo, cx=0, cy=0, compute_curve = True):
     }
     sources['circle_point'].data = {'x': [x], 'y': [y], 'r': [r]}
     sources['circleds'].data=dict(
-        x = cx + np.cos(np.linspace(0, 2*np.pi, 100)) * r,
-        y = cy + np.sin(np.linspace(0, 2*np.pi, 100)) * r,
+        x = cx + np.cos(np.linspace(0, 2*pi, N)) * r,
+        y = cy + np.sin(np.linspace(0, 2*pi, N)) * r,
     )
-
 
 def update_sources(sources, foos, newx, ind, cfoos):
     cx, cy = 0, 0
@@ -114,16 +117,11 @@ def update_sources(sources, foos, newx, ind, cfoos):
             sources[i]['floating_point'].data['x'] = [shift]
             sources[i]['floating_point'].data['y'] = [cy]
 
-
 def update_centric_sources(sources, foos, newx, ind, cfoos):
     for i, foo in enumerate(foos):
         get_new_sources(newx, foo, sources[i], cfoos[i])
 
-
-def create_centric_plot(foos, title='', r = 1, y_range=None, period = np.pi/2., cfoos=None):
-    if y_range is None:
-        y_range=[-2, 2]
-
+def create_centric_plot(foos, title='', r = 1, y_range=(-2, 2), period = pi/2, cfoos=None):
     p = figure(title=title, width=800, height=300, x_range=[-1.5, 10.5], y_range=y_range)
     p.xgrid.bounds = (-2, 2)
     p.xaxis.bounds = (-2, 2)
@@ -147,22 +145,21 @@ def create_centric_plot(foos, title='', r = 1, y_range=None, period = np.pi/2., 
 
     return p, _sources
 
-# Create the series partials..
-# NOTE: We could create those dinamically but leaving as
-#       is improves readability
-f1 = lambda x: (4*np.sin(x))/np.pi
-f2 = lambda x: (4*np.sin(3*x))/(3*np.pi)
-f3 = lambda x: (4*np.sin(5*x))/(5*np.pi)
-f4 = lambda x: (4*np.sin(7*x))/(7*np.pi)
-cf1 = lambda x: (4*np.cos(x))/np.pi
-cf2 = lambda x: (4*np.cos(3*x))/(3*np.pi)
-cf3 = lambda x: (4*np.cos(5*x))/(5*np.pi)
-cf4 = lambda x: (4*np.cos(7*x))/(7*np.pi)
+# create the series partials
+f1 = lambda x: (4*np.sin(x))/pi
+f2 = lambda x: (4*np.sin(3*x))/(3*pi)
+f3 = lambda x: (4*np.sin(5*x))/(5*pi)
+f4 = lambda x: (4*np.sin(7*x))/(7*pi)
+cf1 = lambda x: (4*np.cos(x))/pi
+cf2 = lambda x: (4*np.cos(3*x))/(3*pi)
+cf3 = lambda x: (4*np.cos(5*x))/(5*pi)
+cf4 = lambda x: (4*np.cos(7*x))/(7*pi)
 fourier = OrderedDict(
     fourier_4 = {
         'f': lambda x: f1(x) + f2(x) + f3(x) + f4(x),
         'fs': [f1, f2, f3, f4],
-        'cfs': [cf1, cf2, cf3, cf4]},
+        'cfs': [cf1, cf2, cf3, cf4]
+    },
 )
 
 for k, p in fourier.items():
@@ -175,27 +172,18 @@ for k, p in fourier.items():
         p['fs'], 'Fourier First 4 Harmonics & Harmonic Circles', r = p['f'](period), cfoos = p['cfs']
     )
 
-# Open a session which will keep our local doc in sync with server
-# session = push_session(curdoc())
-# Open the session in a browser
 layout = vplot(*[f['plot'] for f in fourier.values()] + [f['cplot'] for f in fourier.values()])
-curdoc().add_root(layout)
 
-gind = 0
-def work():
-    global gind
+
+@repeat(range(N))
+def cb(gind):
     global newx
     oldx = np.delete(newx, 0)
-    newx = np.hstack([oldx, [oldx[-1] + 2*np.pi/100]])
-    gind += 1
+    newx = np.hstack([oldx, [oldx[-1] + 2*pi/N]])
 
     for k, p in fourier.items():
         update_sources(p['sources'], p['fs'], newx, gind, p['cfs'])
         update_centric_sources(p['csources'], p['fs'], newx, gind, p['cfs'])
 
-    if gind >= 99:
-        gind = 0
+curdoc().add_periodic_callback(cb, 100)
 
-# Add the work function as a periodic call back to the document that will
-# be executed every 100 milliseconds.
-curdoc().add_periodic_callback(work, 100)

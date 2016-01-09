@@ -2,14 +2,13 @@ from __future__ import print_function
 
 from numpy import pi, arange, sin, cos
 
-from bokeh.browserlib import view
+from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis, Grid,
     ColumnDataSource, PanTool, WheelZoomTool
 )
-from bokeh.client import push_session
 
 document = Document()
 session = push_session(document)

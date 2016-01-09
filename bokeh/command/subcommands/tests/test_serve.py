@@ -54,9 +54,16 @@ def test_args():
             default=None,
         )),
 
+        ('--allow-websocket-origin', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames which may connect to the Bokeh websocket",
+        )),
+
         ('--host', dict(
             metavar='HOST[:PORT]',
-            nargs='*',
+            action='append',
             type=str,
             help="Public hostnames to allow in requests",
         )),
@@ -83,4 +90,11 @@ def test_args():
             help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
         )),
 
+        ('--session-ids', dict(
+            metavar='MODE',
+            action  = 'store',
+            default = None,
+            choices = scserve.SESSION_ID_MODES,
+            help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
+        )),
     )

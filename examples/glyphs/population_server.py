@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from math import pi
 
-from bokeh.browserlib import view
+from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Line, Quad
 from bokeh.models import (
@@ -12,7 +12,6 @@ from bokeh.models import (
 )
 from bokeh.sampledata.population import load_population
 from bokeh.models.widgets import Select, HBox, VBox
-from bokeh.client import push_session
 
 document = Document()
 session = push_session(document)

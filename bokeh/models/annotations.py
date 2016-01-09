@@ -4,13 +4,14 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..deprecate import deprecated
-from ..enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode
-from ..mixins import LineProps, FillProps, TextProps
-from ..properties import abstract
-from ..properties import (Int, String, Enum, Instance, List, Dict, Tuple,
-                          Include, NumberSpec, Either, Auto, Float, Override)
-
+from ..core.enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode, Side
+from ..core.property_mixins import LineProps, FillProps, TextProps
+from ..core.properties import abstract
+from ..core.properties import (
+    Bool, Int, String, Enum, Instance, List, Dict, Tuple,
+    Include, NumberSpec, Either, Auto, Float, Override, Seq
+)
+from ..util.deprecate import deprecated
 from .renderers import Renderer, GlyphRenderer
 
 @abstract
@@ -23,7 +24,7 @@ class Annotation(Renderer):
     The plot to which this annotation is attached.
     """)
 
-    level = Enum(RenderLevel, default="overlay", help="""
+    level = Enum(RenderLevel, default="annotation", help="""
     Specifies the level in which to render the annotation.
     """)
 
@@ -47,7 +48,7 @@ class Legend(Annotation):
     location = Either(Enum(LegendLocation), Tuple(Float, Float),
         default="top_right", help="""
     The location where the legend should draw itself. It's either one of
-    ``bokeh.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
     """)
@@ -103,16 +104,15 @@ class Legend(Annotation):
     renderers that should draw sample representations for those labels.
 
     .. note::
-        The ``legends`` attribute may also be set from a dict or OrderedDict,
-        but note that if a dict is used, the order of the legend entries is
-        unspecified.
+        The ``legends`` attribute may also be set from a dict or OrderedDict.
+        If a dict is used, the order of the legend entries is unspecified.
 
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
 
 class BoxAnnotation(Annotation):
-    """ Render an annotation box "shade" thing
+    """ Render a shaded rectangular region as an annotation.
 
     """
 
@@ -162,10 +162,8 @@ class BoxAnnotation(Annotation):
     rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Override(default="annotation")
-
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the shades.
+    The %s values for the box.
     """)
 
     line_alpha = Override(default=0.3)
@@ -173,7 +171,66 @@ class BoxAnnotation(Annotation):
     line_color = Override(default="#cccccc")
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the shades.
+    The %s values for the box.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
+
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the box is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas".
+
+    .. warning::
+        The line_dash and line_dash_offset attributes aren't supported if
+        the render_mode is set to "css"
+
+    """)
+
+class PolyAnnotation(Annotation):
+    """ Render a shaded polygonal region as an annotation.
+
+    """
+
+    xs = Seq(Float, default=[], help="""
+    The x-coordinates of the region to draw.
+    """)
+
+    xs_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the xs attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    ys = Seq(Float, default=[], help="""
+    The y-coordinates of the region to draw.
+    """)
+
+    ys_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the ys attribute. Interpreted as "data space" units
+    by default.
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering box annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering box annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the polygon.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the polygon.
     """)
 
     fill_alpha = Override(default=0.4)
@@ -184,8 +241,9 @@ class Span(Annotation):
     """ Render a horizontal or vertical line span.
 
     """
+
     location = Float(help="""
-    The location of the span.
+    The location of the span, along ``dimension``.
     """)
 
     location_units = Enum(SpatialUnits, default='data', help="""
@@ -207,8 +265,6 @@ class Span(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    level = Override(default="annotation")
-
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the span is rendered as a canvas element or as an
     css element overlaid on the canvas. The default mode is "canvas".
@@ -216,8 +272,28 @@ class Span(Annotation):
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
         the render_mode is set to "css"
+
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the span.
+    """)
+
+class Tooltip(Annotation):
+    """ Render a tooltip.
+
+    .. note::
+        This model is currently managed by BokehJS and is not useful
+        directly from python.
+
+    """
+    level = Override(default="overlay")
+
+    side = Either(Auto, Enum(Side), default="auto", help="""
+    Whether the tooltip should display to the left or right off the cursor
+    position, or if it should be automatically placed.
+    """)
+
+    inner_only = Bool(default=True, help="""
+    Whether to display outside a central plot frame area.
     """)

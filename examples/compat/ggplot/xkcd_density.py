@@ -9,6 +9,6 @@ g.draw()
 
 plt.title("xkcd-ggplot-mpl based plot in Bokeh.")
 
-output_file("xkcd_density.html")
+output_file("xkcd_density.html", title="xkcd_density.py example")
 
 show(mpl.to_bokeh(xkcd=True))

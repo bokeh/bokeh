@@ -3,7 +3,7 @@ from __future__ import print_function
 from datetime import date
 from random import randint
 
-from bokeh.browserlib import view
+from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Line, Circle
 from bokeh.models import (
@@ -13,7 +13,6 @@ from bokeh.models import (
 from bokeh.models.widgets import (
     VBox, Button, TableColumn, DataTable,
     DateEditor, DateFormatter, IntEditor)
-from bokeh.client import push_session
 
 document = Document()
 session = push_session(document)

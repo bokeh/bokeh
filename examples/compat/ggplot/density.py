@@ -9,6 +9,6 @@ g.draw()
 
 plt.title("Density ggplot-based plot in Bokeh.")
 
-output_file("density.html")
+output_file("density.html", title="density.py example")
 
 show(mpl.to_bokeh())

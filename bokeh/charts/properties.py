@@ -11,7 +11,7 @@ from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 
-from bokeh.properties import (HasProps, Either, String, Int, List, Bool,
+from bokeh.core.properties import (HasProps, Either, String, Int, List, Bool,
                               PrimitiveProperty, bokeh_integer_types, Array)
 from .utils import special_columns, title_from_columns
 

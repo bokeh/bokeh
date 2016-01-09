@@ -19,6 +19,17 @@ class MercatorTileSource extends TileSource
       # to use 100% cpu and wedge Chrome
       2 * Math.PI * 6378137 / @get('tile_size')
 
+  is_valid_tile: (x, y, z) ->
+    
+    if not @get('wrap_around')
+      if x < 0 or x >= Math.pow(2, z)
+        return false
+
+    if y < 0 or y >= Math.pow(2, z)
+      return false
+      
+    return true
+
   retain_children:(reference_tile) ->
     quadkey = reference_tile.quadkey
     min_zoom = quadkey.length
@@ -43,10 +54,17 @@ class MercatorTileSource extends TileSource
       tile.retain = quadkey.indexOf(tile.quadkey) == 0
 
   children_by_tile_xyz: (x, y, z) ->
+    world_x = @calculate_world_x_by_tile_xyz(x, y, z)
+
+    if world_x != 0
+      [x, y, z] = @normalize_xyz(x, y, z)
+
     quad_key = @tile_xyz_to_quadkey(x, y, z)
     child_tile_xyz = []
     for i in [0..3] by 1
       [x, y, z] = @quadkey_to_tile_xyz(quad_key + i.toString())
+      if world_x != 0
+        [x, y, z] = @denormalize_xyz(x, y, z, world_x)
       b = @get_tile_meter_bounds(x, y, z)
       if b?
         child_tile_xyz.push([x, y, z, b])
@@ -118,7 +136,8 @@ class MercatorTileSource extends TileSource
     return [px, py]
 
   pixels_to_tile: (px, py) ->
-    tx = Math.max(Math.ceil(px / parseFloat(@get('tile_size'))) - 1, 0)
+    tx = Math.ceil(px / parseFloat(@get('tile_size')))
+    tx = if tx == 0 then tx else tx - 1
     ty = Math.max(Math.ceil(py / parseFloat(@get('tile_size'))) - 1, 0)
     return [tx, ty]
 
@@ -160,8 +179,10 @@ class MercatorTileSource extends TileSource
     tiles = []
     for ty in [tymax..tymin] by -1
       for tx in [txmin..txmax] by 1
-        tiles.push([tx, ty, level, @get_tile_meter_bounds(tx, ty, level)])
-        tiles = @sort_tiles_from_center(tiles, [txmin, tymin, txmax, tymax])
+        if @is_valid_tile(tx, ty, level)
+          tiles.push([tx, ty, level, @get_tile_meter_bounds(tx, ty, level)])
+
+    tiles = @sort_tiles_from_center(tiles, [txmin, tymin, txmax, tymax])
     return tiles
 
   quadkey_to_tile_xyz: (quadKey) ->
@@ -226,19 +247,39 @@ class MercatorTileSource extends TileSource
     return @quadkey_to_tile_xyz(parent_quad_key)
 
   get_closest_parent_by_tile_xyz: (x, y, z) ->
+    world_x = @calculate_world_x_by_tile_xyz(x, y, z)
+    [x, y, z] = @normalize_xyz(x, y, z)
     quad_key = @tile_xyz_to_quadkey(x, y, z)
     while quad_key.length > 0
       quad_key = quad_key.substring(0, quad_key.length - 1)
       [x, y, z] = @quadkey_to_tile_xyz(quad_key)
+      [x, y, z] = @denormalize_xyz(x, y, z, world_x)
       if @tile_xyz_to_key(x, y, z) of @tiles
-        return [x, y, z]
+          return [x, y, z]
     return [0, 0, 0]
+
+  normalize_xyz: (x, y, z) ->
+    if @get('wrap_around')
+      tile_count = Math.pow(2, z)
+      return [((x % tile_count) + tile_count) % tile_count, y, z]
+    else
+      return [x, y, z]
+
+  denormalize_xyz: (x, y, z, world_x) ->
+    return [x + world_x * Math.pow(2, z), y, z]
+
+  denormalize_meters: (meters_x, meters_y, level, world_x) ->
+    return [meters_x + world_x * 2 * Math.PI * 6378137, meters_y]
+
+  calculate_world_x_by_tile_xyz: (x, y, z) ->
+    return Math.floor(x / Math.pow(2, z))
 
   defaults: =>
     return _.extend {}, super(), {
       x_origin_offset : 20037508.34
       y_origin_offset : 20037508.34
       initial_resolution : 156543.03392804097
+      wrap_around : true
     }
 
 module.exports = MercatorTileSource

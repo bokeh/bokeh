@@ -95,7 +95,7 @@ Examples
 
 .. warning::
     These examples currently use an old, deprecated engineering JS interface
-    that has since been remvoed.  Work is ongoing to create a new interface
+    that has since been removed.  Work is ongoing to create a new interface
     and update these examples.
 
 Several live examples that demonstrate the BokehJS interface are available on

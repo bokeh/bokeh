@@ -1,15 +1,16 @@
-from collections import OrderedDict
 
-from bokeh.plotting import figure, show, output_file
 from bokeh.models import HoverTool, ColumnDataSource
-from bokeh.sampledata import periodic_table
+from bokeh.plotting import figure, show, output_file
+from bokeh.sampledata.periodic_table import elements
 
-periodic_table.elements["atomic mass"] = periodic_table.elements["atomic mass"].astype(str)
+romans = ["I", "II", "III", "IV", "V", "VI", "VII"]
 
-elements = periodic_table.elements[periodic_table.elements["group"] != "-"]
+elements["atomic mass"] = elements["atomic mass"].astype(str)
 
-group_range = [str(x) for x in range(1,19)]
-period_range = [str(x) for x in reversed(sorted(set(elements["period"])))]
+elements["period"] = [romans[x-1] for x in elements.period]
+elements = elements[elements.group != "-"]
+
+group_range = [str(x) for x in range(1, 19)]
 
 colormap = {
     "alkali metal"         : "#a6cee3",
@@ -41,17 +42,14 @@ source = ColumnDataSource(
     )
 )
 
-output_file("periodic.html")
-
-TOOLS = "resize,hover,save"
-
-p = figure(title="Periodic Table", tools=TOOLS,
-    x_range=group_range, y_range=period_range)
+p = figure(title="Periodic Table", tools="resize,hover,save",
+           x_range=group_range, y_range=list(reversed(romans)))
 p.plot_width = 1200
-p.toolbar_location = "left"
+p.toolbar_location = None
+p.outline_line_color = None
 
 p.rect("group", "period", 0.9, 0.9, source=source,
-    fill_alpha=0.6, color="type_color")
+       fill_alpha=0.6, color="type_color")
 
 text_props = {
     "source": source,
@@ -62,27 +60,28 @@ text_props = {
 }
 
 p.text(x="symx", y="period", text="sym",
-    text_font_style="bold", text_font_size="15pt", **text_props)
+       text_font_style="bold", text_font_size="15pt", **text_props)
 
 p.text(x="symx", y="numbery", text="atomic_number",
-    text_font_size="9pt", **text_props)
+       text_font_size="9pt", **text_props)
 
 p.text(x="symx", y="namey", text="name",
-    text_font_size="6pt", **text_props)
+       text_font_size="6pt", **text_props)
 
 p.text(x="symx", y="massy", text="mass",
-    text_font_size="5pt", **text_props)
+       text_font_size="5pt", **text_props)
 
 p.grid.grid_line_color = None
 
-hover = p.select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
+p.select_one(HoverTool).tooltips = [
     ("name", "@name"),
     ("atomic number", "@atomic_number"),
     ("type", "@type"),
     ("atomic mass", "@mass"),
     ("CPK color", "$color[hex, swatch]:cpk"),
     ("electronic configuration", "@electronic"),
-])
+]
+
+output_file("periodic.html", title="periodic.py example")
 
 show(p)

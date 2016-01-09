@@ -7,10 +7,10 @@ import pandas as pd
 from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
-from bokeh.enums import DashPattern
+from bokeh.core.enums import DashPattern
 from bokeh.models.glyphs import Rect, Segment, Line, Patches
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.properties import (Float, String, Datetime, Bool, Instance,
+from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
                               List, Either, Int, Enum, Color, Override, Any)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
@@ -74,19 +74,37 @@ class XyGlyph(CompositeGlyph):
 
     @property
     def x_max(self):
-        return max(self.source.data['x_values'])
+        # TODO(fpliger): since CompositeGlyphs are not exposed in general we
+        #                should expect to always have a Series but in case
+        #                it's not we just use the default min/max instead
+        #                of just failing. When/If we end up exposing
+        #                CompositeGlyphs we should consider making this
+        #                more robust (either enforcing data or checking)
+        try:
+            return self.source.data['x_values'].max()
+        except AttributeError:
+            return max(self.source.data['x_values'])
 
     @property
     def x_min(self):
-        return min(self.source.data['x_values'])
+        try:
+            return self.source.data['x_values'].min()
+        except AttributeError:
+            return min(self.source.data['x_values'])
 
     @property
     def y_max(self):
-        return max(self.source.data['y_values'])
+        try:
+            return self.source.data['y_values'].max()
+        except AttributeError:
+            return max(self.source.data['y_values'])
 
     @property
     def y_min(self):
-        return min(self.source.data['y_values'])
+        try:
+            return self.source.data['y_values'].min()
+        except AttributeError:
+            return min(self.source.data['y_values'])
 
 
 class PointGlyph(XyGlyph):
@@ -101,6 +119,8 @@ class PointGlyph(XyGlyph):
                  marker=None, size=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
+        if marker is not None: kwargs['marker'] = marker
+        if size is not None: kwargs['size'] = size
 
         if color:
             line_color = color
@@ -291,10 +311,6 @@ class HorizonGlyph(AreaGlyph):
 
     pos_color = Color("#006400", help="""The color used for positive values.""")
     neg_color = Color("#6495ed", help="""The color used for negative values.""")
-
-    line_color = Color(help="""The color used for the area outline. This is by default
-    set to the same color as the positive or negative color.
-    """)
 
     flip_neg = Bool(default=True, help="""When True, the negative values will be
     plotted as their absolute value, then their individual axes is flipped. If False,
@@ -562,8 +578,6 @@ class Interval(AggregateGlyph):
 
     start = Float(default=0.0)
     end = Float()
-
-    glyphs = {'Interval': Rect()}
 
     def __init__(self, label, values, **kwargs):
 
@@ -950,8 +964,6 @@ class HistogramGlyph(AggregateGlyph):
         return 0.0
 
 
-
-
 class BinGlyph(XyGlyph):
     """Represents a group of data that was aggregated and is represented by a glyph.
 
@@ -961,7 +973,6 @@ class BinGlyph(XyGlyph):
     stat = String()
 
     glyph_name = String()
-    glyphs = {'rect': Rect}
 
     width = Float()
     height = Float()
@@ -979,6 +990,8 @@ class BinGlyph(XyGlyph):
         kwargs['glyph_name'] = glyph
         kwargs['height'] = height
         kwargs['width'] = width
+        if 'glyphs' not in kwargs:
+            kwargs['glyphs'] = {'rect': Rect}
         super(XyGlyph, self).__init__(**kwargs)
         self.setup()
 

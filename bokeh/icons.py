@@ -1,3 +1,7 @@
+''' Provide a set of named FontAwesome icons that can be uses in Bokeh documents
+
+'''
+
 __icons__ = [
     "adjust", "adn", "align-center", "align-justify", "align-left", "align-right", "ambulance",
     "anchor", "android", "angellist", "angle-double-down", "angle-double-left", "angle-double-right",
@@ -64,3 +68,16 @@ __icons__ = [
     "windows", "won", "wordpress", "wrench", "xing", "xing-square", "yahoo", "yelp", "yen", "youtube", "youtube-play",
     "youtube-square",
 ]
+
+__doc__ += '''
+.. raw:: html
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <ul class="fa-ul" style="list-style: none !important;">
+'''
+
+for icon_name in __icons__:
+    __doc__ += '        <li><i class="fa-li fa fa-%s" style="list-style-type: none !important;"></i>%s</li>\n' % (icon_name, icon_name)
+
+__doc__ += '    </ul>'

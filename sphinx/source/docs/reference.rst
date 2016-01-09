@@ -3,19 +3,6 @@
 Reference Guide
 ###############
 
-.. toctree::
-   :maxdepth: 2
-
-   reference/properties
-   reference/models
-   reference/validation
-   reference/plotting
-   reference/charts
-   reference/palettes
-   reference/resources_embedding
-   reference/plot_objects
-   reference/bokehjs
-   reference/sphinxext
-
-
-
+This document provides the complete API reference for bokeh. It is
+auto-generated from the docstrings in the code. The bulk of the content is
+under :ref:`bokeh.models`

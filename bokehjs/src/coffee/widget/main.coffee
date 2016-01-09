@@ -1,4 +1,4 @@
-locations = {
+module.exports = {
   editors:                  [require('./cell_editors'), 'Editor']
   formatters:               [require('./cell_formatters'), 'Formatter']
 
@@ -22,7 +22,6 @@ locations = {
   PreText:                  require './pretext'
   Select:                   require './selectbox'
   Slider:                   require './slider'
-  CrossFilter:              require './crossfilter'
   MultiSelect:              require './multiselect'
   DateRangeSlider:          require './date_range_slider'
   DatePicker:               require './date_picker'
@@ -38,9 +37,3 @@ locations = {
   CheckboxButtonGroup:      require './checkbox_button_group'
   RadioButtonGroup:         require './radio_button_group'
 }
-
-{Collections} = require('../common/base')
-Collections.register_plugin('widgets', locations)
-
-module.exports =
-  locations: locations

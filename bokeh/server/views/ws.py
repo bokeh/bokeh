@@ -8,7 +8,9 @@ log = logging.getLogger(__name__)
 
 import codecs
 
-from tornado import gen
+from six.moves.urllib.parse import urlparse
+
+from tornado import gen, locks
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.concurrent import Future
 
@@ -30,6 +32,9 @@ class WSHandler(WebSocketHandler):
         self.connection = None
         self.application_context = kw['application_context']
         self.latest_pong = -1
+        # write_lock allows us to lock the connection to send multiple
+        # messages atomically.
+        self.write_lock = locks.Lock()
         # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
@@ -37,11 +42,18 @@ class WSHandler(WebSocketHandler):
         pass
 
     def check_origin(self, origin):
-        # Allow ANY site to open our websocket...
-        # this is to make the autoload embed work.
-        # Potentially, we should limit this somehow
-        # or make it configurable.
-        return True
+        from ..tornado import check_whitelist
+        parsed_origin = urlparse(origin)
+        origin_host = parsed_origin.netloc.lower()
+
+        allowed_hosts = self.application.websocket_origins
+
+        allowed = check_whitelist(origin_host, allowed_hosts)
+        if allowed:
+            return True
+        else:
+            log.error("Refusing websocket connection from Origin '%s'; use --allow-websocket-origin=%s to permit this; currently we allow origins %r", origin, origin_host, allowed)
+            return False
 
     def open(self):
         ''' Initialize a connection to a client.
@@ -59,20 +71,36 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise ProtocolError("No bokeh-session-id specified")
 
-        if not check_session_id_signature(session_id):
+        if not check_session_id_signature(session_id,
+                                          signed=self.application.sign_sessions,
+                                          secret_key=self.application.secret_key):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
 
+        def on_fully_opened(future):
+            e = future.exception()
+            if e is not None:
+                # this isn't really an error (unless we have a
+                # bug), it just means a client disconnected
+                # immediately, most likely.
+                log.debug("Failed to fully open connection %r", e)
+
+        future = self._async_open(session_id, proto_version)
+        self.application.io_loop.add_future(future,
+                                            on_fully_opened)
+
+    @gen.coroutine
+    def _async_open(self, session_id, proto_version):
         try:
-            self.application_context.create_session_if_needed(session_id)
+            yield self.application_context.create_session_if_needed(session_id)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol(proto_version)
             self.receiver = Receiver(protocol)
-            log.debug("Receiver created created for %r", protocol)
+            log.debug("Receiver created for %r", protocol)
 
             self.handler = ServerHandler()
-            log.debug("ServerHandler created created for %r", protocol)
+            log.debug("ServerHandler created for %r", protocol)
 
             self.connection = self.application.new_connection(protocol, self, self.application_context, session)
             log.info("ServerConnection created")
@@ -82,16 +110,10 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise e
 
-        def on_ack_sent(future):
-            e = future.exception()
-            if e is not None:
-                # this isn't really an error (unless we have a
-                # bug), it just means a client disconnected
-                # immediately, most likely.
-                log.debug("Failed to send ack %r", e)
-
         msg = self.connection.protocol.create('ACK')
-        self.application.io_loop.add_future(self.send_message(msg), on_ack_sent)
+        yield self.send_message(msg)
+
+        raise gen.Return(None)
 
     @gen.coroutine
     def on_message(self, fragment):
@@ -107,17 +129,32 @@ class WSHandler(WebSocketHandler):
 
         '''
 
-        message = yield self._receive(fragment)
+        # We shouldn't throw exceptions from on_message because
+        # the caller is just Tornado and it doesn't know what to
+        # do with them other than report them as an unhandled
+        # Future
 
-        if message:
+        try:
+            message = yield self._receive(fragment)
+        except Exception as e:
+            # If you go look at self._receive, it's catching the
+            # expected error types... here we have something weird.
+            log.error("Unhandled exception receiving a message: %r: %r", e, fragment, exc_info=True)
+            self._internal_error("server failed to parse a message")
 
-            #log.debug("Received message: %r", message)
-            work = yield self._handle(message)
+        try:
+            if message:
 
-            #log.debug("work from message %r was %r", message, work)
+                #log.debug("Received message: %r", message)
+                work = yield self._handle(message)
 
-            if work:
-                yield self._schedule(work)
+                #log.debug("work from message %r was %r", message, work)
+
+                if work:
+                    yield self._schedule(work)
+        except Exception as e:
+            log.error("Handler or its work threw an exception: %r: %r", e, message, exc_info=True)
+            self._internal_error("server failed to handle a message")
 
         raise gen.Return(None)
 
@@ -146,15 +183,24 @@ class WSHandler(WebSocketHandler):
             log.warn("Failed sending message as connection was closed")
         raise gen.Return(None)
 
-    def write_message(self, message, binary=False):
+    @gen.coroutine
+    def write_message(self, message, binary=False, locked=True):
         ''' Override parent write_message with a version that consistently returns Future across Tornado versions '''
-        future = super(WSHandler, self).write_message(message, binary)
-        if future is None:
-            # tornado >= 4.3 gives us a Future, simulate that
-            # with this fake Future on < 4.3
-            future = Future()
-            future.set_result(None)
-        return future
+        def write_message_unlocked():
+            future = super(WSHandler, self).write_message(message, binary)
+            if future is None:
+                # tornado >= 4.3 gives us a Future, simulate that
+                # with this fake Future on < 4.3
+                future = Future()
+                future.set_result(None)
+            # don't yield this future or we're blocking on ourselves!
+            raise gen.Return(future)
+        if locked:
+            with (yield self.write_lock.acquire()):
+                write_message_unlocked()
+        else:
+            write_message_unlocked()
+
 
     def on_close(self):
         ''' Clean up when the connection is closed.

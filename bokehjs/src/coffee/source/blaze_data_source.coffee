@@ -5,8 +5,16 @@ Backbone = require "backbone"
 RemoteDataSource = require "./remote_data_source"
 
 
-class BlazeDataSource extends RemoteDataSource.RemoteDataSource
+class BlazeDataSource extends RemoteDataSource.Model
   type: 'BlazeDataSource'
+
+  defaults: =>
+    return _.extend {}, super(), {
+      expr: {}
+      local: null
+      namespace: {}
+    }
+
   destroy : () =>
     if @interval?
       clearInterval(@interval)
@@ -43,9 +51,6 @@ class BlazeDataSource extends RemoteDataSource.RemoteDataSource
 
 class BlazeDataSources extends Backbone.Collection
   model: BlazeDataSource
-  defaults:
-    url : ""
-    expr : null
 
 module.exports =
   Model: BlazeDataSource

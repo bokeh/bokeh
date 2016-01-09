@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API
 to build complex plot is a simple way.
 
-This is the Scatter class which lets you build your Scatter charts
+This is the Area builder which lets you build your Area charts
 just passing the arguments to the Chart class and calling the proper
 functions.
 """
@@ -28,8 +28,9 @@ from .line_builder import LineBuilder
 
 
 def Area(data=None, x=None, y=None, **kws):
-    """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builders.scatter_builder.ScatterBuilder>`
-    to render the geometry from values.
+    """ Create an area chart using :class:`AreaBuilder
+    <bokeh.charts.builders.area_builder.AreaBuilder>` to render the
+    geometry from values.
 
     Args:
         data (:ref:`userguide_charts_data_types`): table-like data
@@ -40,22 +41,27 @@ def Area(data=None, x=None, y=None, **kws):
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        :class:`Chart`: includes glyph renderers that generate the scatter points
+        :class:`Chart`: includes glyph renderers that generate the area glyphs
 
     Examples:
 
     .. bokeh-plot::
         :source-position: above
 
-        from bokeh.sampledata.autompg import autompg as df
-        from bokeh.charts import Scatter, output_file, show
+        from bokeh.charts import Area, show, vplot, output_file
 
-        scatter = Scatter(df, x='mpg', y='hp', color='cyl', marker='origin',
-                          title="Auto MPG", xlabel="Miles Per Gallon",
-                          ylabel="Horsepower")
+        # create some example data
+        data = dict(
+            python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120, 111],
+            pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110, 130],
+            jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
+        )
 
-        output_file('scatter.html')
-        show(scatter)
+        area = Area(data, title="Area Chart", legend="top_left",
+                    xlabel='time', ylabel='memory')
+
+        output_file('area.html')
+        show(area)
 
     """
     kws['x'] = x
@@ -64,8 +70,8 @@ def Area(data=None, x=None, y=None, **kws):
 
 
 class AreaBuilder(LineBuilder):
-    """This is the Scatter class and it is in charge of plotting
-    Scatter charts in an easy and intuitive way.
+    """This is the Area builder and it is in charge of generating
+    glyph renderers that together produce an area chart.
 
     Essentially, we provide a way to ingest the data, make the proper
     calculations and push the references into a source object.

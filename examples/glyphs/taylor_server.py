@@ -3,13 +3,11 @@ from __future__ import print_function
 import numpy as np
 import sympy as sy
 
-from bokeh.browserlib import view
+from bokeh.client import push_session
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
-from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend
+from bokeh.models import Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend
 from bokeh.models.widgets import Slider, TextInput, HBox, VBox, Dialog
-
-from bokeh.client import push_session
 
 document = Document()
 session = push_session(document)
@@ -46,8 +44,8 @@ def update_data():
 
 source = ColumnDataSource(data=dict(x=[], fy=[], ty=[]))
 
-xdr = DataRange1d()
-ydr = DataRange1d()
+xdr = Range1d(-7, 7)
+ydr = Range1d(-20, 200)
 
 plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
 
@@ -68,7 +66,7 @@ plot.add_layout(yaxis, 'left')
 xgrid = Grid(dimension=0, ticker=xaxis.ticker)
 ygrid = Grid(dimension=1, ticker=yaxis.ticker)
 
-legend = Legend(location="bottom_left")
+legend = Legend(location="top_right")
 plot.add_layout(legend)
 
 def on_slider_value_change(attr, old, new):

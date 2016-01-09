@@ -27,9 +27,9 @@ from .utils import collect_attribute_columns, label_from_index_dict, build_hover
 from .data_source import OrderedAssigner
 from ..models.ranges import Range, Range1d, FactorRange
 from ..models.sources import ColumnDataSource
-from ..properties import (HasProps, Instance, List, String, Dict,
+from ..core.properties import (HasProps, Instance, List, String, Dict,
                           Color, Bool, Tuple, Either)
-
+from ..io import curdoc, curstate
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -66,6 +66,10 @@ def create_and_build(builder_class, *data, **kws):
     chart = Chart(**chart_kws)
     chart.add_builder(builder)
     chart.start_plot()
+
+    curdoc()._current_plot = chart # TODO (havocp) store this on state, not doc?
+    if curstate().autoadd:
+        curdoc().add_root(chart)
 
     return chart
 
@@ -483,8 +487,11 @@ class Builder(HasProps):
         return str(raw_label)
 
     def collect_attr_kwargs(self):
-        attrs = set(self.default_attributes.keys()) - set(
-            self.__class__.default_attributes.keys())
+        if hasattr(super(self.__class__, self), 'default_attributes'):
+            attrs = set(self.default_attributes.keys()) - set(
+                (super(self.__class__, self).default_attributes or {}).keys())
+        else:
+            attrs = set()
         return attrs
 
     def get_group_kwargs(self, group, attrs):

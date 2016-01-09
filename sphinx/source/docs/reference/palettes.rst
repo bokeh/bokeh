@@ -1,6 +1,8 @@
-.. _bokeh_dot_palettes:
+.. _bokeh.palettes:
 
-Standard Palettes
-=================
+``bokeh.palettes``
+==================
+
+Provide a collection of common and useful color palettes.
 
 .. bokeh-palette:: unused.for.now

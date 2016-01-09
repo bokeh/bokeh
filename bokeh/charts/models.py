@@ -5,7 +5,7 @@ from six import iteritems
 from bokeh.models.glyphs import Glyph
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
-from bokeh.properties import (HasProps, String, Either, Float, Color, Instance, List,
+from bokeh.core.properties import (HasProps, String, Either, Float, Color, Instance, List,
                               Any, Dict)
 from .properties import ColumnLabel, Column
 
@@ -51,7 +51,7 @@ class CompositeGlyph(HasProps):
         glyph renderers. Simple glyphs part of the composite glyph might not use the
         column data source.""")
     renderers = List(Instance(GlyphRenderer))
-    glyphs = Dict(String, Instance(Glyph))
+    glyphs = Dict(String, Any) # where we expect a Glyph class as Value
 
     operations = List(Any, help="""A list of chart operations that can be applied to
         manipulate their visual depiction.""")

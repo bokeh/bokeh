@@ -22,7 +22,7 @@ from .properties import ColumnLabel, Column
 from .stats import Stat, Bins
 from .utils import collect_attribute_columns, special_columns, gen_column_names
 from ..models.sources import ColumnDataSource
-from ..properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
+from ..core.properties import bokeh_integer_types, Datetime, List, HasProps, String, Float
 
 
 COMPUTED_COLUMN_NAMES = ['_charts_ones']
@@ -42,6 +42,7 @@ class ColumnAssigner(HasProps):
     Each subclass must implement the :meth:`get_assignment` method, which returns
     a `dict` mapping between each dimension in `dims` and one or more column names,
     or `None` if no assignment is made for the associated dimension.
+
     """
     dims = List(String, help="""
         The list of dimension names that are associated with the :class:`Builder`. The
@@ -61,6 +62,7 @@ class ColumnAssigner(HasProps):
             df (:class:`pandas.DataFrame`, optional): the data source to use for
                 assigning columns from
             **properties: any attribute of the ColumnAssigner
+
         """
         if df is not None:
             self._df = df
@@ -74,6 +76,7 @@ class OrderedAssigner(ColumnAssigner):
     """Assigns one column for each dimension that is not an attribute, in order.
 
     This is the default column assigner for the :class:`Builder`.
+
     """
 
     def get_assignment(self, selections=None):
@@ -137,6 +140,7 @@ class DataGroup(object):
 
     .. note::
         resets the index on the input data
+
     """
 
     def __init__(self, label, data, attr_specs):
@@ -146,7 +150,8 @@ class DataGroup(object):
             label (str): the label for the group based on unique values of each column
             data (:class:`pandas.DataFrame`): the subset of data associated with the group
             attr_specs dict(str, :class:`AttrSpec`): mapping between attribute name and
-              the associated :class:`AttrSpec`.
+            the associated :class:`AttrSpec`.
+            
         """
         self.label = label
         self.data = data.reset_index()
@@ -160,6 +165,7 @@ class DataGroup(object):
 
         Returns:
             :class:`pandas.DataFrame`
+
         """
         if selection in special_columns:
             return special_columns[selection](self.data)
@@ -282,6 +288,7 @@ class ChartDataSource(object):
 
     Converts inputs that could be treated as table-like data to pandas DataFrame,
     which is used for assigning attributes to data groups.
+
     """
 
     def __init__(self, df, dims=None, required_dims=None, selections=None,
@@ -302,6 +309,7 @@ class ChartDataSource(object):
                 :class:`OrderedAssigner`, which assumes you want to assign each column
                 or array to each dimension of the chart in order that they are received.
             attrs (list(str)): list of attribute names the chart uses
+
         """
         if dims is None:
             dims = DEFAULT_DIMS
@@ -332,7 +340,8 @@ class ChartDataSource(object):
 
         Returns:
             mapping between each dimension and the selected columns. If no selection is
-                made for a dimension, then the dimension will be associated with `None`.
+            made for a dimension, then the dimension will be associated with `None`.
+
         """
         select_map = {}
 
@@ -408,7 +417,8 @@ class ChartDataSource(object):
 
         Returns:
             the columns selected as a str or list(str). If the dimension is not in
-              `_selections`, `None` is returned.
+            `_selections`, `None` is returned.
+
         """
         if dim in self._selections:
             return self._selections[dim]
@@ -476,6 +486,7 @@ class ChartDataSource(object):
 
         Returns:
             None
+
         """
         # ToDo: Handle multiple blend operations
         for dim in self._dims:
@@ -515,7 +526,8 @@ class ChartDataSource(object):
 
         Yields:
             a DataGroup, which contains metadata and attributes
-                assigned to the group of data
+            assigned to the group of data
+
         """
         if len(specs) == 0:
             raise ValueError(
@@ -582,6 +594,7 @@ class ChartDataSource(object):
 
         Returns:
             :class:`ColumnDataSource`
+
         """
 
         # make sure the attributes are not considered for data inputs
@@ -693,6 +706,7 @@ class ChartDataSource(object):
 
         Returns:
             bool
+
         """
         valid = False
 
@@ -728,6 +742,7 @@ class ChartDataSource(object):
 
         Returns:
             iterable(str): iterable of dimension names as strings
+
         """
         dims = kwargs.pop(kwargs, None)
         if not dims:
@@ -741,6 +756,7 @@ class ChartDataSource(object):
 
         Returns:
             :class:`ColumnDataSource`
+
         """
         # handle list of arrays
         if any(cls.is_list_arrays(array) for array in arrays):
@@ -773,6 +789,7 @@ class ChartDataSource(object):
 
         Returns:
             :class:`ColumnDataSource`
+
         """
         return cls(df=pd.DataFrame.from_dict(data), **kwargs)
 
@@ -784,6 +801,7 @@ class ChartDataSource(object):
 
         Returns:
             bool
+
         """
         return (ChartDataSource._is_valid(data, TABLE_TYPES) or
                 ChartDataSource.is_list_dicts(data))
@@ -794,6 +812,7 @@ class ChartDataSource(object):
 
         Returns:
             bool
+
         """
         return isinstance(data, list) and all([isinstance(row, dict) for row in data])
 
@@ -803,6 +822,7 @@ class ChartDataSource(object):
 
         Returns:
             bool
+
         """
         if ChartDataSource.is_list_dicts(data):
             # list of dicts is table type
@@ -820,6 +840,7 @@ class ChartDataSource(object):
 
         Returns:
             bool
+
         """
         return any([isinstance(data, valid_type) for valid_type in types])
 
@@ -828,6 +849,7 @@ class ChartDataSource(object):
 
         Returns:
             None
+
         """
 
         required_dims = self._required_dims
@@ -871,6 +893,7 @@ class ChartDataSource(object):
 
         Returns:
             bool
+
         """
         if isinstance(value, pd.Series):
             return Column(Float).is_valid(value)
@@ -884,6 +907,7 @@ class ChartDataSource(object):
 
         Returns:
             bool
+
         """
         try:
             dt = Datetime(value)
@@ -905,6 +929,7 @@ class ChartDataSource(object):
 
         Returns:
             List(Str)
+
         """
         return self._data.columns
 
@@ -923,6 +948,7 @@ class ChartDataSource(object):
 
         Returns:
             bool
+
         """
         if column in COMPUTED_COLUMN_NAMES:
             return True

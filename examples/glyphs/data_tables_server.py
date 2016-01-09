@@ -1,17 +1,15 @@
 from __future__ import print_function
 
-from bokeh.browserlib import view
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
+from bokeh.client import push_session
+from bokeh.document import Document
+from bokeh.models import (
+    ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid,
+    Circle, HoverTool, BoxSelectTool
+)
 from bokeh.models.widgets import (
     Select, DataTable, TableColumn, StringFormatter, HBox, VBox,
     NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
-# from bokeh.io import vplot, hplot
-from bokeh.document import Document
-from bokeh.plotting import curdoc
-from bokeh.client import push_session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
-
-
 
 class DataTables(object):
 

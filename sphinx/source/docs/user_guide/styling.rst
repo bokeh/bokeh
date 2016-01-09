@@ -3,10 +3,6 @@
 Styling Visual Attributes
 =========================
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _userguide_styling_using_palettes:
 
 Using Palettes
@@ -17,7 +13,7 @@ colormap and be can set as the ``palette`` attribute of all chart types from
 ``bokeh.charts`` and as the ``color`` attribute of many plot objects from
 ``bokeh.plotting``. Bokeh offers many of the standard Brewer palettes, which
 can be imported from the ``bokeh.palettes`` module. For example, importing
-“Spectral6” gives a six element list of RBG(A) hex strings from the Brewer
+“Spectral6” gives a six element list of RGB(A) hex strings from the Brewer
 “Spectral” colormap.
 
 .. code-block:: python
@@ -27,7 +23,7 @@ can be imported from the ``bokeh.palettes`` module. For example, importing
     ['#3288bd', '#99d594', '#e6f598', '#fee08b', '#fc8d59', '#d53e4f']
 
 All of the standard palettes included in bokeh can be found at
-:ref:`bokeh_dot_palettes`. Custom palettes can be made by creating sequences of
+:ref:`bokeh.palettes`. Custom palettes can be made by creating sequences of
 RGB(A) hex strings.
 
 .. _userguide_styling_visual_properties:
@@ -335,6 +331,18 @@ below demonstrates the latter method:
     Only the *visual* properties of ``hover_glyph`` are considered when
     rendering. Changing positions, sizes, etc. will have no effect.
 
+.. _userguide_styling_tools:
+
+Tools
+-----
+
+Some Bokeh tools also have configurable visual attributes. For instance the
+various region selection tools and box zoom tool all have an ``overlay``
+whose line and fill properties may be set:
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_tool_overlays.py
+    :source-position: above
+
 .. _userguide_styling_axes:
 
 Axes
@@ -403,7 +411,7 @@ Tick Locations
 
 Bokeh has several "ticker" models that can choose nice locations for ticks.
 These are configured on the ``.ticker`` property of an axis. With the
-|bokeh.plotting| and |bokeh.charts| interfaces, choosing an approriate ticker
+|bokeh.plotting| and |bokeh.charts| interfaces, choosing an appropriate ticker
 type (categorical, datetime, linear or log scale) normally happens
 automatically. However, there are cases when more explicit control is
 useful.

@@ -3,11 +3,6 @@
 Embedding Plots and Apps
 ========================
 
-.. contents::
-    :local:
-    :depth: 2
-
-
 Bokeh provides a variety of ways to embed plots and data into HTML documents.
 
 .. _userguide_embed_html:
@@ -38,7 +33,7 @@ operations.
 .. note::
     This is a fairly low-level, explicit way to generate an HTML file.
     When using the |bokeh.plotting| or |bokeh.charts| interfaces, users will
-    typically call the function |output_file| in conjuction with |show| or
+    typically call the function |output_file| in conjunction with |show| or
     |save| instead.
 
 You can also provide your own template and pass in custom, or additional, template variables.
@@ -326,7 +321,6 @@ a document looks like:
     <script
         src="http://localhost:5006/bokeh/autoload.js/f64f7959-017d-4d1b-924e-899a61fed42b"
         id="f64f7959-017d-4d1b-924e-899a61fed42b"
-        async="true"
         data-bokeh-data="server"
         data-bokeh-modelid="82ef36f7-9d58-47c8-9b0d-201947febb00"
         data-bokeh-root-url="http://localhost:5006/"

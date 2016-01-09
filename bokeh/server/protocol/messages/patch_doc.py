@@ -54,7 +54,7 @@ class patch_doc_1(Message):
                         if patch_new is not None and 'id' in patch_new and patch_new['id'] == event.new._id:
                             return True
                     else:
-                        if patch_new == event.new:
+                        if patch_new == event.serializable_new:
                             return True
         elif isinstance(event, RootAddedEvent):
             for event_json in self.content['events']:

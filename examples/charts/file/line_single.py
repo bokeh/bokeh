@@ -14,5 +14,6 @@ line = Line(data, y=['python', 'pypy', 'jython'],
             color=['python', 'pypy', 'jython'],
             title="Interpreter Sample Data", ylabel='Duration', legend=True)
 
-output_file("line_single.html")
+output_file("line_single.html", title="line_single.py example")
+
 show(line)

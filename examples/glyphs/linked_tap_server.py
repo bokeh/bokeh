@@ -2,10 +2,11 @@ from __future__ import print_function
 
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, Circle, VBox, HBox, Button, TapTool
-from bokeh.document import Document
-from bokeh.browserlib import view
 from bokeh.client import push_session
+from bokeh.document import Document
+from bokeh.models import (
+    ColumnDataSource, DataRange1d, Plot, Circle, VBox, HBox, Button, TapTool
+)
 
 document = Document()
 session = push_session(document)
