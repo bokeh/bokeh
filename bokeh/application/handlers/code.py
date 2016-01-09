@@ -11,7 +11,7 @@ from .code_runner import _CodeRunner
 from .handler import Handler
 
 class CodeHandler(Handler):
-    """ Run source code which modifies a Document i
+    """ Run source code which modifies a Document
 
     Args:
         source (str) : python source code

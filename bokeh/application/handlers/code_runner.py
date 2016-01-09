@@ -8,7 +8,7 @@ import traceback
 import uuid
 
 class _CodeRunner(object):
-    """ Compiile and run a Python source code."""
+    """ Compile and run a Python source code."""
 
     def __init__(self, source, path):
         self._failed = False
