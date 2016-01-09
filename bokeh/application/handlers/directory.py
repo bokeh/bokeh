@@ -6,7 +6,7 @@ from .server_lifecycle import ServerLifecycleHandler
 import os
 
 class DirectoryHandler(Handler):
-    """Load an application directory which modifies a Document"""
+    """ Load an application directory which modifies a Document """
 
     def __init__(self, *args, **kwargs):
         super(DirectoryHandler, self).__init__(*args, **kwargs)
@@ -14,12 +14,14 @@ class DirectoryHandler(Handler):
             raise ValueError('Must pass a filename to DirectoryHandler')
 
         src_path = kwargs['filename']
-        mainpy = os.path.join(src_path, 'main.py')
-        if not os.path.exists(mainpy):
-            raise ValueError("No 'main.py' in %s" % (src_path))
+        main = os.path.join(src_path, 'main.py')
+        if not os.path.exists(main):
+            main = os.path.join(src_path, 'main.ipynb')
+            if not os.path.exists(main):
+                raise ValueError("No 'main.py' or 'main.ipynb' in %s" % (src_path))
         self._path = src_path
-        self._mainpy = mainpy
-        self._mainpy_handler = ScriptHandler(filename=self._mainpy)
+        self._main = main
+        self._main_handler = ScriptHandler(filename=self._main)
 
         lifecycle = os.path.join(src_path, 'server_lifecycle.py')
         if os.path.exists(lifecycle):
@@ -49,19 +51,19 @@ class DirectoryHandler(Handler):
         # class is immutable (has no setters)
         if self._theme is not None:
             doc.theme = self._theme
-        self._mainpy_handler.modify_document(doc)
+        self._main_handler.modify_document(doc)
 
     @property
     def failed(self):
-        return self._mainpy_handler.failed or self._lifecycle_handler.failed
+        return self._main_handler.failed or self._lifecycle_handler.failed
 
     @property
     def error(self):
-        return self._mainpy_handler.error or self._lifecycle_handler.error
+        return self._main_handler.error or self._lifecycle_handler.error
 
     @property
     def error_detail(self):
-        return self._mainpy_handler.error_detail or self._lifecycle_handler.error_detail
+        return self._main_handler.error_detail or self._lifecycle_handler.error_detail
 
     def on_server_loaded(self, server_context):
         return self._lifecycle_handler.on_server_loaded(server_context)
