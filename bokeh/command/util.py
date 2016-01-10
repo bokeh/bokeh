@@ -40,8 +40,10 @@ def build_single_handler_application(path):
     else:
         if path.endswith(".ipynb"):
             handler = NotebookHandler(filename=path)
-        else:
+        elif path.endswith(".py"):
             handler = ScriptHandler(filename=path)
+        else:
+            raise ValueError("Expected a '.py' script or '.ipynb' notebook, got: '%s'" % path)
 
     if handler.failed:
         raise RuntimeError("Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail))
