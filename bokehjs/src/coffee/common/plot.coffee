@@ -95,6 +95,15 @@ class PlotView extends ContinuumView
     super(options)
     @pause()
 
+    @_initial_state_info = {
+      range: null                     # set later by set_initial_range()
+      selection: {}                   # XXX: initial selection?
+      dimensions: {
+        width: @mget("canvas").get("width")
+        height: @mget("canvas").get("height")
+      }
+    }
+
     @model.initialize_layout(@model.solver)
 
     # compat, to be removed
@@ -162,15 +171,6 @@ class PlotView extends ContinuumView
       _.delay(@resize, 10)
 
     @unpause()
-
-    @_initial_state_info = {
-      range: @initial_range_info
-      selection: {}                   # XXX: initial selection?
-      dimensions: {
-        width: @canvas.get("width")
-        height: @canvas.get("height")
-      }
-    }
 
     logger.debug("PlotView initialized")
 
@@ -398,11 +398,10 @@ class PlotView extends ContinuumView
           break
         yrs[name] = { start: rng.get('start'), end: rng.get('end') }
     if good_vals
-      @initial_range_info = {
+      @_initial_state_info.range = @initial_range_info = {
         xrs: xrs
         yrs: yrs
       }
-      @_initial_state_info.range = @initial_range_info
       logger.debug("initial ranges set")
     else
       logger.warn('could not set initial ranges')
