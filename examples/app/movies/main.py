@@ -96,4 +96,4 @@ inputs = HBox(VBoxForm(controls), width=300)
 
 update(None, None, None) # initial load of the data
 
-curdoc().add_root(HBox(inputs, p))
+curdoc().add_root(HBox(inputs, p, width=1100))

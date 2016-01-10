@@ -36,7 +36,6 @@
         { "path": "examples/charts/file/palettes.py",          "name": "palettes"                                    },
         { "path": "examples/charts/file/stacked_bar.py",       "name": "stacked_bar_chart"                           },
         { "path": "examples/charts/file/steps.py",             "name": "step_chart"                                  },
-        { "path": "examples/charts/file/stocks_timeseries.py", "name": "stocks_timeseries_chart"                     },
         { "path": "examples/compat/ggplot/density.py",         "name": "density"                                     },
         { "path": "examples/compat/ggplot/line.py",            "name": "ggplot_line"                                 },
         { "path": "examples/compat/ggplot/step.py",            "name": "step"                                        },

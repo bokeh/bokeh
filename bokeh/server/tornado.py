@@ -25,12 +25,29 @@ from .connection import ServerConnection
 from .application_context import ApplicationContext
 from .views.static_handler import StaticHandler
 
+# factored out to be easier to test
+def check_whitelist(request_host, whitelist):
+    ''' Check a given request host against a whitelist.
+
+    '''
+    if request_host not in whitelist:
+
+        # see if the request came with no port, assume port 80 in that case
+        if len(request_host.split(':')) == 1:
+            host = request_host + ":80"
+            return host in whitelist
+        else:
+            return False
+
+    return True
+
+
 def _whitelist(handler_class):
     if hasattr(handler_class.prepare, 'patched'):
         return
     old_prepare = handler_class.prepare
     def _prepare(self, *args, **kw):
-        if self.request.host not in self.application._hosts:
+        if not check_whitelist(self.request.host, self.application._hosts):
             log.info("Rejected connection from host '%s' because it is not in the --host whitelist" % self.request.host)
             raise HTTPError(403)
         return old_prepare(self, *args, **kw)
@@ -274,7 +291,18 @@ class BokehTornado(TornadoApplication):
         raise gen.Return(None)
 
     def log_stats(self):
+        if log.getEffectiveLevel() > logging.DEBUG:
+            # avoid the work below if we aren't going to log anything
+            return
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
+        for app_path, app in self._applications.items():
+            sessions = list(app.sessions)
+            unused_count = 0
+            for s in sessions:
+                if s.connection_count == 0:
+                    unused_count += 1
+            log.debug("[pid %d]   %s has %d sessions with %d unused",
+                      os.getpid(), app_path, len(sessions), unused_count)
 
     def keep_alive(self):
         for c in self._clients:

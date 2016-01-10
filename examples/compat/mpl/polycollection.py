@@ -35,6 +35,6 @@ plt.ylim([-60, 60])
 
 plt.title("MPL-PolyCollection support in Bokeh")
 
-output_file("polycollection.html")
+output_file("polycollection.html", title="polycollection.py example")
 
 show(mpl.to_bokeh())

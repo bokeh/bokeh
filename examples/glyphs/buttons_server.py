@@ -1,16 +1,11 @@
 from __future__ import print_function
 
-from bokeh.util.browser import view
+from bokeh.client import push_session
 from bokeh.document import Document
-from bokeh.plotting import curdoc
-
 from bokeh.models.widgets import (
-    VBox, Icon,
-    Button, Toggle, Dropdown,
-    CheckboxGroup, RadioGroup,
+    VBox, Icon, Button, Toggle, Dropdown, CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,
 )
-from bokeh.client import push_session
 
 def button_handler():
     print("button_handler: click")

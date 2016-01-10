@@ -47,23 +47,23 @@ class Range1d(Range):
     The end of the range.
     """)
 
-    bounds = MinMaxBounds(accept_datetime=True, help="""
+    bounds = MinMaxBounds(accept_datetime=True, default=None, help="""
     The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
 
-    By default, the bounds will be computed to the start and end of the Range.
+    If set to ``'auto'``, the bounds will be computed to the start and end of the Range.
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
     increasing or decreasing, the first item should be the minimum value of the range and the
     second item should be the maximum. Setting min > max will result in a ``ValueError``.
 
-    Setting bounds to ``None`` will allow your plot to pan/zoom as far as you want. If you only
+    By default, bounds are ``None`` and your plot to pan/zoom as far as you want. If you only
     want to constrain one end of the plot, you can set min or max to None.
 
     Examples:
 
-        Range1d(0, 1)  # Increasing range, auto-bounded to 0 and 1 (Default behavior)
-        Range1d(start=0, end=1, bounds=None)  # Unbounded range
+        Range1d(0, 1, bounds='auto')  # Auto-bounded to 0 and 1 (Default behavior)
+        Range1d(start=0, end=1, bounds=(0, None))  # Maximum is unbounded, minimum bounded to 0
     """)
 
     def __init__(self, *args, **kwargs):
@@ -118,18 +118,18 @@ class DataRange1d(DataRange):
     automatically computed end value.
     """)
 
-    bounds = MinMaxBounds(accept_datetime=False, help="""
+    bounds = MinMaxBounds(accept_datetime=False, default=None, help="""
     The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
 
-    By default, the bounds will be computed to be the same as the start and end of the DataRange1d.
+    By default, the bounds will be None, allowing your plot to pan/zoom as far as you want.
+    If bounds are 'auto' they will be computed to be the same as the start and end of the DataRange1d.
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
     increasing or decreasing, the first item should be the minimum value of the range and the
     second item should be the maximum. Setting min > max will result in a ``ValueError``.
 
-    Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
-    want to constrain one end of the plot, you can set min or max to
+    If you only want to constrain one end of the plot, you can set min or max to
     ``None`` e.g. ``DataRange1d(bounds=(None, 12))``
     """)
 
@@ -206,17 +206,16 @@ class FactorRange(Range):
     this categorical range.
     """)
 
-    bounds = Either(Auto, List(String), List(Int), help="""
+    bounds = Either(Auto, List(String), List(Int), default=None, help="""
     The bounds that the range is allowed to go to - typically used to prevent
     the user from panning/zooming/etc away from the data.
 
     Unlike Range1d and DataRange1d, factors do not have an order and so a min and max cannot be
     provied in the same way. bounds accepts a list of factors, that constrain the displayed factors.
 
-    The plot is then constrained to not pan or zoom beyond the first and last item in the list of
-    factors. Providing None allows unlimited panning or zooming.
+    By default, bounds are ``None``, allows unlimited panning or zooming.
 
-    By default, bounds will be the same as factors and the plot will not be able to
+    If ``bounds='auto'``, bounds will be the same as factors and the plot will not be able to
     pan or zoom beyond the first and last items in factors.
 
     If you provide a list, then only the factors that are in that list will be displayed on the
@@ -226,11 +225,10 @@ class FactorRange(Range):
     Values of bounds that are not in factors are acceptable and will simply have no impact
     on the plot.
 
-    Examples
-    --------
+    Examples:
 
-    Default behavior:
-        x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"])
+    Auto behavior:
+        x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"], bounds='auto')
 
         The plot will display all the factors and you will not be able to pan left of apples or right
         of pigs.

@@ -39,8 +39,13 @@ class HasProperties extends Backbone.Model
       this.collection = options.collection
     if options.parse
       attrs = this.parse(attrs, options) || {}
-    attrs = _.defaults({}, attrs, _.result(this, 'defaults'))
+    defaults = _.result(this, 'defaults')
+    this.set(defaults, { defaults: true })
+    this._set_after_defaults = {}
     this.set(attrs, options)
+
+    # this is maintained by backbone ("changes since the last
+    # set()") and probably isn't relevant to us
     this.changed = {}
 
     ## bokeh custom constructor code
@@ -120,6 +125,8 @@ class HasProperties extends Backbone.Model
       attrs[key] = value
     toremove  = []
     for own key, val of attrs
+      if not (options? and options.defaults)
+        @_set_after_defaults[key] = true
       if _.has(this, 'properties') and
          _.has(@properties, key) and
          @properties[key]['setter']
@@ -265,8 +272,12 @@ class HasProperties extends Backbone.Model
   ref: () ->
     # ### method: HasProperties::ref
     # generates a reference to this model
-    'type': this.type
-    'id': this.id
+    base =
+      'type': this.type
+      'id': this.id
+    if @_subtype?
+      base['subtype'] = @_subtype
+    base
 
   @_is_ref: (arg) ->
     if _.isObject(arg)
@@ -276,6 +287,11 @@ class HasProperties extends Backbone.Model
       if keys.length==3
         return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
     return false
+
+  # we only keep the subtype so we match Python;
+  # only Python cares about this
+  set_subtype: (subtype) ->
+    @_subtype = subtype
 
   # TODO (havocp) I suspect any use of this is broken, because
   # if we're in a Document we should have already resolved refs,
@@ -386,17 +402,22 @@ class HasProperties extends Backbone.Model
   # are included as just references)
   # TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
   # backbone will have implemented a toJSON already that we may need to override
-  attributes_as_json: () ->
-    # TODO remove serializable_in_document and this check once we aren't seeing these
-    # warnings anymore
+  attributes_as_json: (include_defaults=true) ->
+    attrs = {}
     fail = false
     for own key, value of @serializable_attributes()
+      if include_defaults
+        attrs[key] = value
+      else if key of @_set_after_defaults
+        attrs[key] = value
+      # TODO remove serializable_in_document and this check once we aren't seeing these
+      # warnings anymore
       if value instanceof HasProperties and not value.serializable_in_document()
         console.log("May need to add #{key} to nonserializable_attribute_names of #{@.constructor.name} because value #{value.constructor.name} is not serializable")
         fail = true
     if fail
       return {}
-    HasProperties._value_to_json("attributes", @serializable_attributes(), @)
+    HasProperties._value_to_json("attributes", attrs, @)
 
   # this is like _value_record_references but expects to find refs
   # instead of models, and takes a doc to look up the refs in
@@ -423,12 +444,10 @@ class HasProperties extends Backbone.Model
     else if v instanceof HasProperties
       if v.id not of result
         result[v.id] = v
-        attrs = v.serializable_attributes()
-        for key of attrs
-          value = attrs[key]
-          if value instanceof HasProperties and not value.serializable_in_document()
-            console.log("May need to add #{key} to nonserializable_attribute_names of #{v.constructor.name} because value #{value.constructor.name} is not serializable")
-          HasProperties._value_record_references(value, result, recurse)
+        if recurse
+          immediate = v._immediate_references()
+          for obj in immediate
+            HasProperties._value_record_references(obj, result, true) # true=recurse
     else if _.isArray(v)
       for elem in v
         if elem instanceof HasProperties and not elem.serializable_in_document()
@@ -446,8 +465,13 @@ class HasProperties extends Backbone.Model
   # (do not recurse, do not include ourselves)
   _immediate_references: () ->
     result = {}
-    HasProperties._value_record_references(@, result, false) # false = no recurse
-    delete result[@id]
+    attrs = @serializable_attributes()
+    for key of attrs
+      value = attrs[key]
+      if value instanceof HasProperties and not value.serializable_in_document()
+          console.log("May need to add #{key} to nonserializable_attribute_names of #{@constructor.name} because value #{value.constructor.name} is not serializable")
+      HasProperties._value_record_references(value, result, false) # false = no recurse
+
     _.values(result)
 
   attach_document: (doc) ->
@@ -484,16 +508,10 @@ class HasProperties extends Backbone.Model
 
     if @document != null
       new_refs = {}
-      if new_ instanceof HasProperties
-        new_refs[new_.id] = new_
-      else
-        HasProperties._value_record_references(new_, new_refs, false)
+      HasProperties._value_record_references(new_, new_refs, false)
 
       old_refs = {}
-      if old instanceof HasProperties
-        old_refs[old.id] = old
-      else
-        HasProperties._value_record_references(old, old_refs, false)
+      HasProperties._value_record_references(old, old_refs, false)
 
       for new_id, new_ref of new_refs
         if new_id not of old_refs

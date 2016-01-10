@@ -13,9 +13,6 @@ in your browser.
 
 '''
 
-
-import sys
-
 import numpy as np
 
 from bokeh.palettes import RdYlBu3

@@ -44,6 +44,6 @@ hm9 = HeatMap(fruits, y='year', x='fruit', values='fruit_count', stat=None)
 hm10 = HeatMap(unempl, x='Year', y='Month', values='Unemployment', stat=None,
               sort_dim={'x': False}, width=1000)
 
-output_file("heatmap.html")
+output_file("heatmap.html", title="heatmap.py example")
 
 show(vplot(hm1, hm2, hm3, hm4, hm5, hm6, hm7, hm8, hm9, hm10))

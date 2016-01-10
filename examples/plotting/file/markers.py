@@ -46,6 +46,6 @@ mtext(p, 4.5, 6.5, "square_cross")
 mtext(p, 6.5, 6.5, "diamond")
 mtext(p, 8.5, 6.5, "cross / +")
 
-output_file("markers.html")
+output_file("markers.html", title="markers.py example")
 
 show(p)  # open a browser

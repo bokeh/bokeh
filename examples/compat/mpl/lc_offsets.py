@@ -36,6 +36,6 @@ ax.set_title('Successive data offsets')
 
 fig = plt.gcf()
 
-output_file("lc_offsets.html")
+output_file("lc_offsets.html", title="lc_offsets.py example")
 
 show(mpl.to_bokeh())

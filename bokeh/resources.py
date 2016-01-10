@@ -15,8 +15,9 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import json
 import copy
-from os.path import join, relpath
+from os.path import basename, join, relpath
 import re
 
 from . import __version__
@@ -280,7 +281,7 @@ class BaseResources(object):
         return _get_cdn_urls(self.components, self.version, self.minified)
 
     def _server_urls(self):
-        return _get_server_urls(self.components, self.root_url, self.minified, self.path_versioner)
+        return _get_server_urls(self.components, self.root_url, False if self.dev else self.minified, self.path_versioner)
 
     def _resolve(self, kind):
         paths = self._file_paths(kind)
@@ -303,13 +304,13 @@ class BaseResources(object):
         return (files, raw)
 
     def _inline(self, path):
-        begin = "/* BEGIN %s */" % path
+        begin = "/* BEGIN %s */" % basename(path)
         try:
             with open(path, 'rb') as f:
                 middle = f.read().decode("utf-8")
         except IOError:
             middle = ""
-        end = "/* END %s */" % path
+        end = "/* END %s */"  % basename(path)
         return "%s\n%s\n%s" % (begin, middle, end)
 
 class JSResources(BaseResources):
@@ -382,7 +383,7 @@ class JSResources(BaseResources):
     _plugin_template = \
 """
 (function outer(modules, cache, entry) {
-  if (Bokeh) {
+  if (typeof Bokeh !== "undefined") {
     for (var name in modules) {
       var module = modules[name];
 
@@ -523,6 +524,10 @@ class CSSResources(BaseResources):
     def css_raw(self):
         _, raw = self._resolve('css')
         return raw
+
+    @property
+    def css_raw_str(self):
+        return [ json.dumps(css) for css in self.css_raw ]
 
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)

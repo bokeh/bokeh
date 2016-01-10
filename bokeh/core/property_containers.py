@@ -1,11 +1,17 @@
-""" These are special versions of list, dict, and set which are used for
-    property values. Mutations are detected and the properties owning
-    the collection are notified.
+''' Provide special versions of list, dict, that can be used for property
+values.
 
-"""
+Mutations to these values are detected, and the properties owning the
+collection is notified of the changes.
+
+'''
 from __future__ import absolute_import, print_function
 
 def notify_owner(func):
+    ''' A decorator for mutating methods of property container classes, to
+    notify a the owner that a mutating change has occurred.
+
+    '''
     def wrapper(*args, **kwargs):
         self = args[0]
         old = self._saved_copy()
@@ -15,6 +21,10 @@ def notify_owner(func):
     return wrapper
 
 class PropertyValueContainer(object):
+    ''' A base class for property container classes that support change
+    notifications on mutating operations.
+
+    '''
     def __init__(self, *args, **kwargs):
         self._owners = set()
         # this flag is set to True by HasProps when it wraps
@@ -40,7 +50,10 @@ class PropertyValueContainer(object):
 # on list and send change notification to the
 # properties it's a value of.
 class PropertyValueList(PropertyValueContainer, list):
-    """A list that is the value of a property, and has change notification"""
+    ''' A list property value that supports change notifications on mutating
+    operations.
+
+    '''
 
     def __init__(self, *args, **kwargs):
         return super(PropertyValueList, self).__init__(*args, **kwargs)
@@ -107,8 +120,10 @@ class PropertyValueList(PropertyValueContainer, list):
         return super(PropertyValueList, self).sort(**kwargs)
 
 class PropertyValueDict(PropertyValueContainer, dict):
-    """A list that is the value of a property, and has change notification"""
+    ''' A dict property value that supports change notifications on mutating
+    opertations.
 
+    '''
     def __init__(self, *args, **kwargs):
         return super(PropertyValueDict, self).__init__(*args, **kwargs)
 

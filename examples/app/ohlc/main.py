@@ -1,8 +1,8 @@
-from numpy import asarray, cumprod, convolve, exp, ones, nan
+from numpy import asarray, cumprod, convolve, exp, ones
 from numpy.random import lognormal, gamma, uniform
 
 from bokeh.models import ColumnDataSource, Slider, VBox, HBox, Select, GridPlot
-from bokeh.plotting import ColumnDataSource, curdoc, Figure
+from bokeh.plotting import curdoc, Figure
 from bokeh.driving import count
 
 BUFSIZE = 200
@@ -31,7 +31,7 @@ mean = Slider(title="mean", value=0, start=-0.01, end=0.01, step=0.001)
 stddev = Slider(title="stddev", value=0.04, start=0.01, end=0.1, step=0.01)
 mavg = Select(value=MA12, options=[MA12, MA26, EMA12, EMA26])
 
-curdoc().add_root(VBox(HBox(mean, stddev, mavg), GridPlot(children=[[p], [p2]])))
+curdoc().add_root(VBox(HBox(mean, stddev, mavg, width=800), GridPlot(children=[[p], [p2]])))
 
 def _create_prices(t):
     last_average = 100 if t==0 else source.data['average'][-1]

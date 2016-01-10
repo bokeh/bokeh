@@ -47,7 +47,8 @@ class GlyphRendererView extends PlotWidget
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
-    @listenTo(@mget('data_source'), 'inspect', @request_render)
+    if @hover_glyph?
+      @listenTo(@mget('data_source'), 'inspect', @request_render)
 
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would

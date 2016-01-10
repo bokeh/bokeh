@@ -26,12 +26,10 @@ class HBoxView extends ContinuumView
     height = @mget("height")
     if height? then @$el.css(height: height + "px")
 
-    @$el.append($('<div class="bk-hbox-spacer"></div>'))
-    for child in children
+    for child, index in children
       @$el.append(@views[child.id].$el)
-
-      @$el.append($('<div class="bk-hbox-spacer"></div>'))
-
+      if index < children.length - 1
+        @$el.append($('<div class="bk-hbox-spacer"></div>'))
 
     return @
 

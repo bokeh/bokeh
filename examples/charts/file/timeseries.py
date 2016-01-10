@@ -44,6 +44,6 @@ tspoint = TimeSeries(
     marker=['IBM', 'MSFT', 'AAPL'], color=['IBM', 'MSFT', 'AAPL'],
     title="Timeseries (Point)", tools=TOOLS, ylabel='Stock Prices')
 
-output_file("timeseries.html")
+output_file("timeseries.html", title="timeseries.py example")
 
 show(vplot(tsline, tsline2, tsstep, tspoint))

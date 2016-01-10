@@ -8,7 +8,7 @@ Renders a ``div`` to display a Bokeh model into a Jupyter Notebook.
 :type plot_div: str
 
 #}
-{{ plot_script|indent(4) }}
 {{ plot_div|indent(4) }}
-
-
+<script type="text/javascript">
+  {{ plot_script|indent(2) }}
+</script>

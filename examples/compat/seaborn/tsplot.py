@@ -12,7 +12,7 @@ gammas = sns.load_dataset("gammas")
 sns.tsplot(data=gammas, time="timepoint", unit="subject",
            condition="ROI", value="BOLD signal")
 
-output_file("tsplot.html")
+output_file("tsplot.html", title="tsplot.py example")
 
 show(mpl.to_bokeh())
 

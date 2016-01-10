@@ -1,7 +1,7 @@
 .. _bokeh.charts:
 
-``bokeh.charts`` Interface
-==========================
+``bokeh.charts``
+================
 
 Chart Options
 -------------
@@ -18,11 +18,84 @@ Charts
 
 .. automodule:: bokeh.charts
 
+
+.. _bokeh_charts_charts_area:
+
+Area
+~~~~
+
+    .. autofunction:: Area
+
+.. _bokeh_charts_charts_bar:
+
+Bar
+~~~
+
     .. autofunction:: Bar
+
+.. _bokeh_charts_charts_boxplot:
+
+BoxPlot
+~~~~~~~
+
     .. autofunction:: BoxPlot
+
+.. _bokeh_charts_charts_donut:
+
+Donut
+~~~~~
+
+    .. autofunction:: Donut
+
+.. _bokeh_charts_charts_heatmap:
+
+HeatMap
+~~~~~~~
+
+    .. autofunction:: HeatMap
+
+.. _bokeh_charts_charts_histogram:
+
+Histogram
+~~~~~~~~~
+
     .. autofunction:: Histogram
+
+.. _bokeh_charts_charts_horizon:
+
+Horizon
+~~~~~~~
+
+    .. autofunction:: Horizon
+
+.. _bokeh_charts_charts_line:
+
+Line
+~~~~
+
     .. autofunction:: Line
+
+.. _bokeh_charts_charts_scatter:
+
+Scatter
+~~~~~~~
+
     .. autofunction:: Scatter
+
+.. _bokeh_charts_charts_step:
+
+Step
+~~~~
+
+    .. autofunction:: Step
+
+.. _bokeh_charts_charts_TimeSeries:
+
+TimeSeries
+~~~~~~~~~~
+
+    .. autofunction:: TimeSeries
+
 
 .. _bokeh_charts_functions:
 
@@ -33,6 +106,7 @@ Data Operations
 ~~~~~~~~~~~~~~~
 
 .. autofunction:: bokeh.charts.blend
+.. autofunction:: bokeh.charts.bins
 
 .. _bokeh_charts_attr_gen:
 
@@ -48,6 +122,10 @@ Attribute Generators
 Builders
 --------
 
+.. autoclass:: bokeh.charts.builders.area_builder.AreaBuilder
+    :members:
+    :undoc-members:
+
 .. autoclass:: bokeh.charts.builders.bar_builder.BarBuilder
     :members:
     :undoc-members:
@@ -56,7 +134,19 @@ Builders
     :members:
     :undoc-members:
 
+.. autoclass:: bokeh.charts.builders.donut_builder.DonutBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.heatmap_builder.HeatMapBuilder
+    :members:
+    :undoc-members:
+
 .. autoclass:: bokeh.charts.builders.histogram_builder.HistogramBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.horizon_builder.HorizonBuilder
     :members:
     :undoc-members:
 
@@ -65,6 +155,14 @@ Builders
     :undoc-members:
 
 .. autoclass:: bokeh.charts.builders.scatter_builder.ScatterBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.scatter_builder.ScatterBuilder
+    :members:
+    :undoc-members:
+
+.. autoclass:: bokeh.charts.builders.step_builder.StepBuilder
     :members:
     :undoc-members:
 
@@ -139,5 +237,3 @@ Utilities
 ---------
 
 .. autofunction:: bokeh.charts.utils.df_from_json
-
-

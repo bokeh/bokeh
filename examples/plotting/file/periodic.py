@@ -7,8 +7,8 @@ romans = ["I", "II", "III", "IV", "V", "VI", "VII"]
 
 elements["atomic mass"] = elements["atomic mass"].astype(str)
 
-elements = elements[elements.group != "-"]
 elements["period"] = [romans[x-1] for x in elements.period]
+elements = elements[elements.group != "-"]
 
 group_range = [str(x) for x in range(1, 19)]
 
@@ -82,6 +82,6 @@ p.select_one(HoverTool).tooltips = [
     ("electronic configuration", "@electronic"),
 ]
 
-output_file("periodic.html")
+output_file("periodic.html", title="periodic.py example")
 
 show(p)

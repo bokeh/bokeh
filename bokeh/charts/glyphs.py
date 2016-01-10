@@ -119,6 +119,8 @@ class PointGlyph(XyGlyph):
                  marker=None, size=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
+        if marker is not None: kwargs['marker'] = marker
+        if size is not None: kwargs['size'] = size
 
         if color:
             line_color = color

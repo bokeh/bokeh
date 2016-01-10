@@ -34,13 +34,10 @@ The toolbar location can be specified by passing the ``toolbar_location``
 parameter to the |figure| function or to any |bokeh.charts| Chart function.
 Valid values are:
 
-``"above"``
-
-``"below"``
-
-``"left"``
-
-``"right"``
+* ``"above"``
+* ``"below"``
+* ``"left"``
+* ``"right"``
 
 If you would like to hide the toolbar entirely, pass ``None``.
 
@@ -257,7 +254,7 @@ Inspectors
 
 * menu icon: |inspector_icon|
 
-Inpectors are passive tools that annotate or otherwise report information about
+Inspectors are passive tools that annotate or otherwise report information about
 the plot, based on the current cursor position. Any number of inspectors may be
 active at any given time. The inspectors menu in the toolbar allows users to
 toggle the active state of any inspector.
@@ -269,7 +266,7 @@ CrosshairTool
 
 Th crosshair tool draws a crosshair annotation over the plot, centered on
 the current mouse position. The crosshair tool may be configured to draw
-accross only one dimension by setting the ``dimensions`` property to a
+across only one dimension by setting the ``dimensions`` property to a
 list containing ``width`` or ``height``.
 
 HoverTool
