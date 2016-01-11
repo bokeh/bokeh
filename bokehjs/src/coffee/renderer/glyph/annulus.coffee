@@ -21,19 +21,29 @@ class AnnulusView extends Glyph.View
     for i in indices
       if isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i])
         continue
-
-      ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI*2, false)
-      ctx.moveTo(sx[i]+souter_radius[i], sy[i])
-      ctx.arc(sx[i], sy[i], souter_radius[i], 0, 2*Math.PI*2, true)
-
+      
+      # Because this visual has a whole in it, it proved "challenging"
+      # for some browsers to render if drawn naively --- i.e. it did not
+      # work on IE. Instead we render in two parts (upper and lower part),
+      # thus making it unambiguous what part should be filled. The line is
+      # better drawn in one go though, otherwise the part where the pieces
+      # meet will not be fully closed due to aa. 
+      
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
+        ctx.beginPath()
+        for clockwise in [false, true]
+            ctx.arc(sx[i], sy[i], sinner_radius[i], 0, Math.PI, clockwise)
+            ctx.arc(sx[i], sy[i], souter_radius[i], Math.PI, 0, !clockwise)
         ctx.fill()
 
       if @visuals.line.do_stroke
-        @visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
+          @visuals.line.set_vectorize(ctx, i)
+          ctx.beginPath()
+          ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI)
+          ctx.moveTo(sx[i]+souter_radius[i], sy[i])
+          ctx.arc(sx[i], sy[i], souter_radius[i], 0, 2*Math.PI)
+          ctx.stroke()
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
