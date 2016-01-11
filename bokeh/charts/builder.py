@@ -230,6 +230,10 @@ class Builder(HasProps):
         using the valid input for the `HoverTool` tooltips kwarg.
         """)
 
+    unsorted_label = Bool(default=False, help="""
+        A boolean flag to tell to don't sort the labels.
+        """)
+
     def __init__(self, *args, **kws):
         """Common arguments to be used by all the inherited classes.
 
@@ -340,6 +344,9 @@ class Builder(HasProps):
                     attributes[attr_name].iterable = custom_palette
                 else:
                     attributes[attr_name] = self.default_attributes[attr_name]._clone()
+
+        if kws.get('unsorted_label', False):
+            attributes['label'].sort = False
 
         # make sure all have access to data source
         for attr_name in attr_names:
