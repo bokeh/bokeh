@@ -48,6 +48,8 @@ _render_document_to_element = (element, document, use_for_title) ->
   # the views we create.
   views = {}
   render_model = (model) ->
+    if not model.default_view?
+      return
     view = _create_view(model)
     views[model.id] = view
     $(element).append(view.$el)
