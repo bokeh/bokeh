@@ -417,16 +417,20 @@ class PlotView extends ContinuumView
     @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
 
     if ctx.glcanvas
-      # Blit gl canvas into the 2D canvas. We need to turn off interpolation, otherwise
-      # all gl-rendered content is blurry. The 0.1 offset is to force the samples
-      # to be *inside* the pixels, otherwise round-off errors can sometimes cause
-      # missing/double scanlines (seen in Chrome).
-      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
-         ctx[prefix + 'SmoothingEnabled'] = false
+      # Blit gl canvas into the 2D canvas. We set up offsets so the pixel
+      # mapping is one-on-one and we do not get any blurring due to
+      # interpolation. In theory, we could disable the image interpolation,
+      # and we can on Chrome, but then the result looks ugly on Firefox. Since
+      # the image *does* look sharp, this might be a bug in Firefox'
+      # interpolation-less image rendering.
+      # This is how we would disable image interpolation (keep as a reference) 
+      #for prefix in ['image', 'mozImage', 'webkitImage','msImage']
+      #   ctx[prefix + 'SmoothingEnabled'] = window.SmoothingEnabled
       #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
-      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
-         ctx[prefix + 'SmoothingEnabled'] = true
+      src_offset = 0.5
+      dst_offset = 0.0
+      ctx.drawImage(ctx.glcanvas, src_offset, src_offset, ctx.glcanvas.width, ctx.glcanvas.height,
+                                  dst_offset, dst_offset, ctx.glcanvas.width, ctx.glcanvas.height)
       logger.debug('drawing with WebGL')
 
     @_render_levels(ctx, ['overlay', 'tool'])
