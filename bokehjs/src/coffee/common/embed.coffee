@@ -49,6 +49,7 @@ _render_document_to_element = (element, document, use_for_title) ->
   views = {}
   render_model = (model) ->
     if not model.default_view?
+      console.debug("Model #{model} does not have a default view and will not be rendered");
       return
     view = _create_view(model)
     views[model.id] = view
