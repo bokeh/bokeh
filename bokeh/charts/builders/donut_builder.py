@@ -59,7 +59,7 @@ def Donut(data, label='index', values=None,  color=None, agg=None,
             aggregated hover_tool (bool, optional): whether to show the value of the
             wedge when hovering
         hover_text (str, optional): provide an alternative string to use label the
-        value shown with the hover tool
+            value shown with the hover tool
         **kw:
 
     In addition to the parameters specific to this chart,
