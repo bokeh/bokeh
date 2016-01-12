@@ -30,6 +30,7 @@ from .builders.area_builder import Area
 from .builders.horizon_builder import Horizon
 from .builders.heatmap_builder import HeatMap
 from .builders.donut_builder import Donut
+from .builders.waterfall_builder import Waterfall
 
 # easy access to required bokeh components
 from ..models import ColumnDataSource
