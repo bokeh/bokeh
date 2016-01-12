@@ -623,7 +623,7 @@ class XYBuilder(Builder):
         if dtype == 'object':
             factors = values.drop_duplicates()
             if sort:
-                factors.sort_values(inplace=True)
+                factors.sort(inplace=True)
             setattr(self, dim + 'scale', 'categorical')
             return FactorRange(factors=factors.tolist())
         elif 'datetime' in dtype:
