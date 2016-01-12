@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 from .connection import ClientConnection
 
 from bokeh.resources import ( DEFAULT_SERVER_WEBSOCKET_URL,
-                              DEFAULT_SERVER_HTTP_URL,
                               server_url_for_websocket_url,
                               _SessionCoordinates )
 from bokeh.document import Document
