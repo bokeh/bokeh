@@ -55,7 +55,9 @@ class ChartDefaults(object):
             raise ValueError("ChartsDefaults should be only used on Chart \
             objects but it's being used on %s instead." % chart)
 
-        for k in list(chart.properties_with_values(include_defaults=True).keys()) + \
+        all_props = set(chart.properties_with_values(include_defaults=True))
+        dirty_props = set(chart.properties_with_values(include_defaults=False))
+        for k in list(all_props.difference(dirty_props)) + \
             list(chart.__deprecated_attributes__):
             if k == 'tools':
                 value = getattr(self, k, True)
@@ -116,7 +118,9 @@ class Chart(Plot):
         # supported types
         tools = kwargs.pop('tools', None)
         super(Chart, self).__init__(*args, **kwargs)
+
         defaults.apply(self)
+
         if tools is not None:
             self._tools = tools
 
