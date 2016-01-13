@@ -296,6 +296,27 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--check-unused-sessions', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to check for unused sessions",
+            default=None,
+        )),
+
+        ('--unused-session-lifetime', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How long unused sessions last",
+            default=None,
+        )),
+
+        ('--stats-log-frequency', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to log stats",
+            default=None,
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
@@ -332,13 +353,31 @@ class Serve(Subcommand):
             # rename to be compatible with Server
             args.keep_alive_milliseconds = args.keep_alive
 
+        if args.check_unused_sessions is not None:
+            log.info("Check for unused sessions every %d milliseconds", args.check_unused_sessions)
+            # rename to be compatible with Server
+            args.check_unused_sessions_milliseconds = args.check_unused_sessions
+
+        if args.unused_session_lifetime is not None:
+            log.info("Unused sessions last for %d milliseconds", args.unused_session_lifetime)
+            # rename to be compatible with Server
+            args.unused_session_lifetime_milliseconds = args.unused_session_lifetime
+
+        if args.stats_log_frequency is not None:
+            log.info("Log statistics every %d milliseconds", args.stats_log_frequency)
+            # rename to be compatible with Server
+            args.stats_log_frequency_milliseconds = args.stats_log_frequency
+
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
                                                               'allow_websocket_origin',
                                                               'host',
                                                               'prefix',
                                                               'develop',
-                                                              'keep_alive_milliseconds']
+                                                              'keep_alive_milliseconds',
+                                                              'check_unused_sessions_milliseconds',
+                                                              'unused_session_lifetime_milliseconds',
+                                                              'stats_log_frequency_milliseconds']
                           if getattr(args, key, None) is not None }
 
         server_kwargs['sign_sessions'] = settings.sign_sessions()
