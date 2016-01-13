@@ -411,6 +411,50 @@ from ``custom.js``
 Callbacks and Events
 ~~~~~~~~~~~~~~~~~~~~
 
+Before jumping in to callbacks and events specifically in the context of the
+Bokeh Server, it's worth discussing different use-cases for callbacks in
+general.
+
+JavaScript Callbacks in the Browser
+'''''''''''''''''''''''''''''''''''
+
+Regardless of whether there is a Bokeh Server involved, it is possible to
+create callbacks that execute in the browser, using ``CustomJS`` and other
+methods. See :ref:`userguide_interaction_actions` for more detailed information and examples.
+
+It is critical to note that **no python code is ever executed when a CustomJS
+callback is used**. This is true even when the call back is supplied as python
+code to be translated to JavaScript. A ``CustomJS`` callback is only executed
+inside a browser JavaScript interpreter, and can only directly interact
+JavaScript data and functions (e.g., BokehJS Backbone models).
+
+Python Callbacks with Jupyter Interactors
+'''''''''''''''''''''''''''''''''''''''''
+
+If you are working in the Jupyter Notebook, it is possible to use Jupyter
+interactors to quickly create simple GUI forms automatically. Updates to the
+widgets in the GUI can trigger python callback functions that execute in
+the Jupyter Python kernel. It is often useful to have these callbacks call
+:func:`~bokeh.io.push_notebook` to push updates to displayed plots. For more
+detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
+
+.. note::
+    It is currently possible to push udpates from python, to BokehJS (i.e.,
+    to update plots, etc.) using :func:`~bokeh.io.push_notebook`. It is not
+    currently possible to get events or updates from the other direction (e.g.
+    to have a range or selection update trigger a python callback) without
+    using a Bokeh Server as described in the next section. Adding the
+    capability for two-way Python<-->JS synchronization through Jupyter comms
+    is a planned future addition.
+
+Python Callbacks in Bokeh Applications
+''''''''''''''''''''''''''''''''''''''
+
+
+Python Callbacks with ``bokeh.client``
+''''''''''''''''''''''''''''''''''''''
+
+
 .. _userguide_server_applications_themes:
 
 Application Theming
