@@ -55,7 +55,8 @@ class ChartDefaults(object):
             raise ValueError("ChartsDefaults should be only used on Chart \
             objects but it's being used on %s instead." % chart)
 
-        for k in chart.properties_with_values(include_defaults=True):
+        for k in list(chart.properties_with_values(include_defaults=True).keys()) + \
+            list(chart.__deprecated_attributes__):
             if k == 'tools':
                 value = getattr(self, k, True)
                 if getattr(chart, '_tools', None) is None:
@@ -102,21 +103,13 @@ class Chart(Plot):
     What kind of scale to use for the y-axis.
     """)
 
-    width = Int(600, help="""
-    Width of the rendered chart, in pixels.
-    """)
-
-    height = Int(400, help="""
-    Height of the rendered chart, in pixels.
-    """)
-
     title_text_font_size = Override(default={ 'value' : '14pt' })
 
     responsive = Override(default=False)
 
     _defaults = defaults
 
-    __deprecated_attributes__ = ('filename', 'server', 'notebook')
+    __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height')
 
     def __init__(self, *args, **kwargs):
         # pop tools as it is also a property that doesn't match the argument
@@ -126,6 +119,12 @@ class Chart(Plot):
         defaults.apply(self)
         if tools is not None:
             self._tools = tools
+
+        # TODO (fpliger): we do this to still support deprecated document but
+        #                 should go away when __deprecated_attributes__ is empty
+        for k in self.__deprecated_attributes__:
+            if k in kwargs:
+                setattr(self, k, kwargs[k])
 
         # TODO (bev) have to force serialization of overriden defaults on subtypes for now
         self.title_text_font_size = "10pt"
@@ -340,3 +339,23 @@ class Chart(Plot):
     def show(self):
         import bokeh.io
         bokeh.io.show(self)
+
+    @property
+    def width(self):
+        warnings.warn("Chart property 'width' was deprecated in 0.11 \
+            and will be removed in the future.")
+        return self.plot_width
+
+    @width.setter
+    def width(self, width):
+        self.plot_width = width
+
+    @property
+    def height(self):
+        warnings.warn("Chart property 'height' was deprecated in 0.11 \
+            and will be removed in the future.")
+        return self.plot_height
+
+    @height.setter
+    def height(self, height):
+        self.plot_height = height
