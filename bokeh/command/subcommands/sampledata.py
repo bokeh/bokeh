@@ -1,6 +1,6 @@
 '''
 
-To download the bokeh sample data sets, type ``bokeh sampledata`` on the
+To download the bokeh sample data sets, run ``bokeh sampledata`` on the
 command line.
 
 '''
