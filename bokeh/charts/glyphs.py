@@ -683,26 +683,10 @@ class BarGlyph(Interval):
     A bar always begins from 0, or the value that is being compared to, and
     extends to some positive or negative value.
     """
-
-    def __init__(self, label, values, agg='sum', **kwargs):
-        kwargs['end_agg'] = agg
-        super(BarGlyph, self).__init__(label, values, **kwargs)
-        self.setup()
-
-    def get_start(self):
-        return 0.0
-
-
-class WaterfallGlyph(Interval):
-    """Special case of Interval where the span represents a value.
-
-    A bar always begins from 0, or the value that is being compared to, and
-    extends to some positive or negative value.
-    """
     baseline = Float(default=0.0)
     def __init__(self, label, values, agg='sum', **kwargs):
         kwargs['end_agg'] = agg
-        super(WaterfallGlyph, self).__init__(label, values, **kwargs)
+        super(BarGlyph, self).__init__(label, values, **kwargs)
         self.setup()
 
     def get_start(self):
@@ -714,26 +698,6 @@ class WaterfallGlyph(Interval):
         self.end_agg.set_data(self.values)
         return self.end_agg.value + self.baseline
 
-    # def build_source(self):
-    #     # ToDo: Handle rotation
-    #     self.start = self.get_start()
-    #     self.end = self.get_end()
-    #     self.span = self.get_span()
-    #
-    #     width = [self.width]
-    #     if self.dodge_shift is not None:
-    #         x = [self.get_dodge_label()]
-    #     else:
-    #         x = [self.x_label]
-    #     height = [self.span]
-    #     y = [self.stack_shift + (self.span / 2.0) + self.start]
-    #     color = [self.color]
-    #     fill_alpha = [self.fill_alpha]
-    #     line_color = [self.line_color]
-    #     line_alpha = [self.line_alpha]
-    #     return dict(x=x, y=y, width=width, height=height, color=color,
-    #                 fill_alpha=fill_alpha, line_color=line_color,
-    #                 line_alpha=line_alpha)
 
 class DotGlyph(Interval):
     """Special case of Interval where the span represents a value.

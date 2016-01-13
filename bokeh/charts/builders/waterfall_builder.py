@@ -37,7 +37,7 @@ from ...models.sources import ColumnDataSource
 from ..utils import help
 
 from .bar_builder import BarBuilder
-from ..glyphs import WaterfallGlyph
+from ..glyphs import BarGlyph
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -144,7 +144,7 @@ class WaterfallBuilder(BarBuilder):
                           'stack': CatAttr(),
                           'group': CatAttr()}
 
-    glyph = WaterfallGlyph
+    glyph = BarGlyph
     add_annotations = Bool(default=False)
 
     def yield_renderers(self):
