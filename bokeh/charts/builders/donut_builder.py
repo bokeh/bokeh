@@ -105,7 +105,7 @@ def Donut(data, label='index', values=None,  color=None, agg=None,
     kw['color'] = color
     kw['xgrid'] = xgrid
     kw['ygrid'] = ygrid
-    kw['height'] = height
+    kw['plot_height'] = height
     kw['plot_width'] = plot_width
 
     if agg is not None:

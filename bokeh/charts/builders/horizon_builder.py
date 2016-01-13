@@ -76,7 +76,7 @@ def Horizon(data=None, x=None, y=None, series=None, **kws):
             ('IBM', IBM['Adj Close'])]
         )
 
-        hp = Horizon(data, x='Date', plot_width=800, height=300,
+        hp = Horizon(data, x='Date', plot_width=800, plot_height=300,
                      title="horizon plot using stock inputs")
 
         output_file("horizon.html")
