@@ -3,6 +3,14 @@ from __future__ import absolute_import
 import bokeh.command.subcommands.sampledata as scsample
 from bokeh.command.bootstrap import main
 
+did_call_download = False
+
+def _mock_download():
+    global did_call_download
+    did_call_download = True
+
+scsample.sampledata.download = _mock_download
+
 def test_create():
     import argparse
     from bokeh.command.subcommand import Subcommand
@@ -22,6 +30,4 @@ def test_args():
 
 def test_run(capsys):
     main(["bokeh", "sampledata"])
-    out, err = capsys.readouterr()
-    assert err == ""
-    assert out.endswith('/bokeh/server/static\n')
+    assert did_call_download == True
