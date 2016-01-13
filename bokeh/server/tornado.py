@@ -291,7 +291,18 @@ class BokehTornado(TornadoApplication):
         raise gen.Return(None)
 
     def log_stats(self):
+        if log.getEffectiveLevel() > logging.DEBUG:
+            # avoid the work below if we aren't going to log anything
+            return
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
+        for app_path, app in self._applications.items():
+            sessions = list(app.sessions)
+            unused_count = 0
+            for s in sessions:
+                if s.connection_count == 0:
+                    unused_count += 1
+            log.debug("[pid %d]   %s has %d sessions with %d unused",
+                      os.getpid(), app_path, len(sessions), unused_count)
 
     def keep_alive(self):
         for c in self._clients:
