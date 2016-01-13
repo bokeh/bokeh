@@ -1,8 +1,35 @@
 '''
 
-To display the locations of static files for use with Bokeh server,
-type ``bokeh info`` on the command line. The locations will be printed
-to standard output.
+To display information about Bokeh and Bokeh server configuration,
+type ``bokeh info`` on the command line.
+
+.. code-block:: sh
+
+    bokeh info
+
+This will print general information to standard output, such as Python and Bokeh versions:
+
+.. code-block:: none
+
+    Python version      :  2.7.11
+    IPython version     :  4.0.1
+    Bokeh version       :  0.11.0
+    BokehJS static path :  /opt/anaconda/lib/python3.4/site-packages/bokeh/server/static
+
+Sometimes it can be useful to get just paths to the BokehJS static files in order
+to configure other servers or processes. To do this, use the ``--static`` option
+
+.. code-block:: sh
+
+    bokeh info --static
+
+This will produce output like what is shown below
+
+.. code-block:: none
+
+    /opt/anaconda/lib/python3.4/site-packages/bokeh/server/static
+
+
 
 '''
 from __future__ import absolute_import
