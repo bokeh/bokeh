@@ -14,6 +14,7 @@ except ImportError:
 else:
     is_notebook = True
 
+
 @pytest.mark.examples
 class TestExamples(TestCase):
 
@@ -27,11 +28,10 @@ class TestExamples(TestCase):
         from . import nbexecuter
 
         example_dir = join(dirname(__file__), pardir, pardir, 'examples')
-        example_nbconverted = join(example_dir, "glyphs", "glyph.ipynb")
 
         kernel_name = 'python2'
         pyver = os.environ.get('TRAVIS_PYTHON_VERSION')
         if pyver in ['3.4', '3.5']:
             kernel_name = 'python3'
 
-        nbexecuter.main(example_nbconverted, kernel_name)
+        nbexecuter.main(example_dir, kernel_name)
