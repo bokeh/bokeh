@@ -112,6 +112,16 @@ To configure this feature, set the --keep-alive option:
 The value is specified in milliseconds. The default keep-alive interval
 is 37 seconds. Give a value of 0 to disable keep-alive pings.
 
+To control how often statistic logs are written, set the
+--stats-log-frequency option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --stats-log-frequency 30000
+
+The value is specified in milliseconds. The default interval for
+logging stats is 15 seconds. Only positive integer values are accepted.
+
 Session ID Options
 ~~~~~~~~~~~~~~~~~~
 
@@ -177,6 +187,31 @@ The secret key should be set in a ``BOKEH_SECRET_KEY`` environment
 variable and should be a cryptographically random string with at
 least 256 bits (32 bytes) of entropy.  You can generate a new
 secret key with the ``bokeh secret`` command.
+
+Session Expiration Options
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To configure how often to check for unused sessions. set the
+--check-unused-sessions option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --check-unused-sessions 10000
+
+The value is specified in milliseconds. The default interval for
+checking for unused sessions is 17 seconds. Only positive integer
+values are accepted.
+
+To configure how often unused sessions last. set the
+--unused-session-lifetime option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --unused-session-lifetime 60000
+
+The value is specified in milliseconds. The default lifetime interval
+for unused sessions is 30 minutes. Only positive integer values are
+accepted.
 
 Development Options
 ~~~~~~~~~~~~~~~~~~~
