@@ -78,11 +78,11 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None,
 
             # x-axis labels pulled from the interpreter column, stacking labels from sample column
             dot = Dot(data, values='timing', label='interpreter', stack='sample', agg='mean',
-                      title="Python Interpreter Sampling", legend='top_right', width=400)
+                      title="Python Interpreter Sampling", legend='top_right', plot_width=400)
 
             # table-like data results in reconfiguration of the chart with no data manipulation
             dot2 = Dot(data, values='timing', label=['interpreter', 'sample'],
-                       agg='mean', title="Python Interpreters", width=400)
+                       agg='mean', title="Python Interpreters", plot_width=400)
 
             output_file("Dot.html")
             show(hplot(dot, dot2))

@@ -266,11 +266,11 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
 
             # x-axis labels pulled from the interpreter column, stacking labels from sample column
             bar = Bar(data, values='timing', label='interpreter', stack='sample', agg='mean',
-                      title="Python Interpreter Sampling", legend='top_right', width=400)
+                      title="Python Interpreter Sampling", legend='top_right', plot_width=400)
 
             # table-like data results in reconfiguration of the chart with no data manipulation
             bar2 = Bar(data, values='timing', label=['interpreter', 'sample'],
-                       agg='mean', title="Python Interpreters", width=400)
+                       agg='mean', title="Python Interpreters", plot_width=400)
 
             output_file("stacked_bar.html")
             show(hplot(bar, bar2))

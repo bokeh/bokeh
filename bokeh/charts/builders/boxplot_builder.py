@@ -85,9 +85,9 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
         from bokeh.sampledata.autompg import autompg as df
         from bokeh.charts import BoxPlot, output_file, show, hplot
 
-        box = BoxPlot(df, values='mpg', label='cyl', title="Auto MPG Box Plot", width=400)
+        box = BoxPlot(df, values='mpg', label='cyl', title="Auto MPG Box Plot", plot_width=400)
         box2 = BoxPlot(df, values='mpg', label='cyl', color='cyl',
-                          title="MPG Box Plot by Cylinder Count", width=400)
+                          title="MPG Box Plot by Cylinder Count", plot_width=400)
 
         output_file('box.html')
         show(hplot(box, box2))
