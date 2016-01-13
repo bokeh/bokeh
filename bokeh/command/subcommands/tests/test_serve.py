@@ -82,6 +82,27 @@ def test_args():
             default=None,
         )),
 
+        ('--check-unused-sessions', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to check for unused sessions",
+            default=None,
+        )),
+
+        ('--unused-session-lifetime', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How long unused sessions last",
+            default=None,
+        )),
+
+        ('--stats-log-frequency', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to log stats",
+            default=None,
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
