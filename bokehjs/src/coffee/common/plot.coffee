@@ -455,6 +455,17 @@ class PlotView extends ContinuumView
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
 
+    # We need the parent node, because the el node itself collapses to zero
+    # height. It might not be available though, if the initial resize
+    # happened before the plot was added to the DOM. If that happens, we
+    # try again in increasingly larger intervals (the first try should just
+    # work, but lets play it safe).
+    @_re_resized = @_re_resized or 0
+    if not @.el.parentNode and @_re_resized < 14  # 2**14 ~ 16s
+      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
+      @_re_resized += 1
+      return
+
     avail_width = @.el.clientWidth
     avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
