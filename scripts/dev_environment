@@ -33,46 +33,40 @@ do
         r) run=${OPTARG};;
         t) test=${OPTARG};;
         a) add=true;;
-    esac 
+    esac
 done
 
-#TODO: check in env exist
+# TODO: check if env exists
 
-DEPS_BUILD=$(cat <<EOF | python -
+function get_value {
+    echo $(cat <<EOF | python -
 from conda_build.metadata import MetaData
-print(" ".join([s.replace(" ", "") for s in MetaData("../conda.recipe").get_value("requirements/build")]))
+print(" ".join([s.replace(" ", "") for s in MetaData("../conda.recipe").get_value("$1")]))
 EOF
-)
+    )
+}
+
+function conda_install {
+    channels=$(echo $(get_value 'extra/channels') | sed -e 's/^\| \+/ -c /g')
+    conda install -n $env $channels --yes $@
+}
 
 if [ "$build" == "true" ]; then
-    conda install -n $env --yes $DEPS_BUILD
+    conda_install $(get_value "requirements/build")
     echo "BUILD dependecies installed."
 fi
 
-DEPS_RUN=$(cat <<EOF | python -
-from conda_build.metadata import MetaData
-print(" ".join([s.replace(" ", "") for s in MetaData("../conda.recipe").get_value("requirements/run")]))
-EOF
-)
-
 if [ "$run" == "true" ]; then
-    conda install -n $env --yes $DEPS_RUN
+    conda_install $(get_value "requirements/run")
     echo "RUN dependecies installed."
 fi
 
-DEPS_TEST=$(cat <<EOF | python -
-from conda_build.metadata import MetaData
-print(" ".join([s.replace(" ", "") for s in MetaData("../conda.recipe").get_value("test/requires")]))
-EOF
-)
-
 if [ "$test" == "true" ]; then
-    conda install -n $env -c bokeh --yes $DEPS_TEST
-    echo "TEST (and exmaples) dependecies installed."
+    conda_install $(get_value "test/requires")
+    echo "TEST (and examples) dependecies installed."
 fi
 
 if [[ "$add" == "true" ]]; then
-    conda install -n $env -c bokeh --yes pdiff
-    conda install -n $env -c bokeh --yes boto
+    conda_install pdiff boto
     echo "Image diff-related dependecies installed."
 fi
