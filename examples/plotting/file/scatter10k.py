@@ -10,7 +10,7 @@ y = np.sin(x) + np.random.normal(0, 0.2, N)
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
 
-p = figure(tools=TOOLS  , webgl=True)
+p = figure(tools=TOOLS, webgl=True)
 
 p.circle(x, y, alpha=0.1, nonselection_alpha=0.001)
 
