@@ -49,6 +49,7 @@ branches:
 
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
+    - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs/lib/phantom/bin/phantomjs:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
     # To actually run the examples you need to include the [ci enable examples] in your commit
     # This allow you to quickly iterate on minimal changes and actually trigger the examples, on demand, when you need it
