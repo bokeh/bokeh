@@ -36,8 +36,16 @@ into interactive web applications. For example:
 
     bokeh serve myapp.py
 
+
 In all of these cases, the same file ``myapp.py`` can be used without
 modification to generate different sorts of output.
+
+.. note::
+
+    You can also run the bokeh command with Python by typing `python -m bokeh`
+
+    For example, `bokeh serve myapp.py` can also be run with `python -m bokeh
+    serve myapp.py`
 
 .. _userguide_cli_html:
 
