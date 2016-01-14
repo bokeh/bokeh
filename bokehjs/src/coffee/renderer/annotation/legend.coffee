@@ -140,10 +140,7 @@ class Legend extends Annotation.Model
     return _.extend {}, super(), {
       legends: []
       level: "annotation"
-    }
 
-  display_defaults: ->
-    return _.extend {}, super(), {
       border_line_color: 'black'
       border_line_width: 1
       border_line_alpha: 1.0

@@ -280,10 +280,6 @@ class TileRenderer extends HasParent
       y_range_name: "default"
       tile_source: new wmts.Model()
       render_parents: true
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'underlay'
     }
 

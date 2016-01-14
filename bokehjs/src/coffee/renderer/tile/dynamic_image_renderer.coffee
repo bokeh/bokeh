@@ -113,10 +113,6 @@ class DynamicImageRenderer extends HasParent
       alpha: 1.0
       image_source: null
       render_parents: true
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'underlay'
     }
 
