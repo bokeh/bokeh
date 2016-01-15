@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+HasProperties = require "../../common/has_properties"
 
-class Annotation extends HasParent
+class Annotation extends HasProperties
   type: 'Annotation'
 
   defaults: ->

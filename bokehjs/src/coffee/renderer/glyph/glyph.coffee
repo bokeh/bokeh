@@ -3,7 +3,7 @@ rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
 {arrayMax} = require "../../common/mathutils"
-HasParent = require "../../common/has_parent"
+HasProperties = require "../../common/has_properties"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
@@ -266,7 +266,7 @@ class GlyphView extends ContinuumView
       @visuals.line.set_vectorize(ctx, reference_point)
       ctx.stroke()
 
-class Glyph extends HasParent
+class Glyph extends HasProperties
 
   # Most glyphs have line and fill props. Override this in subclasses
   # that need to define a different set of visual properties

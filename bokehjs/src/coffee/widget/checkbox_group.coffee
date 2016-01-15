@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+HasProperties = require "../common/has_properties"
 
 class CheckboxGroupView extends ContinuumView
   tagName: "div"
@@ -37,7 +37,7 @@ class CheckboxGroupView extends ContinuumView
     @mset('active', active)
     @mget('callback')?.execute(@model)
 
-class CheckboxGroup extends HasParent
+class CheckboxGroup extends HasProperties
   type: "CheckboxGroup"
   default_view: CheckboxGroupView
 

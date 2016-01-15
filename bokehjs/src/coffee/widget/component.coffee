@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasParent = require "../common/has_parent"
+HasProperties = require "../common/has_properties"
 
-class Component extends HasParent
+class Component extends HasProperties
   type: "Component"
 
   defaults: ->
