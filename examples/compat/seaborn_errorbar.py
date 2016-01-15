@@ -28,6 +28,6 @@ plt.plot(xx, np.sin(xx / b) + a, c="#444444")
 
 plt.title("Seaborn tsplot with CI in bokeh.")
 
-output_file("sinerror.html", title="sinerror.py example")
+output_file("seaborn_errorbar.html", title="seaborn_errorbar.py example")
 
 show(mpl.to_bokeh())

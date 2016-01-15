@@ -10,6 +10,6 @@ ts = ts.cumsum()
 
 p = ts.plot()
 
-output_file("series.html", title="series.py example")
+output_file("pandas_series.html", title="pandas_series.py example")
 
 show(mpl.to_bokeh())
