@@ -138,7 +138,7 @@ describe "Defaults", ->
       strip_ids(attrs)
 
       for prop_kind, func of properties.factories
-        # the 'visuals' property is used to set glyph line/fill/color defaults
+        # the 'visuals' property is used to set glyph line/fill/text defaults
         # and is tested in the check_matching_defaults() test case above
         if prop_kind == 'visuals'
           continue
