@@ -15,7 +15,7 @@ from bokeh.application.handlers import Handler
 from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
-from bokeh.util.session_id import generate_session_id, check_session_id_signature
+from bokeh.util.session_id import check_session_id_signature
 
 from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
 

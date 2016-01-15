@@ -1,7 +1,6 @@
 from __future__ import absolute_import, print_function
 
 import unittest
-import pytest
 
 from tornado import gen
 from tornado.ioloop import IOLoop
