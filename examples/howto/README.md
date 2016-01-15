@@ -7,3 +7,5 @@ possible using Bokeh, including:
 * controlling range bounds
 * updating date from an AJAX data source
 * using JS callbacks for range updates, widgets, etc.
+
+as well as show more detailed walkthroughs of some specific examples.
