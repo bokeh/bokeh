@@ -144,8 +144,8 @@ class Rect extends Glyph.Model
 
   defaults: ->
     return _.extend {}, super(), {
-      angle: 0.0,
-      dilate: false,
+      angle: 0.0
+      dilate: false
     }
 
 module.exports =
