@@ -29,9 +29,9 @@ This directory includes examples that show how to embed Bokeh plots in as DOM ob
 
 This directory contains examples that use the lowest-level [`bokeh.models`](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models) interface. This interface mirrors the models found in the BokehJS browser library.
 
-### [`interactions`](https://github.com/bokeh/bokeh/tree/master/examples/interactions)
+### [`interactive`](https://github.com/bokeh/bokeh/tree/master/examples/interactive)
 
-The examples in this directory show off particular aspects of Bokeh user interaction, such as [linking and brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing) or interactive hover annotations.
+The examples in this directory show off particular aspects of Bokeh user interactions, such as [linking and brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing) or interactive hover annotations.
 
 ### [`plotting`](https://github.com/bokeh/bokeh/tree/master/examples/plotting)
 
