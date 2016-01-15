@@ -17,7 +17,7 @@ DIRECTORIES = {
     'plotting-notebook': '../../examples/plotting/notebook',
     'server'           : '../../examples/plotting/server',
     'compat'           : '../../examples/compat',
-    'glyphs'           : '../../examples/glyphs',
+    'models'           : '../../examples/models',
     'charts-file'      : '../../examples/charts/file',
     'charts-notebook'  : '../../examples/charts/notebook'
 }
@@ -52,7 +52,7 @@ def get_parser():
                         - plotting-notebook
                         - server
                         - compat
-                        - glyphs
+                        - models
                         - charts-file
                         - charts-notebook
                     """), formatter_class=argparse.RawTextHelpFormatter)

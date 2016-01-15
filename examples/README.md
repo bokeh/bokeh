@@ -12,9 +12,9 @@ This directory contains examples of Bokeh Apps, which are simple and easy to cre
 
 ### [`charts`](https://github.com/bokeh/bokeh/tree/master/examples/compat)
 
-This directory includes examples that use the high level [`bokeh.charts`](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html) interface of Bokeh. This interface can be for easily building high-level statistical or scientific charts such as 
-[histograms](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#histograms), 
-[bar charts](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#bar-charts) or 
+This directory includes examples that use the high level [`bokeh.charts`](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html) interface of Bokeh. This interface can be for easily building high-level statistical or scientific charts such as
+[histograms](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#histograms),
+[bar charts](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#bar-charts) or
 [box plots](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#box-plots).
 
 ### [`compat`](https://github.com/bokeh/bokeh/tree/master/examples/compat)
@@ -25,7 +25,7 @@ This directory contains examples of plots that use Bokeh's [compatibility layer]
 
 This directory includes examples that show how to embed Bokeh plots in as DOM objects within an HTML document.
 
-### [`glyphs`](https://github.com/bokeh/bokeh/tree/master/examples/glyphs)
+### [`models`](https://github.com/bokeh/bokeh/tree/master/examples/models)
 
 This directory contains examples that use the lowest-level [`bokeh.models`](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models) interface. This interface mirrors the models found in the BokehJS browser library.
 
@@ -41,7 +41,7 @@ This directory contains example using the [`bokeh.plotting`](http://bokeh.pydata
 
 * `notebook` examples that display inline in [Jupyter](http://jupyter.org) notebooks
 
-* `server` examples that send output to a Bokeh server, using the python client library for the server 
+* `server` examples that send output to a Bokeh server, using the python client library for the server
 
 ## Other sources for examples
 
