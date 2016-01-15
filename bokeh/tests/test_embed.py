@@ -6,7 +6,7 @@ import unittest
 import bs4
 
 import bokeh.embed as embed
-from bokeh.resources import CDN, INLINE, Resources, JSResources, CSSResources
+from bokeh.resources import CDN, JSResources, CSSResources
 from bokeh.plotting import figure
 from jinja2 import Template
 from six import string_types

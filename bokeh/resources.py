@@ -16,7 +16,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import json
-import copy
 from os.path import basename, join, relpath
 import re
 

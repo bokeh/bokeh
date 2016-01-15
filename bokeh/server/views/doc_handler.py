@@ -7,10 +7,8 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen
-from tornado.web import RequestHandler, HTTPError
 
 from bokeh.embed import server_html_page_for_session
-from bokeh.settings import settings
 
 from .session_handler import SessionHandler
 

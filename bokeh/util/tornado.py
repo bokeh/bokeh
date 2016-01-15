@@ -212,7 +212,7 @@ class _DocumentCallbackGroup(object):
         elif isinstance(callback, NextTickCallback):
             remover = self._group.add_next_tick_callback(callback.callback, cleanup)
         else:
-            raise ValueError("Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: %s" % event.callback)
+            raise ValueError("Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: %s" % callback.callback)
         self._removers[callback.id] = remover
 
     def remove_session_callback(self, callback):

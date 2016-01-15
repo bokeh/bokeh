@@ -23,7 +23,7 @@ class ScriptHandler(Handler):
 
         self._complainers = {}
         for f in ScriptHandler._io_functions:
-           self._complainers[f] = self._make_io_complainer(f)
+            self._complainers[f] = self._make_io_complainer(f)
 
     def url_path(self):
         if self.failed:
