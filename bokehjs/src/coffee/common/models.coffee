@@ -128,6 +128,4 @@ module.exports = {
   CrosshairTool:            require '../tool/inspectors/crosshair_tool'
   HoverTool:                require '../tool/inspectors/hover_tool'
   InspectTool:              require '../tool/inspectors/inspect_tool'
-
-  ar_transforms:            [require '../ar/transforms']
 }
