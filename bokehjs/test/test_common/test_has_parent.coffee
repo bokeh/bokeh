@@ -23,13 +23,3 @@ describe "has_parent module", ->
 
     expect(parent.get "testprop").to.equal "aassddff"
     expect(parent.get "testprop").to.equal child.get("testprop")
-
-  it "should propagate display_defaults if not overridden", ->
-    parent = Collections("TestParent").create
-      id: "parent"
-    child = Collections("TestParent").create
-      id: "child"
-      parent: parent
-
-    expect(parent.get "testprop").to.equal "defaulttestprop"
-    expect(parent.get "testprop").to.equal child.get("testprop")

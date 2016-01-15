@@ -311,12 +311,9 @@ class Glyph extends HasParent
   }
 
   defaults: ->
-    return _.extend {}, super(), {
+    result = _.extend {}, super(), {
       visible: true
     }
-
-  display_defaults: ->
-    result = {}
     for prop in @visuals
       switch prop
         when 'line' then defaults = @line_defaults
@@ -325,7 +322,20 @@ class Glyph extends HasParent
         else
           logger.warn("unknown visual property type '#{prop}'")
           continue
-      result = _.extend result, super(), defaults
+      result = _.extend result, defaults
+    return result
+
+  display_defaults: ->
+    result = {}
+    # for prop in @visuals
+    #   switch prop
+    #     when 'line' then defaults = @line_defaults
+    #     when 'fill' then defaults = @fill_defaults
+    #     when 'text' then defaults = @text_defaults
+    #     else
+    #       logger.warn("unknown visual property type '#{prop}'")
+    #       continue
+    #   result = _.extend result, super(), defaults
     return result
 
 module.exports =

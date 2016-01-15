@@ -136,39 +136,11 @@ describe "Defaults", ->
       instance = new coll.model({}, {'silent' : true, 'defer_initialization' : true})
       attrs = instance.attributes_as_json()
       strip_ids(attrs)
-      # merge in display_defaults() which aren't in the main
-      # attributes, the overall setup here is sketchy right now
-      # because python never leaves these things unset. We need an
-      # "inherit" value, like in CSS, perhaps.
-      # But at least we can check that display_defaults() matches
-      # what Python sends.
-      display_specs = [ 'line_color', 'line_width', 'line_alpha', 'fill_color', 'fill_alpha',
-                        'text_font_size', 'text_color', 'text_alpha' ]
-      display_attr_is_spec = (name) ->
-        for s in display_specs
-          if name.endsWith(s) # gratuitous ES6
-            return true
-        return false
-      if 'display_defaults' of instance
-        display = instance.display_defaults()
-        for k in Object.keys(display)
-          if k of attrs
-            console.error("#{name}.#{k}: property present in both CoffeeScript attrs and display_defaults()")
 
-          if display_attr_is_spec(k)
-            orig = display[k]
-            if not (_.isObject(orig) and ('field' of orig or 'value' of orig))
-              # convert to 'spec dict' format
-              display[k] = { 'value' : display[k] }
-
-        attrs = _.extend({}, display, attrs)
-
-      # Merge in "factory" attrs, which don't go in attributes
-      # in the actual code, but for our current purpose
-      # let's pretend they do because they do "in effect"
-      # and we probably want to put them there eventually
       for prop_kind, func of properties.factories
-        if prop_kind == 'visuals' # visuals is the display_defaults() case above
+        # the 'visuals' property is used to set glyph line/fill/color defaults
+        # and is tested in the check_matching_defaults() test case above
+        if prop_kind == 'visuals'
           continue
         if prop_kind of instance
           props_of_this_kind = func(instance)
