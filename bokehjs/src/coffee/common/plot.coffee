@@ -330,7 +330,7 @@ class PlotView extends ContinuumView
     if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
       rng.have_updated_interactively = true
       rng.set(range_info)
-      rng.get('callback')?.execute(@model)
+      rng.get('callback')?.execute(rng)
 
   update_range: (range_info, is_panning) ->
     @pause
