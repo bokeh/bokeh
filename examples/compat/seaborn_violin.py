@@ -26,6 +26,6 @@ ax = sns.violinplot(x="day", y="total_bill", hue="sex",
 #                     data=planets[planets.orbital_period < 1000],
 #                     scale="width", palette="Set3")
 
-output_file("violin.html", title="violin.py example")
+output_file("seaborn_violin.html", title="seaborn_violin.py example")
 
 show(mpl.to_bokeh())

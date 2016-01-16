@@ -7,8 +7,8 @@ from bokeh.plotting import output_file, show
 g = ggplot(diamonds, aes(x='price', color='cut')) + geom_density()
 g.draw()
 
-plt.title("xkcd-ggplot-mpl based plot in Bokeh.")
+plt.title("Density ggplot-based plot in Bokeh.")
 
-output_file("xkcd_density.html", title="xkcd_density.py example")
+output_file("ggplot_density.html", title="ggplot_density.py example")
 
-show(mpl.to_bokeh(xkcd=True))
+show(mpl.to_bokeh())

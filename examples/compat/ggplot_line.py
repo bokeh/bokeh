@@ -9,6 +9,6 @@ g.draw()
 
 plt.title("Line ggplot-based plot in Bokeh.")
 
-output_file("line.html", title="line.py example")
+output_file("ggplot_line.html", title="ggplot_line.py example")
 
 show(mpl.to_bokeh())
