@@ -25,7 +25,7 @@ This directory contains examples of plots that use Bokeh's [compatibility layer]
 
 This directory includes examples that show how to embed Bokeh plots in as DOM objects within an HTML document.
 
-### [`howto`](https://github.com/bokeh/bokeh/tree/master/examples/interactive)
+### [`howto`](https://github.com/bokeh/bokeh/tree/master/examples/howto)
 
 The examples in this directory are mini-tutorials that demonstrate and explain some  particular aspect of Bokeh capability (such as [linking and brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing)), or walk through a particular example in additional detail.
 
