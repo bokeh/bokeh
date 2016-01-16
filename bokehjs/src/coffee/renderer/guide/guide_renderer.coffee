@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+HasProperties = require "../../common/has_properties"
 
-class GuideRenderer extends HasParent
+class GuideRenderer extends HasProperties
   type: 'GuideRenderer'
 
   defaults: ->

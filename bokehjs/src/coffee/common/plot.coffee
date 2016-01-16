@@ -9,7 +9,7 @@ Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
 ContinuumView = require "./continuum_view"
 UIEvents = require "./ui_events"
-HasParent = require "./has_parent"
+HasProperties = require "./has_properties"
 LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 plot_utils = require "./plot_utils"
@@ -604,7 +604,7 @@ class PlotView extends ContinuumView
     @background_props.set_value(ctx)
     ctx.fillRect(frame_box...)
 
-class Plot extends HasParent
+class Plot extends HasProperties
   type: 'Plot'
   default_view: PlotView
 
