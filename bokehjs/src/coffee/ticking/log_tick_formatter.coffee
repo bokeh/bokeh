@@ -1,5 +1,4 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 TickFormatter = require "./tick_formatter"
 BasicTickFormatter = require "./basic_tick_formatter"

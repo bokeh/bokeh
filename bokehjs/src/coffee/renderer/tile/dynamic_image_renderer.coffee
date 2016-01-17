@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasProperties = require "../../common/has_properties"
+Model = require "../../models/model"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 ImagePool = require "./image_pool"
@@ -103,7 +103,7 @@ class DynamicImageView extends PlotWidget
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 
-class DynamicImageRenderer extends HasProperties
+class DynamicImageRenderer extends Model
   default_view: DynamicImageView
   type: 'DynamicImageRenderer'
   visuals: []

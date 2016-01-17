@@ -1,8 +1,8 @@
 _ = require "underscore"
-HasProperties = require "./has_properties"
+Model = require "../models/model"
 {logger} = require "./logging"
 
-class ToolEvents extends HasProperties
+class ToolEvents extends Model
   type: 'ToolEvents'
 
   defaults: () ->
