@@ -47,8 +47,6 @@ from __future__ import absolute_import
 from bokeh.resources import Resources
 from bokeh.embed import standalone_html_page_for_models
 
-from ..util import build_single_handler_applications
-
 from .file_output import FileOutputSubcommand
 
 class HTML(FileOutputSubcommand):

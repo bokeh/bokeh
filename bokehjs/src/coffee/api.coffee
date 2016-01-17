@@ -5,7 +5,6 @@ module.exports = (Bokeh) ->
   Bokeh.Canvas            = require("./common/canvas")
   Bokeh.GMapPlot          = require("./common/gmap_plot")
   Bokeh.GridPlot          = require("./common/grid_plot")
-  Bokeh.HasParent         = require("./common/has_parent")
   Bokeh.HasProperties     = require("./common/has_properties")
   Bokeh.LayoutBox         = require("./common/layout_box")
   Bokeh.Plot              = require("./common/plot")

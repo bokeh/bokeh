@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+HasProperties = require "../common/has_properties"
 
 class RadioButtonGroupView extends ContinuumView
   tagName: "div"
@@ -37,7 +37,7 @@ class RadioButtonGroupView extends ContinuumView
     @mset('active', active[0])
     @mget('callback')?.execute(@model)
 
-class RadioButtonGroup extends HasParent
+class RadioButtonGroup extends HasProperties
   type: "RadioButtonGroup"
   default_view: RadioButtonGroupView
 
