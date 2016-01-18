@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-HasParent = require "../../common/has_parent"
+HasProperties = require "../../common/has_properties"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 wmts = require "./wmts_tile_source"
@@ -268,7 +268,7 @@ class TileRendererView extends PlotWidget
 
     @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
 
-class TileRenderer extends HasParent
+class TileRenderer extends HasProperties
   default_view: TileRendererView
   type: 'TileRenderer'
   visuals: []
@@ -280,10 +280,6 @@ class TileRenderer extends HasParent
       y_range_name: "default"
       tile_source: new wmts.Model()
       render_parents: true
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'underlay'
     }
 

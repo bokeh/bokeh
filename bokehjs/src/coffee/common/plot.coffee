@@ -9,7 +9,7 @@ Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
 ContinuumView = require "./continuum_view"
 UIEvents = require "./ui_events"
-HasParent = require "./has_parent"
+HasProperties = require "./has_properties"
 LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 plot_utils = require "./plot_utils"
@@ -17,6 +17,7 @@ Solver = require "./solver"
 ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
 properties = require "./properties"
+GlyphRenderer = require "../renderer/glyph/glyph_renderer"
 ToolEvents = require "./tool_events"
 
 
@@ -67,6 +68,8 @@ class PlotView extends ContinuumView
   className: "bk-plot"
   template: plot_template
 
+  state: { history: [], index: -1 }
+
   view_options: () ->
     _.extend({plot_model: @model, plot_view: @}, @options)
 
@@ -91,6 +94,15 @@ class PlotView extends ContinuumView
   initialize: (options) ->
     super(options)
     @pause()
+
+    @_initial_state_info = {
+      range: null                     # set later by set_initial_range()
+      selection: {}                   # XXX: initial selection?
+      dimensions: {
+        width: @mget("canvas").get("width")
+        height: @mget("canvas").get("height")
+      }
+    }
 
     @model.initialize_layout(@model.solver)
 
@@ -214,10 +226,77 @@ class PlotView extends ContinuumView
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
+  push_state: (type, info) ->
+    prev_info = @state.history[@state.index]?.info or {}
+    info = _.extend({}, @_initial_state_info, prev_info, info)
+
+    @state.history.slice(0, @state.index + 1)
+    @state.history.push({type: type, info: info})
+    @state.index = @state.history.length - 1
+
+    @trigger("state_changed")
+
+  clear_state: () ->
+    @state = {history: [], index: -1}
+    @trigger("state_changed")
+
+  can_undo: () ->
+    @state.index >= 0
+
+  can_redo: () ->
+    @state.index < @state.history.length - 1
+
+  undo: () ->
+    if @can_undo()
+      @state.index -= 1
+      @_do_state_change(@state.index)
+      @trigger("state_changed")
+
+  redo: () ->
+    if @can_redo()
+      @state.index += 1
+      @_do_state_change(@state.index)
+      @trigger("state_changed")
+
+  _do_state_change: (index) ->
+    info = @state.history[index]?.info or @_initial_state_info
+
+    if info.range?
+      @update_range(info.range)
+
+    if info.selection?
+      @update_selection(info.selection)
+
+    if info.dimensions?
+      @update_dimensions(info.dimensions)
+
+  update_dimensions: (dimensions) ->
+    @canvas._set_dims([dimensions.width, dimensions.height])
+
+  reset_dimensions: () ->
+    @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
+
+  get_selection: () ->
+    selection = []
+    for renderer in @mget('renderers')
+      if renderer instanceof GlyphRenderer.Model
+        selected = renderer.get('data_source').get("selected")
+        selection[renderer.id] = selected
+    selection
+
+  update_selection: (selection) ->
+    for renderer in @mget("renderers")
+      if renderer instanceof GlyphRenderer.Model
+        selected = selection[renderer.id] or []
+        renderer.get('data_source').set("selected", selected)
+
+  reset_selection: () ->
+    @update_selection({})
+
   _update_single_range: (rng, range_info, is_panning) ->
     # Is this a reversed range?
     reversed = if rng.get('start') > rng.get('end') then true else false
-    
+
     # Prevent range from going outside limits
     # Also ensure that range keeps the same delta when panning
 
@@ -228,30 +307,30 @@ class PlotView extends ContinuumView
       if reversed
         if min?
           if min >= range_info['end']
-            range_info['end'] = min 
+            range_info['end'] = min
             if is_panning?
               range_info['start'] = rng.get('start')
         if max?
           if max <= range_info['start']
-            range_info['start'] = max 
+            range_info['start'] = max
             if is_panning?
               range_info['end'] = rng.get('end')
       else
         if min?
           if min >= range_info['start']
-            range_info['start'] = min 
+            range_info['start'] = min
             if is_panning?
               range_info['end'] = rng.get('end')
         if max?
           if max <= range_info['end']
-            range_info['end'] = max 
+            range_info['end'] = max
             if is_panning?
               range_info['start'] = rng.get('start')
 
     if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
       rng.have_updated_interactively = true
       rng.set(range_info)
-      rng.get('callback')?.execute(@model)
+      rng.get('callback')?.execute(rng)
 
   update_range: (range_info, is_panning) ->
     @pause
@@ -267,6 +346,9 @@ class PlotView extends ContinuumView
       for name, rng of @frame.get('y_ranges')
         @_update_single_range(rng, range_info.yrs[name], is_panning)
     @unpause()
+
+  reset_range: () ->
+    @update_range(null)
 
   build_levels: () ->
     # should only bind events on NEW views and tools
@@ -316,7 +398,7 @@ class PlotView extends ContinuumView
           break
         yrs[name] = { start: rng.get('start'), end: rng.get('end') }
     if good_vals
-      @initial_range_info = {
+      @_initial_state_info.range = @initial_range_info = {
         xrs: xrs
         yrs: yrs
       }
@@ -417,16 +499,20 @@ class PlotView extends ContinuumView
     @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
 
     if ctx.glcanvas
-      # Blit gl canvas into the 2D canvas. We need to turn off interpolation, otherwise
-      # all gl-rendered content is blurry. The 0.1 offset is to force the samples
-      # to be *inside* the pixels, otherwise round-off errors can sometimes cause
-      # missing/double scanlines (seen in Chrome).
-      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
-         ctx[prefix + 'SmoothingEnabled'] = false
+      # Blit gl canvas into the 2D canvas. We set up offsets so the pixel
+      # mapping is one-on-one and we do not get any blurring due to
+      # interpolation. In theory, we could disable the image interpolation,
+      # and we can on Chrome, but then the result looks ugly on Firefox. Since
+      # the image *does* look sharp, this might be a bug in Firefox'
+      # interpolation-less image rendering.
+      # This is how we would disable image interpolation (keep as a reference) 
+      #for prefix in ['image', 'mozImage', 'webkitImage','msImage']
+      #   ctx[prefix + 'SmoothingEnabled'] = window.SmoothingEnabled
       #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
-      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
-         ctx[prefix + 'SmoothingEnabled'] = true
+      src_offset = 0.5
+      dst_offset = 0.0
+      ctx.drawImage(ctx.glcanvas, src_offset, src_offset, ctx.glcanvas.width, ctx.glcanvas.height,
+                                  dst_offset, dst_offset, ctx.glcanvas.width, ctx.glcanvas.height)
       logger.debug('drawing with WebGL')
 
     @_render_levels(ctx, ['overlay', 'tool'])
@@ -454,6 +540,17 @@ class PlotView extends ContinuumView
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
+
+    # We need the parent node, because the el node itself collapses to zero
+    # height. It might not be available though, if the initial resize
+    # happened before the plot was added to the DOM. If that happens, we
+    # try again in increasingly larger intervals (the first try should just
+    # work, but lets play it safe).
+    @_re_resized = @_re_resized or 0
+    if not @.el.parentNode and @_re_resized < 14  # 2**14 ~ 16s
+      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
+      @_re_resized += 1
+      return
 
     avail_width = @.el.clientWidth
     avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
@@ -507,7 +604,7 @@ class PlotView extends ContinuumView
     @background_props.set_value(ctx)
     ctx.fillRect(frame_box...)
 
-class Plot extends HasParent
+class Plot extends HasProperties
   type: 'Plot'
   default_view: PlotView
 

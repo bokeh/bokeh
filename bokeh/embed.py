@@ -14,7 +14,6 @@ these different cases.
 from __future__ import absolute_import
 
 from collections import Sequence
-import re
 import uuid
 from warnings import warn
 

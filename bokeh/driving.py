@@ -80,7 +80,6 @@ def linear(m=1, b=0):
         x (float) : an offset for the linear driver
 
     '''
-    from math import cos
     def f(i):
         return m * i + b
     return partial(_force, sequence=_advance(f))
@@ -142,5 +141,3 @@ def _advance(f):
     while True:
         yield f(i)
         i += 1
-
-

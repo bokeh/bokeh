@@ -161,10 +161,6 @@ class Grid extends GuideRenderer.Model
       x_range_name: "default"
       y_range_name: "default"
       level: "underlay"
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       bounds: 'auto'
       dimension: 0
       ticker: null
@@ -185,7 +181,6 @@ class Grid extends GuideRenderer.Model
       minor_grid_line_dash: []
       minor_grid_line_dash_offset: 0
     }
-
 
 module.exports =
   Model: Grid

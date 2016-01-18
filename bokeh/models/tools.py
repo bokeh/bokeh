@@ -571,3 +571,21 @@ class HelpTool(Tool):
     redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.
     """)
+
+class UndoTool(Tool):
+    """ *toolbar icon*: |undo_icon|
+
+    Undo tool allows to restore previous state of the plot.
+
+    .. |undo_icon| image:: /_images/icons/Undo.png
+        :height: 18pt
+    """
+
+class RedoTool(Tool):
+    """ *toolbar icon*: |redo_icon|
+
+    Redo tool reverses the last action performed by undo tool.
+
+    .. |redo_icon| image:: /_images/icons/Redo.png
+        :height: 18pt
+    """
