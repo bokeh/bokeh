@@ -69,9 +69,6 @@ class XyGlyph(CompositeGlyph):
             if getattr(self, prop) is not None:
                 return [value] * len(getattr(self, prop))
 
-        if self.data is not None:
-            return [None] * len(self.data.index)
-
     @property
     def x_max(self):
         # TODO(fpliger): since CompositeGlyphs are not exposed in general we
