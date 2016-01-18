@@ -19,9 +19,6 @@ module.exports = (Bokeh) ->
   Bokeh.Random        = require("./common/random")
   Bokeh.SVGColors     = require("./common/svg_colors")
 
-  # models
-  Component = require('./models/component')
-
   # mappers
   Bokeh.LinearMapper      = require("./mapper/linear_mapper")
   Bokeh.LogMapper         = require("./mapper/log_mapper")
