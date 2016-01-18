@@ -21,19 +21,40 @@ class AnnulusView extends Glyph.View
     for i in indices
       if isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i])
         continue
-
-      ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI*2, false)
-      ctx.moveTo(sx[i]+souter_radius[i], sy[i])
-      ctx.arc(sx[i], sy[i], souter_radius[i], 0, 2*Math.PI*2, true)
+      
+      # Because this visual has a whole in it, it proved "challenging"
+      # for some browsers to render if drawn in one go --- i.e. it did not
+      # work on IE. If we render in two parts (upper and lower part),
+      # it is unambiguous what part should be filled. The line is
+      # better drawn in one go though, otherwise the part where the pieces
+      # meet will not be fully closed due to aa. 
+      
+      # Detect Microsoft browser. Might need change for newer versions.
+      isie = (navigator.userAgent.indexOf('MSIE') >= 0 ||
+              navigator.userAgent.indexOf('Trident') > 0 ||
+              navigator.userAgent.indexOf('Edge') > 0)
 
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
+        ctx.beginPath()
+        if isie
+            # Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
+            for clockwise in [false, true]
+                ctx.arc(sx[i], sy[i], sinner_radius[i], 0, Math.PI, clockwise)
+                ctx.arc(sx[i], sy[i], souter_radius[i], Math.PI, 0, !clockwise)
+        else
+            # Draw donut in one go. Does not work on iE.
+            ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2 * Math.PI, true)
+            ctx.arc(sx[i], sy[i], souter_radius[i], 2 * Math.PI, 0, false)
         ctx.fill()
 
       if @visuals.line.do_stroke
-        @visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
+          @visuals.line.set_vectorize(ctx, i)
+          ctx.beginPath()
+          ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI)
+          ctx.moveTo(sx[i]+souter_radius[i], sy[i])
+          ctx.arc(sx[i], sy[i], souter_radius[i], 0, 2*Math.PI)
+          ctx.stroke()
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
