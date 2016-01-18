@@ -3,7 +3,7 @@
 - path: "compat"
 - path: "charts/file"
   type: file
-- path: "howto/charts/charts_interface"
+- path: "howto/charts"
   type: notebook
 - path: "plotting/file"
   type: file
