@@ -218,7 +218,8 @@ class AreaGlyph(LineGlyph):
     def build_source(self):
         data = super(AreaGlyph, self).build_source()
 
-        x0, y0 = generate_patch_base(data['x_values'], data['y_values'])
+        x0, y0 = generate_patch_base(pd.Series(list(data['x_values'])),
+                                     pd.Series(list(data['y_values'])))
 
         data['x_values'] = [x0]
         data['y_values'] = [y0]
@@ -241,33 +242,32 @@ class AreaGlyph(LineGlyph):
 
         # ToDo: need to handle case of non-aligned indices, see pandas concat
         # ToDo: need to address how to aggregate on an index when required
-        if self.stack:
 
-            # build a list of series
-            areas = []
-            for glyph in glyphs:
-                areas.append(pd.Series(glyph.source.data['y_values'][0],
-                                       index=glyph.source.data['x_values'][0]))
+        # build a list of series
+        areas = []
+        for glyph in glyphs:
+            areas.append(pd.Series(glyph.source.data['y_values'][0],
+                                   index=glyph.source.data['x_values'][0]))
 
-            # concat the list of indexed y values into dataframe
-            df = pd.concat(areas, axis=1)
+        # concat the list of indexed y values into dataframe
+        df = pd.concat(areas, axis=1)
 
-            # calculate stacked values along the rows
-            stacked_df = df.cumsum(axis=1)
+        # calculate stacked values along the rows
+        stacked_df = df.cumsum(axis=1)
 
-            # lower bounds of each area series are diff between stacked and orig values
-            lower_bounds = stacked_df - df
+        # lower bounds of each area series are diff between stacked and orig values
+        lower_bounds = stacked_df - df
 
-            # reverse the df so the patch is drawn in correct order
-            lower_bounds = lower_bounds.iloc[::-1]
+        # reverse the df so the patch is drawn in correct order
+        lower_bounds = lower_bounds.iloc[::-1]
 
-            # concat the upper and lower bounds together
-            stacked_df = pd.concat([stacked_df, lower_bounds])
+        # concat the upper and lower bounds together
+        stacked_df = pd.concat([stacked_df, lower_bounds])
 
-            # update the data in the glyphs
-            for i, glyph in enumerate(glyphs):
-                glyph.source.data['x_values'] = [stacked_df.index.values]
-                glyph.source.data['y_values'] = [stacked_df.ix[:, i].values]
+        # update the data in the glyphs
+        for i, glyph in enumerate(glyphs):
+            glyph.source.data['x_values'] = [stacked_df.index.values]
+            glyph.source.data['y_values'] = [stacked_df.ix[:, i].values]
 
     def get_nested_extent(self, col, func):
         return [getattr(arr, func)() for arr in self.source.data[col]]

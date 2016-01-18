@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from six import iteritems
+import pandas as pd
 
 from bokeh.models.glyphs import Glyph
 from bokeh.models.renderers import GlyphRenderer
