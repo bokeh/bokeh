@@ -1,6 +1,6 @@
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class LogMapper extends HasProperties
+class LogMapper extends Model
   initialize: (attrs, options) ->
     super(attrs, options)
 

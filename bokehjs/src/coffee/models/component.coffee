@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Model = require "./model"
 
-class Component extends HasProperties
+class Component extends Model
   type: "Component"
 
   defaults: ->

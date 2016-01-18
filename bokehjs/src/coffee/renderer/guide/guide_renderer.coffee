@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasProperties = require "../../common/has_properties"
+Model = require "../../models/model"
 
-class GuideRenderer extends HasProperties
+class GuideRenderer extends Model
   type: 'GuideRenderer'
 
   defaults: ->
