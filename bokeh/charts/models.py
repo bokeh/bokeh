@@ -39,12 +39,16 @@ class CompositeGlyph(HasProps):
     """
 
     # composite glyph inputs
-    data = Any()
     label = Either(String, Dict(String, Any), default='None',
                    help='Identifies the subset of data.')
 
     values = Either(Column(Float), Column(String), help="""
-        Array-like values, which are used as the input to the composite glyph.""")
+        Array-like values, which are used as the input to the composite glyph.
+
+        Most composite glyphs add their own representation of one or more values-like
+        columns/arrays that they receive as inputs. These are compiled together for
+        generating `source`, `data`, and `df` by the individual composite glyphs.
+        """)
 
     # derived from inputs
     source = Instance(ColumnDataSource, help="""The data source used for the contained
@@ -74,6 +78,7 @@ class CompositeGlyph(HasProps):
         if String().is_valid(vals) or Float().is_valid(vals):
             properties['values'] = [vals]
         super(CompositeGlyph, self).__init__(**properties)
+        self.setup()
 
     def setup(self):
         """Build renderers and data source and set sources on renderers."""
@@ -102,7 +107,30 @@ class CompositeGlyph(HasProps):
 
                 self._set_sources()
 
+    @property
+    def data(self):
+        if self.source is not None:
+            return self.source.data
+        else:
+            return {}
+
+    @property
+    def df(self):
+        if self.data:
+            return pd.DataFrame(self.data)
+        else:
+            return pd.DataFrame()
+
     def add_chart_index(self, data):
+        """Add identifier of the data group as a column for each row.
+
+        Args:
+            data (dict or `ColumnDataSource`): can be the type of data used internally
+                to ColumnDataSource, or a ColumnDataSource.
+
+        Returns:
+            dict or `ColumnDataSource`: returns the same type of data provided
+        """
 
         if isinstance(data, ColumnDataSource):
             source = data
@@ -111,7 +139,7 @@ class CompositeGlyph(HasProps):
             source = None
 
         # add chart index to data
-        if 'chart_index' not in data:
+        if 'chart_index' not in data and len(list(data.keys())) > 0:
             n_rows = len(list(data.values())[0])
 
             # add composite chart index as column
@@ -129,10 +157,15 @@ class CompositeGlyph(HasProps):
             return data
 
     def build_renderers(self):
-        raise NotImplementedError('You must return list of renderers.')
+        yield GlyphRenderer()
 
     def build_source(self):
-        raise NotImplementedError('You must return ColumnDataSource.')
+        data = {}
+
+        if self.values is not None:
+            data = {'values': self.values}
+
+        return data
 
     def _set_sources(self):
         """Store reference to source in each GlyphRenderer.

@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
+from bokeh.charts.models import CompositeGlyph
 from bokeh.charts.glyphs import AreaGlyph, LineGlyph, PointGlyph, StepGlyph
+
+from bokeh.models import ColumnDataSource
 
 
 def test_area_base_values(test_data):
@@ -50,3 +53,17 @@ def test_xyglyph_xy_range():
         y[4] = np.nan
         xyg = Glyph(x=x, y=y)
         check_bounds(xyg, xmin=3, xmax=3, ymax=2, ymin=2)
+
+
+def test_comp_glyph_no_inputs(test_data):
+    cg = CompositeGlyph()
+    assert isinstance(cg.data, dict)
+    assert isinstance(cg.df, pd.DataFrame)
+    assert isinstance(cg.source, ColumnDataSource)
+
+
+def test_comp_glyph_array_input(test_data):
+    cg = CompositeGlyph(values=test_data.array_data[0])
+    assert cg.data['values'] is not None
+
+
