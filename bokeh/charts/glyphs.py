@@ -11,7 +11,7 @@ from bokeh.core.enums import DashPattern
 from bokeh.models.glyphs import Rect, Segment, Line, Patches
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
-                              List, Either, Int, Enum, Color, Override, Any)
+                                   List, Either, Int, Enum, Color, Override, Any)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
 from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats
@@ -597,7 +597,7 @@ class Interval(AggregateGlyph):
 
     def get_end(self):
         """Get the value for the end of the glyph."""
-        if len(self.values.index) == 1:
+        if len(self.values.index) == 1 and not self.values.dtype.name == 'object':
             self.end_agg = None
             return self.values[0]
         elif isinstance(self.end_agg, str):
