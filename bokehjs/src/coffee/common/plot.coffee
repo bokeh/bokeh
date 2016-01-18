@@ -9,7 +9,7 @@ Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
 ContinuumView = require "./continuum_view"
 UIEvents = require "./ui_events"
-HasProperties = require "./has_properties"
+Component = require "../models/component"
 LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 plot_utils = require "./plot_utils"
@@ -505,7 +505,7 @@ class PlotView extends ContinuumView
       # and we can on Chrome, but then the result looks ugly on Firefox. Since
       # the image *does* look sharp, this might be a bug in Firefox'
       # interpolation-less image rendering.
-      # This is how we would disable image interpolation (keep as a reference) 
+      # This is how we would disable image interpolation (keep as a reference)
       #for prefix in ['image', 'mozImage', 'webkitImage','msImage']
       #   ctx[prefix + 'SmoothingEnabled'] = window.SmoothingEnabled
       #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
@@ -604,7 +604,7 @@ class PlotView extends ContinuumView
     @background_props.set_value(ctx)
     ctx.fillRect(frame_box...)
 
-class Plot extends HasProperties
+class Plot extends Component.Model
   type: 'Plot'
   default_view: PlotView
 

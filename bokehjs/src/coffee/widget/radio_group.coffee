@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 ContinuumView = require "../common/continuum_view"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
 class RadioGroupView extends ContinuumView
   tagName: "div"
@@ -36,7 +36,7 @@ class RadioGroupView extends ContinuumView
     active = (i for radio, i in @$("input") when radio.checked)
     @mset('active', active[0])
 
-class RadioGroup extends HasProperties
+class RadioGroup extends Model
   type: "RadioGroup"
   default_view: RadioGroupView
 
