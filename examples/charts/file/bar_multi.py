@@ -35,8 +35,8 @@ bar_plot7 = Bar(df, label='cyl', values='displ', agg='mean', group='origin',
 bar_plot7.title_text_font_size = '10pt'
 
 bar_plot8 = Bar(df, label='cyl', values='neg_mpg', agg='mean', group='origin',
-                color='origin', legend='top_right',
-                title="label='cyl' values='neg_mpg' agg='mean' group='origin'")
+                title="label='cyl' values='neg_mpg' agg='mean' group='origin'",
+                legend='top_right')
 bar_plot8.title_text_font_size = '9pt'
 
 # infer labels from index

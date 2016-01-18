@@ -177,6 +177,7 @@ class AttrSpec(HasProps):
     def set_columns(self, columns):
         """Set columns property and update derived properties as needed."""
         columns = self._ensure_list(columns)
+
         if all([col in self.data.column_names for col in columns]):
             self.columns = columns
         else:
@@ -190,8 +191,8 @@ class AttrSpec(HasProps):
         if data is not None:
             self.data = data
 
-            if columns is not None:
-                self.set_columns(columns)
+        if columns is not None and self.data is not None:
+            self.set_columns(columns)
 
         if self.columns is not None and self.data is not None:
             self.attr_map = self._create_attr_map(self.data.to_df(), self.columns)
