@@ -12,6 +12,7 @@ from json import loads
 import uuid
 
 from six import string_types
+from warnings import warn
 
 from .core.json_encoder import serialize_json
 from .core.properties import HasProps
@@ -336,7 +337,17 @@ class Document(object):
         by it) will trigger "on_change" callbacks registered on this
         Document.
 
+        .. note::
+            This function only accepts "viewable" models that inherit from
+            Component, such as figures, layouts, and widgets. Passing a
+            non-viewable model as an argument, such as a data source, will
+            raise an exception.
         '''
+        from bokeh.models.component import Component
+
+        if not isinstance(model, Component):
+            raise ValueError("Model '%s' is not a viewable model, so it cannot be added as a root" % model)
+
         if model in self._roots:
             return
         self._push_all_models_freeze()
