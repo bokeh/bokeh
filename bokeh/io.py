@@ -57,10 +57,13 @@ _state = State()
 #-----------------------------------------------------------------------------
 
 class _CommsHandle(object):
+
+    _json = {}
+
     def __init__(self, comms, doc, json):
         self._comms = comms
         self._doc = doc
-        self._json = json
+        self._json[id(doc)] = json
 
     @property
     def comms(self):
@@ -72,7 +75,7 @@ class _CommsHandle(object):
 
     @property
     def json(self):
-        return self._json
+        return self._json[id(self._doc)]
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
@@ -516,7 +519,7 @@ def push_notebook(document=None, state=None, handle=None):
         msg = Document._compute_patch_between_json(handle.json, to_json)
     handle.comms.send(json.dumps(msg))
     handle._doc = document
-    handle._json = to_json
+    handle._json[id(document)] = to_json
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
