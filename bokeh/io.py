@@ -61,9 +61,25 @@ class _CommsHandle(object):
     _json = {}
 
     def __init__(self, comms, doc, json):
+        self._cellno = None
+        try:
+            from IPython import get_ipython
+            ip = get_ipython()
+            hm = ip.history_manager
+            p_prompt = list(hm.get_tail(1, include_latest=True))[0][1]
+            self._cellno = p_prompt
+        except:
+            pass
+
         self._comms = comms
         self._doc = doc
         self._json[id(doc)] = json
+
+    def _repr_html_(self):
+        if self._cellno is not None:
+            return "<p><code>&lt;Bokeh Notebook handle for <strong>In[%s]</strong>&gt;</code></p>" % str(self._cellno)
+        else:
+            return "<p><code>&lt;Bokeh Notebook handle&gt;</code></p>"
 
     @property
     def comms(self):
