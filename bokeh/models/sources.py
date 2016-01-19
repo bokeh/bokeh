@@ -284,10 +284,10 @@ class AjaxDataSource(RemoteSource):
     new data since the last request will be returned.
     """)
     content_type = String(default='application/json', help="""
-    Set the contentType parameter in the ajax call.
+    Set the "contentType" parameter for the Ajax request.
     """)
-    http_headers = Dict(String, Any, help="""
-    HTTP headers to set in the headers parameter in the ajax call.
+    http_headers = Dict(String, String, help="""
+    HTTP headers to set for the Ajax request.
     """)
 
 class BlazeDataSource(RemoteSource):

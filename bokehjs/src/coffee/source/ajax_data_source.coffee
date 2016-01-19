@@ -56,6 +56,8 @@ class AjaxDataSources extends Backbone.Collection
   defaults:
     url : ""
     expr : null
+    contentType : 'application/json'
+    headers : ""
 
 module.exports =
   Model: AjaxDataSource
