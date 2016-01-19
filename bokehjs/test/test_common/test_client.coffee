@@ -14,7 +14,7 @@ global.WebSocket = require("websocket").w3cwebsocket
 HasProperties = utils.require "common/has_properties"
 {Document, ModelChangedEvent} = utils.require "common/document"
 {pull_session} = utils.require "common/client"
-Range1d = utils.require("range/range1d").Model
+Component = utils.require("models/component").Model
 
 # Promise works in a very annoying way, make it
 # have resolve and reject methods instead
@@ -154,7 +154,7 @@ describe "Client", ->
     promise = with_server (server_process) ->
       added_root = pull_session(url=server_process.url).then(
         (session) ->
-          root1 = new Range1d({start: 123, end: 456})
+          root1 = new Component({disabled: true})
           session.document.add_root(root1)
           session.document.set_title("Hello Title")
           session.force_roundtrip().then((ignored) -> session)
@@ -170,8 +170,7 @@ describe "Client", ->
               try
                 expect(session2.document.roots().length).to.equal 1
                 root = session2.document.roots()[0]
-                expect(root.get('start')).to.equal 123
-                expect(root.get('end')).to.equal 456
+                expect(root.get('disabled')).to.equal true
                 expect(session2.document.title()).to.equal "Hello Title"
               catch e
                 console.log("Exception was ", e)

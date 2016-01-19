@@ -17,6 +17,9 @@ module.exports = {
   LinearMapper:             require '../mapper/linear_mapper'
   LogMapper:                require '../mapper/log_mapper'
 
+  Component:                require '../models/component'
+  Model:                    require '../models/model'
+
   DataRange1d:              require '../range/data_range1d'
   FactorRange:              require '../range/factor_range'
   Range1d:                  require '../range/range1d'
