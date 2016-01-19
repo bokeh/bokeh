@@ -103,7 +103,7 @@ Then the application will be served under the following URL:
     http://localhost:{DEFAULT_PORT}/foobar/app_script
 
 If needed, Bokeh server can send keep-alive pings at a fixed interval.
-To configure this feature, set the --keep-alive option:
+To configure this feature, set the ``--keep-alive`` option:
 
 .. code-block:: sh
 
@@ -111,6 +111,22 @@ To configure this feature, set the --keep-alive option:
 
 The value is specified in milliseconds. The default keep-alive interval
 is 37 seconds. Give a value of 0 to disable keep-alive pings.
+
+To have the Bokeh server override the remote IP and URI scheme/protocol for
+all requests with ``X-Real-Ip``, ``X-Forwarded-For``, ``X-Scheme``,
+``X-Forwarded-Proto``  headers (if they are provided), set the
+``--use-xheaders`` option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --use-xheaders
+
+This is typically needed when running a Bokeh server behind a reverse proxy
+that is SSL-terminated.
+
+.. warning::
+    It is not advised to set this option on a Bokeh server directly facing
+    the Internet.
 
 Session ID Options
 ~~~~~~~~~~~~~~~~~~
@@ -296,6 +312,11 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--use-xheaders', dict(
+            action='store_true',
+            help="Prefer X-headers for IP/protocol information",
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
@@ -338,7 +359,9 @@ class Serve(Subcommand):
                                                               'host',
                                                               'prefix',
                                                               'develop',
-                                                              'keep_alive_milliseconds']
+                                                              'keep_alive_milliseconds',
+                                                              'use_xheaders',
+                                                            ]
                           if getattr(args, key, None) is not None }
 
         server_kwargs['sign_sessions'] = settings.sign_sessions()

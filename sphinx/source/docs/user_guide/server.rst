@@ -579,7 +579,7 @@ on the incoming request header:
 
 .. code-block:: sh
 
-    serve myapp.py --port 5100 --host 127.0.0.1:80
+    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
 
 .. note::
     The ``--host`` option is to guard against spoofed ``Host`` values. In a
@@ -606,6 +606,77 @@ Be careful that the file permissions of the Bokeh resources are accessible to
 whatever user Nginx is running as. Alternatively, you can copy the resources
 to a global static directory during your deployment process. See
 :ref:`userguide_server_deployment_automation` for a demonstration of this.
+
+.. _userguide_server_deployment_nginx_proxy_ssl:
+
+Reverse Proxying with Nginx and SSL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you would like to deploy a Bokeh Server behind an SSL-terminated Nginx
+proxy, then a few additional customizations are needed. First, the Bokeh
+server must be configured for a ``--host`` with the HTTP port 443, and
+you must also add the ``--use-xheaders`` flag:
+
+.. code-block:: sh
+
+    bokeh bserve myapp.py --port 5100 --host foo.com:443 --use-xheaders
+
+The ``--use-xheaders`` option causes Bokeh to override the remote IP and
+URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
+``X-Scheme``, ``X-Forwarded-Proto`` headers when they are available.
+
+You must also customize Nginx. In particular, you must configure Nginx to
+send the ``X-Forwarded-Proto`` header, as well as configure Nginx for SSL
+termination. Optionally, you may want to redirect all HTTP traffic to HTTPS.
+The complete details of this configuration (e.g. how and where to install
+SSL certificates and keys) will vary by platform, but a reference
+``nginx.conf`` is provided below:
+
+.. code-block:: nginx
+
+    # redirect HTTP traffic to HTTPS (optional)
+    server {
+        listen      80;
+        server_name foo.com;
+        return      301 https://$server_name$request_uri;
+    }
+
+    server {
+        listen      443 default_server;
+        server_name foo.com;
+
+        # add Strict-Transport-Security to prevent man in the middle attacks
+        add_header Strict-Transport-Security "max-age=31536000";
+
+        ssl on;
+
+        # SSL installation details will vary by platform
+        ssl_certificate /etc/ssl/certs/my-ssl-bundle.crt;
+        ssl_certificate_key /etc/ssl/private/my_ssl.key;
+
+        # enables all versions of TLS, but not SSLv2 or v3 which are deprecated.
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+
+        # disables all weak ciphers
+        ssl_ciphers "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4";
+
+        ssl_prefer_server_ciphers on;
+
+        location / {
+            proxy_pass http://127.0.0.1:5100;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_http_version 1.1;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $host:$server_port;
+            proxy_buffering off;
+        }
+
+    }
+
+This configuration will proxy all incoming HTTPS connections to ``foo.com``
+to a Bokeh server running internally on ``http://127.0.0.1:5100``.
 
 .. _userguide_server_deployment_nginx_load_balance:
 
