@@ -283,6 +283,12 @@ class AjaxDataSource(RemoteSource):
     to the server. If this header is supported by the server, then only
     new data since the last request will be returned.
     """)
+    content_type = String(default='application/json', help="""
+    Set the contentType parameter in the ajax call.
+    """)
+    http_headers = Dict(String, Any, help="""
+    HTTP headers to set in the headers parameter in the ajax call.
+    """)
 
 class BlazeDataSource(RemoteSource):
     #blaze parts

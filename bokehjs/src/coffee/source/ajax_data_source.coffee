@@ -27,7 +27,8 @@ class AjaxDataSource extends RemoteDataSource.RemoteDataSource
       xhrField :
         withCredentials : true
       method : @get('method')
-      contentType : 'application/json'
+      contentType : @get('content_type')
+      headers : @get('http_headers')
     ).done((data) =>
       if mode == 'replace'
         @set('data', data)
