@@ -82,6 +82,11 @@ def test_args():
             default=None,
         )),
 
+        ('--use-xheaders', dict(
+            action='store_true',
+            help="Prefer X-headers for IP/protocol information",
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
