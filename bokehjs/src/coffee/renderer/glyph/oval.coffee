@@ -83,7 +83,7 @@ class Oval extends Glyph.Model
   distances: ['width', 'height']
   angles: ['angle']
 
-  display_defaults: ->
+  defaults: ->
     return _.extend {}, super(), {
       angle: 0.0
     }

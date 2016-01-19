@@ -35,17 +35,19 @@ from ..attributes import ColorAttr, CatAttr
 def BoxPlot(data, label=None, values=None, color=None, group=None,
             xscale="categorical", yscale="linear", xgrid=False,
             ygrid=True, continuous_range=None, **kw):
-    """ Create a BoxPlot chart containing one or more boxes from table-like data.
+    """Create a BoxPlot chart containing one or more boxes from table-like data.
 
     Create a boxplot chart using :class:`BoxPlotBuilder
-    <bokeh.charts.builders.boxplot_builder.BoxPlotBuilder>` to
-    render the glyphs from input data and specification. This primary
-    use case for the boxplot is to depict the distribution of a
-    variable by providing summary statistics for it. This boxplot is particularly
-    useful at comparing distributions between categorical variables.
+    <bokeh.charts.builders.boxplot_builder.BoxPlotBuilder>` to render the
+    glyphs from input data and specification. This primary use case for the
+    boxplot is to depict the distribution of a variable by providing summary
+    statistics for it. This boxplot is particularly useful at comparing
+    distributions between categorical variables.
 
-    This chart implements functionality for segmenting and comparing the values of a
-    variable by an associated categorical variable.
+    This chart implements functionality for segmenting and comparing the values
+    of a variable by an associated categorical variable.
+
+    Reference: `BoxPlot on Wikipedia <https://en.wikipedia.org/wiki/Box_plot>`_
 
     Args:
         data (:ref:`userguide_charts_data_types`): the data source for the chart
@@ -70,13 +72,6 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
     Returns:
         :class:`Chart`: includes glyph renderers that generate Boxes and Whiskers
 
-    References:
-        Box Meaning (`Source: BoxPlot on Wikipedia <https://en.wikipedia.org/wiki/Box_plot>`_)
-        .. image:: https://upload.wikimedia.org/wikipedia/commons/1/1a/Boxplot_vs_PDF.svg
-            :width: 400px
-            :align: left
-            :alt: box plot explanation
-
     Examples:
 
     .. bokeh-plot::
@@ -85,9 +80,9 @@ def BoxPlot(data, label=None, values=None, color=None, group=None,
         from bokeh.sampledata.autompg import autompg as df
         from bokeh.charts import BoxPlot, output_file, show, hplot
 
-        box = BoxPlot(df, values='mpg', label='cyl', title="Auto MPG Box Plot", width=400)
+        box = BoxPlot(df, values='mpg', label='cyl', title="Auto MPG Box Plot", plot_width=400)
         box2 = BoxPlot(df, values='mpg', label='cyl', color='cyl',
-                          title="MPG Box Plot by Cylinder Count", width=400)
+                       title="MPG Box Plot by Cylinder Count", plot_width=400)
 
         output_file('box.html')
         show(hplot(box, box2))

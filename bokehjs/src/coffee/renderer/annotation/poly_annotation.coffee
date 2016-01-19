@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 
@@ -49,7 +49,7 @@ class PolyAnnotationView extends PlotWidget
       @fill.set_value(ctx)
       ctx.fill()
 
-class PolyAnnotation extends HasParent
+class PolyAnnotation extends Annotation.Model
   default_view: PolyAnnotationView
   type: "PolyAnnotation"
 

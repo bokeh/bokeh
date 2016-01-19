@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+Model = require "../../models/model"
 
-class Annotation extends HasParent
+class Annotation extends Model
   type: 'Annotation'
 
   defaults: ->

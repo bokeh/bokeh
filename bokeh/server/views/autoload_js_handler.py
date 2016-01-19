@@ -7,7 +7,6 @@ import logging
 log = logging.getLogger(__name__)
 
 from tornado import gen
-from tornado.web import RequestHandler
 
 from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.util.string import encode_utf8

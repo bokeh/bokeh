@@ -1,8 +1,8 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 hittest = require "../common/hittest"
 
-class DataSource extends HasProperties
+class DataSource extends Model
   type: 'DataSource'
 
   defaults: =>

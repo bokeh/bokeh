@@ -1,8 +1,8 @@
 _ = require "underscore"
-HasProperties = require "../../common/has_properties"
+Model = require "../../models/model"
 {logger} = require "../../common/logging"
 
-class ImageSource extends HasProperties
+class ImageSource extends Model
 
   constructor: (options={}) ->
     super
@@ -19,7 +19,7 @@ class ImageSource extends HasProperties
     url = url.replace('{height}','{HEIGHT}')
     url = url.replace('{width}','{WIDTH}')
     @set('url', url)
-    
+
   defaults: =>
     return _.extend {}, super(), {
       url : ''

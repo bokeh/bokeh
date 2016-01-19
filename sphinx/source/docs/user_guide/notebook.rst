@@ -3,8 +3,10 @@
 Working in the Notebook
 =======================
 
-Displaying Inline Plots
------------------------
+.. _userguide_notebook_inline_plots:
+
+Inline Plots
+------------
 
 To display Bokeh plots inline in an Jupyter notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
@@ -19,9 +21,10 @@ are required. You can see an example below:
     As a convenience, |output_notebook| is also importable from the
     |bokeh.charts| and |bokeh.plotting| modules.
 
+.. _userguide_notebook_jupyter_interactors:
 
-Integrating Notebook Interactors
---------------------------------
+Jupyter Interactors
+-------------------
 
 It is possible to drive updates to Bokeh plots using Jupyter
 notebook widgets, known as interactors. The key doing this is the

@@ -1,9 +1,9 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 CellEditors = require "./cell_formatters"
 CellFormatters = require "./cell_formatters"
 
-class TableColumn extends HasProperties
+class TableColumn extends Model
   type: 'TableColumn'
   default_view: null
 
