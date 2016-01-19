@@ -35,7 +35,7 @@ from ...core.properties import String, Instance, Float, Color, Either, List
 
 
 def Donut(data, label='index', values=None,  color=None, agg=None,
-          hover_tool=True, hover_text=None, height=400, width=400,
+          hover_tool=True, hover_text=None, plot_height=400, plot_width=400,
           xgrid=False, ygrid=False, **kw):
     """ Create a Donut chart containing one or more layers from table-like data.
 
@@ -105,8 +105,8 @@ def Donut(data, label='index', values=None,  color=None, agg=None,
     kw['color'] = color
     kw['xgrid'] = xgrid
     kw['ygrid'] = ygrid
-    kw['height'] = height
-    kw['width'] = width
+    kw['plot_height'] = plot_height
+    kw['plot_width'] = plot_width
 
     if agg is not None:
         kw['agg'] = agg
