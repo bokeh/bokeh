@@ -3,24 +3,29 @@ from __future__ import absolute_import, print_function
 import unittest
 
 from copy import copy
+import pytest
 
 import bokeh.document as document
 from bokeh.io import curdoc
+from bokeh.models.component import Component
 from bokeh.model import Model
 from bokeh.core.properties import Int, Instance, String, DistanceSpec
 
-class AnotherModelInTestDocument(Model):
+class AnotherModelInTestDocument(Component):
     bar = Int(1)
 
-class SomeModelInTestDocument(Model):
+class SomeModelInTestDocument(Component):
     foo = Int(2)
     child = Instance(Model)
 
-class ModelThatOverridesName(Model):
+class ModelThatOverridesName(Component):
     name = String()
 
-class ModelWithSpecInTestDocument(Model):
+class ModelWithSpecInTestDocument(Component):
     foo = DistanceSpec(2)
+
+class NonEmbeddableModelInTestDocument(Model):
+    bar = Int(1)
 
 class TestDocument(unittest.TestCase):
 
@@ -34,6 +39,11 @@ class TestDocument(unittest.TestCase):
         d.add_root(AnotherModelInTestDocument())
         assert len(d.roots) == 1
         assert next(iter(d.roots)).document == d
+
+    def test_add_nonembeddable_model_as_root(self):
+        d = document.Document()
+        with pytest.raises(ValueError):
+            d.add_root(NonEmbeddableModelInTestDocument())
 
     def test_roots_preserves_insertion_order(self):
         d = document.Document()

@@ -12,7 +12,6 @@ from json import loads
 import uuid
 
 from six import string_types
-from warnings import warn
 
 from .core.json_encoder import serialize_json
 from .core.query import find
@@ -329,8 +328,8 @@ class Document(object):
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
 
-    def add_root(self, model):
-        ''' Add a model as a root model to this Document.
+    def add_root(self, component):
+        """ Add a component as a root model to this Document.
 
         Any changes to this model (including to other models referred to
         by it) will trigger "on_change" callbacks registered on this
@@ -341,20 +340,20 @@ class Document(object):
             Component, such as figures, layouts, and widgets. Passing a
             non-viewable model as an argument, such as a data source, will
             raise an exception.
-        '''
+        """
         from bokeh.models.component import Component
 
-        if not isinstance(model, Component):
-            raise ValueError("Model '%s' is not a viewable model, so it cannot be added as a root" % model)
+        if not isinstance(component, Component):
+            raise ValueError("Model '%s' is not a viewable component, so it cannot be added as a root" % component)
 
-        if model in self._roots:
+        if component in self._roots:
             return
         self._push_all_models_freeze()
         try:
-            self._roots.append(model)
+            self._roots.append(component)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootAddedEvent(self, model))
+        self._trigger_on_change(RootAddedEvent(self, component))
 
     @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
@@ -374,21 +373,21 @@ class Document(object):
         for obj in objects:
             self.add_root(obj)
 
-    def remove_root(self, model):
-        ''' Remove a model as root model from this Document.
+    def remove_root(self, component):
+        ''' Remove a component as root model from this Document.
 
         Changes to this model may still trigger "on_change" callbacks
         on this Document, if the model is still referred to by other
         root models.
         '''
-        if model not in self._roots:
+        if component not in self._roots:
             return # TODO (bev) ValueError?
         self._push_all_models_freeze()
         try:
-            self._roots.remove(model)
+            self._roots.remove(component)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootRemovedEvent(self, model))
+        self._trigger_on_change(RootRemovedEvent(self, component))
 
     def get_model_by_id(self, model_id):
         ''' Get the model object for the given ID or None if not found'''

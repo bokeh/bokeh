@@ -5,12 +5,12 @@ import unittest
 import tempfile
 
 from bokeh.document import Document
-from bokeh.model import Model
+from bokeh.models.component import Component
 from bokeh.core.property_mixins import FillProps, LineProps, TextProps
 from bokeh.core.properties import Int, String
 from bokeh.themes import Theme
 
-class ThemedModel(Model):
+class ThemedModel(Component):
     number = Int(42)
     string = String("hello")
 

@@ -5,12 +5,13 @@ import unittest
 from bokeh.application.handlers import FunctionHandler
 from bokeh.application import Application
 from bokeh.model import Model
+from bokeh.models.component import Component
 from bokeh.core.properties import Int, Instance
 
-class AnotherModelInTestApplication(Model):
+class AnotherModelInTestApplication(Component):
     bar = Int(1)
 
-class SomeModelInTestApplication(Model):
+class SomeModelInTestApplication(Component):
     foo = Int(2)
     child = Instance(Model)
 

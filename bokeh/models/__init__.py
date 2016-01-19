@@ -10,6 +10,7 @@ from .formatters import *
 from .glyphs import *
 from .grids import *
 from .images import *
+from .layouts import *
 from .map_plots import *
 from .markers import *
 from .mappers import *

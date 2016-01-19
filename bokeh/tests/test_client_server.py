@@ -8,6 +8,7 @@ from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import pull_session, push_session, ClientSession
 from bokeh.document import ModelChangedEvent, TitleChangedEvent
+from bokeh.models.component import Component
 from bokeh.model import Model
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from tornado import gen
@@ -15,18 +16,18 @@ from tornado.httpclient import HTTPError
 
 from bokeh.server.tests.utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
 
-class AnotherModelInTestClientServer(Model):
+class AnotherModelInTestClientServer(Component):
     bar = Int(1)
 
-class SomeModelInTestClientServer(Model):
+class SomeModelInTestClientServer(Component):
     foo = Int(2)
     child = Instance(Model)
 
 
-class DictModel(Model):
+class DictModel(Component):
     values = Dict(String, Any)
 
-class UnitsSpecModel(Model):
+class UnitsSpecModel(Component):
     distance = DistanceSpec(42)
     angle = AngleSpec(0)
 
