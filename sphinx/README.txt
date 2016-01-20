@@ -44,8 +44,10 @@ Additionally, you have the "latest" task to update the `/latest` link to the spe
 
     $ fab latest:0.9.3 # link /latest to 0.9.3 version
 
-Note: requires having SSH keys for "bokeh" user.
-
+Notes: 
+ - requires having SSH keys for "bokeh" user.
+ - you may want to specify the docs_version by using environment variable
+   `BOKEH_DOCS_VERSION` (http://bokeh.pydata.org/en/latest/docs/dev_guide/setup.html#bokeh-docs-version)
 
 objects.graffle
 ===============
