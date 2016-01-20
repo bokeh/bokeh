@@ -321,6 +321,16 @@ a document looks like:
 .. note::
     To execute the code above, a Bokeh server must be running.
 
+
+Alternatively, if you are already an app on a bokeh server and have the url for
+it then you may want to user |autload_server| like this:
+
+.. code-block:: python
+
+    script = autoload_server(model=None, app_path="/apps/slider", url="https://demo.bokehplots.com")
+
+For full details read the autoload_server reference here: |autoload_server|.
+
 .. _userguide_embed_autoload_static:
 
 static data
