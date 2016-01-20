@@ -1,5 +1,5 @@
 _ = require "underscore"
-Component = require "./component"
+Component = require "../models/component"
 
 class Layout extends Component.Model
   type: "Layout"
