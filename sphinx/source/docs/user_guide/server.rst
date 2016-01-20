@@ -355,10 +355,6 @@ The full set of files that Bokeh server knows about is:
        +---server_lifecycle.py
        +---theme.yaml
 
-See below for information about :ref:`userguide_server_applications_themes`
-and :ref:`userguide_server_applications_lifecycle` for details on the other
-files.
-
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
 to include data files or custom user defined models in your directory

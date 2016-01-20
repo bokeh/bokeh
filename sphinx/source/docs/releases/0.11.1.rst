@@ -1,8 +1,9 @@
 0.11.1 (Feb 2016)
-================
+=================
 
 This release was focused on providing several bug fixes and documentation
 improvements from the Jan 2016 0.11.0 release.
 
 Migration notes:
+
 * Range update callbacks now return the range object as the cb_obj (not the plot)
