@@ -285,7 +285,7 @@ server data
 
 The simplest case is to use the Bokeh server to persist your plot and data.
 Additionally, the Bokeh server affords the opportunity of animated plots or
-updating plots with streaming data. The |autoload_server| returns a ``<script>``
+updating plots with streaming data. The |autoload_server| function returns a ``<script>``
 tag that will load both your plot and data from the Bokeh server.
 
 As a concrete example, here is some simple code using |autoload_server|
