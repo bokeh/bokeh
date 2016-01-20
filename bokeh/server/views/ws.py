@@ -54,7 +54,7 @@ class WSHandler(WebSocketHandler):
         else:
             log.error("Refusing websocket connection from Origin '%s'; \
                       use --allow-websocket-origin=%s to permit this; currently we allow origins %r",
-                      origin, origin_host, allowed)
+                      origin, origin_host, allowed_hosts)
             return False
 
     def open(self):
