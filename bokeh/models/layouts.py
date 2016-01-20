@@ -36,7 +36,8 @@ class BaseBox(Layout):
     def __init__(self, *args, **kwargs):
         if len(args) > 0 and "children" in kwargs:
             raise ValueError("'children' keyword cannot be used with positional arguments")
-        kwargs["children"] = list(args)
+        elif len(args) > 0:
+            kwargs["children"] = list(args)
         super(BaseBox, self).__init__(**kwargs)
 
     @validation.warning(EMPTY_LAYOUT)
