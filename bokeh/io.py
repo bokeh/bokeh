@@ -68,12 +68,12 @@ class _CommsHandle(object):
             hm = ip.history_manager
             p_prompt = list(hm.get_tail(1, include_latest=True))[0][1]
             self._cellno = p_prompt
-        except:
-            pass
+        except Exception as e:
+            logger.debug("Could not get Notebook cell number, reason: %s", e)
 
         self._comms = comms
         self._doc = doc
-        self._json[id(doc)] = json
+        self._json[doc] = json
 
     def _repr_html_(self):
         if self._cellno is not None:
@@ -91,7 +91,11 @@ class _CommsHandle(object):
 
     @property
     def json(self):
-        return self._json[id(self._doc)]
+        return self._json[self._doc]
+
+    def update(self, doc, json):
+        self._doc = doc
+        self._json[doc] = json
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
@@ -534,8 +538,7 @@ def push_notebook(document=None, state=None, handle=None):
     else:
         msg = Document._compute_patch_between_json(handle.json, to_json)
     handle.comms.send(json.dumps(msg))
-    handle._doc = document
-    handle._json[id(document)] = to_json
+    handle.update(document, to_json)
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.
