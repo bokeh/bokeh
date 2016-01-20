@@ -6,7 +6,7 @@ from bokeh.embed import file_html
 from bokeh.models.callbacks import Callback
 from bokeh.models.glyphs import Circle
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
-from bokeh.models.widgets import HBox
+from bokeh.models.layouts import HBox
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

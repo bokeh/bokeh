@@ -11,7 +11,8 @@ from bokeh.models import (
     SingleIntervalTicker
 )
 from bokeh.sampledata.population import load_population
-from bokeh.models.widgets import Select, HBox, VBox
+from bokeh.models.layouts import HBox, VBox
+from bokeh.models.widgets import Select
 
 document = Document()
 session = push_session(document)
