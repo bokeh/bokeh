@@ -323,7 +323,7 @@ a document looks like:
 
 
 Alternatively, if you are already an app on a bokeh server and have the url for
-it then you may want to user |autload_server| like this:
+it then you may want to use |autoload_server| like this:
 
 .. code-block:: python
 
