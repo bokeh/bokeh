@@ -49,11 +49,9 @@ want to create a small app that you can run locally, or that you can send
 to colleagues to run locally. The Bokeh server is very useful and easy to
 use in this scenario. All of the methods here below can be used effectively:
 
-:ref:`userguide_server_output_server`
-
-:ref:`userguide_server_bokeh_client`
-
-:ref:`userguide_server_applications`
+* :ref:`userguide_server_output_server`
+* :ref:`userguide_server_bokeh_client`
+* :ref:`userguide_server_applications`
 
 For the most flexible approach, that could transition most directly to a
 deployable application, it is suggested to follow the techniques in
@@ -68,16 +66,12 @@ Another way that you might want to use the Bokeh server is to publish
 interactive data visualizations and applications that can be viewed and
 used by a wider audience (perhaps on the internet, or perhaps on an
 internal company network). The Bokeh Server is also well-suited to this
-usage, and you will want to first consult the section
+usage, and you will want to first consult the sections:
 
-:ref:`userguide_server_applications`
-
-to understand how to create Bokeh Applications, and then refer to the
+* :ref:`userguide_server_applications` - how to create Bokeh Applications, and then refer to the
 section
+* :ref:`userguide_server_deployment` - how to deploy the Bokeh server with your application.
 
-:ref:`userguide_server_deployment`
-
-for information on how to deploy the Bokeh server with your application.
 
 .. _userguide_server_use_case_shared:
 
@@ -104,12 +98,7 @@ Another possibility is to have a single centrally created app (perhaps by an
 organization), that can access data or other artifacts published by many
 different people (possibly with access controls). This sort of scenario *is*
 possible with the Bokeh server, but often involves integrating a Bokeh
-server with other web application frameworks. See
-
-:ref:`userguide_server_integration`
-
-for general information, and a complete example at
-
+server with other web application frameworks. See a complete example at 
 https://github.com/bokeh/bokeh-demos/tree/master/happiness
 
 
@@ -447,18 +436,6 @@ detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
     capability for two-way Python<-->JS synchronization through Jupyter comms
     is a planned future addition.
 
-Python Callbacks in Bokeh Applications
-''''''''''''''''''''''''''''''''''''''
-
-
-Python Callbacks with ``bokeh.client``
-''''''''''''''''''''''''''''''''''''''
-
-
-.. _userguide_server_applications_themes:
-
-Application Theming
-~~~~~~~~~~~~~~~~~~~
 
 .. _userguide_server_applications_lifecycle:
 
@@ -495,27 +472,17 @@ any or all of the following conventionally named functions:
         ''' If present, this function is called when a session is closed. '''
         pass
 
-.. _userguide_server_examples:
-
-Examples and Video Tutorials
-----------------------------
-
-.. _userguide_server_integration:
-
-Integration with Web App Frameworks
------------------------------------
 
 .. _userguide_server_deployment:
 
 Deployment Scenarios
 --------------------
 
-With an application like the one above, we can do different things. We can
-run it just as above locally any time we want to interact with it. Or we can
-share it with other people, and they can run it locally themselves in the
-same manner. But we might also want to deploy the application in a way that
-other people can access it. This section describes some of the considerations
-that arise in that case.
+With an application, we can run it just locally any time we want to interact
+with it. Or we can share it with other people, and they can run it locally
+themselves in the same manner. But we might also want to deploy the application
+in a way that other people can access it. This section describes some of the
+considerations that arise in that case.
 
 .. _userguide_server_deployment_standalone:
 
