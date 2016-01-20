@@ -294,6 +294,8 @@ with a default session:
 .. code-block:: python
 
 
+    from bokeh.client import push_session
+    from bokeh.embed import autoload_server
     from bokeh.plotting import figure, curdoc
 
     # figure() function auto-adds the figure to curdoc()
