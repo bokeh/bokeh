@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class TickFormatter extends HasProperties
+class TickFormatter extends Model
   type: 'TickFormatter'
 
 module.exports =

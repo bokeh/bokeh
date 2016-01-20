@@ -1,6 +1,6 @@
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class GridMapper extends HasProperties
+class GridMapper extends Model
 
   map_to_target: (x, y) ->
     xprime = @get('domain_mapper').map_to_target(x)

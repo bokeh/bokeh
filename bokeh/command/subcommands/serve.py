@@ -103,7 +103,7 @@ Then the application will be served under the following URL:
     http://localhost:{DEFAULT_PORT}/foobar/app_script
 
 If needed, Bokeh server can send keep-alive pings at a fixed interval.
-To configure this feature, set the --keep-alive option:
+To configure this feature, set the ``--keep-alive`` option:
 
 .. code-block:: sh
 
@@ -121,6 +121,22 @@ To control how often statistic logs are written, set the
 
 The value is specified in milliseconds. The default interval for
 logging stats is 15 seconds. Only positive integer values are accepted.
+
+To have the Bokeh server override the remote IP and URI scheme/protocol for
+all requests with ``X-Real-Ip``, ``X-Forwarded-For``, ``X-Scheme``,
+``X-Forwarded-Proto``  headers (if they are provided), set the
+``--use-xheaders`` option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --use-xheaders
+
+This is typically needed when running a Bokeh server behind a reverse proxy
+that is SSL-terminated.
+
+.. warning::
+    It is not advised to set this option on a Bokeh server directly facing
+    the Internet.
 
 Session ID Options
 ~~~~~~~~~~~~~~~~~~
@@ -223,19 +239,6 @@ The logging level can be controlled by the ``--log-level`` argument:
     bokeh serve app_script.py --log-level=debug
 
 The available log levels are: {LOGLEVELS}
-
-*** DEVELOP MODE BELOW NOT YET IMPLEMENTED ***
-
-Additionally, the Bokeh server supports a "develop" mode, which will watch
-application sources and automatically reload the application when any of them
-change. To use this mode, add the ``--develop`` argument on the command line:
-
-.. code-block:: sh
-
-    bokeh serve app_script.py --develop
-
-.. note::
-    The ``--develop`` mode option should not be used in "production" usage.
 
 '''
 from __future__ import absolute_import
@@ -352,6 +355,11 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--use-xheaders', dict(
+            action='store_true',
+            help="Prefer X-headers for IP/protocol information",
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
@@ -412,7 +420,9 @@ class Serve(Subcommand):
                                                               'keep_alive_milliseconds',
                                                               'check_unused_sessions_milliseconds',
                                                               'unused_session_lifetime_milliseconds',
-                                                              'stats_log_frequency_milliseconds']
+                                                              'stats_log_frequency_milliseconds',
+                                                              'use_xheaders',
+                                                            ]
                           if getattr(args, key, None) is not None }
 
         server_kwargs['sign_sessions'] = settings.sign_sessions()

@@ -240,6 +240,11 @@ def autoload_url(server):
     return url(server) + \
         "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
 
+def test_use_xheaders():
+    application = Application()
+    with ManagedServerLoop(application, use_xheaders=True) as server:
+        assert server._http.xheaders == True
+
 def test__autocreate_session_autoload():
     application = Application()
     with ManagedServerLoop(application) as server:

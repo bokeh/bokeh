@@ -629,3 +629,9 @@ def label_from_index_dict(chart_index, include_cols=False):
     else:
         raise ValueError('chart_index type is not recognized, \
                           received %s' % type(chart_index))
+
+
+def comp_glyphs_to_df(*comp_glyphs):
+    dfs = [glyph.df for glyph in comp_glyphs]
+    return pd.concat(dfs)
+

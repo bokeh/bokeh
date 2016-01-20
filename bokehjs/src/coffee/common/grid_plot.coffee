@@ -3,6 +3,7 @@ _ = require "underscore"
 Backbone = require "backbone"
 build_views = require "./build_views"
 ContinuumView = require "./continuum_view"
+Component = require "../models/component"
 HasProperties = require "./has_properties"
 {logger} = require "./logging"
 ToolManager = require "./tool_manager"
@@ -301,7 +302,7 @@ class GridPlotView extends ContinuumView
     width = _.reduce(col_widths, add, 0)
     div.attr('style', "position:relative; height:#{height}px;width:#{width}px")
 
-class GridPlot extends HasProperties
+class GridPlot extends Component.Model
   type: 'GridPlot'
   default_view: GridPlotView
 

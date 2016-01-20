@@ -49,11 +49,9 @@ want to create a small app that you can run locally, or that you can send
 to colleagues to run locally. The Bokeh server is very useful and easy to
 use in this scenario. All of the methods here below can be used effectively:
 
-:ref:`userguide_server_output_server`
-
-:ref:`userguide_server_bokeh_client`
-
-:ref:`userguide_server_applications`
+* :ref:`userguide_server_output_server`
+* :ref:`userguide_server_bokeh_client`
+* :ref:`userguide_server_applications`
 
 For the most flexible approach, that could transition most directly to a
 deployable application, it is suggested to follow the techniques in
@@ -68,16 +66,12 @@ Another way that you might want to use the Bokeh server is to publish
 interactive data visualizations and applications that can be viewed and
 used by a wider audience (perhaps on the internet, or perhaps on an
 internal company network). The Bokeh Server is also well-suited to this
-usage, and you will want to first consult the section
+usage, and you will want to first consult the sections:
 
-:ref:`userguide_server_applications`
-
-to understand how to create Bokeh Applications, and then refer to the
+* :ref:`userguide_server_applications` - how to create Bokeh Applications, and then refer to the
 section
+* :ref:`userguide_server_deployment` - how to deploy the Bokeh server with your application.
 
-:ref:`userguide_server_deployment`
-
-for information on how to deploy the Bokeh server with your application.
 
 .. _userguide_server_use_case_shared:
 
@@ -104,12 +98,7 @@ Another possibility is to have a single centrally created app (perhaps by an
 organization), that can access data or other artifacts published by many
 different people (possibly with access controls). This sort of scenario *is*
 possible with the Bokeh server, but often involves integrating a Bokeh
-server with other web application frameworks. See
-
-:ref:`userguide_server_integration`
-
-for general information, and a complete example at
-
+server with other web application frameworks. See a complete example at 
 https://github.com/bokeh/bokeh-demos/tree/master/happiness
 
 
@@ -447,18 +436,6 @@ detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
     capability for two-way Python<-->JS synchronization through Jupyter comms
     is a planned future addition.
 
-Python Callbacks in Bokeh Applications
-''''''''''''''''''''''''''''''''''''''
-
-
-Python Callbacks with ``bokeh.client``
-''''''''''''''''''''''''''''''''''''''
-
-
-.. _userguide_server_applications_themes:
-
-Application Theming
-~~~~~~~~~~~~~~~~~~~
 
 .. _userguide_server_applications_lifecycle:
 
@@ -495,27 +472,17 @@ any or all of the following conventionally named functions:
         ''' If present, this function is called when a session is closed. '''
         pass
 
-.. _userguide_server_examples:
-
-Examples and Video Tutorials
-----------------------------
-
-.. _userguide_server_integration:
-
-Integration with Web App Frameworks
------------------------------------
 
 .. _userguide_server_deployment:
 
 Deployment Scenarios
 --------------------
 
-With an application like the one above, we can do different things. We can
-run it just as above locally any time we want to interact with it. Or we can
-share it with other people, and they can run it locally themselves in the
-same manner. But we might also want to deploy the application in a way that
-other people can access it. This section describes some of the considerations
-that arise in that case.
+With an application, we can run it just locally any time we want to interact
+with it. Or we can share it with other people, and they can run it locally
+themselves in the same manner. But we might also want to deploy the application
+in a way that other people can access it. This section describes some of the
+considerations that arise in that case.
 
 .. _userguide_server_deployment_standalone:
 
@@ -579,7 +546,7 @@ on the incoming request header:
 
 .. code-block:: sh
 
-    serve myapp.py --port 5100 --host 127.0.0.1:80
+    bokeh serve myapp.py --port 5100 --host 127.0.0.1:80
 
 .. note::
     The ``--host`` option is to guard against spoofed ``Host`` values. In a
@@ -606,6 +573,77 @@ Be careful that the file permissions of the Bokeh resources are accessible to
 whatever user Nginx is running as. Alternatively, you can copy the resources
 to a global static directory during your deployment process. See
 :ref:`userguide_server_deployment_automation` for a demonstration of this.
+
+.. _userguide_server_deployment_nginx_proxy_ssl:
+
+Reverse Proxying with Nginx and SSL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you would like to deploy a Bokeh Server behind an SSL-terminated Nginx
+proxy, then a few additional customizations are needed. First, the Bokeh
+server must be configured for a ``--host`` with the HTTP port 443, and
+you must also add the ``--use-xheaders`` flag:
+
+.. code-block:: sh
+
+    bokeh bserve myapp.py --port 5100 --host foo.com:443 --use-xheaders
+
+The ``--use-xheaders`` option causes Bokeh to override the remote IP and
+URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
+``X-Scheme``, ``X-Forwarded-Proto`` headers when they are available.
+
+You must also customize Nginx. In particular, you must configure Nginx to
+send the ``X-Forwarded-Proto`` header, as well as configure Nginx for SSL
+termination. Optionally, you may want to redirect all HTTP traffic to HTTPS.
+The complete details of this configuration (e.g. how and where to install
+SSL certificates and keys) will vary by platform, but a reference
+``nginx.conf`` is provided below:
+
+.. code-block:: nginx
+
+    # redirect HTTP traffic to HTTPS (optional)
+    server {
+        listen      80;
+        server_name foo.com;
+        return      301 https://$server_name$request_uri;
+    }
+
+    server {
+        listen      443 default_server;
+        server_name foo.com;
+
+        # add Strict-Transport-Security to prevent man in the middle attacks
+        add_header Strict-Transport-Security "max-age=31536000";
+
+        ssl on;
+
+        # SSL installation details will vary by platform
+        ssl_certificate /etc/ssl/certs/my-ssl-bundle.crt;
+        ssl_certificate_key /etc/ssl/private/my_ssl.key;
+
+        # enables all versions of TLS, but not SSLv2 or v3 which are deprecated.
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+
+        # disables all weak ciphers
+        ssl_ciphers "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4";
+
+        ssl_prefer_server_ciphers on;
+
+        location / {
+            proxy_pass http://127.0.0.1:5100;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_http_version 1.1;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $host:$server_port;
+            proxy_buffering off;
+        }
+
+    }
+
+This configuration will proxy all incoming HTTPS connections to ``foo.com``
+to a Bokeh server running internally on ``http://127.0.0.1:5100``.
 
 .. _userguide_server_deployment_nginx_load_balance:
 
