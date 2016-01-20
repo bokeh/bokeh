@@ -4,6 +4,7 @@ utils = require "../utils"
 base = utils.require "common/base"
 {Collections} = base
 {Document} = utils.require "common/document"
+Component = utils.require("models/component").Model
 
 describe "customjs module", ->
 
@@ -19,13 +20,15 @@ describe "customjs module", ->
   describe "values property", ->
     rng = Collections('Range1d').create()
     r = Collections('CustomJS').create({args: {foo: rng }})
+    ## wrap CustomJS in Component in order to add to doc root
+    component = Collections('Component').create({args: {foo: r}})
 
     it "should contain the args values", ->
       expect(r.get('values')).to.be.deep.equal [rng]
 
     it "should round-trip through document serialization", ->
       d = new Document()
-      d.add_root(r)
+      d.add_root(component)
       json = d.to_json_string()
       copy = Document.from_json_string(json)
       r_copy = copy.get_model_by_id(r.id)
