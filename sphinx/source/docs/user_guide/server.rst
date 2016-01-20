@@ -68,8 +68,7 @@ used by a wider audience (perhaps on the internet, or perhaps on an
 internal company network). The Bokeh Server is also well-suited to this
 usage, and you will want to first consult the sections:
 
-* :ref:`userguide_server_applications` - how to create Bokeh Applications, and then refer to the
-section
+* :ref:`userguide_server_applications` - how to create Bokeh Applications, and then refer to the section
 * :ref:`userguide_server_deployment` - how to deploy the Bokeh server with your application.
 
 
