@@ -19,7 +19,7 @@ movies["alpha"] = np.where(movies["Oscars"] > 0, 0.9, 0.25)
 movies.fillna(0, inplace=True)  # just replace missing values with zero
 movies["revenue"] = movies.BoxOffice.apply(lambda x: '{:,d}'.format(int(x)))
 
-with open("razzies-clean.csv") as f:
+with open(join(dirname(__file__), "razzies-clean.csv")) as f:
     razzies = f.read().splitlines()
 movies.loc[movies.imdbID.isin(razzies), "color"] = "purple"
 movies.loc[movies.imdbID.isin(razzies), "alpha"] = 0.9
