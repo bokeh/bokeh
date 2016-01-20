@@ -205,19 +205,6 @@ The logging level can be controlled by the ``--log-level`` argument:
 
 The available log levels are: {LOGLEVELS}
 
-*** DEVELOP MODE BELOW NOT YET IMPLEMENTED ***
-
-Additionally, the Bokeh server supports a "develop" mode, which will watch
-application sources and automatically reload the application when any of them
-change. To use this mode, add the ``--develop`` argument on the command line:
-
-.. code-block:: sh
-
-    bokeh serve app_script.py --develop
-
-.. note::
-    The ``--develop`` mode option should not be used in "production" usage.
-
 '''
 from __future__ import absolute_import
 
