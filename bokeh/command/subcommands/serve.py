@@ -112,6 +112,16 @@ To configure this feature, set the ``--keep-alive`` option:
 The value is specified in milliseconds. The default keep-alive interval
 is 37 seconds. Give a value of 0 to disable keep-alive pings.
 
+To control how often statistic logs are written, set the
+--stats-log-frequency option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --stats-log-frequency 30000
+
+The value is specified in milliseconds. The default interval for
+logging stats is 15 seconds. Only positive integer values are accepted.
+
 To have the Bokeh server override the remote IP and URI scheme/protocol for
 all requests with ``X-Real-Ip``, ``X-Forwarded-For``, ``X-Scheme``,
 ``X-Forwarded-Proto``  headers (if they are provided), set the
@@ -193,6 +203,31 @@ The secret key should be set in a ``BOKEH_SECRET_KEY`` environment
 variable and should be a cryptographically random string with at
 least 256 bits (32 bytes) of entropy.  You can generate a new
 secret key with the ``bokeh secret`` command.
+
+Session Expiration Options
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To configure how often to check for unused sessions. set the
+--check-unused-sessions option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --check-unused-sessions 10000
+
+The value is specified in milliseconds. The default interval for
+checking for unused sessions is 17 seconds. Only positive integer
+values are accepted.
+
+To configure how often unused sessions last. set the
+--unused-session-lifetime option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --unused-session-lifetime 60000
+
+The value is specified in milliseconds. The default lifetime interval
+for unused sessions is 30 minutes. Only positive integer values are
+accepted.
 
 Development Options
 ~~~~~~~~~~~~~~~~~~~
@@ -299,6 +334,27 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--check-unused-sessions', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to check for unused sessions",
+            default=None,
+        )),
+
+        ('--unused-session-lifetime', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How long unused sessions last",
+            default=None,
+        )),
+
+        ('--stats-log-frequency', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to log stats",
+            default=None,
+        )),
+
         ('--use-xheaders', dict(
             action='store_true',
             help="Prefer X-headers for IP/protocol information",
@@ -340,6 +396,21 @@ class Serve(Subcommand):
             # rename to be compatible with Server
             args.keep_alive_milliseconds = args.keep_alive
 
+        if args.check_unused_sessions is not None:
+            log.info("Check for unused sessions every %d milliseconds", args.check_unused_sessions)
+            # rename to be compatible with Server
+            args.check_unused_sessions_milliseconds = args.check_unused_sessions
+
+        if args.unused_session_lifetime is not None:
+            log.info("Unused sessions last for %d milliseconds", args.unused_session_lifetime)
+            # rename to be compatible with Server
+            args.unused_session_lifetime_milliseconds = args.unused_session_lifetime
+
+        if args.stats_log_frequency is not None:
+            log.info("Log statistics every %d milliseconds", args.stats_log_frequency)
+            # rename to be compatible with Server
+            args.stats_log_frequency_milliseconds = args.stats_log_frequency
+
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
                                                               'allow_websocket_origin',
@@ -347,6 +418,9 @@ class Serve(Subcommand):
                                                               'prefix',
                                                               'develop',
                                                               'keep_alive_milliseconds',
+                                                              'check_unused_sessions_milliseconds',
+                                                              'unused_session_lifetime_milliseconds',
+                                                              'stats_log_frequency_milliseconds',
                                                               'use_xheaders',
                                                             ]
                           if getattr(args, key, None) is not None }
