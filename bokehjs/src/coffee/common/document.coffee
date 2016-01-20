@@ -2,6 +2,7 @@ _ = require "underscore"
 {logger} = require "./logging"
 HasProperties = require "./has_properties"
 {Collections} = require("./base")
+Component = require("../models/component").Model
 
 class DocumentChangedEvent
   constructor : (@document) ->
@@ -97,6 +98,8 @@ class Document
     @_roots
 
   add_root : (model) ->
+    if model not instanceof Component
+      throw new Error("Model #{model} is not a viewable component, so it cannot be added as a root")
     if model in @_roots
       return
     @_roots.push(model)

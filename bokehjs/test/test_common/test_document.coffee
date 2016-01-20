@@ -2,7 +2,7 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../utils"
 
-Model = utils.require "models/model"
+Component = utils.require("models/component").Model
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "common/document"
 base = utils.require "common/base"
 Collection = utils.require "common/collection"
@@ -16,7 +16,7 @@ register_test_collection = (name, model) ->
   C = make_collection(model)
   base.collection_overrides[name] = C
 
-class AnotherModel extends Model
+class AnotherModel extends Component
   type: 'AnotherModel'
   defaults: () ->
     return _.extend {}, super(), {
@@ -25,7 +25,7 @@ class AnotherModel extends Model
 
 register_test_collection('AnotherModel', AnotherModel)
 
-class SomeModel extends Model
+class SomeModel extends Component
   type: 'SomeModel'
   defaults: () ->
     return _.extend {}, super(), {
@@ -35,7 +35,7 @@ class SomeModel extends Model
 
 register_test_collection('SomeModel', SomeModel)
 
-class SomeModelWithChildren extends Model
+class SomeModelWithChildren extends Component
   type: 'SomeModelWithChildren'
   defaults: () ->
     return _.extend {}, super(), {
@@ -44,7 +44,7 @@ class SomeModelWithChildren extends Model
 
 register_test_collection('SomeModelWithChildren', SomeModelWithChildren)
 
-class ModelWithConstructTimeChanges extends Model
+class ModelWithConstructTimeChanges extends Component
   type: 'ModelWithConstructTimeChanges'
 
   initialize: (attributes, options) ->
@@ -60,7 +60,7 @@ class ModelWithConstructTimeChanges extends Model
 
 register_test_collection('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
 
-class ComplicatedModelWithConstructTimeChanges extends Model
+class ComplicatedModelWithConstructTimeChanges extends Component
   type: 'ComplicatedModelWithConstructTimeChanges'
 
   initialize: (attributes, options) ->
