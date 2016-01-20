@@ -19,7 +19,7 @@ class SomeModelInTestDocument(Component):
     child = Instance(Model)
 
 class ModelThatOverridesName(Component):
-    name = String()
+    spam = String()
 
 class ModelWithSpecInTestDocument(Component):
     foo = DistanceSpec(2)
