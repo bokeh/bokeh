@@ -42,8 +42,8 @@ extensions = [
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
     'bokeh.sphinxext.bokeh_prop',
-    'bokeh.sphinxext.collapsible_code_block',
     'bokeh.sphinxext.bokeh_sitemap',
+    'bokeh.sphinxext.collapsible_code_block',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
