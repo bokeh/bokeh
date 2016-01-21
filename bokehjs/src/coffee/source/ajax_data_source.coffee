@@ -49,16 +49,11 @@ class AjaxDataSource extends RemoteDataSource.RemoteDataSource
   defaults: =>
     return _.extend {}, super(), {
       mode: 'replace'
+      url : ""
+      expr : null
+      contentType : 'application/json'
+      headers : ""
     }
-
-class AjaxDataSources extends Backbone.Collection
-  model: AjaxDataSource
-  defaults:
-    url : ""
-    expr : null
-    contentType : 'application/json'
-    headers : ""
 
 module.exports =
   Model: AjaxDataSource
-  Collection: new AjaxDataSources()
