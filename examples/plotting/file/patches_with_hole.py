@@ -8,8 +8,8 @@ output_file("patches_with_hole.html", title="patches_with_holes.py example")
 shapes = [
     {
         'description': 'A single patch with a hole',
-        'xs': [[1, 1.1, 2, 1.9], [1.8, 1.7, 1.2, 1.2]],
-        'ys': [[1, 2.0, 2, 1.0], [1.1, 1.9, 1.9, 1.2]],
+        'xs': [[[1, 1.1, 2, 1.9], [1.8, 1.7, 1.2, 1.2]]],
+        'ys': [[[1, 2.0, 2, 1.0], [1.1, 1.9, 1.9, 1.2]]],
         'color': 'PowderBlue',
     },
     {
@@ -27,14 +27,10 @@ shapes = [
     {
         'description': 'Two patches, one with a hole, one with no hole',
         'xs': [
-            [1, 1.1, 2, 1.9], [1.8, 1.7, 1.2, 1.2],
-            np.NaN,
-            [3, 3.1, 4, 3.9]
+            [[1, 1.1, 2, 1.9], [1.8, 1.7, 1.2, 1.2]], np.NaN, 3, 3.1, 4, 3.9
         ],
         'ys': [
-            [3, 4.0, 4, 3.0], [3.1, 3.9, 3.9, 3.2],
-            np.NaN,
-            [1, 2.0, 2, 1.0]
+            [[3, 4.0, 4, 3.0], [3.1, 3.9, 3.9, 3.2]], np.NaN, 1, 2.0, 2, 1.0
         ],
         'color': 'gold',
     },
