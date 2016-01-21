@@ -26,8 +26,8 @@ class TestExamples(TestCase):
     def test_nbexecuter(self):
         from . import nbexecuter
 
-        example_dir = join(dirname(__file__), pardir, pardir, 'examples')
-        example_nbconverted = join(example_dir, "glyphs", "glyph.ipynb")
+        test_dir = join(dirname(__file__), pardir, 'notebook')
+        example_nbconverted = join(test_dir, "glyph.ipynb")
 
         kernel_name = 'python2'
         pyver = os.environ.get('TRAVIS_PYTHON_VERSION')

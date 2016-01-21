@@ -2,7 +2,6 @@ module.exports = {
   editors:                  [require('./cell_editors'), 'Editor']
   formatters:               [require('./cell_formatters'), 'Formatter']
 
-  Component:                require './component'
   AbstractButton:           require './abstract_button'
   AbstractIcon:             require './abstract_icon'
   TableWidget:              require './table_widget'

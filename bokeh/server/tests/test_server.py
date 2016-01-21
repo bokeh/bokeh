@@ -15,7 +15,7 @@ from bokeh.application.handlers import Handler
 from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
-from bokeh.util.session_id import generate_session_id, check_session_id_signature
+from bokeh.util.session_id import check_session_id_signature
 
 from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
 
@@ -239,6 +239,11 @@ def extract_sessionid_from_json(html):
 def autoload_url(server):
     return url(server) + \
         "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
+
+def test_use_xheaders():
+    application = Application()
+    with ManagedServerLoop(application, use_xheaders=True) as server:
+        assert server._http.xheaders == True
 
 def test__autocreate_session_autoload():
     application = Application()

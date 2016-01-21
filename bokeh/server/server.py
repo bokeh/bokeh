@@ -83,7 +83,7 @@ class Server(object):
         tornado_kwargs['extra_websocket_origins'] = _create_hosts_whitelist(kwargs.get('allow_websocket_origin', None), self._port)
 
         self._tornado = BokehTornado(self._applications, self.prefix, **tornado_kwargs)
-        self._http = HTTPServer(self._tornado)
+        self._http = HTTPServer(self._tornado, xheaders=kwargs.get('use_xheaders', False))
         self._address = None
         if 'address' in kwargs:
             self._address = kwargs['address']

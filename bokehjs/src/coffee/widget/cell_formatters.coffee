@@ -1,9 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
 Numeral = require "numeral"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class CellFormatter extends HasProperties
+class CellFormatter extends Model
   formatterDefaults: {}
 
   format: (row, cell, value, columnDef, dataContext) ->

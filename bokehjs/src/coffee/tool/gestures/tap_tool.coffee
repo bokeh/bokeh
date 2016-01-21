@@ -26,13 +26,15 @@ class TapToolView extends SelectTool.View
       if callback? then callback.execute(ds)
 
     @_save_geometry(geometry, final, append)
+    @plot_view.push_state('tap', {selection: @plot_view.get_selection()})
+
     return null
 
 class TapTool extends SelectTool.Model
   default_view: TapToolView
   type: "TapTool"
   tool_name: "Tap"
-  icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAHWSURBVDiNbdJfaI9RGAfwz/7JNlLGjdxLyDU2u0EIx6uc7UIpF5pIU1OSGzfkUhvSiuSCvZbXGxeT0IxcSYlIiVxSJmqZzbj4nbafcer0nM75Ps/5Pt/vU2PWyouyAbsRsTJdv0SOGzELE9X4mlnJ7TiOtentV3qqS/EJTsUsDP9TIC/KvTiHZgyhwHP8Tkx2Ygd+4EDMwpXpAnlRtuJu+vFozMLF2a0lXAfOowkbYxYe1+RF2Yhb2IT9MQv9eVHOxTGsSwxGcCZm4WdelLuSHg8QatGZeh5KyQtxB/NwCIfRgtt5US6IWbiJgZTTWZ/UrsG1xLQHL2IWeqrYd+dF2YdunMRVBMRaLMckXiVwK3r/I0E/tqXzW0xgdX0VYCrFOjO2Va+PuJTO4/iE8Xq8RhuWqdj2FAdxpDo7ZmEUF/KiXIwxrMJUvYqibSrTdx2nUeZFeRaX8SFm4Suk5PcYiVnYAtU2bkBHzMJgXpTNOIHtqfdeLMUS3Mcz7GFmkNbjHr6jK2ZhsJp+XpQt6ec6jKIB86cLJNA+9GFOamsAb1Qc+qJic2PSagzv/iqQirQn6mvS1SQ+Y0WawkXJjUcxC5uhdpbSw9iKLjzEt7QnE6QpxWmb/wA4250STmTc7QAAAABJRU5ErkJggg=="
+  icon: "bk-tool-icon-tap-select"
   event_type: "tap"
   default_order: 10
 

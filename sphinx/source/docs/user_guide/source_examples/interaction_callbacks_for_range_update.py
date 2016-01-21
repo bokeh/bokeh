@@ -18,8 +18,8 @@ source = ColumnDataSource({'x': [], 'y': [], 'width': [], 'height': []})
 
 jscode="""
         var data = source.get('data');
-        var start = range.get('start');
-        var end = range.get('end');
+        var start = cb_obj.get('start');
+        var end = cb_obj.get('end');
         data['%s'] = [start + (end - start) / 2];
         data['%s'] = [end - start];
         source.trigger('change');
@@ -30,9 +30,9 @@ p1 = figure(title='Pan and Zoom Here', x_range=(0, 100), y_range=(0, 100),
 p1.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
 p1.x_range.callback = CustomJS(
-        args=dict(source=source, range=p1.x_range), code=jscode % ('x', 'width'))
+        args=dict(source=source), code=jscode % ('x', 'width'))
 p1.y_range.callback = CustomJS(
-        args=dict(source=source, range=p1.y_range), code=jscode % ('y', 'height'))
+        args=dict(source=source), code=jscode % ('y', 'height'))
 
 p2 = figure(title='See Zoom Window Here', x_range=(0, 100), y_range=(0, 100),
             tools='', plot_width=400, plot_height=400)

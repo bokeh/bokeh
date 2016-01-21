@@ -15,8 +15,14 @@ query = open(join(dirname(__file__), 'query.sql')).read()
 movies = psql.read_sql(query, conn)
 
 movies["color"] = np.where(movies["Oscars"] > 0, "orange", "grey")
+movies["alpha"] = np.where(movies["Oscars"] > 0, 0.9, 0.25)
 movies.fillna(0, inplace=True)  # just replace missing values with zero
 movies["revenue"] = movies.BoxOffice.apply(lambda x: '{:,d}'.format(int(x)))
+
+with open(join(dirname(__file__), "razzies-clean.csv")) as f:
+    razzies = f.read().splitlines()
+movies.loc[movies.imdbID.isin(razzies), "color"] = "purple"
+movies.loc[movies.imdbID.isin(razzies), "alpha"] = 0.9
 
 axis_map = {
     "Tomato Meter": "Meter",
@@ -50,7 +56,7 @@ hover = HoverTool(tooltips=[
 ])
 
 p = Figure(plot_height=600, plot_width=800, title="", toolbar_location=None, tools=[hover])
-p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha=0.4)
+p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
 
 def select_movies():
     genre_val = genre.value
@@ -86,6 +92,7 @@ def update(attrname, old, new):
         title=df["Title"],
         year=df["Year"],
         revenue=df["revenue"],
+        alpha=df["alpha"],
     )
 
 controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cast, x_axis, y_axis]

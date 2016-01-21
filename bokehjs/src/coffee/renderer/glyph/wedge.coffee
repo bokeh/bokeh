@@ -91,7 +91,7 @@ class Wedge extends Glyph.Model
   angles: ['start_angle', 'end_angle']
   fields: ['direction:direction']
 
-  display_defaults: ->
+  defaults: ->
     return _.extend {}, super(), {
       direction: 'anticlock'
     }
