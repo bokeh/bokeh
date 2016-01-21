@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../common/model"
+Model = require "../model/model"
 hittest = require "../common/hittest"
 
 class DataSource extends Model

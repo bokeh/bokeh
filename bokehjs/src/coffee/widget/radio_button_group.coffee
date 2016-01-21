@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
 ContinuumView = require "../common/continuum_view"
-Model = require "../common/model"
+Model = require "../model/model"
 
 class RadioButtonGroupView extends ContinuumView
   tagName: "div"

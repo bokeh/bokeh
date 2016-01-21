@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-Model = require "../../common/model"
+Model = require "../../model/model"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 wmts = require "./wmts_tile_source"

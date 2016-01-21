@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../../common/model"
+Model = require "../../model/model"
 ImagePool = require "./image_pool"
 tile_utils = require "./tile_utils"
 {logger} = require "../../common/logging"

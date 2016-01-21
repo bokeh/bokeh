@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../common/model"
+Model = require "../model/model"
 
 class Component extends Model
   type: "Component"

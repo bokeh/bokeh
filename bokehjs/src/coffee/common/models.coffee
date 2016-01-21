@@ -8,22 +8,23 @@ module.exports = {
   SelectionManager:         require './selection_manager'
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
-  Model:                    require './model'
 
   CustomJS:                 require '../callback/customjs'
   OpenURL:                  require '../callback/open_url'
+
+  BaseBox:                  require '../layout/basebox'
+  Layout:                   require '../layout/layout'
+  HBox:                     require '../layout/hbox'
+  VBox:                     require '../layout/vbox'
+  VBoxForm:                 require '../layout/vboxform'
 
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
   LinearMapper:             require '../mapper/linear_mapper'
   LogMapper:                require '../mapper/log_mapper'
 
-  Component:                require '../component/component'
-  BaseBox:                  require '../component/basebox'
-  Layout:                   require '../component/layout'
-  HBox:                     require '../component/hbox'
-  VBox:                     require '../component/vbox'
-  VBoxForm:                 require '../component/vboxform'
+  Model:                    require '../model/model'
+  Component:                require '../model/component'
 
   DataRange1d:              require '../range/data_range1d'
   FactorRange:              require '../range/factor_range'

@@ -2,7 +2,7 @@ _ = require "underscore"
 kiwi = require "kiwi"
 {Variable, Expression, Constraint, Operator } = kiwi
 {Eq, Le, Ge} = Operator
-Model = require "./model"
+Model = require "../model/model"
 Range1d = require "../range/range1d"
 
 

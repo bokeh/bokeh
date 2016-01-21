@@ -1,4 +1,4 @@
-Component = require "../component/component"
+Component = require "../model/component"
 
 class Widget extends Component.Model
   type: "Widget"

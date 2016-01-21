@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../common/model"
+Model = require "../model/model"
 {logger} = require "../common/logging"
 PlotWidget = require "../common/plot_widget"
 

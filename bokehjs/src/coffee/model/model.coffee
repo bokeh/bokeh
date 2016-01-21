@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasProperties = require "./has_properties"
+HasProperties = require "../common/has_properties"
 
 class Model extends HasProperties
   type: "Model"

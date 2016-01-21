@@ -1,4 +1,4 @@
-Model = require "../common/model"
+Model = require "../model/model"
 
 class LogMapper extends Model
   initialize: (attrs, options) ->
