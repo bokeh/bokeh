@@ -15,18 +15,32 @@ class LinearMapper extends Model
     return scale * x + offset
 
   v_map_to_target: (xs) ->
+    # Possible inputs are:
+    # [1, 2, 3]
+    # [1, 2, NaN, 3, 4]
+    # [[[1, 2], [3, 4]]]
+    # [1, 2, NaN, [[1, 2], [3, 4]]]
+    # Note: At the top level items are either a single value or an array of arrays
+
     [scale, offset] = @get('mapper_state')
-    if not _.isNumber(xs[0])
-      result = []
-      for arr, i in xs
-        r = new Float64Array(arr.length)
-        for x, j in xs[i]
-          r[j] = scale * x + offset
-        result[i] = r
-    else
-      result = new Float64Array(xs.length)
-      for x, idx in xs
-        result[idx] = scale * x + offset
+    result = []
+
+    for i in [0...xs.length]
+      if not _.isArray(xs[i])
+        # Handle the easy case where it's a number or a NaN
+        result[i] = scale * xs[i] + offset
+      else
+        # Alternatively the element must be an array of arrays
+        if _.every(xs[i], _.isArray)
+          outer = []
+          for j in [0...xs[i].length]
+            inner = []
+            for k in [0...xs[i][j].length]
+              inner[k] = scale * xs[i][j][k] + offset
+            outer[j] = inner
+          result[i] = outer
+        else
+          throw new Error('Invalid data structure passed to v_map_to_target: ' + xs[i])
     return result
 
   map_from_target: (xprime) ->
