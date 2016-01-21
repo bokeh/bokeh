@@ -68,8 +68,7 @@ used by a wider audience (perhaps on the internet, or perhaps on an
 internal company network). The Bokeh Server is also well-suited to this
 usage, and you will want to first consult the sections:
 
-* :ref:`userguide_server_applications` - how to create Bokeh Applications, and then refer to the
-section
+* :ref:`userguide_server_applications` - how to create Bokeh Applications, and then refer to the section
 * :ref:`userguide_server_deployment` - how to deploy the Bokeh server with your application.
 
 
@@ -355,10 +354,6 @@ The full set of files that Bokeh server knows about is:
        +---main.py
        +---server_lifecycle.py
        +---theme.yaml
-
-See below for information about :ref:`userguide_server_applications_themes`
-and :ref:`userguide_server_applications_lifecycle` for details on the other
-files.
 
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
