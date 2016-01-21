@@ -1,6 +1,6 @@
 _ = require "underscore"
 {logger} = require "../../common/logging"
-Model = require "../../models/model"
+Model = require "../../common/model"
 PlotWidget = require "../../common/plot_widget"
 FactorRange = require "../../range/factor_range"
 RemoteDataSource = require "../../source/remote_data_source"

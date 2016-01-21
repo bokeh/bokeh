@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../models/model"
+Model = require "../common/model"
 
 class LinearColorMapper extends Model
 
