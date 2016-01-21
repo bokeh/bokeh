@@ -72,22 +72,6 @@ class TestDialog(unittest.TestCase):
         self.assertEqual(dialog.content, "")
         self.assertEqual(dialog.buttons, [])
 
-class TestLayout(unittest.TestCase):
-
-    def setUp(self):
-        from bokeh.models.widgets.layouts import Layout
-        self.layoutCls = Layout
-
-    def test_expected_props(self):
-        expected_properties = set(['width', 'height'])
-        actual_properties = get_prop_set(self.layoutCls)
-        self.assertTrue(expected_properties.issubset(actual_properties))
-
-    def test_props_defaults(self):
-        layout = self.layoutCls()
-        self.assertEqual(layout.width, None)
-        self.assertEqual(layout.height, None)
-
 
 if __name__ == "__main__":
     unittest.main()
