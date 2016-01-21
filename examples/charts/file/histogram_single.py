@@ -6,6 +6,6 @@ df.sort('cyl', inplace=True)
 hist = Histogram(df, values='hp', color='cyl',
                  title="HP Distribution by Cylinder Count", legend='top_right')
 
-output_file("histogram_single.html")
+output_file("histogram_single.html", title="histogram_single.py example")
 
 show(hist)

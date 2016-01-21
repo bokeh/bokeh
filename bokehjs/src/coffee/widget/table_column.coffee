@@ -1,7 +1,9 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
+CellEditors = require "./cell_formatters"
+CellFormatters = require "./cell_formatters"
 
-class TableColumn extends HasProperties
+class TableColumn extends Model
   type: 'TableColumn'
   default_view: null
 
@@ -10,8 +12,8 @@ class TableColumn extends HasProperties
       field: null
       title: null
       width: 300
-      formatter: null
-      editor: null
+      formatter: new CellFormatters.String.Model()
+      editor: new CellEditors.String.Model()
       sortable: true
       default_sort: "ascending"
     }

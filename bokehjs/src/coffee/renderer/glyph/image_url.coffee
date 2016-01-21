@@ -77,7 +77,7 @@ class ImageURLView extends Glyph.View
     if isNaN(sw[i]) then sw[i] = image.width
     if isNaN(sh[i]) then sh[i] = image.height
 
-    anchor = @mget('anchor') or "top_left"
+    anchor = @mget('anchor')
     [sx, sy] = @_final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
 
     ctx.save()
@@ -104,7 +104,9 @@ class ImageURL extends Glyph.Model
 
   defaults: ->
     return _.extend {}, super(), {
+      anchor: "top_left"
       angle: 0
+      dilate: false
       retry_attempts: 0
       retry_timeout: 0
       global_alpha: 1.0

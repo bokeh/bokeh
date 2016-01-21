@@ -1,6 +1,6 @@
 _ = require "underscore"
-BoxSelection = require "../../renderer/overlay/box_selection"
 SelectTool = require "./select_tool"
+BoxAnnotation = require "../../renderer/annotation/box_annotation"
 
 class BoxSelectToolView extends SelectTool.View
 
@@ -22,7 +22,7 @@ class BoxSelectToolView extends SelectTool.View
     dims = @mget('dimensions')
 
     [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-    @mget('overlay').set('data', {vxlim: vxlim, vylim: vylim})
+    @mget('overlay').update({left: vxlim[0], right: vxlim[1], top: vylim[1], bottom: vylim[0]})
 
     if @mget('select_every_mousemove')
       append = e.srcEvent.shiftKey ? false
@@ -30,7 +30,7 @@ class BoxSelectToolView extends SelectTool.View
 
     return null
 
-   _pan_end: (e) ->
+  _pan_end: (e) ->
     canvas = @plot_view.canvas
     curpoint = [
       canvas.sx_to_vx(e.bokeh.sx)
@@ -43,9 +43,12 @@ class BoxSelectToolView extends SelectTool.View
     append = e.srcEvent.shiftKey ? false
     @_select(vxlim, vylim, true, append)
 
-    @mget('overlay').set('data', {})
+    @mget('overlay').update({left: null, right: null, top: null, bottom: null})
 
     @_baseboint = null
+
+    @plot_view.push_state('box_select', {selection: @plot_view.get_selection()})
+
     return null
 
   _select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
@@ -94,13 +97,13 @@ class BoxSelectTool extends SelectTool.Model
   default_view: BoxSelectToolView
   type: "BoxSelectTool"
   tool_name: "Box Select"
-  icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAgCAYAAAB6kdqOAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpBODVDNDBCRjIwQjMxMUU0ODREQUYzNzM5QTM2MjBCRSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpBODVDNDBDMDIwQjMxMUU0ODREQUYzNzM5QTM2MjBCRSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkE4NUM0MEJEMjBCMzExRTQ4NERBRjM3MzlBMzYyMEJFIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkE4NUM0MEJFMjBCMzExRTQ4NERBRjM3MzlBMzYyMEJFIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+hdQ7dQAAAJdJREFUeNpiXLhs5X8GBPgIxAJQNjZxfiD+wIAKGCkUZ0SWZGIYZIAF3YVoPkEHH6kojhUMyhD6jydEaAlgaWnwh9BAgf9DKpfxDxYHjeay0Vw2bHMZw2guG81lwyXKRnMZWlt98JdDTFAX/x9NQwPkIH6kGMAVEyjyo7lstC4jouc69Moh9L42rlyBTZyYXDS00xBAgAEAqsguPe03+cYAAAAASUVORK5CYII="
+  icon: "bk-tool-icon-box-select"
   event_type: "pan"
   default_order: 30
 
   initialize: (attrs, options) ->
     super(attrs, options)
-
+    @get('overlay').set('silent_update', true, {silent: true})
     @register_property('tooltip', () ->
         @_get_dim_tooltip(
           @get("tool_name"),
@@ -109,16 +112,25 @@ class BoxSelectTool extends SelectTool.Model
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
 
-    @set('overlay', new BoxSelection.Model)
-    plot_renderers = @get('plot').get('renderers')
-    plot_renderers.push(@get('overlay'))
-    @get('plot').set('renderers', plot_renderers)
-
   defaults: () ->
     return _.extend({}, super(), {
       dimensions: ["width", "height"]
       select_every_mousemove: false
       callback: null
+      overlay: new BoxAnnotation.Model({
+        level: "overlay"
+        render_mode: "css"
+        top_units: "screen"
+        left_units: "screen"
+        bottom_units: "screen"
+        right_units: "screen"
+        fill_color: "lightgrey"
+        fill_alpha: 0.5
+        line_color: "black"
+        line_alpha: 1.0
+        line_width: 2
+        line_dash: [4, 4]
+      })
     })
 
 module.exports =

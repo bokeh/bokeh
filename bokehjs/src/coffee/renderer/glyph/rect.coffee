@@ -26,6 +26,7 @@ class RectView extends Glyph.View
       @sh = @height
 
   _render: (ctx, indices, {sx, sy, sw, sh, angle}) ->
+    debugger;
     if @visuals.fill.do_fill
       for i in indices
         if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+angle[i])
@@ -141,7 +142,7 @@ class Rect extends Glyph.Model
   distances: ['width', 'height']
   angles: ['angle']
 
-  display_defaults: ->
+  defaults: ->
     return _.extend {}, super(), {
       angle: 0.0
       dilate: false

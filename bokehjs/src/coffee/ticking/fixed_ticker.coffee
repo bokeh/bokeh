@@ -1,7 +1,7 @@
 _ = require "underscore"
-AbstractTicker = require "./abstract_ticker"
+ContinuousTicker = require "./continuous_ticker"
 
-class FixedTicker extends AbstractTicker.Model
+class FixedTicker extends ContinuousTicker.Model
   type: 'FixedTicker'
 
   get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->

@@ -12,8 +12,7 @@ from bokeh.util.future import with_metaclass
 def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
-        ResetTool)
+        BoxSelectTool, ResizeTool, PreviewSaveTool, ResetTool)
     from bokeh.models.widgets.layouts import VBox
     from bokeh.models.glyphs import Line
 
@@ -37,8 +36,6 @@ def large_plot(n):
         wheel_zoom = WheelZoomTool(plot=plot)
         box_zoom = BoxZoomTool(plot=plot)
         box_select = BoxSelectTool(plot=plot)
-        box_selection = BoxSelectionOverlay(tool=box_select)
-        plot.renderers.append(box_selection)
         resize = ResizeTool(plot=plot)
         previewsave = PreviewSaveTool(plot=plot)
         reset = ResetTool(plot=plot)
@@ -46,7 +43,7 @@ def large_plot(n):
         plot.tools.extend(tools)
         vbox.children.append(plot)
         objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid,
-                        renderer, glyph, plot.tool_events, box_selection] +
+                        renderer, glyph, plot.tool_events, box_zoom.overlay, box_select.overlay] +
                         tickers + tools)
 
     return vbox, objects

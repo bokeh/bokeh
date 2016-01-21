@@ -78,6 +78,17 @@ that the server is configured to listen on (by default: {DEFAULT_PORT}).
 Also note that the host whitelist applies to all request handlers,
 including any extra ones added to extend the Bokeh server.
 
+By default, cross site connections to the Bokeh server websocket are not
+allowed. You can enable websocket connections originating from additional
+hosts by specifying them with the ``--allow-websocket-origin`` option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --allow-websocket-origin foo.com:8081
+
+It is possible to specify multiple allowed websocket origins by adding
+the ``--allow-websocket-origin`` option multiple times.
+
 The Bokeh server can also add an optional prefix to all URL paths.
 This can often be useful in conjunction with "reverse proxy" setups.
 
@@ -92,14 +103,131 @@ Then the application will be served under the following URL:
     http://localhost:{DEFAULT_PORT}/foobar/app_script
 
 If needed, Bokeh server can send keep-alive pings at a fixed interval.
-To configure this feature, set the --keep-alive option:
+To configure this feature, set the ``--keep-alive`` option:
 
 .. code-block:: sh
 
-    bokeh server app_script.py --keep-alive 10000
+    bokeh serve app_script.py --keep-alive 10000
 
 The value is specified in milliseconds. The default keep-alive interval
 is 37 seconds. Give a value of 0 to disable keep-alive pings.
+
+To control how often statistic logs are written, set the
+--stats-log-frequency option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --stats-log-frequency 30000
+
+The value is specified in milliseconds. The default interval for
+logging stats is 15 seconds. Only positive integer values are accepted.
+
+To have the Bokeh server override the remote IP and URI scheme/protocol for
+all requests with ``X-Real-Ip``, ``X-Forwarded-For``, ``X-Scheme``,
+``X-Forwarded-Proto``  headers (if they are provided), set the
+``--use-xheaders`` option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --use-xheaders
+
+This is typically needed when running a Bokeh server behind a reverse proxy
+that is SSL-terminated.
+
+.. warning::
+    It is not advised to set this option on a Bokeh server directly facing
+    the Internet.
+
+Session ID Options
+~~~~~~~~~~~~~~~~~~
+
+Typically, each browser tab connected to a Bokeh server will have
+its own session ID. When the server generates an ID, it will make
+it cryptographically unguessable. This keeps users from accessing
+one another's sessions.
+
+To control who can use a Bokeh application, the server can sign
+sessions with a secret key and reject "made up" session
+names. There are three modes, controlled by the ``--session-ids``
+argument:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --session-ids=signed
+
+The available modes are: {SESSION_ID_MODES}
+
+In ``unsigned`` mode, the server will accept any session ID
+provided to it in the URL. For example,
+``http://localhost/app_script?bokeh-session-id=foo`` will create a
+session ``foo``. In ``unsigned`` mode, if the session ID isn't
+provided with ``?bokeh-session-id=`` in the URL, the server will
+still generate a cryptographically-unguessable ID. However, the
+server allows clients to create guessable or deliberately-shared
+sessions if they want to.
+
+``unsigned`` mode is most useful when the server is running
+locally for development, for example you can have multiple
+processes access a fixed session name such as
+``default``. ``unsigned`` mode is also convenient because there's
+no need to generate or configure a secret key.
+
+In ``signed`` mode, the session ID must be in a special format and
+signed with a secret key. Attempts to use the application with an
+invalid session ID will fail, but if no ``?bokeh-session-id=``
+parameter is provided, the server will generate a fresh, signed
+session ID. The result of ``signed`` mode is that only secure
+session IDs are allowed but anyone can connect to the server.
+
+In ``external-signed`` mode, the session ID must be signed but the
+server itself won't generate a session ID; the
+``?bokeh-session-id=`` parameter will be required. To use this
+mode, you would need some sort of external process (such as
+another web app) which would use the
+``bokeh.util.session_id.generate_session_id()`` function to create
+valid session IDs. The external process and the Bokeh server must
+share the same ``BOKEH_SECRET_KEY`` environment variable.
+
+``external-signed`` mode is useful if you want another process to
+authenticate access to the Bokeh server; if someone is permitted
+to use the Bokeh application, you would generate a session ID for
+them, then redirect them to the Bokeh server with that valid
+session ID. If you don't generate a session ID for someone, then
+they can't load the app from the Bokeh server.
+
+In both ``signed`` and ``external-signed`` mode, the secret key
+must be kept secret; anyone with the key can generate a valid
+session ID.
+
+The secret key should be set in a ``BOKEH_SECRET_KEY`` environment
+variable and should be a cryptographically random string with at
+least 256 bits (32 bytes) of entropy.  You can generate a new
+secret key with the ``bokeh secret`` command.
+
+Session Expiration Options
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To configure how often to check for unused sessions. set the
+--check-unused-sessions option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --check-unused-sessions 10000
+
+The value is specified in milliseconds. The default interval for
+checking for unused sessions is 17 seconds. Only positive integer
+values are accepted.
+
+To configure how often unused sessions last. set the
+--unused-session-lifetime option:
+
+.. code-block:: sh
+
+    bokeh serve app_script.py --unused-session-lifetime 60000
+
+The value is specified in milliseconds. The default lifetime interval
+for unused sessions is 30 minutes. Only positive integer values are
+accepted.
 
 Development Options
 ~~~~~~~~~~~~~~~~~~~
@@ -108,22 +236,9 @@ The logging level can be controlled by the ``--log-level`` argument:
 
 .. code-block:: sh
 
-    bokeh serve app_script.py -log-level=debug
+    bokeh serve app_script.py --log-level=debug
 
 The available log levels are: {LOGLEVELS}
-
-*** DEVELOP MODE BELOW NOT YET IMPLEMENTED ***
-
-Additionally, the Bokeh server supports a "develop" mode, which will watch
-application sources and automatically reload the application when any of them
-change. To use this mode, add the ``--develop`` argument on the command line:
-
-.. code-block:: sh
-
-    bokeh serve app_script.py --develop
-
-.. note::
-    The ``--develop`` mode option should not be used in "production" usage.
 
 '''
 from __future__ import absolute_import
@@ -135,15 +250,18 @@ from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.server import Server
 from bokeh.util.string import nice_join
+from bokeh.settings import settings
 
 from ..subcommand import Subcommand
-from ..util import build_single_handler_applications
+from ..util import build_single_handler_applications, die
 
 LOGLEVELS = ('debug', 'info', 'warning', 'error', 'critical')
+SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
 
 __doc__ = __doc__.format(
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
-    LOGLEVELS=nice_join(LOGLEVELS)
+    LOGLEVELS=nice_join(LOGLEVELS),
+    SESSION_ID_MODES=nice_join(SESSION_ID_MODES)
 )
 
 class Serve(Subcommand):
@@ -188,9 +306,16 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--allow-websocket-origin', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames which may connect to the Bokeh websocket",
+        )),
+
         ('--host', dict(
             metavar='HOST[:PORT]',
-            nargs='*',
+            action='append',
             type=str,
             help="Public hostnames to allow in requests",
         )),
@@ -209,12 +334,46 @@ class Serve(Subcommand):
             default=None,
         )),
 
+        ('--check-unused-sessions', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to check for unused sessions",
+            default=None,
+        )),
+
+        ('--unused-session-lifetime', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How long unused sessions last",
+            default=None,
+        )),
+
+        ('--stats-log-frequency', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to log stats",
+            default=None,
+        )),
+
+        ('--use-xheaders', dict(
+            action='store_true',
+            help="Prefer X-headers for IP/protocol information",
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
             default = 'debug',
             choices = LOGLEVELS,
             help    = "One of: %s" % nice_join(LOGLEVELS),
+        )),
+
+        ('--session-ids', dict(
+            metavar='MODE',
+            action  = 'store',
+            default = None,
+            choices = SESSION_ID_MODES,
+            help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
 
     )
@@ -237,12 +396,55 @@ class Serve(Subcommand):
             # rename to be compatible with Server
             args.keep_alive_milliseconds = args.keep_alive
 
+        if args.check_unused_sessions is not None:
+            log.info("Check for unused sessions every %d milliseconds", args.check_unused_sessions)
+            # rename to be compatible with Server
+            args.check_unused_sessions_milliseconds = args.check_unused_sessions
+
+        if args.unused_session_lifetime is not None:
+            log.info("Unused sessions last for %d milliseconds", args.unused_session_lifetime)
+            # rename to be compatible with Server
+            args.unused_session_lifetime_milliseconds = args.unused_session_lifetime
+
+        if args.stats_log_frequency is not None:
+            log.info("Log statistics every %d milliseconds", args.stats_log_frequency)
+            # rename to be compatible with Server
+            args.stats_log_frequency_milliseconds = args.stats_log_frequency
+
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
+                                                              'allow_websocket_origin',
                                                               'host',
                                                               'prefix',
-                                                              'keep_alive_milliseconds']
+                                                              'develop',
+                                                              'keep_alive_milliseconds',
+                                                              'check_unused_sessions_milliseconds',
+                                                              'unused_session_lifetime_milliseconds',
+                                                              'stats_log_frequency_milliseconds',
+                                                              'use_xheaders',
+                                                            ]
                           if getattr(args, key, None) is not None }
+
+        server_kwargs['sign_sessions'] = settings.sign_sessions()
+        server_kwargs['secret_key'] = settings.secret_key_bytes()
+        server_kwargs['generate_session_ids'] = True
+        if args.session_ids is None:
+            # no --session-ids means use the env vars
+            pass
+        elif args.session_ids == 'unsigned':
+            server_kwargs['sign_sessions'] = False
+        elif args.session_ids == 'signed':
+            server_kwargs['sign_sessions'] = True
+        elif args.session_ids == 'external-signed':
+            server_kwargs['sign_sessions'] = True
+            server_kwargs['generate_session_ids'] = False
+        else:
+            raise RuntimeError("argparse should have filtered out --session-ids mode " +
+                               args.session_ids)
+
+        if server_kwargs['sign_sessions'] and not server_kwargs['secret_key']:
+            die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
+                "the `bokeh secret` command can be used to generate a new key.")
 
         server = Server(applications, **server_kwargs)
 

@@ -87,7 +87,7 @@ pan, resize, save, and other tools is simple and straightforward:
     show(p)
 
 When you execute this script, you will see that a new output file
-``"lines.html"`` is created, and that a browser automaticaly opens a new tab
+``"lines.html"`` is created, and that a browser automatically opens a new tab
 to display it. (For presentation purposes we have included the plot output
 directly inline in this document.)
 
@@ -301,7 +301,7 @@ for in this example:
     # create a new plot with the tools above, and explicit ranges
     p = figure(tools=TOOLS, x_range=(0,100), y_range=(0,100))
 
-    # add a circle renderer with vecorized colors and sizes
+    # add a circle renderer with vectorized colors and sizes
     p.circle(x,y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
     # show the results

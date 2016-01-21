@@ -31,5 +31,14 @@ class Handler(object):
         """Traceback or other details if the handler failed"""
         return self._error_detail
 
-    # TODO (havocp) add a way for handlers to notify when a reload
-    # is required (due to file change or whatever)
+    def on_server_loaded(self, server_context):
+        pass
+
+    def on_server_unloaded(self, server_context):
+        pass
+
+    def on_session_created(self, session_context):
+        pass
+
+    def on_session_destroyed(self, session_context):
+        pass

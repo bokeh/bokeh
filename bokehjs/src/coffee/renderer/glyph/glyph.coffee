@@ -3,7 +3,7 @@ rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
 {arrayMax} = require "../../common/mathutils"
-HasParent = require "../../common/has_parent"
+Model = require "../../models/model"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
@@ -14,6 +14,8 @@ class GlyphView extends ContinuumView
 
   initialize: (options) ->
     super(options)
+
+    @model.glyph_view = @
 
     @renderer = options.renderer
 
@@ -44,7 +46,7 @@ class GlyphView extends ContinuumView
           return
 
       @_render(ctx, indices, data)
-  
+
   _render_gl: (ctx, indices, mainglyph) ->
     # Get transform
     wx = wy = 1  # Weights to scale our vectors
@@ -56,18 +58,18 @@ class GlyphView extends ContinuumView
     # Test how linear it is
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 ||
         Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)
-      return false 
-    
-    trans = 
-        width: ctx.glcanvas.width, height: ctx.glcanvas.height, 
+      return false
+
+    trans =
+        width: ctx.glcanvas.width, height: ctx.glcanvas.height,
         dx: dx, dy: dy, sx: (dx[1]-dx[0])/wx, sy: (dy[1]-dy[0])/wy
     @glglyph.draw(indices, mainglyph, trans)
     return true  # success
 
   map_data: () ->
-    
+
     # todo: if using gl, skip this (when is this called?)
-    
+
     # map all the coordinate fields
     for [xname, yname] in @model.coords
       sxname = "s#{xname}"
@@ -136,7 +138,7 @@ class GlyphView extends ContinuumView
     # finally, warm the visual properties cache
     for name, prop of @visuals
       prop.warm_cache(source)
-    
+
     if @glglyph?
       @glglyph.set_visuals_changed()
 
@@ -264,7 +266,7 @@ class GlyphView extends ContinuumView
       @visuals.line.set_vectorize(ctx, reference_point)
       ctx.stroke()
 
-class Glyph extends HasParent
+class Glyph extends Model
 
   # Most glyphs have line and fill props. Override this in subclasses
   # that need to define a different set of visual properties
@@ -309,12 +311,9 @@ class Glyph extends HasParent
   }
 
   defaults: ->
-    return _.extend {}, super(), {
+    result = _.extend {}, super(), {
       visible: true
     }
-
-  display_defaults: ->
-    result = {}
     for prop in @visuals
       switch prop
         when 'line' then defaults = @line_defaults
@@ -323,7 +322,7 @@ class Glyph extends HasParent
         else
           logger.warn("unknown visual property type '#{prop}'")
           continue
-      result = _.extend result, super(), defaults
+      result = _.extend result, defaults
     return result
 
 module.exports =

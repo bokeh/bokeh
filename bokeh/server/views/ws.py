@@ -8,6 +8,8 @@ log = logging.getLogger(__name__)
 
 import codecs
 
+from six.moves.urllib.parse import urlparse
+
 from tornado import gen, locks
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.concurrent import Future
@@ -40,11 +42,20 @@ class WSHandler(WebSocketHandler):
         pass
 
     def check_origin(self, origin):
-        # Allow ANY site to open our websocket...
-        # this is to make the autoload embed work.
-        # Potentially, we should limit this somehow
-        # or make it configurable.
-        return True
+        from ..tornado import check_whitelist
+        parsed_origin = urlparse(origin)
+        origin_host = parsed_origin.netloc.lower()
+
+        allowed_hosts = self.application.websocket_origins
+
+        allowed = check_whitelist(origin_host, allowed_hosts)
+        if allowed:
+            return True
+        else:
+            log.error("Refusing websocket connection from Origin '%s'; \
+                      use --allow-websocket-origin=%s to permit this; currently we allow origins %r",
+                      origin, origin_host, allowed_hosts)
+            return False
 
     def open(self):
         ''' Initialize a connection to a client.
@@ -62,20 +73,36 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise ProtocolError("No bokeh-session-id specified")
 
-        if not check_session_id_signature(session_id):
+        if not check_session_id_signature(session_id,
+                                          signed=self.application.sign_sessions,
+                                          secret_key=self.application.secret_key):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
 
+        def on_fully_opened(future):
+            e = future.exception()
+            if e is not None:
+                # this isn't really an error (unless we have a
+                # bug), it just means a client disconnected
+                # immediately, most likely.
+                log.debug("Failed to fully open connection %r", e)
+
+        future = self._async_open(session_id, proto_version)
+        self.application.io_loop.add_future(future,
+                                            on_fully_opened)
+
+    @gen.coroutine
+    def _async_open(self, session_id, proto_version):
         try:
-            self.application_context.create_session_if_needed(session_id)
+            yield self.application_context.create_session_if_needed(session_id)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol(proto_version)
             self.receiver = Receiver(protocol)
-            log.debug("Receiver created created for %r", protocol)
+            log.debug("Receiver created for %r", protocol)
 
             self.handler = ServerHandler()
-            log.debug("ServerHandler created created for %r", protocol)
+            log.debug("ServerHandler created for %r", protocol)
 
             self.connection = self.application.new_connection(protocol, self, self.application_context, session)
             log.info("ServerConnection created")
@@ -85,16 +112,10 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise e
 
-        def on_ack_sent(future):
-            e = future.exception()
-            if e is not None:
-                # this isn't really an error (unless we have a
-                # bug), it just means a client disconnected
-                # immediately, most likely.
-                log.debug("Failed to send ack %r", e)
-
         msg = self.connection.protocol.create('ACK')
-        self.application.io_loop.add_future(self.send_message(msg), on_ack_sent)
+        yield self.send_message(msg)
+
+        raise gen.Return(None)
 
     @gen.coroutine
     def on_message(self, fragment):
@@ -228,4 +249,3 @@ class WSHandler(WebSocketHandler):
     def _protocol_error(self, message):
         log.error("Bokeh Server protocol error: %s, closing connection", message)
         self.close(10001, message)
-

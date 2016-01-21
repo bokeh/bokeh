@@ -38,7 +38,7 @@ class Column(Array):
         if isinstance(value, pd.Series):
             arr = value.values
         else:
-            arr = value
+            arr = pd.Series(value).values
 
         trans_array = super(Column, self).transform(arr)
         try:

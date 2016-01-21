@@ -2,7 +2,7 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../utils"
 
-HasProperties = utils.require "common/has_properties"
+Model = utils.require "models/model"
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "common/document"
 base = utils.require "common/base"
 Collection = utils.require "common/collection"
@@ -16,7 +16,7 @@ register_test_collection = (name, model) ->
   C = make_collection(model)
   base.collection_overrides[name] = C
 
-class AnotherModel extends HasProperties
+class AnotherModel extends Model
   type: 'AnotherModel'
   defaults: () ->
     return _.extend {}, super(), {
@@ -25,7 +25,7 @@ class AnotherModel extends HasProperties
 
 register_test_collection('AnotherModel', AnotherModel)
 
-class SomeModel extends HasProperties
+class SomeModel extends Model
   type: 'SomeModel'
   defaults: () ->
     return _.extend {}, super(), {
@@ -35,7 +35,7 @@ class SomeModel extends HasProperties
 
 register_test_collection('SomeModel', SomeModel)
 
-class SomeModelWithChildren extends HasProperties
+class SomeModelWithChildren extends Model
   type: 'SomeModelWithChildren'
   defaults: () ->
     return _.extend {}, super(), {
@@ -44,7 +44,7 @@ class SomeModelWithChildren extends HasProperties
 
 register_test_collection('SomeModelWithChildren', SomeModelWithChildren)
 
-class ModelWithConstructTimeChanges extends HasProperties
+class ModelWithConstructTimeChanges extends Model
   type: 'ModelWithConstructTimeChanges'
 
   initialize: (attributes, options) ->
@@ -60,7 +60,7 @@ class ModelWithConstructTimeChanges extends HasProperties
 
 register_test_collection('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
 
-class ComplicatedModelWithConstructTimeChanges extends HasProperties
+class ComplicatedModelWithConstructTimeChanges extends Model
   type: 'ComplicatedModelWithConstructTimeChanges'
 
   initialize: (attributes, options) ->
@@ -271,6 +271,31 @@ describe "Document", ->
     root1.set('child', child1)
     expect(_.size(d._all_models)).to.equal 3
 
+  it "can have all_models with cycles through lists", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    expect(_.size(d._all_models)).to.equal 0
+
+    root1 = new SomeModelWithChildren()
+    root2 = new SomeModelWithChildren()
+    child1 = new SomeModelWithChildren()
+    root1.set('children', [child1])
+    root2.set('children', [child1])
+    child1.set('children', [root1])
+    d.add_root(root1)
+    d.add_root(root2)
+    expect(d.roots().length).to.equal 2
+    expect(_.size(d._all_models)).to.equal 3
+
+    root1.set('children', [])
+    expect(_.size(d._all_models)).to.equal 3
+
+    root2.set('children', [])
+    expect(_.size(d._all_models)).to.equal 2
+
+    root1.set('children', [child1])
+    expect(_.size(d._all_models)).to.equal 3
+
   it "can notify on changes", ->
     d = new Document()
     expect(d.roots().length).to.equal 0
@@ -402,6 +427,38 @@ describe "Document", ->
     expect(copy.roots().length).to.equal 1
     expect(copy.roots()[0]).to.be.an.instanceof(SomeModel)
     expect(copy.title()).to.equal "Foo"
+
+  it "can serialize excluding defaults", ->
+    d = new Document()
+    expect(d.roots().length).to.equal 0
+    root1 = new SomeModel()
+    root1.set('name', 'bar')
+    d.add_root(root1)
+    expect(d.roots().length).to.equal 1
+
+    json = d.to_json_string(include_defaults=false)
+    parsed = JSON.parse(json)
+    copy = Document.from_json_string(json)
+
+    expect(copy.roots().length).to.equal 1
+    expect(copy.roots()[0]).to.be.an.instanceof(SomeModel)
+    expect(copy.roots()[0].get('name')).to.be.equal 'bar'
+
+    # be sure defaults were NOT included
+    attrs = parsed['roots']['references'][0]['attributes']
+    expect('tags' of attrs).to.be.equal false
+    expect('foo' of attrs).to.be.equal false
+    expect('child' of attrs).to.be.equal false
+    # this should be included, non-default
+    expect('name' of attrs).to.be.equal true
+
+    # double-check different results if we do include_defaults
+    parsed_with_defaults = JSON.parse(d.to_json_string(include_defaults=true))
+    attrs = parsed_with_defaults['roots']['references'][0]['attributes']
+    #expect('tags' of attrs).to.be.equal true
+    expect('foo' of attrs).to.be.equal true
+    expect('child' of attrs).to.be.equal true
+    expect('name' of attrs).to.be.equal true
 
   # TODO copy the following tests from test_document.py here
   # TODO(havocp) test_serialization_more_models
@@ -544,36 +601,54 @@ describe "Document", ->
     expect(root1.get('child')).to.be.an.instanceof(AnotherModel)
 
   it "computes complicated patch for models added during construction", ->
+    # this test simulates how from_json has to compute changes
+    # to send back to the server, when the client side makes
+    # changes while constructing the parsed document.
     d = new Document()
     expect(d.roots().length).to.equal 0
     expect(Object.keys(d._all_models).length).to.equal 0
 
     root1 = new ComplicatedModelWithConstructTimeChanges()
     # change it so it doesn't match what initialize() does
-    for k of root1.attributes
-      delete root1.attributes[k]
+    serialized_values = {
+      'name' : 'foo',
+      'tags' : ['bar'],
+      'list_prop' : [new AnotherModel({ 'bar' : 42 })],
+      'dict_prop' : { foo: new AnotherModel({ 'bar' : 43 }) },
+      'obj_prop' : new ModelWithConstructTimeChanges(),
+      'dist_of_list_prop' : { foo: [new AnotherModel({ 'bar' : 44 })] }
+      }
+    root1.set(serialized_values)
+
     d.add_root(root1)
 
     json = d.to_json_string()
+    # in computing this, we will construct a
+    # ComplicatedModelWithConstructTimeChanges which will set
+    # stuff in initialize(), overwriting serialized_values above.
     copy = Document.from_json_string(json)
 
     patch = Document._compute_patch_since_json(JSON.parse(json), copy)
 
-    expect(root1.get('name')).to.equal undefined
-    expect(root1.get('list_prop')).to.equal undefined
-    expect(root1.get('dict_prop')).to.equal undefined
-    expect(root1.get('obj_prop')).to.equal undefined
-    expect(root1.get('dict_of_list_prop')).to.equal undefined
-    expect(root1.get('name')).to.equal undefined
-    expect(root1.get('tags')).to.equal undefined
+    # document should have the values we set above
+    for own key, value of serialized_values
+      expect(root1.get(key)).to.deep.equal value
+    expect(root1.get('list_prop')[0].get('bar')).to.equal 42
+    expect(root1.get('dict_prop')['foo'].get('bar')).to.equal 43
 
-    expect(patch.events.length).to.equal 6
+    expect(patch.events.length).to.equal 4
 
+    # but when we apply the patch, initialize() should override
+    # what we had in the json only for the four things that
+    # ComplicatedModelWithConstructTimeChanges changes (not name
+    # and tags)
     d.apply_json_patch(patch)
-    expect(root1.get('name')).to.equal null
-    expect(root1.get('tags').length).to.equal 0
+    expect(root1.get('name')).to.equal 'foo'
+    expect(root1.get('tags')).to.deep.equal ['bar']
     expect(root1.get('list_prop').length).to.equal 1
+    expect(root1.get('list_prop')[0].get('bar')).to.equal 1
     expect(Object.keys(root1.get('dict_prop')).length).to.equal 1
+    expect(root1.get('dict_prop')['foo'].get('bar')).to.equal 1
     expect(root1.get('obj_prop')).to.be.an.instanceof(ModelWithConstructTimeChanges)
     expect(root1.get('obj_prop').get('child')).to.be.an.instanceof(AnotherModel)
     expect(Object.keys(root1.get('dict_of_list_prop')).length).to.equal 1

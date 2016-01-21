@@ -9,8 +9,9 @@ widget_defaults = utils.require "widget/defaults"
 HasProperties = utils.require "common/has_properties"
 properties = utils.require "common/properties"
 Bokeh = utils.require "main"
-# for side-effect of loading widgets into locations, as well as to get 'widget_locations'
-widget_locations = (utils.require "widget/main").locations
+
+widget_locations = utils.require "widget/main"
+Collections.register_locations(widget_locations)
 
 all_view_model_names = []
 all_view_model_names = all_view_model_names.concat(core_defaults.all_view_model_names())
@@ -33,11 +34,39 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   python_missing = []
   coffee_missing = []
   for k, v of coffee_defaults
+
+    # special case for date picker, default is "now"
+    if name == 'DatePicker' and k == 'value'
+      continue
+
     if k == 'id'
       continue
+
     if k of python_defaults
       py_v = python_defaults[k]
       if not _.isEqual(py_v, v)
+
+        # these two conditionals compare 'foo' and {value: 'foo'}
+        if _.isObject(v) and 'value' of v and _.isEqual(py_v, v['value'])
+          continue
+        if _.isObject(py_v) and 'value' of py_v and _.isEqual(py_v['value'], v)
+          continue
+
+        # compare arrays of objects
+        if _.isArray(v) and _.isArray(py_v)
+          equal = true
+
+          if v.length != py_v.length
+            equal = false
+          else
+            for i in [0...v.length]
+              if not _.isEqual(_.omit(v[i], 'id'), _.omit(py_v[i], 'id'))
+                equal = false
+                break
+
+          if equal
+            continue
+
         different.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python defaults to #{safe_stringify(py_v)}")
     else
       python_missing.push("#{name}.#{k}: coffee defaults to #{safe_stringify(v)} but python has no such property")
@@ -107,39 +136,11 @@ describe "Defaults", ->
       instance = new coll.model({}, {'silent' : true, 'defer_initialization' : true})
       attrs = instance.attributes_as_json()
       strip_ids(attrs)
-      # merge in display_defaults() which aren't in the main
-      # attributes, the overall setup here is sketchy right now
-      # because python never leaves these things unset. We need an
-      # "inherit" value, like in CSS, perhaps.
-      # But at least we can check that display_defaults() matches
-      # what Python sends.
-      display_specs = [ 'line_color', 'line_width', 'line_alpha', 'fill_color', 'fill_alpha',
-                        'text_font_size', 'text_color', 'text_alpha' ]
-      display_attr_is_spec = (name) ->
-        for s in display_specs
-          if name.endsWith(s) # gratuitous ES6
-            return true
-        return false
-      if 'display_defaults' of instance
-        display = instance.display_defaults()
-        for k in Object.keys(display)
-          if k of attrs
-            console.error("#{name}.#{k}: property present in both CoffeeScript attrs and display_defaults()")
 
-          if display_attr_is_spec(k)
-            orig = display[k]
-            if not (_.isObject(orig) and ('field' of orig or 'value' of orig))
-              # convert to 'spec dict' format
-              display[k] = { 'value' : display[k] }
-
-        attrs = _.extend({}, display, attrs)
-
-      # Merge in "factory" attrs, which don't go in attributes
-      # in the actual code, but for our current purpose
-      # let's pretend they do because they do "in effect"
-      # and we probably want to put them there eventually
       for prop_kind, func of properties.factories
-        if prop_kind == 'visuals' # visuals is the display_defaults() case above
+        # the 'visuals' property is used to set glyph line/fill/text defaults
+        # and is tested in the check_matching_defaults() test case above
+        if prop_kind == 'visuals'
           continue
         if prop_kind of instance
           props_of_this_kind = func(instance)
@@ -177,4 +178,4 @@ describe "Defaults", ->
     # then edit this number to be lower. If it's failing because
     # it's higher, fix the newly-introduced errors. Eventually we
     # will get to zero.
-    expect(fail_count).to.equal 63
+    expect(fail_count).to.equal 12

@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ..io import curdoc, curstate
-from ..models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
+from ..models import Axis, Grid, Legend, LogAxis, Plot
 from ..models import glyphs, markers
 from .helpers import (
     _list_attr_splat, _get_range, _get_axis_class, _get_num_minor_ticks,
@@ -51,7 +51,8 @@ class Figure(Plot):
             if x_axiscls is LogAxis:
                 self.x_mapper_type = 'log'
             xaxis = x_axiscls(plot=self)
-            xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
+            if hasattr(xaxis.ticker, 'num_minor_ticks'):
+                xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
             axis_label = x_axis_label
             if axis_label:
                 xaxis.axis_label = axis_label
@@ -66,7 +67,8 @@ class Figure(Plot):
             if y_axiscls is LogAxis:
                 self.y_mapper_type = 'log'
             yaxis = y_axiscls(plot=self)
-            yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
+            if hasattr(yaxis.ticker, 'num_minor_ticks'):
+                yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
             axis_label = y_axis_label
             if axis_label:
                 yaxis.axis_label = axis_label

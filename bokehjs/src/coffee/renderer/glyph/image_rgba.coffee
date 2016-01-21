@@ -92,9 +92,11 @@ class ImageRGBA extends Glyph.Model
   distances: ['dw', 'dh']
   fields: ['image:array', '?rows', '?cols']
 
-  display_defaults: ->
+  defaults: ->
     return _.extend {}, super(), {
       dilate: false
+      rows: null
+      cols: null
     }
 
 module.exports =

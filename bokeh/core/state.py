@@ -18,7 +18,7 @@ Generating output for Bokeh plots requires coordinating several things:
     included and used in the generated output.
 
 It is certainly possible to handle the configuration of these objects
-manually, and several examples of this can be found in ``examples/glyphs``.
+manually, and several examples of this can be found in ``examples/models``.
 When developing sophisticated applications, it may be necessary or
 desirable to work at this level. However, for general use this would
 quickly become burdensome. The ``bokeh.state`` module provides a ``State``
@@ -87,6 +87,7 @@ class State(object):
     def __init__(self):
         # TODO (havocp) right now there's no way to turn off autoadd
         self._autoadd = True
+        self.last_comms_handle = None
         self.reset()
 
     @property

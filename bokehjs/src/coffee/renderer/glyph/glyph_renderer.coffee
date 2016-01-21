@@ -1,6 +1,6 @@
 _ = require "underscore"
 {logger} = require "../../common/logging"
-HasParent = require "../../common/has_parent"
+Model = require "../../models/model"
 PlotWidget = require "../../common/plot_widget"
 FactorRange = require "../../range/factor_range"
 RemoteDataSource = require "../../source/remote_data_source"
@@ -37,7 +37,7 @@ class GlyphRendererView extends PlotWidget
 
     @set_data(false)
 
-    if @mget('data_source') instanceof RemoteDataSource.RemoteDataSource
+    if @mget('data_source') instanceof RemoteDataSource.Model
       @mget('data_source').setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
@@ -47,7 +47,8 @@ class GlyphRendererView extends PlotWidget
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
-    @listenTo(@mget('data_source'), 'inspect', @request_render)
+    if @hover_glyph?
+      @listenTo(@mget('data_source'), 'inspect', @request_render)
 
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would
@@ -72,7 +73,7 @@ class GlyphRendererView extends PlotWidget
 
     @glyph.set_visuals(source)
     @decimated_glyph.set_visuals(source)
-    if @have_selection_glyphs()      
+    if @have_selection_glyphs()
       @selection_glyph.set_visuals(source)
       @nonselection_glyph.set_visuals(source)
     if @hover_glyph?
@@ -208,7 +209,7 @@ class GlyphRendererView extends PlotWidget
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
 
-class GlyphRenderer extends HasParent
+class GlyphRenderer extends Model
   default_view: GlyphRendererView
   type: 'GlyphRenderer'
 
@@ -221,11 +222,11 @@ class GlyphRenderer extends HasParent
       x_range_name: "default"
       y_range_name: "default"
       data_source: null
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'glyph'
+      glyph: null
+      hover_glyph: null
+      nonselection_glyph: null
+      selection_glyph: null
     }
 
 module.exports =

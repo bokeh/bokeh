@@ -73,6 +73,7 @@ def download(progress=True):
         (s3, 'gapminder_regions.csv'),
         (s3, 'world_cities.zip'),
         (s3, 'airports.json'),
+        (s3, 'movies.db.zip'),
     ]
 
     for base_url, file_name in files:

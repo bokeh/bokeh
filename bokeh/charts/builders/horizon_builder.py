@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API
 to build complex plot is a simple way.
 
-This is the Scatter class which lets you build your Scatter charts
+This is the Horizon class which lets you build your Horizon charts
 just passing the arguments to the Chart class and calling the proper
 functions.
 """
@@ -33,7 +33,8 @@ from ...models.ranges import FactorRange, DataRange1d
 
 
 def Horizon(data=None, x=None, y=None, series=None, **kws):
-    """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builders.scatter_builder.ScatterBuilder>`
+    """ Create a horizon chart using :class:`HorizonBuilder
+    <bokeh.charts.builders.scatter_builder.HorizonBuilder>`
     to render the geometry from values.
 
     Args:
@@ -41,7 +42,7 @@ def Horizon(data=None, x=None, y=None, series=None, **kws):
         x (str or list(str), optional): the column label to use for the x dimension
         y (str or list(str), optional): the column label to use for the y dimension
 
-    In addition the the parameters specific to this chart,
+    In addition to the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
@@ -52,15 +53,35 @@ def Horizon(data=None, x=None, y=None, series=None, **kws):
     .. bokeh-plot::
         :source-position: above
 
-        from bokeh.sampledata.autompg import autompg as df
-        from bokeh.charts import Scatter, output_file, show
+        import pandas as pd
+        from bokeh.charts import Horizon, output_file, show
 
-        scatter = Scatter(df, x='mpg', y='hp', color='cyl', marker='origin',
-                          title="Auto MPG", xlabel="Miles Per Gallon",
-                          ylabel="Horsepower")
+        # read in some stock data from the Yahoo Finance API
+        AAPL = pd.read_csv(
+            "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
+            parse_dates=['Date'])
 
-        output_file('scatter.html')
-        show(scatter)
+        MSFT = pd.read_csv(
+            "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000&d=0&e=1&f=2010",
+            parse_dates=['Date'])
+
+        IBM = pd.read_csv(
+            "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
+            parse_dates=['Date'])
+
+        data = dict([
+            ('AAPL', AAPL['Adj Close']),
+            ('Date', AAPL['Date']),
+            ('MSFT', MSFT['Adj Close']),
+            ('IBM', IBM['Adj Close'])]
+        )
+
+        hp = Horizon(data, x='Date', plot_width=800, plot_height=300,
+                     title="horizon plot using stock inputs")
+
+        output_file("horizon.html")
+
+        show(hp)
 
     """
     kws['x'] = x

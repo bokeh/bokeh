@@ -49,6 +49,6 @@ layout = hplot(
     vform(amp_slider, freq_slider, phase_slider, offset_slider),
 )
 
-output_file("slider.html")
+output_file("slider.html", title="slider.py example")
 
 show(layout)

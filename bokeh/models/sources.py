@@ -18,8 +18,9 @@ class DataSource(Model):
     not generally useful to instantiate on its own.
 
     """
+
     selected = Dict(String, Dict(String, Any), default={
-        '0d': {'flag': False, 'indices': []},
+        '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
         '2d': {'indices': []}
     }, help="""
@@ -194,34 +195,25 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    # def push_notebook(self):
-    #     """ Update date for a plot in the IPython notebook in place.
+    @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
+    def push_notebook(self):
+        """ Update a data source for a plot in a Jupyter notebook.
 
-    #     This function can be be used to update data in plot data sources
-    #     in the IPython notebook, without having to use the Bokeh server.
+        This function can be be used to update data in plot data sources
+        in the Jupyter notebook, without having to use the Bokeh server.
 
-    #     Returns:
-    #         None
+        .. warning::
+            This function has been deprecated. Please use
+            ``bokeh.io.push_notebook()`` which will push all changes
+            (not just data sources) to the last shown plot in a Jupyter
+            notebook.
 
-    #     .. warning::
-    #         The current implementation leaks memory in the IPython notebook,
-    #         due to accumulating JS code. This function typically works well
-    #         with light UI interactions, but should not be used for continuously
-    #         updating data. See :bokeh-issue:`1732` for more details and to
-    #         track progress on potential fixes.
+        Returns:
+            None
 
-    #     """
-    #     from IPython.core import display
-    #     from bokeh.protocol import serialize_json
-    #     id = self.ref['id']
-    #     model = self.ref['type']
-    #     json = serialize_json(self.vm_serialize())
-    #     js = """
-    #         var ds = Bokeh.Collections('{model}').get('{id}');
-    #         var data = {json};
-    #         ds.set(data);
-    #     """.format(model=model, id=id, json=json)
-    #     display.display_javascript(js, raw=True)
+        """
+        from bokeh.io import push_notebook
+        push_notebook()
 
     @validation.error(COLUMN_LENGTHS)
     def _check_column_lengths(self):
@@ -230,7 +222,8 @@ class ColumnDataSource(DataSource):
             return str(self)
 
 
-class GeoJSONDataSource(DataSource):
+class GeoJSONDataSource(ColumnDataSource):
+
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
     only process a FeatureCollection or GeometryCollection.
@@ -238,29 +231,30 @@ class GeoJSONDataSource(DataSource):
 
 
 @abstract
-class RemoteSource(DataSource):
+class RemoteSource(ColumnDataSource):
+
     data_url = String(help="""
     The URL to the endpoint for the data.
     """)
-    data = Dict(String, Any, help="""
-    Additional data to include directly in this data source object. The
-    columns provided here are merged with those from the Bokeh server.
-    """)
+
     polling_interval = Int(help="""
     polling interval for updating data source in milliseconds
     """)
 
 class AjaxDataSource(RemoteSource):
+
     method = Enum('POST', 'GET', help="http method - GET or POST")
 
     mode = Enum("replace", "append", help="""
     Whether to append new data to existing data (up to ``max_size``),
     or to replace existing data entirely.
     """)
+
     max_size = Int(help="""
     Maximum size of the data array being kept after each pull requests.
     Larger than that size, the data will be right shifted.
     """)
+
     if_modified = Bool(False, help="""
     Whether to include an ``If-Modified-Since`` header in AJAX requests
     to the server. If this header is supported by the server, then only

@@ -20,42 +20,6 @@ Furthermore, BokehJS ships with its own version of `Bootstrap <http://getbootstr
 To prevent name collisions, the version of Bootstrap CSS that Bokeh uses has
 been entirely prefixed with the prefix ``bk-bs-``.
 
-Managing examples
------------------
-
-*To be added:*
-
-* examples' naming convention (e.g. _server suffix)
-* adding examples to test.yml
-
-Choosing right types
---------------------
-
-*To be added:*
-
-* choosing correct types for properties (don't use Any if possible)
-
-Managing Python modules
------------------------
-
-*To be added:*
-
-* update packages in setup.py when changing module structure
-
-Managing external JS libraries
-------------------------------
-
-*To be added:*
-
-* adding packages to and updating bokehjs/src/vendor
-
-Maintaining secure variables in .travis.yml
--------------------------------------------
-
-*To be added:*
-
-* interactions with travis-ci from CLI (gem install --user-install travis)
-* how to update secure values in .travis.yml (S3, flowdock)
 
 Browser caching
 ---------------

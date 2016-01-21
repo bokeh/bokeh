@@ -67,6 +67,6 @@ p.ygrid.grid_line_color = "white"
 p.grid.grid_line_width = 2
 p.xaxis.major_label_text_font_size="12pt"
 
-output_file("boxplot.html")
+output_file("boxplot.html", title="boxplot.py example")
 
 show(p)

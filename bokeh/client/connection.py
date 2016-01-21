@@ -1,3 +1,7 @@
+''' Implements a very low level facility for communicating with a Bokeh
+Server. Users will always want to use ``bokeh.client.session`` instead.
+
+'''
 from __future__ import absolute_import, print_function
 
 import logging
@@ -123,6 +127,10 @@ class ClientConnection(object):
     @property
     def url(self):
         return self._url
+
+    @property
+    def io_loop(self):
+        return self._loop
 
     @property
     def connected(self):

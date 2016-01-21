@@ -3,9 +3,9 @@ $ = require "jquery"
 $1 = require "jquery-ui/autocomplete"
 $2 = require "jquery-ui/spinner"
 ContinuumView = require "../common/continuum_view"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class CellEditor extends HasProperties
+class CellEditor extends Model
   editorDefaults: {}
 
   defaults: () ->

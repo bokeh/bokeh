@@ -82,3 +82,13 @@ describe "range1d module", ->
 
     it "should have max = -1.1", ->
       expect(r.get('max')).to.be.equal -1.1
+
+  describe "reset", ->
+
+    it "should reset to initial values", ->
+      r = Collections('Range1d').create({start: 10, end: 20})
+      r.set('end', -1.1)
+      r.set('start', -2.1)
+      r.reset()
+      expect(r.get('start')).to.be.equal 10
+      expect(r.get('end')).to.be.equal 20

@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-HasParent = require "../../common/has_parent"
+Model = require "../../models/model"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 wmts = require "./wmts_tile_source"
@@ -9,9 +9,12 @@ ImagePool = require "./image_pool"
 
 class TileRendererView extends PlotWidget
 
-  initialize: () ->
+  initialize: (options) ->
     @attributionEl = null
     super
+
+  bind_bokeh_events: () ->
+    @listenTo(@model, 'change', @request_render)
 
   get_extent: () ->
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
@@ -36,7 +39,7 @@ class TileRendererView extends PlotWidget
       if @attributionEl?
         @attributionEl.html(attribution)
       else
-        border_width = @map_plot.get('outline_line_width').value
+        border_width = @map_plot.get('outline_line_width')
         bottom_offset = @map_plot.get('min_border_bottom') + border_width
         right_offset = @map_frame.get('right') - @map_frame.get('width')
         max_width = @map_frame.get('width') - border_width
@@ -81,14 +84,8 @@ class TileRendererView extends PlotWidget
   _on_tile_error: (e) =>
     return ''
 
-  _is_valid_tile: (x, y, z) ->
-
-    if y < 0 || y > 1 << z || x < 0 || x > 1 << z
-      return false
-
-    return true
-
   _create_tile: (x, y, z, bounds, cache_only=false) ->
+    normalized_coords = @mget('tile_source').normalize_xyz(x, y, z)
     tile = @pool.pop()
 
     if cache_only
@@ -101,6 +98,7 @@ class TileRendererView extends PlotWidget
 
     tile.tile_data =
       tile_coords : [x, y, z]
+      normalized_coords : normalized_coords
       quadkey : @mget('tile_source').tile_xyz_to_quadkey(x, y, z)
       cache_key : @mget('tile_source').tile_xyz_to_key(x, y, z)
       bounds : bounds
@@ -109,7 +107,7 @@ class TileRendererView extends PlotWidget
       y_coord : bounds[3]
 
     @mget('tile_source').tiles[tile.tile_data.cache_key] = tile.tile_data
-    tile.src = @mget('tile_source').get_image_url(x, y, z)
+    tile.src = @mget('tile_source').get_image_url(normalized_coords...)
     return tile
 
   _enforce_aspect_ratio: () ->
@@ -222,7 +220,6 @@ class TileRendererView extends PlotWidget
       snap_back = true
 
     if snap_back
-      @plot_model.set({x_range:k})
       @x_range.set(x_range:{start:extent[0], end: extent[2]})
       @y_range.set({start:extent[1], end: extent[3]})
       @extent = extent
@@ -236,29 +233,28 @@ class TileRendererView extends PlotWidget
 
     for t in tiles
       [x, y, z, bounds] = t
-      if @_is_valid_tile(x, y, z)
-        key = tile_source.tile_xyz_to_key(x, y, z)
-        tile = tile_source.tiles[key]
-        if tile? and tile.loaded == true
-          cached.push(key)
-        else
-          if @mget('render_parents')
-            [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z)
-            parent_key = tile_source.tile_xyz_to_key(px, py, pz)
-            parent_tile = tile_source.tiles[parent_key]
-            if parent_tile? and parent_tile.loaded and parent_key not in parents
-              parents.push(parent_key)
-            if zooming_out
-              children = tile_source.children_by_tile_xyz(x, y, z)
-              for c in children
-                [cx, cy, cz, cbounds] = c
-                child_key = tile_source.tile_xyz_to_key(cx, cy, cz)
+      key = tile_source.tile_xyz_to_key(x, y, z)
+      tile = tile_source.tiles[key]
+      if tile? and tile.loaded == true
+        cached.push(key)
+      else
+        if @mget('render_parents')
+          [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z)
+          parent_key = tile_source.tile_xyz_to_key(px, py, pz)
+          parent_tile = tile_source.tiles[parent_key]
+          if parent_tile? and parent_tile.loaded and parent_key not in parents
+            parents.push(parent_key)
+          if zooming_out
+            children = tile_source.children_by_tile_xyz(x, y, z)
+            for c in children
+              [cx, cy, cz, cbounds] = c
+              child_key = tile_source.tile_xyz_to_key(cx, cy, cz)
 
-                if child_key of tile_source.tiles
-                  children.push(child_key)
+              if child_key of tile_source.tiles
+                children.push(child_key)
 
-        if not tile?
-          need_load.push(t)
+      if not tile?
+        need_load.push(t)
 
     # draw stand-in parents ----------
     @_render_tiles(parents)
@@ -275,24 +271,18 @@ class TileRendererView extends PlotWidget
 
     @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
 
-class TileRenderer extends HasParent
+class TileRenderer extends Model
   default_view: TileRendererView
   type: 'TileRenderer'
   visuals: []
-  angles: ['angle']
 
   defaults: ->
     return _.extend {}, super(), {
-      angle: 0
       alpha: 1.0
       x_range_name: "default"
       y_range_name: "default"
       tile_source: new wmts.Model()
       render_parents: true
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'underlay'
     }
 

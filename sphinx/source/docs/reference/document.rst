@@ -1,8 +1,8 @@
 
 .. _bokeh.document:
 
-``bokeh.document`` Package
-==========================
+``bokeh.document``
+==================
 
 .. automodule:: bokeh.document
     :members:

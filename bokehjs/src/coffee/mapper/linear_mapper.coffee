@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class LinearMapper extends HasProperties
+class LinearMapper extends Model
   initialize: (attrs, options) ->
     super(attrs, options)
 

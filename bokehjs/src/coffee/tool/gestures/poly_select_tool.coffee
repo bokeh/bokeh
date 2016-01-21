@@ -1,6 +1,6 @@
 _ = require "underscore"
-PolySelection = require "../../renderer/overlay/poly_selection"
 SelectTool = require "./select_tool"
+PolyAnnotation = require "../../renderer/annotation/poly_annotation"
 
 class PolySelectToolView extends SelectTool.View
 
@@ -25,7 +25,7 @@ class PolySelectToolView extends SelectTool.View
 
   _clear_data: () ->
     @data = null
-    @mget('overlay').set('data', null)
+    @mget('overlay').update({xs:[], ys:[]})
 
   _tap: (e) ->
     canvas = @plot_view.canvas
@@ -43,7 +43,7 @@ class PolySelectToolView extends SelectTool.View
     new_data = {}
     new_data.vx = _.clone(@data.vx)
     new_data.vy = _.clone(@data.vy)
-    overlay.set('data', new_data)
+    overlay.update({xs: @data.vx, ys: @data.vy})
 
   _select: (vx, vy, final, append) ->
     geometry = {
@@ -58,6 +58,7 @@ class PolySelectToolView extends SelectTool.View
       sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
 
     @_save_geometry(geometry, final, append)
+    @plot_view.push_state('poly_select', {selection: @plot_view.get_selection()})
 
     return null
 
@@ -65,16 +66,27 @@ class PolySelectTool extends SelectTool.Model
   default_view: PolySelectToolView
   type: "PolySelectTool"
   tool_name: "Poly Select"
-  icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAQCAYAAAAbBi9cAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAGdSURBVDiNjdO/axRBGMbxT8IiwSBBi4AiBBVRJE3UIqIIilrYLGuxMYo/AimsrNTCWkH/AbFR78Dc5dZiWW3SKQaVaKWlIFEiithooaiIZ7EbPM7b3D0wzLzzvvOdZ5iZviTNmnKN4gE2YSteYjW24A2+Yh/ux1G4uVij2cyXB0V8AYuYwBq8x5Ei/wEH8LNoHRVgWxyFr4v4RUvuScv4ESRpFhTQ/9SPmSTNdpbt1KZhXCsD7cZQj6AB7OqUCDCCTz2C3mF/maNnGOsRtB53y0BD/t1eN32T32pH0HY870ZI0mwMFZwvA73F+AqA4STNduCS3PlSpdbY0F4XFKAfJZA9mMO9OAonl+crtcZcpdaYP3ti4mqro0Py79AKOJqk2TwGMRVH4XTbHqtwpVJrVKv1ZGDZ0SIO4mGSZqNYh2m8wtM4Cr93MPur6E9jY7WenAvkz38pSbO9eIzrcRQe63TUFg3iDz7iIj73Yxa3i4LxOAovr0S4MzPbhzoOYy1GzkzGXwLcxC0sxFH4u4sTUyePN3EDKrXGAk4h/QvU5XGB9rRYawAAAABJRU5ErkJggg=="
+  icon: "bk-tool-icon-polygon-select"
   event_type: "tap"
   default_order: 11
 
+  defaults: () ->
+    return _.extend({}, super(), {
+      overlay: new PolyAnnotation.Model({
+        xs_units: "screen"
+        ys_units: "screen"
+        fill_color: "lightgrey"
+        fill_alpha: 0.5
+        line_color: "black"
+        line_alpha: 1.0
+        line_width: 2
+        line_dash: [4, 4]
+      })
+    })
+
   initialize: (attrs, options) ->
     super(attrs, options)
-    @set('overlay', new PolySelection.Model)
-    plot_renderers = @get('plot').get('renderers')
-    plot_renderers.push(@get('overlay'))
-    @get('plot').set('renderers', plot_renderers)
+    @get('overlay').set('silent_update', true, {silent: true})
 
 module.exports =
   Model: PolySelectTool

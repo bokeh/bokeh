@@ -18,15 +18,27 @@ at your command prompt. Then navigate to the URL
 .. _README: https://github.com/bokeh/bokeh/blob/master/examples/app/stocks/README.md
 
 '''
-from functools import lru_cache
+try:
+    from functools import lru_cache
+except ImportError:
+    # Python 2 does stdlib does not have lru_cache so let's just
+    # create a dummy decorator to avoid crashing
+    print ("WARNING: Cache for this example is available on Python 3 only.")
+    def lru_cache():
+        def dec(f):
+            def _(*args, **kws):
+                return f(*args, **kws)
+            return _
+        return dec
+
 from os.path import dirname, join
 
 import pandas as pd
 
 from bokeh.charts import Histogram
-from bokeh.models import ColumnDataSource
-from bokeh.plotting import Figure
+from bokeh.models import ColumnDataSource, GridPlot
 from bokeh.models.widgets import HBox, VBox, PreText, Select
+from bokeh.plotting import Figure
 
 from bokeh.io import curdoc
 
@@ -74,20 +86,21 @@ ticker2 = Select(value='GOOG', options=nix('AAPL', DEFAULT_TICKERS))
 # set up plots
 
 source = ColumnDataSource(data=dict())
-tools = 'pan,wheel_zoom,box_select,reset'
+tools = 'pan,wheel_zoom,xbox_select,reset'
 
 corr = Figure(plot_width=400, plot_height=400, title='',
-              title_text_font_size='10pt', tools=tools)
-corr.circle('t1_returns', 't2_returns', size=2, source=source)
+              title_text_font_size='10pt', tools='pan,wheel_zoom,box_select,reset')
+corr.circle('t1_returns', 't2_returns', size=2, source=source,
+            selection_color="orange", selection_alpha=0.5)
 
-ts1 = Figure(plot_width=800, plot_height=150, title='', tools=tools,
+ts1 = Figure(plot_width=800, plot_height=200, title='', tools=tools,
              x_axis_type='datetime', title_text_font_size='8pt')
-ts1.circle('date', 't1', size=2, source=source)
+ts1.circle('date', 't1', size=2, source=source, selection_color="orange")
 
-ts2 = Figure(plot_width=800, plot_height=150, title='', tools=tools,
+ts2 = Figure(plot_width=800, plot_height=200, title='', tools=tools,
              x_axis_type='datetime', title_text_font_size='8pt')
 ts2.x_range = ts1.x_range
-ts2.circle('date', 't2', size=2, source=source)
+ts2.circle('date', 't2', size=2, source=source, selection_color="orange")
 
 # set up callbacks
 
@@ -105,18 +118,13 @@ def update(selected=None):
     data = get_data(t1, t2)
     source.data = source.from_df(data[['t1', 't2', 't1_returns', 't2_returns']])
 
-    update_stats_and_histograms(data, t1, t2)
+    update_stats(data, t1, t2)
 
     corr.title = '%s returns vs. %s returns' % (t1, t2)
     ts1.title, ts2.title = t1, t2
 
-def update_stats_and_histograms(data, t1, t2):
+def update_stats(data, t1, t2):
     stats.text = str(data[[t1, t2, t1+'_returns', t2+'_returns']].describe())
-
-    global layout
-    h1 = get_histogram(t1)
-    h2 = get_histogram(t2)
-    layout.children[1] = HBox(h1, h2)
 
 ticker1.on_change('value', ticker1_change)
 ticker2.on_change('value', ticker2_change)
@@ -127,15 +135,15 @@ def selection_change(attrname, old, new):
     selected = source.selected['1d']['indices']
     if selected:
         data = data.iloc[selected, :]
-    update_stats_and_histograms(data, t1, t2)
+    update_stats(data, t1, t2)
 
 source.on_change('selected', selection_change)
 
 # set up layout
 stats_box = VBox(stats)
 input_box = VBox(ticker1, ticker2)
-main_row = HBox(input_box, corr, stats_box)
-layout = VBox(main_row, HBox(), ts1, ts2)
+main_row = HBox(input_box, corr, stats_box, width=1100)
+layout = VBox(main_row, GridPlot(children=[[ts1], [ts2]]))
 
 # initialize
 update()

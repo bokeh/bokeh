@@ -55,6 +55,11 @@ def _select_helper(args, kwargs):
         selector = kwargs
     return selector
 
+class LayoutBox(Model):
+    ''' Represents an **on-canvas** layout.
+
+    '''
+
 class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
 
@@ -196,6 +201,8 @@ class Plot(Component):
             if tool.plot is not None:
                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
             tool.plot = self
+            if hasattr(tool, 'overlay'):
+                self.renderers.append(tool.overlay)
             self.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
@@ -346,6 +353,15 @@ class Plot(Component):
     This is useful for adding additional axes.
     """)
 
+    hidpi = Bool(default=True, help="""
+    Whether to use HiDPI mode when available.
+    """)
+
+    title_standoff = Int(default=8, help="""
+    How far (in screen units) to place a title away from the central
+    plot region.
+    """)
+
     title = String('', help="""
     A title for the plot.
     """)
@@ -391,7 +407,9 @@ class Plot(Component):
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    above = List(Instance(Renderer), help="""
+    # TODO (bev) LayoutBox here is a temporary workaround to the fact that
+    # plot titles are not proper renderers
+    above = List(Either(Instance(Renderer), Instance(LayoutBox)), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
@@ -517,7 +535,7 @@ class Plot(Component):
 
     """)
 
-    min_border = Int(40, help="""
+    min_border = Int(50, help="""
     A convenience property to set all all the ``min_X_border`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.

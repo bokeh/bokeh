@@ -1,5 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
+{logger} = require "../../common/logging"
 Tooltip = require "../../renderer/annotation/tooltip"
 Util = require "../../util/util"
 InspectTool = require "./inspect_tool"
@@ -20,7 +21,7 @@ _color_to_hex = (color) ->
 class HoverToolView extends InspectTool.View
 
   bind_bokeh_events: () ->
-    for r in @mget('renderers')
+    for r in @mget('computed_renderers')
       @listenTo(r.get('data_source'), 'inspect', @_update)
 
     @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
@@ -60,7 +61,7 @@ class HoverToolView extends InspectTool.View
     hovered_indexes = []
     hovered_renderers = []
 
-    for r in @mget('renderers')
+    for r in @mget('computed_renderers')
       sm = r.get('data_source').get('selection_manager')
       sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
 
@@ -157,7 +158,7 @@ class HoverToolView extends InspectTool.View
     return null
 
   _emit_callback: (geometry) ->
-    r = @mget('renderers')[0]
+    r = @mget('computed_renderers')[0]
     indices = @plot_view.renderers[r.id].hit_test(geometry)
 
     canvas = @plot_model.get('canvas')
@@ -224,15 +225,37 @@ class HoverTool extends InspectTool.Model
   default_view: HoverToolView
   type: "HoverTool"
   tool_name: "Hover Tool"
-  icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8ElEQVQ4T42T0Q2CMBCGaQjPxgmMG/jelIQN3ECZQEfADRwBJzBuQCC81wlkBHxvqP8lmhTsUfpSWvp/vfvvKiJn1HVdpml6dPdC38I90DSNxVobYzKMPiSm/z5AZK3t4zjOpJQ6BPECfiKAcqRUzkFmASQEhHzJOUgQ8BWyviwFsL4sBnC+LAE84YMWQnSAVCixdkvMAiB6Q7TCfJtrLq4PHkmSnHHbi0LHvOYa6w/g3kitjSgOYFyUUoWvlCPA9C1gvQfgDmiHNLZBgO8A3geZt+G6chQBA7hi/0QVQBrZ9EwQ0LbtbhgGghQAVFPAB25HmRH8b2/nAAAAAElFTkSuQmCC'
+  icon: "bk-tool-icon-hover"
+
+  nonserializable_attribute_names: () ->
+    super().concat(['ttmodels', 'computed_renderers'])
 
   initialize: (attrs, options) ->
     super(attrs, options)
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+
+    names = @get('names')
+    renderers = @get('renderers')
+
+    if renderers.length == 0
+      all_renderers = @get('plot').get('renderers')
+      renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
+
+    if names.length > 0
+      renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+
+    @set('computed_renderers', renderers)
+    logger.debug("setting #{renderers.length} computed renderers for #{@type} #{@id}")
+    for r in renderers
+      logger.debug("  - #{r.type} #{r.id}")
+
     ttmodels = {}
     renderers = @get('plot').get('renderers')
     tooltips = @get("tooltips")
     if tooltips?
-      for r in @get('renderers')
+      for r in @get('computed_renderers')
         tooltip = new Tooltip.Model()
         tooltip.set("custom", _.isString(tooltips))
         ttmodels[r.id] = tooltip
@@ -248,6 +271,8 @@ class HoverTool extends InspectTool.Model
         ["data (x, y)",   "($x, $y)"]
         ["canvas (x, y)", "($sx, $sy)"]
       ]
+      renderers: []
+      names: []
       mode: 'mouse'
       point_policy: "snap_to_data" #, "follow_mouse", "none"
       line_policy: "prev" # "next", "nearest", "interp", "none"

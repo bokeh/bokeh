@@ -54,9 +54,16 @@ def test_args():
             default=None,
         )),
 
+        ('--allow-websocket-origin', dict(
+            metavar='HOST[:PORT]',
+            action='append',
+            type=str,
+            help="Public hostnames which may connect to the Bokeh websocket",
+        )),
+
         ('--host', dict(
             metavar='HOST[:PORT]',
-            nargs='*',
+            action='append',
             type=str,
             help="Public hostnames to allow in requests",
         )),
@@ -75,6 +82,32 @@ def test_args():
             default=None,
         )),
 
+        ('--check-unused-sessions', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to check for unused sessions",
+            default=None,
+        )),
+
+        ('--unused-session-lifetime', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How long unused sessions last",
+            default=None,
+        )),
+
+        ('--stats-log-frequency', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to log stats",
+            default=None,
+        )),
+
+        ('--use-xheaders', dict(
+            action='store_true',
+            help="Prefer X-headers for IP/protocol information",
+        )),
+
         ('--log-level', dict(
             metavar='LOG-LEVEL',
             action  = 'store',
@@ -83,4 +116,11 @@ def test_args():
             help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
         )),
 
+        ('--session-ids', dict(
+            metavar='MODE',
+            action  = 'store',
+            default = None,
+            choices = scserve.SESSION_ID_MODES,
+            help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
+        )),
     )

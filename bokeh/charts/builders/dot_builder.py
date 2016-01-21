@@ -34,16 +34,20 @@ from ..attributes import ColorAttr, CatAttr, MarkerAttr
 def Dot(data, label=None, values=None, color=None, stack=None, group=None,
         agg="sum", xscale="categorical", yscale="linear", xgrid=False,
         ygrid=True, continuous_range=None, **kw):
-    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builders.bar_builder.BarBuilder>`
-    render the geometry from values, cat and stacked.
+    """ Create a Dot chart using
+    :class:`DotBuilder <bokeh.charts.builders.dot_builder.DotBuilder>` to render the
+    geometry from the inputs.
 
     Args:
         data (:ref:`userguide_charts_data_types`): the data
             source for the chart.
-        values (str, optional): iterable 2d representing the data series
-            values matrix.
         label (list(str) or str, optional): list of string representing the categories.
             (Defaults to None)
+        values (str, optional): iterable 2d representing the data series
+            values matrix.
+        color (str or list(str) or `~bokeh.charts._attributes.ColorAttr`): string color,
+            string column name, list of string columns or a custom `ColorAttr`,
+            which replaces the default `ColorAttr` for the builder.
         stack (list(str) or str, optional): columns to use for stacking.
             (Defaults to False, so grouping is assumed)
         group (list(str) or str, optional): columns to use for grouping.
@@ -56,14 +60,14 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
-        :class:`Chart`: includes glyph renderers that generate bars
+        :class:`Chart`: includes glyph renderers that generate dots
 
     Examples:
 
         .. bokeh-plot::
             :source-position: above
 
-            from bokeh.charts import Bar, output_file, show, hplot
+            from bokeh.charts import Dot, output_file, show, hplot
 
             # best support is with data in a format that is table-like
             data = {
@@ -73,15 +77,15 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None,
             }
 
             # x-axis labels pulled from the interpreter column, stacking labels from sample column
-            bar = Dot(data, values='timing', label='interpreter', stack='sample', agg='mean',
-                      title="Python Interpreter Sampling", legend='top_right', width=400)
+            dot = Dot(data, values='timing', label='interpreter', stack='sample', agg='mean',
+                      title="Python Interpreter Sampling", legend='top_right', plot_width=400)
 
             # table-like data results in reconfiguration of the chart with no data manipulation
-            bar2 = Dot(data, values='timing', label=['interpreter', 'sample'],
-                       agg='mean', title="Python Interpreters", width=400)
+            dot2 = Dot(data, values='timing', label=['interpreter', 'sample'],
+                       agg='mean', title="Python Interpreters", plot_width=400)
 
             output_file("Dot.html")
-            show(hplot(bar, bar2))
+            show(hplot(dot, dot2))
 
     """
     if continuous_range and not isinstance(continuous_range, Range1d):
@@ -95,7 +99,7 @@ def Dot(data, label=None, values=None, color=None, stack=None, group=None,
             agg = 'count'
             values = label
 
-    # The continuous_range is the y_range (until we implement HBar charts)
+    # The continuous_range is the y_range (until we implement HDot charts)
     y_range = continuous_range
     kw['label'] = label
     kw['values'] = values

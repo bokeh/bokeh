@@ -1,10 +1,10 @@
 _ = require "underscore"
-HasProperties = require "../../common/has_properties"
+Model = require "../../models/model"
 ImagePool = require "./image_pool"
 tile_utils = require "./tile_utils"
 {logger} = require "../../common/logging"
 
-class TileSource extends HasProperties
+class TileSource extends Model
 
   type: 'TileSource'
 

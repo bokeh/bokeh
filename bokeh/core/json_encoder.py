@@ -1,3 +1,6 @@
+''' Provide a custom JSON encoder for serializing Bokeh models.
+
+'''
 from __future__ import absolute_import
 
 import logging
@@ -14,12 +17,17 @@ from ..util.dependencies import import_optional
 from ..util.serialization import transform_series, transform_array
 
 pd = import_optional('pandas')
-dateutil = import_optional('dateutil')
+rd = import_optional("dateutil.relativedelta")
 
 class BokehJSONEncoder(json.JSONEncoder):
+    ''' Encode values to be used in Bokeh documents or communicated to
+    a Bokeh server.
+
+    '''
     def transform_python_types(self, obj):
-        """handle special scalars, default to default json encoder
-        """
+        ''' Handle special scalars, use default json encoder otherwise
+
+        '''
         # Pandas Timestamp
         if pd and isinstance(obj, pd.tslib.Timestamp):
             return obj.value / 10**6.0  #nanosecond to millisecond
@@ -43,7 +51,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         # Time
         elif isinstance(obj, dt.time):
             return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
-        elif dateutil and isinstance(obj, dateutil.relativedelta):
+        elif rd and isinstance(obj, rd.relativedelta):
             return dict(years=obj.years, months=obj.months, days=obj.days, hours=obj.hours,
                 minutes=obj.minutes, seconds=obj.seconds, microseconds=obj.microseconds)
         # Decimal
@@ -72,4 +80,7 @@ class BokehJSONEncoder(json.JSONEncoder):
             return self.transform_python_types(obj)
 
 def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
+    ''' Return a serialized JSON representation of a Bokeh model.
+
+    '''
     return json.dumps(obj, cls=encoder, allow_nan=False, **kwargs)

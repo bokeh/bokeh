@@ -54,7 +54,7 @@ with_server = (f) ->
     pypath = basedir
   port = next_port()
   env = _.extend({}, process.env, { PYTHONPATH: pypath })
-  handle = child_process.spawn("python", ["-m", "bokeh.command", "serve", "--port=#{port}"], {
+  handle = child_process.spawn("python", ["-m", "bokeh", "serve", "--port=#{port}"], {
     env: env,
     cwd: basedir
   })

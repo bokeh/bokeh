@@ -1,7 +1,7 @@
 from bokeh.models import HoverTool
 from bokeh.charts import Line, Scatter, vplot, hplot, show, output_file, defaults
 import pandas as pd
-from bokeh.sampledata.degrees import xyvalues
+from bokeh.sampledata.degrees import data
 
 defaults.width = 500
 defaults.height = 300
@@ -10,34 +10,34 @@ TOOLS='box_zoom,box_select,hover,crosshair,resize,reset'
 
 TOOLTIPS = [ ("y", "$~y"), ("x", "$~x") ]
 
-xyvalues = xyvalues[['Biology', 'Business', 'Computer Science', "Year"]]
-xyvalues = pd.melt(xyvalues, id_vars=['Year'],
-                   value_vars=['Biology', 'Business', 'Computer Science'],
-                   value_name='Count', var_name='Degree')
+data = data[['Biology', 'Business', 'Computer Science', "Year"]]
+data = pd.melt(data, id_vars=['Year'],
+               value_vars=['Biology', 'Business', 'Computer Science'],
+               value_name='Count', var_name='Degree')
 
-vline = Line(xyvalues, y='Count', color='Degree', title="Lines VLine", ylabel='measures',
+vline = Line(data, y='Count', color='Degree', title="Lines VLine", ylabel='measures',
              tools=TOOLS)
 
-hline = Line(xyvalues, y='Count', color='Degree', title="Lines HLine",
+hline = Line(data, y='Count', color='Degree', title="Lines HLine",
              ylabel='measures', tools=TOOLS)
 
-int_vline = Line(xyvalues, y='Count', color='Degree', title="Lines VLine Interp",
+int_vline = Line(data, y='Count', color='Degree', title="Lines VLine Interp",
                  ylabel='measures', tools=TOOLS)
 
-int_hline = Line(xyvalues, y='Count', color='Degree', title="Lines HLine Interp",
+int_hline = Line(data, y='Count', color='Degree', title="Lines HLine Interp",
                  ylabel='measures', tools=TOOLS)
 
-scatter_point = Scatter(xyvalues, x='Year', y='Count', color='Degree',
+scatter_point = Scatter(data, x='Year', y='Count', color='Degree',
                         title="Scatter mouse", ylabel='measures', legend=True,
                         tools=TOOLS)
 
-scatter = Scatter(xyvalues, x='Year', y='Count', color='Degree',
+scatter = Scatter(data, x='Year', y='Count', color='Degree',
                   title="Scatter V Line", ylabel='measures', legend=True, tools=TOOLS)
 
-int_point_line = Line(xyvalues, x='Year', y='Count', color='Degree',
+int_point_line = Line(data, x='Year', y='Count', color='Degree',
                       title="Lines Mouse Interp.", ylabel='measures', tools=TOOLS)
 
-point_line = Line(xyvalues, x='Year', y='Count', color='Degree',
+point_line = Line(data, x='Year', y='Count', color='Degree',
                   title="Lines Mouse", ylabel='measures', tools=TOOLS)
 
 
@@ -76,7 +76,7 @@ tphover.tooltips = iphover.tooltips = TOOLTIPS
 shover.tooltips = shoverp.tooltips = TOOLTIPS
 vhover.tooltips = hhover.tooltips = TOOLTIPS
 
-output_file("hover_span.html", title="line.py example")
+output_file("hover_span.html", title="hover_span.py example")
 
 show(vplot(
     hplot(hline, vline),

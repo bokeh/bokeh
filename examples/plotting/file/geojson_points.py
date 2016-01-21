@@ -6,7 +6,7 @@ from bokeh.sampledata.sample_geojson import geojson
 
 p = figure()
 
-p.circle(line_color=None, fill_alpha=0.8, size=20,
+p.circle(x='x', y='y', line_color=None, fill_alpha=0.8, size=20,
          source=GeoJSONDataSource(geojson=geojson))
 
 p.add_tools(HoverTool(tooltips=[(

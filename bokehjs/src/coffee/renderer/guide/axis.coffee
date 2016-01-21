@@ -1,6 +1,6 @@
 _ = require "underscore"
 kiwi = require "kiwi"
-HasParent = require "../../common/has_parent"
+GuideRenderer = require "./guide_renderer"
 LayoutBox = require "../../common/layout_box"
 {logger} = require "../../common/logging"
 PlotWidget = require "../../common/plot_widget"
@@ -296,7 +296,7 @@ class AxisView extends PlotWidget
     else
       ctx.fillText(label, sx+nx*standoff+nx*xoff, sy+ny*standoff+ny*yoff)
 
-class Axis extends HasParent
+class Axis extends GuideRenderer.Model
   default_view: AxisView
   type: 'Axis'
 
@@ -583,11 +583,8 @@ class Axis extends HasParent
       bounds: "auto"
       x_range_name: "default"
       y_range_name: "default"
-    }
+      axis_label: ""
 
-  display_defaults: ->
-    return _.extend {}, super(), {
-      level: 'overlay'
       visible: true
 
       axis_line_color: 'black'
@@ -628,7 +625,6 @@ class Axis extends HasParent
       major_label_text_align: "center"
       major_label_text_baseline: "alphabetic"
 
-      axis_label: ""
       axis_label_standoff: 5
       axis_label_text_font: "helvetica"
       axis_label_text_font_size: "16pt"

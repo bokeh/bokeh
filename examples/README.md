@@ -1,34 +1,77 @@
-### Bokeh examples
+# Bokeh Examples
 
-This directory contains several examples that show how to use Bokeh to build plots, widgets and apps, and how to embed them directly in a website. The directory also includes the plot examples displayed in the [Bokeh gallery](http://bokeh.pydata.org/docs/gallery.html) on the official site. 
+## Examples in this repository
 
-The examples are organized in the folders explained below. We recommend that newcomers start with `plotting` and `charts`, and then move through `glyphs`, `compat`, `app` and `embed` to learn how to build apps with Bokeh and its low-level plotting interface.
+This directory contains many examples of different ways to use Bokeh. As Bokeh has been evolving
+fast, it is important that you **ensure that the version of an example you're looking at matches 
+the version of Bokeh you are running**.
 
-#### [`plotting`](https://github.com/bokeh/bokeh/tree/master/examples/plotting)
-This directory contains example using the high level plotting interface. This is the interface that most users should want start with. There are three subdirectories illustrating output in three different modes:
+### [`app`](app/)
 
-* `file` - Examples that output static HTML files
-* `notebook` - Examples that output inline within IPython notebooks
-* `server` - Examples that send their output to the Bokeh server, so they require the server to be running (to do this, you can invoke  'bokeh-server' from the command line)
+This directory contains examples of Bokeh Apps, which are simple and easy to create web applications for data visualization or exploration.
 
-#### [`charts`](https://github.com/bokeh/bokeh/tree/master/examples/charts)
-This directory includes examples that use the high level interface of Bokeh, e.g. for easily building [histograms](http://bokeh.pydata.org/docs/gallery/histograms_chart.html), [area charts](http://bokeh.pydata.org/docs/gallery/area_chart.html) or [donut plots](http://bokeh.pydata.org/docs/gallery/donut_chart.html).
+### [`charts`](charts/)
 
-#### [`glyphs`](https://github.com/bokeh/bokeh/tree/master/examples/glyphs)
-This directory contains examples that use the low-level interface and examples that mirror the `bokehjs` browser library interface. 
+This directory includes examples that use the high level
+[`bokeh.charts`](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html)
+interface of Bokeh. This interface can be for easily building high-level
+statistical or scientific charts such as
+[histograms](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#histograms),
+[bar charts](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#bar-charts) or
+[box plots](http://bokeh.pydata.org/en/latest/docs/user_guide/charts.html#box-plots).
 
-#### [`compat`](https://github.com/bokeh/bokeh/tree/master/examples/compat)
-This directory contains examples of plots that allow the user to invoke methods of other plotting packages  (e.g. `matplotlib`, `seaborn` and `ggplots`) through Bokeh.
+### [`compat`](compat/)
 
-#### [`embed`](https://github.com/bokeh/bokeh/tree/master/examples/embed)
-This directory includes examples that show how to embed Bokeh plots in as DOM objects within an HTML document.
+This directory contains examples of plots that use Bokeh's [compatibility
+layer](http://bokeh.pydata.org/en/latest/docs/user_guide/compat.html) to allow
+users to create Bokeh plots using other plotting libraries such as
+[matplotlib](http://matplotlib.org),
+[seaborn](http://stanford.edu/~mwaskom/software/seaborn/), or
+[ggplot.py](http://ggplot.yhathq.com).
 
-## Notes
+### [`embed`](embed/)
 
-* Windows has received the least amount of attention and support for Windows is being improved for the next 0.2 release.
+This directory includes examples that show how to embed Bokeh plots and widget in HTML documents.
 
-* All tools must be selected in the toolbar before they are active. Some common tools:
- - zoom: this is a scroll wheel zoom
- - pan: left click drag to pan
- - resize left click drag to resize
+### [`howto`](howto/)
+
+The examples in this directory are mini-tutorials that demonstrate and explain
+some  particular aspect of Bokeh capability (such as [linking and
+brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing)),
+or walk through a particular example in additional detail.
+
+### [`models`](models/)
+
+This directory contains examples that use the lowest-level
+[`bokeh.models`](http://bokeh.pydata.org/en/latest/docs/reference/models.html)
+interface. For more understanding of the bokeh.models interface see [the
+concepts section of the
+user_guide](http://bokeh.pydata.org/en/latest/docs/user_guide/concepts.html#bokeh-models)
+
+
+### [`plotting`](plotting/)
+
+This directory contains example using the
+[`bokeh.plotting`](http://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html)
+interface. There are three subdirectories illustrating output in three
+different modes:
+
+* `file` examples that output to static HTML files
+
+* `notebook` examples that display inline in [Jupyter](http://jupyter.org) notebooks
+
+* `server` examples that send output to a Bokeh server, using the python client library for the server
+
+## Other sources for examples
+
+* There are many examples in the [Bokeh Gallery](http://bokeh.pydata.org/en/latest/docs/gallery.html) on main documentation site http://bokeh.pydata.org.
+
+* The [Bokeh User's Guide](http://bokeh.pydata.org/en/latest/docs/user_guide.html) has many plots with corresponding code samples throughout.
+
+* Many examples of Bokeh being used with the [Jupyter](http://jupyter.org) notebook, including a set or tutorial notebooks, are collected in the [`bokeh-notebooks`](https://github.com/bokeh/bokeh-notebooks) repository. These notebooks are available statically rendered on the [Bokeh NBViewer page](http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb).
+
+* Larger examples, e.g. integrations with web application frameworks such as [Flask](http://flask.pocoo.org) or [Django](https://www.djangoproject.com), are collected in the [`bokeh-demos`](https://github.com/bokeh/bokeh-demos) repository.
+
+
+
 

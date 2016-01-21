@@ -8,6 +8,27 @@ HasProperties = require "./has_properties"
 {pull_session} = require "./client"
 {Promise} = require "es6-promise"
 
+_handle_notebook_comms = (msg) ->
+  logger.debug("handling notebook comms")
+  # @ is bound to the doc
+  data = JSON.parse(msg.content.data)
+  if 'events' of data and 'references' of data
+    @apply_json_patch(data)
+  else if 'doc' of data
+    @replace_with_json(data['doc'])
+  else
+    throw new Error("handling notebook comms message: ", msg)
+
+_init_comms = (target, doc) ->
+  if Jupyter?
+    comm_manager = Jupyter.notebook.kernel.comm_manager
+    comm_manager.register_target(target, (comm, msg) ->
+      logger.info("Registering Jupyter comms for target #{target}")
+      comm.on_msg(_.bind(_handle_notebook_comms, doc))
+    )
+  else
+    console.warn('Juptyer notebooks comms not available. push_notebook will not function');
+
 _create_view = (model) ->
   view = new model.default_view({model : model})
   base.index[model.id] = view
@@ -98,6 +119,10 @@ inject_css = (url) ->
   link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
   $('body').append(link)
 
+inject_raw_css = (css) ->
+  style = $("<style>").html(css)
+  $('body').append(style)
+
 # pull missing render item fields from data- attributes
 fill_render_item_from_script_tag = (script, item) ->
   info = script.data()
@@ -114,12 +139,16 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-embed_items = (docs_json, render_items, websocket_url) ->
+embed_items = (docs_json, render_items, websocket_url=null) ->
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
 
   for item in render_items
+
+    if item.notebook_comms_target?
+      _init_comms(item.notebook_comms_target, docs[docid])
+
     element_id = item['elementid']
     elem = $('#' + element_id);
     if elem.length == 0
@@ -161,6 +190,8 @@ embed_items = (docs_json, render_items, websocket_url) ->
           console.log("Error rendering Bokeh items ", error)
       )
 
-module.exports =
+module.exports = {
   embed_items: embed_items
   inject_css: inject_css
+  inject_raw_css: inject_raw_css
+}

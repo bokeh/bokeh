@@ -14,7 +14,7 @@ from ..models import (
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
-    PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
+    PreviewSaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime
@@ -209,15 +209,21 @@ _known_tools = {
     "tap": lambda: TapTool(),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),
+    "xbox_select": lambda: BoxSelectTool(dimensions=['width']),
+    "ybox_select": lambda: BoxSelectTool(dimensions=['height']),
     "poly_select": lambda: PolySelectTool(),
     "lasso_select": lambda: LassoSelectTool(),
-    "box_zoom": lambda: BoxZoomTool(),
+    "box_zoom": lambda: BoxZoomTool(dimensions=['width', 'height']),
+    "xbox_zoom": lambda: BoxZoomTool(dimensions=['width']),
+    "ybox_zoom": lambda: BoxZoomTool(dimensions=['height']),
     "hover": lambda: HoverTool(always_active=True, tooltips=[
         ("index", "$index"),
         ("data (x, y)", "($x, $y)"),
         ("canvas (x, y)", "($sx, $sy)"),
     ]),
     "previewsave": lambda: PreviewSaveTool(),
+    "undo": lambda: UndoTool(),
+    "redo": lambda: RedoTool(),
     "reset": lambda: ResetTool(),
     "help": lambda: HelpTool(),
 }

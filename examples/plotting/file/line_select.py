@@ -16,7 +16,7 @@ t = np.linspace(0, 0.1, 100)
 code = """
 d0 = cb_obj.get("selected")["0d"];
 if (d0.glyph) {
-    var color = d0.glyph.visuals.line.color.value();
+    var color = d0.glyph.glyph_view.visuals.line.color.value();
     var data = source.get('data');
     data['text'] = ['Selected the ' + color + ' line'];
     source.trigger('change');
@@ -36,6 +36,6 @@ p.text(0, -100, source=source)
 
 p.add_tools(TapTool(callback=CustomJS(code=code, args=dict(source=source))))
 
-output_file("line_select.html")
+output_file("line_select.html", title="line_select.py example")
 
 show(p)
