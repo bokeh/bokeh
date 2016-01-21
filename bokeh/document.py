@@ -1,5 +1,5 @@
 """ The document module provides the Document class, which is a container
-for all Bokeh objects that mustbe reflected to the client side BokehJS
+for all Bokeh objects that must be reflected to the client side BokehJS
 library.
 
 """
@@ -8,47 +8,219 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__file__)
 
-from bokeh.util.callback_manager import _check_callback
-from bokeh._json_encoder import serialize_json
-from .plot_object import PlotObject
-from .validation import check_integrity
 from json import loads
+import uuid
+
+from six import string_types
+
+from .core.json_encoder import serialize_json
+from .core.query import find
+from .core.validation import check_integrity
+from .model import Model
+from .themes import default as default_theme
+from .themes import Theme
+from .util.callback_manager import _check_callback
+from .util.deprecate import deprecated
+from .util.version import __version__
+
+DEFAULT_TITLE = "Bokeh Application"
 
 class DocumentChangedEvent(object):
     def __init__(self, document):
         self.document = document
 
-class ModelChangedEvent(DocumentChangedEvent):
-    def __init__(self, document, model, attr, old, new):
+    def dispatch(self, receiver):
+        if hasattr(receiver, '_document_changed'):
+            receiver._document_changed(self)
+
+class DocumentPatchedEvent(DocumentChangedEvent):
+    def __init__(self, document):
+        self.document = document
+
+    def dispatch(self, receiver):
+        super(DocumentPatchedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_document_patched'):
+            receiver._document_patched(self)
+
+class ModelChangedEvent(DocumentPatchedEvent):
+    def __init__(self, document, model, attr, old, new, serializable_new):
         super(ModelChangedEvent, self).__init__(document)
         self.model = model
         self.attr = attr
         self.old = old
         self.new = new
+        self.serializable_new = serializable_new
 
-class RootAddedEvent(DocumentChangedEvent):
+    def dispatch(self, receiver):
+        super(ModelChangedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_document_model_changed'):
+            receiver._document_model_changed(self)
+
+class TitleChangedEvent(DocumentPatchedEvent):
+    def __init__(self, document, title):
+        super(TitleChangedEvent, self).__init__(document)
+        self.title = title
+
+class RootAddedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootAddedEvent, self).__init__(document)
         self.model = model
 
-class RootRemovedEvent(DocumentChangedEvent):
+class RootRemovedEvent(DocumentPatchedEvent):
     def __init__(self, document, model):
         super(RootRemovedEvent, self).__init__(document)
         self.model = model
 
-class Document(object):
+class SessionCallbackAdded(DocumentChangedEvent):
+    def __init__(self, document, callback):
+        super(SessionCallbackAdded, self).__init__(document)
+        self.callback = callback
 
+    def dispatch(self, receiver):
+        super(SessionCallbackAdded, self).dispatch(receiver)
+        if hasattr(receiver, '_session_callback_added'):
+            receiver._session_callback_added(self)
+
+class SessionCallbackRemoved(DocumentChangedEvent):
+    def __init__(self, document, callback):
+        super(SessionCallbackRemoved, self).__init__(document)
+        self.callback = callback
+
+    def dispatch(self, receiver):
+        super(SessionCallbackRemoved, self).dispatch(receiver)
+        if hasattr(receiver, '_session_callback_removed'):
+            receiver._session_callback_removed(self)
+
+class SessionCallback(object):
+    def __init__(self, document, callback, id=None):
+        if id is None:
+            self._id = str(uuid.uuid4())
+        else:
+            self._id = id
+        self._document = document
+        self._callback = callback
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def callback(self):
+        return self._callback
+
+    def remove(self):
+        self.document._remove_session_callback(self)
+
+    def _copy_with_changed_callback(self, new_callback):
+        """ Internal API used to wrap the callback with decorators."""
+        raise NotImplementedError("_copy_with_changed_callback")
+
+class PeriodicCallback(SessionCallback):
+    def __init__(self, document, callback, period, id=None):
+        super(PeriodicCallback, self).__init__(document, callback, id)
+        self._period = period
+
+    @property
+    def period(self):
+        return self._period
+
+    def _copy_with_changed_callback(self, new_callback):
+        return PeriodicCallback(self._document, new_callback, self._period, self._id)
+
+class TimeoutCallback(SessionCallback):
+    def __init__(self, document, callback, timeout, id=None):
+        super(TimeoutCallback, self).__init__(document, callback, id)
+        self._timeout = timeout
+
+    @property
+    def timeout(self):
+        return self._timeout
+
+    def _copy_with_changed_callback(self, new_callback):
+        return TimeoutCallback(self._document, new_callback, self._timeout, self._id)
+
+class NextTickCallback(SessionCallback):
+    def __init__(self, document, callback, id=None):
+        super(NextTickCallback, self).__init__(document, callback, id)
+
+    def _copy_with_changed_callback(self, new_callback):
+        return NextTickCallback(self._document, new_callback, self._id)
+
+class _MultiValuedDict(object):
+    """
+    This is to store a mapping from keys to multiple values, while avoiding
+    the overhead of always having a collection as the value.
+    """
     def __init__(self):
-        self._roots = set()
+        self._dict = dict()
+
+    def add_value(self, key, value):
+        if key is None:
+            raise ValueError("Key is None")
+        if value is None:
+            raise ValueError("Can't put None in this dict")
+        if isinstance(value, set):
+            raise ValueError("Can't put sets in this dict")
+        existing = self._dict.get(key, None)
+        if existing is None:
+            self._dict[key] = value
+        elif isinstance(existing, set):
+            existing.add(value)
+        else:
+            self._dict[key] = set([existing, value])
+
+    def remove_value(self, key, value):
+        if key is None:
+            raise ValueError("Key is None")
+        existing = self._dict.get(key, None)
+        if isinstance(existing, set):
+            existing.discard(value)
+            if len(existing) == 0:
+                del self._dict[key]
+        elif existing == value:
+            del self._dict[key]
+        else:
+            pass
+
+    def get_one(self, k, duplicate_error):
+        existing = self._dict.get(k, None)
+        if isinstance(existing, set):
+            if len(existing) == 1:
+                return next(iter(existing))
+            else:
+                raise ValueError(duplicate_error + (": %r" % (existing)))
+        else:
+            return existing
+
+    def get_all(self, k):
+        existing = self._dict.get(k, None)
+        if existing is None:
+            return []
+        elif isinstance(existing, set):
+            return list(existing)
+        else:
+            return [existing]
+
+class Document(object):
+    '''
+
+    '''
+    def __init__(self, **kwargs):
+        self._roots = list()
+        self._theme = kwargs.pop('theme', default_theme)
+        # use _title directly because we don't need to trigger an event
+        self._title = kwargs.pop('title', DEFAULT_TITLE)
 
         # TODO (bev) add vars, stores
 
         self._all_models_freeze_count = 0
         self._all_models = dict()
-        self._callbacks = []
+        self._all_models_by_name = _MultiValuedDict()
+        self._callbacks = {}
+        self._session_callbacks = {}
 
     def clear(self):
-        ''' Remove all content from the document (including roots, vars, stores) '''
+        ''' Remove all content from the document (including roots, vars, stores) but do not reset title'''
         self._push_all_models_freeze()
         try:
             while len(self._roots) > 0:
@@ -81,7 +253,8 @@ class Document(object):
             raise RuntimeError("_all_models still had stuff in it: %r" % (self._all_models))
         for r in roots:
             dest_doc.add_root(r)
-        # TODO other fields of doc
+
+        dest_doc.title = self.title
 
     def _push_all_models_freeze(self):
         self._all_models_freeze_count += 1
@@ -103,18 +276,57 @@ class Document(object):
         old_all_models_set = set(self._all_models.values())
         to_detach = old_all_models_set - new_all_models_set
         to_attach = new_all_models_set - old_all_models_set
+
         recomputed = {}
+        recomputed_by_name = _MultiValuedDict()
         for m in new_all_models_set:
             recomputed[m._id] = m
+            if m.name is not None:
+                recomputed_by_name.add_value(m.name, m)
         for d in to_detach:
             d._detach_document()
         for a in to_attach:
             a._attach_document(self)
         self._all_models = recomputed
+        self._all_models_by_name = recomputed_by_name
 
     @property
     def roots(self):
-        return set(self._roots)
+        return list(self._roots)
+
+    @property
+    def title(self):
+        return self._title
+
+    @title.setter
+    def title(self, title):
+        if title is None:
+            raise ValueError("Document title may not be None")
+        if self._title != title:
+            self._title = title
+            self._trigger_on_change(TitleChangedEvent(self, title))
+
+    @property
+    def theme(self):
+        """ Get the current Theme instance affecting models in this Document. Never returns None."""
+        return self._theme
+
+    @theme.setter
+    def theme(self, theme):
+        """ Set the current Theme instance affecting models in this Document.
+        Setting this to None sets the default theme. Changing theme may trigger
+        model change events on the models in the Document if the theme modifies
+        any model properties.
+        """
+        if theme is None:
+            theme = default_theme
+        if not isinstance(theme, Theme):
+            raise ValueError("Theme must be an instance of the Theme class")
+        if self._theme is theme:
+            return
+        self._theme = theme
+        for model in self._all_models.values():
+            self._theme.apply_to_model(model)
 
     def add_root(self, model):
         ''' Add a model as a root model to this Document.
@@ -128,23 +340,25 @@ class Document(object):
             return
         self._push_all_models_freeze()
         try:
-            self._roots.add(model)
+            self._roots.append(model)
         finally:
             self._pop_all_models_freeze()
         self._trigger_on_change(RootAddedEvent(self, model))
 
-    # TODO (havocp) should probably drop either this or add_root.
-    # this is the backward compatible one but perhaps a tad unclear
-    # if we also allow adding other things besides roots.
+    @deprecated("Bokeh 0.11.0", "document.add_root")
     def add(self, *objects):
         """ Call add_root() on each object.
+
         .. warning::
             This function should only be called on top level objects such
             as Plot, and Layout containers.
+
         Args:
-            *objects (PlotObject) : objects to add to the Document
+            *objects (Model) : objects to add to the Document
+
         Returns:
             None
+
         """
         for obj in objects:
             self.add_root(obj)
@@ -169,8 +383,70 @@ class Document(object):
         ''' Get the model object for the given ID or None if not found'''
         return self._all_models.get(model_id, None)
 
+    def get_model_by_name(self, name):
+        ''' Get the model object for the given name or None if not found'''
+        return self._all_models_by_name.get_one(name, "Found more than one model named '%s'" % name)
+
+    def _is_single_string_selector(self, selector, field):
+        if len(selector) != 1:
+            return False
+        if field not in selector:
+            return False
+        return isinstance(selector[field], string_types)
+
+    def select(self, selector):
+        ''' Query this document for objects that match the given selector.
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            seq[Model]
+
+        '''
+        if self._is_single_string_selector(selector, 'name'):
+            # special-case optimization for by-name query
+            return self._all_models_by_name.get_all(selector['name'])
+        else:
+            return find(self._all_models.values(), selector)
+
+    def select_one(self, selector):
+        ''' Query this document for objects that match the given selector.
+        Raises an error if more than one object is found.  Returns
+        single matching object, or None if nothing is found
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            Model
+
+        '''
+        result = list(self.select(selector))
+        if len(result) > 1:
+            raise ValueError("Found more than one model matching %s: %r" % (selector, result))
+        if len(result) == 0:
+            return None
+        return result[0]
+
+    def set_select(self, selector, updates):
+        ''' Update objects that match a given selector with the specified
+        attribute/value updates.
+
+        Args:
+            selector (JSON-like) :
+            updates (dict) :
+
+        Returns:
+            None
+
+        '''
+        for obj in self.select(selector):
+            for key, val in updates.items():
+                setattr(obj, key, val)
+
     def on_change(self, *callbacks):
-        ''' Invoke callback if the document or any PlotObject reachable from its roots changes.
+        ''' Invoke callback if the document or any Model reachable from its roots changes.
 
         '''
         for callback in callbacks:
@@ -179,7 +455,11 @@ class Document(object):
 
             _check_callback(callback, ('event',))
 
-            self._callbacks.append(callback)
+            self._callbacks[callback] = callback
+
+    def on_change_dispatch_to(self, receiver):
+        if not receiver in self._callbacks:
+            self._callbacks[receiver] = lambda event: event.dispatch(receiver)
 
     def remove_on_change(self, *callbacks):
         ''' Remove a callback added earlier with on_change()
@@ -188,16 +468,43 @@ class Document(object):
 
         '''
         for callback in callbacks:
-            self._callbacks.remove(callback)
+            del self._callbacks[callback]
+
+    def _with_self_as_curdoc(self, f):
+        from bokeh.io import set_curdoc, curdoc
+        old_doc = curdoc()
+        try:
+            set_curdoc(self)
+            return f()
+        finally:
+            set_curdoc(old_doc)
+
+    def _wrap_with_self_as_curdoc(self, f):
+        doc = self
+        def wrapper(*args, **kwargs):
+            def invoke():
+                return f(*args, **kwargs)
+            return doc._with_self_as_curdoc(invoke)
+        return wrapper
 
     def _trigger_on_change(self, event):
-        for cb in self._callbacks:
-            cb(event)
+        def invoke_callbacks():
+            for cb in self._callbacks.values():
+                cb(event)
+        self._with_self_as_curdoc(invoke_callbacks)
 
     def _notify_change(self, model, attr, old, new):
-        ''' Called by PlotObject when it changes
+        ''' Called by Model when it changes
         '''
-        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new))
+        # if name changes, update by-name index
+        if attr == 'name':
+            if old is not None:
+                self._all_models_by_name.remove_value(old, model)
+            if new is not None:
+                self._all_models_by_name.add_value(new, model)
+
+        serializable_new = model.lookup(attr).serializable_value(model)
+        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new))
 
     @classmethod
     def _references_json(cls, references):
@@ -205,12 +512,7 @@ class Document(object):
         references_json = []
         for r in references:
             ref = r.ref
-            ref['attributes'] = r.vm_serialize(changed_only=False)
-            # 'id' is in 'ref' already
-            # TODO (havocp) don't put this id here in the first place,
-            # by fixing vm_serialize once we establish that other
-            # users of it don't exist anymore or whatever
-            del ref['attributes']['id']
+            ref['attributes'] = r._to_json_like(include_defaults=False)
             references_json.append(ref)
 
         return references_json
@@ -225,7 +527,7 @@ class Document(object):
             obj_id = obj['id']
             obj_type = obj.get('subtype', obj['type'])
 
-            cls = PlotObject.get_class(obj_type)
+            cls = Model.get_class(obj_type)
             instance = cls(id=obj_id, _block_events=True)
             if instance is None:
                 raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
@@ -243,25 +545,152 @@ class Document(object):
 
             instance = references[obj_id]
 
-            # replace references with actual instances in obj_attrs
-            for p in instance.properties_with_refs():
-                if p in obj_attrs:
-                    prop = instance.lookup(p)
-                    obj_attrs[p] = prop.from_json(obj_attrs[p], models=references)
+            instance.update_from_json(obj_attrs, models=references)
 
-            # set all properties on the instance
-            remove = []
-            for key in obj_attrs:
-                if key not in instance.properties():
-                    logger.warn("Client sent attr %r for instance %r, which is a client-only or invalid attribute that shouldn't have been sent", key, instance)
-                    remove.append(key)
-            for key in remove:
-                del obj_attrs[key]
-            instance.update(**obj_attrs)
+    @classmethod
+    def _value_record_references(cls, all_references, v, result):
+        if v is None: return
+        if isinstance(v, dict) and set(['id', 'type']).issubset(set(v.keys())):
+            if v['id'] not in result:
+                ref = all_references[v['id']]
+                result[v['id']] = ref
+                Document._value_record_references(all_references, ref['attributes'], result)
+        elif isinstance(v, (list, tuple)):
+            for elem in v:
+                Document._value_record_references(all_references, elem, result)
+        elif isinstance(v, dict):
+            for k, elem in v.items():
+                Document._value_record_references(all_references, elem, result)
 
-    def to_json_string(self):
-        ''' Convert the document to a JSON string. '''
+    @classmethod
+    def _event_for_attribute_change(cls, all_references, changed_obj, key, new_value, value_refs):
+        event = dict(
+            kind='ModelChanged',
+            model=dict(id=changed_obj['id'], type=changed_obj['type']),
+            attr=key,
+            new=new_value,
+        )
+        Document._value_record_references(all_references, new_value, value_refs)
+        return event
 
+    @classmethod
+    def _events_to_sync_objects(cls, all_references, from_obj, to_obj, value_refs):
+        from_keys = set(from_obj['attributes'].keys())
+        to_keys = set(to_obj['attributes'].keys())
+        removed = from_keys - to_keys
+        added = to_keys - from_keys
+        shared = from_keys & to_keys
+
+        events = []
+        for key in removed:
+            raise RuntimeError("internal error: should not be possible to delete attribute %s" % key)
+
+        for key in added:
+            new_value = to_obj['attributes'][key]
+            events.append(Document._event_for_attribute_change(all_references,
+                                                               from_obj,
+                                                               key,
+                                                               new_value,
+                                                               value_refs))
+
+        for key in shared:
+            old_value = from_obj['attributes'].get(key, None)
+            new_value = to_obj['attributes'].get(key, None)
+
+            if old_value is None and new_value is None:
+                continue
+
+            if old_value is None or new_value is None or old_value != new_value:
+                event = Document._event_for_attribute_change(all_references,
+                                                             from_obj,
+                                                             key,
+                                                             new_value,
+                                                             value_refs)
+                events.append(event)
+
+        return events
+
+    # we use this to send changes that happened between show() and
+    # push_notebook()
+    @classmethod
+    def _compute_patch_between_json(cls, from_json, to_json):
+
+        def refs(json):
+            result = {}
+            for obj in json['roots']['references']:
+                result[obj['id']] = obj
+            return result
+
+        from_references = refs(from_json)
+        from_roots = {}
+        from_root_ids = []
+        for r in from_json['roots']['root_ids']:
+            from_roots[r] = from_references[r]
+            from_root_ids.append(r)
+
+        to_references = refs(to_json)
+        to_roots = {}
+        to_root_ids = []
+        for r in to_json['roots']['root_ids']:
+            to_roots[r] = to_references[r]
+            to_root_ids.append(r)
+
+        from_root_ids.sort()
+        to_root_ids.sort()
+
+        from_set = set(from_root_ids)
+        to_set = set(to_root_ids)
+        removed = from_set - to_set
+        added = to_set - from_set
+
+        combined_references = dict(from_references)
+        for k in to_references.keys():
+            combined_references[k] = to_references[k]
+
+        value_refs = {}
+        events = []
+
+        for removed_root_id in removed:
+            model = dict(combined_references[removed_root_id])
+            del model['attributes']
+            events.append({ 'kind' : 'RootRemoved',
+                            'model' : model })
+
+        for added_root_id in added:
+            Document._value_record_references(combined_references,
+                                              combined_references[added_root_id],
+                                              value_refs)
+            model = dict(combined_references[added_root_id])
+            del model['attributes']
+            events.append({ 'kind' : 'RootAdded',
+                            'model' : model })
+
+        for id in to_references:
+            if id in from_references:
+                update_model_events = Document._events_to_sync_objects(
+                    combined_references,
+                    from_references[id],
+                    to_references[id],
+                    value_refs
+                )
+                events.extend(update_model_events)
+
+        return dict(
+            events=events,
+            references=list(value_refs.values())
+        )
+
+    def to_json_string(self, indent=None):
+        ''' Convert the document to a JSON string.
+
+        Args:
+            indent (int or None, optional) : number of spaces to indent, or
+                None to suppress all newlines and indentation (default: None)
+
+        Returns:
+            str
+
+        '''
         root_ids = []
         for r in self._roots:
             root_ids.append(r._id)
@@ -269,13 +698,15 @@ class Document(object):
         root_references = self._all_models.values()
 
         json = {
+            'title' : self.title,
             'roots' : {
                 'root_ids' : root_ids,
                 'references' : self._references_json(root_references)
-            }
+            },
+            'version' : __version__
         }
 
-        return serialize_json(json)
+        return serialize_json(json, indent=indent, sort_keys=True)
 
     def to_json(self):
         ''' Convert the document to a JSON object. '''
@@ -283,7 +714,6 @@ class Document(object):
         # this is a total hack to go via a string, needed because
         # our BokehJSONEncoder goes straight to a string.
         doc_json = self.to_json_string()
-
         return loads(doc_json)
 
     @classmethod
@@ -305,6 +735,8 @@ class Document(object):
         doc = Document()
         for r in root_ids:
             doc.add_root(references[r])
+
+        doc.title = json['title']
 
         return doc
 
@@ -329,7 +761,7 @@ class Document(object):
                 raise ValueError("Cannot create a patch using events from a different document " + repr(event))
 
             if isinstance(event, ModelChangedEvent):
-                value = event.new
+                value = event.serializable_new
 
                 # the new value is an object that may have
                 # not-yet-in-the-remote-doc references, and may also
@@ -342,7 +774,7 @@ class Document(object):
                 # remote could need, even though it could be inefficient.
                 # If it turns out we need to fix this we could probably
                 # do it by adding some complexity.
-                value_refs = set(PlotObject.collect_plot_objects(value))
+                value_refs = set(Model.collect_models(value))
 
                 # we know we don't want a whole new copy of the obj we're patching
                 # unless it's also the new value
@@ -361,6 +793,9 @@ class Document(object):
             elif isinstance(event, RootRemovedEvent):
                 json_events.append({ 'kind' : 'RootRemoved',
                                      'model' : event.model.ref })
+            elif isinstance(event, TitleChangedEvent):
+                json_events.append({ 'kind' : 'TitleChanged',
+                                     'title' : event.title })
 
         json = {
             'events' : json_events,
@@ -402,14 +837,7 @@ class Document(object):
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
-                if attr in patched_obj.properties_with_refs():
-                    prop = patched_obj.lookup(attr)
-                    value = prop.from_json(value, models=references)
-                if attr in patched_obj.properties():
-                    #logger.debug("Patching attribute %s of %r", attr, patched_obj)
-                    patched_obj.update(** { attr : value })
-                else:
-                    logger.warn("Client sent attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", attr, patched_obj)
+                patched_obj.set_from_json(attr, value, models=references)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
@@ -418,6 +846,8 @@ class Document(object):
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
                 self.remove_root(root_obj)
+            elif event_json['kind'] == 'TitleChanged':
+                self.title = event_json['title']
             else:
                 raise RuntimeError("Unknown patch event " + repr(event_json))
 
@@ -431,3 +861,108 @@ class Document(object):
             refs = r.references()
             root_sets.append(refs)
             check_integrity(refs)
+
+    @property
+    def session_callbacks(self):
+        return list(self._session_callbacks.values())
+
+    def _add_session_callback(self, callback_obj, callback, one_shot):
+        if callback in self._session_callbacks:
+            raise ValueError("callback has already been added")
+        if one_shot:
+            def remove_then_invoke(*args, **kwargs):
+                if callback in self._session_callbacks:
+                    obj = self._session_callbacks[callback]
+                    if obj is callback_obj:
+                        self._remove_session_callback(callback)
+                return callback(*args, **kwargs)
+            actual_callback = remove_then_invoke
+        else:
+            actual_callback = callback
+        callback_obj._callback = self._wrap_with_self_as_curdoc(actual_callback)
+        self._session_callbacks[callback] = callback_obj
+        # emit event so the session is notified of the new callback
+        self._trigger_on_change(SessionCallbackAdded(self, callback_obj))
+        return callback_obj
+
+    def add_periodic_callback(self, callback, period_milliseconds):
+        ''' Add a callback to be invoked on a session periodically.
+
+        Args:
+            callback (callable) : the callback function to execute
+            period_milliseconds (int) : the number of milliseconds that should
+                be between each callback execution.
+
+        .. note::
+            Periodic callbacks only work within the context of a Bokeh server
+            session. This function will no effect when Bokeh outputs to
+            standalone HTML or Jupyter notebook cells.
+
+        '''
+        cb = PeriodicCallback(self,
+                              None,
+                              period_milliseconds)
+        return self._add_session_callback(cb, callback, one_shot=False)
+
+    def remove_periodic_callback(self, callback):
+        ''' Remove a callback added earlier with add_periodic_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._remove_session_callback(callback)
+
+    def add_timeout_callback(self, callback, timeout_milliseconds):
+        ''' Add callback to be invoked once, after a specified timeout passes.
+
+        .. note::
+            Timeout callbacks only work within the context of a Bokeh server
+            session. This function will no effect when Bokeh outputs to
+            standalone HTML or Jupyter notebook cells.
+
+        '''
+        cb = TimeoutCallback(self,
+                             None,
+                             timeout_milliseconds)
+        return self._add_session_callback(cb, callback, one_shot=True)
+
+    def remove_timeout_callback(self, callback):
+        ''' Remove a callback added earlier with add_timeout_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._remove_session_callback(callback)
+
+    def add_next_tick_callback(self, callback):
+        ''' Add callback to be invoked once on the next "tick" of the event loop.
+
+        .. note::
+            Next tick callbacks only work within the context of a Bokeh server
+            session. This function will no effect when Bokeh outputs to
+            standalone HTML or Jupyter notebook cells.
+
+        '''
+        cb = NextTickCallback(self, None)
+        return self._add_session_callback(cb, callback, one_shot=True)
+
+    def remove_next_tick_callback(self, callback):
+        ''' Remove a callback added earlier with add_next_tick_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        self._remove_session_callback(callback)
+
+    def _remove_session_callback(self, callback):
+        ''' Remove a callback added earlier with add_periodic_callback()
+        or add_timeout_callback()
+
+            Throws an error if the callback wasn't added
+
+        '''
+        if callback not in self._session_callbacks:
+            raise ValueError("callback already ran or was already removed, cannot be removed again")
+        cb = self._session_callbacks.pop(callback)
+        # emit event so the session is notified and can remove the callback
+        self._trigger_on_change(SessionCallbackRemoved(self, cb))

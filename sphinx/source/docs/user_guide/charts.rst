@@ -1,11 +1,7 @@
 .. _userguide_charts:
 
-Using High-level Charts
-=======================
-
-.. contents::
-    :local:
-    :depth: 2
+Making High-level Charts
+========================
 
 The high level ``bokeh.charts`` interface provides a fast, convenient way
 to create common statistical charts with a minimum of code. Wherever possible,
@@ -13,21 +9,13 @@ the interface is geared to be extremely simple to use in conjunction with
 Pandas, by accepting a ``DataFrame`` and names of columns directly to specify
 data.
 
-.. warning::
-    This guide describes a new charts API introduced in release `0.10`.
-    Some older chart types have not yet been converted. However this new
-    API is such an important and dramatic improvement that it was decided
-    not to wait any longer to release it. All of the older charts are still
-    available in a ``bokeh._legacy_charts`` modules that will be removed
-    later, once all chart types are converted to the new API.
-
 Key Concepts
 ------------
 
-* **Data**: Input data is either a Pandas :class:`pandas.DataFrame` or other table-like
+**Data**: Input data is either a Pandas :class:`pandas.DataFrame` or other table-like
     structure, yet also handling simple formats through conversion to a `DataFrame`
     internally.
-* **Smart Defaults**: The attempt is made to provide unique chart attribute assignment
+**Smart Defaults**: The attempt is made to provide unique chart attribute assignment
   (color, marker, etc) by one or more column names, while supporting custom and/or
   advanced configuration through the same keyword argument.
 
@@ -43,8 +31,9 @@ to remember how to import and create a dataframe.
 
 The input types accepted are:
 
-- **Array-like**: 1..* list, tuple, :class:`numpy.ndarray`, :class:`pandas.Series`
-- **Table-like**:
+**Array-like**: 1..* list, tuple, :class:`numpy.ndarray`, :class:`pandas.Series`
+
+**Table-like**:
     - records: a list(dict)
     - columns: a dict(list), :class:`pandas.DataFrame`, or blaze resource
 
@@ -73,7 +62,7 @@ each attribute value.
 **Supporting Exploratory Use**
 More importantly, you'll need to pre-define enough unique values of the attribute to
 assign to each value you have grouped on, which isn't necessarily complicated, but it
-can be especially time consuming for new or sporatic users. This process of assigning
+can be especially time consuming for new or sporadic users. This process of assigning
 attributes is also generally of little interest to users that prioritize interactive data
 discovery over novel charts. With the discovery use case, you are trying to understand
 what relationships exist within the data, so it is counter-productive to require the user
@@ -220,8 +209,8 @@ case the boxes are shaded automatically according to the group:
 Whisker Color
 ~~~~~~~~~~~~~
 
-The color of the whiskers can be similary controlled using the ``whisker_color``
-paramter. For a single color:
+The color of the whiskers can be similarly controlled using the ``whisker_color``
+parameter. For a single color:
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/charts_boxplot_whisker_color.py
     :source-position: above
@@ -410,8 +399,5 @@ on all charts created, in one place. For instance:
     defaults.height = 350
 
 will set the default width and height for any chart. The full list of
-attributes that can be set is below:
-
-.. bokeh-model:: bokeh.charts.chart_options.ChartOptions
-
-
+attributes that can be set can be seen in the :ref:`bokeh.charts` section
+of the Reference Guide.

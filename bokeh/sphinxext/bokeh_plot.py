@@ -3,38 +3,32 @@
 For other output types, the placeholder text ``[graph]`` will
 be generated.
 
-Usage
------
-
 The ``bokeh-plot`` directive can be used by either supplying:
 
-1. **A path to a source file** as the argument to the directive::
+**A path to a source file** as the argument to the directive::
 
     .. bokeh-plot:: path/to/plot.py
 
 
-2. **Inline code** as the content of the directive::
+**Inline code** as the content of the directive::
 
-    .. bokeh-plot::
+ .. bokeh-plot::
 
-        from bokeh.plotting import figure, output_file, show
+     from bokeh.plotting import figure, output_file, show
 
-        output_file("example.html")
+     output_file("example.html")
 
-        x = [1, 2, 3, 4, 5]
-        y = [6, 7, 6, 4, 5]
+     x = [1, 2, 3, 4, 5]
+     y = [6, 7, 6, 4, 5]
 
-        p = figure(title="example", plot_width=300, plot_height=300)
-        p.line(x, y, line_width=2)
-        p.circle(x, y, size=10, fill_color="white")
+     p = figure(title="example", plot_width=300, plot_height=300)
+     p.line(x, y, line_width=2)
+     p.circle(x, y, size=10, fill_color="white")
 
-        show(p)
+     show(p)
 
 This directive also works in conjunction with Sphinx autodoc, when
 used in docstrings.
-
-Options
--------
 
 The ``bokeh-plot`` directive accepts the following options:
 
@@ -52,8 +46,6 @@ Examples
 --------
 
 The inline example code above produces the following output:
-
-----
 
 .. bokeh-plot::
 
@@ -95,7 +87,8 @@ from .utils import out_of_date
 from .. import io
 from ..document import Document
 from ..embed import autoload_static
-from ..resources import CDN
+from ..resources import Resources
+from ..settings import settings
 from ..util.string import decode_utf8
 
 
@@ -270,6 +263,11 @@ def html_visit_bokeh_plot(self, node):
     env = self.builder.env
     dest_dir = join(self.builder.outdir, node["relpath"])
 
+    if settings.docs_cdn() == "local":
+        resources = Resources(mode="server", root_url="/en/latest/")
+    else:
+        resources = Resources(mode="cdn")
+
     try:
         if "path" in node:
             path = node['path']
@@ -282,7 +280,7 @@ def html_visit_bokeh_plot(self, node):
             if out_of_date(path, cached_path) or not exists(cached_path+".script"):
                 self.builder.app.verbose("generating new plot for '%s'" % path)
                 plot = _render_plot(node['source'], node.get('symbol'))
-                js, script = autoload_static(plot, CDN, filename)
+                js, script = autoload_static(plot, resources, filename)
                 with open(cached_path, "w") as f:
                     f.write(js)
                 with open(cached_path+".script", "w") as f:
@@ -298,7 +296,7 @@ def html_visit_bokeh_plot(self, node):
             if not exists(dest_dir): makedirs(dest_dir)
             dest_path = join(dest_dir, filename)
             plot = _render_plot(node['source'], None)
-            js, script = autoload_static(plot, CDN, filename)
+            js, script = autoload_static(plot, resources, filename)
             self.builder.app.verbose("saving inline plot at: %s" % dest_path)
             with open(dest_path, "w") as f:
                 f.write(js)

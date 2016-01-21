@@ -1,27 +1,26 @@
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
-from ..properties import HasProps, abstract
-from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
-from ..validation.errors import COLUMN_LENGTHS
-from .. import validation
+from ..core import validation
+from ..core.validation.errors import COLUMN_LENGTHS
+from ..model import Model
+from ..core.properties import abstract
+from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..util.dependencies import import_optional
+from ..util.deprecate import deprecated
 from ..util.serialization import transform_column_source_data
 from .callbacks import Callback
-from bokeh.deprecate import deprecated
+
+pd = import_optional('pandas')
 
 @abstract
-class DataSource(PlotObject):
+class DataSource(Model):
     """ A base class for data source types. ``DataSource`` is
     not generally useful to instantiate on its own.
 
     """
 
-    column_names = List(String, help="""
-    An list of names for all the columns in this DataSource.
-    """)
-
     selected = Dict(String, Dict(String, Any), default={
-        '0d': {'flag': False, 'indices': []},
+        '0d': {'glyph': None, 'indices': []},
         '1d': {'indices': []},
         '2d': {'indices': []}
     }, help="""
@@ -48,33 +47,6 @@ class DataSource(PlotObject):
     A callback to run in the browser whenever the selection is changed.
     """)
 
-    def columns(self, *columns):
-        """ Returns a ColumnsRef object for a column or set of columns
-        on this data source.
-
-        Args:
-            *columns
-
-        Returns:
-            ColumnsRef
-
-        """
-        return ColumnsRef(source=self, columns=list(columns))
-
-class ColumnsRef(HasProps):
-    """ A utility object to allow referring to a collection of columns
-    from a specified data source, all together.
-
-    """
-
-    source = Instance(DataSource, help="""
-    A data source to reference.
-    """)
-
-    columns = List(String, help="""
-    A list of column names to reference from ``source``.
-    """)
-
 class ColumnDataSource(DataSource):
     """ Maps names of columns to sequences or arrays.
 
@@ -96,6 +68,10 @@ class ColumnDataSource(DataSource):
     Python lists or tuples, NumPy arrays, etc.
     """)
 
+    column_names = List(String, help="""
+    An list of names for all the columns in this DataSource.
+    """)
+
     def __init__(self, *args, **kw):
         """ If called with a single argument that is a dict or
         pandas.DataFrame, treat that implicitly as the "data" attribute.
@@ -105,8 +81,7 @@ class ColumnDataSource(DataSource):
         # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data = kw.pop("data", {})
         if not isinstance(raw_data, dict):
-            import pandas as pd
-            if isinstance(raw_data, pd.DataFrame):
+            if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
@@ -166,7 +141,8 @@ class ColumnDataSource(DataSource):
             DataFrame
 
         """
-        import pandas as pd
+        if not pd:
+            raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
         if self.column_names:
             return pd.DataFrame(self.data, columns=self.column_names)
         else:
@@ -193,8 +169,8 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
-    def vm_serialize(self, changed_only=True):
-        attrs = super(ColumnDataSource, self).vm_serialize(changed_only=changed_only)
+    def _to_json_like(self, include_defaults):
+        attrs = super(ColumnDataSource, self)._to_json_like(include_defaults=include_defaults)
         if 'data' in attrs:
             attrs['data'] = transform_column_source_data(attrs['data'])
         return attrs
@@ -219,34 +195,25 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    # def push_notebook(self):
-    #     """ Update date for a plot in the IPthon notebook in place.
+    @deprecated("Bokeh 0.11.0", "bokeh.io.push_notebook")
+    def push_notebook(self):
+        """ Update a data source for a plot in a Jupyter notebook.
 
-    #     This function can be be used to update data in plot data sources
-    #     in the IPython notebook, without having to use the Bokeh server.
+        This function can be be used to update data in plot data sources
+        in the Jupyter notebook, without having to use the Bokeh server.
 
-    #     Returns:
-    #         None
+        .. warning::
+            This function has been deprecated. Please use
+            ``bokeh.io.push_notebook()`` which will push all changes
+            (not just data sources) to the last shown plot in a Jupyter
+            notebook.
 
-    #     .. warning::
-    #         The current implementation leaks memory in the IPython notebook,
-    #         due to accumulating JS code. This function typically works well
-    #         with light UI interactions, but should not be used for continuously
-    #         updating data. See :bokeh-issue:`1732` for more details and to
-    #         track progress on potential fixes.
+        Returns:
+            None
 
-    #     """
-    #     from IPython.core import display
-    #     from bokeh.protocol import serialize_json
-    #     id = self.ref['id']
-    #     model = self.ref['type']
-    #     json = serialize_json(self.vm_serialize())
-    #     js = """
-    #         var ds = Bokeh.Collections('{model}').get('{id}');
-    #         var data = {json};
-    #         ds.set(data);
-    #     """.format(model=model, id=id, json=json)
-    #     display.display_javascript(js, raw=True)
+        """
+        from bokeh.io import push_notebook
+        push_notebook()
 
     @validation.error(COLUMN_LENGTHS)
     def _check_column_lengths(self):
@@ -254,30 +221,40 @@ class ColumnDataSource(DataSource):
         if len(lengths) > 1:
             return str(self)
 
+
+class GeoJSONDataSource(ColumnDataSource):
+
+    geojson = JSON(help="""
+    GeoJSON that contains features for plotting. Currently GeoJSONDataSource can
+    only process a FeatureCollection or GeometryCollection.
+    """)
+
+
 @abstract
-class RemoteSource(DataSource):
+class RemoteSource(ColumnDataSource):
+
     data_url = String(help="""
     The URL to the endpoint for the data.
     """)
-    data = Dict(String, Any, help="""
-    Additional data to include directly in this data source object. The
-    columns provided here are merged with those from the Bokeh server.
-    """)
+
     polling_interval = Int(help="""
     polling interval for updating data source in milliseconds
     """)
 
 class AjaxDataSource(RemoteSource):
+
     method = Enum('POST', 'GET', help="http method - GET or POST")
 
     mode = Enum("replace", "append", help="""
     Whether to append new data to existing data (up to ``max_size``),
     or to replace existing data entirely.
     """)
+
     max_size = Int(help="""
     Maximum size of the data array being kept after each pull requests.
     Larger than that size, the data will be right shifted.
     """)
+
     if_modified = Bool(False, help="""
     Whether to include an ``If-Modified-Since`` header in AJAX requests
     to the server. If this header is supported by the server, then only
@@ -295,9 +272,11 @@ class BlazeDataSource(RemoteSource):
     expr = Dict(String, Any(), help="""
     blaze expression graph in json form
     """)
+
     namespace = Dict(String, Any(), help="""
     namespace in json form for evaluating blaze expression graph
     """)
+
     local = Bool(help="""
     Whether this data source is hosted by the bokeh server or not.
     """)
@@ -324,17 +303,3 @@ class BlazeDataSource(RemoteSource):
         return from_tree(self.expr, {':leaf' : d})
 
 
-class ServerDataSource(BlazeDataSource):
-    """ A data source that referes to data located on a Bokeh server.
-
-    The data from the server is loaded on-demand by the client.
-    """
-    # Paramters of data transformation operations
-    # The 'Any' is used to pass primtives around.
-    # TODO: (jc) Find/create a property type for 'any primitive/atomic value'
-    transform = Dict(String,Either(Instance(PlotObject), Any), help="""
-    Paramters of the data transformation operations.
-
-    The associated valuse is minimally a tag that says which downsample routine
-    to use.  For some downsamplers, parameters are passed this way too.
-    """)

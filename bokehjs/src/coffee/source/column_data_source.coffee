@@ -1,22 +1,16 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+DataSource = require './data_source'
 SelectionManager = require "../common/selection_manager"
 hittest = require "../common/hittest"
 
 # Datasource where the data is defined column-wise, i.e. each key in the
 # the data attribute is a column name, and its value is an array of scalars.
 # Each column should be the same length.
-class ColumnDataSource extends HasProperties
+class ColumnDataSource extends DataSource.Model
   type: 'ColumnDataSource'
 
-  initialize: (options) ->
-    super(options)
-    @listenTo(@, 'change:selected', () =>
-      @get('callback')?.execute(@)
-    )
-
   nonserializable_attribute_names: () ->
-    super().concat(['selection_manager'])
+    super().concat(['selection_manager', 'inspected'])
 
   get_column: (colname) ->
     return @get('data')[colname] ? null
@@ -44,7 +38,7 @@ class ColumnDataSource extends HasProperties
     return _.extend {}, super(), {
       data: {}
       selection_manager: new SelectionManager({'source':@})
-      selected: hittest.create_hit_test_result()
+      column_names: []
     }
 
 module.exports =

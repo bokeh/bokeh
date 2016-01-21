@@ -8,6 +8,7 @@ build:
 extra:
   channels:
     - bokeh
+    - javascript
 
 requirements:
   build:
@@ -15,6 +16,13 @@ requirements:
     - distribute
     - setuptools
     - nodejs >=4.1
+    - six
+    - python-dateutil
+    - numpy
+    - yaml
+    - pyyaml
+    - jinja2
+    - tornado >=4.3
 
   run:
     # bokeh
@@ -25,12 +33,9 @@ requirements:
     - python-dateutil
     - jinja2
     - numpy
-    - pandas
 
     # server
-    - flask
-    - pyzmq
-    - tornado >=4.0.1
+    - tornado >=4.3
     - futures        [py27]
 
 test:
@@ -39,8 +44,6 @@ test:
     - graphviz
     - pygments
     - sphinx >=1.3.1
-    - sphinx-bootstrap-theme
-    - sphinxcontrib-httpdomain
 
     # tests
     # pyyaml installed by bokeh
@@ -49,25 +52,23 @@ test:
     - coverage
     - flake8
     - mock
+    - pandas
     - pytest
     - pytest-cov ==1.8.1
     - pytest-selenium ==1.0b1
-    - abstract-rendering        [not win]
     - beautiful-soup
-    - websocket-client
-    - blaze
-    - multiuserblazeserver
     - scipy
     - pillow
 
     # examples
-    - ipython
-    - ipython-notebook
+    - jupyter
     - matplotlib
     - sympy
     - ggplot
     - seaborn
     - icalendar
+    - flask
+    - flexx           [py3k]
 
   commands:
     - bokeh -h        [linux64 or osx]

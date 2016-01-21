@@ -1,11 +1,11 @@
-from bokeh.plotting import figure
-from bokeh.models import Range1d
-from bokeh.embed import components
-from bokeh.resources import INLINE
+
 from jinja2 import Template
-import webbrowser
-import os
-import six
+
+from bokeh.embed import components
+from bokeh.models import Range1d
+from bokeh.plotting import figure
+from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 # create some data
 x1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -36,7 +36,7 @@ p2.scatter(x2, y2, size=12, color="blue", alpha=0.5)
 p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, plot_width=300, plot_height=300)
 p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
 
-# plots can be a single PlotObject, a list/tuple, or even a dictionary
+# plots can be a single Bokeh model, a list/tuple, or even a dictionary
 plots = {'Red': p1, 'Blue': p2, 'Green': p3}
 
 script, div = components(plots)
@@ -62,15 +62,14 @@ template = Template('''<!DOCTYPE html>
 js_resources = INLINE.render_js()
 css_resources = INLINE.render_css()
 
-html_file = 'embed_multiple.html'
+filename = 'embed_multiple.html'
 
 html = template.render(js_resources=js_resources,
                        css_resources=css_resources,
                        script=script,
                        div=div)
 
-with open(html_file, 'w') as textfile:
-    textfile.write(html)
+with open(filename, 'w') as f:
+    f.write(html)
 
-url = 'file:{}'.format(six.moves.urllib.request.pathname2url(os.path.abspath(html_file)))
-webbrowser.open(url)
+view(filename)

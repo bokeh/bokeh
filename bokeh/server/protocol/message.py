@@ -4,6 +4,7 @@
 from __future__ import absolute_import, print_function
 
 from tornado.escape import json_decode, json_encode
+from tornado import gen
 
 import bokeh.util.serialization as bkserial
 
@@ -119,7 +120,8 @@ class Message(object):
             raise ProtocolError("too many buffers received expecting " + str(self.header['num_buffers']))
         self._buffers.append((buf_header, buf_payload))
 
-    def write_buffers(self, conn):
+    @gen.coroutine
+    def write_buffers(self, conn, locked=True):
         ''' Write any buffer headers and payloads to the given connection.
 
         Args:
@@ -130,12 +132,14 @@ class Message(object):
             int : number of bytes sent
 
         '''
+        if conn is None:
+            raise ValueError("Cannot write_buffers to connection None")
         sent = 0
         for header, payload in self._buffers:
-            conn.write_message(header)
-            conn.write_message(payload, binary=True)
+            yield conn.write_message(header, locked=locked)
+            yield conn.write_message(payload, binary=True, locked=locked)
             sent += (len(header) + len(payload))
-        return sent
+        raise gen.Return(sent)
 
     @classmethod
     def create_header(cls, request_id=None):
@@ -156,6 +160,7 @@ class Message(object):
             header['reqid'] = request_id
         return header
 
+    @gen.coroutine
     def send(self, conn):
         ''' Send the message on the given connection.
 
@@ -166,20 +171,30 @@ class Message(object):
             int : number of bytes sent
 
         '''
-        sent = 0
+        if conn is None:
+            raise ValueError("Cannot send to connection None")
 
-        conn.write_message(self.header_json)
-        sent += len(self.header_json)
+        with (yield conn.write_lock.acquire()):
+            sent = 0
 
-        conn.write_message(self.metadata_json)
-        sent += len(self.metadata_json)
+            yield conn.write_message(self.header_json, locked=False)
+            sent += len(self.header_json)
 
-        conn.write_message(self.content_json)
-        sent += len(self.content_json)
+            # uncomment this to make it a lot easier to reproduce lock-related bugs
+            #yield gen.sleep(0.1)
 
-        sent += self.write_buffers(conn)
+            yield conn.write_message(self.metadata_json, locked=False)
+            sent += len(self.metadata_json)
 
-        return sent
+            # uncomment this to make it a lot easier to reproduce lock-related bugs
+            #yield gen.sleep(0.1)
+
+            yield conn.write_message(self.content_json, locked=False)
+            sent += len(self.content_json)
+
+            sent += yield self.write_buffers(conn, locked=False)
+
+            raise gen.Return(sent)
 
     @property
     def complete(self):

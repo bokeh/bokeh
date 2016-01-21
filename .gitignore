@@ -105,3 +105,8 @@ win-64
 /bokeh/__conda_version__.py
 /bokeh/LICENSE.txt
 /examples/refs
+.cache/
+
+# generated coffeescript
+/bokehjs/src/coffee/widget/defaults.coffee
+/bokehjs/src/coffee/common/defaults.coffee

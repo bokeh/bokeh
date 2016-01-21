@@ -1,8 +1,7 @@
 _ = require "underscore"
-coffee = require "coffee-script"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class CustomJS extends HasProperties
+class CustomJS extends Model
   type: 'CustomJS'
 
   initialize: (attrs, options) ->
@@ -24,8 +23,11 @@ class CustomJS extends HasProperties
     code = @get("code")
 
     code = switch @get("lang")
-      when "javascript"   then code
-      when "coffeescript" then coffee.compile(code, {bare: true, shiftLine: true})
+      when "javascript"
+        code
+      when "coffeescript"
+        coffee = require "coffee-script"
+        coffee.compile(code, {bare: true, shiftLine: true})
 
     # this relies on _.keys(args) and _.values(args) returning keys and values
     # in the same order

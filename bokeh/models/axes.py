@@ -4,10 +4,11 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..properties import abstract
-from ..properties import Int, Float, String, Enum, Bool, Datetime, Auto, Instance, Tuple, Either, Include
-from ..mixins import LineProps, TextProps
-from ..enums import Location
+from ..core.properties import abstract
+from ..core.properties import (Int, Float, String, Enum, Bool, Datetime, Auto, Instance,
+                          Tuple, Either, Include, Override)
+from ..core.property_mixins import LineProps, TextProps
+from ..core.enums import Location
 
 from .renderers import GuideRenderer
 from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker
@@ -55,7 +56,7 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = String(help="""
+    axis_label = String(default='', help="""
     A text label for the axis, displayed parallel to the axis rule.
 
     .. note::
@@ -64,7 +65,7 @@ class Axis(GuideRenderer):
 
     """)
 
-    axis_label_standoff = Int(help="""
+    axis_label_standoff = Int(default=5, help="""
     The distance in pixels that the axis labels should be offset
     from the tick labels.
     """)
@@ -73,7 +74,13 @@ class Axis(GuideRenderer):
     The %s of the axis label.
     """)
 
-    major_label_standoff = Int(help="""
+    axis_label_text_align = Override(default="center")
+
+    axis_label_text_baseline = Override(default="alphabetic")
+
+    axis_label_text_font_size = Override(default={ 'value' : "16pt" })
+
+    major_label_standoff = Int(default=5, help="""
     The distance in pixels that the major tick labels should be
     offset from the associated ticks.
     """)
@@ -87,6 +94,12 @@ class Axis(GuideRenderer):
     The %s of the major tick labels.
     """)
 
+    major_label_text_align = Override(default="center")
+
+    major_label_text_baseline = Override(default="alphabetic")
+
+    major_label_text_font_size = Override(default={ 'value' : "10pt" })
+
     axis_props = Include(LineProps, help="""
     The %s of the axis line.
     """)
@@ -95,12 +108,12 @@ class Axis(GuideRenderer):
     The %s of the major ticks.
     """)
 
-    major_tick_in = Int(help="""
+    major_tick_in = Int(default=2, help="""
     The distance in pixels that major ticks should extend into the
     main plot area.
     """)
 
-    major_tick_out = Int(help="""
+    major_tick_out = Int(default=6, help="""
     The distance in pixels that major ticks should extend out of the
     main plot area.
     """)
@@ -109,19 +122,19 @@ class Axis(GuideRenderer):
     The %s of the minor ticks.
     """)
 
-    minor_tick_in = Int(help="""
+    minor_tick_in = Int(default=0, help="""
     The distance in pixels that minor ticks should extend into the
     main plot area.
     """)
 
-    minor_tick_out = Int(help="""
+    minor_tick_out = Int(default=4, help="""
     The distance in pixels that major ticks should extend out of the
     main plot area.
     """)
 
 @abstract
 class ContinuousAxis(Axis):
-    """ A base class for all numeric, non-categorica axes types.
+    """ A base class for all numeric, non-categorical axes types.
     ``ContinuousAxis`` is not generally useful to instantiate on its own.
 
     """
@@ -132,37 +145,27 @@ class LinearAxis(ContinuousAxis):
     linear scale. Configured with a ``BasicTickFormatter`` by default.
 
     """
-    def __init__(self, ticker=None, formatter=None, **kwargs):
-        if ticker is None:
-            ticker = BasicTicker()
-        if formatter is None:
-            formatter = BasicTickFormatter()
-        super(LinearAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
+    ticker = Override(default=lambda: BasicTicker())
+
+    formatter = Override(default=lambda: BasicTickFormatter())
 
 class LogAxis(ContinuousAxis):
     """ An axis that picks nice numbers for tick locations on a
     log scale. Configured with a ``LogTickFormatter`` by default.
 
     """
+    ticker = Override(default=lambda: LogTicker())
 
-    def __init__(self, ticker=None, formatter=None, **kwargs):
-        if ticker is None:
-            ticker = LogTicker(num_minor_ticks=10)
-        if formatter is None:
-            formatter = LogTickFormatter(ticker=ticker)
-        super(LogAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
+    formatter = Override(default=lambda: LogTickFormatter())
 
 class CategoricalAxis(Axis):
     """ An axis that picks evenly spaced tick locations for a
     collection of categories/factors.
 
     """
-    def __init__(self, ticker=None, formatter=None, **kwargs):
-        if ticker is None:
-            ticker = CategoricalTicker()
-        if formatter is None:
-            formatter = CategoricalTickFormatter()
-        super(CategoricalAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
+    ticker = Override(default=lambda: CategoricalTicker())
+
+    formatter = Override(default=lambda: CategoricalTickFormatter())
 
 class DatetimeAxis(LinearAxis):
     """ An LinearAxis that picks nice numbers for tick locations on
@@ -170,22 +173,7 @@ class DatetimeAxis(LinearAxis):
     default.
 
     """
-    axis_label = String("date", help="""
-    DateTime ``axis_label`` defaults to "date".
-    """)
 
-    # TODO: (bev) this should be an Enum, if it is exposed at all
-    scale = String("time")
+    ticker = Override(default=lambda: DatetimeTicker())
 
-    num_labels = Int(8)
-
-    char_width = Int(10)
-
-    fill_ratio = Float(0.3)
-
-    def __init__(self, ticker=None, formatter=None, **kwargs):
-        if ticker is None:
-            ticker = DatetimeTicker()
-        if formatter is None:
-            formatter = DatetimeTickFormatter()
-        super(DatetimeAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
+    formatter = Override(default=lambda: DatetimeTickFormatter())

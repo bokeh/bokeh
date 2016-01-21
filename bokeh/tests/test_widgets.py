@@ -30,8 +30,8 @@ class TestPanel(unittest.TestCase):
     def test_prop_defaults(self):
         p1 = self.panelCls()
         p2 = self.panelCls()
-        self.assertEqual(p1.title, None)
-        self.assertEqual(p2.title, None)
+        self.assertEqual(p1.title, "")
+        self.assertEqual(p2.title, "")
         self.assertEqual(p1.child, None)
         self.assertFalse(p1.closable)
 
@@ -68,8 +68,8 @@ class TestDialog(unittest.TestCase):
         dialog = self.dialogCls()
         self.assertFalse(dialog.visible)
         self.assertTrue(dialog.closable)
-        self.assertEqual(dialog.title, None)
-        self.assertEqual(dialog.content, None)
+        self.assertEqual(dialog.title, "")
+        self.assertEqual(dialog.content, "")
         self.assertEqual(dialog.buttons, [])
 
 class TestLayout(unittest.TestCase):

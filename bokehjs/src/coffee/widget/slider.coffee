@@ -1,9 +1,9 @@
 _ = require "underscore"
 $2 = require "jquery-ui/slider"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
 slidertemplate = require "./slidertemplate"
+InputWidget = require "./input_widget"
 
 class SliderView extends ContinuumView
   tagName: "div"
@@ -11,12 +11,13 @@ class SliderView extends ContinuumView
 
   initialize: (options) ->
     super(options)
-    @render()
-
-  render: () ->
+    @listenTo(@model, 'change', @render)
     @$el.empty()
     html = @template(@model.attributes)
     @$el.html(html)
+    @render()
+
+  render: () ->
     max = @mget('end')
     min = @mget('start')
     step = @mget('step') or ((max - min)/50)
@@ -40,7 +41,7 @@ class SliderView extends ContinuumView
     @mset('value', value)
     @mget('callback')?.execute(@model)
 
-class Slider extends HasParent
+class Slider extends InputWidget.Model
   type: "Slider"
   default_view: SliderView
 
@@ -50,7 +51,7 @@ class Slider extends HasParent
       value: 0.5
       start: 0
       end: 1
-      step: 0
+      step: 0.1
       orientation: "horizontal"
     }
 

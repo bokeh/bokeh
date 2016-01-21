@@ -11,7 +11,7 @@ from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 
-from bokeh.properties import (HasProps, Either, String, Int, List, Bool,
+from bokeh.core.properties import (HasProps, Either, String, Int, List, Bool,
                               PrimitiveProperty, bokeh_integer_types, Array)
 from .utils import special_columns, title_from_columns
 
@@ -38,7 +38,7 @@ class Column(Array):
         if isinstance(value, pd.Series):
             arr = value.values
         else:
-            arr = value
+            arr = pd.Series(value).values
 
         trans_array = super(Column, self).transform(arr)
         try:
@@ -60,7 +60,7 @@ class Logical(Bool):
             if isinstance(value, list):
                 value = np.array(value)
 
-            # If not a Bool, then look for psuedo-logical types
+            # If not a Bool, then look for pseudo-logical types
             if isinstance(value, np.ndarray):
                 values = np.unique(value)
                 if len(values) == 2:
@@ -89,7 +89,7 @@ class ColumnLabel(Either):
                 else:
                     raise ValueError("Not a valid column selection.")
             else:
-                if value not in self.columns:
+                if value not in self.columns and value not in special_columns:
                     raise ValueError("Column provided is not in the list of valid columns: %s" % self.columns)
 
     def __str__(self):
@@ -164,7 +164,11 @@ class Dimension(HasProps):
         return len(self.data.index)
 
     def set_data(self, data):
-        """Set data property so that builders has access to configuration metadata."""
+        """Set data property so that builders has access to configuration metadata.
+
+        Args:
+            data (`ChartDataSource`): the data source associated with the chart
+        """
         self.selection = data[self.name]
         self._chart_source = data
         self._data = data.df

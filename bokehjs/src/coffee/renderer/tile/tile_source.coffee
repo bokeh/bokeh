@@ -1,15 +1,16 @@
 _ = require "underscore"
-HasProperties = require "../../common/has_properties"
+Model = require "../../models/model"
 ImagePool = require "./image_pool"
 tile_utils = require "./tile_utils"
 {logger} = require "../../common/logging"
 
-class TileSource extends HasProperties
+class TileSource extends Model
 
   type: 'TileSource'
 
   initialize: (options) ->
     super(options)
+    @normalize_case()
 
   defaults: =>
     return _.extend {}, super(), {
@@ -18,11 +19,7 @@ class TileSource extends HasProperties
       max_zoom : 30
       min_zoom : 0
       extra_url_vars : {}
-      full_extent : null
-      x_origin_offset : null
-      y_origin_offset : null
-      initial_resolution : null
-      resolutions: null
+      attribution : ''
   }
 
   constructor: (options={}) ->
@@ -31,7 +28,6 @@ class TileSource extends HasProperties
     @pool = new ImagePool()
     @tiles = {}
     @normalize_case()
-
 
   string_lookup_replace: (str, lookup) ->
     result_str = str
@@ -53,9 +49,7 @@ class TileSource extends HasProperties
     @set('url', url)
 
   update: () ->
-    logger.info("Tile Cache Count: " + Object.keys(@tiles).length.toString())
-    logger.info("X_ORIGIN_OFFSET: " + @get('x_origin_offset').toString())
-    logger.info("Y_ORIGIN_OFFSET: " + @get('y_origin_offset').toString())
+    logger.debug("TileSource: tile cache count: #{Object.keys(@tiles).length}")
     for key, tile of @tiles
       tile.current = false
       tile.retain = false

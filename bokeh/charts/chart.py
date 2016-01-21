@@ -20,57 +20,49 @@ the generation of several outputs (file, server, notebook).
 
 from __future__ import absolute_import
 
+import warnings
 from collections import defaultdict
-
 import numpy as np
-from six import iteritems
 
-from . import defaults
-from .chart_options import ChartOptions
-from ..browserlib import view
-from ..document import Document
-from ..embed import file_html
+from ..core.enums import enumeration, LegendLocation
 from ..models import (
-    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
-from ..models.ranges import FactorRange
+    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot,
+    HoverTool, FactorRange
+)
 from ..plotting import DEFAULT_TOOLS
-from ..plotting_helpers import _process_tools_arg
-from ..resources import INLINE
-from ..util.notebook import publish_display_data
-from ..util.serialization import make_id
+from ..plotting.helpers import _process_tools_arg
+from ..core.properties import (Auto, Bool, Either, Enum, Int, Float,
+                          String, Tuple, Override)
+from ..util.deprecate import deprecated
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def _make_method(prop_name):
-    def method(self, value):
-        setattr(self._options, prop_name, value)
-        return self
-    method.__doc__ = """ Chained method for %s option.
-    """ % prop_name
-    return method
+Scale = enumeration('linear', 'categorical', 'datetime')
 
-def _chained_options(opts_type):
-    def wrapper(cls):
-        orig_init = cls.__init__
+class ChartDefaults(object):
+    def apply(self, chart):
+        """Apply this defaults to a chart."""
 
-        cls_props = set(cls.properties())
+        if not isinstance(chart, Chart):
+            raise ValueError("ChartsDefaults should be only used on Chart \
+            objects but it's being used on %s instead." % chart)
 
-        def __init__(self, *args, **kwargs):
-            self._options = opts_type(**kwargs)
-            orig_init(self)
+        all_props = set(chart.properties_with_values(include_defaults=True))
+        dirty_props = set(chart.properties_with_values(include_defaults=False))
+        for k in list(all_props.difference(dirty_props)) + \
+            list(chart.__deprecated_attributes__):
+            if k == 'tools':
+                value = getattr(self, k, True)
+                if getattr(chart, '_tools', None) is None:
+                    chart._tools = value
+            else:
+                if hasattr(self, k):
+                    setattr(chart, k, getattr(self, k))
 
-        cls.__init__ = __init__
+defaults = ChartDefaults()
 
-        for prop_name in opts_type.properties():
-            if prop_name not in cls_props:
-                setattr(cls, prop_name, _make_method(prop_name))
-
-        return cls
-    return wrapper
-
-@_chained_options(ChartOptions)
 class Chart(Plot):
     """ The main Chart class, the core of the ``Bokeh.charts`` interface.
 
@@ -79,30 +71,62 @@ class Chart(Plot):
     __view_model__ = "Plot"
     __subtype__ = "Chart"
 
-    def __init__(self):
+    legend = Either(Bool, Enum(LegendLocation), Tuple(Float, Float), help="""
+    A location where the legend should draw itself.
+    """)
 
-        # Initializes then gets default properties
-        super(Chart, self).__init__(id=self._options.id or make_id())
+    xgrid = Bool(True, help="""
+    Whether to draw an x-grid.
+    """)
 
-        # create new chart options to get default properties with values
-        default_props = ChartOptions().properties_with_values()
+    ygrid = Bool(True, help="""
+    Whether to draw an y-grid.
+    """)
 
-        # get the properties and values from the module-wide defaults object
-        option_props = ChartOptions.properties_with_values(defaults)
-        option_props.pop('id')
+    xlabel = String(None, help="""
+    A label for the x-axis. (default: None)
+    """)
 
-        # if the module defaults differs from ChartOptions defaults, use that value
-        # ToDo: allow Chart/Plot properties as well as ChartOptions
-        for option, value in iteritems(option_props):
-            if value != default_props[option]:
-                setattr(self._options, option, value)
+    ylabel = String(None, help="""
+    A label for the y-axis. (default: None)
+    """)
 
-        self.title = self._options.title
-        self.plot_height = self._options.height
-        self.plot_width = self._options.width
-        self.responsive = self._options.responsive
-        self.title_text_font_size = self._options.title_text_font_size
-        self.title_text_font_style = 'bold'
+    xscale = Either(Auto, Enum(Scale), help="""
+    What kind of scale to use for the x-axis.
+    """)
+
+    yscale = Either(Auto, Enum(Scale), help="""
+    What kind of scale to use for the y-axis.
+    """)
+
+    title_text_font_size = Override(default={ 'value' : '14pt' })
+
+    responsive = Override(default=False)
+
+    _defaults = defaults
+
+    __deprecated_attributes__ = ('filename', 'server', 'notebook', 'width', 'height')
+
+    def __init__(self, *args, **kwargs):
+        # pop tools as it is also a property that doesn't match the argument
+        # supported types
+        tools = kwargs.pop('tools', None)
+        super(Chart, self).__init__(*args, **kwargs)
+
+        defaults.apply(self)
+
+        if tools is not None:
+            self._tools = tools
+
+        # TODO (fpliger): we do this to still support deprecated document but
+        #                 should go away when __deprecated_attributes__ is empty
+        for k in self.__deprecated_attributes__:
+            if k in kwargs:
+                setattr(self, k, kwargs[k])
+
+        # TODO (bev) have to force serialization of overriden defaults on subtypes for now
+        self.title_text_font_size = "10pt"
+        self.title_text_font_size = "14pt"
 
         self._glyphs = []
         self._built = False
@@ -112,22 +136,9 @@ class Chart(Plot):
         self._ranges = defaultdict(list)
         self._labels = defaultdict(list)
         self._scales = defaultdict(list)
+        self._tooltips = []
 
-        # Add to document and session if server output is asked
-        _doc = None
-        if _doc:
-            self._doc = _doc
-        else:
-            self._doc = Document()
-
-        # if self._options.server:
-        #     _session = None
-        #     if _session:
-        #         self._session = _session
-        #     else:
-        #         self._session = Session()
-
-        self.create_tools(self._options.tools)
+        self.create_tools(self._tools)
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
@@ -146,11 +157,14 @@ class Chart(Plot):
     def add_scales(self, dim, scale):
         self._scales[dim].append(scale)
 
+    def add_tooltips(self, tooltips):
+        self._tooltips += tooltips
+
     def _get_labels(self, dim):
-        if not getattr(self._options, dim + 'label') and len(self._labels[dim]) > 0:
+        if not getattr(self, dim + 'label') and len(self._labels[dim]) > 0:
             return self._labels[dim][0]
         else:
-            return getattr(self._options, dim + 'label')
+            return getattr(self, dim + 'label')
 
     def create_axes(self):
         self._xaxis = self.make_axis('x', "below", self._scales['x'][0], self._get_labels('x'))
@@ -168,14 +182,15 @@ class Chart(Plot):
         Only adds tools if given boolean and does not already have
         tools added to self.
         """
+
+        if isinstance(tools, bool) and tools:
+            tools = DEFAULT_TOOLS
+        elif isinstance(tools, bool):
+            # in case tools == False just exit
+            return
+
         if len(self.tools) == 0:
             # if no tools customization let's create the default tools
-            if isinstance(tools, bool) and tools:
-                tools = DEFAULT_TOOLS
-            elif isinstance(tools, bool):
-                # in case tools == False just exit
-                return
-
             tool_objs = _process_tools_arg(self, tools)
             self.add_tools(*tool_objs)
 
@@ -183,11 +198,14 @@ class Chart(Plot):
         """Add the axis, grids and tools
         """
         self.create_axes()
-        self.create_grids(self._options.xgrid, self._options.ygrid)
+        self.create_grids(self.xgrid, self.ygrid)
 
         # Add tools if supposed to
-        if self._options.tools:
-            self.create_tools(self._options.tools)
+        if self.tools:
+            self.create_tools(self.tools)
+
+        if len(self._tooltips) > 0:
+            self.add_tools(HoverTool(tooltips=self._tooltips))
 
     def add_legend(self, legends):
         """Add the legend to your plot, and the plot to a new Document.
@@ -200,14 +218,14 @@ class Chart(Plot):
                 renderers that should draw sample representations for those
                 labels.
         """
-        orientation = None
-        if self._options.legend is True:
-            orientation = "top_left"
+        location = None
+        if self.legend is True:
+            location = "top_left"
         else:
-            orientation = self._options.legend
+            location = self.legend
 
-        if orientation:
-            legend = Legend(orientation=orientation, legends=legends)
+        if location:
+            legend = Legend(location=location, legends=legends)
             self.add_layout(legend)
 
     def make_axis(self, dim, location, scale, label):
@@ -269,46 +287,73 @@ class Chart(Plot):
 
         return grid
 
+
+    @property
+    def filename(self):
+        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_file
+        output_file("default.html")
+
+    @filename.setter
+    def filename(self, filename):
+        warnings.warn("Chart property 'filename' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_file
+        output_file(filename)
+
+    @property
+    def server(self):
+        warnings.warn("Chart property 'server' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_server
+        output_server("default")
+
+    @server.setter
+    def server(self, session_id):
+        warnings.warn("Chart property 'server' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_server
+        if session_id:
+            if isinstance(session_id, bool):
+                session_id='default'
+            output_server(session_id)
+
+    @property
+    def notebook(self):
+        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_notebook
+        output_notebook()
+
+    @notebook.setter
+    def notebook(self, flag):
+        warnings.warn("Chart property 'notebook' was deprecated in 0.11 \
+            and will be removed in the future.")
+        from bokeh.io import output_notebook
+        output_notebook()
+
+    @deprecated("Bokeh 0.11", "bokeh.io.show")
     def show(self):
-        """Main show function.
+        import bokeh.io
+        bokeh.io.show(self)
 
-        It shows the plot in file, server and notebook outputs.
-        """
-        # Add to document and session
-        if self._options.server:
-            if self._options.server is True:
-                self._servername = "untitled_chart"
-            else:
-                self._servername = self._options.server
+    @property
+    def width(self):
+        warnings.warn("Chart property 'width' was deprecated in 0.11 \
+            and will be removed in the future.")
+        return self.plot_width
 
-            self._session.use_doc(self._servername)
-            self._session.load_document(self._doc)
+    @width.setter
+    def width(self, width):
+        self.plot_width = width
 
-        if not self._doc._current_plot == self:
-            self._doc._current_plot = self
-            self._doc.add(self)
+    @property
+    def height(self):
+        warnings.warn("Chart property 'height' was deprecated in 0.11 \
+            and will be removed in the future.")
+        return self.plot_height
 
-        if self._options.filename:
-            if self._options.filename is True:
-                filename = "untitled"
-            else:
-                filename = self._options.filename
-
-            with open(filename, "w") as f:
-                f.write(file_html(self._doc, INLINE, self.title))
-            print("Wrote %s" % filename)
-            view(filename)
-        elif self._options.filename is False and \
-                        self._options.server is False and \
-                        self._options.notebook is False:
-            print("You must provide a filename (filename='foo.html' or"
-                  " .filename('foo.html')) to save your plot.")
-
-        if self._options.server:
-            self.session.store_document(self._doc)
-            link = self._session.object_link(self._doc.context)
-            view(link)
-
-        if self._options.notebook:
-            from bokeh.embed import notebook_div
-            publish_display_data({'text/html': notebook_div(self)})
+    @height.setter
+    def height(self, height):
+        self.plot_height = height

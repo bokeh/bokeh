@@ -1,6 +1,5 @@
 _ = require "underscore"
 Backbone = require "backbone"
-{logger} = require "../../common/logging"
 Tool = require "../tool"
 inspect_tool_list_item_template = require "./inspect_tool_list_item_template"
 
@@ -28,26 +27,8 @@ class InspectToolView extends Tool.View
 class InspectTool extends Tool.Model
   event_type: "move"
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
-
-    names = @get('names')
-    renderers = @get('renderers')
-
-    if renderers.length == 0
-      all_renderers = @get('plot').get('renderers')
-      renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
-
-    if names.length > 0
-      renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
-
-    @set('renderers', renderers)
-    logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
-    for r in renderers
-      logger.debug(" - #{r.type} #{r.id}")
-
   nonserializable_attribute_names: () ->
-    super().concat(['names', 'renderers', 'event_type', 'inner_only'])
+    super().concat(['event_type', 'inner_only'])
 
   bind_bokeh_events: () ->
     super()
@@ -61,8 +42,6 @@ class InspectTool extends Tool.Model
 
   defaults: ->
     return _.extend {}, super(), {
-      renderers: []
-      names: []
       inner_only: true
       active: true
       event_type: 'move'

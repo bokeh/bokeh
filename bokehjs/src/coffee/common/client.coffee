@@ -114,7 +114,6 @@ class ClientConnection
     @_pending_ack = null # null or [resolve,reject]
     @_pending_replies = {} # map reqid to [resolve,reject]
     @session = null
-    @_schedule_reconnect(0)
 
   _for_session : (f) ->
     if @session != null
@@ -170,7 +169,7 @@ class ClientConnection
       # confusing errors that are causing trouble when debugging.
       if true or @closed_permanently
         if not @closed_permanently
-          logger.info("Bokeh client #{@_number} never reconnects for now; connection to server lost")
+          logger.info("Websocket connection #{@_number} disconnected, will not attempt to reconnect")
         return
       else
         logger.debug("Attempting to reconnect websocket #{@_number}")
@@ -254,7 +253,7 @@ class ClientConnection
       logger.error("Failed to repull session #{error}")
 
   _on_open : (resolve, reject) ->
-    logger.debug("Websocket connection #{@_number} is now open")
+    logger.info("Websocket connection #{@_number} is now open")
     @_pending_ack = [resolve, reject]
     @_current_handler = (message) =>
       @_awaiting_ack_handler(message)
@@ -360,6 +359,29 @@ class ClientSession
   _connection_closed : () ->
     @document.remove_on_change(@document_listener)
 
+  # Sends a request to the server for info about the
+  # server, such as its Bokeh version. Returns a promise,
+  # the value of the promise is a free-form dictionary
+  # of server details.
+  request_server_info : () ->
+    message = Message.create('SERVER-INFO-REQ', {})
+    promise = @_connection.send_with_reply(message)
+    promise.then((reply) -> reply.content)
+
+  # Sends some request to the server (no guarantee about which
+  # one) and returns a promise which is completed when the server
+  # replies. The purpose of this is that if you wait for the
+  # promise to be completed, you know the server has processed the
+  # request. This is useful when writing tests because once the
+  # server has processed this request it should also have
+  # processed any events or requests you sent previously, which
+  # means you can check for the results of that processing without
+  # a race condition. (This assumes the server processes events in
+  # sequence, which it mostly has to semantically - reordering
+  # events might change the final state.)
+  force_roundtrip : () ->
+    @request_server_info().then((ignored) -> undefined)
+
   _should_suppress_on_change : (patch, event) ->
     if event instanceof ModelChangedEvent
       for event_json in patch.content['events']
@@ -368,7 +390,7 @@ class ClientSession
           if event.new_ instanceof HasProperties
             if typeof patch_new == 'object' and 'id' of patch_new and patch_new['id'] == event.new_.id
               return true
-          else if patch_new == event.new_
+          else if _.isEqual(patch_new, event.new_)
             return true
     else if event instanceof RootAddedEvent
         for event_json in patch.content['events']
@@ -377,6 +399,10 @@ class ClientSession
     else if event instanceof RootRemovedEvent
         for event_json in patch.content['events']
           if event_json['kind'] == 'RootRemoved' and event_json['model']['id'] == event.model.id
+            return true
+    else if event instanceof TitleChangedEvent
+        for event_json in patch.content['events']
+          if event_json['kind'] == 'TitleChanged' and event_json['title'] == event.title
             return true
 
     return false

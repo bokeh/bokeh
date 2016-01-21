@@ -10,6 +10,10 @@ class ModelChangedEvent extends DocumentChangedEvent
   constructor : (@document, @model, @attr, @old, @new_) ->
     super @document
 
+class TitleChangedEvent extends DocumentChangedEvent
+  constructor : (@document, @title) ->
+    super @document
+
 class RootAddedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
@@ -18,13 +22,61 @@ class RootRemovedEvent extends DocumentChangedEvent
   constructor : (@document, @model) ->
     super @document
 
+DEFAULT_TITLE = "Bokeh Application"
+
+class _MultiValuedDict
+    constructor : () ->
+      @_dict = {}
+
+    _existing: (key) ->
+      if key of @_dict
+        return @_dict[key]
+      else
+        return null
+
+    add_value: (key, value) ->
+      if value == null
+        throw new Error("Can't put null in this dict")
+      if _.isArray(value)
+        throw new Error("Can't put arrays in this dict")
+      existing = @_existing(key)
+      if existing == null
+        @_dict[key] = value
+      else if _.isArray(existing)
+        existing.push(value)
+      else
+        @_dict[key] = [existing, value]
+
+    remove_value: (key, value) ->
+      existing = @_existing(key)
+      if _.isArray(existing)
+        new_array = _.without(existing, value)
+        if new_array.length > 0
+          @_dict[key] = new_array
+        else
+          delete @_dict[key]
+      else if _.isEqual(existing, value)
+        delete @_dict[key]
+
+    get_one: (key, duplicate_error) ->
+      existing = @_existing(key)
+      if _.isArray(existing)
+        if existing.length == 1
+          return existing[0]
+        else
+          throw new Error(duplicate_error)
+      else
+        return existing
+
 # This class should match the API of the Python Document class
 # as much as possible.
 class Document
 
   constructor : () ->
+    @_title = DEFAULT_TITLE
     @_roots = []
     @_all_models = {}
+    @_all_models_by_name = new _MultiValuedDict()
     @_all_model_counts = {}
     @_callbacks = []
 
@@ -34,10 +86,11 @@ class Document
 
   _destructively_move : (dest_doc) ->
     dest_doc.clear()
-    while len(@_roots) > 0
+    while @_roots.length > 0
       r = @_roots[0]
       @remove_root(r)
       dest_doc.add_root(r)
+    dest_doc.set_title(@_title)
     # TODO other fields of doc
 
   roots : () ->
@@ -60,11 +113,22 @@ class Document
     model.detach_document()
     @_trigger_on_change(new RootRemovedEvent(@, model))
 
+  title : () ->
+    @_title
+
+  set_title : (title) ->
+    if title != @_title
+      @_title = title
+      @_trigger_on_change(new TitleChangedEvent(@, title))
+
   get_model_by_id : (model_id) ->
     if model_id of @_all_models
       @_all_models[model_id]
     else
       null
+
+  get_model_by_name : (name) ->
+    @_all_models_by_name.get_one(name, "Multiple models are named '#{name}'")
 
   on_change : (callback) ->
     if callback in @_callbacks
@@ -82,6 +146,10 @@ class Document
 
   # called by the model
   _notify_change : (model, attr, old, new_) ->
+    if attr == 'name'
+      @_all_models_by_name.remove_value(old, model)
+      if new_ != null
+        @_all_models_by_name.add_value(new_, model)
     @_trigger_on_change(new ModelChangedEvent(@, model, attr, old, new_))
 
   # called by the model on attach
@@ -95,6 +163,9 @@ class Document
     else
       @_all_model_counts[model.id] = 1
     @_all_models[model.id] = model
+    name = model.get('name')
+    if name != null
+      @_all_models_by_name.add_value(name, model)
 
   # called by the model on detach
   _notify_detach : (model) ->
@@ -103,16 +174,19 @@ class Document
     if attach_count == 0
       delete @_all_models[model.id]
       delete @_all_model_counts[model.id]
+      name = model.get('name')
+      if name != null
+        @_all_models_by_name.remove_value(name, model)
     attach_count
 
-  @_references_json : (references) ->
+  @_references_json : (references, include_defaults=true) ->
     references_json = []
     for r in references
       if not r.serializable_in_document()
         console.log("nonserializable value in references ", r)
         throw new Error("references should never contain nonserializable value")
       ref = r.ref()
-      ref['attributes'] = r.attributes_as_json()
+      ref['attributes'] = r.attributes_as_json(include_defaults)
       # server doesn't want id in here since it's already in ref above
       delete ref['attributes']['id']
       references_json.push(ref)
@@ -144,14 +218,14 @@ class Document
       for obj in references_json
           obj_id = obj['id']
           obj_type = obj['type']
-          if 'subtype' in obj
-            obj_type = obj['subtype']
           obj_attrs = obj['attributes']
 
           if obj_id of existing_models
             instance = existing_models[obj_id]
           else
             instance = Document._instantiate_object(obj_id, obj_type, obj_attrs)
+            if 'subtype' of obj
+              instance.set_subtype(obj['subtype'])
           references[instance.id] = instance
 
       references
@@ -233,7 +307,8 @@ class Document
 
     # this first pass removes all 'refs' replacing them with real instances
     foreach_depth_first to_update, (instance, attrs, was_new) ->
-      instance.set(attrs)
+      if was_new
+        instance.set(attrs)
 
     # after removing all the refs, we can run the initialize code safely
     foreach_depth_first to_update, (instance, attrs, was_new) ->
@@ -263,9 +338,13 @@ class Document
 
     events = []
     for key in removed
-      # we don't really have a "remove" event - not sure this ever happens even -
-      # but treat it as equivalent to setting to null
-      events.push(Document._event_for_attribute_change(from_obj, key, null, to_doc, value_refs))
+      # we don't really have a "remove" event - not sure this ever
+      # happens even. One way this could happen is if the server
+      # does include_defaults=True and we do
+      # include_defaults=false ... in that case it'd be best to
+      # just ignore this probably. Warn about it, could mean
+      # there's a bug if we don't have a key that the server sent.
+      logger.warn("Server sent key #{key} but we don't seem to have it in our JSON")
     for key in added
       new_value = to_obj.attributes[key]
       events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
@@ -285,7 +364,7 @@ class Document
   # we use this to detect changes during document deserialization
   # (in model constructors and initializers)
   @_compute_patch_since_json: (from_json, to_doc) ->
-    to_json = to_doc.to_json()
+    to_json = to_doc.to_json(include_defaults=false)
 
     refs = (json) ->
       result = {}
@@ -310,7 +389,8 @@ class Document
     from_root_ids.sort()
     to_root_ids.sort()
 
-    if _.difference(from_root_ids, to_root_ids).length > 0
+    if _.difference(from_root_ids, to_root_ids).length > 0 or
+       _.difference(to_root_ids, from_root_ids).length > 0
       # this would arise if someone does add_root/remove_root during
       # document deserialization, hopefully they won't ever do so.
       throw new Error("Not implemented: computing add/remove of document roots")
@@ -329,13 +409,13 @@ class Document
 
     {
       'events' : events,
-      'references' : Document._references_json(_.values(value_refs))
+      'references' : Document._references_json(_.values(value_refs), include_defaults=false)
     }
 
-  to_json_string : () ->
-    JSON.stringify(@to_json())
+  to_json_string : (include_defaults=true) ->
+    JSON.stringify(@to_json(include_defaults))
 
-  to_json : () ->
+  to_json : (include_defaults=true) ->
     root_ids = []
     for r in @_roots
       root_ids.push(r.id)
@@ -345,9 +425,10 @@ class Document
         v
 
     {
+      'title' : @_title
       'roots' : {
         'root_ids' : root_ids,
-        'references' : Document._references_json(root_references)
+        'references' : Document._references_json(root_references, include_defaults)
       }
     }
 
@@ -370,6 +451,8 @@ class Document
     doc = new Document()
     for r in root_ids
       doc.add_root(references[r])
+
+    doc.set_title(json['title'])
 
     doc
 
@@ -424,6 +507,12 @@ class Document
           'model' : event.model.ref()
         }
         json_events.push(json_event)
+      else if event instanceof TitleChangedEvent
+        json_event = {
+          'kind' : 'TitleChanged',
+          'title' : event.title
+        }
+        json_events.push(json_event)
 
     {
       'events' : json_events,
@@ -476,6 +565,8 @@ class Document
         root_id = event_json['model']['id']
         root_obj = references[root_id]
         @remove_root(root_obj)
+      else if event_json['kind'] == 'TitleChanged'
+        @set_title(event_json['title'])
       else
         throw new Error("Unknown patch event " + JSON.stringify(event_json))
 
@@ -483,6 +574,8 @@ module.exports = {
   Document : Document
   DocumentChangedEvent : DocumentChangedEvent
   ModelChangedEvent : ModelChangedEvent
-  RootAddedEvent : RootAddedEvent,
+  TitleChangedEvent : TitleChangedEvent
+  RootAddedEvent : RootAddedEvent
   RootRemovedEvent : RootRemovedEvent
+  DEFAULT_TITLE : DEFAULT_TITLE
 }

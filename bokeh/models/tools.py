@@ -22,17 +22,19 @@ always be active regardless of what other tools are currently active.
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
-from ..properties import abstract, Float, Color
-from ..properties import (Any, Bool, String, Enum, Instance, Either, List,
-                          Dict, Tuple)
-from ..enums import Dimension
+from ..model import Model
+from ..core.properties import abstract, Float, Color
+from ..core.properties import (
+    Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
+)
+from ..core.enums import Dimension
 
+from .annotations import BoxAnnotation, PolyAnnotation
 from .renderers import Renderer
 from .callbacks import Callback
 
 
-class ToolEvents(PlotObject):
+class ToolEvents(Model):
     """
 
     """
@@ -41,7 +43,7 @@ class ToolEvents(PlotObject):
 
 
 @abstract
-class Tool(PlotObject):
+class Tool(Model):
     """ A base class for all interactive tool types. ``Tool`` is
     not generally useful to instantiate on its own.
 
@@ -110,7 +112,7 @@ class PreviewSaveTool(Tool):
 
     .. note::
         Work is ongoing to support headless (svg, png) image creation without
-        requireing user interaction. See  :bokeh-issue:`538` to track progress
+        requiring user interaction. See  :bokeh-issue:`538` to track progress
         or contribute.
 
     .. |save_icon| image:: /_images/icons/Save.png
@@ -122,7 +124,7 @@ class PreviewSaveTool(Tool):
 class ResetTool(Tool):
     """ *toolbar icon*: |reset_icon|
 
-    The reset tool is an action. When activated in teh toolbar, the tool
+    The reset tool is an action. When activated in the toolbar, the tool
     resets the data bounds of the plot to their values when the plot was
     initially created.
 
@@ -164,7 +166,7 @@ class TapTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
     """
 
     names = List(String, help="""
@@ -180,10 +182,6 @@ class TapTool(Tool):
     callback = Instance(Callback, help="""
     A client-side action specification, like opening a URL, showing
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
-    """)
-
-    always_active = Bool(True, help="""
-    Whether the hover tool must be explicitly activated.
     """)
 
 
@@ -237,6 +235,21 @@ class CrosshairTool(Tool):
 
     """)
 
+DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
+    level="overlay",
+    render_mode="css",
+    top_units="screen",
+    left_units="screen",
+    bottom_units="screen",
+    right_units="screen",
+    fill_color="lightgrey",
+    fill_alpha=0.5,
+    line_color="black",
+    line_alpha=1.0,
+    line_width=2,
+    line_dash=[4, 4]
+)
+
 class BoxZoomTool(Tool):
     """ *toolbar icon*: |box_zoom_icon|
 
@@ -258,6 +271,10 @@ class BoxZoomTool(Tool):
     controlled. If only "height" is supplied, the box will be constrained
     to span the entire horizontal space of the plot, and the vertical
     dimension can be controlled.
+    """)
+
+    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
     """)
 
 
@@ -311,19 +328,21 @@ class BoxSelectTool(Tool):
     :geometry: object containing the coordinates of the selection box
     """)
 
-
-class BoxSelectionOverlay(Renderer):
-    """ An overlay renderer that Tool objects can use to render a
-    'rubber band' selection box on a Plot.
-
-    """
-
-    __view_model__ = 'BoxSelection'
-
-    tool = Instance(Tool, help="""
-    The tool that this overlay should respond to.
+    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
     """)
 
+DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
+    level="overlay",
+    xs_units="screen",
+    ys_units="screen",
+    fill_color="lightgrey",
+    fill_alpha=0.5,
+    line_color="black",
+    line_alpha=1.0,
+    line_width=2,
+    line_dash=[4, 4]
+)
 
 class LassoSelectTool(Tool):
     """ *toolbar icon*: |lasso_select_icon|
@@ -340,7 +359,7 @@ class LassoSelectTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
         :height: 18pt
@@ -361,6 +380,10 @@ class LassoSelectTool(Tool):
     event, or only once, when the selection region is completed. Default: True
     """)
 
+    overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
+    """)
+
 
 class PolySelectTool(Tool):
     """ *toolbar icon*: |poly_select_icon|
@@ -378,7 +401,7 @@ class PolySelectTool(Tool):
         Selections can be comprised of multiple regions, even those
         made by different selection tools. Hold down the <<shift>> key
         while making a selection to append the new selection to any
-        previous seletion that might exist.
+        previous selection that might exist.
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
         :height: 18pt
@@ -394,6 +417,9 @@ class PolySelectTool(Tool):
     defaults to all renderers on a plot.
     """)
 
+    overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
+    """)
 
 class HoverTool(Tool):
     """ *toolbar icon*: |inspector_icon|
@@ -470,7 +496,12 @@ class HoverTool(Tool):
     :geometry: object containing the coordinates of the hover cursor
     """)
 
-    tooltips = Either(String, List(Tuple(String, String)), help="""
+    tooltips = Either(String, List(Tuple(String, String)),
+            default=[
+                ("index","$index"),
+                ("data (x, y)","($x, $y)"),
+                ("canvas (x, y)","($sx, $sy)"),
+            ], help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.
 
@@ -497,7 +528,7 @@ class HoverTool(Tool):
     .. note::
         The tooltips attribute can also be configured with a mapping type,
         e.g. ``dict`` or ``OrderedDict``. However, if a ``dict`` is used,
-        the visual presentation order is unpecified.
+        the visual presentation order is unspecified.
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 
@@ -523,6 +554,8 @@ class HoverTool(Tool):
     mouse position.
     """)
 
+DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
+DEFAULT_HELP_URL = "http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html"
 
 class HelpTool(Tool):
     """
@@ -531,10 +564,28 @@ class HelpTool(Tool):
     and the redirect site overridden as well.
     """
 
-    help_tooltip = String(help="""
+    help_tooltip = String(default=DEFAULT_HELP_TIP, help="""
     Tooltip displayed when hovering over the help icon.
     """)
 
-    redirect = String(help="""
+    redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.
     """)
+
+class UndoTool(Tool):
+    """ *toolbar icon*: |undo_icon|
+
+    Undo tool allows to restore previous state of the plot.
+
+    .. |undo_icon| image:: /_images/icons/Undo.png
+        :height: 18pt
+    """
+
+class RedoTool(Tool):
+    """ *toolbar icon*: |redo_icon|
+
+    Redo tool reverses the last action performed by undo tool.
+
+    .. |redo_icon| image:: /_images/icons/Redo.png
+        :height: 18pt
+    """

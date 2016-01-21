@@ -1,7 +1,8 @@
 _ = require "underscore"
+$ = require "jquery"
 build_views = require "../common/build_views"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+BaseBox = require "./basebox"
 
 class HBoxView extends ContinuumView
   tag: "div"
@@ -24,12 +25,15 @@ class HBoxView extends ContinuumView
     if width? then @$el.css(width: width + "px")
     height = @mget("height")
     if height? then @$el.css(height: height + "px")
-    for child in children
+
+    for child, index in children
       @$el.append(@views[child.id].$el)
+      if index < children.length - 1
+        @$el.append($('<div class="bk-hbox-spacer"></div>'))
 
     return @
 
-class HBox extends HasParent
+class HBox extends BaseBox.Model
   type: "HBox"
   default_view: HBoxView
 

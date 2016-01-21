@@ -3,8 +3,8 @@
 """
 from __future__ import absolute_import
 
-from ..properties import Int, String, Float, Auto, Instance, Tuple, Either, Include
-from ..mixins import FillProps, LineProps
+from ..core.properties import Int, String, Float, Auto, Instance, Tuple, Either, Include, Override
+from ..core.property_mixins import FillProps, LineProps
 
 from .renderers import GuideRenderer
 from .tickers import Ticker
@@ -49,10 +49,20 @@ class Grid(GuideRenderer):
     The %s of the Grid lines.
     """)
 
+    grid_line_color = Override(default='#cccccc')
+
     minor_grid_props = Include(LineProps, help="""
     The %s of the minor Grid lines.
     """)
 
+    minor_grid_line_color = Override(default=None)
+
     band_props = Include(FillProps, help="""
     The %s of alternating bands between Grid lines.
     """)
+
+    band_fill_alpha = Override(default=0)
+
+    band_fill_color = Override(default=None)
+
+    level = Override(default="underlay")

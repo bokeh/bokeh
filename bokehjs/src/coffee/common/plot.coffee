@@ -9,7 +9,7 @@ Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
 ContinuumView = require "./continuum_view"
 UIEvents = require "./ui_events"
-HasParent = require "./has_parent"
+Component = require "../models/component"
 LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 plot_utils = require "./plot_utils"
@@ -17,6 +17,8 @@ Solver = require "./solver"
 ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
 properties = require "./properties"
+GlyphRenderer = require "../renderer/glyph/glyph_renderer"
+ToolEvents = require "./tool_events"
 
 
 # Notes on WebGL support:
@@ -32,10 +34,41 @@ properties = require "./properties"
 
 global_gl_canvas = null
 
+MIN_BORDER = 50
+
+get_size_for_available_space = (use_width, use_height, client_width, client_height, aspect_ratio, min_size) =>
+    # client_width and height represent the available size
+
+    if use_width
+      new_width1 = Math.max(client_width, min_size)
+      new_height1 = parseInt(new_width1 / aspect_ratio)
+      if new_height1 < min_size
+        new_height1 = min_size
+        new_width1 = parseInt(new_height1 * aspect_ratio)
+    if use_height
+      new_height2 = Math.max(client_height, min_size)
+      new_width2 = parseInt(new_height2 * aspect_ratio)
+      if new_width2 < min_size
+        new_width2 = min_size
+        new_height2 = parseInt(new_width2 / aspect_ratio)
+
+    if (not use_height) and (not use_width)
+      return null  # remain same size
+    else if use_height and use_width
+      if new_width1 < new_width2
+        return [new_width1, new_height1]
+      else
+        return [new_width2, new_height2]
+    else if use_height
+     return [new_width2, new_height2]
+    else
+      return [new_width1, new_height1]
 
 class PlotView extends ContinuumView
   className: "bk-plot"
   template: plot_template
+
+  state: { history: [], index: -1 }
 
   view_options: () ->
     _.extend({plot_model: @model, plot_view: @}, @options)
@@ -61,6 +94,15 @@ class PlotView extends ContinuumView
   initialize: (options) ->
     super(options)
     @pause()
+
+    @_initial_state_info = {
+      range: null                     # set later by set_initial_range()
+      selection: {}                   # XXX: initial selection?
+      dimensions: {
+        width: @mget("canvas").get("width")
+        height: @mget("canvas").get("height")
+      }
+    }
 
     @model.initialize_layout(@model.solver)
 
@@ -89,6 +131,8 @@ class PlotView extends ContinuumView
 
     @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
     @title_props = new properties.Text({obj: @model, prefix: 'title_'})
+    @background_props = new properties.Fill({obj: @model, prefix: 'background_'})
+    @border_props = new properties.Fill({obj: @model, prefix: 'border_'})
 
     @renderers = {}
     @tools = {}
@@ -158,30 +202,153 @@ class PlotView extends ContinuumView
       bds = v.glyph?.bounds?()
       if bds?
         bounds[k] = bds
+
+    follow_enabled = false
+    has_bounds = false
     for xr in _.values(frame.get('x_ranges'))
-      xr.update?(bounds, 0, @)
+      xr.update?(bounds, 0, @model.id)
+      follow_enabled = true if xr.get('follow')?
+      has_bounds = true if xr.get('bounds')?
     for yr in _.values(frame.get('y_ranges'))
-      yr.update?(bounds, 1, @)
+      yr.update?(bounds, 1, @model.id)
+      follow_enabled = true if yr.get('follow')?
+      has_bounds = true if yr.get('bounds')?
+
+    if follow_enabled and has_bounds
+      logger.warn('Follow enabled so bounds are unset.')
+      for xr in _.values(frame.get('x_ranges'))
+        xr.set('bounds', null)
+      for yr in _.values(frame.get('y_ranges'))
+        yr.set('bounds', null)
+
     @range_update_timestamp = Date.now()
 
   map_to_screen: (x, y, x_name='default', y_name='default') ->
     @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
-  update_range: (range_info) ->
+  push_state: (type, info) ->
+    prev_info = @state.history[@state.index]?.info or {}
+    info = _.extend({}, @_initial_state_info, prev_info, info)
+
+    @state.history.slice(0, @state.index + 1)
+    @state.history.push({type: type, info: info})
+    @state.index = @state.history.length - 1
+
+    @trigger("state_changed")
+
+  clear_state: () ->
+    @state = {history: [], index: -1}
+    @trigger("state_changed")
+
+  can_undo: () ->
+    @state.index >= 0
+
+  can_redo: () ->
+    @state.index < @state.history.length - 1
+
+  undo: () ->
+    if @can_undo()
+      @state.index -= 1
+      @_do_state_change(@state.index)
+      @trigger("state_changed")
+
+  redo: () ->
+    if @can_redo()
+      @state.index += 1
+      @_do_state_change(@state.index)
+      @trigger("state_changed")
+
+  _do_state_change: (index) ->
+    info = @state.history[index]?.info or @_initial_state_info
+
+    if info.range?
+      @update_range(info.range)
+
+    if info.selection?
+      @update_selection(info.selection)
+
+    if info.dimensions?
+      @update_dimensions(info.dimensions)
+
+  update_dimensions: (dimensions) ->
+    @canvas._set_dims([dimensions.width, dimensions.height])
+
+  reset_dimensions: () ->
+    @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
+
+  get_selection: () ->
+    selection = []
+    for renderer in @mget('renderers')
+      if renderer instanceof GlyphRenderer.Model
+        selected = renderer.get('data_source').get("selected")
+        selection[renderer.id] = selected
+    selection
+
+  update_selection: (selection) ->
+    for renderer in @mget("renderers")
+      if renderer instanceof GlyphRenderer.Model
+        selected = selection[renderer.id] or []
+        renderer.get('data_source').set("selected", selected)
+
+  reset_selection: () ->
+    @update_selection({})
+
+  _update_single_range: (rng, range_info, is_panning) ->
+    # Is this a reversed range?
+    reversed = if rng.get('start') > rng.get('end') then true else false
+
+    # Prevent range from going outside limits
+    # Also ensure that range keeps the same delta when panning
+
+    if rng.get('bounds')?
+      min = rng.get('bounds')[0]
+      max = rng.get('bounds')[1]
+
+      if reversed
+        if min?
+          if min >= range_info['end']
+            range_info['end'] = min
+            if is_panning?
+              range_info['start'] = rng.get('start')
+        if max?
+          if max <= range_info['start']
+            range_info['start'] = max
+            if is_panning?
+              range_info['end'] = rng.get('end')
+      else
+        if min?
+          if min >= range_info['start']
+            range_info['start'] = min
+            if is_panning?
+              range_info['end'] = rng.get('end')
+        if max?
+          if max <= range_info['end']
+            range_info['end'] = max
+            if is_panning?
+              range_info['start'] = rng.get('start')
+
+    if rng.get('start') != range_info['start'] or rng.get('end') != range_info['end']
+      rng.have_updated_interactively = true
+      rng.set(range_info)
+      rng.get('callback')?.execute(rng)
+
+  update_range: (range_info, is_panning) ->
+    @pause
     if not range_info?
-      range_info = @initial_range_info
-    @pause()
-    for name, rng of @frame.get('x_ranges')
-      if rng.get('start') != range_info.xrs[name]['start'] or
-          rng.get('end') != range_info.xrs[name]['end']
-        rng.set(range_info.xrs[name])
-        rng.get('callback')?.execute(@model)
-    for name, rng of @frame.get('y_ranges')
-      if rng.get('start') != range_info.yrs[name]['start'] or
-          rng.get('end') != range_info.yrs[name]['end']
-        rng.set(range_info.yrs[name])
-        rng.get('callback')?.execute(@model)
+      for name, rng of @frame.get('x_ranges')
+        rng.reset()
+      for name, rng of @frame.get('y_ranges')
+        rng.reset()
+      @update_dataranges()
+    else
+      for name, rng of @frame.get('x_ranges')
+        @_update_single_range(rng, range_info.xrs[name], is_panning)
+      for name, rng of @frame.get('y_ranges')
+        @_update_single_range(rng, range_info.yrs[name], is_panning)
     @unpause()
+
+  reset_range: () ->
+    @update_range(null)
 
   build_levels: () ->
     # should only bind events on NEW views and tools
@@ -231,7 +398,7 @@ class PlotView extends ContinuumView
           break
         yrs[name] = { start: rng.get('start'), end: rng.get('end') }
     if good_vals
-      @initial_range_info = {
+      @_initial_state_info.range = @initial_range_info = {
         xrs: xrs
         yrs: yrs
       }
@@ -276,7 +443,7 @@ class PlotView extends ContinuumView
         v.model.update_layout(v, @canvas.solver)
 
     for k, v of @renderers
-      if v.set_data_timestamp > @range_update_timestamp?
+      if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
         @update_dataranges()
         break
 
@@ -332,16 +499,20 @@ class PlotView extends ContinuumView
     @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
 
     if ctx.glcanvas
-      # Blit gl canvas into the 2D canvas. We need to turn off interpolation, otherwise
-      # all gl-rendered content is blurry. The 0.1 offset is to force the samples
-      # to be *inside* the pixels, otherwise round-off errors can sometimes cause
-      # missing/double scanlines (seen in Chrome).
-      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
-         ctx[prefix + 'SmoothingEnabled'] = false
+      # Blit gl canvas into the 2D canvas. We set up offsets so the pixel
+      # mapping is one-on-one and we do not get any blurring due to
+      # interpolation. In theory, we could disable the image interpolation,
+      # and we can on Chrome, but then the result looks ugly on Firefox. Since
+      # the image *does* look sharp, this might be a bug in Firefox'
+      # interpolation-less image rendering.
+      # This is how we would disable image interpolation (keep as a reference)
+      #for prefix in ['image', 'mozImage', 'webkitImage','msImage']
+      #   ctx[prefix + 'SmoothingEnabled'] = window.SmoothingEnabled
       #ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      ctx.drawImage(ctx.glcanvas, 0.1, 0.1)
-      for prefix in ['image', 'mozImage', 'webkitImage','msImage']
-         ctx[prefix + 'SmoothingEnabled'] = true
+      src_offset = 0.5
+      dst_offset = 0.0
+      ctx.drawImage(ctx.glcanvas, src_offset, src_offset, ctx.glcanvas.width, ctx.glcanvas.height,
+                                  dst_offset, dst_offset, ctx.glcanvas.width, ctx.glcanvas.height)
       logger.debug('drawing with WebGL')
 
     @_render_levels(ctx, ['overlay', 'tool'])
@@ -361,43 +532,44 @@ class PlotView extends ContinuumView
 
   resize: () =>
     @resize_width_height(true, false)
-  
-  resize_width_height: (use_width, use_height) =>
+
+  resize_width_height: (use_width, use_height, maintain_ar=true) =>
     # Resize plot based on available width and/or height
-    canvas_height = @canvas.get('height')
-    canvas_width = @canvas.get('width')
-    # Calculating this each time means that we play nicely with resize tool
-    aspect_ratio = canvas_width / canvas_height
 
     # kiwi.js falls over if we try and resize too small.
-    # min_size is currently set in defaults to 100, we can make this
+    # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
+
+    # We need the parent node, because the el node itself collapses to zero
+    # height. It might not be available though, if the initial resize
+    # happened before the plot was added to the DOM. If that happens, we
+    # try again in increasingly larger intervals (the first try should just
+    # work, but lets play it safe).
+    @_re_resized = @_re_resized or 0
+    if not @.el.parentNode and @_re_resized < 14  # 2**14 ~ 16s
+      setTimeout( (=> this.resize_width_height(use_width, use_height, maintain_ar)), 2**@_re_resized)
+      @_re_resized += 1
+      return
+
+    avail_width = @.el.clientWidth
+    avail_height = @.el.parentNode.clientHeight - 50  # -50 for x ticks
     min_size = @mget('min_size')
-    
-    if use_width
-      new_width1 = Math.max(@.el.clientWidth, min_size)
-      new_height1 = parseInt(new_width1 / aspect_ratio)
-    if use_height
-      new_height2 = Math.max(@.el.parentNode.clientHeight - 50, min_size)  # -50 for x ticks
-      new_width2 = parseInt(new_height2 * aspect_ratio)
-    
-    if (not use_height) and (not use_width)
-      # remain same size
-    else if use_height and use_width
-      if new_width2 < new_width1 and new_width2 > min_size
-        @canvas._set_dims([new_width2, new_height2])
-      else
-        @canvas._set_dims([new_width1, new_height1])
-    else if use_height and new_width2 > min_size
-      @canvas._set_dims([new_width2, new_height2])
-    else if use_width and new_width1 > min_size
-      @canvas._set_dims([new_width1, new_height1])
-    else if aspect_ratio < 1
-      @canvas._set_dims([min_size, min_size / aspect_ratio])
+
+    if maintain_ar is false
+      # Just change width and/or height; aspect ratio will change
+      if use_width and use_height
+        @canvas._set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
+      else if use_width
+        @canvas._set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
+      else if use_height
+        @canvas._set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
     else
-      @canvas._set_dims([min_size * aspect_ratio, min_size])
-    return null
+      # Find best size to fill space while maintaining aspect ratio
+      ar = @canvas.get('width') / @canvas.get('height')
+      w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
+      if w_h?
+        @canvas._set_dims(w_h)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
@@ -425,13 +597,14 @@ class PlotView extends ContinuumView
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    ctx.fillStyle = @mget('border_fill')
-    ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'),
-                 @canvas_view.mget('canvas_height')) # TODO
-    ctx.fillStyle = @mget('background_fill')
-    ctx.fillRect.apply(ctx, frame_box)
+    @border_props.set_value(ctx)
+    ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
+    ctx.clearRect(frame_box...)
 
-class Plot extends HasParent
+    @background_props.set_value(ctx)
+    ctx.fillRect(frame_box...)
+
+class Plot extends Component.Model
   type: 'Plot'
   default_view: PlotView
 
@@ -474,6 +647,24 @@ class Plot extends HasParent
     logger.debug("Plot initialized")
 
   initialize_layout: (solver) ->
+    existing_or_new_layout = (side, name) =>
+      list = @get(side)
+      box = null
+      for model in list
+        if model.get('name') == name
+          box = model
+          break
+      if box?
+        box.set('solver', solver)
+      else
+        box = new LayoutBox.Model({
+          name: name,
+          solver: solver
+        })
+        list.push(box)
+        @set(side, list)
+      return box
+
     canvas = @get('canvas')
     frame = new CartesianFrame.Model({
       x_range: @get('x_range'),
@@ -488,17 +679,14 @@ class Plot extends HasParent
 
     # TODO (bev) titles should probably be a proper guide, then they could go
     # on any side, this will do to get the PR merged
-    @title_panel = new LayoutBox.Model({solver: solver})
+    @title_panel = existing_or_new_layout('above', 'title_panel')
     @title_panel._anchor = @title_panel._bottom
-    elts = @get('above')
-    elts.push(@title_panel)
-    @set('above', elts)
 
   add_constraints: (solver) ->
-    min_border_top    = @get('min_border_top')    ? @get('min_border')
-    min_border_bottom = @get('min_border_bottom') ? @get('min_border')
-    min_border_left   = @get('min_border_left')   ? @get('min_border')
-    min_border_right  = @get('min_border_right')  ? @get('min_border')
+    min_border_top    = @get('min_border_top')
+    min_border_bottom = @get('min_border_bottom')
+    min_border_left   = @get('min_border_left')
+    min_border_right  = @get('min_border_right')
 
     do_side = (solver, min_size, side, cnames, dim, op) =>
       canvas = @get('canvas')
@@ -546,19 +734,8 @@ class Plot extends HasParent
     renderers = renderers.concat(new_renderers)
     @set('renderers', renderers)
 
-  parent_properties: [
-    'background_fill',
-    'border_fill',
-    'min_border',
-    'min_border_top',
-    'min_border_bottom'
-    'min_border_left'
-    'min_border_right'
-  ]
-
   nonserializable_attribute_names: () ->
-    super().concat(['solver', 'above', 'below', 'left', 'right', 'canvas', 'tool_manager', 'frame',
-    'min_size'])
+    super().concat(['solver', 'canvas', 'tool_manager', 'frame', 'min_size'])
 
   serializable_attributes: () ->
     attrs = super()
@@ -570,6 +747,7 @@ class Plot extends HasParent
     return _.extend {}, super(), {
       renderers: [],
       tools: [],
+      tool_events: new ToolEvents.Model(),
       h_symmetry: true,
       v_symmetry: false,
       x_mapper_type: 'auto',
@@ -589,17 +767,26 @@ class Plot extends HasParent
       lod_timeout: 500
       webgl: false
       responsive: false
-      min_size: 100
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
+      min_size: 120
       hidpi: true,
-      background_fill: "#fff",
-      border_fill: "#fff",
-      min_border: 40,
-
       title_standoff: 8,
+
+      x_range: null
+      extra_x_ranges: {}
+
+      y_range: null
+      extra_y_ranges: {}
+
+      background_fill_color: "#ffffff",
+      background_fill_alpha: 1.0,
+      border_fill_color: "#ffffff",
+      border_fill_alpha: 1.0
+      min_border: MIN_BORDER,
+      min_border_top: MIN_BORDER,
+      min_border_left: MIN_BORDER,
+      min_border_bottom: MIN_BORDER,
+      min_border_right: MIN_BORDER,
+
       title_text_font: "helvetica",
       title_text_font_size: "20pt",
       title_text_font_style: "normal",
@@ -618,5 +805,6 @@ class Plot extends HasParent
     }
 
 module.exports =
+  get_size_for_available_space: get_size_for_available_space
   Model: Plot
   View: PlotView

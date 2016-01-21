@@ -1,12 +1,7 @@
 .. _userguide_embed:
 
-Embedding Bokeh Plots
-=====================
-
-.. contents::
-    :local:
-    :depth: 2
-
+Embedding Plots and Apps
+========================
 
 Bokeh provides a variety of ways to embed plots and data into HTML documents.
 
@@ -38,14 +33,14 @@ operations.
 .. note::
     This is a fairly low-level, explicit way to generate an HTML file.
     When using the |bokeh.plotting| or |bokeh.charts| interfaces, users will
-    typically call the function |output_file| in conjuction with |show| or
+    typically call the function |output_file| in conjunction with |show| or
     |save| instead.
 
 You can also provide your own template and pass in custom, or additional, template variables.
 See the |file_html| function for more details. You can see an example of this
 in the `gapminder example plot`_.
 
-.. _gapminder example plot: https://github.com/bokeh/bokeh/blob/master/examples/interactions/interactive_bubble/gapminder.py
+.. _gapminder example plot: https://github.com/bokeh/bokeh/blob/master/examples/howto/interactive_bubble/gapminder.py
 
 .. _userguide_embed_components:
 
@@ -129,9 +124,9 @@ For example, to use version ``0.10.0``:
     You must provide the closing `</script>` tag. This is required by all
     browsers and the page will typically not render without it.
 
-The |components| function takes either a single PlotObject, a list/tuple of
-PlotObjects, or a dictionary of keys and PlotObjects. Each returns
-a corresponding data structure of script and div pairs.
+The |components| function takes either a single Bokeh Model a list/tuple of
+Models, or a dictionary of keys and Models. Each returns a corresponding
+data structure of script and div pairs.
 
 The following illustrates how different input types correlate to outputs:
 
@@ -185,7 +180,7 @@ Here's an example of how you would use the multiple plot generator:
     p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, plot_width=300, plot_height=300)
     p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
 
-    # plots can be a single PlotObject, a list/tuple, or even a dictionary
+    # plots can be a single Bokeh Model, a list/tuple, or even a dictionary
     plots = {'Red': p1, 'Blue': p2, 'Green': p3}
 
     script, div = components(plots)
@@ -290,8 +285,7 @@ server data
 
 The simplest case is to use the Bokeh server to persist your plot and data.
 Additionally, the Bokeh server affords the opportunity of animated plots or
-updating plots with streaming data. The |autoload_server| function accepts
-a plot object and a Bokeh server ``Session`` object. It returns a ``<script>``
+updating plots with streaming data. The |autoload_server| function returns a ``<script>``
 tag that will load both your plot and data from the Bokeh server.
 
 As a concrete example, here is some simple code using |autoload_server|
@@ -299,24 +293,17 @@ with a default session:
 
 .. code-block:: python
 
-    from bokeh.plotting import figure, push
+
+    from bokeh.client import push_session
     from bokeh.embed import autoload_server
-    from bokeh.session import Session
-    from bokeh.document import Document
+    from bokeh.plotting import figure, curdoc
 
-    # alternative to these lines, bokeh.io.output_server(...)
-    document = Document()
-    session = Session()
-    session.use_doc('population_reveal')
-    session.load_document(document)
-
+    # figure() function auto-adds the figure to curdoc()
     plot = figure()
     plot.circle([1,2], [3,4])
 
-    document.add(push)
-    push(session, document)
-
-    script = autoload_server(plot, session)
+    session = push_session(curdoc())
+    script = autoload_server(plot, session_id=session.id)
 
 The resulting ``<script>`` tag that you can use to embed the plot inside
 a document looks like:
@@ -324,19 +311,25 @@ a document looks like:
 .. code-block:: html
 
     <script
-        src="http://localhost:5006/bokeh/autoload.js/f64f7959-017d-4d1b-924e-899a61fed42b"
-        id="f64f7959-017d-4d1b-924e-899a61fed42b"
-        async="true"
-        data-bokeh-data="server"
-        data-bokeh-modelid="82ef36f7-9d58-47c8-9b0d-201947febb00"
-        data-bokeh-root-url="http://localhost:5006/"
-        data-bokeh-docid="2b4c75a2-8311-4b4d-b014-370b430d6469"
-        data-bokeh-docapikey="8c4e34e5-04f9-4c1c-b92f-fb1ec0d52cae"
-        data-bokeh-loglevel="info"
+    src="http://localhost:5006/autoload.js?bokeh-autoload-element=82ae93bf-79c2-4028-af7e-1cf6b1a0ea1a&bokeh-session-id=qjPGXLj7UWx7G9LDkwEq48fMOcxQfepxW7HUYPCQNrmN"
+    id="82ae93bf-79c2-4028-af7e-1cf6b1a0ea1a"
+    data-bokeh-model-id="b08c02c4-f93c-461c-bb23-514b54dfec83"
+    data-bokeh-doc-id=""
     ></script>
+
 
 .. note::
     To execute the code above, a Bokeh server must be running.
+
+
+Alternatively, if you are already an app on a bokeh server and have the url for
+it then you may want to use |autoload_server| like this:
+
+.. code-block:: python
+
+    script = autoload_server(model=None, app_path="/apps/slider", url="https://demo.bokehplots.com")
+
+For full details read the autoload_server reference here: |autoload_server|.
 
 .. _userguide_embed_autoload_static:
 

@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+GuideRenderer = require "./guide_renderer"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 
@@ -63,7 +63,7 @@ class GridView extends PlotWidget
       ctx.stroke()
     return
 
-class Grid extends HasParent
+class Grid extends GuideRenderer.Model
   default_view: GridView
   type: 'Grid'
 
@@ -96,7 +96,7 @@ class Grid extends HasParent
    _bounds: () ->
     [range, cross_range] = @get('ranges')
 
-    user_bounds = @get('bounds') ? 'auto'
+    user_bounds = @get('bounds')
     range_bounds = [range.get('min'), range.get('max')]
 
     if _.isArray(user_bounds)
@@ -160,11 +160,10 @@ class Grid extends HasParent
     return _.extend {}, super(), {
       x_range_name: "default"
       y_range_name: "default"
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
-      level: 'underlay'
+      level: "underlay"
+      bounds: 'auto'
+      dimension: 0
+      ticker: null
       band_fill_color: null
       band_fill_alpha: 0
       grid_line_color: '#cccccc'
@@ -182,7 +181,6 @@ class Grid extends HasParent
       minor_grid_line_dash: []
       minor_grid_line_dash_offset: 0
     }
-
 
 module.exports =
   Model: Grid

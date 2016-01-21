@@ -17,6 +17,7 @@ from __future__ import absolute_import
 
 import pytest
 
+from bokeh.charts.attributes import ColorAttr, DashAttr, MarkerAttr
 from bokeh.charts.data_source import ChartDataSource, NumericalColumnsAssigner
 
 #-----------------------------------------------------------------------------
@@ -64,13 +65,22 @@ def test_records(test_data):
 
 
 def test_groupby(test_data):
-    ds = ChartDataSource(df=test_data.auto_data)
-    groups = list(ds.groupby(**test_data.single_col_spec))
-    assert len(groups) == 5
+    # Note: this works because MarkerAttr and DashAttr are permissive in
+    # what is accepted for iterable, i.e. List(String)
+    for cls in (ColorAttr, MarkerAttr, DashAttr):
+        single_col_spec = {'test': cls(df=test_data.auto_data, columns='cyl',
+                                            attrname='test', iterable=['red', 'blue'])}
+        multi_col_spec = {'test': cls(df=test_data.auto_data,
+                                           columns=('cyl', 'origin'),
+                                           attrname='test', iterable=['red', 'blue'])}
 
-    ds = ChartDataSource(df=test_data.auto_data)
-    groups = list(ds.groupby(**test_data.multi_col_spec))
-    assert len(groups) == 9
+        ds = ChartDataSource(df=test_data.auto_data)
+        groups = list(ds.groupby(**single_col_spec))
+        assert len(groups) == 5
+
+        ds = ChartDataSource(df=test_data.auto_data)
+        groups = list(ds.groupby(**multi_col_spec))
+        assert len(groups) == 9
 
 
 def test_derived_selections(test_data):

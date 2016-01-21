@@ -217,13 +217,15 @@
 }
 
 .bk-button-bar-list .bk-toolbar-button .bk-btn-icon {
-  height: 16px;
-  margin: 0 !important;
-  border: none !important;
-  background: transparent !important;
   display: block;
   position: relative;
-  z-index: 10;
+  height: 16px;
+  margin: 0;
+  border: none;
+  background-size: contain;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 .bk-button-bar-list .bk-toolbar-button span.tip {
@@ -461,19 +463,6 @@
     }
   }
 }
-
-.bk-crossfilter-selector {
-  list-style-type: none;
-  -webkit-padding-start: 0
-}
-
-.bk-crossfilter-selector li {
-  display: inline;
-  margin-bottom: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-}
-
 
 .bk-bs-caret {
   color: @buttonColor;

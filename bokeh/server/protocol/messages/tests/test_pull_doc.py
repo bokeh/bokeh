@@ -3,16 +3,16 @@ from __future__ import absolute_import, print_function
 import unittest
 
 import bokeh.document as document
-from bokeh.plot_object import PlotObject
-from bokeh.properties import Int, Instance
+from bokeh.model import Model
+from bokeh.core.properties import Int, Instance
 from bokeh.server.protocol import Protocol
 
-class AnotherModelInTestPullDoc(PlotObject):
+class AnotherModelInTestPullDoc(Model):
     bar = Int(1)
 
-class SomeModelInTestPullDoc(PlotObject):
+class SomeModelInTestPullDoc(Model):
     foo = Int(2)
-    child = Instance(PlotObject)
+    child = Instance(Model)
 
 class TestPullDocument(unittest.TestCase):
 

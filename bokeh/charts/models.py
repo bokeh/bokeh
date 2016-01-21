@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
+from six import iteritems
+import pandas as pd
+
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
-from bokeh.properties import (HasProps, String, Either, Float, Color, Instance, List,
-                              Any)
+from bokeh.core.properties import (HasProps, String, Either, Float, Color, Instance, List,
+                              Any, Dict)
 from .properties import ColumnLabel, Column
 
 
@@ -21,7 +24,7 @@ class CompositeGlyph(HasProps):
     oriented data source level, segmenting and assigning
     attributes from a large selection, while the composite glyphs
     will typically be passed an array-like structures with
-    one or more singlular attributes to apply.
+    one or more singular attributes to apply.
 
     Another way to explain the concept is that the Builder
     operates as the groupby, as in pandas, while the
@@ -36,39 +39,46 @@ class CompositeGlyph(HasProps):
     """
 
     # composite glyph inputs
-    label = String('None', help='Identifies the subset of data.')
-    values = Either(Column(Float), Column(String), help="""Array-like values,
-        which are used as the input to the composite glyph.""")
+    label = Either(String, Dict(String, Any), default='None',
+                   help='Identifies the subset of data.')
+
+    values = Either(Column(Float), Column(String), help="""
+        Array-like values, which are used as the input to the composite glyph.
+
+        Most composite glyphs add their own representation of one or more values-like
+        columns/arrays that they receive as inputs. These are compiled together for
+        generating `source`, `data`, and `df` by the individual composite glyphs.
+        """)
 
     # derived from inputs
     source = Instance(ColumnDataSource, help="""The data source used for the contained
         glyph renderers. Simple glyphs part of the composite glyph might not use the
         column data source.""")
     renderers = List(Instance(GlyphRenderer))
+    glyphs = Dict(String, Any) # where we expect a Glyph class as Value
 
     operations = List(Any, help="""A list of chart operations that can be applied to
         manipulate their visual depiction.""")
 
     color = Color(default='gray', help="""A high level color. Some glyphs will
         implement more specific color attributes for parts or specific glyphs.""")
+    fill_color = Color(default="gray")
     line_color = Color(default='black', help="""A default outline color for contained
         glyphs.""")
     fill_alpha = Float(default=0.8)
+    line_alpha = Float(default=1.0)
 
     left_buffer = Float(default=0.0)
     right_buffer = Float(default=0.0)
     top_buffer = Float(default=0.0)
     bottom_buffer = Float(default=0.0)
 
-    def __init__(self, **kwargs):
-        label = kwargs.pop('label', None)
-
-        if label is not None:
-            if not isinstance(label, str):
-                label = str(label)
-            kwargs['label'] = label
-
-        super(CompositeGlyph, self).__init__(**kwargs)
+    def __init__(self, **properties):
+        vals = properties.get('values')
+        if String().is_valid(vals) or Float().is_valid(vals):
+            properties['values'] = [vals]
+        super(CompositeGlyph, self).__init__(**properties)
+        self.setup()
 
     def setup(self):
         """Build renderers and data source and set sources on renderers."""
@@ -83,14 +93,79 @@ class CompositeGlyph(HasProps):
             this method would be called after data is added.
         """
         if self.renderers is not None:
-            self.source = self.build_source()
-            self._set_sources()
+            data = self.build_source()
+
+            if data is not None:
+
+                if isinstance(data, dict):
+                    source = ColumnDataSource(data)
+
+                if not isinstance(source, ColumnDataSource) and source is not None:
+                    raise TypeError('build_source must return dict or ColumnDataSource.')
+                else:
+                    self.source = self.add_chart_index(source)
+
+                self._set_sources()
+
+    @property
+    def data(self):
+        if self.source is not None:
+            return self.source.data
+        else:
+            return {}
+
+    @property
+    def df(self):
+        if self.data:
+            return pd.DataFrame(self.data)
+        else:
+            return pd.DataFrame()
+
+    def add_chart_index(self, data):
+        """Add identifier of the data group as a column for each row.
+
+        Args:
+            data (dict or `ColumnDataSource`): can be the type of data used internally
+                to ColumnDataSource, or a ColumnDataSource.
+
+        Returns:
+            dict or `ColumnDataSource`: returns the same type of data provided
+        """
+
+        if isinstance(data, ColumnDataSource):
+            source = data
+            data = source.data
+        else:
+            source = None
+
+        # add chart index to data
+        if 'chart_index' not in data and len(list(data.keys())) > 0:
+            n_rows = len(list(data.values())[0])
+
+            # add composite chart index as column
+            data['chart_index'] = [self.label] * n_rows
+
+            # add constant value for each column in chart index
+            if isinstance(self.label, dict):
+                for col, val in iteritems(self.label):
+                    data[col] = [val] * n_rows
+
+        if source is not None:
+            source.data = data
+            return source
+        else:
+            return data
 
     def build_renderers(self):
-        raise NotImplementedError('You must return list of renderers.')
+        yield GlyphRenderer()
 
     def build_source(self):
-        raise NotImplementedError('You must return ColumnDataSource.')
+        data = {}
+
+        if self.values is not None:
+            data = {'values': self.values}
+
+        return data
 
     def _set_sources(self):
         """Store reference to source in each GlyphRenderer.
@@ -120,6 +195,14 @@ class CompositeGlyph(HasProps):
 
     def apply_operations(self):
         pass
+
+    @classmethod
+    def glyph_properties(cls):
+        props = {}
+        for name, glyph in iteritems(cls.glyphs):
+            props[name] = glyph.class_properties(withbases=True)
+
+        return props
 
 
 class CollisionModifier(HasProps):

@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class LinearColorMapper extends HasProperties
+class LinearColorMapper extends Model
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -10,6 +10,15 @@ class LinearColorMapper extends HasProperties
     if @get('reserve_color')?
       @reserve_color = parseInt(@get('reserve_color').slice(1), 16)
       @reserve_val   = @get('reserve_val')
+
+  defaults: ->
+    return _.extend({}, super(), {
+      high: null
+      low: null
+      palette: null
+      reserve_val: null
+      reserve_color: "#ffffff"
+    })
 
   v_map_screen: (data) ->
     buf = new ArrayBuffer(data.length * 4)
@@ -81,4 +90,4 @@ class LinearColorMapper extends HasProperties
     return new_palette
 
 module.exports =
-  Model: LinearColorMapper,
+  Model: LinearColorMapper

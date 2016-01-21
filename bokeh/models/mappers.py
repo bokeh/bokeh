@@ -3,14 +3,14 @@
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
-from ..properties import abstract
-from ..properties import Float, Color, Enum, Seq
-from ..enums import Palette
+from ..model import Model
+from ..core.properties import abstract
+from ..core.properties import Float, Color, Enum, Seq
+from ..core.enums import Palette
 from .. import palettes
 
 @abstract
-class ColorMapper(PlotObject):
+class ColorMapper(Model):
     """ Base class for color mapper types. `ColorMapper`` is not
     generally useful to instantiate on its own.
 
@@ -36,7 +36,7 @@ class LinearColorMapper(ColorMapper):
     A sequence of colors to use as the target palette for mapping.
 
     This property can also be set as a ``String``, to the name of
-    any of the palettes shown in :ref:`bokeh_dot_palettes`.
+    any of the palettes shown in :ref:`bokeh.palettes`.
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
     low = Float(help="""

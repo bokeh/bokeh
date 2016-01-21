@@ -1,7 +1,15 @@
-locations = {
+module.exports = {
   editors:                  [require('./cell_editors'), 'Editor']
   formatters:               [require('./cell_formatters'), 'Formatter']
 
+  AbstractButton:           require './abstract_button'
+  AbstractIcon:             require './abstract_icon'
+  TableWidget:              require './table_widget'
+  BaseBox:                  require './basebox'
+  Layout:                   require './layout'
+  Markup:                   require './markup'
+  Widget:                   require './widget'
+  InputWidget:              require './input_widget'
   TableColumn:              require './table_column'
   DataTable:                require './data_table'
   Paragraph:                require './paragraph'
@@ -13,7 +21,6 @@ locations = {
   PreText:                  require './pretext'
   Select:                   require './selectbox'
   Slider:                   require './slider'
-  CrossFilter:              require './crossfilter'
   MultiSelect:              require './multiselect'
   DateRangeSlider:          require './date_range_slider'
   DatePicker:               require './date_picker'
@@ -28,12 +35,4 @@ locations = {
   RadioGroup:               require './radio_group'
   CheckboxButtonGroup:      require './checkbox_button_group'
   RadioButtonGroup:         require './radio_button_group'
-  SimpleApp:                require './simpleapp'
-
-  AppHBox:                  require './layouts/apphbox'
-  AppVBox:                  require './layouts/appvbox'
-  AppVBoxForm:              require './layouts/appvboxform'
 }
-
-{Collections} = require('../common/base')
-Collections.register_plugin('widgets', locations)

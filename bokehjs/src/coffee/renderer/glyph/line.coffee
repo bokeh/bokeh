@@ -4,7 +4,7 @@ hittest = require "../../common/hittest"
 bokehgl = require "./bokehgl"
 
 class LineView extends Glyph.View
-  
+
   _init_gl: (gl) ->
     @glglyph = new bokehgl.LineGLGlyph(gl, this)
 
@@ -45,21 +45,21 @@ class LineView extends Glyph.View
           * 0d (bool): whether the point hits the glyph or not
           * 1d (array(int)): array with the indices hit by the point
     ###
-    [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx)
-    y = @renderer.ymapper.map_from_target(vy)
     result = hittest.create_hit_test_result()
-    point = {x: x, y: y}
-    shortest = 100
-    threshold = 1
+    point =
+      x: this.renderer.plot_view.canvas.vx_to_sx(geometry.vx)
+      y: this.renderer.plot_view.canvas.vy_to_sy(geometry.vy)
+    shortest = 9999
+    threshold = Math.max(2, @visuals.line.width.value() / 2)
 
-    for i in [0...@x.length-1]
-      [p0, p1] = [{x: @x[i], y: @y[i]}, {x: @x[i+1], y: @y[i+1]}]
+    for i in [0...@sx.length-1]
+      [p0, p1] = [{x: @sx[i], y: @sy[i]}, {x: @sx[i+1], y: @sy[i+1]}]
       dist = hittest.dist_to_segment(point, p0, p1)
 
       if dist < threshold && dist < shortest
         shortest = dist
-        result['0d'].flag = true
+        result['0d'].glyph = this.model
+        result['0d'].flag = true  # backward compat
         result['0d'].indices = [i]
 
     return result
@@ -77,7 +77,8 @@ class LineView extends Glyph.View
 
     for i in [0...values.length-1]
       if values[i]<=val<=values[i+1]
-        result['0d'].flag = true
+        result['0d'].glyph = this.model
+        result['0d'].flag = true  # backward compat
         result['0d'].indices.push(i)
 
     return result

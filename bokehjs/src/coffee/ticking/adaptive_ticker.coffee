@@ -1,5 +1,5 @@
 _ = require "underscore"
-AbstractTicker = require "./abstract_ticker"
+ContinuousTicker = require "./continuous_ticker"
 {argmin} = require "./util"
 
 # Forces a number x into a specified range [min_val, max_val].
@@ -14,7 +14,7 @@ log = (x, base=Math.E) ->
 # AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
 # following:
 # ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
-class AdaptiveTicker extends AbstractTicker.Model
+class AdaptiveTicker extends ContinuousTicker.Model
   type: 'AdaptiveTicker'
 
   # These arguments control the range of possible intervals.  The interval I
@@ -27,11 +27,12 @@ class AdaptiveTicker extends AbstractTicker.Model
   # and min_interval <= I <= max_interval.
   initialize: (attrs, options) ->
     super(attrs, options)
+
     prefix_mantissa =  _.last(@get('mantissas')) / @get('base')
     suffix_mantissa = _.first(@get('mantissas')) * @get('base')
     @extended_mantissas = _.flatten([prefix_mantissa, @get('mantissas'), suffix_mantissa])
 
-    @base_factor = if @get('min_interval') == 0.0 then 1.0 else @get('min_interval')
+    @base_factor = if @get_min_interval() == 0.0 then 1.0 else @get_min_interval()
 
   get_interval: (data_low, data_high, desired_n_ticks) ->
     data_range = data_high - data_low
@@ -52,15 +53,14 @@ class AdaptiveTicker extends AbstractTicker.Model
 
     interval = best_mantissa * ideal_magnitude
 
-    return clamp(interval, @get('min_interval'), @get('max_interval'))
+    return clamp(interval, @get_min_interval(), @get_max_interval())
 
   defaults: () ->
     return _.extend {}, super(), {
-      toString_properties: ['mantissas', 'base', 'min_magnitude', 'max_magnitude'],
       base: 10.0,
-      mantissas: [2, 5, 10]
+      mantissas: [1, 2, 5]
       min_interval: 0.0,
-      max_interval: Infinity,
+      max_interval: null,
     }
 
 module.exports =

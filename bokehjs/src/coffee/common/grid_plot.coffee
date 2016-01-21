@@ -3,6 +3,7 @@ _ = require "underscore"
 Backbone = require "backbone"
 build_views = require "./build_views"
 ContinuumView = require "./continuum_view"
+Component = require "../models/component"
 HasProperties = require "./has_properties"
 {logger} = require "./logging"
 ToolManager = require "./tool_manager"
@@ -37,6 +38,7 @@ class ToolProxy extends Backbone.Model
 
   set: (attr, value) ->
     super(attr, value)
+    attr = _.omit(attr, "tools")
     for tool in @attributes.tools
       tool.set(attr, value)
     return null
@@ -99,28 +101,23 @@ class GridToolManager extends ToolManager.Model
       if tools.length == 0
         continue
       info.tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
-      info.tools[0].set('active', true)
+      if et not in ['pinch', 'scroll']
+        info.tools[0].set('active', true)
 
   _active_change: (tool) =>
-    et = tool.get('event_type')
-
-    active = tool.get('active')
-    if not active
-      return null
-
+    event_type = tool.get('event_type')
     gestures = @get('gestures')
-    prev = gestures[et].active
-    if prev?
-      logger.debug(
-        "GridToolManager: deactivating tool: #{prev.type} (for event type '#{et}'"
-      )
-      prev.set('active', false)
 
-    gestures[et].active = tool
+    # Toggle between tools of the same type by deactivating any active ones
+    currently_active_tool = gestures[event_type].active
+    if currently_active_tool? and currently_active_tool != tool
+      logger.debug("GridToolManager: deactivating tool: #{currently_active_tool.type} (#{currently_active_tool.id}) for event type '#{event_type}'")
+      currently_active_tool.set('active', false)
+
+    # Update the gestures with the new active tool
+    gestures[event_type].active = tool
     @set('gestures', gestures)
-    logger.debug(
-      "GridToolManager: activating tool: #{tool.type} (for event type '#{et}'"
-    )
+    logger.debug("GridToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{event_type}'")
     return null
 
   defaults: () ->
@@ -305,7 +302,7 @@ class GridPlotView extends ContinuumView
     width = _.reduce(col_widths, add, 0)
     div.attr('style', "position:relative; height:#{height}px;width:#{width}px")
 
-class GridPlot extends HasProperties
+class GridPlot extends Component.Model
   type: 'GridPlot'
   default_view: GridPlotView
 
@@ -326,7 +323,9 @@ class GridPlot extends HasProperties
   defaults: () ->
     return _.extend {}, super(), {
       children: [[]]
+      border_space: 0
       toolbar_location: "left"
+      disabled: false
     }
 
 module.exports =

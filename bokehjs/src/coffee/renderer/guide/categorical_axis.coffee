@@ -1,4 +1,7 @@
+_ = require "underscore"
 {logger} = require "../../common/logging"
+CategoricalTicker = require "../../ticking/categorical_ticker"
+CategoricalTickFormatter = require "../../ticking/categorical_tick_formatter"
 Axis = require "./axis"
 
 class CategoricalAxisView extends Axis.View
@@ -7,13 +10,11 @@ class CategoricalAxis extends Axis.Model
   default_view: CategoricalAxisView
   type: 'CategoricalAxis'
 
-  initialize: (attrs, objects) ->
-    super(attrs, objects)
-    Collections = require("../../common/base").Collections
-    if not @get('ticker')?
-      @set_obj('ticker', Collections('CategoricalTicker').create())
-    if not @get('formatter')?
-      @set_obj('formatter', Collections('CategoricalTickFormatter').create())
+  defaults: ->
+    return _.extend {}, super(), {
+      ticker: new CategoricalTicker.Model()
+      formatter: new CategoricalTickFormatter.Model()
+    }
 
   _computed_bounds: () ->
     [range, cross_range] = @get('ranges')

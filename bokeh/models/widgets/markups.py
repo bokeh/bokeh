@@ -3,8 +3,8 @@
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
-from ...properties import Int, String
+from ...core.properties import abstract
+from ...core.properties import Int, String
 from .widget import Widget
 
 @abstract
@@ -16,7 +16,7 @@ class Paragraph(Markup):
 
     """
 
-    text = String(help="""
+    text = String(default="", help="""
     The contents of the widget.
     """)
 

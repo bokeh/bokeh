@@ -1,18 +1,19 @@
-from __future__ import absolute_import
-import pandas as pd
-from os.path import join
-import sys
-from . import _data_dir
+''' Provide a pandas DataFrame instance of four of the datasets from gapminder.org.
 
-
-'''
-This module provides a pandas DataFrame instance of four
-of the datasets from gapminder.org.
-
-These are read in from csvs that have been downloaded from Bokeh's
+These are read in from csv filess that have been downloaded from Bokeh's
 sample data on S3. But the original code that generated the csvs from the
 raw gapminder data is available at the bottom of this file.
 '''
+from __future__ import absolute_import
+
+from bokeh.util.dependencies import import_required
+pd = import_required('pandas',
+              'gapminder sample data requires Pandas (http://pandas.pydata.org) to be installed')
+
+from os.path import join
+import sys
+
+from . import _data_dir
 
 data_dir = _data_dir()
 

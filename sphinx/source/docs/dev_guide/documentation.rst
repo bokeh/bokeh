@@ -3,10 +3,6 @@
 Documentation
 =============
 
-.. contents::
-    :local:
-    :depth: 2
-
 Requirements
 ------------
 
@@ -16,7 +12,6 @@ packages installed in order to build Bokeh documentation:
 * docutils
 * sphinx
 * sphinxcontrib-httpdomain
-* sphinx-bootstrap-theme
 * seaborn
 * pygments
 * yaml
@@ -33,7 +28,7 @@ Building
 --------
 
 To generate the full HTML documentation, navigate to the ``sphinx``
-subdirectoryof the Bokeh source checkout, and execute the corresponding
+subdirectory of the Bokeh source checkout, and execute the corresponding
 command::
 
     make all

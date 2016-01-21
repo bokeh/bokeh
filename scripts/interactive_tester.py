@@ -13,26 +13,21 @@ import json
 #       catch and log exceptions in examples files that fail to open
 
 DIRECTORIES = {
-    'file'    : '../../examples/plotting/file',
-    'notebook': '../../examples/plotting/notebook',
-    'server'  : '../../examples/plotting/server',
-    'ggplot'  : '../../examples/compat/ggplot',
-    'glyphs'  : '../../examples/glyphs',
-    'mpl'     : '../../examples/compat/mpl',
-    'pandas'  : '../../examples/compat/pandas',
-    'seaborn' : '../../examples/compat/seaborn',
-    'charts'  : '../../examples/charts',
+    'plotting-file'    : '../../examples/plotting/file',
+    'plotting-notebook': '../../examples/plotting/notebook',
+    'server'           : '../../examples/plotting/server',
+    'compat'           : '../../examples/compat',
+    'models'           : '../../examples/models',
+    'charts-file'      : '../../examples/charts/file',
+    'charts-notebook'  : '../../examples/charts/notebook'
 }
 
 DEFAULT_TEST_FILES = [
     '../../examples/plotting/file/stocks.py',
     '../../examples/plotting/file/glucose.py',
-    '../../examples/compat/ggplot/density.py',
-    '../../examples/plotting/server/stocks.py',
-    '../../examples/plotting/server/glucose.py',
-    '../../examples/plotting/notebook/candlestick.ipynb',
-    '../../examples/plotting/notebook/glucose.ipynb',
-    '../../examples/compat/seaborn/violin.py',
+    '../../examples/compat/ggplot_density.py',
+    '../../examples/compat/seaborn_violin.py',
+    '../../examples/plotting/server/hover.py',
     '../../examples/charts/boxplot.py',
 ]
 
@@ -53,14 +48,13 @@ def get_parser():
                      -l /path/to/my/examplesyou can choose:
 
                     or any of the pre-built keywords that point to the related examples:
-                        - file
-                        - notebook
+                        - plotting-file
+                        - plotting-notebook
                         - server
-                        - ggplot
-                        - glyphs
-                        - mpl
-                        - pandas
-                        - seaborn
+                        - compat
+                        - models
+                        - charts-file
+                        - charts-notebook
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,
@@ -79,7 +73,6 @@ def depend_check(dependency):
     """
     Make sure a given dependency is installed
     """
-
     try:
         importlib.import_module(dependency)
         found = True
@@ -262,9 +255,9 @@ if __name__ == '__main__':
         if results.location and results.location in DIRECTORIES:
             target = results.location
 
-            if target in ['ggplot', 'pandas', 'seaborn', 'charts']:
-                if not depend_check(target):
-                    sys.exit(1)
+            if target == 'compat':
+                for dep in ['ggplot', 'pandas', 'seaborn']:
+                    if not depend_check(dep): sys.exit(1)
 
             test_dir = DIRECTORIES[target]
 
@@ -281,8 +274,12 @@ if __name__ == '__main__':
         test_dir = None
 
     if results.location == 'server' or test_dir is None:
-        print("Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab.")
-        time.sleep(5)
+        print("Server examples require the bokeh server. Make sure you've typed 'bokeh serve' in another terminal tab.")
+        time.sleep(4)
+
+    if test_dir is None or 'notebook' in results.location:
+        print("Notebook examples require ipython-notebook. Make sure you have conda installed ipython-notebook")
+        time.sleep(4)
 
     if not results.reuseSession:
         print("cleaning previous session file...",)

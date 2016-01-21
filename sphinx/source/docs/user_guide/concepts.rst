@@ -3,10 +3,6 @@
 Defining Key Concepts
 =====================
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _userguide_glossary:
 
 Glossary
@@ -18,53 +14,130 @@ some of the most important concepts in Bokeh.
 
 ----
 
+Application
+    A Bokeh application is a rendered Bokeh document, running in a browser.
+
 BokehJS
-   The JavaScript client library that actually renders the visuals and
-   handles the UI interactions for Bokeh plots and widgets in the browser.
-   Typically, users will not have to think about this aspect of Bokeh
-   much *("We write the JavaScript, so you don't have to!")* but it is
-   good to have basic knowledge of this dichotomy. For full details, see
-   the :ref:`devguide_bokehjs` chapter of the :ref:`devguide`.
+    The JavaScript client library that actually renders the visuals and
+    handles the UI interactions for Bokeh plots and widgets in the browser.
+    Typically, users will not have to think about this aspect of Bokeh
+    much *("We write the JavaScript, so you don't have to!")* but it is
+    good to have basic knowledge of this dichotomy. For full details, see
+    the :ref:`devguide_bokehjs` chapter of the :ref:`devguide`.
 
 Charts
-   Schematic statistical plots such as bar charts, horizon plots, time
-   series, etc. that may include faceting, grouping, or stacking based on
-   the structure of the data. Bokeh provides a high level ``bokeh.charts``
-   interface to quickly construct these kinds of plots. See
-   :ref:`userguide_charts` for examples and usage.
+    Schematic statistical plots such as bar charts, horizon plots, time
+    series, etc. that may include faceting, grouping, or stacking based on
+    the structure of the data. Bokeh provides a high level ``bokeh.charts``
+    interface to quickly construct these kinds of plots. See
+    :ref:`userguide_charts` for examples and usage.
+
+Documents
+    An organizing data structure for Bokeh applications. Documents
+    contain all the Bokeh Models and data needed to render an interactive
+    visualization or application in the browser.
 
 Embedding
-   Various methods of including Bokeh plots and widgets into web apps and
-   pages, or the IPython notebook. See :ref:`userguide_embed` for more
-   details.
+    Various methods of including Bokeh plots and widgets into web apps and
+    pages, or the IPython notebook. See :ref:`userguide_embed` for more
+    details.
 
 Glyphs
-   The basic visual building blocks of Bokeh plots, e.g. lines, rectangles,
-   squares, wedges, patches, etc. The ``bokeh.plotting`` interface provides
-   a convenient way to create plots centered around glyphs. See
-   :ref:`userguide_plotting` for more information.
+    The basic visual building blocks of Bokeh plots, e.g. lines, rectangles,
+    squares, wedges, patches, etc. The ``bokeh.plotting`` interface provides
+    a convenient way to create plots centered around glyphs. See
+    :ref:`userguide_plotting` for more information.
 
 Models
-   The lowest-level objects that comprise Bokeh "scenegraphs". These live
-   in the ``bokeh.models`` interface. *Most users will not use this level
-   of interface to assemble plots directly.* However, ultimately all Bokeh
-   plots consist of collections of models, so it is important to understand
-   them enough to configure their attributes and properties. See
-   :ref:`userguide_styling` for more information.
+    The lowest-level objects that comprise Bokeh "scenegraphs". These live
+    in the ``bokeh.models`` interface. *Most users will not use this level
+    of interface to assemble plots directly.* However, ultimately all Bokeh
+    plots consist of collections of models, so it is important to understand
+    them enough to configure their attributes and properties. See
+    :ref:`userguide_styling` for more information.
 
 Server
-   The ``bokeh-server`` is an optional component that can be used for sharing
-   and publishing Bokeh plots and apps, for handling streaming of large data
-   sets, or for enabling sophisticated user interactions based off of widgets
-   and selections. See :ref:`userguide_server` for more explanation.
+    The Bokeh server is an optional component that can be used for sharing
+    and publishing Bokeh plots and apps, for handling streaming of large data
+    sets, or for enabling sophisticated user interactions based off of widgets
+    and selections. See :ref:`userguide_server` for more explanation.
 
 Widgets
-   User interface elements outside of a Bokeh plot such as sliders, drop down
-   menus, buttons, etc. Events and updates from widgets can inform additional
-   computations, or cause Bokeh plots to update. See :ref:`userguide_interaction`
-   for examples and information.
+    User interface elements outside of a Bokeh plot such as sliders, drop down
+    menus, buttons, etc. Events and updates from widgets can inform additional
+    computations, or cause Bokeh plots to update. Widgets can be used in both
+    standalone applications or with the Bokeh server. For examples and
+    information, see :ref:`userguide_interaction`.
 
 ----
+
+.. _userguide_output_methods:
+
+Output Methods
+--------------
+
+As we will see demonstrated frequently throughout the User Guide, there are
+various ways to generate output for Bokeh documents. The most common for
+interactive usage are:
+
+``output_file``
+    For generating simple standalone HTML documents for Bokeh visualizations.
+
+``output_notebook``
+    For displaying Bokeh visualizations inline in Jupyter notebook cells.
+
+``output_server``
+    For installing Bokeh applications on a running Bokeh server.
+
+These functions are most often used together with the ``show`` or ``save``
+functions. Scripts that output with these typically look something like:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("output.html")
+
+    p = figure()
+    p.line(x=[1, 2, 3], y=[4,6,2])
+
+    show(p)
+
+If this script is called ``foo.py`` then executing ``python foo.py`` will
+result in an HTML file ``output.html`` being generated with the line plot.
+These functions are often useful in interactive settings, or for creating
+standalone Bokeh documents to server from (Flask, Django, etc.) web
+applications.
+
+However, Bokeh also comes with a powerful command line tool ``bokeh`` that
+can also be used to generate various kinds of output:
+
+``bokeh html``
+    Create standalone HTML documents from any kind of Bokeh application
+    source: e.g., python scripts, app directories, JSON files, and others.
+
+``bokeh json``
+    Generate a serialized JSON representation of a Bokeh document from any
+    kind of Bokeh application source.
+
+``bokeh serve``
+    Publish Bokeh documents as interactive web applications.
+
+An advantage of using the ``bokeh`` command is that the code you write does not
+have to specify any particular output method or format. You can write *just the
+visualization code* once, and decide later to output in different ways. The
+above example would be simplified to:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure
+
+    p = figure()
+    p.line(x=[1, 2, 3], y=[4,6,2])
+
+Now, you can run ``bokeh html foo.py`` to generate a standalone HTML file,
+or ``bokeh serve foo.py`` to start serving this document as a web application.
+For more information on the command line tool see :ref:`userguide_cli`.
 
 .. _userguide_interfaces:
 
@@ -196,6 +269,7 @@ interfaces. As with |bokeh.plotting|, the output functions |output_file| and
 |show|, etc. that are defined in |bokeh.io|, are also importable from
 |bokeh.charts| as a convenience.
 
+
 other interfaces
 ~~~~~~~~~~~~~~~~
 
@@ -233,6 +307,10 @@ just one additional line of code:
 .. |output_server|   replace:: :func:`~bokeh.io.output_server`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
+
+.. |bokeh html|      replace:: :ref:`bokeh html <userguide_cli_html>`
+.. |bokeh json|      replace:: :ref:`bokeh json <userguide_cli_json>`
+.. |bokeh serve|     replace:: :ref:`bokeh serve <userguide_cli_serve>`
 
 .. |figure|          replace:: :func:`~bokeh.plotting.figure`
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`

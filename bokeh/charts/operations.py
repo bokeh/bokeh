@@ -10,9 +10,11 @@ from __future__ import absolute_import
 
 from copy import copy
 
-from bokeh.properties import String
+from bokeh.core.properties import Override, String, List, Instance
 from .data_source import DataOperator
 from .models import CollisionModifier
+from .properties import ColumnLabel
+from .stats import Stat, Count, stats
 
 
 class Stack(CollisionModifier):
@@ -20,8 +22,8 @@ class Stack(CollisionModifier):
 
     Useful for area or bar glyphs.
     """
-    name = 'stack'
-    method_name = '__stack__'
+    name = Override(default='stack')
+    method_name = Override(default='__stack__')
 
 
 class Dodge(CollisionModifier):
@@ -29,8 +31,8 @@ class Dodge(CollisionModifier):
 
     Useful for bar, box, or dot glyphs.
     """
-    name = 'dodge'
-    method_name = '__dodge__'
+    name = Override(default='dodge')
+    method_name = Override(default='__dodge__')
 
 
 class Blend(DataOperator):
@@ -84,12 +86,74 @@ class Blend(DataOperator):
         return data_copy._data
 
 
-def stack(renderers=None, columns=None):
-    """Stacks the :class:`CompositeGlyph`s."""
-    if renderers is not None:
-        stacker = Stack(renderers=renderers)
+class Aggregate(DataOperator):
+
+    dimensions = List(ColumnLabel)
+    stat = Instance(Stat, default=Count())
+    agg_column = String()
+
+    def __init__(self, **properties):
+        stat = properties.pop('stat')
+        if stat is not None and isinstance(stat, str):
+            properties['stat'] = stats[stat]()
+        col = properties.pop('columns')
+        if col is not None:
+            properties['columns'] = [col]
+        super(Aggregate, self).__init__(**properties)
+
+    def apply(self, data):
+        data_copy = copy(data)
+        if self.columns is None:
+            self.stat = stats['count']()
+
+        stat = self.stat
+
+        agg_name = ''
+        if self.columns is not None:
+            agg_name += self.columns[0] + '_'
+        agg_name += self.stat.__class__.__name__
+        self.agg_column = agg_name
+
+        if self.columns is None:
+            col = data_copy.columns[0]
+        else:
+            col = self.columns[0]
+
+        # Add agg value to each row of group
+        def stat_func(group):
+            stat.set_data(group[col])
+            group[agg_name] = stat.value
+            return group
+
+        # create groupby
+        gb = data_copy.groupby(self.dimensions)
+
+        # apply stat function to groups
+        agg = gb.apply(stat_func)
+
+        return agg
+
+
+def stack(*comp_glyphs, **kwargs):
+    """Stacks the :class:`CompositeGlyph`s.
+
+    Stacks the glyphs which results in the glyphs having transformed data,
+    which represents the stacked glyphs.
+
+    Args:
+        *comp_glyphs (:class:`CompositeGlyph`): a sequence of glyphs to stack
+         
+    Returns:
+        comp_glyphs: a list of composite glyphs
+
+    """
+
+    columns = kwargs.get('columns')
+
+    if comp_glyphs is not None:
+        stacker = Stack(comp_glyphs=list(comp_glyphs))
         stacker.apply()
-        return renderers
+        return comp_glyphs
     elif columns is not None:
         return Stack(columns=columns)
     else:

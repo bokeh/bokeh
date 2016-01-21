@@ -3,10 +3,6 @@
 Adding Interactions
 ===================
 
-.. contents::
-    :local:
-    :depth: 2
-
 .. _userguide_interaction_linking:
 
 Linking Plots
@@ -54,7 +50,7 @@ Adding Widgets
 
 Bokeh provides a simple default set of widgets, largely based off the Bootstrap
 JavaScript library. In the future, it will be possible for users to wrap and use
-other widget libararies, or their own custom widgets. By themselves, most widgets
+other widget libraries, or their own custom widgets. By themselves, most widgets
 are not useful. There are two ways to use widgets to drive interactions:
 
 * Use the ``CustomJS`` callback (see below). This will work in static HTML documents.
@@ -177,12 +173,14 @@ The toggle button holds an on/off state:
 
 .. _userguide_interaction_actions:
 
-Defining Callbacks
-------------------
+JavaScript Callbacks
+--------------------
 
-Bokeh exposes an increasing number of callbacks that can be specified
-from the ``Python`` layer that results in an action on the ``javascript`` level without
-the need of ``bokeh-server``.
+Bokeh exposes various callbacks that can be specified from Python that trigger
+actions inside the browser's JavaScript runtime. This kind of JavaScript
+callback can be used to add interesting interactions to Bokeh documents without
+the need to use a Bokeh server (but can also be used in conjuction with a
+Bokeh server).
 
 .. _userguide_interaction_actions_openurl:
 
@@ -195,7 +193,7 @@ OpenURL callback object that can be passed to a Tap tool in order to have that
 action called whenever the users clicks on the glyph.
 
 The following code shows how to use the OpenURL action combined with a TapTool
-to open an url whenever the user clicks on a circle.
+to open an URL whenever the user clicks on a circle.
 
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_open_url.py
     :source-position: above
@@ -265,13 +263,6 @@ The HoverTool has a callback which comes with two pieces of built-in data: the
 `index`, and the `geometry`. The `index` is the indices of any points that the
 hover tool is over.
 
-.. note::
-    Hovers are considered "inspections" and do not normally set the selection
-    on a data source. In an upcoming release, it will be possible to specify an
-    ``inspection_glyph`` that will update a glyphs appearance when it is
-    hovered over, without the need for any callback to set the selection as is
-    done below.
-
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_hover.py
     :source-position: above
 
@@ -290,3 +281,66 @@ interactions such as a box zoom, wheel scroll or pan.
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+
+.. _userguide_interaction_actions_in_python:
+
+CustomJS with a Python function
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A CustomJS callback can also be implemented as a Python function, which
+is then translated to JavaScript using PyScript. This makes it easier
+for users to define client-side interactions without having to learn
+JavaScript. To use this functionality you need the Flexx library
+(install with ``conda install -c bokeh flexx`` or ``pip install flexx``).
+
+.. note::
+    This functionality is currently only supported on Python 3.x., however
+    Python 2.7 support is planned.
+
+.. warning::
+    It is critical to note that **no python code is ever executed when
+    a CustomJS callback is used**. This is true even when the call back is
+    supplied as python code to be translated to JavaScript as described in
+    this section. A ``CustomJS`` callback is only executed inside a browser
+    JavaScript interpreter, and can only directly interact JavaScript data
+    and functions (e.g., BokehJS Backbone models).
+
+For more information about the subset of Python that is supported in
+callbacks, see the `<PyScript documentation_>`_.
+
+
+.. code-block:: python
+
+    from bokeh.io import vform
+    from bokeh.models import CustomJS, ColumnDataSource, Slider
+    from bokeh.plotting import Figure, output_file, show
+
+    output_file("callback.html")
+
+    x = [x*0.005 for x in range(0, 200)]
+    y = x
+
+    source = ColumnDataSource(data=dict(x=x, y=y))
+
+    plot = Figure(plot_width=400, plot_height=400)
+    plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
+
+    def callback(source=source):
+        data = source.get('data')
+        f = cb_obj.get('value')
+        x, y = data['x'], data['y']
+        for i in range(len(x)):
+            y[i] = Math.pow(x[i], f)
+        source.trigger('change')
+
+    slider = Slider(start=0.1, end=4, value=1, step=.1, title="power",
+                    callback=CustomJS.from_py_func(callback))
+
+    layout = vform(slider, plot)
+
+    show(layout)
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_widgets.py
+    :source-position: none
+
+.. _PyScript documentation: http://flexx.readthedocs.org/en/latest/pyscript/index.html

@@ -3,10 +3,31 @@ _ = require "underscore"
 Backbone = require "backbone"
 base = require "./base"
 HasProperties = require "./has_properties"
-{logger} = require "./logging"
-{Document, RootAddedEvent, RootRemovedEvent} = require "./document"
+{logger, set_log_level} = require "./logging"
+{Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
 {pull_session} = require "./client"
 {Promise} = require "es6-promise"
+
+_handle_notebook_comms = (msg) ->
+  logger.debug("handling notebook comms")
+  # @ is bound to the doc
+  data = JSON.parse(msg.content.data)
+  if 'events' of data and 'references' of data
+    @apply_json_patch(data)
+  else if 'doc' of data
+    @replace_with_json(data['doc'])
+  else
+    throw new Error("handling notebook comms message: ", msg)
+
+_init_comms = (target, doc) ->
+  if Jupyter?
+    comm_manager = Jupyter.notebook.kernel.comm_manager
+    comm_manager.register_target(target, (comm, msg) ->
+      logger.info("Registering Jupyter comms for target #{target}")
+      comm.on_msg(_.bind(_handle_notebook_comms, doc))
+    )
+  else
+    console.warn('Juptyer notebooks comms not available. push_notebook will not function');
 
 _create_view = (model) ->
   view = new model.default_view({model : model})
@@ -21,7 +42,7 @@ add_model_static = (element, model_id, doc) ->
   view = _create_view(model)
   _.delay(-> $(element).replaceWith(view.$el))
 
-_render_document_to_element = (element, document) ->
+_render_document_to_element = (element, document, use_for_title) ->
   # this is a LOCAL index of views used only by this
   # particular rendering call, so we can remove
   # the views we create.
@@ -40,46 +61,48 @@ _render_document_to_element = (element, document) ->
   for model in document.roots()
     render_model(model)
 
+  if use_for_title
+    window.document.title = document.title()
+
   document.on_change (event) ->
     if event instanceof RootAddedEvent
       render_model(event.model)
     else if event instanceof RootRemovedEvent
       unrender_model(event.model)
+    else if use_for_title and event instanceof TitleChangedEvent
+      window.document.title = event.title
 
 # Fill element with the roots from doc
-add_document_static = (element, doc) ->
-  _.delay(-> _render_document_to_element($(element), doc))
+add_document_static = (element, doc, use_for_title) ->
+  _.delay(-> _render_document_to_element($(element), doc, use_for_title))
 
-_websocket_url = null
-
-set_websocket_url = (url) ->
-  _websocket_url = url
-
-# map from session id to promise of ClientSession
+# map { websocket url to map { session id to promise of ClientSession } }
 _sessions = {}
-_get_session = (session_id) ->
-  if _websocket_url == null
-    throw new Error("set_websocket_url was not called")
+_get_session = (websocket_url, session_id) ->
+  if not websocket_url? or websocket_url == null
+    throw new Error("Missing websocket_url")
+  if websocket_url not of _sessions
+    _sessions[websocket_url] = {}
+  subsessions = _sessions[websocket_url]
+  if session_id not of subsessions
+    subsessions[session_id] = pull_session(websocket_url, session_id)
 
-  if session_id not of _sessions
-    _sessions[session_id] = pull_session(_websocket_url, session_id)
-
-  _sessions[session_id]
+  subsessions[session_id]
 
 # Fill element with the roots from session_id
-add_document_from_session = (element, session_id) ->
-  promise = _get_session(session_id)
+add_document_from_session = (element, websocket_url, session_id, use_for_title) ->
+  promise = _get_session(websocket_url, session_id)
   promise.then(
     (session) ->
-      _render_document_to_element(element, session.document)
+      _render_document_to_element(element, session.document, use_for_title)
     (error) ->
       logger.error("Failed to load Bokeh session " + session_id + ": " + error)
       throw error
   )
 
 # Replace element with a view of model_id from the given session
-add_model_from_session = (element, model_id, session_id) ->
-  promise = _get_session(session_id)
+add_model_from_session = (element, websocket_url, model_id, session_id) ->
+  promise = _get_session(websocket_url, session_id)
   promise.then(
     (session) ->
       model = session.document.get_model_by_id(model_id)
@@ -96,13 +119,17 @@ inject_css = (url) ->
   link = $("<link href='#{url}' rel='stylesheet' type='text/css'>")
   $('body').append(link)
 
+inject_raw_css = (css) ->
+  style = $("<style>").html(css)
+  $('body').append(style)
+
 # pull missing render item fields from data- attributes
 fill_render_item_from_script_tag = (script, item) ->
   info = script.data()
   # length checks are because we put all the attributes on the tag
   # but sometimes set them to empty string
   if info.bokehLogLevel? and info.bokehLogLevel.length > 0
-    Bokeh.set_log_level(info['bokehLoglevel'])
+    set_log_level(info.bokehLogLevel)
   if info.bokehDocId? and info.bokehDocId.length > 0
     item['docid'] = info.bokehDocId
   if info.bokehModelId? and info.bokehModelId.length > 0
@@ -112,15 +139,16 @@ fill_render_item_from_script_tag = (script, item) ->
 
   logger.info("Will inject Bokeh script tag with params #{JSON.stringify(item)}")
 
-embed_items = (docs_json, render_items, websocket_url) ->
-  if websocket_url?
-    set_websocket_url(websocket_url)
-
+embed_items = (docs_json, render_items, websocket_url=null) ->
   docs = {}
   for docid of docs_json
     docs[docid] = Document.from_json(docs_json[docid])
 
   for item in render_items
+
+    if item.notebook_comms_target?
+      _init_comms(item.notebook_comms_target, docs[docid])
+
     element_id = item['elementid']
     elem = $('#' + element_id);
     if elem.length == 0
@@ -136,19 +164,21 @@ embed_items = (docs_json, render_items, websocket_url) ->
       elem.replaceWith(container)
       elem = container
 
+    use_for_title = item.use_for_title? and item.use_for_title
+
     promise = null;
     if item.modelid?
       if item.docid?
         add_model_static(elem, item.modelid, docs[item.docid])
       else if item.sessionid?
-        promise = add_model_from_session(elem, item.modelid, item.sessionid)
+        promise = add_model_from_session(elem, websocket_url, item.modelid, item.sessionid)
       else
         throw new Error("Error rendering Bokeh model #{item['modelid']} to element #{element_id}: no document ID or session ID specified")
     else
       if item.docid?
-         add_document_static(elem, docs[item.docid])
+         add_document_static(elem, docs[item.docid], use_for_title)
       else if item.sessionid?
-         promise = add_document_from_session(elem, item.sessionid)
+         promise = add_document_from_session(elem, websocket_url, item.sessionid, use_for_title)
       else
         throw new Error("Error rendering Bokeh document to element #{element_id}: no document ID or session ID specified")
 
@@ -160,6 +190,8 @@ embed_items = (docs_json, render_items, websocket_url) ->
           console.log("Error rendering Bokeh items ", error)
       )
 
-module.exports =
+module.exports = {
   embed_items: embed_items
   inject_css: inject_css
+  inject_raw_css: inject_raw_css
+}

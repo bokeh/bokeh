@@ -1,21 +1,22 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from collections import defaultdict
 
 import numpy as np
+import pandas as pd
 from six import iteritems
 
 from bokeh.charts import DEFAULT_PALETTE
-from bokeh.enums import DashPattern
-from bokeh.models.glyphs import Rect, Segment, Line
+from bokeh.core.enums import DashPattern
+from bokeh.models.glyphs import Rect, Segment, Line, Patches
 from bokeh.models.renderers import GlyphRenderer
-from bokeh.models.sources import ColumnDataSource
-from bokeh.properties import (Float, String, Datetime, Bool, Instance,
-                              List, Either, Int, Enum, Color)
+from bokeh.core.properties import (Float, String, Datetime, Bool, Instance,
+                                   List, Either, Int, Enum, Color, Override, Any)
 from .models import CompositeGlyph
 from .properties import Column, EitherColumn
-from .stats import Stat, Quantile, Sum, Min, Max, Bins
-from .utils import marker_types
+from .stats import Stat, Quantile, Sum, Min, Max, Bins, stats
+from .data_source import ChartDataSource
+from .utils import marker_types, generate_patch_base, label_from_index_dict
 
 
 class NestedCompositeGlyph(CompositeGlyph):
@@ -49,53 +50,82 @@ class XyGlyph(CompositeGlyph):
     """Composite glyph that plots in cartesian coordinates."""
     x = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
     y = EitherColumn(String, Column(Float), Column(String), Column(Datetime), Column(Bool))
-    line_color = String(default=DEFAULT_PALETTE[0])
-    line_alpha = Float(default=1.0)
 
     def build_source(self):
+        labels = self._build_label_array(('x', 'y'), self.label)
+        str_labels = [str(label) for label in labels]
+
         if self.x is None:
-            x = [self.label] * len(self.y)
-            data = dict(x_values=x, y_values=self.y)
+            data = dict(x_values=str_labels, y_values=self.y)
         elif self.y is None:
-            y = [self.label] * len(self.x)
-            data = dict(x_values=self.x, y_values=y)
+            data = dict(x_values=self.x, y_values=str_labels)
         else:
             data = dict(x_values=self.x, y_values=self.y)
-        return ColumnDataSource(data)
+
+        return data
+
+    def _build_label_array(self, props, value):
+        for prop in props:
+            if getattr(self, prop) is not None:
+                return [value] * len(getattr(self, prop))
 
     @property
     def x_max(self):
-        return max(self.source._data['x_values'])
+        # TODO(fpliger): since CompositeGlyphs are not exposed in general we
+        #                should expect to always have a Series but in case
+        #                it's not we just use the default min/max instead
+        #                of just failing. When/If we end up exposing
+        #                CompositeGlyphs we should consider making this
+        #                more robust (either enforcing data or checking)
+        try:
+            return self.source.data['x_values'].max()
+        except AttributeError:
+            return max(self.source.data['x_values'])
 
     @property
     def x_min(self):
-        return min(self.source._data['x_values'])
+        try:
+            return self.source.data['x_values'].min()
+        except AttributeError:
+            return min(self.source.data['x_values'])
 
     @property
     def y_max(self):
-        return max(self.source._data['y_values'])
+        try:
+            return self.source.data['y_values'].max()
+        except AttributeError:
+            return max(self.source.data['y_values'])
 
     @property
     def y_min(self):
-        return min(self.source._data['y_values'])
+        try:
+            return self.source.data['y_values'].min()
+        except AttributeError:
+            return min(self.source.data['y_values'])
 
 
 class PointGlyph(XyGlyph):
     """A set of glyphs placed in x,y coordinates with the same attributes."""
 
-    fill_color = Color(default=DEFAULT_PALETTE[1])
-    fill_alpha = Float(default=0.7)
+    fill_color = Override(default=DEFAULT_PALETTE[1])
+    fill_alpha = Override(default=0.7)
     marker = String(default='circle')
     size = Float(default=8)
 
-    def __init__(self, x=None, y=None, line_color=None, fill_color=None,
+    def __init__(self, x=None, y=None, color=None, line_color=None, fill_color=None,
                  marker=None, size=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
-        kwargs['line_color'] = line_color or self.line_color
-        kwargs['fill_color'] = fill_color or self.fill_color
-        kwargs['marker'] = marker or self.marker
-        kwargs['size'] = size or self.size
+        if marker is not None: kwargs['marker'] = marker
+        if size is not None: kwargs['size'] = size
+
+        if color:
+            line_color = color
+            fill_color = color
+
+        kwargs['line_color'] = line_color
+        kwargs['fill_color'] = fill_color
+
         super(PointGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -119,13 +149,23 @@ class LineGlyph(XyGlyph):
     width = Int(default=2)
     dash = Enum(DashPattern, default='solid')
 
-    def __init__(self, x=None, y=None, line_color=None,
+    def __init__(self, x=None, y=None, color=None, line_color=None,
                  width=None, dash=None, **kwargs):
         kwargs['x'] = x
         kwargs['y'] = y
-        kwargs['line_color'] = line_color or self.line_color
-        kwargs['width'] = width or self.width
-        kwargs['dash'] = dash or self.dash
+
+        if color is not None and line_color is None:
+            line_color = color
+
+        if dash is not None:
+            kwargs['dash'] = dash
+
+        if width is not None:
+            kwargs['width'] = width
+
+        if line_color is not None:
+            kwargs['line_color'] = line_color
+
         super(LineGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -138,7 +178,8 @@ class LineGlyph(XyGlyph):
             data = dict(x_values=self.x, y_values=y)
         else:
             data = dict(x_values=self.x, y_values=self.y)
-        return ColumnDataSource(data)
+
+        return data
 
     def build_renderers(self):
         """Yield a `GlyphRenderer` for the group of data."""
@@ -150,12 +191,275 @@ class LineGlyph(XyGlyph):
         yield GlyphRenderer(glyph=glyph)
 
 
+class AreaGlyph(LineGlyph):
+
+    # ToDo: should these be added to composite glyph?
+    stack = Bool(default=False)
+    dodge = Bool(default=False)
+
+    base = Float(default=0.0, help="""Lower bound of area.""")
+
+    def __init__(self, **kwargs):
+        line_color = kwargs.get('line_color', None)
+        fill_color = kwargs.get('fill_color', None)
+        color = kwargs.get('color', None)
+
+        if color is not None:
+            # apply color to line and fill
+            kwargs['fill_color'] = color
+            kwargs['line_color'] = color
+        elif line_color is not None and fill_color is None:
+            # apply line color to fill color by default
+            kwargs['fill_color'] = line_color
+
+        super(AreaGlyph, self).__init__(**kwargs)
+        self.setup()
+
+    def build_source(self):
+        data = super(AreaGlyph, self).build_source()
+
+        x0, y0 = generate_patch_base(pd.Series(list(data['x_values'])),
+                                     pd.Series(list(data['y_values'])))
+
+        data['x_values'] = [x0]
+        data['y_values'] = [y0]
+
+        return data
+
+    def build_renderers(self):
+
+        # parse all series. We exclude the first attr as it's the x values
+        # added for the index
+        glyph = Patches(
+            xs='x_values', ys='y_values',
+            fill_alpha=self.fill_alpha, fill_color=self.fill_color,
+            line_color=self.line_color
+        )
+        renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
+        yield renderer
+
+    def __stack__(self, glyphs):
+
+        # ToDo: need to handle case of non-aligned indices, see pandas concat
+        # ToDo: need to address how to aggregate on an index when required
+
+        # build a list of series
+        areas = []
+        for glyph in glyphs:
+            areas.append(pd.Series(glyph.source.data['y_values'][0],
+                                   index=glyph.source.data['x_values'][0]))
+
+        # concat the list of indexed y values into dataframe
+        df = pd.concat(areas, axis=1)
+
+        # calculate stacked values along the rows
+        stacked_df = df.cumsum(axis=1)
+
+        # lower bounds of each area series are diff between stacked and orig values
+        lower_bounds = stacked_df - df
+
+        # reverse the df so the patch is drawn in correct order
+        lower_bounds = lower_bounds.iloc[::-1]
+
+        # concat the upper and lower bounds together
+        stacked_df = pd.concat([stacked_df, lower_bounds])
+
+        # update the data in the glyphs
+        for i, glyph in enumerate(glyphs):
+            glyph.source.data['x_values'] = [stacked_df.index.values]
+            glyph.source.data['y_values'] = [stacked_df.ix[:, i].values]
+
+    def get_nested_extent(self, col, func):
+        return [getattr(arr, func)() for arr in self.source.data[col]]
+
+    @property
+    def x_max(self):
+        return max(self.get_nested_extent('x_values', 'max'))
+
+    @property
+    def x_min(self):
+        return min(self.get_nested_extent('x_values', 'min'))
+
+    @property
+    def y_max(self):
+        return max(self.get_nested_extent('y_values', 'max'))
+
+    @property
+    def y_min(self):
+        return min(self.get_nested_extent('y_values', 'min'))
+
+
+class HorizonGlyph(AreaGlyph):
+    num_folds = Int(default=3, help="""The count of times the data is overlapped.""")
+
+    series = Int(default=0, help="""The id of the series as the order it will appear,
+    starting from 0.""")
+
+    series_count = Int()
+
+    fold_height = Float(help="""The height of one fold.""")
+
+    bins = List(Float, help="""The binedges calculated from the number of folds,
+    and the maximum value of the entire source data.""")
+
+    graph_ratio = Float(help="""Scales heights of each series based on number of folds
+    and the number of total series being plotted.
+    """)
+
+    pos_color = Color("#006400", help="""The color used for positive values.""")
+    neg_color = Color("#6495ed", help="""The color used for negative values.""")
+
+    flip_neg = Bool(default=True, help="""When True, the negative values will be
+    plotted as their absolute value, then their individual axes is flipped. If False,
+    then the negative values will still be taken as their absolute value, but the base
+    of their shape will start from the same origin as the positive values.
+    """)
+
+    def __init__(self, bins=None, **kwargs):
+
+        # fill alpha depends on how many folds will be layered
+        kwargs['fill_alpha'] = 1.0/kwargs['num_folds']
+
+        if bins is not None:
+            kwargs['bins'] = bins
+
+            # each series is shifted up to a synthetic y-axis
+            kwargs['base'] = kwargs['series'] * max(bins) / kwargs['series_count']
+            kwargs['graph_ratio'] = float(kwargs['num_folds'])/float(kwargs['series_count'])
+
+        super(HorizonGlyph, self).__init__(**kwargs)
+
+    def build_source(self):
+        data = {}
+
+        # Build columns for the positive values
+        pos_y = self.y.copy()
+        pos_y[pos_y < 0] = 0
+        xs, ys = self._build_dims(self.x, pos_y)
+
+        # list of positive colors and alphas
+        colors = [self.pos_color] * len(ys)
+        alphas = [(bin_idx * self.fill_alpha) for bin_idx in
+                  range(0, len(self.bins))]
+
+        # If we have negative values at all, add the values for those as well
+        if self.y.min() < 0:
+            neg_y = self.y.copy()
+            neg_y[neg_y > 0] = 0
+            neg_y = abs(neg_y)
+            neg_xs, neg_ys = self._build_dims(self.x, neg_y, self.flip_neg)
+
+            xs += neg_xs
+            ys += neg_ys
+            colors += ([self.neg_color] * len(neg_ys))
+            alphas += alphas
+
+        # create clipped representation of each band
+        data['x_values'] = xs
+        data['y_values'] = ys
+        data['fill_color'] = colors
+        data['fill_alpha'] = colors
+        data['line_color'] = colors
+
+        return data
+
+    def _build_dims(self, x, y, flip=False):
+        """ Creates values needed to plot each fold of the horizon glyph.
+
+        Bins the data based on the binning passed into the glyph, then copies and clips
+        the values for each bin.
+
+        Args:
+            x (`pandas.Series`): array of x values
+            y (`pandas.Series`): array of y values
+            flip (bool): whether to flip values, used when handling negative values
+
+        Returns:
+            tuple(list(`numpy.ndarray`), list(`numpy.ndarray`)): returns a list of
+                arrays for the x values and list of arrays for the y values. The data
+                has been folded and transformed so the patches glyph presents the data
+                in a way that looks like an area chart.
+        """
+
+        # assign bins to each y value
+        bin_idx = pd.cut(y, bins=self.bins, labels=False, include_lowest=True)
+
+        xs, ys = [], []
+        for idx, bin in enumerate(self.bins[0:-1]):
+
+            # subtract off values associated with lower bins, to get into this bin
+            temp_vals = y.copy() - (idx * self.fold_height)
+
+            # clip the values between the fold range and zero
+            temp_vals[bin_idx > idx] = self.fold_height * self.graph_ratio
+            temp_vals[bin_idx < idx] = 0
+            temp_vals[bin_idx == idx] = self.graph_ratio * temp_vals[bin_idx == idx]
+
+            # if flipping, we must start the values from the top of each fold's range
+            if flip:
+                temp_vals = (self.fold_height * self.graph_ratio) - temp_vals
+                base = self.base + (self.fold_height * self.graph_ratio)
+            else:
+                base = self.base
+
+            # shift values up based on index of series
+            temp_vals += self.base
+            val_idx = temp_vals > 0
+            if pd.Series.any(val_idx):
+                ys.append(temp_vals)
+                xs.append(x)
+
+        # transform clipped data so it always starts and ends at its base value
+        if len(ys) > 0:
+            xs, ys = map(list, zip(*[generate_patch_base(x, y, base=base) for
+                                     x, y in zip(xs, ys)]))
+
+        return xs, ys
+
+    def build_renderers(self):
+        # parse all series. We exclude the first attr as it's the x values
+        # added for the index
+        glyph = Patches(
+            xs='x_values', ys='y_values',
+            fill_alpha=self.fill_alpha, fill_color='fill_color',
+            line_color='line_color'
+        )
+        renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
+        yield renderer
+
+
+class StepGlyph(LineGlyph):
+    """Represents a group of data as a stepped line."""
+
+    def build_source(self):
+        x = self.x
+        y = self.y
+        if self.x is None:
+            x = self.y.index
+        elif self.y is None:
+            y = self.x.index
+
+        xs = np.empty(2*len(x)-1, dtype=np.int)
+        xs[::2] = x[:]
+        xs[1::2] = x[1:]
+
+        ys = np.empty(2*len(y)-1)
+        ys[::2] = y[:]
+        ys[1::2] = y[:-1]
+
+        data = dict(x_values=xs, y_values=ys)
+        return data
+
+
 class AggregateGlyph(NestedCompositeGlyph):
     """A base composite glyph for aggregating an array.
 
     Implements default stacking and dodging behavior that other composite
     glyphs can inherit.
     """
+
+    x_label = String()
+    x_label_value = Any()
 
     stack_label = String()
     stack_shift = Float(default=0.0)
@@ -167,6 +471,21 @@ class AggregateGlyph(NestedCompositeGlyph):
 
     span = Float(help="""The range of values represented by the aggregate.""")
 
+    def __init__(self, x_label=None, **kwargs):
+
+        label = kwargs.get('label')
+        if x_label is not None:
+            kwargs['x_label_value'] = x_label
+
+            if not isinstance(x_label, str):
+                x_label = str(x_label)
+
+            kwargs['x_label'] = x_label
+        elif label is not None:
+            kwargs['x_label'] = str(label)
+
+        super(AggregateGlyph, self).__init__(**kwargs)
+
     def get_dodge_label(self, shift=0.0):
         """Generate the label defining an offset in relation to a position on a scale."""
         if self.dodge_shift is None:
@@ -175,7 +494,8 @@ class AggregateGlyph(NestedCompositeGlyph):
             shift_str = ':' + str(self.dodge_shift + shift)
         else:
             shift_str = ''
-        return str(self.label) + shift_str
+
+        return str(label_from_index_dict(self.x_label)) + shift_str
 
     def filter_glyphs(self, glyphs):
         """Return only the glyphs that are of the same class."""
@@ -190,30 +510,32 @@ class AggregateGlyph(NestedCompositeGlyph):
         that had each of the values.
         """
         grouped = defaultdict(list)
-        [grouped[getattr(glyph, prop)].append(glyph) for glyph in glyphs]
+        labels = [getattr(glyph, prop) for glyph in glyphs]
+        labels = [tuple(label.values()) if isinstance(label, dict) else label for label
+                  in labels]
+        [grouped[label].append(glyph) for label, glyph in zip(labels, glyphs)]
         return grouped
 
     def __stack__(self, glyphs):
         """Apply relative shifts to the composite glyphs for stacking."""
-        if self.stack_label is not None:
-            filtered_glyphs = self.filter_glyphs(glyphs)
-            grouped = self.groupby(filtered_glyphs, 'label')
+        filtered_glyphs = self.filter_glyphs(glyphs)
+        grouped = self.groupby(filtered_glyphs, 'x_label')
 
-            for index, group in iteritems(grouped):
+        for index, group in iteritems(grouped):
 
-                # separate the negative and positive aggregates into separate groups
-                neg_group = [glyph for glyph in group if glyph.span < 0]
-                pos_group = [glyph for glyph in group if glyph.span >= 0]
+            # separate the negative and positive aggregates into separate groups
+            neg_group = [glyph for glyph in group if glyph.span < 0]
+            pos_group = [glyph for glyph in group if glyph.span >= 0]
 
-                # apply stacking to each group separately
-                for group in [neg_group, pos_group]:
-                    shift = []
-                    for i, glyph in enumerate(group):
-                        # save off the top of each rect's height
-                        shift.append(glyph.span)
-                        if i > 0:
-                            glyph.stack_shift = sum(shift[0:i])
-                            glyph.refresh()
+            # apply stacking to each group separately
+            for group in [neg_group, pos_group]:
+                shift = []
+                for i, glyph in enumerate(group):
+                    # save off the top of each rect's height
+                    shift.append(glyph.span)
+                    if i > 0:
+                        glyph.stack_shift = sum(shift[0:i])
+                        glyph.refresh()
 
     def __dodge__(self, glyphs):
         """Apply relative shifts to the composite glyphs for dodging."""
@@ -246,25 +568,17 @@ class Interval(AggregateGlyph):
     """
 
     width = Float(default=0.8)
-    start_agg = Instance(Stat, default=Min(), help="""The stat used to derive the
-        starting point of the composite glyph.""")
-    end_agg = Instance(Stat, default=Max(), help="""The stat used to derive the end
-        point of the composite glyph.""")
+    start_agg = Either(Instance(Stat), Enum(*list(stats.keys())), default=Min(), help="""
+        The stat used to derive the starting point of the composite glyph.""")
+    end_agg = Either(Instance(Stat), Enum(*list(stats.keys())), default=Max(), help="""
+        The stat used to derive the end point of the composite glyph.""")
 
     start = Float(default=0.0)
     end = Float()
 
-    label_value = Either(String, Float, Datetime, Bool, default=None)
-
     def __init__(self, label, values, **kwargs):
-        if not isinstance(label, str):
-            label_value = label
-            label = str(label)
-        else:
-            label_value = None
 
         kwargs['label'] = label
-        kwargs['label_value'] = label_value
         kwargs['values'] = values
 
         super(Interval, self).__init__(**kwargs)
@@ -272,11 +586,23 @@ class Interval(AggregateGlyph):
 
     def get_start(self):
         """Get the value for the start of the glyph."""
+        if len(self.values.index) == 1:
+            self.start_agg = None
+            return self.values[0]
+        elif isinstance(self.start_agg, str):
+            self.start_agg = stats[self.start_agg]()
+
         self.start_agg.set_data(self.values)
         return self.start_agg.value
 
     def get_end(self):
         """Get the value for the end of the glyph."""
+        if len(self.values.index) == 1 and not self.values.dtype.name == 'object':
+            self.end_agg = None
+            return self.values[0]
+        elif isinstance(self.end_agg, str):
+            self.end_agg = stats[self.end_agg]()
+
         self.end_agg.set_data(self.values)
         return self.end_agg.value
 
@@ -294,14 +620,16 @@ class Interval(AggregateGlyph):
         if self.dodge_shift is not None:
             x = [self.get_dodge_label()]
         else:
-            x = [self.label_value or self.label]
+            x = [self.x_label]
         height = [self.span]
         y = [self.stack_shift + (self.span / 2.0) + self.start]
         color = [self.color]
         fill_alpha = [self.fill_alpha]
         line_color = [self.line_color]
-        return ColumnDataSource(dict(x=x, y=y, width=width, height=height, color=color,
-                                     fill_alpha=fill_alpha, line_color=line_color))
+        line_alpha = [self.line_alpha]
+        return dict(x=x, y=y, width=width, height=height, color=color,
+                    fill_alpha=fill_alpha, line_color=line_color,
+                    line_alpha=line_alpha)
 
     @property
     def x_max(self):
@@ -310,7 +638,7 @@ class Interval(AggregateGlyph):
         .. note::
             Dodging the glyph can affect the value.
         """
-        return (self.dodge_shift or self.label_value) + (self.width / 2.0)
+        return (self.dodge_shift or self.x_label_value) + (self.width / 2.0)
 
     @property
     def x_min(self):
@@ -319,7 +647,7 @@ class Interval(AggregateGlyph):
         .. note::
             Dodging the glyph can affect the value.
         """
-        return (self.dodge_shift or self.label_value) - (self.width / 2.0)
+        return (self.dodge_shift or self.x_label_value) - (self.width / 2.0)
 
     @property
     def y_max(self):
@@ -369,11 +697,58 @@ class BarGlyph(Interval):
 
     def __init__(self, label, values, agg='sum', **kwargs):
         kwargs['end_agg'] = agg
+        kwargs['start_agg'] = None
         super(BarGlyph, self).__init__(label, values, **kwargs)
         self.setup()
 
     def get_start(self):
         return 0.0
+
+
+class DotGlyph(Interval):
+    """Special case of Interval where the span represents a value.
+
+    A bar always begins from 0, or the value that is being compared to, and
+    extends to some positive or negative value.
+    """
+
+    marker = String(default='circle')
+    size = Float(default=8)
+    stem = Bool(False, help="""
+    Whether to draw a stem from each do to the axis.
+    """)
+    stem_line_width = Float(default=1)
+    stem_color = String(default='black')
+
+    def __init__(self, label, values, agg='sum', **kwargs):
+        kwargs['end_agg'] = agg
+        super(DotGlyph, self).__init__(label, values, **kwargs)
+        self.setup()
+
+    def get_start(self):
+        return 0.0
+
+    def get_glyph(self):
+        return marker_types[self.marker]
+
+    def build_renderers(self):
+        if self.stem:
+            yield GlyphRenderer(glyph=Segment(
+                x0='x', y0=0, x1='x', y1='height',
+                line_width=self.stem_line_width,
+                line_color=self.stem_color,
+                line_alpha='fill_alpha')
+            )
+
+        glyph_type = self.get_glyph()
+        glyph = glyph_type(x='x', y='height',
+                           line_color=self.line_color,
+                           fill_color=self.color,
+                           size=self.size,
+                           fill_alpha='fill_alpha',
+                           line_alpha='line_alpha'
+                           )
+        yield GlyphRenderer(glyph=glyph)
 
 
 class QuartileGlyph(Interval):
@@ -426,15 +801,19 @@ class BoxGlyph(AggregateGlyph):
     def __init__(self, label, values, outliers=True, **kwargs):
         width = kwargs.pop('width', None)
 
-        bar_color = kwargs.pop('color', None) or self.bar_color
+        bar_color = kwargs.pop('color', None) or kwargs.get('bar_color', None) or self.lookup('bar_color').class_default()
 
         kwargs['outliers'] = kwargs.pop('outliers', None) or outliers
         kwargs['label'] = label
         kwargs['values'] = values
-        kwargs['q2_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.25,
-                                           interval2=0.5, width=width, color=bar_color)
-        kwargs['q3_glyph'] = QuartileGlyph(label=label, values=values, interval1=0.5,
-                                           interval2=0.75, width=width, color=bar_color)
+
+        x_label = kwargs.get('x_label')
+        kwargs['q2_glyph'] = QuartileGlyph(label=label, x_label=x_label, values=values,
+                                           interval1=0.25, interval2=0.5, width=width,
+                                           color=bar_color)
+        kwargs['q3_glyph'] = QuartileGlyph(label=label, x_label=x_label, values=values,
+                                           interval1=0.5, interval2=0.75, width=width,
+                                           color=bar_color)
         super(BoxGlyph, self).__init__(**kwargs)
         self.setup()
 
@@ -449,7 +828,8 @@ class BoxGlyph(AggregateGlyph):
                                            line_color=self.whisker_color))
 
         if len(outlier_values) > 0 and self.outliers:
-            self.outliers = PointGlyph(y=outlier_values, label=self.get_dodge_label(),
+            self.outliers = PointGlyph(label=self.label, y=outlier_values,
+                                       x=[self.get_dodge_label()] * len(outlier_values),
                                        line_color=self.outlier_line_color,
                                        fill_color=self.outlier_fill_color,
                                        size=self.outlier_size, marker=self.marker)
@@ -482,7 +862,7 @@ class BoxGlyph(AggregateGlyph):
         x1s = [x_label, x_w1_label, x_label, x_w1_label]
         y1s = [self.q1, self.w0, self.w1, self.w1]
 
-        return ColumnDataSource(dict(x0s=x0s, y0s=y0s, x1s=x1s, y1s=y1s))
+        return dict(x0s=x0s, y0s=y0s, x1s=x1s, y1s=y1s)
 
     def _set_sources(self):
         """Set the column data source on the whisker glyphs."""
@@ -538,7 +918,8 @@ class HistogramGlyph(AggregateGlyph):
             kwargs['label'] = label
         kwargs['values'] = values
         kwargs['bin_count'] = bin_count
-        kwargs['color'] = color or self.color
+        if color is not None:
+            kwargs['color'] = color
 
         # remove width, since this is handled automatically
         kwargs.pop('width', None)
@@ -552,7 +933,7 @@ class HistogramGlyph(AggregateGlyph):
 
     def build_source(self):
         # No need to build source, since composite glyphs handle this
-        pass
+        return None
 
     def build_renderers(self):
         """Yield a bar glyph for each bin."""
@@ -562,8 +943,10 @@ class HistogramGlyph(AggregateGlyph):
 
         bars = []
         for bin in self.bins.bins:
-            bars.append(BarGlyph(label=bin.center, values=bin.values, color=self.color,
-                                 fill_alpha=self.fill_alpha, agg=bin.stat, width=self.bin_width))
+            bars.append(BarGlyph(label=self.label, x_label=bin.center,
+                                 values=bin.values, color=self.color,
+                                 fill_alpha=self.fill_alpha,
+                                 agg=bin.stat, width=self.bin_width))
 
         # provide access to bars as children for bounds properties
         self.bars = bars
@@ -576,3 +959,68 @@ class HistogramGlyph(AggregateGlyph):
     @property
     def y_min(self):
         return 0.0
+
+
+class BinGlyph(XyGlyph):
+    """Represents a group of data that was aggregated and is represented by a glyph.
+
+    """
+    bins = Instance(Bins)
+    column = String()
+    stat = String()
+
+    glyph_name = String()
+
+    width = Float()
+    height = Float()
+
+    def __init__(self, x, y, values, column=None, stat='count', glyph='rect', width=1,
+                 height=1, **kwargs):
+        df = pd.DataFrame(dict(x_vals=x, y_vals=y, values_vals=values))
+        df.drop_duplicates(inplace=True)
+
+        kwargs['x'] = df.x_vals
+        kwargs['y'] = df.y_vals
+        kwargs['values'] = df.values_vals
+        kwargs['column'] = column
+        kwargs['stat'] = stat
+        kwargs['glyph_name'] = glyph
+        kwargs['height'] = height
+        kwargs['width'] = width
+        if 'glyphs' not in kwargs:
+            kwargs['glyphs'] = {'rect': Rect}
+        super(XyGlyph, self).__init__(**kwargs)
+        self.setup()
+
+    def build_source(self):
+        return {'x': self.x, 'y': self.y, 'values': self.values}
+
+    def build_renderers(self):
+        glyph_class = self.glyphs[self.glyph_name]
+        glyph = glyph_class(x='x', y='y', height=self.height, width=self.width,
+                            fill_color=self.fill_color, line_color=self.line_color,
+                            dilate=True)
+        yield GlyphRenderer(glyph=glyph)
+
+    @property
+    def x_max(self):
+        return self.get_data_range('x')[1] + self.width / 2.0
+
+    @property
+    def x_min(self):
+        return self.get_data_range('x')[0] - self.width / 2.0
+
+    @property
+    def y_max(self):
+        return self.get_data_range('y')[1] + self.height / 2.0
+
+    @property
+    def y_min(self):
+        return self.get_data_range('y')[0] - self.height / 2.0
+
+    def get_data_range(self, col):
+        data = self.source.data[col]
+        if ChartDataSource.is_number(data):
+            return min(data), max(data)
+        else:
+            return 1, len(data.drop_duplicates())

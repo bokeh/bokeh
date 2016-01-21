@@ -7,6 +7,9 @@ This user guide is intended to guide you through many common tasks that
 you might want to accomplish using Bokeh. The guide is arranged by
 topic:
 
+:ref:`userguide_quickstart`
+    Quickstart guide to Bokeh
+
 :ref:`userguide_setup`
     Install Bokeh and verify your installation is working correctly.
 
@@ -43,6 +46,10 @@ topic:
     Create more sophisticated interactions including widgets or linked
     panning and selection.
 
+:ref:`userguide_cli`
+    Quickly create and iterate on Bokeh applications with the ``bokeh``
+    command line tool.
+
 :ref:`userguide_server`
     Deploy the Bokeh Server to build and publish sophisticated data
     applications.
@@ -54,34 +61,20 @@ topic:
 :ref:`userguide_webgl`
     Improve performance for large datasets by using WebGL.
 
+:ref:`userguide_geo`
+    Working with geographical data - Google Maps, GeoJSON, Tile Rendering.
+
 :ref:`userguide_info`
     See where to go next for more information and examples.
+
+:ref:`userguide_tutorials`
+    Bokeh tutorials
 
 The examples in the user guide are written to be as minimal as possible,
 while illustrating how to accomplish a single task within Bokeh. With a
 handful of exceptions, no outside libraries such as NumPy, Pandas, or
 Blaze are required to run the examples as written. However, Bokeh works
 perfectly well with almost any array or table-like data structure.
-
-----
-
-.. toctree::
-    :maxdepth: 2
-
-    user_guide/setup
-    user_guide/concepts
-    user_guide/plotting
-    user_guide/charts
-    user_guide/compat
-    user_guide/styling
-    user_guide/tools
-    user_guide/layout
-    user_guide/notebook
-    user_guide/interaction
-    user_guide/server
-    user_guide/embed
-    user_guide/webgl
-    user_guide/info
 
 .. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`

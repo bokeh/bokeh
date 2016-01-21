@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bokeh.charts.attributes import AttrSpec
 from bokeh.sampledata.autompg import autompg
 
 
@@ -20,11 +19,17 @@ class TestData(object):
         self.records_data = self.pd_data.to_dict(orient='records')
 
         self.auto_data = autompg
-        self.single_col_spec = {'test': AttrSpec(df=self.auto_data, columns='cyl',
-                                                 name='test', iterable=['a', 'b'])}
-        self.multi_col_spec = {'test': AttrSpec(df=self.auto_data,
-                                                columns=('cyl', 'origin'),
-                                                name='test', iterable=['a', 'b'])}
+        self._setup_auto_mpg()
+
+    def _setup_auto_mpg(self):
+
+        # add a boolean column
+        self.auto_data['large_displ'] = self.auto_data['displ'] > 350
+
+        # add categorical column
+        cat = pd.Categorical.from_array(self.auto_data['cyl'])
+        new_order = list(reversed(sorted(cat.categories.values.tolist())))
+        self.auto_data['reversed_cyl'] = cat.reorder_categories(new_order)
 
 
 @pytest.fixture(scope='module')

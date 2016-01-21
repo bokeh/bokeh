@@ -36,7 +36,7 @@ def Scatter(data=None, x=None, y=None, **kws):
         x (str or list(str), optional): the column label to use for the x dimension
         y (str or list(str), optional): the column label to use for the y dimension
 
-    In addition the the parameters specific to this chart,
+    In addition to the parameters specific to this chart,
     :ref:`userguide_charts_defaults` are also accepted as keyword parameters.
 
     Returns:
@@ -85,7 +85,8 @@ class ScatterBuilder(XYBuilder):
 
         for group in self._data.groupby(**self.attributes):
 
-            glyph = PointGlyph(x=group.get_values(self.x.selection),
+            glyph = PointGlyph(label=group.label,
+                               x=group.get_values(self.x.selection),
                                y=group.get_values(self.y.selection),
                                line_color=group['color'],
                                fill_color=group['color'],

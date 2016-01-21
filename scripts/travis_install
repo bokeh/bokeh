@@ -9,35 +9,25 @@ MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
 PINNED_PKGS=$(cat <<EOF
-ipython ==3.2.1
-ipython-notebook ==3.2.1
 EOF
 )
 
-if [ ! "$(ls -A $HOME/miniconda)" ]; then
+wget $MINICONDA_URL
+bash $MINICONDA.sh -b -f -p $HOME/miniconda
+rm -rf $MINICONDA.sh
 
-    wget $MINICONDA_URL
-    bash $MINICONDA.sh -b -f -p $HOME/miniconda
-    rm -rf $MINICONDA.sh
+python -V
 
-    python -V
+echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
 
-    echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
-
-    DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
-    conda install --yes $DEPS_TRAVIS
-
-fi
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
+conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --quiet --no-test conda.recipe
 
-BK_PKG_NAME=`conda build conda.recipe --output`
-VERSION=$(cat __conda_version__.txt)
-BK_PKG_NAME=${BK_PKG_NAME/nightly/$VERSION}
-
-conda install --force --yes $BK_PKG_NAME
+conda install bokeh --use-local --yes
 
 DEPS_RUN=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
@@ -51,29 +41,19 @@ print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("
 EOF
 )
 
-DEPS_FLAG=`conda list pytest --json | python -c 'import sys,json; data=json.loads(sys.stdin.read()); print(data)'`
+conda install --yes $DEPS_RUN
+conda install --yes $DEPS_TEST
 
-if [ ! $DEPS_FLAG == *"pytest"* ]; then
+conda install --yes nodejs
+echo "node version $(node -v)"
+echo "npm version $(npm -v)"
 
-    conda install --yes $DEPS_RUN
-    conda install --yes $DEPS_TEST
-
-    conda install --yes nodejs
-    echo "node version $(node -v)"
-    echo "npm version $(npm -v)"
-
-    if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
-        conda install --yes pdiff
-        conda install --yes boto
-    fi
-
+if [[ "$TRAVIS_PYTHON_VERSION" == '2.7' ]]; then
+    conda install --yes pdiff
+    conda install --yes boto
 fi
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
 
-if [ ! "$(ls -A $HOME/.bokeh)" ]; then
-
-    python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
-
-fi
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'

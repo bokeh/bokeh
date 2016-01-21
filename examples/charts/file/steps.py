@@ -1,20 +1,26 @@
-from collections import OrderedDict
+""" This example uses the U.S. postage rate per ounce for stamps and
+postcards.
 
-from bokeh._legacy_charts import Step, show, output_file
+Source: https://en.wikipedia.org/wiki/History_of_United_States_postage_rates
+"""
 
-xyvalues = OrderedDict(
-    python=[2, 3, 7, 5, 26, 81, 44, 93, 94, 105, 66, 67, 90, 83],
-    pypy=[12, 20, 47, 15, 126, 121, 144, 333, 354, 225, 276, 287, 270, 230],
-    jython=[22, 43, 70, 75, 76, 101, 114, 123, 194, 215, 201, 227, 139, 160],
-)
+from bokeh.charts import Step, show, output_file
 
-# any of the following commented are also valid Step inputs
-#xyvalues = pd.DataFrame(xyvalues)
-#xyvalues = list(xyvalues.values())
-#xyvalues = np.array(list(xyvalues.values()))
+# build a dataset where multiple columns measure the same thing
+data = dict(stamp=[
+                .33, .33, .34, .37, .37, .37, .37, .39, .41, .42,
+                .44, .44, .44, .45, .46, .49, .49],
+            postcard=[
+                .20, .20, .21, .23, .23, .23, .23, .24, .26, .27,
+                .28, .28, .29, .32, .33, .34, .35],
+            )
 
-output_file("steps.html", title="line.py example")
+# create a line chart where each column of measures receives a unique color and dash style
+line = Step(data, y=['stamp', 'postcard'],
+            dash=['stamp', 'postcard'],
+            color=['stamp', 'postcard'],
+            title="U.S. Postage Rates (1999-2015)", ylabel='Rate per ounce', legend=True)
 
-chart = Step(xyvalues, title="Steps", ylabel='measures', legend='top_left')
+output_file("steps.html", title="steps.py example")
 
-show(chart)
+show(line)

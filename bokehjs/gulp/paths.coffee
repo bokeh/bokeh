@@ -4,12 +4,19 @@ argv = require("yargs").argv
 BUILD_DIR = if typeof argv.buildDir == "string" then argv.buildDir else "./build"
 JS_BUILD_DIR = path.join(BUILD_DIR, "js")
 CSS_BUILD_DIR = path.join(BUILD_DIR, "css")
+# TODO FIXME how can we generate coffeescript and have require
+# find it without putting it in src/ ? The browserify docs
+# seem to say we have to put it in node_modules... maybe
+# that's the answer, I don't know. Doesn't seem much better
+# than putting it in src though.
+COFFEE_BUILD_DIR = path.join('./src', "coffee")
 SERVER_DIR = "../bokeh/server/static/"
 
 module.exports = {
   buildDir:
     all: BUILD_DIR
     js: JS_BUILD_DIR
+    coffee: COFFEE_BUILD_DIR
     css: CSS_BUILD_DIR
   serverDir:
     all: SERVER_DIR
@@ -27,6 +34,11 @@ module.exports = {
         full: "bokeh-widgets.js"
         fullWithPath: path.join(JS_BUILD_DIR, "bokeh-widgets.js")
         minified: "bokeh-widgets.min.js"
+    compiler:
+      destination:
+        full: "bokeh-compiler.js"
+        fullWithPath: path.join(JS_BUILD_DIR, "bokeh-compiler.js")
+        minified: "bokeh-compiler.min.js"
     sources: [
         "./src/coffee/main.coffee"
         "./src/coffee/widget/main.coffee"

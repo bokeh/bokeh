@@ -1,9 +1,6 @@
 """ Display code blocks in collapsible sections when outputting
 to HTML.
 
-Usage
------
-
 This directive takes a heading to use for the collapsible code block::
 
     .. collapsible-code-block:: python
@@ -13,22 +10,17 @@ This directive takes a heading to use for the collapsible code block::
 
         print("Hello, Bokeh!")
 
-Options
--------
-
 This directive is identical to the standard ``code-block`` directive
 that Sphinx supplies, with the addition of one new option:
 
 heading : string
     A heading to put for the collapsible block. Clicking the heading
-    expands or collapes the block
+    expands or collapses the block
 
 Examples
 --------
 
 The inline example code above produces the following output:
-
-----
 
 .. collapsible-code-block:: python
     :heading: Some Code
@@ -50,22 +42,12 @@ from sphinx.directives.code import CodeBlock
 
 
 PROLOGUE_TEMPLATE = jinja2.Template(u"""
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="heading-{{ id }}">
-      <h4 class="panel-title">
-        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{ id }}" aria-expanded="false" aria-controls="collapse-{{ id }}">
-          {{ heading }}
-        </a>
-      </h4>
-    </div>
-    <div id="collapse-{{ id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-{{ id }}">
-      <div class="panel-body">
+<div class="expander">
+  <a href="javascript:void(0)" class="expander-trigger expander-hidden">{{ heading }}</a>
+  <div class="expander-content">
 """)
 
 EPILOGUE_TEMPLATE = jinja2.Template(u"""
-      </div>
-    </div>
   </div>
 </div>
 """)

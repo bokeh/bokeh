@@ -52,7 +52,7 @@ BokehJS is a standalone JavaScript library for dynamic and interactive
 visualization in the browser. It is built on top of HTML5 canvas, and designed
 for high-performance rendering of larger data sets. Its interface is declarative,
 in the style of Protovis_, but its implementation consists of a reactive scene
-graph (similar to Chaco_. Some examples for different types of plots are show
+graph (similar to Chaco_). Some examples for different types of plots are shown
 below in `devguide_bokehjs_examples`_.
 
 The full BokehJS interface is described detail in :doc:`../reference/bokehjs`
@@ -95,7 +95,7 @@ Examples
 
 .. warning::
     These examples currently use an old, deprecated engineering JS interface
-    that has since been remvoed.  Work is ongoing to create a new interface
+    that has since been removed.  Work is ongoing to create a new interface
     and update these examples.
 
 Several live examples that demonstrate the BokehJS interface are available on

@@ -3,21 +3,21 @@
 """
 from __future__ import absolute_import
 
-from ...properties import abstract
-from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
-from ...plot_object import PlotObject
-from ...enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
+from ...core.properties import abstract
+from ...core.properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
+from ...model import Model
+from ...core.enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
 from .widget import Widget
 
 @abstract
-class CellFormatter(PlotObject):
+class CellFormatter(Model):
     """ Abstract base class for data table's cell formatters.
 
     """
 
 @abstract
-class CellEditor(PlotObject):
+class CellEditor(Model):
     """ Abstract base class for data table's cell editors.
 
     """
@@ -27,16 +27,16 @@ class StringFormatter(CellFormatter):
 
     """
 
-    font_style = Enum(FontStyle, help="""
+    font_style = Enum(FontStyle, default="normal", help="""
     An optional text font style, e.g. bold, italic.
     """)
 
-    text_align = Enum(TextAlign, help="""
+    text_align = Enum(TextAlign, default="left", help="""
     An optional text align, i.e. left, center or right.
     """)
 
     text_color = Color(help="""
-    An optional text color. See :class:`bokeh.properties.Color` for
+    An optional text color. See :class:`bokeh.core.properties.Color` for
     details.
     """)
 
@@ -198,15 +198,18 @@ class HTMLTemplateFormatter(CellFormatter):
     This uses Underscore's `template` method and syntax.  http://underscorejs.org/#template
     The formatter has access other items in the row via the `dataContext` object passed to the formatter.
     So, for example, if another column in the datasource was named `url`, the template could access it as:
-        '<a href="<%= url %>"><%= value %></a>'
+
+        <a href="<%= url %>"><%= value %></a>
 
     To use a different set of template delimiters, pass the appropriate values for `evaluate`, `interpolate',
     or `escape`.  See the Underscore `template` documentation for more information.  http://underscorejs.org/#template
 
     Example: Simple HTML template to format the column value as code.
+
         HTMLTemplateFormatter(template='<code><%= value %></code>')
 
     Example: Use values from other columns (`manufacturer` and `model`) to build a hyperlink.
+
         HTMLTemplateFormatter(template='<a href="https:/www.google.com/search?q=<%= manufacturer %>+<%= model %>" target="_blank"><%= value %></a>')
 
     """
@@ -275,7 +278,7 @@ class DateEditor(CellEditor):
 
     """
 
-class TableColumn(PlotObject):
+class TableColumn(Model):
     """ Table column widget.
 
     """
@@ -373,4 +376,10 @@ class DataTable(TableWidget):
 
     row_headers = Bool(True, help="""
     Enable or disable row headers, i.e. the index column.
+    """)
+
+    scroll_to_selection = Bool(True, help="""
+    Whenever a selection is made on the data source, scroll the selected
+    rows into the table's viewport if none of the selected rows are already
+    in the viewport.
     """)

@@ -1,18 +1,66 @@
+''' Implements a very low level facility for communicating with a Bokeh
+Server. Users will always want to use ``bokeh.client.session`` instead.
+
+'''
 from __future__ import absolute_import, print_function
 
 import logging
 
 log = logging.getLogger(__name__)
 
-from tornado import gen
+from tornado import gen, locks
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
-from tornado.websocket import websocket_connect
+from tornado.websocket import websocket_connect, WebSocketError
+from tornado.concurrent import Future
 
 from bokeh.server.exceptions import MessageError, ProtocolError, ValidationError
 from bokeh.server.protocol.receiver import Receiver
 from bokeh.server.protocol import Protocol
-from bokeh.resources import DEFAULT_SERVER_WEBSOCKET_URL
+
+class _WebSocketClientConnectionWrapper(object):
+    ''' Used for compat across Tornado versions and to add write_lock'''
+
+    def __init__(self, socket):
+        if socket is None:
+            raise ValueError("socket must not be None")
+        self._socket = socket
+        # write_lock allows us to lock the connection to send multiple
+        # messages atomically.
+        self.write_lock = locks.Lock()
+
+    @gen.coroutine
+    def write_message(self, message, binary=False, locked=True):
+        def write_message_unlocked():
+            if self._socket.protocol is None:
+                # Tornado is maybe supposed to do this, but in fact it
+                # tries to do _socket.protocol.write_message when protocol
+                # is None and throws AttributeError or something. So avoid
+                # trying to write to the closed socket. There doesn't seem
+                # to be an obvious public function to check if the socket
+                # is closed.
+                raise WebSocketError("Connection to the server has been closed")
+
+            future = self._socket.write_message(message, binary)
+            if future is None:
+                # tornado >= 4.3 gives us a Future, simulate that
+                # with this fake Future on < 4.3
+                future = Future()
+                future.set_result(None)
+            # don't yield this future or we're blocking on ourselves!
+            raise gen.Return(future)
+
+        if locked:
+            with (yield self.write_lock.acquire()):
+                write_message_unlocked()
+        else:
+            write_message_unlocked()
+
+    def close(self, code=None, reason=None):
+        return self._socket.close(code, reason)
+
+    def read_message(self, callback=None):
+        return self._socket.read_message(callback)
 
 class ClientConnection(object):
     """ A Bokeh-private class used to implement ClientSession; use ClientSession to connect to the server."""
@@ -57,11 +105,11 @@ class ClientConnection(object):
             else:
                 yield connection._next()
 
-    def __init__(self, session, io_loop=None, url=DEFAULT_SERVER_WEBSOCKET_URL):
+    def __init__(self, session, websocket_url, io_loop=None):
         '''
           Opens a websocket connection to the server.
         '''
-        self._url = url
+        self._url = websocket_url
         self._session = session
         self._protocol = Protocol("1.0")
         self._receiver = Receiver(self._protocol)
@@ -79,6 +127,10 @@ class ClientConnection(object):
     @property
     def url(self):
         return self._url
+
+    @property
+    def io_loop(self):
+        return self._loop
 
     @property
     def connected(self):
@@ -107,12 +159,37 @@ class ClientConnection(object):
                 return isinstance(self._state, self.DISCONNECTED)
             self._loop_until(closed)
 
+    @gen.coroutine
     def send_message(self, message):
         if self._socket is None:
             log.info("We're disconnected, so not sending message %r", message)
         else:
-            sent = message.send(self._socket)
-            log.debug("Sent %r [%d bytes]", message, sent)
+            try:
+                sent = yield message.send(self._socket)
+                log.debug("Sent %r [%d bytes]", message, sent)
+            except WebSocketError as e:
+                # A thing that happens is that we detect the
+                # socket closing by getting a None from
+                # read_message, but the network socket can be down
+                # with many messages still in the read buffer, so
+                # we'll process all those incoming messages and
+                # get write errors trying to send change
+                # notifications during that processing.
+
+                # this is just debug level because it's completely normal
+                # for it to happen when the socket shuts down.
+                log.debug("Error sending message to server: %r", e)
+
+                # error is almost certainly because
+                # socket is already closed, but be sure,
+                # because once we fail to send a message
+                # we can't recover
+                self.close(why="received error while sending")
+
+                # don't re-throw the error - there's nothing to
+                # do about it.
+
+        raise gen.Return(None)
 
     def _send_patch_document(self, session_id, event):
         msg = self._protocol.create('PATCH-DOC', [event])
@@ -121,10 +198,20 @@ class ClientConnection(object):
     def _send_message_wait_for_reply(self, message):
         waiter = self.WAITING_FOR_REPLY(message.header['msgid'])
         self._state = waiter
-        self.send_message(message)
+
+        send_result = []
+        def message_sent(future):
+            send_result.append(future)
+        self._loop.add_future(self.send_message(message), message_sent)
+
+        def have_send_result_or_disconnected():
+            return len(send_result) > 0 or self._state != waiter
+        self._loop_until(have_send_result_or_disconnected)
+
         def have_reply_or_disconnected():
             return self._state != waiter or waiter.reply is not None
         self._loop_until(have_reply_or_disconnected)
+
         return waiter.reply
 
     def push_doc(self, document):
@@ -231,7 +318,8 @@ class ClientConnection(object):
         versioned_url = "%s?bokeh-protocol-version=1.0&bokeh-session-id=%s" % (self._url, self._session.id)
         request = HTTPRequest(versioned_url)
         try:
-            self._socket = yield websocket_connect(request)
+            socket = yield websocket_connect(request)
+            self._socket = _WebSocketClientConnectionWrapper(socket)
         except Exception as e:
             log.info("Failed to connect to server: %r", e)
 
@@ -290,8 +378,8 @@ class ClientConnection(object):
                     log.debug("Received message %r" % message)
                     raise gen.Return(message)
             except (MessageError, ProtocolError, ValidationError) as e:
-                log.error("%r", e)
-                raise e
+                log.error("%r", e, exc_info=True)
+                self.close(why="error parsing message from server")
 
     def _tell_session_about_disconnect(self):
         if self._session:

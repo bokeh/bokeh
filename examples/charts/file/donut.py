@@ -1,36 +1,23 @@
-from collections import OrderedDict
+from bokeh.charts import Donut, show, output_file
+from bokeh.charts.utils import df_from_json
+from bokeh.sampledata.olympics2014 import data
 
 import pandas as pd
 
-from bokeh._legacy_charts import Donut, show, output_file
-from bokeh.sampledata.olympics2014 import data
+# utilize utility to make it easy to get json/dict data converted to a dataframe
+df = df_from_json(data)
 
-# throw the data into a pandas data frame
-df = pd.io.json.json_normalize(data['data'])
+# filter by countries with at least one medal and sort by total medals
+df = df[df['total'] > 8]
+df = df.sort("total", ascending=False)
+df = pd.melt(df, id_vars=['abbr'],
+             value_vars=['bronze', 'silver', 'gold'],
+             value_name='medal_count', var_name='medal')
 
-# filter by countries with at least one medal and sort
-df = df[df['medals.total'] > 8]
-df = df.sort("medals.total", ascending=False)
+# original example
+d = Donut(df, label=['abbr', 'medal'], values='medal_count',
+          text_font_size='8pt', hover_text='medal_count')
 
-# get the countries and we group the data by medal type
-countries = df.abbr.values.tolist()
-gold = df['medals.gold'].astype(float).values
-silver = df['medals.silver'].astype(float).values
-bronze = df['medals.bronze'].astype(float).values
+output_file("donut.html", title="donut.py example")
 
-# build a dict containing the grouped data
-medals = OrderedDict()
-medals['bronze'] = bronze
-medals['silver'] = silver
-medals['gold'] = gold
-
-# any of the following commented are also valid Donut inputs
-#medals = list(medals.values())
-#medals = np.array(list(medals.values()))
-#medals = pd.DataFrame(medals)
-
-output_file("donut.html")
-
-donut = Donut(medals, countries)
-
-show(donut)
+show(d)

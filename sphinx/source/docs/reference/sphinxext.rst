@@ -1,16 +1,14 @@
 
-Sphinx Extensions
-=================
+.. _bokeh.sphinxext:
+
+``bokeh.sphinxext``
+===================
 
 In order to help automate and simplify the generation of Bokeh
 documentation, several Sphinx extensions have been created. Most
 of these will not be of general interest, except for `bokeh.sphinxext.bokeh_plot`_,
 which allows anyone to include and embed bokeh plots directly
 in their own Sphinx docs.
-
-.. contents::
-    :local:
-    :depth: 1
 
 .. _bokeh.sphinxext.bokeh_autodoc:
 
@@ -61,10 +59,19 @@ bokeh_prop
 
 .. automodule:: bokeh.sphinxext.bokeh_prop
 
+
+.. _bokeh.sphinxext.bokeh_sitemap:
+
+bokeh_sitemap
+----------------------
+
+.. automodule:: bokeh.sphinxext.bokeh_sitemap
+
 .. _bokeh.sphinxext.collapsible_code_block:
 
 collapsible_code_block
 ----------------------
 
 .. automodule:: bokeh.sphinxext.collapsible_code_block
+
 

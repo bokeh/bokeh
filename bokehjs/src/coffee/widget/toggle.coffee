@@ -1,6 +1,6 @@
 _  = require "underscore"
 ContinuumView  = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+AbstractButton = require "./abstract_button"
 
 class ToggleView extends ContinuumView
   tagName: "button"
@@ -37,10 +37,10 @@ class ToggleView extends ContinuumView
     return @
 
   change_input: () ->
-    @mset('active', @$el.hasClass("bk-bs-active"))
+    @mset('active', not @mget('active'))
     @mget('callback')?.execute(@model)
 
-class Toggle extends HasParent
+class Toggle extends AbstractButton.Model
   type: "Toggle"
   default_view: ToggleView
 
@@ -48,9 +48,6 @@ class Toggle extends HasParent
     return _.extend {}, super(), {
       active: false
       label: "Toggle"
-      icon: null
-      type: "default"
-      disabled: false
     }
 
 module.exports =

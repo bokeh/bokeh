@@ -20,6 +20,11 @@ from .util.version import __base_version__; __base_version__
 from .util import logconfig
 del logconfig
 
+# configure deprecation warnings
+import warnings
+from .util.deprecate import BokehDeprecationWarning
+warnings.simplefilter('always', BokehDeprecationWarning)
+
 # imports below are names we want to make available in the bokeh
 # module as transitive imports
 
@@ -27,6 +32,22 @@ from . import sampledata; sampledata
 
 
 def test(args=None):
+    ''' Run the Bokeh unit tests under the bokeh python directory using ``py.test``.
+
+    .. note::
+        Does not run any BokehJS, examples, or integration tests.
+
+    Args:
+        args(list, optional): command line arguments accepted by ``py.test``
+
+            For example, ``args=['-s', '-k charts']`` prevents capture of standard out
+            and only runs tests that match ``"charts"``. For more ``py.test`` options
+            see http://pytest.org/latest/usage.html.
+
+    Returns:
+        int: ``py.test`` exitcode
+
+    '''
     from .util.testing import runtests
     return runtests(args)
 

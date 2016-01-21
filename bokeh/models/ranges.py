@@ -5,14 +5,18 @@ and with options for "auto sizing".
 """
 from __future__ import absolute_import
 
-from ..plot_object import PlotObject
-from ..properties import abstract
-from ..properties import Int, Float, String, Datetime, Instance, List, Either
+from ..model import Model
+from ..core.enums import StartEnd
+from ..core.properties import abstract
+from ..core.properties import (
+    Auto, Bool, Int, Float, String, Datetime, Instance, List, Either, Enum, MinMaxBounds
+)
 from .callbacks import Callback
 from .renderers import Renderer
 
+
 @abstract
-class Range(PlotObject):
+class Range(Model):
     """ A base class for all range types. ``Range`` is not generally
     useful to instantiate on its own.
 
@@ -21,6 +25,7 @@ class Range(PlotObject):
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the range is updated.
     """)
+
 
 class Range1d(Range):
     """ A fixed, closed range [start, end] in a continuous scalar
@@ -34,23 +39,45 @@ class Range1d(Range):
 
     """
 
-    start = Either(Float, Datetime, Int, help="""
+    start = Either(Float, Datetime, Int, default=0, help="""
     The start of the range.
     """)
 
-    end = Either(Float, Datetime, Int, help="""
+    end = Either(Float, Datetime, Int, default=1, help="""
     The end of the range.
+    """)
+
+    bounds = MinMaxBounds(accept_datetime=True, default=None, help="""
+    The bounds that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
+
+    If set to ``'auto'``, the bounds will be computed to the start and end of the Range.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
+    increasing or decreasing, the first item should be the minimum value of the range and the
+    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+
+    By default, bounds are ``None`` and your plot to pan/zoom as far as you want. If you only
+    want to constrain one end of the plot, you can set min or max to None.
+
+    Examples:
+
+        Range1d(0, 1, bounds='auto')  # Auto-bounded to 0 and 1 (Default behavior)
+        Range1d(start=0, end=1, bounds=(0, None))  # Maximum is unbounded, minimum bounded to 0
     """)
 
     def __init__(self, *args, **kwargs):
         if args and ('start' in kwargs or 'end' in kwargs):
             raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
-        elif args and len(args) != 2:
+        if args and len(args) != 2:
             raise ValueError('Only Range1d(start, end) acceptable when using positional arguments')
-        elif args:
+
+        if args:
             kwargs['start'] = args[0]
             kwargs['end'] = args[1]
+
         super(Range1d, self).__init__(**kwargs)
+
 
 @abstract
 class DataRange(Range):
@@ -70,12 +97,13 @@ class DataRange(Range):
     defaults to all renderers on a plot.
     """)
 
+
 class DataRange1d(DataRange):
     """ An auto-fitting range in a continuous scalar dimension.
-
+    The upper and lower bounds are set to the min and max of the data.
     """
 
-    range_padding = Float(0.1, help="""
+    range_padding = Float(default=0.1, help="""
     A percentage of the total range size to add as padding to
     the range start and end.
     """)
@@ -89,6 +117,64 @@ class DataRange1d(DataRange):
     An explicitly supplied range end. If provided, will override
     automatically computed end value.
     """)
+
+    bounds = MinMaxBounds(accept_datetime=False, default=None, help="""
+    The bounds that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
+
+    By default, the bounds will be None, allowing your plot to pan/zoom as far as you want.
+    If bounds are 'auto' they will be computed to be the same as the start and end of the DataRange1d.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
+    increasing or decreasing, the first item should be the minimum value of the range and the
+    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+
+    If you only want to constrain one end of the plot, you can set min or max to
+    ``None`` e.g. ``DataRange1d(bounds=(None, 12))``
+    """)
+
+    flipped = Bool(default=False, help="""
+    Whether the range should be "flipped" from its normal direction when
+    auto-ranging.
+    """)
+
+    follow = Enum(StartEnd, default=None, help="""
+    Configure the data to follow one or the other data extreme, with a
+    maximum range size of ``follow_interval``.
+
+    If set to ``"start"`` then the range will adjust so that ``start`` always
+    corresponds to the minimum data value (or maximum, if ``flipped`` is
+    ``True``).
+
+    If set to ``"end"`` then the range will adjust so that ``end`` always
+    corresponds to the maximum data value (or minimum, if ``flipped`` is
+    ``True``).
+
+    If set to ``None`` (default), then auto-ranging does not follow, and
+    the range will encompass both the minimum and maximum data values.
+
+    ``follow`` cannot be used with bounds, and if set, bounds will be set to ``None``.
+    """)
+
+    follow_interval = Float(default=None, help="""
+    If ``follow`` is set to ``"start"`` or ``"end"`` then the range will
+    always be constrained to that::
+
+         abs(r.start - r.end) <= follow_interval
+
+    is maintained.
+
+    """)
+
+    default_span = Float(default=2.0, help="""
+    A default width for the interval, in case ``start`` is equal to ``end``.
+    """)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('follow') is not None:
+            kwargs['bounds'] = None
+        super(DataRange1d, self).__init__(**kwargs)
+
 
 class FactorRange(Range):
     """ A range in a categorical dimension.
@@ -112,11 +198,46 @@ class FactorRange(Range):
         The primary usage of this is to support compatibility and integration
         with other plotting systems, and will not generally of interest to
         most users.
+
     """)
 
     factors = Either(List(String), List(Int), help="""
     A list of string or integer factors (categories) to comprise
     this categorical range.
+    """)
+
+    bounds = Either(Auto, List(String), List(Int), default=None, help="""
+    The bounds that the range is allowed to go to - typically used to prevent
+    the user from panning/zooming/etc away from the data.
+
+    Unlike Range1d and DataRange1d, factors do not have an order and so a min and max cannot be
+    provied in the same way. bounds accepts a list of factors, that constrain the displayed factors.
+
+    By default, bounds are ``None``, allows unlimited panning or zooming.
+
+    If ``bounds='auto'``, bounds will be the same as factors and the plot will not be able to
+    pan or zoom beyond the first and last items in factors.
+
+    If you provide a list, then only the factors that are in that list will be displayed on the
+    plot and the plot will not pan or zoom outside the first and last items in the shortened
+    factors list. Note the order of factors is the defining order for your plot.
+
+    Values of bounds that are not in factors are acceptable and will simply have no impact
+    on the plot.
+
+    Examples:
+
+    Auto behavior:
+        x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"], bounds='auto')
+
+        The plot will display all the factors and you will not be able to pan left of apples or right
+        of pigs.
+
+    Constraining behavior:
+        x_range = FactorRange(factors=["apples", "dogs", "peaches", "bananas", "pigs"], bounds=["apples", "bananas", "peaches"])
+
+        The plot will display the chart with only the factors ["apples", "peaches", "bananas"] (in that order)
+        and the plot will not pan left of apples or right of bananas.
     """)
 
     def __init__(self, *args, **kwargs):

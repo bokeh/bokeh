@@ -3,12 +3,12 @@
 """
 from __future__ import absolute_import
 
-from ..properties import HasProps, abstract
-from ..properties import Enum, Float, Instance, Int, JSON
-from ..enums import MapType
-from ..validation.warnings import MISSING_RENDERERS, NO_GLYPH_RENDERERS
-from ..validation.errors import REQUIRED_RANGE
-from .. import validation
+from ..core import validation
+from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
+from ..core.validation.errors import REQUIRED_RANGE
+from ..core.properties import HasProps, abstract
+from ..core.properties import Enum, Float, Instance, Int, JSON, Override
+from ..core.enums import MapType
 
 from .plots import Plot
 
@@ -35,10 +35,6 @@ class MapPlot(Plot):
     """ Abstract base class for map plot models.
 
     """
-
-    map_options = Instance(MapOptions, help="""
-    Options for displaying the plot.
-    """)
 
 class GMapOptions(MapOptions):
     """ Options for GMapPlot objects.
@@ -79,41 +75,12 @@ class GMapPlot(MapPlot):
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
         pass
 
     map_options = Instance(GMapOptions, help="""
     Options for displaying the plot.
     """)
 
-class GeoJSOptions(MapOptions):
-    """ Options for GeoJSPlot objects.
-
-    """
-
-class GeoJSPlot(MapPlot):
-    """ A Bokeh Plot with a `GeoJS Map`_ displayed underneath.
-
-    .. warning::
-        GeoJSPlot support should be considered experimental, a subject
-        to revision or removal.
-
-    .. _GeoJS Map: https://github.com/OpenGeoscience/geojs
-
-    """
-
-    # TODO (bev) map plot might not have these
-    @validation.error(REQUIRED_RANGE)
-    def _check_required_range(self):
-        pass
-    @validation.warning(MISSING_RENDERERS)
-    def _check_missing_renderers(self):
-        pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
-        pass
-
-    map_options = Instance(GeoJSOptions, help="""
-    Options for displaying the plot.
-    """)
+    border_fill_color = Override(default="#ffffff")

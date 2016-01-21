@@ -232,7 +232,12 @@ For more information, see the Dev Guide:
 
 BUILD_FAIL_MSG = bright(red("Failed.")) + """
 
-ERROR: 'gulp build' returned error message:
+ERROR: 'gulp build' returned the following
+
+---- on stdout:
+%s
+
+---- on stderr:
 %s
 """
 
@@ -272,16 +277,20 @@ def build_js():
 
     if result != 0:
         indented_msg = ""
-        msg = proc.stderr.read().decode('ascii', errors='ignore')
-        msg = "\n".join(["    " + x for x in msg.split("\n")])
-        print(BUILD_FAIL_MSG % red(msg))
+        outmsg = proc.stdout.read().decode('ascii', errors='ignore')
+        outmsg = "\n".join(["    " + x for x in outmsg.split("\n")])
+        errmsg = proc.stderr.read().decode('ascii', errors='ignore')
+        errmsg = "\n".join(["    " + x for x in errmsg.split("\n")])
+        print(BUILD_FAIL_MSG % (red(outmsg), red(errmsg)))
         sys.exit(1)
 
     indented_msg = ""
     msg = proc.stdout.read().decode('ascii', errors='ignore')
     pat = re.compile(r"(\[.*\]) (.*)", re.DOTALL)
     for line in msg.strip().split("\n"):
-        stamp, txt = pat.match(line).groups()
+        m = pat.match(line)
+        if not m: continue # skip generate.py output lines
+        stamp, txt = m.groups()
         indented_msg += "   " + dim(green(stamp)) + " " + dim(txt) + "\n"
     msg = "\n".join(["    " + x for x in msg.split("\n")])
     print(BUILD_SUCCESS_MSG % indented_msg)
@@ -301,6 +310,9 @@ def build_js():
         print("  - bokeh-widgets.css     : %6.1f KB" % size("css", "bokeh-widgets.css"))
         print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
         print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
+
+        print("  - bokeh-compiler.js     : %6.1f KB" % size("js", "bokeh-compiler.js"))
+        print("  - bokeh-compiler.min.js : %6.1f KB" % size("js", "bokeh-compiler.min.js"))
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
 
@@ -444,10 +456,10 @@ if jsbuild:
 if jsinstall:
     install_js()
 
-sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
+sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics', '.geojson')
 
 package_path(join(SERVER, 'static'))
-package_path(join(ROOT, 'bokeh', '_templates'))
+package_path(join(ROOT, 'bokeh', 'core', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
 
 if '--user' in sys.argv:
@@ -503,10 +515,7 @@ REQUIRES = [
         'python-dateutil>=2.1',
         'Jinja2>=2.7',
         'numpy>=1.7.1',
-        'pandas>=0.11.0',
-        'Flask>=0.10.1',
-        'pyzmq>=14.3.1',
-        'tornado>=4.0.1',
+        'tornado>=4.3',
     ]
 
 if sys.version_info[:2] == (2, 7):
@@ -535,8 +544,8 @@ setup(
         'bokeh',
         'bokeh.application',
         'bokeh.application.tests',
-        'bokeh.application.spellings',
-        'bokeh.application.spellings.tests',
+        'bokeh.application.handlers',
+        'bokeh.application.handlers.tests',
         'bokeh.models',
         'bokeh.models.tests',
         'bokeh.models.widgets',
@@ -544,16 +553,19 @@ setup(
         'bokeh.charts.builders',
         'bokeh.charts.builders.tests',
         'bokeh.charts.tests',
-        'bokeh._legacy_charts',
-        'bokeh._legacy_charts.builder',
-        'bokeh._legacy_charts.builder.tests',
-        'bokeh._legacy_charts.tests',
         'bokeh.client',
         'bokeh.command',
-        'bokeh.compat',
-        'bokeh.compat.mplexporter',
-        'bokeh.compat.mplexporter.renderers',
-        'bokeh.crossfilter',
+        'bokeh.command.tests',
+        'bokeh.command.subcommands',
+        'bokeh.command.subcommands.tests',
+        'bokeh.core',
+        'bokeh.core.compat',
+        'bokeh.core.compat.mplexporter',
+        'bokeh.core.compat.mplexporter.renderers',
+        'bokeh.core.tests',
+        'bokeh.core.validation',
+        'bokeh.plotting',
+        'bokeh.plotting.tests',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.protocol',
@@ -565,10 +577,8 @@ setup(
         'bokeh.sphinxext',
         'bokeh.themes',
         'bokeh.tests',
-        'bokeh.transforms',
         'bokeh.util',
         'bokeh.util.tests',
-        'bokeh.validation',
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',
@@ -576,7 +586,7 @@ setup(
     url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
-    scripts=['bin/bokeh'],
+    scripts=['bin/bokeh', 'bin/bokeh-server'],
     zip_safe=False,
     install_requires=REQUIRES
 )

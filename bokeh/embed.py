@@ -13,30 +13,28 @@ these different cases.
 
 from __future__ import absolute_import
 
-import re
+from collections import Sequence
 import uuid
 from warnings import warn
 
-from .templates import (
+from six import string_types
+
+from .core.templates import (
     AUTOLOAD_JS, AUTOLOAD_TAG, FILE,
     NOTEBOOK_DIV, PLOT_DIV, DOC_JS, SCRIPT_TAG
 )
+from .core.json_encoder import serialize_json
+from .document import Document, DEFAULT_TITLE
+from .model import Model, _ModelInDocument
+from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
-
-from .plot_object import PlotObject, _ModelInDocument
-from ._json_encoder import serialize_json
-from .resources import DEFAULT_SERVER_HTTP_URL
-from .client import DEFAULT_SESSION_ID
-from .document import Document
-from collections import Sequence
-from six import string_types
 
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
     code = "\n".join(["    " + line for line in code.split("\n")])
     return 'Bokeh.$(function() {\n%s\n});' % code
 
-def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=True):
+def components(models, resources=None, wrap_script=True, wrap_plot_info=True):
     '''
     Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
@@ -48,8 +46,8 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
         **already loaded**.
 
     Args:
-        plot_objects (PlotObject|list|dict|tuple) :
-            A single PlotObject, a list/tuple of PlotObjects, or a dictionary of keys and PlotObjects.
+        models (Model|list|dict|tuple) :
+            A single Model, a list/tuple of Models, or a dictionary of keys and Models.
 
         resources :
             Deprecated argument
@@ -113,27 +111,25 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     # 1) Convert single items and dicts into list
 
-    was_single_object = isinstance(plot_objects, PlotObject) or isinstance(plot_objects, Document)
+    was_single_object = isinstance(models, Model) or isinstance(models, Document)
     # converts single to list
-    plot_objects = _check_plot_objects(plot_objects, allow_dict=True)
+    models = _check_models(models, allow_dict=True)
     # now convert dict to list, saving keys in the same order
-    plot_object_keys = None
-    if isinstance(plot_objects, dict):
-        plot_object_keys = plot_objects.keys()
+    model_keys = None
+    if isinstance(models, dict):
+        model_keys = models.keys()
         values = []
         # don't just use .values() to ensure we are in the same order as key list
-        for k in plot_object_keys:
-            values.append(plot_objects[k])
-        plot_objects = values
+        for k in model_keys:
+            values.append(models[k])
+        models = values
 
     # 2) Do our rendering
 
-    with _ModelInDocument(plot_objects):
-        (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
-        custom_models = _extract_custom_models(plot_objects)
+    with _ModelInDocument(models):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
 
-    script = _script_for_render_items(docs_json, render_items, custom_models=custom_models,
-                                      websocket_url=None, wrap_script=wrap_script)
+    script = _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=wrap_script)
     script = encode_utf8(script)
 
     if wrap_plot_info:
@@ -145,63 +141,99 @@ def components(plot_objects, resources=None, wrap_script=True, wrap_plot_info=Tr
 
     if was_single_object:
         return script, results[0]
-    elif plot_object_keys is not None:
+    elif model_keys is not None:
         result = {}
-        for (key, value) in zip(plot_object_keys, results):
+        for (key, value) in zip(model_keys, results):
             result[key] = value
         return script, result
     else:
         return script, tuple(results)
 
-def _escape_code(code):
-    """ Escape JS/CS source code, so that it can be embbeded in a JS string.
+def _use_widgets(objs):
+    from .models.widgets import Widget
 
-    This is based on https://github.com/joliss/js-string-escape.
-    """
-    def escape(match):
-        ch = match.group(0)
+    def _needs_widgets(obj):
+        return isinstance(obj, Widget)
 
-        if ch == '"' or ch == "'" or ch == '\\':
-            return '\\' + ch
-        elif ch == '\n':
-            return '\\n'
-        elif ch == '\r':
-            return '\\r'
-        elif ch == '\u2028':
-            return '\\u2028'
-        elif ch == '\u2029':
-            return '\\u2029'
-
-    return re.sub(u"""['"\\\n\r\u2028\u2029]""", escape, code)
-
-def _extract_custom_models(plot_objects):
-    custom_models = {}
-
-    def extract_from_model(model):
-        for r in model.references():
-            impl = getattr(r.__class__, "__implementation__", None)
-            if impl is not None:
-                name = r.__class__.__name__
-                impl = "['%s', {}]" % _escape_code(impl)
-                custom_models[name] = impl
-
-    for o in plot_objects:
-        if isinstance(o, Document):
-            for r in o.roots:
-                extract_from_model(r)
+    for obj in objs:
+        if isinstance(obj, Document):
+            if _use_widgets(obj.roots):
+                return True
         else:
-            extract_from_model(o)
+            if any(_needs_widgets(ref) for ref in obj.references()):
+                return True
+    else:
+        return False
 
-    return custom_models
+def _use_compiler(objs):
+    from .models.callbacks import CustomJS
 
-def notebook_div(plot_object):
+    def _needs_compiler(obj):
+        return hasattr(obj, "__implementation__") or (isinstance(obj, CustomJS) and obj.lang == "coffeescript")
+
+    for obj in objs:
+        if isinstance(obj, Document):
+            if _use_compiler(obj.roots):
+                return True
+        else:
+            if any(_needs_compiler(ref) for ref in obj.references()):
+                return True
+    else:
+        return False
+
+def _bundle_for_objs_and_resources(objs, resources):
+    if isinstance(resources, BaseResources):
+        js_resources = css_resources = resources
+    elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
+        js_resources, css_resources = resources
+
+        if js_resources and not css_resources:
+            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+
+        if css_resources and not js_resources:
+            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+    else:
+        raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
+
+    from copy import deepcopy
+
+    # XXX: force all components on server and in notebook, because we don't know in advance what will be used
+    use_widgets =  _use_widgets(objs) if objs else True
+    use_compiler = _use_compiler(objs) if objs else True
+
+    if js_resources:
+        js_resources = deepcopy(js_resources)
+        if not use_widgets and "bokeh-widgets" in js_resources.components:
+            js_resources.components.remove("bokeh-widgets")
+        if not use_compiler and "bokeh-compiler" in js_resources.components:
+            js_resources.components.remove("bokeh-compiler")
+        bokeh_js = js_resources.render_js()
+    else:
+        bokeh_js = None
+
+    if css_resources:
+        css_resources = deepcopy(css_resources)
+        if not use_widgets and "bokeh-widgets" in css_resources.components:
+            css_resources.components.remove("bokeh-widgets")
+        if not use_compiler and "bokeh-compiler" in css_resources.components:
+            css_resources.components.remove("bokeh-compiler")
+        bokeh_css = css_resources.render_css()
+    else:
+        bokeh_css = None
+
+    return bokeh_js, bokeh_css
+
+def notebook_div(model, notebook_comms_target=None):
     ''' Return HTML for a div that will display a Bokeh plot in an
     IPython Notebook
 
     The data for the plot is stored directly in the returned HTML.
 
     Args:
-        plot_object (PlotObject) : Bokeh object to render
+        model (Model) : Bokeh object to render
+        notebook_comms_target (str, optional) :
+            A target name for a Jupyter Comms object that can update
+            the document that is rendered to this notebook div
 
     Returns:
         UTF-8 encoded HTML text for a ``<div>``
@@ -211,45 +243,38 @@ def notebook_div(plot_object):
         has already been executed.
 
     '''
-    plot_object = _check_one_plot_object(plot_object)
+    model = _check_one_model(model)
 
-    with _ModelInDocument(plot_object):
-        (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
-        custom_models = _extract_custom_models([plot_object])
-
-    script = _script_for_render_items(docs_json, render_items,
-                                      custom_models=custom_models,
-                                      websocket_url=None)
+    with _ModelInDocument(model):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
     item = render_items[0]
+    item['notebook_comms_target'] = notebook_comms_target
 
+    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    resources = EMPTY
+
+    js = AUTOLOAD_JS.render(
+        js_urls = resources.js_files,
+        css_urls = resources.css_files,
+        js_raw = resources.js_raw + [script],
+        css_raw = resources.css_raw_str,
+        elementid = item['elementid'],
+    )
     div = _div_for_render_item(item)
 
     html = NOTEBOOK_DIV.render(
-        plot_script = script,
+        plot_script = js,
         plot_div = div,
     )
     return encode_utf8(html)
 
-def _use_widgets(plot_objects):
-    from .models.widgets import Widget
-    for o in plot_objects:
-        if isinstance(o, Document):
-            if _use_widgets(o.roots):
-                return True
-        else:
-            if any(isinstance(model, Widget) for model in o.references()):
-                return True
-    return False
-
-def file_html(plot_objects,
+def file_html(models,
               resources,
-              title,
-              js_resources=None,
-              css_resources=None,
+              title=None,
               template=FILE,
               template_variables={}):
-    '''Return an HTML document that embeds Bokeh PlotObject or Document objects.
+    '''Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML.
 
@@ -258,42 +283,40 @@ def file_html(plot_objects,
     customizing the jinja2 template.
 
     Args:
-        plot_objects (PlotObject or Document or list) : Bokeh object or objects to render
-            typically a PlotObject or Document
-        resources (Resources) : a resource configuration for BokehJS assets
-        title (str) : a title for the HTML document ``<title>`` tags
+        models (Model or Document or list) : Bokeh object or objects to render
+            typically a Model or Document
+        resources (Resources or tuple(JSResources or None, CSSResources or None)) : a resource configuration for Bokeh JS & CSS assets.
+        title (str, optional) : a title for the HTML document ``<title>`` tags or None. (default: None)
+            If None, attempt to automatically find the Document title from the given plot objects.
         template (Template, optional) : HTML document template (default: FILE)
-            A Jinja2 Template, see bokeh.templates.FILE for the required
+            A Jinja2 Template, see bokeh.core.templates.FILE for the required
             template parameters
         template_variables (dict, optional) : variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
-            title, js_resources, css_resources, plot_script, plot_div
+            title, bokeh_js, bokeh_css, plot_script, plot_div
 
     Returns:
         UTF-8 encoded HTML
 
     '''
-    plot_objects = _check_plot_objects(plot_objects)
+    models = _check_models(models)
 
-    with _ModelInDocument(plot_objects):
-
-        (docs_json, render_items) = _standalone_docs_json_and_render_items(plot_objects)
-        custom_models = _extract_custom_models(plot_objects)
-        return _html_page_for_render_items(resources, docs_json, render_items, title,
-                                           custom_models=custom_models, websocket_url=None,
-                                           js_resources=js_resources, css_resources=css_resources,
-                                           template=template, template_variables=template_variables,
-                                           use_widgets=_use_widgets(plot_objects))
+    with _ModelInDocument(models):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items(models)
+        title = _title_from_models(models, title)
+        bundle = _bundle_for_objs_and_resources(models, resources)
+        return _html_page_for_render_items(bundle, docs_json, render_items, title=title,
+                                           template=template, template_variables=template_variables)
 
 # TODO rename this "standalone"?
-def autoload_static(plot_object, resources, script_path):
+def autoload_static(model, resources, script_path):
     ''' Return JavaScript code and a script tag that can be used to embed
     Bokeh Plots.
 
     The data for the plot is stored directly in the returned JavaScript code.
 
     Args:
-        plot_object (PlotObject or Document) :
+        model (Model or Document) :
         resources (Resources) :
         script_path (str) :
 
@@ -306,142 +329,138 @@ def autoload_static(plot_object, resources, script_path):
         ValueError
 
     '''
-    if resources.mode == 'inline':
-        raise ValueError("autoload_static() requires non-inline resources")
+    # TODO: maybe warn that it's not exactly useful, but technically possible
+    # if resources.mode == 'inline':
+    #     raise ValueError("autoload_static() requires non-inline resources")
 
-    # TODO why is this?
-    if resources.dev:
-        raise ValueError("autoload_static() only works with non-dev resources")
+    model = _check_one_model(model)
 
-    plot_object = _check_one_plot_object(plot_object)
+    with _ModelInDocument(model):
+        (docs_json, render_items) = _standalone_docs_json_and_render_items([model])
 
-    with _ModelInDocument(plot_object):
+    script = _script_for_render_items(docs_json, render_items, wrap_script=False)
+    item = render_items[0]
 
-        (docs_json, render_items) = _standalone_docs_json_and_render_items([plot_object])
-        item = render_items[0]
+    js = AUTOLOAD_JS.render(
+        js_urls = resources.js_files,
+        css_urls = resources.css_files,
+        js_raw = resources.js_raw + [script],
+        css_raw = resources.css_raw_str,
+        elementid = item['elementid'],
+    )
 
-        model_id = ""
-        if 'modelid' in item:
-            model_id = item['modelid']
-        doc_id = ""
-        if 'docid' in item:
-            doc_id = item['docid']
+    tag = AUTOLOAD_TAG.render(
+        src_path = script_path,
+        elementid = item['elementid'],
+        modelid = item.get('modelid', ''),
+        docid = item.get('docid', ''),
+    )
 
-        js = AUTOLOAD_JS.render(
-            docs_json = serialize_json(docs_json),
-            # TODO we should load all the JS files, but the code
-            # in AUTOLOAD_JS isn't smart enough to deal with it.
-            js_url = resources.js_files[0],
-            css_files = resources.css_files,
-            elementid = item['elementid'],
-            websocket_url = None
-        )
+    return encode_utf8(js), encode_utf8(tag)
 
-        tag = AUTOLOAD_TAG.render(
-            src_path = script_path,
-            elementid = item['elementid'],
-            modelid = model_id,
-            docid = doc_id,
-            loglevel = resources.log_level
-        )
+def autoload_server(model, app_path="/", session_id=None, url="default"):
+    '''Return a script tag that embeds the given model (or entire
+    Document) from a Bokeh server session.
 
-        return encode_utf8(js), encode_utf8(tag)
+    In a typical deployment, each browser tab connecting to a
+    Bokeh application will have its own unique session ID. The session ID
+    identifies a unique Document instance for each session (so the state
+    of the Document can be different in every tab).
 
-def autoload_server(plot_object, app_path="/", session_id=DEFAULT_SESSION_ID, url="default", loglevel="info"):
-    ''' Return a script tag that can be used to embed Bokeh Plots from
-    a Bokeh Server.
+    If you call ``autoload_server(model=None)``, you'll embed the
+    entire Document for a freshly-generated session ID. Typically,
+    you should call ``autoload_server()`` again for each page load so
+    that every new browser tab gets its own session.
 
-    The data for the plot is stored on the Bokeh Server.
+    Sometimes when doodling around on a local machine, it's fine
+    to set ``session_id`` to something human-readable such as
+    ``"default"``.  That way you can easily reload the same
+    session each time and keep your state.  But don't do this in
+    production!
+
+    In some applications, you may want to "set up" the session
+    before you embed it. For example, you might ``session =
+    bokeh.client.pull_session()`` to load up a session, modify
+    ``session.document`` in some way (perhaps adding per-user
+    data?), and then call ``autoload_server(model=None,
+    session_id=session.id)``. The session ID obtained from
+    ``pull_session()`` can be passed to ``autoload_server()``.
 
     Args:
-        plot_object (PlotObject) : the object to render from the session, or None for entire document
+        model (Model) : the object to render from the session, or None for entire document
         app_path (str, optional) : the server path to the app we want to load
-        session_id (str, optional) : server session ID
+        session_id (str, optional) : server session ID (default: None)
+          If None, let the server autogenerate a random session ID. If you supply
+          a specific model to render, you must also supply the session ID containing
+          that model, though.
         url (str, optional) : server root URL (where static resources live, not where a specific app lives)
-        loglevel (str, optional) : "trace", "debug", "info", "warn", "error", "fatal"
 
     Returns:
         tag :
             a ``<script>`` tag that will execute an autoload script
             loaded from the Bokeh Server
 
+    .. note:: It is a very bad idea to use the same ``session_id``
+        for every page load; you are likely to create scalability
+        and security problems. So ``autoload_server()`` should be
+        called again on each page load.
+
     '''
 
-    if url == "default":
-        url = DEFAULT_SERVER_HTTP_URL
+    coords = _SessionCoordinates(dict(url=url,
+                                      session_id=session_id,
+                                      app_path=app_path))
 
     elementid = str(uuid.uuid4())
 
     # empty model_id means render the entire doc from session_id
     model_id = ""
-    if plot_object is not None:
-        model_id = plot_object._id
+    if model is not None:
+        model_id = model._id
 
-    if not url.endswith("/"):
-        url = url + "/"
-    if not app_path.endswith("/"):
-        app_path = app_path + "/"
-    if app_path.startswith("/"):
-        app_path = app_path[1:]
-    src_path = url + app_path + "autoload.js" + "?bokeh-autoload-element=" + elementid
+    if model_id and session_id is None:
+        raise ValueError("A specific model was passed to autoload_server() but no session_id; "
+                         "this doesn't work because the server will generate a fresh session "
+                         "which won't have the model in it.")
+
+    src_path = coords.server_url + "/autoload.js" + \
+               "?bokeh-autoload-element=" + elementid
+
+    # we want the server to generate the ID, so the autoload script
+    # can be embedded in a static page while every user still gets
+    # their own session. So we omit bokeh-session-id rather than
+    # using a generated ID.
+    if coords.session_id_allowing_none is not None:
+        src_path = src_path + "&bokeh-session-id=" + session_id
 
     tag = AUTOLOAD_TAG.render(
         src_path = src_path,
         elementid = elementid,
         modelid = model_id,
-        sessionid = session_id,
-        loglevel = loglevel
     )
 
     return encode_utf8(tag)
 
-def _script_for_render_items(docs_json, render_items, websocket_url,
-                             custom_models, wrap_script=True):
-    # this avoids emitting the "register custom models" code at all
-    # just to register an empty set
-    if (custom_models is not None) and len(custom_models) == 0:
-        custom_models = None
+def _script_for_render_items(docs_json, render_items, websocket_url=None, wrap_script=True):
+    plot_js = _wrap_in_function(DOC_JS.render(
+        websocket_url=websocket_url,
+        docs_json=serialize_json(docs_json),
+        render_items=serialize_json(render_items)
+    ))
 
-    plot_js = _wrap_in_function(
-        DOC_JS.render(
-            custom_models=custom_models,
-            websocket_url=websocket_url,
-            docs_json=serialize_json(docs_json),
-            render_items=serialize_json(render_items)
-        )
-    )
     if wrap_script:
         return SCRIPT_TAG.render(js_code=plot_js)
     else:
         return plot_js
 
-def _html_page_for_render_items(resources, docs_json, render_items, title, websocket_url,
-                                custom_models, js_resources=None, css_resources=None,
-                                template=FILE, template_variables={}, use_widgets=True):
-    if resources:
-        if js_resources:
-            warn('Both resources and js_resources provided. resources will override js_resources.')
-        if css_resources:
-            warn('Both resources and css_resources provided. resources will override css_resources.')
+def _html_page_for_render_items(bundle, docs_json, render_items, title, websocket_url=None,
+                                template=FILE, template_variables={}):
+    if title is None:
+        title = DEFAULT_TITLE
 
-        js_resources = resources
-        css_resources = resources
+    bokeh_js, bokeh_css = bundle
 
-    bokeh_js = ''
-    if js_resources:
-        if not css_resources:
-            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
-        js_resources = js_resources.use_widgets(use_widgets)
-        bokeh_js = js_resources.render_js()
-
-    bokeh_css = ''
-    if css_resources:
-        if not js_resources:
-            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
-        css_resources = css_resources.use_widgets(use_widgets)
-        bokeh_css = css_resources.render_css()
-
-    script = _script_for_render_items(docs_json, render_items, websocket_url, custom_models)
+    script = _script_for_render_items(docs_json, render_items, websocket_url)
 
     template_variables_full = template_variables.copy()
 
@@ -456,54 +475,73 @@ def _html_page_for_render_items(resources, docs_json, render_items, title, webso
     html = template.render(template_variables_full)
     return encode_utf8(html)
 
-def _check_plot_objects(plot_objects, allow_dict=False):
+def _check_models(models, allow_dict=False):
     input_type_valid = False
 
     # Check for single item
-    if isinstance(plot_objects, (PlotObject, Document)):
-        plot_objects = [plot_objects]
+    if isinstance(models, (Model, Document)):
+        models = [models]
 
     # Check for sequence
-    if isinstance(plot_objects, Sequence) and all(isinstance(x, (PlotObject, Document)) for x in plot_objects):
+    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
         input_type_valid = True
 
     if allow_dict:
-        if isinstance(plot_objects, dict) and \
-           all(isinstance(x, string_types) for x in plot_objects.keys()) and \
-           all(isinstance(x, (PlotObject, Document)) for x in plot_objects.values()):
+        if isinstance(models, dict) and \
+           all(isinstance(x, string_types) for x in models.keys()) and \
+           all(isinstance(x, (Model, Document)) for x in models.values()):
             input_type_valid = True
 
     if not input_type_valid:
         if allow_dict:
             raise ValueError(
-                'Input must be a PlotObject, a Document, a Sequence of PlotObjects and Document, or a dictionary from string to PlotObject and Document'
+                'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
             )
         else:
-            raise ValueError('Input must be a PlotObject, a Document, or a Sequence of PlotObjects and Document')
+            raise ValueError('Input must be a Model, a Document, or a Sequence of Models and Document')
 
-    return plot_objects
+    return models
 
-def _check_one_plot_object(plot_object):
-    plot_objects = _check_plot_objects(plot_object)
-    if len(plot_objects) != 1:
-        raise ValueError("Input must be exactly one PlotObject or Document")
-    return plot_objects[0]
+def _check_one_model(model):
+    models = _check_models(model)
+    if len(models) != 1:
+        raise ValueError("Input must be exactly one Model or Document")
+    return models[0]
 
 def _div_for_render_item(item):
     return PLOT_DIV.render(elementid=item['elementid'])
 
-def _standalone_docs_json_and_render_items(plot_objects):
-    plot_objects = _check_plot_objects(plot_objects)
+# come up with our best title
+def _title_from_models(models, title):
+    # use override title
+    if title is not None:
+        return title
+
+    # use title from any listed document
+    for p in models:
+        if isinstance(p, Document):
+            return p.title
+
+    # use title from any model's document
+    for p in models:
+        if p.document is not None:
+            return p.document.title
+
+    # use default title
+    return DEFAULT_TITLE
+
+def _standalone_docs_json_and_render_items(models):
+    models = _check_models(models)
 
     render_items = []
     docs_by_id = {}
-    for p in plot_objects:
+    for p in models:
         modelid = None
         if isinstance(p, Document):
             doc = p
         else:
             if p.document is None:
-                raise ValueError("To render a PlotObject as HTML it must be part of a Document")
+                raise ValueError("To render a Model as HTML it must be part of a Document")
             doc = p.document
             modelid = p._id
         docid = None
@@ -535,7 +573,7 @@ def _standalone_docs_json_and_render_items(plot_objects):
 # we use jinja2 and encapsulates the exact template variables we require.
 # Anyway, we should deprecate file_html or else drop this version,
 # most likely.
-def standalone_html_page_for_models(plot_objects, resources, title):
+def standalone_html_page_for_models(models, resources, title):
     ''' Return an HTML document that renders zero or more Bokeh documents or models.
 
     The document for each model will be embedded directly in the HTML, so the
@@ -544,16 +582,16 @@ def standalone_html_page_for_models(plot_objects, resources, title):
     or may have to load JS and CSS from different files.
 
     Args:
-        plot_objects (PlotObject or Document) : Bokeh object to render
-            typically a PlotObject or a Document
+        models (Model or Document) : Bokeh object to render
+            typically a Model or a Document
         resources (Resources) : a resource configuration for BokehJS assets
-        title (str) : a title for the HTML document ``<title>`` tags
+        title (str) : a title for the HTML document ``<title>`` tags or None to use the document title
 
     Returns:
         UTF-8 encoded HTML
 
     '''
-    return file_html(plot_objects, resources, title)
+    return file_html(models, resources, title)
 
 def server_html_page_for_models(session_id, model_ids, resources, title, websocket_url):
     render_items = []
@@ -569,16 +607,17 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
             'modelid' : modelid
             })
 
-    return _html_page_for_render_items(resources, {}, render_items, title,
-                                       websocket_url=websocket_url, custom_models=None)
+    bundle = _bundle_for_objs_and_resources(None, resources)
+    return _html_page_for_render_items(bundle, {}, render_items, title, websocket_url=websocket_url)
 
 def server_html_page_for_session(session_id, resources, title, websocket_url):
     elementid = str(uuid.uuid4())
     render_items = [{
         'sessionid' : session_id,
-        'elementid' : elementid
+        'elementid' : elementid,
+        'use_for_title' : True
         # no 'modelid' implies the entire session document
     }]
 
-    return _html_page_for_render_items(resources, {}, render_items, title,
-                                       websocket_url=websocket_url, custom_models=None)
+    bundle = _bundle_for_objs_and_resources(None, resources)
+    return _html_page_for_render_items(bundle, {}, render_items, title, websocket_url=websocket_url)

@@ -41,7 +41,7 @@ def test_js_resources_inline_has_no_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.js_raw) == 3
+    assert len(r.js_raw) == 4
     assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
     assert hasattr(r, 'css_raw') is False
     assert r.messages == []
@@ -99,7 +99,7 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "inline")
         self.assertEqual(r.dev, False)
 
-        self.assertEqual(len(r.js_raw), 3)
+        self.assertEqual(len(r.js_raw), 4)
         self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW)
         self.assertEqual(len(r.css_raw), 2)
         self.assertEqual(r.messages, [])
@@ -141,6 +141,19 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
+
+    def test_server_with_versioner(self):
+        def versioner(path):
+            return path + "?v=VERSIONED"
+
+        r = resources.Resources(mode="server", root_url="http://foo/",
+                                path_versioner=versioner)
+
+        self.assertEqual(r.js_files, ['http://foo/static/js/bokeh.min.js?v=VERSIONED',
+                                      'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED',
+                                      'http://foo/static/js/bokeh-compiler.min.js?v=VERSIONED'])
+        self.assertEqual(r.css_files, ['http://foo/static/css/bokeh.min.css?v=VERSIONED',
+                                       'http://foo/static/css/bokeh-widgets.min.css?v=VERSIONED'])
 
     def test_server_dev(self):
         r = resources.Resources(mode="server-dev")

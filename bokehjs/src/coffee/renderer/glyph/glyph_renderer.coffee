@@ -1,6 +1,6 @@
 _ = require "underscore"
 {logger} = require "../../common/logging"
-HasParent = require "../../common/has_parent"
+Model = require "../../models/model"
 PlotWidget = require "../../common/plot_widget"
 FactorRange = require "../../range/factor_range"
 RemoteDataSource = require "../../source/remote_data_source"
@@ -24,6 +24,10 @@ class GlyphRendererView extends PlotWidget
       nonselection_glyph.set(@model.nonselection_defaults, {silent: true})
     @nonselection_glyph = @build_glyph_view(nonselection_glyph)
 
+    hover_glyph = @mget("hover_glyph")
+    if hover_glyph?
+      @hover_glyph = @build_glyph_view(hover_glyph)
+
     decimated_glyph = @mget("glyph").clone()
     decimated_glyph.set(@model.decimated_defaults, {silent: true})
     @decimated_glyph = @build_glyph_view(decimated_glyph)
@@ -33,7 +37,7 @@ class GlyphRendererView extends PlotWidget
 
     @set_data(false)
 
-    if @mget('data_source') instanceof RemoteDataSource.RemoteDataSource
+    if @mget('data_source') instanceof RemoteDataSource.Model
       @mget('data_source').setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
@@ -43,21 +47,20 @@ class GlyphRendererView extends PlotWidget
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget('data_source'), 'change', @set_data)
     @listenTo(@mget('data_source'), 'select', @request_render)
+    if @hover_glyph?
+      @listenTo(@mget('data_source'), 'inspect', @request_render)
 
     # TODO (bev) This is a quick change that  allows the plot to be
     # update/re-rendered when properties change on the JS side. It would
     # be better to make this more fine grained in terms of setting visuals
-    # and also could potentiall be improved by making proper models out
+    # and also could potentially be improved by making proper models out
     # of "Spec" properties. See https://github.com/bokeh/bokeh/pull/2684
     @listenTo(@mget('glyph'), 'propchange', () ->
         @glyph.set_visuals(@mget('data_source'))
         @request_render()
     )
 
-  have_selection_glyphs: () -> true
-
-  #TODO: There are glyph sub-type-vs-resample_op concordance issues...
-  setup_server_data: () ->
+  have_selection_glyphs: () -> @selection_glyph? && @nonselection_glyph?
 
   # TODO (bev) arg is a quick-fix to allow some hinting for things like
   # partial data updates (especially useful on expensive set_data calls
@@ -70,8 +73,11 @@ class GlyphRendererView extends PlotWidget
 
     @glyph.set_visuals(source)
     @decimated_glyph.set_visuals(source)
-    @selection_glyph.set_visuals(source)
-    @nonselection_glyph.set_visuals(source)
+    if @have_selection_glyphs()
+      @selection_glyph.set_visuals(source)
+      @nonselection_glyph.set_visuals(source)
+    if @hover_glyph?
+      @hover_glyph.set_visuals(source)
 
     length = source.get_length()
     length = 1 if not length?
@@ -92,9 +98,9 @@ class GlyphRendererView extends PlotWidget
 
   render: () ->
     t0 = Date.now()
-    
+
     glsupport = @glyph.glglyph
-    
+
     tmap = Date.now()
     @glyph.map_data()
     dtmap = Date.now() - t0
@@ -113,7 +119,7 @@ class GlyphRendererView extends PlotWidget
     if !selected or selected.length == 0
       selected = []
     else
-      if selected['0d'].flag
+      if selected['0d'].glyph
         selected = indices
       else if selected['1d'].indices.length > 0
         selected = selected['1d'].indices
@@ -121,6 +127,19 @@ class GlyphRendererView extends PlotWidget
         selected = selected['2d'].indices
       else
         selected = []
+
+    inspected = @mget('data_source').get('inspected')
+    if !inspected or inspected.length == 0
+      inspected = []
+    else
+      if inspected['0d'].glyph
+        inspected = indices
+      else if inspected['1d'].indices.length > 0
+        inspected = inspected['1d'].indices
+      else if inspected['2d'].indices.length > 0
+        inspected = inspected['2d'].indices
+      else
+        inspected = []
 
     lod_threshold = @plot_model.get('lod_threshold')
     if @plot_view.interactive and !glsupport and lod_threshold? and @all_indices.length > lod_threshold
@@ -134,10 +153,15 @@ class GlyphRendererView extends PlotWidget
       nonselection_glyph = @nonselection_glyph
       selection_glyph = @selection_glyph
 
+    if @hover_glyph? and inspected.length
+      indices = _.without.bind(null, indices).apply(null, inspected)
+
     if not (selected.length and @have_selection_glyphs())
-      trender = Date.now()
-      glyph.render(ctx, indices, @glyph)
-      dtrender = Date.now() - trender
+        trender = Date.now()
+        glyph.render(ctx, indices, @glyph)
+        if @hover_glyph and inspected.length
+          @hover_glyph.render(ctx, inspected, @glyph)
+        dtrender = Date.now() - trender
 
     else
       # reset the selection mask
@@ -159,6 +183,8 @@ class GlyphRendererView extends PlotWidget
       trender = Date.now()
       nonselection_glyph.render(ctx, nonselected, @glyph)
       selection_glyph.render(ctx, selected, @glyph)
+      if @hover_glyph?
+        @hover_glyph.render(ctx, inspected, @glyph)
       dtrender = Date.now() - trender
 
     @last_dtrender = dtrender
@@ -183,9 +209,7 @@ class GlyphRendererView extends PlotWidget
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
 
-
-
-class GlyphRenderer extends HasParent
+class GlyphRenderer extends Model
   default_view: GlyphRendererView
   type: 'GlyphRenderer'
 
@@ -198,11 +222,11 @@ class GlyphRenderer extends HasParent
       x_range_name: "default"
       y_range_name: "default"
       data_source: null
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'glyph'
+      glyph: null
+      hover_glyph: null
+      nonselection_glyph: null
+      selection_glyph: null
     }
 
 module.exports =

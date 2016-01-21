@@ -3,12 +3,19 @@
 Testing
 =======
 
-.. contents::
-    :local:
-    :depth: 2
-
 There is a TravisCI project configured to execute on every GitHub push, it can
 be viewed at: https://travis-ci.org/bokeh/bokeh.
+
+TravisCI runs all the available test but also run most of the examples in the
+repository. If you want to skip these examples runs, you can disable them just
+adding `[ci disable examples]` to your last commit message before pushing.
+
+Additionally, there is a `diff` machinery in place to let you know, quickly and
+broadly, how your changes impact on the examples available for testing. You will
+find the link to the `diff` machinery report in the TravisCI log, for instance,
+you can see report here: https://travis-ci.org/bokeh/bokeh/jobs/90594568#L1150
+Finally, the `diff` machinery is only run on python 2, so you will find the
+report in the 4th job of any build (labeled as `GROUP=examples_flake_docs`).
 
 You can run all available tests (python and JS unit tests, as well as example
 and integration tests) **from the top level directory** by executing:

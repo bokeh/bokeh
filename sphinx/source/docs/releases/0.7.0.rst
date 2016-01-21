@@ -12,7 +12,7 @@ user interface and experience:
 * Improved toolbar
 * Many new tools: lasso, poly, and point selection, crosshair inspector
 
-An accompanying blog announement with more details can be seen at:
+An accompanying blog announcement with more details can be seen at:
 
 http://continuum.io/blog/bokeh-0.7
 

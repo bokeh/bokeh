@@ -5,8 +5,8 @@ from __future__ import absolute_import
 
 import six
 
-from ...properties import abstract
-from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
+from ...core.properties import abstract
+from ...core.properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, Instance
 from ..callbacks import Callback
 from .widget import Widget
 
@@ -17,16 +17,8 @@ class InputWidget(Widget):
 
     """
 
-    title = String(help="""
+    title = String(default="", help="""
     Widget's label.
-    """)
-
-    name = String(help="""
-    Widget's name.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the input's value changes.
     """)
 
     @classmethod
@@ -56,8 +48,13 @@ class InputWidget(Widget):
 class TextInput(InputWidget):
     """ Single-line input widget. """
 
-    value = String(help="""
+    value = String(default="", help="""
     Initial or entered text value.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the user unfocuses the TextInput
+    widget by hitting Enter or clicking outside of the text box area.
     """)
 
 class AutocompleteInput(TextInput):
@@ -65,7 +62,7 @@ class AutocompleteInput(TextInput):
 
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
-    user when he types-in a value.
+    user upon typing the beginning of a desired value.
     """)
 
 class Select(InputWidget):
@@ -77,8 +74,13 @@ class Select(InputWidget):
     Available selection options.
     """)
 
-    value = String(help="""
+    value = String(default="", help="""
     Initial or selected value.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current Select dropdown
+    value changes.
     """)
 
     @classmethod
@@ -92,13 +94,22 @@ class Select(InputWidget):
         kwargs['options'] = new_options
         return super(Select, self).create(*args, **kwargs)
 
-class MultiSelect(Select):
+class MultiSelect(InputWidget):
     """ Multi-select widget.
 
     """
 
+    options = List(Either(String, Dict(String, String)), help="""
+    Available selection options.
+    """)
+
     value = List(String, help="""
     Initial or selected values.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current dropdown value
+    changes.
     """)
 
     @classmethod
@@ -117,24 +128,28 @@ class Slider(InputWidget):
 
     """
 
-    value = Float(help="""
+    value = Float(default=0.5, help="""
     Initial or selected value.
     """)
 
-    start = Float(help="""
+    start = Float(default=0, help="""
     The minimum allowable value.
     """)
 
-    end = Float(help="""
+    end = Float(default=1, help="""
     The maximum allowable value.
     """)
 
-    step = Float(help="""
+    step = Float(default=0.1, help="""
     The step between consecutive values.
     """)
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the slider either horizontally (default) or vertically.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current Slider value changes.
     """)
 
 class DateRangeSlider(InputWidget):
@@ -178,6 +193,10 @@ class DateRangeSlider(InputWidget):
     do nothing).
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever either slider's value changes.
+    """)
+
 class DatePicker(InputWidget):
     """ Calendar-based date picker widget.
 
@@ -193,4 +212,8 @@ class DatePicker(InputWidget):
 
     max_date = Date(default=None, help="""
     Optional latest allowable date.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current date value changes.
     """)

@@ -4,9 +4,9 @@ Backbone = require "backbone"
 {logger} = require "../common/logging"
 RemoteDataSource = require "./remote_data_source"
 
-#maybe generalize to ajax data source later?
-class AjaxDataSource extends RemoteDataSource.RemoteDataSource
+class AjaxDataSource extends RemoteDataSource.Model
   type: 'AjaxDataSource'
+
   destroy : () =>
     if @interval?
       clearInterval(@interval)
@@ -53,6 +53,9 @@ class AjaxDataSource extends RemoteDataSource.RemoteDataSource
       expr : null
       contentType : 'application/json'
       headers : ""
+      max_size: null
+      method: 'POST'
+      if_modified: false
     }
 
 module.exports =

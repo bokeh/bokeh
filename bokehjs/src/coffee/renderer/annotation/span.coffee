@@ -1,7 +1,6 @@
 _ = require "underscore"
-HasParent = require "../../common/has_parent"
+Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
-{logger} = require "../../common/logging"
 properties = require "../../common/properties"
 
 class SpanView extends PlotWidget
@@ -14,13 +13,21 @@ class SpanView extends PlotWidget
     @$el.hide()
 
   bind_bokeh_events: () ->
-    @listenTo(@model, 'change:location', @_draw_span)
+    if @mget('for_hover')
+      @listenTo(@model, 'change:computed_location', @_draw_span)
+    else
+      @listenTo(@model, 'change:location', @_draw_span)
 
   render: () ->
     @_draw_span()
 
   _draw_span: () ->
-    if not @mget('location')?
+    if @mget('for_hover')
+      loc = @mget('computed_location')
+    else
+      loc = @mget('location')
+
+    if not loc?
       @$el.hide()
       return
 
@@ -30,14 +37,14 @@ class SpanView extends PlotWidget
     ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
 
     if @mget('dimension') == 'width'
-      stop = canvas.vy_to_sy(@_calc_dim(@mget('location'), ymapper))
+      stop = canvas.vy_to_sy(@_calc_dim(loc, ymapper))
       sleft = canvas.vx_to_sx(frame.get('left'))
       width = frame.get('width')
-      height = @mget('line_width')
+      height = @line_props.width.value()
     else
       stop = canvas.vy_to_sy(frame.get('top'))
-      sleft = canvas.vx_to_sx(@_calc_dim(@mget('location'), xmapper))
-      width = @mget('line_width')
+      sleft = canvas.vx_to_sx(@_calc_dim(loc, xmapper))
+      width = @line_props.width.value()
       height = frame.get('height')
 
     if @mget("render_mode") == "css"
@@ -47,9 +54,9 @@ class SpanView extends PlotWidget
         'width': "#{width}px",
         'height': "#{height}px"
         'z-index': 1000
-        'background-color': @mget('line_color')
-        'opacity': @mget('line_alpha')
-        })
+        'background-color': @line_props.color.value()
+        'opacity': @line_props.alpha.value()
+      })
       @$el.show()
 
     else if @mget("render_mode") == "canvas"
@@ -74,26 +81,31 @@ class SpanView extends PlotWidget
         vdim = location
       return vdim
 
-class Span extends HasParent
+class Span extends Annotation.Model
   default_view: SpanView
   type: 'Span'
 
+  nonserializable_attribute_names: () ->
+    super().concat(['for_hover', 'computed_location'])
+
   defaults: ->
     return _.extend {}, super(), {
+      for_hover: false
       x_range_name: "default"
       y_range_name: "default"
       render_mode: "canvas"
       location_units: "data"
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'annotation'
+
+      dimension: "width"
+      location: null
       line_color: 'black'
       line_width: 1
       line_alpha: 1.0
       line_dash: []
       line_dash_offset: 0
+      line_cap: "butt"
+      line_join: "miter"
     }
 
 module.exports =

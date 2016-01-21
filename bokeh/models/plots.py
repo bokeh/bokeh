@@ -4,28 +4,30 @@
 from __future__ import absolute_import
 
 from six import string_types
+import warnings
 
-from ..enums import Location
-from ..mixins import LineProps, TextProps
-from ..plot_object import PlotObject
-from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
-from ..query import find
-from ..util.string import nice_join
-from ..validation.warnings import (MISSING_RENDERERS, NO_GLYPH_RENDERERS,
+from ..core.query import find
+from ..core import validation
+from ..core.validation.warnings import (MISSING_RENDERERS, NO_DATA_RENDERERS,
     EMPTY_LAYOUT, MALFORMED_CATEGORY_LABEL)
-from ..validation.errors import REQUIRED_RANGE
-from .. import validation
+from ..core.enums import Location
+from ..core.property_mixins import LineProps, TextProps, FillProps
+from ..model import Model
+from ..core.properties import (Bool, Int, String, Enum, Auto, Instance, Either,
+    List, Dict, Include, Override)
+from ..util.string import nice_join
+from ..core.validation.errors import REQUIRED_RANGE
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d, FactorRange
-from .renderers import Renderer, GlyphRenderer, TileRenderer
+from .renderers import Renderer, GlyphRenderer, DataRenderer, TileRenderer, DynamicImageRenderer
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
 from .component import Component
 
 def _select_helper(args, kwargs):
     """
-    Allow fexible selector syntax.
+    Allow flexible selector syntax.
     Returns:
         a dict
     """
@@ -44,7 +46,7 @@ def _select_helper(args, kwargs):
             selector = arg
         elif isinstance(arg, string_types):
             selector = dict(name=arg)
-        elif issubclass(arg, PlotObject):
+        elif issubclass(arg, Model):
             selector = {"type" : arg}
         else:
             raise RuntimeError("Selector must be a dictionary, string or plot object.")
@@ -52,6 +54,11 @@ def _select_helper(args, kwargs):
     else:
         selector = kwargs
     return selector
+
+class LayoutBox(Model):
+    ''' Represents an **on-canvas** layout.
+
+    '''
 
 class Plot(Component):
     """ Model representing a plot, containing glyphs, guides, annotations.
@@ -61,6 +68,13 @@ class Plot(Component):
     def __init__(self, **kwargs):
         if "tool_events" not in kwargs:
             kwargs["tool_events"] = ToolEvents()
+
+        if "border_fill" in kwargs and "border_fill_color" in kwargs:
+            raise ValueError("Conflicting properties set on plot: border_fill, border_fill_color.")
+
+        if "background_fill" in kwargs and "background_fill_color" in kwargs:
+            raise ValueError("Conflicting properties set on plot: background_fill, background_fill_color.")
+
         super(Plot, self).__init__(**kwargs)
 
     def select(self, *args, **kwargs):
@@ -84,13 +98,13 @@ class Plot(Component):
             name (str) : the name to query on
 
         Also queries on just type can be made simply by supplying the
-        ``PlotObject`` subclass as the single parameter:
+        ``Model`` subclass as the single parameter:
 
         Args:
-            type (PlotObject) : the type to query on
+            type (Model) : the type to query on
 
         Returns:
-            seq[PlotObject]
+            seq[Model]
 
         Examples:
 
@@ -113,7 +127,7 @@ class Plot(Component):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
@@ -187,12 +201,14 @@ class Plot(Component):
             if tool.plot is not None:
                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
             tool.plot = self
+            if hasattr(tool, 'overlay'):
+                self.renderers.append(tool.overlay)
             self.tools.append(tool)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
-        This function will take care of creating and configurinf a Glyph object,
+        This function will take care of creating and configuring a Glyph object,
         and then add it to the plot's list of renderers.
 
         Args:
@@ -205,7 +221,7 @@ class Plot(Component):
             Glyph initializer.
 
         Returns:
-            glyph : Glyph
+            Glyph
 
         '''
         if glyph is not None:
@@ -227,7 +243,7 @@ class Plot(Component):
         '''Adds new TileRenderer into the Plot.renderers
 
         Args:
-            tile_source (TileSource) : a tile source instance which contain tileset configuration 
+            tile_source (TileSource) : a tile source instance which contain tileset configuration
 
         Keyword Arguments:
             Additional keyword arguments are passed on as-is to the tile renderer
@@ -239,6 +255,23 @@ class Plot(Component):
         tile_renderer = TileRenderer(tile_source=tile_source, **kw)
         self.renderers.append(tile_renderer)
         return tile_renderer
+
+    def add_dynamic_image(self, image_source, **kw):
+        '''Adds new DynamicImageRenderer into the Plot.renderers
+
+        Args:
+            image_source (ImageSource) : a image source instance which contain image configuration
+
+        Keyword Arguments:
+            Additional keyword arguments are passed on as-is to the dynamic image renderer
+
+        Returns:
+            DynamicImageRenderer : DynamicImageRenderer
+
+        '''
+        image_renderer = DynamicImageRenderer(image_source=image_source, **kw)
+        self.renderers.append(image_renderer)
+        return image_renderer
 
     @validation.error(REQUIRED_RANGE)
     def _check_required_range(self):
@@ -253,9 +286,9 @@ class Plot(Component):
         if len(self.renderers) == 0:
             return str(self)
 
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
-        if len(self.select(GlyphRenderer)) == 0:
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
+        if len(self.select(DataRenderer)) == 0:
             return str(self)
 
     @validation.warning(MALFORMED_CATEGORY_LABEL)
@@ -279,6 +312,8 @@ class Plot(Component):
             field_msg = ' '.join('[range:%s] [first_value: %s]' % (field, value)
                                  for field, value in broken)
             return '%s [renderer: %s]' % (field_msg, self)
+
+    __deprecated_attributes__ = ('background_fill', 'border_fill')
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
@@ -318,6 +353,15 @@ class Plot(Component):
     This is useful for adding additional axes.
     """)
 
+    hidpi = Bool(default=True, help="""
+    Whether to use HiDPI mode when available.
+    """)
+
+    title_standoff = Int(default=8, help="""
+    How far (in screen units) to place a title away from the central
+    plot region.
+    """)
+
     title = String('', help="""
     A title for the plot.
     """)
@@ -326,9 +370,17 @@ class Plot(Component):
     The %s for the plot title.
     """)
 
+    title_text_align = Override(default='center')
+
+    title_text_baseline = Override(default='alphabetic')
+
+    title_text_font_size = Override(default={ 'value' : '20pt' })
+
     outline_props = Include(LineProps, help="""
     The %s for the plot border outline.
     """)
+
+    outline_line_color = Override(default="#aaaaaa")
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
@@ -355,7 +407,9 @@ class Plot(Component):
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    above = List(Instance(Renderer), help="""
+    # TODO (bev) LayoutBox here is a temporary workaround to the fact that
+    # plot titles are not proper renderers
+    above = List(Either(Instance(Renderer), Instance(LayoutBox)), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
@@ -393,13 +447,53 @@ class Plot(Component):
 
     """)
 
-    background_fill = Color("white", help="""
+    @property
+    def background_fill(self):
+        warnings.warn(
+            """
+            Glyph property 'background_fill' will be deprecated in Bokeh
+            0.12.0. Use 'background_fill_color' instead.
+            """)
+        return self.background_fill_color
 
+    @background_fill.setter
+    def background_fill(self, color):
+        warnings.warn(
+            """
+            Glyph property 'background_fill' will be deprecated in Bokeh
+            0.12.0. Use 'background_fill_color' instead.
+            """)
+        self.background_fill_color = color
+
+    @property
+    def border_fill(self):
+        warnings.warn(
+            """
+            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
+            Use 'border_fill_color' instead.
+            """)
+        return self.border_fill_color
+
+    @border_fill.setter
+    def border_fill(self, color):
+        warnings.warn(
+            """
+            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
+            Use 'border_fill_color' instead.
+            """)
+        self.border_fill_color = color
+
+    background_props = Include(FillProps, help="""
+    The %s for the plot background style.
     """)
 
-    border_fill = Color("white", help="""
+    background_fill_color = Override(default='#ffffff')
 
+    border_props = Include(FillProps, help="""
+    The %s for the plot border style.
     """)
+
+    border_fill_color = Override(default='#ffffff')
 
     min_border_top = Int(50, help="""
     Minimum size in pixels of the padding region above the top of the
@@ -496,7 +590,7 @@ class Plot(Component):
     """)
 
 
-class GridPlot(Plot):
+class GridPlot(Component):
     """ A 2D grid of plots rendered on separate canvases in an HTML table.
 
     """
@@ -508,8 +602,9 @@ class GridPlot(Plot):
     @validation.warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         pass
-    @validation.warning(NO_GLYPH_RENDERERS)
-    def _check_no_glyph_renderers(self):
+
+    @validation.warning(NO_DATA_RENDERERS)
+    def _check_no_data_renderers(self):
         pass
 
     @validation.warning(EMPTY_LAYOUT)
@@ -518,7 +613,7 @@ class GridPlot(Plot):
         if not list(chain(self.children)):
             return str(self)
 
-    children = List(List(Instance(Plot)), help="""
+    children = List(List(Instance(Plot)), default=[[]], help="""
     An array of plots to display in a grid, given as a list of lists of
     Plot objects. To leave a position in the grid empty, pass None for
     that position in the ``children`` list.
@@ -528,19 +623,23 @@ class GridPlot(Plot):
     Distance (in pixels) between adjacent plots.
     """)
 
+    toolbar_location = Enum(Location, default="left", help="""
+    Where the toolbar will be located. If set to None, no toolbar
+    will be attached to the plot.
+    """)
+
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
-        match the given selector. See Plot.select for detailed usage infomation.
+        match the given selector. See Plot.select for detailed usage information.
 
         Returns:
-            seq[PlotObject]
-
+            seq[Model]
         '''
 
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        from ..plotting_helpers import _list_attr_splat
+        from ..plotting.helpers import _list_attr_splat
         return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):

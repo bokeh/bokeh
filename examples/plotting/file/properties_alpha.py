@@ -1,11 +1,19 @@
-from bokeh.plotting import figure, show, output_file
+
 from itertools import product
 from math import pi
-output_file('properties_alpha.html')
+
+from bokeh.plotting import figure, show, output_file
 
 cats = ['None', 'Alpha', 'RGB', 'RGBA', 'Alpha+RGB', 'Alpha+RGBA']
+
 p = figure(x_range=cats, y_range=cats,
-           title="Fill and Line Color Property Combinations")
+           title="Fill and Line Color Combinations")
+
+p.xaxis.axis_label = "Fill Options"
+p.xaxis.major_label_orientation = pi/4
+p.yaxis.axis_label = "Line Options"
+p.grid.grid_line_color = None
+p.toolbar_location = None
 
 alpha = 0.5
 fill_color = (242, 44, 64)
@@ -39,7 +47,6 @@ for comb in combinations:
 
     p.circle(x, y, line_width=7, size=50, **options)
 
-p.xaxis[0].axis_label = "Fill Options"
-p.xaxis[0].major_label_orientation = pi/4
-p.yaxis[0].axis_label = "Line Options"
+output_file('properties_alpha.html', title="properties_alpha.py example")
+
 show(p)

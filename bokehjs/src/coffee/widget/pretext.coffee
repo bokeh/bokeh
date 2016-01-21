@@ -14,7 +14,7 @@ class PreText extends Paragraph.Model
     return _.extend {}, super(), {
       text: ''
       height: 400
-      width: 400
+      width: 500
     }
 
 module.exports =

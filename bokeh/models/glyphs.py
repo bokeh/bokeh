@@ -5,29 +5,17 @@ with data columns from data sources.
 """
 from __future__ import absolute_import
 
-from ..enums import Direction, Anchor
-from ..mixins import FillProps, LineProps, TextProps
-from ..plot_object import PlotObject
-from ..properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
-                          Include, Instance, NumberSpec, StringSpec)
-from .. import themes
+from ..core.enums import Direction, Anchor
+from ..core.property_mixins import FillProps, LineProps, TextProps
+from ..model import Model
+from ..core.properties import (abstract, AngleSpec, Bool, DistanceSpec, Enum, Float,
+                          Include, Instance, Int, NumberSpec, StringSpec)
 
 from .mappers import LinearColorMapper
 
 @abstract
-class Glyph(PlotObject):
+class Glyph(Model):
     """ Base class for all glyph models. """
-
-    def __init__(self, **kwargs):
-        props = dict()
-        if hasattr(self.__class__, "line_alpha"):
-            props.update(themes.default['line_defaults'])
-        if hasattr(self.__class__, "fill_alpha"):
-            props.update(themes.default['fill_defaults'])
-        if hasattr(self.__class__, "text_alpha"):
-            props.update(themes.default['text_defaults'])
-        props.update(kwargs)
-        super(Glyph, self).__init__(**props)
 
     visible = Bool(True, help="""
     Whether the glyph should render or not.
@@ -42,31 +30,31 @@ class AnnularWedge(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates of the center of the annular wedges.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates of the center of the annular wedges.
     """)
 
-    inner_radius = DistanceSpec("inner_radius", help="""
+    inner_radius = DistanceSpec(help="""
     The inner radii of the annular wedges.
     """)
 
-    outer_radius = DistanceSpec("outer_radius", help="""
+    outer_radius = DistanceSpec(help="""
     The outer radii of the annular wedges.
     """)
 
-    start_angle = AngleSpec("start_angle", help="""
+    start_angle = AngleSpec(help="""
     The angles to start the annular wedges, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec("end_angle", help="""
+    end_angle = AngleSpec(help="""
     The angles to end the annular wedges, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default=Direction.anticlock, help="""
     Which direction to stroke between the start and end angles.
     """)
 
@@ -87,19 +75,19 @@ class Annulus(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'inner_radius', 'outer_radius')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates of the center of the annuli.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates of the center of the annuli.
     """)
 
-    inner_radius = DistanceSpec("inner_radius", help="""
+    inner_radius = DistanceSpec(help="""
     The inner radii of the annuli.
     """)
 
-    outer_radius = DistanceSpec("outer_radius", help="""
+    outer_radius = DistanceSpec(help="""
     The outer radii of the annuli.
     """)
 
@@ -120,27 +108,27 @@ class Arc(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates of the center of the arcs.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates of the center of the arcs.
     """)
 
-    radius = DistanceSpec("radius", help="""
+    radius = DistanceSpec(help="""
     Radius of the arc.
     """)
 
-    start_angle = AngleSpec("start_angle", help="""
+    start_angle = AngleSpec(help="""
     The angles to start the arcs, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec("end_angle", help="""
+    end_angle = AngleSpec(help="""
     The angles to end the arcs, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.
     """)
 
@@ -162,35 +150,35 @@ class Bezier(Glyph):
     # functions derived from this class
     _args = ('x0', 'y0', 'x1', 'y1', 'cx0', 'cy0', 'cx1', 'cy1')
 
-    x0 = NumberSpec("x0", help="""
+    x0 = NumberSpec(help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = NumberSpec("y0", help="""
+    y0 = NumberSpec(help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = NumberSpec("x1", help="""
+    x1 = NumberSpec(help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = NumberSpec("y1", help="""
+    y1 = NumberSpec(help="""
     The y-coordinates of the ending points.
     """)
 
-    cx0 = NumberSpec("cx0", help="""
+    cx0 = NumberSpec(help="""
     The x-coordinates of first control points.
     """)
 
-    cy0 = NumberSpec("cy0", help="""
+    cy0 = NumberSpec(help="""
     The y-coordinates of first control points.
     """)
 
-    cx1 = NumberSpec("cx1", help="""
+    cx1 = NumberSpec(help="""
     The x-coordinates of second control points.
     """)
 
-    cy1 = NumberSpec("cy1", help="""
+    cy1 = NumberSpec(help="""
     The y-coordinates of second control points.
     """)
 
@@ -214,11 +202,11 @@ class Gear(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates of the center of the gears.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates of the center of the gears.
     """)
 
@@ -226,7 +214,7 @@ class Gear(Glyph):
     The angle the gears are rotated from horizontal. [rad]
     """)
 
-    module = NumberSpec("module", help="""
+    module = NumberSpec(help="""
     A scaling factor, given by::
 
         m = p / pi
@@ -236,7 +224,7 @@ class Gear(Glyph):
     the same gear, measured along the pitch circle. [float]
     """)
 
-    teeth = NumberSpec("teeth", help="""
+    teeth = NumberSpec(help="""
     How many teeth the gears have. [int]
     """)
 
@@ -292,19 +280,19 @@ class Image(Glyph):
     # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
-    image = NumberSpec("image", help="""
+    image = NumberSpec(help="""
     The arrays of scalar data for the images to be colormapped.
     """)
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates to locate the image anchors.
     """)
 
-    dw = DistanceSpec("dw", help="""
+    dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -312,7 +300,7 @@ class Image(Glyph):
         That number is fixed by the image itself.
     """)
 
-    dh = DistanceSpec("dh", help="""
+    dh = DistanceSpec(help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -346,15 +334,15 @@ class ImageRGBA(Glyph):
     # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
-    image = NumberSpec("image", help="""
+    image = NumberSpec(help="""
     The arrays of RGBA data for the images.
     """)
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates to locate the image anchors.
     """)
 
@@ -366,7 +354,7 @@ class ImageRGBA(Glyph):
     The numbers of columns in the images
     """)
 
-    dw = DistanceSpec("dw", help="""
+    dw = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -374,7 +362,7 @@ class ImageRGBA(Glyph):
         That number is fixed by the image itself.
     """)
 
-    dh = DistanceSpec("dh", help="""
+    dh = DistanceSpec(help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -402,7 +390,7 @@ class ImageURL(Glyph):
     # functions derived from this class
     _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'global_alpha', 'dilate')
 
-    url = NumberSpec("url", help="""
+    url = NumberSpec(help="""
     The URLs to retrieve images from.
 
     .. note::
@@ -410,16 +398,16 @@ class ImageURL(Glyph):
         the client.
     """)
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates to locate the image anchors.
     """)
 
     # TODO: (bev) rename to "dw" for consistency
-    w = DistanceSpec("w", help="""
+    w = DistanceSpec(help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -431,7 +419,7 @@ class ImageURL(Glyph):
     """)
 
     # TODO: (bev) rename to "dh" for consistency
-    h = DistanceSpec("h", help="""
+    h = DistanceSpec(help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -464,6 +452,16 @@ class ImageURL(Glyph):
     coordinates.
     """)
 
+    retry_attempts = Int(0, help="""
+    Number of attempts to retry loading the images from the specified URL.
+    Default is zero.
+    """)
+
+    retry_timeout = Int(0, help="""
+    Timeout (in ms) between retry attempts to load the image from the
+    specified URL. Default is zero ms.
+    """)
+
 class Line(Glyph):
     """ Render a single line.
 
@@ -477,11 +475,11 @@ class Line(Glyph):
 
     __example__ = "tests/glyphs/Line.py"
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates for the points of the line.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates for the points of the line.
     """)
 
@@ -504,11 +502,11 @@ class MultiLine(Glyph):
     # functions derived from this class
     _args = ('xs', 'ys')
 
-    xs = NumberSpec("xs", help="""
+    xs = NumberSpec(help="""
     The x-coordinates for all the lines, given as a "list of lists".
     """)
 
-    ys = NumberSpec("ys", help="""
+    ys = NumberSpec(help="""
     The x-coordinates for all the lines, given as a "list of lists".
     """)
 
@@ -530,23 +528,23 @@ class Oval(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates of the centers of the ovals.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates of the centers of the ovals.
     """)
 
-    width = DistanceSpec("width", help="""
+    width = DistanceSpec(help="""
     The overall widths of each oval.
     """)
 
-    height = DistanceSpec("height", help="""
+    height = DistanceSpec(help="""
     The overall height of each oval.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(default=0.0, help="""
     The angle the ovals are rotated from horizontal. [rad]
     """)
 
@@ -572,7 +570,7 @@ class Patch(Glyph):
     # functions derived from this class
     _args = ('x', 'y')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates for the points of the patch.
 
     .. note::
@@ -581,7 +579,7 @@ class Patch(Glyph):
         values in the sequence.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates for the points of the patch.
 
     .. note::
@@ -613,7 +611,7 @@ class Patches(Glyph):
     # functions derived from this class
     _args = ('xs', 'ys')
 
-    xs = NumberSpec("xs", help="""
+    xs = NumberSpec(help="""
     The x-coordinates for all the patches, given as a "list of lists".
 
     .. note::
@@ -622,7 +620,7 @@ class Patches(Glyph):
         values in the sublists.
     """)
 
-    ys = NumberSpec("ys", help="""
+    ys = NumberSpec(help="""
     The y-coordinates for all the patches, given as a "list of lists".
 
     .. note::
@@ -648,19 +646,19 @@ class Quad(Glyph):
     # functions derived from this class
     _args = ('left', 'right', 'top', 'bottom')
 
-    left = NumberSpec("left", help="""
+    left = NumberSpec(help="""
     The x-coordinates of the left edges.
     """)
 
-    right = NumberSpec("right", help="""
+    right = NumberSpec(help="""
     The x-coordinates of the right edges.
     """)
 
-    bottom = NumberSpec("bottom", help="""
+    bottom = NumberSpec(help="""
     The y-coordinates of the bottom edges.
     """)
 
-    top = NumberSpec("top", help="""
+    top = NumberSpec(help="""
     The y-coordinates of the top edges.
     """)
 
@@ -681,27 +679,27 @@ class Quadratic(Glyph):
     # functions derived from this class
     _args = ('x0', 'y0', 'x1', 'y1', 'cx', 'cy')
 
-    x0 = NumberSpec("x0", help="""
+    x0 = NumberSpec(help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = NumberSpec("y0", help="""
+    y0 = NumberSpec(help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = NumberSpec("x1", help="""
+    x1 = NumberSpec(help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = NumberSpec("y1", help="""
+    y1 = NumberSpec(help="""
     The y-coordinates of the ending points.
     """)
 
-    cx = NumberSpec("cx", help="""
+    cx = NumberSpec(help="""
     The x-coordinates of the control points.
     """)
 
-    cy = NumberSpec("cy", help="""
+    cy = NumberSpec(help="""
     The y-coordinates of the control points.
     """)
 
@@ -718,19 +716,19 @@ class Ray(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'length', 'angle')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates to start the rays.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates to start the rays.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(help="""
     The angles in radians to extend the rays, as measured from the horizontal.
     """)
 
-    length = DistanceSpec("length", help="""
+    length = DistanceSpec(help="""
     The length to extend the ray. Note that this ``length`` defaults
     to screen units.
     """)
@@ -748,23 +746,23 @@ class Rect(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle', 'dilate')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates of the centers of the rectangles.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates of the centers of the rectangles.
     """)
 
-    width = DistanceSpec("width", help="""
+    width = DistanceSpec(help="""
     The overall widths of the rectangles.
     """)
 
-    height = DistanceSpec("height", help="""
+    height = DistanceSpec(help="""
     The overall heights of the rectangles.
     """)
 
-    angle = AngleSpec("angle", help="""
+    angle = AngleSpec(default=0.0, help="""
     The angles to rotate the rectangles, as measured from the horizontal.
     """)
 
@@ -794,19 +792,19 @@ class Segment(Glyph):
     # functions derived from this class
     _args = ('x0', 'y0', 'x1', 'y1')
 
-    x0 = NumberSpec("x0", help="""
+    x0 = NumberSpec(help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = NumberSpec("y0", help="""
+    y0 = NumberSpec(help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = NumberSpec("x1", help="""
+    x1 = NumberSpec(help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = NumberSpec("y1", help="""
+    y1 = NumberSpec(help="""
     The y-coordinates of the ending points.
     """)
 
@@ -823,11 +821,11 @@ class Text(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'text', 'angle', 'x_offset', 'y_offset')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates to locate the text anchors.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates to locate the text anchors.
     """)
 
@@ -867,27 +865,27 @@ class Wedge(Glyph):
     # functions derived from this class
     _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
 
-    x = NumberSpec("x", help="""
+    x = NumberSpec(help="""
     The x-coordinates of the points of the wedges.
     """)
 
-    y = NumberSpec("y", help="""
+    y = NumberSpec(help="""
     The y-coordinates of the points of the wedges.
     """)
 
-    radius = DistanceSpec("radius", help="""
+    radius = DistanceSpec(help="""
     Radii of the wedges.
     """)
 
-    start_angle = AngleSpec("start_angle", help="""
+    start_angle = AngleSpec(help="""
     The angles to start the wedges, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec("end_angle", help="""
+    end_angle = AngleSpec(help="""
     The angles to end the wedges, as measured from the horizontal.
     """)
 
-    direction = Enum(Direction, help="""
+    direction = Enum(Direction, default='anticlock', help="""
     Which direction to stroke between the start and end angles.
     """)
 
