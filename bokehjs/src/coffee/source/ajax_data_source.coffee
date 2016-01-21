@@ -49,10 +49,10 @@ class AjaxDataSource extends RemoteDataSource.Model
   defaults: =>
     return _.extend {}, super(), {
       mode: 'replace'
-      url : ""
+      data_url : ''
       expr : null
-      contentType : 'application/json'
-      headers : ""
+      content_type : 'application/json'
+      headers : {}
       max_size: null
       method: 'POST'
       if_modified: false
