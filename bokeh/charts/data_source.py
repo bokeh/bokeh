@@ -292,7 +292,7 @@ class ChartDataSource(object):
     """
 
     def __init__(self, df, dims=None, required_dims=None, selections=None,
-                 column_assigner=OrderedAssigner, **kwargs):
+                 column_assigner=OrderedAssigner, attrs=None, **kwargs):
         """Create a :class:`ChartDataSource`.
 
         Args:
@@ -308,8 +308,7 @@ class ChartDataSource(object):
                 assignment when keyword arguments aren't provided. The default value is
                 :class:`OrderedAssigner`, which assumes you want to assign each column
                 or array to each dimension of the chart in order that they are received.
-            **kwargs:
-                attrs (list(str)): list of attribute names the chart uses
+            attrs (list(str)): list of attribute names the chart uses
 
         """
         if dims is None:
@@ -319,7 +318,7 @@ class ChartDataSource(object):
             required_dims = DEFAULT_REQ_DIMS
 
         self.input_type = kwargs.pop('input_type', None)
-        self.attrs = kwargs.pop('attrs', [])
+        self.attrs = attrs or []
         self._data = df
         self._dims = dims
         self.operations = []
@@ -331,6 +330,10 @@ class ChartDataSource(object):
         self.apply_operations()
         self.meta = self.collect_metadata(df)
         self._validate_selections()
+
+    @property
+    def attr_specs(self):
+        return {dim: val for dim, val in iteritems(self._selections) if dim in self.attrs}
 
     def get_selections(self, selections, **kwargs):
         """Maps chart dimensions to selections and checks input requirements.
@@ -532,8 +535,25 @@ class ChartDataSource(object):
 
         return groupby(self._data, **specs)
 
-    def create_attr_data(self, **attr_specs):
+    def join_attrs(self, **attr_specs):
+        """Produce new DataFrame from source data and `AttrSpec` provided.
+
+        Args:
+            **attr_specs (str, `AttrSpec`, optional): pairs of names and attribute spec
+              objects. This is optional and not required only if the `ChartDataSource`
+              already contains references to the attribute specs.
+
+        Returns:
+            pd.DataFrame: a new dataframe that includes a column for each of the
+                attribute specs joined in, plus one special column called
+                `chart_index`, which contains the unique items between the different
+                attribute specs.
+
+        """
         df = self._data.copy()
+
+        if not attr_specs:
+            attr_specs = self.attr_specs
 
         groups = []
         rows = []

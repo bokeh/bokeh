@@ -3,7 +3,7 @@ rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
 {arrayMax} = require "../../common/mathutils"
-HasParent = require "../../common/has_parent"
+Model = require "../../models/model"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
@@ -266,7 +266,7 @@ class GlyphView extends ContinuumView
       @visuals.line.set_vectorize(ctx, reference_point)
       ctx.stroke()
 
-class Glyph extends HasParent
+class Glyph extends Model
 
   # Most glyphs have line and fill props. Override this in subclasses
   # that need to define a different set of visual properties
@@ -311,12 +311,9 @@ class Glyph extends HasParent
   }
 
   defaults: ->
-    return _.extend {}, super(), {
+    result = _.extend {}, super(), {
       visible: true
     }
-
-  display_defaults: ->
-    result = {}
     for prop in @visuals
       switch prop
         when 'line' then defaults = @line_defaults
@@ -325,7 +322,7 @@ class Glyph extends HasParent
         else
           logger.warn("unknown visual property type '#{prop}'")
           continue
-      result = _.extend result, super(), defaults
+      result = _.extend result, defaults
     return result
 
 module.exports =

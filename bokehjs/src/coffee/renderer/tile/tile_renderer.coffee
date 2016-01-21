@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-HasParent = require "../../common/has_parent"
+Model = require "../../models/model"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 wmts = require "./wmts_tile_source"
@@ -9,9 +9,12 @@ ImagePool = require "./image_pool"
 
 class TileRendererView extends PlotWidget
 
-  initialize: () ->
+  initialize: (options) ->
     @attributionEl = null
     super
+
+  bind_bokeh_events: () ->
+    @listenTo(@model, 'change', @request_render)
 
   get_extent: () ->
     return [@x_range.get('start'), @y_range.get('start'), @x_range.get('end'), @y_range.get('end')]
@@ -268,7 +271,7 @@ class TileRendererView extends PlotWidget
 
     @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
 
-class TileRenderer extends HasParent
+class TileRenderer extends Model
   default_view: TileRendererView
   type: 'TileRenderer'
   visuals: []
@@ -280,10 +283,6 @@ class TileRenderer extends HasParent
       y_range_name: "default"
       tile_source: new wmts.Model()
       render_parents: true
-    }
-
-  display_defaults: ->
-    return _.extend {}, super(), {
       level: 'underlay'
     }
 

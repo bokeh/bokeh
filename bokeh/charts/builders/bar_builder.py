@@ -82,13 +82,18 @@ class BarBuilder(Builder):
     label_only = Bool(False)
     values_only = Bool(False)
 
+    _perform_stack = False
+    _perform_group = False
+
     def setup(self):
 
         if self.attributes['color'].columns is None:
             if self.attributes['stack'].columns is not None:
-                self.attributes['color'].set_columns(self.attributes['stack'].columns)
+                self.attributes['color'].setup(columns=self.attributes['stack'].columns)
+                self._perform_stack = True
             if self.attributes['group'].columns is not None:
-                self.attributes['color'].set_columns(self.attributes['group'].columns)
+                self.attributes['color'].setup(columns=self.attributes['group'].columns)
+                self._perform_group = True
 
         # ToDo: perform aggregation validation
         # Not given values kw, so using only categorical data
@@ -207,8 +212,10 @@ class BarBuilder(Builder):
 
             self.add_glyph(group, bg)
 
-        Stack().apply(self.comp_glyphs)
-        Dodge().apply(self.comp_glyphs)
+        if self._perform_stack:
+            Stack().apply(self.comp_glyphs)
+        if self._perform_group:
+            Dodge().apply(self.comp_glyphs)
 
         # a higher level function of bar chart is to keep track of max height of all bars
         self.max_height = max([renderer.y_max for renderer in self.comp_glyphs])
@@ -266,11 +273,11 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
 
             # x-axis labels pulled from the interpreter column, stacking labels from sample column
             bar = Bar(data, values='timing', label='interpreter', stack='sample', agg='mean',
-                      title="Python Interpreter Sampling", legend='top_right', width=400)
+                      title="Python Interpreter Sampling", legend='top_right', plot_width=400)
 
             # table-like data results in reconfiguration of the chart with no data manipulation
             bar2 = Bar(data, values='timing', label=['interpreter', 'sample'],
-                       agg='mean', title="Python Interpreters", width=400)
+                       agg='mean', title="Python Interpreters", plot_width=400)
 
             output_file("stacked_bar.html")
             show(hplot(bar, bar2))

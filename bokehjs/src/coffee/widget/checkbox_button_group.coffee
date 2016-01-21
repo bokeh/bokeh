@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
 ContinuumView = require "../common/continuum_view"
-HasParent = require "../common/has_parent"
+Model = require "../models/model"
 
 class CheckboxButtonGroupView extends ContinuumView
   tagName: "div"
@@ -37,7 +37,7 @@ class CheckboxButtonGroupView extends ContinuumView
     @mset('active', active)
     @mget('callback')?.execute(@model)
 
-class CheckboxButtonGroup extends HasParent
+class CheckboxButtonGroup extends Model
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 

@@ -14,7 +14,7 @@ from ..models import (
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
-    PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
+    PreviewSaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, ResizeTool, Tool,
     WheelZoomTool, ColumnDataSource, GlyphRenderer)
 
 from ..core.properties import ColorSpec, Datetime
@@ -222,6 +222,8 @@ _known_tools = {
         ("canvas (x, y)", "($sx, $sy)"),
     ]),
     "previewsave": lambda: PreviewSaveTool(),
+    "undo": lambda: UndoTool(),
+    "redo": lambda: RedoTool(),
     "reset": lambda: ResetTool(),
     "help": lambda: HelpTool(),
 }

@@ -14,7 +14,6 @@ import uuid
 from six import string_types
 
 from .core.json_encoder import serialize_json
-from .core.properties import HasProps
 from .core.query import find
 from .core.validation import check_integrity
 from .model import Model
@@ -584,7 +583,7 @@ class Document(object):
 
         events = []
         for key in removed:
-          raise RuntimeError("internal error: should not be possible to delete attribute %s" % key)
+            raise RuntimeError("internal error: should not be possible to delete attribute %s" % key)
 
         for key in added:
             new_value = to_obj['attributes'][key]
@@ -617,24 +616,24 @@ class Document(object):
     def _compute_patch_between_json(cls, from_json, to_json):
 
         def refs(json):
-          result = {}
-          for obj in json['roots']['references']:
-            result[obj['id']] = obj
-          return result
+            result = {}
+            for obj in json['roots']['references']:
+                result[obj['id']] = obj
+            return result
 
         from_references = refs(from_json)
         from_roots = {}
         from_root_ids = []
         for r in from_json['roots']['root_ids']:
-          from_roots[r] = from_references[r]
-          from_root_ids.append(r)
+            from_roots[r] = from_references[r]
+            from_root_ids.append(r)
 
         to_references = refs(to_json)
         to_roots = {}
         to_root_ids = []
         for r in to_json['roots']['root_ids']:
-          to_roots[r] = to_references[r]
-          to_root_ids.append(r)
+            to_roots[r] = to_references[r]
+            to_root_ids.append(r)
 
         from_root_ids.sort()
         to_root_ids.sort()

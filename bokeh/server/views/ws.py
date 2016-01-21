@@ -52,7 +52,9 @@ class WSHandler(WebSocketHandler):
         if allowed:
             return True
         else:
-            log.error("Refusing websocket connection from Origin '%s'; use --allow-websocket-origin=%s to permit this; currently we allow origins %r", origin, origin_host, allowed)
+            log.error("Refusing websocket connection from Origin '%s'; \
+                      use --allow-websocket-origin=%s to permit this; currently we allow origins %r",
+                      origin, origin_host, allowed_hosts)
             return False
 
     def open(self):
@@ -247,4 +249,3 @@ class WSHandler(WebSocketHandler):
     def _protocol_error(self, message):
         log.error("Bokeh Server protocol error: %s, closing connection", message)
         self.close(10001, message)
-

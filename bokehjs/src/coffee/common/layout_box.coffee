@@ -2,11 +2,11 @@ _ = require "underscore"
 kiwi = require "kiwi"
 {Variable, Expression, Constraint, Operator } = kiwi
 {Eq, Le, Ge} = Operator
-HasProperties = require "./has_properties"
+Model = require "../models/model"
 Range1d = require "../range/range1d"
 
 
-class LayoutBox extends HasProperties
+class LayoutBox extends Model
   type: 'LayoutBox'
 
   nonserializable_attribute_names: () ->

@@ -584,10 +584,7 @@ class Axis extends GuideRenderer.Model
       x_range_name: "default"
       y_range_name: "default"
       axis_label: ""
-    }
 
-  display_defaults: ->
-    return _.extend {}, super(), {
       visible: true
 
       axis_line_color: 'black'
