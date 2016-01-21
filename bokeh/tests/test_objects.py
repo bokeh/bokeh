@@ -4,6 +4,7 @@ import unittest
 from six.moves import xrange
 import copy
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
+from bokeh.models.component import Component
 from bokeh.model import Model, _ModelInDocument
 from bokeh.document import Document
 from bokeh.core.property_containers import PropertyValueList, PropertyValueDict
@@ -13,7 +14,7 @@ def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, ResizeTool, PreviewSaveTool, ResetTool)
-    from bokeh.models.widgets.layouts import VBox
+    from bokeh.models.layouts import VBox
     from bokeh.models.glyphs import Line
 
     vbox = VBox()
@@ -285,20 +286,20 @@ class TestModel(unittest.TestCase):
         # non-default because it's unstable.
         self.assertTrue('child' in obj.properties_with_values(include_defaults=False))
 
-class SomeModelInTestObjects(Model):
+class SomeModelInTestObjects(Component):
     child = Instance(Model)
 
 class TestModelInDocument(unittest.TestCase):
     def test_single_model(self):
-        p = Model()
+        p = Component()
         self.assertIs(p.document, None)
         with _ModelInDocument(p):
             self.assertIsNot(p.document, None)
         self.assertIs(p.document, None)
 
     def test_list_of_model(self):
-        p1 = Model()
-        p2 = Model()
+        p1 = Component()
+        p2 = Component()
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
         with _ModelInDocument([p1, p2]):
@@ -312,8 +313,8 @@ class TestModelInDocument(unittest.TestCase):
         # has to be smart about looking for a doc anywhere in the list
         # before it starts inventing new documents
         doc = Document()
-        p1 = Model()
-        p2 = Model()
+        p1 = Component()
+        p2 = Component()
         doc.add_root(p2)
         self.assertIs(p1.document, None)
         self.assertIsNot(p2.document, None)
@@ -327,8 +328,8 @@ class TestModelInDocument(unittest.TestCase):
 
     def test_uses_doc_precedent(self):
         doc = Document()
-        p1 = Model()
-        p2 = Model()
+        p1 = Component()
+        p2 = Component()
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)
         with _ModelInDocument([p1, p2, doc]):
@@ -341,8 +342,8 @@ class TestModelInDocument(unittest.TestCase):
 
     def test_uses_precedent_from_child(self):
         doc = Document()
-        p1 = Model()
-        p2 = SomeModelInTestObjects(child=Model())
+        p1 = Component()
+        p2 = SomeModelInTestObjects(child=Component())
         doc.add_root(p2.child)
         self.assertIs(p1.document, None)
         self.assertIs(p2.document, None)

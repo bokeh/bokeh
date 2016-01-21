@@ -4,13 +4,14 @@ import unittest
 
 import bokeh.document as document
 from bokeh.model import Model
+from bokeh.models import Component
 from bokeh.core.properties import Int, Instance
 from bokeh.server.protocol import Protocol
 
-class AnotherModelInTestPushDoc(Model):
+class AnotherModelInTestPushDoc(Component):
     bar = Int(1)
 
-class SomeModelInTestPushDoc(Model):
+class SomeModelInTestPushDoc(Component):
     foo = Int(2)
     child = Instance(Model)
 

@@ -10,8 +10,9 @@ from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d,
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
+from bokeh.models.layouts import VBox
 from bokeh.models.widgets import (
-    VBox, Button, TableColumn, DataTable,
+    Button, TableColumn, DataTable,
     DateEditor, DateFormatter, IntEditor)
 
 document = Document()

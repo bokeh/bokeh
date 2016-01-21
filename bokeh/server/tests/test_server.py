@@ -12,7 +12,7 @@ import bokeh.server.server as server
 
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
-from bokeh.model import Model
+from bokeh.models.component import Component
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
 from bokeh.util.session_id import check_session_id_signature
@@ -61,7 +61,7 @@ def async_value(value):
     yield gen.moment # this ensures we actually return to the loop
     raise gen.Return(value)
 
-class HookListModel(Model):
+class HookListModel(Component):
     hooks = List(String)
 
 class HookTestHandler(Handler):

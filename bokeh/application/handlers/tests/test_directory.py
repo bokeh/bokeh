@@ -30,12 +30,13 @@ def _with_directory_contents(contents, func):
 script_adds_two_roots_template = """
 from bokeh.io import curdoc
 from bokeh.model import Model
+from bokeh.models.component import Component
 from bokeh.core.properties import Int, Instance
 
-class %s(Model):
+class %s(Component):
     bar = Int(1)
 
-class %s(Model):
+class %s(Component):
     foo = Int(2)
     child = Instance(Model)
 

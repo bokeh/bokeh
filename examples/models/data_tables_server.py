@@ -6,8 +6,9 @@ from bokeh.models import (
     ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid,
     Circle, HoverTool, BoxSelectTool
 )
+from bokeh.models.layouts import HBox, VBox
 from bokeh.models.widgets import (
-    Select, DataTable, TableColumn, StringFormatter, HBox, VBox,
+    Select, DataTable, TableColumn, StringFormatter,
     NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 

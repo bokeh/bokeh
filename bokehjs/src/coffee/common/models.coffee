@@ -12,10 +12,19 @@ module.exports = {
   CustomJS:                 require '../callback/customjs'
   OpenURL:                  require '../callback/open_url'
 
+  BaseBox:                  require '../layouts/basebox'
+  Layout:                   require '../layouts/layout'
+  HBox:                     require '../layouts/hbox'
+  VBox:                     require '../layouts/vbox'
+  VBoxForm:                 require '../layouts/vboxform'
+
   CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
   LinearMapper:             require '../mapper/linear_mapper'
   LogMapper:                require '../mapper/log_mapper'
+
+  Component:                require '../models/component'
+  Model:                    require '../models/model'
 
   DataRange1d:              require '../range/data_range1d'
   FactorRange:              require '../range/factor_range'

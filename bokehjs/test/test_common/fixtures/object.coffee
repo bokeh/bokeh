@@ -1,9 +1,9 @@
 _ = require "underscore"
 utils = require "../../utils"
 Collection = utils.require "common/collection"
-HasProperties = utils.require "common/has_properties"
+Component = utils.require("/models/component").Model
 
-class TestObject extends HasProperties
+class TestObject extends Component
   type: 'TestObject'
 
 class TestObjectCollection extends Collection

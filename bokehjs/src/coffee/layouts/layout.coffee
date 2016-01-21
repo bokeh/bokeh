@@ -1,7 +1,7 @@
 _ = require "underscore"
-Widget = require "./widget"
+Component = require "../models/component"
 
-class Layout extends Widget.Model
+class Layout extends Component.Model
   type: "Layout"
 
   defaults: ->

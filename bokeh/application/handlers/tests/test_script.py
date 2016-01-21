@@ -23,12 +23,13 @@ def _with_script_contents(contents, func):
 script_adds_two_roots = """
 from bokeh.io import curdoc
 from bokeh.model import Model
+from bokeh.models.component import Component
 from bokeh.core.properties import Int, Instance
 
-class AnotherModelInTestScript(Model):
+class AnotherModelInTestScript(Component):
     bar = Int(1)
 
-class SomeModelInTestScript(Model):
+class SomeModelInTestScript(Component):
     foo = Int(2)
     child = Instance(Model)
 

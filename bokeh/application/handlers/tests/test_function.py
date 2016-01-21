@@ -6,12 +6,13 @@ from bokeh.application.handlers import FunctionHandler
 from bokeh.document import Document
 
 from bokeh.model import Model
+from bokeh.models.component import Component
 from bokeh.core.properties import Int, Instance
 
-class AnotherModelInTestFunction(Model):
+class AnotherModelInTestFunction(Component):
     bar = Int(1)
 
-class SomeModelInTestFunction(Model):
+class SomeModelInTestFunction(Component):
     foo = Int(2)
     child = Instance(Model)
 

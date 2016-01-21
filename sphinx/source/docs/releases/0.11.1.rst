@@ -7,3 +7,5 @@ improvements from the Jan 2016 0.11.0 release.
 Migration notes:
 
 * Range update callbacks now return the range object as the cb_obj (not the plot)
+* Layouts (HBox, VBox, VBoxForm) have been moved from bokeh.models.widgets to
+  bokeh.models.layouts
