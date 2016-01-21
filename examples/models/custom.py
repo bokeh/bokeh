@@ -46,7 +46,7 @@ class MyHBox(HBox):
 _ = require "underscore"
 build_views = require "common/build_views"
 ContinuumView = require "common/continuum_view"
-HBox = require "widget/hbox"
+HBox = require "layout/hbox"
 
 class MyHBoxView extends HBox.View
   render: () ->
