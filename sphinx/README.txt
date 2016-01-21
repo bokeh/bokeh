@@ -15,10 +15,11 @@ To build the gallery, ggplot and seaborn are also needed:
 Manual actions for new releases
 ===============================
 
-In ``conf.py`` the links that appear in the docs nav appear. On a new release, the 
-releases link should be changed to the latest release notes (we should find a way to automate this)
-
 The link to the sitemap should be added to the Google Search Console.
+
+On a major point release (e.g. 0.9 -> 0.10) please update `html_context['ALL_VERSIONS']` 
+in ``conf.py`` which is the list of versions that will appear in the dropdown version selector
+in the docs.
 
 
 Building
@@ -54,8 +55,10 @@ Additionally, you have the "latest" task to update the `/latest` link to the spe
 
     $ fab latest:0.9.3 # link /latest to 0.9.3 version
 
-Note: requires having SSH keys for "bokeh" user.
-
+Notes: 
+ - requires having SSH keys for "bokeh" user.
+ - you may want to specify the docs_version by using environment variable
+   `BOKEH_DOCS_VERSION` (http://bokeh.pydata.org/en/latest/docs/dev_guide/setup.html#bokeh-docs-version)
 
 objects.graffle
 ===============

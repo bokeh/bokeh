@@ -162,7 +162,7 @@ html_context = {
         ('User Guide', 'user_guide'),
         ('Gallery', 'gallery'),
         ('Reference', 'reference'),
-        ('Releases', 'releases/0.11.0'),
+        ('Releases', 'releases/%s' % version),
         ('Developer Guide', 'dev_guide'),
     ),
     'ALL_VERSIONS': ['0.10.0', '0.9.3', '0.8.2'],
