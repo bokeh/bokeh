@@ -7,7 +7,8 @@ from ..embed import notebook_div
 
 @abstract
 class Component(Model):
-    """ A base class for all embeddable models, i.e. plots, layouts and widgets.
+    """ A base class for all for all DOM-level components, i.e. plots, layouts
+    and widgets.
 
     """
 
