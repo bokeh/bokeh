@@ -1,37 +1,39 @@
 from __future__ import absolute_import
 
-import unittest
-import inspect
+from bokeh.plotting import Figure
+from bokeh.models.layouts import HBox, VBox, VBoxForm
+from bokeh.models.widgets import Slider
+from bokeh.models.sources import ColumnDataSource
 
+import pytest
 
-def get_prop_set(class_object):
-    # all this does is get a list of every property implemented by the object that is not present in the baseclasses of said object
-    # note it wont detect overridden properties!
-    base_classes = list(inspect.getmro(class_object))
-    base_classes.remove(class_object)
-    base_properties = []
-    for base_class in base_classes:
-        base_properties.extend(dir(base_class))
-    class_properties = set(dir(class_object)).difference(set(base_properties))
-    return class_properties
+## component subclasses are layouts, widgets and plots
+components = [HBox(), VBox(), VBoxForm(), Slider(), Figure()]
 
+def check_props(layout):
+    assert layout.width == None
+    assert layout.height == None
+    assert layout.children == []
 
-class TestLayout(unittest.TestCase):
+def check_children_prop(layout_callable):
+    layout1 = layout_callable(*components)
+    assert layout1.children == components
+    layout2 = layout_callable(children=components)
+    assert layout2.children == components
+    with pytest.raises(ValueError): ## Should raise exception for non-Component child
+        layout_callable(ColumnDataSource())
 
-    def setUp(self):
-        from bokeh.models.widgets.layouts import Layout
-        self.layoutCls = Layout
+def check_children(layout_callable):
+    layout = layout_callable()
 
-    def test_expected_props(self):
-        expected_properties = set(['width', 'height'])
-        actual_properties = get_prop_set(self.layoutCls)
-        self.assertTrue(expected_properties.issubset(actual_properties))
+def test_VBox():
+    yield check_props, VBox()
+    yield check_children_prop, VBox
 
-    def test_props_defaults(self):
-        layout = self.layoutCls()
-        self.assertEqual(layout.width, None)
-        self.assertEqual(layout.height, None)
+def test_HBox():
+    yield check_props, HBox()
+    yield check_children_prop, HBox
 
-
-if __name__ == "__main__":
-    unittest.main()
+def test_VBoxForm():
+    yield check_props, VBoxForm()
+    yield check_children_prop, VBoxForm
