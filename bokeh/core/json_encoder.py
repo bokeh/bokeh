@@ -13,6 +13,7 @@ import json
 
 import numpy as np
 
+from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.serialization import transform_series, transform_array
 
@@ -83,4 +84,6 @@ def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
     ''' Return a serialized JSON representation of a Bokeh model.
 
     '''
-    return json.dumps(obj, cls=encoder, allow_nan=False, **kwargs)
+    if kwargs.get("indent", None) is None and settings.pretty(False):
+        kwargs["indent"] = 2
+    return json.dumps(obj, cls=encoder, sort_keys=True, allow_nan=False, **kwargs)
