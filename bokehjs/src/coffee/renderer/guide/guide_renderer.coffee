@@ -1,7 +1,7 @@
 _ = require "underscore"
-Model = require "../../models/model"
+Renderer = require "../renderer"
 
-class GuideRenderer extends Model
+class GuideRenderer extends Renderer
   type: 'GuideRenderer'
 
   defaults: ->
