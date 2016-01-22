@@ -185,8 +185,7 @@ class PatchesView extends Glyph.View
           if hittest.point_in_poly(sx, sy, sxs[j], sys[j])
             hits.push(idx)
         else
-          # Patches with holes end up here
-          if hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0])
+          if hittest.point_in_poly_with_hole(sx, sy, sxs[j][0], sys[j][0])
             hits.push(idx)
 
     result = hittest.create_hit_test_result()
