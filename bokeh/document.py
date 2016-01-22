@@ -706,7 +706,7 @@ class Document(object):
             'version' : __version__
         }
 
-        return serialize_json(json, indent=indent, sort_keys=True)
+        return serialize_json(json, indent=indent)
 
     def to_json(self):
         ''' Convert the document to a JSON object. '''
