@@ -27,7 +27,7 @@ class PatchesView extends Glyph.View
     for i in [0...nanned_qs.length]
       ds[i] = []
 
-      qs = _.toArray(nanned_qs[i])
+      qs = _.toArray(nanned_qs[i]) # This converts a Float64Array back to a normal array so can splice
 
       while qs.length > 0
         nan_index = _.findLastIndex(qs, (q) -> _.isNaN(q))
@@ -113,6 +113,7 @@ class PatchesView extends Glyph.View
   __de_nan_vector: (qs) ->
     # Takes [1, 2, 3, NaN, 4, 5] and returns [[1, 2, 3], [4, 5]]
     result = []
+    qs = _.toArray(qs) # This converts a Float64Array back to a normal array so can splice
     while qs.length > 0
       nan_index = _.findLastIndex(qs, (q) -> _.isNaN(q))
       if nan_index >= 0

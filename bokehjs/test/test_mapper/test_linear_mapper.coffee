@@ -28,27 +28,38 @@ describe "linear_mapper module", ->
       expect(@mapper.map_to_target(11)).to.be.equal 86
 
     it "should vector map values linearly", ->
-      xs =     [-1,  0,  5, 10, 11]
-      mapped = [14, 20, 50, 80, 86]
+      xs = [-1, 0,5, 10, 11]
+      mapped = new Float64Array([14, 20, 50, 80, 86])
       expect(@mapper.v_map_to_target(xs)).to.be.deep.equal(mapped)
 
     it "should vector map values linearly handling NaN", ->
-      xs =     [-1,  0,  5, NaN, 10, 11]
-      mapped = [14, 20, 50, NaN, 80, 86]
+      xs = [-1, 0, 5, NaN, 10, 11]
+      mapped = new Float64Array([14, 20, 50, NaN, 80, 86])
       expect(@mapper.v_map_to_target(xs)).to.be.deep.equal(mapped)
 
     it "should vector map nested values - patches with hole", ->
       xs =     [ [ [-1,  0,  5], [10, 11] ] ]
-      mapped = [ [ [14, 20, 50], [80, 86] ] ]
+      mapped = [ [ new Float64Array([14, 20, 50]), new Float64Array([80, 86]) ] ]
       expect(@mapper.v_map_to_target(xs)).to.eql(mapped)
 
     it "should vector map complex nested values - discontinuous some patches with hole", ->
-      xs =     [ [ [-1,  0,  5], [10, 11] ], NaN,  5, 10, 11, NaN, [ [-1,  0], [ 5, 10] ] ]
-      mapped = [ [ [14, 20, 50], [80, 86] ], NaN, 50, 80, 86, NaN, [ [14, 20], [50, 80] ], ]
+      xs =     [
+        [ [-1,  0,  5], [10, 11] ],
+          NaN,  5, 10, 11, NaN,
+        [ [-1,  0], [ 5, 10] ]
+      ]
+      mapped = [
+        [ new Float64Array([14, 20, 50]), new Float64Array([80, 86]) ],
+          NaN, 50, 80, 86, NaN,
+        [ new Float64Array([14, 20]), new Float64Array([50, 80]) ] 
+      ]
       expect(@mapper.v_map_to_target(xs)).to.eql(mapped)
 
-    it "should map to a Array", ->
-      expect(@mapper.v_map_to_target([-1,0,5,10,11])).to.be.instanceof Array
+    it "should map to a Float64Array if non-nested array", ->
+      expect(@mapper.v_map_to_target([-1,0,5,10,11])).to.be.instanceof(Float64Array)
+
+    it "should map to a Array if nested array", ->
+      expect(@mapper.v_map_to_target([[[-1,0,5],[10,11]]])).to.be.instanceof Array
 
     it "should inverse map values linearly", ->
       expect(@mapper.map_from_target(14)).to.be.equal -1
@@ -58,10 +69,10 @@ describe "linear_mapper module", ->
       expect(@mapper.map_from_target(86)).to.be.equal 11
 
     it "should vector in inverse map values linearly", ->
-      expect(@mapper.v_map_from_target([14,20,50,80,86])).to.be.deep.equal([-1,0,5,10,11])
+      expect(@mapper.v_map_from_target([14,20,50,80,86])).to.be.deep.equal(new Float64Array([-1,0,5,10,11]))
 
-    it "should inverse map to a Array", ->
-      expect(@mapper.v_map_from_target([-1,0,5,10,11])).to.be.instanceof Array
+    it "should inverse map to a Float64Array", ->
+      expect(@mapper.v_map_from_target([-1,0,5,10,11])).to.be.instanceof Float64Array
 
     describe "update source range1d", ->
       beforeEach ->

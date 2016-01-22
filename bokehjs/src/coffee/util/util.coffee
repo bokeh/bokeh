@@ -58,23 +58,26 @@ map_vector_that_may_contain_patches_with_holes = (vector, map) ->
   # [[[1, 2], [3, 4]]]
   # [1, 2, NaN, [[1, 2], [3, 4]]]
   # Note: At the top level items are either a single value or an array of arrays
-  result = []
+  if _.every(vector, _.isNumber)
+    result = new Float64Array(vector.length)
+  else
+    result = []
   for i in [0...vector.length]
     if not _.isArray(vector[i])
       # Handle the easy case where it's a number or a NaN
       result[i] = map(vector[i])
     else
-      # Alternatively the element must be an array of arrays
-      if _.every(vector[i], _.isArray)
-        outer = []
+      # Alternatively the element must be an array of arrays (using isObject to
+      # test for isFloat64Array)
+      if _.every(vector[i], _.isObject)
+        parent = []
         for j in [0...vector[i].length]
-          inner = []
+          child = new Float64Array(vector[i][j].length)
           for k in [0...vector[i][j].length]
-            inner[k] = map(vector[i][j][k])
-          outer[j] = inner
-        result[i] = outer
+            child[k] = map(vector[i][j][k])
+          parent[j] = child
+        result[i] = parent
       else
-        console.log(vector[i])
         throw new Error('Invalid data structure passed to v_vy_to_sy: ' + vector[i])
   return result
 

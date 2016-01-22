@@ -24,14 +24,14 @@ describe "Canvas Model", ->
 
   it "v_vy_to_sy should make y relative to canvas height less 1 px", ->
     view_yy = [10.0, 20.0, 30.0]
-    screen_yy = [@cm.vy_to_sy(view_yy[0]), @cm.vy_to_sy(view_yy[1]), @cm.vy_to_sy(view_yy[2])]
+    screen_yy = new Float64Array([@cm.vy_to_sy(view_yy[0]), @cm.vy_to_sy(view_yy[1]), @cm.vy_to_sy(view_yy[2])])
     expect(@cm.v_vy_to_sy(view_yy)).to.eql(screen_yy)
 
   it "v_vy_to_sy should handle nested arrays", ->
     view_yy_outer = [10.0, 20.0, 30.0]
     view_yy_inner = [40.0, 50.0]
-    screen_yy_outer = [@cm.vy_to_sy(view_yy_outer[0]), @cm.vy_to_sy(view_yy_outer[1]), @cm.vy_to_sy(view_yy_outer[2])]
-    screen_yy_inner = [@cm.vy_to_sy(view_yy_inner[0]), @cm.vy_to_sy(view_yy_inner[1])]
+    screen_yy_outer = new Float64Array([@cm.vy_to_sy(view_yy_outer[0]), @cm.vy_to_sy(view_yy_outer[1]), @cm.vy_to_sy(view_yy_outer[2])])
+    screen_yy_inner = new Float64Array([@cm.vy_to_sy(view_yy_inner[0]), @cm.vy_to_sy(view_yy_inner[1])])
     expect(@cm.v_vy_to_sy([[view_yy_outer, view_yy_inner]])).to.eql([[screen_yy_outer, screen_yy_inner]])
 
   it "sx_to_vx should return what it is passed", ->
@@ -49,12 +49,12 @@ describe "Canvas Model", ->
 
   it "v_sy_to_vy should convert back to view_yy", ->
     view_yy = [10.0, 20.0, 30.0]
-    screen_yy = [@cm.vy_to_sy(view_yy[0]), @cm.vy_to_sy(view_yy[1]), @cm.vy_to_sy(view_yy[2])]
-    expect(@cm.v_sy_to_vy(screen_yy)).to.eql(view_yy)
+    screen_yy = new Float64Array([@cm.vy_to_sy(view_yy[0]), @cm.vy_to_sy(view_yy[1]), @cm.vy_to_sy(view_yy[2])])
+    expect(@cm.v_sy_to_vy(screen_yy)).to.eql(new Float64Array(view_yy))
 
   it "v_sy_to_vy should handle nested arrays", ->
     view_yy_outer = [10.0, 20.0, 30.0]
     view_yy_inner = [40.0, 50.0]
-    screen_yy_outer = [@cm.vy_to_sy(view_yy_outer[0]), @cm.vy_to_sy(view_yy_outer[1]), @cm.vy_to_sy(view_yy_outer[2])]
-    screen_yy_inner = [@cm.vy_to_sy(view_yy_inner[0]), @cm.vy_to_sy(view_yy_inner[1])]
-    expect(@cm.v_sy_to_vy([[screen_yy_outer, screen_yy_inner]])).to.eql([[view_yy_outer, view_yy_inner]])
+    screen_yy_outer = new Float64Array([@cm.vy_to_sy(view_yy_outer[0]), @cm.vy_to_sy(view_yy_outer[1]), @cm.vy_to_sy(view_yy_outer[2])])
+    screen_yy_inner = new Float64Array([@cm.vy_to_sy(view_yy_inner[0]), @cm.vy_to_sy(view_yy_inner[1])])
+    expect(@cm.v_sy_to_vy([[screen_yy_outer, screen_yy_inner]])).to.eql([[new Float64Array(view_yy_outer), new Float64Array(view_yy_inner)]])
