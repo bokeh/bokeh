@@ -5,48 +5,29 @@ hittest = require "../../common/hittest"
 
 class PatchesView extends Glyph.View
 
-  _process_polygon_with_hole: (qs_with_hole) ->
-    flattened = []
-    while qs_with_hole.length > 0
-
-      real_nan_index = _.findLastIndex(qs_with_hole, (q) -> _.isNaN(q))
-      str_nan_index = _.findLastIndex(qs_with_hole, (q) -> q == "NaN")
-      nan_index = if real_nan_index > str_nan_index then real_nan_index else str_nan_index
-
-      if nan_index >= 0
-        flattened.push(qs_with_hole.splice(nan_index)[1])
-        flattened.push("NaN")
-        
-      else
-        flattened.push(qs_with_hole[0])
-        qs_with_hole = []
-
-    return _.flatten(flattened)
-
   _build_discontinuous_object: (nanned_qs) ->
     # _s is @xs, @ys, @sxs, @sys
     # an object of n 1-d arrays in either data or screen units
     #
-    # Each 1-d array gets broken to an array of arrays split
-    # on any Nas
+    # Each 1-d array gets broken to an array of arrays split on any NaNs
     #
     # So:
     # { 0: [x11, x12],
     #   1: [x21, x22, x23],
     #   2: [x31, NaN, x32]
+    #   3: [[[x41],[x42]], NaN, x43]
     # }
     # becomes
     # { 0: [[x11, x12]],
     #   1: [[x21, x22, x23]],
     #   2: [[x31],[x32]]
+    #   3: [[[x41], [x42]], [x43]]
     # }
     ds = {}
     for i in [0...nanned_qs.length]
       ds[i] = []
 
       qs = _.toArray(nanned_qs[i])
-      if _.isArray(qs[0])
-        qs = @_process_polygon_with_hole(qs)
 
       while qs.length > 0
         nan_index = _.findLastIndex(qs, (q) -> _.isNaN(q))
@@ -63,7 +44,6 @@ class PatchesView extends Glyph.View
 
 
   _index_data: () ->
-
     index = rbush()
     pts = []
     xss = @_build_discontinuous_object(@xs)
@@ -101,9 +81,9 @@ class PatchesView extends Glyph.View
 
   _render_polygon_with_hole: (ctx, sx_arrays, sy_arrays, fill_or_stroke) ->
     ctx.beginPath()
-    for i in [0...sx_arrays.length]
-      sx = sx_arrays[i]
-      sy = sy_arrays[i]
+    for i in [0...sx_arrays[0].length]
+      sx = sx_arrays[0][i]
+      sy = sy_arrays[0][i]
       for j in [0...sx.length]
         if j == 0
           ctx.moveTo(sx[j], sy[j])
@@ -116,19 +96,11 @@ class PatchesView extends Glyph.View
     if fill_or_stroke == 'stroke'
       ctx.stroke()
 
-  _render_polygon: (ctx, sx, sy, fill_or_stroke) ->
+  _render_polygon_no_hole: (ctx, sx, sy, fill_or_stroke) ->
     for j in [0...sx.length]
       if j == 0
         ctx.beginPath()
         ctx.moveTo(sx[j], sy[j])
-        continue
-      else if isNaN(sx[j] + sy[j])
-        ctx.closePath()
-        if fill_or_stroke == 'fill'
-          ctx.fill()
-        if fill_or_stroke == 'stroke'
-          ctx.stroke()
-        ctx.beginPath()
         continue
       else
         ctx.lineTo(sx[j], sy[j])
@@ -138,6 +110,27 @@ class PatchesView extends Glyph.View
     if fill_or_stroke == 'stroke'
       ctx.stroke()
 
+  __de_nan_vector: (qs) ->
+    # Takes [1, 2, 3, NaN, 4, 5] and returns [[1, 2, 3], [4, 5]]
+    result = []
+    while qs.length > 0
+      nan_index = _.findLastIndex(qs, (q) -> _.isNaN(q))
+      if nan_index >= 0
+        qs_part = qs.splice(nan_index)
+      else
+        qs_part = qs
+        qs = []
+
+      denanned = (q for q in qs_part when (not _.isNaN(q)))
+      result.push(_.toArray(denanned))
+    return result
+
+  _render_polygon: (ctx, sx, sy, fill_or_stroke) ->
+    if _.isNumber(sx[0])
+      @_render_polygon_no_hole(ctx, sx, sy, fill_or_stroke)
+    else
+      @_render_polygon_with_hole(ctx, sx, sy, fill_or_stroke)
+
   _render: (ctx, indices, {sxs, sys}) ->
     # @sxss and @syss are used by _hit_point and sxc, syc
     # This is the earliest we can build them, and only build them once
@@ -146,21 +139,30 @@ class PatchesView extends Glyph.View
     for i in indices
       [sx, sy] = [sxs[i], sys[i]]
 
+      is_discontinuous = false
+      if _.some(sx, _.isNaN)
+        is_discontinuous = true
+        # Handle discontinuous patches
+        denanned_xs = @__de_nan_vector(sx)
+        denanned_xy = @__de_nan_vector(sy)
+
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
 
-        if _.isNumber(sx[0])
-          @_render_polygon(ctx, sx, sy, 'fill')
+        if is_discontinuous
+          for i in [0...denanned_xs.length]
+            @_render_polygon(ctx, denanned_xs[i], denanned_xy[i], 'fill') 
         else
-          @_render_polygon_with_hole(ctx, sx, sy, 'fill')
+          @_render_polygon(ctx, sx, sy, 'fill')
 
       if @visuals.line.do_stroke
         @visuals.line.set_vectorize(ctx, i)
 
-        if _.isNumber(sx[0])
-          @_render_polygon(ctx, sx, sy, 'stroke')
+        if is_discontinuous
+          for i in [0...denanned_xs.length]
+            @_render_polygon(ctx, denanned_xs[i], denanned_xy[i], 'stroke') 
         else
-          @_render_polygon_with_hole(ctx, sx, sy, 'stroke')
+          @_render_polygon(ctx, sx, sy, 'stroke')
 
 
   _hit_point: (geometry) ->
