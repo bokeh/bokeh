@@ -23,9 +23,6 @@ def check_children_prop(layout_callable):
     with pytest.raises(ValueError): ## Should raise exception for non-Component child
         layout_callable(ColumnDataSource())
 
-def check_children(layout_callable):
-    layout = layout_callable()
-
 def test_VBox():
     yield check_props, VBox()
     yield check_children_prop, VBox
