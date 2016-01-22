@@ -58,10 +58,10 @@ describe "linear_mapper module", ->
       expect(@mapper.map_from_target(86)).to.be.equal 11
 
     it "should vector in inverse map values linearly", ->
-      expect(@mapper.v_map_from_target([14,20,50,80,86])).to.be.deep.equal new Float64Array [-1,0,5,10,11]
+      expect(@mapper.v_map_from_target([14,20,50,80,86])).to.be.deep.equal([-1,0,5,10,11])
 
-    it "should inverse map to a Float64Array", ->
-      expect(@mapper.v_map_from_target([-1,0,5,10,11])).to.be.instanceof Float64Array
+    it "should inverse map to a Array", ->
+      expect(@mapper.v_map_from_target([-1,0,5,10,11])).to.be.instanceof Array
 
     describe "update source range1d", ->
       beforeEach ->

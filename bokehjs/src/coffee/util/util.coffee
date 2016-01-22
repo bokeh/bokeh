@@ -51,7 +51,35 @@ get_indices = (data_source) ->
   else
     []
 
+map_vector_that_may_contain_patches_with_holes = (vector, map) ->
+  # Possible inputs are:
+  # [1, 2, 3]
+  # [1, 2, NaN, 3, 4]
+  # [[[1, 2], [3, 4]]]
+  # [1, 2, NaN, [[1, 2], [3, 4]]]
+  # Note: At the top level items are either a single value or an array of arrays
+  result = []
+  for i in [0...vector.length]
+    if not _.isArray(vector[i])
+      # Handle the easy case where it's a number or a NaN
+      result[i] = map(vector[i])
+    else
+      # Alternatively the element must be an array of arrays
+      if _.every(vector[i], _.isArray)
+        outer = []
+        for j in [0...vector[i].length]
+          inner = []
+          for k in [0...vector[i][j].length]
+            inner[k] = map(vector[i][j][k])
+          outer[j] = inner
+        result[i] = outer
+      else
+        console.log(vector[i])
+        throw new Error('Invalid data structure passed to v_vy_to_sy: ' + vector[i])
+  return result
+
 module.exports = {
   replace_placeholders: replace_placeholders
   get_indices: get_indices
+  map_vector_that_may_contain_patches_with_holes: map_vector_that_may_contain_patches_with_holes
 }

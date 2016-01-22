@@ -6,6 +6,7 @@ ContinuumView = require "./continuum_view"
 LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 Solver = require "./solver"
+Util = require "../util/util"
 
 # TODO - This should only be on in testing
 #require 'Canteen'
@@ -138,47 +139,27 @@ class Canvas extends LayoutBox.Model
     # Note: +1 to account for 1px canvas dilation
     return @get('height') - (y + 1)
 
-  # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
   v_vx_to_sx: (xx) ->
     return xx
 
   v_vy_to_sy: (yy) ->
-    # Note this is the exact same pattern as linear_mapper v_map_to_target
-    # but with a different mapping function - could factor out.
-    result = []
-    for i in [0...yy.length]
-      if not _.isArray(yy[i])
-        # Handle the easy case where it's a number or a NaN
-        result[i] = @vy_to_sy(yy[i])
-      else
-        # Alternatively the element must be an array of arrays
-        if _.every(yy[i], _.isArray)
-          outer = []
-          for j in [0...yy[i].length]
-            inner = []
-            for k in [0...yy[i][j].length]
-              inner[k] = @vy_to_sy(yy[i][j][k])
-            outer[j] = inner
-          result[i] = outer
-        else
-          console.log(yy[i])
-          throw new Error('Invalid data structure passed to v_vy_to_sy: ' + yy[i])
-    return result
+    height = @get('height')
+    return Util.map_vector_that_may_contain_patches_with_holes(yy, (y) -> height - (y + 1))
 
   # Transform: underlying screen coordinates -> view coordinates
-  # Somewhat confusingly these call their inverse method - because the mapping
-  # function is the same.
   sx_to_vx: (x) ->
-    return @vx_to_sx(x)
+    return x
 
   sy_to_vy: (y) ->
-    return @vy_to_sy(y)
+    # Note: +1 to account for 1px canvas dilation
+    return @get('height') - (y + 1)
 
   v_sx_to_vx: (xx) ->
-    return @v_vx_to_sx(xx)
+    return xx
 
   v_sy_to_vy: (yy) ->
-    return @v_vy_to_sy(yy)
+    height = @get('height')
+    return Util.map_vector_that_may_contain_patches_with_holes(yy, (y) -> height - (y + 1))
 
   _set_width: (width, update=true) ->
     if @_width_constraint?

@@ -1,5 +1,6 @@
 _ = require "underscore"
 Model = require "../models/model"
+Util = require "../util/util"
 
 class LinearMapper extends Model
   initialize: (attrs, options) ->
@@ -15,33 +16,8 @@ class LinearMapper extends Model
     return scale * x + offset
 
   v_map_to_target: (xs) ->
-    # Possible inputs are:
-    # [1, 2, 3]
-    # [1, 2, NaN, 3, 4]
-    # [[[1, 2], [3, 4]]]
-    # [1, 2, NaN, [[1, 2], [3, 4]]]
-    # Note: At the top level items are either a single value or an array of arrays
-
     [scale, offset] = @get('mapper_state')
-    result = []
-
-    for i in [0...xs.length]
-      if not _.isArray(xs[i])
-        # Handle the easy case where it's a number or a NaN
-        result[i] = scale * xs[i] + offset
-      else
-        # Alternatively the element must be an array of arrays
-        if _.every(xs[i], _.isArray)
-          outer = []
-          for j in [0...xs[i].length]
-            inner = []
-            for k in [0...xs[i][j].length]
-              inner[k] = scale * xs[i][j][k] + offset
-            outer[j] = inner
-          result[i] = outer
-        else
-          throw new Error('Invalid data structure passed to v_map_to_target: ' + xs[i])
-    return result
+    return Util.map_vector_that_may_contain_patches_with_holes(xs, (x) -> scale * x + offset)
 
   map_from_target: (xprime) ->
     [scale, offset] = @get('mapper_state')
@@ -49,10 +25,7 @@ class LinearMapper extends Model
 
   v_map_from_target: (xprimes) ->
     [scale, offset] = @get('mapper_state')
-    result = new Float64Array(xprimes.length)
-    for xprime, idx in xprimes
-      result[idx] = (xprime - offset) / scale
-    return result
+    return Util.map_vector_that_may_contain_patches_with_holes(xprimes, (xprime) -> (xprime - offset) / scale)
 
   _mapper_state: () ->
     #
