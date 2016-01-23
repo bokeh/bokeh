@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../model/model"
+Model = require "../model"
 
 class Range extends Model
   type: 'Range'

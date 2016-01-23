@@ -1,4 +1,4 @@
-Model = require "../model/model"
+Model = require "../model"
 
 class LinearMapper extends Model
   initialize: (attrs, options) ->

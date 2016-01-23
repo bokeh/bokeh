@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../model/model"
+Model = require "../model"
 {logger} = require "./logging"
 
 class ToolEvents extends Model

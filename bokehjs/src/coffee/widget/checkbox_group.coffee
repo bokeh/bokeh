@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 ContinuumView = require "../common/continuum_view"
-Model = require "../model/model"
+Model = require "../model"
 
 class CheckboxGroupView extends ContinuumView
   tagName: "div"
