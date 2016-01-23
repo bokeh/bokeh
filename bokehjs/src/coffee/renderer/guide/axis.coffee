@@ -360,16 +360,18 @@ class Axis extends GuideRenderer.Model
 
   update_layout: (view, solver) ->
     if not @get('visible')
-      size = 0
-      @_last_size = 0
-    else
-      size = (@_tick_extent(view) + @_tick_label_extent(view) +
-              @_axis_label_extent(view))
+      # if not visible, avoid applying constraints until visible again
+      return
+
+    size = (@_tick_extent(view) + @_tick_label_extent(view) +
+      @_axis_label_extent(view))
+
     if not @_last_size?
       @_last_size = -1
     if size == @_last_size
       return
     @_last_size = size
+
     if @_size_constraint?
       solver.remove_constraint(@_size_constraint)
     @_size_constraint = new kiwi.Constraint(new kiwi.Expression(@_size, -size), kiwi.Operator.Eq)
