@@ -395,7 +395,8 @@ class Document(object):
         ''' Query this document for objects that match the given selector.
 
         Args:
-            selector (JSON-like) :
+            selector (JSON-like query dictionary) : you can query by type or by
+            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``, ``{"name": "foo", "type": HoverTool}``
 
         Returns:
             seq[Model]
@@ -413,7 +414,8 @@ class Document(object):
         single matching object, or None if nothing is found
 
         Args:
-            selector (JSON-like) :
+            selector (JSON-like query dictionary) : you can query by type or by
+            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``, ``{"name": "foo", "type": HoverTool}``
 
         Returns:
             Model
@@ -431,7 +433,8 @@ class Document(object):
         attribute/value updates.
 
         Args:
-            selector (JSON-like) :
+            selector (JSON-like query dictionary) : you can query by type or by
+            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``, ``{"name": "foo", "type": HoverTool}``
             updates (dict) :
 
         Returns:
