@@ -38,12 +38,10 @@ class AppModel(object):
         self.x_field = self.col_names[0]
         self.y_field = self.col_names[1]
         self.color_field = ''
-        self.size_field = ''
         self.color_field = ''
         self.plot_type = self.plot_type_options[0]
         self.agg_type = self.agg_options[0]
         self.continuous_color_ramp = Blues4
-        self.dot_sizes = [9, 12, 15, 18]
         self.set_metadata()
         self.set_defaults()
         self.filter_states = ['Summary Stats', 'Filters', 'Facets']
@@ -282,7 +280,6 @@ class ControlsView(BaseView):
         self.x_selector = self.add_select('x', cols, 'x_field')
         self.y_selector = self.add_select('y', cols, 'y_field')
         self.color_selector = self.add_select('color', cols, 'color_field')
-        self.size_selector = self.add_select('size', cols, 'size_field')
         self.agg_selector = self.add_select('agg', self.model.agg_options, 'agg_type')
 
 model = AppModel(autompg)
