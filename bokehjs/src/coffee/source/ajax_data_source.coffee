@@ -1,6 +1,5 @@
 $ = require "jquery"
 _ = require "underscore"
-Backbone = require "backbone"
 {logger} = require "../common/logging"
 RemoteDataSource = require "./remote_data_source"
 
@@ -49,10 +48,9 @@ class AjaxDataSource extends RemoteDataSource.Model
   defaults: =>
     return _.extend {}, super(), {
       mode: 'replace'
-      data_url : ''
-      expr : null
+      data_url : null
       content_type : 'application/json'
-      headers : {}
+      http_headers : {}
       max_size: null
       method: 'POST'
       if_modified: false
