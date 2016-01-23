@@ -308,11 +308,10 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
         """
         json_like = self._to_json_like(include_defaults=include_defaults)
         json_like['id'] = self._id
-        # we sort_keys to simplify the test suite by making the returned
-        # string deterministic. serialize_json "fixes" the JSON from
-        # _to_json_like by converting all types into plain JSON types
-        # (it converts Model into refs, for example).
-        return serialize_json(json_like, sort_keys=True)
+        # serialize_json "fixes" the JSON from _to_json_like by converting
+        # all types into plain JSON types # (it converts Model into refs,
+        # for example).
+        return serialize_json(json_like)
 
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,

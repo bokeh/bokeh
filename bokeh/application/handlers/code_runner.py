@@ -6,7 +6,8 @@ import codecs
 import os
 import sys
 import traceback
-import uuid
+
+from bokeh.util.serialization import make_id
 
 class _CodeRunner(object):
     """Load and run a Python file."""
@@ -54,7 +55,7 @@ class _CodeRunner(object):
         if self.failed:
             return None
 
-        module_name = 'bk_script_' + str(uuid.uuid4()).replace('-', '')
+        module_name = 'bk_script_' + make_id().replace('-', '')
         module = ModuleType(module_name)
         module.__dict__['__file__'] = abspath(self._path)
 
