@@ -57,17 +57,17 @@ describe "categorical mapper module", ->
     values = generate_mapper().v_map_to_target factors
 
     it "should return a Float64Array", ->
-      expect(values).to.be.an.instanceof Float64Array
+      expect(values).to.be.an.instanceof(Float64Array)
 
     it "should be evenly distributed", ->
-      expect(values).to.deep.equal new Float64Array [30, 50, 70]
+      expect(values).to.deep.equal(new Float64Array([30, 50, 70]))
 
     it "should expose synthetic range values", ->
       synthetic = generate_mapper().v_map_to_target factors, true
-      expect(synthetic).to.deep.equal [1, 2, 3]
+      expect(synthetic).to.deep.equal([1, 2, 3])
 
       osynthetic = generate_mapper(-1).v_map_to_target factors, true
-      expect(osynthetic).to.deep.equal [0, 1, 2]
+      expect(osynthetic).to.deep.equal([0, 1, 2])
 
     it "should map synthetic values to synthetic values", ->
       synthetic = generate_mapper().v_map_to_target [1,2,3], true
@@ -174,7 +174,7 @@ describe "categorical mapper module", ->
 
     it "should cause updated vector mapped values", ->
       new_values =  mapper.v_map_to_target new_factors
-      expect(new_values).to.deep.equal new Float64Array [27.5, 42.5, 57.5, 72.5]
+      expect(new_values).to.deep.equal(new Float64Array([27.5, 42.5, 57.5, 72.5]))
 
     it "should cause updated inverse mapped values", ->
       test_inverse_mapping 20,   'a'
@@ -229,23 +229,23 @@ describe "categorical mapper module", ->
 
     it "should apply percentages to vector mappings", ->
       values = generate_mapper().v_map_to_target ['foo:0.1', 'foo:0.5', 'foo:0.9']
-      expect(values).to.deep.equal new Float64Array [22,30,38]
+      expect(values).to.deep.equal(new Float64Array([22,30,38]))
 
       values = generate_mapper().v_map_to_target ['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']
-      expect(values).to.deep.equal new Float64Array [44,48,52,56]
+      expect(values).to.deep.equal(new Float64Array([44,48,52,56]))
 
       values = generate_mapper().v_map_to_target ['baz:0.3', 'baz:0.7']
-      expect(values).to.deep.equal new Float64Array [66, 74]
+      expect(values).to.deep.equal(new Float64Array([66, 74]))
 
     it "should apply percentages to vector mappings with offset synthetic ranges", ->
       values = generate_mapper(-1).v_map_to_target ['foo:0.1', 'foo:0.5', 'foo:0.9']
-      expect(values).to.deep.equal new Float64Array [22,30,38]
+      expect(values).to.deep.equal(new Float64Array([22,30,38]))
 
       values = generate_mapper(-1).v_map_to_target ['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']
-      expect(values).to.deep.equal new Float64Array [44,48,52,56]
+      expect(values).to.deep.equal(new Float64Array([44,48,52,56]))
 
       values = generate_mapper(-1).v_map_to_target ['baz:0.3', 'baz:0.7']
-      expect(values).to.deep.equal new Float64Array [66, 74]
+      expect(values).to.deep.equal(new Float64Array([66, 74]))
 
 
 

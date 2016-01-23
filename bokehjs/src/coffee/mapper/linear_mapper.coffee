@@ -1,4 +1,6 @@
+_ = require "underscore"
 Model = require "../models/model"
+Util = require "../util/util"
 
 class LinearMapper extends Model
   initialize: (attrs, options) ->
@@ -15,10 +17,7 @@ class LinearMapper extends Model
 
   v_map_to_target: (xs) ->
     [scale, offset] = @get('mapper_state')
-    result = new Float64Array(xs.length)
-    for x, idx in xs
-      result[idx] = scale * x + offset
-    return result
+    return Util.map_vector_that_may_contain_patches_with_holes(xs, (x) -> scale * x + offset)
 
   map_from_target: (xprime) ->
     [scale, offset] = @get('mapper_state')
@@ -26,10 +25,7 @@ class LinearMapper extends Model
 
   v_map_from_target: (xprimes) ->
     [scale, offset] = @get('mapper_state')
-    result = new Float64Array(xprimes.length)
-    for xprime, idx in xprimes
-      result[idx] = (xprime - offset) / scale
-    return result
+    return Util.map_vector_that_may_contain_patches_with_holes(xprimes, (xprime) -> (xprime - offset) / scale)
 
   _mapper_state: () ->
     #

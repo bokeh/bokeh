@@ -6,6 +6,7 @@ ContinuumView = require "./continuum_view"
 LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 Solver = require "./solver"
+Util = require "../util/util"
 
 # TODO - This should only be on in testing
 #require 'Canteen'
@@ -130,7 +131,7 @@ class Canvas extends LayoutBox.Model
 
     logger.debug("Canvas initialized")
 
-  # transform view coordinates to underlying screen coordinates
+  # Transform: view coordinates -> underlying screen coordinates
   vx_to_sx: (x) ->
     return x
 
@@ -138,20 +139,14 @@ class Canvas extends LayoutBox.Model
     # Note: +1 to account for 1px canvas dilation
     return @get('height') - (y + 1)
 
-  # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
   v_vx_to_sx: (xx) ->
-    for x, idx in xx
-      xx[idx] = x
     return xx
 
   v_vy_to_sy: (yy) ->
-    canvas_height = @get('height')
-    # Note: +1 to account for 1px canvas dilation
-    for y, idx in yy
-      yy[idx] = canvas_height - (y + 1)
-    return yy
+    height = @get('height')
+    return Util.map_vector_that_may_contain_patches_with_holes(yy, (y) -> height - (y + 1))
 
-  # transform underlying screen coordinates to view coordinates
+  # Transform: underlying screen coordinates -> view coordinates
   sx_to_vx: (x) ->
     return x
 
@@ -159,18 +154,12 @@ class Canvas extends LayoutBox.Model
     # Note: +1 to account for 1px canvas dilation
     return @get('height') - (y + 1)
 
-  # vectorized versions of sx_to_vx/sy_to_vy, these are mutating, in-place operations
   v_sx_to_vx: (xx) ->
-    for x, idx in xx
-      xx[idx] = x
     return xx
 
   v_sy_to_vy: (yy) ->
-    canvas_height = @get('height')
-    # Note: +1 to account for 1px canvas dilation
-    for y, idx in yy
-      yy[idx] = canvas_height - (y + 1)
-    return yy
+    height = @get('height')
+    return Util.map_vector_that_may_contain_patches_with_holes(yy, (y) -> height - (y + 1))
 
   _set_width: (width, update=true) ->
     if @_width_constraint?

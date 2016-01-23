@@ -1,3 +1,5 @@
+_ = require "underscore"
+
 point_in_poly = (x, y, px, py) ->
   inside = false
 
@@ -14,6 +16,25 @@ point_in_poly = (x, y, px, py) ->
     y1 = y2
 
   return inside
+
+
+point_in_poly_with_hole = (x, y, px_arrays, py_arrays) ->
+  inside = false
+
+  in_outer = point_in_poly(x, y, _.first(px_arrays), _.first(py_arrays))
+  if in_outer
+    # If it's in the outer item, loop through the inner items
+    inner_xs = _.rest(px_arrays)
+    inner_ys = _.rest(py_arrays)
+    for i in [0...inner_xs.length]
+      in_inner = point_in_poly(x, y, inner_xs[i], inner_ys[i])
+      if in_inner
+        inside = false
+        break
+      else
+        inside = true
+  return inside
+
 
 create_hit_test_result = ->
   result = {
@@ -84,6 +105,7 @@ check_2_segments_intersect = (l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, l1_x1, l
 
 module.exports =
   point_in_poly: point_in_poly
+  point_in_poly_with_hole: point_in_poly_with_hole
   create_hit_test_result: create_hit_test_result
   dist_2_pts: dist_2_pts
   dist_to_segment: dist_to_segment

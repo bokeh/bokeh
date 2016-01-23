@@ -142,7 +142,7 @@ class HoverToolView extends InspectTool.View
       # patches will not have .x, .y attributes, for instance
       data_x = renderer.glyph.x?[i]
       data_y = renderer.glyph.y?[i]
-      if @mget('point_policy') == 'snap_to_data'# and renderer.glyph.sx? and renderer.glyph.sy?
+      if @mget('point_policy') == 'snap_to_data' and renderer.glyph.sx? and renderer.glyph.sy?
         # Pass in our screen position so we can determine
         # which patch we're over if there are discontinuous
         # patches.
