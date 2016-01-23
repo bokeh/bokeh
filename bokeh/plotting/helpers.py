@@ -418,7 +418,7 @@ Keyword Args:
 Other Parameters:
     alpha (float) : an alias to set all alpha keyword args at once
     color (Color) : an alias to set all color keyword args at once
-    data_source (ColumnDataSource) : a user supplied data source
+    source (ColumnDataSource) : a user supplied data source
     legend (str) : a legend tag for this glyph
     x_range_name (str) : name an extra range to use for mapping x-coordinates
     y_range_name (str) : name an extra range to use for mapping y-coordinates
