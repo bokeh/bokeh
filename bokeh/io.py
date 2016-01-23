@@ -22,7 +22,6 @@ import io
 import itertools
 import json
 import os
-import uuid
 import warnings
 
 # Third-party imports
@@ -37,9 +36,9 @@ from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .model import _ModelInDocument
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
+from .util.serialization import make_id
 import bokeh.util.browser as browserlib # full import needed for test mocking to work
 from .client import DEFAULT_SESSION_ID, push_session, show_session
-from bokeh.resources import websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -58,10 +57,29 @@ _state = State()
 #-----------------------------------------------------------------------------
 
 class _CommsHandle(object):
+
+    _json = {}
+
     def __init__(self, comms, doc, json):
+        self._cellno = None
+        try:
+            from IPython import get_ipython
+            ip = get_ipython()
+            hm = ip.history_manager
+            p_prompt = list(hm.get_tail(1, include_latest=True))[0][1]
+            self._cellno = p_prompt
+        except Exception as e:
+            logger.debug("Could not get Notebook cell number, reason: %s", e)
+
         self._comms = comms
         self._doc = doc
-        self._json = json
+        self._json[doc] = json
+
+    def _repr_html_(self):
+        if self._cellno is not None:
+            return "<p><code>&lt;Bokeh Notebook handle for <strong>In[%s]</strong>&gt;</code></p>" % str(self._cellno)
+        else:
+            return "<p><code>&lt;Bokeh Notebook handle&gt;</code></p>"
 
     @property
     def comms(self):
@@ -73,7 +91,11 @@ class _CommsHandle(object):
 
     @property
     def json(self):
-        return self._json
+        return self._json[self._doc]
+
+    def update(self, doc, json):
+        self._doc = doc
+        self._json[doc] = json
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
@@ -304,7 +326,7 @@ def _show_notebook_with_state(obj, state):
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
-        comms_target = str(uuid.uuid4())
+        comms_target = make_id()
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
         state.last_comms_handle = handle
@@ -516,8 +538,7 @@ def push_notebook(document=None, state=None, handle=None):
     else:
         msg = Document._compute_patch_between_json(handle.json, to_json)
     handle.comms.send(json.dumps(msg))
-    handle._doc = document
-    handle._json = to_json
+    handle.update(document, to_json)
 
 def reset_output(state=None):
     ''' Clear the default state of all output modes.

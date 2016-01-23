@@ -150,13 +150,17 @@ def test_chart_id():
 
 def test_defaults():
     c1 = Chart()
-    defaults.height = 1000
+    defaults.plot_height = 1000
+    defaults.plot_width = 1000
     defaults.tools = False
     c2 = Chart()
     c3 = Chart()
 
-    assert c1.height == 400
-    assert c2.height == c3.height == 1000
+    assert c1.plot_height == 600
+    assert c2.plot_height == c3.plot_height == 1000
+
+    assert c1.plot_width == 600
+    assert c2.plot_width == c3.plot_width == 1000
 
     assert c1.tools
     assert c2.tools == c3.tools == []

@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 {logger} = require "../common/logging"
 PlotWidget = require "../common/plot_widget"
 
@@ -19,7 +19,7 @@ class ToolView extends PlotWidget
   # deactivate is triggered by toolbar ui actions
   deactivate: () ->
 
-class Tool extends HasProperties
+class Tool extends Model
 
   nonserializable_attribute_names: () ->
     super().concat(['active', 'level', 'tool_name'])

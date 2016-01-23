@@ -26,42 +26,12 @@ the ``bokeh.mpl.to_bokeh`` function:
 ----
 
 You can see examples of Bokeh rendering plots from all of these libraries in the
-`examples/compat`_ directory:
-
-.. _userguide_compat_matplotlib:
-
-Matplotlib
-----------
-
-* `examples/compat/mpl`_
-
-.. _userguide_compat_pandas:
-
-Pandas
-------
-
-* `examples/compat/pandas`_
-
-.. _userguide_compat_seaborn:
-
-Seaborn
--------
-
-* `examples/compat/seaborn`_
-
-.. _userguide_compat_ggplot:
-
-``ggplot.py``
--------------
-
-* `examples/compat/ggplot`_
+`examples/compat`_ directory. This link points to master, don't forget to make
+sure you're looking at examples that match with the version of bokeh you're
+using.
 
 
 .. _examples/compat: https://github.com/bokeh/bokeh/tree/master/examples/compat/
-.. _examples/compat/ggplot: https://github.com/bokeh/bokeh/tree/master/examples/compat/ggplot
-.. _examples/compat/mpl: https://github.com/bokeh/bokeh/tree/master/examples/compat/mpl
-.. _examples/compat/pandas: https://github.com/bokeh/bokeh/tree/master/examples/compat/pandas
-.. _examples/compat/seaborn: https://github.com/bokeh/bokeh/tree/master/examples/compat/
 
 .. _ggplot.py: https://github.com/yhat/ggplot
 .. _Matplotlib: http://matplotlib.org

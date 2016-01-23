@@ -1,8 +1,8 @@
 _ = require "underscore"
 Util = require "../util/util"
-HasProperties = require "../common/has_properties"
+Model = require "../models/model"
 
-class OpenURL extends HasProperties
+class OpenURL extends Model
   type: 'OpenURL'
 
   execute: (data_source) ->

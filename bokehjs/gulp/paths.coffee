@@ -16,6 +16,7 @@ module.exports = {
   buildDir:
     all: BUILD_DIR
     js: JS_BUILD_DIR
+    jsTree: path.join(JS_BUILD_DIR, "tree")
     coffee: COFFEE_BUILD_DIR
     css: CSS_BUILD_DIR
   serverDir:

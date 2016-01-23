@@ -42,6 +42,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
     'bokeh.sphinxext.bokeh_prop',
+    'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.collapsible_code_block',
 ]
 
@@ -123,6 +124,7 @@ html_theme_path = ['.']
 MAIN_SITE = '//bokehplots.com'
 
 html_context = {
+    'SITEMAP_BASE_URL': 'http://bokeh.pydata.org/en/', # Trailing slash is needed
     'SITENAME': 'Bokeh Docs',
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
@@ -160,7 +162,7 @@ html_context = {
         ('User Guide', 'user_guide'),
         ('Gallery', 'gallery'),
         ('Reference', 'reference'),
-        ('Releases', 'releases/0.11.0'),
+        ('Releases', 'releases/%s' % version),
         ('Developer Guide', 'dev_guide'),
     ),
     'ALL_VERSIONS': ['0.10.0', '0.9.3', '0.8.2'],

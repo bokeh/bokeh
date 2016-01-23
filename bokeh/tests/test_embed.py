@@ -6,7 +6,7 @@ import unittest
 import bs4
 
 import bokeh.embed as embed
-from bokeh.resources import CDN, INLINE, Resources, JSResources, CSSResources
+from bokeh.resources import CDN, JSResources, CSSResources
 from bokeh.plotting import figure
 from jinja2 import Template
 from six import string_types
@@ -17,6 +17,9 @@ def setUpModule():
     global _embed_test_plot
     _embed_test_plot = figure()
     _embed_test_plot.circle([1,2], [2,3])
+
+def _stable_id():
+    return 'ID'
 
 class TestComponents(unittest.TestCase):
 
@@ -56,11 +59,8 @@ class TestComponents(unittest.TestCase):
         script, div = embed.components(_embed_test_plot)
         self.assertTrue(isinstance(script, str))
 
-    @mock.patch('bokeh.embed.uuid')
-    def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_uuid):
-        mock_uuid.uuid4 = mock.Mock()
-        mock_uuid.uuid4.return_value = 'uuid'
-
+    @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
+    def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_make_id):
         script, div = embed.components(_embed_test_plot)
         html = bs4.BeautifulSoup(script)
         scripts = html.findAll(name='script')
@@ -71,13 +71,10 @@ class TestComponents(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(rawscript.strip(), script_content.strip())
 
-    @mock.patch('bokeh.embed.uuid')
-    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_uuid):
-        mock_uuid.uuid4 = mock.Mock()
-        mock_uuid.uuid4.return_value = 'uuid'
-
+    @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
+    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
         plot = _embed_test_plot
-        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "uuid", "docid": "uuid"}
+        expected_plotdict = {"modelid": plot.ref["id"], "elementid": "ID", "docid": "ID"}
         script, plotdict = embed.components(_embed_test_plot, wrap_plot_info=False)
         self.assertEqual(plotdict, expected_plotdict)
 
@@ -189,10 +186,8 @@ class TestAutoloadStatic(unittest.TestCase):
         r = embed.autoload_static(_embed_test_plot, CDN, "some/path")
         self.assertEqual(len(r), 2)
 
-    @mock.patch('bokeh.embed.uuid')
-    def test_script_attrs(self, mock_uuid):
-        mock_uuid.uuid4 = mock.Mock()
-        mock_uuid.uuid4.return_value = 'uuid'
+    @mock.patch('bokeh.embed.make_id', new_callable=lambda: _stable_id)
+    def test_script_attrs(self, mock_make_id):
         js, tag = embed.autoload_static(_embed_test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag)
         scripts = html.findAll(name='script')
@@ -202,7 +197,7 @@ class TestAutoloadStatic(unittest.TestCase):
             'data-bokeh-model-id',
             'id',
             'data-bokeh-doc-id']))
-        self.assertEqual(attrs['data-bokeh-doc-id'], 'uuid')
+        self.assertEqual(attrs['data-bokeh-doc-id'], 'ID')
         self.assertEqual(attrs['data-bokeh-model-id'], str(_embed_test_plot._id))
         self.assertEqual(attrs['src'], 'some/path')
 

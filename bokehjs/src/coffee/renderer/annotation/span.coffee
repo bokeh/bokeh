@@ -96,10 +96,7 @@ class Span extends Annotation.Model
       render_mode: "canvas"
       location_units: "data"
       level: 'annotation'
-    }
 
-  display_defaults: ->
-    return _.extend {}, super(), {
       dimension: "width"
       location: null
       line_color: 'black'

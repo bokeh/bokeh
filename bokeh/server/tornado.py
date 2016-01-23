@@ -76,6 +76,9 @@ class BokehTornado(TornadoApplication):
             These are in addition to ``hosts``.
         keep_alive_milliseconds (int) : number of milliseconds between keep-alive pings
             Set to 0 to disable pings. Pings keep the websocket open.
+        check_unused_sessions_milliseconds (int) : number of milliseconds between check for unused sessions
+        unused_session_lifetime_milliseconds (int) : number of milliseconds for unused session lifetime
+        stats_log_frequency_milliseconds (int) : number of milliseconds between logging stats
         develop (boolean) : True for develop mode
 
     '''
@@ -106,6 +109,15 @@ class BokehTornado(TornadoApplication):
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
+
+        if check_unused_sessions_milliseconds <= 0:
+            raise ValueError("check_unused_sessions_milliseconds must be > 0")
+
+        if unused_session_lifetime_milliseconds <= 0:
+            raise ValueError("check_unused_sessions_milliseconds must be > 0")
+
+        if stats_log_frequency_milliseconds <= 0:
+            raise ValueError("stats_log_frequency_milliseconds must be > 0")
 
         self._hosts = set(hosts)
         self._websocket_origins = self._hosts | set(extra_websocket_origins)

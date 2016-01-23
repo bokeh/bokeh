@@ -239,7 +239,8 @@ class LineBuilder(XYBuilder):
             for renderer in glyph.renderers:
                 yield renderer
 
-        Stack().apply(self.comp_glyphs)
+        if self.stack:
+            Stack().apply(self.comp_glyphs)
         Dodge().apply(self.comp_glyphs)
 
 

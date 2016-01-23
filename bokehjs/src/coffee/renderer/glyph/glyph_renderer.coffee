@@ -1,8 +1,7 @@
 _ = require "underscore"
 {logger} = require "../../common/logging"
-HasParent = require "../../common/has_parent"
+Renderer = require "../renderer"
 PlotWidget = require "../../common/plot_widget"
-FactorRange = require "../../range/factor_range"
 RemoteDataSource = require "../../source/remote_data_source"
 
 class GlyphRendererView extends PlotWidget
@@ -209,7 +208,7 @@ class GlyphRendererView extends PlotWidget
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
 
-class GlyphRenderer extends HasParent
+class GlyphRenderer extends Renderer
   default_view: GlyphRendererView
   type: 'GlyphRenderer'
 
