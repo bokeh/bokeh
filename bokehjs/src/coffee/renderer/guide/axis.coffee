@@ -361,6 +361,7 @@ class Axis extends GuideRenderer.Model
   update_layout: (view, solver) ->
     if not @get('visible')
       size = 0
+      @_last_size = 0
     else
       size = (@_tick_extent(view) + @_tick_label_extent(view) +
               @_axis_label_extent(view))
