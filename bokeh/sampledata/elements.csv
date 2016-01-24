@@ -1,4 +1,4 @@
-atomic number,symbol,name,atomic mass,CPK,electronic configuration,electronegativity,atomic radius,ion radius,van der Waals radius,IE-1,EA,standard state,bonding type,melting point,boiling point,density,metal,year discovered,group,period
+,atomic number,symbol,name,atomic mass,CPK,electronic configuration,electronegativity,atomic radius,ion radius,van der Waals radius,IE-1,EA,standard state,bonding type,melting point,boiling point,density,metal,year discovered,group,period
 0,1,H,Hydrogen,1.00794,#FFFFFF,1s1,2.2,37.0,,120.0,1312.0,-73.0,gas,diatomic,14,20,8.99E-05,nonmetal,1766,1,1
 1,2,He,Helium,4.002602,#D9FFFF,1s2,,32.0,,140.0,2372.0,0.0,gas,atomic,,4,0,noble gas,1868,18,1
 2,3,Li,Lithium,6.941,#CC80FF,[He] 2s1,0.98,134.0,76 (+1),182.0,520.0,-60.0,solid,metallic,454,1615,0.54,alkali metal,1817,1,2
