@@ -13,6 +13,7 @@ from bokeh.plotting import Figure
 from bokeh.model import Model
 from bokeh.models import Range1d
 from bokeh.sampledata.autompg import autompg
+from bokeh.sampledata.iris import flowers
 from bokeh.io import curdoc
 
 from bokeh.charts import Bar, Scatter
@@ -20,8 +21,6 @@ from bokeh.palettes import Blues4
 
 from examples.app.crossfilter.models import StyleableBox
 from examples.app.crossfilter.models import StatsBox
-
-import pdb
 
 class AppModel(object):
     '''todo: add docs'''
@@ -37,7 +36,6 @@ class AppModel(object):
         self.agg_options = ['sum', 'mean', 'last', 'count', 'percent']
         self.x_field = self.col_names[0]
         self.y_field = self.col_names[1]
-        self.color_field = ''
         self.color_field = ''
         self.plot_type = self.plot_type_options[0]
         self.agg_type = self.agg_options[0]
@@ -226,13 +224,12 @@ class PlotView(BaseView):
     @property
     def bar_args(self):
         '''TODO: add docs'''
+
         d = {}
         d['tools'] = 'pan,wheel_zoom'
-        d['data'] = self.model.data
+        d['data'] = self.model.df
         d['label'] = self.model.x_field
         d['values'] = self.model.y_field
-        d['xlabel'] = self.model.x_field
-        d['ylabel'] = self.model.y_field
         d['agg'] = self.model.agg_type
         d['color'] = self.model.color_field
         return d
@@ -281,6 +278,7 @@ class ControlsView(BaseView):
         self.y_selector = self.add_select('y', cols, 'y_field')
         self.color_selector = self.add_select('color', cols, 'color_field')
         self.agg_selector = self.add_select('agg', self.model.agg_options, 'agg_type')
+
 
 model = AppModel(autompg)
 controller = AppController(model)
