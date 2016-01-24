@@ -1,6 +1,5 @@
 $ = require "jquery"
 _ = require "underscore"
-Backbone = require "backbone"
 {logger} = require "../common/logging"
 RemoteDataSource = require "./remote_data_source"
 
@@ -27,7 +26,8 @@ class AjaxDataSource extends RemoteDataSource.Model
       xhrField :
         withCredentials : true
       method : @get('method')
-      contentType : 'application/json'
+      contentType : @get('content_type')
+      headers : @get('http_headers')
     ).done((data) =>
       if mode == 'replace'
         @set('data', data)
@@ -48,17 +48,13 @@ class AjaxDataSource extends RemoteDataSource.Model
   defaults: =>
     return _.extend {}, super(), {
       mode: 'replace'
+      data_url : null
+      content_type : 'application/json'
+      http_headers : {}
       max_size: null
       method: 'POST'
       if_modified: false
     }
 
-class AjaxDataSources extends Backbone.Collection
-  model: AjaxDataSource
-  defaults:
-    url : ""
-    expr : null
-
 module.exports =
   Model: AjaxDataSource
-  Collection: new AjaxDataSources()
