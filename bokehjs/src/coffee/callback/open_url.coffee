@@ -1,6 +1,6 @@
 _ = require "underscore"
 Util = require "../util/util"
-Model = require "../models/model"
+Model = require "../model"
 
 class OpenURL extends Model
   type: 'OpenURL'

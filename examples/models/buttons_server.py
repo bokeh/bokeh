@@ -2,8 +2,9 @@ from __future__ import print_function
 
 from bokeh.client import push_session
 from bokeh.document import Document
+from bokeh.models.layouts import VBox
 from bokeh.models.widgets import (
-    VBox, Icon, Button, Toggle, Dropdown, CheckboxGroup, RadioGroup,
+    Icon, Button, Toggle, Dropdown, CheckboxGroup, RadioGroup,
     CheckboxButtonGroup, RadioButtonGroup,
 )
 

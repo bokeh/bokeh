@@ -13,7 +13,7 @@ def large_plot(n):
     from bokeh.models import (Plot, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, ResizeTool, PreviewSaveTool, ResetTool)
-    from bokeh.models.widgets.layouts import VBox
+    from bokeh.models.layouts import VBox
     from bokeh.models.glyphs import Line
 
     vbox = VBox()

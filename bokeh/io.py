@@ -32,7 +32,7 @@ from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models import Component
 from .models.plots import GridPlot
-from .models.widgets.layouts import HBox, VBox, VBoxForm
+from .models.layouts import HBox, VBox, VBoxForm
 from .model import _ModelInDocument
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8

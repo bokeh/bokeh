@@ -7,8 +7,9 @@ from bokeh.models import (
     Circle, HoverTool, BoxSelectTool
 )
 from bokeh.models.widgets import (
-    Select, DataTable, TableColumn, StringFormatter, HBox, VBox,
+    Select, DataTable, TableColumn, StringFormatter,
     NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor)
+from bokeh.models.layouts import HBox, VBox
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 
 class DataTables(object):

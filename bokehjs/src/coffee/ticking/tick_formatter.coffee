@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../models/model"
+Model = require "../model"
 
 class TickFormatter extends Model
   type: 'TickFormatter'
