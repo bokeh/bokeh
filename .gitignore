@@ -14,6 +14,7 @@
 .sw[nop]
 *.tmp
 *.coverage.*
+pytest-report.html
 
 # Compiled source #
 ###################
