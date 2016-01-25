@@ -4,7 +4,6 @@ Logging = require "../common/logging"
 FactorRange = require "../range/factor_range"
 Range1d = require "../range/range1d"
 ColumnDataSource = require "../source/column_data_source"
-helpers = "./helpers"
 
 Collections = base.Collections
 logger = Logging.logger
