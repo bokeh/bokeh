@@ -3,8 +3,8 @@
 from __future__ import absolute_import
 
 from ...core.properties import Bool, String, List, Instance, Either
+from ..layouts import BaseBox, HBox
 from .widget import Widget
-from .layouts import BaseBox, HBox
 from .buttons import Button
 
 class Dialog(Widget):

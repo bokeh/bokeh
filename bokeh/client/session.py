@@ -89,7 +89,7 @@ def pull_session(session_id=None, url='default', app_path='/', io_loop=None):
     could be something human-readable such as ``"default"`` for
     convenience.
 
-    If you allow ``push_session()`` to generate a unique
+    If you allow ``pull_session()`` to generate a unique
     ``session_id``, you can obtain the generated ID with the
     ``id`` property on the returned ``ClientSession``.
 

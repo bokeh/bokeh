@@ -9,7 +9,7 @@ Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
 ContinuumView = require "./continuum_view"
 UIEvents = require "./ui_events"
-Component = require "../models/component"
+Component = require "../common/component"
 LayoutBox = require "./layout_box"
 {logger} = require "./logging"
 plot_utils = require "./plot_utils"
@@ -518,9 +518,15 @@ class PlotView extends ContinuumView
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if title
-      sx = @canvas.vx_to_sx(@canvas.get('width')/2)
-      sy = @canvas.vy_to_sy(
-        @model.title_panel.get('bottom') + @model.get('title_standoff'))
+      vx = switch @title_props.align.value()
+        when 'left'   then 0
+        when 'center' then @canvas.get('width')/2
+        when 'right'  then @canvas.get('width')
+      vy = @model.title_panel.get('bottom') + @model.get('title_standoff')
+
+      sx = @canvas.vx_to_sx(vx)
+      sy = @canvas.vy_to_sy(vy)
+
       @title_props.set_value(ctx)
       ctx.fillText(title, sx, sy)
 

@@ -2,7 +2,7 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../utils"
 
-Model = utils.require "models/model"
+Model = utils.require "./model"
 {Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "common/document"
 base = utils.require "common/base"
 Collection = utils.require "common/collection"

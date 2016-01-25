@@ -11,8 +11,9 @@ from bokeh.models import (
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.models.widgets import (
-    VBox, Button, TableColumn, DataTable,
+    Button, TableColumn, DataTable,
     DateEditor, DateFormatter, IntEditor)
+from bokeh.models.layouts import VBox
 
 document = Document()
 session = push_session(document)
