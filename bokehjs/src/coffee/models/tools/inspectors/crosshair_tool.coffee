@@ -1,5 +1,5 @@
 _ = require "underscore"
-Span = require "../../renderer/annotation/span"
+Span = require "../../annotations/span"
 InspectTool = require "./inspect_tool"
 
 class CrosshairToolView extends InspectTool.View

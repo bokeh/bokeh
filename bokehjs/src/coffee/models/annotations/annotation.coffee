@@ -1,5 +1,5 @@
 _ = require "underscore"
-Renderer = require "../renderer"
+Renderer = require "../renderers/renderer"
 
 class Annotation extends Renderer
   type: 'Annotation'

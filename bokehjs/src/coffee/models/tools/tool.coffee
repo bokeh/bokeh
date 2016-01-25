@@ -1,7 +1,7 @@
 _ = require "underscore"
-Model = require "../model"
-{logger} = require "../common/logging"
-PlotWidget = require "../common/plot_widget"
+Model = require "../../model"
+{logger} = require "../../common/logging"
+PlotWidget = require "../../common/plot_widget"
 
 class ToolView extends PlotWidget
 

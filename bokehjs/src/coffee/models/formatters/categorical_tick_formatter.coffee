@@ -1,4 +1,4 @@
-TickFormatter = require "./tick_formatter"
+TickFormatter = require "../formatters/tick_formatter"
 
 class CategoricalTickFormatter extends TickFormatter.Model
   type: 'CategoricalTickFormatter'
@@ -8,4 +8,3 @@ class CategoricalTickFormatter extends TickFormatter.Model
 
 module.exports =
   Model: CategoricalTickFormatter
-

@@ -1,5 +1,5 @@
 _ = require "underscore"
-Renderer = require "../renderer"
+Renderer = require "./renderer"
 
 class GuideRenderer extends Renderer
   type: 'GuideRenderer'

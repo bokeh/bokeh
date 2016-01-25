@@ -1,6 +1,6 @@
 _ = require "underscore"
-Glyph = require "../glyph"
-hittest = require "../../../common/hittest"
+Glyph = require "../glyphs/glyph"
+hittest = require "../../common/hittest"
 
 class MarkerView extends Glyph.View
 

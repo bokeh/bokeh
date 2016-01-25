@@ -1,6 +1,6 @@
 _ = require "underscore"
 SelectTool = require "./select_tool"
-BoxAnnotation = require "../../renderer/annotation/box_annotation"
+BoxAnnotation = require "../../annotations/box_annotation"
 
 class BoxSelectToolView extends SelectTool.View
 

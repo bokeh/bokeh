@@ -1,8 +1,8 @@
 _ = require "underscore"
 Axis = require "./axis"
 ContinuousAxis = require "./continuous_axis"
-BasicTicker = require "../../ticking/basic_ticker"
-BasicTickFormatter = require "../../ticking/basic_tick_formatter"
+BasicTicker = require "../tickers/basic_ticker"
+BasicTickFormatter = require "../formatters/basic_tick_formatter"
 
 class LinearAxisView extends Axis.View
 

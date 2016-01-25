@@ -6,7 +6,7 @@ bbox = require "../../common/bbox"
 Model = require "../../model"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
-CategoricalMapper = require "../../mapper/categorical_mapper"
+CategoricalMapper = require "../mappers/categorical_mapper"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
 

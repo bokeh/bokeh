@@ -1,10 +1,10 @@
 _ = require "underscore"
 $ = require "jquery"
-{logger} = require "../../common/logging"
-Tooltip = require "../../renderer/annotation/tooltip"
-Util = require "../../util/util"
+{logger} = require "../../../common/logging"
+Tooltip = require "../../annotations/tooltip"
+Util = require "../../../util/util"
 InspectTool = require "./inspect_tool"
-hittest = require "../../common/hittest"
+hittest = require "../../../common/hittest"
 
 _color_to_hex = (color) ->
   if (color.substr(0, 1) == '#')

@@ -1,5 +1,5 @@
 _ = require "underscore"
-{logger} = require "../common/logging"
+{logger} = require "../../common/logging"
 TickFormatter = require "./tick_formatter"
 BasicTickFormatter = require "./basic_tick_formatter"
 

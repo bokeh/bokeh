@@ -1,7 +1,7 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-{logger} = require "../common/logging"
+{logger} = require "../../common/logging"
 RemoteDataSource = require "./remote_data_source"
 
 

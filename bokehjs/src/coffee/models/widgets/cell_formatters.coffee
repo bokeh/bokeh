@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 Numeral = require "numeral"
-Model = require "../model"
+Model = require "../../model"
 
 class CellFormatter extends Model
   formatterDefaults: {}

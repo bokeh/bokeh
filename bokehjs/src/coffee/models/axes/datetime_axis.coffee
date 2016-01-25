@@ -1,7 +1,7 @@
 _ = require "underscore"
 LinearAxis = require "./axis"
-DatetimeTicker = require "../../ticking/datetime_ticker"
-DatetimeTickFormatter = require "../../ticking/datetime_tick_formatter"
+DatetimeTicker = require "../tickers/datetime_ticker"
+DatetimeTickFormatter = require "../formatters/datetime_tick_formatter"
 
 class DatetimeAxisView extends LinearAxis.View
 

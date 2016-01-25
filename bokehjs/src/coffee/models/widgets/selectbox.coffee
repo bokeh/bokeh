@@ -1,6 +1,6 @@
 _ = require "underscore"
-ContinuumView = require "../common/continuum_view"
-{logger} = require "../common/logging"
+ContinuumView = require "../../common/continuum_view"
+{logger} = require "../../common/logging"
 template = require "./selecttemplate"
 InputWidget = require "./input_widget"
 

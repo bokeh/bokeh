@@ -4,9 +4,9 @@ $1 = require "jquery-ui/sortable"
 SlickGrid = require "slick_grid/slick.grid"
 RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
 CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
-ContinuumView = require "../common/continuum_view"
-DOMUtil = require "../util/dom_util"
-hittest = require "../common/hittest"
+ContinuumView = require "../../common/continuum_view"
+DOMUtil = require "../../util/dom_util"
+hittest = require "../../common/hittest"
 TableWidget = require "./table_widget"
 
 class DataProvider

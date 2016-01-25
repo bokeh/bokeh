@@ -3,7 +3,7 @@ $ = require "jquery"
 $1 = require "jquery-ui/autocomplete"
 $2 = require "jquery-ui/spinner"
 ContinuumView = require "../common/continuum_view"
-Model = require "../model"
+Model = require "../../model"
 
 class CellEditor extends Model
   editorDefaults: {}

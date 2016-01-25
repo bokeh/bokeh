@@ -1,13 +1,13 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-build_views = require "./build_views"
-ContinuumView = require "./continuum_view"
-Component = require "../common/component"
-HasProperties = require "./has_properties"
-{logger} = require "./logging"
-ToolManager = require "./tool_manager"
-plot_template = require "./plot_template"
+build_views = require "../../common/build_views"
+ContinuumView = require "../../common/continuum_view"
+Component = require "../component"
+HasProperties = require "../../common/has_properties"
+{logger} = require "../../common/logging"
+ToolManager = require "../../common/tool_manager"
+plot_template = require "../../common/plot_template"
 
 class ToolProxy extends Backbone.Model
 

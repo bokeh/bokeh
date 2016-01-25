@@ -1,6 +1,6 @@
 _ = require "underscore"
-Glyph = require "./glyph"
-LinearColorMapper = require "../../mapper/linear_color_mapper"
+Glyph = require "../glyphs/glyph"
+LinearColorMapper = require "../mappers/linear_color_mapper"
 {Greys9} = require '../../palettes/palettes'
 
 class ImageView extends Glyph.View

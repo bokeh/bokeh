@@ -1,5 +1,5 @@
 _ = require "underscore"
-Renderer = require "../renderer"
+Renderer = require "../renderers/renderer"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 ImagePool = require "./image_pool"

@@ -1,13 +1,13 @@
 _ = require "underscore"
 Marker = require "./marker"
-bokehgl = require "../bokehgl"
+bokehgl = require "../glyphs/bokehgl"
 
 
 class SquareView extends Marker.View
-  
+
   _init_gl: (gl) ->
     @glglyph = new bokehgl.SquareGLGlyph(gl, this)
-   
+
   _render: (ctx, indices, {sx, sy, size, angle}) ->
     for i in indices
       if isNaN(sx[i]+sy[i]+size[i]+angle[i])

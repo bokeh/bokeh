@@ -1,6 +1,6 @@
 _ = require "underscore"
 SelectTool = require "./select_tool"
-PolyAnnotation = require "../../renderer/annotation/poly_annotation"
+PolyAnnotation = require "../../annotations/poly_annotation"
 
 class PolySelectToolView extends SelectTool.View
 

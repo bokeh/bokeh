@@ -1,6 +1,6 @@
 _ = require "underscore"
-bbox = require "../common/bbox"
-{logger} = require "../common/logging"
+bbox = require "../../common/bbox"
+{logger} = require "../../common/logging"
 DataRange = require "./data_range"
 
 class DataRange1d extends DataRange.Model

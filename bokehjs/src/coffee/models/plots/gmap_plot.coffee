@@ -1,5 +1,5 @@
 _ = require "underscore"
-Solver = require "./solver"
+Solver = require "../../common/solver"
 Plot = require "./plot"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')

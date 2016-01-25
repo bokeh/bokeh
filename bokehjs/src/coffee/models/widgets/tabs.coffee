@@ -1,8 +1,8 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/tab"
-build_views = require "../common/build_views"
-ContinuumView = require "../common/continuum_view"
+build_views = require "../../common/build_views"
+ContinuumView = require "../../common/continuum_view"
 tabs_template = require "./tabs_template"
 Widget = require "./widget"
 

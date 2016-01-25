@@ -1,5 +1,5 @@
 _ = require "underscore"
-Model = require "../model"
+Model = require "../../model"
 CellEditors = require "./cell_formatters"
 CellFormatters = require "./cell_formatters"
 

@@ -1,8 +1,8 @@
 _ = require "underscore"
 {logger} = require "../../common/logging"
-Renderer = require "../renderer"
+Renderer = require "./renderer"
 PlotWidget = require "../../common/plot_widget"
-RemoteDataSource = require "../../source/remote_data_source"
+RemoteDataSource = require "../sources/remote_data_source"
 
 class GlyphRendererView extends PlotWidget
 

@@ -1,9 +1,9 @@
 _ = require "underscore"
 base = require "../common/base"
 Logging = require "../common/logging"
-FactorRange = require "../range/factor_range"
-Range1d = require "../range/range1d"
-ColumnDataSource = require "../source/column_data_source"
+FactorRange = require "../models/ranges/factor_range"
+Range1d = require "../models/ranges/range1d"
+ColumnDataSource = require "../models/sources/column_data_source"
 
 Collections = base.Collections
 logger = Logging.logger

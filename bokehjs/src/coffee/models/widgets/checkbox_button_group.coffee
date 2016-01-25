@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
 ContinuumView = require "../common/continuum_view"
-Model = require "../model"
+Model = require "../../model"
 
 class CheckboxButtonGroupView extends ContinuumView
   tagName: "div"

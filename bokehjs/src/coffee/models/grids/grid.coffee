@@ -1,5 +1,5 @@
 _ = require "underscore"
-GuideRenderer = require "./guide_renderer"
+GuideRenderer = require "../renderers/guide_renderer"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 

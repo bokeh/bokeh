@@ -1,7 +1,7 @@
 _ = require "underscore"
 DataSource = require './data_source'
-SelectionManager = require "../common/selection_manager"
-hittest = require "../common/hittest"
+SelectionManager = require "../../common/selection_manager"
+hittest = require "../../common/hittest"
 
 # Datasource where the data is defined column-wise, i.e. each key in the
 # the data attribute is a column name, and its value is an array of scalars.

@@ -1,6 +1,6 @@
 _ = require "underscore"
 GestureTool = require "./gesture_tool"
-BoxAnnotation = require "../../renderer/annotation/box_annotation"
+BoxAnnotation = require "../../annotations/box_annotation"
 
 class BoxZoomToolView extends GestureTool.View
 

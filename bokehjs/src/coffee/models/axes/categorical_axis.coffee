@@ -1,7 +1,7 @@
 _ = require "underscore"
 {logger} = require "../../common/logging"
-CategoricalTicker = require "../../ticking/categorical_ticker"
-CategoricalTickFormatter = require "../../ticking/categorical_tick_formatter"
+CategoricalTicker = require "../tickers/categorical_ticker"
+CategoricalTickFormatter = require "../formatters/categorical_tick_formatter"
 Axis = require "./axis"
 
 class CategoricalAxisView extends Axis.View

@@ -1,8 +1,8 @@
 _ = require "underscore"
 Axis = require "./axis"
 ContinuousAxis = require "./continuous_axis"
-LogTicker = require "../../ticking/log_ticker"
-LogTickFormatter = require "../../ticking/log_tick_formatter"
+LogTicker = require "../tickers/log_ticker"
+LogTickFormatter = require "../formatters/log_tick_formatter"
 
 class LogAxisView extends Axis.View
 
