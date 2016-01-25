@@ -69,7 +69,8 @@ class OvalView extends Glyph.View
       sw[reference_point] = d*scale
       sh[reference_point] = d
 
-    @_render(ctx, indices, sx, sy, sw, sh)
+    data = {sx, sy, sw, sh}
+    @_render(ctx, indices, data)
 
   _bounds: (bds) ->
     return [
