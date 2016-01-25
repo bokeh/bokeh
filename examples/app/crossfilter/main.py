@@ -12,12 +12,14 @@ from bokeh.properties import Dict, Enum, Instance, List, String, Any, Int
 from bokeh.plotting import Figure
 from bokeh.model import Model
 from bokeh.models import Range1d
+from bokeh.models import ColumnDataSource
 from bokeh.sampledata.autompg import autompg
 from bokeh.sampledata.iris import flowers
 from bokeh.io import curdoc
+from bokeh.document import Document
 
-from bokeh.charts import Bar, Scatter
-from bokeh.palettes import Blues4
+from bokeh.charts import Histogram, Scatter
+import bokeh.palettes as palettes
 
 from examples.app.crossfilter.models import StyleableBox
 from examples.app.crossfilter.models import StatsBox
@@ -36,22 +38,29 @@ class AppModel(object):
         self.agg_options = ['sum', 'mean', 'last', 'count', 'percent']
         self.x_field = self.col_names[0]
         self.y_field = self.col_names[1]
-        self.color_field = ''
+        self.color_field = None
+        self.size_field = None
+        self.palette_name = 'Spectral5'
+        self.palettes = [v for v in vars(palettes) if '_' not in v and 'brewer' not in v]
         self.plot_type = self.plot_type_options[0]
         self.agg_type = self.agg_options[0]
-        self.continuous_color_ramp = Blues4
         self.set_metadata()
         self.set_defaults()
         self.filter_states = ['Summary Stats', 'Filters', 'Facets']
         self.active_filter_state = 0
-        self.update()
+        self.tools = 'pan, wheel_zoom'
+        self.plot_width = 800
+        self.plot_height = 600
+
+        self.default_scatter_color = "#900000"
+
+        self.default_scatter_size = 9
+        self.scatter_sizes = list(range(6, 22, 3))
 
     def set_defaults(self):
         '''todo: add docs'''
         self.x_field = self.continuous_columns[0]['name']
         self.y_field = self.continuous_columns[1]['name']
-        self.color_field = self.continuous_columns[2]['name']
-        self.size_field = self.continuous_columns[3]['name']
 
     def set_metadata(self):
         """Creates a list of dicts, containing summary info for each column.
@@ -92,17 +101,21 @@ class AppModel(object):
 
         self.columns = descriptors
 
-    def update(self):
-        '''TODO: add docs'''
-        pass
-
     @property
     def continuous_columns(self):
         return [x for x in self.columns if x['type'] != 'DiscreteColumn']
 
     @property
+    def continuous_column_names(self):
+        return [x.get('name') for x in self.columns if x['type'] != 'DiscreteColumn']
+
+    @property
     def discrete_columns(self):
         return [x for x in self.columns if x['type'] == 'DiscreteColumn']
+
+    @property
+    def discrete_column_names(self):
+        return [x.get('name') for x in self.columns if x['type'] == 'DiscreteColumn']
 
     @property
     def temporal_columns(self):
@@ -125,12 +138,14 @@ class AppController(object):
 
     def on_change(self, attr, old, new, model_field):
         '''TODO: add docs'''
-        setattr(self.model, model_field, new)
+        if new == 'None':
+            setattr(self.model, model_field, None)
+        else:
+            setattr(self.model, model_field, new)
         self.update_app()
 
     def update_app(self):
         '''TODO: add docs'''
-        self.model.update()
         for v in self.views:
             v.update()
 
@@ -147,7 +162,6 @@ class BaseView(object):
         '''TODO: add docs'''
         widget = Select.create(name=name, value=getattr(self.model, model_field), options=options)
         self.controller.bind_to_model(widget, 'value', model_field)
-        self.layout.children.append(widget)
         return widget
 
     def update(self):
@@ -185,6 +199,7 @@ class AppView(BaseView):
         # register view for update with contoller
         self.controller.register_view_for_update(self.plot_view)
         self.controller.register_view_for_update(self.filter_view)
+        self.controller.register_view_for_update(self.controls_view)
         self.controller.register_view_for_update(self)
 
         self.update()
@@ -209,76 +224,90 @@ class FilterView(BaseView):
 class PlotView(BaseView):
     '''TODO: add docs'''
 
-    def scatter_args(self):
-        '''TODO: add docs'''
-        d = {}
-        d['tools'] = 'pan,wheel_zoom'
-        d['data'] = self.model.df
-        d['x'] = self.model.x_field
-        d['y'] = self.model.y_field
-        d['xlabel'] = self.model.x_field
-        d['ylabel'] = self.model.y_field
-        d['color'] = self.model.color_field
-        return d
+    def create_scatter(self):
+        self.figure = Figure(tools=self.model.tools, plot_width=self.model.plot_width, plot_height=self.model.plot_height)
+        self.figure.xaxis.axis_label = self.model.x_field
+        self.figure.yaxis.axis_label = self.model.y_field
 
-    @property
-    def bar_args(self):
-        '''TODO: add docs'''
+        if self.model.color_field:
+            scatter_colors = list(reversed(getattr(palettes, self.model.palette_name)))
+            bins = len(scatter_colors)
+            groups = pd.qcut(self.model.df[self.model.color_field].tolist(), bins)
+            colors = [scatter_colors[l] for l in groups.labels]
+        else:
+            colors = self.model.default_scatter_color
 
-        d = {}
-        d['tools'] = 'pan,wheel_zoom'
-        d['data'] = self.model.df
-        d['label'] = self.model.x_field
-        d['values'] = self.model.y_field
-        d['agg'] = self.model.agg_type
-        d['color'] = self.model.color_field
-        return d
+        if self.model.size_field:
+            bins = len(self.model.scatter_sizes)
+            groups = pd.qcut(self.model.df[self.model.size_field].tolist(), bins)
+            sizes = [self.model.scatter_sizes[l] for l in groups.labels]
+        else:
+            sizes = self.model.default_scatter_size
+
+        self.scatter = self.figure.scatter(source=ColumnDataSource(self.model.df),
+                                            x=self.model.x_field, 
+                                            y=self.model.y_field,
+                                            color=colors,
+                                            size=sizes,
+                                            alpha=0.8)
+ 
+        self.layout.children = [self.figure]
+        return self.figure
+
+    def create_bar(self):
+        self.figure = Figure(tools=self.model.tools, plot_width=self.plot_width, height=self.plot_height)
+        self.bar = self.figure.quad(source=self.model.df, bottom=0, top=self.model.y_field, left='left', right='right', color=colors[0], alpha=0.5, line_color="black", legend="Actual")
 
     def create_children(self):
         '''TODO: add docs'''
-        self.layout = StyleableBox()
-
-        self.layout.css_properties = {}
-        self.layout.css_properties['position'] = 'absolute'
-        self.layout.css_properties['top'] = '6em'
-        self.layout.css_properties['bottom'] = '0'
-        self.layout.css_properties['right'] = '0'
-        self.layout.css_properties['left'] = '0'
-        self.layout.css_properties['background'] = "#2F2F2F"
-
+        self.layout = HBox(width=900)
         self.update()
 
     def update(self):
         '''TODO: add docs'''
         if self.model.plot_type == 'scatter':
-            self.scatter = Scatter(**self.scatter_args())
-            self.layout.children = [self.scatter]
+            plot = self.create_scatter()
         elif self.model.plot_type == 'bar':
-            self.bar = Bar(**self.bar_args)
-            self.layout.children = [self.bar]
+            plot = self.create_bar()
+
+        self.layout.children = [plot]
 
 class ControlsView(BaseView):
 
     def create_children(self):
         '''TODO: add docs'''
-        self.layout = StyleableBox(orientation='horizontal')
+        self.layout = HBox(width=800)
+        self.update()
 
-        self.layout.css_properties = {}
-        self.layout.css_properties['position'] = 'relative'
-        self.layout.css_properties['top'] = '0'
-        self.layout.css_properties['left'] = '0'
-        self.layout.css_properties['right'] = '0'
-        self.layout.css_properties['height'] = '4em'
-        self.layout.css_properties['background'] = "#31AADE"
-        self.layout.css_properties['padding'] = ".5em"
+    def update(self):
+        if self.model.plot_type == 'scatter':
+            self.create_scatter_controls()
+        elif self.model.plot_type == 'bar':
+            self.create_bar_controls()
 
+    def create_scatter_controls(self):
         cols = self.model.col_names
+        continuous = self.model.continuous_column_names
+        children = []
+        children.append(self.add_select('Plot Type', self.model.plot_type_options, 'plot_type'))
+        children.append(self.add_select('X-Axis', cols, 'x_field'))
+        children.append(self.add_select('Y-Axis', cols, 'y_field'))
+        children.append(self.add_select('Color', ['None'] + continuous, 'color_field'))
+
+        if self.model.color_field:
+            children.append(self.add_select('Palette', sorted(self.model.palettes), 'palette_name'))
+
+        children.append(self.add_select('Size', ['None'] + continuous, 'size_field'))
+        self.layout.children = children
+
+    def create_bar_controls(self):
+        cols = self.model.col_names
+        continuous = self.model.continuous_column_names
+        children = []
         self.plot_selector = self.add_select('plot_type', self.model.plot_type_options, 'plot_type')
         self.x_selector = self.add_select('x', cols, 'x_field')
         self.y_selector = self.add_select('y', cols, 'y_field')
-        self.color_selector = self.add_select('color', cols, 'color_field')
         self.agg_selector = self.add_select('agg', self.model.agg_options, 'agg_type')
-
 
 model = AppModel(autompg)
 controller = AppController(model)
