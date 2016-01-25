@@ -85,6 +85,7 @@ def test_Legend():
         "glyph_width",
         "legend_padding",
         "legend_spacing",
+        "legend_orientation",
         "legends",
         "level"
     ], LABEL, BORDER, BACKGROUND)
