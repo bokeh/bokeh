@@ -110,7 +110,6 @@ module.exports = {
   QUADKEYTileSource:        require '../models/tiles/quadkey_tile_source'
   BBoxTileSource:           require '../models/tiles/bbox_tile_source'
 
-  # dbl check
   DynamicImageRenderer:     require '../models/tiles/dynamic_image_renderer'
   ImageSource:              require '../models/tiles/image_source'
 
