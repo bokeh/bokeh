@@ -4,7 +4,9 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..core.enums import LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode, Side
+from ..core.enums import (
+    Orientation, LegendLocation, SpatialUnits, RenderLevel, Dimension, RenderMode, Side
+)
 from ..core.property_mixins import LineProps, FillProps, TextProps
 from ..core.properties import abstract
 from ..core.properties import (
@@ -97,6 +99,11 @@ class Legend(Annotation):
 
     legend_spacing = Int(3, help="""
     Amount of spacing between legend entries.
+    """)
+
+    legend_orientation = Enum(Orientation, default="vertical", help="""
+    Whether the legend entries should be placed vertically or horizonatally
+    when they are layed out.
     """)
 
     legends = List(Tuple(String, List(Instance(GlyphRenderer))), help="""
