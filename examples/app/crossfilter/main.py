@@ -1,4 +1,7 @@
 from functools import partial
+from collections import OrderedDict
+
+import pdb
 
 import numpy as np
 import pandas as pd
@@ -32,10 +35,9 @@ class AppModel(object):
         self.df = df
         self.data = ColumnDataSource(df)
         self.columns = []
-        self.col_names = self.data.column_names
+        self.col_names = list(self.data.column_names)
         self.filtered_data = None
         self.plot_type_options = ['scatter', 'bar']
-        self.agg_options = ['sum', 'mean', 'last', 'count', 'percent']
         self.x_field = self.col_names[0]
         self.y_field = self.col_names[1]
         self.color_field = None
@@ -43,7 +45,13 @@ class AppModel(object):
         self.palette_name = 'Spectral5'
         self.palettes = [v for v in vars(palettes) if '_' not in v and 'brewer' not in v]
         self.plot_type = self.plot_type_options[0]
-        self.agg_type = self.agg_options[0]
+
+        self.agg_options = OrderedDict()
+        self.agg_options['Sum'] = np.sum
+        self.agg_options['Mean'] = np.mean
+        self.agg_options['Count'] = len
+        self.agg_type = list(self.agg_options.keys())[0]
+
         self.set_metadata()
         self.set_defaults()
         self.filter_states = ['Summary Stats', 'Filters', 'Facets']
@@ -51,9 +59,8 @@ class AppModel(object):
         self.tools = 'pan, wheel_zoom'
         self.plot_width = 800
         self.plot_height = 600
-
-        self.default_scatter_color = "#900000"
-
+        self.background_fill = '#2F2F2F'
+        self.default_scatter_color = "#31AADE"
         self.default_scatter_size = 9
         self.scatter_sizes = list(range(6, 22, 3))
 
@@ -68,21 +75,23 @@ class AppModel(object):
         """
         descriptors = []
         columns = self.df.columns
-        for c in columns:
-            desc = self.df[c].describe()
-            if self.df[c].dtype == object:
+        for col in columns:
+            desc = self.df[col].describe()
+            unique = len(self.df[col].unique())
+            if self.df[col].dtype == object:
                 descriptors.append({
                     'type': "DiscreteColumn",
-                    'name': c,
+                    'name': col,
                     'count': desc['count'],
-                    'unique': desc['unique'],
+                    'unique': unique,
                     'top': desc['top'],
                     'freq': desc['freq'],
                 })
-            elif self.df[c].dtype == np.datetime64:
+            elif self.df[col].dtype == np.datetime64:
                 descriptors.append({
                     'type': "TimeColumn",
-                    'name': c,
+                    'name': col,
+                    'unique': unique,
                     'count': desc['count'],
                     'unique': desc['unique'],
                     'first': desc['first'],
@@ -91,8 +100,9 @@ class AppModel(object):
             else:
                 descriptors.append({
                     'type': "ContinuousColumn",
-                    'name': c,
+                    'name': col,
                     'count': desc['count'],
+                    'unique': unique,
                     'mean': "%.2f" % desc['mean'],
                     'std': "%.2f" % desc['std'],
                     'min': "%.2f" % desc['min'],
@@ -120,6 +130,30 @@ class AppModel(object):
     @property
     def temporal_columns(self):
         return [x for x in self.columns if x['type'] == 'TimeColumn']
+    
+    @property
+    def aggregate_function(self):
+        return self.agg_options.get(self.agg_type)
+
+    @property
+    def quantileable_column_names(self):
+        return [x.get('name') for x in self.columns if x['type'] != 'DiscreteColumn' and x['unique'] > 20]
+
+    def create_base_figure(self):
+        fig = Figure(tools=self.tools, plot_width=self.plot_width, plot_height=self.plot_height)
+        fig.toolbar_location = None
+        fig.xaxis.axis_label = self.x_field
+        fig.yaxis.axis_label = self.y_field
+        fig.background_fill = self.background_fill
+        fig.border_fill = self.background_fill
+        fig.axis.axis_line_color = "white"
+        fig.axis.axis_label_text_color = "white"
+        fig.axis.major_label_text_color = "white"
+        fig.axis.major_tick_line_color = "white"
+        fig.axis.minor_tick_line_color = "white"
+        fig.grid.grid_line_alpha = 0.3
+        fig.grid.grid_line_dash = [6, 4]
+        return fig
 
 class AppController(object):
     '''mediate views -> model updates'''
@@ -138,10 +172,12 @@ class AppController(object):
 
     def on_change(self, attr, old, new, model_field):
         '''TODO: add docs'''
+
         if new == 'None':
             setattr(self.model, model_field, None)
         else:
             setattr(self.model, model_field, new)
+
         self.update_app()
 
     def update_app(self):
@@ -158,7 +194,7 @@ class BaseView(object):
         self.layout = layout_class() if layout_class else None
         self.create_children()
 
-    def add_select(self, name, options, model_field):
+    def bind_select(self, name, options, model_field):
         '''TODO: add docs'''
         widget = Select.create(name=name, value=getattr(self.model, model_field), options=options)
         self.controller.bind_to_model(widget, 'value', model_field)
@@ -225,9 +261,7 @@ class PlotView(BaseView):
     '''TODO: add docs'''
 
     def create_scatter(self):
-        self.figure = Figure(tools=self.model.tools, plot_width=self.model.plot_width, plot_height=self.model.plot_height)
-        self.figure.xaxis.axis_label = self.model.x_field
-        self.figure.yaxis.axis_label = self.model.y_field
+        self.figure = self.model.create_base_figure()
 
         if self.model.color_field:
             scatter_colors = list(reversed(getattr(palettes, self.model.palette_name)))
@@ -244,19 +278,27 @@ class PlotView(BaseView):
         else:
             sizes = self.model.default_scatter_size
 
-        self.scatter = self.figure.scatter(source=ColumnDataSource(self.model.df),
+        self.scatter = self.figure.scatter(source=self.model.data,
                                             x=self.model.x_field, 
                                             y=self.model.y_field,
                                             color=colors,
                                             size=sizes,
+                                            line_color="white",
                                             alpha=0.8)
  
         self.layout.children = [self.figure]
         return self.figure
 
     def create_bar(self):
-        self.figure = Figure(tools=self.model.tools, plot_width=self.plot_width, height=self.plot_height)
-        self.bar = self.figure.quad(source=self.model.df, bottom=0, top=self.model.y_field, left='left', right='right', color=colors[0], alpha=0.5, line_color="black", legend="Actual")
+        grouped = self.model.df.groupby(self.model.x_field)
+        aggregate = grouped.aggregate(self.model.aggregate_function)
+        xs = aggregate.index
+        ys = aggregate[self.model.y_field]
+        self.figure = self.model.create_base_figure()
+        self.figure.quad(left=xs, right=xs+1, bottom=0, top=ys, line_color="white", alpha=0.8)
+        self.figure.yaxis.axis_label = '{}({})'.format(self.model.agg_type, self.model.y_field)
+        self.layout.children = [self.figure]
+        return self.figure
 
     def create_children(self):
         '''TODO: add docs'''
@@ -287,27 +329,27 @@ class ControlsView(BaseView):
 
     def create_scatter_controls(self):
         cols = self.model.col_names
-        continuous = self.model.continuous_column_names
         children = []
-        children.append(self.add_select('Plot Type', self.model.plot_type_options, 'plot_type'))
-        children.append(self.add_select('X-Axis', cols, 'x_field'))
-        children.append(self.add_select('Y-Axis', cols, 'y_field'))
-        children.append(self.add_select('Color', ['None'] + continuous, 'color_field'))
+        children.append(self.bind_select('Plot Type', self.model.plot_type_options, 'plot_type'))
+        children.append(self.bind_select('X-Axis', cols, 'x_field'))
+        children.append(self.bind_select('Y-Axis', cols, 'y_field'))
+        children.append(self.bind_select('Color', ['None'] + self.model.quantileable_column_names, 'color_field'))
 
         if self.model.color_field:
-            children.append(self.add_select('Palette', sorted(self.model.palettes), 'palette_name'))
+            children.append(self.bind_select('Palette', sorted(self.model.palettes), 'palette_name'))
 
-        children.append(self.add_select('Size', ['None'] + continuous, 'size_field'))
+        children.append(self.bind_select('Size', ['None'] + self.model.quantileable_column_names, 'size_field'))
         self.layout.children = children
 
     def create_bar_controls(self):
         cols = self.model.col_names
         continuous = self.model.continuous_column_names
         children = []
-        self.plot_selector = self.add_select('plot_type', self.model.plot_type_options, 'plot_type')
-        self.x_selector = self.add_select('x', cols, 'x_field')
-        self.y_selector = self.add_select('y', cols, 'y_field')
-        self.agg_selector = self.add_select('agg', self.model.agg_options, 'agg_type')
+        children.append(self.bind_select('Plot Type', self.model.plot_type_options, 'plot_type'))
+        children.append(self.bind_select('X-Axis', cols, 'x_field'))
+        children.append(self.bind_select('Y-Axis', continuous, 'y_field'))
+        children.append(self.bind_select('Aggregation', self.model.agg_options.keys(), 'agg_type'))
+        self.layout.children = children
 
 model = AppModel(autompg)
 controller = AppController(model)
