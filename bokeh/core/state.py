@@ -136,7 +136,7 @@ class State(object):
     def autoadd(self):
         return self._autoadd
 
-    @property.setter
+    @autoadd.setter
     def autoadd(self, val):
         self._autoadd = val
 
