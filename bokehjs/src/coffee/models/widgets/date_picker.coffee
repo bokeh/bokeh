@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "jquery-ui/datepicker"
-ContinuumView = require "../common/continuum_view"
+ContinuumView = require "../../common/continuum_view"
 InputWidget = require "./input_widget"
 
 class DatePickerView extends ContinuumView

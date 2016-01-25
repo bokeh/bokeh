@@ -1,5 +1,5 @@
 _  = require "underscore"
-ContinuumView  = require "../common/continuum_view"
+ContinuumView  = require "../../common/continuum_view"
 AbstractButton = require "./abstract_button"
 
 class ToggleView extends ContinuumView

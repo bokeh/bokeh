@@ -1,5 +1,5 @@
 _ = require "underscore"
-ContinuumView = require "../common/continuum_view"
+ContinuumView = require "../../common/continuum_view"
 AbstractIcon = require "./abstract_icon"
 
 class IconView extends ContinuumView

@@ -1,6 +1,6 @@
 _ = require "jquery"
 $ = require "underscore"
-ContinuumView = require "../common/continuum_view"
+ContinuumView = require "../../common/continuum_view"
 multiselecttemplate = require "./multiselecttemplate"
 InputWidget = require "./input_widget"
 

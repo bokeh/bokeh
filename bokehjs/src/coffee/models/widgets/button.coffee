@@ -1,7 +1,7 @@
 _ = require "underscore"
 build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
-AbstractButton = require "../../common/abstract_button"
+AbstractButton = require "./abstract_button"
 
 class ButtonView extends ContinuumView
   tagName: "button"

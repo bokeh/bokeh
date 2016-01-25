@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "jqrangeslider/jQDateRangeSlider"
-ContinuumView = require "../common/continuum_view"
+ContinuumView = require "../../common/continuum_view"
 InputWidget = require "./input_widget"
 
 class DateRangeSliderView extends ContinuumView

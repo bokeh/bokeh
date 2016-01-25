@@ -1,5 +1,5 @@
 _ = require "underscore"
-ContinuumView = require "../common/continuum_view"
+ContinuumView = require "../../common/continuum_view"
 Markup = require "./markup"
 
 class ParagraphView extends ContinuumView

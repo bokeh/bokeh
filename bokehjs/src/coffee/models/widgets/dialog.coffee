@@ -1,7 +1,7 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/modal"
-ContinuumView = require "../common/continuum_view"
+ContinuumView = require "../../common/continuum_view"
 dialog_template = require "./dialog_template"
 Widget = require "./widget"
 
