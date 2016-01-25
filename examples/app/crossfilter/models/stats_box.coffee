@@ -14,12 +14,9 @@ class StatsBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
 
-    styles =
-       rel: "stylesheet",
-       type: "text/css",
-       href: "//s3.amazonaws.com/bcollins/stats_box.css"
-
-    $("<link/>", styles).appendTo("head")
+    # add in stylesheet to document
+    if @model.get('styles')?
+      $( "<style>#{@model.get('styles')}</style>" ).appendTo("head")
 
     @views = {}
     @render()
@@ -66,6 +63,7 @@ class StatsBox extends BaseBox.Model
       children: []
       display_items: {}
       title: null
+      styles: null
     }
 
   children: () ->

@@ -1,31 +1,21 @@
 from functools import partial
 from collections import OrderedDict
 
-import pdb
-
 import numpy as np
 import pandas as pd
 
 from bokeh.sampledata.autompg import autompg
-from bokeh.models import ColumnDataSource, Panel, Tabs, Range
-
-from bokeh.models.widgets import HBox, VBox, PreText, Select, Button
-from bokeh.models.widgets import RadioButtonGroup, DataTable
-from bokeh.properties import Dict, Enum, Instance, List, String, Any, Int
-from bokeh.plotting import Figure
-from bokeh.model import Model
-from bokeh.models import Range1d
 from bokeh.models import ColumnDataSource
-from bokeh.sampledata.autompg import autompg
-from bokeh.sampledata.iris import flowers
-from bokeh.io import curdoc
-from bokeh.document import Document
 
-from bokeh.charts import Histogram, Scatter
+from bokeh.models.widgets import HBox, Select
+from bokeh.plotting import Figure
+from bokeh.io import curdoc
+
 import bokeh.palettes as palettes
 
 from examples.app.crossfilter.models import StyleableBox
 from examples.app.crossfilter.models import StatsBox
+from examples.app.crossfilter.models.helpers import load_component
 
 class AppModel(object):
     '''todo: add docs'''
@@ -63,6 +53,7 @@ class AppModel(object):
         self.default_scatter_color = "#31AADE"
         self.default_scatter_size = 9
         self.scatter_sizes = list(range(6, 22, 3))
+        self.stats_box_style = load_component('stats_box.css')
 
     def set_defaults(self):
         '''todo: add docs'''
@@ -130,7 +121,7 @@ class AppModel(object):
     @property
     def temporal_columns(self):
         return [x for x in self.columns if x['type'] == 'TimeColumn']
-    
+
     @property
     def aggregate_function(self):
         return self.agg_options.get(self.agg_type)
@@ -144,8 +135,8 @@ class AppModel(object):
         fig.toolbar_location = None
         fig.xaxis.axis_label = self.x_field
         fig.yaxis.axis_label = self.y_field
-        fig.background_fill = self.background_fill
-        fig.border_fill = self.background_fill
+        fig.background_fill_color = self.background_fill
+        fig.border_fill_color = self.background_fill
         fig.axis.axis_line_color = "white"
         fig.axis.axis_label_text_color = "white"
         fig.axis.major_label_text_color = "white"
@@ -249,12 +240,11 @@ class FilterView(BaseView):
     def create_children(self):
         '''TODO: add docs'''
         self.layout = StyleableBox()
-        self.radio_button_group = RadioButtonGroup(labels=self.model.filter_states, active=self.model.active_filter_state)
-        self.controller.bind_to_model(self.radio_button_group, 'active', 'active_filter_state')
         self.update()
 
     def update(self):
-        self.layout.children = [StatsBox(display_items=c) for c in self.model.continuous_columns]
+        
+        self.layout.children = [StatsBox(display_items=c, styles=self.model.stats_box_style) for c in self.model.continuous_columns]
 
 
 class PlotView(BaseView):
@@ -267,25 +257,25 @@ class PlotView(BaseView):
             scatter_colors = list(reversed(getattr(palettes, self.model.palette_name)))
             bins = len(scatter_colors)
             groups = pd.qcut(self.model.df[self.model.color_field].tolist(), bins)
-            colors = [scatter_colors[l] for l in groups.labels]
+            colors = [scatter_colors[l] for l in groups.codes]
         else:
             colors = self.model.default_scatter_color
 
         if self.model.size_field:
             bins = len(self.model.scatter_sizes)
             groups = pd.qcut(self.model.df[self.model.size_field].tolist(), bins)
-            sizes = [self.model.scatter_sizes[l] for l in groups.labels]
+            sizes = [self.model.scatter_sizes[l] for l in groups.codes]
         else:
             sizes = self.model.default_scatter_size
 
         self.scatter = self.figure.scatter(source=self.model.data,
-                                            x=self.model.x_field, 
-                                            y=self.model.y_field,
-                                            color=colors,
-                                            size=sizes,
-                                            line_color="white",
-                                            alpha=0.8)
- 
+                                           x=self.model.x_field,
+                                           y=self.model.y_field,
+                                           color=colors,
+                                           size=sizes,
+                                           line_color="white",
+                                           alpha=0.8)
+
         self.layout.children = [self.figure]
         return self.figure
 
