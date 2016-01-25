@@ -14,7 +14,7 @@ global.WebSocket = require("websocket").w3cwebsocket
 HasProperties = utils.require "common/has_properties"
 {Document, ModelChangedEvent} = utils.require "common/document"
 {pull_session} = utils.require "common/client"
-Range1d = utils.require("range/range1d").Model
+Range1d = utils.require("models/ranges/range1d").Model
 
 # Promise works in a very annoying way, make it
 # have resolve and reject methods instead
