@@ -159,7 +159,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
   widgetsOpts = {
-    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'widget/main.js'))]
+    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'models/widgets/main.js'))]
     extensions: [".js"]
     debug: true
     preludePath: preludePath

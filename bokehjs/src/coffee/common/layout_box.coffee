@@ -3,7 +3,7 @@ kiwi = require "kiwi"
 {Variable, Expression, Constraint, Operator } = kiwi
 {Eq, Le, Ge} = Operator
 Model = require "../model"
-Range1d = require "../range/range1d"
+Range1d = require "../models/ranges/range1d"
 
 
 class LayoutBox extends Model
