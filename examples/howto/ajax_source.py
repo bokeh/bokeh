@@ -6,7 +6,7 @@ from random import random
 from six import string_types
 
 from bokeh.plotting import figure, show, output_file
-from bokeh.models.sources import AjaxDataSource
+from bokeh.models import AjaxDataSource
 
 output_file("ajax_source.html", title="ajax_source.py example")
 source = AjaxDataSource(data_url='http://localhost:5050/data',

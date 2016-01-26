@@ -6,9 +6,8 @@ import datetime as dt
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Patch, Line, Text
 from bokeh.models import (
-    ColumnDataSource, DataRange1d, DatetimeAxis,
+    Patch, Line, Text, ColumnDataSource, DataRange1d, DatetimeAxis,
     DatetimeTickFormatter, Grid, Legend, Plot
 )
 from bokeh.resources import INLINE

@@ -1,13 +1,11 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool
-from bokeh.models.widgets import Tabs, Panel, Paragraph
-from bokeh.models.layouts import VBox
-from bokeh.models.glyphs import (
+from bokeh.models import (
     AnnularWedge, Annulus, Arc, Bezier, Gear, Circle, ImageURL, Line, MultiLine, Oval,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Text, Wedge, CircleX, Triangle,
-    Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross, X
-)
+    Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross,
+    X, Tabs, Panel, Paragraph, VBox, ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool
+    )
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE

@@ -6,9 +6,8 @@ import pandas as pd
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle, Line
 from bokeh.models import (
-    ColumnDataSource, Grid, GridPlot, LinearAxis, Plot, Range1d
+    ColumnDataSource, Grid, GridPlot, LinearAxis, Plot, Range1d, Circle, Line
 )
 from bokeh.resources import INLINE
 

@@ -1,9 +1,7 @@
 from __future__ import absolute_import
 
 from bokeh.plotting import Figure
-from bokeh.models.layouts import HBox, VBox, VBoxForm
-from bokeh.models.widgets import Slider
-from bokeh.models.sources import ColumnDataSource
+from bokeh.models import HBox, VBox, VBoxForm, Slider, ColumnDataSource
 
 import pytest
 

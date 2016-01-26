@@ -7,10 +7,10 @@ from bokeh.resources import INLINE
 
 from bokeh.plotting import output_file
 
-from bokeh.models import Plot
-from bokeh.models import Range1d
-from bokeh.models import WheelZoomTool, ResizeTool, PanTool, BoxZoomTool
-from bokeh.models import WMTSTileSource
+from bokeh.models import (
+    Plot, Range1d, WheelZoomTool, ResizeTool, PanTool,
+    BoxZoomTool, WMTSTileSource
+    )
 
 output_file("tile_source_example.html", title="Tile Source Example")
 

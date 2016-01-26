@@ -7,8 +7,7 @@ from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
-from bokeh.models.glyphs import Circle, Arc, Ray, Text
-from bokeh.models import ColumnDataSource, Range1d, Plot
+from bokeh.models import Circle, Arc, Ray, Text, ColumnDataSource, Range1d, Plot
 
 xdr = Range1d(start=-1.25, end=1.25)
 ydr = Range1d(start=-1.25, end=1.25)

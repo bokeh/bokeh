@@ -1,4 +1,4 @@
-from bokeh.models.widgets import Slider
+from bokeh.models import Slider
 from bokeh.io import output_file, show, vform
 
 output_file("slider.html")

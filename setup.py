@@ -548,7 +548,6 @@ setup(
         'bokeh.application.handlers.tests',
         'bokeh.models',
         'bokeh.models.tests',
-        'bokeh.models.widgets',
         'bokeh.charts',
         'bokeh.charts.builders',
         'bokeh.charts.builders.tests',

@@ -2,10 +2,9 @@ from __future__ import print_function
 
 from bokeh.util.browser import view
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
 from bokeh.models import (
     GMapPlot, Range1d, ColumnDataSource,
-    PanTool, WheelZoomTool, GMapOptions)
+    PanTool, WheelZoomTool, GMapOptions, Circle)
 from bokeh.resources import INLINE
 from bokeh.sampledata.world_cities import data
 

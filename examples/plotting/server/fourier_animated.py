@@ -14,7 +14,7 @@ import numpy as np
 from bokeh.client import push_session
 from bokeh.driving import repeat
 from bokeh.io import vplot
-from bokeh.models.sources import ColumnDataSource as CDS
+from bokeh.models import ColumnDataSource as CDS
 from bokeh.plotting import figure, curdoc
 
 N = 100
