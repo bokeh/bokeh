@@ -7,43 +7,43 @@ Introduction
 ============
 
 Bokeh is a Python interactive visualization library that targets modern web
-browsers for presentation providing elegant, concise construction of novel
-graphics with high-performance interactivity over very large or streaming
-datasets in a quick and easy way.
+browsers for presentation. Bokeh provides quick, easy, elegant, concise 
+construction of novel graphics with high-performance interactivity over very 
+large or streaming datasets.
 
-Offering both powerful and flexible features to enable very advanced
-customizations in one hand and simplicity on the other, Bokeh exposes different
-interface levels to the users:
+To offer both simplicity and the powerful and flexible features needed for 
+advanced customizations, Bokeh exposes three interface levels to users:
 
-* a *low-level* |bokeh.models| interface that provides the most flexibility
-  to application developers.
-* an *intermediate-level* |bokeh.plotting| interface that is centered
-  around composing visual glyphs.
-* a *high-level* |bokeh.charts| interface that can be used to build complex
-  statistical plots as quickly and as simply as possible.
+* a *low-level* |bokeh.models| interface providing the most flexibility to 
+  application developers.
+* an *intermediate-level* |bokeh.plotting| interface centered around composing 
+  visual glyphs.
+* a *high-level* |bokeh.charts| interface to build complex statistical plots 
+  quickly and simply.
 
 This Quickstart focuses on the |bokeh.plotting| interface.
 
 Quick Installation
 ==================
 
-There are a few different ways to install Bokeh.
-
-If you are using the `Anaconda Python distribution`_ (which is recommended),
-enter this command at a Bash or Windows command prompt:
+There are multiple ways to install Bokeh, and we recommend the easiest one, 
+which is to use the `Anaconda Python distribution`_ and enter this command at 
+a Bash or Windows command prompt:
 
 .. code-block:: sh
 
     conda install bokeh
 
-This installs all the dependencies that you need to be ready to run Bokeh
-and we strongly recommend using it. It reduces the installation effort to
-nearly zero on any platform and configuration (including Windows). It also
-installs the examples into the ``examples/`` subdirectory of your Anaconda (or
-miniconda) installation directory.
+This installs all the dependencies that Bokeh needs. Anaconda minimizes 
+installation effort on all platforms and configurations, including Windows, 
+and also installs the examples into the ``examples/`` subdirectory of your 
+Anaconda or miniconda installation directory. (For instance, if you use 
+Miniconda with Python 3 on OS X or Linux and your Bokeh environment is called 
+bokehEnv, the examples directory would be at 
+``~/miniconda3/envs/bokeh/Examples/``.)
 
-If you are confident that you have dependencies such as NumPy, Pandas, and Redis
-installed, then you can also use ``pip`` at the command line:
+If you are confident that you have installed all needed dependencies such as 
+NumPy, Pandas, and Redis, you may instead use ``pip`` at the command line:
 
 .. code-block:: sh
 
@@ -95,19 +95,19 @@ The basic steps to creating plots with the |bokeh.plotting| interface are:
 
 1. Prepare some data (in this case plain python lists).
 2. Tell Bokeh where to generate output (in this case using |output_file|,
-   with ``"lines.html"`` as the filename to save as).
+   with the filename ``"lines.html"``).
 3. Call |figure| to create a plot with some overall options like title,
    tools and axes labels.
 4. Add renderers (in this case, |Figure.line|) for our data, with visual
    customizations like colors, legends and widths to the plot.
 5. Ask Bokeh to |show| or |save| the results.
 
-Steps three and four can be repeated to create more than one plot. See some
-examples of this below.
+Steps three and four can be repeated to create more than one plot, as shown in 
+some of the examples below.
 
 The |bokeh.plotting| interface is also quite handy if we need to customize
 the output a bit more by adding more data series, glyphs, logarithmic axis,
-etc. It's also possible to easily combine multiple glyphs together on one
+and so on. It's also possible to easily combine multiple glyphs together on one
 plot as shown below:
 
 .. bokeh-plot::
@@ -145,26 +145,28 @@ plot as shown below:
 Jupyter Notebooks
 =================
 
-At this point we should mention Jupyter (formerly IPython) notebooks.
+Jupyter notebooks are a fantastic tool for exploratory data analysis, widely 
+used across the "PyData" community. They were previously known as IPython 
+notebooks. Bokeh integrates seamlessly with Jupyter notebooks. To view the 
+above examples in a notebook, you would only change |output_file| to a call 
+to |output_notebook| instead.
 
-Jupyter notebooks are a fantastic tool for exploratory data analysis, and they
-are widely used across the "PyData" community. Bokeh integrates seamlessly with
-Jupyter notebooks. To view the above examples in a notebook, you would only change
-|output_file| to a call to |output_notebook| instead.
-
-A large number of static examples may be viewed directly online at the
+Many static examples may be viewed directly online at the
 `Bokeh NBViewer Gallery`_.
 
 The `Bokeh GitHub repository`_ also has a number of example notebooks in the
-``examples/plotting/notebook/`` directory. After cloning the repository,
-navigate there and run::
+``examples/howto`` directory. After cloning the repository, navigate there and run::
 
     ipython notebook
 
 You can open and interact with any of the notebooks listed in the index page
 that automatically opens up. In particular, you might check out the
-`interact_basic`_ and `interact_numba`_ examples that show how Bokeh can
-be used together with Jupyter interactive widgets.
+`examples/howto/notebook_comms/Jupyter Interactors.ipynb 
+<https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Jupyter%20Interactors.ipynb>`_ 
+and `examples/howto/notebook_comms/Numba Image Example.ipynb 
+<https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Numba%20Image%20Example.ipynb>`_ 
+examples that show how Bokeh can be used together with Jupyter interactive 
+widgets.
 
 .. _quickstart_other_languages:
 
@@ -538,8 +540,6 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
 .. _Bokeh mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
-.. _interact_basic: https://github.com/bokeh/bokeh/blob/master/examples/plotting/notebook/interact_basic.ipynb
-.. _interact_numba: https://github.com/bokeh/bokeh/blob/master/examples/plotting/notebook/interact_numba.ipynb
 .. _Twitter: http://twitter.com/BokehPlots
 .. _Vine: https://vine.co/bokehplots
 .. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw
@@ -584,5 +584,3 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. |line_props| replace:: :ref:`userguide_styling_line_properties`
 .. |fill_props| replace:: :ref:`userguide_styling_fill_properties`
 .. |text_props| replace:: :ref:`userguide_styling_text_properties`
-
-
