@@ -72,7 +72,7 @@ script:
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then export UPLOAD_PYTEST_HTML=True; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration; fi  # Run the integration tests
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration --driver SauceLabs --capability browserName firefox; fi  # Run the integration tests
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then export UPLOAD_PYTEST_HTML=False; fi
     #
     # Flake/docs testing only once (Py 2.7)
