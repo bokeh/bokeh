@@ -62,7 +62,6 @@ class StatsBox extends BaseBox.Model
     return _.extend {}, super(), {
       children: []
       display_items: {}
-      title: null
       styles: null
     }
 
