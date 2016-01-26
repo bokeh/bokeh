@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 build_views = require "common/build_views"
 ContinuumView = require "common/continuum_view"
-BaseBox = require "layouts/basebox"
+BaseBox = require "models/layouts/basebox"
 
 class StyleableBoxView extends ContinuumView
   tag: "div"
