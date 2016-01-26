@@ -25,15 +25,6 @@ Bokeh.embed             = require("./common/embed")
 Bokeh.Collections       = require("./common/base").Collections
 Bokeh.Config            = require("./common/base").Config
 
-require("./api")(Bokeh)
-
-# widgets
-Bokeh.Layout                 = require('./widget/layout')
-Bokeh.BaseBox                = require('./widget/basebox')
-Bokeh.HBox                   = require('./widget/hbox')
-Bokeh.VBox                   = require('./widget/vbox')
-Bokeh.VBoxForm               = require('./widget/vboxform')
-
 # Add the jquery plugin
 require("./api/plugin")
 

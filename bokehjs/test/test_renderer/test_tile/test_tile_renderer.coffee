@@ -2,14 +2,14 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
 base = utils.require "common/base"
-TileRenderer = utils.require "renderer/tile/tile_renderer"
-TileSource = utils.require "renderer/tile/tile_source"
-MercatorTileSource = utils.require "renderer/tile/mercator_tile_source"
-TMSTileSource = utils.require "renderer/tile/tms_tile_source"
-WMTSTileSource = utils.require "renderer/tile/wmts_tile_source"
-QUADKEYTileSource = utils.require "renderer/tile/quadkey_tile_source"
-BBoxTileSource = utils.require "renderer/tile/bbox_tile_source"
-tile_utils = utils.require "renderer/tile/tile_utils"
+TileRenderer = utils.require "models/tiles/tile_renderer"
+TileSource = utils.require "models/tiles/tile_source"
+MercatorTileSource = utils.require "models/tiles/mercator_tile_source"
+TMSTileSource = utils.require "models/tiles/tms_tile_source"
+WMTSTileSource = utils.require "models/tiles/wmts_tile_source"
+QUADKEYTileSource = utils.require "models/tiles/quadkey_tile_source"
+BBoxTileSource = utils.require "models/tiles/bbox_tile_source"
+tile_utils = utils.require "models/tiles/tile_utils"
 
 describe "projection utils", ->
 
@@ -94,7 +94,7 @@ describe "tile sources", ->
       offset_source = new TileSource(tile_options)
       expect(offset_source.get('x_origin_offset')).to.be.equal(0)
       expect(offset_source.get('y_origin_offset')).to.be.equal(0)
-   
+
     it "should successfully set extra_url_vars property", ->
 
       test_extra_url_vars =
@@ -148,7 +148,7 @@ describe "tile sources", ->
       T.expect_mercator_tile_counts(source)
 
     it "should successfully set x_origin_offset and y_origin_offset", ->
-      tile_options = 
+      tile_options =
         x_origin_offset : 0
         y_origin_offset : 0
       offset_source = new TMSTileSource.Model(tile_options)
