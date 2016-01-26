@@ -40,7 +40,7 @@ and also installs the examples into the ``examples/`` subdirectory of your
 Anaconda or miniconda installation directory. (For instance, if you use 
 Miniconda with Python 3 on OS X or Linux and your Bokeh environment is called 
 bokehEnv, the examples directory would be at 
-``~/miniconda3/envs/bokeh/Examples/``.)
+``~/miniconda3/envs/bokehEnv/Examples/``.)
 
 If you are confident that you have installed all needed dependencies such as 
 NumPy, Pandas, and Redis, you may instead use ``pip`` at the command line:
