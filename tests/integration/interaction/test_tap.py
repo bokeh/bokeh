@@ -41,4 +41,4 @@ def test_tap_with_callback_triggers_alert(output_file_url, selenium):
     canvas = selenium.find_element_by_tag_name('canvas')
     click_glyph_at_position(selenium, canvas, 250, 400)
     alert = selenium.switch_to_alert()
-    assert alert.text == 'THIS WILL BREAK'
+    assert alert.text == 'tapped'
