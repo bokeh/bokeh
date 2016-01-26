@@ -43,7 +43,7 @@ plot.add_tools(pan, wheel_zoom, preview_save)
 from bokeh.core.enums import LegendLocation
 
 for location in LegendLocation:
-    legend = Legend(legends=[(location, [line]), ("other", [circle])], location=location, legend_orientation="horizontal")
+    legend = Legend(legends=[(location, [line]), ("other", [circle])], location=location, orientation="horizontal")
     plot.add_layout(legend)
 
 legend = Legend(legends=[("x=100px, y=150px", [line]), ("other", [circle])], location=(100, 150))

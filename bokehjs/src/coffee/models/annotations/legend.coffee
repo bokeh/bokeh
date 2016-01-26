@@ -37,7 +37,7 @@ class LegendView extends PlotWidget
 
     @max_label_width = _.max([_.max(text_widths), label_width])
 
-    if @mget("legend_orientation") == "vertical"
+    if @mget("orientation") == "vertical"
       @legend_height = (
         legend_names.length * @max_label_height + (1 + legend_names.length) * legend_spacing
       )
@@ -96,7 +96,7 @@ class LegendView extends PlotWidget
 
     glyph_height = @mget('glyph_height')
     glyph_width = @mget('glyph_width')
-    legend_orientation = @mget('legend_orientation')
+    orientation = @mget('orientation')
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
@@ -116,7 +116,7 @@ class LegendView extends PlotWidget
     N = @mget("legends").length
 
     for [legend_name, glyphs], idx in @mget("legends")
-      if legend_orientation == "vertical"
+      if orientation == "vertical"
         yoffset = idx * @legend_height / N
         x1 = @box_coords[0] + legend_spacing
         x2 = x1 + glyph_width
@@ -175,7 +175,7 @@ class Legend extends Annotation.Model
       label_width: 50
       legend_padding: 10
       legend_spacing: 3
-      legend_orientation: 'vertical'
+      orientation: 'vertical'
       location: 'top_right'
     }
 

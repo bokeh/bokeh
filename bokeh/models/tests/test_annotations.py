@@ -78,6 +78,7 @@ def test_Legend():
     yield (check_props, legend, [
         "plot",
         "location",
+        "orientation",
         "label_standoff",
         "label_height",
         "label_width",
@@ -85,7 +86,6 @@ def test_Legend():
         "glyph_width",
         "legend_padding",
         "legend_spacing",
-        "legend_orientation",
         "legends",
         "level"
     ], LABEL, BORDER, BACKGROUND)
