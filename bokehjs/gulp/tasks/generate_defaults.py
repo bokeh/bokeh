@@ -104,8 +104,5 @@ module.exports = {
 
 output_defaults_module(filename = os.path.join(dest_dir, 'common/defaults.coffee'),
                        defaults = all_json)
-output_defaults_module(filename = os.path.join(dest_dir, 'widget/defaults.coffee'),
+output_defaults_module(filename = os.path.join(dest_dir, 'models/widgets/defaults.coffee'),
                        defaults = widgets_json)
-
-
-
