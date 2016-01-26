@@ -68,7 +68,7 @@ def create_and_build(builder_class, *data, **kws):
     chart.start_plot()
 
     curdoc()._current_plot = chart # TODO (havocp) store this on state, not doc?
-    if curdoc().autoadd:
+    if curstate().autoadd:
         curdoc().add_root(chart)
 
     return chart
