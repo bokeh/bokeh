@@ -136,6 +136,10 @@ class State(object):
     def autoadd(self):
         return self._autoadd
 
+    @autoadd.setter
+    def autoadd(self, val):
+        self._autoadd = val
+
     @property
     def autosave(self):
         return self._autosave
