@@ -1,6 +1,0 @@
- {
-   "capabilities": {
-     "browserName": "firefox",
-     "tunnel-identifier": "$TRAVIS_JOB_NUMBER"
-   }
- }
