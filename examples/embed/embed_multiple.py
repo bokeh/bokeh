@@ -46,15 +46,14 @@ template = Template('''<!DOCTYPE html>
     <head>
         <meta charset="utf-8">
         <title>Bokeh Scatter Plots</title>
-        <style> div{float: left;} </style>
         {{ js_resources }}
         {{ css_resources }}
         {{ script }}
     </head>
     <body>
-    {% for key in div.keys() %}
-        {{ div[key] }}
-    {% endfor %}
+        {% for key in div.keys() %}
+            {{ div[key] }}
+        {% endfor %}
     </body>
 </html>
 ''')

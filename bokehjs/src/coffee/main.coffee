@@ -25,8 +25,6 @@ Bokeh.embed             = require("./common/embed")
 Bokeh.Collections       = require("./common/base").Collections
 Bokeh.Config            = require("./common/base").Config
 
-require("./api")(Bokeh)
-
 # Add the jquery plugin
 require("./api/plugin")
 

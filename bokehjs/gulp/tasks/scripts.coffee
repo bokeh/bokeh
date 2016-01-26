@@ -33,15 +33,15 @@ eco = require '../eco'
 
 gulp.task "scripts:coffee", ["scripts:generate"], () ->
   gulp.src('./src/coffee/**/*.coffee')
-      .pipe(gulpif(argv.incremental, newer({dest: './build/js/tree', ext: '.js'})))
+      .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
       .pipe(coffee({bare: true}).on('error', gutil.log))
-      .pipe(gulp.dest('./build/js/tree'))
+      .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:eco", () ->
   gulp.src('./src/coffee/**/*.eco')
-      .pipe(gulpif(argv.incremental, newer({dest: './build/js/tree', ext: '.js'})))
+      .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
       .pipe(eco().on('error', gutil.log))
-      .pipe(gulp.dest('./build/js/tree'))
+      .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco"]
 
@@ -148,7 +148,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
   bokehjsOpts = {
-    entries: [path.resolve('./build/js/tree/main.js')]
+    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'main.js'))]
     extensions: [".js"]
     debug: true
     preludePath: preludePath
@@ -159,7 +159,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludeText = fs.readFileSync(preludePath, { encoding: 'utf8' })
 
   widgetsOpts = {
-    entries: [path.resolve('./build/js/tree/widget/main.js')]
+    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'models/widgets/main.js'))]
     extensions: [".js"]
     debug: true
     preludePath: preludePath
@@ -167,7 +167,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   }
 
   compilerOpts = {
-    entries: [path.resolve('./build/js/tree/compiler/main.js')]
+    entries: [path.resolve(path.join(paths.buildDir.jsTree, 'compiler/main.js'))]
     extensions: [".js"]
     debug: true
     preludePath: preludePath
@@ -249,7 +249,6 @@ gulp.task "scripts:minify", ->
   tasks = [paths.coffee.bokehjs, paths.coffee.widgets, paths.coffee.compiler].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
-      .pipe(sourcemaps.init({loadMaps: true}))
       .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))

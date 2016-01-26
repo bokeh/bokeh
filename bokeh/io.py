@@ -22,7 +22,6 @@ import io
 import itertools
 import json
 import os
-import uuid
 import warnings
 
 # Third-party imports
@@ -33,10 +32,11 @@ from .document import Document
 from .embed import notebook_div, standalone_html_page_for_models, autoload_server
 from .models import Component
 from .models.plots import GridPlot
-from .models.widgets.layouts import HBox, VBox, VBoxForm
+from .models.layouts import HBox, VBox, VBoxForm
 from .model import _ModelInDocument
 from .util.notebook import load_notebook, publish_display_data, get_comms
 from .util.string import decode_utf8
+from .util.serialization import make_id
 import bokeh.util.browser as browserlib # full import needed for test mocking to work
 from .client import DEFAULT_SESSION_ID, push_session, show_session
 
@@ -326,7 +326,7 @@ def _show_notebook_with_state(obj, state):
         snippet = autoload_server(obj, session_id=state.session_id_allowing_none, url=state.url, app_path=state.app_path)
         publish_display_data({'text/html': snippet})
     else:
-        comms_target = str(uuid.uuid4())
+        comms_target = make_id()
         publish_display_data({'text/html': notebook_div(obj, comms_target)})
         handle = _CommsHandle(get_comms(comms_target), state.document, state.document.to_json())
         state.last_comms_handle = handle

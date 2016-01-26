@@ -1,7 +1,8 @@
 import numpy as np
 
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool
-from bokeh.models.widgets import VBox, Tabs, Panel, Paragraph
+from bokeh.models.widgets import Tabs, Panel, Paragraph
+from bokeh.models.layouts import VBox
 from bokeh.models.glyphs import (
     AnnularWedge, Annulus, Arc, Bezier, Gear, Circle, ImageURL, Line, MultiLine, Oval,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Text, Wedge, CircleX, Triangle,

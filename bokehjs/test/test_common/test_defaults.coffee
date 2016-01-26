@@ -3,14 +3,14 @@ _ = require "underscore"
 utils = require "../utils"
 
 core_defaults = utils.require "common/defaults"
-widget_defaults = utils.require "widget/defaults"
+widget_defaults = utils.require "models/widgets/defaults"
 
 {Collections} = utils.require "common/base"
 HasProperties = utils.require "common/has_properties"
 properties = utils.require "common/properties"
 Bokeh = utils.require "main"
 
-widget_locations = utils.require "widget/main"
+widget_locations = utils.require "models/widgets/main"
 Collections.register_locations(widget_locations)
 
 all_view_model_names = []

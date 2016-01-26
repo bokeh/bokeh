@@ -14,7 +14,6 @@ these different cases.
 from __future__ import absolute_import
 
 from collections import Sequence
-import uuid
 from warnings import warn
 
 from six import string_types
@@ -28,6 +27,7 @@ from .document import Document, DEFAULT_TITLE
 from .model import Model, _ModelInDocument
 from .resources import BaseResources, _SessionCoordinates, EMPTY
 from .util.string import encode_utf8
+from .util.serialization import make_id
 
 def _wrap_in_function(code):
     # indent and wrap Bokeh function def around
@@ -411,7 +411,7 @@ def autoload_server(model, app_path="/", session_id=None, url="default"):
                                       session_id=session_id,
                                       app_path=app_path))
 
-    elementid = str(uuid.uuid4())
+    elementid = make_id()
 
     # empty model_id means render the entire doc from session_id
     model_id = ""
@@ -549,10 +549,10 @@ def _standalone_docs_json_and_render_items(models):
             if docs_by_id[key] == doc:
                 docid = key
         if docid is None:
-            docid = str(uuid.uuid4())
+            docid = make_id()
             docs_by_id[docid] = doc
 
-        elementid = str(uuid.uuid4())
+        elementid = make_id()
 
         render_items.append({
             'docid' : docid,
@@ -599,7 +599,7 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
         if modelid is None:
             raise ValueError("None found in list of model_ids")
 
-        elementid = str(uuid.uuid4())
+        elementid = make_id()
 
         render_items.append({
             'sessionid' : session_id,
@@ -611,7 +611,7 @@ def server_html_page_for_models(session_id, model_ids, resources, title, websock
     return _html_page_for_render_items(bundle, {}, render_items, title, websocket_url=websocket_url)
 
 def server_html_page_for_session(session_id, resources, title, websocket_url):
-    elementid = str(uuid.uuid4())
+    elementid = make_id()
     render_items = [{
         'sessionid' : session_id,
         'elementid' : elementid,

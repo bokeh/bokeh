@@ -9,7 +9,6 @@ import logging
 logger = logging.getLogger(__file__)
 
 from json import loads
-import uuid
 
 from six import string_types
 
@@ -22,6 +21,7 @@ from .themes import Theme
 from .util.callback_manager import _check_callback
 from .util.deprecate import deprecated
 from .util.version import __version__
+from .util.serialization import make_id
 
 DEFAULT_TITLE = "Bokeh Application"
 
@@ -93,10 +93,7 @@ class SessionCallbackRemoved(DocumentChangedEvent):
 
 class SessionCallback(object):
     def __init__(self, document, callback, id=None):
-        if id is None:
-            self._id = str(uuid.uuid4())
-        else:
-            self._id = id
+        self._id = make_id() if id is None else id
         self._document = document
         self._callback = callback
 
@@ -398,7 +395,8 @@ class Document(object):
         ''' Query this document for objects that match the given selector.
 
         Args:
-            selector (JSON-like) :
+            selector (JSON-like query dictionary) : you can query by type or by
+            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             seq[Model]
@@ -416,7 +414,8 @@ class Document(object):
         single matching object, or None if nothing is found
 
         Args:
-            selector (JSON-like) :
+            selector (JSON-like query dictionary) : you can query by type or by
+            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
         Returns:
             Model
@@ -434,7 +433,8 @@ class Document(object):
         attribute/value updates.
 
         Args:
-            selector (JSON-like) :
+            selector (JSON-like query dictionary) : you can query by type or by
+            name. e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
             updates (dict) :
 
         Returns:
@@ -706,7 +706,7 @@ class Document(object):
             'version' : __version__
         }
 
-        return serialize_json(json, indent=indent, sort_keys=True)
+        return serialize_json(json, indent=indent)
 
     def to_json(self):
         ''' Convert the document to a JSON object. '''
