@@ -557,6 +557,15 @@ class Document
         attr = event_json['attr']
         value = Document._resolve_refs(event_json['new'], old_references, new_references)
         patched_obj.set({ "#{attr}" : value })
+      else if event_json['kind'] == 'ColumnsStreamed'
+        column_source_id = event_json['column_source']['id']
+        if column_source_id not of @_all_models
+          throw new Error("Cannot stream to #{column_source_id} which is not in the document")
+        column_source = @_all_models[column_source_id]
+        # TODO (bev) intance check is column data source
+        data = event_json['data']
+        rollover = event_json['rollover']
+        column_source.stream(data, rollover)
       else if event_json['kind'] == 'RootAdded'
         root_id = event_json['model']['id']
         root_obj = references[root_id]
