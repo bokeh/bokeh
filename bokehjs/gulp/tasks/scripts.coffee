@@ -56,7 +56,7 @@ gulp.task "scripts:generate", (cb) ->
     else
       pypath = basedir
     env = _.extend({}, process.env, { PYTHONPATH: pypath })
-    handle = child_process.spawn("python", ['./gulp/tasks/generate_defaults.py', paths.buildDir.coffee], {
+    handle = child_process.spawn("python", ['./gulp/tasks/generate_defaults.py', './test/'], {
       env: env,
       cwd: bokehjsdir
     })
