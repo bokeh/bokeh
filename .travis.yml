@@ -47,6 +47,9 @@ branches:
     - /^\d+.\d+.\d+rc\d+$/
     - /^\d+.\d+.\d+$/
 
+addons:
+  sauce_connect: true
+
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs/lib/phantom/bin/phantomjs:$PATH"
@@ -72,7 +75,7 @@ script:
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then export UPLOAD_PYTEST_HTML=True; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration --driver SauceLabs --capability browserName firefox; fi  # Run the integration tests
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration --driver SauceLabs --capability browserName firefox --capability tunnel-identifier "$TRAVIS_JOB_NUMBER"; fi  # Run the integration tests on saucelabs
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then export UPLOAD_PYTEST_HTML=False; fi
     #
     # Flake/docs testing only once (Py 2.7)
