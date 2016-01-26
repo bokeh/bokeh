@@ -31,7 +31,7 @@ newer = require 'gulp-newer'
 coffee = require 'gulp-coffee'
 eco = require '../eco'
 
-gulp.task "scripts:coffee", ["scripts:generate"], () ->
+gulp.task "scripts:coffee", () ->
   gulp.src('./src/coffee/**/*.coffee')
       .pipe(gulpif(argv.incremental, newer({dest: paths.buildDir.jsTree, ext: '.js'})))
       .pipe(coffee({bare: true}).on('error', gutil.log))
