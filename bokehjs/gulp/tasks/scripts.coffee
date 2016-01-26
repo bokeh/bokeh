@@ -13,23 +13,20 @@ source = require 'vinyl-source-stream'
 buffer = require 'vinyl-buffer'
 paths = require "../paths"
 change = require "gulp-change"
-through = require "through2"
 es = require "event-stream"
 fs = require "fs"
 path = require "path"
 shasum = require "shasum"
 argv = require("yargs").argv
-resolve = require "resolve"
-rootRequire = require("root-require")
-pkg = rootRequire("./package.json")
 insert = require('gulp-insert')
-child_process = require "child_process"
 license = '/*\n' + fs.readFileSync('../LICENSE.txt', 'utf-8') + '*/\n';
 
 gulpif = require 'gulp-if'
 newer = require 'gulp-newer'
 coffee = require 'gulp-coffee'
 eco = require '../eco'
+
+{namedLabeler} = require "../labeler"
 
 gulp.task "scripts:coffee", () ->
   gulp.src('./src/coffee/**/*.coffee')
@@ -44,76 +41,6 @@ gulp.task "scripts:eco", () ->
       .pipe(gulp.dest(paths.buildDir.jsTree))
 
 gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco"]
-
-customLabeler = (bundle, parentLabels, fn) ->
-  labels = {}
-
-  namer = through.obj (row, enc, next) ->
-    labels[row.id] = fn(row)
-    @push(row)
-    next()
-
-  labeler = through.obj (row, enc, next) ->
-    row.id = labels[row.id]
-
-    for own name, dep of row.deps
-      opts = {
-        basedir: path.dirname(row.file)
-        extensions: ['.js', '.coffee', '.eco']
-      }
-
-      if not dep?
-        dep = pkg.browser[name]
-
-        if dep?
-          dep = path.resolve(dep)
-        else
-          dep = resolve.sync(name, opts)
-
-      row.deps[name] = labels[dep] or parentLabels?[dep]
-
-    @push(row)
-    next()
-
-  bundle.pipeline.get('deps').push(namer)
-  bundle.pipeline.get('label').splice(0, 1, labeler)
-
-  labels
-
-hashedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (row) ->
-  shasum(row.source)
-
-namedLabeler = (bundle, parentLabels) -> customLabeler bundle, parentLabels, (row) ->
-  cwd = process.cwd()
-  revModMap = {}
-  depModMap = {}
-
-  for own key, val of pkg.browser
-    revModMap[path.resolve(val)] = key
-
-  for own dep, ver of pkg.dependencies
-    depPkg = rootRequire(path.join("node_modules", dep, "package.json"))
-    if depPkg.main?
-      depPath = path.resolve(path.join("node_modules", dep, depPkg.main))
-      if not fs.existsSync(depPath)
-        depPath = "#{depPath}.js"
-      depModMap[depPath] = dep
-
-  modPath = row.id
-
-  modName  = revModMap[modPath]
-  modName ?= depModMap[modPath]
-  modName ?= path
-    .relative(cwd, modPath)
-    .replace(/\.(coffee|js|eco)$/, "")
-    .split(path.sep).join("/")
-    .replace(/^(src\/(coffee|vendor)|node_modules|build\/js\/tree)\//, "")
-    .replace("browserify/node_modules/process/browser", "_process")
-
-  if argv.verbose
-    util.log("Processing #{modName}")
-
-  modName
 
 gulp.task "scripts:build", ["scripts:compile"], (cb) ->
   preludePath = path.resolve("./src/js/prelude.js")
