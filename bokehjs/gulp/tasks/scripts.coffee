@@ -45,34 +45,6 @@ gulp.task "scripts:eco", () ->
 
 gulp.task "scripts:compile", ["scripts:coffee", "scripts:eco"]
 
-gulp.task "scripts:generate", (cb) ->
-  generateDefaults = (next) ->
-    if argv.verbose then util.log("Generating defaults.coffee")
-    bokehjsdir = path.normalize(process.cwd())
-    basedir = path.normalize(bokehjsdir + "/..")
-    oldpath = process.env['PYTHONPATH']
-    if oldpath?
-      pypath = "#{basedir}:#{oldpath}"
-    else
-      pypath = basedir
-    env = _.extend({}, process.env, { PYTHONPATH: pypath })
-    handle = child_process.spawn("python", ['./gulp/tasks/generate_defaults.py', './test/'], {
-      env: env,
-      cwd: bokehjsdir
-    })
-    handle.stdout.on 'data', (data) ->
-      console.log("generate_defaults.py: #{data}")
-    handle.stderr.on 'data', (data) ->
-      console.log("generate_defaults.py: #{data}")
-    handle.on 'close', (code) ->
-      if code != 0
-        cb(new Error("generate_defaults.py exited code #{code}"))
-      else
-        cb()
-
-  generateDefaults(cb)
-  null # XXX: this is extremely important to allow cb() to work
-
 customLabeler = (bundle, parentLabels, fn) ->
   labels = {}
 
