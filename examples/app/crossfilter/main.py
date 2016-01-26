@@ -243,7 +243,7 @@ class FilterView(BaseView):
         self.update()
 
     def update(self):
-        
+
         self.layout.children = [StatsBox(display_items=c, styles=self.model.stats_box_style) for c in self.model.continuous_columns]
 
 
@@ -268,9 +268,11 @@ class PlotView(BaseView):
         else:
             sizes = self.model.default_scatter_size
 
-        self.scatter = self.figure.scatter(source=self.model.data,
-                                           x=self.model.x_field,
-                                           y=self.model.y_field,
+        xs = self.model.df[self.model.x_field]
+        ys = self.model.df[self.model.y_field]
+
+        self.scatter = self.figure.scatter(x=xs,
+                                           y=ys,
                                            color=colors,
                                            size=sizes,
                                            line_color="white",
@@ -318,11 +320,11 @@ class ControlsView(BaseView):
             self.create_bar_controls()
 
     def create_scatter_controls(self):
-        cols = self.model.col_names
+        continuous = self.model.continuous_column_names
         children = []
         children.append(self.bind_select('Plot Type', self.model.plot_type_options, 'plot_type'))
-        children.append(self.bind_select('X-Axis', cols, 'x_field'))
-        children.append(self.bind_select('Y-Axis', cols, 'y_field'))
+        children.append(self.bind_select('X-Axis', continuous, 'x_field'))
+        children.append(self.bind_select('Y-Axis', continuous, 'y_field'))
         children.append(self.bind_select('Color', ['None'] + self.model.quantileable_column_names, 'color_field'))
 
         if self.model.color_field:
@@ -332,11 +334,10 @@ class ControlsView(BaseView):
         self.layout.children = children
 
     def create_bar_controls(self):
-        cols = self.model.col_names
         continuous = self.model.continuous_column_names
         children = []
         children.append(self.bind_select('Plot Type', self.model.plot_type_options, 'plot_type'))
-        children.append(self.bind_select('X-Axis', cols, 'x_field'))
+        children.append(self.bind_select('X-Axis', continuous, 'x_field'))
         children.append(self.bind_select('Y-Axis', continuous, 'y_field'))
         children.append(self.bind_select('Aggregation', self.model.agg_options.keys(), 'agg_type'))
         self.layout.children = children
