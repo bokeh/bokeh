@@ -285,7 +285,13 @@ class PlotView(BaseView):
         grouped = self.model.df.groupby(self.model.x_field)
         aggregate = grouped.aggregate(self.model.aggregate_function)
         xs = aggregate.index
-        ys = aggregate[self.model.y_field]
+
+        # temporary fix for bar chart when x and y fields are the same
+        if self.model.x_field == self.model.y_field:
+            ys = aggregate.index
+        else:
+            ys = aggregate[self.model.y_field]
+
         self.figure = self.model.create_base_figure()
         self.figure.quad(left=xs, right=xs+1, bottom=0, top=ys, line_color="white", alpha=0.8)
         self.figure.yaxis.axis_label = '{}({})'.format(self.model.agg_type, self.model.y_field)
