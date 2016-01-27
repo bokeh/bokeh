@@ -4,7 +4,7 @@ fixtures = require "./fixtures/object"
 
 base = utils.require "common/base"
 {Collections} = base
-HasProperties = utils.require "common/has_properties"
+HasProps = utils.require "common/has_props"
 {Document} = utils.require "common/document"
 
 describe "has_properties module", ->
@@ -100,7 +100,7 @@ describe "has_properties module", ->
       expect(output[0].id).to.equal model1.ref().id
       expect(output[1].id).to.equal model1.ref().id
       expect(output[2].id).to.equal model2.ref().id
-      expect(output[0]).to.not.be.instanceof HasProperties
+      expect(output[0]).to.not.be.instanceof HasProps
 
     it "should work with nested arrays", ->
       expect(model4.document).to.equal doc

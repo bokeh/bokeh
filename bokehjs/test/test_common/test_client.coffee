@@ -11,7 +11,6 @@ net = require "net"
 # node.js compat shim for WebSocket
 global.WebSocket = require("websocket").w3cwebsocket
 
-HasProperties = utils.require "common/has_properties"
 {Document, ModelChangedEvent} = utils.require "common/document"
 {pull_session} = utils.require "common/client"
 Range1d = utils.require("models/ranges/range1d").Model
