@@ -96,13 +96,14 @@ def test_area_stacking():
 
 def test_boxplot():
     # test source: https://en.wikipedia.org/wiki/Interquartile_range
-    from bokeh.charts.glyphs import (AreaGlyph, LineGlyph, PointGlyph, StepGlyph,
-                                 BarGlyph, BoxGlyph)
-
     data=[102, 104, 105, 107, 108, 109, 110, 112, 115, 116, 118]
     box = BoxGlyph(label={'cat': 'a'}, values=data, color='red')
 
-    assert box.q1 == 105
-    assert box.q2 == 109, box.q2
-    assert box.q3 == 115, box.q3
-    assert box.iqr == 10
+    assert box.q1 == 106
+    assert box.q2 == 109
+    assert box.q3 == 113.5
+    assert box.iqr == 7.5
+
+    # test Interquartile range do not exceed data limits 
+    assert box.w0 == 102
+    assert box.w1 == 118
