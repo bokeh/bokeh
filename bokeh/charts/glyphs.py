@@ -846,8 +846,6 @@ class BoxGlyph(AggregateGlyph):
         self.q2 = self.q2_glyph.end
         self.q3 = self.q3_glyph.end
         self.iqr = self.q3 - self.q1
-        # self.w0 = self.q1 - (1.5 * self.iqr)
-        # self.w1 = self.q3 + (1.5 * self.iqr)
 
         mx = Max()
         mx.set_data(self.values)
