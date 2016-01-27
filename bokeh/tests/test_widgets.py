@@ -19,7 +19,7 @@ def get_prop_set(class_object):
 class TestPanel(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.models import Panel
+        from bokeh.models.widgets import Panel
         self.panelCls = Panel
 
     def test_expectedprops(self):
@@ -39,7 +39,7 @@ class TestPanel(unittest.TestCase):
 class TestTabs(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.models import Tabs, Panel
+        from bokeh.models.widgets import Tabs, Panel
         self.tabsCls = Tabs
         self.panelCls = Panel
 
@@ -56,7 +56,7 @@ class TestTabs(unittest.TestCase):
 class TestDialog(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.models import Dialog
+        from bokeh.models.widgets import Dialog
         self.dialogCls = Dialog
 
     def test_expected_props(self):
