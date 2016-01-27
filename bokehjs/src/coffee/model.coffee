@@ -1,7 +1,7 @@
 _ = require "underscore"
-HasProperties = require "./common/has_properties"
+HasProps = require "./common/has_props"
 
-class Model extends HasProperties
+class Model extends HasProps
   type: "Model"
 
   defaults: ->
