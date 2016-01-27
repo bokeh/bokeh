@@ -451,8 +451,8 @@ class Plot(Component):
     def background_fill(self):
         warnings.warn(
             """
-            Glyph property 'background_fill' will be deprecated in Bokeh
-            0.12.0. Use 'background_fill_color' instead.
+            Plot property 'background_fill' was deprecated in Bokeh
+            0.11.0 and will be removed. Use 'background_fill_color' instead.
             """)
         return self.background_fill_color
 
@@ -460,8 +460,8 @@ class Plot(Component):
     def background_fill(self, color):
         warnings.warn(
             """
-            Glyph property 'background_fill' will be deprecated in Bokeh
-            0.12.0. Use 'background_fill_color' instead.
+            Plot property 'background_fill' was deprecated in Bokeh
+            0.11.0 and will be removed. Use 'background_fill_color' instead.
             """)
         self.background_fill_color = color
 
@@ -469,8 +469,8 @@ class Plot(Component):
     def border_fill(self):
         warnings.warn(
             """
-            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
-            Use 'border_fill_color' instead.
+            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
+            will be removed. Use 'border_fill_color' instead.
             """)
         return self.border_fill_color
 
@@ -478,8 +478,8 @@ class Plot(Component):
     def border_fill(self, color):
         warnings.warn(
             """
-            Glyph property 'border_fill' will be deprecated in Bokeh 0.12.0.
-            Use 'border_fill_color' instead.
+            Plot property 'border_fill' was deprecated in Bokeh 0.11.0 and
+            will be removed. Use 'border_fill_color' instead.
             """)
         self.border_fill_color = color
 
