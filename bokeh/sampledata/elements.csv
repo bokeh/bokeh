@@ -66,7 +66,7 @@ atomic number,symbol,name,atomic mass,CPK,electronic configuration,electronegati
 65,Tb,Terbium,158.92535,#30FFC7,[Xe] 4f9 6s2,1.2,,92.3 (+3),,566.0,-50.0,solid,metallic,1629,3503,8.22,lanthanoid,1843,-,6
 66,Dy,Dysprosium,162.500,#1FFFC7,[Xe] 4f10 6s2,1.22,,107 (+2),,573.0,-50.0,solid,metallic,1685,2840,8.55,lanthanoid,1886,-,6
 67,Ho,Holmium,164.93032,#00FF9C,[Xe] 4f11 6s2,1.23,,90.1 (+3),,581.0,-50.0,solid,metallic,1747,2973,8.8,lanthanoid,1878,-,6
-68,Er,Erbium,167.259,0.00E+00,[Xe] 4f12 6s2,1.24,,89 (+3),,589.0,-50.0,solid,metallic,1770,3141,9.07,lanthanoid,1842,-,6
+68,Er,Erbium,167.259,#00E675,[Xe] 4f12 6s2,1.24,,89 (+3),,589.0,-50.0,solid,metallic,1770,3141,9.07,lanthanoid,1842,-,6
 69,Tm,Thulium,168.93421,#00D452,[Xe] 4f13 6s2,1.25,,103 (+2),,597.0,-50.0,solid,metallic,1818,2223,9.32,lanthanoid,1879,-,6
 70,Yb,Ytterbium,173.054,#00BF38,[Xe] 4f14 6s2,1.1,,102 (+2),,603.0,-50.0,solid,metallic,1092,1469,6.57,lanthanoid,1878,-,6
 71,Lu,Lutetium,174.9668,#00AB24,[Xe] 4f14 5d1 6s2,1.27,160.0,86.1 (+3),,524.0,-50.0,solid,metallic,1936,3675,9.84,transition metal,1907,3,6
