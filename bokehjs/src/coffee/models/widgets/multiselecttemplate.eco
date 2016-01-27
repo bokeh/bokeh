@@ -1,11 +1,10 @@
 <label for="<%= @id %>"> <%= @title %> </label>
 <select multiple class="bk-widget-form-input" id="<%=@id %>" name="<%= @name %>">
   <% for option in @options: %>
-  <% if option.value == @value: %>
-  <option selected="selected" value="<%= option.value %>"><%=option.name%></option>
+  <% if @value.indexOf(option) > -1: %>
+  <option selected="selected" value="<%= option.value %>"><%=option%></option>
   <% else: %>
-  <option value="<%= option.value %>"><%=option.name%></option> 
+  <option value="<%= option.value %>"><%=option%></option>
   <% end %>
-
   <% end %>
 </select>
