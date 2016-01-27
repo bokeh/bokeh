@@ -21,4 +21,14 @@ from .sources import *
 from .tickers import *
 from .tiles import *
 from .tools import *
-from .widgets import *
+
+## in order to not import .widgets.layouts
+from .widgets.buttons import *
+from .widgets.dialogs import *
+from .widgets.groups import *
+from .widgets.icons import *
+from .widgets.inputs import *
+from .widgets.markups import *
+from .widgets.panels import *
+from .widgets.tables import *
+from .widgets.widget import *
