@@ -846,8 +846,17 @@ class BoxGlyph(AggregateGlyph):
         self.q2 = self.q2_glyph.end
         self.q3 = self.q3_glyph.end
         self.iqr = self.q3 - self.q1
-        self.w0 = self.q1 - (1.5 * self.iqr)
-        self.w1 = self.q3 + (1.5 * self.iqr)
+        # self.w0 = self.q1 - (1.5 * self.iqr)
+        # self.w1 = self.q3 + (1.5 * self.iqr)
+
+        mx = Max()
+        mx.set_data(self.values)
+
+        mn = Min()
+        mn.set_data(self.values)
+
+        self.w0 = max(self.q1 - (1.5 * self.iqr), mn.value)
+        self.w1 = min(self.q3 + (1.5 * self.iqr), mx.value)
 
     def build_source(self):
         """Calculate stats and builds and returns source for whiskers."""
