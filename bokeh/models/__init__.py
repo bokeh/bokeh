@@ -22,7 +22,12 @@ from .tickers import *
 from .tiles import *
 from .tools import *
 
-## in order to not import .widgets.layouts
+### Deprecation note:
+### bokeh.models.widgets.layouts was deprecated in 0.11.1 in favor of 
+### bokeh.models.layouts and is awaiting removal. The following imports will
+### load all widgets modules except layouts, in order to prevent raising a
+### deprecation warning.
+
 from .widgets.buttons import *
 from .widgets.dialogs import *
 from .widgets.groups import *
