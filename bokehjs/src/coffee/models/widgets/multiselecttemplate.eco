@@ -2,9 +2,9 @@
 <select multiple class="bk-widget-form-input" id="<%=@id %>" name="<%= @name %>">
   <% for option in @options: %>
   <% if @value.indexOf(option) > -1: %>
-  <option selected="selected" value="<%= option.value %>"><%=option%></option>
+  <option selected="selected" value="<%= option %>"><%=option%></option>
   <% else: %>
-  <option value="<%= option.value %>"><%=option%></option>
+  <option value="<%= option %>"><%=option%></option>
   <% end %>
   <% end %>
 </select>
