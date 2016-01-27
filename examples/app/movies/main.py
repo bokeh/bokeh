@@ -5,8 +5,8 @@ import pandas.io.sql as psql
 import sqlite3 as sql
 
 from bokeh.plotting import Figure
-from bokeh.models import ColumnDataSource, HoverTool
-from bokeh.models.widgets import HBox, Slider, VBoxForm, Select, TextInput
+from bokeh.models import ColumnDataSource, HoverTool, HBox, VBoxForm
+from bokeh.models.widgets import Slider, Select, TextInput
 from bokeh.io import curdoc
 from bokeh.sampledata.movies_data import movie_path
 
