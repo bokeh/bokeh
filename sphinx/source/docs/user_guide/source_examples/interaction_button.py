@@ -1,4 +1,4 @@
-from bokeh.models.widgets import Button
+from bokeh.models import Button
 from bokeh.io import output_file, show, vform
 
 output_file("button.html")

@@ -17,8 +17,7 @@ in your browser.
 import numpy as np
 
 from bokeh.plotting import Figure
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import HBox, Slider, TextInput, VBoxForm
+from bokeh.models import ColumnDataSource, HBox, Slider, TextInput, VBoxForm
 from bokeh.io import curdoc
 
 # Set up data

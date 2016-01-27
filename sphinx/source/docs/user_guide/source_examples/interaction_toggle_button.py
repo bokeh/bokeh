@@ -1,4 +1,4 @@
-from bokeh.models.widgets import Toggle
+from bokeh.models import Toggle
 from bokeh.io import output_file, show, vform
 
 output_file("toggle.html")

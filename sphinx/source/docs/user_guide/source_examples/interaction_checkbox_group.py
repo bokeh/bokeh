@@ -1,4 +1,4 @@
-from bokeh.models.widgets import CheckboxGroup
+from bokeh.models import CheckboxGroup
 from bokeh.io import output_file, show, vform
 
 output_file("checkbox_group.html")

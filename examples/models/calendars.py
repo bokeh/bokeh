@@ -2,8 +2,10 @@ from __future__ import absolute_import, print_function
 
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
-from bokeh.models import GridPlot, Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool
-from bokeh.models.glyphs import Text, Rect
+from bokeh.models import (
+    GridPlot, Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool,
+    Text, Rect
+    )
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE

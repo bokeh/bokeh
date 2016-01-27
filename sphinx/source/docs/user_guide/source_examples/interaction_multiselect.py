@@ -1,4 +1,4 @@
-from bokeh.models.widgets import MultiSelect
+from bokeh.models import MultiSelect
 from bokeh.io import output_file, show, vform
 
 output_file("multi_select.html")

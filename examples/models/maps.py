@@ -3,9 +3,10 @@ from __future__ import print_function
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    GMapPlot, Range1d, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions)
+    Circle, GMapPlot, Range1d, ColumnDataSource, PanTool, WheelZoomTool,
+    BoxSelectTool, GMapOptions
+    )
 from bokeh.resources import INLINE
 
 x_range = Range1d()

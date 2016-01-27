@@ -1,4 +1,4 @@
-from bokeh.models.widgets import TextInput
+from bokeh.models import TextInput
 from bokeh.io import output_file, show, vform
 
 output_file("text_input.html")

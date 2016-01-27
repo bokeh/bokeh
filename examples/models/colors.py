@@ -3,8 +3,10 @@ from __future__ import print_function
 from math import pi
 import pandas as pd
 
-from bokeh.models import Plot, ColumnDataSource, FactorRange, CategoricalAxis, TapTool, HoverTool, OpenURL
-from bokeh.models.glyphs import Rect
+from bokeh.models import (
+    Plot, ColumnDataSource, FactorRange, CategoricalAxis, TapTool, HoverTool,
+    OpenURL, Rect
+    )
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE

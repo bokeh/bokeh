@@ -6,7 +6,7 @@ import numpy as np
 
 from bokeh.client import push_session
 from bokeh.driving import cosine
-from bokeh.models.widgets import Button
+from bokeh.models import Button
 from bokeh.plotting import figure, curdoc, vplot,  hplot
 
 x = np.linspace(0, 4*pi, 100)
@@ -52,4 +52,3 @@ curdoc().add_periodic_callback(update, 50)
 session.show() # open the document in a browser
 
 session.loop_until_closed() # run forever
-

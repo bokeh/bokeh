@@ -2,9 +2,8 @@ from __future__ import print_function
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    BasicTicker, ColumnDataSource, Grid, GridPlot, LinearAxis,
+    Circle, BasicTicker, ColumnDataSource, Grid, GridPlot, LinearAxis,
     DataRange1d, PanTool, Plot, WheelZoomTool
 )
 from bokeh.resources import INLINE

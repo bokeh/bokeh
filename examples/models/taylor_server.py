@@ -5,10 +5,10 @@ import sympy as sy
 
 from bokeh.client import push_session
 from bokeh.document import Document
-from bokeh.models.glyphs import Line
-from bokeh.models import Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend
-from bokeh.models.widgets import Slider, TextInput, Dialog
-from bokeh.models.layouts import HBox, VBox
+from bokeh.models import (
+    Plot, Range1d, LinearAxis, ColumnDataSource, Grid, Legend, Line, Slider,
+    TextInput, Dialog, HBox, VBox
+    )
 
 document = Document()
 session = push_session(document)

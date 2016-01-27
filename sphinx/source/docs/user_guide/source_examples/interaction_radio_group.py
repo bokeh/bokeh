@@ -1,4 +1,4 @@
-from bokeh.models.widgets import RadioGroup
+from bokeh.models import RadioGroup
 from bokeh.io import output_file, show, vform
 
 output_file("radio_group.html")

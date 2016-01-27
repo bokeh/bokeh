@@ -5,15 +5,11 @@ from random import randint
 
 from bokeh.client import push_session
 from bokeh.document import Document
-from bokeh.models.glyphs import Line, Circle
 from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d,
-    LinearAxis, DatetimeAxis, Grid, HoverTool
-)
-from bokeh.models.widgets import (
-    Button, TableColumn, DataTable,
-    DateEditor, DateFormatter, IntEditor)
-from bokeh.models.layouts import VBox
+    LinearAxis, DatetimeAxis, Grid, HoverTool, Line, Circle, Button, TableColumn, DataTable,
+    DateEditor, DateFormatter, IntEditor, VBox
+    )
 
 document = Document()
 session = push_session(document)

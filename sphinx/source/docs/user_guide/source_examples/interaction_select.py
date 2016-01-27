@@ -1,4 +1,4 @@
-from bokeh.models.widgets import Select
+from bokeh.models import Select
 from bokeh.io import output_file, show, vform
 
 output_file("select.html")

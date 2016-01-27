@@ -1,6 +1,9 @@
 from bokeh.io import vplot
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
-from bokeh.models.widgets import DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
+from bokeh.models import (
+    ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool,
+    BoxSelectTool, DataTable, TableColumn, StringFormatter, NumberFormatter,
+    StringEditor, IntEditor, NumberEditor, SelectEditor
+    )
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view

@@ -4,15 +4,11 @@ from math import pi
 
 from bokeh.client import push_session
 from bokeh.document import Document
-from bokeh.models.glyphs import Line, Quad
 from bokeh.models import (
-    Plot, ColumnDataSource, DataRange1d, FactorRange,
-    LinearAxis, CategoricalAxis, Grid, Legend,
-    SingleIntervalTicker
-)
+    Line, Quad, Plot, ColumnDataSource, DataRange1d, FactorRange, LinearAxis,
+    CategoricalAxis, Grid, Legend, SingleIntervalTicker, Select, HBox, VBox
+    )
 from bokeh.sampledata.population import load_population
-from bokeh.models.widgets import Select
-from bokeh.models.layouts import HBox, VBox
 
 document = Document()
 session = push_session(document)

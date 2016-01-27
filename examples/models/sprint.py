@@ -4,8 +4,10 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.util.browser import view
 from bokeh.resources import INLINE
-from bokeh.models.glyphs import Circle, Text
-from bokeh.models import ColumnDataSource, Range1d, DataRange1d, Plot, LinearAxis, SingleIntervalTicker, Grid, HoverTool
+from bokeh.models import (
+    Circle, Text, ColumnDataSource, Range1d, DataRange1d, Plot, LinearAxis,
+    SingleIntervalTicker, Grid, HoverTool
+    )
 from bokeh.sampledata.sprint import sprint
 
 # Based on http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html

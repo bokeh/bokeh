@@ -21,7 +21,7 @@ import numpy as np
 from numpy import pi
 
 from bokeh.io import vplot
-from bokeh.models.sources import ColumnDataSource as CDS
+from bokeh.models import ColumnDataSource as CDS
 from bokeh.plotting import curdoc, figure
 from bokeh.driving import repeat
 
@@ -186,4 +186,3 @@ def cb(gind):
         update_centric_sources(p['csources'], p['fs'], newx, gind, p['cfs'])
 
 curdoc().add_periodic_callback(cb, 100)
-

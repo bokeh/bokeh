@@ -2,7 +2,7 @@ from math import pi
 
 import pandas as pd
 
-from bokeh.models.formatters import TickFormatter, String, List
+from bokeh.models import TickFormatter, String, List
 from bokeh.plotting import figure, show, output_file
 from bokeh.sampledata.stocks import MSFT
 

@@ -1,8 +1,7 @@
 from bokeh.plotting import Figure
 from bokeh.io import curdoc
 from bokeh.core.properties import (String, List)
-from bokeh.models import Range1d
-from bokeh.models.tiles import MercatorTileSource
+from bokeh.models import Range1d, MercatorTileSource
 from bokeh.tile_providers import STAMEN_TONER
 
 class RandomTileSource(MercatorTileSource):

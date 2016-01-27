@@ -5,9 +5,8 @@ from numpy import pi, arange, sin, linspace
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    Plot, LinearAxis, ColumnDataSource, Range1d, PanTool, WheelZoomTool
+    Plot, LinearAxis, ColumnDataSource, Range1d, PanTool, WheelZoomTool, Circle
 )
 from bokeh.resources import INLINE
 

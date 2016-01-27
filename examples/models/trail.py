@@ -12,13 +12,12 @@ from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
-from bokeh.models.glyphs import Line, Patches
-from bokeh.models.layouts import VBox
 from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
     DataRange1d, ColumnDataSource,
     LinearAxis, Grid,
-    PanTool, WheelZoomTool, ResetTool)
+    PanTool, WheelZoomTool, ResetTool,
+    Line, Patches, VBox)
 
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
 

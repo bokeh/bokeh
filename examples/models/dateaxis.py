@@ -7,9 +7,8 @@ import time
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    Plot, DataRange1d, DatetimeAxis,
+    Circle, Plot, DataRange1d, DatetimeAxis,
     ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.resources import INLINE
