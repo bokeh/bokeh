@@ -80,7 +80,7 @@ atomic number,symbol,name,atomic mass,CPK,electronic configuration,electronegati
 79,Au,Gold,196.966569,#FFD123,[Xe] 4f14 5d10 6s1,2.54,144.0,137 (+1),166.0,890.0,-223.0,solid,metallic,1337,3129,19.3,transition metal,Ancient,11,6
 80,Hg,Mercury,200.59,#B8B8D0,[Xe] 4f14 5d10 6s2,2.0,149.0,119 (+1),155.0,1007.0,0.0,liquid,metallic,234,630,13.53,transition metal,Ancient,12,6
 81,Tl,Thallium,204.3833,#A6544D,[Xe] 4f14 5d10 6s2 6p1,2.04,148.0,150 (+1),196.0,589.0,-19.0,solid,metallic,577,1746,11.85,metal,1861,13,6
-82,Pb,Lead,207.2,#575961,[Xe] 4f14 5d10 6s2 6p2,2.33,147.0,119 (+2),202.0,716.0,-35.0,solid,metallic,601,2022,11.34,metal,Ancient,14,6
+82,82,Pb,Lead,207.2,#575961,[Xe] 4f14 5d10 6s2 6p2,2.33,147.0,119 (+2),202.0,716.0,-35.0,solid,metallic,601,2022,11.34,metal,Ancient,14,6
 Bi,Bismuth,208.98040,#9E4FB5,[Xe] 4f14 5d10 6s2 6p3,2.02,146.0,103 (+3),,703.0,-91.0,solid,metallic,544,1837,9.78,metal,Ancient,15,6
 84,Po,Polonium,[209],#AB5C00,[Xe] 4f14 5d10 6s2 6p4,2.0,,94 (+4),,812.0,-183.0,solid,metallic,527,1235,9.2,metalloid,1898,16,6
 85,At,Astatine,[210],#754F45,[Xe] 4f14 5d10 6s2 6p5,2.2,,62 (+7),,920.0,-270.0,solid,covalent network,575,,,halogen,1940,17,6
