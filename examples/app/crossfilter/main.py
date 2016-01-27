@@ -225,7 +225,6 @@ class AppView(BaseView):
 
         # register view for update with contoller
         self.controller.register_view_for_update(self.plot_view)
-        self.controller.register_view_for_update(self.filter_view)
         self.controller.register_view_for_update(self.controls_view)
         self.controller.register_view_for_update(self)
 
