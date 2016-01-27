@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from bokeh.charts.models import CompositeGlyph
 from bokeh.charts.glyphs import (AreaGlyph, LineGlyph, PointGlyph, StepGlyph,
-                                 BarGlyph)
+                                 BarGlyph, BoxGlyph)
 from bokeh.charts.operations import stack
 
 from bokeh.models import ColumnDataSource
@@ -92,3 +92,18 @@ def test_area_stacking():
     comparison = pd.Series(area2_stacked_values) - pd.Series(area2.df[
                                                                  'y_values'].values[0])
     assert comparison.sum() == 0
+
+
+def test_boxplot():
+    # test source: https://en.wikipedia.org/wiki/Interquartile_range
+    data=[102, 104, 105, 107, 108, 109, 110, 112, 115, 116, 118]
+    box = BoxGlyph(label={'cat': 'a'}, values=data, color='red')
+
+    assert box.q1 == 106
+    assert box.q2 == 109
+    assert box.q3 == 113.5
+    assert box.iqr == 7.5
+
+    # test Interquartile range do not exceed data limits 
+    assert box.w0 == 102
+    assert box.w1 == 118
