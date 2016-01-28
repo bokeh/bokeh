@@ -19,8 +19,6 @@ from examples.app.crossfilter.models import StyleableBox
 from examples.app.crossfilter.models import StatsBox
 from examples.app.crossfilter.models.helpers import load_component
 
-from bokeh.sampledata.iris import flowers
-
 
 class AppModel(object):
     '''todo: add docs'''
@@ -334,30 +332,8 @@ class PlotView(BaseView):
         return self.figure
 
     def create_bar(self):
-        '''main logic for creating bar figure'''
-        if self.model.x_field in self.model.discrete_column_names:
-            self.model.x_field = self.model.continuous_column_names[0]
-
-        if self.model.y_field in self.model.discrete_column_names:
-            self.model.y_field = self.model.continuous_column_names[1]
-
-        grouped = self.model.df.groupby(self.model.x_field)
-        aggregate = grouped.aggregate(self.model.aggregate_function)
-        xs = aggregate.index
-
-        # temporary fix for bar chart when x and y fields are the same
-        if self.model.x_field == self.model.y_field:
-            ys = aggregate.index
-        else:
-            ys = aggregate[self.model.y_field]
-
-        bar_size = math.ceil((xs.max() - xs.min()) / len(xs))
-        self.figure = Figure(tools=self.model.tools, plot_width=self.model.plot_width, plot_height=self.model.plot_height)
-        self.figure.quad(left=xs, right=xs+bar_size, bottom=0, top=ys, line_color="white", alpha=0.8)
-        self.style_figure()
-        self.figure.yaxis.axis_label = '{}({})'.format(self.model.agg_type, self.model.y_field)
-        self.layout.children = [self.figure]
-        return self.figure
+        '''placeholder for bar chart creation logic'''
+        pass
 
 
 class ControlsView(BaseView):
@@ -379,10 +355,6 @@ class ControlsView(BaseView):
         cols = self.model.col_names
         children = []
 
-        plot_type_selector = Select.create(name='Plot Type', value=self.model.plot_type, options=self.model.plot_type_options)
-        plot_type_selector.on_change('value', partial(self.controller.on_change, model_field='plot_type'))
-        children.append(plot_type_selector)
-
         x_axis_selector = Select.create(name='X-Axis', value=self.model.x_field, options=cols)
         x_axis_selector.on_change('value', partial(self.controller.on_change, model_field='x_field'))
         children.append(x_axis_selector)
@@ -400,37 +372,18 @@ class ControlsView(BaseView):
             palette_selector.on_change('value', partial(self.controller.on_change, model_field='palette_name'))
             children.append(palette_selector)
 
-        size_selector = Select.create(name='Size', value=self.model.color_field, options=['None'] + self.model.quantileable_column_names)
+        size_selector = Select.create(name='Size', value=self.model.size_field, options=['None'] + self.model.quantileable_column_names)
         size_selector.on_change('value', partial(self.controller.on_change, model_field='size_field'))
         children.append(size_selector)
 
         self.layout.children = children
 
     def create_bar_controls(self):
-        '''instantiates control specific for scatter bar type'''
-        continuous = self.model.continuous_column_names
-        children = []
-
-        plot_type_selector = Select.create(name='Plot Type', value=self.model.plot_type, options=self.model.plot_type_options)
-        plot_type_selector.on_change('value', partial(self.controller.on_change, model_field='plot_type'))
-        children.append(plot_type_selector)
-
-        x_axis_selector = Select.create(name='X-Axis', value=self.model.x_field, options=continuous)
-        x_axis_selector.on_change('value', partial(self.controller.on_change, model_field='x_field'))
-        children.append(x_axis_selector)
-
-        y_axis_selector = Select.create(name='Y-Axis', value=self.model.y_field, options=continuous)
-        y_axis_selector.on_change('value', partial(self.controller.on_change, model_field='y_field'))
-        children.append(y_axis_selector)
-
-        aggregation_selector = Select.create(name='Aggregation', value=self.model.agg_type, options=self.model.agg_options.keys())
-        aggregation_selector.on_change('value', partial(self.controller.on_change, model_field='agg_type'))
-        children.append(aggregation_selector)
-
-        self.layout.children = children
+        '''placeholder for bar chart creation logic'''
+        pass
 
 # entry point - 
-model = AppModel(flowers)
+model = AppModel(autompg)
 controller = AppController(model)
 view = AppView(model, controller)
 doc = curdoc().add_root(view.layout)
