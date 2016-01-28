@@ -171,15 +171,19 @@ class AppController(object):
         self.views = []
 
     def register_view_for_update(self, view):
-        '''TODO: add docs'''
+        '''any view instance registered for update will have its
+        .update() method called on any on_change event
+        '''
         self.views.append(view)
 
-    def bind_to_model(self, widget, widget_field, model_field):
-        '''TODO: add docs'''
-        widget.on_change(widget_field, partial(self.on_change, model_field=model_field))
-
     def on_change(self, attr, old, new, model_field):
-        '''TODO: add docs'''
+        '''on_change handler which can used with functools.partial
+        to setup simple binding between selector values and AppModel properties
+
+        Ex:
+
+          widget.on_change('value', partial(self.controller.on_change, 'my_model_field_to_bind'))
+        '''
 
         if new == 'None':
             setattr(self.model, model_field, None)
@@ -194,7 +198,7 @@ class AppController(object):
             v.update()
 
 class BaseView(object):
-    '''TODO: add docs'''
+    '''abstract base for simple view class'''
 
     def __init__(self, app_model, app_controller, layout_class=None):
         self.model = app_model
@@ -202,21 +206,17 @@ class BaseView(object):
         self.layout = layout_class() if layout_class else None
         self.create_children()
 
-    def bind_select(self, name, options, model_field):
-        '''TODO: add docs'''
-        widget = Select.create(name=name, value=getattr(self.model, model_field), options=options)
-        self.controller.bind_to_model(widget, 'value', model_field)
-        return widget
+    def create_children(self):
+        raise NotImplementedError
 
     def update(self):
-        '''TODO: add docs'''
-        pass
+        raise NotImplementedError
 
 class AppView(BaseView):
-    '''TODO: add docs'''
-    '''Main all-encompassing view class for example'''
+    '''Main all-encompassing view class which in-turn instantiates sub-views (e.g. controls, summary stats)'''
 
     def create_children(self):
+        '''implementing simple view interface'''
         self.layout = StyleableBox()
         self.controls_view = ControlsView(self.model, self.controller)
         self.plot_view = PlotView(self.model, self.controller)
@@ -254,22 +254,53 @@ class AppView(BaseView):
 class FilterView(BaseView):
 
     def create_children(self):
-        '''TODO: add docs'''
+        '''implementing simple view interface'''
         self.layout = StyleableBox()
         self.update()
 
     def update(self):
-
+        '''implementing simple view interface'''
         self.layout.children = [StatsBox(display_items=c, styles=self.model.stats_box_style) for c in self.model.continuous_columns]
 
 
 class PlotView(BaseView):
-    '''TODO: add docs'''
+    '''View class which constructs main `plot` area.'''
+
+    def create_children(self):
+        '''implementing simple view interface'''
+        self.layout = HBox(width=900)
+        self.update()
+
+    def update(self):
+        '''implementing simple view interface'''
+        if self.model.plot_type == 'scatter':
+            plot = self.create_scatter()
+        elif self.model.plot_type == 'histogram':
+            plot = self.create_bar()
+
+        self.layout.children = [plot]
+
+    def style_figure(self):
+        '''set generic styles on self.figure'''
+        self.figure.toolbar_location = None
+        self.figure.xaxis.axis_label = self.model.x_field
+        self.figure.yaxis.axis_label = self.model.y_field
+        self.figure.background_fill_color = self.model.background_fill
+        self.figure.border_fill_color = self.model.background_fill
+        self.figure.axis.axis_line_color = "white"
+        self.figure.axis.axis_label_text_color = "white"
+        self.figure.axis.major_label_text_color = "white"
+        self.figure.axis.major_tick_line_color = "white"
+        self.figure.axis.minor_tick_line_color = "white"
+        self.figure.axis.minor_tick_line_color = "white"
+        self.figure.grid.grid_line_dash = [6, 4]
+        self.figure.grid.grid_line_alpha = .3
 
     def create_scatter(self):
+        '''handles figure creation and axes configuration for discrete vs. continuous dimensions'''
         axes = self.model.axes_dict
         xs, ys, sizes, colors = axes['x'], axes['y'], axes['size'], axes['color']
-        
+
         if self.model.x_field in self.model.discrete_column_names and self.model.y_field in self.model.discrete_column_names:
             self.figure = Figure(tools=self.model.tools,
                                  plot_width=self.model.plot_width,
@@ -299,24 +330,8 @@ class PlotView(BaseView):
         self.layout.children = [self.figure]
         return self.figure
 
-    def style_figure(self):
-        '''set basic styles on figure'''
-        self.figure.toolbar_location = None
-        self.figure.xaxis.axis_label = self.model.x_field
-        self.figure.yaxis.axis_label = self.model.y_field
-        self.figure.background_fill_color = self.model.background_fill
-        self.figure.border_fill_color = self.model.background_fill
-        self.figure.axis.axis_line_color = "white"
-        self.figure.axis.axis_label_text_color = "white"
-        self.figure.axis.major_label_text_color = "white"
-        self.figure.axis.major_tick_line_color = "white"
-        self.figure.axis.minor_tick_line_color = "white"
-        self.figure.axis.minor_tick_line_color = "white"
-        self.figure.grid.grid_line_dash = [6, 4]
-        self.figure.grid.grid_line_alpha = .3
-
     def create_bar(self):
-
+        '''main logic for creating bar figure'''
         if self.model.x_field in self.model.discrete_column_names:
             self.model.x_field = self.model.continuous_column_names[0]
 
@@ -341,57 +356,77 @@ class PlotView(BaseView):
         self.layout.children = [self.figure]
         return self.figure
 
-    def create_children(self):
-        '''TODO: add docs'''
-        self.layout = HBox(width=900)
-        self.update()
-
-    def update(self):
-        '''TODO: add docs'''
-        if self.model.plot_type == 'scatter':
-            plot = self.create_scatter()
-        elif self.model.plot_type == 'histogram':
-            plot = self.create_bar()
-
-        self.layout.children = [plot]
 
 class ControlsView(BaseView):
 
     def create_children(self):
-        '''TODO: add docs'''
+        '''implementing simple view interface'''
         self.layout = HBox(width=800)
         self.update()
 
     def update(self):
+        '''implementing simple view interface'''
         if self.model.plot_type == 'scatter':
             self.create_scatter_controls()
         elif self.model.plot_type == 'histogram':
             self.create_bar_controls()
 
     def create_scatter_controls(self):
+        '''instantiates control specific for scatter plot type'''
         cols = self.model.col_names
-        continuous = self.model.continuous_column_names
         children = []
-        children.append(self.bind_select('Plot Type', self.model.plot_type_options, 'plot_type'))
-        children.append(self.bind_select('X-Axis', cols, 'x_field'))
-        children.append(self.bind_select('Y-Axis', cols, 'y_field'))
-        children.append(self.bind_select('Color', ['None'] + self.model.quantileable_column_names, 'color_field'))
+
+        plot_type_selector = Select.create(name='Plot Type', value=self.model.plot_type, options=self.model.plot_type_options)
+        plot_type_selector.on_change('value', partial(self.controller.on_change, model_field='plot_type'))
+        children.append(plot_type_selector)
+
+        x_axis_selector = Select.create(name='X-Axis', value=self.model.x_field, options=cols)
+        x_axis_selector.on_change('value', partial(self.controller.on_change, model_field='x_field'))
+        children.append(x_axis_selector)
+
+        y_axis_selector = Select.create(name='Y-Axis', value=self.model.y_field, options=cols)
+        y_axis_selector.on_change('value', partial(self.controller.on_change, model_field='y_field'))
+        children.append(y_axis_selector)
+
+        color_selector = Select.create(name='Color', value=self.model.color_field, options=self.model.quantileable_column_names)
+        color_selector.on_change('value', partial(self.controller.on_change, model_field='color_field'))
+        children.append(color_selector)
 
         if self.model.color_field:
-            children.append(self.bind_select('Palette', sorted(self.model.palettes), 'palette_name'))
+            palette_selector = Select.create(name='Palette', value=self.model.palette_name, options=sorted(self.model.palettes))
+            palette_selector.on_change('value', partial(self.controller.on_change, model_field='palette_name'))
+            children.append(palette_selector)
 
-        children.append(self.bind_select('Size', ['None'] + self.model.quantileable_column_names, 'size_field'))
+        size_selector = Select.create(name='Size', value=self.model.color_field, options=self.model.quantileable_column_names)
+        size_selector.on_change('value', partial(self.controller.on_change, model_field='size_field'))
+        children.append(size_selector)
+
         self.layout.children = children
 
     def create_bar_controls(self):
+        '''instantiates control specific for scatter bar type'''
         continuous = self.model.continuous_column_names
         children = []
-        children.append(self.bind_select('Plot Type', self.model.plot_type_options, 'plot_type'))
-        children.append(self.bind_select('X-Axis', continuous, 'x_field'))
-        children.append(self.bind_select('Y-Axis', continuous, 'y_field'))
-        children.append(self.bind_select('Aggregation', self.model.agg_options.keys(), 'agg_type'))
+
+        plot_type_selector = Select.create(name='Plot Type', value=self.model.plot_type, options=self.model.plot_type_options)
+        plot_type_selector.on_change('value', partial(self.controller.on_change, model_field='plot_type'))
+        children.append(plot_type_selector)
+
+        x_axis_selector = Select.create(name='X-Axis', value=self.model.x_field, options=continuous)
+        x_axis_selector.on_change('value', partial(self.controller.on_change, model_field='x_field'))
+        children.append(x_axis_selector)
+
+        y_axis_selector = Select.create(name='Y-Axis', value=self.model.y_field, options=continuous)
+        y_axis_selector.on_change('value', partial(self.controller.on_change, model_field='y_field'))
+        children.append(y_axis_selector)
+
+        aggregation_selector = Select.create(name='Aggregation', value=self.model.agg_type, options=self.model.agg_options.keys())
+        aggregation_selector.on_change('value', partial(self.controller.on_change, model_field='agg_type'))
+        children.append(aggregation_selector)
+
         self.layout.children = children
 
+# entry point - 
 model = AppModel(autompg)
 controller = AppController(model)
 view = AppView(model, controller)
