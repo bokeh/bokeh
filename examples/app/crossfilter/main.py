@@ -1,8 +1,10 @@
+import math
 from functools import partial
 from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
+
 
 from bokeh.sampledata.autompg import autompg
 from bokeh.models import ColumnDataSource
@@ -130,21 +132,36 @@ class AppModel(object):
     def quantileable_column_names(self):
         return [x.get('name') for x in self.columns if x['type'] != 'DiscreteColumn' and x['unique'] > 20]
 
-    def create_base_figure(self):
-        fig = Figure(tools=self.tools, plot_width=self.plot_width, plot_height=self.plot_height)
-        fig.toolbar_location = None
-        fig.xaxis.axis_label = self.x_field
-        fig.yaxis.axis_label = self.y_field
-        fig.background_fill_color = self.background_fill
-        fig.border_fill_color = self.background_fill
-        fig.axis.axis_line_color = "white"
-        fig.axis.axis_label_text_color = "white"
-        fig.axis.major_label_text_color = "white"
-        fig.axis.major_tick_line_color = "white"
-        fig.axis.minor_tick_line_color = "white"
-        fig.grid.grid_line_alpha = 0.3
-        fig.grid.grid_line_dash = [6, 4]
-        return fig
+    @property
+    def axes_are_continuous(self):
+        return self.x_field in self.continuous_column_names and self.y_field in self.continuous_column_names
+
+    @property
+    def axes_dict(self):
+        '''helper to retrieve axes values from AppModel as single dictionary'''
+
+        # x/y
+        xs = self.df[self.x_field].tolist()
+        ys = self.df[self.y_field].tolist()
+
+        # color
+        if self.color_field:
+            scatter_colors = list(reversed(getattr(palettes, self.palette_name)))
+            bins = len(scatter_colors)
+            groups = pd.qcut(self.df[self.color_field].tolist(), bins)
+            color = [scatter_colors[l] for l in groups.codes]
+        else:
+            color = self.default_scatter_color
+
+        # size
+        if self.size_field:
+            bins = len(self.scatter_sizes)
+            groups = pd.qcut(self.df[self.size_field].tolist(), bins)
+            size = [self.scatter_sizes[l] for l in groups.codes]
+        else:
+            size = self.default_scatter_size
+
+        return dict(x=xs, y=ys, color=color, size=size)
 
 class AppController(object):
     '''mediate views -> model updates'''
@@ -250,35 +267,53 @@ class PlotView(BaseView):
     '''TODO: add docs'''
 
     def create_scatter(self):
-        self.figure = self.model.create_base_figure()
+        axes = self.model.axes_dict
+        xs, ys, sizes, colors = axes['x'], axes['y'], axes['size'], axes['color']
+        
+        if self.model.x_field in self.model.discrete_column_names and self.model.y_field in self.model.discrete_column_names:
+            self.figure = Figure(tools=self.model.tools,
+                                 plot_width=self.model.plot_width,
+                                 plot_height=self.model.plot_height,
+                                 x_range=xs,
+                                 y_range=ys)
+            self.figure.axis.major_label_orientation = math.pi / 4
 
-        if self.model.color_field:
-            scatter_colors = list(reversed(getattr(palettes, self.model.palette_name)))
-            bins = len(scatter_colors)
-            groups = pd.qcut(self.model.df[self.model.color_field].tolist(), bins)
-            colors = [scatter_colors[l] for l in groups.codes]
+        elif self.model.x_field in self.model.discrete_column_names:
+            self.figure = Figure(tools=self.model.tools,
+                                 plot_width=self.model.plot_width,
+                                 plot_height=self.model.plot_height,
+                                 x_range=xs)
+            self.figure.xaxis.major_label_orientation = math.pi / 4
+
+        elif self.model.y_field in self.model.discrete_column_names:
+            self.figure = Figure(tools=self.model.tools,
+                                 plot_width=self.model.plot_width,
+                                 plot_height=self.model.plot_height,
+                                 y_range=ys)
+            self.figure.yaxis.major_label_orientation = math.pi / 4
         else:
-            colors = self.model.default_scatter_color
+            self.figure = Figure(tools=self.model.tools, plot_width=self.model.plot_width, plot_height=self.model.plot_height)
 
-        if self.model.size_field:
-            bins = len(self.model.scatter_sizes)
-            groups = pd.qcut(self.model.df[self.model.size_field].tolist(), bins)
-            sizes = [self.model.scatter_sizes[l] for l in groups.codes]
-        else:
-            sizes = self.model.default_scatter_size
-
-        xs = self.model.df[self.model.x_field]
-        ys = self.model.df[self.model.y_field]
-
-        self.scatter = self.figure.scatter(x=xs,
-                                           y=ys,
-                                           color=colors,
-                                           size=sizes,
-                                           line_color="white",
-                                           alpha=0.8)
-
+        self.scatter = self.figure.circle(xs, ys, color=colors, size=sizes, line_color="white", alpha=0.8)
+        self.style_figure()
         self.layout.children = [self.figure]
         return self.figure
+
+    def style_figure(self):
+        '''set basic styles on figure'''
+        self.figure.toolbar_location = None
+        self.figure.xaxis.axis_label = self.model.x_field
+        self.figure.yaxis.axis_label = self.model.y_field
+        self.figure.background_fill_color = self.model.background_fill
+        self.figure.border_fill_color = self.model.background_fill
+        self.figure.axis.axis_line_color = "white"
+        self.figure.axis.axis_label_text_color = "white"
+        self.figure.axis.major_label_text_color = "white"
+        self.figure.axis.major_tick_line_color = "white"
+        self.figure.axis.minor_tick_line_color = "white"
+        self.figure.axis.minor_tick_line_color = "white"
+        self.figure.grid.grid_line_dash = [6, 4]
+        self.figure.grid.grid_line_alpha = .3
 
     def create_bar(self):
         grouped = self.model.df.groupby(self.model.x_field)
@@ -325,11 +360,12 @@ class ControlsView(BaseView):
             self.create_bar_controls()
 
     def create_scatter_controls(self):
+        cols = self.model.col_names
         continuous = self.model.continuous_column_names
         children = []
         children.append(self.bind_select('Plot Type', self.model.plot_type_options, 'plot_type'))
-        children.append(self.bind_select('X-Axis', continuous, 'x_field'))
-        children.append(self.bind_select('Y-Axis', continuous, 'y_field'))
+        children.append(self.bind_select('X-Axis', cols, 'x_field'))
+        children.append(self.bind_select('Y-Axis', cols, 'y_field'))
         children.append(self.bind_select('Color', ['None'] + self.model.quantileable_column_names, 'color_field'))
 
         if self.model.color_field:
