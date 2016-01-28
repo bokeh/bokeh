@@ -19,6 +19,9 @@ from examples.app.crossfilter.models import StyleableBox
 from examples.app.crossfilter.models import StatsBox
 from examples.app.crossfilter.models.helpers import load_component
 
+from bokeh.sampledata.iris import flowers
+
+
 class AppModel(object):
     '''todo: add docs'''
 
@@ -388,7 +391,7 @@ class ControlsView(BaseView):
         y_axis_selector.on_change('value', partial(self.controller.on_change, model_field='y_field'))
         children.append(y_axis_selector)
 
-        color_selector = Select.create(name='Color', value=self.model.color_field, options=self.model.quantileable_column_names)
+        color_selector = Select.create(name='Color', value=self.model.color_field, options=['None'] + self.model.quantileable_column_names)
         color_selector.on_change('value', partial(self.controller.on_change, model_field='color_field'))
         children.append(color_selector)
 
@@ -397,7 +400,7 @@ class ControlsView(BaseView):
             palette_selector.on_change('value', partial(self.controller.on_change, model_field='palette_name'))
             children.append(palette_selector)
 
-        size_selector = Select.create(name='Size', value=self.model.color_field, options=self.model.quantileable_column_names)
+        size_selector = Select.create(name='Size', value=self.model.color_field, options=['None'] + self.model.quantileable_column_names)
         size_selector.on_change('value', partial(self.controller.on_change, model_field='size_field'))
         children.append(size_selector)
 
@@ -427,7 +430,7 @@ class ControlsView(BaseView):
         self.layout.children = children
 
 # entry point - 
-model = AppModel(autompg)
+model = AppModel(flowers)
 controller = AppController(model)
 view = AppView(model, controller)
 doc = curdoc().add_root(view.layout)
