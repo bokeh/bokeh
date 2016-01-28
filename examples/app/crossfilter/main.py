@@ -27,9 +27,9 @@ class AppModel(object):
         self.df = df
         self.data = ColumnDataSource(df)
         self.columns = []
-        self.col_names = list(self.data.column_names)
+        self.col_names = self.df.columns
         self.filtered_data = None
-        self.plot_type_options = ['scatter', 'bar']
+        self.plot_type_options = ['scatter', 'histogram']
         self.x_field = self.col_names[0]
         self.y_field = self.col_names[1]
         self.color_field = None
@@ -316,6 +316,13 @@ class PlotView(BaseView):
         self.figure.grid.grid_line_alpha = .3
 
     def create_bar(self):
+
+        if self.model.x_field in self.model.discrete_column_names:
+            self.model.x_field = self.model.continuous_column_names[0]
+
+        if self.model.y_field in self.model.discrete_column_names:
+            self.model.y_field = self.model.continuous_column_names[1]
+
         grouped = self.model.df.groupby(self.model.x_field)
         aggregate = grouped.aggregate(self.model.aggregate_function)
         xs = aggregate.index
@@ -326,8 +333,10 @@ class PlotView(BaseView):
         else:
             ys = aggregate[self.model.y_field]
 
-        self.figure = self.model.create_base_figure()
-        self.figure.quad(left=xs, right=xs+1, bottom=0, top=ys, line_color="white", alpha=0.8)
+        bar_size = math.ceil((xs.max() - xs.min()) / len(xs))
+        self.figure = Figure(tools=self.model.tools, plot_width=self.model.plot_width, plot_height=self.model.plot_height)
+        self.figure.quad(left=xs, right=xs+bar_size, bottom=0, top=ys, line_color="white", alpha=0.8)
+        self.style_figure()
         self.figure.yaxis.axis_label = '{}({})'.format(self.model.agg_type, self.model.y_field)
         self.layout.children = [self.figure]
         return self.figure
@@ -341,7 +350,7 @@ class PlotView(BaseView):
         '''TODO: add docs'''
         if self.model.plot_type == 'scatter':
             plot = self.create_scatter()
-        elif self.model.plot_type == 'bar':
+        elif self.model.plot_type == 'histogram':
             plot = self.create_bar()
 
         self.layout.children = [plot]
@@ -356,7 +365,7 @@ class ControlsView(BaseView):
     def update(self):
         if self.model.plot_type == 'scatter':
             self.create_scatter_controls()
-        elif self.model.plot_type == 'bar':
+        elif self.model.plot_type == 'histogram':
             self.create_bar_controls()
 
     def create_scatter_controls(self):
