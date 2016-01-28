@@ -51,7 +51,13 @@ class Viewable(MetaHasProps):
     @classmethod
     def _preload_models(cls):
         from . import models; models
-        from .charts import Chart; Chart
+        from .plotting import Figure; Figure
+        try:
+            from .charts import Chart; Chart
+        except RuntimeError:
+            # this would occur if pandas is not installed but then we can't
+            # use the bokeh.charts interface anyway
+            pass
 
     @classmethod
     def get_class(cls, view_model_name):

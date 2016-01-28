@@ -2,7 +2,7 @@ _ = require "underscore"
 {Promise} = require "es6-promise"
 {logger} = require "./logging"
 {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} = require "./document"
-HasProperties = require "./has_properties"
+HasProps = require "./has_props"
 
 DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 DEFAULT_SESSION_ID = "default"
@@ -387,7 +387,7 @@ class ClientSession
       for event_json in patch.content['events']
         if event_json['kind'] == 'ModelChanged' and event_json['model']['id'] == event.model.id and event_json['attr'] == event.attr
           patch_new = event_json['new']
-          if event.new_ instanceof HasProperties
+          if event.new_ instanceof HasProps
             if typeof patch_new == 'object' and 'id' of patch_new and patch_new['id'] == event.new_.id
               return true
           else if _.isEqual(patch_new, event.new_)
@@ -462,4 +462,3 @@ module.exports =
   pull_session: pull_session
   DEFAULT_SERVER_WEBSOCKET_URL: DEFAULT_SERVER_WEBSOCKET_URL
   DEFAULT_SESSION_ID: DEFAULT_SESSION_ID
-

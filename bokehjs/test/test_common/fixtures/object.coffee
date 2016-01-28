@@ -1,9 +1,9 @@
 _ = require "underscore"
 utils = require "../../utils"
 Collection = utils.require "common/collection"
-HasProperties = utils.require "common/has_properties"
+HasProps = utils.require "common/has_props"
 
-class TestObject extends HasProperties
+class TestObject extends HasProps
   type: 'TestObject'
 
 class TestObjectCollection extends Collection

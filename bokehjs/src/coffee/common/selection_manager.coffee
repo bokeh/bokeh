@@ -1,10 +1,10 @@
 _ = require "underscore"
-HasProperties = require "./has_properties"
+HasProps = require "./has_props"
 {logger} = require "./logging"
 Selector = require "./selector"
 hittest = require "./hittest"
 
-class SelectionManager extends HasProperties
+class SelectionManager extends HasProps
   type: 'SelectionManager'
 
   initialize: (attrs, options) ->

@@ -1,8 +1,8 @@
 _ = require "underscore"
-HasProperties = require "./has_properties"
+HasProps = require "./has_props"
 svg_colors = require "./svg_colors"
 
-class Property extends HasProperties
+class Property extends HasProps
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -201,7 +201,7 @@ class Direction extends Enum
 # Drawing Context Properties
 #
 
-class ContextProperties extends HasProperties
+class ContextProperties extends HasProps
 
   initialize: (attrs, options) ->
     @cache = {}

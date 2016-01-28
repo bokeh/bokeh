@@ -4,9 +4,9 @@ utils = require "../utils"
 base = utils.require "common/base"
 {Collections} = base
 
-HasProperties = utils.require "common/has_properties"
+HasProps = utils.require "common/has_props"
 
-class TestObject extends HasProperties
+class TestObject extends HasProps
   type: 'TestObject'
 
 describe "datarange1d module", ->
