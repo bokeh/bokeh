@@ -375,27 +375,48 @@ def save(obj, filename=None, resources=None, title=None, state=None, validate=Tr
 
     _save_helper(obj, filename, resources, title, validate)
 
+def _detect_filename(ext):
+    import inspect
+    from os.path import exists, dirname, basename, splitext, join
+
+    frame_info = inspect.getframeinfo(inspect.getouterframes(inspect.currentframe())[-1][0])
+
+    if frame_info.function == "<module>" and exists(frame_info.filename):
+        name, _ = splitext(basename(frame_info.filename))
+        return join(dirname(frame_info.filename), name + "." + ext)
+    else:
+        return None
+
 def _get_save_args(state, filename, resources, title):
+    warn = True
 
     if filename is None and state.file:
         filename = state.file['filename']
 
-    if resources is None and state.file:
-        resources = state.file['resources']
-
-    if title is None and state.file:
-        title = state.file['title']
+    if filename is None:
+        warn = False
+        filename = _detect_filename("html")
 
     if filename is None:
         raise RuntimeError("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
 
+    if resources is None and state.file:
+        resources = state.file['resources']
+
     if resources is None:
-        warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
+        if warn:
+            warnings.warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
+
         from .resources import CDN
         resources = CDN
 
+    if title is None and state.file:
+        title = state.file['title']
+
     if title is None:
-        warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+        if warn:
+            warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+
         title = "Bokeh Plot"
 
     return filename, resources, title
