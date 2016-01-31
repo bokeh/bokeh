@@ -2,6 +2,7 @@ $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
 
+{Cache} = require "./util/cache"
 {logger} = require "../common/logging"
 
 class HasProps extends Backbone.Model
@@ -56,7 +57,7 @@ class HasProps extends Backbone.Model
 
     # setting up data structures for properties
     @properties = {}
-    @property_cache = {}
+    @_prop_cache = new Cache()
 
     # auto generating ID
     if not _.has(attrs, @idAttribute)
@@ -199,8 +200,8 @@ class HasProps extends Backbone.Model
     propchange = () =>
       firechange = true
       if prop_spec['use_cache']
-        old_val = @get_cache(prop_name)
-        @clear_cache(prop_name)
+        old_val = @_prop_cache.get(prop_name)
+        @_prop_cache.clear(prop_name)
         new_val = @get(prop_name)
         firechange = new_val != old_val
       if firechange
@@ -232,19 +233,7 @@ class HasProps extends Backbone.Model
     @off("changedep:" + dep)
     delete @properties[prop_name]
     if prop_spec.use_cache
-      @clear_cache(prop_name)
-
-  has_cache: (prop_name) ->
-    return _.has(@property_cache, prop_name)
-
-  add_cache: (prop_name, val) ->
-    @property_cache[prop_name] = val
-
-  clear_cache: (prop_name, val) ->
-    delete @property_cache[prop_name]
-
-  get_cache: (prop_name) ->
-    return @property_cache[prop_name]
+      @_prop_cache.clear(prop_name)
 
   get: (prop_name, resolve_refs=true) ->
     # ### method: HasProps::get
@@ -261,13 +250,13 @@ class HasProps extends Backbone.Model
 
   _get_prop: (prop_name) ->
     prop_spec = @properties[prop_name]
-    if prop_spec.use_cache and @has_cache(prop_name)
-      return @property_cache[prop_name]
+    if prop_spec.use_cache and @_prop_cache.has(prop_name)
+      return @_prop_cache.get(prop_name)
     else
       getter = prop_spec.getter
       computed = getter.apply(this, [prop_name])
       if @properties[prop_name].use_cache
-        @add_cache(prop_name, computed)
+        @_prop_cache.add(prop_name, computed)
       return computed
 
   ref: () ->
