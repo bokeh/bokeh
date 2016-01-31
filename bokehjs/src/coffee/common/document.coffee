@@ -1,6 +1,7 @@
 _ = require "underscore"
 {logger} = require "./logging"
 HasProps = require "../core/has_props"
+{is_ref} = require "../core/util/refs"
 {Collections} = require("./base")
 
 class DocumentChangedEvent
@@ -235,7 +236,7 @@ class Document
   @_resolve_refs: (value, old_references, new_references) ->
 
     resolve_ref = (v) ->
-      if HasProps._is_ref(v)
+      if is_ref(v)
         if v['id'] of old_references
           old_references[v['id']]
         else if v['id'] of new_references

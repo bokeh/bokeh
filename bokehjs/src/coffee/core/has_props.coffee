@@ -3,6 +3,8 @@ _ = require "underscore"
 Backbone = require "backbone"
 
 {Cache} = require "./util/cache"
+refs = require "./util/refs"
+
 {logger} = require "../common/logging"
 
 class HasProps extends Backbone.Model
@@ -259,24 +261,7 @@ class HasProps extends Backbone.Model
         @_prop_cache.add(prop_name, computed)
       return computed
 
-  ref: () ->
-    # ### method: HasProps::ref
-    # generates a reference to this model
-    base =
-      'type': this.type
-      'id': this.id
-    if @_subtype?
-      base['subtype'] = @_subtype
-    base
-
-  @_is_ref: (arg) ->
-    if _.isObject(arg)
-      keys = _.keys(arg).sort()
-      if keys.length==2
-        return keys[0]=='id' and keys[1]=='type'
-      if keys.length==3
-        return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
-    return false
+  ref: () -> refs.create_ref(@)
 
   # we only keep the subtype so we match Python;
   # only Python cares about this
@@ -294,7 +279,7 @@ class HasProps extends Backbone.Model
       return arg
     if _.isArray(arg)
       return (@resolve_ref(x) for x in arg)
-    if HasProps._is_ref(arg)
+    if refs.is_ref(arg)
       # this way we can reference ourselves
       # even though we are not in any collection yet
       if arg['type'] == this.type and arg['id'] == this.id
@@ -311,7 +296,7 @@ class HasProps extends Backbone.Model
 
   get_base: ()->
     if not @_base
-      @_base = require('./base')
+      @_base = require('../common/base')
     return @_base
 
   sync: (method, model, options) ->
@@ -411,7 +396,7 @@ class HasProps extends Backbone.Model
   @_json_record_references: (doc, v, result, recurse) ->
     if v is null
       ;
-    else if HasProps._is_ref(v)
+    else if refs.is_ref(v)
       if v.id not of result
         model = doc.get_model_by_id(v.id)
         HasProps._value_record_references(model, result, recurse)
