@@ -1,5 +1,5 @@
 _ = require "underscore"
-{logger} = require "./logging"
+{logger} = require "../core/logging"
 HasProps = require "../core/has_props"
 {is_ref} = require "../core/util/refs"
 {Collections} = require("./base")

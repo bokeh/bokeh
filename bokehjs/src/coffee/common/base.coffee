@@ -2,7 +2,7 @@ _ = require "underscore"
 Collection = require "./collection"
 window = {location: {href: "local"}} unless window?
 
-{logger} = require "./logging"
+{logger} = require "../core/logging"
 
 # add some useful functions to underscore
 require("./custom").monkey_patch()

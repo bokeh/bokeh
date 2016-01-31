@@ -1,5 +1,5 @@
 _ = require "underscore"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 Renderer = require "./renderer"
 PlotWidget = require "../../common/plot_widget"
 RemoteDataSource = require "../sources/remote_data_source"

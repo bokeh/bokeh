@@ -1,6 +1,6 @@
 _ = require "underscore"
 {Promise} = require "es6-promise"
-{logger} = require "./logging"
+{logger} = require "../core/logging"
 {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} = require "./document"
 HasProps = require "../core/has_props"
 

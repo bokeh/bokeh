@@ -2,7 +2,7 @@ _ = require "underscore"
 kiwi = require "kiwi"
 GuideRenderer = require "../renderers/guide_renderer"
 LayoutBox = require "../../common/layout_box"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 

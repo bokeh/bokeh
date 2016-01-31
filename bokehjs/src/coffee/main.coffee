@@ -10,7 +10,7 @@ Bokeh.Backbone          = require("backbone")
 Bokeh.Backbone.$        = Bokeh.$
 
 # set up logger
-logging = require("./common/logging")
+logging = require("./core/logging")
 Bokeh.logger            = logging.logger
 Bokeh.set_log_level     = logging.set_log_level
 

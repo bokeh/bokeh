@@ -1,6 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 RemoteDataSource = require "./remote_data_source"
 
 class AjaxDataSource extends RemoteDataSource.Model

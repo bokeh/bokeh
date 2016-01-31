@@ -3,7 +3,7 @@ Renderer = require "../renderers/renderer"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
 ImagePool = require "./image_pool"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 
 class DynamicImageView extends PlotWidget
 

@@ -2,7 +2,7 @@ _ = require "underscore"
 SPrintf = require "sprintf"
 tz = require "timezone"
 TickFormatter = require "./tick_formatter"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 
 _us = (t) ->
   # From double-precision unix (millisecond) timestamp get

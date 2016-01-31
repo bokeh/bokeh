@@ -5,7 +5,7 @@ build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 Component = require "../component"
 HasProps = require "../../core/has_props"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 ToolManager = require "../../common/tool_manager"
 plot_template = require "../../common/plot_template"
 

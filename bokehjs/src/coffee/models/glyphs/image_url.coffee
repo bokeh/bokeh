@@ -1,6 +1,6 @@
 _ = require "underscore"
 Glyph = require "./glyph"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 
 class ImageURLView extends Glyph.View
 

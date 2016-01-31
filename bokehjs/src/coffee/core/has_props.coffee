@@ -3,9 +3,8 @@ _ = require "underscore"
 Backbone = require "backbone"
 
 {Cache} = require "./util/cache"
+{logger} = require "./logging"
 refs = require "./util/refs"
-
-{logger} = require "../common/logging"
 
 class HasProps extends Backbone.Model
   # Our property system
