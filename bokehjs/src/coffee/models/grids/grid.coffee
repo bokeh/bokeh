@@ -1,7 +1,7 @@
 _ = require "underscore"
 GuideRenderer = require "../renderers/guide_renderer"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
+properties = require "../../core/properties"
 
 class GridView extends PlotWidget
   initialize: (attrs, options) ->

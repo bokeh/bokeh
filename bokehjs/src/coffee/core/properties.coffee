@@ -1,6 +1,6 @@
 _ = require "underscore"
-HasProps = require "../core/has_props"
-svg_colors = require "../core/util/svg_colors"
+HasProps = require "./has_props"
+svg_colors = require "./util/svg_colors"
 
 class Property extends HasProps
 

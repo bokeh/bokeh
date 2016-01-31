@@ -4,7 +4,7 @@ GuideRenderer = require "../renderers/guide_renderer"
 LayoutBox = require "../../common/layout_box"
 {logger} = require "../../core/logging"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
+properties = require "../../core/properties"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # axis title text, based on it's location and orientation

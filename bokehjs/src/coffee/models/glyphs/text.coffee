@@ -1,6 +1,6 @@
 _ = require "underscore"
 Glyph = require "./glyph"
-properties = require "../../common/properties"
+properties = require "../../core/properties"
 
 class TextView extends Glyph.View
   initialize: (options) ->

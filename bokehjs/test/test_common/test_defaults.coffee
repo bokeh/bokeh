@@ -6,7 +6,7 @@ core_defaults = require "./defaults/models_defaults"
 widget_defaults = require "./defaults/widgets_defaults"
 
 {Collections} = utils.require "common/base"
-properties = utils.require "common/properties"
+properties = utils.require "core/properties"
 Bokeh = utils.require "main"
 
 widget_locations = utils.require "models/widgets/main"

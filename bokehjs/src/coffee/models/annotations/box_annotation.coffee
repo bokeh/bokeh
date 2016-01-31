@@ -1,7 +1,7 @@
 _ = require "underscore"
 Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
+properties = require "../../core/properties"
 
 class BoxAnnotationView extends PlotWidget
   initialize: (options) ->

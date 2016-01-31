@@ -16,7 +16,7 @@ plot_utils = require "../../common/plot_utils"
 Solver = require "../../common/solver"
 ToolManager = require "../../common/tool_manager"
 plot_template = require "../../common/plot_template"
-properties = require "../../common/properties"
+properties = require "../../core/properties"
 GlyphRenderer = require "../renderers/glyph_renderer"
 ToolEvents = require "../../common/tool_events"
 
