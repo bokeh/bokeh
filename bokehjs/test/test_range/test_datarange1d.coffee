@@ -4,7 +4,7 @@ utils = require "../utils"
 base = utils.require "common/base"
 {Collections} = base
 
-HasProps = utils.require "common/has_props"
+HasProps = utils.require "core/has_props"
 
 class TestObject extends HasProps
   type: 'TestObject'

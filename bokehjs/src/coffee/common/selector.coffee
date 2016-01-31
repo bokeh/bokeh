@@ -1,5 +1,5 @@
 _ = require "underscore"
-HasProps = require "./has_props"
+HasProps = require "../core/has_props"
 hittest = require "./hittest"
 {logger} = require "./logging"
 

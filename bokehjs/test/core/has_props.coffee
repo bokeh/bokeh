@@ -4,7 +4,7 @@ fixtures = require "./fixtures/object"
 
 base = utils.require "common/base"
 {Collections} = base
-HasProps = utils.require "common/has_props"
+HasProps = utils.require "core/has_props"
 {Document} = utils.require "common/document"
 
 describe "has_properties module", ->

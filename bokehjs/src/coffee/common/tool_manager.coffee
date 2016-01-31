@@ -8,7 +8,7 @@ GestureTool = require "../models/tools/gestures/gesture_tool"
 InspectTool = require "../models/tools/inspectors/inspect_tool"
 {logger} = require "./logging"
 toolbar_template = require "./toolbar_template"
-HasProps = require "./has_props"
+HasProps = require "../core/has_props"
 
 class ToolManagerView extends Backbone.View
   template: toolbar_template

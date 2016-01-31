@@ -31,6 +31,8 @@ for own key, val of global.window
   if blacklist.indexOf(key) == -1
     global[key] = val
 
+require "./core"
+
 require "./test_action"
 require "./test_common"
 require "./test_mapper"

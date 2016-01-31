@@ -1,6 +1,6 @@
 _ = require "underscore"
 {logger} = require "./logging"
-HasProps = require "./has_props"
+HasProps = require "../core/has_props"
 {Collections} = require("./base")
 
 class DocumentChangedEvent

@@ -1,7 +1,8 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-{logger} = require "./logging"
+
+{logger} = require "../common/logging"
 
 class HasProps extends Backbone.Model
   # Our property system
