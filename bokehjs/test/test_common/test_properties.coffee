@@ -5,7 +5,7 @@ fixtures = require "./fixtures/object"
 base = utils.require "common/base"
 {Collections} = base
 Properties = utils.require "common/properties"
-svg_colors = utils.require "common/svg_colors"
+svg_colors = utils.require "core/util/svg_colors"
 
 describe "properties module", ->
   before ->
