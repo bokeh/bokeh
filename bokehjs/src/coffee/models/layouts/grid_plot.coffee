@@ -4,7 +4,7 @@ Backbone = require "backbone"
 build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 Component = require "../component"
-HasProperties = require "../../common/has_properties"
+HasProps = require "../../common/has_props"
 {logger} = require "../../common/logging"
 ToolManager = require "../../common/tool_manager"
 plot_template = require "../../common/plot_template"
@@ -125,7 +125,7 @@ class GridToolManager extends ToolManager.Model
       tool_manangers: []
     }
 
-class GridViewState extends HasProperties
+class GridViewState extends HasProps
 
   setup_layout_properties: () =>
     @register_property('layout_heights', @layout_heights, false)

@@ -3,7 +3,7 @@ _ = require "underscore"
 Backbone = require "backbone"
 {logger} = require "./logging"
 
-class HasProperties extends Backbone.Model
+class HasProps extends Backbone.Model
   # Our property system
   # we support python style computed properties, with getters
   # as well as setters. We also support caching of these properties,
@@ -152,10 +152,10 @@ class HasProperties extends Backbone.Model
     if _.isArray(value)
       return _.map(value, @convert_to_ref)
     else
-      if value instanceof HasProperties
+      if value instanceof HasProps
         return value.ref()
 
-  # ### method: HasProperties::add_dependencies
+  # ### method: HasProps::add_dependencies
   add_dependencies:  (prop_name, object, fields) ->
     # * prop_name - name of property
     # * object - object on which dependencies reside
@@ -172,12 +172,12 @@ class HasProperties extends Backbone.Model
     for fld in fields
       @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
 
-  # ### method: HasProperties::register_setter
+  # ### method: HasProps::register_setter
   register_setter: (prop_name, setter) ->
     prop_spec = @properties[prop_name]
     prop_spec.setter = setter
 
-  # ### method: HasProperties::register_property
+  # ### method: HasProps::register_property
   register_property:  (prop_name, getter, use_cache) ->
     # register a computed property. Setters, and dependencies
     # can be added with `@add_dependencies` and `@register_setter`
@@ -248,7 +248,7 @@ class HasProperties extends Backbone.Model
     return @property_cache[prop_name]
 
   get: (prop_name, resolve_refs=true) ->
-    # ### method: HasProperties::get
+    # ### method: HasProps::get
     # overrides backbone get.  checks properties,
     # calls getter, or goes to cache
     # if necessary.  If it's not a property, then just call super
@@ -272,7 +272,7 @@ class HasProperties extends Backbone.Model
       return computed
 
   ref: () ->
-    # ### method: HasProperties::ref
+    # ### method: HasProps::ref
     # generates a reference to this model
     base =
       'type': this.type
@@ -299,14 +299,14 @@ class HasProperties extends Backbone.Model
   # if we're in a Document we should have already resolved refs,
   # and if we aren't in a Document we can't resolve refs.
   resolve_ref: (arg) =>
-    # ### method: HasProperties::resolve_ref
+    # ### method: HasProps::resolve_ref
     # converts references into an objects, leaving non-references alone
     # also works "vectorized" on arrays and objects
     if _.isUndefined(arg)
       return arg
     if _.isArray(arg)
       return (@resolve_ref(x) for x in arg)
-    if HasProperties._is_ref(arg)
+    if HasProps._is_ref(arg)
       # this way we can reference ourselves
       # even though we are not in any collection yet
       if arg['type'] == this.type and arg['id'] == this.id
@@ -376,23 +376,23 @@ class HasProperties extends Backbone.Model
     throw new Error("bug: toJSON should not be called on #{@}, models require special serialization measures")
 
   @_value_to_json: (key, value, optional_parent_object) ->
-    if value instanceof HasProperties
+    if value instanceof HasProps
       value.ref()
     else if _.isArray(value)
       ref_array = []
       for v, i in value
-        if v instanceof HasProperties and not v.serializable_in_document()
+        if v instanceof HasProps and not v.serializable_in_document()
           console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because array contains a nonserializable type #{v.constructor.name} under index #{i}")
         else
-          ref_array.push(HasProperties._value_to_json(i, v, value))
+          ref_array.push(HasProps._value_to_json(i, v, value))
       ref_array
     else if _.isObject(value)
       ref_obj = {}
       for own subkey of value
-        if value[subkey] instanceof HasProperties and not value[subkey].serializable_in_document()
+        if value[subkey] instanceof HasProps and not value[subkey].serializable_in_document()
           console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because value of type #{value.constructor.name} contains a nonserializable type #{value[subkey].constructor.name} under #{subkey}")
         else
-          ref_obj[subkey] = HasProperties._value_to_json(subkey, value[subkey], value)
+          ref_obj[subkey] = HasProps._value_to_json(subkey, value[subkey], value)
       ref_obj
     else
       value
@@ -411,28 +411,28 @@ class HasProperties extends Backbone.Model
         attrs[key] = value
       # TODO remove serializable_in_document and this check once we aren't seeing these
       # warnings anymore
-      if value instanceof HasProperties and not value.serializable_in_document()
+      if value instanceof HasProps and not value.serializable_in_document()
         console.log("May need to add #{key} to nonserializable_attribute_names of #{@.constructor.name} because value #{value.constructor.name} is not serializable")
         fail = true
     if fail
       return {}
-    HasProperties._value_to_json("attributes", attrs, @)
+    HasProps._value_to_json("attributes", attrs, @)
 
   # this is like _value_record_references but expects to find refs
   # instead of models, and takes a doc to look up the refs in
   @_json_record_references: (doc, v, result, recurse) ->
     if v is null
       ;
-    else if HasProperties._is_ref(v)
+    else if HasProps._is_ref(v)
       if v.id not of result
         model = doc.get_model_by_id(v.id)
-        HasProperties._value_record_references(model, result, recurse)
+        HasProps._value_record_references(model, result, recurse)
     else if _.isArray(v)
       for elem in v
-        HasProperties._json_record_references(doc, elem, result, recurse)
+        HasProps._json_record_references(doc, elem, result, recurse)
     else if _.isObject(v)
       for own k, elem of v
-        HasProperties._json_record_references(doc, elem, result, recurse)
+        HasProps._json_record_references(doc, elem, result, recurse)
 
   # add all references from 'v' to 'result', if recurse
   # is true then descend into refs, if false only
@@ -440,25 +440,25 @@ class HasProperties extends Backbone.Model
   @_value_record_references: (v, result, recurse) ->
     if v is null
       ;
-    else if v instanceof HasProperties
+    else if v instanceof HasProps
       if v.id not of result
         result[v.id] = v
         if recurse
           immediate = v._immediate_references()
           for obj in immediate
-            HasProperties._value_record_references(obj, result, true) # true=recurse
+            HasProps._value_record_references(obj, result, true) # true=recurse
     else if _.isArray(v)
       for elem in v
-        if elem instanceof HasProperties and not elem.serializable_in_document()
+        if elem instanceof HasProps and not elem.serializable_in_document()
           console.log("Array contains nonserializable item, we shouldn't traverse this property ", elem)
           throw new Error("Trying to record refs for array with nonserializable item")
-        HasProperties._value_record_references(elem, result, recurse)
+        HasProps._value_record_references(elem, result, recurse)
     else if _.isObject(v)
       for own k, elem of v
-        if elem instanceof HasProperties and not elem.serializable_in_document()
+        if elem instanceof HasProps and not elem.serializable_in_document()
           console.log("Dict contains nonserializable item under #{k}, we shouldn't traverse this property ", elem)
           throw new Error("Trying to record refs for dict with nonserializable item")
-        HasProperties._value_record_references(elem, result, recurse)
+        HasProps._value_record_references(elem, result, recurse)
 
   # Get models that are immediately referenced by our properties
   # (do not recurse, do not include ourselves)
@@ -467,9 +467,9 @@ class HasProperties extends Backbone.Model
     attrs = @serializable_attributes()
     for key of attrs
       value = attrs[key]
-      if value instanceof HasProperties and not value.serializable_in_document()
+      if value instanceof HasProps and not value.serializable_in_document()
           console.log("May need to add #{key} to nonserializable_attribute_names of #{@constructor.name} because value #{value.constructor.name} is not serializable")
-      HasProperties._value_record_references(value, result, false) # false = no recurse
+      HasProps._value_record_references(value, result, false) # false = no recurse
 
     _.values(result)
 
@@ -497,20 +497,20 @@ class HasProperties extends Backbone.Model
 
     # TODO remove serializable_in_document and these checks once we aren't seeing these
     # warnings anymore
-    if old instanceof HasProperties and not old.serializable_in_document()
+    if old instanceof HasProps and not old.serializable_in_document()
       console.log("May need to add #{attr} to nonserializable_attribute_names of #{@constructor.name} because old value #{old.constructor.name} is not serializable")
       return
 
-    if new_ instanceof HasProperties and not new_.serializable_in_document()
+    if new_ instanceof HasProps and not new_.serializable_in_document()
       console.log("May need to add #{attr} to nonserializable_attribute_names of #{@constructor.name} because new value #{new_.constructor.name} is not serializable")
       return
 
     if @document != null
       new_refs = {}
-      HasProperties._value_record_references(new_, new_refs, false)
+      HasProps._value_record_references(new_, new_refs, false)
 
       old_refs = {}
-      HasProperties._value_record_references(old, old_refs, false)
+      HasProps._value_record_references(old, old_refs, false)
 
       for new_id, new_ref of new_refs
         if new_id not of old_refs
@@ -522,4 +522,4 @@ class HasProperties extends Backbone.Model
 
       @document._notify_change(@, attr, old, new_)
 
-module.exports = HasProperties
+module.exports = HasProps

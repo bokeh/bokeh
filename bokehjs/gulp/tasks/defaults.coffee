@@ -21,9 +21,12 @@ gulp.task "defaults:generate", (cb) ->
       cwd: bokehjsdir
     })
     handle.stdout.on 'data', (data) ->
-      console.log("generate_defaults.py: #{data}")
+      ("" + data)
+        .split('\n')
+        .filter (line) -> line.trim().length != 0
+        .forEach (line) -> gutil.log("generate_defaults.py: #{line}")
     handle.stderr.on 'data', (data) ->
-      console.log("generate_defaults.py: #{data}")
+      gutil.log("generate_defaults.py: #{data}")
     handle.on 'close', (code) ->
       if code != 0
         cb(new Error("generate_defaults.py exited code #{code}"))
@@ -32,4 +35,3 @@ gulp.task "defaults:generate", (cb) ->
 
   generateDefaults(cb)
   null # XXX: this is extremely important to allow cb() to work
-

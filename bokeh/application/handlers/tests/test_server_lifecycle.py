@@ -49,7 +49,6 @@ class TestServerLifecycle(unittest.TestCase):
         assert not doc.roots
 
     def test_lifecycle_bad_syntax(self):
-        doc = Document()
         result = {}
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
@@ -61,7 +60,6 @@ class TestServerLifecycle(unittest.TestCase):
         assert 'Invalid syntax' in handler.error
 
     def test_lifecycle_runtime_error(self):
-        doc = Document()
         result = {}
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
@@ -73,7 +71,6 @@ class TestServerLifecycle(unittest.TestCase):
         assert 'nope' in handler.error
 
     def test_lifecycle_bad_server_loaded_signature(self):
-        doc = Document()
         result = {}
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
@@ -89,7 +86,6 @@ def on_server_loaded(a,b):
         assert 'func(a, b)' in handler.error
 
     def test_lifecycle_bad_server_unloaded_signature(self):
-        doc = Document()
         result = {}
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
@@ -105,7 +101,6 @@ def on_server_unloaded(a,b):
         assert 'func(a, b)' in handler.error
 
     def test_lifecycle_bad_session_created_signature(self):
-        doc = Document()
         result = {}
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)
@@ -121,7 +116,6 @@ def on_session_created(a,b):
         assert 'func(a, b)' in handler.error
 
     def test_lifecycle_bad_session_destroyed_signature(self):
-        doc = Document()
         result = {}
         def load(filename):
             handler = ServerLifecycleHandler(filename=filename)

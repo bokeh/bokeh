@@ -36,8 +36,8 @@ from os.path import dirname, join
 import pandas as pd
 
 from bokeh.charts import Histogram
-from bokeh.models import ColumnDataSource, GridPlot
-from bokeh.models.widgets import HBox, VBox, PreText, Select
+from bokeh.models import ColumnDataSource, GridPlot, HBox, VBox
+from bokeh.models.widgets import PreText, Select
 from bokeh.plotting import Figure
 
 from bokeh.io import curdoc
