@@ -57,38 +57,41 @@ def _ema(prices, days=10):
     # The 0.8647 normalizes out that we stop the EMA after a finite number of terms
     return convolve(prices[-days:], kernel, mode="valid") / (0.8647)
 
-def _buf(name):
-    return source.data[name][-BUFSIZE:]
 @count()
 def update(t):
     open, high, low, close, average = _create_prices(t)
     color = "green" if open < close else "red"
 
-    data = dict()
-    data['time']    = _buf('time') + [t]
-    data['open']    = _buf('open') + [open]
-    data['high']    = _buf('high') + [high]
-    data['low']     = _buf('low') + [low]
-    data['close']   = _buf('close') + [close]
-    data['average'] = _buf('average') + [average]
-    data['color']   = _buf('color') + [color]
+    new_data = dict(
+        time=[t],
+        open=[open],
+        high=[high],
+        low=[low],
+        close=[close],
+        average=[average],
+        color=[color],
+    )
 
-    ma12 = _moving_avg(data['close'][-12:], 12)[0]
-    ma26 = _moving_avg(data['close'][-26:], 26)[0]
-    ema12 = _ema(data['close'][-12:], 12)[0]
-    ema26 = _ema(data['close'][-26:], 26)[0]
-    if   mavg.value == MA12:  data['ma'] = _buf('ma') + [ma12]
-    elif mavg.value == MA26:  data['ma'] = _buf('ma') + [ma26]
-    elif mavg.value == EMA12: data['ma'] = _buf('ma') + [ema12]
-    elif mavg.value == EMA26: data['ma'] = _buf('ma') + [ema26]
+    close = source.data['close'] + [close]
+    ma12 = _moving_avg(close[-12:], 12)[0]
+    ma26 = _moving_avg(close[-26:], 26)[0]
+    ema12 = _ema(close[-12:], 12)[0]
+    ema26 = _ema(close[-26:], 26)[0]
+
+    if   mavg.value == MA12:  new_data['ma'] = [ma12]
+    elif mavg.value == MA26:  new_data['ma'] = [ma26]
+    elif mavg.value == EMA12: new_data['ma'] = [ema12]
+    elif mavg.value == EMA26: new_data['ma'] = [ema26]
 
     macd = ema12 - ema26
-    data['macd'] = _buf('macd') + [macd]
-    macd9 = _ema(data['macd'][-26:], 9)[0]
-    data['macd9'] = _buf('macd9') + [macd9]
-    macdh = macd - macd9
-    data['macdh'] = _buf('macdh') + [macdh]
+    new_data['macd'] = [macd]
 
-    source.data = data
+    macd_series = source.data['macd'] + [macd]
+    macd9 = _ema(macd_series[-26:], 9)[0]
+    new_data['macd9'] = [macd9]
 
-curdoc().add_periodic_callback(update, 100)
+    new_data['macdh'] = [macd - macd9]
+
+    source.stream(new_data, 300)
+
+curdoc().add_periodic_callback(update, 50)
