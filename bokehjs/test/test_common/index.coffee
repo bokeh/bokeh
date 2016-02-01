@@ -1,6 +1,5 @@
 require "./test_build_views"
 require "./test_client"
-require "./test_color"
 require "./test_defaults"
 require "./test_document"
 require "./test_resizing"

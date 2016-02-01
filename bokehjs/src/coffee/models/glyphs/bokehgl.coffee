@@ -1,5 +1,5 @@
 gloo2 = require "gloo2"
-color = require "../../common/color"
+color = require "../../core/util/color"
 color2rgba = color.color2rgba
 
 # Copyright notice: many of the awesome techniques and  GLSL code contained in
