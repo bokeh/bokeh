@@ -36,6 +36,18 @@ is_ref = (arg) ->
       return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
   return false
 
+# Converts a (possibly array) value into a references or references
+#
+# @param value [HasProps or Array of HasProps]
+#
+convert_to_ref = (value) ->
+  if _.isArray(value)
+    return _.map(value, convert_to_ref)
+  else
+    if value instanceof HasProps.constructor
+      return value.ref()
+
 module.exports =
+  convert_to_ref: convert_to_ref
   create_ref: create_ref
   is_ref: is_ref

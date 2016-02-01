@@ -110,7 +110,7 @@ class HasProps extends Backbone.Model
       attrs = {}
       attrs[key] = value
     for own key, val of attrs
-      attrs[key] = @convert_to_ref(val)
+      attrs[key] = refs.convert_to_ref(val)
     return @set(attrs, options)
 
   set: (key, value, options) ->
@@ -146,15 +146,6 @@ class HasProps extends Backbone.Model
       super(attrs, options)
       for key, value of attrs
         @_tell_document_about_change(key, old[key], @get(key, resolve_refs=false))
-
-  convert_to_ref: (value) =>
-    # converts value into a refrence if necessary
-    # works vectorized
-    if _.isArray(value)
-      return _.map(value, @convert_to_ref)
-    else
-      if value instanceof HasProps
-        return value.ref()
 
   # ### method: HasProps::add_dependencies
   add_dependencies:  (prop_name, object, fields) ->
@@ -293,11 +284,6 @@ class HasProps extends Backbone.Model
         throw new Error("#{@} Cannot resolve ref #{JSON.stringify(arg)} when not in a Document")
     return arg
 
-  get_base: ()->
-    if not @_base
-      @_base = require('../common/base')
-    return @_base
-
   sync: (method, model, options) ->
     # make this a no-op, we sync the whole document never individual models
     return options.success(model.attributes, null, {})
@@ -312,8 +298,7 @@ class HasProps extends Backbone.Model
   # in the Document and should not go to the server. Subtypes
   # should override this. The result will be cached on the class,
   # so this only gets called one time on one instance.
-  nonserializable_attribute_names: () ->
-    []
+  nonserializable_attribute_names: () -> []
 
   _get_nonserializable_dict: () ->
     if not @constructor._nonserializable_names_cache?
