@@ -20,13 +20,19 @@ class Property extends Backbone.Model
 
     obj = @get('obj')
     attr = @get('attr')
-    @listenTo(obj, "change:#{attr}", () -> @_init())
+
+    # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
+    @listenTo(obj, "change:#{attr}", () ->
+      @_init()
+      obj.trigger("propchange")
+    )
     @listenTo(@, "change:obj", () ->
       throw new Error("attempted to reset 'obj' on Property")
     )
     @listenTo(@, "change:attr", () ->
       throw new Error("attempted to reset 'attr' on Property")
     )
+
 
   # ----- customizable policies
 
