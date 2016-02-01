@@ -99,7 +99,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
     def document(self):
         return self._document
 
-    def trigger(self, attr, old, new):
+    def trigger(self, attr, old, new, hint=None):
         dirty = { 'count' : 0 }
         def mark_dirty(obj):
             dirty['count'] += 1
@@ -109,7 +109,7 @@ class Model(with_metaclass(Viewable, HasProps, CallbackManager)):
             if dirty['count'] > 0:
                 self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new)
+        super(Model, self).trigger(attr, old, new, hint)
 
     @property
     def ref(self):

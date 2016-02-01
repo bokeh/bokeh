@@ -2,9 +2,9 @@ from __future__ import absolute_import
 
 from ..core import validation
 from ..core.validation.errors import COLUMN_LENGTHS
-from ..model import Model
 from ..core.properties import abstract
 from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecate import deprecated
 from ..util.serialization import transform_column_source_data
@@ -221,6 +221,35 @@ class ColumnDataSource(DataSource):
         if len(lengths) > 1:
             return str(self)
 
+
+    def stream(self, new_data, rollover=None):
+        import numpy as np
+
+        newkeys = set(new_data.keys())
+        oldkeys = set(self.data.keys())
+        if newkeys != oldkeys:
+            missing = oldkeys - newkeys
+            extra = newkeys - oldkeys
+            if missing and extra:
+                raise ValueError("Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra))))
+            elif missing:
+                raise ValueError("Must stream updates to all existing columns (missing: %s)" % ", ".join(sorted(missing)))
+            else:
+                raise ValueError("Must stream updates to all existing columns (extra: %s)" % ", ".join(sorted(extra)))
+
+        lengths = set()
+        for x in new_data.values():
+            if isinstance(x, np.ndarray):
+                if len(x.shape) != 1:
+                    raise ValueError("stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,))
+                lengths.add(x.shape[0])
+            else:
+                lengths.add(len(x))
+
+        if len(lengths) > 1:
+            raise ValueError("All streaming column updates must be the same length")
+
+        self.data._stream(self.document, self, new_data, rollover)
 
 class GeoJSONDataSource(ColumnDataSource):
 

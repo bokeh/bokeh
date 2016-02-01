@@ -4,6 +4,7 @@ import unittest
 from unittest import skipIf
 import warnings
 
+import numpy as np
 try:
     import pandas as pd
     is_pandas = True
@@ -12,7 +13,7 @@ except ImportError as e:
 
 from bokeh.models.sources import DataSource, ColumnDataSource
 
-class TestColumnDataSourcs(unittest.TestCase):
+class TestColumnDataSource(unittest.TestCase):
 
     def test_basic(self):
         ds = ColumnDataSource()
@@ -86,6 +87,40 @@ class TestColumnDataSourcs(unittest.TestCase):
             self.assertEquals(len(w), 1)
             self.assertEquals(w[0].category, UserWarning)
             self.assertEquals(str(w[0].message), "Unable to find column 'foo' in data source")
+
+    def test_stream_bad_data(self):
+        ds = ColumnDataSource(data=dict(a=[10], b=[20]))
+        with self.assertRaises(ValueError) as cm:
+            ds.stream(dict())
+        self.assertEqual(str(cm.exception), "Must stream updates to all existing columns (missing: a, b)")
+        with self.assertRaises(ValueError) as cm:
+            ds.stream(dict(a=[10]))
+        self.assertEqual(str(cm.exception), "Must stream updates to all existing columns (missing: b)")
+        with self.assertRaises(ValueError) as cm:
+            ds.stream(dict(a=[10], b=[10], x=[10]))
+        self.assertEqual(str(cm.exception), "Must stream updates to all existing columns (extra: x)")
+        with self.assertRaises(ValueError) as cm:
+            ds.stream(dict(a=[10], x=[10]))
+        self.assertEqual(str(cm.exception), "Must stream updates to all existing columns (missing: b, extra: x)")
+        with self.assertRaises(ValueError) as cm:
+            ds.stream(dict(a=[10], b=[10, 20]))
+        self.assertEqual(str(cm.exception), "All streaming column updates must be the same length")
+
+        with self.assertRaises(ValueError) as cm:
+            ds.stream(dict(a=[10], b=np.ones((1,1))))
+        self.assertEqual(str(cm.exception), "stream(...) only supports 1d sequences, got ndarray with size (1, 1)")
+
+    def test_stream_good_data(self):
+        ds = ColumnDataSource(data=dict(a=[10], b=[20]))
+        ds._document = "doc"
+        stuff = {}
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._stream = mock
+        ds.stream(dict(a=[11, 12], b=[21, 22]), "foo")
+        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo"))
+        self.assertEqual(stuff['kw'], {})
 
 if __name__ == "__main__":
     unittest.main()

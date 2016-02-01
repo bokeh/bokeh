@@ -141,8 +141,10 @@ class HasProps extends Backbone.Model
       for key, value of attrs
         old[key] = @get(key, resolve_refs=false)
       super(attrs, options)
-      for key, value of attrs
-        @_tell_document_about_change(key, old[key], @get(key, resolve_refs=false))
+
+      if not options?.silent?
+        for key, value of attrs
+          @_tell_document_about_change(key, old[key], @get(key, resolve_refs=false))
 
   convert_to_ref: (value) =>
     # converts value into a refrence if necessary
