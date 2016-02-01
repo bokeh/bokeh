@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-base = utils.require "common/base"
+base = utils.require "base"
 {Collections} = base
 
 HasProps = utils.require "core/has_props"

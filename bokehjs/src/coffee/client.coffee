@@ -1,8 +1,9 @@
 _ = require "underscore"
 {Promise} = require "es6-promise"
-{logger} = require "../core/logging"
+
+HasProps = require "./core/has_props"
+{logger} = require "./core/logging"
 {Document, ModelChangedEvent, RootAddedEvent, RootRemovedEvent} = require "./document"
-HasProps = require "../core/has_props"
 
 DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 DEFAULT_SESSION_ID = "default"

@@ -2,10 +2,10 @@
 utils = require "../utils"
 fixtures = require "./fixtures/object"
 
-base = utils.require "common/base"
+base = utils.require "base"
 {Collections} = base
 HasProps = utils.require "core/has_props"
-{Document} = utils.require "common/document"
+{Document} = utils.require "document"
 
 describe "has_properties module", ->
   before ->

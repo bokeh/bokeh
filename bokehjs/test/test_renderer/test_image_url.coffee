@@ -2,7 +2,7 @@
 utils = require "../utils"
 sinon = require 'sinon'
 
-base = utils.require "common/base"
+base = utils.require "base"
 {Collections} = base
 
 describe "image_url renderer", ->

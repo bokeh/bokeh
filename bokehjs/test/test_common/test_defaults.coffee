@@ -5,7 +5,7 @@ utils = require "../utils"
 core_defaults = require "./defaults/models_defaults"
 widget_defaults = require "./defaults/widgets_defaults"
 
-{Collections} = utils.require "common/base"
+{Collections} = utils.require "base"
 mixins = utils.require "core/property_mixins"
 Bokeh = utils.require "main"
 

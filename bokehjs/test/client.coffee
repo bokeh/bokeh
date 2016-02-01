@@ -2,7 +2,7 @@ _ = require "underscore"
 chai = require "chai"
 chai.use(require "chai-as-promised")
 expect = chai.expect
-utils = require "../utils"
+utils = require "./utils"
 child_process = require "child_process"
 {Promise} = require "es6-promise"
 path = require "path"
@@ -11,8 +11,8 @@ net = require "net"
 # node.js compat shim for WebSocket
 global.WebSocket = require("websocket").w3cwebsocket
 
-{Document, ModelChangedEvent} = utils.require "common/document"
-{pull_session} = utils.require "common/client"
+{Document, ModelChangedEvent} = utils.require "document"
+{pull_session} = utils.require "client"
 Range1d = utils.require("models/ranges/range1d").Model
 
 # Promise works in a very annoying way, make it

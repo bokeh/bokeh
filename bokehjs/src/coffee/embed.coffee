@@ -1,11 +1,12 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-base = require "./base"
-{logger, set_log_level} = require "../core/logging"
-{Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
-{pull_session} = require "./client"
 {Promise} = require "es6-promise"
+
+base = require "./base"
+{pull_session} = require "./client"
+{logger, set_log_level} = require "./core/logging"
+{Document, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} = require "./document"
 
 _handle_notebook_comms = (msg) ->
   logger.debug("handling notebook comms")

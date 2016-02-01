@@ -1,7 +1,7 @@
 _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
-base = utils.require "common/base"
+base = utils.require "base"
 DynamicImageRenderer = utils.require "models/tiles/dynamic_image_renderer"
 ImageSource = utils.require "models/tiles/image_source"
 

@@ -1,11 +1,11 @@
 _ = require "underscore"
-Collection = require "./collection"
+Collection = require "./common/collection"
 window = {location: {href: "local"}} unless window?
 
-{logger} = require "../core/logging"
+{logger} = require "./core/logging"
 
 # add some useful functions to underscore
-require("./custom").monkey_patch()
+require("./common/custom").monkey_patch()
 
 Config = {}
 url = window.location.href
@@ -15,7 +15,7 @@ else
   Config.prefix = '/'
 console.log('Bokeh: setting prefix to', Config.prefix)
 
-locations = require("./models")
+locations = require("./common/models")
 
 collection_overrides = {}
 

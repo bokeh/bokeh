@@ -1,7 +1,5 @@
 require "./test_build_views"
-require "./test_client"
 require "./test_defaults"
-require "./test_document"
 require "./test_resizing"
 require "./test_selector"
 require "./test_ui_events"

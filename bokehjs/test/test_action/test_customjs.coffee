@@ -1,9 +1,9 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-base = utils.require "common/base"
+base = utils.require "base"
 {Collections} = base
-{Document} = utils.require "common/document"
+{Document} = utils.require "document"
 
 describe "customjs module", ->
 

@@ -19,11 +19,11 @@ if not window.Float64Array
   Bokeh.logger.warn("Float64Array is not supported. Using generic Array instead.")
   window.Float64Array = Array
 
-Bokeh.index             = require("./common/base").index
-Bokeh.embed             = require("./common/embed")
+Bokeh.index             = require("./base").index
+Bokeh.embed             = require("./embed")
 
-Bokeh.Collections       = require("./common/base").Collections
-Bokeh.Config            = require("./common/base").Config
+Bokeh.Collections       = require("./base").Collections
+Bokeh.Config            = require("./base").Config
 
 # Here for backwards capability?
 Bokeh.Bokeh = Bokeh

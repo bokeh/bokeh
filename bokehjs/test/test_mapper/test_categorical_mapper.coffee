@@ -2,7 +2,7 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../utils"
 
-{Collections} = utils.require "common/base"
+{Collections} = utils.require "base"
 
 close = (a, b) -> Math.abs(a-b)<10e-7
 

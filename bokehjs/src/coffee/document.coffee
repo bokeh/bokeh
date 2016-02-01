@@ -1,8 +1,9 @@
 _ = require "underscore"
-{logger} = require "../core/logging"
-HasProps = require "../core/has_props"
-{is_ref} = require "../core/util/refs"
-{Collections} = require("./base")
+
+{Collections} = require "./base"
+{logger} = require "./core/logging"
+HasProps = require "./core/has_props"
+{is_ref} = require "./core/util/refs"
 
 class DocumentChangedEvent
   constructor : (@document) ->

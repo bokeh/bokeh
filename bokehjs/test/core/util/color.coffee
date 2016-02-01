@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-base = utils.require "common/base"
+base = utils.require "base"
 color = utils.require "core/util/color"
 
 describe "color module", ->
