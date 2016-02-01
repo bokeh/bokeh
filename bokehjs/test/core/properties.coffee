@@ -53,16 +53,15 @@ describe "properties module", ->
           new properties.Property({obj: new SomeHasProps(a: {})})
         expect(fn).to.throw Error, "missing property attr"
 
-      # TODO (bev) enable these later
-      # it "should throw an Error for undefined property attr value if no default is given", ->
-      #   fn = ->
-      #     new properties.Property({obj: new SomeHasProps(a: {}), attr: 'b'})
-      #   expect(fn).to.throw Error, /^attr '.*' does not exist on property object and no default supplied$/
+      it "should set undefined property attr value to null if no default is given", ->
+        obj = new SomeHasProps(a: {})
+        p = new properties.Property({obj: obj, attr: 'b'})
+        expect(obj.get('b')).to.be.equal null
 
-      # it "should set undefined property attr value if a default is given", ->
-      #   obj = new SomeHasProps(a: {})
-      #   p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
-      #   expect(obj.get('b')).to.be.equal 10
+      it "should set undefined property attr value if a default is given", ->
+        obj = new SomeHasProps(a: {})
+        p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
+        expect(obj.get('b')).to.be.equal 10
 
       it "should throw an Error for missing specifications", ->
         fn = ->
@@ -111,15 +110,11 @@ describe "properties module", ->
         prop = new properties.Property({obj: new SomeHasProps(spec_value_null), attr: 'a'})
         expect(prop.value()).to.be.equal null
 
-      # TODO (bev) update this when possible
-      # it "should throw an Error otherwise", ->
-      #   fn = ->
-      #     prop = new properties.Property({obj: new SomeHasProps(spec_field_only), attr: 'a'})
-      #     prop.value()
-      #   expect(fn).to.throw Error, "attempted to retrieve property value for property without value specification"
-      it "should return NaN otherwise", ->
-        prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'b'})
-        expect(prop.value()).to.be.NaN
+      it "should throw an Error otherwise", ->
+        fn = ->
+          prop = new properties.Property({obj: new SomeHasProps(spec_field_only), attr: 'a'})
+          prop.value()
+        expect(fn).to.throw Error, "attempted to retrieve property value for property without value specification"
 
     describe "array", ->
       # it "should return a value broadcasting accessor if there is a value spec", ->

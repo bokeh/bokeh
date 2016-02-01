@@ -40,9 +40,7 @@ class Property extends Backbone.Model
 
   value: () ->
     if _.isUndefined(@spec.value)
-      return NaN
-      # TODO (bev) enable this later
-      # throw new Error("attempted to retrieve property value for property without value specification")
+      throw new Error("attempted to retrieve property value for property without value specification")
     return @transform([@spec.value])[0]
 
   array: (source) ->
@@ -82,11 +80,12 @@ class Property extends Backbone.Model
 
     attr_value = obj.get(attr)
 
-    # TODO (bev) add this in later when some other code is ready for it
-    # if _.isUndefined(attr_value)
-    #   if _.isUndefined(@get('default_value'))
-    #     throw new Error("attr '#{attr}' does not exist on property object and no default supplied")
-    #   obj.set(attr, @get('default_value'), {silent: true})
+    if _.isUndefined(attr_value)
+      if _.isUndefined(@get('default_value'))
+        attr_value = null
+      else
+        attr_value = @get('default_value')
+      obj.set(attr, attr_value, {silent: true})
 
     if _.isObject(attr_value) and not _.isArray(attr_value)
       @spec = attr_value
