@@ -1,12 +1,16 @@
 from __future__ import absolute_import, print_function
 
+import logging
+log = logging.getLogger(__name__)
+
+from os.path import basename, exists, join
+
 from .handler import Handler
 from .script import ScriptHandler
 from .server_lifecycle import ServerLifecycleHandler
-import os
 
 class DirectoryHandler(Handler):
-    """Load an application directory which modifies a Document"""
+    """ Load an application directory which modifies a Document """
 
     def __init__(self, *args, **kwargs):
         super(DirectoryHandler, self).__init__(*args, **kwargs)
@@ -14,15 +18,23 @@ class DirectoryHandler(Handler):
             raise ValueError('Must pass a filename to DirectoryHandler')
 
         src_path = kwargs['filename']
-        mainpy = os.path.join(src_path, 'main.py')
-        if not os.path.exists(mainpy):
-            raise ValueError("No 'main.py' in %s" % (src_path))
+        main_py = join(src_path, 'main.py')
+        main_ipy = join(src_path, 'main.ipynb')
+        if exists(main_py) and exists(main_ipy):
+            log.warn("Found both 'main.py' and 'main.ipynb' in %s, using 'main.py'" % (src_path))
+            main = main_py
+        elif exists(main_py):
+            main = main_py
+        elif exists(main_ipy):
+            main = main_ipy
+        else:
+            raise ValueError("No 'main.py' or 'main.ipynb' in %s" % (src_path))
         self._path = src_path
-        self._mainpy = mainpy
-        self._mainpy_handler = ScriptHandler(filename=self._mainpy)
+        self._main = main
+        self._main_handler = ScriptHandler(filename=self._main)
 
-        lifecycle = os.path.join(src_path, 'server_lifecycle.py')
-        if os.path.exists(lifecycle):
+        lifecycle = join(src_path, 'server_lifecycle.py')
+        if exists(lifecycle):
             self._lifecycle = lifecycle
             self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle)
         else:
@@ -30,8 +42,8 @@ class DirectoryHandler(Handler):
             self._lifecycle_handler = Handler() # no-op handler
 
         self._theme = None
-        themeyaml = os.path.join(src_path, 'theme.yaml')
-        if os.path.exists(themeyaml):
+        themeyaml = join(src_path, 'theme.yaml')
+        if exists(themeyaml):
             from bokeh.themes import Theme
             self._theme = Theme(filename=themeyaml)
 
@@ -40,7 +52,7 @@ class DirectoryHandler(Handler):
             return None
         else:
             # TODO should fix invalid URL characters
-            return '/' + os.path.basename(self._path)
+            return '/' + basename(self._path)
 
     def modify_document(self, doc):
         if self.failed:
@@ -49,19 +61,19 @@ class DirectoryHandler(Handler):
         # class is immutable (has no setters)
         if self._theme is not None:
             doc.theme = self._theme
-        self._mainpy_handler.modify_document(doc)
+        self._main_handler.modify_document(doc)
 
     @property
     def failed(self):
-        return self._mainpy_handler.failed or self._lifecycle_handler.failed
+        return self._main_handler.failed or self._lifecycle_handler.failed
 
     @property
     def error(self):
-        return self._mainpy_handler.error or self._lifecycle_handler.error
+        return self._main_handler.error or self._lifecycle_handler.error
 
     @property
     def error_detail(self):
-        return self._mainpy_handler.error_detail or self._lifecycle_handler.error_detail
+        return self._main_handler.error_detail or self._lifecycle_handler.error_detail
 
     def on_server_loaded(self, server_context):
         return self._lifecycle_handler.on_server_loaded(server_context)

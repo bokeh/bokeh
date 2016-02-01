@@ -72,10 +72,9 @@ for leaf_widget in leaves(all_tree, widget_class):
         del all_json[vm_name]
 
 def output_defaults_module(filename, defaults):
-    output = serialize_json(defaults, indent=4, separators=[',', ':'])
-    coffee_template = \
-    """
-all_defaults = %s;
+    output = serialize_json(defaults, indent=2)
+    coffee_template = """\
+all_defaults = %s
 
 get_defaults = (name) ->
   if name of all_defaults
