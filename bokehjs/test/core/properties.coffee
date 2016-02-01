@@ -1,253 +1,294 @@
 {expect} = require "chai"
 utils = require "../utils"
-fixtures = require "./fixtures/object"
 
 base = utils.require "common/base"
 {Collections} = base
 Properties = utils.require "core/properties"
 svg_colors = utils.require "core/util/svg_colors"
 
+properties = utils.require "core/properties"
+
+HasProps = utils.require "core/has_props"
+enums = utils.require "core/enums"
+ColumnDataSource = utils.require("models/sources/column_data_source").Model
+svg_colors = utils.require "core/util/svg_colors"
+
+class SomeHasProps extends HasProps
+  type: 'SomeHasProps'
+
 describe "properties module", ->
-  before ->
-    fixtures.Collection.reset()
-    base.collection_overrides['TestObject'] = fixtures.Collection
-  after ->
-    base.collection_overrides['TestObject'] = undefined
 
-  generate_obj = (attrs) ->
-    Collections('TestObject').create(attrs)
+  validation_error = (prop, x) ->
+    fn = ->
+      prop.validate x
+      expect(fn).to.throw Error, /property '.*' given invalid value/
 
-  generate_source = () ->
-    Collections('ColumnDataSource').create({data: {foo: [10, 20]}})
+  enum_validation_errors = (prop) ->
+    validation_error prop, true
+    validation_error prop, 10
+    validation_error prop, 10.2
+    validation_error prop, "foo"
+    validation_error prop, {}
+    validation_error prop, []
+    validation_error prop, null
+    validation_error prop, undefined
 
   fixed           = {a: 1}
   spec_field      = {a: {field: 'foo'}, b: 30}
+  spec_field_only = {a: {field: 'foo'}}
   spec_value      = {a: {value: 2}}
   spec_value_null = {a: {value: null}}
 
   describe "Property", ->
 
-    it "should thrown an Error for malformed specs", ->
-      fn = ->
-        new Properties.Property({obj: generate_obj({a: {}}), attr: 'a'})
-      expect(fn).to.throw Error
+    describe "construction", ->
 
-    it "should thrown an Error for spec fields that are not strings", ->
-      fn = ->
-        new Properties.Property({obj: generate_obj({a: {field: 10}}), attr: 'a'})
-      expect(fn).to.throw Error
+      it "should throw an Error for missing property object", ->
+        fn = ->
+          new properties.Property({attr: 'a'})
+        expect(fn).to.throw Error, "missing property object"
+
+      it "should throw an Error for non-HasProps property object", ->
+        fn = ->
+          new properties.Property({obj: 10, attr: 'a'})
+        expect(fn).to.throw Error, "property object must be a HasProps"
+
+      it "should throw an Error for missing property attr", ->
+        fn = ->
+          new properties.Property({obj: new SomeHasProps(a: {})})
+        expect(fn).to.throw Error, "missing property attr"
+
+      # TODO (bev) enable these later
+      # it "should throw an Error for undefined property attr value if no default is given", ->
+      #   fn = ->
+      #     new properties.Property({obj: new SomeHasProps(a: {}), attr: 'b'})
+      #   expect(fn).to.throw Error, /^attr '.*' does not exist on property object and no default supplied$/
+
+      # it "should set undefined property attr value if a default is given", ->
+      #   obj = new SomeHasProps(a: {})
+      #   p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
+      #   expect(obj.get('b')).to.be.equal 10
+
+      it "should throw an Error for missing specifications", ->
+        fn = ->
+          new properties.Property({obj: new SomeHasProps(a: {}), attr: 'a'})
+        expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
+
+      it "should throw an Error for too many specifications", ->
+        fn = ->
+          new properties.Property({obj: new SomeHasProps(a: {field: "foo", value:"bar"}), attr: 'a'})
+        expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
+
+      it "should throw an Error if a field spec is not a string", ->
+        fn = ->
+          new properties.Property({obj: new SomeHasProps(a: {field: 10}), attr: 'a'})
+        expect(fn).to.throw Error, /^field value for property '.*' is not a string$/
+
+      it "should set a spec for object attr values", ->
+        p = new properties.Property({obj: new SomeHasProps(a: {field: "foo"}), attr: 'a'})
+        expect(p.spec).to.be.deep.equal {field: "foo"}
+        p = new properties.Property({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
+        expect(p.spec).to.be.deep.equal {value: "foo"}
+
+      it "should set a value spec for non-object attr values", ->
+        p = new properties.Property({obj: new SomeHasProps(a: 10), attr: 'a'})
+        expect(p.spec).to.be.deep.equal {value: 10}
+
+    describe "re-setting obj and attr properties", ->
+      it "should throw an Error", ->
+        prop = new properties.Property({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+        fn = ->
+          prop.set('obj', new SomeHasProps(a: {value: 20}))
+        expect(fn).to.throw Error, "attempted to reset 'obj' on Property"
+        fn = ->
+          prop.set('attr', 'b')
+        expect(fn).to.throw Error, "attempted to reset 'attr' on Property"
+
 
     describe "value", ->
-      it "should return a fixed value if there is one on the object", ->
-        prop = new Properties.Property({obj: generate_obj(fixed), attr: 'a'})
+      it "should return a value if there is a value spec", ->
+        prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'a'})
         expect(prop.value()).to.be.equal 1
-
-      it "should return a fixed value if there is a value spec", ->
-        prop = new Properties.Property({obj: generate_obj(spec_value), attr: 'a'})
+        prop = new properties.Property({obj: new SomeHasProps(spec_value), attr: 'a'})
         expect(prop.value()).to.be.equal 2
 
       it "should allow a fixed null value", ->
-        prop = new Properties.Property({obj: generate_obj(spec_value_null), attr: 'a'})
-        # XXX: expect(prop.value()).to.be.equal null
-        expect(prop.value()).to.be.NaN
+        prop = new properties.Property({obj: new SomeHasProps(spec_value_null), attr: 'a'})
+        expect(prop.value()).to.be.equal null
 
+      # TODO (bev) update this when possible
+      # it "should throw an Error otherwise", ->
+      #   fn = ->
+      #     prop = new properties.Property({obj: new SomeHasProps(spec_field_only), attr: 'a'})
+      #     prop.value()
+      #   expect(fn).to.throw Error, "attempted to retrieve property value for property without value specification"
       it "should return NaN otherwise", ->
-        prop = new Properties.Property({obj: generate_obj(fixed), attr: 'b'})
+        prop = new Properties.Property({obj: new SomeHasProps(fixed), attr: 'b'})
         expect(prop.value()).to.be.NaN
 
     describe "array", ->
-      it "should return an array from the source if there a field spec", ->
-        prop = new Properties.Property({obj: generate_obj(spec_field), attr: 'a'})
-        source = generate_source()
-        expect(prop.array(source)).to.deep.equal [10, 20]
+      # it "should return a value broadcasting accessor if there is a value spec", ->
+      #   prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'a'})
+      #   arr = prop.array()
+      #   expect(arr(0)).to.be.equal 1
+      #   expect(arr(1)).to.be.equal 1
+      #   expect(arr(2)).to.be.equal 1
+      #   expect(arr(3)).to.be.equal 1
+      #   expect(arr(100)).to.be.equal 1
+      #   prop = new properties.Property({obj: new SomeHasProps(spec_value), attr: 'a'})
+      #   arr = prop.array()
+      #   expect(arr(0)).to.be.equal 2
+      #   expect(arr(1)).to.be.equal 2
+      #   expect(arr(2)).to.be.equal 2
+      #   expect(arr(3)).to.be.equal 2
+      #   expect(arr(100)).to.be.equal 2
 
-      it "should broadcast fixed values", ->
-        prop = new Properties.Property({obj: generate_obj(spec_field), attr: 'b'})
-        source = generate_source()
-        expect(prop.array(source)).to.deep.equal [30, 30]
+      # it "should return an array accessor if there is a valid field spec", ->
+      #   source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+      #   prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+      #   arr = prop.array(source)
+      #   expect(arr(0)).to.be.equal 0
+      #   expect(arr(1)).to.be.equal 1
+      #   expect(arr(2)).to.be.equal 2
+      #   expect(arr(3)).to.be.equal 3
+      #   expect(arr(4)).to.be.equal 10
+      #   expect(arr(5)).to.be.equal undefined
 
-      it "should broadcast fixed values, including NaNs", ->
-        prop = new Properties.Property({obj: generate_obj(spec_field), attr: 'c'})
-        source = generate_source()
-        expect(prop.array(source)).to.deep.equal [NaN, NaN]
+      #  it "should throw an Error otherwise", ->
+      #   fn = ->
+      #     source = new ColumnDataSource({data: {}})
+      #     prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+      #     arr = prop.array(source)
+      #   expect(fn).to.throw Error, /field '.*' does not exist on source/
 
-    describe "default transform", ->
-      it "should be the identity", ->
-        prop = new Properties.Property({obj: generate_obj(fixed), attr: 'a'})
-        expect(prop.transform(10)).to.be.equal 10
-        expect(prop.transform("foo")).to.be.equal "foo"
-        expect(prop.transform([1,2,3])).to.be.deep.equal [1,2,3]
-        expect(prop.transform(null)).to.be.null
-
-    describe "default validate", ->
-      it "should return null", ->
-        prop = new Properties.Property({obj: generate_obj(fixed), attr: 'a'})
-        expect(prop.validate()).to.be.true
-        expect(prop.validate(10)).to.be.true
-        expect(prop.validate("foo")).to.be.true
-        expect(prop.validate(null)).to.be.true
-
-
-  describe "Numeric", ->
-
-    it "should be an instance of Property", ->
-      expect(Properties.Numeric.prototype).to.be.instanceof Properties.Property
-
-    describe "validate", ->
-      it "should return true on numeric input", ->
-        expect(Properties.Numeric.prototype.validate 10).to.be.true
-
-      it "should throw an error on non-numeric input", ->
-        fn = ->
-          Properties.Numeric.prototype.validate "foo"
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Numeric.prototype.validate {}
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Numeric.prototype.validate []
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Numeric.prototype.validate null
-        expect(fn).to.throw Error
+    describe "init", ->
+      it "should return nothing by default", ->
+        p = new properties.Property({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
+        expect(p.init()).to.be.equal undefined
 
     describe "transform", ->
-      it "should return a Float64Array", ->
-        result = Properties.Numeric.prototype.transform [10, 20, 30]
+      it "should be the identity", ->
+        expect(properties.Property.prototype.transform(10)).to.be.equal 10
+        expect(properties.Property.prototype.transform("foo")).to.be.equal "foo"
+        expect(properties.Property.prototype.transform(null)).to.be.equal null
+
+      it "should return the same type as passed", ->
+        result = properties.Number.prototype.transform [10, 20, 30]
+        expect(result).to.be.deep.equal [10, 20, 30]
+        result = properties.Number.prototype.transform new Float64Array [10, 20, 30]
         expect(result).to.be.deep.equal new Float64Array [10, 20, 30]
 
+    describe "validate", ->
+      it "should return nothing by default", ->
+        p = new properties.Property({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
+        expect(p.validate()).to.be.equal undefined
+        expect(p.validate(10)).to.be.equal undefined
+        expect(p.validate("foo")).to.be.equal undefined
+        expect(p.validate(null)).to.be.equal undefined
+
+    describe "changing the property attribute value", ->
+      it "should trigger change on the property", ->
+        obj = new SomeHasProps(a: {value: "foo"})
+        prop = new properties.Property({obj: obj, attr: 'a'})
+        stuff = {called: false}
+        prop.listenTo(prop, 'change', () -> stuff.called = true)
+        obj.set('a', {value: "bar"})
+        expect(stuff.called).to.be.true
+
+      it "should update the spec", ->
+        obj = new SomeHasProps(a: {value: "foo"})
+        prop = new properties.Property({obj: obj, attr: 'a'})
+        obj.set('a', {value: "bar"})
+        expect(prop.spec).to.be.deep.equal {value: "bar"}
 
   describe "Angle", ->
 
-    it "should be an instance of Numeric", ->
-      expect(Properties.Angle.prototype).to.be.instanceof Properties.Numeric
+    it "should be an instance of Number", ->
+      prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+      expect(prop).to.be.instanceof properties.Number
 
-    it "should set units from a spec", ->
-      prop = new Properties.Angle({obj: generate_obj({a: {value: 1, units: "deg"} }), attr: 'a'})
-      expect(prop.units).to.be.equal "deg"
+    describe "units", ->
+      it "should default to rad units", ->
+        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+        expect(prop.spec.units).to.be.equal "rad"
 
-    it "should set units to 'rad' as a default", ->
-      prop = new Properties.Angle({obj: generate_obj({a: 1}), attr: 'a'})
-      expect(prop.units).to.be.equal "rad"
+      it "should accept deg units", ->
+        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units:"deg"}), attr: 'a'})
+        expect(prop.spec.units).to.be.equal "deg"
 
-    it "should throw an error on bad units", ->
-      fn = ->
-        new Properties.Angle({obj: generate_obj({a: {value: 1, units: "foo"}}), attr: 'a'})
-      expect(fn).to.throw Error
+      it "should accept rad units", ->
+        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units:"rad"}), attr: 'a'})
+        expect(prop.spec.units).to.be.equal "rad"
+
+      it "should throw an Error on bad units", ->
+        fn = ->
+          prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units:"bad"}), attr: 'a'})
+        expect(fn).to.throw Error, "Angle units must be one of deg,rad, given invalid value: bad"
 
     describe "transform", ->
+      it "should multiply radians by -1", ->
+        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units: "rad"}), attr: 'a'})
+        expect(prop.transform([-10, 0, 10, 20])).to.be.deep.equal [10, -0, -10, -20]
 
-      it "should convert degrees to radians and flip sign", ->
-        prop = new Properties.Angle({obj: generate_obj({a: { value: 1, units: "deg"} }), attr: 'a'})
-        expect(prop.transform [1, 2, 3]).to.be.deep.equal new Float64Array [-Math.PI/180.0, -2*Math.PI/180.0, -3*Math.PI/180.0]
-
-      it "should pass radians with sign flipped", ->
-        prop = new Properties.Angle({obj: generate_obj({a: { value: 1, units: "rad" } }), attr: 'a'})
-        expect(prop.transform [1, 2, 3]).to.be.deep.equal new Float64Array [-1, -2, -3]
-
-
-  describe "Distance", ->
-
-    it "should be an instance of Numeric", ->
-      expect(Properties.Distance.prototype).to.be.instanceof Properties.Numeric
-
-    it "should set units from a spec", ->
-      prop = new Properties.Distance({obj: generate_obj({a: {value: 1, units: "screen"} }), attr: 'a'})
-      expect(prop.units).to.be.equal "screen"
-
-    it "should set units to 'data' as a default", ->
-      prop = new Properties.Distance({obj: generate_obj({a: 1}), attr: 'a'})
-      expect(prop.units).to.be.equal "data"
-
-    it "should throw an error on bad units", ->
-      fn = ->
-        new Properties.Distance({obj: generate_obj({a: {value: 1, units: "foo"}}), attr: 'a'})
-      expect(fn).to.throw Error
-
+      it "should convert degrees to -1 * radians", ->
+        prop = new properties.Angle({obj: new SomeHasProps(a: {value: 10, units: "deg"}), attr: 'a'})
+        expect(prop.transform([-180, 0, 180])).to.be.deep.equal [Math.PI, -0, -Math.PI]
 
   describe "Array", ->
+    prop = new properties.Array({obj: new SomeHasProps(a: {field: "foo"}), attr: 'a'})
 
     it "should be an instance of Property", ->
-      expect(Properties.Array.prototype).to.be.instanceof Properties.Property
+      expect(prop).to.be.instanceof properties.Property
 
     describe "validate", ->
-      it "should return true on array input", ->
-        expect(Properties.Array.prototype.validate [10]).to.be.true
+      it "should return undefined on array input", ->
+        expect(prop.validate []).to.equal undefined
+        expect(prop.validate [1,2,3]).to.equal undefined
+        expect(prop.validate new Float64Array [1,2,3]).to.equal undefined
 
-      it "should throw an error on non-array input", ->
-        fn = ->
-          Properties.Array.prototype.validate "foo"
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Array.prototype.validate {}
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Array.prototype.validate 10
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Bool.prototype.validate null
-        expect(fn).to.throw Error
+      it "should throw an Error on non-array input", ->
+        validation_error prop, true
+        validation_error prop, 10
+        validation_error prop, 10.2
+        validation_error prop, "foo"
+        validation_error prop, {}
+        validation_error prop, null
+        validation_error prop, undefined
 
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Bool", ->
+    prop = new properties.Bool({obj: new SomeHasProps(a: {value: true}), attr: 'a'})
 
     it "should be an instance of Property", ->
-      expect(Properties.Bool.prototype).to.be.instanceof Properties.Property
+      expect(prop).to.be.instanceof properties.Property
 
     describe "validate", ->
-      it "should return true on bool input", ->
-        expect(Properties.Bool.prototype.validate true).to.be.true
-        expect(Properties.Bool.prototype.validate false).to.be.true
 
-      it "should throw an error on non-bool input", ->
-        fn = ->
-          Properties.Bool.prototype.validate "foo"
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Bool.prototype.validate {}
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Bool.prototype.validate 10
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Bool.prototype.validate []
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Bool.prototype.validate null
-        expect(fn).to.throw Error
+      it "should return undefined on bool input", ->
+        expect(prop.validate true).to.equal undefined
+        expect(prop.validate false).to.equal undefined
 
+      it "should throw an Error on non-boolean input", ->
+        validation_error prop, 10
+        validation_error prop, 10.2
+        validation_error prop, "foo"
+        validation_error prop, {}
+        validation_error prop, []
+        validation_error prop, null
+        validation_error prop, undefined
 
-  describe "Coord", ->
-
-    it "should be an instance of Property", ->
-      expect(Properties.Coord.prototype).to.be.instanceof Properties.Property
-
-    describe "validate", ->
-      it "should return true on numeric input", ->
-        expect(Properties.Coord.prototype.validate 10).to.be.true
-        expect(Properties.Coord.prototype.validate 10.2).to.be.true
-
-      it "should return true on string input", ->
-        expect(Properties.Coord.prototype.validate "foo").to.be.true
-
-      it "should throw an error on other input", ->
-        fn = ->
-          Properties.Coord.prototype.validate {}
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Coord.prototype.validate true
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Coord.prototype.validate []
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Coord.prototype.validate null
-        expect(fn).to.throw Error
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Color", ->
+    prop = new properties.Color({obj: new SomeHasProps(a: {value: "#aabbccdd"}), attr: 'a'})
 
     it "should be an instance of Property", ->
-      expect(Properties.Color.prototype).to.be.instanceof Properties.Property
+      expect(prop).to.be.instanceof properties.Property
 
     describe "validate", ->
 
@@ -268,128 +309,279 @@ describe "properties module", ->
                     "rgb(a, b, c)"
       ]
 
-      it "should return true on RGBa input", ->
-        expect(Properties.Color.prototype.validate "#aabbccdd").to.be.true
+      it "should return undefined on RGBa input", ->
+        expect(prop.validate "#aabbccdd").to.equal undefined
 
-      it "should return true on integer rgb and rgba tuples", ->
+      it "should return undefined on integer rgb and rgba tuples", ->
         for good_tuple in good_tuples
-          expect(Properties.Color.prototype.validate good_tuple).to.be.true
+          expect(prop.validate good_tuple).to.equal undefined
 
-      it "should throw error on rgb and rgba tuples with bad numerical values", ->
+      it "should throw Error on rgb and rgba tuples with bad numerical values", ->
         for bad_tuple in bad_tuples
-          expect(Properties.Color.prototype.validate, bad_tuple).to.throw Error
+          expect(prop.validate, bad_tuple).to.throw Error
 
-      it "should return true on svg color input", ->
+      it "should return undefined on svg color input", ->
         for color in svg_colors
-          expect(Properties.Color.prototype.validate color).to.be.true
+          expect(prop.validate color).to.equal undefined
 
-      it "should throw an error on other input", ->
-        fn = ->
-          Properties.Color.prototype.validate "foo"
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Color.prototype.validate {}
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Color.prototype.validate true
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Color.prototype.validate []
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Color.prototype.validate null
-        expect(fn).to.throw Error
+      it "should throw an Error on other input", ->
+        validation_error prop, true
+        validation_error prop, 10
+        validation_error prop, 10.2
+        validation_error prop, "foo"
+        validation_error prop, {}
+        validation_error prop, []
+        validation_error prop, null
+        validation_error prop, undefined
 
-
-  describe "String", ->
+  describe "Coord", ->
+    prop = new properties.Coord({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
 
     it "should be an instance of Property", ->
-      expect(Properties.String.prototype).to.be.instanceof Properties.Property
+      expect(prop).to.be.instanceof properties.Property
 
     describe "validate", ->
-      it "should return true on string input", ->
-        expect(Properties.String.prototype.validate "foo").to.be.true
+      it "should return undefined on numeric or string input", ->
+        expect(prop.validate 10).to.equal undefined
+        expect(prop.validate 10.2).to.equal undefined
+        expect(prop.validate "foo").to.equal undefined
 
-      it "should throw an error on other input", ->
-        fn = ->
-          Properties.String.prototype.validate {}
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.String.prototype.validate true
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.String.prototype.validate []
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.String.prototype.validate null
-        expect(fn).to.throw Error
+      it "should throw an Error on non-numeric or non-string input", ->
+        validation_error prop, true
+        validation_error prop, {}
+        validation_error prop, []
+        validation_error prop, null
+        validation_error prop, undefined
 
-
-  describe "Enum", ->
-
-    it "should be an instance of Property", ->
-      expect(Properties.Enum.prototype).to.be.instanceof Properties.Property
-
-    describe "validate", ->
-      it "should return true on levels input", ->
-        q = new Properties.Enum({obj: generate_obj({a: "foo"}), attr: 'a', values:"foo bar"})
-        expect(q.validate "foo").to.be.true
-        expect(q.validate "bar").to.be.true
-
-      it "should throw an error on other input", ->
-        fn = ->
-          Properties.Enum.prototype.validate "quux"
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Enum.prototype.validate {}
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Enum.prototype.validate true
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Enum.prototype.validate []
-        expect(fn).to.throw Error
-        fn = ->
-          Properties.Enum.prototype.validate null
-        expect(fn).to.throw Error
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Direction", ->
-    it "should be an instance of Enum", ->
-      expect(Properties.Direction.prototype).to.be.instanceof Properties.Enum
+    prop = new properties.Direction({obj: new SomeHasProps(a: {value: "clock"}), attr: 'a'})
 
-    it "should should have direction levels", ->
-      q = new Properties.Direction({obj: generate_obj({a: "clock"}), attr: 'a'})
-      expect(q.levels).to.be.deep.equal ['anticlock', 'clock']
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on direction input", ->
+        expect(prop.validate "clock").to.equal undefined
+        expect(prop.validate "anticlock").to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
 
     describe "transform", ->
       it "should convert 'clock' to false", ->
-        result = Properties.Direction.prototype.transform ["clock"]
+        result = prop.transform ["clock"]
         expect(result).to.be.deep.equal new Uint8Array [0]
 
       it "should convert 'anticlock' to true", ->
-        result = Properties.Direction.prototype.transform ["anticlock"]
+        result = prop.transform ["anticlock"]
         expect(result).to.be.deep.equal new Uint8Array [1]
 
       it "should return a Uint8Array", ->
-        result = Properties.Direction.prototype.transform ["clock", "anticlock"]
+        result = prop.transform ["clock", "anticlock"]
         expect(result).to.be.deep.equal new Uint8Array [0, 1]
 
+  describe "Distance", ->
 
+    it "should be an instance of Number", ->
+      prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+      expect(prop).to.be.instanceof properties.Number
+
+    describe "units", ->
+      it "should default to data units", ->
+        prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+        expect(prop.spec.units).to.be.equal "data"
+
+      it "should accept screen units", ->
+        prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10, units:"screen"}), attr: 'a'})
+        expect(prop.spec.units).to.be.equal "screen"
+
+      it "should accept data units", ->
+        prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10, units:"data"}), attr: 'a'})
+        expect(prop.spec.units).to.be.equal "data"
+
+      it "should throw an Error on bad units", ->
+        fn = ->
+          prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10, units:"bad"}), attr: 'a'})
+        expect(fn).to.throw Error, "Distance units must be one of screen,data, given invalid value: bad"
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "FontStyle", ->
+    prop = new properties.FontStyle({obj: new SomeHasProps(a: {value: "normal"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on font style input", ->
+        for x in enums.FontStyle
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "LineCap", ->
+    prop = new properties.LineCap({obj: new SomeHasProps(a: {value: "butt"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on line cap input", ->
+        for x in enums.LineCap
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "LineJoin", ->
+    prop = new properties.LineJoin({obj: new SomeHasProps(a: {value: "miter"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on line join input", ->
+        for x in enums.LineJoin
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        validation_error prop, true
+        validation_error prop, 10
+        validation_error prop, 10.2
+        validation_error prop, "foo"
+        validation_error prop, {}
+        validation_error prop, []
+        validation_error prop, null
+        validation_error prop, undefined
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "Number", ->
+    prop = new properties.Number({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on numeric input", ->
+        expect(prop.validate 10).to.equal undefined
+        expect(prop.validate 10.2).to.equal undefined
+
+      it "should throw an Error on non-numeric input", ->
+        validation_error prop, true
+        validation_error prop, "foo"
+        validation_error prop, {}
+        validation_error prop, []
+        validation_error prop, null
+        validation_error prop, undefined
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "String", ->
+    prop = new properties.String({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on bool input", ->
+        expect(prop.validate "").to.equal undefined
+        expect(prop.validate "foo").to.equal undefined
+
+      it "should throw an Error on non-string input", ->
+        validation_error prop, true
+        validation_error prop, 10
+        validation_error prop, 10.2
+        validation_error prop, {}
+        validation_error prop, []
+        validation_error prop, null
+        validation_error prop, undefined
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "TextAlign", ->
+    prop = new properties.TextAlign({obj: new SomeHasProps(a: {value: "left"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on text align input", ->
+        for x in enums.TextAlign
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "TextBaseline", ->
+    prop = new properties.TextBaseline({obj: new SomeHasProps(a: {value: "top"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on text baseline input", ->
+        for x in enums.TextBaseline
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "exports", ->
 
-    it "should have basic properties", ->
-      expect("Angle" of Properties).to.be.true
-      expect("Array" of Properties).to.be.true
-      expect("Bool" of Properties).to.be.true
-      expect("Color" of Properties).to.be.true
-      expect("Coord" of Properties).to.be.true
-      expect("Direction" of Properties).to.be.true
-      expect("Distance" of Properties).to.be.true
-      expect("Enum" of Properties).to.be.true
-      expect("Numeric" of Properties).to.be.true
-      expect("Property" of Properties).to.be.true
-      expect("String" of Properties).to.be.true
+    it "should have the Property base class", ->
+      expect("Property" of properties).to.be.true
+
+    it "should have Property class helper functions", ->
+      expect("simple_prop" of properties).to.be.true
+      expect("enum_prop" of properties).to.be.true
+      expect("units_prop" of properties).to.be.true
+
+    it "should have concrete property subclasses", ->
+      expect("Angle" of properties).to.be.true
+      expect("Array" of properties).to.be.true
+      expect("Bool" of properties).to.be.true
+      expect("Color" of properties).to.be.true
+      expect("Coord" of properties).to.be.true
+      expect("Direction" of properties).to.be.true
+      expect("Distance" of properties).to.be.true
+      expect("FontStyle" of properties).to.be.true
+      expect("LineCap" of properties).to.be.true
+      expect("LineJoin" of properties).to.be.true
+      expect("Number" of properties).to.be.true
+      expect("String" of properties).to.be.true
+      expect("TextAlign" of properties).to.be.true
+      expect("TextBaseline" of properties).to.be.true
 
     it "should have context properties", ->
       expect("Line" of Properties).to.be.true

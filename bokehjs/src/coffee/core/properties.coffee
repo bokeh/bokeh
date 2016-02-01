@@ -1,193 +1,175 @@
 _ = require "underscore"
+Backbone = require "backbone"
+
+enums = require "./enums"
 HasProps = require "./has_props"
 svg_colors = require "./util/svg_colors"
 
-class Property extends HasProps
+#
+# Property base class
+#
+
+class Property extends Backbone.Model
+
+  specifiers: ['field', 'value']
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @obj = @get('obj')
-    @attr = @get('attr')
 
-    # TODO (bev) Quick fix, see https://github.com/bokeh/bokeh/pull/2684
-    @listenTo(@obj, "change:#{@attr}", () ->
-        @_init()
-        @obj.trigger("propchange")
+    @_init(false)
+
+    obj = @get('obj')
+    attr = @get('attr')
+    @listenTo(obj, "change:#{attr}", () -> @_init())
+    @listenTo(@, "change:obj", () ->
+      throw new Error("attempted to reset 'obj' on Property")
+    )
+    @listenTo(@, "change:attr", () ->
+      throw new Error("attempted to reset 'attr' on Property")
     )
 
-    @_init()
+  # ----- customizable policies
 
-  serializable_in_document: () ->
-    if @get('obj')?
-      result = @get('obj').serializable_in_document()
-      if not result
-        console.log("  'obj' field of #{@.constructor.name} has a nonserializable value of type #{@get('obj').constructor.name}")
-      result
-    else
-      true
+  init: () ->
 
-  _init: () ->
+  transform: (values) -> values
 
-    attr_value = @obj.get(@attr)
+  validate: (value) ->
 
-    if _.isObject(attr_value) and not _.isArray(attr_value)
-      # use whichever the spec provides if there is a spec
-      @spec = attr_value
-      if not _.isUndefined(@spec.value)
-        @fixed_value = @spec.value
-      else if @spec.field?
-        @field = @spec.field
-      else
-        throw new Error("spec for property '#{attr}' needs one of 'value' or 'field'")
-    else
-      # otherwise if there is no spec use a default
-      @fixed_value = attr_value
-
-    if @field? and not _.isString(@field)
-      throw new Error("field value for property '#{attr}' is not a string")
-
-    if @fixed_value?
-      @validate(@fixed_value, @attr)
+  # ----- property accessors
 
   value: () ->
-    # XXX: this `?' needs to be investigated for 0.10
-    result = if @fixed_value? then @fixed_value else NaN
-    return @transform([result])[0]
+    if _.isUndefined(@spec.value)
+      return NaN
+      # TODO (bev) enable this later
+      # throw new Error("attempted to retrieve property value for property without value specification")
+    return @transform([@spec.value])[0]
 
   array: (source) ->
     data = source.get('data')
-    if @field? and (@field of data)
-      return @transform(source.get_column(@field))
+    if @spec.field? and (@spec.field of data)
+      return @transform(source.get_column(@spec.field))
     else
       length = source.get_length()
       length = 1 if not length?
       value = @value() # already transformed
       return (value for i in [0...length])
 
-  transform: (values) -> values
+  # array: (source) ->
+  #   if @spec.value?
+  #     value = @transform([@spec.value])[0]
+  #     return (i) -> value
 
-  validate: (value, attr) -> true
+  #   data = source.get('data')
+  #   field = @spec.field
+  #   if field of data
+  #     transformed = @transform(source.get_column(field))
+  #     return (i) -> transformed[i]
+  #   throw new Error("field '#{field}' does not exist on source")
+
+  # ----- private methods
+
+  _init: (trigger=true) ->
+    obj = @get('obj')
+    if not obj?
+      throw new Error("missing property object")
+    if obj not instanceof HasProps
+      throw new Error("property object must be a HasProps")
+
+    attr = @get('attr')
+    if not attr?
+      throw new Error("missing property attr")
+
+    attr_value = obj.get(attr)
+
+    # TODO (bev) add this in later when some other code is ready for it
+    # if _.isUndefined(attr_value)
+    #   if _.isUndefined(@get('default_value'))
+    #     throw new Error("attr '#{attr}' does not exist on property object and no default supplied")
+    #   obj.set(attr, @get('default_value'), {silent: true})
+
+    if _.isObject(attr_value) and not _.isArray(attr_value)
+      @spec = attr_value
+      if _.size(_.pick.apply(null, [@spec].concat(@specifiers))) != 1
+        throw new Error("Invalid property specifier #{JSON.stringify(@spec)}, must have exactly one of #{@specifiers}")
+
+    else
+      @spec = {value: attr_value}
+
+    if @spec.field? and not _.isString(@spec.field)
+      throw new Error("field value for property '#{attr}' is not a string")
+
+    if @spec.value?
+      @validate(@spec.value)
+
+    @init()
+
+    if trigger
+      @trigger("change")
 
 #
-# Numeric Properties
+# Helper functions
 #
 
-class Numeric extends Property
+_valid_rgb = (value) ->
+  switch value.substring(0, 4)
+      when "rgba" then params = {start: "rgba(", len: 4, alpha: true}
+      when "rgb(" then params = {start: "rgb(", len: 3, alpha: false}
+      else return false
 
-  validate: (value, attr) ->
-    if not _.isNumber(value)
-      throw new Error("numeric property '#{attr}' given invalid value: #{value}")
-    return true
+  # if '.' and then ',' found, we know decimals are used on rgb
+  if new RegExp(".*?(\\.).*(,)").test(value)
+    throw new Error("color expects integers for rgb in rgb/rgba tuple, received #{value}")
 
-  transform: (values) ->
-    result = new Float64Array(values.length)
-    for i in [0...values.length]
-      result[i] = values[i]
-    return result
+  # extract the numerical values from inside parens
+  contents = value.replace(params.start, "").replace(")", "").split(',').map(parseFloat)
 
-class Angle extends Numeric
+  # check length of array based on rgb/rgba
+  if contents.length != params.len
+    throw new Error("color expects rgba #{expect_len}-tuple, received #{value}")
 
-  _init: () ->
-    super() # chain up updates @spec
-    @units = @spec?.units ? "rad"
-    if @units != "deg" and @units != "rad"
-      throw new Error("Angle units must be one of 'deg' or 'rad', given invalid value: #{@units}")
-
-  transform: (values) ->
-    if @units == "deg"
-      values = (x * Math.PI/180.0 for x in values)
-    values = (-x for x in values)
-    return super(values)
-
-class Distance extends Numeric
-
-  _init: () ->
-    super() # chain up updates @spec
-    @units = @spec?.units ? "data"
-    if @units != "data" and @units != "screen"
-      throw new Error("Distance units must be one of 'data' or 'screen', given invalid value: #{@units}")
+  # check for valid numerical values for rgba
+  if params.alpha and !(0 <= contents[3] <= 1)
+    throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1")
+  if false in (0 <= rgb <= 255 for rgb in contents.slice(0, 3))
+    throw new Error("color expects rgb to have value between 0 and 255")
+  return true
 
 #
-# Basic Properties
+# Simple Properties
 #
 
-class Array extends Property
+simple_prop = (name, pred) ->
+  class Prop extends Property
+    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+    validate: (value) ->
+      if not pred(value)
+        attr = @get('attr')
+        throw new Error("#{name} property '#{attr}' given invalid value: #{value}")
 
-  validate: (value, attr) ->
-    if not _.isArray(value)
-      throw new Error("array property '#{attr}' given invalid value: #{value}")
-    return true
+class Array extends simple_prop("Array", (x) -> _.isArray(x) or x instanceof Float64Array)
 
-class Bool extends Property
+class Bool extends simple_prop("Bool", _.isBoolean)
 
-  validate: (value, attr) ->
-    if not _.isBoolean(value)
-      throw new Error("boolean property '#{attr}' given invalid value: #{value}")
-    return true
+class Color extends simple_prop("Color", (x) ->
+  svg_colors[x.toLowerCase()]? or x.substring(0, 1) == "#" or _valid_rgb(x)
+)
 
-class Coord extends Property
+class Coord extends simple_prop("Coord", (x) -> _.isNumber(x) or _.isString(x))
 
-  validate: (value, attr) ->
-    if not _.isNumber(value) and not _.isString(value)
-      throw new Error("coordinate property '#{attr}' given invalid value: #{value}")
-    return true
+class Number extends simple_prop("Number", _.isNumber)
 
-class Color extends Property
+class String extends simple_prop("String", _.isString)
 
-  validate: (value, attr) ->
-    if not svg_colors[value.toLowerCase()]? and value.substring(0, 1) != "#" and not @valid_rgb(value)
-      throw new Error("color property '#{attr}' given invalid value: #{value}")
-    return true
+#
+# Enum properties
+#
 
-  valid_rgb: (value) ->
-      switch value.substring(0, 4)
-          when "rgba" then params = {start: "rgba(", len: 4, alpha: true}
-          when "rgb(" then params = {start: "rgb(", len: 3, alpha: false}
-          else return false
+enum_prop = (name, enum_values) ->
+  class Enum extends simple_prop(name, (x) -> x in enum_values)
+    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
 
-      # if '.' and then ',' found, we know decimals are used on rgb
-      if new RegExp(".*?(\\.).*(,)").test(value)
-          throw new Error("color expects integers for rgb in rgb/rgba tuple, received #{value}")
-
-      # extract the numerical values from inside parens
-      contents = value.replace(params.start, "").replace(")", "").split(',').map(parseFloat)
-
-      # check length of array based on rgb/rgba
-      if contents.length != params.len
-        throw new Error("color expects rgba #{expect_len}-tuple, received #{value}")
-
-      # check for valid numerical values for rgba
-      if params.alpha and !(0 <= contents[3] <= 1)
-        throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1")
-      if false in (0 <= rgb <= 255 for rgb in contents.slice(0, 3))
-        throw new Error("color expects rgb to have value between 0 and 255")
-      return true
-
-class String extends Property
-
-  validate: (value, attr) ->
-    if not _.isString(value)
-      throw new Error("string property '#{attr}' given invalid value: #{value}")
-    return true
-
-class Enum extends Property
-
-  initialize: (attrs, options) ->
-    @levels = attrs.values.split(" ")
-    super(attrs, options)
-
-  validate: (value, attr) ->
-    if value not in @levels
-      throw new Error("enum property '#{attr}' given invalid value: #{value},
-                       valid values are: #{@levels}")
-    return true
-
-class Direction extends Enum
-
-  initialize: (attrs, options) ->
-    attrs.values = "anticlock clock"
-    super(attrs, options)
-
+class Direction extends enum_prop("Direction", enums.Direction)
   transform: (values) ->
     result = new Uint8Array(values.length)
     for i in [0...values.length]
@@ -195,6 +177,44 @@ class Direction extends Enum
         when 'clock'     then result[i] = false
         when 'anticlock' then result[i] = true
     return result
+
+class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
+
+class LineCap extends enum_prop("LineCap", enums.LineCap)
+
+class LineJoin extends enum_prop("LineJoin", enums.LineJoin)
+
+class TextAlign extends enum_prop("TextAlign", enums.TextAlign)
+
+class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline)
+
+#
+# Units Properties
+#
+
+units_prop = (name, valid_units, default_units) ->
+  class UnitsProp extends Number
+    toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+    init: () ->
+      if not @spec.units?
+        @spec.units = default_units
+
+      # TODO (bev) remove this later, it's just for temporary compat
+      @units = @spec.units
+
+      units = @spec.units
+      if units not in valid_units
+        throw new Error("#{name} units must be one of #{valid_units}, given invalid value: #{units}")
+
+class Angle extends units_prop("Angle", enums.AngleUnits, "rad")
+  transform: (values) ->
+    if @spec.units == "deg"
+      values = (x * Math.PI/180.0 for x in values)
+    values = (-x for x in values)
+    return super(values)
+
+class Distance extends units_prop("Distance", enums.SpatialUnits, "data")
+
 
 
 #
@@ -210,15 +230,15 @@ class ContextProperties extends HasProps
   warm_cache: (source, attrs) ->
     for attr in attrs
       prop = @[attr]
-      if prop.fixed_value?
-        @cache[attr] = prop.fixed_value
+      if prop.spec.value?
+        @cache[attr] = prop.spec.value
       else
         @cache[attr+"_array"] = prop.array(source)
 
   cache_select: (attr, i) ->
     prop = @[attr]
-    if prop.fixed_value?
-      @cache[attr] = prop.fixed_value
+    if prop.spec.value?
+      @cache[attr] = prop.spec.value
     else
       @cache[attr] = @cache[attr+"_array"][i]
 
@@ -231,22 +251,16 @@ class Line extends ContextProperties
     prefix = @get('prefix')
 
     @color = new Color({obj: obj, attr: "#{prefix}line_color"})
-    @width = new Numeric({obj: obj, attr: "#{prefix}line_width"})
-    @alpha = new Numeric({obj: obj, attr: "#{prefix}line_alpha"})
-    @join = new Enum
-      obj: obj
-      attr: "#{prefix}line_join"
-      values: "miter round bevel"
-    @cap = new Enum
-      obj: obj
-      attr: "#{prefix}line_cap"
-      values: "butt round square"
+    @width = new Number({obj: obj, attr: "#{prefix}line_width"})
+    @alpha = new Number({obj: obj, attr: "#{prefix}line_alpha"})
+    @join = new LineJoin({obj: obj, attr: "#{prefix}line_join"})
+    @cap = new LineCap({obj: obj, attr: "#{prefix}line_cap"})
     @dash = new Array({obj: obj, attr: "#{prefix}line_dash"})
-    @dash_offset = new Numeric({obj: obj, attr: "#{prefix}line_dash_offset"})
+    @dash_offset = new Number({obj: obj, attr: "#{prefix}line_dash_offset"})
 
     @do_stroke = true
-    if not _.isUndefined(@color.fixed_value)
-      if _.isNull(@color.fixed_value)
+    if not _.isUndefined(@color.spec.value)
+      if _.isNull(@color.spec.value)
         @do_stroke = false
 
   warm_cache: (source) ->
@@ -301,11 +315,11 @@ class Fill extends ContextProperties
     prefix = @get('prefix')
 
     @color = new Color({obj: obj, attr: "#{prefix}fill_color"})
-    @alpha = new Numeric({obj: obj, attr: "#{prefix}fill_alpha"})
+    @alpha = new Number({obj: obj, attr: "#{prefix}fill_alpha"})
 
     @do_fill = true
-    if not _.isUndefined(@color.fixed_value)
-      if _.isNull(@color.fixed_value)
+    if not _.isUndefined(@color.spec.value)
+      if _.isNull(@color.spec.value)
         @do_fill = false
 
   warm_cache: (source) ->
@@ -334,19 +348,11 @@ class Text extends ContextProperties
 
     @font = new String({obj: obj, attr: "#{prefix}text_font"})
     @font_size = new String({obj: obj, attr: "#{prefix}text_font_size"})
-    @font_style = new Enum
-      obj: obj
-      attr: "#{prefix}text_font_style"
-      values: "normal italic bold"
+    @font_style = new FontStyle({obj: obj, attr: "#{prefix}text_font_style"})
     @color = new Color({obj: obj, attr: "#{prefix}text_color"})
-    @alpha = new Numeric({obj: obj, attr: "#{prefix}text_alpha"})
-    @align = new Enum
-      obj: obj
-      attr: "#{prefix}text_align", values: "left right center"
-    @baseline = new Enum
-      obj: obj
-      attr: "#{prefix}text_baseline"
-      values: "top middle bottom alphabetic hanging"
+    @alpha = new Number({obj: obj, attr: "#{prefix}text_alpha"})
+    @align = new TextAlign({obj: obj, attr: "#{prefix}text_align"})
+    @baseline = new TextBaseline({obj: obj, attr: "#{prefix}text_baseline"})
 
   warm_cache: (source) ->
     super(source, ["font", "font_size", "font_style", "color", "alpha", "align", "baseline"])
@@ -443,9 +449,7 @@ fields = (model, attr="fields") ->
       when "color" then result[field] = new Color({obj: model, attr: field})
       when "direction"
         result[field] = new Direction({obj: model, attr: field})
-      when "enum"
-        result[field] = new Enum({obj: model, attr: field, values:arg})
-      when "number" then result[field] = new Numeric({obj: model, attr: field})
+      when "number" then result[field] = new Number({obj: model, attr: field})
       when "string" then result[field] = new String({obj: model, attr: field})
 
   return result
@@ -464,6 +468,12 @@ visuals = (model, attr="visuals") ->
   return result
 
 module.exports =
+  Property: Property
+
+  simple_prop: simple_prop
+  enum_prop: enum_prop
+  units_prop: units_prop
+
   Angle: Angle
   Array: Array
   Bool: Bool
@@ -471,10 +481,13 @@ module.exports =
   Coord: Coord
   Direction: Direction
   Distance: Distance
-  Enum: Enum
-  Numeric: Numeric
-  Property: Property
+  FontStyle: FontStyle
+  LineCap: LineCap
+  LineJoin: LineJoin
+  Number: Number
   String: String
+  TextAlign: TextAlign
+  TextBaseline: TextBaseline
 
   Line: Line
   Fill: Fill
@@ -486,3 +499,5 @@ module.exports =
     angles: angles
     fields: fields
     visuals: visuals
+
+

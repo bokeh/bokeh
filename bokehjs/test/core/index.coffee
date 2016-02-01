@@ -1,4 +1,5 @@
 require "./enums"
 require "./has_props"
 require "./logging"
+require "./properties"
 require "./util"

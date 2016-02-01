@@ -145,21 +145,21 @@ describe "Defaults", ->
           props_of_this_kind = func(instance)
           prop_values = {}
           for p, v of props_of_this_kind
-            if v.field?
-              prop_values[p] = { 'field' : v.field }
-            else if v.fixed_value?
-              prop_values[p] = { 'value' : v.fixed_value }
+            if v.spec.field?
+              prop_values[p] = { 'field' : v.spec.field }
+            else if v.spec.value?
+              prop_values[p] = { 'value' : v.spec.value }
             else
               n = v.value()
               if isNaN(n) or n == null
                 prop_values[p] = null
               else
-                prop_values[p] = { 'value' : n }
+                prop_values[p] = { 'value' : v.spec.value }
 
             dict = prop_values[p]
             if dict?
-              if v.units?
-                prop_values[p]['units'] = v.units
+              if v.spec.units?
+                prop_values[p]['units'] = v.spec.units
               else
                 # properties.coffee hardcodes these units defaults
                 if prop_kind == 'distances' and 'units' not of dict
