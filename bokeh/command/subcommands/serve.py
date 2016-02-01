@@ -264,6 +264,30 @@ __doc__ = __doc__.format(
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES)
 )
 
+base_serve_args = (
+    ('--port', dict(
+        metavar='PORT',
+        type=int,
+        help="Port to listen on",
+        default=None
+    )),
+
+    ('--address', dict(
+        metavar='ADDRESS',
+        type=str,
+        help="Address to listen on",
+        default=None,
+    )),
+
+    ('--log-level', dict(
+        metavar='LOG-LEVEL',
+        action  = 'store',
+        default = 'info',
+        choices = LOGLEVELS,
+        help    = "One of: %s" % nice_join(LOGLEVELS),
+    )),
+)
+
 class Serve(Subcommand):
     ''' Subcommand to launch the Bokeh server.
 
@@ -273,8 +297,7 @@ class Serve(Subcommand):
 
     help = "Run a Bokeh server hosting one or more applications"
 
-    args = (
-
+    args = base_serve_args + (
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='*',
@@ -290,20 +313,6 @@ class Serve(Subcommand):
         ('--show', dict(
             action='store_true',
             help="Open server app(s) in a browser",
-        )),
-
-        ('--port', dict(
-            metavar='PORT',
-            type=int,
-            help="Port to listen on",
-            default=None
-        )),
-
-        ('--address', dict(
-            metavar='ADDRESS',
-            type=str,
-            help="Address to listen on",
-            default=None,
         )),
 
         ('--allow-websocket-origin', dict(
@@ -360,14 +369,6 @@ class Serve(Subcommand):
             help="Prefer X-headers for IP/protocol information",
         )),
 
-        ('--log-level', dict(
-            metavar='LOG-LEVEL',
-            action  = 'store',
-            default = 'debug',
-            choices = LOGLEVELS,
-            help    = "One of: %s" % nice_join(LOGLEVELS),
-        )),
-
         ('--session-ids', dict(
             metavar='MODE',
             action  = 'store',
@@ -375,7 +376,6 @@ class Serve(Subcommand):
             choices = SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
-
     )
 
     def invoke(self, args):
