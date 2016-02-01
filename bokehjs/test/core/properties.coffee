@@ -1,11 +1,6 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-base = utils.require "common/base"
-{Collections} = base
-Properties = utils.require "core/properties"
-svg_colors = utils.require "core/util/svg_colors"
-
 properties = utils.require "core/properties"
 
 HasProps = utils.require "core/has_props"
@@ -123,7 +118,7 @@ describe "properties module", ->
       #     prop.value()
       #   expect(fn).to.throw Error, "attempted to retrieve property value for property without value specification"
       it "should return NaN otherwise", ->
-        prop = new Properties.Property({obj: new SomeHasProps(fixed), attr: 'b'})
+        prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'b'})
         expect(prop.value()).to.be.NaN
 
     describe "array", ->
@@ -582,15 +577,3 @@ describe "properties module", ->
       expect("String" of properties).to.be.true
       expect("TextAlign" of properties).to.be.true
       expect("TextBaseline" of properties).to.be.true
-
-    it "should have context properties", ->
-      expect("Line" of Properties).to.be.true
-      expect("Fill" of Properties).to.be.true
-      expect("Text" of Properties).to.be.true
-
-    it "should have property factories", ->
-      expect("coords" of Properties.factories).to.be.true
-      expect("distances" of Properties.factories).to.be.true
-      expect("angles" of Properties.factories).to.be.true
-      expect("fields" of Properties.factories).to.be.true
-      expect("visuals" of Properties.factories).to.be.true

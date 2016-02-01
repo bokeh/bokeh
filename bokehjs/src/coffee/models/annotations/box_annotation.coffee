@@ -1,13 +1,13 @@
 _ = require "underscore"
 Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../core/properties"
+mixins = require "../../core/property_mixins"
 
 class BoxAnnotationView extends PlotWidget
   initialize: (options) ->
     super(options)
-    @fill_props = new properties.Fill({obj: @model, prefix: ''})
-    @line_props = new properties.Line({obj: @model, prefix: ''})
+    @fill_props = new mixins.Fill({obj: @model, prefix: ''})
+    @line_props = new mixins.Line({obj: @model, prefix: ''})
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
     @$el.addClass('shading')
     @$el.hide()

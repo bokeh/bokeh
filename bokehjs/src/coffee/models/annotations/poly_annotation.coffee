@@ -1,14 +1,14 @@
 _ = require "underscore"
 Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../core/properties"
+mixins = require "../../core/property_mixins"
 
 class PolyAnnotationView extends PlotWidget
 
   initialize: (options) ->
     super(options)
-    @line = new properties.Line({obj: @model, prefix: ""})
-    @fill = new properties.Fill({obj: @model, prefix: ""})
+    @line = new mixins.Line({obj: @model, prefix: ""})
+    @fill = new mixins.Fill({obj: @model, prefix: ""})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'data_update', @plot_view.request_render)

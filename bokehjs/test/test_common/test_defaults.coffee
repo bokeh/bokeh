@@ -6,7 +6,7 @@ core_defaults = require "./defaults/models_defaults"
 widget_defaults = require "./defaults/widgets_defaults"
 
 {Collections} = utils.require "common/base"
-properties = utils.require "core/properties"
+mixins = utils.require "core/property_mixins"
 Bokeh = utils.require "main"
 
 widget_locations = utils.require "models/widgets/main"
@@ -136,7 +136,7 @@ describe "Defaults", ->
       attrs = instance.attributes_as_json()
       strip_ids(attrs)
 
-      for prop_kind, func of properties.factories
+      for prop_kind, func of mixins.factories
         # the 'visuals' property is used to set glyph line/fill/text defaults
         # and is tested in the check_matching_defaults() test case above
         if prop_kind == 'visuals'
@@ -161,7 +161,7 @@ describe "Defaults", ->
               if v.spec.units?
                 prop_values[p]['units'] = v.spec.units
               else
-                # properties.coffee hardcodes these units defaults
+                # mixins.coffee hardcodes these units defaults
                 if prop_kind == 'distances' and 'units' not of dict
                   dict['units'] = "data"
                 if prop_kind == 'angles' and 'units' not of dict

@@ -5,7 +5,7 @@ bbox = require "../../common/bbox"
 {arrayMax} = require "../../common/mathutils"
 Model = require "../../model"
 ContinuumView = require "../../common/continuum_view"
-properties = require "../../core/properties"
+mixins = require "../../core/property_mixins"
 CategoricalMapper = require "../mappers/categorical_mapper"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
@@ -28,7 +28,7 @@ class GlyphView extends ContinuumView
       if ctx.glcanvas?
         @_init_gl(ctx.glcanvas.gl)
 
-    for name, func of properties.factories
+    for name, func of mixins.factories
       @[name] = {}
       @[name] = _.extend(@[name], func(@model))
 

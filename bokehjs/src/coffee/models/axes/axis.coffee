@@ -4,7 +4,7 @@ GuideRenderer = require "../renderers/guide_renderer"
 LayoutBox = require "../../common/layout_box"
 {logger} = require "../../core/logging"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../core/properties"
+mixins = require "../../core/property_mixins"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
 # axis title text, based on it's location and orientation
@@ -150,11 +150,11 @@ _apply_location_heuristics = (ctx, side, orient) ->
 class AxisView extends PlotWidget
   initialize: (options) ->
     super(options)
-    @rule_props = new properties.Line({obj: @model, prefix: 'axis_'})
-    @major_tick_props = new properties.Line({obj: @model, prefix: 'major_tick_'})
-    @minor_tick_props = new properties.Line({obj: @model, prefix: 'minor_tick_'})
-    @major_label_props = new properties.Text({obj: @model, prefix: 'major_label_'})
-    @axis_label_props = new properties.Text({obj: @model, prefix: 'axis_label_'})
+    @rule_props = new mixins.Line({obj: @model, prefix: 'axis_'})
+    @major_tick_props = new mixins.Line({obj: @model, prefix: 'major_tick_'})
+    @minor_tick_props = new mixins.Line({obj: @model, prefix: 'minor_tick_'})
+    @major_label_props = new mixins.Text({obj: @model, prefix: 'major_label_'})
+    @axis_label_props = new mixins.Text({obj: @model, prefix: 'axis_label_'})
     @x_range_name = @mget('x_range_name')
     @y_range_name = @mget('y_range_name')
 

@@ -1,7 +1,7 @@
 _ = require "underscore"
 Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../core/properties"
+mixins = require "../../core/property_mixins"
 textutils = require "../../common/textutils"
 
 # Legends:
@@ -26,9 +26,9 @@ textutils = require "../../common/textutils"
 class LegendView extends PlotWidget
   initialize: (options) ->
     super(options)
-    @label_props = new properties.Text({obj:@model, prefix: 'label_'})
-    @border_props = new properties.Line({obj: @model, prefix: 'border_'})
-    @background_props = new properties.Fill({obj: @model, prefix: 'background_'})
+    @label_props = new mixins.Text({obj:@model, prefix: 'label_'})
+    @border_props = new mixins.Line({obj: @model, prefix: 'border_'})
+    @background_props = new mixins.Fill({obj: @model, prefix: 'background_'})
     @need_calc_dims = true
     @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
