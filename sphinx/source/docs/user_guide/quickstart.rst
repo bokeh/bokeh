@@ -163,9 +163,9 @@ You can open and interact with any of the notebooks listed in the index page
 that automatically opens up. In particular, you might check out these examples,
 which show how Bokeh can be used together with Jupyter interactive widgets:
 
-:bokeh-tree:`examples/howto/notebook_comms/Jupyter%20Interactors.ipynb`
+:bokeh-tree:"examples/howto/notebook_comms/Jupyter Interactors.ipynb"
 
-:bokeh-tree:`examples/howto/notebook_comms/Numba%20Image%20Example.ipynb`
+:bokeh-tree:"examples/howto/notebook_comms/Numba Image Example.ipynb"
 
 .. _quickstart_other_languages:
 
@@ -484,7 +484,7 @@ but you can see (and interact with) a simple Bokeh server app below:
 
     <div>
     <iframe
-        src="http://demo.bokehplots.com:5006/bokeh/sliders/#"
+        src="http://demo.bokehplots.com/apps/sliders/#"
         frameborder="0"
         style="overflow:hidden;height:460px;width: 120%;
         -moz-transform: scale(0.85, 0.85);
