@@ -1,9 +1,7 @@
 {expect} = require "chai"
-utils = require "../utils"
-sinon = require 'sinon'
+utils = require "../../utils"
 
-base = utils.require "base"
-{Collections} = base
+{Collections} = utils.require "base"
 
 describe "image_url renderer", ->
   describe "default creation", ->

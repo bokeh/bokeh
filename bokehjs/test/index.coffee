@@ -37,4 +37,3 @@ require "./document"
 require "./models"
 
 require "./test_common"
-require "./test_renderer"

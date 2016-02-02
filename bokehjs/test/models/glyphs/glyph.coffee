@@ -1,13 +1,13 @@
 {expect} = require "chai"
-utils = require "../utils"
+utils = require "../../utils"
 
-base = utils.require "base"
-{Collections} = base
+{Collections} = utils.require "base"
 
 view_for = (model) ->
   new model.default_view({model : model})
 
-describe "glyphs", ->
+describe "glyph", ->
+
   describe "units handling", ->
     it "should default to 'data' for distances", ->
       obj = Collections('AnnularWedge').create()
