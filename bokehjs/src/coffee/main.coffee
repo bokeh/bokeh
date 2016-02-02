@@ -25,9 +25,6 @@ Bokeh.embed             = require("./common/embed")
 Bokeh.Collections       = require("./common/base").Collections
 Bokeh.Config            = require("./common/base").Config
 
-# Add the jquery plugin
-require("./api/plugin")
-
 # Here for backwards capability?
 Bokeh.Bokeh = Bokeh
 module.exports = Bokeh

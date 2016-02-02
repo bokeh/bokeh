@@ -28,7 +28,8 @@ class InspectTool extends Tool.Model
   event_type: "move"
 
   nonserializable_attribute_names: () ->
-    super().concat(['event_type', 'inner_only'])
+    attrs = _.without(super(), 'active')
+    return attrs.concat(['event_type', 'inner_only'])
 
   bind_bokeh_events: () ->
     super()

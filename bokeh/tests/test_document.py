@@ -7,6 +7,7 @@ from copy import copy
 import bokeh.document as document
 from bokeh.io import curdoc
 from bokeh.model import Model
+from bokeh.models import ColumnDataSource
 from bokeh.core.properties import Int, Instance, String, DistanceSpec
 
 class AnotherModelInTestDocument(Model):
@@ -293,6 +294,35 @@ class TestDocument(unittest.TestCase):
         assert event.attr == 'bar'
         assert event.old == 1
         assert event.new == 42
+        assert len(curdoc_from_listener) == 1
+        assert curdoc_from_listener[0] is d
+
+    def test_stream_notification(self):
+        d = document.Document()
+        assert not d.roots
+        m = ColumnDataSource(data=dict(a=[10], b=[20]))
+        d.add_root(m)
+        assert len(d.roots) == 1
+        assert curdoc() is not d
+        events = []
+        curdoc_from_listener = []
+        def listener(event):
+            curdoc_from_listener.append(curdoc())
+            events.append(event)
+        d.on_change(listener)
+        m.stream(dict(a=[11, 12], b=[21, 22]), 200)
+        assert events
+        event = events[0]
+        assert isinstance(event, document.ModelChangedEvent)
+        assert isinstance(event.hint, document.ColumnsStreamedEvent)
+        assert event.document == d
+        assert event.model == m
+        assert event.hint.column_source == m
+        assert event.hint.data == dict(a=[11, 12], b=[21, 22])
+        assert event.hint.rollover == 200
+        assert event.attr == 'data'
+        assert event.old == dict(a=[10], b=[20])
+        assert event.new == dict(a=[10, 11, 12], b=[20, 21, 22])
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 

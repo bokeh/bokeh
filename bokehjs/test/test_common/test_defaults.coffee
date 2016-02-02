@@ -2,11 +2,10 @@ _ = require "underscore"
 {expect} = require "chai"
 utils = require "../utils"
 
-core_defaults = utils.require "common/defaults"
-widget_defaults = utils.require "models/widgets/defaults"
+core_defaults = require "./defaults/models_defaults"
+widget_defaults = require "./defaults/widgets_defaults"
 
 {Collections} = utils.require "common/base"
-HasProperties = utils.require "common/has_properties"
 properties = utils.require "common/properties"
 Bokeh = utils.require "main"
 

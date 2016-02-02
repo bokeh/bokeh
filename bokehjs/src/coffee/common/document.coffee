@@ -1,6 +1,6 @@
 _ = require "underscore"
 {logger} = require "./logging"
-HasProperties = require "./has_properties"
+HasProps = require "./has_props"
 {Collections} = require("./base")
 
 class DocumentChangedEvent
@@ -231,11 +231,11 @@ class Document
       references
 
   # if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
-  # recurse into collections but not into HasProperties
+  # recurse into collections but not into HasProps
   @_resolve_refs: (value, old_references, new_references) ->
 
     resolve_ref = (v) ->
-      if HasProperties._is_ref(v)
+      if HasProps._is_ref(v)
         if v['id'] of old_references
           old_references[v['id']]
         else if v['id'] of new_references
@@ -288,7 +288,7 @@ class Document
     foreach_depth_first = (items, f) ->
       already_started = {}
       foreach_value = (v, f) ->
-        if v instanceof HasProperties
+        if v instanceof HasProps
           # note that we ignore instances that aren't updated (not in to_update)
           if v.id not of already_started and v.id of items
             already_started[v.id] = true
@@ -326,7 +326,7 @@ class Document
         'attr' : key,
         'new' : new_value
       }
-      HasProperties._json_record_references(doc, new_value, value_refs, true) # true = recurse
+      HasProps._json_record_references(doc, new_value, value_refs, true) # true = recurse
       event
 
   @_events_to_sync_objects: (from_obj, to_obj, to_doc, value_refs) ->
@@ -475,9 +475,9 @@ class Document
           console.log("'id' field is immutable and should never be in a ModelChangedEvent ", event)
           throw new Error("'id' field should never change, whatever code just set it is wrong")
         value = event.new_
-        value_json = HasProperties._value_to_json('new_', value, event.model)
+        value_json = HasProps._value_to_json('new_', value, event.model)
         value_refs = {}
-        HasProperties._value_record_references(value, value_refs, true) # true = recurse
+        HasProps._value_record_references(value, value_refs, true) # true = recurse
 
         if event.model.id of value_refs and event.model != value
           # we know we don't want a whole new copy of the obj we're patching
@@ -495,7 +495,7 @@ class Document
 
         json_events.push(json_event)
       else if event instanceof RootAddedEvent
-        HasProperties._value_record_references(event.model, references, true)
+        HasProps._value_record_references(event.model, references, true)
         json_event = {
           'kind' : 'RootAdded',
           'model' : event.model.ref()
@@ -557,6 +557,15 @@ class Document
         attr = event_json['attr']
         value = Document._resolve_refs(event_json['new'], old_references, new_references)
         patched_obj.set({ "#{attr}" : value })
+      else if event_json['kind'] == 'ColumnsStreamed'
+        column_source_id = event_json['column_source']['id']
+        if column_source_id not of @_all_models
+          throw new Error("Cannot stream to #{column_source_id} which is not in the document")
+        column_source = @_all_models[column_source_id]
+        # TODO (bev) intance check is column data source
+        data = event_json['data']
+        rollover = event_json['rollover']
+        column_source.stream(data, rollover)
       else if event_json['kind'] == 'RootAdded'
         root_id = event_json['model']['id']
         root_obj = references[root_id]

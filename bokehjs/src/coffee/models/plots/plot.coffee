@@ -641,9 +641,6 @@ class Plot extends Component.Model
 
     @solver = canvas.get('solver')
 
-    for r in @get('renderers')
-      r.set('parent', @)
-
     @set('tool_manager', new ToolManager.Model({
       tools: @get('tools')
       toolbar_location: @get('toolbar_location')
