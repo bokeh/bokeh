@@ -7,14 +7,14 @@ Introduction
 ============
 
 Bokeh is a Python interactive visualization library that targets modern web
-browsers for presentation. Bokeh provides quick, easy, elegant, concise 
-construction of novel graphics with high-performance interactivity over very 
-large or streaming datasets.
+browsers for presentation. Bokeh provides elegant, concise construction of 
+novel graphics with high-performance interactivity over very large or streaming 
+datasets in a quick and easy way.
 
 To offer both simplicity and the powerful and flexible features needed for 
 advanced customizations, Bokeh exposes three interface levels to users:
 
-* a *low-level* |bokeh.models| interface providing the most flexibility to 
+* a *low-level* |bokeh.models| interface that provides the most flexibility to 
   application developers.
 * an *intermediate-level* |bokeh.plotting| interface centered around composing 
   visual glyphs.
@@ -37,13 +37,10 @@ a Bash or Windows command prompt:
 This installs all the dependencies that Bokeh needs. Anaconda minimizes 
 installation effort on all platforms and configurations, including Windows, 
 and also installs the examples into the ``examples/`` subdirectory of your 
-Anaconda or miniconda installation directory. (For instance, if you use 
-Miniconda with Python 3 on OS X or Linux and your Bokeh environment is called 
-bokehEnv, the examples directory would be at 
-``~/miniconda3/envs/bokehEnv/Examples/``.)
+Anaconda or Miniconda installation directory.
 
 If you are confident that you have installed all needed dependencies such as 
-NumPy, Pandas, and Redis, you may instead use ``pip`` at the command line:
+NumPy you may instead use ``pip`` at the command line:
 
 .. code-block:: sh
 
@@ -145,28 +142,30 @@ plot as shown below:
 Jupyter Notebooks
 =================
 
+At this point we should mention Jupyter (formerly IPython) notebooks.
+
 Jupyter notebooks are a fantastic tool for exploratory data analysis, widely 
-used across the "PyData" community. They were previously known as IPython 
-notebooks. Bokeh integrates seamlessly with Jupyter notebooks. To view the 
-above examples in a notebook, you would only change |output_file| to a call 
-to |output_notebook| instead.
+used across the "PyData" community. Bokeh integrates seamlessly with Jupyter 
+notebooks. To view the above examples in a notebook, you would only 
+change |output_file| to a call to |output_notebook| instead.
 
 Many static examples may be viewed directly online at the
 `Bokeh NBViewer Gallery`_.
 
 The `Bokeh GitHub repository`_ also has a number of example notebooks in the
-``examples/howto`` directory. After cloning the repository, navigate there and run::
+``examples/howto`` directory. After cloning the repository, navigate there and run:
+
+.. code-block:: sh
 
     ipython notebook
 
 You can open and interact with any of the notebooks listed in the index page
-that automatically opens up. In particular, you might check out the
-`examples/howto/notebook_comms/Jupyter Interactors.ipynb 
-<https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Jupyter%20Interactors.ipynb>`_ 
-and `examples/howto/notebook_comms/Numba Image Example.ipynb 
-<https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Numba%20Image%20Example.ipynb>`_ 
-examples that show how Bokeh can be used together with Jupyter interactive 
-widgets.
+that automatically opens up. In particular, you might check out these examples,
+which show how Bokeh can be used together with Jupyter interactive widgets:
+
+:bokeh-tree:`examples/howto/notebook_comms/Jupyter%20Interactors.ipynb`
+
+:bokeh-tree:`examples/howto/notebook_comms/Numba%20Image%20Example.ipynb`
 
 .. _quickstart_other_languages:
 
@@ -257,8 +256,8 @@ To generate plots, the client library BokehJS JavaScript and CSS code must
 be loaded into the browser. By default, the |output_file| function will
 configure Bokeh to generate static HTML files with BokehJS resources embedded
 directly inside. All the examples so far do this. However, you can also
-generate output that loads BokehJS from CDN, by passing the argument
-``mode="cdn"`` to the |output_file| function.
+generate output that loads BokehJS from a Content Delivery Network (CDN), by 
+passing the argument ``mode="cdn"`` to the |output_file| function.
 
 More examples
 =============
@@ -524,7 +523,7 @@ information about how to create a new language binding, see the
 To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery`. To see detailed examples and walkthroughs as
 well as find exercises for learning Bokeh by doing, work through the
-:ref:`tutorials`.
+:ref:`userguide_tutorials`.
 
 For questions and technical assistance, come join the `Bokeh mailing list`_.
 
@@ -548,8 +547,8 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
-.. |glyphs|  replace:: ref:`glyphs <bokeh.models.glyphs>`
-.. |markers| replace:: ref:`markers <bokeh.models.markers>`
+.. |glyphs|  replace:: :ref:`glyphs <bokeh.models.glyphs>`
+.. |markers| replace:: :ref:`markers <bokeh.models.markers>`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 .. |Figure| replace:: :class:`~bokeh.plotting.Figure`
