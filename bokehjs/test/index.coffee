@@ -34,12 +34,11 @@ for own key, val of global.window
 require "./client"
 require "./core"
 require "./document"
+require "./models"
 
 require "./test_action"
 require "./test_common"
 require "./test_mapper"
 require "./test_range"
 require "./test_ticking"
-require "./test_tool"
-require "./test_source"
 require "./test_renderer"

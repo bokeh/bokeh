@@ -1,6 +1,7 @@
 _ = require "underscore"
+
 {expect} = require "chai"
-utils = require "../utils"
+utils = require "../../utils"
 
 base = utils.require "base"
 {Collections} = base
