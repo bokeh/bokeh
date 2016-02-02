@@ -1,7 +1,7 @@
 _ = require "underscore"
 {expect} = require "chai"
 utils = require "../../utils"
-base = utils.require "base"
+
 TileRenderer = utils.require "models/tiles/tile_renderer"
 TileSource = utils.require "models/tiles/tile_source"
 MercatorTileSource = utils.require "models/tiles/mercator_tile_source"
