@@ -402,7 +402,8 @@ class BokehRenderer(Renderer):
         widths = get_props_cycled(col, col.get_linewidth())
         multiline.line_color = source.add(colors)
         multiline.line_width = source.add(widths)
-        multiline.line_alpha = col.get_alpha()
+        if col.get_alpha() is not None:
+            multiline.line_alpha = col.get_alpha()
         offset = col.get_linestyle()[0][0]
         if not col.get_linestyle()[0][1]:
             on_off = []
@@ -421,8 +422,9 @@ class BokehRenderer(Renderer):
         patches.line_color = source.add(edge_colors)
         widths = get_props_cycled(col, col.get_linewidth())
         patches.line_width = source.add(widths)
-        patches.line_alpha = col.get_alpha()
-        patches.fill_alpha = col.get_alpha()
+        if col.get_alpha() is not None:
+            patches.line_alpha = col.get_alpha()
+            patches.fill_alpha = col.get_alpha()
         offset = col.get_linestyle()[0][0]
         if not col.get_linestyle()[0][1]:
             on_off = []
