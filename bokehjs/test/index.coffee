@@ -37,6 +37,5 @@ require "./document"
 require "./models"
 
 require "./test_common"
-require "./test_mapper"
 require "./test_ticking"
 require "./test_renderer"

@@ -1,8 +1,7 @@
 {expect} = require "chai"
-utils = require "../utils"
+utils = require "../../utils"
 
-base = utils.require "base"
-{Collections} = base
+{Collections} = utils.require "base"
 
 describe "log_mapper module", ->
   source = {start: 0, end: 10000}
