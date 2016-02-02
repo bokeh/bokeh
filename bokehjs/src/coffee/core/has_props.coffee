@@ -2,7 +2,6 @@ $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
 
-{Cache} = require "./util/cache"
 {logger} = require "./logging"
 refs = require "./util/refs"
 
@@ -25,7 +24,7 @@ class HasProps extends Backbone.Model
 
   attrs_and_props : () ->
     data = _.clone(@attributes)
-    for prop_name in _.keys(@properties)
+    for prop_name in _.keys(@_computed)
       data[prop_name] = @get(prop_name)
     return data
 
@@ -44,7 +43,10 @@ class HasProps extends Backbone.Model
       attrs = this.parse(attrs, options) || {}
     defaults = _.result(this, 'defaults')
     this.set(defaults, { defaults: true })
+
+    # Bokeh specific
     this._set_after_defaults = {}
+
     this.set(attrs, options)
 
     # this is maintained by backbone ("changes since the last
@@ -53,12 +55,8 @@ class HasProps extends Backbone.Model
 
     ## bokeh custom constructor code
 
-    # cheap memoization, for storing the base module, requirejs doesn't seem to do it
-    @_base = false
-
     # setting up data structures for properties
-    @properties = {}
-    @_prop_cache = new Cache()
+    @_computed = {}
 
     # auto generating ID
     if not _.has(attrs, @idAttribute)
@@ -130,10 +128,10 @@ class HasProps extends Backbone.Model
     for own key, val of attrs
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
-      if _.has(this, 'properties') and
-         _.has(@properties, key) and
-         @properties[key]['setter']
-        @properties[key]['setter'].call(this, val, key)
+      if _.has(this, '_computed') and
+         _.has(@_computed, key) and
+         @_computed[key]['setter']
+        @_computed[key]['setter'].call(this, val, key)
         toremove.push(key)
     if not _.isEmpty(toremove)
       attrs = _.clone(attrs)
@@ -157,7 +155,7 @@ class HasProps extends Backbone.Model
     # at some future date, we should support a third arg, events
     if not _.isArray(fields)
       fields = [fields]
-    prop_spec = @properties[prop_name]
+    prop_spec = @_computed[prop_name]
     prop_spec.dependencies = prop_spec.dependencies.concat(
       obj: object
       fields: fields
@@ -168,7 +166,7 @@ class HasProps extends Backbone.Model
 
   # ### method: HasProps::register_setter
   register_setter: (prop_name, setter) ->
-    prop_spec = @properties[prop_name]
+    prop_spec = @_computed[prop_name]
     prop_spec.setter = setter
 
   # ### method: HasProps::register_property
@@ -184,7 +182,7 @@ class HasProps extends Backbone.Model
     # setter, dependenices, and callbacks associated with the prop
     if _.isUndefined(use_cache)
       use_cache = true
-    if _.has(@properties, prop_name)
+    if _.has(@_computed, prop_name)
       @remove_property(prop_name)
     # we store a prop_spec, which has the getter, setter, dependencies
     # we also store the callbacks used to implement the computed property,
@@ -194,14 +192,14 @@ class HasProps extends Backbone.Model
     propchange = () =>
       firechange = true
       if prop_spec['use_cache']
-        old_val = @_prop_cache.get(prop_name)
-        @_prop_cache.clear(prop_name)
+        old_val = prop_spec.cache
+        prop_spec.cache = undefined
         new_val = @get(prop_name)
         firechange = new_val != old_val
       if firechange
         @trigger('change:' + prop_name, this, @get(prop_name))
         @trigger('change', this)
-    prop_spec=
+    prop_spec =
       'getter': getter,
       'dependencies': [],
       'use_cache': use_cache
@@ -209,7 +207,7 @@ class HasProps extends Backbone.Model
       'callbacks':
         changedep: changedep
         propchange: propchange
-    @properties[prop_name] = prop_spec
+    @_computed[prop_name] = prop_spec
     # bind propchange callback to change dep event
     @listenTo(this, "changedep:#{prop_name}",
               prop_spec['callbacks']['propchange'])
@@ -218,23 +216,21 @@ class HasProps extends Backbone.Model
   remove_property: (prop_name) ->
     # removes the property,
     # unbinding all associated callbacks that implemented it
-    prop_spec = @properties[prop_name]
+    prop_spec = @_computed[prop_name]
     dependencies = prop_spec.dependencies
     for dep in dependencies
       obj = dep.obj
       for fld in dep['fields']
         obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this)
     @off("changedep:" + dep)
-    delete @properties[prop_name]
-    if prop_spec.use_cache
-      @_prop_cache.clear(prop_name)
+    delete @_computed[prop_name]
 
   get: (prop_name, resolve_refs=true) ->
     # ### method: HasProps::get
     # overrides backbone get.  checks properties,
     # calls getter, or goes to cache
     # if necessary.  If it's not a property, then just call super
-    if _.has(@properties, prop_name)
+    if _.has(@_computed, prop_name)
       return @_get_prop(prop_name)
     else
       ref_or_val = super(prop_name)
@@ -243,14 +239,14 @@ class HasProps extends Backbone.Model
       return @resolve_ref(ref_or_val)
 
   _get_prop: (prop_name) ->
-    prop_spec = @properties[prop_name]
-    if prop_spec.use_cache and @_prop_cache.has(prop_name)
-      return @_prop_cache.get(prop_name)
+    prop_spec = @_computed[prop_name]
+    if prop_spec.use_cache and prop_spec.cache
+      return prop_spec.cache
     else
       getter = prop_spec.getter
       computed = getter.apply(this, [prop_name])
-      if @properties[prop_name].use_cache
-        @_prop_cache.add(prop_name, computed)
+      if prop_spec.use_cache
+        prop_spec.cache = computed
       return computed
 
   ref: () -> refs.create_ref(@)

@@ -35,7 +35,7 @@ describe "has_properties module", ->
       expect(model.get "c").to.equal(2)
 
     it "should store computed values in cache", ->
-      expect(model._prop_cache.get "c").to.not.be.undefined
+      expect(model._computed["c"].cache).to.not.be.undefined
 
     it "should invalidate cached values on changes", ->
       model.set('a', 10)
