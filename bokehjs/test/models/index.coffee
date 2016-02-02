@@ -1,4 +1,5 @@
 require "./callbacks"
+require "./formatters"
 require "./mappers"
 require "./ranges"
 require "./sources"

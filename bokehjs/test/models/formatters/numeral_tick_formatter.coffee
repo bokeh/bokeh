@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../utils"
+utils = require "../../utils"
 
 formatter = utils.require "models/formatters/numeral_tick_formatter"
 
