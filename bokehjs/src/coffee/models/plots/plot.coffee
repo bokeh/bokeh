@@ -286,12 +286,17 @@ class PlotView extends ContinuumView
 
   update_selection: (selection) ->
     for renderer in @mget("renderers")
-      if renderer instanceof GlyphRenderer.Model
-        selected = selection[renderer.id] or []
-        renderer.get('data_source').set("selected", selected)
+      if not renderer instanceof GlyphRenderer.Model
+        continue
+      ds = renderer.get('data_source')
+      if selection?
+        if renderer.id in selection
+          ds.set("selected", selection[renderer.id])
+      else
+        ds.get('selection_manager').clear()
 
   reset_selection: () ->
-    @update_selection({})
+    @update_selection(null)
 
   _update_single_range: (rng, range_info, is_panning) ->
     # Is this a reversed range?
