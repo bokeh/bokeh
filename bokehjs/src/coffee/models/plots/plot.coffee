@@ -286,7 +286,7 @@ class PlotView extends ContinuumView
 
   update_selection: (selection) ->
     for renderer in @mget("renderers")
-      if not renderer instanceof GlyphRenderer.Model
+      if renderer not instanceof GlyphRenderer.Model
         continue
       ds = renderer.get('data_source')
       if selection?
