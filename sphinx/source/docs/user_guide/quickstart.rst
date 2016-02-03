@@ -163,9 +163,9 @@ You can open and interact with any of the notebooks listed in the index page
 that automatically opens up. In particular, you might check out these examples,
 which show how Bokeh can be used together with Jupyter interactive widgets:
 
-:bokeh-tree:"examples/howto/notebook_comms/Jupyter Interactors.ipynb"
+:bokeh-tree:`examples/howto/notebook_comms/Jupyter Interactors.ipynb`
 
-:bokeh-tree:"examples/howto/notebook_comms/Numba Image Example.ipynb"
+:bokeh-tree:`examples/howto/notebook_comms/Numba Image Example.ipynb`
 
 .. _quickstart_other_languages:
 
