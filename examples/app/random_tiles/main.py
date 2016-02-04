@@ -9,7 +9,7 @@ class RandomTileSource(MercatorTileSource):
     __implementation__ = """
     _ = require "underscore"
     Util = require "util/util"
-    MercatorTileSource = require "renderer/tile/mercator_tile_source"
+    MercatorTileSource = require "models/tiles/mercator_tile_source"
     class RandomTileSource extends MercatorTileSource
       type: "RandomTileSource"
       get_image_url: (x, y, z) ->
