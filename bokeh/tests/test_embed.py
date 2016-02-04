@@ -52,7 +52,7 @@ class TestComponents(unittest.TestCase):
 
         div = divs[0]
         self.assertTrue(set(div.attrs), set(['class', 'id']))
-        self.assertEqual(div.attrs['class'], ['plotdiv'])
+        self.assertEqual(div.attrs['class'], ['plotdiv', 'bk-bokeh'])
         self.assertEqual(div.text, "")
 
     def test_script_is_utf8_encoded(self):
@@ -106,7 +106,7 @@ class TestNotebookDiv(unittest.TestCase):
 
         div = divs[0]
         self.assertTrue(set(div.attrs), set(['class', 'id']))
-        self.assertEqual(div.attrs['class'], ['plotdiv'])
+        self.assertEqual(div.attrs['class'], ['plotdiv', 'bk-bokeh'])
         self.assertEqual(div.text, "")
 
 class TestFileHTML(unittest.TestCase):
