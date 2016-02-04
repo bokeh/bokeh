@@ -262,7 +262,7 @@ class ClientConnection
     try
       @_on_message_unchecked(event)
     catch e
-      logger.error("Error handling message ", e, event)
+      logger.error("Error handling message: #{e}, #{event}")
 
   _on_message_unchecked : (event) ->
     if not @_current_handler?

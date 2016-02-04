@@ -80,10 +80,18 @@ class BokehJSONEncoder(json.JSONEncoder):
         else:
             return self.transform_python_types(obj)
 
-def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
+def serialize_json(obj, encoder=BokehJSONEncoder, indent=None, **kwargs):
     ''' Return a serialized JSON representation of a Bokeh model.
 
     '''
-    if kwargs.get("indent", None) is None and settings.pretty(False):
-        kwargs["indent"] = 2
-    return json.dumps(obj, cls=encoder, sort_keys=True, allow_nan=False, **kwargs)
+    pretty = settings.pretty(False)
+
+    if pretty:
+        separators=(",", ": ")
+    else:
+        separators=(",", ":")
+
+    if pretty and indent is None:
+        indent = 2
+
+    return json.dumps(obj, cls=encoder, allow_nan=False, indent=indent, separators=separators, sort_keys=True, **kwargs)

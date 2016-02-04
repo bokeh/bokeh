@@ -5,17 +5,17 @@ This is the Bar class which lets you build your Bar charts just passing
 the arguments to the Chart class and calling the proper functions.
 It also add a new chained stacked method.
 """
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function, division
 
 from ..builder import Builder, create_and_build
@@ -30,9 +30,10 @@ from ..stats import stats
 from ...models.sources import ColumnDataSource
 from ..utils import help
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Classes and functions
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 class BarBuilder(Builder):
@@ -60,7 +61,7 @@ class BarBuilder(Builder):
     values = Dimension('values')
 
     dimensions = ['values']
-    #req_dimensions = [['values']]
+    # req_dimensions = [['values']]
 
     default_attributes = {'label': CatAttr(),
                           'color': ColorAttr(),
@@ -90,10 +91,15 @@ class BarBuilder(Builder):
         if self.attributes['color'].columns is None:
             if self.attributes['stack'].columns is not None:
                 self.attributes['color'].setup(columns=self.attributes['stack'].columns)
-                self._perform_stack = True
+
             if self.attributes['group'].columns is not None:
                 self.attributes['color'].setup(columns=self.attributes['group'].columns)
-                self._perform_group = True
+
+        if self.attributes['stack'].columns is not None:
+            self._perform_stack = True
+
+        if self.attributes['group'].columns is not None:
+            self._perform_group = True
 
         # ToDo: perform aggregation validation
         # Not given values kw, so using only categorical data
@@ -108,15 +114,18 @@ class BarBuilder(Builder):
 
         if self.xlabel is None:
             if self.attributes['label'].columns is not None:
-                self.xlabel = str(', '.join(self.attributes['label'].columns).title()).title()
+                self.xlabel = str(
+                    ', '.join(self.attributes['label'].columns).title()).title()
             else:
                 self.xlabel = self.values.selection
 
         if self.ylabel is None:
             if not self.label_only:
-                self.ylabel = '%s( %s )' % (self.agg.title(), str(self.values.selection).title())
+                self.ylabel = '%s( %s )' % (
+                self.agg.title(), str(self.values.selection).title())
             else:
-                self.ylabel = '%s( %s )' % (self.agg.title(), ', '.join(self.attributes['label'].columns).title())
+                self.ylabel = '%s( %s )' % (
+                self.agg.title(), ', '.join(self.attributes['label'].columns).title())
 
     def _apply_inferred_index(self):
         """Configure chart when labels are provided as index instead of as kwarg."""
@@ -285,7 +294,7 @@ def Bar(data, label=None, values=None, color=None, stack=None, group=None, agg="
     """
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(
-            "continuous_range must be an instance of bokeh.models.ranges.Range1d"
+                "continuous_range must be an instance of bokeh.models.ranges.Range1d"
         )
 
     if label is not None and values is None:
