@@ -14,6 +14,17 @@ STAMEN_TONER = WMTSTileSource(
     )
 )
 
+#: Provide toner background tiles from http://tile.stamen.com
+STAMEN_TONER_BACKGROUND = WMTSTileSource(
+    url='http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
+    attribution=(
+        'Map tiles by <a href="http://stamen.com">Stamen Design</a>, '
+        'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>.'
+        'Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, '
+        'under <a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+    )
+)
+
 #: Provide label tiles from http://tile.stamen.com
 STAMEN_TONER_LABELS = WMTSTileSource(
     url='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
