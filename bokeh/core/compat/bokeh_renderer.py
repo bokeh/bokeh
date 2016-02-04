@@ -292,11 +292,15 @@ class BokehRenderer(Renderer):
         #  * map `labelpad` to `major_label_standoff`
         #  * deal with minor ticks once BokehJS supports them
         #  * handle custom tick locations once that is added to bokehJS
-
         tf = props['tickformat']
+        tv = props['tickvalues']
         if tf and any(isinstance(x, string_types) for x in tf):
             laxis = CategoricalAxis(axis_label=ax.get_label_text())
-            rng = FactorRange(factors=[str(x) for x in tf], offset=-1.0)
+            assert np.min(tv) >= 0, "Assuming categorical axis have positive-integer dump tick values"
+            # Seaborn position its categories on dump tick values indented to zero;
+            # Matplotlib does from 1. We need then different offset given the assumed identation.
+            offset = np.min(tv) - 1
+            rng = FactorRange(factors=[str(x) for x in tf], offset=offset)
             if location in ["above", "below"]:
                 self.plot.x_range = rng
             else:
