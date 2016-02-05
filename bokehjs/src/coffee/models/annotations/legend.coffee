@@ -47,8 +47,7 @@ class LegendView extends PlotWidget
     else
       @legend_width = 0
       for name, width of @text_widths
-        @legend_width += (_.max([width, label_width]) + glyph_width + legend_spacing)
-      @legend_width += (1 + legend_names.length) * legend_spacing
+        @legend_width += (_.max([width, label_width]) + glyph_width + 3 * legend_spacing)
       @legend_height = @max_label_height + 2 * legend_spacing
 
     location = @mget('location')
@@ -131,7 +130,7 @@ class LegendView extends PlotWidget
         x2 = x1 + glyph_width
         y1 = @box_coords[1] + legend_spacing
         y2 = y1 + glyph_height
-        xoffset += @text_widths[legend_name] + legend_spacing + glyph_width
+        xoffset += @text_widths[legend_name] + 3*legend_spacing + glyph_width
 
       tx = x2 + legend_spacing
       ty = y1 + @max_label_height / 2.0
