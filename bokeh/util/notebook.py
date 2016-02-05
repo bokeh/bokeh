@@ -5,7 +5,6 @@ from __future__ import absolute_import
 
 _notebook_loaded = None
 
-
 def load_notebook(resources=None, verbose=False, hide_banner=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
@@ -27,14 +26,16 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
         None
 
     '''
-    html = _load_notebook_html(resources, verbose, hide_banner)
+    html, js = _load_notebook_html(resources, verbose, hide_banner)
     publish_display_data({'text/html': html})
+    publish_display_data({'application/javascript': js})
 
 def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
     global _notebook_loaded
 
     from .. import __version__
     from ..core.templates import AUTOLOAD_JS, NOTEBOOK_LOAD
+    from ..util.serialization import make_id
     from ..resources import CDN
 
     if resources is None:
@@ -54,26 +55,29 @@ def _load_notebook_html(resources=None, verbose=False, hide_banner=False):
 
     _notebook_loaded = resources
 
-    js = AUTOLOAD_JS.render(
-        js_urls = resources.js_files,
-        css_urls = resources.css_files,
-        js_raw = resources.js_raw,
-        css_raw = resources.css_raw_str,
-        elementid = None,
-    )
+    element_id = make_id()
 
     html = NOTEBOOK_LOAD.render(
-        bootstrap=js,
-        logo_url=resources.logo_url,
-        verbose=verbose,
-        js_info=js_info,
-        css_info=css_info,
-        bokeh_version=__version__,
-        warnings=warnings,
-        hide_banner=hide_banner,
+        element_id    = element_id,
+        logo_url      = resources.logo_url,
+        verbose       = verbose,
+        js_info       = js_info,
+        css_info      = css_info,
+        bokeh_version = __version__,
+        warnings      = warnings,
+        hide_banner   = hide_banner,
     )
 
-    return html
+    finalize_js = """Bokeh.$("#%s").text("BokehJS successfully loaded");""" % element_id
+
+    js = AUTOLOAD_JS.render(
+        js_urls  = resources.js_files,
+        css_urls = resources.css_files,
+        js_raw   = resources.js_raw + [finalize_js],
+        css_raw  = resources.css_raw_str,
+    )
+
+    return html, js
 
 def publish_display_data(data, source='bokeh'):
     ''' Compatibility wrapper for IPython ``publish_display_data``
