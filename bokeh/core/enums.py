@@ -108,8 +108,11 @@ AngleUnits = enumeration("deg", "rad")
 DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",
                             "minutes", "hourmin", "hours", "days", "months", "years")
 
-#: Specify a vertival/horizontal dimension
+#: Specify a vertical/horizontal dimension
 Dimension = enumeration("width", "height", "x", "y")
+
+#: Specify a vertical/horizontal orientation for something
+Orientation = enumeration("horizontal", "vertical")
 
 #: Specify a fixed location for a Bokeh legend
 LegendLocation = Anchor = enumeration("top_left", "top_center", "top_right",
