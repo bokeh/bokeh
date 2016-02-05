@@ -4,7 +4,7 @@ kiwi = require "kiwi"
 canvas_template = require "./canvas_template"
 ContinuumView = require "./continuum_view"
 LayoutBox = require "./layout_box"
-{logger} = require "./logging"
+{logger} = require "../core/logging"
 Solver = require "./solver"
 
 # TODO - This should only be on in testing

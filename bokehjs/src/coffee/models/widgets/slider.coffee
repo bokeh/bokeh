@@ -1,7 +1,7 @@
 _ = require "underscore"
 $2 = require "jquery-ui/slider"
 ContinuumView = require "../../common/continuum_view"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 slidertemplate = require "./slidertemplate"
 InputWidget = require "./input_widget"
 

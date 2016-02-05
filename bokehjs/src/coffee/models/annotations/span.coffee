@@ -1,13 +1,13 @@
 _ = require "underscore"
 Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
+mixins = require "../../core/property_mixins"
 
 class SpanView extends PlotWidget
 
   initialize: (options) ->
     super(options)
-    @line_props = new properties.Line({obj: @model, prefix: ''})
+    @line_props = new mixins.Line({obj: @model, prefix: ''})
     @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
     @$el.css({position: 'absolute'})
     @$el.hide()

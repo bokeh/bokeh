@@ -15,9 +15,9 @@ class Popup(Callback):
     __implementation__ = """
 _ = require "underscore"
 Util = require "util/util"
-HasProperties = require "common/has_properties"
+Model = require "model"
 
-class Popup extends HasProperties
+class Popup extends Model
   type: "Popup"
 
   execute: (data_source) ->

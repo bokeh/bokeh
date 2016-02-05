@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-{logger} = require "../../../common/logging"
+{logger} = require "../../../core/logging"
 Tooltip = require "../../annotations/tooltip"
 Util = require "../../../util/util"
 InspectTool = require "./inspect_tool"
@@ -276,7 +276,6 @@ class HoverTool extends InspectTool.Model
       mode: 'mouse'
       point_policy: "snap_to_data" #, "follow_mouse", "none"
       line_policy: "prev" # "next", "nearest", "interp", "none"
-      always_active: true
       callback: null
 
     })

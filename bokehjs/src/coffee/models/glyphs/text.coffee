@@ -1,11 +1,11 @@
 _ = require "underscore"
 Glyph = require "./glyph"
-properties = require "../../common/properties"
+mixins = require "../../core/property_mixins"
 
 class TextView extends Glyph.View
   initialize: (options) ->
     super(options)
-    @text_props = new properties.Text({obj:@model, prefix: ''})
+    @text_props = new mixins.Text({obj:@model, prefix: ''})
 
   _index_data: () ->
     @_xy_index()

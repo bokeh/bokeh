@@ -1,5 +1,5 @@
 _ = require "underscore"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 CategoricalTicker = require "../tickers/categorical_ticker"
 CategoricalTickFormatter = require "../formatters/categorical_tick_formatter"
 Axis = require "./axis"

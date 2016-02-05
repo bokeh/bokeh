@@ -11,12 +11,12 @@ ContinuumView = require "../../common/continuum_view"
 UIEvents = require "../../common/ui_events"
 Component = require "../component"
 LayoutBox = require "../../common/layout_box"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 plot_utils = require "../../common/plot_utils"
 Solver = require "../../common/solver"
 ToolManager = require "../../common/tool_manager"
 plot_template = require "../../common/plot_template"
-properties = require "../../common/properties"
+mixins = require "../../core/property_mixins"
 GlyphRenderer = require "../renderers/glyph_renderer"
 ToolEvents = require "../../common/tool_events"
 
@@ -129,10 +129,10 @@ class PlotView extends ContinuumView
 
     @throttled_render = plot_utils.throttle_animation(@render, 15)
 
-    @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
-    @title_props = new properties.Text({obj: @model, prefix: 'title_'})
-    @background_props = new properties.Fill({obj: @model, prefix: 'background_'})
-    @border_props = new properties.Fill({obj: @model, prefix: 'border_'})
+    @outline_props = new mixins.Line({obj: @model, prefix: 'outline_'})
+    @title_props = new mixins.Text({obj: @model, prefix: 'title_'})
+    @background_props = new mixins.Fill({obj: @model, prefix: 'background_'})
+    @border_props = new mixins.Fill({obj: @model, prefix: 'border_'})
 
     @renderers = {}
     @tools = {}
@@ -286,12 +286,17 @@ class PlotView extends ContinuumView
 
   update_selection: (selection) ->
     for renderer in @mget("renderers")
-      if renderer instanceof GlyphRenderer.Model
-        selected = selection[renderer.id] or []
-        renderer.get('data_source').set("selected", selected)
+      if renderer not instanceof GlyphRenderer.Model
+        continue
+      ds = renderer.get('data_source')
+      if selection?
+        if renderer.id in selection
+          ds.set("selected", selection[renderer.id])
+      else
+        ds.get('selection_manager').clear()
 
   reset_selection: () ->
-    @update_selection({})
+    @update_selection(null)
 
   _update_single_range: (rng, range_info, is_panning) ->
     # Is this a reversed range?
@@ -640,9 +645,6 @@ class Plot extends Component.Model
     @set('canvas', canvas)
 
     @solver = canvas.get('solver')
-
-    for r in @get('renderers')
-      r.set('parent', @)
 
     @set('tool_manager', new ToolManager.Model({
       tools: @get('tools')

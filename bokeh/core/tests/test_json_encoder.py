@@ -60,16 +60,16 @@ class TestSerializeJson(unittest.TestCase):
         self.deserialize = loads
 
     def test_with_basic(self):
-        self.assertEqual(self.serialize({'test': [1, 2, 3]}), '{"test": [1, 2, 3]}')
+        self.assertEqual(self.serialize({'test': [1, 2, 3]}), '{"test":[1,2,3]}')
 
     def test_with_np_array(self):
         a = np.arange(5)
-        self.assertEqual(self.serialize(a), '[0, 1, 2, 3, 4]')
+        self.assertEqual(self.serialize(a), '[0,1,2,3,4]')
 
     @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_with_pd_series(self):
         s = pd.Series([0, 1, 2, 3, 4])
-        self.assertEqual(self.serialize(s), '[0, 1, 2, 3, 4]')
+        self.assertEqual(self.serialize(s), '[0,1,2,3,4]')
 
     def test_nans_and_infs(self):
         arr = np.array([np.nan, np.inf, -np.inf, 0])

@@ -108,9 +108,6 @@ MultiSelect
 
 A multi-select widget to present multiple available options:
 
-.. warning::
-    MultiSelect is currently broken. See :bokeh-issue:`2495`
-
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_multiselect.py
     :source-position: below
 

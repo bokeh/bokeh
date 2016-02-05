@@ -38,10 +38,10 @@ class PropertyValueContainer(object):
     def _unregister_owner(self, owner, prop):
         self._owners.discard((owner, prop))
 
-    def _notify_owners(self, old):
+    def _notify_owners(self, old, hint=None):
         self._unmodified_default_value = False
         for (owner, prop) in self._owners:
-            prop._notify_mutated(owner, old)
+            prop._notify_mutated(owner, old, hint)
 
     def _saved_copy(self):
         raise RuntimeError("Subtypes must implement this to make a backup copy")
@@ -159,4 +159,28 @@ class PropertyValueDict(PropertyValueContainer, dict):
     @notify_owner
     def update(self, *args, **kwargs):
         return super(PropertyValueDict, self).update(*args, **kwargs)
+
+    # notifies owners explicitly
+    def _stream(self, doc, source, new_data, rollover=None):
+        old = self._saved_copy()
+
+        import numpy as np
+
+        for k, v in new_data.items():
+            if isinstance(self[k], np.ndarray):
+                data = np.append(self[k], new_data[k])
+            else:
+                data = self[k] + new_data[k]
+            if rollover and len(data) > rollover:
+                data = data[-rollover:]
+
+            super(PropertyValueDict, self).__setitem__(k, data)
+
+        from ..document import ColumnsStreamedEvent
+
+        self._notify_owners(old,
+                            hint=ColumnsStreamedEvent(doc, source, new_data, rollover))
+
+
+
 
