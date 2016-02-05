@@ -32,20 +32,23 @@ class LegendView extends PlotWidget
     ctx = @plot_view.canvas_view.ctx
     ctx.save()
     @label_props.set_value(ctx)
-    text_widths = _.map(legend_names, (txt) -> ctx.measureText(txt).width)
+    @text_widths = {}
+    for name in legend_names
+      @text_widths[name] = _.max([ctx.measureText(name).width, label_width])
     ctx.restore()
 
-    @max_label_width = _.max([_.max(text_widths), label_width])
+    max_label_width = _.max(_.values(@text_widths))
 
     if @mget("orientation") == "vertical"
       @legend_height = (
         legend_names.length * @max_label_height + (1 + legend_names.length) * legend_spacing
       )
-      @legend_width = @max_label_width + glyph_width + 3 * legend_spacing
+      @legend_width = max_label_width + glyph_width + 3 * legend_spacing
     else
-      @legend_width = (
-        legend_names.length * (@max_label_width + glyph_width + legend_spacing) + (1 + legend_names.length) * legend_spacing
-      )
+      @legend_width = 0
+      for name, width of @text_widths
+        @legend_width += (_.max([width, label_width]) + glyph_width + legend_spacing)
+      @legend_width += (1 + legend_names.length) * legend_spacing
       @legend_height = @max_label_height + 2 * legend_spacing
 
     location = @mget('location')
@@ -115,6 +118,7 @@ class LegendView extends PlotWidget
     legend_spacing = @mget('legend_spacing')
     N = @mget("legends").length
 
+    xoffset = 0
     for [legend_name, glyphs], idx in @mget("legends")
       if orientation == "vertical"
         yoffset = idx * @legend_height / N
@@ -123,11 +127,11 @@ class LegendView extends PlotWidget
         y1 = @box_coords[1] + yoffset + legend_spacing
         y2 = y1 + glyph_height
       else
-        xoffset = idx * @legend_width / N
         x1 = @box_coords[0] + xoffset + legend_spacing
         x2 = x1 + glyph_width
         y1 = @box_coords[1] + legend_spacing
         y2 = y1 + glyph_height
+        xoffset += @text_widths[legend_name] + legend_spacing + glyph_width
 
       tx = x2 + legend_spacing
       ty = y1 + @max_label_height / 2.0
