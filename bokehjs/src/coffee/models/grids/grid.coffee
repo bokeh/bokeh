@@ -1,14 +1,14 @@
 _ = require "underscore"
 GuideRenderer = require "../renderers/guide_renderer"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../../common/properties"
+mixins = require "../../core/property_mixins"
 
 class GridView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
-    @grid_props = new properties.Line({obj: @model, prefix: 'grid_'})
-    @minor_grid_props = new properties.Line({obj: @model, prefix: 'minor_grid_'})
-    @band_props = new properties.Fill({obj: @model, prefix: 'band_'})
+    @grid_props = new mixins.Line({obj: @model, prefix: 'grid_'})
+    @minor_grid_props = new mixins.Line({obj: @model, prefix: 'minor_grid_'})
+    @band_props = new mixins.Fill({obj: @model, prefix: 'band_'})
     @x_range_name = @mget('x_range_name')
     @y_range_name = @mget('y_range_name')
 

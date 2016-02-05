@@ -1,6 +1,6 @@
 _ = require "underscore"
-HasProps = require "./has_props"
-{logger} = require "./logging"
+HasProps = require "../core/has_props"
+{logger} = require "../core/logging"
 Selector = require "./selector"
 hittest = require "./hittest"
 

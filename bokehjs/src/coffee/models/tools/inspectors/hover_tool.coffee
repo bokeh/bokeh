@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-{logger} = require "../../../common/logging"
+{logger} = require "../../../core/logging"
 Tooltip = require "../../annotations/tooltip"
 Util = require "../../../util/util"
 InspectTool = require "./inspect_tool"

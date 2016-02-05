@@ -1,6 +1,6 @@
 _ = require "underscore"
 Model = require "../../model"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 
 class ImageSource extends Model
 
