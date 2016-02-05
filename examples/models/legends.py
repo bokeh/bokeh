@@ -13,7 +13,7 @@ from bokeh.models import (
 )
 from bokeh.resources import INLINE
 
-x = np.linspace(-2*pi, 2*pi, 1000)
+x = np.linspace(-2*pi, 2*pi, 400)
 y = sin(x)
 y2 = cos(x)
 
@@ -24,9 +24,9 @@ ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=800)
 
-line_glyph = Line(x="x", y="y", line_color="blue")
+line_glyph = Line(x="x", y="y", line_color="navy", line_width=2, line_dash="dashed")
 line = plot.add_glyph(source, line_glyph)
-circle = Circle(x="x", y="y2", line_color="red")
+circle = Circle(x="x", y="y2", size=6, line_color="red", fill_color="orange", fill_alpha=0.6)
 circle = plot.add_glyph(source, circle)
 
 plot.add_layout(LinearAxis(), 'above')
