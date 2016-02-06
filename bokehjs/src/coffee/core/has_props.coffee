@@ -113,19 +113,9 @@ class HasProps extends Backbone.Model
     else
       attrs = {}
       attrs[key] = value
-    toremove  = []
     for own key, val of attrs
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
-      if _.has(this, '_computed') and
-         _.has(@_computed, key) and
-         @_computed[key]['setter']
-        @_computed[key]['setter'].call(this, val, key)
-        toremove.push(key)
-    if not _.isEmpty(toremove)
-      attrs = _.clone(attrs)
-      for key in toremove
-        delete attrs[key]
     if not _.isEmpty(attrs)
       old = {}
       for key, value of attrs
@@ -152,11 +142,6 @@ class HasProps extends Backbone.Model
     # bind depdencies to change dep callback
     for fld in fields
       @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
-
-  # ### method: HasProps::register_setter
-  register_setter: (prop_name, setter) ->
-    prop_spec = @_computed[prop_name]
-    prop_spec.setter = setter
 
   # ### method: HasProps::register_property
   register_property:  (prop_name, getter, use_cache) ->
@@ -192,7 +177,6 @@ class HasProps extends Backbone.Model
       'getter': getter,
       'dependencies': [],
       'use_cache': use_cache
-      'setter': null
       'callbacks':
         changedep: changedep
         propchange: propchange

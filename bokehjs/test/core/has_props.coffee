@@ -42,21 +42,6 @@ describe "has_properties module", ->
 
       expect(model.get "c").to.equal(11)
 
-  it "should support property setters", ->
-    model = Collections('TestObject').create({a: 1, b: 1})
-    prop = ->
-      @get('a') + @get('b')
-    setter = (val) ->
-      @set('a', val/2, {silent:true})
-      @set('b', val/2)
-    model.register_property 'c', prop, true
-    model.add_dependencies 'c', model, ['a', 'b']
-    model.register_setter 'c', setter
-    model.set('c', 100)
-
-    expect(model.get('a')).to.equal 50
-    expect(model.get('b')).to.equal 50
-
   describe "arrays of references", ->
     [model1, model2, model3, model4, doc] = [null, null, null, null, null]
     before ->
