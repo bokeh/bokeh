@@ -6,11 +6,6 @@ Backbone = require "backbone"
 refs = require "./util/refs"
 
 class HasProps extends Backbone.Model
-  # Our property system
-  # we support python style computed properties, with getters
-  # as well as setters. We also support caching of these properties,
-  # and notifications of property. We also support weak references
-  # to other models using the reference system described above.
 
   toString: () -> "#{@type}(#{@id})"
 
@@ -101,9 +96,6 @@ class HasProps extends Backbone.Model
     return this
 
   set: (key, value, options) ->
-    # checks for setters, if setters are present, call setters first
-    # then remove the computed property from the dict of attrs, and call super
-
     # backbones set function supports 2 call signatures, either a dictionary of
     # key value pairs, and then options, or one key, one value, and then options.
     # replicating that logic here
@@ -126,12 +118,10 @@ class HasProps extends Backbone.Model
         for key, value of attrs
           @_tell_document_about_change(key, old[key], @get(key, resolve_refs=false))
 
-  # ### method: HasProps::add_dependencies
   add_dependencies:  (prop_name, object, fields) ->
     # * prop_name - name of property
     # * object - object on which dependencies reside
     # * fields - attributes on that object
-    # at some future date, we should support a third arg, events
     if not _.isArray(fields)
       fields = [fields]
     prop_spec = @_computed[prop_name]
@@ -143,26 +133,21 @@ class HasProps extends Backbone.Model
     for fld in fields
       @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
 
-  # ### method: HasProps::register_property
   register_property:  (prop_name, getter, use_cache) ->
-    # register a computed property. Setters, and dependencies
-    # can be added with `@add_dependencies` and `@register_setter`
     # #### Parameters
     # * prop_name: name of property
     # * getter: function, calculates computed value, takes no arguments
     # * use_cache: whether to cache or not
     # #### Returns
     # * prop_spec: specification of the property, with the getter,
-    # setter, dependenices, and callbacks associated with the prop
     if _.isUndefined(use_cache)
       use_cache = true
     if _.has(@_computed, prop_name)
       @remove_property(prop_name)
-    # we store a prop_spec, which has the getter, setter, dependencies
-    # we also store the callbacks used to implement the computed property,
-    # we do this so we can remove them later if the property is removed
+
     changedep = () =>
       @trigger('changedep:' + prop_name)
+
     propchange = () =>
       firechange = true
       if prop_spec['use_cache']
@@ -173,6 +158,7 @@ class HasProps extends Backbone.Model
       if firechange
         @trigger('change:' + prop_name, this, @get(prop_name))
         @trigger('change', this)
+
     prop_spec =
       'getter': getter,
       'dependencies': [],
@@ -180,15 +166,16 @@ class HasProps extends Backbone.Model
       'callbacks':
         changedep: changedep
         propchange: propchange
+
     @_computed[prop_name] = prop_spec
+
     # bind propchange callback to change dep event
-    @listenTo(this, "changedep:#{prop_name}",
-              prop_spec['callbacks']['propchange'])
+    @listenTo(this, "changedep:#{prop_name}", prop_spec['callbacks']['propchange'])
+
     return prop_spec
 
   remove_property: (prop_name) ->
-    # removes the property,
-    # unbinding all associated callbacks that implemented it
+    # removes the property, unbinding all callbacks that implemented it
     prop_spec = @_computed[prop_name]
     dependencies = prop_spec.dependencies
     for dep in dependencies
@@ -199,10 +186,6 @@ class HasProps extends Backbone.Model
     delete @_computed[prop_name]
 
   get: (prop_name, resolve_refs=true) ->
-    # ### method: HasProps::get
-    # overrides backbone get.  checks properties,
-    # calls getter, or goes to cache
-    # if necessary.  If it's not a property, then just call super
     if _.has(@_computed, prop_name)
       return @_get_prop(prop_name)
     else
