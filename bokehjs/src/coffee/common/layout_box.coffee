@@ -93,7 +93,6 @@ class LayoutBox extends Model
     @register_property('aspect',
         () => return @get('width') / @get('height')
       , true)
-    @register_setter('aspect', @_set_aspect)
     @add_dependencies('aspect', this, ['width', 'height'])
 
   contains: (vx, vy) ->
@@ -118,7 +117,7 @@ class LayoutBox extends Model
   _get_var: (prop_name) ->
     return @['_' + prop_name].value()
 
-  _set_aspect: (aspect) ->
+  set_aspect: (aspect) ->
     if @_aspect_constraint?
       @solver.remove_constraint(@aspect_constraint)
       c = new Constraint(new Expression([aspect, @_height], [-1, @_width]), Eq)
