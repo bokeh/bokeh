@@ -52,7 +52,7 @@ class DataProvider
   updateSource: () ->
     # XXX: We should say `@source.set('data', @data)`, but data was updated in-place,
     # so that would be a no-op. We have to trigger change events manually instead.
-    @source.forceTrigger("data")
+    @source.trigger("change:data", @, @source.attributes['data'])
 
   getItemMetadata: (index) -> null
 
