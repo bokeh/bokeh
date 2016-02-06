@@ -93,15 +93,6 @@ describe "has_properties module", ->
       expect(output[0]).to.equal model1
       expect(output[1]).to.equal model2
 
-    it "should allow direct access to references", ->
-      model3.set_obj('vectordata2', [model1, model1, model2])
-      output = model3.get('vectordata2', false)
-
-      expect(output[0].id).to.equal model1.ref().id
-      expect(output[1].id).to.equal model1.ref().id
-      expect(output[2].id).to.equal model2.ref().id
-      expect(output[0]).to.not.be.instanceof HasProps
-
     it "should work with nested arrays", ->
       expect(model4.document).to.equal doc
       output = model4.get('vectordata')

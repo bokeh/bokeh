@@ -100,17 +100,6 @@ class HasProps extends Backbone.Model
 
     return this
 
-  set_obj: (key, value, options) ->
-    if _.isObject(key) or key == null
-      attrs = key
-      options = value
-    else
-      attrs = {}
-      attrs[key] = value
-    for own key, val of attrs
-      attrs[key] = refs.convert_to_ref(val)
-    return @set(attrs, options)
-
   set: (key, value, options) ->
     # checks for setters, if setters are present, call setters first
     # then remove the computed property from the dict of attrs, and call super
