@@ -457,11 +457,11 @@ class PlotView extends ContinuumView
       @title_props.set_value(@canvas_view.ctx)
       th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
       if th != @model.title_panel.get('height')
-        @model.title_panel.set('height', th)
+        @model.title_panel.set_var('height', th)
 
     # Note: -1 to effectively dilate the canvas by 1px
-    @model.get('frame').set('width', canvas.get('width')-1)
-    @model.get('frame').set('height', canvas.get('height')-1)
+    @model.get('frame').set_var('width', canvas.get('width')-1)
+    @model.get('frame').set_var('height', canvas.get('height')-1)
 
     @canvas.solver.update_variables(false)
 
