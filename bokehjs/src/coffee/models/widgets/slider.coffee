@@ -1,11 +1,11 @@
 _ = require "underscore"
 $2 = require "jquery-ui/slider"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 slidertemplate = require "./slidertemplate"
 InputWidget = require "./input_widget"
 
-class SliderView extends ContinuumView
+class SliderView extends BokehView
   tagName: "div"
   template: slidertemplate
 

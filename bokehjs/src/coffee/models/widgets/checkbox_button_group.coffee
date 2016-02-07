@@ -1,10 +1,10 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
 
-class CheckboxButtonGroupView extends ContinuumView
+class CheckboxButtonGroupView extends BokehView
   tagName: "div"
   events:
     "change input": "change_input"

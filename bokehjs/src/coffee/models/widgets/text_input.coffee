@@ -1,11 +1,11 @@
 _ = require "underscore"
 build_views = require "../../common/build_views"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 template = require "./text_input_template"
 InputWidget = require "./input_widget"
 
-class TextInputView extends ContinuumView
+class TextInputView extends BokehView
   tagName: "div"
   attributes:
      class: "bk-widget-form-group"

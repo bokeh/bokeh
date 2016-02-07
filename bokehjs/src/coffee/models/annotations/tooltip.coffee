@@ -1,10 +1,10 @@
 $ = require "jquery"
 _ = require "underscore"
 Annotation = require "./annotation"
-PlotWidget = require "../../common/plot_widget"
+Renderer = require "../renderers/renderer"
 {logger} = require "../../core/logging"
 
-class TooltipView extends PlotWidget
+class TooltipView extends Renderer.View
   className: "bk-tooltip"
 
   initialize: (options) ->

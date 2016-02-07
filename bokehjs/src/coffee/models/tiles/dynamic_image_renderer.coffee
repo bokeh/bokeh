@@ -1,11 +1,10 @@
 _ = require "underscore"
 Renderer = require "../renderers/renderer"
-PlotWidget = require "../../common/plot_widget"
 properties = require "../../core/properties"
 ImagePool = require "./image_pool"
 {logger} = require "../../core/logging"
 
-class DynamicImageView extends PlotWidget
+class DynamicImageView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -106,7 +105,7 @@ class DynamicImageView extends PlotWidget
     @map_canvas.rect(l, t, w, h)
     @map_canvas.clip()
 
-class DynamicImageRenderer extends Renderer
+class DynamicImageRenderer extends Renderer.Model
   default_view: DynamicImageView
   type: 'DynamicImageRenderer'
   visuals: []

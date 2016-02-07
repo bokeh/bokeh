@@ -4,13 +4,13 @@ bbox = require "../../common/bbox"
 {logger} = require "../../core/logging"
 {arrayMax} = require "../../common/mathutils"
 Model = require "../../model"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 mixins = require "../../core/property_mixins"
 CategoricalMapper = require "../mappers/categorical_mapper"
 proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
 
-class GlyphView extends ContinuumView
+class GlyphView extends BokehView
 
   initialize: (options) ->
     super(options)

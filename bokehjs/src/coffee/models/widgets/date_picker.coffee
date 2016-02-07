@@ -1,10 +1,10 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "jquery-ui/datepicker"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 InputWidget = require "./input_widget"
 
-class DatePickerView extends ContinuumView
+class DatePickerView extends BokehView
 
   initialize: (options) ->
     super(options)

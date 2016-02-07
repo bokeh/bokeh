@@ -2,11 +2,11 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/tab"
 build_views = require "../../common/build_views"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 tabs_template = require "./tabs_template"
 Widget = require "./widget"
 
-class TabsView extends ContinuumView
+class TabsView extends BokehView
 
   initialize: (options) ->
     super(options)

@@ -1,10 +1,10 @@
 _ = require "underscore"
 Annotation = require "./annotation"
-PlotWidget = require "../../common/plot_widget"
+Renderer = require "../renderers/renderer"
 mixins = require "../../core/property_mixins"
 textutils = require "../../common/textutils"
 
-class LegendView extends PlotWidget
+class LegendView extends Renderer.View
   initialize: (options) ->
     super(options)
     @label_props = new mixins.Text({obj:@model, prefix: 'label_'})

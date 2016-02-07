@@ -1,11 +1,11 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/modal"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 dialog_template = require "./dialog_template"
 Widget = require "./widget"
 
-class DialogView extends ContinuumView
+class DialogView extends BokehView
 
   initialize: (options) ->
     super(options)

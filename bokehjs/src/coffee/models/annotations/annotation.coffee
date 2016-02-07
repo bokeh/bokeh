@@ -1,7 +1,7 @@
 _ = require "underscore"
 Renderer = require "../renderers/renderer"
 
-class Annotation extends Renderer
+class Annotation extends Renderer.Model
   type: 'Annotation'
 
   defaults: ->

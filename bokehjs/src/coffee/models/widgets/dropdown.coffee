@@ -1,9 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 AbstractButton = require "./abstract_button"
 
-class DropdownView extends ContinuumView
+class DropdownView extends BokehView
   tagName: "div"
 
   initialize: (options) ->

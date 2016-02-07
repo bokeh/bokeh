@@ -1,9 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
 
-class RadioGroupView extends ContinuumView
+class RadioGroupView extends BokehView
   tagName: "div"
   events:
     "change input": "change_input"

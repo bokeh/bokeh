@@ -1,8 +1,8 @@
 _ = require "underscore"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 Markup = require "./markup"
 
-class ParagraphView extends ContinuumView
+class ParagraphView extends BokehView
   tagName: "p"
 
   initialize: (options) ->

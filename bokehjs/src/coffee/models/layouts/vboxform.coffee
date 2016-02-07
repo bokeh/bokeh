@@ -1,9 +1,9 @@
 _ = require "underscore"
 build_views = require "../../common/build_views"
-ContinuumView  = require "../../common/continuum_view"
+BokehView  = require "../../core/bokeh_view"
 VBox = require "./vbox"
 
-class VBoxFormView extends ContinuumView
+class VBoxFormView extends BokehView
   tagName: "form"
   attributes:
     class: "bk-widget-form"

@@ -1,10 +1,10 @@
 _ = require "underscore"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 template = require "./selecttemplate"
 InputWidget = require "./input_widget"
 
-class SelectView extends ContinuumView
+class SelectView extends BokehView
   tagName: "div"
   template: template
   events:

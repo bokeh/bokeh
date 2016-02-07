@@ -1,9 +1,9 @@
 _ = require "underscore"
 Annotation = require "./annotation"
-PlotWidget = require "../../common/plot_widget"
+Renderer = require "../renderers/renderer"
 mixins = require "../../core/property_mixins"
 
-class SpanView extends PlotWidget
+class SpanView extends Renderer.View
 
   initialize: (options) ->
     super(options)

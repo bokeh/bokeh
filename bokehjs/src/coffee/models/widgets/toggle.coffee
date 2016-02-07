@@ -1,8 +1,8 @@
 _  = require "underscore"
-ContinuumView  = require "../../common/continuum_view"
+BokehView  = require "../../core/bokeh_view"
 AbstractButton = require "./abstract_button"
 
-class ToggleView extends ContinuumView
+class ToggleView extends BokehView
   tagName: "button"
   events:
     "click": "change_input"

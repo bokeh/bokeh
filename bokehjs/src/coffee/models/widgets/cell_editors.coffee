@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "jquery-ui/autocomplete"
 $2 = require "jquery-ui/spinner"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 Model = require "../../model"
 
 class CellEditor extends Model
@@ -11,7 +11,7 @@ class CellEditor extends Model
   defaults: () ->
     return _.extend {}, super(), @editorDefaults
 
-class CellEditorView extends ContinuumView
+class CellEditorView extends BokehView
 
   tagName: "div"
   className: "bk-cell-editor"

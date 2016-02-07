@@ -3,7 +3,7 @@ kiwi = require "kiwi"
 GuideRenderer = require "../renderers/guide_renderer"
 LayoutBox = require "../../common/layout_box"
 {logger} = require "../../core/logging"
-PlotWidget = require "../../common/plot_widget"
+Renderer = require "../renderers/renderer"
 mixins = require "../../core/property_mixins"
 
 # This table lays out the rules for configuring the baseline, alignment, etc. of
@@ -147,7 +147,7 @@ _apply_location_heuristics = (ctx, side, orient) ->
   ctx.textBaseline = baseline
   ctx.textAlign = align
 
-class AxisView extends PlotWidget
+class AxisView extends Renderer.View
   initialize: (options) ->
     super(options)
     @rule_props = new mixins.Line({obj: @model, prefix: 'axis_'})

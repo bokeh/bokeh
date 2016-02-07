@@ -1,9 +1,9 @@
 _ = require "underscore"
 GuideRenderer = require "../renderers/guide_renderer"
-PlotWidget = require "../../common/plot_widget"
+Renderer = require "../renderers/renderer"
 mixins = require "../../core/property_mixins"
 
-class GridView extends PlotWidget
+class GridView extends Renderer.View
   initialize: (attrs, options) ->
     super(attrs, options)
     @grid_props = new mixins.Line({obj: @model, prefix: 'grid_'})

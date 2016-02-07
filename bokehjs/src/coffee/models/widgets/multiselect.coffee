@@ -1,10 +1,10 @@
 _ = require "jquery"
 $ = require "underscore"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 multiselecttemplate = require "./multiselecttemplate"
 InputWidget = require "./input_widget"
 
-class MultiSelectView extends ContinuumView
+class MultiSelectView extends BokehView
   tagName: "div"
   template: multiselecttemplate
   events:

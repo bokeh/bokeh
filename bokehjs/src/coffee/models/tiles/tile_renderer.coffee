@@ -1,13 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
 Renderer = require "../renderers/renderer"
-PlotWidget = require "../../common/plot_widget"
 properties = require "../../core/properties"
 wmts = require "./wmts_tile_source"
 ImagePool = require "./image_pool"
 {logger} = require "../../core/logging"
 
-class TileRendererView extends PlotWidget
+class TileRendererView extends Renderer.View
 
   initialize: (options) ->
     @attributionEl = null
@@ -271,7 +270,7 @@ class TileRendererView extends PlotWidget
 
     @render_timer = setTimeout((=> @_fetch_tiles(need_load)), 65)
 
-class TileRenderer extends Renderer
+class TileRenderer extends Renderer.Model
   default_view: TileRendererView
   type: 'TileRenderer'
   visuals: []

@@ -7,7 +7,7 @@ kiwi = require "kiwi"
 build_views = require "../../common/build_views"
 Canvas = require "../../common/canvas"
 CartesianFrame = require "../../common/cartesian_frame"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 UIEvents = require "../../common/ui_events"
 Component = require "../component"
 LayoutBox = require "../../common/layout_box"
@@ -64,7 +64,7 @@ get_size_for_available_space = (use_width, use_height, client_width, client_heig
     else
       return [new_width1, new_height1]
 
-class PlotView extends ContinuumView
+class PlotView extends BokehView
   className: "bk-plot"
   template: plot_template
 

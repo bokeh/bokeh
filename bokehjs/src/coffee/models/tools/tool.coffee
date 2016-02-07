@@ -1,9 +1,9 @@
 _ = require "underscore"
 Model = require "../../model"
 {logger} = require "../../core/logging"
-PlotWidget = require "../../common/plot_widget"
+Renderer = require "../renderers/renderer"
 
-class ToolView extends PlotWidget
+class ToolView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:active', () =>

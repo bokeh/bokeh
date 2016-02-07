@@ -1,10 +1,10 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "jqrangeslider/jQDateRangeSlider"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 InputWidget = require "./input_widget"
 
-class DateRangeSliderView extends ContinuumView
+class DateRangeSliderView extends BokehView
 
   initialize: (options) ->
     super(options)

@@ -1,9 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 Widget = require "./widget"
 
-class PanelView extends ContinuumView
+class PanelView extends BokehView
 
   initialize: (options) ->
     super(options)

@@ -1,10 +1,9 @@
 _ = require "underscore"
 {logger} = require "../../core/logging"
 Renderer = require "./renderer"
-PlotWidget = require "../../common/plot_widget"
 RemoteDataSource = require "../sources/remote_data_source"
 
-class GlyphRendererView extends PlotWidget
+class GlyphRendererView extends Renderer.View
 
   initialize: (options) ->
     super(options)
@@ -209,7 +208,7 @@ class GlyphRendererView extends PlotWidget
   hit_test: (geometry) ->
     @glyph.hit_test(geometry)
 
-class GlyphRenderer extends Renderer
+class GlyphRenderer extends Renderer.Model
   default_view: GlyphRendererView
   type: 'GlyphRenderer'
 

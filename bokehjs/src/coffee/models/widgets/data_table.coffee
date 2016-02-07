@@ -4,7 +4,7 @@ $1 = require "jquery-ui/sortable"
 SlickGrid = require "slick_grid/slick.grid"
 RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
 CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 DOMUtil = require "../../util/dom_util"
 hittest = require "../../common/hittest"
 TableWidget = require "./table_widget"
@@ -85,7 +85,7 @@ class DataProvider
 
     @updateSource()
 
-class DataTableView extends ContinuumView
+class DataTableView extends BokehView
   attributes:
     class: "bk-data-table"
 
