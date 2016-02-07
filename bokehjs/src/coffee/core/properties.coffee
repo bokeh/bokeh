@@ -59,18 +59,6 @@ class Property extends Backbone.Model
       value = @value() # already transformed
       return (value for i in [0...length])
 
-  # array: (source) ->
-  #   if @spec.value?
-  #     value = @transform([@spec.value])[0]
-  #     return (i) -> value
-
-  #   data = source.get('data')
-  #   field = @spec.field
-  #   if field of data
-  #     transformed = @transform(source.get_column(field))
-  #     return (i) -> transformed[i]
-  #   throw new Error("field '#{field}' does not exist on source")
-
   # ----- private methods
 
   _init: (trigger=true) ->

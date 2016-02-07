@@ -117,39 +117,47 @@ describe "properties module", ->
         expect(fn).to.throw Error, "attempted to retrieve property value for property without value specification"
 
     describe "array", ->
-      # it "should return a value broadcasting accessor if there is a value spec", ->
-      #   prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'a'})
-      #   arr = prop.array()
-      #   expect(arr(0)).to.be.equal 1
-      #   expect(arr(1)).to.be.equal 1
-      #   expect(arr(2)).to.be.equal 1
-      #   expect(arr(3)).to.be.equal 1
-      #   expect(arr(100)).to.be.equal 1
-      #   prop = new properties.Property({obj: new SomeHasProps(spec_value), attr: 'a'})
-      #   arr = prop.array()
-      #   expect(arr(0)).to.be.equal 2
-      #   expect(arr(1)).to.be.equal 2
-      #   expect(arr(2)).to.be.equal 2
-      #   expect(arr(3)).to.be.equal 2
-      #   expect(arr(100)).to.be.equal 2
+      source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
 
-      # it "should return an array accessor if there is a valid field spec", ->
-      #   source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-      #   prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
-      #   arr = prop.array(source)
-      #   expect(arr(0)).to.be.equal 0
-      #   expect(arr(1)).to.be.equal 1
-      #   expect(arr(2)).to.be.equal 2
-      #   expect(arr(3)).to.be.equal 3
-      #   expect(arr(4)).to.be.equal 10
-      #   expect(arr(5)).to.be.equal undefined
+      it "should return an array if there is a value spec", ->
+        prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'a'})
+        arr = prop.array(source)
+        expect(arr).to.be.instanceof Array
+        expect(arr.length).to.be.equal 5
+        expect(arr[0]).to.be.equal 1
+        expect(arr[1]).to.be.equal 1
+        expect(arr[2]).to.be.equal 1
+        expect(arr[3]).to.be.equal 1
+        expect(arr[4]).to.be.equal 1
 
-      #  it "should throw an Error otherwise", ->
-      #   fn = ->
-      #     source = new ColumnDataSource({data: {}})
-      #     prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
-      #     arr = prop.array(source)
-      #   expect(fn).to.throw Error, /field '.*' does not exist on source/
+        prop = new properties.Property({obj: new SomeHasProps(spec_value), attr: 'a'})
+        arr = prop.array(source)
+        expect(arr).to.be.instanceof Array
+        expect(arr.length).to.be.equal 5
+        expect(arr[0]).to.be.equal 2
+        expect(arr[1]).to.be.equal 2
+        expect(arr[2]).to.be.equal 2
+        expect(arr[3]).to.be.equal 2
+        expect(arr[4]).to.be.equal 2
+
+      it "should return an array if there is a valid field spec", ->
+        prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+        arr = prop.array(source)
+        expect(arr).to.be.instanceof Array
+        expect(arr.length).to.be.equal 5
+        expect(arr[0]).to.be.equal 0
+        expect(arr[1]).to.be.equal 1
+        expect(arr[2]).to.be.equal 2
+        expect(arr[3]).to.be.equal 3
+        expect(arr[4]).to.be.equal 10
+
+      # TODO (bev) this is a really misleading error
+      it "should throw an Error otherwise", ->
+        fn = ->
+          source = new ColumnDataSource({data: {}})
+          prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+          arr = prop.array(source)
+        expect(fn).to.throw Error, /attempted to retrieve property value for property without value specification/
 
     describe "init", ->
       it "should return nothing by default", ->
