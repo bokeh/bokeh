@@ -43,18 +43,31 @@ class DocumentPatchedEvent(DocumentChangedEvent):
             receiver._document_patched(self)
 
 class ModelChangedEvent(DocumentPatchedEvent):
-    def __init__(self, document, model, attr, old, new, serializable_new):
+    def __init__(self, document, model, attr, old, new, serializable_new, hint=None):
         super(ModelChangedEvent, self).__init__(document)
         self.model = model
         self.attr = attr
         self.old = old
         self.new = new
         self.serializable_new = serializable_new
+        self.hint = hint
 
     def dispatch(self, receiver):
         super(ModelChangedEvent, self).dispatch(receiver)
         if hasattr(receiver, '_document_model_changed'):
             receiver._document_model_changed(self)
+
+class ColumnsStreamedEvent(DocumentPatchedEvent):
+    def __init__(self, document, column_source, data, rollover):
+        super(ColumnsStreamedEvent, self).__init__(document)
+        self.column_source = column_source
+        self.data = data
+        self.rollover = rollover
+
+    def dispatch(self, receiver):
+        super(ModelChangedEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_columns_streamed'):
+            receiver._columns_streamed(self)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     def __init__(self, document, title):
@@ -493,7 +506,7 @@ class Document(object):
                 cb(event)
         self._with_self_as_curdoc(invoke_callbacks)
 
-    def _notify_change(self, model, attr, old, new):
+    def _notify_change(self, model, attr, old, new, hint=None):
         ''' Called by Model when it changes
         '''
         # if name changes, update by-name index
@@ -503,8 +516,11 @@ class Document(object):
             if new is not None:
                 self._all_models_by_name.add_value(new, model)
 
-        serializable_new = model.lookup(attr).serializable_value(model)
-        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new))
+        if hint is None:
+            serializable_new = model.lookup(attr).serializable_value(model)
+        else:
+            serializable_new = None
+        self._trigger_on_change(ModelChangedEvent(self, model, attr, old, new, serializable_new, hint))
 
     @classmethod
     def _references_json(cls, references):
@@ -761,31 +777,37 @@ class Document(object):
                 raise ValueError("Cannot create a patch using events from a different document " + repr(event))
 
             if isinstance(event, ModelChangedEvent):
-                value = event.serializable_new
+                if isinstance(event.hint, ColumnsStreamedEvent):
+                    json_events.append({ 'kind' : 'ColumnsStreamed',
+                                         'column_source' : event.hint.column_source.ref,
+                                         'data' : event.hint.data,
+                                         'rollover' : event.hint.rollover })
+                else:
+                    value = event.serializable_new
 
-                # the new value is an object that may have
-                # not-yet-in-the-remote-doc references, and may also
-                # itself not be in the remote doc yet.  the remote may
-                # already have some of the references, but
-                # unfortunately we don't have an easy way to know
-                # unless we were to check BEFORE the attr gets changed
-                # (we need the old _all_models before setting the
-                # property). So we have to send all the references the
-                # remote could need, even though it could be inefficient.
-                # If it turns out we need to fix this we could probably
-                # do it by adding some complexity.
-                value_refs = set(Model.collect_models(value))
+                    # the new value is an object that may have
+                    # not-yet-in-the-remote-doc references, and may also
+                    # itself not be in the remote doc yet.  the remote may
+                    # already have some of the references, but
+                    # unfortunately we don't have an easy way to know
+                    # unless we were to check BEFORE the attr gets changed
+                    # (we need the old _all_models before setting the
+                    # property). So we have to send all the references the
+                    # remote could need, even though it could be inefficient.
+                    # If it turns out we need to fix this we could probably
+                    # do it by adding some complexity.
+                    value_refs = set(Model.collect_models(value))
 
-                # we know we don't want a whole new copy of the obj we're patching
-                # unless it's also the new value
-                if event.model != value:
-                    value_refs.discard(event.model)
-                references = references.union(value_refs)
+                    # we know we don't want a whole new copy of the obj we're patching
+                    # unless it's also the new value
+                    if event.model != value:
+                        value_refs.discard(event.model)
+                    references = references.union(value_refs)
 
-                json_events.append({ 'kind' : 'ModelChanged',
-                                     'model' : event.model.ref,
-                                     'attr' : event.attr,
-                                     'new' : value })
+                    json_events.append({ 'kind' : 'ModelChanged',
+                                         'model' : event.model.ref,
+                                         'attr' : event.attr,
+                                         'new' : value })
             elif isinstance(event, RootAddedEvent):
                 references = references.union(event.model.references())
                 json_events.append({ 'kind' : 'RootAdded',
@@ -838,6 +860,14 @@ class Document(object):
                 attr = event_json['attr']
                 value = event_json['new']
                 patched_obj.set_from_json(attr, value, models=references)
+            elif event_json['kind'] == 'ColumnsStreamed':
+                source_id = event_json['column_source']['id']
+                if source_id not in self._all_models:
+                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
+                source = self._all_models[source_id]
+                data = event_json['data']
+                rollover = event_json['rollover']
+                source.stream(data, rollover)
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
@@ -966,3 +996,4 @@ class Document(object):
         cb = self._session_callbacks.pop(callback)
         # emit event so the session is notified and can remove the callback
         self._trigger_on_change(SessionCallbackRemoved(self, cb))
+

@@ -1,7 +1,7 @@
 _ = require "underscore"
 build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 template = require "./text_input_template"
 InputWidget = require "./input_widget"
 

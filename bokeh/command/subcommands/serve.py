@@ -15,6 +15,16 @@ i.e.,
 
     http://localhost:{DEFAULT_PORT}/app_script
 
+It is also possible to run the same commmand with jupyter notebooks:
+
+.. code-block:: sh
+
+    bokeh serve app_notebook.ipynb
+
+This will generate the same results as described with a python script
+and the application will be served on a default port ({DEFAULT_PORT})
+at localhost, under the path ``/app_notebook``
+
 Applications can also be created from directories. The directory should
 contain a ``main.py`` (and any other helper modules that are required) as
 well as any additional assets (e.g., theme files). Pass the directory name

@@ -2,7 +2,7 @@ $ = require "jquery"
 _ = require "underscore"
 Annotation = require "./annotation"
 PlotWidget = require "../../common/plot_widget"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 
 class TooltipView extends PlotWidget
   className: "bk-tooltip"

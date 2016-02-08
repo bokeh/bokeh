@@ -661,6 +661,21 @@ or a ``(x, y)`` tuple indicating an absolute location in screen coordinates
     or in an optimal, automatically computed location within the canvas.
     These and other improvements are planned.
 
+Orientation
+~~~~~~~~~~~
+
+The orientation of the legend is controlled by the ``orientation`` property.
+Valid values for this property are:
+
+``"vertical"``
+
+``"horizontal"``
+
+The default orientation is ``"vertical"``.
+
+.. bokeh-plot:: source/docs/user_guide/source_examples/styling_legend_orientation.py
+    :source-position: above
+
 Label Text
 ~~~~~~~~~~
 

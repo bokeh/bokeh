@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 
+import codecs
 import os
 
 from .handler import Handler
@@ -11,14 +12,16 @@ def _do_nothing(ignored):
     pass
 
 class ServerLifecycleHandler(Handler):
-    """Load a script which contains server lifecycle callbacks."""
+    """ Load a script which contains server lifecycle callbacks. """
 
     def __init__(self, *args, **kwargs):
         super(ServerLifecycleHandler, self).__init__(*args, **kwargs)
-        if 'filename' in kwargs:
-            self._runner = _CodeRunner(path=kwargs['filename'])
-        else:
+        if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to ServerLifecycleHandler')
+
+        kwargs['source'] = codecs.open(kwargs['filename'], 'r', 'UTF-8').read()
+
+        self._runner = _CodeRunner(kwargs['source'], kwargs['filename'])
 
         self._on_server_loaded = _do_nothing
         self._on_server_unloaded = _do_nothing
