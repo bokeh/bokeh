@@ -1,7 +1,18 @@
 _ = require "underscore"
+
 Model = require "../../model"
+p = require "../../core/properties"
 
 class LinearColorMapper extends Model
+
+  props: ->
+    return _.extend({}, super(), {
+      high:          [ p.Number           ]
+      low:           [ p.Number           ]
+      palette:       [ p.Any              ] # TODO (bev)
+      reserve_val:   [ p.Number           ]
+      reserve_color: [ p.Color, '#ffffff' ]
+    })
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -10,15 +21,6 @@ class LinearColorMapper extends Model
     if @get('reserve_color')?
       @reserve_color = parseInt(@get('reserve_color').slice(1), 16)
       @reserve_val   = @get('reserve_val')
-
-  defaults: ->
-    return _.extend({}, super(), {
-      high: null
-      low: null
-      palette: null
-      reserve_val: null
-      reserve_color: "#ffffff"
-    })
 
   v_map_screen: (data) ->
     buf = new ArrayBuffer(data.length * 4)

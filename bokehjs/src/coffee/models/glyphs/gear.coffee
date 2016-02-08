@@ -1,6 +1,8 @@
 _ = require "underscore"
 Glyph = require "./glyph"
 GearUtils = require "gear_utils"
+
+p = require "../../core/properties"
 Bezier = require "../../util/bezier"
 
 class GearView extends Glyph.View
@@ -53,11 +55,11 @@ class GearView extends Glyph.View
         ctx.moveTo(shaft_radius, 0)
         ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.do
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.do
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
@@ -114,16 +116,17 @@ class GearView extends Glyph.View
 
 class Gear extends Glyph.Model
   default_view: GearView
-  type: 'Gear'
-  angles: ['angle']
-  fields: ['module', 'internal:bool', 'pressure_angle', 'shaft_size', 'teeth']
 
-  defaults: ->
+  type: 'Gear'
+
+  props: ->
     return _.extend {}, super(), {
-      angle: 0
-      pressure_angle: 20   # TODO: units: deg
-      shaft_size: 0.3
-      internal: false
+      angle:          [ p.AngleSpec,  0     ]
+      module:         [ p.NumberSpec, null  ]
+      pressure_angle: [ p.NumberSpec, 20    ] # TODO: units: deg
+      shaft_size:     [ p.NumberSpec, 0.3   ]
+      teeth:          [ p.NumberSpec, null  ]
+      internal:       [ p.Bool,       false ]
     }
 
 module.exports =

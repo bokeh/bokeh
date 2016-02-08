@@ -1,21 +1,16 @@
 _ = require "underscore"
 rbush = require "rbush"
-bbox = require "../../common/bbox"
-{logger} = require "../../core/logging"
-{arrayMax} = require "../../common/mathutils"
-Model = require "../../model"
-BokehView = require "../../core/bokeh_view"
-mixins = require "../../core/property_mixins"
-CategoricalMapper = require "../mappers/categorical_mapper"
-proj4 = require "proj4"
-toProjection = proj4.defs('GOOGLE')
 
-class GlyphView extends BokehView
+CategoricalMapper = require "../mappers/categorical_mapper"
+Renderer = require "../renderers/renderer"
+bbox = require "../../common/bbox"
+p = require "../../core/properties"
+Model = require "../../model"
+
+class GlyphView extends Renderer.View
 
   initialize: (options) ->
     super(options)
-
-    @model.glyph_view = @
 
     @renderer = options.renderer
 
@@ -28,14 +23,6 @@ class GlyphView extends BokehView
       if ctx.glcanvas?
         @_init_gl(ctx.glcanvas.gl)
 
-    for name, func of mixins.factories
-      @[name] = {}
-      @[name] = _.extend(@[name], func(@model))
-
-    @warned = {}
-
-    return @
-
   render: (ctx, indices, data) ->
 
     if @mget("visible")
@@ -46,6 +33,8 @@ class GlyphView extends BokehView
           return
 
       @_render(ctx, indices, data)
+
+    return
 
   _render_gl: (ctx, indices, mainglyph) ->
     # Get transform
@@ -66,82 +55,6 @@ class GlyphView extends BokehView
     @glglyph.draw(indices, mainglyph, trans)
     return true  # success
 
-  map_data: () ->
-
-    # todo: if using gl, skip this (when is this called?)
-
-    # map all the coordinate fields
-    for [xname, yname] in @model.coords
-      sxname = "s#{xname}"
-      syname = "s#{yname}"
-      if _.isArray(@[xname]?[0])
-        [ @[sxname], @[syname] ] = [ [], [] ]
-        for i in [0...@[xname].length]
-          [sx, sy] = @renderer.map_to_screen(@[xname][i], @[yname][i])
-          @[sxname].push(sx)
-          @[syname].push(sy)
-      else
-        [ @[sxname], @[syname] ] = @renderer.map_to_screen(@[xname], @[yname])
-
-    @_map_data()
-
-  project_xy: (x, y) ->
-    merc_x_s = []
-    merc_y_s = []
-    for i in [0...x.length]
-      [merc_x, merc_y] = proj4(toProjection, [x[i], y[i]])
-      merc_x_s[i] = merc_x
-      merc_y_s[i] = merc_y
-    return [merc_x_s, merc_y_s]
-
-  project_xsys: (xs, ys) ->
-    merc_xs_s = []
-    merc_ys_s = []
-    for i in [0...xs.length]
-      [merc_x_s, merc_y_s] = @project_xy(xs[i], ys[i])
-      merc_xs_s[i] = merc_x_s
-      merc_ys_s[i] = merc_y_s
-    return [merc_xs_s, merc_ys_s]
-
-  set_data: (source) ->
-    # set all the coordinate fields
-    for name, prop of @coords
-      @[name] = prop.array(source)
-
-    if @renderer.plot_model.use_map
-      if @x?
-        [@x, @y] = @project_xy(@x, @y)
-      if @xs?
-        [@xs, @ys] = @project_xsys(@xs, @ys)
-
-    # set any angles (will be in radian units at this point)
-    for name, prop of @angles
-      @[name] = prop.array(source)
-
-    # set any distances as well as their max
-    for name, prop of @distances
-      @[name] = prop.array(source)
-      @["max_#{name}"] = arrayMax(@[name])
-
-    # set any misc fields
-    for name, prop of @fields
-      @[name] = prop.array(source)
-
-    if @glglyph?
-      @glglyph.set_data_changed(@x.length)
-
-    @_set_data()
-
-    @index = @_index_data()
-
-  set_visuals: (source) ->
-    # finally, warm the visual properties cache
-    for name, prop of @visuals
-      prop.warm_cache(source)
-
-    if @glglyph?
-      @glglyph.set_visuals_changed()
-
   bounds: () ->
     if not @index?
       return bbox.empty()
@@ -158,10 +71,7 @@ class GlyphView extends BokehView
 
   # any additional customization can happen here
   _init_gl: () -> false
-  _set_data: () -> null
-  _map_data: () -> null
-  _mask_data: (inds) -> inds
-  _bounds: (bds) -> bds
+
 
   _xy_index: () ->
     index = rbush()
@@ -209,18 +119,6 @@ class GlyphView extends BokehView
     else
       return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
 
-  hit_test: (geometry) ->
-    result = null
-
-    func = "_hit_#{geometry.type}"
-    if @[func]?
-      result = @[func](geometry)
-    else if not @warned[geometry.type]?
-      logger.error("'#{geometry.type}' selection not available for #{@model.type}")
-      @warned[geometry.type] = true
-
-    return result
-
   get_reference_point: () ->
     reference_point = @mget('reference_point')
     if _.isNumber(reference_point)
@@ -236,7 +134,7 @@ class GlyphView extends BokehView
     ctx.beginPath()
     ctx.moveTo(x0, (y0 + y1) /2)
     ctx.lineTo(x1, (y0 + y1) /2)
-    if @visuals.line.do_stroke
+    if @visuals.line.do
       @visuals.line.set_vectorize(ctx, reference_point)
       ctx.stroke()
     ctx.restore()
@@ -256,74 +154,28 @@ class GlyphView extends BokehView
     sy0 = y0 + dh
     sy1 = y1 - dh
 
-    if @visuals.fill.do_fill
+    if @visuals.fill.do
       @visuals.fill.set_vectorize(ctx, reference_point)
       ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
 
-    if @visuals.line.do_stroke
+    if @visuals.line.do
       ctx.beginPath()
       ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
       @visuals.line.set_vectorize(ctx, reference_point)
       ctx.stroke()
 
-class Glyph extends Model
-
-  # Most glyphs have line and fill props. Override this in subclasses
-  # that need to define a different set of visual properties
-  visuals: ['line', 'fill']
+class Glyph extends Renderer.Model
 
   # Many glyphs have simple x and y coordinates. Override this in
   # subclasses that use other coordinates
   coords: [ ['x', 'y'] ]
 
-  # Any distance values (which have screen/data units) go here
-  distances: []
+  mixins: ['line', 'fill']
 
-  # Any angle values (which have deg/rad units) go here
-  angles: []
-
-  # Any other data values go here
-  fields: []
-
-  fill_defaults: {
-    fill_color: 'gray'
-    fill_alpha: 1.0
-  }
-
-  line_defaults: {
-    line_color: 'black'
-    line_width: 1
-    line_alpha: 1.0
-    line_join: 'miter'
-    line_cap: 'butt'
-    line_dash: []
-    line_dash_offset: 0
-  }
-
-  text_defaults: {
-    text_font: "helvetica"
-    text_font_size: "12pt"
-    text_font_style: "normal"
-    text_color: "#444444"
-    text_alpha: 1.0
-    text_align: "left"
-    text_baseline: "bottom"
-  }
-
-  defaults: ->
-    result = _.extend {}, super(), {
-      visible: true
+  props: ->
+    return _.extend {}, super(), {
+      visible: [ p.Bool, true ]
     }
-    for prop in @visuals
-      switch prop
-        when 'line' then defaults = @line_defaults
-        when 'fill' then defaults = @fill_defaults
-        when 'text' then defaults = @text_defaults
-        else
-          logger.warn("unknown visual property type '#{prop}'")
-          continue
-      result = _.extend result, defaults
-    return result
 
 module.exports =
   Model: Glyph

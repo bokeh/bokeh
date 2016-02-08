@@ -1,13 +1,15 @@
 _ = require "underscore"
+
 Renderer = require "./renderer"
+p = require "../../core/properties"
 
 class GuideRenderer extends Renderer.Model
   type: 'GuideRenderer'
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      plot: null
-      level: "overlay"
+      level: [ p.RenderLevel, 'overlay' ]
+      plot:  [ p.Instance               ]
     }
 
 module.exports =

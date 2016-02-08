@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
+p = require "../../core/properties"
 
 class RayView extends Glyph.View
 
@@ -10,7 +12,7 @@ class RayView extends Glyph.View
     @slength = @sdist(@renderer.xmapper, @x, @length)
 
   _render: (ctx, indices, {sx, sy, slength, angle}) ->
-    if @visuals.line.do_stroke
+    if @visuals.line.do
 
       width = @renderer.plot_view.frame.get('width')
       height = @renderer.plot_view.frame.get('height')
@@ -41,10 +43,16 @@ class RayView extends Glyph.View
 
 class Ray extends Glyph.Model
   default_view: RayView
+
   type: 'Ray'
-  visuals: ['line']
-  distances: ['length']
-  angles: ['angle']
+
+  mixins: ['line']
+
+  props: ->
+    return _.extend {}, super(), {
+      length: [ p.DistanceSpec ]
+      angle:  [ p.AngleSpec    ]
+    }
 
 module.exports =
   Model: Ray

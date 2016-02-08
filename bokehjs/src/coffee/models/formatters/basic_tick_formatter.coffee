@@ -1,8 +1,18 @@
 _ = require "underscore"
+
 TickFormatter = require "./tick_formatter"
+p = require "../../core/properties"
 
 class BasicTickFormatter extends TickFormatter.Model
   type: 'BasicTickFormatter'
+
+  props: () ->
+    return _.extend {}, super(), {
+      precision:        [ p.Any,    'auto' ] # TODO (bev) better
+      use_scientific:   [ p.Bool,   true   ]
+      power_limit_high: [ p.Number, 5      ]
+      power_limit_low:  [ p.Number, -3     ]
+    }
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -78,14 +88,6 @@ class BasicTickFormatter extends TickFormatter.Model
           return labels
 
     return labels
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      precision: 'auto'
-      use_scientific: true
-      power_limit_high: 5
-      power_limit_low: -3
-    }
 
 module.exports =
   Model: BasicTickFormatter

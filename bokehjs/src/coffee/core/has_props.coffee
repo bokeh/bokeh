@@ -3,9 +3,14 @@ _ = require "underscore"
 Backbone = require "backbone"
 
 {logger} = require "./logging"
+mixins = require "./property_mixins"
 refs = require "./util/refs"
 
 class HasProps extends Backbone.Model
+
+  mixins: []
+
+  props: () -> mixins.create(@mixins)
 
   toString: () -> "#{@type}(#{@id})"
 
@@ -32,6 +37,12 @@ class HasProps extends Backbone.Model
       options = {}
     this.cid = _.uniqueId('c')
     this.attributes = {}
+
+    @properties = {}
+    props = _.result(this, 'props')
+    for name, [type, default_value] of props
+      @properties[name] = new type({obj: @, attr: name, default_value: default_value})
+
     if options.collection
       this.collection = options.collection
     if options.parse
@@ -364,6 +375,10 @@ class HasProps extends Backbone.Model
       if first_attach
         for c in @_immediate_references()
           c.attach_document(doc)
+
+    # TODO (bev) is there are way to get rid of this?
+    for name, prop of @properties
+      prop.update()
 
   detach_document: () ->
     if @document != null

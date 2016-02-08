@@ -63,15 +63,15 @@ describe "properties module", ->
         p = new properties.Property({obj: obj, attr: 'b', default_value: 10})
         expect(obj.get('b')).to.be.equal 10
 
-      it "should throw an Error for missing specifications", ->
-        fn = ->
-          new properties.Property({obj: new SomeHasProps(a: {}), attr: 'a'})
-        expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
+      # it "should throw an Error for missing specifications", ->
+      #   fn = ->
+      #     new properties.Property({obj: new SomeHasProps(a: {}), attr: 'a'})
+      #   expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
 
-      it "should throw an Error for too many specifications", ->
-        fn = ->
-          new properties.Property({obj: new SomeHasProps(a: {field: "foo", value:"bar"}), attr: 'a'})
-        expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
+      # it "should throw an Error for too many specifications", ->
+      #   fn = ->
+      #     new properties.Property({obj: new SomeHasProps(a: {field: "foo", value:"bar"}), attr: 'a'})
+      #   expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
 
       it "should throw an Error if a field spec is not a string", ->
         fn = ->
@@ -117,10 +117,19 @@ describe "properties module", ->
         expect(fn).to.throw Error, "attempted to retrieve property value for property without value specification"
 
     describe "array", ->
-      source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+
+      it "should throw an Error for non data-specs", ->
+        fn = ->
+          source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+          prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+          arr = prop.array(source)
+        expect(fn).to.throw Error, /attempted to retrieve property array for non-dataspec property/
+
 
       it "should return an array if there is a value spec", ->
+        source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
         prop = new properties.Property({obj: new SomeHasProps(fixed), attr: 'a'})
+        prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
         expect(arr.length).to.be.equal 5
@@ -131,6 +140,7 @@ describe "properties module", ->
         expect(arr[4]).to.be.equal 1
 
         prop = new properties.Property({obj: new SomeHasProps(spec_value), attr: 'a'})
+        prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
         expect(arr.length).to.be.equal 5
@@ -141,7 +151,9 @@ describe "properties module", ->
         expect(arr[4]).to.be.equal 2
 
       it "should return an array if there is a valid field spec", ->
+        source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
         prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+        prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
         expect(arr.length).to.be.equal 5
@@ -151,13 +163,13 @@ describe "properties module", ->
         expect(arr[3]).to.be.equal 3
         expect(arr[4]).to.be.equal 10
 
-      # TODO (bev) this is a really misleading error
       it "should throw an Error otherwise", ->
         fn = ->
           source = new ColumnDataSource({data: {}})
           prop = new properties.Property({obj: new SomeHasProps(spec_field), attr: 'a'})
+          prop.dataspec = true
           arr = prop.array(source)
-        expect(fn).to.throw Error, /attempted to retrieve property value for property without value specification/
+        expect(fn).to.throw Error, /attempted to retrieve property array for nonexistent field 'foo'/
 
     describe "init", ->
       it "should return nothing by default", ->
@@ -331,29 +343,6 @@ describe "properties module", ->
         validation_error prop, []
         validation_error prop, null
         validation_error prop, undefined
-
-  describe "Coord", ->
-    prop = new properties.Coord({obj: new SomeHasProps(a: {value: "foo"}), attr: 'a'})
-
-    it "should be an instance of Property", ->
-      expect(prop).to.be.instanceof properties.Property
-
-    describe "validate", ->
-      it "should return undefined on numeric or string input", ->
-        expect(prop.validate 10).to.equal undefined
-        expect(prop.validate 10.2).to.equal undefined
-        expect(prop.validate "foo").to.equal undefined
-
-      it "should throw an Error on non-numeric or non-string input", ->
-        validation_error prop, true
-        validation_error prop, {}
-        validation_error prop, []
-        validation_error prop, null
-        validation_error prop, undefined
-
-    describe "transform", ->
-      it "should be Property.transform", ->
-        expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Direction", ->
     prop = new properties.Direction({obj: new SomeHasProps(a: {value: "clock"}), attr: 'a'})
@@ -565,12 +554,11 @@ describe "properties module", ->
       expect("enum_prop" of properties).to.be.true
       expect("units_prop" of properties).to.be.true
 
-    it "should have concrete property subclasses", ->
+    it "should have simple property subclasses", ->
       expect("Angle" of properties).to.be.true
       expect("Array" of properties).to.be.true
       expect("Bool" of properties).to.be.true
       expect("Color" of properties).to.be.true
-      expect("Coord" of properties).to.be.true
       expect("Direction" of properties).to.be.true
       expect("Distance" of properties).to.be.true
       expect("FontStyle" of properties).to.be.true
@@ -580,3 +568,11 @@ describe "properties module", ->
       expect("String" of properties).to.be.true
       expect("TextAlign" of properties).to.be.true
       expect("TextBaseline" of properties).to.be.true
+
+    it "should have dataspec property subclasses", ->
+      expect("AngleSpec" of properties).to.be.true
+      expect("ColorSpec" of properties).to.be.true
+      expect("DistanceSpec" of properties).to.be.true
+      expect("FontSizeSpec" of properties).to.be.true
+      expect("NumberSpec" of properties).to.be.true
+

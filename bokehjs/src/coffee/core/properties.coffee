@@ -2,8 +2,8 @@ _ = require "underscore"
 Backbone = require "backbone"
 
 enums = require "./enums"
-HasProps = require "./has_props"
 svg_colors = require "./util/svg_colors"
+{valid_rgb} = require "./util/color"
 
 #
 # Property base class
@@ -11,6 +11,7 @@ svg_colors = require "./util/svg_colors"
 
 class Property extends Backbone.Model
 
+  dataspec: false
   specifiers: ['field', 'value']
 
   initialize: (attrs, options) ->
@@ -33,6 +34,7 @@ class Property extends Backbone.Model
       throw new Error("attempted to reset 'attr' on Property")
     )
 
+  update: () -> @_init()
 
   # ----- customizable policies
 
@@ -50,9 +52,14 @@ class Property extends Backbone.Model
     return @transform([@spec.value])[0]
 
   array: (source) ->
+    if not @dataspec
+      throw new Error("attempted to retrieve property array for non-dataspec property")
     data = source.get('data')
-    if @spec.field? and (@spec.field of data)
-      return @transform(source.get_column(@spec.field))
+    if @spec.field?
+      if @spec.field of data
+        return @transform(source.get_column(@spec.field))
+      else
+        throw new Error("attempted to retrieve property array for nonexistent field '#{@spec.field}'")
     else
       length = source.get_length()
       length = 1 if not length?
@@ -65,7 +72,9 @@ class Property extends Backbone.Model
     obj = @get('obj')
     if not obj?
       throw new Error("missing property object")
-    if obj not instanceof HasProps
+
+    # instanceof was failing! circular import?
+    if not obj.properties?
       throw new Error("property object must be a HasProps")
 
     attr = @get('attr')
@@ -74,17 +83,25 @@ class Property extends Backbone.Model
 
     attr_value = obj.get(attr)
 
+    default_value = @get('default_value')
     if _.isUndefined(attr_value)
-      if _.isUndefined(@get('default_value'))
+      if _.isUndefined(default_value)
         attr_value = null
       else
-        attr_value = @get('default_value')
-      obj.set(attr, attr_value, {silent: true})
+        attr_value = default_value
+      obj.set(attr, attr_value, {silent: true, defaults: true})
 
-    if _.isObject(attr_value) and not _.isArray(attr_value)
+    # if _.isObject(attr_value) and not _.isArray(attr_value) and not attr_value.properties?
+    #   @spec = attr_value
+    #   if _.size(_.pick.apply(null, [@spec].concat(@specifiers))) != 1
+    #     throw new Error("Invalid property specifier #{JSON.stringify(@spec)}, must have exactly one of #{@specifiers}")
+
+    if _.isArray(attr_value)
+      @spec = {value: attr_value}
+
+    # is there a better way to check for "specs" ? this seems fragile
+    else if _.isObject(attr_value) and _.size(_.pick.apply(null, [attr_value].concat(@specifiers))) == 1
       @spec = attr_value
-      if _.size(_.pick.apply(null, [@spec].concat(@specifiers))) != 1
-        throw new Error("Invalid property specifier #{JSON.stringify(@spec)}, must have exactly one of #{@specifiers}")
 
     else
       @spec = {value: attr_value}
@@ -101,34 +118,6 @@ class Property extends Backbone.Model
       @trigger("change")
 
 #
-# Helper functions
-#
-
-_valid_rgb = (value) ->
-  switch value.substring(0, 4)
-      when "rgba" then params = {start: "rgba(", len: 4, alpha: true}
-      when "rgb(" then params = {start: "rgb(", len: 3, alpha: false}
-      else return false
-
-  # if '.' and then ',' found, we know decimals are used on rgb
-  if new RegExp(".*?(\\.).*(,)").test(value)
-    throw new Error("color expects integers for rgb in rgb/rgba tuple, received #{value}")
-
-  # extract the numerical values from inside parens
-  contents = value.replace(params.start, "").replace(")", "").split(',').map(parseFloat)
-
-  # check length of array based on rgb/rgba
-  if contents.length != params.len
-    throw new Error("color expects rgba #{expect_len}-tuple, received #{value}")
-
-  # check for valid numerical values for rgba
-  if params.alpha and !(0 <= contents[3] <= 1)
-    throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1")
-  if false in (0 <= rgb <= 255 for rgb in contents.slice(0, 3))
-    throw new Error("color expects rgb to have value between 0 and 255")
-  return true
-
-#
 # Simple Properties
 #
 
@@ -140,19 +129,25 @@ simple_prop = (name, pred) ->
         attr = @get('attr')
         throw new Error("#{name} property '#{attr}' given invalid value: #{value}")
 
+class Any extends simple_prop("Any", (x) -> true)
+
 class Array extends simple_prop("Array", (x) -> _.isArray(x) or x instanceof Float64Array)
 
 class Bool extends simple_prop("Bool", _.isBoolean)
 
 class Color extends simple_prop("Color", (x) ->
-  svg_colors[x.toLowerCase()]? or x.substring(0, 1) == "#" or _valid_rgb(x)
+  svg_colors[x.toLowerCase()]? or x.substring(0, 1) == "#" or valid_rgb(x)
 )
 
-class Coord extends simple_prop("Coord", (x) -> _.isNumber(x) or _.isString(x))
+class Instance extends simple_prop("Instance", (x) -> x.properties?)
 
 class Number extends simple_prop("Number", _.isNumber)
 
 class String extends simple_prop("String", _.isString)
+
+# TODO (bev) don't think this exists python side
+class Font extends String
+
 
 #
 # Enum properties
@@ -161,6 +156,8 @@ class String extends simple_prop("String", _.isString)
 enum_prop = (name, enum_values) ->
   class Enum extends simple_prop(name, (x) -> x in enum_values)
     toString: () -> "#{name}(obj: #{@get(obj).id}, spec: #{JSON.stringify(@spec)})"
+
+class Anchor extends enum_prop("Anchor", enums.LegendLocation)
 
 class Direction extends enum_prop("Direction", enums.Direction)
   transform: (values) ->
@@ -171,15 +168,29 @@ class Direction extends enum_prop("Direction", enums.Direction)
         when 'anticlock' then result[i] = true
     return result
 
+class Dimension extends enum_prop("Dimension", enums.Dimension)
+
 class FontStyle extends enum_prop("FontStyle", enums.FontStyle)
 
 class LineCap extends enum_prop("LineCap", enums.LineCap)
 
 class LineJoin extends enum_prop("LineJoin", enums.LineJoin)
 
+class LegendLocation extends enum_prop("LegendLocation", enums.LegendLocation)
+
+class Location extends enum_prop("Location", enums.Location)
+
+class Orientation extends enum_prop("Orientation", enums.Orientation)
+
 class TextAlign extends enum_prop("TextAlign", enums.TextAlign)
 
 class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline)
+
+class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel)
+
+class RenderMode extends enum_prop("RenderMode", enums.RenderMode)
+
+class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits)
 
 #
 # Units Properties
@@ -208,6 +219,30 @@ class Angle extends units_prop("Angle", enums.AngleUnits, "rad")
 
 class Distance extends units_prop("Distance", enums.SpatialUnits, "data")
 
+#
+# DataSpec properties
+#
+
+class AngleSpec extends Angle
+  dataspec: true
+
+class ColorSpec extends Color
+  dataspec: true
+
+class DirectionSpec extends Distance
+  dataspec: true
+
+class DistanceSpec extends Distance
+  dataspec: true
+
+class FontSizeSpec extends String
+  dataspec: true
+
+class NumberSpec extends Number
+  dataspec: true
+
+class StringSpec extends String
+  dataspec: true
 
 module.exports =
   Property: Property
@@ -216,18 +251,36 @@ module.exports =
   enum_prop: enum_prop
   units_prop: units_prop
 
+  Anchor: Anchor
+  Any: Any
   Angle: Angle
   Array: Array
   Bool: Bool
   Color: Color
-  Coord: Coord
+  Dimension: Dimension
   Direction: Direction
   Distance: Distance
+  Font: Font
   FontStyle: FontStyle
+  Instance: Instance
+  LegendLocation: LegendLocation
   LineCap: LineCap
   LineJoin: LineJoin
+  Location: Location
+  Orientation: Orientation
   Number: Number
+  RenderLevel: RenderLevel
+  RenderMode: RenderMode
+  SpatialUnits: SpatialUnits
   String: String
   TextAlign: TextAlign
   TextBaseline: TextBaseline
+
+  AngleSpec: AngleSpec
+  ColorSpec: ColorSpec
+  DirectionSpec: DirectionSpec
+  DistanceSpec: DistanceSpec
+  FontSizeSpec: FontSizeSpec
+  NumberSpec: NumberSpec
+  StringSpec: StringSpec
 

@@ -1,7 +1,9 @@
 _ = require "underscore"
-{logger} = require "../../core/logging"
+
 Renderer = require "./renderer"
 RemoteDataSource = require "../sources/remote_data_source"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 class GlyphRendererView extends Renderer.View
 
@@ -39,7 +41,7 @@ class GlyphRendererView extends Renderer.View
       @mget('data_source').setup(@plot_view, @glyph)
 
   build_glyph_view: (model) ->
-    new model.default_view({model: model, renderer: this})
+    new model.default_view({model: model, renderer: @, plot_view: @plot_view, plot_model: @plot_model})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
@@ -210,23 +212,24 @@ class GlyphRendererView extends Renderer.View
 
 class GlyphRenderer extends Renderer.Model
   default_view: GlyphRendererView
+
   type: 'GlyphRenderer'
+
+  props: ->
+    return _.extend {}, super(), {
+      level:              [ p.RenderLevel, 'glyph'   ]
+      x_range_name:       [ p.String,      'default' ]
+      y_range_name:       [ p.String,      'default' ]
+      data_source:        [ p.Instance               ]
+      glyph:              [ p.Instance               ]
+      hover_glyph:        [ p.Instance               ]
+      nonselection_glyph: [ p.Instance               ]
+      selection_glyph:    [ p.Instance               ]
+    }
 
   selection_defaults: {}
   decimated_defaults: {fill_alpha: 0.3, line_alpha: 0.3, fill_color: "grey", line_color: "grey"}
   nonselection_defaults: {fill_alpha: 0.2, line_alpha: 0.2}
-
-  defaults: ->
-    return _.extend {}, super(), {
-      x_range_name: "default"
-      y_range_name: "default"
-      data_source: null
-      level: 'glyph'
-      glyph: null
-      hover_glyph: null
-      nonselection_glyph: null
-      selection_glyph: null
-    }
 
 module.exports =
   Model: GlyphRenderer

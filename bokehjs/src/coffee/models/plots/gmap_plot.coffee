@@ -166,6 +166,7 @@ class GMapPlot extends Plot.Model
     return _.extend {}, super(), {
       map_options: null
       disabled: false
+      title_text_align: "center"
     }
 
   initialize: (attrs, options) ->

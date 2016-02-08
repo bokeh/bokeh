@@ -27,11 +27,11 @@ class TriangleView extends Marker.View
       ctx.translate(-sx[i], -sy[i])
       ctx.closePath()
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.do
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.do
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 

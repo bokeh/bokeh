@@ -16,7 +16,7 @@ plot_utils = require "../../common/plot_utils"
 Solver = require "../../common/solver"
 ToolManager = require "../../common/tool_manager"
 plot_template = require "../../common/plot_template"
-mixins = require "../../core/property_mixins"
+Renderer = require "../renderers/renderer"
 GlyphRenderer = require "../renderers/glyph_renderer"
 ToolEvents = require "../../common/tool_events"
 
@@ -64,7 +64,9 @@ get_size_for_available_space = (use_width, use_height, client_width, client_heig
     else
       return [new_width1, new_height1]
 
-class PlotView extends BokehView
+# TODO (bev) PlotView should not be a RendererView
+class PlotView extends Renderer.View
+
   className: "bk-plot"
   template: plot_template
 
@@ -128,11 +130,6 @@ class PlotView extends BokehView
         @init_webgl()
 
     @throttled_render = plot_utils.throttle_animation(@render, 15)
-
-    @outline_props = new mixins.Line({obj: @model, prefix: 'outline_'})
-    @title_props = new mixins.Text({obj: @model, prefix: 'title_'})
-    @background_props = new mixins.Fill({obj: @model, prefix: 'background_'})
-    @border_props = new mixins.Fill({obj: @model, prefix: 'border_'})
 
     @renderers = {}
     @tools = {}
@@ -454,7 +451,7 @@ class PlotView extends BokehView
 
     title = @mget('title')
     if title
-      @title_props.set_value(@canvas_view.ctx)
+      @visuals.title_text.set_value(@canvas_view.ctx)
       th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
       if th != @model.title_panel.get('height')
         @model.title_panel.set_var('height', th)
@@ -497,8 +494,8 @@ class PlotView extends BokehView
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
       #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
 
-    if @outline_props.do_stroke
-      @outline_props.set_value(ctx)
+    if @visuals.outline_line.do
+      @visuals.outline_line.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
     @_render_levels(ctx, ['image', 'underlay', 'glyph', 'annotation'], frame_box)
@@ -523,7 +520,7 @@ class PlotView extends BokehView
     @_render_levels(ctx, ['overlay', 'tool'])
 
     if title
-      vx = switch @title_props.align.value()
+      vx = switch @visuals.title_text.text_align.value()
         when 'left'   then 0
         when 'center' then @canvas.get('width')/2
         when 'right'  then @canvas.get('width')
@@ -532,7 +529,7 @@ class PlotView extends BokehView
       sx = @canvas.vx_to_sx(vx)
       sy = @canvas.vy_to_sy(vy)
 
-      @title_props.set_value(ctx)
+      @visuals.title_text.set_value(ctx)
       ctx.fillText(title, sx, sy)
 
     if not @initial_range_info?
@@ -608,16 +605,18 @@ class PlotView extends BokehView
   _map_hook: (ctx, frame_box) ->
 
   _paint_empty: (ctx, frame_box) ->
-    @border_props.set_value(ctx)
+    @visuals.border_fill.set_value(ctx)
     ctx.fillRect(0, 0,  @canvas_view.mget('width'), @canvas_view.mget('height'))
     ctx.clearRect(frame_box...)
 
-    @background_props.set_value(ctx)
+    @visuals.background_fill.set_value(ctx)
     ctx.fillRect(frame_box...)
 
 class Plot extends Component.Model
-  type: 'Plot'
   default_view: PlotView
+  type: 'Plot'
+
+  mixins: ['line:outline_', 'text:title_', 'fill:background_', 'fill:border_']
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -786,30 +785,18 @@ class Plot extends Component.Model
       extra_y_ranges: {}
 
       background_fill_color: "#ffffff",
-      background_fill_alpha: 1.0,
       border_fill_color: "#ffffff",
-      border_fill_alpha: 1.0
+
       min_border: MIN_BORDER,
       min_border_top: MIN_BORDER,
       min_border_left: MIN_BORDER,
       min_border_bottom: MIN_BORDER,
       min_border_right: MIN_BORDER,
 
-      title_text_font: "helvetica",
       title_text_font_size: "20pt",
-      title_text_font_style: "normal",
-      title_text_color: "#444444",
-      title_text_alpha: 1.0,
-      title_text_align: "center",
       title_text_baseline: "alphabetic"
 
       outline_line_color: '#aaaaaa'
-      outline_line_width: 1
-      outline_line_alpha: 1.0
-      outline_line_join: 'miter'
-      outline_line_cap: 'butt'
-      outline_line_dash: []
-      outline_line_dash_offset: 0
     }
 
 module.exports =

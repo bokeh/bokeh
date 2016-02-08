@@ -1,11 +1,9 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
-mixins = require "../../core/property_mixins"
+p = require "../../core/properties"
 
 class TextView extends Glyph.View
-  initialize: (options) ->
-    super(options)
-    @text_props = new mixins.Text({obj:@model, prefix: ''})
 
   _index_data: () ->
     @_xy_index()
@@ -36,17 +34,17 @@ class TextView extends Glyph.View
 
 class Text extends Glyph.Model
   default_view: TextView
-  type: 'Text'
-  visuals: ['text']
-  angles: ['angle']
-  fields: ['text:string', 'x_offset', 'y_offset']
 
-  defaults: ->
+  type: 'Text'
+
+  mixins: ['text']
+
+  props: ->
     return _.extend {}, super(), {
-      angle: 0
-      x_offset: 0
-      y_offset: 0
-      text: { field :"text" }
+      text:     [ p.StringSpec, { field :"text" } ]
+      angle:    [ p.AngleSpec,  0                 ]
+      x_offset: [ p.NumberSpec, 0                 ]
+      y_offset: [ p.NumberSpec, 0                 ]
     }
 
 module.exports =

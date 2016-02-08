@@ -1,7 +1,9 @@
 _ = require "underscore"
+
 bokehgl = require "./bokehgl"
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
+p = require "../../core/properties"
 
 class CircleView extends Glyph.View
 
@@ -16,8 +18,8 @@ class CircleView extends Glyph.View
     # NOTE: Order is important here: size is always present (at least
     # a default), but radius is only present if a user specifies it
     if @radius?
-      if @distances.radius.units == "data"
-        rd = @fields.radius_dimension.spec.value
+      if @model.properties.radius.spec.units == "data"
+        rd = @model.properties.radius_dimension.spec.value
         @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @radius)
       else
         @sradius = @radius
@@ -30,7 +32,7 @@ class CircleView extends Glyph.View
     vr = @renderer.plot_view.frame.get('v_range')
 
     # check for radius first
-    if @radius? and @distances.radius.units == "data"
+    if @radius? and @model.properties.radius.units == "data"
       sx0 = hr.get('start')
       sx1 = hr.get('end')
       [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1], true)
@@ -67,11 +69,11 @@ class CircleView extends Glyph.View
       ctx.beginPath()
       ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false)
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.do
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.do
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
@@ -81,7 +83,7 @@ class CircleView extends Glyph.View
     y = @renderer.ymapper.map_from_target(vy, true)
 
     # check radius first
-    if @radius? and @distances.radius.units == "data"
+    if @radius? and @model.properties.radius.units == "data"
       x0 = x - @max_radius
       x1 = x + @max_radius
 
@@ -102,7 +104,7 @@ class CircleView extends Glyph.View
     candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
     hits = []
-    if @radius? and @distances.radius.units == "data"
+    if @radius? and @model.properties.radius.units == "data"
       for i in candidates
         r2 = Math.pow(@sradius[i], 2)
         sx0 = @renderer.xmapper.map_to_target(x, true)
@@ -138,7 +140,7 @@ class CircleView extends Glyph.View
         # use circle bounds instead of current pointer y coordinates
         y0 = yb[0]
         y1 = yb[1]
-        if @radius? and @distances.radius.units == "data"
+        if @radius? and @model.properties.radius.units == "data"
           vx0 = vx - @max_radius
           vx1 = vx + @max_radius
           [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
@@ -151,7 +153,7 @@ class CircleView extends Glyph.View
         # use circle bounds instead of current pointer x coordinates
         x0 = xb[0]
         x1 = xb[1]
-        if @radius? and @distances.radius.units == "data"
+        if @radius? and @model.properties.radius.units == "data"
           vy0 = vy - @max_radius
           vy1 = vy + @max_radius
           [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
@@ -211,16 +213,15 @@ class CircleView extends Glyph.View
 
 class Circle extends Glyph.Model
   default_view: CircleView
-  type: 'Circle'
-  distances: ['?radius', '?size']
-  fields: ['radius_dimension:string']
 
-  defaults: ->
+  type: 'Circle'
+
+  props: ->
     return _.extend {}, super(), {
-      size: { units: "screen", value: 4 } # marker, some day
-      angle: { units : "rad", value : 0 } # marker, some day
-      radius: null
-      radius_dimension: 'x'
+      angle:            [ p.AngleSpec,    0                             ]
+      size:             [ p.DistanceSpec, { units: "screen", value: 4 } ]
+      radius:           [ p.DistanceSpec, null                          ]
+      radius_dimension: [ p.String,       'x'                           ]
     }
 
 module.exports =

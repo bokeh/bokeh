@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
+p = require "../../core/properties"
 
 class ArcView extends Glyph.View
 
@@ -7,19 +9,20 @@ class ArcView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    if @distances.radius.units == "data"
+    if @model.properties.radius.units == "data"
       @sradius = @sdist(@renderer.xmapper, this.x, @radius)
     else
       @sradius = @radius
 
-  _render: (ctx, indices, {sx, sy, sradius, start_angle, end_angle, direction}) ->
-    if @visuals.line.do_stroke
+  _render: (ctx, indices, {sx, sy, sradius, start_angle, end_angle}) ->
+    if @visuals.line.do
+      direction = @model.properties.direction.value()
       for i in indices
-        if isNaN(sx[i]+sy[i]+sradius[i]+start_angle[i]+end_angle[i]+direction[i])
+        if isNaN(sx[i]+sy[i]+sradius[i]+start_angle[i]+end_angle[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction[i])
+        ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction)
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -29,15 +32,17 @@ class ArcView extends Glyph.View
 
 class Arc extends Glyph.Model
   default_view: ArcView
-  type: 'Arc'
-  visuals: ['line']
-  distances: ['radius']
-  angles: ['start_angle', 'end_angle']
-  fields: ['direction:direction']
 
-  defaults: ->
+  type: 'Arc'
+
+  mixins: ['line']
+
+  props: ->
     return _.extend {}, super(), {
-      direction: 'anticlock'
+      direction:   [ p.Direction,   'anticlock' ]
+      radius:      [ p.DistanceSpec             ]
+      start_angle: [ p.AngleSpec                ]
+      end_angle:   [ p.AngleSpec                ]
     }
 
 module.exports =

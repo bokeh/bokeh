@@ -22,7 +22,7 @@ class CrossView extends Marker.View
       if angle[i]
         ctx.rotate(-angle[i])
 
-      if @visuals.line.do_stroke
+      if @visuals.line.do
         @visuals.line.set_vectorize(ctx, i)
         if angle[i]
           ctx.rotate(angle[i])
@@ -35,7 +35,6 @@ class CrossView extends Marker.View
 class Cross extends Marker.Model
   default_view: CrossView
   type: 'Cross'
-  props: ['line']
 
 module.exports =
   Model: Cross

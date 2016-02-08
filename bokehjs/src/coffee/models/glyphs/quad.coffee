@@ -1,5 +1,6 @@
 _ = require "underscore"
 rbush = require "rbush"
+
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
@@ -19,11 +20,11 @@ class QuadView extends Glyph.View
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
         continue
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.do
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
 
-      if @visuals.line.do_stroke
+      if @visuals.line.do
         ctx.beginPath()
         ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
         @visuals.line.set_vectorize(ctx, i)
@@ -51,7 +52,9 @@ class QuadView extends Glyph.View
 
 class Quad extends Glyph.Model
   default_view: QuadView
+
   type: 'Quad'
+
   coords: [ ['right', 'bottom'], ['left', 'top'] ]
 
 module.exports =

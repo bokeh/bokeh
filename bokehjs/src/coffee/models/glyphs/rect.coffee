@@ -1,32 +1,34 @@
 _ = require "underscore"
+
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
+p = require "../../core/properties"
 
 class RectView extends Glyph.View
 
   _set_data: () ->
     @max_w2 = 0
-    if @distances.width.units == "data"
+    if @model.properties.width.units == "data"
       @max_w2 = @max_width/2
     @max_h2 = 0
-    if @distances.height.units == "data"
+    if @model.properties.height.units == "data"
       @max_h2 = @max_height/2
 
   _index_data: () ->
     @_xy_index()
 
   _map_data: () ->
-    if @distances.width.units == "data"
+    if @model.properties.width.units == "data"
       @sw = @sdist(@renderer.xmapper, @x, @width, 'center', @mget('dilate'))
     else
       @sw = @width
-    if @distances.height.units == "data"
+    if @model.properties.height.units == "data"
       @sh = @sdist(@renderer.ymapper, @y, @height, 'center', @mget('dilate'))
     else
       @sh = @height
 
   _render: (ctx, indices, {sx, sy, sw, sh, angle}) ->
-    if @visuals.fill.do_fill
+    if @visuals.fill.do
       for i in indices
         if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+angle[i])
           continue
@@ -43,7 +45,7 @@ class RectView extends Glyph.View
         else
           ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-    if @visuals.line.do_stroke
+    if @visuals.line.do
       ctx.beginPath()
 
       for i in indices
@@ -87,7 +89,7 @@ class RectView extends Glyph.View
 
     # the dilation by a factor of two is a quick and easy way to make
     # sure we cover cases with rotated
-    if @distances.width.units == "screen"
+    if @model.properties.width.units == "screen"
       vx0 = vx - 2*@max_width
       vx1 = vx + 2*@max_width
       [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
@@ -95,7 +97,7 @@ class RectView extends Glyph.View
       x0 = x - 2*@max_width
       x1 = x + 2*@max_width
 
-    if @distances.height.units == "screen"
+    if @model.properties.height.units == "screen"
       vy0 = vy - 2*@max_height
       vy1 = vy + 2*@max_height
       [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
@@ -137,14 +139,15 @@ class RectView extends Glyph.View
 
 class Rect extends Glyph.Model
   default_view: RectView
-  type: 'Rect'
-  distances: ['width', 'height']
-  angles: ['angle']
 
-  defaults: ->
+  type: 'Rect'
+
+  props: ->
     return _.extend {}, super(), {
-      angle: 0.0
-      dilate: false
+      angle:  [ p.AngleSpec,   0     ]
+      width:  [ p.DistanceSpec       ]
+      height: [ p.DistanceSpec       ]
+      dilate: [ p.Bool,        false ]
     }
 
 module.exports =
