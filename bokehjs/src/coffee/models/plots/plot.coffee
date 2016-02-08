@@ -11,12 +11,12 @@ ContinuumView = require "../../common/continuum_view"
 UIEvents = require "../../common/ui_events"
 Component = require "../component"
 LayoutBox = require "../../common/layout_box"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 plot_utils = require "../../common/plot_utils"
 Solver = require "../../common/solver"
 ToolManager = require "../../common/tool_manager"
 plot_template = require "../../common/plot_template"
-properties = require "../../common/properties"
+mixins = require "../../core/property_mixins"
 GlyphRenderer = require "../renderers/glyph_renderer"
 ToolEvents = require "../../common/tool_events"
 
@@ -129,10 +129,10 @@ class PlotView extends ContinuumView
 
     @throttled_render = plot_utils.throttle_animation(@render, 15)
 
-    @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
-    @title_props = new properties.Text({obj: @model, prefix: 'title_'})
-    @background_props = new properties.Fill({obj: @model, prefix: 'background_'})
-    @border_props = new properties.Fill({obj: @model, prefix: 'border_'})
+    @outline_props = new mixins.Line({obj: @model, prefix: 'outline_'})
+    @title_props = new mixins.Text({obj: @model, prefix: 'title_'})
+    @background_props = new mixins.Fill({obj: @model, prefix: 'background_'})
+    @border_props = new mixins.Fill({obj: @model, prefix: 'border_'})
 
     @renderers = {}
     @tools = {}

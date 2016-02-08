@@ -1,6 +1,6 @@
 _ = require "underscore"
 LayoutBox = require "./layout_box"
-{logging} = require "./logging"
+{logging} = require "../core/logging"
 LinearMapper = require "../models/mappers/linear_mapper"
 LogMapper = require "../models/mappers/log_mapper"
 CategoricalMapper = require "../models/mappers/categorical_mapper"

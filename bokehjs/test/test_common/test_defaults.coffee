@@ -5,8 +5,8 @@ utils = require "../utils"
 core_defaults = require "./defaults/models_defaults"
 widget_defaults = require "./defaults/widgets_defaults"
 
-{Collections} = utils.require "common/base"
-properties = utils.require "common/properties"
+{Collections} = utils.require "base"
+mixins = utils.require "core/property_mixins"
 Bokeh = utils.require "main"
 
 widget_locations = utils.require "models/widgets/main"
@@ -136,7 +136,7 @@ describe "Defaults", ->
       attrs = instance.attributes_as_json()
       strip_ids(attrs)
 
-      for prop_kind, func of properties.factories
+      for prop_kind, func of mixins.factories
         # the 'visuals' property is used to set glyph line/fill/text defaults
         # and is tested in the check_matching_defaults() test case above
         if prop_kind == 'visuals'
@@ -145,27 +145,7 @@ describe "Defaults", ->
           props_of_this_kind = func(instance)
           prop_values = {}
           for p, v of props_of_this_kind
-            if v.field?
-              prop_values[p] = { 'field' : v.field }
-            else if v.fixed_value?
-              prop_values[p] = { 'value' : v.fixed_value }
-            else
-              n = v.value()
-              if isNaN(n) or n == null
-                prop_values[p] = null
-              else
-                prop_values[p] = { 'value' : n }
-
-            dict = prop_values[p]
-            if dict?
-              if v.units?
-                prop_values[p]['units'] = v.units
-              else
-                # properties.coffee hardcodes these units defaults
-                if prop_kind == 'distances' and 'units' not of dict
-                  dict['units'] = "data"
-                if prop_kind == 'angles' and 'units' not of dict
-                  dict['units'] = "rad"
+            prop_values[p] = v.spec
 
           _.extend(attrs, prop_values)
 

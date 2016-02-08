@@ -1,5 +1,5 @@
 _ = require "underscore"
-{logger} = require "../../common/logging"
+{logger} = require "../../core/logging"
 ColumnDataSource = require "./column_data_source"
 
 class GeoJSONDataSource extends ColumnDataSource.Model

@@ -1,5 +1,5 @@
 _ = require "underscore"
-{logger} = require "../../../common/logging"
+{logger} = require "../../../core/logging"
 GestureTool = require "./gesture_tool"
 
 class SelectToolView extends GestureTool.View
