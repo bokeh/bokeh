@@ -141,7 +141,8 @@ class Color extends simple_prop("Color", (x) ->
 
 class Instance extends simple_prop("Instance", (x) -> x.properties?)
 
-class Number extends simple_prop("Number", _.isNumber)
+# TODO (bev) separate booleans?
+class Number extends simple_prop("Number", (x) -> _.isNumber(x) or _.isBoolean(x))
 
 class String extends simple_prop("String", _.isString)
 

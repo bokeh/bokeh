@@ -97,7 +97,7 @@ class DynamicImageView extends Renderer.View
       @map_canvas.restore()
 
   _set_rect:() ->
-    outline_width = @plot_view.outline_props.width.value()
+    outline_width = @plot_model.properties.outline_line_width.value()
     l = @plot_view.canvas.vx_to_sx(@map_frame.get('left')) + (outline_width/2)
     t = @plot_view.canvas.vy_to_sy(@map_frame.get('top')) + (outline_width/2)
     w = @map_frame.get('width') - outline_width

@@ -126,7 +126,7 @@ class Gear extends Glyph.Model
       pressure_angle: [ p.NumberSpec, 20    ] # TODO: units: deg
       shaft_size:     [ p.NumberSpec, 0.3   ]
       teeth:          [ p.NumberSpec, null  ]
-      internal:       [ p.Bool,       false ]
+      internal:       [ p.NumberSpec, false ] # TODO (bev) bool
     }
 
 module.exports =

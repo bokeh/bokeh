@@ -152,7 +152,7 @@ class Legend extends Annotation.Model
     return _.extend {}, super(), {
       legends:        [ p.Array,          []          ]
       orientation:    [ p.Orientation,    'vertical'  ]
-      location:       [ p.LegendLocation, 'top_right' ]
+      location:       [ p.Any,            'top_right' ] # TODO (bev)
       label_standoff: [ p.Number,         15          ]
       glyph_height:   [ p.Number,         20          ]
       glyph_width:    [ p.Number,         20          ]

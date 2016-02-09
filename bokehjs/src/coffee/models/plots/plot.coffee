@@ -4,22 +4,23 @@ Backbone = require "backbone"
 kiwi = require "kiwi"
 {Expression, Constraint, Operator} = kiwi
 {Eq, Le, Ge} = Operator
+
+GlyphRenderer = require "../renderers/glyph_renderer"
+Renderer = require "../renderers/renderer"
 build_views = require "../../common/build_views"
 Canvas = require "../../common/canvas"
 CartesianFrame = require "../../common/cartesian_frame"
-BokehView = require "../../core/bokeh_view"
-UIEvents = require "../../common/ui_events"
-Component = require "../component"
 LayoutBox = require "../../common/layout_box"
-{logger} = require "../../core/logging"
+plot_template = require "../../common/plot_template"
 plot_utils = require "../../common/plot_utils"
 Solver = require "../../common/solver"
-ToolManager = require "../../common/tool_manager"
-plot_template = require "../../common/plot_template"
-Renderer = require "../renderers/renderer"
-GlyphRenderer = require "../renderers/glyph_renderer"
 ToolEvents = require "../../common/tool_events"
-
+ToolManager = require "../../common/tool_manager"
+UIEvents = require "../../common/ui_events"
+Component = require "../component"
+BokehView = require "../../core/bokeh_view"
+{logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -750,53 +751,71 @@ class Plot extends Component.Model
       attrs['renderers'] = _.filter(attrs['renderers'], (r) -> r.serializable_in_document())
     attrs
 
+  mixins: [
+    'text:title_',
+    'line:outline_',
+    'fill:border_',
+    'fill:background_'
+  ]
+
+  props: ->
+    return _.extend {}, super(), {
+      title:             [ p.String,   ''                     ]
+      title_standoff:    [ p.Number,   8                      ]
+
+      plot_width:        [ p.Number,   600                    ]
+      plot_height:       [ p.Number,   600                    ]
+      h_symmetry:        [ p.Bool,     true                   ]
+      v_symmetry:        [ p.Bool,     false                  ]
+
+      above:             [ p.Array,    []                     ]
+      below:             [ p.Array,    []                     ]
+      left:              [ p.Array,    []                     ]
+      right:             [ p.Array,    []                     ]
+
+      renderers:         [ p.Array,    []                     ]
+
+      x_range:           [ p.Instance                         ]
+      extra_x_ranges:    [ p.Any,      {}                     ] # TODO (bev)
+      y_range:           [ p.Instance                         ]
+      extra_y_ranges:    [ p.Any,      {}                     ] # TODO (bev)
+
+      x_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
+      y_mapper_type:     [ p.String,   'auto'                 ] # TODO (bev)
+
+      tools:             [ p.Array,    []                     ]
+      tool_events:       [ p.Instance, new ToolEvents.Model() ]
+      toolbar_location:  [ p.Location, 'above'                ]
+      logo:              [ p.String,   'normal'               ] # TODO (bev)
+
+      lod_factor:        [ p.Number,   10                     ]
+      lod_interval:      [ p.Number,   300                    ]
+      lod_threshold:     [ p.Number,   2000                   ]
+      lod_timeout:       [ p.Number,   500                    ]
+
+      webgl:             [ p.Bool,     false                  ]
+      hidpi:             [ p.Bool,     true                   ]
+      responsive:        [ p.Bool,     false                  ]
+
+      min_border:        [ p.Number,   MIN_BORDER             ]
+      min_border_top:    [ p.Number,   MIN_BORDER             ]
+      min_border_left:   [ p.Number,   MIN_BORDER             ]
+      min_border_bottom: [ p.Number,   MIN_BORDER             ]
+      min_border_right:  [ p.Number,   MIN_BORDER             ]
+    }
+
   defaults: ->
     return _.extend {}, super(), {
-      renderers: [],
-      tools: [],
-      tool_events: new ToolEvents.Model(),
-      h_symmetry: true,
-      v_symmetry: false,
-      x_mapper_type: 'auto',
-      y_mapper_type: 'auto',
-      plot_width: 600,
-      plot_height: 600,
-      title: '',
-      above: [],
-      below: [],
-      left: [],
-      right: [],
-      toolbar_location: "above"
-      logo: "normal"
-      lod_factor: 10
-      lod_interval: 300
-      lod_threshold: 2000
-      lod_timeout: 500
-      webgl: false
-      responsive: false
-      min_size: 120
-      hidpi: true,
-      title_standoff: 8,
-
-      x_range: null
-      extra_x_ranges: {}
-
-      y_range: null
-      extra_y_ranges: {}
-
-      background_fill_color: "#ffffff",
-      border_fill_color: "#ffffff",
-
-      min_border: MIN_BORDER,
-      min_border_top: MIN_BORDER,
-      min_border_left: MIN_BORDER,
-      min_border_bottom: MIN_BORDER,
-      min_border_right: MIN_BORDER,
-
+      # overrides
       title_text_font_size: "20pt",
+      title_text_align: "center"
       title_text_baseline: "alphabetic"
-
       outline_line_color: '#aaaaaa'
+      border_fill_color: "#ffffff",
+      background_fill_color: "#ffffff",
+
+      # internal
+      min_size: 120
     }
 
 module.exports =

@@ -33,7 +33,7 @@ class _ContextProperties extends Backbone.Model
       obj = @get('obj')
       prefix = @get('prefix')
       prop = obj.properties[prefix+attr]
-      if prop.spec.value?
+      if not _.isUndefined(prop.spec.value) # TODO (bev) better test?
         @cache[attr] = prop.spec.value
       else
         @cache[attr+"_array"] = prop.array(source)
@@ -42,7 +42,7 @@ class _ContextProperties extends Backbone.Model
     obj = @get('obj')
     prefix = @get('prefix')
     prop = obj.properties[prefix+attr]
-    if prop.spec.value?
+    if not _.isUndefined(prop.spec.value) # TODO (bev) better test?
       @cache[attr] = prop.spec.value
     else
       @cache[attr] = @cache[attr+"_array"][i]
@@ -217,7 +217,7 @@ class RendererView extends BokehView
   set_data: (source) ->
     # set all the coordinate fields
     for name, prop of @model.properties
-      if not prop.dataspec
+      if not (prop.dataspec and prop.field?)
         continue
       @[name] = prop.array(source)
       if prop instanceof p.Distance
