@@ -217,7 +217,7 @@ class RendererView extends BokehView
   set_data: (source) ->
     # set all the coordinate fields
     for name, prop of @model.properties
-      if not (prop.dataspec and prop.field?)
+      if not prop.dataspec
         continue
       @[name] = prop.array(source)
       if prop instanceof p.Distance
