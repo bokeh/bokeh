@@ -195,9 +195,9 @@ class State(object):
                 One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
                 ``'absolute(-dev)'``. See :class:`bokeh.resources.Resources` for more details.
 
-            root_dir (str, optional) :  root directory to use for 'absolute' resources. (default: None)
-            This value is ignored for other resource types, e.g. ``INLINE`` or
-            ``CDN``.
+            root_dir (str, optional) :  root directory to use for 'absolute' resources.
+                (default: None) This value is ignored for other resource types, e.g. ``INLINE`` or
+                ``CDN``.
 
         .. warning::
             This output file will be overwritten on every save, e.g., each time
