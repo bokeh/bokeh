@@ -1,24 +1,19 @@
 import math
+
 from functools import partial
-from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
 
-
-from bokeh.sampledata.autompg import autompg
-from bokeh.models import ColumnDataSource
-
-from bokeh.models.widgets import HBox, Select
-from bokeh.plotting import Figure
+from bokeh import palettes
 from bokeh.io import curdoc
-
-import bokeh.palettes as palettes
+from bokeh.models import ColumnDataSource, HBox, Select
+from bokeh.plotting import Figure
+from bokeh.sampledata.autompg import autompg
 
 from examples.app.crossfilter.models import StyleableBox
 from examples.app.crossfilter.models import StatsBox
 from examples.app.crossfilter.models.helpers import load_component
-
 
 class AppModel(object):
     '''todo: add docs'''
@@ -26,28 +21,18 @@ class AppModel(object):
     def __init__(self, df):
         self.doc = None
         self.df = df
-        self.data = ColumnDataSource(df)
+        self.source = ColumnDataSource(df)
         self.columns = []
         self.col_names = self.df.columns
         self.filtered_data = None
-        self.plot_type_options = ['scatter', 'histogram']
         self.x_field = self.col_names[0]
         self.y_field = self.col_names[1]
         self.color_field = None
         self.size_field = None
         self.palette_name = 'Spectral5'
         self.palettes = [v for v in vars(palettes) if '_' not in v and 'brewer' not in v]
-        self.plot_type = self.plot_type_options[0]
-
-        self.agg_options = OrderedDict()
-        self.agg_options['Sum'] = np.sum
-        self.agg_options['Mean'] = np.mean
-        self.agg_options['Count'] = len
-        self.agg_type = list(self.agg_options.keys())[0]
-
         self.set_metadata()
         self.set_defaults()
-        self.filter_states = ['Summary Stats', 'Filters', 'Facets']
         self.active_filter_state = 0
         self.tools = 'pan, wheel_zoom'
         self.plot_width = 800
@@ -164,226 +149,123 @@ class AppModel(object):
 
         return dict(x=xs, y=ys, color=color, size=size)
 
-class AppController(object):
-    '''mediate views -> model updates'''
+def bind_on_change(attr, old, new, model_field):
+    '''on_change handler which can used with functools.partial
+    to setup simple binding between selector values and AppModel properties
+    Ex: widget.on_change('value', partial(bind_on_change, 'my_model_field_to_bind'))
+    '''
+    setattr(model, model_field, None) if new == 'None' else setattr(model, model_field, new)
+    update()
 
-    def __init__(self, data_model):
-        self.model = data_model
-        self.views = []
+def update():
+    global plot_view
+    plot_view.children = [create_scatter()]
 
-    def register_view_for_update(self, view):
-        '''any view instance registered for update will have its
-        .update() method called on any on_change event
-        '''
-        self.views.append(view)
+def style_figure(fig):
+    '''set generic styles on self.figure'''
+    fig.toolbar_location = None
+    fig.xaxis.axis_label = model.x_field
+    fig.yaxis.axis_label = model.y_field
+    fig.background_fill_color = model.background_fill
+    fig.border_fill_color = model.background_fill
+    fig.axis.axis_line_color = "white"
+    fig.axis.axis_label_text_color = "white"
+    fig.axis.major_label_text_color = "white"
+    fig.axis.major_tick_line_color = "white"
+    fig.axis.minor_tick_line_color = "white"
+    fig.axis.minor_tick_line_color = "white"
+    fig.grid.grid_line_dash = [6, 4]
+    fig.grid.grid_line_alpha = .3
 
-    def on_change(self, attr, old, new, model_field):
-        '''on_change handler which can used with functools.partial
-        to setup simple binding between selector values and AppModel properties
+def create_scatter():
+    '''handles figure creation and axes configuration for discrete vs. continuous dimensions'''
+    axes = model.axes_dict
+    xs, ys, sizes, colors = axes['x'], axes['y'], axes['size'], axes['color']
 
-        Ex:
+    if model.x_field in model.discrete_column_names and model.y_field in model.discrete_column_names:
+        figure = Figure(tools=model.tools,
+                        plot_width=model.plot_width,
+                        plot_height=model.plot_height,
+                        x_range=xs,
+                        y_range=ys)
+        figure.axis.major_label_orientation = math.pi / 4
 
-          widget.on_change('value', partial(self.controller.on_change, 'my_model_field_to_bind'))
-        '''
+    elif model.x_field in model.discrete_column_names:
+        figure = Figure(tools=model.tools,
+                        plot_width=model.plot_width,
+                        plot_height=model.plot_height,
+                        x_range=xs)
+        figure.xaxis.major_label_orientation = math.pi / 4
 
-        if new == 'None':
-            setattr(self.model, model_field, None)
-        else:
-            setattr(self.model, model_field, new)
+    elif model.y_field in model.discrete_column_names:
+        figure = Figure(tools=model.tools,
+                        plot_width=model.plot_width,
+                        plot_height=model.plot_height,
+                        y_range=ys)
+        figure.yaxis.major_label_orientation = math.pi / 4
+    else:
+        figure = Figure(tools=model.tools, plot_width=model.plot_width, plot_height=model.plot_height)
 
-        self.update_app()
+    figure.circle(x=xs, y=ys, color=colors, size=sizes, line_color="white", alpha=0.8)
+    style_figure(figure)
+    return figure
 
-    def update_app(self):
-        '''TODO: add docs'''
-        for v in self.views:
-            v.update()
-
-class BaseView(object):
-    '''abstract base for simple view class'''
-
-    def __init__(self, app_model, app_controller, layout_class=None):
-        self.model = app_model
-        self.controller = app_controller
-        self.layout = layout_class() if layout_class else None
-        self.create_children()
-
-    def create_children(self):
-        raise NotImplementedError
-
-    def update(self):
-        raise NotImplementedError
-
-class AppView(BaseView):
-    '''Main all-encompassing view class which in-turn instantiates sub-views (e.g. controls, summary stats)'''
-
-    def create_children(self):
-        '''implementing simple view interface'''
-        self.layout = StyleableBox()
-        self.controls_view = ControlsView(self.model, self.controller)
-        self.plot_view = PlotView(self.model, self.controller)
-        self.filter_view = FilterView(self.model, self.controller)
-
-        # user defined model
-        self.main_container = StyleableBox()
-        self.main_container.children = [self.controls_view.layout, self.plot_view.layout]
-        self.main_container.css_properties = {}
-        self.main_container.css_properties['position'] = 'absolute'
-        self.main_container.css_properties['top'] = '1em'
-        self.main_container.css_properties['right'] = '1em'
-        self.main_container.css_properties['left'] = '12.5em'
-        self.main_container.css_properties['bottom'] = '1em'
-
-        self.side_container = StyleableBox(self.filter_view.layout)
-        self.side_container.css_properties = {}
-        self.side_container.css_properties['position'] = 'absolute'
-        self.side_container.css_properties['overflow'] = 'scroll'
-        self.side_container.css_properties['top'] = '1em'
-        self.side_container.css_properties['left'] = '1em'
-        self.side_container.css_properties['bottom'] = '1em'
-
-        # register view for update with contoller
-        self.controller.register_view_for_update(self.plot_view)
-        self.controller.register_view_for_update(self.controls_view)
-        self.controller.register_view_for_update(self)
-
-        self.update()
-
-    def update(self):
-        '''TODO: add docs'''
-        self.layout = HBox(children=[self.side_container, self.main_container])
-
-class FilterView(BaseView):
-
-    def create_children(self):
-        '''implementing simple view interface'''
-        self.layout = StyleableBox()
-        self.update()
-
-    def update(self):
-        '''implementing simple view interface'''
-        self.layout.children = [StatsBox(display_items=c, styles=self.model.stats_box_style) for c in self.model.continuous_columns]
-
-
-class PlotView(BaseView):
-    '''View class which constructs main `plot` area.'''
-
-    def create_children(self):
-        '''implementing simple view interface'''
-        self.layout = HBox(width=900)
-        self.update()
-
-    def update(self):
-        '''implementing simple view interface'''
-        if self.model.plot_type == 'scatter':
-            plot = self.create_scatter()
-        elif self.model.plot_type == 'histogram':
-            plot = self.create_bar()
-
-        self.layout.children = [plot]
-
-    def style_figure(self):
-        '''set generic styles on self.figure'''
-        self.figure.toolbar_location = None
-        self.figure.xaxis.axis_label = self.model.x_field
-        self.figure.yaxis.axis_label = self.model.y_field
-        self.figure.background_fill_color = self.model.background_fill
-        self.figure.border_fill_color = self.model.background_fill
-        self.figure.axis.axis_line_color = "white"
-        self.figure.axis.axis_label_text_color = "white"
-        self.figure.axis.major_label_text_color = "white"
-        self.figure.axis.major_tick_line_color = "white"
-        self.figure.axis.minor_tick_line_color = "white"
-        self.figure.axis.minor_tick_line_color = "white"
-        self.figure.grid.grid_line_dash = [6, 4]
-        self.figure.grid.grid_line_alpha = .3
-
-    def create_scatter(self):
-        '''handles figure creation and axes configuration for discrete vs. continuous dimensions'''
-        axes = self.model.axes_dict
-        xs, ys, sizes, colors = axes['x'], axes['y'], axes['size'], axes['color']
-
-        if self.model.x_field in self.model.discrete_column_names and self.model.y_field in self.model.discrete_column_names:
-            self.figure = Figure(tools=self.model.tools,
-                                 plot_width=self.model.plot_width,
-                                 plot_height=self.model.plot_height,
-                                 x_range=xs,
-                                 y_range=ys)
-            self.figure.axis.major_label_orientation = math.pi / 4
-
-        elif self.model.x_field in self.model.discrete_column_names:
-            self.figure = Figure(tools=self.model.tools,
-                                 plot_width=self.model.plot_width,
-                                 plot_height=self.model.plot_height,
-                                 x_range=xs)
-            self.figure.xaxis.major_label_orientation = math.pi / 4
-
-        elif self.model.y_field in self.model.discrete_column_names:
-            self.figure = Figure(tools=self.model.tools,
-                                 plot_width=self.model.plot_width,
-                                 plot_height=self.model.plot_height,
-                                 y_range=ys)
-            self.figure.yaxis.major_label_orientation = math.pi / 4
-        else:
-            self.figure = Figure(tools=self.model.tools, plot_width=self.model.plot_width, plot_height=self.model.plot_height)
-
-        self.scatter = self.figure.circle(xs, ys, color=colors, size=sizes, line_color="white", alpha=0.8)
-        self.style_figure()
-        self.layout.children = [self.figure]
-        return self.figure
-
-    def create_bar(self):
-        '''placeholder for bar chart creation logic'''
-        pass
-
-
-class ControlsView(BaseView):
-
-    def create_children(self):
-        '''implementing simple view interface'''
-        self.layout = HBox(width=800)
-        self.update()
-
-    def update(self):
-        '''implementing simple view interface'''
-        if self.model.plot_type == 'scatter':
-            self.create_scatter_controls()
-        elif self.model.plot_type == 'histogram':
-            self.create_bar_controls()
-
-    def create_scatter_controls(self):
-        '''instantiates control specific for scatter plot type'''
-        cols = self.model.col_names
-        children = []
-
-        x_axis_selector = Select.create(name='X-Axis', value=self.model.x_field, options=cols)
-        x_axis_selector.on_change('value', partial(self.controller.on_change, model_field='x_field'))
-        children.append(x_axis_selector)
-
-        y_axis_selector = Select.create(name='Y-Axis', value=self.model.y_field, options=cols)
-        y_axis_selector.on_change('value', partial(self.controller.on_change, model_field='y_field'))
-        children.append(y_axis_selector)
-
-        color_selector = Select.create(name='Color', value=self.model.color_field, options=['None'] + self.model.quantileable_column_names)
-        color_selector.on_change('value', partial(self.controller.on_change, model_field='color_field'))
-        children.append(color_selector)
-
-        if self.model.color_field:
-            palette_selector = Select.create(name='Palette', value=self.model.palette_name, options=sorted(self.model.palettes))
-            palette_selector.on_change('value', partial(self.controller.on_change, model_field='palette_name'))
-            children.append(palette_selector)
-
-        size_selector = Select.create(name='Size', value=self.model.size_field, options=['None'] + self.model.quantileable_column_names)
-        size_selector.on_change('value', partial(self.controller.on_change, model_field='size_field'))
-        children.append(size_selector)
-
-        self.layout.children = children
-
-    def create_bar_controls(self):
-        '''placeholder for bar chart creation logic'''
-        pass
-
-# entry point - 
 model = AppModel(autompg)
-controller = AppController(model)
-view = AppView(model, controller)
-doc = curdoc().add_root(view.layout)
+
+views = []
+
+# controls -----------------------------------------------
+controls_view = HBox(width=800)
+controls = []
+
+x_axis_selector = Select.create(name='X-Axis', value=model.x_field, options=model.col_names)
+x_axis_selector.on_change('value', partial(bind_on_change, model_field='x_field'))
+controls.append(x_axis_selector)
+
+y_axis_selector = Select.create(name='Y-Axis', value=model.y_field, options=model.col_names)
+y_axis_selector.on_change('value', partial(bind_on_change, model_field='y_field'))
+controls.append(y_axis_selector)
+
+color_selector = Select.create(name='Color', value=model.color_field, options=['None'] + model.quantileable_column_names)
+color_selector.on_change('value', partial(bind_on_change, model_field='color_field'))
+controls.append(color_selector)
+
+palette_selector = Select.create(name='Palette', options=sorted(model.palettes))
+palette_selector.on_change('value', partial(bind_on_change, model_field='palette_name'))
+controls.append(palette_selector)
+
+size_selector = Select.create(name='Size', value=model.size_field, options=['None'] + model.quantileable_column_names)
+size_selector.on_change('value', partial(bind_on_change, model_field='size_field'))
+controls.append(size_selector)
+
+controls_view.children = controls
+
+# plot view -----------------------------------------------
+plot_view = HBox(width=900)
+plot_view.children = [create_scatter()]
+
+# summary stats -------------------------------------------
+side_container = StyleableBox()
+side_container.children = [StatsBox(display_items=c, styles=model.stats_box_style) for c in model.continuous_columns]
+side_container.css_properties = {}
+side_container.css_properties['position'] = 'absolute'
+side_container.css_properties['overflow'] = 'scroll'
+side_container.css_properties['top'] = '1em'
+side_container.css_properties['left'] = '1em'
+side_container.css_properties['bottom'] = '1em'
+
+# main container ------------------------------------------
+main_container = StyleableBox()
+main_container.children = [controls_view, plot_view]
+main_container.css_properties = {}
+main_container.css_properties['position'] = 'absolute'
+main_container.css_properties['top'] = '1em'
+main_container.css_properties['right'] = '1em'
+main_container.css_properties['left'] = '12.5em'
+main_container.css_properties['bottom'] = '1em'
+
+# create layout
+layout = HBox(children=[side_container, main_container])
+
+# add layout to current document
+doc = curdoc().add_root(layout)
