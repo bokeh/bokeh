@@ -1,4 +1,3 @@
-LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
 _delay_animation = (f) ->
   return f()
@@ -8,11 +7,18 @@ delay_animation = window?.requestAnimationFrame ||
         window?.msRequestAnimationFrame || _delay_animation
 
 # Returns a function, that, when invoked, will only be triggered at
-# most once during a given window of time.  If the browser supports
-# requestAnimationFrame, in addition the throttled function will be run
-# no more frequently than request animation frame allow
-throttle_animation = (func, wait) ->
-  [context , args, timeout, result] = [null,null,null,null]
+# most once during a given window of time.
+#
+# In addition, if the browser supports requestAnimationFrame, the
+# throttled function will be run no more frequently than request
+# animation frame allows.
+#
+# @param func [function] the function to throttle
+# @param wait [number] time in milliseconds to use for window
+# @return [function] throttled function
+#
+throttle = (func, wait) ->
+  [context , args, timeout, result] = [null, null, null, null]
   previous = 0
   pending = false
   later = () ->
@@ -35,5 +41,4 @@ throttle_animation = (func, wait) ->
     return result
 
 module.exports =
-  LEVELS: LEVELS
-  throttle_animation: throttle_animation
+  throttle: throttle
