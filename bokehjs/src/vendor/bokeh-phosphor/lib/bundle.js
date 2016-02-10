@@ -1,3 +1,4 @@
+this["bokeh_phosphor"] =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -49,6 +50,7 @@
 	}
 	__export(__webpack_require__(1));
 	__export(__webpack_require__(16));
+  //var bokeh_phosphor = __webpack_require__(1);
 
 
 /***/ },

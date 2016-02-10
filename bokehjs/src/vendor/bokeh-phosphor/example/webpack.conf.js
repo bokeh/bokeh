@@ -1,7 +1,9 @@
 module.exports = {
   entry: './example/index.ts',
   output: {
-    filename: './example/bundle.js'
+    filename: './example/bundle.js',
+    libraryTarget: "var",
+    library: "bokeh_phosphor"
   },
   resolve: {
     extensions: ['', '.ts', '.js']
