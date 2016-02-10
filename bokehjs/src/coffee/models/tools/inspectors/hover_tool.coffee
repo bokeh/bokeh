@@ -231,12 +231,12 @@ class HoverTool extends InspectTool.Model
 
   props: () ->
     return _.extend({}, super(), {
-      tooltips: [ p.Array,
+      tooltips: [ p.Any,
         [
           ["index",         "$index"]
           ["data (x, y)",   "($x, $y)"]
           ["canvas (x, y)", "($sx, $sy)"]
-        ] ]
+        ] ] # TODO (bev)
       renderers:    [ p.Array,  []             ]
       names:        [ p.Array,  []             ]
       mode:         [ p.String, 'mouse'        ] # TODO (bev)
