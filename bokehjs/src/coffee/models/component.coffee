@@ -1,12 +1,14 @@
 _ = require "underscore"
+
 Model = require "../model"
+p = require "../core/properties"
 
 class Component extends Model
   type: "Component"
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      disabled: false
+      disabled: [ p.Bool, false ]
     }
 
 module.exports =

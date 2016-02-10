@@ -1,8 +1,10 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "jquery-ui/datepicker"
-BokehView = require "../../core/bokeh_view"
+
 InputWidget = require "./input_widget"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 
 class DatePickerView extends BokehView
 
@@ -30,11 +32,12 @@ class DatePicker extends InputWidget.Model
   type: "DatePicker"
   default_view: DatePickerView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      value: Date.now()
-      min_date: null
-      max_date: null
+      # TODO (bev) types
+      value:    [ p.Any, Date.now() ]
+      min_date: [ p.Any             ]
+      max_date: [ p.Any             ]
     }
 
 module.exports =

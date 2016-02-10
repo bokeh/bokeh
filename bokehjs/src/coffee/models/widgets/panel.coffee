@@ -1,7 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
-BokehView = require "../../core/bokeh_view"
+
 Widget = require "./widget"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 
 class PanelView extends BokehView
 
@@ -17,11 +19,11 @@ class Panel extends Widget.Model
   type: "Panel"
   default_view: PanelView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      title: ""
-      child: null
-      closable: false
+      title:    [ p.String,  ""    ]
+      child:    [ p.Instance       ]
+      closable: [ p.Bool,    false ]
     }
 
 module.exports =

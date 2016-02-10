@@ -1,7 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
+
 BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 Model = require "../../model"
 
 class RadioButtonGroupView extends BokehView
@@ -41,12 +43,12 @@ class RadioButtonGroup extends Model
   type: "RadioButtonGroup"
   default_view: RadioButtonGroupView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      active: null
-      labels: []
-      type: "default"
-      disabled: false
+      active:   [ p.Any,    null      ] # TODO (bev) better type?
+      labels:   [ p.Array,  []        ]
+      type:     [ p.String, "default" ]
+      disabled: [ p.Bool,   false     ]
     }
 
 module.exports =

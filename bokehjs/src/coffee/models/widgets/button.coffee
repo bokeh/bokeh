@@ -1,7 +1,9 @@
 _ = require "underscore"
+
+AbstractButton = require "./abstract_button"
 build_views = require "../../common/build_views"
 BokehView = require "../../core/bokeh_view"
-AbstractButton = require "./abstract_button"
+p = require "../../core/properties"
 
 class ButtonView extends BokehView
   tagName: "button"
@@ -42,10 +44,9 @@ class Button extends AbstractButton.Model
   type: "Button"
   default_view: ButtonView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      clicks: 0
-      label: "Button"
+      clicks: [ p.Number, 0        ]
     }
 
 module.exports =

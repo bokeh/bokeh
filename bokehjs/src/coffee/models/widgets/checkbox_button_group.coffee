@@ -1,7 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
+
 BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 Model = require "../../model"
 
 class CheckboxButtonGroupView extends BokehView

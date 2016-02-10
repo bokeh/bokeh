@@ -1,6 +1,8 @@
 _  = require "underscore"
-BokehView  = require "../../core/bokeh_view"
+
 AbstractButton = require "./abstract_button"
+BokehView  = require "../../core/bokeh_view"
+p = require "../../core/properties"
 
 class ToggleView extends BokehView
   tagName: "button"
@@ -44,9 +46,14 @@ class Toggle extends AbstractButton.Model
   type: "Toggle"
   default_view: ToggleView
 
+  props: ->
+    return _.extend {}, super(), {
+      active: [ p. Bool, false ]
+    }
+
   defaults: ->
     return _.extend {}, super(), {
-      active: false
+      # overrides
       label: "Toggle"
     }
 

@@ -1,9 +1,11 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/modal"
-BokehView = require "../../core/bokeh_view"
+
 dialog_template = require "./dialog_template"
 Widget = require "./widget"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 
 class DialogView extends BokehView
 
@@ -62,14 +64,14 @@ class Dialog extends Widget.Model
   type: "Dialog"
   default_view: DialogView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      visible: false
-      closable: true
-      title: ""
-      content: ""
-      buttons: []
-      buttons_box: null
+      visible:     [ p.Bool,    false ]
+      closable:    [ p.Bool,    true  ]
+      title:       [ p.String,  ""    ]
+      content:     [ p.String,  ""    ]
+      buttons:     [ p.Array,   []    ]
+      buttons_box: [ p.Instance       ]
     }
 
 module.exports =

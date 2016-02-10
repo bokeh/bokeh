@@ -1,10 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/tab"
-build_views = require "../../common/build_views"
-BokehView = require "../../core/bokeh_view"
+
 tabs_template = require "./tabs_template"
 Widget = require "./widget"
+build_views = require "../../common/build_views"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 
 class TabsView extends BokehView
 
@@ -55,11 +57,11 @@ class Tabs extends Widget.Model
   type: "Tabs"
   default_view: TabsView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      tabs: []
-      active: 0
-      callback: null
+      tabs:     [ p.Array,   [] ]
+      active:   [ p.Number,  0  ]
+      callback: [ p.Instance    ]
     }
 
 module.exports =

@@ -1,6 +1,8 @@
 _ = require "underscore"
-BokehView = require "../../core/bokeh_view"
+
 AbstractIcon = require "./abstract_icon"
+BokehView = require "../../core/bokeh_view"
+p  = require "../../core/properties"
 
 class IconView extends BokehView
   tagName: "i"
@@ -31,12 +33,12 @@ class Icon extends AbstractIcon.Model
   type: "Icon"
   default_view: IconView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      icon_name: "check"
-      size: null
-      flip: null
-      spin: false
+      icon_name: [ p.String, "check" ] # TODO (bev) enum?
+      size:      [ p.Number          ]
+      flip:      [ p.Any             ] # TODO (bev)
+      spin:      [ p.Bool,   false   ]
     }
 
 module.exports =

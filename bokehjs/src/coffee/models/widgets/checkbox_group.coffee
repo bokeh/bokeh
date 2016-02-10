@@ -1,6 +1,8 @@
 _ = require "underscore"
 $ = require "jquery"
+
 BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 Model = require "../../model"
 
 class CheckboxGroupView extends BokehView
@@ -41,12 +43,12 @@ class CheckboxGroup extends Model
   type: "CheckboxGroup"
   default_view: CheckboxGroupView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      active: []
-      labels: []
-      inline: false
-      disabled: false
+      active:   [ p.Array, []    ]
+      labels:   [ p.Array, []    ]
+      inline:   [ p.Bool,  false ]
+      disabled: [ p.Bool,  false ]
     }
 
 module.exports =

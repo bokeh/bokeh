@@ -1,13 +1,15 @@
 _ = require "underscore"
+
 Widget = require "./widget"
+p = require "../../core/properties"
 
 class InputWidget extends Widget.Model
   type: "InputWidget"
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      callback: null
-      title: ""
+      callback: [ p.Instance   ]
+      title:    [ p.String, '' ]
     }
 
 module.exports =

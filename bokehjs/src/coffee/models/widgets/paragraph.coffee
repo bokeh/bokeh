@@ -1,6 +1,8 @@
 _ = require "underscore"
-BokehView = require "../../core/bokeh_view"
+
 Markup = require "./markup"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 
 class ParagraphView extends BokehView
   tagName: "p"
@@ -22,9 +24,9 @@ class Paragraph extends Markup.Model
   type: "Paragraph"
   default_view: ParagraphView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      text: ''
+      text: [ p.String, '' ]
     }
 
 module.exports =
