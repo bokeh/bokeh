@@ -1,5 +1,8 @@
 _ = require "underscore"
 $ = require "jquery"
+Widget = require("bokeh_phosphor").Widget
+Layout = require("bokeh_phosphor").Layout
+BoxPanel = require("bokeh_phosphor").BoxPanel
 build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 BaseBox = require "./basebox"
@@ -14,8 +17,15 @@ class VBoxView extends ContinuumView
     @views = {}
     @render()
     @listenTo(@model, 'change', @render)
+    @widget = new Widget()
+    @layout = new BoxPanel()
 
   render: () ->
+
+    @layout = new BoxPanel()
+    @layout.direction = bokeh_phosphor.BoxPanel.TopToBottom
+    @layout.spacing = 5
+
     children = @model.children()
     build_views(@views, children)
     for own key, val of @views
@@ -33,9 +43,13 @@ class VBoxView extends ContinuumView
     spacer = $('<div>').addClass('bk-vbox-spacer').css({height: spacer_height})
     @$el.append($(spacer))
     for child in children
-      @$el.append(@views[child.id].$el)
+      child_widget = new Widget();
+      child_widget.node.addChild(@views[child.id].$el)
+      @layout.addChild(child_widget)
+      # @$el.append(@views[child.id].$el)
+      # @$el.append($(spacer))
 
-      @$el.append($(spacer))
+    @widget.layout = @layout
 
     return @
 

@@ -63,6 +63,7 @@
     "websocket":"^1.0.22"
   },
   "browser": {
+    "bokeh_phosphor": "./src/vendor/bokeh-phosphor/lib/bundle.js",
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
     "bootstrap/dropdown": "./src/vendor/bootstrap-3.1.1/js/dropdown.js",
     "bootstrap/modal": "./src/vendor/bootstrap-3.1.1/js/modal.js",

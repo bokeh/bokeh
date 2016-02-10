@@ -1,8 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
+Widget = require("bokeh_phosphor").Widget
+Layout = require("bokeh_phosphor").Layout
+BoxPanel = require("bokeh_phosphor").BoxPanel
 build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 BaseBox = require "./basebox"
+
 
 class HBoxView extends ContinuumView
   tag: "div"
@@ -14,8 +18,20 @@ class HBoxView extends ContinuumView
     @views = {}
     @render()
     @listenTo(@model, 'change', @render)
+    @widget = new Widget()
+    @layout = new BoxPanel()
 
   render: () ->
+    #
+    # console.log @widget
+    # console.log @layout
+    # console.log BoxPanel
+    # console.log new BoxPanel()
+
+    @layout = new BoxPanel()
+    @layout.direction = bokeh_phosphor.BoxPanel.LeftToRight
+    @layout.spacing = 5
+
     children = @model.children()
     build_views(@views, children)
     for own key, val of @views
@@ -27,9 +43,11 @@ class HBoxView extends ContinuumView
     if height? then @$el.css(height: height + "px")
 
     for child, index in children
-      @$el.append(@views[child.id].$el)
-      if index < children.length - 1
-        @$el.append($('<div class="bk-hbox-spacer"></div>'))
+      child_widget = new Widget();
+      child_widget.node.addChild(@views[child.id].$el)
+      @layout.addChild(child_widget)
+
+    @widget.layout = @layout
 
     return @
 
