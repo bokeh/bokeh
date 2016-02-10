@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 GestureTool = require "./gesture_tool"
+p = require "../../../core/properties"
 
 class PanToolView extends GestureTool.View
 
@@ -96,6 +98,14 @@ class PanTool extends GestureTool.Model
   event_type: "pan"
   default_order: 10
 
+  props: () ->
+    return _.extend({}, super(), {
+      dimensions: [ p.Array, ["width", "height"] ]
+    })
+
+  nonserializable_attribute_names: () ->
+    super().concat(['level', 'default_order', 'event_type'])
+
   initialize: (attrs, options) ->
     super(attrs, options)
 
@@ -106,14 +116,6 @@ class PanTool extends GestureTool.Model
         )
       , false)
     @add_dependencies('tooltip', this, ['dimensions'])
-
-  nonserializable_attribute_names: () ->
-    super().concat(['level', 'default_order', 'event_type'])
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      dimensions: ["width", "height"]
-    })
 
 module.exports =
   Model: PanTool

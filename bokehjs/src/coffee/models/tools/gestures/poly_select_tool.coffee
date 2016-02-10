@@ -1,6 +1,8 @@
 _ = require "underscore"
+
 SelectTool = require "./select_tool"
 PolyAnnotation = require "../../annotations/poly_annotation"
+p = require "../../../core/properties"
 
 class PolySelectToolView extends SelectTool.View
 
@@ -62,6 +64,17 @@ class PolySelectToolView extends SelectTool.View
 
     return null
 
+DEFAULT_POLY_OVERLAY = new PolyAnnotation.Model({
+  xs_units: "screen"
+  ys_units: "screen"
+  fill_color: "lightgrey"
+  fill_alpha: 0.5
+  line_color: "black"
+  line_alpha: 1.0
+  line_width: 2
+  line_dash: [4, 4]
+})
+
 class PolySelectTool extends SelectTool.Model
   default_view: PolySelectToolView
   type: "PolySelectTool"
@@ -70,18 +83,9 @@ class PolySelectTool extends SelectTool.Model
   event_type: "tap"
   default_order: 11
 
-  defaults: () ->
+  props: () ->
     return _.extend({}, super(), {
-      overlay: new PolyAnnotation.Model({
-        xs_units: "screen"
-        ys_units: "screen"
-        fill_color: "lightgrey"
-        fill_alpha: 0.5
-        line_color: "black"
-        line_alpha: 1.0
-        line_width: 2
-        line_dash: [4, 4]
-      })
+      overlay: [ p.Instance, DEFAULT_POLY_OVERLAY ]
     })
 
   initialize: (attrs, options) ->

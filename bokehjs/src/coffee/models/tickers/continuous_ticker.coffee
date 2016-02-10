@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 Ticker = require "./ticker"
+p = require "../../core/properties"
 
 # The base class for all Ticker objects.  It needs to be subclassed before
 # being used.  The simplest subclass is SingleIntervalTicker.
@@ -15,6 +17,12 @@ Ticker = require "./ticker"
 # and get_max_interval().
 class ContinuousTicker extends Ticker.Model
   type: 'ContinuousTicker'
+
+  props: () ->
+    return _.extend {}, super(), {
+      num_minor_ticks:   [ p.Number, 5 ]
+      desired_num_ticks: [ p.Number, 6 ]
+    }
 
   # Given min and max values and a number of ticks, returns a tick interval
   # that produces approximately the right number of nice ticks.  (If you just
@@ -39,12 +47,6 @@ class ContinuousTicker extends Ticker.Model
   get_ideal_interval: (data_low, data_high, desired_n_ticks) ->
     data_range = data_high - data_low
     return data_range / desired_n_ticks
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      num_minor_ticks: 5
-      desired_num_ticks: 6
-    }
 
 module.exports =
   Model: ContinuousTicker

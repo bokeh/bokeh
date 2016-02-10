@@ -1,8 +1,9 @@
 _ = require "underscore"
-Renderer = require "../renderers/renderer"
-properties = require "../../core/properties"
+
 ImagePool = require "./image_pool"
+Renderer = require "../renderers/renderer"
 {logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 class DynamicImageView extends Renderer.View
 
@@ -108,13 +109,17 @@ class DynamicImageView extends Renderer.View
 class DynamicImageRenderer extends Renderer.Model
   default_view: DynamicImageView
   type: 'DynamicImageRenderer'
-  visuals: []
+
+  props: ->
+    return _.extend {}, super(), {
+      alpha:          [ p.Number, 1.0 ]
+      image_source:   [ p.Instance    ]
+      render_parents: [ p.Bool, true ]
+    }
 
   defaults: ->
     return _.extend {}, super(), {
-      alpha: 1.0
-      image_source: null
-      render_parents: true
+      # overrides
       level: 'underlay'
     }
 

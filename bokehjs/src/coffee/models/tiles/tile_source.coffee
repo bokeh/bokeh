@@ -1,26 +1,27 @@
 _ = require "underscore"
-Model = require "../../model"
+
 ImagePool = require "./image_pool"
 tile_utils = require "./tile_utils"
 {logger} = require "../../core/logging"
+p = require "../../core/properties"
+Model = require "../../model"
 
 class TileSource extends Model
-
   type: 'TileSource'
+
+  props: ->
+    return _.extend {}, super(), {
+      url:            [ p.String, ''  ]
+      tile_size:      [ p.Number, 256 ]
+      max_zoom:       [ p.Number, 30  ]
+      min_zoom:       [ p.Number, 0   ]
+      extra_url_vars: [ p.Any,    {}  ]
+      attribution:    [ p.String, ''  ]
+  }
 
   initialize: (options) ->
     super(options)
     @normalize_case()
-
-  defaults: =>
-    return _.extend {}, super(), {
-      url : ''
-      tile_size : 256
-      max_zoom : 30
-      min_zoom : 0
-      extra_url_vars : {}
-      attribution : ''
-  }
 
   constructor: (options={}) ->
     super

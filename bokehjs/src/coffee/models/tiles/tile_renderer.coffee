@@ -1,10 +1,11 @@
 _ = require "underscore"
 $ = require "jquery"
-Renderer = require "../renderers/renderer"
-properties = require "../../core/properties"
-wmts = require "./wmts_tile_source"
+
 ImagePool = require "./image_pool"
+wmts = require "./wmts_tile_source"
+Renderer = require "../renderers/renderer"
 {logger} = require "../../core/logging"
+p = require "../../core/properties"
 
 class TileRendererView extends Renderer.View
 
@@ -273,15 +274,18 @@ class TileRendererView extends Renderer.View
 class TileRenderer extends Renderer.Model
   default_view: TileRendererView
   type: 'TileRenderer'
-  visuals: []
+
+  props: ->
+    return _.extend {}, super(), {
+      alpha:          [ p.Number,   1.0              ]
+      x_range_name:   [ p.String,   "default"        ]
+      y_range_name:   [ p.String,   "default"        ]
+      tile_source:    [ p.Instance, new wmts.Model() ]
+      render_parents: [ p.Bool,     true             ]
+    }
 
   defaults: ->
     return _.extend {}, super(), {
-      alpha: 1.0
-      x_range_name: "default"
-      y_range_name: "default"
-      tile_source: new wmts.Model()
-      render_parents: true
       level: 'underlay'
     }
 

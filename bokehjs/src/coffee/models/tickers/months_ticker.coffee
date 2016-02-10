@@ -1,6 +1,8 @@
 _ = require "underscore"
+
 SingleIntervalTicker = require "./single_interval_ticker"
 util = require "./util"
+p = require "../../core/properties"
 
 copy_date = util.copy_date
 last_year_no_later_than = util.last_year_no_later_than
@@ -31,6 +33,11 @@ date_range_by_year = (start_time, end_time) ->
 class MonthsTicker extends SingleIntervalTicker.Model
   type: 'MonthsTicker'
 
+  props: () ->
+    return _.extend {}, super(), {
+      months: [ p.Array, [] ]
+    }
+
   initialize: (attrs, options) ->
     super(attrs, options)
     months = @get('months')
@@ -59,11 +66,6 @@ class MonthsTicker extends SingleIntervalTicker.Model
     return {
       "major": ticks_in_range,
       "minor": []
-    }
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      months: []
     }
 
 module.exports =
