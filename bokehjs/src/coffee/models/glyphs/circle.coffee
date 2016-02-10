@@ -224,6 +224,10 @@ class Circle extends Glyph.Model
       radius_dimension: [ p.String,       'x'                           ]
     }
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @properties.radius.optional = true
+
 module.exports =
   Model: Circle
   View: CircleView

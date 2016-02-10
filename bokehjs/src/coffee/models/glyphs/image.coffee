@@ -94,13 +94,19 @@ class Image extends Glyph.Model
   props: ->
     return _.extend {}, super(), {
       image:        [ p.NumberSpec       ] # TODO (bev) array spec?
-      # rows:         [ p.NumberSpec       ]
-      # cols:         [ p.NumberSpec       ]
+      rows:         [ p.NumberSpec       ]
+      cols:         [ p.NumberSpec       ]
       dw:           [ p.NumberSpec       ]
       dh:           [ p.NumberSpec       ]
       dilate:       [ p.Bool,      false ]
       color_mapper: [ p.Instance,  new LinearColorMapper.Model(palette: Greys9) ]
   }
+
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @properties.rows.optional = true
+    @properties.cols.optional = true
+
 
 module.exports =
   Model: Image

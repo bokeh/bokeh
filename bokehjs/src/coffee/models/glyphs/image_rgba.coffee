@@ -104,6 +104,11 @@ class ImageRGBA extends Glyph.Model
       dilate: [ p.Bool,      false ]
   }
 
+  initialize: (attrs, options) ->
+    super(attrs, options)
+    @properties.rows.optional = true
+    @properties.cols.optional = true
+
 module.exports =
   Model: ImageRGBA
   View: ImageRGBAView

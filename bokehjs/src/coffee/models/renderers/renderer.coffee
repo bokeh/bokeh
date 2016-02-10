@@ -219,6 +219,9 @@ class RendererView extends BokehView
     for name, prop of @model.properties
       if not prop.dataspec
         continue
+      # this skips optional properties like radius for circles
+      if (prop.optional || false) and prop.spec.value == null and (name not of @model._set_after_defaults)
+        continue
       @[name] = prop.array(source)
       if prop instanceof p.Distance
         @["max_#{name}"] = arrayMax(@[name])
