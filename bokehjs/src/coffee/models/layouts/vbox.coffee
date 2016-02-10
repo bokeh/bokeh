@@ -2,7 +2,9 @@ _ = require "underscore"
 $ = require "jquery"
 build_views = require "../../common/build_views"
 BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 BaseBox = require "./basebox"
+
 
 class VBoxView extends BokehView
   tag: "div"
@@ -43,9 +45,9 @@ class VBox extends BaseBox.Model
   type: "VBox"
   default_view: VBoxView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      children: []
+      children: [ p.Array, [] ]
     }
 
   children: () ->

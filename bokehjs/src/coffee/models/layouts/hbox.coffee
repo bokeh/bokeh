@@ -2,6 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 build_views = require "../../common/build_views"
 BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
 BaseBox = require "./basebox"
 
 class HBoxView extends BokehView
@@ -37,9 +38,9 @@ class HBox extends BaseBox.Model
   type: "HBox"
   default_view: HBoxView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      children: []
+      children: [ p.Array, [] ]
     }
 
   children: () ->

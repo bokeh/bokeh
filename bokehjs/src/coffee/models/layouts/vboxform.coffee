@@ -1,6 +1,7 @@
 _ = require "underscore"
 build_views = require "../../common/build_views"
 BokehView  = require "../../core/bokeh_view"
+p = require "../../core/properties"
 VBox = require "./vbox"
 
 class VBoxFormView extends BokehView
@@ -29,9 +30,9 @@ class VBoxForm extends VBox.Model
   type: "VBoxForm"
   default_view: VBoxFormView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      children: []
+      children: [ p.Array, [] ]
     }
 
   children: () ->
