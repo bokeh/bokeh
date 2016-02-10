@@ -1,9 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
 
+Widget = require "./widget"
 BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
-Model = require "../../model"
 
 class RadioGroupView extends BokehView
   tagName: "div"
@@ -38,7 +38,7 @@ class RadioGroupView extends BokehView
     active = (i for radio, i in @$("input") when radio.checked)
     @mset('active', active[0])
 
-class RadioGroup extends Model
+class RadioGroup extends Widget.Model
   type: "RadioGroup"
   default_view: RadioGroupView
 
@@ -47,7 +47,6 @@ class RadioGroup extends Model
       active:   [ p.Any,   null  ] # TODO (bev) better type?
       labels:   [ p.Array, []    ]
       inline:   [ p.Bool,  false ]
-      disabled: [ p.Bool,  false ]
     }
 
 module.exports =

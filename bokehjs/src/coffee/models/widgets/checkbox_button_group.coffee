@@ -2,9 +2,9 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
 
+Widget = require "./widget"
 BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
-Model = require "../../model"
 
 class CheckboxButtonGroupView extends BokehView
   tagName: "div"
@@ -39,7 +39,7 @@ class CheckboxButtonGroupView extends BokehView
     @mset('active', active)
     @mget('callback')?.execute(@model)
 
-class CheckboxButtonGroup extends Model
+class CheckboxButtonGroup extends Widget.Model
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 

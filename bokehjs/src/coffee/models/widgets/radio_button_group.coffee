@@ -2,9 +2,9 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
 
+Widget = require "./widget"
 BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
-Model = require "../../model"
 
 class RadioButtonGroupView extends BokehView
   tagName: "div"
@@ -39,7 +39,7 @@ class RadioButtonGroupView extends BokehView
     @mset('active', active[0])
     @mget('callback')?.execute(@model)
 
-class RadioButtonGroup extends Model
+class RadioButtonGroup extends Widget.Model
   type: "RadioButtonGroup"
   default_view: RadioButtonGroupView
 
@@ -48,7 +48,6 @@ class RadioButtonGroup extends Model
       active:   [ p.Any,    null      ] # TODO (bev) better type?
       labels:   [ p.Array,  []        ]
       type:     [ p.String, "default" ]
-      disabled: [ p.Bool,   false     ]
     }
 
 module.exports =

@@ -1,9 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
 
+Widget = require "./widget"
 BokehView = require "../../core/bokeh_view"
 p = require "../../core/properties"
-Model = require "../../model"
 
 class CheckboxGroupView extends BokehView
   tagName: "div"
@@ -39,7 +39,7 @@ class CheckboxGroupView extends BokehView
     @mset('active', active)
     @mget('callback')?.execute(@model)
 
-class CheckboxGroup extends Model
+class CheckboxGroup extends Widget.Model
   type: "CheckboxGroup"
   default_view: CheckboxGroupView
 
@@ -48,7 +48,6 @@ class CheckboxGroup extends Model
       active:   [ p.Array, []    ]
       labels:   [ p.Array, []    ]
       inline:   [ p.Bool,  false ]
-      disabled: [ p.Bool,  false ]
     }
 
 module.exports =
