@@ -22,10 +22,10 @@ y_range = Range1d(start=airports['y'].min() - 10000, end=airports['y'].max() + 1
 
 # create plot and add tools
 p = figure(tools='wheel_zoom,pan', x_range=x_range, y_range=y_range, title=title)
-#p.axis.visible = False
+p.axis.visible = False
 hover_tool = HoverTool(tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")])
 p.add_tools(hover_tool)
-#p.add_tile(tile_source)
+p.add_tile(tile_source)
 
 # create point glyphs
 p.circle(x='x', y='y', size=9, fill_color="#60ACA1", line_color="#D2C4C1", line_width=1.5, source=points_source)
