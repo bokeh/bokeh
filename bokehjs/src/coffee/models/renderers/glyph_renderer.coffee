@@ -70,6 +70,9 @@ class GlyphRendererView extends Renderer.View
     t0 = Date.now()
     source = @mget('data_source')
 
+    # TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
+    # mapping functions on the base Renderer class
+    @glyph.model.set({x_range_name: @mget('x_range_name'), y_range_name: @mget('y_range_name')}, {silent: true})
     @glyph.set_data(source, arg)
 
     @glyph.set_visuals(source)
