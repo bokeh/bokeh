@@ -1,9 +1,9 @@
 _ = require "underscore"
 
 DataRange = require "./data_range"
-bbox = require "../../common/bbox"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
+bbox = require "../../core/util/bbox"
 
 class DataRange1d extends DataRange.Model
   type: 'DataRange1d'
@@ -84,14 +84,14 @@ class DataRange1d extends DataRange.Model
 
     for r in renderers
       if bounds[r.id]?
-        result = bbox.extend(result, bounds[r.id])
+        result = bbox.union(result, bounds[r.id])
 
     return result
 
   _compute_min_max: (plot_bounds, dimension) ->
     overall = new bbox.empty()
     for k, v of plot_bounds
-      overall = bbox.extend(overall, v)
+      overall = bbox.union(overall, v)
 
     [min, max] = overall[dimension]
 

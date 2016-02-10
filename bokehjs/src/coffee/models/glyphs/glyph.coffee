@@ -3,8 +3,8 @@ rbush = require "rbush"
 
 CategoricalMapper = require "../mappers/categorical_mapper"
 Renderer = require "../renderers/renderer"
-bbox = require "../../common/bbox"
 p = require "../../core/properties"
+bbox = require "../../core/util/bbox"
 Model = require "../../model"
 
 class GlyphView extends Renderer.View
