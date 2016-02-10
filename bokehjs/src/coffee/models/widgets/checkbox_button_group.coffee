@@ -43,12 +43,11 @@ class CheckboxButtonGroup extends Model
   type: "CheckboxButtonGroup"
   default_view: CheckboxButtonGroupView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      active: []
-      labels: []
-      type: "default"
-      disabled: false
+      active:   [ p.Array,  []        ]
+      labels:   [ p.Array,  []        ]
+      type:     [ p.String, "default" ]
     }
 
 module.exports =
