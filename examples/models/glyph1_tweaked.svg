@@ -1,0 +1,758 @@
+<svg height="600" version="1.1" width="600" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <clippath id="bhvdFFmELTIC">
+        <path fill="none" stroke="none"></path>
+    </clippath>
+</defs>
+<g transform="">
+    <rect fill="#ffffff" height="600" stroke="none" width="600" x="0" y=
+    "0"></rect>
+    <rect fill="#FFFFFF" height="500" stroke="none" width="500" x="50" y=
+    "49"></rect>
+    <rect fill="#ffffff" height="500" stroke="none" width="500" x="50" y=
+    "49"></rect>
+    <rect fill="none" height="500" stroke="#aaaaaa" stroke-miterlimit="10"
+    width="500" x="50" y="49"></rect>
+    <g clip-path="url(#bhvdFFmELTIC)">
+        <g>
+            <path fill="none" stroke="none"></path>
+            <g>
+                <path fill="none" stroke="none"></path>
+                <path d=
+                "M 507.9545454545454 439.46900163429507 A 2.5 2.5 0 1 1 507.95454420454547 439.46650163471173"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 511.590909090909 420.9276409805092 A 2.5 2.5 0 1 1 511.5909078409091 420.92514098092585"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 515.2272727272727 401.1675465200808 A 2.5 2.5 0 1 1 515.2272714772729 401.16504652049747"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 518.8636363636363 380.3861545850397 A 2.5 2.5 0 1 1 518.8636351136364 380.3836545854564"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 522.5 358.791105974186 A 2.5 2.5 0 1 1 522.4999987500001 358.78860597460266"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 526.1363636363636 336.5981712748653 A 2.5 2.5 0 1 1 526.1363623863638 336.595671275282"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 529.7727272727273 314.02909495458437 A 2.5 2.5 0 1 1 529.7727260227274 314.02659495500103"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 460.68181818181813 508.7200843668777 A 2.5 2.5 0 1 1 460.6818169318182 508.71758436729436"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 489.77272727272725 507.93652803424936 A 2.5 2.5 0 1 1 489.77272602272734 507.934028034666"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 457.0454545454545 498.92711637635887 A 2.5 2.5 0 1 1 457.0454532954546 498.92461637677553"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 493.4090909090909 497.96245478756475 A 2.5 2.5 0 1 1 493.40908965909097 497.9599547879814"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 497.0454545454545 485.99994133900134 A 2.5 2.5 0 1 1 497.0454532954546 485.997441339418"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 500.68181818181813 472.16851316865615 A 2.5 2.5 0 1 1 500.6818169318182 472.1660131690728"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 504.31818181818176 456.60636933474484 A 2.5 2.5 0 1 1 504.31818056818184 456.6038693351615"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 478.8636363636363 525.0366353354791 A 2.5 2.5 0 1 1 478.8636351136364 525.0341353358958"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 482.5 521.5415869338517 A 2.5 2.5 0 1 1 482.4999987500001 521.5390869342684"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 467.9545454545454 521.9413334155419 A 2.5 2.5 0 1 1 467.95454420454547 521.9388334159586"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 471.59090909090907 525.2375121235569 A 2.5 2.5 0 1 1 471.59090784090915 525.2350121239737"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 475.2272727272727 526.2727272727273 A 2.5 2.5 0 1 1 475.2272714772728 526.270227273144"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 464.31818181818176 516.4171254767608 A 2.5 2.5 0 1 1 464.31818056818184 516.4146254771775"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 486.1363636363636 515.8225034361648 A 2.5 2.5 0 1 1 486.1363623863637 515.8200034365815"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 431.59090909090907 382.2615288258552 A 2.5 2.5 0 1 1 431.59090784090915 382.25902882627184"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 424.31818181818176 338.5810141266981 A 2.5 2.5 0 1 1 424.31818056818184 338.5785141271148"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 420.68181818181813 316.03617430499435 A 2.5 2.5 0 1 1 420.6818169318182 316.033674305411"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 300.6818181818182 317.84072294924937 A 2.5 2.5 0 1 1 300.6818169318183 317.83822294966603"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 297.04545454545456 340.36224875296574 A 2.5 2.5 0 1 1 297.04545329545465 340.3597487533824"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 293.4090909090909 362.4700235177993 A 2.5 2.5 0 1 1 293.40908965909097 362.46752351821596"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 427.95454545454544 360.7299004171068 A 2.5 2.5 0 1 1 427.9545442045455 360.7274004175235"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 278.8636363636364 442.4536356675881 A 2.5 2.5 0 1 1 278.86363511363646 442.4511356680048"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 282.5 424.1357553360418 A 2.5 2.5 0 1 1 282.4999987500001 424.1332553364585"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 286.1363636363636 404.5670867796741 A 2.5 2.5 0 1 1 286.1363623863637 404.5645867800908"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 442.5 441.04514916991957 A 2.5 2.5 0 1 1 442.4999987500001 441.04264917033623"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 438.8636363636364 422.6207813574116 A 2.5 2.5 0 1 1 438.86363511363646 422.61828135782827"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 435.2272727272727 402.9607624392929 A 2.5 2.5 0 1 1 435.2272714772728 402.9582624397096"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 289.77272727272725 383.9431536661585 A 2.5 2.5 0 1 1 289.77272602272734 383.94065366657514"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 264.3181818181818 499.7815972228309 A 2.5 2.5 0 1 1 264.3181805681819 499.77909722324756"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 267.95454545454544 488.14560185526454 A 2.5 2.5 0 1 1 267.9545442045455 488.1431018556812"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 453.4090909090909 487.1360696042409 A 2.5 2.5 0 1 1 453.40908965909097 487.13356960465757"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 271.59090909090907 474.6192530352988 A 2.5 2.5 0 1 1 271.59090784090915 474.6167530357155"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 449.77272727272725 473.4647562922688 A 2.5 2.5 0 1 1 449.77272602272734 473.4622562926855"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 275.22727272727275 459.33770156912647 A 2.5 2.5 0 1 1 275.22727147727284 459.33520156954313"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 446.1363636363636 458.04977568392053 A 2.5 2.5 0 1 1 446.1363623863637 458.0472756843372"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 209.77272727272728 419.39622128249323 A 2.5 2.5 0 1 1 209.7727260227274 419.3937212829099"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 206.13636363636363 399.5474156228028 A 2.5 2.5 0 1 1 206.13636238636374 399.5449156232195"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 195.22727272727275 334.81176318939424 A 2.5 2.5 0 1 1 195.22727147727286 334.8092631898109"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 198.86363636363637 357.0428407452372 A 2.5 2.5 0 1 1 198.8636351136365 357.04034074565385"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 202.5 378.6935003008812 A 2.5 2.5 0 1 1 202.49999875000012 378.6910003012979"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 75.22727272727275 298.95264836497205 A 2.5 2.5 0 1 1 75.22727147727285 298.9501483653887"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 191.5909090909091 312.222393211673 A 2.5 2.5 0 1 1 191.5909078409092 312.2198932120897"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 260.6818181818182 509.4109761186339 A 2.5 2.5 0 1 1 260.6818169318183 509.4084761190506"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 231.5909090909091 507.21760103170845 A 2.5 2.5 0 1 1 231.5909078409092 507.2151010321251"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 227.95454545454544 497.08126208664765 A 2.5 2.5 0 1 1 227.95454420454556 497.0787620870643"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 224.3181818181818 484.9652875258921 A 2.5 2.5 0 1 1 224.31818056818193 484.9627875263088"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 220.6818181818182 470.9907361622442 A 2.5 2.5 0 1 1 220.6818169318183 470.9882361626609"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 217.04545454545456 455.297237093557 A 2.5 2.5 0 1 1 217.04545329545468 455.29473709397365"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 213.4090909090909 438.0415945749437 A 2.5 2.5 0 1 1 213.40908965909102 438.03909457536037"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 246.13636363636363 526.2575082747635 A 2.5 2.5 0 1 1 246.13636238636374 526.2550082751802"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 253.4090909090909 522.2860409941233 A 2.5 2.5 0 1 1 253.40908965909102 522.28354099454"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 238.86363636363637 521.1670480927651 A 2.5 2.5 0 1 1 238.8636351136365 521.1645480931818"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 242.5 524.840777944801 A 2.5 2.5 0 1 1 242.49999875000012 524.8382779452177"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 249.77272727272725 525.4030835815042 A 2.5 2.5 0 1 1 249.77272602272737 525.400583581921"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 257.0454545454545 516.9375249717963 A 2.5 2.5 0 1 1 257.04545329545465 516.935024972213"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 235.22727272727272 515.2730254129638 A 2.5 2.5 0 1 1 235.22727147727284 515.2705254133805"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 373.4090909090909 85.10360966986991 A 2.5 2.5 0 1 1 373.40908965909097 85.10110967028658"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 351.59090909090907 78.92291729239264 A 2.5 2.5 0 1 1 351.59090784090915 78.9204172928093"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 369.77272727272725 78.47506079576283 A 2.5 2.5 0 1 1 369.77272602272734 78.4725607961795"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 355.2272727272727 74.31996753714623 A 2.5 2.5 0 1 1 355.2272714772728 74.31746753756289"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 362.5 71.87099980112464 A 2.5 2.5 0 1 1 362.4999987500001 71.8684998015413"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 358.8636363636364 71.96147327503945 A 2.5 2.5 0 1 1 358.86363511363646 71.95897327545612"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 366.1363636363636 74.04945109644666 A 2.5 2.5 0 1 1 366.1363623863637 74.04695109686332"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 391.59090909090907 148.2449547211151 A 2.5 2.5 0 1 1 391.59090784090915 148.24245472153177"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 380.68181818181813 104.68325457640128 A 2.5 2.5 0 1 1 380.6818169318182 104.68075457681795"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 387.95454545454544 132.00780716075997 A 2.5 2.5 0 1 1 387.9545442045455 132.00530716117663"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 384.3181818181818 117.4387172690898 A 2.5 2.5 0 1 1 384.3181805681819 117.43621726950647"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 344.3181818181818 94.65625234364143 A 2.5 2.5 0 1 1 344.3181805681819 94.65375234405809"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 377.0454545454545 93.86886744952443 A 2.5 2.5 0 1 1 377.0454532954546 93.8663674499411"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 347.95454545454544 85.72433138835709 A 2.5 2.5 0 1 1 347.9545442045455 85.72183138877375"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 417.0454545454545 293.3206415391607 A 2.5 2.5 0 1 1 417.0454532954546 293.31814153957737"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 409.77272727272725 248.28479929094317 A 2.5 2.5 0 1 1 409.77272602272734 248.28229929135983"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 406.1363636363636 226.41447305743316 A 2.5 2.5 0 1 1 406.1363623863637 226.41197305784982"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 402.5 205.2689242936633 A 2.5 2.5 0 1 1 402.4999987500001 205.26642429407997"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 398.8636363636364 185.059432333092 A 2.5 2.5 0 1 1 398.86363511363646 185.05693233350866"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 395.2272727272727 165.9879237390195 A 2.5 2.5 0 1 1 395.2272714772728 165.98542373943616"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 413.4090909090909 270.66138192383664 A 2.5 2.5 0 1 1 413.40908965909097 270.6588819242533"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 329.77272727272725 149.6049402736768 A 2.5 2.5 0 1 1 329.77272602272734 149.60244027409345"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 162.5 145.40480109974305 A 2.5 2.5 0 1 1 162.49999875000012 145.40230110015972"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 333.4090909090909 133.24172576073283 A 2.5 2.5 0 1 1 333.40908965909097 133.2392257611495"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 337.0454545454545 118.53424000970222 A 2.5 2.5 0 1 1 337.0454532954546 118.53174001011888"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 158.86363636363637 129.4372205502873 A 2.5 2.5 0 1 1 158.8636351136365 129.43472055070396"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 155.22727272727275 115.16338212120536 A 2.5 2.5 0 1 1 155.22727147727286 115.16088212162202"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 340.6818181818182 105.6294353565608 A 2.5 2.5 0 1 1 340.6818169318183 105.62693535697747"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 177.04545454545456 222.8023698644754 A 2.5 2.5 0 1 1 177.04545329545468 222.79986986489206"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 318.8636363636364 206.92123115959544 A 2.5 2.5 0 1 1 318.86363511363646 206.9187311600121"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 173.4090909090909 201.79966880384967 A 2.5 2.5 0 1 1 173.40908965909102 201.79716880426633"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 169.77272727272728 181.76768820049335 A 2.5 2.5 0 1 1 169.7727260227274 181.76518820091002"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 326.1363636363636 167.46038771808014 A 2.5 2.5 0 1 1 326.1363623863637 167.4578877184968"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 166.13636363636365 162.90658098290282 A 2.5 2.5 0 1 1 166.13636238636377 162.9040809833195"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 322.5 186.62966236530485 A 2.5 2.5 0 1 1 322.4999987500001 186.62716236572152"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 180.6818181818182 244.56593933594263 A 2.5 2.5 0 1 1 180.6818169318183 244.5634393363593"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 311.59090909090907 250.05107678315778 A 2.5 2.5 0 1 1 311.59090784090915 250.04857678357445"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 307.95454545454544 272.4584144517904 A 2.5 2.5 0 1 1 307.9545442045455 272.4559144522071"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 304.3181818181818 295.13047374785424 A 2.5 2.5 0 1 1 304.3181805681819 295.1279737482709"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 187.95454545454544 289.500436329838 A 2.5 2.5 0 1 1 187.95454420454556 289.4979363302547"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 184.3181818181818 266.87292282617216 A 2.5 2.5 0 1 1 184.31818056818193 266.8704228265888"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 315.2272727272727 228.13234745306022 A 2.5 2.5 0 1 1 315.2272714772728 228.12984745347688"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 144.31818181818184 83.83753104245852 A 2.5 2.5 0 1 1 144.31818056818196 83.83503104287519"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 122.50000000000003 79.91438048355212 A 2.5 2.5 0 1 1 122.49999875000013 79.91188048396879"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 140.6818181818182 77.57536002236122 A 2.5 2.5 0 1 1 140.6818169318183 77.57286002277789"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 126.13636363636365 74.9379441077217 A 2.5 2.5 0 1 1 126.13636238636376 74.93544410813837"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 133.40909090909093 71.72727272727275 A 2.5 2.5 0 1 1 133.40908965909105 71.72477272768941"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 129.77272727272728 72.19978860741344 A 2.5 2.5 0 1 1 129.7727260227274 72.1972886078301"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 137.04545454545456 73.52511768978093 A 2.5 2.5 0 1 1 137.04545329545468 73.52261769019759"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 104.31818181818184 135.8816081487701 A 2.5 2.5 0 1 1 104.31818056818194 135.87910814918678"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 107.95454545454547 120.88496956110129 A 2.5 2.5 0 1 1 107.95454420454557 120.88246956151795"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 111.5909090909091 107.66752435869188 A 2.5 2.5 0 1 1 111.5909078409092 107.66502435910854"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 151.5909090909091 102.72590528777698 A 2.5 2.5 0 1 1 151.5909078409092 102.72340528819365"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 115.22727272727275 96.36133688489792 A 2.5 2.5 0 1 1 115.22727147727285 96.35883688531459"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 118.86363636363637 87.07937482762884 A 2.5 2.5 0 1 1 118.86363511363648 87.0768748280455"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 147.95454545454547 92.24906120723847 A 2.5 2.5 0 1 1 147.95454420454558 92.24656120765513"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 97.04545454545456 170.59681971184312 A 2.5 2.5 0 1 1 97.04545329545466 170.5943197122598"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 78.86363636363637 276.25828595909684 A 2.5 2.5 0 1 1 78.86363511363648 276.2557859595135"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 82.50000000000003 253.79067812062226 A 2.5 2.5 0 1 1 82.49999875000013 253.78817812103892"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 86.13636363636365 231.7743137602667 A 2.5 2.5 0 1 1 86.13636238636376 231.77181376068336"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 89.77272727272728 210.42917311307627 A 2.5 2.5 0 1 1 89.77272602272738 210.42667311349294"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 93.40909090909093 189.96852976863238 A 2.5 2.5 0 1 1 93.40908965909104 189.96602976904904"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+                <path d=
+                "M 100.68181818181819 152.50759866616005 A 2.5 2.5 0 1 1 100.68181693181829 152.5050986665767"
+                fill="red" paint-order="fill stroke markers" stroke="black"
+                stroke-miterlimit="10"></path>
+            </g>
+        </g>
+    </g>
+    <g>
+        <g>
+            <path d="M 50 549 L 550 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 83 555 L 83 547" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 156 555 L 156 547" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 228 555 L 228 547" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 301 555 L 301 547" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 374 555 L 374 547" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 447 555 L 447 547" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 519 555 L 519 547" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 54 553 L 54 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 68 553 L 68 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 83 553 L 83 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 98 553 L 98 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 112 553 L 112 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 127 553 L 127 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 141 553 L 141 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 156 553 L 156 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 170 553 L 170 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 185 553 L 185 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 199 553 L 199 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 214 553 L 214 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 228 553 L 228 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 243 553 L 243 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 258 553 L 258 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 272 553 L 272 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 287 553 L 287 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 301 553 L 301 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 316 553 L 316 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 330 553 L 330 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 345 553 L 345 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 359 553 L 359 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 374 553 L 374 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 388 553 L 388 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 403 553 L 403 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 418 553 L 418 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 432 553 L 432 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 447 553 L 447 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 461 553 L 461 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 476 553 L 476 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 490 553 L 490 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 505 553 L 505 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 519 553 L 519 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 534 553 L 534 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 548 553 L 548 549" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <text dominant-baseline="hanging" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="middle" text-decoration=
+            "normal" x="83" y="560">
+                -6
+            </text>
+            <text dominant-baseline="hanging" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="middle" text-decoration=
+            "normal" x="156" y="560">
+                -4
+            </text>
+            <text dominant-baseline="hanging" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="middle" text-decoration=
+            "normal" x="228" y="560">
+                -2
+            </text>
+            <text dominant-baseline="hanging" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="middle" text-decoration=
+            "normal" x="301" y="560">
+                0
+            </text>
+            <text dominant-baseline="hanging" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="middle" text-decoration=
+            "normal" x="374" y="560">
+                2
+            </text>
+            <text dominant-baseline="hanging" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="middle" text-decoration=
+            "normal" x="447" y="560">
+                4
+            </text>
+            <text dominant-baseline="hanging" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="middle" text-decoration=
+            "normal" x="519" y="560">
+                6
+            </text>
+            <text dominant-baseline="hanging" fill="#444444" font-family=
+            "helvetica" font-size="16pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="middle" text-decoration=
+            "normal" x="300" y="580.9840005493164"></text>
+        </g>
+        <g>
+            <path d="M 50 549 L 50 49" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 44 526 L 52 526" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 44 413 L 52 413" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 44 299 L 52 299" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 44 185 L 52 185" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 44 72 L 52 72" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 526 L 50 526" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 504 L 50 504" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 481 L 50 481" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 458 L 50 458" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 435 L 50 435" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 413 L 50 413" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 390 L 50 390" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 367 L 50 367" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 344 L 50 344" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 322 L 50 322" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 299 L 50 299" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 276 L 50 276" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 253 L 50 253" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 231 L 50 231" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 208 L 50 208" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 185 L 50 185" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 163 L 50 163" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 140 L 50 140" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 117 L 50 117" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 94 L 50 94" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <path d="M 46 72 L 50 72" fill="none" paint-order=
+            "fill stroke markers" stroke="black" stroke-miterlimit="10"></path>
+            <text dominant-baseline="central" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="end" text-decoration="normal"
+            x="39" y="526">
+                -1
+            </text>
+            <text dominant-baseline="central" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="end" text-decoration="normal"
+            x="39" y="413">
+                -0.5
+            </text>
+            <text dominant-baseline="central" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="end" text-decoration="normal"
+            x="39" y="299">
+                0
+            </text>
+            <text dominant-baseline="central" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="end" text-decoration="normal"
+            x="39" y="185">
+                0.5
+            </text>
+            <text dominant-baseline="central" fill="#444444" font-family=
+            "helvetica" font-size="10pt" font-style="normal" font-weight=
+            "normal" stroke="none" text-anchor="end" text-decoration="normal"
+            x="39" y="72">
+                1
+            </text>
+            <g transform="translate(8.773334312438962,299) rotate(-90,0,0)">
+                <text dominant-baseline="alphabetic" fill="#444444"
+                font-family="helvetica" font-size="16pt" font-style="normal"
+                font-weight="normal" stroke="none" text-anchor="middle"
+                text-decoration="normal" x="0" y="0"></text>
+                <g transform=
+                "rotate(90,0,0) translate(-8.773334312438962,-299)"></g>
+            </g>
+        </g>
+    </g>
+</g></svg>
