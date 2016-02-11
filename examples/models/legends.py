@@ -6,26 +6,28 @@ import numpy as np
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Line
+from bokeh.models.glyphs import Line, Circle
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis, ColumnDataSource,
     PanTool, WheelZoomTool, PreviewSaveTool, Legend,
 )
 from bokeh.resources import INLINE
 
-x = np.linspace(-2*pi, 2*pi, 1000)
+x = np.linspace(-2*pi, 2*pi, 400)
 y = sin(x)
-z = cos(x)
+y2 = cos(x)
 
-source = ColumnDataSource(data=dict(x=x, y=y))
+source = ColumnDataSource(data=dict(x=x, y=y, y2=y2))
 
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(x_range=xdr, y_range=ydr, min_border=50)
+plot = Plot(x_range=xdr, y_range=ydr, min_border=50, plot_width=800)
 
-line_glyph = Line(x="x", y="y", line_color="blue")
+line_glyph = Line(x="x", y="y", line_color="navy", line_width=2, line_dash="dashed")
 line = plot.add_glyph(source, line_glyph)
+circle = Circle(x="x", y="y2", size=6, line_color="red", fill_color="orange", fill_alpha=0.6)
+circle = plot.add_glyph(source, circle)
 
 plot.add_layout(LinearAxis(), 'above')
 plot.add_layout(LinearAxis(), 'below')
@@ -41,10 +43,10 @@ plot.add_tools(pan, wheel_zoom, preview_save)
 from bokeh.core.enums import LegendLocation
 
 for location in LegendLocation:
-    legend = Legend(legends=[(location, [line])], location=location)
+    legend = Legend(legends=[(location, [line]), ("other", [circle])], location=location, orientation="horizontal")
     plot.add_layout(legend)
 
-legend = Legend(legends=[("x=100px, y=150px", [line])], location=(100, 150))
+legend = Legend(legends=[("x=100px, y=150px", [line]), ("other", [circle])], location=(100, 150))
 plot.add_layout(legend)
 
 doc = Document()

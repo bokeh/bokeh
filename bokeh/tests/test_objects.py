@@ -194,9 +194,9 @@ class TestModel(unittest.TestCase):
                            "foo" : 42,
                            "bar" : "world" },
                          json)
-        self.assertEqual(('{"bar": "world", ' +
-                          '"child": {"id": "%s", "type": "SomeModelToJson"}, ' +
-                          '"foo": 42, "id": "%s", "name": null, "tags": []}') %
+        self.assertEqual(('{"bar":"world",' +
+                          '"child":{"id":"%s","type":"SomeModelToJson"},' +
+                          '"foo":42,"id":"%s","name":null,"tags":[]}') %
                          (child_obj._id, obj._id),
                          json_string)
 

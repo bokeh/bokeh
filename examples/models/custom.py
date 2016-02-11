@@ -15,9 +15,9 @@ class Popup(Callback):
     __implementation__ = """
 _ = require "underscore"
 Util = require "util/util"
-HasProperties = require "common/has_properties"
+Model = require "model"
 
-class Popup extends HasProperties
+class Popup extends Model
   type: "Popup"
 
   execute: (data_source) ->
@@ -46,7 +46,7 @@ class MyHBox(HBox):
 _ = require "underscore"
 build_views = require "common/build_views"
 ContinuumView = require "common/continuum_view"
-HBox = require "layout/hbox"
+HBox = require "models/layouts/hbox"
 
 class MyHBoxView extends HBox.View
   render: () ->

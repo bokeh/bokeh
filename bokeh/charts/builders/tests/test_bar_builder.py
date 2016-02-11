@@ -17,6 +17,8 @@ from __future__ import absolute_import
 from bokeh.charts.builders.bar_builder import BarBuilder
 from bokeh.charts.stats import CountDistinct
 
+import operator
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -35,3 +37,24 @@ def test_values_only_input(df_with_cat_index):
     bar_builder = BarBuilder(df_with_cat_index, values='col1')
     bar_builder.create()
     assert bar_builder.attributes['label'].columns[0] == 'index'
+
+
+def test_grouping_order(test_data):
+    df = test_data.auto_data.iloc[:10, :]
+    bar_builder = BarBuilder(df, values='mpg', label='origin',
+                             group='name', color='name')
+    names = df.name.drop_duplicates().values
+    bar_builder.create()
+    renderers = [renderer for renderer in bar_builder.yield_renderers()]
+
+    # parse the relative x position from the data sources
+    x_pos = {renderer.data_source.data['name'][0]: float(renderer.data_source.data[
+                                                         'x'][0].split(':')[1]) for
+             renderer in renderers}
+
+    # get the order of the names as they appear in their relative positioning
+    grouped_names_in_order = list(sorted(x_pos.items(), key=operator.itemgetter(1)))
+    grouped_names_in_order = [grouped[0] for grouped in grouped_names_in_order]
+
+    for name, grouped_name in zip(names, grouped_names_in_order):
+        assert name == grouped_name

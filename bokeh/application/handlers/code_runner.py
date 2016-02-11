@@ -2,7 +2,6 @@ from __future__ import absolute_import, print_function
 
 from os.path import abspath
 from types import ModuleType
-import codecs
 import os
 import sys
 import traceback
@@ -10,16 +9,16 @@ import traceback
 from bokeh.util.serialization import make_id
 
 class _CodeRunner(object):
-    """Load and run a Python file."""
+    """ Compile and run a Python source code."""
 
-    def __init__(self, path):
+    def __init__(self, source, path):
         self._failed = False
         self._error = None
         self._error_detail = None
 
         import ast
         self._code = None
-        source = codecs.open(path, 'r', 'UTF-8').read()
+
         try:
             nodes = ast.parse(source, path)
             self._code = compile(nodes, filename=path, mode='exec')
@@ -30,6 +29,12 @@ class _CodeRunner(object):
             self._error_detail = traceback.format_exc()
 
         self._path = path
+        self._source = source
+
+    @property
+    def source(self):
+        return self._source
+
 
     @property
     def path(self):
