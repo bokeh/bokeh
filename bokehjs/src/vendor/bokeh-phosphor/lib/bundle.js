@@ -50,7 +50,7 @@ this["bokeh_phosphor"] =
 	}
 	__export(__webpack_require__(1));
 	__export(__webpack_require__(16));
-  //var bokeh_phosphor = __webpack_require__(1);
+	__export(__webpack_require__(3));
 
 
 /***/ },

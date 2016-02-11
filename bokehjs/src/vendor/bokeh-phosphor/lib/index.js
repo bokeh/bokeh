@@ -3,3 +3,4 @@ function __export(m) {
 }
 __export(require('phosphor-widget'));
 __export(require('phosphor-boxpanel'));
+__export(require('phosphor-messaging'));

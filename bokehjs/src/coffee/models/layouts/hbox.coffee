@@ -5,6 +5,9 @@ build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 BaseBox = require "./basebox"
 
+#
+# div#main.p-Widget.p-Panel.p-BoxPanel.p-mod-left-to-right
+#
 
 class HBoxView extends ContinuumView
   tag: "div"
@@ -14,11 +17,27 @@ class HBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
     @views = {}
+    @listenTo(@$el.parentNode, 'change', @nodeChange)
+    # @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
+    # @widget.attach(@el)
+    # @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
+    # @panel.parent = @el
+    #@panel.addClass("bk-bs-container")
+    # @panel.id = 'main'
+    # @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.LeftToRight
+    # @panel.spacing = 5
     @render()
     @listenTo(@model, 'change', @render)
-    @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
+
+
+  nodeChange: () ->
+    console.log('NODE CHANGE: ')
+    console.log(@el)
+    return @
 
   render: () ->
+
+    @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
 
     @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
     @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.LeftToRight
@@ -30,14 +49,25 @@ class HBoxView extends ContinuumView
       val.$el.detach()
     @$el.empty()
     width = @mget("width")
-    if width? then @$el.css(width: width + "px")
+    if width? then @panel.width = width #@$el.css(width: width + "px")
     height = @mget("height")
-    if height? then @$el.css(height: height + "px")
+    if height? then @panel.height = height #@$el.css(height: height + "px")
 
     for child, index in children
+      console.log("Hbox :: " + index.toString())
       child_widget = new bokeh_phosphor.bokeh_phosphor.Widget();
       child_widget.node.appendChild(@views[child.id].$el[0])
       @panel.addChild(child_widget)
+
+    console.log(@$el[0])
+    @el.appendChild(@widget.node)
+    # fun = () -> bokeh_phosphor.bokeh_phosphor.sendMessage(
+    #   @widget,
+    #   bokeh_phosphor.bokeh_phosphor.Widget.WidgetAfterAttach
+    # )
+    # setTimeout(fun, 3000)
+    # @widget.layout = @panel.layout
+    console.log("Setting hbox height: " + @panel.height);
 
     return @
 
