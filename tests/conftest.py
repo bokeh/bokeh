@@ -35,6 +35,7 @@ def pytest_sessionfinish(session, exitstatus):
 
 @pytest.fixture(scope="session")
 def capabilities(capabilities):
-    capabilities["browserName"] = "firefox"
+    capabilities["browserName"] = "chrome"
+    capabilities["platform"] = "Windows 7"
     capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
     return capabilities
