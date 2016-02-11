@@ -182,6 +182,7 @@ class PlotView extends ContinuumView
     return this
 
   init_svg: () ->
+    @svg_mode = true
     @canvas_view.ctx = new canvas2svg(@mget("plot_width"), @mget("plot_height")) 
 
   init_webgl: () ->
@@ -593,7 +594,7 @@ class PlotView extends ContinuumView
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()
 
-    if clip_region?
+    if not @svg_mode and clip_region?
       ctx.beginPath()
       ctx.rect.apply(ctx, clip_region)
       ctx.clip()
