@@ -75,7 +75,8 @@ script:
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then export UPLOAD_PYTEST_HTML=True; fi
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html; fi  # Run the integration tests on saucelabs
+    - pip install pytest-xdist
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then py.test -m integration --driver SauceLabs --html=tests/pytest-report.html -n 5; fi  # Run the integration tests on saucelabs
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then export UPLOAD_PYTEST_HTML=False; fi
     #
     # Flake/docs testing only once (Py 2.7)
