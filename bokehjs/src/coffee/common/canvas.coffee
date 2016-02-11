@@ -65,7 +65,7 @@ class CanvasView extends ContinuumView
     @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
     @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
 
-    if not window.location.search.indexOf('svg=1') > 0
+    if not (window.location.search.indexOf('svg=1') > 0)
       # This scaling and translating breaks the svg
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)
