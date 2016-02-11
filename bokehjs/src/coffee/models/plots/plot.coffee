@@ -19,6 +19,7 @@ plot_template = require "../../common/plot_template"
 mixins = require "../../core/property_mixins"
 GlyphRenderer = require "../renderers/glyph_renderer"
 ToolEvents = require "../../common/tool_events"
+canvas2svg = require "canvas2svg";
 
 
 # Notes on WebGL support:
@@ -127,6 +128,10 @@ class PlotView extends ContinuumView
       if window.location.search.indexOf('webgl=0') == -1
         @init_webgl()
 
+    # If requested, enable svg
+    if window.location.search.indexOf('svg=1') > 0
+        @init_svg()
+
     @throttled_render = plot_utils.throttle_animation(@render, 15)
 
     @outline_props = new mixins.Line({obj: @model, prefix: 'outline_'})
@@ -175,6 +180,9 @@ class PlotView extends ContinuumView
     logger.debug("PlotView initialized")
 
     return this
+
+  init_svg: () ->
+    @canvas_view.ctx = new canvas2svg(@mget("plot_width"), @mget("plot_height")) 
 
   init_webgl: () ->
 
