@@ -10,8 +10,13 @@ from bokeh.models import HBox, Select
 from bokeh.plotting import Figure
 from bokeh.sampledata.autompg import autompg
 
-from examples.app.crossfilter.models import StyleableBox, StatsBox
-from examples.app.crossfilter.models.helpers import load_component
+# this is to be able to import modules from the app directory
+import sys
+from os.path import dirname
+sys.path.append(dirname(__file__))
+
+from models import StyleableBox, StatsBox
+from models.helpers import load_component
 
 class AppModel(object):
 
@@ -102,7 +107,7 @@ def bind_on_change(attr, old, new, model_field):
 
 def create_figure():
     xs, ys, colors, sizes = model.get_axes_values()
-    fig_args = dict(tools='pan,wheel_zoom', plot_height=600, plot_width=800)
+    fig_args = dict(tools='pan', plot_height=600, plot_width=800)
 
     if model.x_field in model.discrete_column_names and model.y_field in model.discrete_column_names:
         figure = Figure(x_range=xs, y_range=ys, **fig_args)
@@ -158,20 +163,14 @@ plot_view.children = [create_figure()]
 
 side_container = StyleableBox()
 side_container.children = [StatsBox(display_items=c, styles=model.stats_box_style) for c in model.continuous_columns]
-side_container.css_properties = {}
-side_container.css_properties['position'] = 'absolute'
-side_container.css_properties['overflow'] = 'scroll'
-side_container.css_properties['top'] = '1em'
-side_container.css_properties['left'] = '1em'
-side_container.css_properties['bottom'] = '1em'
+side_container.css_properties = dict(
+ position='absolute', overflow='scroll', top='1em', left='1em', bottom='1em'
+)
 
 main_container = StyleableBox()
 main_container.children = [controls_view, plot_view]
-main_container.css_properties = {}
-main_container.css_properties['position'] = 'absolute'
-main_container.css_properties['top'] = '1em'
-main_container.css_properties['right'] = '1em'
-main_container.css_properties['left'] = '12.5em'
-main_container.css_properties['bottom'] = '1em'
+main_container.css_properties = dict(
+ position='absolute', top='1em', right='1em', left='12.5em', bottom='1em'
+)
 
 doc = curdoc().add_root(HBox(children=[side_container, main_container]))
