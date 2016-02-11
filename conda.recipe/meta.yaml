@@ -59,6 +59,7 @@ test:
     - beautiful-soup
     - scipy
     - pillow
+    - boto
 
     # examples
     - jupyter
