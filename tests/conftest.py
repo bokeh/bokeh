@@ -36,5 +36,6 @@ def pytest_sessionfinish(session, exitstatus):
 @pytest.fixture(scope="session")
 def capabilities(capabilities):
     capabilities["browserName"] = "firefox"
-    capabilities["tunnel-identifier"] = os.environ.get("TRAVIS_JOB_NUMBER")
+    capabilities["browserstack.local"] = True
+    capabilities["browserstack.localIdentifier"] = "travis-" + os.environ.get("TRAVIS_JOB_NUMBER")
     return capabilities
