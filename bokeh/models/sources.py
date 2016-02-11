@@ -2,9 +2,9 @@ from __future__ import absolute_import
 
 from ..core import validation
 from ..core.validation.errors import COLUMN_LENGTHS
-from ..model import Model
 from ..core.properties import abstract
 from ..core.properties import Any, Int, String, Instance, List, Dict, Bool, Enum, JSON
+from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.deprecate import deprecated
 from ..util.serialization import transform_column_source_data
@@ -222,6 +222,35 @@ class ColumnDataSource(DataSource):
             return str(self)
 
 
+    def stream(self, new_data, rollover=None):
+        import numpy as np
+
+        newkeys = set(new_data.keys())
+        oldkeys = set(self.data.keys())
+        if newkeys != oldkeys:
+            missing = oldkeys - newkeys
+            extra = newkeys - oldkeys
+            if missing and extra:
+                raise ValueError("Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra))))
+            elif missing:
+                raise ValueError("Must stream updates to all existing columns (missing: %s)" % ", ".join(sorted(missing)))
+            else:
+                raise ValueError("Must stream updates to all existing columns (extra: %s)" % ", ".join(sorted(extra)))
+
+        lengths = set()
+        for x in new_data.values():
+            if isinstance(x, np.ndarray):
+                if len(x.shape) != 1:
+                    raise ValueError("stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,))
+                lengths.add(x.shape[0])
+            else:
+                lengths.add(len(x))
+
+        if len(lengths) > 1:
+            raise ValueError("All streaming column updates must be the same length")
+
+        self.data._stream(self.document, self, new_data, rollover)
+
 class GeoJSONDataSource(ColumnDataSource):
 
     geojson = JSON(help="""
@@ -266,40 +295,3 @@ class AjaxDataSource(RemoteSource):
     http_headers = Dict(String, String, help="""
     HTTP headers to set for the Ajax request.
     """)
-
-class BlazeDataSource(RemoteSource):
-    #blaze parts
-    expr = Dict(String, Any(), help="""
-    blaze expression graph in json form
-    """)
-
-    namespace = Dict(String, Any(), help="""
-    namespace in json form for evaluating blaze expression graph
-    """)
-
-    local = Bool(help="""
-    Whether this data source is hosted by the bokeh server or not.
-    """)
-
-    def from_blaze(self, remote_blaze_obj, local=True):
-        from blaze.server import to_tree
-        # only one Client object, can hold many datasets
-        assert len(remote_blaze_obj._leaves()) == 1
-        leaf = remote_blaze_obj._leaves()[0]
-        blaze_client = leaf.data
-        json_expr = to_tree(remote_blaze_obj, {leaf : ':leaf'})
-        self.data_url = blaze_client.url + "/compute.json"
-        self.local = local
-        self.expr = json_expr
-
-    def to_blaze(self):
-        from blaze.server.client import Client
-        from blaze.server import from_tree
-        from blaze import Data
-        # hacky - blaze urls have `compute.json` in it, but we need to strip it off
-        # to feed it into the blaze client lib
-        c = Client(self.data_url.rsplit('compute.json', 1)[0])
-        d = Data(c)
-        return from_tree(self.expr, {':leaf' : d})
-
-

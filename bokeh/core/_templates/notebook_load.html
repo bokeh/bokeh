@@ -24,15 +24,10 @@ Notebook according to a Resources object.
 :type warnings: list[str]
 
 #}
-
-    <script type="text/javascript">
-      {{ bootstrap|indent(6) }}
-    </script>
-
     {%- if not hide_banner %}
-    <div>
+    <div class="bk-banner">
         <a href="http://bokeh.pydata.org" target="_blank" class="bk-logo bk-logo-small bk-logo-notebook"></a>
-        <span>BokehJS successfully loaded.</span>
+        <span id="{{ element_id }}">Loading BokehJS ...</span>
     </div>
 
     {%- if verbose %}

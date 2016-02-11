@@ -21,9 +21,9 @@ class DateGapTickFormatter(TickFormatter):
 
     __implementation__ = """
         _ = require "underscore"
-        HasProperties = require "common/has_properties"
+        Model = require "model"
 
-        class DateGapTickFormatter extends HasProperties
+        class DateGapTickFormatter extends Model
           type: 'DateGapTickFormatter'
 
           format: (ticks) ->
