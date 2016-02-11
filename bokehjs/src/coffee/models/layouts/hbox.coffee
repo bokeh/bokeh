@@ -17,7 +17,7 @@ class HBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
     @views = {}
-    @listenTo(@$el.parentNode, 'change', @nodeChange)
+    $('#sections').livequery(@onAddedToDOM, @onRemovedFromDOM)
     # @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
     # @widget.attach(@el)
     # @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
@@ -30,10 +30,13 @@ class HBoxView extends ContinuumView
     @listenTo(@model, 'change', @render)
 
 
-  nodeChange: () ->
+  onAddedToDOM: () ->
     console.log('NODE CHANGE: ')
     console.log(@el)
     return @
+
+  onRemovedFromDOM: () ->
+    console.log('Removed from DOM')
 
   render: () ->
 
