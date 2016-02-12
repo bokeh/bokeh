@@ -701,13 +701,13 @@ describe "properties module", ->
 
   describe "dataspecs", ->
     it "should have a class dataspec attribute set true", ->
-      expect(properties.AngleSpec.dataspec).to.be.true
-      expect(properties.ColorSpec.dataspec).to.be.true
-      expect(properties.DirectionSpec.dataspec).to.be.true
-      expect(properties.DistanceSpec.dataspec).to.be.true
-      expect(properties.FontSizeSpec.dataspec).to.be.true
-      expect(properties.NumberSpec.dataspec).to.be.true
-      expect(properties.StringSpec.dataspec).to.be.true
+      expect(properties.AngleSpec::dataspec).to.be.true
+      expect(properties.ColorSpec::dataspec).to.be.true
+      expect(properties.DirectionSpec::dataspec).to.be.true
+      expect(properties.DistanceSpec::dataspec).to.be.true
+      expect(properties.FontSizeSpec::dataspec).to.be.true
+      expect(properties.NumberSpec::dataspec).to.be.true
+      expect(properties.StringSpec::dataspec).to.be.true
 
   describe "exports", ->
 

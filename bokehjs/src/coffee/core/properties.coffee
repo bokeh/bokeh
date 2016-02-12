@@ -225,25 +225,25 @@ class Distance extends units_prop("Distance", enums.SpatialUnits, "data")
 #
 
 class AngleSpec extends Angle
-  @dataspec: true
+  dataspec: true
 
 class ColorSpec extends Color
-  @dataspec: true
+  dataspec: true
 
 class DirectionSpec extends Distance
-  @dataspec: true
+  dataspec: true
 
 class DistanceSpec extends Distance
-  @dataspec: true
+  dataspec: true
 
 class FontSizeSpec extends String
-  @dataspec: true
+  dataspec: true
 
 class NumberSpec extends Number
-  @dataspec: true
+  dataspec: true
 
 class StringSpec extends String
-  @dataspec: true
+  dataspec: true
 
 module.exports =
   Property: Property
