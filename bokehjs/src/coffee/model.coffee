@@ -5,7 +5,7 @@ p = require "./core/properties"
 class Model extends HasProps
   type: "Model"
 
-  props: () -> _.extend super(), {
+  props: () -> _.extend {}, super(), {
     tags: [ p.Array, [] ]
     name: [ p.String    ]
   }
