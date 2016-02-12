@@ -1,5 +1,6 @@
 _ = require "underscore"
 kiwi = require "kiwi"
+c2s = require "canvas2svg";
 {Expression, Constraint, Operator} = kiwi
 canvas_template = require "./canvas_template"
 ContinuumView = require "./continuum_view"
@@ -32,8 +33,9 @@ class CanvasView extends ContinuumView
     @map_div = @$('div.bk-canvas-map') ? null
 
     # Create context. This is the object that gets passed arount while drawing
-    @ctx = @canvas[0].getContext('2d')
-    @ctx.glcanvas = null  # init without webgl support (can be overriden in plot.coffee)
+    c2s = c2s(600, 600)
+    window.c2s = c2s
+    @ctx = c2s
 
     logger.debug("CanvasView initialized")
 
