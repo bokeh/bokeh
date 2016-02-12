@@ -12,6 +12,19 @@ class VBoxView extends ContinuumView
 
   initialize: (options) ->
     super(options)
+
+    observer = new MutationObserver((mutations) =>
+      mutations.forEach((mutation) =>
+        if mutation.target === @el:
+          @nodeChange
+      )
+    )
+    observer.observe(@el,
+      {subtree: false,
+      childList: false,
+      attributes: false,
+      attributeFilter: ["parentNode"]}
+    )
     @views = {}
     # @listenTo(@$el, 'change', @nodeChange)
     # @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
@@ -26,7 +39,7 @@ class VBoxView extends ContinuumView
     @listenTo(@model, 'change', @render)
 
   nodeChange: () ->
-    
+
     console.log('NODE CHANGE: ')
 
   render: () ->
