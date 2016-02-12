@@ -1,6 +1,7 @@
 _ = require "underscore"
-Glyph = require "./glyph"
 rbush = require "rbush"
+
+Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 
 class PatchesView extends Glyph.View
@@ -78,7 +79,7 @@ class PatchesView extends Glyph.View
     for i in indices
       [sx, sy] = [sxs[i], sys[i]]
 
-      if @visuals.fill.do_fill
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
 
         for j in [0...sx.length]
@@ -97,7 +98,7 @@ class PatchesView extends Glyph.View
         ctx.closePath()
         ctx.fill()
 
-      if @visuals.line.do_stroke
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
 
         for j in [0...sx.length]
@@ -177,7 +178,9 @@ class PatchesView extends Glyph.View
 
 class Patches extends Glyph.Model
   default_view: PatchesView
+
   type: 'Patches'
+
   coords: [ ['xs', 'ys'] ]
 
 module.exports =

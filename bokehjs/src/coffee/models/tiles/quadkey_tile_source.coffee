@@ -1,7 +1,6 @@
 MercatorTileSource = require('./mercator_tile_source')
 
 class QUADKEYTileSource extends MercatorTileSource
-
   type: 'QUADKEYTileSource'
 
   get_image_url: (x, y, z) ->

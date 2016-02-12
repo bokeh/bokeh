@@ -1,13 +1,15 @@
 _ = require "underscore"
-Renderer = require "../renderers/renderer"
 
-class Annotation extends Renderer
+Renderer = require "../renderers/renderer"
+p = require "../../core/properties"
+
+class Annotation extends Renderer.Model
   type: 'Annotation'
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      level: 'overlay'
-      plot: null
+      level: [ p.RenderLevel, 'annotation' ]
+      plot:  [ p.Instance                  ]
     }
 
 module.exports =

@@ -1,10 +1,12 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
-ContinuumView = require "../../common/continuum_view"
-Model = require "../../model"
 
-class RadioButtonGroupView extends ContinuumView
+Widget = require "./widget"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
+
+class RadioButtonGroupView extends BokehView
   tagName: "div"
   events:
     "change input": "change_input"
@@ -37,16 +39,15 @@ class RadioButtonGroupView extends ContinuumView
     @mset('active', active[0])
     @mget('callback')?.execute(@model)
 
-class RadioButtonGroup extends Model
+class RadioButtonGroup extends Widget.Model
   type: "RadioButtonGroup"
   default_view: RadioButtonGroupView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      active: null
-      labels: []
-      type: "default"
-      disabled: false
+      active:   [ p.Any,    null      ] # TODO (bev) better type?
+      labels:   [ p.Array,  []        ]
+      type:     [ p.String, "default" ]
     }
 
 module.exports =

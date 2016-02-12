@@ -1,7 +1,8 @@
 _ = require "underscore"
+
+bokehgl = require "./bokehgl"
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
-bokehgl = require "./bokehgl"
 
 class LineView extends Glyph.View
 
@@ -106,8 +107,10 @@ class LineView extends Glyph.View
 
 class Line extends Glyph.Model
   default_view: LineView
+
   type: 'Line'
-  visuals: ['line']
+
+  mixins: ['line']
 
 module.exports =
   Model: Line

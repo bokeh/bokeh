@@ -1,9 +1,11 @@
 _ = require "underscore"
 $ = require "jquery"
-ContinuumView = require "../../common/continuum_view"
-Model = require "../../model"
 
-class RadioGroupView extends ContinuumView
+Widget = require "./widget"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
+
+class RadioGroupView extends BokehView
   tagName: "div"
   events:
     "change input": "change_input"
@@ -36,16 +38,15 @@ class RadioGroupView extends ContinuumView
     active = (i for radio, i in @$("input") when radio.checked)
     @mset('active', active[0])
 
-class RadioGroup extends Model
+class RadioGroup extends Widget.Model
   type: "RadioGroup"
   default_view: RadioGroupView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      active: null
-      labels: []
-      inline: false
-      disabled: false
+      active:   [ p.Any,   null  ] # TODO (bev) better type?
+      labels:   [ p.Array, []    ]
+      inline:   [ p.Bool,  false ]
     }
 
 module.exports =

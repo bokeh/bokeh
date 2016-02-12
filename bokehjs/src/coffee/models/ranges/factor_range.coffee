@@ -1,12 +1,21 @@
 _ = require "underscore"
+
 Range = require "./range"
+p = require "../../core/properties"
 
 class FactorRange extends Range.Model
   type: 'FactorRange'
 
+  props: ->
+    return _.extend {}, super(), {
+      offset:  [ p.Number, 0  ]
+      factors: [ p.Array,  [] ]
+      bounds:  [ p.Any        ] # TODO (bev)
+    }
+
   initialize: (attrs, options) ->
     super(attrs, options)
-    
+
     # Bounds come in as factors, but are later converted to
     # coordinates, so store the factored version for later use
     if @get('bounds')? and @get('bounds') != 'auto'
@@ -51,13 +60,6 @@ class FactorRange extends Range.Model
 
     if @get('bounds')?
       @set('bounds', [start, end])
-
-  defaults: ->
-    return _.extend {}, super(), {
-      offset: 0
-      factors: []
-      bounds: null
-    }
 
 module.exports =
   Model: FactorRange

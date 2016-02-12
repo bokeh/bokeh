@@ -1,5 +1,6 @@
 _ = require "underscore"
 rbush = require "rbush"
+
 Glyph = require "./glyph"
 
 class MultiLineView extends Glyph.View
@@ -43,8 +44,10 @@ class MultiLineView extends Glyph.View
 
 class MultiLine extends Glyph.Model
   default_view: MultiLineView
+
   type: 'MultiLine'
-  visuals: ['line']
+
+  mixins: ['line']
   coords: [ ['xs', 'ys'] ]
 
 module.exports =

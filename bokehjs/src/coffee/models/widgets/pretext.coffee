@@ -1,5 +1,7 @@
 _ = require "underscore"
+
 Paragraph = require "./paragraph"
+p = require "../../core/properties"
 
 class PreTextView extends Paragraph.View
   tagName: "pre"
@@ -10,11 +12,10 @@ class PreText extends Paragraph.Model
   type: "PreText"
   default_view: PreTextView
 
-  defaults: ->
+  props: ->
     return _.extend {}, super(), {
-      text: ''
-      height: 400
-      width: 500
+      height: [ p.Number, 400 ]
+      width:  [ p.Number, 500 ]
     }
 
 module.exports =

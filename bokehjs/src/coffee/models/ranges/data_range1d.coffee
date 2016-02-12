@@ -1,10 +1,35 @@
 _ = require "underscore"
+
+DataRange = require "./data_range"
 bbox = require "../../common/bbox"
 {logger} = require "../../core/logging"
-DataRange = require "./data_range"
+p = require "../../core/properties"
 
 class DataRange1d extends DataRange.Model
   type: 'DataRange1d'
+
+  props: ->
+    return _.extend {}, super(), {
+      start:           [ p.Number        ]
+      end:             [ p.Number        ]
+      range_padding:   [ p.Number, 0.1   ]
+      flipped:         [ p.Bool,   false ]
+      follow:          [ p.String        ] # TODO (bev)
+      follow_interval: [ p.Number        ]
+      default_span:    [ p.Number, 2     ]
+      bounds:          [ p.Any           ] # TODO (bev)
+    }
+
+  defaults: ->
+    return _.extend {}, super(), {
+      # overrides
+
+      # internal
+      plots: []
+    }
+
+  nonserializable_attribute_names: () ->
+    super().concat(['plots'])
 
   initialize: (attrs, options) ->
     super(attrs, options)
@@ -143,21 +168,7 @@ class DataRange1d extends DataRange.Model
       default_span: @_initial_default_span
     })
 
-  nonserializable_attribute_names: () ->
-    super().concat(['plots'])
 
-  defaults: ->
-    return _.extend {}, super(), {
-      start: null
-      end: null
-      range_padding: 0.1
-      flipped: false
-      follow: null
-      follow_interval: null
-      default_span: 2
-      plots: []
-      bounds: null
-    }
 
 module.exports =
   Model: DataRange1d

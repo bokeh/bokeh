@@ -1,6 +1,8 @@
 _ = require "underscore"
+
 Glyph = require "../glyphs/glyph"
 hittest = require "../../common/hittest"
+p = require "../../core/properties"
 
 class MarkerView extends Glyph.View
 
@@ -96,14 +98,11 @@ class MarkerView extends Glyph.View
     return result
 
 class Marker extends Glyph.Model
-  distances: ['size']
-  angles: ['angle']
 
-  defaults: ->
-    return _.extend {}, super(), {
-      size: { units: "screen", value: 4 }
-      angle: 0
-    }
+  props: -> _.extend super(), {
+    size:  [ p.DistanceSpec, { units: "screen", value: 4 } ]
+    angle: [ p.AngleSpec,    0                             ]
+  }
 
 module.exports =
   Model: Marker
