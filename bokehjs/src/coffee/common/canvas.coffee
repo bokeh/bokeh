@@ -1,11 +1,12 @@
 _ = require "underscore"
 kiwi = require "kiwi"
+
 {Expression, Constraint, Operator} = kiwi
 canvas_template = require "./canvas_template"
-BokehView = require "../core/bokeh_view"
 LayoutBox = require "./layout_box"
+BokehView = require "../core/bokeh_view"
+Solver = require "../core/layout/solver"
 {logger} = require "../core/logging"
-Solver = require "./solver"
 
 # TODO - This should only be on in testing
 #require 'Canteen'
