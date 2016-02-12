@@ -27,12 +27,14 @@ class VBoxView extends ContinuumView
           @panel,
           bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
         )
+        #
+        @render
         @panel.update()
       )
     )
     @observer.observe(@el,
-      {subtree: true,
-      childList: true,
+      {subtree: false,
+      childList: false,
       attributes: true}
     )
     @views = {}
@@ -55,15 +57,14 @@ class VBoxView extends ContinuumView
     if width? then @$el.css(width: width + "px")
     # height = @mget("height")
     # if height? then panel.height = height
-    if height?
-      @$el.css(height: height + "px")
+    if height? then @$el.css(height: height + "px")
 
     for child in children
       console.log("VBox")
       child_widget = new bokeh_phosphor.bokeh_phosphor.Widget()
       child_widget.node.appendChild(@views[child.id].$el[0])
-      child_widget.width = @views[child.id].$el[0].width
-      child_widget.height = @views[child.id].$el[0].height
+      child_widget.node.style.width = @views[child.id].$el[0].width
+      child_widget.node.style.height = @views[child.id].$el[0].height
       @panel.addChild(child_widget)
 
     @el.appendChild(@panel.node)

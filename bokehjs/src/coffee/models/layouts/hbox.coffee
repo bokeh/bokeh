@@ -29,6 +29,8 @@ class HBoxView extends ContinuumView
           @panel,
           bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
         )
+        #
+        @render
         @panel.update()
       )
     )
@@ -48,17 +50,18 @@ class HBoxView extends ContinuumView
     for own key, val of @views
       val.$el.detach()
     @$el.empty()
-    width = @mget("width")
-    if width? then @$el.css(width: width + "px")
-    height = @mget("height")
-    if height? then @$el.css(height: height + "px")
+    # width = @mget("width")
+    # if width? then @$el.css(width: width + "px")
+    # height = @mget("height")
+    # if height? then @$el.css(height: height + "px")
 
     for child, index in children
       console.log("Hbox :: " + index.toString())
       child_widget = new bokeh_phosphor.bokeh_phosphor.Widget();
       child_widget.node.appendChild(@views[child.id].$el[0])
-      child_widget.width = @views[child.id].$el[0].width
-      child_widget.height = @views[child.id].$el[0].height
+      # x = debug
+      child_widget.node.style.width = @views[child.id].$el[0].width
+      child_widget.node.style.height = @views[child.id].$el[0].height
       @panel.addChild(child_widget)
 
     @el.appendChild(@panel.node)
