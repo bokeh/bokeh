@@ -5,9 +5,6 @@ build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 BaseBox = require "./basebox"
 
-#
-# div#main.p-Widget.p-Panel.p-BoxPanel.p-mod-left-to-right
-#
 
 class HBoxView extends ContinuumView
   tag: "div"
@@ -17,24 +14,17 @@ class HBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
     @views = {}
-    # @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
     @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
-    # @widget.layout = @panel.layout
-    # @panel.parent = @el
-    #@panel.addClass("bk-bs-container")
-    # @panel.id = 'main'
-    # @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.LeftToRight
-    # @panel.spacing = 5
 
     @observer = new MutationObserver((mutations) =>
       mutations.forEach((mutation) =>
-        entry = {
-          mutation: mutation,
-          el: mutation.target,
-          oldValue: mutation.oldValue
-        }
-        console.log('HBOX MUTATION')
-        console.log(entry)
+        # entry = {
+        #   mutation: mutation,
+        #   el: mutation.target,
+        #   oldValue: mutation.oldValue
+        # }
+        # console.log('HBOX MUTATION')
+        # console.log(entry)
         bokeh_phosphor.bokeh_phosphor.sendMessage(
           @panel,
           bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach

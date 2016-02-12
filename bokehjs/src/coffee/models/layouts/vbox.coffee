@@ -12,9 +12,7 @@ class VBoxView extends ContinuumView
 
   initialize: (options) ->
     super(options)
-    # @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
     @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
-    # @widget.layout = @panel.layout
 
     @observer = new MutationObserver((mutations) =>
       mutations.forEach((mutation) =>
@@ -38,15 +36,7 @@ class VBoxView extends ContinuumView
       attributes: true}
     )
     @views = {}
-    # @listenTo(@$el, 'change', @nodeChange)
-    # @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
-    # @widget.attach( @el )
-    # @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
-    # @panel.parent = @el
-    # @panel.addClass("bk-vbox")
-    # @panel.id = 'main'
-    # @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.TopToBottom
-    # @panel.spacing = 5
+
     @render()
     @listenTo(@model, 'change', @render)
 
@@ -67,12 +57,7 @@ class VBoxView extends ContinuumView
     # if height? then panel.height = height
     if height?
       @$el.css(height: height + "px")
-    #   spacer_height = height/(children.length*2)
-    # else
-    #   spacer_height = 20
 
-    #spacer = $('<div>').addClass('bk-vbox-spacer').css({height: spacer_height})
-    #@$el.append($(spacer))
     for child in children
       console.log("VBox")
       child_widget = new bokeh_phosphor.bokeh_phosphor.Widget()
@@ -81,10 +66,7 @@ class VBoxView extends ContinuumView
       child_widget.height = @views[child.id].$el[0].height
       @panel.addChild(child_widget)
 
-    #@panel.update()
-    # console.log(@$el[0])
     @el.appendChild(@panel.node)
-
     return @
 
 class VBox extends BaseBox.Model
