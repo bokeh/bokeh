@@ -12,18 +12,29 @@ class VBoxView extends ContinuumView
 
   initialize: (options) ->
     super(options)
+    @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
+    @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
 
-    observer = new MutationObserver((mutations) =>
+    @observer = new MutationObserver((mutations) =>
       mutations.forEach((mutation) =>
-        if mutation.target === @el:
-          @nodeChange
+        entry = {
+          mutation: mutation,
+          el: mutation.target,
+          oldValue: mutation.oldValue
+        }
+        console.log('MUTATION: ')
+        console.log(entry)
+        bokeh_phosphor.bokeh_phosphor.sendMessage(
+          @widget,
+          bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
+        )
+        @widget.layout = @panel.layout
       )
     )
-    observer.observe(@el,
-      {subtree: false,
-      childList: false,
-      attributes: false,
-      attributeFilter: ["parentNode"]}
+    @observer.observe(@el,
+      {subtree: true,
+      childList: true,
+      attributes: true}
     )
     @views = {}
     # @listenTo(@$el, 'change', @nodeChange)
@@ -41,11 +52,14 @@ class VBoxView extends ContinuumView
   nodeChange: () ->
 
     console.log('NODE CHANGE: ')
+    bokeh_phosphor.bokeh_phosphor.sendMessage(
+      @widget,
+      bokeh_phosphor.bokeh_phosphor.Widget.WidgetAfterAttach
+    )
+    @widget.layout = @panel.layout
 
   render: () ->
 
-    @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
-    @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
     @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.TopToBottom
     @panel.spacing = 5
 
@@ -74,15 +88,8 @@ class VBoxView extends ContinuumView
     #@panel.update()
     console.log(@$el[0])
     @el.appendChild(@widget.node)
-    w = @widget
-    # fun = () -> bokeh_phosphor.bokeh_phosphor.sendMessage(
-    #   w,
-    #   bokeh_phosphor.bokeh_phosphor.Widget.WidgetAfterAttach
-    # )
-    # setTimeout(fun, 3000)
-    #@widget.layout = @panel.layout
-    # console.log('Setting vbox height: ' + @panel.height)
-    # @$el.css(height: @panel.height + "px")
+    #
+
 
     return @
 

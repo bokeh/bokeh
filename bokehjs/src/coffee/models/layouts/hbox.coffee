@@ -17,32 +17,39 @@ class HBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
     @views = {}
-    $('#sections').livequery(@onAddedToDOM, @onRemovedFromDOM)
-    # @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
+    @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
     # @widget.attach(@el)
-    # @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
+    @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
     # @panel.parent = @el
     #@panel.addClass("bk-bs-container")
     # @panel.id = 'main'
     # @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.LeftToRight
     # @panel.spacing = 5
+
+    @observer = new MutationObserver((mutations) =>
+      mutations.forEach((mutation) =>
+        entry = {
+          mutation: mutation,
+          el: mutation.target,
+          oldValue: mutation.oldValue
+        }
+        console.log('HBOX MUTATION')
+        console.log(entry)
+        bokeh_phosphor.bokeh_phosphor.sendMessage(
+          @widget,
+          bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
+        )
+        @widget.layout = @panel.layout
+      )
+    )
+
+    @observer.observe(@el, {subtree: true, childList: true, attributes: true} )
+
     @render()
     @listenTo(@model, 'change', @render)
 
-
-  onAddedToDOM: () ->
-    console.log('NODE CHANGE: ')
-    console.log(@el)
-    return @
-
-  onRemovedFromDOM: () ->
-    console.log('Removed from DOM')
-
   render: () ->
 
-    @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
-
-    @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
     @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.LeftToRight
     @panel.spacing = 5
 
@@ -62,15 +69,7 @@ class HBoxView extends ContinuumView
       child_widget.node.appendChild(@views[child.id].$el[0])
       @panel.addChild(child_widget)
 
-    console.log(@$el[0])
     @el.appendChild(@widget.node)
-    # fun = () -> bokeh_phosphor.bokeh_phosphor.sendMessage(
-    #   @widget,
-    #   bokeh_phosphor.bokeh_phosphor.Widget.WidgetAfterAttach
-    # )
-    # setTimeout(fun, 3000)
-    # @widget.layout = @panel.layout
-    console.log("Setting hbox height: " + @panel.height);
 
     return @
 
