@@ -20,9 +20,22 @@ class PreviewSaveToolView extends ActionTool.View
     @$el.modal({show: false})
 
   do: () ->
-    canvas = @plot_view.canvas_view.canvas[0]
-    @$('.bk-bs-modal-body img').attr("src", canvas.toDataURL());
-    @$el.modal('show')
+    if window.location.search.indexOf('svg=1') > 0
+      canvas2svg = @plot_view.canvas_view.ctx
+      svg = canvas2svg.getSerializedSvg(true)
+      svgblob = new Blob([svg], {type:'text/plain'})
+      downloadLink = document.createElement("a")
+      downloadLink.download = "out.svg"
+      downloadLink.innerHTML = "Download svg"
+      downloadLink.href = window.URL.createObjectURL(svgblob)
+      downloadLink.onclick = (event) -> document.body.removeChild(event.target)
+      downloadLink.style.display = "none"
+      document.body.appendChild(downloadLink)
+      downloadLink.click()
+    else
+      canvas = @plot_view.canvas_view.canvas[0]
+      @$('.bk-bs-modal-body img').attr("src", canvas.toDataURL())
+      @$el.modal('show')
 
 class PreviewSaveTool extends ActionTool.Model
   default_view: PreviewSaveToolView

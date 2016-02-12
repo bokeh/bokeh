@@ -65,8 +65,14 @@ class CanvasView extends ContinuumView
     @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
     @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
 
-    @ctx.scale(ratio, ratio)
-    @ctx.translate(0.5, 0.5)
+    if window.location.search.indexOf('svg=1') > 0
+      if @ctx.getSvg?
+        # The canvas has been eaten by canvas2cvg so append the svg in its place
+        @$el.append(@ctx.getSvg())
+    else
+      # This scaling and translating breaks the svg so don't do it in svg mode
+      @ctx.scale(ratio, ratio)
+      @ctx.translate(0.5, 0.5)
 
     # work around canvas incompatibilities
     # todo: this is done ON EACH DRAW, is that intended?
@@ -96,10 +102,10 @@ class CanvasView extends ContinuumView
 
   _fixup_image_smoothing: (ctx) ->
     ctx.setImageSmoothingEnabled = (value) ->
-      ctx.imageSmoothingEnabled = value;
-      ctx.mozImageSmoothingEnabled = value;
-      ctx.oImageSmoothingEnabled = value;
-      ctx.webkitImageSmoothingEnabled = value;
+      ctx.imageSmoothingEnabled = value
+      ctx.mozImageSmoothingEnabled = value
+      ctx.oImageSmoothingEnabled = value
+      ctx.webkitImageSmoothingEnabled = value
     ctx.getImageSmoothingEnabled = () ->
       return ctx.imageSmoothingEnabled ? true
 
