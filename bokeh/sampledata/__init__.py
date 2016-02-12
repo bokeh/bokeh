@@ -112,12 +112,17 @@ def _getfile(base_url, file_name, data_dir, progress=True):
     real_name, ext = splitext(file_name)
 
     if ext == '.zip':
+
         if not splitext(real_name)[1]:
             real_name += ".csv"
 
         print("Unpacking: %s" % real_name)
 
-        with ZipFile(file_path, 'r') as zip_file:
-            zip_file.extract(real_name, data_dir)
+        if splitext(real_name)[1] == '.shp':
+            with ZipFile(file_path, 'r') as zip_file:
+                zip_file.extractall(data_dir)
+        else:
+            with ZipFile(file_path, 'r') as zip_file:
+                zip_file.extract(real_name, data_dir)
 
         remove(file_path)
