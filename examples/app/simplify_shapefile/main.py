@@ -19,7 +19,7 @@ def simplify_features():
 def save_to_shapefile():
     _, input_file = path.split(shp_path)
     input_shp_name = path.splitext(input_file)[0]
-    output_shp_name = '{}_simplified_{}.shp'.format(input_shp_name, simplify_tolerance) 
+    output_shp_name = '{}_simplified_{}.shp'.format(input_shp_name, simplify_tolerance)
     output_full_path = path.join(path.expanduser('~'), output_shp_name)
     status.text = 'Saved file: {}'.format(output_full_path)
 
@@ -43,12 +43,12 @@ save_button = Button(label='Save')
 save_button.on_click(save_to_shapefile)
 
 p = Figure(plot_height=600, plot_width=900,
-           x_range=(bounds[0], bounds[2]), 
+           x_range=(bounds[0], bounds[2]),
            y_range=(bounds[1], bounds[3]),
            tools='pan,wheel_zoom')
 
 polys = p.patches(xs='xs', ys='ys', alpha=0.9, source=geo_source)
-status  = Paragraph(text='')
+status = Paragraph(text='')
 controls = HBox(width=p.plot_width, children=[simplify_slider, save_button, status])
 layout = VBox(width=p.plot_width, children=[controls, p])
 curdoc().add_root(layout)
