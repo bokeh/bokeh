@@ -55,11 +55,11 @@ class GearView extends Glyph.View
         ctx.moveTo(shaft_radius, 0)
         ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
 
-      if @visuals.fill.do
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 

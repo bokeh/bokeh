@@ -36,7 +36,7 @@ class AnnulusView extends Glyph.View
               navigator.userAgent.indexOf('Trident') > 0 ||
               navigator.userAgent.indexOf('Edge') > 0)
 
-      if @visuals.fill.do
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.beginPath()
         if isie
@@ -50,7 +50,7 @@ class AnnulusView extends Glyph.View
             ctx.arc(sx[i], sy[i], souter_radius[i], 2 * Math.PI, 0, false)
         ctx.fill()
 
-      if @visuals.line.do
+      if @visuals.line.doit
           @visuals.line.set_vectorize(ctx, i)
           ctx.beginPath()
           ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI)

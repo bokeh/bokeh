@@ -81,7 +81,7 @@ class BezierView extends Glyph.View
     return index
 
   _render: (ctx, indices, {sx0, sy0, sx1, sy1, scx, scx0, scy0, scx1, scy1}) ->
-    if @visuals.line.do
+    if @visuals.line.doit
       for i in indices
         if isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])
           continue

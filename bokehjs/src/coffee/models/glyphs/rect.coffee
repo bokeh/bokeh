@@ -28,7 +28,7 @@ class RectView extends Glyph.View
       @sh = @height
 
   _render: (ctx, indices, {sx, sy, sw, sh, angle}) ->
-    if @visuals.fill.do
+    if @visuals.fill.doit
       for i in indices
         if isNaN(sx[i]+sy[i]+sw[i]+sh[i]+angle[i])
           continue
@@ -45,7 +45,7 @@ class RectView extends Glyph.View
         else
           ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-    if @visuals.line.do
+    if @visuals.line.doit
       ctx.beginPath()
 
       for i in indices

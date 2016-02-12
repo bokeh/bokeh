@@ -15,11 +15,11 @@ class CircleXView extends Marker.View
 
       ctx.arc(0, 0, r, 0, 2*Math.PI, false)
 
-      if @visuals.fill.do
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         if angle[i]
           ctx.rotate(angle[i])

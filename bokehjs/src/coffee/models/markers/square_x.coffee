@@ -17,11 +17,11 @@ class SquareXView extends Marker.View
       if angle[i]
         ctx.rotate(-angle[i])
 
-      if @visuals.fill.do
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
         r = size[i]/2

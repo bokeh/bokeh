@@ -37,11 +37,11 @@ class PolyAnnotationView extends Renderer.View
 
     ctx.closePath()
 
-    if @visuals.line.do
+    if @visuals.line.doit
       @visuals.line.set_value(ctx)
       ctx.stroke()
 
-    if @visuals.fill.do
+    if @visuals.fill.doit
       @visuals.fill.set_value(ctx)
       ctx.fill()
 

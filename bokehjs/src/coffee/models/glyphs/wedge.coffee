@@ -27,11 +27,11 @@ class WedgeView extends Glyph.View
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
 
-      if @visuals.fill.do
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
 
-      if @visuals.line.do
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 

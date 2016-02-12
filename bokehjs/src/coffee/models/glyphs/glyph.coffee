@@ -134,7 +134,7 @@ class GlyphView extends Renderer.View
     ctx.beginPath()
     ctx.moveTo(x0, (y0 + y1) /2)
     ctx.lineTo(x1, (y0 + y1) /2)
-    if @visuals.line.do
+    if @visuals.line.doit
       @visuals.line.set_vectorize(ctx, reference_point)
       ctx.stroke()
     ctx.restore()
@@ -154,11 +154,11 @@ class GlyphView extends Renderer.View
     sy0 = y0 + dh
     sy1 = y1 - dh
 
-    if @visuals.fill.do
+    if @visuals.fill.doit
       @visuals.fill.set_vectorize(ctx, reference_point)
       ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
 
-    if @visuals.line.do
+    if @visuals.line.doit
       ctx.beginPath()
       ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
       @visuals.line.set_vectorize(ctx, reference_point)

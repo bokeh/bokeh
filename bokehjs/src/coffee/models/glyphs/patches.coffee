@@ -79,7 +79,7 @@ class PatchesView extends Glyph.View
     for i in indices
       [sx, sy] = [sxs[i], sys[i]]
 
-      if @visuals.fill.do
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
 
         for j in [0...sx.length]
@@ -98,7 +98,7 @@ class PatchesView extends Glyph.View
         ctx.closePath()
         ctx.fill()
 
-      if @visuals.line.do
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
 
         for j in [0...sx.length]

@@ -8,7 +8,7 @@ class PatchView extends Glyph.View
     @_xy_index()
 
   _render: (ctx, indices, {sx, sy}) ->
-    if @visuals.fill.do
+    if @visuals.fill.doit
       @visuals.fill.set_value(ctx)
 
       for i in indices
@@ -27,7 +27,7 @@ class PatchView extends Glyph.View
       ctx.closePath()
       ctx.fill()
 
-    if @visuals.line.do
+    if @visuals.line.doit
       @visuals.line.set_value(ctx)
 
       for i in indices

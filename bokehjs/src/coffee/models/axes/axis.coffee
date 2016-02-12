@@ -173,7 +173,7 @@ class AxisView extends Renderer.View
     @listenTo(@model, 'change', @plot_view.request_render)
 
   _draw_rule: (ctx) ->
-    if not @visuals.axis_line.do
+    if not @visuals.axis_line.doit
       return
     [x, y] = coords = @mget('rule_coords')
     [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
@@ -188,7 +188,7 @@ class AxisView extends Renderer.View
     ctx.stroke()
 
   _draw_major_ticks: (ctx) ->
-    if not @visuals.major_tick_line.do
+    if not @visuals.major_tick_line.doit
       return
     coords = @mget('tick_coords')
     [x, y] = coords.major
@@ -208,7 +208,7 @@ class AxisView extends Renderer.View
       ctx.stroke()
 
   _draw_minor_ticks: (ctx) ->
-    if not @visuals.minor_tick_line.do
+    if not @visuals.minor_tick_line.doit
       return
     coords = @mget('tick_coords')
     [x, y] = coords.minor

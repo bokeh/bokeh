@@ -20,11 +20,11 @@ class QuadView extends Glyph.View
       if isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])
         continue
 
-      if @visuals.fill.do
+      if @visuals.fill.doit
         @visuals.fill.set_vectorize(ctx, i)
         ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
 
-      if @visuals.line.do
+      if @visuals.line.doit
         ctx.beginPath()
         ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
         @visuals.line.set_vectorize(ctx, i)

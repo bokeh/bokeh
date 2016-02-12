@@ -495,7 +495,7 @@ class PlotView extends Renderer.View
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # premultipliedAlpha == true
       #gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
 
-    if @visuals.outline_line.do
+    if @visuals.outline_line.doit
       @visuals.outline_line.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 

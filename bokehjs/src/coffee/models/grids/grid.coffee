@@ -23,7 +23,7 @@ class GridView extends Renderer.View
     @listenTo(@model, 'change', @request_render)
 
   _draw_regions: (ctx) ->
-    if not @visuals.band_fill.do
+    if not @visuals.band_fill.doit
       return
     [xs, ys] = @mget('grid_coords')
     @visuals.band_fill.set_value(ctx)
@@ -38,13 +38,13 @@ class GridView extends Renderer.View
     return
 
   _draw_grids: (ctx) ->
-    if not @visuals.grid_line.do
+    if not @visuals.grid_line.doit
       return
     [xs, ys] = @mget('grid_coords')
     @_draw_grid_helper(ctx, @visuals.grid_line, xs, ys)
 
   _draw_minor_grids: (ctx) ->
-    if not @visuals.minor_grid_line.do
+    if not @visuals.minor_grid_line.doit
       return
     [xs, ys] = @mget('minor_grid_coords')
     @_draw_grid_helper(ctx, @visuals.minor_grid_line, xs, ys)

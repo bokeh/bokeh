@@ -23,7 +23,7 @@ class _ContextProperties extends Backbone.Model
     prefix = @get('prefix')
 
     do_spec = obj.properties[prefix+@do_attr].spec
-    @do = not _.isNull(do_spec.value)
+    @doit = not _.isNull(do_spec.value)
 
     for attr in @attrs
       @[attr] = obj.properties[prefix+attr]

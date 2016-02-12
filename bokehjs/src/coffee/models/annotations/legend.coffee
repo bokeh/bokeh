@@ -108,7 +108,7 @@ class LegendView extends Renderer.View
 
     @visuals.background_fill.set_value(ctx)
     ctx.fill()
-    if @visuals.border_line.do
+    if @visuals.border_line.doit
       @visuals.border_line.set_value(ctx)
       ctx.stroke()
 

@@ -12,7 +12,7 @@ class RayView extends Glyph.View
     @slength = @sdist(@renderer.xmapper, @x, @length)
 
   _render: (ctx, indices, {sx, sy, slength, angle}) ->
-    if @visuals.line.do
+    if @visuals.line.doit
 
       width = @renderer.plot_view.frame.get('width')
       height = @renderer.plot_view.frame.get('height')

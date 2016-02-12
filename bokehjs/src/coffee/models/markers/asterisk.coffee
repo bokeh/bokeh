@@ -27,7 +27,7 @@ class AsteriskView extends Marker.View
       if angle[i]
         ctx.rotate(-angle[i])
 
-      if @visuals.line.do
+      if @visuals.line.doit
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
