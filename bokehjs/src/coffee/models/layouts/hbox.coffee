@@ -17,9 +17,9 @@ class HBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
     @views = {}
-    @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
-    # @widget.attach(@el)
+    # @widget = new bokeh_phosphor.bokeh_phosphor.Widget()
     @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
+    # @widget.layout = @panel.layout
     # @panel.parent = @el
     #@panel.addClass("bk-bs-container")
     # @panel.id = 'main'
@@ -36,10 +36,10 @@ class HBoxView extends ContinuumView
         console.log('HBOX MUTATION')
         console.log(entry)
         bokeh_phosphor.bokeh_phosphor.sendMessage(
-          @widget,
+          @panel,
           bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
         )
-        @widget.layout = @panel.layout
+        @panel.update()
       )
     )
 
@@ -59,17 +59,19 @@ class HBoxView extends ContinuumView
       val.$el.detach()
     @$el.empty()
     width = @mget("width")
-    if width? then @panel.width = width #@$el.css(width: width + "px")
+    if width? then @$el.css(width: width + "px")
     height = @mget("height")
-    if height? then @panel.height = height #@$el.css(height: height + "px")
+    if height? then @$el.css(height: height + "px")
 
     for child, index in children
       console.log("Hbox :: " + index.toString())
       child_widget = new bokeh_phosphor.bokeh_phosphor.Widget();
       child_widget.node.appendChild(@views[child.id].$el[0])
+      child_widget.width = @views[child.id].$el[0].width
+      child_widget.height = @views[child.id].$el[0].height
       @panel.addChild(child_widget)
 
-    @el.appendChild(@widget.node)
+    @el.appendChild(@panel.node)
 
     return @
 
