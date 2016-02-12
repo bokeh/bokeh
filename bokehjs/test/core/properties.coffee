@@ -27,6 +27,7 @@ describe "properties module", ->
     validation_error prop, []
     validation_error prop, null
     validation_error prop, undefined
+    validation_error prop, new SomeHasProps()
 
   fixed           = {a: 1}
   spec_field      = {a: {field: 'foo'}, b: 30}
@@ -211,6 +212,40 @@ describe "properties module", ->
         obj.set('a', {value: "bar"})
         expect(prop.spec).to.be.deep.equal {value: "bar"}
 
+  describe "Anchor", ->
+    prop = new properties.Anchor({obj: new SomeHasProps(a: {value: "top_left"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on anchor input", ->
+        for x in enums.LegendLocation
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "Any", ->
+    prop = new properties.Any({obj: new SomeHasProps(a: {value: "top_left"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on any input", ->
+        for x in [true, null, undefined, 10, 10.2, "foo", [1,2,3], {}, new SomeHasProps()]
+          expect(prop.validate x).to.equal undefined
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+
   describe "Angle", ->
 
     it "should be an instance of Number", ->
@@ -344,6 +379,24 @@ describe "properties module", ->
         validation_error prop, null
         validation_error prop, undefined
 
+  describe "Dimension", ->
+    prop = new properties.Dimension({obj: new SomeHasProps(a: {value: "width"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on dimension input", ->
+        for x in enums.Dimension
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
   describe "Direction", ->
     prop = new properties.Direction({obj: new SomeHasProps(a: {value: "clock"}), attr: 'a'})
 
@@ -400,6 +453,30 @@ describe "properties module", ->
         prop = new properties.Distance({obj: new SomeHasProps(a: {value: 10}), attr: 'a'})
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
+  describe "Font", ->
+    prop = new properties.Font({obj: new SomeHasProps(a: {value: "times"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on font input", ->
+        expect(prop.validate "").to.equal undefined
+        expect(prop.validate "helvetica").to.equal undefined
+
+      it "should throw an Error on non-string input", ->
+        validation_error prop, true
+        validation_error prop, 10
+        validation_error prop, 10.2
+        validation_error prop, {}
+        validation_error prop, []
+        validation_error prop, null
+        validation_error prop, undefined
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
   describe "FontStyle", ->
     prop = new properties.FontStyle({obj: new SomeHasProps(a: {value: "normal"}), attr: 'a'})
 
@@ -409,6 +486,42 @@ describe "properties module", ->
     describe "validate", ->
       it "should return undefined on font style input", ->
         for x in enums.FontStyle
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "Instance", ->
+    prop = new properties.Instance({obj: new SomeHasProps(a: {value: null}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on HasProps", ->
+        expect(prop.validate new SomeHasProps({})).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        # not an enum but would do the same tests
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "LegendLocation", ->
+    prop = new properties.LegendLocation({obj: new SomeHasProps(a: {value: "top_left"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on legend location input", ->
+        for x in enums.LegendLocation
           expect(prop.validate x).to.equal undefined
 
       it "should throw an Error on other input", ->
@@ -448,14 +561,7 @@ describe "properties module", ->
           expect(prop.validate x).to.equal undefined
 
       it "should throw an Error on other input", ->
-        validation_error prop, true
-        validation_error prop, 10
-        validation_error prop, 10.2
-        validation_error prop, "foo"
-        validation_error prop, {}
-        validation_error prop, []
-        validation_error prop, null
-        validation_error prop, undefined
+        enum_validation_errors prop
 
     describe "transform", ->
       it "should be Property.transform", ->
@@ -473,12 +579,61 @@ describe "properties module", ->
         expect(prop.validate 10.2).to.equal undefined
 
       it "should throw an Error on non-numeric input", ->
-        validation_error prop, true
-        validation_error prop, "foo"
-        validation_error prop, {}
-        validation_error prop, []
-        validation_error prop, null
-        validation_error prop, undefined
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "Orientation", ->
+    prop = new properties.Orientation({obj: new SomeHasProps(a: {value: "vertical"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on orientation input", ->
+        for x in enums.Orientation
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "RenderLevel", ->
+    prop = new properties.RenderLevel({obj: new SomeHasProps(a: {value: "glyph"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on render level input", ->
+        for x in enums.RenderLevel
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
+
+    describe "transform", ->
+      it "should be Property.transform", ->
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
+
+  describe "RenderMode", ->
+    prop = new properties.RenderMode({obj: new SomeHasProps(a: {value: "canvas"}), attr: 'a'})
+
+    it "should be an instance of Property", ->
+      expect(prop).to.be.instanceof properties.Property
+
+    describe "validate", ->
+      it "should return undefined on render mode input", ->
+        for x in enums.RenderMode
+          expect(prop.validate x).to.equal undefined
+
+      it "should throw an Error on other input", ->
+        enum_validation_errors prop
 
     describe "transform", ->
       it "should be Property.transform", ->
@@ -491,7 +646,7 @@ describe "properties module", ->
       expect(prop).to.be.instanceof properties.Property
 
     describe "validate", ->
-      it "should return undefined on bool input", ->
+      it "should return undefined on string input", ->
         expect(prop.validate "").to.equal undefined
         expect(prop.validate "foo").to.equal undefined
 
@@ -544,6 +699,16 @@ describe "properties module", ->
       it "should be Property.transform", ->
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
+  describe "dataspecs", ->
+    it "should have a class dataspec attribute set true", ->
+      expect(properties.AngleSpec.dataspec).to.be.true
+      expect(properties.ColorSpec.dataspec).to.be.true
+      expect(properties.DirectionSpec.dataspec).to.be.true
+      expect(properties.DistanceSpec.dataspec).to.be.true
+      expect(properties.FontSizeSpec.dataspec).to.be.true
+      expect(properties.NumberSpec.dataspec).to.be.true
+      expect(properties.StringSpec.dataspec).to.be.true
+
   describe "exports", ->
 
     it "should have the Property base class", ->
@@ -555,16 +720,28 @@ describe "properties module", ->
       expect("units_prop" of properties).to.be.true
 
     it "should have simple property subclasses", ->
+      expect("Any" of properties).to.be.true
+      expect("Anchor" of properties).to.be.true
       expect("Angle" of properties).to.be.true
       expect("Array" of properties).to.be.true
       expect("Bool" of properties).to.be.true
       expect("Color" of properties).to.be.true
+      expect("Dimension" of properties).to.be.true
       expect("Direction" of properties).to.be.true
       expect("Distance" of properties).to.be.true
+      expect("Font" of properties).to.be.true
+      expect("FontStyle" of properties).to.be.true
+      expect("Instance" of properties).to.be.true
+      expect("LegendLocation" of properties).to.be.true
       expect("FontStyle" of properties).to.be.true
       expect("LineCap" of properties).to.be.true
       expect("LineJoin" of properties).to.be.true
+      expect("Location" of properties).to.be.true
+      expect("Orientation" of properties).to.be.true
       expect("Number" of properties).to.be.true
+      expect("RenderLevel" of properties).to.be.true
+      expect("RenderMode" of properties).to.be.true
+      expect("SpatialUnits" of properties).to.be.true
       expect("String" of properties).to.be.true
       expect("TextAlign" of properties).to.be.true
       expect("TextBaseline" of properties).to.be.true
@@ -572,7 +749,9 @@ describe "properties module", ->
     it "should have dataspec property subclasses", ->
       expect("AngleSpec" of properties).to.be.true
       expect("ColorSpec" of properties).to.be.true
+      expect("DirectionSpec" of properties).to.be.true
       expect("DistanceSpec" of properties).to.be.true
       expect("FontSizeSpec" of properties).to.be.true
       expect("NumberSpec" of properties).to.be.true
+      expect("StringSpec" of properties).to.be.true
 
