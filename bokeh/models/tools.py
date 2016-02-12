@@ -184,8 +184,15 @@ class TapTool(Tool):
     a dialog box, etc. See :class:`~bokeh.models.actions.Action` for details.
     """)
 
+@abstract
+class InspectTool(Tool):
 
-class CrosshairTool(Tool):
+    active = Bool(True, help="""
+    Whether the tool is intially active or not. If set to ``False``, the user
+    will have to click tool's button to active it.
+    """)
+
+class CrosshairTool(InspectTool):
     """ *toolbar icon*: |inspector_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on
@@ -421,7 +428,7 @@ class PolySelectTool(Tool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-class HoverTool(Tool):
+class HoverTool(InspectTool):
     """ *toolbar icon*: |inspector_icon|
 
     The hover tool is a passive inspector tool. It is generally on at
@@ -531,10 +538,6 @@ class HoverTool(Tool):
         the visual presentation order is unspecified.
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
-
-    always_active = Bool(True, help="""
-    Whether the hover tool must be explicitly activated.
-    """)
 
     mode = Enum("mouse", "hline", "vline", help="""
     Whether to consider hover pointer as a point (x/y values), or a

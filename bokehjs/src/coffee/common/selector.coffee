@@ -1,9 +1,9 @@
 _ = require "underscore"
-HasProperties = require "./has_properties"
+HasProps = require "../core/has_props"
 hittest = require "./hittest"
-{logger} = require "./logging"
+{logger} = require "../core/logging"
 
-class Selector extends HasProperties
+class Selector extends HasProps
   type: 'Selector'
 
   update: (indices, final, append, silent=false) ->

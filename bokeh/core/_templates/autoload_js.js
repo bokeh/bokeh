@@ -78,7 +78,7 @@ calls it with the rendered model.
     console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
     return false;
   }
-  {%- endif -%}
+  {%- endif %}
 
   var js_urls = {{ js_urls }};
 

@@ -216,7 +216,7 @@ _known_tools = {
     "box_zoom": lambda: BoxZoomTool(dimensions=['width', 'height']),
     "xbox_zoom": lambda: BoxZoomTool(dimensions=['width']),
     "ybox_zoom": lambda: BoxZoomTool(dimensions=['height']),
-    "hover": lambda: HoverTool(always_active=True, tooltips=[
+    "hover": lambda: HoverTool(tooltips=[
         ("index", "$index"),
         ("data (x, y)", "($x, $y)"),
         ("canvas (x, y)", "($sx, $sy)"),
