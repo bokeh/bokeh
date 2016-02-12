@@ -7,6 +7,7 @@ widget_defaults = require "./defaults/widgets_defaults"
 
 {Collections} = utils.require "base"
 mixins = utils.require "core/property_mixins"
+HasProps = utils.require "core/has_props"
 Bokeh = utils.require "main"
 
 widget_locations = utils.require "models/widgets/main"
@@ -28,6 +29,29 @@ safe_stringify = (v) ->
     catch e
       "#{v}"
 
+
+deep_value_to_json = (key, value, optional_parent_object) ->
+  if value instanceof HasProps
+    {type: value.type, attributes: value.attributes_as_json() }
+  else if _.isArray(value)
+    ref_array = []
+    for v, i in value
+      if v instanceof HasProps and not v.serializable_in_document()
+        console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because array contains a nonserializable type #{v.constructor.name} under index #{i}")
+      else
+        ref_array.push(deep_value_to_json(i, v, value))
+    ref_array
+  else if _.isObject(value)
+    ref_obj = {}
+    for own subkey of value
+      if value[subkey] instanceof HasProps and not value[subkey].serializable_in_document()
+        console.log("May need to add #{key} to nonserializable_attribute_names of #{optional_parent_object?.constructor.name} because value of type #{value.constructor.name} contains a nonserializable type #{value[subkey].constructor.name} under #{subkey}")
+      else
+        ref_obj[subkey] = deep_value_to_json(subkey, value[subkey], value)
+    ref_obj
+  else
+    value
+
 check_matching_defaults = (name, python_defaults, coffee_defaults) ->
   different = []
   python_missing = []
@@ -38,11 +62,17 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
     if name == 'DatePicker' and k == 'value'
       continue
 
+    # special case for date time tickers, class hierarchy and attributes are handled differently
+    if name = "DatetimeTicker" and k = "tickers"
+      continue
+
     if k == 'id'
       continue
 
     if k of python_defaults
       py_v = python_defaults[k]
+      strip_ids(py_v)
+
       if not _.isEqual(py_v, v)
 
         # these two conditionals compare 'foo' and {value: 'foo'}
@@ -51,9 +81,18 @@ check_matching_defaults = (name, python_defaults, coffee_defaults) ->
         if _.isObject(py_v) and 'value' of py_v and _.isEqual(py_v['value'], v)
           continue
 
+        if _.isObject(v) and 'attributes' of v and _.isObject(py_v) and 'attributes' of py_v
+          if v['type'] == py_v['type']
+            check_matching_defaults("#{name}.#{k}", py_v['attributes'], v['attributes'])
+            continue
+
         # compare arrays of objects
         if _.isArray(v) and _.isArray(py_v)
           equal = true
+
+          # palettes in JS are stored as int color values
+          if k == 'palette'
+            py_v = (parseInt(x, 16) for x in py_v)
 
           if v.length != py_v.length
             equal = false
@@ -89,8 +128,9 @@ strip_ids = (value) ->
   if _.isArray(value)
     for v in value
       strip_ids(v)
-  else if _.isObject(value) and ('id' of value)
-    delete value['id']
+  else if _.isObject(value)
+    if ('id' of value)
+      delete value['id']
     for k, v of value
       strip_ids(v)
 
@@ -133,28 +173,11 @@ describe "Defaults", ->
     for name in all_view_model_names
       coll = Collections(name)
       instance = new coll.model({}, {'silent' : true, 'defer_initialization' : true})
-      attrs = instance.attributes_as_json()
+      attrs = instance.attributes_as_json(true, deep_value_to_json)
       strip_ids(attrs)
-
-      for prop_kind, func of mixins.factories
-        # the 'visuals' property is used to set glyph line/fill/text defaults
-        # and is tested in the check_matching_defaults() test case above
-        if prop_kind == 'visuals'
-          continue
-        if prop_kind of instance
-          props_of_this_kind = func(instance)
-          prop_values = {}
-          for p, v of props_of_this_kind
-            prop_values[p] = v.spec
-
-          _.extend(attrs, prop_values)
 
       if not check_matching_defaults(name, get_defaults(name), attrs)
         fail_count = fail_count + 1
 
     console.error("Python/Coffee matching defaults problems: #{fail_count}")
-    # If this is failing because the problem count is now lower,
-    # then edit this number to be lower. If it's failing because
-    # it's higher, fix the newly-introduced errors. Eventually we
-    # will get to zero.
-    expect(fail_count).to.equal 12
+    expect(fail_count).to.equal 0

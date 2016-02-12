@@ -94,8 +94,6 @@ class Image extends Glyph.Model
   props: ->
     return _.extend {}, super(), {
       image:        [ p.NumberSpec       ] # TODO (bev) array spec?
-      rows:         [ p.NumberSpec       ]
-      cols:         [ p.NumberSpec       ]
       dw:           [ p.NumberSpec       ]
       dh:           [ p.NumberSpec       ]
       dilate:       [ p.Bool,      false ]

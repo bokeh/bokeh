@@ -293,7 +293,9 @@ class HasProps extends Backbone.Model
   # are included as just references)
   # TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
   # backbone will have implemented a toJSON already that we may need to override
-  attributes_as_json: (include_defaults=true) ->
+  # optional value_to_json is for test to override with a "deep" version to replace the
+  # standard "shallow" HasProps._value_to_json
+  attributes_as_json: (include_defaults=true, value_to_json=HasProps._value_to_json) ->
     attrs = {}
     fail = false
     for own key, value of @serializable_attributes()
@@ -308,7 +310,7 @@ class HasProps extends Backbone.Model
         fail = true
     if fail
       return {}
-    HasProps._value_to_json("attributes", attrs, @)
+    value_to_json("attributes", attrs, @)
 
   # this is like _value_record_references but expects to find refs
   # instead of models, and takes a doc to look up the refs in

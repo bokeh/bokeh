@@ -4,6 +4,7 @@ Model = require "../../model"
 p = require "../../core/properties"
 
 class LinearColorMapper extends Model
+  type: "LinearColorMapper"
 
   props: ->
     return _.extend({}, super(), {

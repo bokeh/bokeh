@@ -20,6 +20,8 @@ class CellFormatter extends Model
 class StringFormatter extends CellFormatter
   type: 'StringFormatter'
   formatterProps:
+    font_style: [ p.FontStyle, "normal" ]
+    text_align: [ p.TextAlign, "left"   ]
     text_color: [ p.Color ]
 
   format: (row, cell, value, columnDef, dataContext) ->
