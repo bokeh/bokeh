@@ -581,6 +581,11 @@ setup(
         'bokeh.util.tests',
     ],
     package_data={'bokeh': package_data},
+    entry_points={
+        'console_scripts': [
+            'bokeh = bokeh.__main__:main',
+        ],
+    },
     author='Continuum Analytics',
     author_email='info@continuum.io',
     url='http://github.com/bokeh/bokeh',
