@@ -2,23 +2,26 @@ _ = require "underscore"
 $ = require "jquery"
 Backbone = require "backbone"
 
+Canvas = require "../canvas/canvas"
+CartesianFrame = require "../canvas/cartesian_frame"
+LayoutBox = require "../canvas/layout_box"
+Component = require "../component"
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
+
 build_views = require "../../common/build_views"
-Canvas = require "../../common/canvas"
-CartesianFrame = require "../../common/cartesian_frame"
-LayoutBox = require "../../common/layout_box"
-plot_template = require "../../common/plot_template"
 ToolEvents = require "../../common/tool_events"
 ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
-Component = require "../component"
+
 BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
 {EQ, GE, Strength} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
+
+plot_template = require "./plot_template"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)

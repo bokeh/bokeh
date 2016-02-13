@@ -2,9 +2,10 @@ _ = require "underscore"
 
 canvas_template = require "./canvas_template"
 LayoutBox = require "./layout_box"
-BokehView = require "../core/bokeh_view"
-{EQ} = require "../core/layout/solver"
-{logger} = require "../core/logging"
+
+BokehView = require "../../core/bokeh_view"
+{EQ} = require "../../core/layout/solver"
+{logger} = require "../../core/logging"
 
 # TODO - This should only be on in testing
 #require 'Canteen'

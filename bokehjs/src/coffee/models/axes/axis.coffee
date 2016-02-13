@@ -1,8 +1,9 @@
 _ = require "underscore"
 
+LayoutBox = require "../canvas/layout_box"
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"
-LayoutBox = require "../../common/layout_box"
+
 {EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"

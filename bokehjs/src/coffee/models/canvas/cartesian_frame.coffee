@@ -1,10 +1,11 @@
 _ = require "underscore"
+
+CategoricalMapper = require "../mappers/categorical_mapper"
+GridMapper = require "../mappers/grid_mapper"
+LinearMapper = require "../mappers/linear_mapper"
+LogMapper = require "../mappers/log_mapper"
+{logging} = require "../../core/logging"
 LayoutBox = require "./layout_box"
-{logging} = require "../core/logging"
-LinearMapper = require "../models/mappers/linear_mapper"
-LogMapper = require "../models/mappers/log_mapper"
-CategoricalMapper = require "../models/mappers/categorical_mapper"
-GridMapper = require "../models/mappers/grid_mapper"
 
 class CartesianFrame extends LayoutBox.Model
   type: 'CartesianFrame'
