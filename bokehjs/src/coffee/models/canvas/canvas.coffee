@@ -6,6 +6,7 @@ LayoutBox = require "./layout_box"
 BokehView = require "../../core/bokeh_view"
 {EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
+{fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio} = require "../../core/util/canvas"
 
 # TODO - This should only be on in testing
 #require 'Canteen'
@@ -17,10 +18,7 @@ class CanvasView extends BokehView
   initialize: (options) ->
     super(options)
 
-    template_data = {
-      map: @mget('map')
-    }
-    html = @template(template_data)
+    html = @template({ map: @mget('map') })
     @$el.html(html)
 
     # for compat, to be removed
@@ -31,28 +29,24 @@ class CanvasView extends BokehView
     @canvas_overlay = @$('div.bk-canvas-overlays')
     @map_div = @$('div.bk-canvas-map') ? null
 
-    # Create context. This is the object that gets passed arount while drawing
+    # Create context. This is the object that gets passed around while drawing
     @ctx = @canvas[0].getContext('2d')
     @ctx.glcanvas = null  # init without webgl support (can be overriden in plot.coffee)
+
+    # work around canvas incompatibilities
+    fixup_line_dash(@ctx)
+    fixup_line_dash_offset(@ctx)
+    fixup_image_smoothing(@ctx)
+    fixup_measure_text(@ctx)
 
     logger.debug("CanvasView initialized")
 
   render: (force=false) ->
-    # normally we only want to render the canvas when the canvas itself
-    # should be configured with new bounds.
+    # normally we only want to render the canvas when the canvas dimensions change
     if not @model.new_bounds and not force
       return
 
-    if @mget('use_hidpi')
-      devicePixelRatio = window.devicePixelRatio || 1
-      backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
-                          @ctx.mozBackingStorePixelRatio ||
-                          @ctx.msBackingStorePixelRatio ||
-                          @ctx.oBackingStorePixelRatio ||
-                          @ctx.backingStorePixelRatio || 1
-      ratio = devicePixelRatio / backingStoreRatio
-    else
-      ratio = 1
+    ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
 
     width = @mget('width')
     height = @mget('height')
@@ -68,50 +62,7 @@ class CanvasView extends BokehView
     @ctx.scale(ratio, ratio)
     @ctx.translate(0.5, 0.5)
 
-    # work around canvas incompatibilities
-    # todo: this is done ON EACH DRAW, is that intended?
-    @_fixup_line_dash(@ctx)
-    @_fixup_line_dash_offset(@ctx)
-    @_fixup_image_smoothing(@ctx)
-    @_fixup_measure_text(@ctx)
-
     @model.new_bounds = false
-
-  _fixup_line_dash: (ctx) ->
-    if (!ctx.setLineDash)
-      ctx.setLineDash = (dash) ->
-        ctx.mozDash = dash
-        ctx.webkitLineDash = dash
-    if (!ctx.getLineDash)
-      ctx.getLineDash = () ->
-        return ctx.mozDash
-
-  _fixup_line_dash_offset: (ctx) ->
-    ctx.setLineDashOffset = (dash_offset) ->
-      ctx.lineDashOffset = dash_offset
-      ctx.mozDashOffset = dash_offset
-      ctx.webkitLineDashOffset = dash_offset
-    ctx.getLineDashOffset = () ->
-      return ctx.mozDashOffset
-
-  _fixup_image_smoothing: (ctx) ->
-    ctx.setImageSmoothingEnabled = (value) ->
-      ctx.imageSmoothingEnabled = value;
-      ctx.mozImageSmoothingEnabled = value;
-      ctx.oImageSmoothingEnabled = value;
-      ctx.webkitImageSmoothingEnabled = value;
-    ctx.getImageSmoothingEnabled = () ->
-      return ctx.imageSmoothingEnabled ? true
-
-  _fixup_measure_text: (ctx) ->
-    if ctx.measureText and not ctx.html5MeasureText?
-      ctx.html5MeasureText = ctx.measureText
-
-      ctx.measureText = (text) ->
-        textMetrics = ctx.html5MeasureText(text)
-        # fake it til you make it
-        textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
-        return textMetrics
 
 class Canvas extends LayoutBox.Model
   type: 'Canvas'
