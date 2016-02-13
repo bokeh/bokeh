@@ -42,36 +42,35 @@ class CanvasView extends BokehView
     logger.debug("CanvasView initialized")
 
   render: (force=false) ->
-    # normally we only want to render the canvas when the canvas dimensions change
-    if not @model.new_bounds and not force
-      return
-
-    ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
 
     width = @mget('width')
     height = @mget('height')
 
-    @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
-    @canvas.attr('style', "width:#{width}px;height:#{height}px")
-    @canvas.attr('width', width*ratio).attr('height', height*ratio)
-    @$el.attr("width", width).attr('height', height)
+    # normally we only want to render the canvas when the canvas dimensions change
+    if not _.isEqual(@last_dims, [width, height]) or force
 
-    @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
-    @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+      ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
 
-    @ctx.scale(ratio, ratio)
-    @ctx.translate(0.5, 0.5)
+      logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
 
-    @model.new_bounds = false
+      @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
+      @canvas.attr('style', "width:#{width}px; height:#{height}px")
+      @canvas.attr('width', width*ratio).attr('height', height*ratio)
+      @$el.attr("width", width).attr('height', height)
+
+      @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+      @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+
+      @ctx.scale(ratio, ratio)
+      @ctx.translate(0.5, 0.5)
+
+      @last_dims = [width, height]
+
+    return
 
 class Canvas extends LayoutBox.Model
   type: 'Canvas'
   default_view: CanvasView
-
-  initialize: (attr, options) ->
-    super(attr, options)
-    @new_bounds = true
-    logger.debug("Canvas initialized")
 
   _doc_attached: () ->
     super()
@@ -131,7 +130,6 @@ class Canvas extends LayoutBox.Model
     solver.add_constraint(@_width_constraint)
     if update
       solver.update_variables()
-    @new_bounds = true
 
   _set_height: (height, update=true) ->
     solver = @document.solver()
@@ -141,7 +139,6 @@ class Canvas extends LayoutBox.Model
     solver.add_constraint(@_height_constraint)
     if update
       solver.update_variables()
-    @new_bounds = true
 
   _set_dims: (dims, trigger=true) ->
     @_set_width(dims[0], false)

@@ -86,7 +86,7 @@ class PlotView extends Renderer.View
 
   request_render: () =>
     if not @is_paused
-      @throttled_render(true)
+      @throttled_render()
     return
 
   remove: () =>
@@ -124,7 +124,7 @@ class PlotView extends Renderer.View
 
     @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
 
-    @canvas_view.render()
+    @canvas_view.render(true)
 
     # If requested, try enabling webgl
     if @mget('webgl') or window.location.search.indexOf('webgl=1') > 0
