@@ -15,7 +15,7 @@ UIEvents = require "../../common/ui_events"
 Component = require "../component"
 BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
-{Solver, EQ, GE, Strength} = require "../../core/layout/solver"
+{EQ, GE, Strength} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
@@ -139,8 +139,8 @@ class PlotView extends Renderer.View
     @build_levels()
     @bind_bokeh_events()
 
-    @model.add_constraints(@canvas.solver)
-    @listenTo(@canvas.solver, 'layout_update', @request_render)
+    @model.add_constraints(@model.document.solver())
+    @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
     @ui_event_bus = new UIEvents({
       tool_manager: @mget('tool_manager')
@@ -410,6 +410,9 @@ class PlotView extends Renderer.View
   render: (force_canvas=false) ->
     logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
+    if not @model.document?
+      return
+
     if Date.now() - @interactive_timestamp < @mget('lod_interval')
       @interactive = true
       lod_timeout = @mget('lod_timeout')
@@ -441,7 +444,7 @@ class PlotView extends Renderer.View
 
     for k, v of @renderers
       if v.model.update_layout?
-        v.model.update_layout(v, @canvas.solver)
+        v.model.update_layout(v, @model.document.solver())
 
     for k, v of @renderers
       if not @range_update_timestamp? or v.set_data_timestamp > @range_update_timestamp
@@ -459,7 +462,7 @@ class PlotView extends Renderer.View
     @model.get('frame').set_var('width', canvas.get('width')-1)
     @model.get('frame').set_var('height', canvas.get('height')-1)
 
-    @canvas.solver.update_variables(false)
+    @model.document.solver().update_variables(false)
 
     # TODO (bev) OK this sucks, but the event from the solver update doesn't
     # reach the frame in time (sometimes) so force an update here for now
@@ -638,7 +641,6 @@ class Plot extends Component.Model
       canvas_width: @get('plot_width'),
       canvas_height: @get('plot_height'),
       hidpi: @get('hidpi')
-      solver: new Solver()
     })
     @set('canvas', canvas)
 
@@ -652,6 +654,9 @@ class Plot extends Component.Model
 
     logger.debug("Plot initialized")
 
+  _doc_attached: () ->
+    @get('canvas').attach_document(@document)
+
   initialize_layout: (solver) ->
     existing_or_new_layout = (side, name) =>
       list = @get(side)
@@ -663,10 +668,8 @@ class Plot extends Component.Model
       if box?
         box.set('solver', solver)
       else
-        box = new LayoutBox.Model({
-          name: name,
-          solver: solver
-        })
+        box = new LayoutBox.Model({ name: name })
+        box.attach_document(@document)
         list.push(box)
         @set(side, list)
       return box
@@ -681,6 +684,7 @@ class Plot extends Component.Model
       y_mapper_type: @get('y_mapper_type'),
       solver: solver
     })
+    frame.attach_document(@document)
     @set('frame', frame)
 
     # TODO (bev) titles should probably be a proper guide, then they could go
@@ -697,7 +701,8 @@ class Plot extends Component.Model
     do_side = (solver, min_size, side, cnames, dim) =>
       canvas = @get('canvas')
       frame = @get('frame')
-      box = new LayoutBox.Model({solver: solver})
+      box = new LayoutBox.Model()
+      box.attach_document(@document)
       c0 = '_'+cnames[0]
       c1 = '_'+cnames[1]
       solver.add_constraint( GE(box['_'+dim], -min_size) )
@@ -715,6 +720,7 @@ class Plot extends Component.Model
         solver.add_constraint( EQ(last[c0], [-1, r[c1]]) )
         last = r
       padding = new LayoutBox.Model({solver: solver})
+      padding.attach_document(@document)
       solver.add_constraint( EQ(last[c0], [-1, padding[c1]]) )
       solver.add_constraint( EQ(padding[c0], [-1, canvas[c0]]) )
 

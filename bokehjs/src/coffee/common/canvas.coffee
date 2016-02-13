@@ -3,7 +3,7 @@ _ = require "underscore"
 canvas_template = require "./canvas_template"
 LayoutBox = require "./layout_box"
 BokehView = require "../core/bokeh_view"
-{Solver, EQ} = require "../core/layout/solver"
+{EQ} = require "../core/layout/solver"
 {logger} = require "../core/logging"
 
 # TODO - This should only be on in testing
@@ -117,17 +117,17 @@ class Canvas extends LayoutBox.Model
   default_view: CanvasView
 
   initialize: (attr, options) ->
-    solver = new Solver()
-    @set('solver', solver)
     super(attr, options)
-
     @new_bounds = true
+    logger.debug("Canvas initialized")
 
+  _doc_attached: () ->
+    super()
+    solver = @document.solver()
     solver.add_constraint(EQ(@_left))
     solver.add_constraint(EQ(@_bottom))
     @_set_dims([@get('canvas_width'), @get('canvas_height')])
-
-    logger.debug("Canvas initialized")
+    logger.debug("Canvas attached to document")
 
   # transform view coordinates to underlying screen coordinates
   vx_to_sx: (x) ->
@@ -172,27 +172,29 @@ class Canvas extends LayoutBox.Model
     return yy
 
   _set_width: (width, update=true) ->
+    solver = @document.solver()
     if @_width_constraint?
-      @solver.remove_constraint(@_width_constraint)
+      solver.remove_constraint(@_width_constraint)
     @_width_constraint = EQ(@_width, -width)
-    @solver.add_constraint(@_width_constraint)
+    solver.add_constraint(@_width_constraint)
     if update
-      @solver.update_variables()
+      solver.update_variables()
     @new_bounds = true
 
   _set_height: (height, update=true) ->
+    solver = @document.solver()
     if @_height_constraint?
-      @solver.remove_constraint(@_height_constraint)
+      solver.remove_constraint(@_height_constraint)
     @_height_constraint = EQ(@_height, -height)
-    @solver.add_constraint(@_height_constraint)
+    solver.add_constraint(@_height_constraint)
     if update
-      @solver.update_variables()
+      solver.update_variables()
     @new_bounds = true
 
   _set_dims: (dims, trigger=true) ->
     @_set_width(dims[0], false)
     @_set_height(dims[1], false)
-    @solver.update_variables(trigger)
+    @document.solver().update_variables(trigger)
 
   defaults: ->
     return _.extend {}, super(), {

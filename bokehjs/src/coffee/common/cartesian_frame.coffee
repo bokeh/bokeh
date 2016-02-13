@@ -9,8 +9,8 @@ GridMapper = require "../models/mappers/grid_mapper"
 class CartesianFrame extends LayoutBox.Model
   type: 'CartesianFrame'
 
-  initialize: (attrs, options) ->
-    super(attrs, options)
+  _doc_attached: () ->
+    super()
 
     @register_property('x_ranges',
         () -> @_get_ranges('x')
@@ -41,7 +41,7 @@ class CartesianFrame extends LayoutBox.Model
       , true)
     @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
 
-    @listenTo(@solver, 'layout_update', @_update_mappers)
+    @listenTo(@document.solver(), 'layout_update', @_update_mappers)
 
   map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
     vx = @get('x_mappers')[x_name].v_map_to_target(x)

@@ -365,6 +365,7 @@ class Axis extends GuideRenderer.Model
 
   initialize_layout: (solver) ->
     panel = new LayoutBox.Model({solver: solver})
+    panel.attach_document(@document)
     @panel = panel
 
     # Yuck. The issues is that frames and canvases *are* panels, but axes are not but
