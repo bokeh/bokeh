@@ -1,11 +1,9 @@
 _ = require "underscore"
-kiwi = require "kiwi"
 
-{Expression, Constraint, Operator} = kiwi
 canvas_template = require "./canvas_template"
 LayoutBox = require "./layout_box"
 BokehView = require "../core/bokeh_view"
-Solver = require "../core/layout/solver"
+{Solver, EQ} = require "../core/layout/solver"
 {logger} = require "../core/logging"
 
 # TODO - This should only be on in testing
@@ -125,8 +123,8 @@ class Canvas extends LayoutBox.Model
 
     @new_bounds = true
 
-    solver.add_constraint(new Constraint(new Expression(@_left), Operator.Eq))
-    solver.add_constraint(new Constraint(new Expression(@_bottom), Operator.Eq))
+    solver.add_constraint(EQ(@_left))
+    solver.add_constraint(EQ(@_bottom))
     @_set_dims([@get('canvas_width'), @get('canvas_height')])
 
     logger.debug("Canvas initialized")
@@ -176,7 +174,7 @@ class Canvas extends LayoutBox.Model
   _set_width: (width, update=true) ->
     if @_width_constraint?
       @solver.remove_constraint(@_width_constraint)
-    @_width_constraint = new Constraint(new Expression(@_width, -width), Operator.Eq)
+    @_width_constraint = EQ(@_width, -width)
     @solver.add_constraint(@_width_constraint)
     if update
       @solver.update_variables()
@@ -185,7 +183,7 @@ class Canvas extends LayoutBox.Model
   _set_height: (height, update=true) ->
     if @_height_constraint?
       @solver.remove_constraint(@_height_constraint)
-    @_height_constraint = new Constraint(new Expression(@_height, -height), Operator.Eq)
+    @_height_constraint = EQ(@_height, -height)
     @solver.add_constraint(@_height_constraint)
     if update
       @solver.update_variables()

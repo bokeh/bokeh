@@ -1,7 +1,6 @@
 _ = require "underscore"
-kiwi = require "kiwi"
-{Variable, Expression, Constraint, Operator } = kiwi
-{Eq, Le, Ge} = Operator
+
+{Variable, EQ, GE, Strength}  = require "../core/layout/solver"
 Model = require "../model"
 Range1d = require "../models/ranges/range1d"
 
@@ -48,21 +47,21 @@ class LayoutBox extends Model
       name = '_'+v
       @[name] = new Variable(v)
       @register_property(v, @_get_var, false)
-      @solver.add_edit_variable(@[name], kiwi.Strength.strong)
+      @solver.add_edit_variable(@[name], Strength.strong)
 
     for v in ['right', 'bottom']
       name = '_'+v
       @[name] = new Variable(v)
       @register_property(v, @_get_var, false)
 
-    @solver.add_constraint(new Constraint(new Expression(@_top), Ge))
-    @solver.add_constraint(new Constraint(new Expression(@_bottom), Ge))
-    @solver.add_constraint(new Constraint(new Expression(@_left), Ge))
-    @solver.add_constraint(new Constraint(new Expression(@_right), Ge))
-    @solver.add_constraint(new Constraint(new Expression(@_width), Ge))
-    @solver.add_constraint(new Constraint(new Expression(@_height), Ge))
-    @solver.add_constraint(new Constraint(new Expression(@_left, @_width, [-1, @_right]), Eq))
-    @solver.add_constraint(new Constraint(new Expression(@_bottom, @_height, [-1, @_top]), Eq))
+    @solver.add_constraint(GE(@_top))
+    @solver.add_constraint(GE(@_bottom))
+    @solver.add_constraint(GE(@_left))
+    @solver.add_constraint(GE(@_right))
+    @solver.add_constraint(GE(@_width))
+    @solver.add_constraint(GE(@_height))
+    @solver.add_constraint(EQ(@_left, @_width, [-1, @_right]))
+    @solver.add_constraint(EQ(@_bottom, @_height, [-1, @_top]))
 
     @_h_range = new Range1d.Model({
       start: @get('left'),
@@ -107,7 +106,7 @@ class LayoutBox extends Model
     else if _.isString(value)
         # handle namespaced later
     else
-      c = new Constraint(new Expression(v, [-1, value]), Eq)
+      c = EQ(v, [-1, value])
       if not @var_constraints[name]?
         @var_constraints[name] = []
       @var_constraints[name].push(c)
@@ -122,7 +121,7 @@ class LayoutBox extends Model
   set_aspect: (aspect) ->
     if @_aspect_constraint?
       @solver.remove_constraint(@aspect_constraint)
-      c = new Constraint(new Expression([aspect, @_height], [-1, @_width]), Eq)
+      c = EQ([aspect, @_height], [-1, @_width])
       @_aspect_constraint = c
       @solver.add_constraint(c)
 

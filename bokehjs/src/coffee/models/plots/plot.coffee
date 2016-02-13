@@ -1,9 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
 Backbone = require "backbone"
-kiwi = require "kiwi"
-{Expression, Constraint, Operator} = kiwi
-{Eq, Le, Ge} = Operator
 
 GlyphRenderer = require "../renderers/glyph_renderer"
 Renderer = require "../renderers/renderer"
@@ -18,7 +15,7 @@ UIEvents = require "../../common/ui_events"
 Component = require "../component"
 BokehView = require "../../core/bokeh_view"
 enums = require "../../core/enums"
-Solver = require "../../core/layout/solver"
+{Solver, EQ, GE, Strength} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 {throttle} = require "../../core/util/throttle"
@@ -546,7 +543,7 @@ class PlotView extends Renderer.View
   resize_width_height: (use_width, use_height, maintain_ar=true) =>
     # Resize plot based on available width and/or height
 
-    # kiwi.js falls over if we try and resize too small.
+    # the solver falls over if we try and resize too small.
     # min_size is currently set in defaults to 120, we can make this
     # user-configurable in the future, as it may not be the right number
     # if people set a large border on their plots, for example.
@@ -697,21 +694,15 @@ class Plot extends Component.Model
     min_border_left   = @get('min_border_left')
     min_border_right  = @get('min_border_right')
 
-    do_side = (solver, min_size, side, cnames, dim, op) =>
+    do_side = (solver, min_size, side, cnames, dim) =>
       canvas = @get('canvas')
       frame = @get('frame')
       box = new LayoutBox.Model({solver: solver})
       c0 = '_'+cnames[0]
       c1 = '_'+cnames[1]
-      solver.add_constraint(
-        new Constraint(new Expression(box['_'+dim], -min_size), Ge),
-        kiwi.Strength.strong)
-      solver.add_constraint(
-        new Constraint(new Expression(frame[c0], [-1, box[c1]]),
-        Eq))
-      solver.add_constraint(
-        new Constraint(new Expression(box[c0], [-1, canvas[c0]]),
-        Eq))
+      solver.add_constraint( GE(box['_'+dim], -min_size) )
+      solver.add_constraint( EQ(frame[c0], [-1, box[c1]]) )
+      solver.add_constraint( EQ(box[c0], [-1, canvas[c0]]) )
       last = frame
       elts = @get(side)
       for r in elts
@@ -721,22 +712,16 @@ class Plot extends Component.Model
           r.set('layout_location', r.get('location'), { silent: true })
         if r.initialize_layout?
           r.initialize_layout(solver)
-        solver.add_constraint(
-          new Constraint(new Expression(last[c0], [-1, r[c1]]), Eq),
-          kiwi.Strength.strong)
+        solver.add_constraint( EQ(last[c0], [-1, r[c1]]) )
         last = r
       padding = new LayoutBox.Model({solver: solver})
-      solver.add_constraint(
-        new Constraint(new Expression(last[c0], [-1, padding[c1]]), Eq),
-        kiwi.Strength.strong)
-      solver.add_constraint(
-        new Constraint(new Expression(padding[c0], [-1, canvas[c0]]), Eq),
-        kiwi.Strength.strong)
+      solver.add_constraint( EQ(last[c0], [-1, padding[c1]]) )
+      solver.add_constraint( EQ(padding[c0], [-1, canvas[c0]]) )
 
-    do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height', Le)
-    do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height', Ge)
-    do_side(solver, min_border_left, 'left', ['left', 'right'], 'width', Ge)
-    do_side(solver, min_border_right, 'right', ['right', 'left'], 'width', Le)
+    do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height')
+    do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height')
+    do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
+    do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')

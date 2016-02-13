@@ -1,9 +1,9 @@
 _ = require "underscore"
-kiwi = require "kiwi"
 
 GuideRenderer = require "../renderers/guide_renderer"
 Renderer = require "../renderers/renderer"
 LayoutBox = require "../../common/layout_box"
+{EQ} = require "../../core/layout/solver"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 
@@ -416,7 +416,7 @@ class Axis extends GuideRenderer.Model
 
     if @_size_constraint?
       solver.remove_constraint(@_size_constraint)
-    @_size_constraint = new kiwi.Constraint(new kiwi.Expression(@_size, -size), kiwi.Operator.Eq)
+    @_size_constraint = EQ(@_size, -size)
     solver.add_constraint(@_size_constraint)
 
   _offsets: () ->
