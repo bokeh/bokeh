@@ -8,9 +8,6 @@ BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 {fixup_image_smoothing, fixup_line_dash, fixup_line_dash_offset, fixup_measure_text, get_scale_ratio} = require "../../core/util/canvas"
 
-# TODO - This should only be on in testing
-#require 'Canteen'
-
 class CanvasView extends BokehView
   className: "bk-canvas-wrapper"
   template: canvas_template
@@ -21,23 +18,23 @@ class CanvasView extends BokehView
     html = @template({ map: @mget('map') })
     @$el.html(html)
 
-    # for compat, to be removed
-    @canvas_wrapper = @$el
-
+    # create the canvas DOM element, various renderers reference this attribute
     @canvas = @$('canvas.bk-canvas')
-    @canvas_events = @$('div.bk-canvas-events')
-    @canvas_overlay = @$('div.bk-canvas-overlays')
-    @map_div = @$('div.bk-canvas-map') ? null
 
-    # Create context. This is the object that gets passed around while drawing
+    # create the canvas context that gets passed around for drawing
     @ctx = @canvas[0].getContext('2d')
-    @ctx.glcanvas = null  # init without webgl support (can be overriden in plot.coffee)
+
+    # init without webgl support (can be overriden in plot.coffee)
+    @ctx.glcanvas = null
 
     # work around canvas incompatibilities
     fixup_line_dash(@ctx)
     fixup_line_dash_offset(@ctx)
     fixup_image_smoothing(@ctx)
     fixup_measure_text(@ctx)
+
+    # map plots reference this attribute
+    @map_div = @$('div.bk-canvas-map') ? null
 
     logger.debug("CanvasView initialized")
 
@@ -46,20 +43,21 @@ class CanvasView extends BokehView
     width = @mget('width')
     height = @mget('height')
 
-    # normally we only want to render the canvas when the canvas dimensions change
+    # only render the canvas when the canvas dimensions change unless force==true
     if not _.isEqual(@last_dims, [width, height]) or force
 
       ratio = get_scale_ratio(@ctx, @mget('use_hidpi'))
 
       logger.debug("Rendering CanvasView [force=#{force}] with width: #{width}, height: #{height}, ratio: #{ratio}")
 
-      @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
       @canvas.attr('style', "width:#{width}px; height:#{height}px")
       @canvas.attr('width', width*ratio).attr('height', height*ratio)
+
+      @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
       @$el.attr("width", width).attr('height', height)
 
-      @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
-      @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+      @$('div.bk-canvas-overlays').attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+      @$('div.bk-canvas-events').attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)
@@ -81,8 +79,7 @@ class Canvas extends LayoutBox.Model
     logger.debug("Canvas attached to document")
 
   # transform view coordinates to underlying screen coordinates
-  vx_to_sx: (x) ->
-    return x
+  vx_to_sx: (x) -> x
 
   vy_to_sy: (y) ->
     # Note: +1 to account for 1px canvas dilation
@@ -102,8 +99,7 @@ class Canvas extends LayoutBox.Model
     return yy
 
   # transform underlying screen coordinates to view coordinates
-  sx_to_vx: (x) ->
-    return x
+  sx_to_vx: (x) -> x
 
   sy_to_vy: (y) ->
     # Note: +1 to account for 1px canvas dilation
@@ -122,28 +118,29 @@ class Canvas extends LayoutBox.Model
       yy[idx] = canvas_height - (y + 1)
     return yy
 
-  _set_width: (width, update=true) ->
+  _set_width: (width) ->
     solver = @document.solver()
     if @_width_constraint?
       solver.remove_constraint(@_width_constraint)
     @_width_constraint = EQ(@_width, -width)
     solver.add_constraint(@_width_constraint)
-    if update
-      solver.update_variables()
+    solver.update_variables()
+    return
 
-  _set_height: (height, update=true) ->
+  _set_height: (height) ->
     solver = @document.solver()
     if @_height_constraint?
       solver.remove_constraint(@_height_constraint)
     @_height_constraint = EQ(@_height, -height)
     solver.add_constraint(@_height_constraint)
-    if update
-      solver.update_variables()
+    solver.update_variables()
+    return
 
   _set_dims: (dims, trigger=true) ->
-    @_set_width(dims[0], false)
-    @_set_height(dims[1], false)
+    @_set_width(dims[0])
+    @_set_height(dims[1])
     @document.solver().update_variables(trigger)
+    return
 
   defaults: ->
     return _.extend {}, super(), {

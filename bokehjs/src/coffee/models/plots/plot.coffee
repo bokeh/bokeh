@@ -434,7 +434,6 @@ class PlotView extends Renderer.View
         @canvas.get("canvas_height") != height)
       @canvas._set_dims([width, height], trigger=false)
 
-    super()
     @canvas_view.render(force_canvas)
 
     if @tm_view?
