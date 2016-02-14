@@ -38,12 +38,8 @@ class CustomJS(Callback):
         try:
             from flexx.pyscript import py2js
         except ImportError:
-            if sys.version_info < (3, ):
-                raise RuntimeError('Using Python functions for CustomJS '
-                                    'is currently not supported on Python 2.x')
-            else:
-                raise RuntimeError('To use Python functions for CustomJS, you need Flexx '
-                                   '("conda install -c bokeh flexx" or "pip install flexx")')
+            raise RuntimeError('To use Python functions for CustomJS, you need Flexx '
+                                '("conda install -c bokeh flexx" or "pip install flexx")')
         # Collect default values
         default_values = func.__defaults__  # Python 2.6+
         default_names = func.__code__.co_varnames[:len(default_values)]

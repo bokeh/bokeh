@@ -2,9 +2,7 @@
 which is transpiled to JavaScript using PyScript. Read more on PyScript
 here:
 
-    http://flexx.readthedocs.org/en/latest/pyscript/index.html
-
-NOTE: This feature is currently only supported in Python 3
+    http://flexx.readthedocs.org/en/latest/pyscript
 
 """
 
@@ -13,6 +11,8 @@ import numpy as np
 from bokeh.io import vform
 from bokeh.plotting import figure, hplot, output_file, show, ColumnDataSource
 from bokeh.models import CustomJS, Slider
+
+window = None  # stub name to use in PyScript callback
 
 x = np.linspace(0, 10, 500)
 y = np.sin(x)
@@ -29,7 +29,7 @@ def callback(source=source):
     k, phi = freq.get('value'), phase.get('value')
     x, y = data['x'], data['y']
     for i in range(len(x)):
-        y[i] = B + A * Math.sin(k * x[i] + phi)
+        y[i] = B + A * window.Math.sin(k * x[i] + phi)
     source.trigger('change')
 
 # turn our function into a CustomJS object.

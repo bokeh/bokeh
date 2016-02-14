@@ -290,13 +290,9 @@ for users to define client-side interactions without having to learn
 JavaScript. To use this functionality you need the Flexx library
 (install with ``conda install -c bokeh flexx`` or ``pip install flexx``).
 
-.. note::
-    This functionality is currently only supported on Python 3.x., however
-    Python 2.7 support is planned.
-
 .. warning::
     It is critical to note that **no python code is ever executed when
-    a CustomJS callback is used**. This is true even when the call back is
+    a CustomJS callback is used**. This is true even when the callback is
     supplied as python code to be translated to JavaScript as described in
     this section. A ``CustomJS`` callback is only executed inside a browser
     JavaScript interpreter, and can only directly interact JavaScript data
@@ -340,4 +336,4 @@ callbacks, see the `<PyScript documentation_>`_.
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_widgets.py
     :source-position: none
 
-.. _PyScript documentation: http://flexx.readthedocs.org/en/latest/pyscript/index.html
+.. _PyScript documentation: http://flexx.readthedocs.org/en/latest/pyscript

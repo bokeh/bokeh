@@ -2,6 +2,8 @@ from bokeh.io import vform
 from bokeh.models import CustomJS, ColumnDataSource, Slider
 from bokeh.plotting import Figure, output_file, show
 
+window = None  # stub name to use in PyScript callback
+
 output_file("callback.html")
 
 x = [x*0.005 for x in range(0, 200)]
@@ -17,7 +19,7 @@ def callback(source=source):
     f = cb_obj.get('value')
     x, y = data['x'], data['y']
     for i in range(len(x)):
-        y[i] = Math.pow(x[i], f)
+        y[i] = window.Math.pow(x[i], f)
     source.trigger('change');
 
 slider = Slider(start=0.1, end=4, value=1, step=.1, title="power", 
