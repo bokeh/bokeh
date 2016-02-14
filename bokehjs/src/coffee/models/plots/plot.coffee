@@ -270,7 +270,7 @@ class PlotView extends Renderer.View
       @update_dimensions(info.dimensions)
 
   update_dimensions: (dimensions) ->
-    @canvas._set_dims([dimensions.width, dimensions.height])
+    @canvas.set_dims([dimensions.width, dimensions.height])
 
   reset_dimensions: () ->
     @update_dimensions({width: @canvas.get('canvas_width'), height: @canvas.get('canvas_height')})
@@ -432,7 +432,7 @@ class PlotView extends Renderer.View
 
     if (@canvas.get("canvas_width") != width or
         @canvas.get("canvas_height") != height)
-      @canvas._set_dims([width, height], trigger=false)
+      @canvas.set_dims([width, height], trigger=false)
 
     @canvas_view.render(force_canvas)
 
@@ -571,17 +571,17 @@ class PlotView extends Renderer.View
     if maintain_ar is false
       # Just change width and/or height; aspect ratio will change
       if use_width and use_height
-        @canvas._set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
+        @canvas.set_dims([Math.max(min_size, avail_width), Math.max(min_size, avail_height)])
       else if use_width
-        @canvas._set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
+        @canvas.set_dims([Math.max(min_size, avail_width), @canvas.get('height')])
       else if use_height
-        @canvas._set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
+        @canvas.set_dims([@canvas.get('width'), Math.max(min_size, avail_height)])
     else
       # Find best size to fill space while maintaining aspect ratio
       ar = @canvas.get('width') / @canvas.get('height')
       w_h = get_size_for_available_space(use_width, use_height, avail_width, avail_height, ar, min_size)
       if w_h?
-        @canvas._set_dims(w_h)
+        @canvas.set_dims(w_h)
 
   _render_levels: (ctx, levels, clip_region) ->
     ctx.save()

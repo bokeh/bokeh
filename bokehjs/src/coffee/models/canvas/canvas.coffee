@@ -136,10 +136,15 @@ class Canvas extends LayoutBox.Model
     solver.update_variables()
     return
 
-  _set_dims: (dims, trigger=true) ->
+  set_dims: (dims, trigger=true) ->
     @_set_width(dims[0])
     @_set_height(dims[1])
     @document.solver().update_variables(trigger)
+    return
+
+  _set_dims: (dims, trigger=true) ->
+    logger.warn("_set_dims is deprecated, use set_dims")
+    @set_dims(dims, trigger)
     return
 
   defaults: ->
