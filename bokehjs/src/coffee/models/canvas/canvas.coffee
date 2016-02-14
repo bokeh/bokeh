@@ -70,6 +70,18 @@ class Canvas extends LayoutBox.Model
   type: 'Canvas'
   default_view: CanvasView
 
+  defaults: ->
+    return _.extend {}, super(), {
+      map: false
+      use_hidpi: true
+    }
+
+  set_dims: (dims, trigger=true) ->
+    @_set_width(dims[0])
+    @_set_height(dims[1])
+    @document.solver().update_variables(trigger)
+    return
+
   _doc_attached: () ->
     super()
     solver = @document.solver()
@@ -136,26 +148,10 @@ class Canvas extends LayoutBox.Model
     solver.update_variables()
     return
 
-  set_dims: (dims, trigger=true) ->
-    @_set_width(dims[0])
-    @_set_height(dims[1])
-    @document.solver().update_variables(trigger)
-    return
-
   _set_dims: (dims, trigger=true) ->
     logger.warn("_set_dims is deprecated, use set_dims")
     @set_dims(dims, trigger)
     return
-
-  defaults: ->
-    return _.extend {}, super(), {
-      width: 300
-      height: 300
-      map: false
-      mousedown_callbacks: []
-      mousemove_callbacks: []
-      use_hidpi: true
-    }
 
 module.exports =
   Model: Canvas
