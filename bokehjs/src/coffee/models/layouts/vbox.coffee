@@ -6,9 +6,6 @@ ContinuumView = require "../../common/continuum_view"
 BaseBox = require "./basebox"
 
 class VBoxView extends ContinuumView
-  tag: "div"
-  attributes:
-    class: "bk-vbox"
 
   initialize: (options) ->
     super(options)
@@ -22,27 +19,17 @@ class VBoxView extends ContinuumView
     # Inject the phosphor boxpanel's node directly into
     # backbone so that it becomes the default node for this
     # view object.
+    # In this way, we save the creation of an intermediate
+    # DOM node (div), which is what backbone would do by default.
     @setElement(@panel.node)
-
-    # @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
-    # @el = @panel.node
 
     @observer = new MutationObserver((mutations) =>
       mutations.forEach((mutation) =>
-        # entry = {
-        #   mutation: mutation,
-        #   el: mutation.target,
-        #   oldValue: mutation.oldValue
-        # }
-        # console.log('MUTATION: ')
-        # console.log(entry)
         bokeh_phosphor.bokeh_phosphor.sendMessage(
           @panel,
           bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
         )
-        #
         @render
-        @panel.update()
       )
     )
     @observer.observe(@el,

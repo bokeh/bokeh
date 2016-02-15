@@ -7,8 +7,6 @@ BaseBox = require "./basebox"
 
 
 class HBoxView extends ContinuumView
-  attributes:
-    class: "bk-hbox"
 
   initialize: (options) ->
     super(options)
@@ -22,22 +20,23 @@ class HBoxView extends ContinuumView
     # Inject the phosphor boxpanel's node directly into
     # backbone so that it becomes the default node for this
     # view object.
-    # options["el"] = @panel.node
+    # In this way, we save the creation of an intermediate
+    # DOM node (div), which is what backbone does by default.
     @setElement(@panel.node)
 
     @views = {}
-    # @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
-    # @el = @panel.node
 
+    # Set up an observer on this view's DOM node, so that we
+    # can send the MsgAfterAttach message to the @panel
+    # phosphor widget, which allows it to correctly Layout
+    # its children once it's attached to the DOM.
+    # It is not normally required to explicitly send this message,
+    # however backbone generates its view objects disconnected from
+    # the DOM in order to allow bulk updates, but phosphor requires a
+    # connection to document.body in order to calculate correct
+    # sizes.
     @observer = new MutationObserver((mutations) =>
       mutations.forEach((mutation) =>
-        # entry = {
-        #   mutation: mutation,
-        #   el: mutation.target,
-        #   oldValue: mutation.oldValue
-        # }
-        # console.log('HBOX MUTATION')
-        # console.log(entry)
         bokeh_phosphor.bokeh_phosphor.sendMessage(
           @panel,
           bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
@@ -48,7 +47,13 @@ class HBoxView extends ContinuumView
       )
     )
 
-    @observer.observe(@el, {subtree: true, childList: true, attributes: true} )
+    @observer.observe(@el,
+      {
+        subtree: true,
+        childList: true,
+        attributes: true
+      }
+    )
 
     @render()
     @listenTo(@model, 'change', @render)
@@ -69,7 +74,6 @@ class HBoxView extends ContinuumView
       console.log("Hbox :: " + index.toString())
       child_widget = new bokeh_phosphor.bokeh_phosphor.Widget();
       child_widget.node.appendChild(@views[child.id].$el[0])
-      # x = debug
       child_widget.node.style.width = @views[child.id].$el[0].width
       child_widget.node.style.height = @views[child.id].$el[0].height
       @panel.addChild(child_widget)
