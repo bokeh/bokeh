@@ -12,15 +12,16 @@ Canvas = require "../../common/canvas"
 CartesianFrame = require "../../common/cartesian_frame"
 LayoutBox = require "../../common/layout_box"
 plot_template = require "../../common/plot_template"
-plot_utils = require "../../common/plot_utils"
 Solver = require "../../common/solver"
 ToolEvents = require "../../common/tool_events"
 ToolManager = require "../../common/tool_manager"
 UIEvents = require "../../common/ui_events"
 Component = require "../component"
 BokehView = require "../../core/bokeh_view"
+enums = require "../../core/enums"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
+{throttle} = require "../../core/util/throttle"
 
 # Notes on WebGL support:
 # Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -130,13 +131,13 @@ class PlotView extends Renderer.View
       if window.location.search.indexOf('webgl=0') == -1
         @init_webgl()
 
-    @throttled_render = plot_utils.throttle_animation(@render, 15)
+    @throttled_render = throttle(@render, 15) # TODO (bev) configurable
 
     @renderers = {}
     @tools = {}
 
     @levels = {}
-    for level in plot_utils.LEVELS
+    for level in enums.RenderLevel
       @levels[level] = {}
     @build_levels()
     @bind_bokeh_events()

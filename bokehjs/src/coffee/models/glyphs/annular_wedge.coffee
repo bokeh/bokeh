@@ -1,9 +1,9 @@
 _ = require "underscore"
-mathutils = require "../../common/mathutils"
 
 Glyph = require "./glyph"
 hittest = require "../../common/hittest"
 p = require "../../core/properties"
+{angle_between} = require "../../core/util/math"
 
 class AnnularWedgeView extends Glyph.View
 
@@ -92,7 +92,7 @@ class AnnularWedgeView extends Glyph.View
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
       # NOTE: minus the angle because JS uses non-mathy convention for angles
       angle = Math.atan2(sy-@sy[i], sx-@sx[i])
-      if mathutils.angle_between(-angle, -@start_angle[i], -@end_angle[i], direction)
+      if angle_between(-angle, -@start_angle[i], -@end_angle[i], direction)
         hits.push([i, dist])
 
     result = hittest.create_hit_test_result()

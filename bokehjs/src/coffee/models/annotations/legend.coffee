@@ -2,8 +2,8 @@ _ = require "underscore"
 
 Annotation = require "./annotation"
 Renderer = require "../renderers/renderer"
-textutils = require "../../common/textutils"
 p = require "../../core/properties"
+{get_text_height} = require "../../core/util/text"
 
 class LegendView extends Renderer.View
   initialize: (options) ->
@@ -23,7 +23,7 @@ class LegendView extends Renderer.View
     legend_spacing = @mget('legend_spacing')
 
     @max_label_height = _.max(
-      [textutils.getTextHeight(@visuals.label_text.font_value()), label_height, glyph_height]
+      [get_text_height(@visuals.label_text.font_value()), label_height, glyph_height]
     )
 
     # this is to measure text properties

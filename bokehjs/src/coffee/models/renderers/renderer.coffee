@@ -3,11 +3,11 @@ proj4 = require "proj4"
 toProjection = proj4.defs('GOOGLE')
 Backbone = require "backbone"
 
-{arrayMax} = require "../../common/mathutils"
 BokehView = require "../../core/bokeh_view"
 {logger} = require "../../core/logging"
 p = require "../../core/properties"
 mixins = require "../../core/property_mixins"
+{array_max} = require "../../core/util/math"
 Model = require "../../model"
 
 class _ContextProperties extends Backbone.Model
@@ -224,7 +224,7 @@ class RendererView extends BokehView
         continue
       @[name] = prop.array(source)
       if prop instanceof p.Distance
-        @["max_#{name}"] = arrayMax(@[name])
+        @["max_#{name}"] = array_max(@[name])
 
     if @renderer.plot_model.use_map
       if @x?
