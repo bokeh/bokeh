@@ -12,7 +12,20 @@ class VBoxView extends ContinuumView
 
   initialize: (options) ->
     super(options)
+
+    # Create and initialise the phosphor BoxPanel
+    # for this view. VBox === TopToBottom.
     @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
+    @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.TopToBottom
+    @panel.spacing = 5
+
+    # Inject the phosphor boxpanel's node directly into
+    # backbone so that it becomes the default node for this
+    # view object.
+    @setElement(@panel.node)
+
+    # @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
+    # @el = @panel.node
 
     @observer = new MutationObserver((mutations) =>
       mutations.forEach((mutation) =>
@@ -44,9 +57,6 @@ class VBoxView extends ContinuumView
 
   render: () ->
 
-    @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.TopToBottom
-    @panel.spacing = 5
-
     children = @model.children()
     build_views(@views, children)
     for own key, val of @views
@@ -67,7 +77,6 @@ class VBoxView extends ContinuumView
       child_widget.node.style.height = @views[child.id].$el[0].height
       @panel.addChild(child_widget)
 
-    @el.appendChild(@panel.node)
     return @
 
 class VBox extends BaseBox.Model
