@@ -336,4 +336,4 @@ callbacks, see the `<PyScript documentation_>`_.
 .. bokeh-plot:: source/docs/user_guide/source_examples/interaction_callbacks_for_widgets.py
     :source-position: none
 
-.. _PyScript documentation: http://flexx.readthedocs.org/en/latest/pyscript
+.. _PyScript documentation: http://flexx.readthedocs.org/en/stable/pyscript

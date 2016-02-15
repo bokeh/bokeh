@@ -2,7 +2,7 @@
 which is transpiled to JavaScript using PyScript. Read more on PyScript
 here:
 
-    http://flexx.readthedocs.org/en/latest/pyscript
+    http://flexx.readthedocs.org/en/stable/pyscript
 
 """
 
