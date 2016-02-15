@@ -1,9 +1,0 @@
-*.suo
-*.user
-.DS_Store
-docs/api
-example/bundle.js
-lib
-node_modules
-test/build
-test/coverage

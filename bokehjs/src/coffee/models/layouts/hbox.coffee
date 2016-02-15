@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-bokeh_phosphor = require "bokeh_phosphor"
+bokeh_phosphor = require "bokeh-phosphor"
 build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 BaseBox = require "./basebox"
@@ -41,7 +41,6 @@ class HBoxView extends ContinuumView
           @panel,
           bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
         )
-        #
         @render
         @panel.update()
       )
@@ -79,6 +78,7 @@ class HBoxView extends ContinuumView
       @panel.addChild(child_widget)
 
     return @
+
 
 class HBox extends BaseBox.Model
   type: "HBox"

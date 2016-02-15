@@ -1,9 +1,10 @@
 _ = require "underscore"
 $ = require "jquery"
-bokeh_phosphor = require "bokeh_phosphor"
+bokeh_phosphor = require "bokeh-phosphor"
 build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 BaseBox = require "./basebox"
+
 
 class VBoxView extends ContinuumView
 
@@ -23,6 +24,15 @@ class VBoxView extends ContinuumView
     # DOM node (div), which is what backbone would do by default.
     @setElement(@panel.node)
 
+    # Set up an observer on this view's DOM node, so that we
+    # can send the MsgAfterAttach message to the @panel
+    # phosphor widget, which allows it to correctly Layout
+    # its children once it's attached to the DOM.
+    # It is not normally required to explicitly send this message,
+    # however backbone generates its view objects disconnected from
+    # the DOM in order to allow bulk updates, but phosphor requires a
+    # connection to document.body in order to calculate correct
+    # sizes.
     @observer = new MutationObserver((mutations) =>
       mutations.forEach((mutation) =>
         bokeh_phosphor.bokeh_phosphor.sendMessage(
