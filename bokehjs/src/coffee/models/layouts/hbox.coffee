@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-bokeh_phosphor = require "bokeh-phosphor"
+bp = require "bokeh-phosphor"
 build_views = require "../../common/build_views"
 ContinuumView = require "../../common/continuum_view"
 BaseBox = require "./basebox"
@@ -13,8 +13,8 @@ class HBoxView extends ContinuumView
 
     # Create and initialise the phosphor BoxPanel
     # for this view. HBox === LeftToRight.
-    @panel = new bokeh_phosphor.bokeh_phosphor.BoxPanel()
-    @panel.direction = bokeh_phosphor.bokeh_phosphor.BoxPanel.LeftToRight
+    @panel = new bp.bokeh_phosphor.BoxPanel()
+    @panel.direction = bp.bokeh_phosphor.BoxPanel.LeftToRight
     @panel.spacing = 5
 
     # Inject the phosphor boxpanel's node directly into
@@ -37,9 +37,9 @@ class HBoxView extends ContinuumView
     # sizes.
     @observer = new MutationObserver((mutations) =>
       mutations.forEach((mutation) =>
-        bokeh_phosphor.bokeh_phosphor.sendMessage(
+        bp.bokeh_phosphor.sendMessage(
           @panel,
-          bokeh_phosphor.bokeh_phosphor.Widget.MsgAfterAttach
+          bp.bokeh_phosphor.Widget.MsgAfterAttach
         )
         @render
         @panel.update()
@@ -71,7 +71,7 @@ class HBoxView extends ContinuumView
 
     for child, index in children
       console.log("Hbox :: " + index.toString())
-      child_widget = new bokeh_phosphor.bokeh_phosphor.Widget();
+      child_widget = new bp.bokeh_phosphor.Widget()
       child_widget.node.appendChild(@views[child.id].$el[0])
       child_widget.node.style.width = @views[child.id].$el[0].width
       child_widget.node.style.height = @views[child.id].$el[0].height
