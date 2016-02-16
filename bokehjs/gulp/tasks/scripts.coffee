@@ -89,7 +89,7 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
       # part of the phosphorjs integration. Phosphor `import`s/`require`s
       # its CSS, and therefore needs the *global* hierarchy traversed
       # and browserified before bundling.
-      .transform(require('browserify-css'), {global: true})
+      # .transform(require('browserify-css'), {global: true})
       .bundle()
       .pipe(source(paths.coffee.bokehjs.destination.full))
       .pipe(buffer())
