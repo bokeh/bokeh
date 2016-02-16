@@ -8,6 +8,7 @@ import bs4
 import bokeh.embed as embed
 from bokeh.resources import CDN, JSResources, CSSResources
 from bokeh.plotting import figure
+from bokeh.util.string import encode_utf8
 from jinja2 import Template
 from six import string_types
 
@@ -150,7 +151,7 @@ def test_file_html_handles_js_only_resources():
     js_resources = JSResources(mode="relative", components=["bokeh"])
     template = Template("<head>{{ bokeh_js }}</head><body></body>")
     output = embed.file_html(_embed_test_plot, (js_resources, None), "title", template=template)
-    html = "<head>%s</head><body></body>" % js_resources.render_js()
+    html = encode_utf8("<head>%s</head><body></body>" % js_resources.render_js())
     assert output == html
 
 
@@ -167,7 +168,7 @@ def test_file_html_handles_css_only_resources():
     css_resources = CSSResources(mode="relative", components=["bokeh"])
     template = Template("<head>{{ bokeh_css }}</head><body></body>")
     output = embed.file_html(_embed_test_plot, (None, css_resources), "title", template=template)
-    html = "<head>%s</head><body></body>" % css_resources.render_css()
+    html = encode_utf8("<head>%s</head><body></body>" % css_resources.render_css())
     assert output == html
 
 

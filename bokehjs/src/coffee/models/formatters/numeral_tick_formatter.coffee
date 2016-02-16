@@ -1,5 +1,5 @@
 _ = require "underscore"
-Numeral = require "numeral"
+Numbro = require "numbro"
 
 TickFormatter = require "./tick_formatter"
 p = require "../../core/properties"
@@ -23,7 +23,7 @@ class NumeralTickFormatter extends TickFormatter.Model
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil
 
-    labels = ( Numeral.format(tick, format, language, rounding) for tick in ticks )
+    labels = ( Numbro.format(tick, format, language, rounding) for tick in ticks )
     return labels
 
 
