@@ -18,8 +18,6 @@
   },
   "devDependencies": {
     "browserify": "^11.1.0",
-    "browserify-css": "^0.9.0",
-    "css-loader": "^0.23.1",
     "resolve": "^1.1.6",
     "Canteen": "git+https://github.com/platfora/Canteen.git#f1182e3396e76e0acb32849823ac4b4f404d6a72",
     "chai": "^2.2.0",
@@ -84,7 +82,6 @@
     "Canteen": "./node_modules/Canteen/build/canteen.js"
   },
   "dependencies": {
-    "bokeh-phosphor": "file:../../bokeh-phosphor",
     "underscore": "^1.5.2",
     "backbone": "^1.1.0",
     "es6-promise":"3.0.2",
