@@ -35,21 +35,18 @@ class HBoxView extends ContinuumView
     # connection to document.body in order to calculate correct
     # sizes.
     @observer = new MutationObserver((mutations) =>
-      mutations.forEach((mutation) =>
-        window.bokeh_phosphor.sendMessage(
-          @panel,
-          window.bokeh_phosphor.Widget.MsgAfterAttach
-        )
-        @render
-        @panel.update()
-      )
+      for m in mutations
+        do (m) =>
+          if @el in m.addedNodes
+            console.log("Mutation HB: " + m.target)
+            window.bokeh_phosphor.sendMessage(@panel, window.bokeh_phosphor.Widget.MsgAfterAttach)
+            @render()
     )
 
-    @observer.observe(@el,
+    @observer.observe(document.body,
       {
         subtree: true,
         childList: true,
-        attributes: true
       }
     )
 
@@ -63,17 +60,15 @@ class HBoxView extends ContinuumView
     for own key, val of @views
       val.$el.detach()
     @$el.empty()
-    # width = @mget("width")
-    # if width? then @$el.css(width: width + "px")
-    # height = @mget("height")
-    # if height? then @$el.css(height: height + "px")
+    width = @mget("width")
+    if width? then @$el.css(width: width + "px")
+    height = @mget("height")
+    if height? then @$el.css(height: height + "px")
 
     for child, index in children
       console.log("Hbox :: " + index.toString())
       child_widget = new window.bokeh_phosphor.Widget()
       child_widget.node.appendChild(@views[child.id].$el[0])
-      child_widget.node.style.width = @views[child.id].$el[0].width
-      child_widget.node.style.height = @views[child.id].$el[0].height
       @panel.addChild(child_widget)
 
     return @

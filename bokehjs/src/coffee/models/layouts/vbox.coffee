@@ -33,24 +33,22 @@ class VBoxView extends ContinuumView
     # connection to document.body in order to calculate correct
     # sizes.
     @observer = new MutationObserver((mutations) =>
-      mutations.forEach((mutation) =>
-        # TODO : don't send a message on each mutation.
-        window.bokeh_phosphor.sendMessage(
-          @panel,
-          window.bokeh_phosphor.Widget.MsgAfterAttach
-        )
-        @render
-      )
+      for m in mutations
+        do (m) =>
+          if @el in m.addedNodes
+            console.log("Mutation: VB ")
+            console.log(m)
+            window.bokeh_phosphor.sendMessage(@panel, window.bokeh_phosphor.Widget.MsgAfterAttach)
+            @render()
     )
 
-    @observer.observe(@el,
-      {subtree: false,
-      childList: false,
-      attributes: true}
+    @observer.observe(document.body,
+      {subtree: true,
+      childList: true}
     )
     @views = {}
 
-    @render()
+    # @render()
     @listenTo(@model, 'change', @render)
 
   render: () ->
@@ -71,8 +69,6 @@ class VBoxView extends ContinuumView
       console.log("VBox")
       child_widget = new window.bokeh_phosphor.Widget()
       child_widget.node.appendChild(@views[child.id].$el[0])
-      child_widget.node.style.width = @views[child.id].$el[0].width
-      child_widget.node.style.height = @views[child.id].$el[0].height
       @panel.addChild(child_widget)
 
     return @
