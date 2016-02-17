@@ -60,7 +60,7 @@ before_install:
     - "sh -e /etc/init.d/xvfb start"
     # We don't use the travis saucelabs add on because it installs on every
     # test run, but we can manually use travis' saucelabs start/stop commands
-    - bash <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh)
+    - source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh)
 
 install:
     - scripts/travis_install
