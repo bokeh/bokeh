@@ -16,28 +16,28 @@ env:
         - secure: "AMKPTVrc2g8j5T40hQhdEGoiod+KCkbiseVSQRDPeeX1TvQoVjbrZenrWHyHEHKc1x3LavDuCBJ3sW9cLy+QF9sdudK/cc9+aG2Hax5dyapI0iaHlzvqYDO3aguQsZcu+pVEIVatoOSv25/282aPNtNXn403jmJvd0Qt8ch1jOw="
         - secure: "nqoKfXZTHhJ0ieffqS+5mi5crivUeFeIgohqUaeTCnaOGI5XFMLR8rZPjhMHyFx5vNTp08pbg3Mg4i7iaQn+3dqu25HBwnfhar3TFXfOCQQLJBZstoWSGEDkJKDPwwqZrdFzw+EDxlA0tlLXvV8X0DlArYKhRcAOJF01cCJ7L1c="
         - secure: "ii7ssdfEDYtc4Ph24mVzyq7JVTkjrn/h36HZn1oZak+HuiYtVbcCjqomKj2n1kPuKJWajOwHGu7d7ymCvK4tQ37keiMRvku/Yz4HELT5IUU1hD+w7mKomc2taKKvddGnbR4I4oZe+SBfwfeQCq5/Ha+koadSQI05Aco/nLNZP3M="
-    matrix:
-      - GROUP=unit
-      - GROUP=integration
-      - GROUP=examples
-      - GROUP=flake_docs
 
 matrix:
-    exclude:
-        # integration tests only py 3.4
+    include:
+        # Unit tests for py2.7, 3.4, 3.5
         - python: 2.7
-          env: GROUP=integration
-        - python: 3.5
-          env: GROUP=integration
-        #
-        # flake_docs only py 2.7
+          env: GROUP=unit
         - python: 3.4
-          env: GROUP=flake_docs
+          env: GROUP=unit
         - python: 3.5
+          env: GROUP=unit
+        # integration tests only py 3.4
+        - python: 3.4
+          env: GROUP=integration
+          addons: 
+            sauce_connect: true
+        # flake_docs only py 2.7
+        - python: 2.7
           env: GROUP=flake_docs
-        #
         # TEMPORARILY DISABLE EXAMPLES for py 3.5
-        - python: 3.5
+        - python: 2.7
+          env: GROUP=examples
+        - python: 3.4
           env: GROUP=examples
 
 branches:
