@@ -280,7 +280,7 @@ class LineGLGlyph extends BaseGLGlyph
           // This is the actual half width of the line
           float w = ceil(1.25*u_antialias+v_linewidth)/2.0;
 
-          vec2 position = a_position * abs_scale;
+          vec2 position = (a_position + u_offset) * abs_scale;
 
           vec2 t1 = normalize(a_tangents.xy * abs_scale_aspect);  // note the scaling for aspect ratio here
           vec2 t2 = normalize(a_tangents.zw * abs_scale_aspect);
@@ -408,7 +408,7 @@ class LineGLGlyph extends BaseGLGlyph
 
           // Calculate position in device coordinates. Note that we
           // already scaled with abs scale above.
-          vec2 normpos = position * sign(u_scale_aspect) + (u_offset - vec2(0.5, 0.5));
+          vec2 normpos = position * sign(u_scale_aspect) - vec2(0.5, 0.5);
           normpos /= u_canvas_size;  // in 0..1
           gl_Position = vec4(normpos*2.0-1.0, 0.0, 1.0);
           gl_Position.y *= -1.0;
@@ -756,6 +756,7 @@ class LineGLGlyph extends BaseGLGlyph
     draw: (indices, mainGlyph, trans) ->
 
       if @data_changed
+        @_baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _bake() and below
         @_set_data()
         @data_changed = false
       if @visuals_changed
@@ -785,7 +786,7 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Handle transformation to device coordinates
       @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-      @prog.set_uniform('u_offset', 'vec2', [trans.dx[0], trans.dy[0]])
+      @prog.set_uniform('u_offset', 'vec2', [trans.dx - @_baked_offset[0], trans.dy - @_baked_offset[1]])
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
       @prog.set_uniform('u_scale_length', 'float', [scale_length])
 
@@ -878,8 +879,8 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Init array of implicit shape nx2
       n = @nvertices
-      _x = new Float32Array(@glyph.x)
-      _y = new Float32Array(@glyph.y)
+      _x = new Float64Array(@glyph.x)
+      _y = new Float64Array(@glyph.y)
 
       # Init vertex data
       V_position = Vp = new Float32Array(n*2)
@@ -890,8 +891,8 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Position
       for i in [0...n]
-          V_position[i*2+0] = _x[i]
-          V_position[i*2+1] = _y[i]
+          V_position[i*2+0] = _x[i] + @_baked_offset[0]
+          V_position[i*2+1] = _y[i] + @_baked_offset[1]
 
       # Tangents & norms (need tangents to calculate segments based on scale)
       @tangents = T = new Float32Array(n*2-2)
@@ -1036,7 +1037,7 @@ class MarkerGLGlyph extends BaseGLGlyph
         v_bg_color = a_bg_color;
         v_rotation = vec2(cos(-a_angle), sin(-a_angle));
         // Calculate position - the -0.5 is to correct for canvas origin
-        vec2 pos = vec2(a_x, a_y) * u_scale + u_offset - vec2(0.5, 0.5); // in pixels
+        vec2 pos = (vec2(a_x, a_y) + u_offset) * u_scale - vec2(0.5, 0.5); // in pixels
         pos /= u_canvas_size;  // in 0..1
         gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);
         gl_Position.y *= -1.0;
@@ -1136,6 +1137,7 @@ class MarkerGLGlyph extends BaseGLGlyph
 
     # Upload data if we must. Only happens for main glyph.
     if @data_changed
+      @_baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _set_data() and below
       @_set_data(nvertices)
       @data_changed = false
     else if @glyph.radius? and (trans.sx != @last_trans.sx or trans.sy != @last_trans.sy)
@@ -1149,10 +1151,11 @@ class MarkerGLGlyph extends BaseGLGlyph
       @visuals_changed = false
 
     # Handle transformation to device coordinates
+    # Note the baked-in offset to avoid float32 precision problems
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    @prog.set_uniform('u_offset', 'vec2', [trans.dx[0], trans.dy[0]])
+    @prog.set_uniform('u_offset', 'vec2', [trans.dx - @_baked_offset[0], trans.dy - @_baked_offset[1]])
     @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
-
+    
     # Select buffers from main glyph
     # (which may be this glyph but maybe not if this is a (non)selection glyph)
     @prog.set_attribute('a_x', 'float', [mainGlyph.glglyph.vbo_x, 0, 0])
@@ -1210,9 +1213,15 @@ class MarkerGLGlyph extends BaseGLGlyph
     @vbo_y.set_size(n)
     @vbo_a.set_size(n)
     @vbo_s.set_size(n)
-    # Upload data for x and y
-    @vbo_x.set_data(0, new Float32Array(@glyph.x))
-    @vbo_y.set_data(0, new Float32Array(@glyph.y))
+    # Upload data for x and y, apply a baked-in offset for float32 precision (issue #3795)
+    # The exact value for the baked_offset does not matter, as long as it brings the data to less extreme values
+    xx = new Float64Array(@glyph.x)
+    yy = new Float64Array(@glyph.y)
+    for i in [0...nvertices]
+       xx[i] += @_baked_offset[0]
+       yy[i] += @_baked_offset[1]
+    @vbo_x.set_data(0, new Float32Array(xx))
+    @vbo_y.set_data(0, new Float32Array(yy))
     # Angle if available; circle does not have angle. If we don't set data, angle is default 0 in glsl
     if @glyph.angle?
       @vbo_a.set_data(0, new Float32Array(@glyph.angle))
