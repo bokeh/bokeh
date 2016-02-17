@@ -50,28 +50,30 @@ attach_float = (prog, vbo, att_name, n, visual, name) ->
       prog.set_attribute(att_name, 'float', [vbo, 0, 0])
     return a
 
-attach_color = (prog, vbo, att_name, n, visual) ->
+attach_color = (prog, vbo, att_name, n, visual, prefix) ->
     # Attach the color attribute to the program. If there's just one color,
     # then use this single color for all vertices (no VBO). Otherwise we
     # create an array and upload that to the VBO, which we attahce to the prog.
     m = 4
     vbo.used = true
-    if visual.color.spec.value? and visual.alpha.spec.value?
-      rgba = color2rgba(visual.color.spec.value, visual.alpha.spec.value)
+    colorname = prefix + '_color'
+    alphaname = prefix + '_alpha'
+    if visual[colorname].spec.value? and visual[alphaname].spec.value?
+      rgba = color2rgba(visual[colorname].spec.value, visual[alphaname].spec.value)
       prog.set_attribute(att_name, 'vec4', null, rgba)
       vbo.used = false
 
     else
       # Get array of colors
-      if visual.color.spec.value?
-        colors = (visual.color.spec.value for i in [0...n])
+      if visual[colorname].spec.value?
+        colors = (visual[colorname].spec.value for i in [0...n])
       else
-        colors = visual.cache.color_array
+        colors = visual.cache[colorname+'_array']
       # Get array of alphas
-      if visual.alpha.spec.value?
-        alphas = fill_array_with_float(n, visual.alpha.spec.value)
+      if visual[alphaname].spec.value?
+        alphas = fill_array_with_float(n, visual[alphaname].spec.value)
       else
-        alphas = visual.cache.alpha_array
+        alphas = visual.cache[alphaname+'_array']
       # Get array of rgbs
       a = new Float32Array(n*m)
       for i in [0...n]
@@ -838,26 +840,25 @@ class LineGLGlyph extends BaseGLGlyph
       @vbo_texcoord.set_data(0, @V_texcoord)
 
     _set_visuals: () ->
-      window.X = this
-
-      color = color2rgba(@glyph.visuals.line.color.value(), @glyph.visuals.line.alpha.value())
-      cap = @CAPS[@glyph.visuals.line.cap.value()]
-      join = @JOINS[@glyph.visuals.line.join.value()]
+      
+      color = color2rgba(@glyph.visuals.line.line_color.value(), @glyph.visuals.line.line_alpha.value())
+      cap = @CAPS[@glyph.visuals.line.line_cap.value()]
+      join = @JOINS[@glyph.visuals.line.line_join.value()]
 
       @prog.set_uniform('u_color', 'vec4', color)
-      @prog.set_uniform('u_linewidth', 'float', [@glyph.visuals.line.width.value()])
+      @prog.set_uniform('u_linewidth', 'float', [@glyph.visuals.line.line_width.value()])
       @prog.set_uniform('u_antialias', 'float', [0.9])  # Smaller aa-region to obtain crisper images
 
       @prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
       @prog.set_uniform('u_linejoin', 'float', [join])
       @prog.set_uniform('u_miter_limit', 'float', [10.0])  # Should be a good value
 
-      dash_pattern = @glyph.visuals.line.dash.value()
+      dash_pattern = @glyph.visuals.line.line_dash.value()
       dash_index = 0; dash_period = 1
       if dash_pattern.length
         [dash_index, dash_period] = @dash_atlas.get_atlas_data(dash_pattern)
       @prog.set_uniform('u_dash_index', 'float', [dash_index])  # 0 means solid line
-      @prog.set_uniform('u_dash_phase', 'float', [@glyph.visuals.line.dash_offset.value()])
+      @prog.set_uniform('u_dash_phase', 'float', [@glyph.visuals.line.line_dash_offset.value()])
       @prog.set_uniform('u_dash_period', 'float', [dash_period])
       @prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])
       @prog.set_uniform('u_closed', 'float', [0])  # We dont do closed lines
@@ -1223,9 +1224,9 @@ class MarkerGLGlyph extends BaseGLGlyph
       @vbo_s.set_data(0, new Float32Array(@glyph.size))
 
   _set_visuals: (nvertices) ->
-    attach_float(@prog, @vbo_linewidth, 'a_linewidth', nvertices, @glyph.visuals.line, 'width')
-    attach_color(@prog, @vbo_fg_color, 'a_fg_color', nvertices, @glyph.visuals.line)
-    attach_color(@prog, @vbo_bg_color, 'a_bg_color', nvertices, @glyph.visuals.fill)
+    attach_float(@prog, @vbo_linewidth, 'a_linewidth', nvertices, @glyph.visuals.line, 'line_width')
+    attach_color(@prog, @vbo_fg_color, 'a_fg_color', nvertices, @glyph.visuals.line, 'line')
+    attach_color(@prog, @vbo_bg_color, 'a_bg_color', nvertices, @glyph.visuals.fill, 'fill')
     # Static value for antialias. Smaller aa-region to obtain crisper images
     @prog.set_uniform('u_antialias', 'float', [0.9])
 
