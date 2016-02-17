@@ -31,6 +31,14 @@ class InspectTool extends Tool.Model
     attrs = _.without(super(), 'active')
     return attrs.concat(['event_type', 'inner_only'])
 
+  defaults: ->
+    return _.extend {}, super(), {
+      # internal
+      active: true
+      inner_only: true
+      event_type: 'move'
+    }
+
   bind_bokeh_events: () ->
     super()
     @listenTo(events, 'move', @_inspect)
@@ -41,12 +49,6 @@ class InspectTool extends Tool.Model
 
   _exit_outer: () ->
 
-  defaults: ->
-    return _.extend {}, super(), {
-      inner_only: true
-      active: true
-      event_type: 'move'
-    }
 
 module.exports =
   Model: InspectTool

@@ -1,10 +1,12 @@
 _ = require "jquery"
 $ = require "underscore"
-ContinuumView = require "../../common/continuum_view"
-multiselecttemplate = require "./multiselecttemplate"
-InputWidget = require "./input_widget"
 
-class MultiSelectView extends ContinuumView
+InputWidget = require "./input_widget"
+multiselecttemplate = require "./multiselecttemplate"
+BokehView = require "../../core/bokeh_view"
+p = require "../../core/properties"
+
+class MultiSelectView extends BokehView
   tagName: "div"
   template: multiselecttemplate
   events:
@@ -35,18 +37,17 @@ class MultiSelectView extends ContinuumView
     )
 
   change_input: () ->
-    @mset('value', @$('select').val(), {'silent': true})
+    @mset('value', @$('select').val())
     @mget('callback')?.execute(@model)
 
 class MultiSelect extends InputWidget.Model
   type: "MultiSelect"
   default_view: MultiSelectView
 
-  defaults: () ->
+  props: () ->
     return _.extend {}, super(), {
-      title: ''
-      value: []
-      options: []
+      value:   [ p.Array, [] ]
+      options: [ p.Array, [] ]
     }
 
 module.exports =

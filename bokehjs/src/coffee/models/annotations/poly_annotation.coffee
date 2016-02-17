@@ -1,14 +1,10 @@
 _ = require "underscore"
+
 Annotation = require "./annotation"
-PlotWidget = require "../../common/plot_widget"
-mixins = require "../../core/property_mixins"
+Renderer = require "../renderers/renderer"
+p = require "../../core/properties"
 
-class PolyAnnotationView extends PlotWidget
-
-  initialize: (options) ->
-    super(options)
-    @line = new mixins.Line({obj: @model, prefix: ""})
-    @fill = new mixins.Fill({obj: @model, prefix: ""})
+class PolyAnnotationView extends Renderer.View
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'data_update', @plot_view.request_render)
@@ -41,17 +37,43 @@ class PolyAnnotationView extends PlotWidget
 
     ctx.closePath()
 
-    if @line.do_stroke
-      @line.set_value(ctx)
+    if @visuals.line.doit
+      @visuals.line.set_value(ctx)
       ctx.stroke()
 
-    if @fill.do_fill
-      @fill.set_value(ctx)
+    if @visuals.fill.doit
+      @visuals.fill.set_value(ctx)
       ctx.fill()
 
 class PolyAnnotation extends Annotation.Model
   default_view: PolyAnnotationView
+
   type: "PolyAnnotation"
+
+  mixins: ['line', 'fill']
+
+  props: ->
+    return _.extend {}, super(), {
+      xs:           [ p.Array,        []        ]
+      xs_units:     [ p.SpatialUnits, 'data'    ]
+      ys:           [ p.Array,        []        ]
+      ys_units:     [ p.SpatialUnits, 'data'    ]
+      x_range_name: [ p.String,       'default' ]
+      y_range_name: [ p.String,       'default' ]
+    }
+
+  defaults: () ->
+    return _.extend({}, super(), {
+      # overrides
+      fill_color: "#fff9ba"
+      fill_alpha: 0.4
+      line_color: "#cccccc"
+      line_alpha: 0.3
+      line_alpha: 0.3
+
+      # internal
+      silent_update: false
+    })
 
   nonserializable_attribute_names: () ->
     super().concat(['silent_update'])
@@ -63,29 +85,6 @@ class PolyAnnotation extends Annotation.Model
     else
       @set({xs: xs, ys: ys})
     @trigger('data_update')
-
-  defaults: () ->
-    return _.extend({}, super(), {
-      silent_update: false
-      plot: null
-      xs: []
-      ys: []
-      xs_units: "data"
-      ys_units: "data"
-      x_range_name: "default"
-      y_range_name: "default"
-      level: 'annotation'
-      fill_color: "#fff9ba"
-      fill_alpha: 0.4
-      line_width: 1
-      line_color: "#cccccc"
-      line_alpha: 0.3
-      line_alpha: 0.3
-      line_join: 'miter'
-      line_cap: 'butt'
-      line_dash: []
-      line_dash_offset: 0
-    })
 
 module.exports =
   Model: PolyAnnotation

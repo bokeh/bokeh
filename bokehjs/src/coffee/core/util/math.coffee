@@ -1,4 +1,4 @@
-arrayMin = (arr) ->
+array_min = (arr) ->
   len = arr.length
   min = Infinity
   while len--
@@ -7,7 +7,7 @@ arrayMin = (arr) ->
       min = val
   min
 
-arrayMax = (arr) ->
+array_max = (arr) ->
   len = arr.length
   max = -Infinity
   while len--
@@ -35,8 +35,8 @@ angle_between = (mid, lhs, rhs, direction) ->
     return not (angle_dist(lhs, mid) <= d and angle_dist(mid, rhs) <= d)
 
 module.exports =
-  arrayMin: arrayMin
-  arrayMax: arrayMax
+  array_min: array_min
+  array_max: array_max
   angle_norm: angle_norm
   angle_dist: angle_dist
   angle_between: angle_between

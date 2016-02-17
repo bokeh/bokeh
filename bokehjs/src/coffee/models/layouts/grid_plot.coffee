@@ -2,7 +2,7 @@ $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
 build_views = require "../../common/build_views"
-ContinuumView = require "../../common/continuum_view"
+BokehView = require "../../core/bokeh_view"
 Component = require "../component"
 HasProps = require "../../core/has_props"
 {logger} = require "../../core/logging"
@@ -181,7 +181,7 @@ class GridViewState extends HasProps
       border_space: 0
     }
 
-class GridPlotView extends ContinuumView
+class GridPlotView extends BokehView
   className: ""
   template: plot_template
 

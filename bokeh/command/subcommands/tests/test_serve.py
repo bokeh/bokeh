@@ -116,6 +116,13 @@ def test_args():
             help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
         )),
 
+        ('--log-format', dict(
+            metavar='LOG-FORMAT',
+            action  = 'store',
+            default = scserve.DEFAULT_LOG_FORMAT,
+            help    = "A standard Python logging format string (default: %r)" % scserve.DEFAULT_LOG_FORMAT.replace("%", "%%"),
+        )),
+
         ('--session-ids', dict(
             metavar='MODE',
             action  = 'store',

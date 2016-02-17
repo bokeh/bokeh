@@ -1,6 +1,8 @@
 _ = require "underscore"
-ContinuousTicker = require "./continuous_ticker"
+
 {argmin} = require "./util"
+ContinuousTicker = require "./continuous_ticker"
+p = require "../../core/properties"
 
 # Forces a number x into a specified range [min_val, max_val].
 clamp = (x, min_val, max_val) ->
@@ -16,6 +18,14 @@ log = (x, base=Math.E) ->
 # ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
 class AdaptiveTicker extends ContinuousTicker.Model
   type: 'AdaptiveTicker'
+
+  props: () ->
+    return _.extend {}, super(), {
+      base:         [ p.Number, 10.0      ]
+      mantissas:    [ p.Array,  [1, 2, 5] ]
+      min_interval: [ p.Number, 0.0       ]
+      max_interval: [ p.Number            ]
+    }
 
   # These arguments control the range of possible intervals.  The interval I
   # returned by get_interval() will be the one that most closely matches the
@@ -54,14 +64,6 @@ class AdaptiveTicker extends ContinuousTicker.Model
     interval = best_mantissa * ideal_magnitude
 
     return clamp(interval, @get_min_interval(), @get_max_interval())
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      base: 10.0,
-      mantissas: [1, 2, 5]
-      min_interval: 0.0,
-      max_interval: null,
-    }
 
 module.exports =
   Model: AdaptiveTicker

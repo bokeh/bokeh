@@ -2,16 +2,15 @@ $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
 
-{Cache} = require "./util/cache"
 {logger} = require "./logging"
+mixins = require "./property_mixins"
 refs = require "./util/refs"
 
 class HasProps extends Backbone.Model
-  # Our property system
-  # we support python style computed properties, with getters
-  # as well as setters. We also support caching of these properties,
-  # and notifications of property. We also support weak references
-  # to other models using the reference system described above.
+
+  mixins: []
+
+  props: () -> mixins.create(@mixins)
 
   toString: () -> "#{@type}(#{@id})"
 
@@ -25,7 +24,7 @@ class HasProps extends Backbone.Model
 
   attrs_and_props : () ->
     data = _.clone(@attributes)
-    for prop_name in _.keys(@properties)
+    for prop_name in _.keys(@_computed)
       data[prop_name] = @get(prop_name)
     return data
 
@@ -38,13 +37,22 @@ class HasProps extends Backbone.Model
       options = {}
     this.cid = _.uniqueId('c')
     this.attributes = {}
+
+    @properties = {}
+    props = _.result(this, 'props')
+    for name, [type, default_value] of props
+      @properties[name] = new type({obj: @, attr: name, default_value: default_value})
+
     if options.collection
       this.collection = options.collection
     if options.parse
       attrs = this.parse(attrs, options) || {}
     defaults = _.result(this, 'defaults')
     this.set(defaults, { defaults: true })
+
+    # Bokeh specific
     this._set_after_defaults = {}
+
     this.set(attrs, options)
 
     # this is maintained by backbone ("changes since the last
@@ -53,12 +61,8 @@ class HasProps extends Backbone.Model
 
     ## bokeh custom constructor code
 
-    # cheap memoization, for storing the base module, requirejs doesn't seem to do it
-    @_base = false
-
     # setting up data structures for properties
-    @properties = {}
-    @_prop_cache = new Cache()
+    @_computed = {}
 
     # auto generating ID
     if not _.has(attrs, @idAttribute)
@@ -72,51 +76,7 @@ class HasProps extends Backbone.Model
     if not options.defer_initialization
       this.initialize.apply(this, arguments)
 
-  forceTrigger: (changes) ->
-    # This is "trigger" part of backbone's set() method. set() is unable to work with
-    # mutable data structures, so instead of using set() we update data in-place and
-    # then call forceTrigger() which will make sure all listeners are notified of any
-    # changes, e.g.:
-    #
-    #   source.get("data")[field][index] += 1
-    #   source.forceTrigger()
-    #
-    if not _.isArray(changes)
-      changes = [changes]
-
-    options    = {}
-    changing   = @_changing
-    @_changing = true
-
-    if changes.length then @_pending = true
-    for change in changes
-      @trigger('change:' + change, this, @attributes[change], options)
-
-    if changing then return this
-    while @_pending
-      @_pending = false
-      @trigger('change', this, options)
-
-    @_pending = false
-    @_changing = false
-
-    return this
-
-  set_obj: (key, value, options) ->
-    if _.isObject(key) or key == null
-      attrs = key
-      options = value
-    else
-      attrs = {}
-      attrs[key] = value
-    for own key, val of attrs
-      attrs[key] = refs.convert_to_ref(val)
-    return @set(attrs, options)
-
   set: (key, value, options) ->
-    # checks for setters, if setters are present, call setters first
-    # then remove the computed property from the dict of attrs, and call super
-
     # backbones set function supports 2 call signatures, either a dictionary of
     # key value pairs, and then options, or one key, one value, and then options.
     # replicating that logic here
@@ -126,19 +86,9 @@ class HasProps extends Backbone.Model
     else
       attrs = {}
       attrs[key] = value
-    toremove  = []
     for own key, val of attrs
       if not (options? and options.defaults)
         @_set_after_defaults[key] = true
-      if _.has(this, 'properties') and
-         _.has(@properties, key) and
-         @properties[key]['setter']
-        @properties[key]['setter'].call(this, val, key)
-        toremove.push(key)
-    if not _.isEmpty(toremove)
-      attrs = _.clone(attrs)
-      for key in toremove
-        delete attrs[key]
     if not _.isEmpty(attrs)
       old = {}
       for key, value of attrs
@@ -149,15 +99,13 @@ class HasProps extends Backbone.Model
         for key, value of attrs
           @_tell_document_about_change(key, old[key], @get(key, resolve_refs=false))
 
-  # ### method: HasProps::add_dependencies
   add_dependencies:  (prop_name, object, fields) ->
     # * prop_name - name of property
     # * object - object on which dependencies reside
     # * fields - attributes on that object
-    # at some future date, we should support a third arg, events
     if not _.isArray(fields)
       fields = [fields]
-    prop_spec = @properties[prop_name]
+    prop_spec = @_computed[prop_name]
     prop_spec.dependencies = prop_spec.dependencies.concat(
       obj: object
       fields: fields
@@ -166,75 +114,60 @@ class HasProps extends Backbone.Model
     for fld in fields
       @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
 
-  # ### method: HasProps::register_setter
-  register_setter: (prop_name, setter) ->
-    prop_spec = @properties[prop_name]
-    prop_spec.setter = setter
-
-  # ### method: HasProps::register_property
   register_property:  (prop_name, getter, use_cache) ->
-    # register a computed property. Setters, and dependencies
-    # can be added with `@add_dependencies` and `@register_setter`
     # #### Parameters
     # * prop_name: name of property
     # * getter: function, calculates computed value, takes no arguments
     # * use_cache: whether to cache or not
     # #### Returns
     # * prop_spec: specification of the property, with the getter,
-    # setter, dependenices, and callbacks associated with the prop
     if _.isUndefined(use_cache)
       use_cache = true
-    if _.has(@properties, prop_name)
+    if _.has(@_computed, prop_name)
       @remove_property(prop_name)
-    # we store a prop_spec, which has the getter, setter, dependencies
-    # we also store the callbacks used to implement the computed property,
-    # we do this so we can remove them later if the property is removed
+
     changedep = () =>
       @trigger('changedep:' + prop_name)
+
     propchange = () =>
       firechange = true
       if prop_spec['use_cache']
-        old_val = @_prop_cache.get(prop_name)
-        @_prop_cache.clear(prop_name)
+        old_val = prop_spec.cache
+        prop_spec.cache = undefined
         new_val = @get(prop_name)
         firechange = new_val != old_val
       if firechange
         @trigger('change:' + prop_name, this, @get(prop_name))
         @trigger('change', this)
-    prop_spec=
+
+    prop_spec =
       'getter': getter,
       'dependencies': [],
       'use_cache': use_cache
-      'setter': null
       'callbacks':
         changedep: changedep
         propchange: propchange
-    @properties[prop_name] = prop_spec
+
+    @_computed[prop_name] = prop_spec
+
     # bind propchange callback to change dep event
-    @listenTo(this, "changedep:#{prop_name}",
-              prop_spec['callbacks']['propchange'])
+    @listenTo(this, "changedep:#{prop_name}", prop_spec['callbacks']['propchange'])
+
     return prop_spec
 
   remove_property: (prop_name) ->
-    # removes the property,
-    # unbinding all associated callbacks that implemented it
-    prop_spec = @properties[prop_name]
+    # removes the property, unbinding all callbacks that implemented it
+    prop_spec = @_computed[prop_name]
     dependencies = prop_spec.dependencies
     for dep in dependencies
       obj = dep.obj
       for fld in dep['fields']
         obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this)
     @off("changedep:" + dep)
-    delete @properties[prop_name]
-    if prop_spec.use_cache
-      @_prop_cache.clear(prop_name)
+    delete @_computed[prop_name]
 
   get: (prop_name, resolve_refs=true) ->
-    # ### method: HasProps::get
-    # overrides backbone get.  checks properties,
-    # calls getter, or goes to cache
-    # if necessary.  If it's not a property, then just call super
-    if _.has(@properties, prop_name)
+    if _.has(@_computed, prop_name)
       return @_get_prop(prop_name)
     else
       ref_or_val = super(prop_name)
@@ -243,14 +176,14 @@ class HasProps extends Backbone.Model
       return @resolve_ref(ref_or_val)
 
   _get_prop: (prop_name) ->
-    prop_spec = @properties[prop_name]
-    if prop_spec.use_cache and @_prop_cache.has(prop_name)
-      return @_prop_cache.get(prop_name)
+    prop_spec = @_computed[prop_name]
+    if prop_spec.use_cache and prop_spec.cache
+      return prop_spec.cache
     else
       getter = prop_spec.getter
       computed = getter.apply(this, [prop_name])
-      if @properties[prop_name].use_cache
-        @_prop_cache.add(prop_name, computed)
+      if prop_spec.use_cache
+        prop_spec.cache = computed
       return computed
 
   ref: () -> refs.create_ref(@)
@@ -360,7 +293,9 @@ class HasProps extends Backbone.Model
   # are included as just references)
   # TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
   # backbone will have implemented a toJSON already that we may need to override
-  attributes_as_json: (include_defaults=true) ->
+  # optional value_to_json is for test to override with a "deep" version to replace the
+  # standard "shallow" HasProps._value_to_json
+  attributes_as_json: (include_defaults=true, value_to_json=HasProps._value_to_json) ->
     attrs = {}
     fail = false
     for own key, value of @serializable_attributes()
@@ -375,7 +310,7 @@ class HasProps extends Backbone.Model
         fail = true
     if fail
       return {}
-    HasProps._value_to_json("attributes", attrs, @)
+    value_to_json("attributes", attrs, @)
 
   # this is like _value_record_references but expects to find refs
   # instead of models, and takes a doc to look up the refs in
@@ -442,6 +377,10 @@ class HasProps extends Backbone.Model
       if first_attach
         for c in @_immediate_references()
           c.attach_document(doc)
+
+    # TODO (bev) is there are way to get rid of this?
+    for name, prop of @properties
+      prop.update()
 
   detach_document: () ->
     if @document != null

@@ -1,11 +1,18 @@
 _ = require "underscore"
+
 ContinuousTicker = require "./continuous_ticker"
 {argmin} = require "./util"
+p = require "../../core/properties"
 
 # This Ticker takes a collection of Tickers and picks the one most appropriate
 # for a given range.
 class CompositeTicker extends ContinuousTicker.Model
   type: 'CompositeTicker'
+
+  props: () ->
+    return _.extend {}, super(), {
+      tickers: [p.Array, [] ]
+    }
 
   # The tickers should be in order of increasing interval size; specifically,
   # if S comes before T, then it should be the case that
@@ -34,11 +41,6 @@ class CompositeTicker extends ContinuousTicker.Model
         () -> _.first(@get('max_intervals'))
       , true)
     @add_dependencies('max_interval', this, ['max_interval'])
-
-  defaults: () ->
-    return _.extend {}, super(), {
-      tickers: []
-    }
 
   get_best_ticker: (data_low, data_high, desired_n_ticks) ->
     data_range = data_high - data_low

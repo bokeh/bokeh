@@ -1,6 +1,6 @@
 _ = require "underscore"
 
-monkey_patch = ->
+patch = ->
 
   _.uniqueId = (prefix) ->
     # from ipython project
@@ -29,4 +29,4 @@ _.setdefault = (obj, key, value) ->
     return value
 
 module.exports =
-  monkey_patch: monkey_patch
+  patch: patch

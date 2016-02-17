@@ -2,7 +2,7 @@ _ = require "underscore"
 kiwi = require "kiwi"
 {Expression, Constraint, Operator} = kiwi
 canvas_template = require "./canvas_template"
-ContinuumView = require "./continuum_view"
+BokehView = require "../core/bokeh_view"
 LayoutBox = require "./layout_box"
 {logger} = require "../core/logging"
 Solver = require "./solver"
@@ -10,7 +10,7 @@ Solver = require "./solver"
 # TODO - This should only be on in testing
 #require 'Canteen'
 
-class CanvasView extends ContinuumView
+class CanvasView extends BokehView
   className: "bk-canvas-wrapper"
   template: canvas_template
 
