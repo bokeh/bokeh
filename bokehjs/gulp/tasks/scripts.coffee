@@ -148,8 +148,7 @@ gulp.task "scripts:minify", ->
   tasks = [paths.coffee.bokehjs, paths.coffee.widgets, paths.coffee.compiler].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
-      # TEMP - don't push this line, commented out for debugging.
-      #.pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
+      .pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(paths.buildDir.js))
