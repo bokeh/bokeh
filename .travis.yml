@@ -64,7 +64,6 @@ before_install:
 
 install:
     - scripts/travis_install
-    - scripts/travis_saucelabs
 
 script:
     # Deactivate tests on building to avoid huge packages contaning the pics and outout html
