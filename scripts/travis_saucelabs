@@ -12,4 +12,9 @@ cd ~/saucelabs
 wget https://saucelabs.com/downloads/sc-4.3.13-linux.tar.gz
 tar -xzvf sc-4.3.13-linux.tar.gz --strip-components 1 --directory sauce-connect
 
-sauce-connect/bin/sc -u $SAUCELABS_USERNAME -k $SAUCELABS_API_KEY &
+sauce-connect/bin/sc --readyfile ~/saucelabs/sauce-connect-ready -u $SAUCELABS_USERNAME -k $SAUCELABS_API_KEY &
+
+# Wait for Sauce Connect to be ready before exiting
+while [ ! -f ~/saucelabs/sauce-connect-ready ]; do
+    sleep .5
+done
