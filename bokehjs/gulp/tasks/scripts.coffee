@@ -85,11 +85,6 @@ gulp.task "scripts:build", ["scripts:compile"], (cb) ->
     if argv.verbose then util.log("Building bokehjs")
     labels = namedLabeler(bokehjs, {})
     bokehjs
-      # Needed to add the browserify-css transform below as
-      # part of the phosphorjs integration. Phosphor `import`s/`require`s
-      # its CSS, and therefore needs the *global* hierarchy traversed
-      # and browserified before bundling.
-      # .transform(require('browserify-css'), {global: true})
       .bundle()
       .pipe(source(paths.coffee.bokehjs.destination.full))
       .pipe(buffer())
@@ -153,6 +148,7 @@ gulp.task "scripts:minify", ->
   tasks = [paths.coffee.bokehjs, paths.coffee.widgets, paths.coffee.compiler].map (entry) ->
     gulp.src(entry.destination.fullWithPath)
       .pipe(rename((path) -> path.basename += '.min'))
+      # TEMP - don't push this line, commented out for debugging.
       #.pipe(uglify({ output: {comments: /^!|copyright|license|\(c\)/i} }))
       .pipe(insert.append(license))
       .pipe(sourcemaps.write('./'))
