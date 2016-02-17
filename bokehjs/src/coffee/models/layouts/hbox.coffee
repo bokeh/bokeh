@@ -23,8 +23,6 @@ class HBoxView extends ContinuumView
     # DOM node (div), which is what backbone does by default.
     @setElement(@panel.node)
 
-    @views = {}
-
     # Set up an observer on this view's DOM node, so that we
     # can send the MsgAfterAttach message to the @panel
     # phosphor widget, which allows it to correctly Layout
@@ -39,7 +37,10 @@ class HBoxView extends ContinuumView
         do (m) =>
           if @el in m.addedNodes
             console.log("Mutation HB: " + m.target)
-            window.bokeh_phosphor.sendMessage(@panel, window.bokeh_phosphor.Widget.MsgAfterAttach)
+            window.bokeh_phosphor.sendMessage(
+              @panel,
+              window.bokeh_phosphor.Widget.MsgAfterAttach
+            )
             @render()
     )
 
@@ -50,6 +51,7 @@ class HBoxView extends ContinuumView
       }
     )
 
+    @views = {}
     @render()
     @listenTo(@model, 'change', @render)
 
@@ -60,13 +62,16 @@ class HBoxView extends ContinuumView
     for own key, val of @views
       val.$el.detach()
     @$el.empty()
-    width = @mget("width")
-    if width? then @$el.css(width: width + "px")
-    height = @mget("height")
-    if height? then @$el.css(height: height + "px")
+
+    # DW - lines below don't seem to make a difference,
+    # perhaps they're relevant for subsequent renders.
+    #
+    # width = @mget("width")
+    # if width? then @$el.css(width: width + "px")
+    # height = @mget("height")
+    # if height? then @$el.css(height: height + "px")
 
     for child, index in children
-      console.log("Hbox :: " + index.toString())
       child_widget = new window.bokeh_phosphor.Widget()
       child_widget.node.appendChild(@views[child.id].$el[0])
       @panel.addChild(child_widget)

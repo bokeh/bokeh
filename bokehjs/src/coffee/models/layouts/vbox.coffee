@@ -38,7 +38,10 @@ class VBoxView extends ContinuumView
           if @el in m.addedNodes
             console.log("Mutation: VB ")
             console.log(m)
-            window.bokeh_phosphor.sendMessage(@panel, window.bokeh_phosphor.Widget.MsgAfterAttach)
+            window.bokeh_phosphor.sendMessage(
+              @panel,
+              window.bokeh_phosphor.Widget.MsgAfterAttach
+            )
             @render()
     )
 
@@ -46,9 +49,8 @@ class VBoxView extends ContinuumView
       {subtree: true,
       childList: true}
     )
-    @views = {}
 
-    # @render()
+    @views = {}
     @listenTo(@model, 'change', @render)
 
   render: () ->

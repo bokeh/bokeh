@@ -10,7 +10,6 @@ class PlotWidget extends ContinuumView
   tagName: 'div'
 
   initialize: (options) ->
-    console.log("Plot widget initialized")
     @plot_model = options.plot_model
     @plot_view = options.plot_view
 
