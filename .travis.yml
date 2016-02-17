@@ -51,9 +51,7 @@ before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs/lib/phantom/bin/phantomjs:$PATH"
     - echo $TRAVIS_BUILD_NUMBER > __travis_build_number__.txt
-    # To actually run the examples you need to include the [ci enable examples] in your commit
-    # This allow you to quickly iterate on minimal changes and actually trigger the examples, on demand, when you need it
-    - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
+    - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
     # We don't use the travis saucelabs add on because it installs on every
     # test run, but we can manually use travis' saucelabs start/stop commands
     - source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh)
