@@ -54,10 +54,6 @@ before_install:
     # To actually run the examples you need to include the [ci enable examples] in your commit
     # This allow you to quickly iterate on minimal changes and actually trigger the examples, on demand, when you need it
     - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
-    # Use xvfb to run tests that require firefox
-    # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-%28e.g.-a-Web-browser%29
-    - "export DISPLAY=:99.0"
-    - "sh -e /etc/init.d/xvfb start"
     # We don't use the travis saucelabs add on because it installs on every
     # test run, but we can manually use travis' saucelabs start/stop commands
     - source <(curl -s https://raw.githubusercontent.com/travis-ci/travis-build/master/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh)
