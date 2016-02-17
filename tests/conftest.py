@@ -11,12 +11,12 @@ s3_bucket = "bokeh-travis"
 s3 = "https://s3.amazonaws.com/%s" % s3_bucket
 build_id = os.environ.get("TRAVIS_BUILD_ID")
 # Can we make this not hard coded and read in the report location from pytest?
-pytest_report = "tests/pytest-report.html"
+report_file = "tests/pytest-report.html"
 
 
 def pytest_sessionfinish(session, exitstatus):
     try_upload = os.environ.get("UPLOAD_PYTEST_HTML", "False") == "True"
-    report_ready = isfile(pytest_report)
+    report_ready = isfile(report_file)
     if try_upload and report_ready:
         try:
             conn = boto.connect_s3()
@@ -27,7 +27,7 @@ def pytest_sessionfinish(session, exitstatus):
             upload = False
 
         if upload is True:
-            with open(pytest_report, "r") as f:
+            with open(report_file, "r") as f:
                 html = f.read()
             filename = join(build_id, "report.html")
             key = S3Key(bucket, filename)
