@@ -10,7 +10,6 @@ class VBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
 
-
     # Create and initialise the phosphor BoxPanel
     # for this view. VBox === TopToBottom.
     @panel = new window.bokeh_phosphor.BoxPanel()
@@ -63,11 +62,11 @@ class VBoxView extends ContinuumView
     @$el.empty()
 
     for child in children
-      child_widget = new window.bokeh_phosphor.Widget()
-      child_widget.node.style.minWidth = "640px"
-      child_widget.node.style.minHeight = "480px"
-      child_widget.node.appendChild(@views[child.id].$el[0])
-      @panel.addChild(child_widget)
+      widget = new window.bokeh_phosphor.Widget()
+      widget.node.style.minWidth = "640px"
+      widget.node.style.minHeight = "480px"
+      widget.node.appendChild(@views[child.id].$el[0])
+      @panel.addChild(widget)
 
     return @
 

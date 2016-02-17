@@ -76,12 +76,12 @@ class HBoxView extends ContinuumView
     @$el.empty()
 
     for child, index in children
-      child_widget = new window.bokeh_phosphor.Widget()
+      widget = new window.bokeh_phosphor.Widget()
       item = @views[child.id].$el[0]
-      child_widget.node.appendChild(item)
-      child_widget.node.style.minWidth = "100px";
-      child_widget.node.style.minHeight = "440px";
-      @panel.addChild(child_widget)
+      widget.node.appendChild(item)
+      widget.node.style.minWidth = "100px";
+      widget.node.style.minHeight = "440px";
+      @panel.addChild(widget)
 
     return @
 
