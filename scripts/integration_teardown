@@ -1,6 +1,0 @@
-#!/bin/bash
-
-set -e
-
-echo "  Setting UPLOAD_PYTEST_HTML=False"
-export UPLOAD_PYTEST_HTML=False

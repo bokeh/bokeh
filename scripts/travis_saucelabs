@@ -2,11 +2,6 @@
 
 set -e # exit on error
 
-echo "  Setting UPLOAD_PYTEST_HTML=True"
-export UPLOAD_PYTEST_HTML=True
-echo "  Installing pytest-xdist"
-pip install pytest-xdist
-
 # Setup and start Sauce Connect for your TravisCI build
 # This script requires your .travis.yml to include the following two private env variables:
 # SAUCELABS_USERNAME
@@ -17,4 +12,4 @@ cd ~/saucelabs
 wget https://saucelabs.com/downloads/sc-4.3.13-linux.tar.gz
 tar -xzvf sc-4.3.13-linux.tar.gz --strip-components 1 --directory sauce-connect
 
-sauce-connect/bin/sc -u $SAUCELABS_USERNAME -k $SAUCELABS_API_KEY
+sauce-connect/bin/sc -u $SAUCELABS_USERNAME -k $SAUCELABS_API_KEY &
