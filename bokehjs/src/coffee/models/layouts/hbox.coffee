@@ -16,6 +16,10 @@ class HBoxView extends ContinuumView
     @panel.direction = window.bokeh_phosphor.BoxPanel.LeftToRight
     @panel.spacing = 5
 
+    # TEMP - debugging.
+    @panel.node.style.minWidth = "1200px"
+    @panel.node.style.minHeight = "400px"
+
     # Inject the phosphor boxpanel's node directly into
     # backbone so that it becomes the default node for this
     # view object.
@@ -42,6 +46,7 @@ class HBoxView extends ContinuumView
               window.bokeh_phosphor.Widget.MsgAfterAttach
             )
             @render()
+            @panel.update()
     )
 
     @observer.observe(document.body,
@@ -54,6 +59,14 @@ class HBoxView extends ContinuumView
     @views = {}
     @render()
     @listenTo(@model, 'change', @render)
+    fun = () =>
+      window.bokeh_phosphor.sendMessage(
+        @panel,
+        window.bokeh_phosphor.Widget.MsgAfterAttach
+      )
+      @render
+      @panel.update()
+    setTimeout(fun, 350)
 
   render: () ->
 
@@ -66,15 +79,23 @@ class HBoxView extends ContinuumView
     # DW - lines below don't seem to make a difference,
     # perhaps they're relevant for subsequent renders.
     #
-    # width = @mget("width")
-    # if width? then @$el.css(width: width + "px")
-    # height = @mget("height")
-    # if height? then @$el.css(height: height + "px")
+    width = @mget("width")
+    if width? then @$el.css(minWidth: width + "px")
+    height = @mget("height")
+    if height? then @$el.css(minHeight: height + "px")
 
     for child, index in children
+      console.log("Adding hbox child: " + index)
       child_widget = new window.bokeh_phosphor.Widget()
-      child_widget.node.appendChild(@views[child.id].$el[0])
+      item = @views[child.id].$el[0]
+      item.style.minHeight = "460px";
+      item.style.minWidth = "440px";
+      child_widget.node.appendChild(item)
+      child_widget.node.style.minWidth = "460px";
+      child_widget.node.style.minHeight = "440px";
       @panel.addChild(child_widget)
+
+    @panel.update()
 
     return @
 

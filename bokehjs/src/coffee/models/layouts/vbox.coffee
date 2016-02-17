@@ -10,11 +10,13 @@ class VBoxView extends ContinuumView
   initialize: (options) ->
     super(options)
 
+
     # Create and initialise the phosphor BoxPanel
     # for this view. VBox === TopToBottom.
     @panel = new window.bokeh_phosphor.BoxPanel()
     @panel.direction = window.bokeh_phosphor.BoxPanel.TopToBottom
     @panel.spacing = 5
+    window.onresize = => @panel.update();
 
     # Inject the phosphor boxpanel's node directly into
     # backbone so that it becomes the default node for this
@@ -22,6 +24,8 @@ class VBoxView extends ContinuumView
     # In this way, we save the creation of an intermediate
     # DOM node (div), which is what backbone would do by default.
     @setElement(@panel.node)
+    @panel.node.style.minHeight = "2000px";
+    @panel.node.style.minWidth = "1000px";
 
     # Set up an observer on this view's DOM node, so that we
     # can send the MsgAfterAttach message to the @panel
@@ -38,11 +42,17 @@ class VBoxView extends ContinuumView
           if @el in m.addedNodes
             console.log("Mutation: VB ")
             console.log(m)
+
             window.bokeh_phosphor.sendMessage(
               @panel,
               window.bokeh_phosphor.Widget.MsgAfterAttach
             )
+
+            for idx in [0...@panel.childCount()]
+              @panel.childAt(idx).refresh()
+              
             @render()
+            @panel.update()
     )
 
     @observer.observe(document.body,
@@ -62,15 +72,18 @@ class VBoxView extends ContinuumView
     @$el.empty()
     width = @mget("width")
     # if width? then panel.width = width
-    if width? then @$el.css(width: width + "px")
-    # height = @mget("height")
+    if width? then @$el.css(minWidth: width + "px")
+    height = @mget("height")
     # if height? then panel.height = height
-    if height? then @$el.css(height: height + "px")
+    if height? then @$el.css(minHeight: height + "px")
 
     for child in children
       console.log("VBox")
       child_widget = new window.bokeh_phosphor.Widget()
+      child_widget.node.style.minWidth = "1400px"
+      child_widget.node.style.minHeight = "450px"
       child_widget.node.appendChild(@views[child.id].$el[0])
+      # child_widget.processMessage(new window.bokeh_phosphor.ResizeMessage(400, 400))
       @panel.addChild(child_widget)
 
     return @
