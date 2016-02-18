@@ -87,7 +87,7 @@ class Canvas extends LayoutBox.Model
     solver = @document.solver()
     solver.add_constraint(EQ(@_left))
     solver.add_constraint(EQ(@_bottom))
-    @_set_dims([@get('canvas_width'), @get('canvas_height')])
+    @set_dims([@get('canvas_width'), @get('canvas_height')])
     logger.debug("Canvas attached to document")
 
   # transform view coordinates to underlying screen coordinates
