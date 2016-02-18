@@ -8,7 +8,7 @@ class LayoutBox extends Model
   type: 'LayoutBox'
 
   nonserializable_attribute_names: () ->
-    super().concat(['solver', 'layout_location'])
+    super().concat(['layout_location'])
 
   _doc_attached: () ->
     solver = @document.solver()

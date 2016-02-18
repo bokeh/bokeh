@@ -142,7 +142,6 @@ class PlotView extends Renderer.View
     @build_levels()
     @bind_bokeh_events()
 
-    @model.add_constraints(@model.document.solver())
     @listenTo(@model.document.solver(), 'layout_update', @request_render)
 
     @ui_event_bus = new UIEvents({
@@ -656,25 +655,20 @@ class Plot extends Component.Model
 
     logger.debug("Plot initialized")
 
+  initialize_layout: (solver) ->
+    @add_constraints(@document.solver())
+
+    for r in @get('renderers')
+      if r.initialize_layout?
+        r.initialize_layout(solver)
+
+    # TODO (bev) titles should probably be a proper guide, then they could go
+    # on any side, this will do to get the PR merged
+    @title_panel = @_above_panel
+    @title_panel._anchor = @title_panel._bottom
+
   _doc_attached: () ->
     @get('canvas').attach_document(@document)
-
-  initialize_layout: (solver) ->
-    existing_or_new_layout = (side, name) =>
-      list = @get(side)
-      box = null
-      for model in list
-        if model.get('name') == name
-          box = model
-          break
-      if box?
-        box.set('solver', solver)
-      else
-        box = new LayoutBox.Model({ name: name })
-        box.attach_document(@document)
-        list.push(box)
-        @set(side, list)
-      return box
 
     canvas = @get('canvas')
     frame = new CartesianFrame.Model({
@@ -684,15 +678,9 @@ class Plot extends Component.Model
       y_range: @get('y_range'),
       extra_y_ranges: @get('extra_y_ranges'),
       y_mapper_type: @get('y_mapper_type'),
-      solver: solver
     })
     frame.attach_document(@document)
     @set('frame', frame)
-
-    # TODO (bev) titles should probably be a proper guide, then they could go
-    # on any side, this will do to get the PR merged
-    @title_panel = existing_or_new_layout('above', 'title_panel')
-    @title_panel._anchor = @title_panel._bottom
 
   add_constraints: (solver) ->
     min_border_top    = @get('min_border_top')
@@ -708,8 +696,8 @@ class Plot extends Component.Model
       c0 = '_'+cnames[0]
       c1 = '_'+cnames[1]
       solver.add_constraint( GE(box['_'+dim], -min_size) )
-      solver.add_constraint( EQ(frame[c0], [-1, box[c1]]) )
-      solver.add_constraint( EQ(box[c0], [-1, canvas[c0]]) )
+      solver.add_constraint( EQ(frame.panel[c0], [-1, box[c1]]) )
+      solver.add_constraint( EQ(box[c0], [-1, canvas.panel[c0]]) )
       last = frame
       elts = @get(side)
       for r in elts
@@ -717,19 +705,18 @@ class Plot extends Component.Model
           r.set('layout_location', side, { silent: true })
         else
           r.set('layout_location', r.get('location'), { silent: true })
-        if r.initialize_layout?
-          r.initialize_layout(solver)
-        solver.add_constraint( EQ(last[c0], [-1, r[c1]]) )
+        solver.add_constraint( EQ(last.panel[c0], [-1, r.panel[c1]]) )
         last = r
-      padding = new LayoutBox.Model({solver: solver})
+      padding = new LayoutBox.Model()
       padding.attach_document(@document)
-      solver.add_constraint( EQ(last[c0], [-1, padding[c1]]) )
-      solver.add_constraint( EQ(padding[c0], [-1, canvas[c0]]) )
+      solver.add_constraint( EQ(last.panel[c0], [-1, padding[c1]]) )
+      solver.add_constraint( EQ(padding[c0], [-1, canvas.panel[c0]]) )
+      return box
 
-    do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height')
-    do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height')
-    do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
-    do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
+    @_above_panel = do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height')
+    @_below_panel = do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height')
+    @_left_panel = do_side(solver, min_border_left, 'left', ['left', 'right'], 'width')
+    @_right_panel = do_side(solver, min_border_right, 'right', ['right', 'left'], 'width')
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')
@@ -737,7 +724,7 @@ class Plot extends Component.Model
     @set('renderers', renderers)
 
   nonserializable_attribute_names: () ->
-    super().concat(['solver', 'canvas', 'tool_manager', 'frame', 'min_size'])
+    super().concat(['canvas', 'tool_manager', 'frame', 'min_size'])
 
   serializable_attributes: () ->
     attrs = super()
