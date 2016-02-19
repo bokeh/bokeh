@@ -27,40 +27,20 @@ from ..utils import (
 __version__ = get_version_from_git()
 base_dir = dirname(__file__)
 example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
-default_diff = os.environ.get("BOKEH_DEFAULT_DIFF", None)
 
 
 @pytest.mark.examples_new
-@pytest.mark.parametrize("path", [
-    "plotting/file/airports_map.py",
-    "plotting/file/bollinger.py",
-    "plotting/file/box_annotation.py",
-    "plotting/file/boxplot.py",
-    "plotting/file/brewer.py",
-    "plotting/file/burtin.py",
-    "plotting/file/candlestick.py",
-    "plotting/file/categorical.py",
-    "plotting/file/clustering.py",
-    "plotting/file/color_scatter.py",
-    "plotting/file/color_sliders.py",
-    "plotting/file/custom_datetime_axis.py",
-    "plotting/file/dynamic_map.py",
-    "plotting/file/elements.py",
-    "plotting/file/geojson_points.py",
-    "plotting/file/glyphs.py",
-    "plotting/file/grid.py",
-    "plotting/file/histogram.py",
-])
-def test_color_scatter(path):
-    example_path = join(example_dir, path)
-    if run_example(example_path) == 0:
-        result = _test_example(example_path)
-        assert result
+def test_examples(example):
+    if run_example(example) == 0:
+        assert _test_example(example)
     else:
         assert False
 
 
-def _test_example(example_path):
+def _test_example(example_tuple):
+    example_path = join(example_dir, example_tuple[0])
+    example_type = example_tuple[1]
+
     no_ext = splitext(example_path)[0]
 
     html_file = "%s.html" % no_ext

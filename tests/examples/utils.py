@@ -4,11 +4,15 @@ import os
 import signal
 import subprocess
 import sys
+import yaml
 
 
-from os.path import dirname, split
+from os.path import dirname, split, join, abspath, pardir
 
 from ..utils import write, warn
+
+base_dir = dirname(__file__)
+example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
 
 
 def get_version_from_git(ref=None):
@@ -61,7 +65,9 @@ def make_env():
     return env
 
 
-def run_example(example_path):
+def run_example(example_tuple, example_dir):
+    example_path = join(example_dir, example_tuple[0])
+    example_type = example_tuple[1]
 
     code = """\
 filename = '%s'
@@ -107,3 +113,80 @@ with open(filename, 'rb') as example:
         return 0
     finally:
         signal.alarm(0)
+
+
+class Flags(object):
+    file = 1 << 1
+    server = 1 << 2
+    notebook = 1 << 3
+    animated = 1 << 4
+    skip = 1 << 5
+
+
+def example_type(flags):
+    if flags & Flags.file:
+        return "file"
+    elif flags & Flags.server:
+        return "server"
+    elif flags & Flags.notebook:
+        return "notebook"
+
+
+def add_examples(list_of_examples, example_dir, examples_dir, example_type=None, skip=None):
+    examples_path = join(example_dir, examples_dir)
+
+    if skip is not None:
+        skip = set(skip)
+
+    for file in os.listdir(examples_path):
+        flags = 0
+
+        if file.startswith(('_', '.')):
+            continue
+        elif file.endswith(".py"):
+            if example_type is not None:
+                flags |= example_type
+            elif "server" in file or "animate" in file:
+                flags |= Flags.server
+            else:
+                flags |= Flags.file
+        elif file.endswith(".ipynb"):
+            flags |= Flags.notebook
+        else:
+            continue
+
+        if "animate" in file:
+            flags |= Flags.animated
+
+            if flags & Flags.file:
+                raise ValueError("file examples can't be animated")
+
+        if skip and file in skip:
+            flags |= Flags.skip
+
+        list_of_examples.append((join(examples_path, file), flags))
+
+    return list_of_examples
+
+
+def detect_examples(example_dir, all_notebooks):
+    with open(join(dirname(__file__), "test.yaml"), "r") as f:
+        examples = yaml.load(f.read())
+
+    list_of_examples = []
+    for example in examples:
+        path = example["path"]
+
+        try:
+            example_type = getattr(Flags, example["type"])
+        except KeyError:
+            example_type = None
+
+        if not all_notebooks:
+            skip = example.get("skip") or example.get("skip_travis")
+        else:
+            skip = example.get("skip")
+
+        list_of_examples = add_examples(list_of_examples, example_dir, path, example_type=example_type, skip=skip)
+
+    return list_of_examples
