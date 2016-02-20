@@ -11,33 +11,33 @@ def add_examples(list_of_examples, path, example_type=None, skip=None):
     if skip is not None:
         skip = set(skip)
 
-    for file in os.listdir(example_path):
+    for f in os.listdir(example_path):
         flags = 0
 
-        if file.startswith(('_', '.')):
+        if f.startswith(('_', '.')):
             continue
-        elif file.endswith(".py"):
+        elif f.endswith(".py"):
             if example_type is not None:
                 flags |= example_type
-            elif "server" in file or "animate" in file:
+            elif "server" in f or "animate" in f:
                 flags |= Flags.server
             else:
                 flags |= Flags.file
-        elif file.endswith(".ipynb"):
+        elif f.endswith(".ipynb"):
             flags |= Flags.notebook
         else:
             continue
 
-        if "animate" in file:
+        if "animate" in f:
             flags |= Flags.animated
 
             if flags & Flags.file:
                 raise ValueError("file examples can't be animated")
 
-        if skip and file in skip:
+        if skip and f in skip:
             flags |= Flags.skip
 
-        list_of_examples.append((join(example_path, file), flags))
+        list_of_examples.append((join(example_path, f), flags))
 
     return list_of_examples
 
@@ -67,7 +67,7 @@ def get_all_examples(all_notebooks):
 def get_file_examples(all_notebooks):
     all_examples = get_all_examples(all_notebooks)
     file_examples = [example for example, flags in all_examples if flags & Flags.file]
-    return file_examples[:1]
+    return file_examples
 
 
 def get_server_examples(all_notebooks):
