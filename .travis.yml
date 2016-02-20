@@ -20,6 +20,7 @@ env:
       - GROUP=unit
       - GROUP=integration
       - GROUP=examples
+      - GROUP=examples_new
       - GROUP=flake_docs
 
 matrix:
@@ -39,6 +40,9 @@ matrix:
         # TEMPORARILY DISABLE EXAMPLES for py 3.5
         - python: 3.5
           env: GROUP=examples
+        # TEMPORARILY DISABLE EXAMPLES_NEW for py 3.5
+        - python: 3.5
+          env: GROUP=examples_new
 
 branches:
   only:
@@ -75,9 +79,12 @@ script:
     # Flake/docs testing only once (Py 2.7)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( flake8 bokeh; cd sphinx; make all ) ; fi
     #
-    #
+    # Run examples
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add env variable for pdiff machinery
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples -rs; fi; fi # Run the examples
+    # Run examples_new
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add env variable for pdiff machinery
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples_new -rs; fi; fi # Run the examples
     #
     - echo "poor man logger"
     - echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST
