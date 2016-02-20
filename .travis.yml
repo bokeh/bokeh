@@ -19,7 +19,7 @@ env:
     matrix:
       - GROUP=unit
       - GROUP=integration
-      - GROUP=examples
+      #- GROUP=examples
       - GROUP=examples_new
       - GROUP=flake_docs
 
@@ -38,8 +38,8 @@ matrix:
           env: GROUP=flake_docs
         #
         # TEMPORARILY DISABLE EXAMPLES for py 3.5
-        - python: 3.5
-          env: GROUP=examples
+        #- python: 3.5
+        #  env: GROUP=examples
         # TEMPORARILY DISABLE EXAMPLES_NEW for py 3.5
         - python: 3.5
           env: GROUP=examples_new
