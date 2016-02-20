@@ -2,7 +2,7 @@ import yaml
 import os
 
 from os.path import join, dirname
-from .constants import Flags, example_dir
+from ..constants import Flags, example_dir
 from ..utils import write, yellow
 
 

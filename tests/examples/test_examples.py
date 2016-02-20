@@ -27,7 +27,7 @@ from ..utils import (
     yellow,
 )
 
-from .constants import base_dir, example_dir, __version__
+from ..constants import base_dir, example_dir, __version__
 
 
 @pytest.mark.examples_new
@@ -60,7 +60,7 @@ def test_file_examples(file_example, timeout, verbose, diff, phantomjs):
 
 def _test_example(example, url, example_type, timeout, verbose, diff, phantomjs):
     png_file = "%s-%s.png" % (no_ext(example), __version__)
-    cmd = [phantomjs, join(base_dir, "test.js"), example_type, url, png_file, str(timeout)]
+    cmd = [phantomjs, join(base_dir, "examples", "test.js"), example_type, url, png_file, str(timeout)]
     write("Running command: %s" % " ".join(cmd))
 
     try:

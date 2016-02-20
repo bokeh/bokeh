@@ -8,7 +8,7 @@ import time
 from os.path import split, join, exists
 from requests.exceptions import ConnectionError
 
-from .constants import example_dir, default_timeout, default_diff, default_upload
+from ..constants import example_dir, default_timeout, default_diff, default_upload
 from .collect_examples import get_file_examples, get_server_examples, get_notebook_examples
 from ..utils import write
 
