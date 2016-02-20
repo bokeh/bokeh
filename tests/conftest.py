@@ -29,6 +29,9 @@ def pytest_addoption(parser):
     parser.addoption(
         "--upload", dest="upload", action="store_true", default=default_upload, help="upload test artefacts to S3"
     )
+    parser.addoption(
+        "--log-file", dest="log_file", metavar="path", action="store", default='examples.log', help="where to write the complete log"
+    )
 
 
 def pytest_sessionfinish(session, exitstatus):
@@ -53,6 +56,12 @@ def pytest_sessionfinish(session, exitstatus):
                 key.set_metadata("Content-Type", "text/html")
                 key.set_contents_from_string(html, policy="public-read")
                 print("\n%s Access report at: %s" % ("---", join(s3, filename)))
+
+
+@pytest.yield_fixture(scope="session")
+def log_file():
+    with open(pytest.config.option.log_file, 'w') as f:
+        yield f
 
 
 @pytest.fixture
@@ -101,12 +110,12 @@ def capabilities(capabilities):
 
 
 @pytest.fixture(scope='session')
-def bokeh_server(request):
+def bokeh_server(request, log_file):
     bokeh_port = pytest.config.option.bokeh_port
-    log_file = pytest.config.option.log_file
 
     cmd = ["bin/bokeh", "serve"]
     argv = ["--port=%s" % bokeh_port]
+    bokeh_server_url = 'http://localhost:%s' % bokeh_port
 
     try:
         proc = subprocess.Popen(cmd + argv, stdout=log_file, stderr=log_file)
@@ -115,6 +124,12 @@ def bokeh_server(request):
         sys.exit(1)
 
     else:
+        # Add in the clean-up code
+        def stop_bokeh_server():
+            write("Shutting down bokeh-server ...")
+            proc.kill()
+        request.addfinalizer(stop_bokeh_server)
+
         def wait_until(func, timeout=5.0, interval=0.01):
             start = time.time()
 
@@ -130,7 +145,7 @@ def bokeh_server(request):
                 if proc.returncode is not None:
                     return True
                 try:
-                    return requests.get('http://localhost:%s/' % bokeh_port)
+                    return requests.get(bokeh_server_url)
                 except ConnectionError:
                     return False
 
@@ -144,14 +159,7 @@ def bokeh_server(request):
             write("bokeh server exited with code " + str(proc.returncode))
             sys.exit(1)
 
-        # Add in the clean-up code
-        def stop_bokeh_server():
-            write("Shutting down bokeh-server ...")
-            proc.kill()
-
-        request.addfinalizer(stop_bokeh_server)
-
-        return proc
+        return bokeh_server_url
 
 
 @pytest.fixture(scope="session")
@@ -187,9 +195,8 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
 
 
 @pytest.fixture(scope="session")
-def jupyter_notebook(request, jupyter_custom_js):
+def jupyter_notebook(request, jupyter_custom_js, log_file):
     notebook_port = pytest.config.option.notebook_port
-    log_file = pytest.config.option.log_file
 
     env = os.environ.copy()
     env['BOKEH_RESOURCES'] = 'inline'

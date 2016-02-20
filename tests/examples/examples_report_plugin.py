@@ -43,9 +43,6 @@ def pytest_addoption(parser):
         "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain', help="what to do with notebooks' output cells"
     )
     parser.addoption(
-        "--log-file", default='examples.log', help="where to write the complete log"
-    )
-    parser.addoption(
         "--diff", type=str, default=default_diff, help="compare generated images against this ref"
     )
 

@@ -6,7 +6,7 @@ import subprocess
 import sys
 import signal
 
-from os.path import dirname, abspath, join, splitext, relpath, exists
+from os.path import dirname, abspath, join, splitext, relpath, exists, basename
 
 from .utils import (
     deal_with_output_cells,
@@ -35,7 +35,7 @@ def test_server_examples(server_example, bokeh_server):
     # Note this is currently broken - server uses random sessions but we're
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
-    url = '%s/?bokeh-session-id=%s' % (bokeh_server, 'default')
+    url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(server_example)))
     diff = pytest.config.option.diff
     assert _run_example(server_example) == 0, 'Example did not run'
     assert _get_snapshot(server_example, url, 'server'), 'Snapshot from phantomjs failed'
@@ -221,7 +221,7 @@ with open(filename, 'rb') as example:
             proc.kill()
             raise
     except Timeout:
-        warn("Timeout")
+        warn("Timeout - Example timed out when attempting to run")
         proc.kill()
         return 0
     finally:
