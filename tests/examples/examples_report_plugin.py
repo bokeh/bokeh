@@ -9,7 +9,7 @@ import sys
 from os.path import join, dirname
 from py.xml import html
 
-from ..constants import __version__
+from ..constants import __version__, default_diff, default_timeout
 from ..utils import write, green
 
 from .utils import no_ext, human_bytes
