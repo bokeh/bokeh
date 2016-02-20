@@ -30,34 +30,43 @@ from ..constants import base_dir, example_dir, __version__, s3
 
 
 @pytest.mark.examples_new
-def test_server_examples(server_example, bokeh_server, bokeh_port, timeout, verbose, diff, phantomjs):
-    server_url = 'http://localhost:%d/?bokeh-session-id=%s'
-    url = server_url % (bokeh_port, basename(no_ext(server_example)))
+def test_server_examples(server_example, bokeh_server):
+    # Note this is currently broken - server uses random sessions but we're
+    # calling for "default" here - this has been broken for a while.
+    # https://github.com/bokeh/bokeh/issues/3897
+    url = '%s/?bokeh-session-id=%s' % (bokeh_server, 'default')
     if _run_example(server_example) == 0:
-        assert _test_example(server_example, url, 'server', timeout, verbose, diff, phantomjs)
+        assert _test_example(server_example, url, 'server')
     else:
         assert False
 
 
 @pytest.mark.examples_new
-def test_notebook_examples(notebook_example, jupyter_notebook, output_cells, notebook_port, timeout, verbose, diff, phantomjs):
+def test_notebook_examples(notebook_example, jupyter_notebook):
+    notebook_port = pytest.config.option.notebook_port
     url_path = join(*get_path_parts(abspath(notebook_example)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
-    assert deal_with_output_cells(notebook_example, output_cells)
-    assert _test_example(notebook_example, url, 'notebook', timeout, verbose, diff, phantomjs)
+    assert deal_with_output_cells(notebook_example)
+    assert _test_example(notebook_example, url, 'notebook')
 
 
 @pytest.mark.examples_new
-def test_file_examples(file_example, timeout, verbose, diff, phantomjs):
+def test_file_examples(file_example):
     html_file = "%s.html" % no_ext(file_example)
     url = 'file://' + html_file
     if _run_example(file_example) == 0:
-        assert _test_example(file_example, url, 'file', timeout, verbose, diff, phantomjs)
+        assert _test_example(file_example, url, 'file')
     else:
         assert False
 
 
-def _test_example(example, url, example_type, timeout, verbose, diff, phantomjs):
+def _test_example(example, url, example_type):
+    # Get setup datapoints
+    timeout = pytest.config.option.timeout
+    verbose = pytest.config.option.verbose
+    diff = pytest.config.option.diff
+    phantomjs = pytest.config.option.phantomjs
+
     png_file = "%s-%s.png" % (no_ext(example), __version__)
     cmd = [phantomjs, join(base_dir, "examples", "test.js"), example_type, url, png_file, str(timeout)]
     write("Running command: %s" % " ".join(cmd))

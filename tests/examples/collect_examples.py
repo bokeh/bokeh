@@ -3,7 +3,6 @@ import os
 
 from os.path import join, dirname
 from ..constants import Flags, example_dir
-from ..utils import write, yellow
 
 
 def add_examples(list_of_examples, path, example_type=None, skip=None):
@@ -43,11 +42,6 @@ def add_examples(list_of_examples, path, example_type=None, skip=None):
     return list_of_examples
 
 
-def skip(example, reason):
-    write("%s Skipping %s" % (yellow(">>>"), example))
-    write("%s because %s" % (yellow("---"), reason))
-
-
 def get_all_examples(all_notebooks):
     # Make a list of all the examples
     list_of_examples = []
@@ -72,54 +66,17 @@ def get_all_examples(all_notebooks):
 
 def get_file_examples(all_notebooks):
     all_examples = get_all_examples(all_notebooks)
-
-    # Remove examples for skipping
-    file_examples = []
-    for example, flags in all_examples:
-        if flags & Flags.server:
-            skip(example, "skip server example")
-        elif flags & Flags.notebook:
-            skip(example, "skip notebook example")
-        elif flags & Flags.skip:
-            skip(example, "manual skip")
-        else:
-            if example.count('anscom') >= 1:
-                file_examples.append(example)
-
-    return file_examples
+    file_examples = [example for example, flags in all_examples if flags & Flags.file]
+    return file_examples[:1]
 
 
 def get_server_examples(all_notebooks):
     all_examples = get_all_examples(all_notebooks)
-
-    # Remove examples for skipping
-    server_examples = []
-    for example, flags in all_examples:
-        if flags & Flags.file:
-            skip(example, "skip file example")
-        elif flags & Flags.notebook:
-            skip(example, "skip notebook example")
-        elif flags & Flags.skip:
-            skip(example, "manual skip")
-        else:
-            server_examples.append(example)
-
+    server_examples = [example for example, flags in all_examples if flags & Flags.server]
     return server_examples
 
 
 def get_notebook_examples(all_notebooks):
     all_examples = get_all_examples(all_notebooks)
-
-    # Remove examples for skipping
-    notebook_examples = []
-    for example, flags in all_examples:
-        if flags & Flags.file:
-            skip(example, "skip file example")
-        elif flags & Flags.server:
-            skip(example, "skip server example")
-        elif flags & Flags.skip:
-            skip(example, "manual skip")
-        else:
-            notebook_examples.append(example)
-
+    notebook_examples = [example for example, flags in all_examples if flags & Flags.notebook]
     return notebook_examples

@@ -101,7 +101,10 @@ def capabilities(capabilities):
 
 
 @pytest.fixture(scope='session')
-def bokeh_server(request, bokeh_port, log_file):
+def bokeh_server(request):
+    bokeh_port = pytest.config.option.bokeh_port
+    log_file = pytest.config.option.log_file
+
     cmd = ["bin/bokeh", "serve"]
     argv = ["--port=%s" % bokeh_port]
 
@@ -151,7 +154,11 @@ def bokeh_server(request, bokeh_port, log_file):
         return proc
 
 
-def create_custom_js():
+@pytest.fixture(scope="session")
+def jupyter_custom_js(request):
+    # Can be cleaned up further to remember the user's existing customJS
+    # and then restore it after the test run.
+
     from jupyter_core import paths
     config_dir = paths.jupyter_config_dir()
 
@@ -171,11 +178,18 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     with open(customjs, "w") as f:
         f.write(body)
 
+    # Add in the clean-up code
+    def clean_up_customjs():
+        with open(customjs, "w") as f:
+            f.write("")
+
+    request.addfinalizer(clean_up_customjs)
+
 
 @pytest.fixture(scope="session")
-def jupyter_notebook(request, notebook_port, log_file):
-    #First create the customjs to run the notebook
-    create_custom_js()
+def jupyter_notebook(request, jupyter_custom_js):
+    notebook_port = pytest.config.option.notebook_port
+    log_file = pytest.config.option.log_file
 
     env = os.environ.copy()
     env['BOKEH_RESOURCES'] = 'inline'
