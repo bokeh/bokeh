@@ -7,10 +7,6 @@ from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
 from os.path import join, isfile
 
-from .constants import (
-    s3, s3_bucket, build_id
-)
-
 #
 # Output to stdout
 #
@@ -59,6 +55,7 @@ def ok(msg=None):
 
 
 def upload_file_to_s3(file_path):
+    from .constants import s3, s3_bucket, build_id
     file_ready = isfile(file_path)
     if file_ready:
         try:
