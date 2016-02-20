@@ -6,7 +6,7 @@ import os
 import re
 import sys
 
-from os.path import join, dirname
+from os.path import join, dirname, isfile
 from py.xml import html
 
 from ..constants import __version__, default_diff, default_timeout
@@ -88,7 +88,11 @@ class ExamplesTestReport(object):
         example_path = no_ext(example)
         diff = pytest.config.option.diff
         test_png, ref_png, diff_png = get_example_pngs(example)
-        self.entries.append((example_path, diff, failed, skipped, test_png, diff_png, ref_png))
+        if isfile(diff_png):
+            images_differ = True
+        else:
+            images_differ = False
+        self.entries.append((example_path, diff, failed, skipped, test_png, diff_png, ref_png, images_differ))
         write(green("---") + " " + example)
 
     def append_pass(self, report):
