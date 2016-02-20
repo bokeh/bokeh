@@ -16,7 +16,6 @@ from .utils import (
     Timeout,
 )
 
-from ..conftest import s3
 from ..utils import (
     fail,
     info,
@@ -27,7 +26,7 @@ from ..utils import (
     yellow,
 )
 
-from ..constants import base_dir, example_dir, __version__
+from ..constants import base_dir, example_dir, __version__, s3
 
 
 @pytest.mark.examples_new
