@@ -83,7 +83,8 @@ def get_file_examples(all_notebooks):
         elif flags & Flags.skip:
             skip(example, "manual skip")
         else:
-            file_examples.append(example)
+            if example.count('anscom') >= 1:
+                file_examples.append(example)
 
     return file_examples
 
