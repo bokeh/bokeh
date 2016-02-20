@@ -14,25 +14,26 @@ from ..constants import s3, s3_bucket, build_id
 
 def pytest_sessionfinish(session, exitstatus):
     report_file = session.config.option.htmlpath
-    try_upload = os.environ.get("UPLOAD_PYTEST_HTML", "False") == "True"
-    report_ready = isfile(report_file)
-    if try_upload and report_ready:
-        try:
-            conn = boto.connect_s3()
-            bucket = conn.get_bucket(s3_bucket)
-            upload = True
-        except NoAuthHandlerFound:
-            print("Upload was requested but could not connect to S3.")
-            upload = False
+    if report_file:
+        try_upload = os.environ.get("UPLOAD_PYTEST_HTML", "False") == "True"
+        report_ready = isfile(report_file)
+        if try_upload and report_ready:
+            try:
+                conn = boto.connect_s3()
+                bucket = conn.get_bucket(s3_bucket)
+                upload = True
+            except NoAuthHandlerFound:
+                print("Upload was requested but could not connect to S3.")
+                upload = False
 
-        if upload is True:
-            with open(report_file, "r") as f:
-                html = f.read()
-            filename = join(build_id, "report.html")
-            key = S3Key(bucket, filename)
-            key.set_metadata("Content-Type", "text/html")
-            key.set_contents_from_string(html, policy="public-read")
-            print("\n%s Access report at: %s" % ("---", join(s3, filename)))
+            if upload is True:
+                with open(report_file, "r") as f:
+                    html = f.read()
+                filename = join(build_id, "report.html")
+                key = S3Key(bucket, filename)
+                key.set_metadata("Content-Type", "text/html")
+                key.set_contents_from_string(html, policy="public-read")
+                print("\n%s Access report at: %s" % ("---", join(s3, filename)))
 
 
 @pytest.fixture
