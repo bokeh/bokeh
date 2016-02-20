@@ -12,7 +12,7 @@ from py.xml import html
 from ..constants import __version__, default_diff, default_timeout
 from ..utils import write, green
 
-from .utils import no_ext, human_bytes
+from .utils import no_ext, human_bytes, get_example_pngs
 
 PY3 = sys.version_info[0] == 3
 
@@ -89,14 +89,9 @@ class ExamplesTestReport(object):
         # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py]')
         example = re.search(r'\[(.*?)\]', report.location[2]).group(1)
         example_path = no_ext(example)
-
         diff = pytest.config.option.diff
-
-        png_file = "%s-%s.png" % (example_path, __version__)
-        png_diff = "%s-%s-diff.png" % (example_path, __version__)
-        ref_png = "%s-%s.png" % (example_path, diff)
-
-        self.entries.append((example_path, diff, failed, skipped, png_file, png_diff, ref_png))
+        test_png, ref_png, diff_png = get_example_pngs(example)
+        self.entries.append((example_path, diff, failed, skipped, test_png, diff_png, ref_png))
         write(green("---") + " " + example)
 
     def append_pass(self, report):

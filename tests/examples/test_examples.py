@@ -6,11 +6,12 @@ import subprocess
 import sys
 import signal
 
-from os.path import dirname, abspath, join, splitext, relpath, exists, basename
+from os.path import dirname, abspath, join, splitext, relpath, exists
 
 from .utils import (
     deal_with_output_cells,
     get_path_parts,
+    get_example_pngs,
     make_env,
     no_ext,
     Timeout,
@@ -26,7 +27,7 @@ from ..utils import (
     yellow,
 )
 
-from ..constants import base_dir, example_dir, __version__, s3
+from ..constants import base_dir, example_dir, s3
 
 
 @pytest.mark.examples_new
@@ -35,51 +36,114 @@ def test_server_examples(server_example, bokeh_server):
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, 'default')
-    if _run_example(server_example) == 0:
-        assert _test_example(server_example, url, 'server')
-    else:
-        assert False
+    diff = pytest.config.option.diff
+    assert _run_example(server_example) == 0, 'Example did not run'
+    assert _get_snapshot(server_example, url, 'server'), 'Snapshot from phantomjs failed'
+    if diff:
+        _get_pdiff(server_example, diff)
 
 
 @pytest.mark.examples_new
 def test_notebook_examples(notebook_example, jupyter_notebook):
+    diff = pytest.config.option.diff
     notebook_port = pytest.config.option.notebook_port
     url_path = join(*get_path_parts(abspath(notebook_example)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
-    assert deal_with_output_cells(notebook_example)
-    assert _test_example(notebook_example, url, 'notebook')
+    assert deal_with_output_cells(notebook_example), 'Notebook failed'
+    assert _get_snapshot(notebook_example, url, 'notebook'), 'Snapshot from phantomjs failed'
+    if diff:
+        _get_pdiff(notebook_example, diff)
 
 
 @pytest.mark.examples_new
 def test_file_examples(file_example):
+    diff = pytest.config.option.diff
     html_file = "%s.html" % no_ext(file_example)
     url = 'file://' + html_file
-    if _run_example(file_example) == 0:
-        assert _test_example(file_example, url, 'file')
-    else:
-        assert False
+    assert _run_example(file_example) == 0, 'Example did not run'
+    assert _get_snapshot(file_example, url, 'file'), 'Snapshot from phantomjs failed'
+    if diff:
+        _get_pdiff(file_example, diff)
 
 
-def _test_example(example, url, example_type):
-    # Get setup datapoints
+def _get_reference_image_from_s3(example, diff):
+    example_path = relpath(splitext(example)[0], example_dir)
+    ref_loc = join(diff, example_path + ".png")
+    ref_url = join(s3, ref_loc)
+    response = requests.get(ref_url)
+
+    if not response.ok:
+        info("reference image %s doesn't exist" % ref_url)
+        return None
+    return response.content
+
+
+def _get_pdiff(example, diff):
+    test_png, ref_png, diff_png = get_example_pngs(example)
+    retrieved_reference_image = _get_reference_image_from_s3(example, diff)
+    if retrieved_reference_image:
+        ref_png_path = dirname(ref_png)
+        if not exists(ref_png_path):
+            os.makedirs(ref_png_path)
+
+        with open(ref_png, "wb") as f:
+            f.write(retrieved_reference_image)
+
+        cmd = ["perceptualdiff", "-output", diff_png, test_png, ref_png]
+        try:
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            code = proc.wait()
+        except OSError:
+            write("Failed to run: %s" % " ".join(cmd))
+            sys.exit(1)
+
+        info("generated: " + test_png)
+        info("reference: " + ref_png)
+
+        if code != 0:
+            warn("generated and reference images differ")
+            warn("diff: " + diff_png)
+        else:
+            ok("generated and reference images match")
+
+
+def _get_result_from_phantomjs(example, url, example_type):
+    test_png, _, _ = get_example_pngs(example)
     timeout = pytest.config.option.timeout
-    verbose = pytest.config.option.verbose
-    diff = pytest.config.option.diff
     phantomjs = pytest.config.option.phantomjs
 
-    png_file = "%s-%s.png" % (no_ext(example), __version__)
-    cmd = [phantomjs, join(base_dir, "examples", "test.js"), example_type, url, png_file, str(timeout)]
+    cmd = [phantomjs, join(base_dir, "examples", "test.js"), example_type, url, test_png, str(timeout)]
     write("Running command: %s" % " ".join(cmd))
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        code = proc.wait()
+        proc.wait()
     except OSError:
         write("Failed to run: %s" % " ".join(cmd))
         sys.exit(1)
 
-    result = json.loads(proc.stdout.read().decode("utf-8"))
+    return json.loads(proc.stdout.read().decode("utf-8"))
 
+
+def _print_phantomjs_errors(messages):
+    for message in messages:
+        msg = message['msg']
+        line = message.get('line')
+        source = message.get('source')
+
+        if source is None:
+            write(msg)
+        elif line is None:
+            write("%s: %s" % (source, msg))
+        else:
+            write("%s:%s: %s" % (source, line, msg))
+
+
+def _get_snapshot(example, url, example_type):
+    # Get setup datapoints
+    verbose = pytest.config.option.verbose
+
+    result = _get_result_from_phantomjs(example, url, example_type)
     status = result['status']
     errors = result['errors']
     messages = result['messages']
@@ -87,79 +151,32 @@ def _test_example(example, url, example_type):
 
     if status == 'fail':
         fail("failed to load %s" % url)
+        return False
     else:
         if verbose:
-            for message in messages:
-                msg = message['msg']
-                line = message.get('line')
-                source = message.get('source')
+            _print_phantomjs_errors(messages)
 
-                if source is None:
-                    write(msg)
-                elif line is None:
-                    write("%s: %s" % (source, msg))
-                else:
-                    write("%s:%s: %s" % (source, line, msg))
-
+        # Process resources
         resource_errors = False
-
         for resource in resources:
             url = resource['url']
-
             if url.endswith(".png"):
-                fn, color = warn, yellow
+                warn("%s: %s (%s)" % (url, yellow(resource['status']), resource['statusText']))
             else:
-                fn, color, resource_errors = fail, red, True
+                fail("%s: %s (%s)" % (url, red(resource['status']), resource['statusText']))
+                resource_errors = True
 
-            fn("%s: %s (%s)" % (url, color(resource['status']), resource['statusText']))
-
+        # Process errors
         for error in errors:
             write(error['msg'])
-
             for item in error['trace']:
                 write("    %s: %d" % (item['file'], item['line']))
 
         if resource_errors or errors:
             fail(example)
-        else:
-            if diff:
-                example_path = relpath(splitext(example)[0], example_dir)
-                ref_loc = join(diff, example_path + ".png")
-                ref_url = join(s3, ref_loc)
-                response = requests.get(ref_url)
+            return False
 
-                if not response.ok:
-                    info("referece image %s doesn't exist" % ref_url)
-                else:
-                    ref_png_file = abspath(join(dirname(__file__), "refs", ref_loc))
-                    diff_png_file = splitext(png_file)[0] + "-diff.png"
-
-                    ref_png_path = dirname(ref_png_file)
-                    if not exists(ref_png_path):
-                        os.makedirs(ref_png_path)
-
-                    with open(ref_png_file, "wb") as f:
-                        f.write(response.content)
-
-                    cmd = ["perceptualdiff", "-output", diff_png_file, png_file, ref_png_file]
-
-                    try:
-                        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                        code = proc.wait()
-                    except OSError:
-                        write("Failed to run: %s" % " ".join(cmd))
-                        sys.exit(1)
-
-                    if code != 0:
-                        warn("generated and reference images differ")
-                        warn("generated: " + png_file)
-                        warn("reference: " + ref_png_file)
-                        warn("diff: " + diff_png_file)
-
-            ok(example)
-            return True
-
-    return False
+    return True
 
 
 def _run_example(example):

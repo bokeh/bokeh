@@ -1,16 +1,33 @@
 import json
 import os
+import pytest
 
 from os.path import split, splitext, abspath
 
 from ..utils import warn, fail
+from ..constants import __version__
 
 
 def no_ext(path):
     return splitext(abspath(path))[0]
 
 
-def deal_with_output_cells(example, output_cells):
+def get_example_pngs(example_file):
+    diff = pytest.config.option.diff
+    example_path = no_ext(example_file)
+    test_png = "%s-%s.png" % (example_path, __version__)
+    if diff:
+        ref_png = "%s-%s.png" % (example_path, diff)
+        diff_png = "%s-%s-%s-diff.png" % (example_path, __version__, diff)
+    else:
+        ref_png = None
+        diff_png = None
+    return (test_png, ref_png, diff_png)
+
+
+def deal_with_output_cells(example):
+    output_cells = pytest.config.option.output_cells
+
     def load_nb(example):
         with open(example, "r") as f:
             return json.load(f)
@@ -81,12 +98,11 @@ def human_bytes(n):
     """
     if n < 1024:
         return '%d B' % n
-    k = n/1024
+    k = n / 1024
     if k < 1024:
         return '%d KB' % round(k)
-    m = k/1024
+    m = k / 1024
     if m < 1024:
         return '%.1f MB' % m
-    g = m/1024
+    g = m / 1024
     return '%.2f GB' % g
-
