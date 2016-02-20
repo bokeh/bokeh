@@ -15,6 +15,8 @@ example_dir = abspath(join(base_dir, pardir, 'examples'))
 s3_bucket = "bokeh-travis"
 s3 = "https://s3.amazonaws.com/%s" % s3_bucket
 
+build_id = os.environ.get("TRAVIS_BUILD_ID")
+
 
 #
 # Handle types of example
