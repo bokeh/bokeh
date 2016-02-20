@@ -5,10 +5,10 @@ import pytest
 
 from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
-from os.path import split, splitext, abspath, isfile, join
+from os.path import split, splitext, abspath, isfile, join, relpath
 
-from ..utils import warn, fail, ok
-from ..constants import __version__, s3, s3_bucket, build_id
+from ..utils import warn, fail, write, green
+from ..constants import __version__, s3_bucket, example_dir
 
 from .collect_examples import get_all_examples
 
@@ -51,18 +51,21 @@ def upload_example_pngs_to_s3():
             for image in uploads:
                 path = image['path']
                 is_diff = image['diff']
-                if isfile(path):
-                    example_path = relpath(no_ext(example), example_dir)
-                    s3_path = join(__version__, example_path)
-                    if is_diff:
-                        s3_png_file = s3_path + "-diff.png"
-                    else:
-                        s3_png_file = s3_path + ".png"
+                if path:
+                    if isfile(path):
+                        example_path = relpath(no_ext(example), example_dir)
+                        s3_path = join(__version__, example_path)
+                        if is_diff:
+                            s3_png_file = s3_path + "-diff.png"
+                        else:
+                            s3_png_file = s3_path + ".png"
 
-                    write("%s Uploading image to S3 to %s | %s |  %s" % (green(">>>"), s3_bucket, __version__, s3_png_file))
-                    key = S3Key(s3_png_file, path)
-                    key.set_metadata("Content-Type", "image/png")
-                    key.set_contents_from_string(html, policy="public-read")
+                        write("%s Uploading image to S3 to %s | %s |  %s" % (green(">>>"), s3_bucket, __version__, s3_png_file))
+                        key = S3Key(bucket, s3_png_file)
+                        key.set_metadata("Content-Type", "image/png")
+                        with open(path, 'r') as f:
+                            png = f.read()
+                        key.set_contents_from_string(png, policy="public-read")
 
 
 def deal_with_output_cells(example):
