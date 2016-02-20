@@ -1,6 +1,5 @@
 from __future__ import absolute_import, print_function
 
-import boto
 import os
 import pytest
 import requests
@@ -8,18 +7,17 @@ import subprocess
 import sys
 import time
 
-from boto.s3.key import Key as S3Key
-from boto.exception import NoAuthHandlerFound
+
 from bokeh.io import output_file
-
-
-from os.path import split, join, exists, isfile
+from os.path import split, join, exists
 from requests.exceptions import ConnectionError
 
+from tests.examples.utils import upload_example_pngs_to_s3
+
 from .constants import (
-    example_dir, default_upload, s3, s3_bucket, build_id
+    example_dir, default_upload
 )
-from .utils import write  # , green, human_bytes
+from .utils import write, upload_file_to_s3
 from .webserver import SimpleWebServer
 
 pytest_plugins = "tests.examples.examples_report_plugin"
@@ -35,27 +33,15 @@ def pytest_addoption(parser):
 
 
 def pytest_sessionfinish(session, exitstatus):
-    report_file = session.config.option.htmlpath
-    if report_file:
-        try_upload = session.config.option.upload
-        report_ready = isfile(report_file)
-        if try_upload and report_ready:
-            try:
-                conn = boto.connect_s3()
-                bucket = conn.get_bucket(s3_bucket)
-                upload = True
-            except NoAuthHandlerFound:
-                print("Upload was requested but could not connect to S3.")
-                upload = False
-
-            if upload is True:
-                with open(report_file, "r") as f:
-                    html = f.read()
-                filename = join(build_id, report_file)
-                key = S3Key(bucket, filename)
-                key.set_metadata("Content-Type", "text/html")
-                key.set_contents_from_string(html, policy="public-read")
-                print("\n%s Access report at: %s" % ("---", join(s3, filename)))
+    try_upload = session.config.option.upload
+    seleniumreport = session.config.option.htmlpath
+    examplereport = session.config.option.examplereport
+    if try_upload and seleniumreport:
+        upload_file_to_s3(seleniumreport)
+    if try_upload and examplereport:
+        upload_example_pngs_to_s3()
+        upload_file_to_s3(examplereport)
+        upload_file_to_s3(session.config.option.log_file)
 
 
 @pytest.yield_fixture(scope="session")

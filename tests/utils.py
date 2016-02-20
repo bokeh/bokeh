@@ -1,6 +1,19 @@
 from __future__ import print_function
 
+import boto
 import colorama
+
+from boto.s3.key import Key as S3Key
+from boto.exception import NoAuthHandlerFound
+from os.path import join, isfile
+
+from .constants import (
+    s3, s3_bucket, build_id
+)
+
+#
+# Output to stdout
+#
 colorama.init()
 
 
@@ -43,3 +56,24 @@ def info(msg=None):
 def ok(msg=None):
     msg = " " + msg if msg is not None else ""
     write("%s%s" % (green("[OK]"), msg))
+
+
+def upload_file_to_s3(file_path):
+    file_ready = isfile(file_path)
+    if file_ready:
+        try:
+            conn = boto.connect_s3()
+            bucket = conn.get_bucket(s3_bucket)
+            upload = True
+        except NoAuthHandlerFound:
+            fail("Upload was requested but could not connect to S3.")
+            upload = False
+
+        if upload is True:
+            with open(file_path, "r") as f:
+                html = f.read()
+            filename = join(build_id, file_path)
+            key = S3Key(bucket, filename)
+            key.set_metadata("Content-Type", "text/html")
+            key.set_contents_from_string(html, policy="public-read")
+            ok("\n%s Access report at: %s" % ("---", join(s3, filename)))

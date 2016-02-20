@@ -1,11 +1,16 @@
+import boto
 import json
 import os
 import pytest
 
-from os.path import split, splitext, abspath
+from boto.s3.key import Key as S3Key
+from boto.exception import NoAuthHandlerFound
+from os.path import split, splitext, abspath, isfile, join
 
-from ..utils import warn, fail
-from ..constants import __version__
+from ..utils import warn, fail, ok
+from ..constants import __version__, s3, s3_bucket, build_id
+
+from .collect_examples import get_all_examples
 
 
 def no_ext(path):
@@ -23,6 +28,41 @@ def get_example_pngs(example_file):
         ref_png = None
         diff_png = None
     return (test_png, ref_png, diff_png)
+
+
+def upload_example_pngs_to_s3():
+    # Test connection
+    try:
+        conn = boto.connect_s3()
+        bucket = conn.get_bucket(s3_bucket)
+        upload = True
+    except NoAuthHandlerFound:
+        fail("Upload was requested but could not connect to S3.")
+        upload = False
+
+    if upload is True:
+        all_examples = get_all_examples()
+        for example, _ in all_examples:
+            test_png, _, diff_png = get_example_pngs(example)
+            uploads = [
+                {'path': test_png, 'diff': False},
+                {'path': diff_png, 'diff': True},
+            ]
+            for image in uploads:
+                path = image['path']
+                is_diff = image['diff']
+                if isfile(path):
+                    example_path = relpath(no_ext(example), example_dir)
+                    s3_path = join(__version__, example_path)
+                    if is_diff:
+                        s3_png_file = s3_path + "-diff.png"
+                    else:
+                        s3_png_file = s3_path + ".png"
+
+                    write("%s Uploading image to S3 to %s | %s |  %s" % (green(">>>"), s3_bucket, __version__, s3_png_file))
+                    key = S3Key(s3_png_file, path)
+                    key.set_metadata("Content-Type", "image/png")
+                    key.set_contents_from_string(html, policy="public-read")
 
 
 def deal_with_output_cells(example):

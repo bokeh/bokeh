@@ -1,5 +1,6 @@
 import yaml
 import os
+import pytest
 
 from os.path import join, dirname
 from ..constants import Flags, example_dir
@@ -42,7 +43,7 @@ def add_examples(list_of_examples, path, example_type=None, skip=None):
     return list_of_examples
 
 
-def get_all_examples(all_notebooks):
+def get_all_examples():
     # Make a list of all the examples
     list_of_examples = []
     with open(join(dirname(__file__), "examples.yaml"), "r") as f:
@@ -54,7 +55,7 @@ def get_all_examples(all_notebooks):
         except KeyError:
             example_type = None
 
-        if not all_notebooks:
+        if not pytest.config.option.all_notebooks:
             skip_status = example.get("skip") or example.get("skip_travis")
         else:
             skip_status = example.get("skip")
@@ -64,19 +65,19 @@ def get_all_examples(all_notebooks):
     return list_of_examples
 
 
-def get_file_examples(all_notebooks):
-    all_examples = get_all_examples(all_notebooks)
+def get_file_examples():
+    all_examples = get_all_examples()
     file_examples = [example for example, flags in all_examples if flags & Flags.file]
     return file_examples
 
 
-def get_server_examples(all_notebooks):
-    all_examples = get_all_examples(all_notebooks)
+def get_server_examples():
+    all_examples = get_all_examples()
     server_examples = [example for example, flags in all_examples if flags & Flags.server]
     return server_examples
 
 
-def get_notebook_examples(all_notebooks):
-    all_examples = get_all_examples(all_notebooks)
+def get_notebook_examples():
+    all_examples = get_all_examples()
     notebook_examples = [example for example, flags in all_examples if flags & Flags.notebook]
     return notebook_examples
