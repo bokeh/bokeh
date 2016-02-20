@@ -1,3 +1,5 @@
+import boto
+import jinja2
 import os
 import pytest
 import requests
@@ -5,12 +7,17 @@ import subprocess
 import sys
 import time
 
-from os.path import split, join, exists
+from boto.s3.key import Key as S3Key
+from os.path import split, join, exists, dirname
 from requests.exceptions import ConnectionError
 
-from ..constants import example_dir, default_timeout, default_diff, default_upload
 from .collect_examples import get_file_examples, get_server_examples, get_notebook_examples
-from ..utils import write
+from .utils import human_bytes
+
+from ..constants import (
+    example_dir, default_timeout, default_diff, default_upload, __version__, s3, s3_bucket
+)
+from ..utils import write, green
 
 
 def pytest_generate_tests(metafunc):
@@ -24,6 +31,35 @@ def pytest_generate_tests(metafunc):
     if 'notebook_example' in metafunc.fixturenames:
         examples = get_notebook_examples(all_notebooks)
         metafunc.parametrize('notebook_example', examples)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    if session.config.option.upload:
+        with open(join(dirname(__file__), "examples_report.jinja")) as f:
+            template = jinja2.Template(f.read())
+
+        conn = boto.connect_s3()
+        bucket = conn.get_bucket(s3_bucket)
+
+        entries = []
+        html = template.render(version=__version__, entries=entries)
+
+        report_size = len(html)
+        write("%s Uploading report (%s) ..." % (green(">>>"), human_bytes(report_size)))
+        report = join(__version__, "report.html")
+        key = S3Key(bucket, report)
+        key.set_metadata("Content-Type", "text/html")
+        key.set_contents_from_string(html, policy="public-read")
+        write("%s Access report at: %s" % (green("---"), join(s3, report)))
+
+        with open(session.config.option.log_file, 'r') as log_file:
+            log_size = os.stat(log_file.name).st_size
+            write("%s Uploading log (%s) ..." % (green(">>>"), human_bytes(log_size)))
+            log = join(__version__, "examples.log")
+            key = S3Key(bucket, log)
+            key.set_metadata("Content-Type", "text/plain")
+            key.set_contents_from_filename(log_file.name, policy="public-read")
+            write("%s Access log at: %s" % (green("---"), join(s3, log)))
 
 
 @pytest.fixture(scope='session')
