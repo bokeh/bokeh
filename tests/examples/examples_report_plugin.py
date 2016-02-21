@@ -94,10 +94,11 @@ class ExamplesTestReport(object):
         example = re.search(r'\[(.*?)\]', report.location[2]).group(1)
         example_path = no_ext(example)
         test_png, ref_png, diff_png = get_example_pngs(example)
-        if isfile(diff_png):
-            images_differ = True
-        else:
-            images_differ = False
+
+        images_differ = False
+        if diff_png:
+            if isfile(diff_png):
+                images_differ = True
 
         if not upload:
             self.entries.append((example_path, diff, failed, skipped, test_png, diff_png, ref_png, images_differ))
