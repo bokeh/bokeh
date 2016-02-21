@@ -39,7 +39,7 @@ def _upload_image(bucket, path, s3_png_file):
 
 
 def upload_example_pngs_to_s3():
-    diff = get_version_from_git(pytest.config.option.diff)
+    diff = get_diff_version_from_git()
     fail('the diff in upload_example_pngs_to_s3 is: %s' % diff)
 
     # Test connection
@@ -146,3 +146,8 @@ def human_bytes(n):
         return '%.1f MB' % m
     g = m / 1024
     return '%.2f GB' % g
+
+
+def get_diff_version_from_git():
+    diff = pytest.config.option.diff
+    return get_version_from_git(diff)

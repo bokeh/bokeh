@@ -10,9 +10,9 @@ from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
 from ..constants import __version__, default_diff, default_timeout, example_dir, s3
-from ..utils import upload_file_to_s3, get_version_from_git, fail
+from ..utils import upload_file_to_s3, fail
 
-from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
+from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3, get_diff_version_from_git
 
 PY3 = sys.version_info[0] == 3
 if not PY3:
@@ -49,20 +49,11 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="session", autouse=True)
-def diff(request):
-    fail('in diff fixture')
-    diff = get_version_from_git(request.config.getoption("--diff"))
-    fail('the diff in fixture is: %s' % diff)
-    return diff
-
-
 def pytest_configure(config):
     examplereport = config.option.examplereport
     # prevent opening htmlpath on slave nodes (xdist)
     if examplereport and not hasattr(config, 'slaveinput'):
-        diff = config.option.diff
-        config.examplereport = ExamplesTestReport(examplereport, diff)
+        config.examplereport = ExamplesTestReport(examplereport)
         config.pluginmanager.register(config.examplereport)
 
 
@@ -75,10 +66,10 @@ def pytest_unconfigure(config):
 
 class ExamplesTestReport(object):
 
-    def __init__(self, examplereport, diff):
+    def __init__(self, examplereport):
         examplereport = os.path.expanduser(os.path.expandvars(examplereport))
         fail('in report init')
-        self.diff = get_version_from_git(diff)
+        self.diff = get_diff_version_from_git()
         fail('the diff in __init__ is: %s' % self.diff)
         self.examplereport = os.path.abspath(examplereport)
         self.entries = []
