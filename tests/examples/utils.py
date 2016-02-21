@@ -149,5 +149,8 @@ def human_bytes(n):
 
 
 def get_diff_version_from_git():
-    diff = pytest.config.option.diff
-    return get_version_from_git(diff)
+    if hasattr(pytest, 'config'):
+        diff = pytest.config.option.diff
+        return get_version_from_git(diff)
+    else:
+        return None
