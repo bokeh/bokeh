@@ -10,13 +10,11 @@ from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
 from ..constants import __version__, default_diff, default_timeout, example_dir, s3
-from ..utils import write, green
+from ..utils import upload_file_to_s3
 
-from .utils import no_ext, human_bytes, get_example_pngs
+from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
 
 PY3 = sys.version_info[0] == 3
-
-# Python 2.X and 3.X compatibility
 if not PY3:
     from codecs import open
 
@@ -163,9 +161,9 @@ class ExamplesTestReport(object):
             f.write(html)
 
         if pytest.config.option.upload:
-            report_size = len(html)
-            write("%s Uploading report (%s) ..." % (green(">>>"), human_bytes(report_size)))
-            # Does not currently upload report
+            upload_example_pngs_to_s3()
+            upload_file_to_s3(self.examplereport)
+            upload_file_to_s3(session.config.option.log_file)
 
     def pytest_terminal_summary(self, terminalreporter):
         terminalreporter.write_sep('-', 'generated example report: {0}'.format(

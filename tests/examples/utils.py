@@ -8,7 +8,7 @@ from boto.exception import NoAuthHandlerFound
 from os.path import split, splitext, abspath, isfile, join, relpath
 
 from ..utils import warn, fail, write, green
-from ..constants import __version__, s3, s3_bucket, example_dir
+from ..constants import __version__, s3, s3_bucket, example_dir, build_id
 
 from .collect_examples import get_all_examples
 
@@ -20,10 +20,10 @@ def no_ext(path):
 def get_example_pngs(example_file):
     diff = pytest.config.option.diff
     example_path = no_ext(example_file)
-    test_png = "%s-%s.png" % (example_path, __version__)
+    test_png = "%s-%s-%s.png" % (example_path, __version__, build_id)
     if diff:
-        ref_png = "%s-%s.png" % (example_path, diff)
-        diff_png = "%s-%s-%s-diff.png" % (example_path, __version__, diff)
+        ref_png = "%s-%s-%s.png" % (example_path, diff, build_id)
+        diff_png = "%s-%s-%s-diff-%s.png" % (example_path, __version__, diff, build_id)
     else:
         ref_png = None
         diff_png = None
@@ -63,7 +63,7 @@ def upload_example_pngs_to_s3():
                         write("%s Uploading image to S3 to %s/%s" % (green(">>>"), s3, s3_png_file))
                         key = S3Key(bucket, s3_png_file)
                         key.set_metadata("Content-Type", "image/png")
-                        with open(path, 'r') as f:
+                        with open(path, 'rb') as f:
                             png = f.read()
                         key.set_contents_from_string(png, policy="public-read")
 
