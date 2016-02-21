@@ -16,6 +16,10 @@ from .utils import no_ext, human_bytes, get_example_pngs
 
 PY3 = sys.version_info[0] == 3
 
+# Python 2.X and 3.X compatibility
+if not PY3:
+    from codecs import open
+
 
 def pytest_addoption(parser):
     parser.addoption(
