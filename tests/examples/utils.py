@@ -7,7 +7,7 @@ from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
 from os.path import split, splitext, abspath, isfile, join, relpath
 
-from ..utils import warn, fail, write, green
+from ..utils import warn, fail, write, green, get_version_from_git
 from ..constants import __version__, s3, s3_bucket, example_dir, build_id
 
 from .collect_examples import get_all_examples
