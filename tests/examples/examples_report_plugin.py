@@ -10,7 +10,7 @@ from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
 from ..constants import __version__, default_diff, default_timeout, example_dir, s3
-from ..utils import upload_file_to_s3, get_version_from_git
+from ..utils import upload_file_to_s3, get_version_from_git, fail
 
 from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
 
@@ -51,7 +51,9 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="session")
 def diff(request):
-    return get_version_from_git(request.config.option.diff)
+    diff = get_version_from_git(request.config.getoption("--diff"))
+    fail('the diff in fixture is: %s' % diff)
+    return diff
 
 
 def pytest_configure(config):
@@ -75,6 +77,7 @@ class ExamplesTestReport(object):
     def __init__(self, examplereport, diff):
         examplereport = os.path.expanduser(os.path.expandvars(examplereport))
         self.diff = get_version_from_git(diff)
+        fail('the diff in __init__ is: %s' % self.diff)
         self.examplereport = os.path.abspath(examplereport)
         self.entries = []
         self.errors = self.failed = 0

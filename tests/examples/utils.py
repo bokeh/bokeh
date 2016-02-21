@@ -8,7 +8,7 @@ from boto.exception import NoAuthHandlerFound
 from os.path import split, splitext, abspath, isfile, join, relpath
 
 from ..utils import warn, fail, write, green, get_version_from_git
-from ..constants import __version__, s3, s3_bucket, example_dir, build_id
+from ..constants import __version__, s3, s3_bucket, example_dir, job_id
 
 from .collect_examples import get_all_examples
 
@@ -19,10 +19,10 @@ def no_ext(path):
 
 def get_example_pngs(example_file, diff):
     example_path = no_ext(example_file)
-    test_png = "%s-%s-%s.png" % (example_path, __version__, build_id)
+    test_png = "%s-%s-%s.png" % (example_path, __version__, job_id)
     if diff:
-        ref_png = "%s-%s-%s.png" % (example_path, diff, build_id)
-        diff_png = "%s-%s-%s-diff-%s.png" % (example_path, __version__, diff, build_id)
+        ref_png = "%s-%s-%s.png" % (example_path, diff, job_id)
+        diff_png = "%s-%s-%s-diff-%s.png" % (example_path, __version__, diff, job_id)
     else:
         ref_png = None
         diff_png = None
@@ -40,6 +40,7 @@ def _upload_image(bucket, path, s3_png_file):
 
 def upload_example_pngs_to_s3():
     diff = get_version_from_git(pytest.config.option.diff)
+    fail('the diff in upload_example_pngs_to_s3 is: %s' % diff)
 
     # Test connection
     try:
