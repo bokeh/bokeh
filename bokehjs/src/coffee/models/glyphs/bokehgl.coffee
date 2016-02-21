@@ -754,11 +754,12 @@ class LineGLGlyph extends BaseGLGlyph
       @dash_atlas = new DashAtlas(gl)
 
     draw: (indices, mainGlyph, trans) ->
-
-      if @data_changed
-        @_baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _bake() and below
-        @_set_data()
-        @data_changed = false
+      mainGlGlyph = mainGlyph.glglyph
+      
+      if mainGlGlyph.data_changed
+        mainGlGlyph._baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _bake() and below
+        mainGlGlyph._set_data()
+        mainGlGlyph.data_changed = false
       if @visuals_changed
         @_set_visuals()
         @visuals_changed = false
@@ -775,17 +776,17 @@ class LineGLGlyph extends BaseGLGlyph
 
       # Select buffers from main glyph
       # (which may be this glyph but maybe not if this is a (non)selection glyph)
-      @prog.set_attribute('a_position', 'vec2', [mainGlyph.glglyph.vbo_position, 0, 0])
-      @prog.set_attribute('a_tangents', 'vec4', [mainGlyph.glglyph.vbo_tangents, 0, 0])
-      @prog.set_attribute('a_segment', 'vec2', [mainGlyph.glglyph.vbo_segment, 0, 0])
-      @prog.set_attribute('a_angles', 'vec2', [mainGlyph.glglyph.vbo_angles, 0, 0])
-      @prog.set_attribute('a_texcoord', 'vec2', [mainGlyph.glglyph.vbo_texcoord, 0, 0])
+      @prog.set_attribute('a_position', 'vec2', [mainGlGlyph.vbo_position, 0, 0])
+      @prog.set_attribute('a_tangents', 'vec4', [mainGlGlyph.vbo_tangents, 0, 0])
+      @prog.set_attribute('a_segment', 'vec2', [mainGlGlyph.vbo_segment, 0, 0])
+      @prog.set_attribute('a_angles', 'vec2', [mainGlGlyph.vbo_angles, 0, 0])
+      @prog.set_attribute('a_texcoord', 'vec2', [mainGlGlyph.vbo_texcoord, 0, 0])
       #
-      @prog.set_uniform('u_length', 'float', [mainGlyph.glglyph.cumsum])
+      @prog.set_uniform('u_length', 'float', [mainGlGlyph.cumsum])
       @prog.set_texture('u_dash_atlas', @dash_atlas.tex)
 
       # Handle transformation to device coordinates
-      baked_offset = mainGlyph.glglyph._baked_offset
+      baked_offset = mainGlGlyph._baked_offset
       @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
       @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
@@ -816,11 +817,11 @@ class LineGLGlyph extends BaseGLGlyph
           offset = chunk * chunksize * 4
           if these_indices.length == 0
             continue
-          @prog.set_attribute('a_position', 'vec2', [mainGlyph.glglyph.vbo_position, 0, offset * 2])
-          @prog.set_attribute('a_tangents', 'vec4', [mainGlyph.glglyph.vbo_tangents, 0, offset * 4])
-          @prog.set_attribute('a_segment', 'vec2', [mainGlyph.glglyph.vbo_segment, 0, offset * 2])
-          @prog.set_attribute('a_angles', 'vec2', [mainGlyph.glglyph.vbo_angles, 0, offset * 2])
-          @prog.set_attribute('a_texcoord', 'vec2', [mainGlyph.glglyph.vbo_texcoord, 0, offset * 2])
+          @prog.set_attribute('a_position', 'vec2', [mainGlGlyph.vbo_position, 0, offset * 2])
+          @prog.set_attribute('a_tangents', 'vec4', [mainGlGlyph.vbo_tangents, 0, offset * 4])
+          @prog.set_attribute('a_segment', 'vec2', [mainGlGlyph.vbo_segment, 0, offset * 2])
+          @prog.set_attribute('a_angles', 'vec2', [mainGlGlyph.vbo_angles, 0, offset * 2])
+          @prog.set_attribute('a_texcoord', 'vec2', [mainGlGlyph.vbo_texcoord, 0, offset * 2])
           # The actual drawing
           @index_buffer.set_size(these_indices.length*2)
           @index_buffer.set_data(0, these_indices)
@@ -1134,13 +1135,14 @@ class MarkerGLGlyph extends BaseGLGlyph
   draw: (indices, mainGlyph, trans) ->
 
     # The main glyph has the data, *this* glyph has the visuals.
-    nvertices = mainGlyph.glglyph.nvertices
+    mainGlGlyph = mainGlyph.glglyph
+    nvertices = mainGlGlyph.nvertices
    
     # Upload data if we must. Only happens for main glyph.
-    if @data_changed
-      @_baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _set_data() and below
-      @_set_data(nvertices)
-      @data_changed = false
+    if mainGlGlyph.data_changed
+      mainGlGlyph._baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _set_data() and below
+      mainGlGlyph._set_data(nvertices)
+      mainGlGlyph.data_changed = false
     else if @glyph.radius? and (trans.sx != @last_trans.sx or trans.sy != @last_trans.sy)
       # Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
       @last_trans = trans
@@ -1153,17 +1155,17 @@ class MarkerGLGlyph extends BaseGLGlyph
 
     # Handle transformation to device coordinates
     # Note the baked-in offset to avoid float32 precision problems
-    baked_offset = mainGlyph.glglyph._baked_offset
+    baked_offset = mainGlGlyph._baked_offset
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
     @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
     @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
     
     # Select buffers from main glyph
     # (which may be this glyph but maybe not if this is a (non)selection glyph)
-    @prog.set_attribute('a_x', 'float', [mainGlyph.glglyph.vbo_x, 0, 0])
-    @prog.set_attribute('a_y', 'float', [mainGlyph.glglyph.vbo_y, 0, 0])
-    @prog.set_attribute('a_size', 'float', [mainGlyph.glglyph.vbo_s, 0, 0])
-    @prog.set_attribute('a_angle', 'float', [mainGlyph.glglyph.vbo_a, 0, 0])
+    @prog.set_attribute('a_x', 'float', [mainGlGlyph.vbo_x, 0, 0])
+    @prog.set_attribute('a_y', 'float', [mainGlGlyph.vbo_y, 0, 0])
+    @prog.set_attribute('a_size', 'float', [mainGlGlyph.vbo_s, 0, 0])
+    @prog.set_attribute('a_angle', 'float', [mainGlGlyph.vbo_a, 0, 0])
 
     # Draw directly or using indices. Do not handle indices if they do not
     # fit in a uint16; WebGL 1.0 does not support uint32.
@@ -1192,10 +1194,10 @@ class MarkerGLGlyph extends BaseGLGlyph
         offset = chunk * chunksize * 4
         if these_indices.length == 0
           continue
-        @prog.set_attribute('a_x', 'float', [mainGlyph.glglyph.vbo_x, 0, offset])
-        @prog.set_attribute('a_y', 'float', [mainGlyph.glglyph.vbo_y, 0, offset])
-        @prog.set_attribute('a_size', 'float', [mainGlyph.glglyph.vbo_s, 0, offset])
-        @prog.set_attribute('a_angle', 'float', [mainGlyph.glglyph.vbo_a, 0, offset])
+        @prog.set_attribute('a_x', 'float', [mainGlGlyph.vbo_x, 0, offset])
+        @prog.set_attribute('a_y', 'float', [mainGlGlyph.vbo_y, 0, offset])
+        @prog.set_attribute('a_size', 'float', [mainGlGlyph.vbo_s, 0, offset])
+        @prog.set_attribute('a_angle', 'float', [mainGlGlyph.vbo_a, 0, offset])
         if @vbo_linewidth.used
           @prog.set_attribute('a_linewidth', 'float', [@vbo_linewidth, 0, offset])
         if @vbo_fg_color.used
