@@ -99,6 +99,7 @@ def get_version_from_git(ref=None):
         sys.exit(1)
 
     version = proc.stdout.read().decode('utf-8').strip()
+    fail("The version returned from cmd is: %s" % version)
 
     try:
         tag, _, sha1 = version.split("-")
