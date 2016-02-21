@@ -76,6 +76,7 @@ def _get_reference_image_from_s3(example, diff):
 
 
 def _get_pdiff(example, diff):
+    fail('in _get_pdiff the diff is: %s for the example %s' % (diff, example))
     test_png, ref_png, diff_png = get_example_pngs(example, diff)
     retrieved_reference_image = _get_reference_image_from_s3(example, diff)
     if retrieved_reference_image:

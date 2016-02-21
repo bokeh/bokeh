@@ -49,6 +49,14 @@ def pytest_addoption(parser):
     )
 
 
+@pytest.fixture
+def diff(request):
+    fail('In the fixture')
+    rawdiff = request.config.option.diff
+    fail('rawdiff is %s' % rawdiff)
+    return get_version_from_git(rawdiff)
+
+
 def pytest_configure(config):
     examplereport = config.option.examplereport
     # prevent opening htmlpath on slave nodes (xdist)
