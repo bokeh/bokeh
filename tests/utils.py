@@ -82,6 +82,7 @@ def upload_file_to_s3(file_path, content_type="text/html"):
 
 
 def get_version_from_git(ref=None):
+    fail("In get_version_from_git ref=%s" % ref)
     cmd = ["git", "describe", "--tags", "--always"]
 
     if ref is not None:
@@ -99,7 +100,7 @@ def get_version_from_git(ref=None):
         sys.exit(1)
 
     version = proc.stdout.read().decode('utf-8').strip()
-    fail("The version returned from cmd is: %s" % version)
+    fail("In get_version_from_git, the version returned from cmd is: %s" % version)
 
     try:
         tag, _, sha1 = version.split("-")
