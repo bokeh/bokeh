@@ -55,6 +55,7 @@ def ok(msg=None):
 
 
 def upload_file_to_s3(file_path):
+    # Uploads into a build_id folder
     from .constants import s3, s3_bucket, build_id
     file_ready = isfile(file_path)
     if file_ready:
@@ -73,6 +74,8 @@ def upload_file_to_s3(file_path):
             key = S3Key(bucket, filename)
             key.set_metadata("Content-Type", "text/html")
             key.set_contents_from_string(html, policy="public-read")
-            ok("\n%s Access report at: %s" % ("---", join(s3, filename)))
+            info(s3)
+            info(filename)
+            ok("Access report at: %s" % (join(s3, filename)))
     else:
         fail("%s was not ready" % file_path)
