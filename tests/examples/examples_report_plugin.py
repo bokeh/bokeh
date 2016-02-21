@@ -10,7 +10,7 @@ from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
 from ..constants import __version__, default_diff, default_timeout, example_dir, s3
-from ..utils import upload_file_to_s3
+from ..utils import upload_file_to_s3, red, write
 
 from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
 
@@ -162,6 +162,7 @@ class ExamplesTestReport(object):
 
         if pytest.config.option.upload:
             upload_example_pngs_to_s3()
+            write(red('uploading %s' % self.examplereport))
             upload_file_to_s3(self.examplereport)
             upload_file_to_s3(session.config.option.log_file)
 

@@ -74,3 +74,5 @@ def upload_file_to_s3(file_path):
             key.set_metadata("Content-Type", "text/html")
             key.set_contents_from_string(html, policy="public-read")
             ok("\n%s Access report at: %s" % ("---", join(s3, filename)))
+    else:
+        fail("%s was not ready" % file_path)
