@@ -40,7 +40,6 @@ def _upload_image(bucket, path, s3_png_file):
 
 def upload_example_pngs_to_s3(diffoption):
     diff = get_version_from_git(diffoption)
-    fail('the diff in upload_example_pngs_to_s3 is: %s' % diff)
 
     # Test connection
     try:
