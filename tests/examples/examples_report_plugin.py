@@ -49,8 +49,9 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def diff(request):
+    fail('in diff fixture')
     diff = get_version_from_git(request.config.getoption("--diff"))
     fail('the diff in fixture is: %s' % diff)
     return diff
@@ -76,6 +77,7 @@ class ExamplesTestReport(object):
 
     def __init__(self, examplereport, diff):
         examplereport = os.path.expanduser(os.path.expandvars(examplereport))
+        fail('in report init')
         self.diff = get_version_from_git(diff)
         fail('the diff in __init__ is: %s' % self.diff)
         self.examplereport = os.path.abspath(examplereport)
