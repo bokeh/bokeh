@@ -5,7 +5,6 @@
   type: file
 - path: "howto/charts"
   type: notebook
-  skip: ["deep_dive-composite_glyphs.ipynb"]
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py", "choropleth.py", "iris_blend.py",
