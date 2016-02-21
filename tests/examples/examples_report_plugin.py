@@ -10,7 +10,7 @@ from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
 from ..constants import __version__, default_diff, default_timeout, example_dir, s3
-from ..utils import upload_file_to_s3
+from ..utils import upload_file_to_s3, get_version_from_git
 
 from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
 
@@ -47,6 +47,11 @@ def pytest_addoption(parser):
     parser.addoption(
         "--diff", type=str, default=default_diff, help="compare generated images against this ref"
     )
+
+
+@pytest.fixture(scope="session")
+def diff(request):
+    return get_version_from_git(request.config.option.diff)
 
 
 def pytest_configure(config):

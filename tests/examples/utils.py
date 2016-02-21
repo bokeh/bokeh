@@ -17,8 +17,7 @@ def no_ext(path):
     return splitext(abspath(path))[0]
 
 
-def get_example_pngs(example_file):
-    diff = pytest.config.option.diff
+def get_example_pngs(example_file, diff):
     example_path = no_ext(example_file)
     test_png = "%s-%s-%s.png" % (example_path, __version__, build_id)
     if diff:
@@ -40,6 +39,8 @@ def _upload_image(bucket, path, s3_png_file):
 
 
 def upload_example_pngs_to_s3():
+    diff = get_version_from_git(pytest.config.option.diff)
+
     # Test connection
     try:
         conn = boto.connect_s3()
@@ -54,7 +55,7 @@ def upload_example_pngs_to_s3():
         for example, _ in all_examples:
             example_path = relpath(no_ext(example), example_dir)
             s3_path = join(__version__, example_path)
-            test_png, _, diff_png = get_example_pngs(example)
+            test_png, _, diff_png = get_example_pngs(example, diff)
             if test_png:
                 if isfile(test_png):
                     _upload_image(bucket, test_png, s3_path + ".png")

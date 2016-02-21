@@ -31,12 +31,11 @@ from ..constants import base_dir, example_dir, s3
 
 
 @pytest.mark.examples_new
-def test_server_examples(server_example, bokeh_server):
+def test_server_examples(server_example, bokeh_server, diff):
     # Note this is currently broken - server uses random sessions but we're
     # calling for "default" here - this has been broken for a while.
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(server_example)))
-    diff = pytest.config.option.diff
     assert _run_example(server_example) == 0, 'Example did not run'
     assert _get_snapshot(server_example, url, 'server'), 'Snapshot from phantomjs failed'
     if diff:
@@ -44,8 +43,7 @@ def test_server_examples(server_example, bokeh_server):
 
 
 @pytest.mark.examples_new
-def test_notebook_examples(notebook_example, jupyter_notebook):
-    diff = pytest.config.option.diff
+def test_notebook_examples(notebook_example, jupyter_notebook, diff):
     notebook_port = pytest.config.option.notebook_port
     url_path = join(*get_path_parts(abspath(notebook_example)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
@@ -56,8 +54,7 @@ def test_notebook_examples(notebook_example, jupyter_notebook):
 
 
 @pytest.mark.examples_new
-def test_file_examples(file_example):
-    diff = pytest.config.option.diff
+def test_file_examples(file_example, diff):
     html_file = "%s.html" % no_ext(file_example)
     url = 'file://' + html_file
     assert _run_example(file_example) == 0, 'Example did not run'
