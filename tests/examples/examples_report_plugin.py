@@ -58,7 +58,8 @@ def pytest_configure(config):
     examplereport = config.option.examplereport
     # prevent opening htmlpath on slave nodes (xdist)
     if examplereport and not hasattr(config, 'slaveinput'):
-        config.examplereport = ExamplesTestReport(examplereport)
+        diff = config.option.diff
+        config.examplereport = ExamplesTestReport(examplereport, diff)
         config.pluginmanager.register(config.examplereport)
 
 
@@ -71,11 +72,9 @@ def pytest_unconfigure(config):
 
 class ExamplesTestReport(object):
 
-    def __init__(self, examplereport):
+    def __init__(self, examplereport, diff):
         examplereport = os.path.expanduser(os.path.expandvars(examplereport))
-        self.diff = pytest.config.option.diff
-        if self.diff:
-            self.diff = get_version_from_git(self.diff)
+        self.diff = get_version_from_git(diff)
         self.examplereport = os.path.abspath(examplereport)
         self.entries = []
         self.errors = self.failed = 0
