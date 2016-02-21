@@ -106,8 +106,12 @@ class ExamplesTestReport(object):
             # We have to update the paths so that the html refers to the uploaded ones
             example_path = relpath(no_ext(example), example_dir)
             test_url = join(s3, __version__, example_path) + '.png'
-            diff_url = join(s3, __version__, example_path) + '-diff.png'
-            ref_url = join(s3, diff, example_path) + '.png'
+            if diff:
+                diff_url = join(s3, __version__, example_path) + '-diff.png'
+                ref_url = join(s3, diff, example_path) + '.png'
+            else:
+                diff_url = None
+                ref_url = None
             self.entries.append((example_path, diff, failed, skipped, test_url, diff_url, ref_url, images_differ))
 
     def append_pass(self, report):

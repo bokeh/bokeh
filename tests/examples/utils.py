@@ -8,7 +8,7 @@ from boto.exception import NoAuthHandlerFound
 from os.path import split, splitext, abspath, isfile, join, relpath
 
 from ..utils import warn, fail, write, green
-from ..constants import __version__, s3_bucket, example_dir
+from ..constants import __version__, s3, s3_bucket, example_dir
 
 from .collect_examples import get_all_examples
 
@@ -60,7 +60,7 @@ def upload_example_pngs_to_s3():
                         else:
                             s3_png_file = s3_path + ".png"
 
-                        write("%s Uploading image to S3 to %s | %s |  %s" % (green(">>>"), s3_bucket, __version__, s3_png_file))
+                        write("%s Uploading image to S3 to %s/%s" % (green(">>>"), s3, s3_png_file))
                         key = S3Key(bucket, s3_png_file)
                         key.set_metadata("Content-Type", "image/png")
                         with open(path, 'r') as f:
