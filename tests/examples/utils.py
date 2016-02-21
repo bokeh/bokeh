@@ -30,6 +30,15 @@ def get_example_pngs(example_file):
     return (test_png, ref_png, diff_png)
 
 
+def _upload_image(bucket, path, s3_png_file):
+    with open(path, 'rb') as f:
+        png = f.read()
+    write("%s Uploading image to S3 to %s/%s" % (green(">>>"), s3, s3_png_file))
+    key = S3Key(bucket, s3_png_file)
+    key.set_metadata("Content-Type", "image/png")
+    key.set_contents_from_string(png, policy="public-read")
+
+
 def upload_example_pngs_to_s3():
     # Test connection
     try:
@@ -38,34 +47,23 @@ def upload_example_pngs_to_s3():
         upload = True
     except NoAuthHandlerFound:
         fail("Upload was requested but could not connect to S3.")
-        upload = False
+        upload = True
 
     if upload is True:
         all_examples = get_all_examples()
-        for example, _ in all_examples:
-            test_png, _, diff_png = get_example_pngs(example)
-            uploads = [
-                {'path': test_png, 'diff': False},
-                {'path': diff_png, 'diff': True},
-            ]
-            for image in uploads:
-                path = image['path']
-                is_diff = image['diff']
-                if path:
-                    if isfile(path):
-                        example_path = relpath(no_ext(example), example_dir)
-                        s3_path = join(__version__, example_path)
-                        if is_diff:
-                            s3_png_file = s3_path + "-diff.png"
-                        else:
-                            s3_png_file = s3_path + ".png"
 
-                        write("%s Uploading image to S3 to %s/%s" % (green(">>>"), s3, s3_png_file))
-                        key = S3Key(bucket, s3_png_file)
-                        key.set_metadata("Content-Type", "image/png")
-                        with open(path, 'rb') as f:
-                            png = f.read()
-                        key.set_contents_from_string(png, policy="public-read")
+        for example, _ in all_examples:
+            example_path = relpath(no_ext(example), example_dir)
+            s3_path = join(__version__, example_path)
+
+            test_png, _, diff_png = get_example_pngs(example)
+
+            if test_png:
+                if isfile(test_png):
+                    _upload_image(bucket, test_png, s3_path + ".png")
+            if diff_png:
+                if isfile(diff_png):
+                    _upload_image(bucket, diff_png, s3_path + "-diff.png")
 
 
 def deal_with_output_cells(example):
