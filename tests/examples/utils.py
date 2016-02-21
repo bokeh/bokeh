@@ -38,8 +38,8 @@ def _upload_image(bucket, path, s3_png_file):
     key.set_contents_from_string(png, policy="public-read")
 
 
-def upload_example_pngs_to_s3():
-    diff = get_diff_version_from_git()
+def upload_example_pngs_to_s3(diffoption):
+    diff = get_version_from_git(diffoption)
     fail('the diff in upload_example_pngs_to_s3 is: %s' % diff)
 
     # Test connection
@@ -67,6 +67,7 @@ def upload_example_pngs_to_s3():
 
 def deal_with_output_cells(example):
     output_cells = pytest.config.option.output_cells
+    assert output_cells is not None
 
     def load_nb(example):
         with open(example, "r") as f:
@@ -146,11 +147,3 @@ def human_bytes(n):
         return '%.1f MB' % m
     g = m / 1024
     return '%.2f GB' % g
-
-
-def get_diff_version_from_git():
-    if hasattr(pytest, 'config'):
-        diff = pytest.config.option.diff
-        return get_version_from_git(diff)
-    else:
-        return None

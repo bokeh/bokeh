@@ -10,9 +10,9 @@ from os.path import join, dirname, isfile, relpath
 from py.xml import html
 
 from ..constants import __version__, default_diff, default_timeout, example_dir, s3
-from ..utils import upload_file_to_s3, fail
+from ..utils import upload_file_to_s3, fail, get_version_from_git
 
-from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3, get_diff_version_from_git
+from .utils import no_ext, get_example_pngs, upload_example_pngs_to_s3
 
 PY3 = sys.version_info[0] == 3
 if not PY3:
@@ -53,7 +53,8 @@ def pytest_configure(config):
     examplereport = config.option.examplereport
     # prevent opening htmlpath on slave nodes (xdist)
     if examplereport and not hasattr(config, 'slaveinput'):
-        config.examplereport = ExamplesTestReport(examplereport)
+        diff = config.option.diff
+        config.examplereport = ExamplesTestReport(examplereport, diff)
         config.pluginmanager.register(config.examplereport)
 
 
@@ -66,10 +67,10 @@ def pytest_unconfigure(config):
 
 class ExamplesTestReport(object):
 
-    def __init__(self, examplereport):
+    def __init__(self, examplereport, diff):
         examplereport = os.path.expanduser(os.path.expandvars(examplereport))
         fail('in report init')
-        self.diff = get_diff_version_from_git()
+        self.diff = get_version_from_git(diff)
         fail('the diff in __init__ is: %s' % self.diff)
         self.examplereport = os.path.abspath(examplereport)
         self.entries = []
@@ -163,7 +164,7 @@ class ExamplesTestReport(object):
             f.write(html)
 
         if pytest.config.option.upload:
-            upload_example_pngs_to_s3()
+            upload_example_pngs_to_s3(session.config.option.diff)
             upload_file_to_s3(session.config.option.examplereport, "text/html")
             upload_file_to_s3(session.config.option.log_file, "text/text")
 
