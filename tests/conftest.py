@@ -36,12 +36,13 @@ def pytest_sessionfinish(session, exitstatus):
     try_upload = session.config.option.upload
     seleniumreport = session.config.option.htmlpath
     examplereport = session.config.option.examplereport
-    if try_upload and seleniumreport:
-        upload_file_to_s3(seleniumreport)
-    if try_upload and examplereport:
-        upload_example_pngs_to_s3()
-        upload_file_to_s3(examplereport)
-        upload_file_to_s3(session.config.option.log_file)
+    if not hasattr(session.config, 'slaveinput'):
+        if try_upload and seleniumreport:
+            upload_file_to_s3(seleniumreport)
+        if try_upload and examplereport:
+            upload_example_pngs_to_s3()
+            upload_file_to_s3(examplereport)
+            upload_file_to_s3(session.config.option.log_file)
 
 
 @pytest.yield_fixture(scope="session")
