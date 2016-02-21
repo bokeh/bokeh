@@ -162,8 +162,7 @@ class ExamplesTestReport(object):
 
         if pytest.config.option.upload:
             upload_example_pngs_to_s3()
-            write(red('uploading %s' % self.examplereport))
-            upload_file_to_s3(self.examplereport)
+            upload_file_to_s3(session.config.option.examplereport, "text/html")
             upload_file_to_s3(session.config.option.log_file, "text/text")
 
     def pytest_terminal_summary(self, terminalreporter):
