@@ -73,6 +73,9 @@ class ExamplesTestReport(object):
 
     def __init__(self, examplereport):
         examplereport = os.path.expanduser(os.path.expandvars(examplereport))
+        self.diff = pytest.config.option.diff
+        if self.diff:
+            self.diff = get_version_from_git(self.diff)
         self.examplereport = os.path.abspath(examplereport)
         self.entries = []
         self.errors = self.failed = 0
@@ -80,7 +83,6 @@ class ExamplesTestReport(object):
         self.xfailed = self.xpassed = 0
 
     def _appendrow(self, result, report):
-        diff = pytest.config.option.diff
         upload = pytest.config.option.upload
 
         skipped = False
@@ -96,7 +98,7 @@ class ExamplesTestReport(object):
         # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/anscombe.py]')
         example = re.search(r'\[(.*?)\]', report.location[2]).group(1)
         example_path = no_ext(example)
-        test_png, ref_png, diff_png = get_example_pngs(example)
+        test_png, ref_png, diff_png = get_example_pngs(example, self.diff)
 
         images_differ = False
         if diff_png:
@@ -104,18 +106,18 @@ class ExamplesTestReport(object):
                 images_differ = True
 
         if not upload:
-            self.entries.append((example_path, diff, failed, skipped, test_png, diff_png, ref_png, images_differ))
+            self.entries.append((example_path, self.diff, failed, skipped, test_png, diff_png, ref_png, images_differ))
         else:
             # We have to update the paths so that the html refers to the uploaded ones
             example_path = relpath(no_ext(example), example_dir)
             test_url = join(s3, __version__, example_path) + '.png'
-            if diff:
+            if self.diff:
                 diff_url = join(s3, __version__, example_path) + '-diff.png'
-                ref_url = join(s3, diff, example_path) + '.png'
+                ref_url = join(s3, self.diff, example_path) + '.png'
             else:
                 diff_url = None
                 ref_url = None
-            self.entries.append((example_path, diff, failed, skipped, test_url, diff_url, ref_url, images_differ))
+            self.entries.append((example_path, self.diff, failed, skipped, test_url, diff_url, ref_url, images_differ))
 
     def append_pass(self, report):
         self.passed += 1

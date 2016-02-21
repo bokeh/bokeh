@@ -37,7 +37,7 @@ def test_server_examples(server_example, bokeh_server, diff):
     # https://github.com/bokeh/bokeh/issues/3897
     url = '%s/?bokeh-session-id=%s' % (bokeh_server, basename(no_ext(server_example)))
     assert _run_example(server_example) == 0, 'Example did not run'
-    assert _get_snapshot(server_example, url, 'server'), 'Snapshot from phantomjs failed'
+    assert _get_snapshot(server_example, url, 'server', diff), 'Snapshot from phantomjs failed'
     if diff:
         _get_pdiff(server_example, diff)
 
@@ -48,7 +48,7 @@ def test_notebook_examples(notebook_example, jupyter_notebook, diff):
     url_path = join(*get_path_parts(abspath(notebook_example)))
     url = 'http://localhost:%d/notebooks/%s' % (notebook_port, url_path)
     assert deal_with_output_cells(notebook_example), 'Notebook failed'
-    assert _get_snapshot(notebook_example, url, 'notebook'), 'Snapshot from phantomjs failed'
+    assert _get_snapshot(notebook_example, url, 'notebook', diff), 'Snapshot from phantomjs failed'
     if diff:
         _get_pdiff(notebook_example, diff)
 
@@ -58,7 +58,7 @@ def test_file_examples(file_example, diff):
     html_file = "%s.html" % no_ext(file_example)
     url = 'file://' + html_file
     assert _run_example(file_example) == 0, 'Example did not run'
-    assert _get_snapshot(file_example, url, 'file'), 'Snapshot from phantomjs failed'
+    assert _get_snapshot(file_example, url, 'file', diff), 'Snapshot from phantomjs failed'
     if diff:
         _get_pdiff(file_example, diff)
 
@@ -76,7 +76,7 @@ def _get_reference_image_from_s3(example, diff):
 
 
 def _get_pdiff(example, diff):
-    test_png, ref_png, diff_png = get_example_pngs(example)
+    test_png, ref_png, diff_png = get_example_pngs(example, diff)
     retrieved_reference_image = _get_reference_image_from_s3(example, diff)
     if retrieved_reference_image:
         ref_png_path = dirname(ref_png)
@@ -104,8 +104,8 @@ def _get_pdiff(example, diff):
             ok("generated and reference images match")
 
 
-def _get_result_from_phantomjs(example, url, example_type):
-    test_png, _, _ = get_example_pngs(example)
+def _get_result_from_phantomjs(example, url, example_type, diff):
+    test_png, _, _ = get_example_pngs(example, diff)
     timeout = pytest.config.option.timeout
     phantomjs = pytest.config.option.phantomjs
 
@@ -136,11 +136,11 @@ def _print_phantomjs_errors(messages):
             write("%s:%s: %s" % (source, line, msg))
 
 
-def _get_snapshot(example, url, example_type):
+def _get_snapshot(example, url, example_type, diff):
     # Get setup datapoints
     verbose = pytest.config.option.verbose
 
-    result = _get_result_from_phantomjs(example, url, example_type)
+    result = _get_result_from_phantomjs(example, url, example_type, diff)
     status = result['status']
     errors = result['errors']
     messages = result['messages']
