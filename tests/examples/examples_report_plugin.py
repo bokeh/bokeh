@@ -159,7 +159,8 @@ class ExamplesTestReport(object):
         with open(join(dirname(__file__), "examples_report.jinja")) as f:
             template = jinja2.Template(f.read())
 
-        html = template.render(version=__version__, entries=self.entries)
+        diff_version = get_version_from_git(session.config.option.diff)
+        html = template.render(version=__version__, diff=diff_version, entries=self.entries)
 
         if not os.path.exists(os.path.dirname(self.examplereport)):
             os.makedirs(os.path.dirname(self.examplereport))
@@ -168,7 +169,7 @@ class ExamplesTestReport(object):
             f.write(html)
 
         if pytest.config.option.upload:
-            upload_example_pngs_to_s3(session.config.option.diff)
+            upload_example_pngs_to_s3(diff_version)
             upload_file_to_s3(session.config.option.examplereport, "text/html")
             upload_file_to_s3(session.config.option.log_file, "text/text")
 

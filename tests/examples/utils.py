@@ -7,7 +7,7 @@ from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
 from os.path import split, splitext, abspath, isfile, join, relpath
 
-from ..utils import warn, fail, write, green, get_version_from_git
+from ..utils import warn, fail, write, green
 from ..constants import __version__, s3, s3_bucket, example_dir, job_id
 
 from .collect_examples import get_all_examples
@@ -38,9 +38,7 @@ def _upload_image(bucket, path, s3_png_file):
     key.set_contents_from_string(png, policy="public-read")
 
 
-def upload_example_pngs_to_s3(diffoption):
-    diff = get_version_from_git(diffoption)
-
+def upload_example_pngs_to_s3(diff):
     # Test connection
     try:
         conn = boto.connect_s3()
@@ -50,6 +48,7 @@ def upload_example_pngs_to_s3(diffoption):
         fail("Upload was requested but could not connect to S3.")
         upload = True
 
+    # Upload
     if upload is True:
         all_examples = get_all_examples()
         for example, _ in all_examples:
