@@ -785,8 +785,9 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_texture('u_dash_atlas', @dash_atlas.tex)
 
       # Handle transformation to device coordinates
+      baked_offset = mainGlyph.glglyph._baked_offset
       @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-      @prog.set_uniform('u_offset', 'vec2', [trans.dx - @_baked_offset[0], trans.dy - @_baked_offset[1]])
+      @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
       @prog.set_uniform('u_scale_length', 'float', [scale_length])
 
@@ -1134,7 +1135,7 @@ class MarkerGLGlyph extends BaseGLGlyph
 
     # The main glyph has the data, *this* glyph has the visuals.
     nvertices = mainGlyph.glglyph.nvertices
-
+   
     # Upload data if we must. Only happens for main glyph.
     if @data_changed
       @_baked_offset = [trans.dx, trans.dy]  # float32 precision workaround; used in _set_data() and below
@@ -1152,8 +1153,9 @@ class MarkerGLGlyph extends BaseGLGlyph
 
     # Handle transformation to device coordinates
     # Note the baked-in offset to avoid float32 precision problems
+    baked_offset = mainGlyph.glglyph._baked_offset
     @prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    @prog.set_uniform('u_offset', 'vec2', [trans.dx - @_baked_offset[0], trans.dy - @_baked_offset[1]])
+    @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
     @prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
     
     # Select buffers from main glyph
