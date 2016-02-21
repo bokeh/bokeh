@@ -30,7 +30,7 @@ from ..utils import (
 from ..constants import base_dir, example_dir, s3
 
 
-@pytest.mark.examples_new
+@pytest.mark.examples
 def test_server_examples(server_example, bokeh_server, diff):
     # Note this is currently broken - server uses random sessions but we're
     # calling for "default" here - this has been broken for a while.
@@ -42,7 +42,7 @@ def test_server_examples(server_example, bokeh_server, diff):
         _get_pdiff(server_example, diff)
 
 
-@pytest.mark.examples_new
+@pytest.mark.examples
 def test_notebook_examples(notebook_example, jupyter_notebook, diff):
     notebook_port = pytest.config.option.notebook_port
     url_path = join(*get_path_parts(abspath(notebook_example)))
@@ -53,7 +53,7 @@ def test_notebook_examples(notebook_example, jupyter_notebook, diff):
         _get_pdiff(notebook_example, diff)
 
 
-@pytest.mark.examples_new
+@pytest.mark.examples
 def test_file_examples(file_example, diff):
     html_file = "%s.html" % no_ext(file_example)
     url = 'file://' + html_file

@@ -20,7 +20,6 @@ env:
       - GROUP=unit
       - GROUP=integration
       - GROUP=examples
-      - GROUP=examples_new
       - GROUP=flake_docs
 
 matrix:
@@ -37,12 +36,9 @@ matrix:
         - python: 3.5
           env: GROUP=flake_docs
         #
-        # TEMPORARILY DISABLE EXAMPLES for py 3.5
-        - python: 3.5
-          env: GROUP=examples
         # TEMPORARILY DISABLE EXAMPLES_NEW for py 3.5
         - python: 3.5
-          env: GROUP=examples_new
+          env: GROUP=examples
 
 branches:
   only:
@@ -69,7 +65,7 @@ script:
     #
     # Run (JS and Python) unit tests on all python versions
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -s -m js -rs; fi  # Run just the JS first so we see the output
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or examples_new or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == unit ]]; then py.test -m 'not (examples or js or integration)' --cov=bokeh --cov-config=bokeh/.coveragerc -rs; fi  # Run the not examples or js tests (we can eat stdout for this one)
     #
     # Run integration tests only once (Py 3.4)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == integration ]]; then travis_start_sauce_connect; fi
@@ -79,12 +75,9 @@ script:
     # Flake/docs testing only once (Py 2.7)
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( flake8 bokeh; cd sphinx; make all ) ; fi
     #
-    # Run examples
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add env variable for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples -rs; fi; fi # Run the examples
     # Run examples_new
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; pip install pytest-rerunfailures; fi # Add variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples_new -n3 -v --upload --examplereport=examples.html --rerun 5; fi; fi # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; pip install pytest-rerunfailures; fi # Add variables for pdiff machinery
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples -n3 -v --upload --examplereport=examples.html --rerun 5; fi; fi # Run the examples
     #
     - echo "poor man logger"
     - echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST
