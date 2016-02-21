@@ -34,7 +34,7 @@ def update(i):
     # alternate between original/updated
     source.geojson = [original, updated][i]
 
-curdoc().add_periodic_callback(update, 100)
+curdoc().add_periodic_callback(update, 500)
 
 session.show() # open the document in a browser
 
