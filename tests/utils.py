@@ -54,7 +54,7 @@ def ok(msg=None):
     write("%s%s" % (green("[OK]"), msg))
 
 
-def upload_file_to_s3(file_path):
+def upload_file_to_s3(file_path, content_type="text/html"):
     # Uploads into a build_id folder
     from .constants import s3, s3_bucket, build_id
     file_ready = isfile(file_path)
@@ -72,8 +72,10 @@ def upload_file_to_s3(file_path):
                 html = f.read()
             filename = join(build_id, file_path)
             key = S3Key(bucket, filename)
-            key.set_metadata("Content-Type", "text/html")
+            key.set_metadata("Content-Type", content_type)
             key.set_contents_from_string(html, policy="public-read")
+            info("spitting out html")
+            write(html)
             info(s3)
             info(filename)
             ok("Access report at: %s" % (join(s3, filename)))

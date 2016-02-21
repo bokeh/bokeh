@@ -164,7 +164,7 @@ class ExamplesTestReport(object):
             upload_example_pngs_to_s3()
             write(red('uploading %s' % self.examplereport))
             upload_file_to_s3(self.examplereport)
-            upload_file_to_s3(session.config.option.log_file)
+            upload_file_to_s3(session.config.option.log_file, "text/text")
 
     def pytest_terminal_summary(self, terminalreporter):
         terminalreporter.write_sep('-', 'generated example report: {0}'.format(
