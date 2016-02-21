@@ -11,6 +11,8 @@ env:
     global:
         - MINICONDA_VERSION="latest"
         - BOKEH_DEFAULT_TIMEOUT=30
+        - BOKEH_DEFAULT_DIFF=FETCH_HEAD
+        - IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1
         - secure: "nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI="
         - secure: "oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY="
         - secure: "AMKPTVrc2g8j5T40hQhdEGoiod+KCkbiseVSQRDPeeX1TvQoVjbrZenrWHyHEHKc1x3LavDuCBJ3sW9cLy+QF9sdudK/cc9+aG2Hax5dyapI0iaHlzvqYDO3aguQsZcu+pVEIVatoOSv25/282aPNtNXn403jmJvd0Qt8ch1jOw="
@@ -83,8 +85,7 @@ script:
     # - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add env variable for pdiff machinery
     # - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples -rs; fi; fi # Run the examples
     # Run examples_new
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add environment variables for pdiff machinery
-    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples_new -n4 -v --upload --examplereport=examples.html --diff=0.11.1-4f8b2c3; fi; fi # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples_new -n4 -v --upload --examplereport=examples.html; fi; fi # Run the examples
     #
     - echo "poor man logger"
     - echo $BOKEH_DEFAULT_DIFF; echo $TRAVIS_COMMIT_MSG; echo $TRAVIS_PULL_REQUEST
