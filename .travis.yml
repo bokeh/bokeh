@@ -19,7 +19,7 @@ env:
     matrix:
       - GROUP=unit
       - GROUP=integration
-      #- GROUP=examples
+      - GROUP=examples
       - GROUP=examples_new
       - GROUP=flake_docs
 
@@ -38,8 +38,8 @@ matrix:
           env: GROUP=flake_docs
         #
         # TEMPORARILY DISABLE EXAMPLES for py 3.5
-        #- python: 3.5
-        #  env: GROUP=examples
+        - python: 3.5
+          env: GROUP=examples
         # TEMPORARILY DISABLE EXAMPLES_NEW for py 3.5
         - python: 3.5
           env: GROUP=examples_new
@@ -80,8 +80,8 @@ script:
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == flake_docs ]]; then ( flake8 bokeh; cd sphinx; make all ) ; fi
     #
     # Run examples
-    # - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add env variable for pdiff machinery
-    # - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples -rs; fi; fi # Run the examples
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples && $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; fi # Add env variable for pdiff machinery
+    - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples -rs; fi; fi # Run the examples
     # Run examples_new
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new ]]; then export BOKEH_DEFAULT_DIFF=FETCH_HEAD; export IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS=1; pip install pytest-rerunfailures; fi # Add variables for pdiff machinery
     - if [[ -z "$TRAVIS_TAG" && "$GROUP" == examples_new ]]; then if [[ $TRAVIS_COMMIT_MSG == *"[ci disable examples]"* ]]; then echo "Examples run disabled by commit"; else py.test -s -m examples_new -n4 -v --upload --examplereport=examples.html --rerun 5; fi; fi # Run the examples
