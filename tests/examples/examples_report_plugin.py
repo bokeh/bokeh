@@ -112,7 +112,7 @@ class ExamplesTestReport(object):
             example_path = relpath(no_ext(example), example_dir)
             test_url = join(s3, __version__, example_path) + '.png'
             if self.diff:
-                diff_url = join(s3, __version__, example_path) + '-diff.png'
+                diff_url = join(s3, __version__, example_path) + self.diff + '-diff.png'
                 ref_url = join(s3, self.diff, example_path) + '.png'
             else:
                 diff_url = None

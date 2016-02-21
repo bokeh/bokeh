@@ -61,7 +61,7 @@ def upload_example_pngs_to_s3(diffoption):
                     _upload_image(bucket, test_png, s3_path + ".png")
             if diff_png:
                 if isfile(diff_png):
-                    _upload_image(bucket, diff_png, s3_path + "-diff.png")
+                    _upload_image(bucket, diff_png, s3_path + diff + "-diff.png")
 
 
 def deal_with_output_cells(example):
