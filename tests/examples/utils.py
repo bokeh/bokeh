@@ -7,7 +7,7 @@ from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
 from os.path import split, splitext, abspath, isfile, join, relpath
 
-from ..utils import warn, fail, write, green, ok, red
+from ..utils import warn, fail, write, green
 from ..constants import __version__, s3, s3_bucket, example_dir, build_id
 
 from .collect_examples import get_all_examples
@@ -51,23 +51,15 @@ def upload_example_pngs_to_s3():
 
     if upload is True:
         all_examples = get_all_examples()
-
         for example, _ in all_examples:
             example_path = relpath(no_ext(example), example_dir)
             s3_path = join(__version__, example_path)
-
             test_png, _, diff_png = get_example_pngs(example)
-
-            warn(example)
             if test_png:
-                write(red("test_png is not none %s" % test_png))
                 if isfile(test_png):
-                    ok("test_png is file")
                     _upload_image(bucket, test_png, s3_path + ".png")
             if diff_png:
-                write(red("diff_png is not none %s" % diff_png))
                 if isfile(diff_png):
-                    ok("diff_png is file")
                     _upload_image(bucket, diff_png, s3_path + "-diff.png")
 
 

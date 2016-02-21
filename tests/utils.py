@@ -74,10 +74,6 @@ def upload_file_to_s3(file_path, content_type="text/html"):
             key = S3Key(bucket, filename)
             key.set_metadata("Content-Type", content_type)
             key.set_contents_from_string(html, policy="public-read")
-            info("spitting out html")
-            write(html)
-            info(s3)
-            info(filename)
             ok("Access report at: %s" % (join(s3, filename)))
     else:
-        fail("%s was not ready" % file_path)
+        fail("%s is not a file" % file_path)
