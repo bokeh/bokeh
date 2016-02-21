@@ -67,17 +67,17 @@ def get_all_examples():
 
 def get_file_examples():
     all_examples = get_all_examples()
-    file_examples = [example for example, flags in all_examples if flags & Flags.file]
+    file_examples = [example for example, flags in all_examples if (flags & Flags.file) and not (flags & Flags.skip)]
     return file_examples
 
 
 def get_server_examples():
     all_examples = get_all_examples()
-    server_examples = [example for example, flags in all_examples if flags & Flags.server]
+    server_examples = [example for example, flags in all_examples if (flags & Flags.server) and not (flags & Flags.skip)]
     return server_examples
 
 
 def get_notebook_examples():
     all_examples = get_all_examples()
-    notebook_examples = [example for example, flags in all_examples if flags & Flags.notebook]
+    notebook_examples = [example for example, flags in all_examples if (flags & Flags.notebook) and not (flags & Flags.skip)]
     return notebook_examples
