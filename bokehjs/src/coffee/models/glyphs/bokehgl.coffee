@@ -48,7 +48,6 @@ attach_float = (prog, vbo, att_name, n, visual, name) ->
       vbo.set_size(n*4)
       vbo.set_data(0, a)
       prog.set_attribute(att_name, 'float', [vbo, 0, 0])
-    return a
 
 attach_color = (prog, vbo, att_name, n, visual, prefix) ->
     # Attach the color attribute to the program. If there's just one color,
@@ -67,8 +66,11 @@ attach_color = (prog, vbo, att_name, n, visual, prefix) ->
       # Get array of colors
       if visual[colorname].spec.value?
         colors = (visual[colorname].spec.value for i in [0...n])
-      else
+      else if visual.cache[colorname+'_array']?
         colors = visual.cache[colorname+'_array']
+      else  # color is None / null
+        prog.set_attribute(att_name, 'vec4', null, [0,0,0,0])
+        return
       # Get array of alphas
       if visual[alphaname].spec.value?
         alphas = fill_array_with_float(n, visual[alphaname].spec.value)
@@ -84,7 +86,6 @@ attach_color = (prog, vbo, att_name, n, visual, prefix) ->
       vbo.set_size(n*m*4)
       vbo.set_data(0, a)
       prog.set_attribute(att_name, 'vec4', [vbo, 0, 0])
-    return a
 
 
 class DashAtlas
