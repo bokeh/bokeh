@@ -452,12 +452,16 @@ class LineGLGlyph extends BaseGLGlyph
       varying float v_linewidth;
 
       // Compute distance to cap ----------------------------------------------------
-      float cap( int type, float dx, float dy, float t )
+      float cap( int type, float dx, float dy, float t, float miter_limit, float linewidth )
       {
+          // Apply miter limit
+          if (dy < miter_limit*linewidth/2.0) {
+              type = 0;
+          }
+          
           float d = 0.0;
           dx = abs(dx);
           dy = abs(dy);
-
           if      (type == 0)  discard;  // None
           else if (type == 1)  d = sqrt(dx*dx+dy*dy);  // Round
           else if (type == 3)  d = (dx+abs(dy));  // Triangle in
@@ -472,6 +476,14 @@ class LineGLGlyph extends BaseGLGlyph
             in float miter_limit, in float linewidth )
       {
           float dx = texcoord.x;
+          
+          // Apply miter limit; when the ratio of the distance to the join to the line width
+          // exceeds the miter limit, the join becomes a bevel. This is to prevent lines
+          // from becoming so pointy that they far exceed their centerline.
+          if ((type == 0) && (d < miter_limit*linewidth/2.0)) {
+              type = 2;
+          }
+          
           // Round join
           if( type == 1 ) {
               if (dx < segment.x) {
@@ -485,7 +497,7 @@ class LineGLGlyph extends BaseGLGlyph
           // Bevel join
           else if ( type == 2 ) {
               if (dx < segment.x) {
-                  vec2 x= texcoord - vec2(segment.x,0.0);
+                  vec2 x = texcoord - vec2(segment.x,0.0);
                   d = max(d, max(abs(x.x), abs(x.y)));
 
               } else if (dx > segment.y) {
@@ -497,10 +509,7 @@ class LineGLGlyph extends BaseGLGlyph
                   d = max(d, min(abs(x.x),abs(x.y)));
               */
           }
-          // Miter limit
-          if( (dx < segment.x) ||  (dx > segment.y) ) {
-              d = max(d, min(abs(miter.x),abs(miter.y)) - miter_limit*linewidth/2.0 );
-          }
+          
           return d;
       }
 
@@ -533,10 +542,10 @@ class LineGLGlyph extends BaseGLGlyph
           if( solid ) {
               d = abs(dy);
               if( (!closed) && (dx < line_start) ) {
-                  d = cap( int(u_linecaps.x), abs(dx), abs(dy), t );
+                  d = cap( int(u_linecaps.x), abs(dx), abs(dy), t, u_miter_limit, v_linewidth );
               }
               else if( (!closed) &&  (dx > line_stop) ) {
-                  d = cap( int(u_linecaps.y), abs(dx)-line_stop, abs(dy), t );
+                  d = cap( int(u_linecaps.y), abs(dx)-line_stop, abs(dy), t, u_miter_limit, v_linewidth );
               }
               else {
                   d = join( int(u_linejoin), abs(dy), v_segment, v_texcoord, v_miter, u_miter_limit, v_linewidth );
@@ -668,21 +677,21 @@ class LineGLGlyph extends BaseGLGlyph
 
               // Line cap at start
               if( (dx < line_start) && (dash_start < line_start) && (dash_stop > line_start) ) {
-                  d = cap( int(linecaps.x), dx-line_start, dy, t);
+                  d = cap( int(linecaps.x), dx-line_start, dy, t, u_miter_limit, v_linewidth);
               }
               // Line cap at stop
               else if( (dx > line_stop) && (dash_stop > line_stop) && (dash_start < line_stop) ) {
-                  d = cap( int(linecaps.y), dx-line_stop, dy, t);
+                  d = cap( int(linecaps.y), dx-line_stop, dy, t, u_miter_limit, v_linewidth);
               }
               // Dash cap left - dash_type = -1, 0 or 1, but there may be roundoff errors
               else if( dash_type < -0.5 ) {
-                  d = cap( int(dash_caps.y), abs(u-dash_center), dy, t);
+                  d = cap( int(dash_caps.y), abs(u-dash_center), dy, t, u_miter_limit, v_linewidth);
                   if( (dx > line_start) && (dx < line_stop) )
                       d = max(d,d_join);
               }
               // Dash cap right
               else if( dash_type > 0.5 ) {
-                  d = cap( int(dash_caps.x), abs(dash_center-u), dy, t);
+                  d = cap( int(dash_caps.x), abs(dash_center-u), dy, t, u_miter_limit, v_linewidth);
                   if( (dx > line_start) && (dx < line_stop) )
                       d = max(d,d_join);
               }
@@ -728,10 +737,9 @@ class LineGLGlyph extends BaseGLGlyph
           d = d - t;
           if( d < 0.0 ) {
               gl_FragColor = color;
-          }
-          else {
+          } else {
               d /= u_antialias;
-              gl_FragColor = vec4(color.xyz, exp(-d*d)*color.a);
+              gl_FragColor = vec4(color.rgb, exp(-d*d)*color.a);
           }
       }
     """
@@ -791,7 +799,7 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
       @prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
       @prog.set_uniform('u_scale_length', 'float', [scale_length])
-
+      
       if @I_triangles.length < 65535
         # Data is small enough to draw in one pass
         @index_buffer.set_size(@I_triangles.length*2)
@@ -855,6 +863,7 @@ class LineGLGlyph extends BaseGLGlyph
       @prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
       @prog.set_uniform('u_linejoin', 'float', [join])
       @prog.set_uniform('u_miter_limit', 'float', [10.0])  # Should be a good value
+      # https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
       dash_pattern = @glyph.visuals.line.line_dash.value()
       dash_index = 0; dash_period = 1
